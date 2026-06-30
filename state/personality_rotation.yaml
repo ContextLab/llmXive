@@ -1,12 +1,7 @@
-last_used: dan-rockmore
-last_used_at: '2026-06-30T03:17:26.035615+00:00'
-last_outcome: triage_rejected_advanced_as_abstain
+last_used: daniel-kahneman
+last_used_at: '2026-06-30T05:31:53.606107+00:00'
+last_outcome: committed
 history:
-- slug: david-krakauer
-  started_at: '2026-06-20T17:58:52.917120+00:00'
-  ended_at: '2026-06-20T19:32:33.693993+00:00'
-  outcome: abstained
-  action: abstain
 - slug: eric-kandel
   started_at: '2026-06-20T19:32:33.693993+00:00'
   ended_at: '2026-06-20T20:29:15.876506+00:00'
@@ -1200,3 +1195,10 @@ history:
   ended_at: '2026-06-30T03:17:26.035615+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
+- slug: daniel-kahneman
+  started_at: '2026-06-30T03:17:26.035615+00:00'
+  ended_at: '2026-06-30T05:31:53.606107+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-592-phenomenological-ai-first-person-experie/reviews/research/daniel-kahneman-simulated__2026-06-30__research.md
