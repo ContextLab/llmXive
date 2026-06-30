@@ -1,3 +1,17 @@
+? "T003 [P] Verify text dataset availability (DROP/MUST) via HuggingFace datasets\
+  \ [UNRESOLVED-CLAIM: c_bb2f55be \u2014 status=not_enough_info]; create `src/research/verify_text.py`\
+  \ script;document in research.md section \"Dataset Verification\" with fields: dataset_name,\
+  \ url, variables (list), size_mb, verification_status (FR-001, Phase 0.1)"
+: 1
+? "T004 Validate statistical methodology ({{claim:c_5cb9c0de}} (1311.5354, https://arxiv.org/abs/1311.5354\
+  \ [UNRESOLVED-CLAIM: c_ebd33d2a \u2014 status=verified]), {{claim:c_55db4237}}));\
+  \ document in research.md section \"Methodology\" with formula, {{claim:c_101df1fb}},\
+  \ and effect size calculation (FR-007, FR-014, Phase 0.3)"
+: 1
+? T004 Validate statistical methodology ({{claim:c_5cb9c0de}} (1311.5354, https://arxiv.org/abs/1311.5354),
+  {{claim:c_55db4237}})); document in research.md section "Methodology" with formula,
+  {{claim:c_101df1fb}}, and effect size calculation (FR-007, FR-014, Phase 0.3)
+: 1
 ? "T006 Validate model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled\
   \ LLM via HuggingFace model cards [UNRESOLVED-CLAIM: c_02f32ae0 \u2014 status=not_enough_info];\
   \ create `src/research/verify_models.py` script; document in research.md section\
@@ -45,10 +59,21 @@
   \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
   \ (boolean) (FR-002, SC-002, Phase 0.5)"
 : 1
+? "T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM\
+  \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_ceaa02a9 \u2014 status=not_enough_info];\
+  \ create `src/research/verify_models.py` script; document in research.md section\
+  \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
+  \ (boolean) (FR-002, SC-002, Phase 0.5)"
+: 1
 ? 'T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM
   via HuggingFace model cards; create `src/research/verify_models.py` script; document
   in research.md section "Model Verification" with fields: model_name, hf_id, size_mb,
   cpu_tractable (boolean) (FR-002, SC-002, Phase 0.5)'
+: 1
+? "T006a Implement Reference-Validator Agent in `src/validators/reference_validator.py`\
+  \ with title-token-overlap \u2265 0.7 [UNRESOLVED-CLAIM: c_0d8fe0be \u2014 status=not_enough_info]\
+  \ check before contributing review points; add blocking gate for Constitution II\
+  \ compliance (Constitution II, Plan Gap)"
 : 1
 ? "T006a Implement Reference-Validator Agent in `src/validators/reference_validator.py`\
   \ with title-token-overlap \u2265 0.7 [UNRESOLVED-CLAIM: c_d4b5150d \u2014 status=not_enough_info]\
@@ -71,8 +96,14 @@
   \ II compliance (Constitution II, Plan Gap)"
 : 1
 "T008 Initialize Python 3.11 [UNRESOLVED-CLAIM: c_31b68441 \u2014 status=not_enough_info] project with {{claim:c_9da78e09}}": 1
+"T008 Initialize Python 3.11 [UNRESOLVED-CLAIM: c_f21aed3b \u2014 status=not_enough_info] project with {{claim:c_9da78e09}}": 1
 "T008 Initialize Python 3.11 project [UNRESOLVED-CLAIM: c_5b5fd135 \u2014 status=not_enough_info] with {{claim:c_9da78e09}}": 1
 "T008 Initialize Python 3.11 project [UNRESOLVED-CLAIM: c_b468013a \u2014 status=not_enough_info] with {{claim:c_9da78e09}}": 1
+? "T009 [P] Configure linting and formatting tools: ruff.toml (line-length=88 [UNRESOLVED-CLAIM:\
+  \ c_a777480c \u2014 status=not_enough_info], target-version=py311 [UNRESOLVED-CLAIM:\
+  \ c_eea1058d \u2014 status=not_enough_info]) and pyproject.toml (black config) in\
+  \ repository root"
+: 1
 ? "T009 [P] Configure linting and formatting tools: ruff.toml (line-length=88 [UNRESOLVED-CLAIM:\
   \ c_bd9bece5 \u2014 status=not_enough_info], target-version=py311 [UNRESOLVED-CLAIM:\
   \ c_5f64b587 \u2014 status=not_enough_info]) and pyproject.toml (black config) in\
@@ -122,6 +153,11 @@
   DROP/MUST via HuggingFace datasets; depends on T007/T008 complete'
 : 1
 ? "T024 [US1] Implement timeout enforcement in src/utils/timeout.py (FR-006, FR-013);\
+  \ function signatures: enforce_timeout(func, timeout_seconds=300 [UNRESOLVED-CLAIM:\
+  \ c_1d4cac1d \u2014 status=not_enough_info]) -> result; raise TimeoutError if exceeded;\
+  \ depends on T016 complete"
+: 1
+? "T024 [US1] Implement timeout enforcement in src/utils/timeout.py (FR-006, FR-013);\
   \ function signatures: enforce_timeout(func, timeout_seconds=300) [UNRESOLVED-CLAIM:\
   \ c_e77c9091 \u2014 status=not_enough_info] -> result; raise TimeoutError if exceeded;\
   \ depends on T016 complete"
@@ -166,6 +202,11 @@
   (d) Wilcoxon effect size as PRIMARY outcome with 95% CI; function signatures: generate_csv_report(results,
   output_path), generate_pdf_report(results, output_path)'
 : 1
+? "T029 [US1] Create run_benchmark.py main entry point in src/benchmark/run_benchmark.py\
+  \ (FR-001, FR-006, FR-010); CLI arguments: --config (default default.yaml), --mode\
+  \ (heterogeneous|unified), --seeds (5) [UNRESOLVED-CLAIM: c_1deb9e69 \u2014 status=not_enough_info];\
+  \ depends on T024, T025 logging complete"
+: 1
 ? 'T030 [US1] Create default.yaml config in src/benchmark/config/default.yaml with
   required keys: datasets (list), modalities (list), seeds (5), timeout_per_task (300),
   {{claim:c_340e25bd}} (Wikipedia: Bootstrapping (statistics), https://en.wikipedia.org/wiki/Bootstrapping_(statistics))'
@@ -174,6 +215,11 @@
   (FR-002); use CPU-tractable TimeSeries-Transformer (< 1 GB); class TimeSeriesModel
   with methods: load_model(model_id), predict(input_data), get_embedding(input_data);
   handle CPU-only inference'
+: 1
+? "T036 [P] [US2] Implement modality-specific model wrapper for tabular in src/models/tabular_model.py\
+  \ (FR-002); use TabPFN (< 1 GB) [UNRESOLVED-CLAIM: c_d69ec858 \u2014 status=not_enough_info];\
+  \ class TabularModel with methods: load_model(model_id), predict(input_data), get_embedding(input_data);\
+  \ handle CPU-only inference"
 : 1
 ? 'T037 [P] [US2] Implement modality-specific model wrapper for text in src/models/text_model.py
   (FR-002); use distilled LLM (< 1 GB); class TextModel with methods: load_model(model_id),
