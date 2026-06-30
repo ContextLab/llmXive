@@ -1,0 +1,99 @@
+# Figure Data Schema
+
+This schema defines the structure of the JSON files used to generate the paper's figures.
+
+```yaml
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "FigureDataSchema"
+description: "Schema for data binding between evaluation results and paper figures."
+
+definitions:
+  ScalingReport:
+    type: object
+    properties:
+      context_lengths:
+        type: array
+        items:
+          type: integer
+          description: "Context length in tokens (e.g., 32000, 128000)."
+      mean_scores:
+        type: array
+        items:
+          type: number
+          description: "Average score for the context length."
+      std_scores:
+        type: array
+        items:
+          type: number
+          description: "Standard deviation of scores."
+      slope_coefficient:
+        type: number
+        description: "Slope of the regression line (score vs log(context_length))."
+      r_squared:
+        type: number
+        description: "R-squared value of the regression."
+      trend_classification:
+        type: string
+        enum: ["linear", "sublinear", "superlinear", "inconclusive", "highly variable"]
+        description: "Classification of the scaling trend."
+    required:
+      - context_lengths
+      - mean_scores
+      - slope_coefficient
+      - r_squared
+      - trend_classification
+
+  ValidationReport:
+    type: object
+    properties:
+      baseline_context:
+        type: integer
+        description: "Baseline context length (e.g., 128000)."
+      baseline_score:
+        type: number
+        description: "Score at baseline context."
+      retention_rates:
+        type: object
+        properties:
+          "256k":
+            type: number
+            description: "Retention rate at 256K."
+          "512k":
+            type: number
+            description: "Retention rate at 512K."
+        required:
+          - "256k"
+          - "512k"
+      threshold_met:
+        type: boolean
+        description: "True if retention rate >= 80%."
+    required:
+      - baseline_context
+      - baseline_score
+      - retention_rates
+      - threshold_met
+
+  SampleResults:
+    type: array
+    items:
+      type: object
+      properties:
+        context_length:
+          type: integer
+        task_type:
+          type: string
+        model_baseline_score:
+          type: number
+        model_target_score:
+          type: number
+      required:
+        - context_length
+        - task_type
+        - model_baseline_score
+        - model_target_score
+
+allOf:
+  - $ref: "#/definitions/ScalingReport"
+  - $ref: "#/definitions/ValidationReport"
+  - $ref: "#/definitions/SampleResults"
+```

@@ -1,0 +1,49 @@
+# Bibliography Schema
+
+This schema defines the structure of the bibliography entries and their verification status.
+
+```yaml
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "BibliographySchema"
+description: "Schema for bibliography entries and verification status."
+
+type: object
+properties:
+  entries:
+    type: array
+    items:
+      type: object
+      properties:
+        key:
+          type: string
+          description: "Unique citation key (e.g., 'original_paper', 'mmlongbench')."
+        type:
+          type: string
+          enum: ["article", "inproceedings", "misc", "dataset"]
+        title:
+          type: string
+        author:
+          type: string
+        year:
+          type: integer
+        url:
+          type: string
+          description: "URL of the paper or dataset."
+        verification_status:
+          type: string
+          enum: ["verified", "unreachable", "mismatch"]
+          description: "Status from the Reference-Validator Agent."
+        notes:
+          type: string
+          description: "Optional notes about the citation."
+      required:
+        - key
+        - title
+        - year
+        - url
+        - verification_status
+    required:
+      - entries
+
+additionalProperties: false
+```
