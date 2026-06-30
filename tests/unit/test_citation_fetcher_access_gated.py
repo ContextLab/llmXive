@@ -120,6 +120,49 @@ def test_clean_url_strips_trailing_junk():
     assert cf._clean_url("  https://ex.com/p  ") == "https://ex.com/p"
 
 
+def _publisher_html(article_title: str) -> str:
+    """A publisher article page whose <title> is the GENERIC journal/issue but whose
+    BODY carries the real article title (the msp.org / ScienceDirect pattern)."""
+    return (
+        "<html><head><title>Algebraic &amp; Geometric Topology Volume 6, "
+        "issue 5 (2006)</title></head><body><h1>" + article_title + "</h1>"
+        "<p>Keiko Kawamuro</p></body></html>"
+    )
+
+
+def test_publisher_generic_title_but_article_title_in_body_is_verified(monkeypatch):
+    """A real article whose page serves a GENERIC journal <title> but carries the
+    cited article title in the BODY must VERIFY, not false-MISMATCH on <title> only."""
+    title = "The algebraic crossing number and the braid index of knots and links"
+    _patch(monkeypatch, _Resp(200, url="https://msp.org/agt/2006/6-5/p11.xhtml",
+                              text=_publisher_html(title)))
+    out = cf._fetch_url("https://msp.org/agt/2006/6-5/p11.xhtml",
+                        cited_title="The algebraic crossing number and the braid index",
+                        timeout=5.0)
+    assert out.status == VerificationStatus.VERIFIED
+
+
+def test_fabricated_title_absent_from_body_still_mismatches(monkeypatch):
+    """SAME resolved publisher page, but a FABRICATED cited title that does NOT
+    appear in the body stays MISMATCH — the body check strengthens, never weakens,
+    the anti-fabrication gate."""
+    _patch(monkeypatch, _Resp(200, url="https://msp.org/agt/2006/6-5/p11.xhtml",
+                              text=_publisher_html("The algebraic crossing number and the braid index")))
+    out = cf._fetch_url("https://msp.org/agt/2006/6-5/p11.xhtml",
+                        cited_title="Invented Title About Quantum Teleportation Neural Networks",
+                        timeout=5.0)
+    assert out.status == VerificationStatus.MISMATCH
+
+
+def test_title_in_body_requires_a_specific_phrase():
+    """A too-short cited title (<4 tokens) is not body-matched (avoids coincidence);
+    a full title present verbatim matches."""
+    body = "<p>the algebraic crossing number and the braid index of knots</p>"
+    assert cf._title_in_body("the algebraic crossing number and the braid index", body) is True
+    assert cf._title_in_body("crossing number", body) is False  # 2 tokens: too short
+    assert cf._title_in_body("totally different made up title", body) is False
+
+
 def test_arxiv_doi_routes_to_arxiv_not_crossref(monkeypatch):
     """An arXiv DOI (DataCite, not in CrossRef) must route to the arXiv API instead
     of 404-ing on CrossRef."""

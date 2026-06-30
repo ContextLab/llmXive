@@ -121,6 +121,32 @@ def _is_block_title(s: str) -> bool:
     return any(m in s for m in _BLOCK_TITLE_MARKERS)
 
 
+def _norm_phrase(s: str) -> str:
+    """Lowercase + reduce to a space-joined ``[a-z0-9]`` token stream (order kept),
+    so a title compares cleanly across markup/punctuation/whitespace differences."""
+    return " ".join(re.findall(r"[a-z0-9]+", (s or "").lower()))
+
+
+def _title_in_body(cited_title: str, html_text: str) -> bool:
+    """True iff the cited article title appears VERBATIM (as a contiguous token
+    phrase) in the fetched page body.
+
+    Publisher article pages (msp.org, ScienceDirect, Springer, …) routinely serve a
+    GENERIC ``<title>`` — the journal/issue, e.g. "Algebraic & Geometric Topology
+    Volume 6, issue 5" — while the real article title sits in the page body / table
+    of contents. The ``<title>``-only overlap check then FALSE-flags a real article
+    as a MISMATCH. Confirming the cited title is physically present on the resolved
+    page upgrades MISMATCH -> VERIFIED. This STRENGTHENS the anti-fabrication gate
+    (it demands the exact title actually appear) rather than weakening it: a
+    fabricated title is absent from the real page and stays MISMATCH. Require >=4
+    tokens so a short title can't match coincidentally."""
+    ct = _norm_phrase(cited_title)
+    if len(ct.split()) < 4:
+        return False
+    body = _norm_phrase(re.sub(r"<[^>]+>", " ", html_text or ""))
+    return ct in body
+
+
 def _classify_match(cited_title: str, fetched_title: str) -> VerificationStatus:
     """Decide verified / mismatch / pending by title-token-overlap.
 
@@ -218,6 +244,13 @@ def _fetch_url(value: str, *, cited_title: str, timeout: float) -> FetchResult:
     # _classify_match handles the no-real-title case (empty, or a URL/DOI stored in
     # cited_title): reachability + a non-empty fetched title -> verified.
     status = _classify_match(cited_title, fetched_title)
+    if status == VerificationStatus.MISMATCH and _title_in_body(cited_title, text):
+        # The <title> was generic (e.g. a publisher journal/issue title) but the
+        # cited article title is physically present in the resolved page body -> a
+        # REAL article on the right page, not a fabricated reference.
+        status = VerificationStatus.VERIFIED
+        if not fetched_title or _is_block_title(fetched_title):
+            fetched_title = cited_title
     return FetchResult(
         status=status,
         fetched_url=str(resp.url),
