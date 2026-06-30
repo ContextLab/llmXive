@@ -1,0 +1,14 @@
+{
+  "project_id": "PROJ-606-https-arxiv-org-abs-2605-18747",
+  "ok": false,
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/validate_harness.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026paper text) rather than synthetic data. ABSTRACT_TEXT = \"\"\" Rec\u2026\u201d",
+  "artifacts": [
+    "data/layer_coverage.csv",
+    "data/layer_coverage.json",
+    "figures/layer_distribution.png"
+  ],
+  "failures": [],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "updated_at": "2026-06-30T20:19:34Z"
+}
