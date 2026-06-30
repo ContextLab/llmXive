@@ -1,0 +1,664 @@
+resolved_at: '2026-06-30T14:23:50.842008+00:00'
+datasets:
+- intent: NCBI
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/pie/ncbi_disease/resolve/main/dummy/ncbi_disease/1.0.0/dummy_data.zip
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 577
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/pie/ncbi_disease/resolve/main/dummy/ncbi_disease/1.0.0/dummy_data.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://frontiersin.figshare.com/articles/dataset/DataSheet1_Spatio-temporal_variation_of_water_requirement_and_meteorological_impact_factors_of_maize_Shaanxi_China_docx/32836493
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_An_Ultracompact_RGB_de_multiplexer_based_on_a_Silicon_Nitride_dual-segmented_MMI_-_7935025_pdf/32604489
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/Avtopoyezdlarda_tirkama_shaklining_aerodinamik_xususiyatlarga_ta_siri/32836334
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Position-tracked_handheld_optical_coherence_tomography_guided_by_projected_wide-field_autofluorescence_imaging_for_breast_tumor_margin_assessment_-_7943650_pdf/32648028
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Global_Imprint_of_Gadolinium-Based_Contrast_Agents_Used_in_Magnetic_Resonance_Imaging_in_Drinking_Water/32836391
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14845662
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1407162
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1158314
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3236561
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3236563
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20388647
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20388647
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21071791
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21071791
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/168877
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SRA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/sradc/chunked-wikipedia20220301en-bookcorpusopen/resolve/main/data/train-00000-of-00053-fce5f0af789cac4c.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/sradc/chunked-shuffled-wikipedia20220301en-bookcorpusopen/resolve/main/data/train-00000-of-00053-550defad11191c81.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/sradc/imagenet_resized_64x64/resolve/main/data/train-00000-of-00075-1a46269ad1efc5f4.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/sradc/chunked-wikipedia20220301en-bookcorpusopen/resolve/main/data/train-00000-of-00053-fce5f0af789cac4c.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sradc/chunked-shuffled-wikipedia20220301en-bookcorpusopen/resolve/main/data/train-00000-of-00053-550defad11191c81.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sradc/imagenet_resized_64x64/resolve/main/data/train-00000-of-00075-1a46269ad1efc5f4.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Srajanseth84/mydatasetlayoutlmv3/resolve/main/Training_layoutLMV3.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://frontiersin.figshare.com/articles/dataset/DataSheet1_Spatio-temporal_variation_of_water_requirement_and_meteorological_impact_factors_of_maize_Shaanxi_China_docx/32836493
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_An_Ultracompact_RGB_de_multiplexer_based_on_a_Silicon_Nitride_dual-segmented_MMI_-_7935025_pdf/32604489
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/Avtopoyezdlarda_tirkama_shaklining_aerodinamik_xususiyatlarga_ta_siri/32836334
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Position-tracked_handheld_optical_coherence_tomography_guided_by_projected_wide-field_autofluorescence_imaging_for_breast_tumor_margin_assessment_-_7943650_pdf/32648028
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Global_Imprint_of_Gadolinium-Based_Contrast_Agents_Used_in_Magnetic_Resonance_Imaging_in_Drinking_Water/32836391
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13890889
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13147461
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17281851
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13147493
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3919017
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21030795
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21030795
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.0zpc8677w
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.29600
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Processed_sequencing_data_for_KRAS_deep_mutational_scanning_variantCounts_and_aaCounts_/31520290/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GBIF
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/boettiger-lab/gbif/resolve/main/gbif_ca_h3.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/jkbkaiser/gbif_genus_species_100k/resolve/main/data/test-00000-of-00003.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/jkbkaiser/gbif_coleoptera_eu_full/resolve/main/data/data-00000-of-00061.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/boettiger-lab/gbif/resolve/main/gbif_ca_h3.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/jkbkaiser/gbif_genus_species_100k/resolve/main/data/test-00000-of-00003.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/jkbkaiser/gbif_coleoptera_eu_full/resolve/main/data/data-00000-of-00061.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/jkbkaiser/gbif_coleoptera_hierarchical_full/resolve/main/data/test-00000-of-00009.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://gsapubs.figshare.com/articles/journal_contribution/Supplemental_Material_Apatite_as_a_tracer_for_magmatic-hydrothermal_transition_and_Li_mineralization_in_the_world-class_Bailongshan_Li_pegmatite_deposit_Northwest_China/32836421
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/DataSheet1_Spatio-temporal_variation_of_water_requirement_and_meteorological_impact_factors_of_maize_Shaanxi_China_docx/32836493
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_An_Ultracompact_RGB_de_multiplexer_based_on_a_Silicon_Nitride_dual-segmented_MMI_-_7935025_pdf/32604489
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/Avtopoyezdlarda_tirkama_shaklining_aerodinamik_xususiyatlarga_ta_siri/32836334
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Position-tracked_handheld_optical_coherence_tomography_guided_by_projected_wide-field_autofluorescence_imaging_for_breast_tumor_margin_assessment_-_7943650_pdf/32648028
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3603288
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/579988
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3988271
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/344329
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3662250
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.gbif.org/occurrence/download/0006667-260623161305970
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.gbif.org/occurrence/download/0006665-260623161305970
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.gbif.org/dataset/f49dd893-1e91-4ce6-9aa7-e1047ffee557
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.gbif.org/occurrence/download/0006624-260623161305970
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.gbif.org/occurrence/download/0006622-260623161305970
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+- intent: FR-001
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://gsapubs.figshare.com/articles/journal_contribution/Supplemental_Material_Apatite_as_a_tracer_for_magmatic-hydrothermal_transition_and_Li_mineralization_in_the_world-class_Bailongshan_Li_pegmatite_deposit_Northwest_China/32836421
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/DataSheet1_Spatio-temporal_variation_of_water_requirement_and_meteorological_impact_factors_of_maize_Shaanxi_China_docx/32836493
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_An_Ultracompact_RGB_de_multiplexer_based_on_a_Silicon_Nitride_dual-segmented_MMI_-_7935025_pdf/32604489
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/Avtopoyezdlarda_tirkama_shaklining_aerodinamik_xususiyatlarga_ta_siri/32836334
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Position-tracked_handheld_optical_coherence_tomography_guided_by_projected_wide-field_autofluorescence_imaging_for_breast_tumor_margin_assessment_-_7943650_pdf/32648028
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17936025
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19059431
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10337909
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604131
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10173526
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15485834
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16828200
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20358997
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20358997
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MUST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 190547
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://researchdata.up.ac.za/articles/dataset/Arm-Level_Composite_Exposure_Dataset_derived_from_Demographic_and_Health_Surveys_for_Bayesian_Network_Meta-Analysis_of_childhood_diarrhea_2000_2023_/32825672
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://gsapubs.figshare.com/articles/journal_contribution/Supplemental_Material_Apatite_as_a_tracer_for_magmatic-hydrothermal_transition_and_Li_mineralization_in_the_world-class_Bailongshan_Li_pegmatite_deposit_Northwest_China/32836421
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/DataSheet1_Spatio-temporal_variation_of_water_requirement_and_meteorological_impact_factors_of_maize_Shaanxi_China_docx/32836493
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_An_Ultracompact_RGB_de_multiplexer_based_on_a_Silicon_Nitride_dual-segmented_MMI_-_7935025_pdf/32604489
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/Avtopoyezdlarda_tirkama_shaklining_aerodinamik_xususiyatlarga_ta_siri/32836334
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5746416
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16954306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8056637
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15420758
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19980220
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21072098
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21072098
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21071868
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21071868
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20739282
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: VCF
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://gsapubs.figshare.com/articles/journal_contribution/Supplemental_Material_Tectonomagmatic_implications_of_metamorphosed_tuffs_for_Mesoproterozoic_basin_evolution_and_intraplate_orogenesis_in_the_Picuris_Mountains_New_Mexico_USA/32836424
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://researchdata.up.ac.za/articles/dataset/Arm-Level_Composite_Exposure_Dataset_derived_from_Demographic_and_Health_Surveys_for_Bayesian_Network_Meta-Analysis_of_childhood_diarrhea_2000_2023_/32825672
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://gsapubs.figshare.com/articles/journal_contribution/Supplemental_Material_Apatite_as_a_tracer_for_magmatic-hydrothermal_transition_and_Li_mineralization_in_the_world-class_Bailongshan_Li_pegmatite_deposit_Northwest_China/32836421
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/DataSheet1_Spatio-temporal_variation_of_water_requirement_and_meteorological_impact_factors_of_maize_Shaanxi_China_docx/32836493
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_An_Ultracompact_RGB_de_multiplexer_based_on_a_Silicon_Nitride_dual-segmented_MMI_-_7935025_pdf/32604489
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20708342
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1401381
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12790872
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10791713
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7039938
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21067431
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21067431
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21067299
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21067299
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.0zpc8677w
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: DOIs
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/jasong03/vov_doisong_html/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/jasong03/vov_doisong/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/jasong03/vnanet_doisong_html/resolve/main/data/train-00000-of-00003.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/jasong03/vov_doisong_html/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/jasong03/vov_doisong/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/jasong03/vnanet_doisong_html/resolve/main/data/train-00000-of-00003.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/doisoft/llama3data/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://gsapubs.figshare.com/articles/journal_contribution/Supplemental_Material_Hydrothermal_apatite_as_fingerprints_of_ore-fluid_evolution_and_U-Th-REE_enrichment_in_the_Xiangshan_volcanic-related_uranium_ore_field_South_China/32836433
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://gsapubs.figshare.com/articles/journal_contribution/Supplemental_Material_Tectonomagmatic_implications_of_metamorphosed_tuffs_for_Mesoproterozoic_basin_evolution_and_intraplate_orogenesis_in_the_Picuris_Mountains_New_Mexico_USA/32836424
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://researchdata.up.ac.za/articles/dataset/Arm-Level_Composite_Exposure_Dataset_derived_from_Demographic_and_Health_Surveys_for_Bayesian_Network_Meta-Analysis_of_childhood_diarrhea_2000_2023_/32825672
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://gsapubs.figshare.com/articles/journal_contribution/Supplemental_Material_Apatite_as_a_tracer_for_magmatic-hydrothermal_transition_and_Li_mineralization_in_the_world-class_Bailongshan_Li_pegmatite_deposit_Northwest_China/32836421
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/DataSheet1_Spatio-temporal_variation_of_water_requirement_and_meteorological_impact_factors_of_maize_Shaanxi_China_docx/32836493
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4234312
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6344388
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3597952
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4813020
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14265600
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20932481
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20932481
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://journals.ipl.pt/cpublica/article/view/954
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20857613
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20857613
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: US-1
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_difficult/resolve/main/tx_log.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_easy/resolve/main/tx_log.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_difficult/resolve/main/tx_log.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_easy/resolve/main/tx_log.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://gsapubs.figshare.com/articles/journal_contribution/Supplemental_Material_Multiple_mineralization_events_in_the_eastern_Central_Asian_orogenic_belt_Insights_from_geology_geochronology_and_geochemistry_of_the_giant_Tongshan_porphyry_Cu_deposit_NE_China/32836436
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://gsapubs.figshare.com/articles/journal_contribution/Supplemental_Material_Hydrothermal_apatite_as_fingerprints_of_ore-fluid_evolution_and_U-Th-REE_enrichment_in_the_Xiangshan_volcanic-related_uranium_ore_field_South_China/32836433
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://gsapubs.figshare.com/articles/journal_contribution/Supplemental_Material_Tectonomagmatic_implications_of_metamorphosed_tuffs_for_Mesoproterozoic_basin_evolution_and_intraplate_orogenesis_in_the_Picuris_Mountains_New_Mexico_USA/32836424
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://researchdata.up.ac.za/articles/dataset/Arm-Level_Composite_Exposure_Dataset_derived_from_Demographic_and_Health_Surveys_for_Bayesian_Network_Meta-Analysis_of_childhood_diarrhea_2000_2023_/32825672
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://gsapubs.figshare.com/articles/journal_contribution/Supplemental_Material_Apatite_as_a_tracer_for_magmatic-hydrothermal_transition_and_Li_mineralization_in_the_world-class_Bailongshan_Li_pegmatite_deposit_Northwest_China/32836421
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18190973
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7325859
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5216923
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-003
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: RAM
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: SNPs
+  status: unresolved
+  candidates: []
+  candidates_tried: []

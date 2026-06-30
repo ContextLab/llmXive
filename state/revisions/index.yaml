@@ -288,3 +288,6 @@ ready:
 - project_id: PROJ-750-dragmesh-2-physically-plausible-dexterou
   revision_spec_path: specs/auto-revisions/PROJ-750-dragmesh-2-physically-plausible-dexterou/round-1
   queued_at: '2026-06-30T13:52:45.279849+00:00'
+- project_id: PROJ-766-mcompassrag-topic-metadata-as-a-semantic
+  revision_spec_path: specs/auto-revisions/PROJ-766-mcompassrag-topic-metadata-as-a-semantic/round-1
+  queued_at: '2026-06-30T15:15:10.955233+00:00'

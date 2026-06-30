@@ -1,0 +1,10 @@
+scikit-learn
+pandas
+numpy
+cyvcf2
+requests
+pyyaml
+scipy
+pytest
+ruff
+black

@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Merged Dataset Schema"
+type: object
+properties:
+  population_id:
+    type: string
+    description: "Unique identifier for the plant population"
+  latitude:
+    type: number
+    description: "Latitude of collection site"
+  longitude:
+    type: number
+    description: "Longitude of collection site"
+  source_study:
+    type: string
+    description: "Source study or database identifier"
+  heterozygosity:
+    type: number
+    description: "Genomic heterozygosity metric (0.0-1.0)"
+  nucleotide_diversity:
+    type: number
+    description: "Nucleotide diversity (Pi)"
+  mean_annual_temp:
+    type: number
+    description: "Mean annual temperature (C)"
+  annual_precipitation:
+    type: number
+    description: "Annual precipitation (mm)"
+  soil_ph:
+    type: number
+    description: "Soil pH"
+  pc_1:
+    type: number
+    description: "Principal Component 1 for population structure control"
+  pc_2:
+    type: number
+    description: "Principal Component 2 for population structure control"
+  pc_3:
+    type: number
+    description: "Principal Component 3 for population structure control"
+  compound_id:
+    type: string
+    description: "Identifier for the defense compound"
+  concentration_zscore:
+    type: number
+    description: "Z-score normalized concentration of the compound"
+required:
+  - population_id
+  - heterozygosity
+  - concentration_zscore
+additionalProperties: false
