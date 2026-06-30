@@ -1,7 +1,7 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-27T08:58:04.637963Z'
-current_stage: paper_review
+current_stage: paper_ingested
 failed_stage: null
 field: computer science
 human_escalation_reason: null
@@ -15,4 +15,4 @@ revision_spec_path: specs/auto-revisions/PROJ-793-viq-text-aligned-visual-quanti
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'ViQ: Text-Aligned Visual Quantized Representations at Any Resolution'
-updated_at: '2026-06-27T16:47:08.256158Z'
+updated_at: '2026-06-30T20:56:39.478104Z'

@@ -1,0 +1,35 @@
+artifact_links:
+- projects/PROJ-683-researchclawbench-a-benchmark-for-end-to/specs/001-researchclawbench-a-benchmark-for-end-to/spec.md
+- projects/PROJ-683-researchclawbench-a-benchmark-for-end-to/specs/001-researchclawbench-a-benchmark-for-end-to/tasks.md
+- specs/*/tasks.md
+reason: 2 concern(s) remained unresolved after 3 round(s) at stage 'tasked'; worst
+  unresolved severity = 'science'. Routing to 'clarified' with full provenance so
+  the next worker can address the root cause.
+stage: tasks
+to_stage: clarified
+unresolved_concerns:
+- artifact: projects/PROJ-683-researchclawbench-a-benchmark-for-end-to/specs/001-researchclawbench-a-benchmark-for-end-to/spec.md
+  id: fabricat0000
+  location: ''
+  reviewer: coverage
+  round: 1
+  severity: science
+  text: "FABRICATED-RESULT signal \u2014 projects/PROJ-683-researchclawbench-a-benchmark-for-end-to/specs/001-researchclawbench-a-benchmark-for-end-to/spec.md:\
+    \ self-declared fabricated metric \u2014 \u201C\u2026oduces a score (rather than\
+    \ a hardcoded value) is essential to confirming t\u2026\u201D. Research results\
+    \ must be REAL measurements, never simulated / placeholder / hardcoded / drawn\
+    \ from random.*. The reviser must replace this with a genuine computation before\
+    \ the stage advances."
+- artifact: projects/PROJ-683-researchclawbench-a-benchmark-for-end-to/specs/001-researchclawbench-a-benchmark-for-end-to/tasks.md
+  id: fabricat0001
+  location: ''
+  reviewer: coverage
+  round: 1
+  severity: science
+  text: "FABRICATED-RESULT signal \u2014 projects/PROJ-683-researchclawbench-a-benchmark-for-end-to/specs/001-researchclawbench-a-benchmark-for-end-to/tasks.md:\
+    \ self-declared fabricated metric \u2014 \u201C\u2026nst manual calculation of\
+    \ two mock scores  **Checkpoint**: All user st\u2026\u201D. Research results must\
+    \ be REAL measurements, never simulated / placeholder / hardcoded / drawn from\
+    \ random.*. The reviser must replace this with a genuine computation before the\
+    \ stage advances."
+worst_severity: science

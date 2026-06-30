@@ -11,7 +11,17 @@
 ? T004 Validate statistical methodology ({{claim:c_5cb9c0de}} (1311.5354, https://arxiv.org/abs/1311.5354),
   {{claim:c_55db4237}})); document in research.md section "Methodology" with formula,
   {{claim:c_101df1fb}}, and effect size calculation (FR-007, FR-014, Phase 0.3)
+: 2
+? 'T004 Validate statistical methodology ({{claim:c_5cb9c0de}} (1311.5354, https://arxiv.org/abs/1311.5354),
+  {{claim:c_55db4237}})); document in research.md section "Methodology" with formula,
+  {{claim:c_101df1fb}}, and effect size calculation (FR-007, FR-014, Phase 0.3) <!--
+  SKIPPED: non-mapping output -->'
 : 1
+? 'T004 Validate statistical methodology ({{claim:c_5cb9c0de}} (1311.5354, https://arxiv.org/abs/1311.5354),
+  {{claim:c_55db4237}})); document in research.md section "Methodology" with formula,
+  {{claim:c_101df1fb}}, and effect size calculation (FR-007, FR-014, Phase 0.3) <!--
+  SKIPPED: non-mapping output --> <!-- SKIPPED: non-mapping output -->'
+: 2
 ? "T006 Validate model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled\
   \ LLM via HuggingFace model cards [UNRESOLVED-CLAIM: c_02f32ae0 \u2014 status=not_enough_info];\
   \ create `src/research/verify_models.py` script; document in research.md section\
@@ -65,11 +75,17 @@
   \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
   \ (boolean) (FR-002, SC-002, Phase 0.5)"
 : 1
+? "T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM\
+  \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_d9e0f460 \u2014 status=not_enough_info];\
+  \ create `src/research/verify_models.py` script; document in research.md section\
+  \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
+  \ (boolean) (FR-002, SC-002, Phase 0.5)"
+: 1
 ? 'T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM
   via HuggingFace model cards; create `src/research/verify_models.py` script; document
   in research.md section "Model Verification" with fields: model_name, hf_id, size_mb,
   cpu_tractable (boolean) (FR-002, SC-002, Phase 0.5)'
-: 1
+: 2
 ? "T006a Implement Reference-Validator Agent in `src/validators/reference_validator.py`\
   \ with title-token-overlap \u2265 0.7 [UNRESOLVED-CLAIM: c_0d8fe0be \u2014 status=not_enough_info]\
   \ check before contributing review points; add blocking gate for Constitution II\

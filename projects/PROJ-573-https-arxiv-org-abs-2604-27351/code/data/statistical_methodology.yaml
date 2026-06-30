@@ -1,0 +1,76 @@
+# Statistical Methodology Documentation
+# Generated for task T004: Validate statistical methodology
+# References:
+#   - 1311.5354 (https://arxiv.org/abs/1311.5354) - Paired t-test and effect sizes
+#   - Claim c_55db4237 - Wilcoxon signed-rank test application
+
+methodology:
+  name: "Paired Statistical Comparison for Benchmark Results"
+  description: |
+    This methodology validates the statistical significance of performance differences
+    between heterogeneous and unified modes using paired tests on seed-level results.
+  
+  primary_tests:
+    - name: "Paired t-test"
+      formula: "t = (d̄ - μ₀) / (s_d / √n)"
+      description: "Tests if mean difference between paired observations is significantly different from zero"
+      assumptions:
+        - "Differences are approximately normally distributed"
+        - "Pairs are independent"
+      parameters:
+        alternative: "two-sided"
+      output:
+        - t_statistic
+        - p_value
+        
+    - name: "Wilcoxon Signed-Rank Test"
+      formula: "W = min(W⁺, W⁻)"
+      effect_size_formula: "r = Z / √N"
+      description: "Non-parametric test for paired data, robust to non-normality"
+      assumptions:
+        - "Differences are symmetrically distributed"
+        - "Pairs are independent"
+      output:
+        - z_statistic
+        - p_value
+        - effect_size_r
+        - effect_size_interpretation
+        
+  secondary_tests:
+    - name: "Bootstrap Confidence Interval"
+      description: "Non-parametric CI for mean difference using percentile method"
+      parameters:
+        confidence_level: 0.95
+        n_iterations: 10000
+      output:
+        - mean_difference
+        - ci_lower
+        - ci_upper
+        
+  significance_threshold:
+    alpha: 0.05
+    description: "Results with p < 0.05 are considered statistically significant"
+    
+  effect_size_interpretation:
+    negligible: "< 0.1"
+    small: "0.1 - 0.3"
+    medium: "0.3 - 0.5"
+    large: "> 0.5"
+    
+  primary_outcome:
+    metric: "wilcoxon_effect_size"
+    reason: "Robust to non-normality and provides magnitude of effect"
+    reporting:
+      - effect_size_r
+      - ci_95
+      - p_value
+      
+  validation_status: "VERIFIED"
+  implementation_date: "2024-01-01"
+  code_reference: "src/evaluation/statistical_tests.py"
+  
+  notes:
+    - "All tests are paired to account for seed-level variability"
+    - "Bootstrap CI provides robust interval estimates without distributional assumptions"
+    - "Wilcoxon effect size (r) is the primary reported metric per claim c_55db4237"
+    - "95% CI width is reported to assess precision of estimates"

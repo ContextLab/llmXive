@@ -47,11 +47,11 @@
 
 - [X] T001 [P] Verify time-series dataset availability (UCI_HAR) via `datasets.load_dataset('UCI_HAR')`; create `src/research/verify_timeseries.py` script; document in research.md section "Dataset Verification" with fields: dataset_name, url, variables (list), size_mb, verification_status (FR-001, Phase 0.1)
 - [X] T002 [P] Verify tabular dataset availability (selected UCI sets) via HuggingFace datasets; create `src/research/verify_tabular.py` script; document in research.md section "Dataset Verification" with fields: dataset_name, url, variables (list), size_mb, verification_status (FR-001, Phase 0.1)
-- [ ] T003 [P] Verify text dataset availability (DROP/MUST) via HuggingFace datasets [UNRESOLVED-CLAIM: c_bb2f55be — status=not_enough_info]; create `src/research/verify_text.py` script;document in research.md section "Dataset Verification" with fields: dataset_name, url, variables (list), size_mb, verification_status (FR-001, Phase 0.1)
-- [ ] T004 Validate statistical methodology ({{claim:c_5cb9c0de}} (1311.5354, https://arxiv.org/abs/1311.5354), {{claim:c_55db4237}})); document in research.md section "Methodology" with formula, {{claim:c_101df1fb}}, and effect size calculation (FR-007, FR-014, Phase 0.3)
+- [X] T003 [P] Verify text dataset availability (DROP/MUST) via HuggingFace datasets; create `src/research/verify_text.py` script;document in research.md section "Dataset Verification" with fields: dataset_name, url, variables (list), size_mb, verification_status (FR-001, Phase 0.1)
+- [ ] T004 Validate statistical methodology ({{claim:c_5cb9c0de}} (1311.5354, https://arxiv.org/abs/1311.5354), {{claim:c_55db4237}})); document in research.md section "Methodology" with formula, {{claim:c_101df1fb}}, and effect size calculation (FR-007, FR-014, Phase 0.3) <!-- SKIPPED: non-mapping output --> <!-- SKIPPED: non-mapping output -->
 - [X] T005 Document dataset-variable fit and flag any missing variables in research.md section "Gap Analysis" with fields: dataset_name, missing_variables (list), impact_assessment (FR-001, Phase 0.4)
-- [ ] T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM via HuggingFace model cards [UNRESOLVED-CLAIM: c_a9672184 — status=not_enough_info]; create `src/research/verify_models.py` script; document in research.md section "Model Verification" with fields: model_name, hf_id, size_mb, cpu_tractable (boolean) (FR-002, SC-002, Phase 0.5)
-- [ ] T006a Implement Reference-Validator Agent in `src/validators/reference_validator.py` with title-token-overlap ≥ 0.7 check before contributing review points; add blocking gate for Constitution II compliance (Constitution II, Plan Gap)
+- [ ] T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM via HuggingFace model cards [UNRESOLVED-CLAIM: c_d9e0f460 — status=not_enough_info]; create `src/research/verify_models.py` script; document in research.md section "Model Verification" with fields: model_name, hf_id, size_mb, cpu_tractable (boolean) (FR-002, SC-002, Phase 0.5)
+- [ ] T006a Implement Reference-Validator Agent in `src/validators/reference_validator.py` with title-token-overlap ≥ 0.7 check before contributing review points [UNRESOLVED-CLAIM: c_3ff14ba8 — status=not_enough_info]; add blocking gate for Constitution II compliance (Constitution II, Plan Gap)
 
 **Checkpoint**: Research gate complete - plan.md Constitution Check must show ✅ COMPLIANT before Phase 1 begins
 
@@ -93,7 +93,7 @@ Examples of foundational tasks (adjust based on your project):
 
 **Goal**: Execute the benchmark script on a fresh environment with default parameters and verify that a results report (CSV + summary PDF) is produced within the allotted compute budget.
 
-**Independent Test**: Run `python run_benchmark.py --config default.yaml` and verify `results.csv` and `summary.pdf` are generated within 4 hours.
+**Independent Test**: Run `python run_benchmark.py --config default.yaml` and verify `results.csv` and `summary.pdf` are generated within 4 hours [UNRESOLVED-CLAIM: c_f26471eb — status=not_enough_info].
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -105,15 +105,15 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 1
 
-- [ ] T022 [US1] Implement dataset download with 3-retry logic in src/data/download.py (FR-010); function signatures: download_dataset(url, max_retries=3, timeout=300) [UNRESOLVED-CLAIM: c_b775e672 — status=not_enough_info] -> (path, checksum); verify URLs: UCI_HAR via `datasets.load_dataset('UCI_HAR')`, DROP/MUST via HuggingFace datasets; depends on T007/T008 complete
+- [ ] T022 [US1] Implement dataset download with 3-retry logic [UNRESOLVED-CLAIM: c_b7da254d — status=not_enough_info] in src/data/download.py (FR-010); function signatures: download_dataset(url, max_retries=3, timeout=300) [UNRESOLVED-CLAIM: c_313d6482 — status=not_enough_info] -> (path, checksum); verify URLs: UCI_HAR via `datasets.load_dataset('UCI_HAR')`, DROP/MUST via HuggingFace datasets; depends on T007/T008 complete
 - [X] T023 [US1] Create task_runner.py in src/tasks/task_runner.py (FR-001, FR-006); class TaskRunner with methods: run_task(task_id), get_task(task_id), validate_task(task_id); depends on T017 complete
-- [ ] T024 [US1] Implement timeout enforcement in src/utils/timeout.py (FR-006, FR-013); function signatures: enforce_timeout(func, timeout_seconds=300) [UNRESOLVED-CLAIM: c_2104bec6 — status=not_enough_info] -> result; raise TimeoutError if exceeded; depends on T016 complete
+- [ ] T024 [US1] Implement timeout enforcement in src/utils/timeout.py (FR-006, FR-013); function signatures: enforce_timeout(func, timeout_seconds=300) [UNRESOLVED-CLAIM: c_c204c3d5 — status=not_enough_info] -> result; raise TimeoutError if exceeded; depends on T016 complete
 - [X] T025 [US1] Implement seed/version AND environment details logging in src/utils/logging.py (FR-005); depends on T016 completion; functions: log_random_seed(seed), log_model_versions(models), log_environment_details(); log random seeds, model versions, AND environment details (Python version, OS, CPU info)
 - [X] T026 [US1] Implement metrics computation (F1, MAPE) in src/evaluation/metrics.py (FR-004); function signatures: compute_f1(y_true, y_pred) -> float, compute_mape(y_true, y_pred) -> float; handle edge cases (division by zero, empty arrays)
 - [ ] T027 [US1] Implement statistical tests in src/evaluation/statistical_tests.py (FR-007, FR-014, FR-011); MUST include: {{claim:c_2c09cbc3}}, {{claim:c_2c7597de}} (1809.01635, https://arxiv.org/abs/1809.01635) with {{claim:c_7c3d210d}} and 95% CI as PRIMARY outcome (document formula), {{claim:c_55db4237}} (explicit count), configurable α threshold (default 0.05 (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value)) with logging; function signatures: paired_ttest(condition_a, condition_b, {{claim:c_08e60571}}), wilcoxon_effect_size(condition_a, condition_b), bootstrap_ci(values, {{claim:c_e50ac6bc}}, {{claim:c_dadece63}} (1710.08708, https://arxiv.org/abs/1710.08708))
 - [ ] T028 [US1] Implement report generator in src/evaluation/report_generator.py (FR-007); MUST verify report includes (a) t-statistic, (b) p-value, (c) bootstrap CI ({{claim:c_8176747a}}), (d) Wilcoxon effect size as PRIMARY outcome with 95% CI; function signatures: generate_csv_report(results, output_path), generate_pdf_report(results, output_path)
-- [ ] T029 [US1] Create run_benchmark.py main entry point in src/benchmark/run_benchmark.py (FR-001, FR-006, FR-010); CLI arguments: --config (default default.yaml), --mode (heterogeneous|unified), --seeds (5) [UNRESOLVED-CLAIM: c_1deb9e69 — status=not_enough_info]; depends on T024, T025 logging complete
-- [ ] T030 [US1] Create default.yaml config in src/benchmark/config/default.yaml with required keys: datasets (list), modalities (list), seeds (5), timeout_per_task (300) [UNRESOLVED-CLAIM: c_b5e90929 — status=not_enough_info], {{claim:c_340e25bd}} (Wikipedia: Bootstrapping (statistics), https://en.wikipedia.org/wiki/Bootstrapping_(statistics))
+- [ ] T029 [US1] Create run_benchmark.py main entry point in src/benchmark/run_benchmark.py (FR-001, FR-006, FR-010); CLI arguments: --config (default default.yaml), --mode (heterogeneous|unified), --seeds (5); depends on T024, T025 logging complete
+- [ ] T030 [US1] Create default.yaml config in src/benchmark/config/default.yaml with required keys: datasets (list), modalities (list), seeds (5), timeout_per_task (300) [UNRESOLVED-CLAIM: c_e400d500 — status=not_enough_info], {{claim:c_340e25bd}} (Wikipedia: Bootstrapping (statistics), https://en.wikipedia.org/wiki/Bootstrapping_(statistics))
 - [X] T031 [US1] Create task_definitions.yaml with {{claim:c_3bd8ba9e}} in src/tasks/task_definitions.yaml (not "multiple" - explicit count); schema: task_id (T001-T020), modalities(list), datasets (list), label_column (string); depends on T010, T011 complete
 - [X] T032 [US1] Create StatisticalSummary persistence in data/statistical_summary.yaml (Constitution IV); YAML structure: task_results (list of {task_id, accuracy, condition, timestamp}), aggregate_stats (mean_accuracy_diff, p_value, effect_size, ci_lower, ci_upper); schema reference: contracts/results.schema.yaml
 
@@ -134,9 +134,9 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 2
 
-- [ ] T035 [P] [US2] Implement modality-specific model wrapper for time-series in src/models/timeseries_model.py (FR-002); use CPU-tractable TimeSeries-Transformer (< 1 GB) [UNRESOLVED-CLAIM: c_4056aa15 — status=not_enough_info]; class TimeSeriesModel with methods: load_model(model_id), predict(input_data), get_embedding(input_data); handle CPU-only inference
-- [ ] T036 [P] [US2] Implement modality-specific model wrapper for tabular in src/models/tabular_model.py (FR-002); use TabPFN (< 1 GB) [UNRESOLVED-CLAIM: c_d69ec858 — status=not_enough_info]; class TabularModel with methods: load_model(model_id), predict(input_data), get_embedding(input_data); handle CPU-only inference
-- [ ] T037 [P] [US2] Implement modality-specific model wrapper for text in src/models/text_model.py (FR-002); use distilled LLM (< 1 GB) [UNRESOLVED-CLAIM: c_15802756 — status=not_enough_info]; class TextModel with methods: load_model(model_id), predict(input_data), get_embedding(input_data); handle CPU-only inference
+- [ ] T035 [P] [US2] Implement modality-specific model wrapper for time-series in src/models/timeseries_model.py (FR-002); use CPU-tractable TimeSeries-Transformer (< 1 GB); class TimeSeriesModel with methods: load_model(model_id), predict(input_data), get_embedding(input_data); handle CPU-only inference
+- [ ] T036 [P] [US2] Implement modality-specific model wrapper for tabular in src/models/tabular_model.py (FR-002); use TabPFN (< 1 GB); class TabularModel with methods: load_model(model_id), predict(input_data), get_embedding(input_data); handle CPU-only inference
+- [ ] T037 [P] [US2] Implement modality-specific model wrapper for text in src/models/text_model.py (FR-002); use distilled LLM (< 1 GB); class TextModel with methods: load_model(model_id), predict(input_data), get_embedding(input_data); handle CPU-only inference
 - [X] T038 [US2] Implement heterogeneous routing layer in src/models/routing.py (FR-002); depends on T035-T037 complete; class ModalityRouter with methods: route(modality, input_data), get_model(modality); routing logic: forward each modality's raw input to its native model; interface: predict(modalities_dict) -> prediction
 - [X] T039 [US2] Implement missing modality handler in src/utils/missing_handler.py (FR-009, FR-012); function signatures: handle_missing_modality(task_id, missing_modality, condition) -> placeholder; fallback behavior: heterogeneous condition skips modality, unified condition inserts placeholder text; logging format: "WARNING: Missing modality {modality} for task {task_id}"
 - [X] T040 [US2] Create timeseries.yaml modality config in src/benchmark/config/modalities/timeseries.yaml (FR-008); required keys: model_id, model_type, max_memory_gb, inference_script; depends on T017, T018 complete; update state/artifact_hashes after config changes
@@ -181,8 +181,8 @@ Examples of foundational tasks (adjust based on your project):
 - [X] T054 Run quickstart.md validation to ensure reproducible setup; validation method: fresh venv, pip install -r requirements.txt, run --help, verify no errors
 - [X] T055a Create runtime measurement script in src/utils/runtime_monitor.py (SC-003, SC-002); function signatures: measure_total_benchmark_time(), measure_per_task_time(task_id); record results to data/runtime_metrics.yaml
 - [ ] T055b Implement total runtime verification in src/evaluation/runtime_verification.py; verify total runtime ≤4 hours on reference hardware (SC-003); record pass/fail to data/runtime_metrics.yaml <!-- FAILED: unspecified -->
-- [ ] T055c Implement per-task inference verification in src/evaluation/runtime_verification.py; Verify per-task inference ≤5 minutes [UNRESOLVED-CLAIM: c_cf4c9208 — status=not_enough_info] (SC-002); record pass/fail to data/runtime_metrics.yaml
-- [ ] T056 Verify reproducibility across multiple seeds (SC-004); mean accuracy differences within 95% CI with CI width ≤15% [UNRESOLVED-CLAIM: c_0523aa98 — status=not_enough_info] (implementation-specific threshold - document in spec as staged); run benchmark 5 times with different seeds [UNRESOLVED-CLAIM: c_71f1199e — status=not_enough_info], compare results
+- [ ] T055c Implement per-task inference verification in src/evaluation/runtime_verification.py; Verify per-task inference ≤5 minutes [UNRESOLVED-CLAIM: c_defa7b46 — status=not_enough_info] (SC-002); record pass/fail to data/runtime_metrics.yaml
+- [ ] T056 Verify reproducibility across multiple seeds (SC-004); mean accuracy differences within 95% CI with CI width ≤15% (implementation-specific threshold - document in spec as staged); run benchmark 5 times with different seeds, compare results
 - [ ] T057 Archive artifacts with content hashes in state/artifact_hashes (Constitution V); artifacts to archive: data/, state/, src/ (excluding __pycache__); hash format: sha256; update procedure: compute hash for each file, write to state/artifact_hashes.yaml with file_path and hash value
 - [X] T058 Update state/projects/PROJ-573-https-arxiv-org-abs-2604-27351.yaml updated_at timestamp on artifact changes; depends on T018; helper function: update_timestamp_on_change(artifact_path); integrate with T040-T042 config updates
 
@@ -235,7 +235,7 @@ Task: "Contract test for dataset schema validation in tests/contract/test_datase
 Task: "Contract test for results schema validation in tests/contract/test_results_schema.py"
 
 # Launch model implementations for User Story 1 together (after T024 logging complete):
-Task: "Implement dataset download with 3-retry logic in src/data/download.py "
+Task: "Implement dataset download with 3-retry logic [UNRESOLVED-CLAIM: c_b7da254d — status=not_enough_info] in src/data/download.py "
 Task: "Create task_runner.py in src/tasks/task_runner.py"
 ```
 
@@ -285,13 +285,13 @@ With multiple developers:
 
 ## Compute Feasibility Notes
 
-- All models must be CPU-tractable (< 1 GB weights) - validated in T006
+- All models must be CPU-tractable (< 1 GB weights) [UNRESOLVED-CLAIM: c_ff7a4dde — status=not_enough_info] - validated in T006
 - No GPU/CUDA dependencies
 - {{claim:c_b9b3cab2}} (Wikipedia: {{claim:c_0929bcb6}}, https://en.wikipedia.org/wiki/Hutter_Prize)
 - {{claim:c_e38700cc}}
 - Full benchmark ≤ 4 hours wall-clock time [UNRESOLVED-CLAIM: c_03c4613e — status=not_enough_info]
-- Use UCI_HAR for time-series, DROP/MUST for text [UNRESOLVED-CLAIM: c_5d5eefe9 — status=not_enough_info] (per plan.md substitution strategy)
-- No 8-bit/4-bit quantization (bitsandbytes requires CUDA)
+- Use UCI_HAR for time-series, DROP/MUST for text [UNRESOLVED-CLAIM: c_30f1fe62 — status=not_enough_info] (per plan.md substitution strategy)
+- No 8-bit/4-bit quantization (bitsandbytes requires CUDA) [UNRESOLVED-CLAIM: c_c34f656d — status=not_enough_info]
 - Dataset downloads MUST use verified URLs or HuggingFace datasets.load_dataset()
 
 ## SC-001 Empirical Determination Note

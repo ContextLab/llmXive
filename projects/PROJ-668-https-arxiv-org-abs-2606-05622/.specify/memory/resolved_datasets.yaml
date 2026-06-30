@@ -1,0 +1,181 @@
+resolved_at: '2026-06-30T22:22:05.148097+00:00'
+datasets:
+- intent: MUST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 190547
+      parsed: true
+  - url: https://huggingface.co/datasets/enimai/MuST-C-fr/resolve/main/test.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/enimai/MuST-C-fr/resolve/main/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/journal_contribution/Madonna_University_Okija_b_0704_096_4654_Transfer_Form_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diploma_Form_F/32841290
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openaccess.wgtn.ac.nz/articles/journal_contribution/Orating_Origins_the_Formation_of_Pakistan_in_Contemporary_Urdu_Shi_i_Khitabat_in_Karachi/32841293
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Bowen_University_Iwo_b_0704_096_4654_Transfer_Form_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diploma_Form_For_m/32841281
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openaccess.wgtn.ac.nz/articles/chapter/The_Somatic_and_the_Sonic_in_Contemporary_Urdu_Shi_i_Khi_bat/32841287
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Benson_Idahosa_University_Benin_City_b_0704_096_4654_Transfer_Form_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Di/32841278
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5746416
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16954306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15420758
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8056637
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19980220
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openaccess.wgtn.ac.nz/articles/chapter/The_Somatic_and_the_Sonic_in_Contemporary_Urdu_Shi_i_Khi_bat/32841287
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://open.uni-marburg.de/handle/openumr/10202
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21085212
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21085212
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Clinical_and_economic_burden_of_herpes_zoster_in_Mexico_A_retrospective_medical_chart_analysis_in_a_private_healthcare_setting/30438113/2
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: JSON
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/a3xrfgb/ideogram-v4-Json-prompts/resolve/main/idev4-json
+      (1).json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 2769
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/a3xrfgb/ideogram-v4-Json-prompts/resolve/main/idev4-json
+      (1).json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/cagliostrolab/1.2m-ordered-tags-json/resolve/main/data/data.json
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/api/resolve-cache/datasets/GEM-submissions/lewtun__hugging-face-test-t5-base.outputs.json-36bf2a59__1645558682/3162f569ba2d639018f912b3f7692823d3b1148a/submission.json?%2Fdatasets%2FGEM-submissions%2Flewtun__hugging-face-test-t5-base.outputs.json-36bf2a59__1645558682%2Fresolve%2Fmain%2Fsubmission.json=&etag=%22b3b17c651beaf9198d8c8e2014ebfcab477caaf8%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/api/resolve-cache/datasets/GEM-submissions/lewtun__hugging-face-test-t5-base.outputs.json-36bf2a59__1645559101/3b0d72d19fba40c0727b4c079aa3bda0fec7df73/submission.json?%2Fdatasets%2FGEM-submissions%2Flewtun__hugging-face-test-t5-base.outputs.json-36bf2a59__1645559101%2Fresolve%2Fmain%2Fsubmission.json=&etag=%22b3b17c651beaf9198d8c8e2014ebfcab477caaf8%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/api/resolve-cache/datasets/GEM-submissions/lewtun__hugging-face-test-t5-base.outputs.json-36bf2a59__1645800191/cf294c60f19da32d9e2176e3fa49e15c6b424371/submission.json?%2Fdatasets%2FGEM-submissions%2Flewtun__hugging-face-test-t5-base.outputs.json-36bf2a59__1645800191%2Fresolve%2Fmain%2Fsubmission.json=&etag=%22b3b17c651beaf9198d8c8e2014ebfcab477caaf8%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Madonna_University_Okija_b_0704_096_4654_Transfer_Form_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diploma_Form_F/32841290
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openaccess.wgtn.ac.nz/articles/journal_contribution/Orating_Origins_the_Formation_of_Pakistan_in_Contemporary_Urdu_Shi_i_Khitabat_in_Karachi/32841293
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Bowen_University_Iwo_b_0704_096_4654_Transfer_Form_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diploma_Form_For_m/32841281
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openaccess.wgtn.ac.nz/articles/chapter/The_Somatic_and_the_Sonic_in_Contemporary_Urdu_Shi_i_Khi_bat/32841287
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Benson_Idahosa_University_Benin_City_b_0704_096_4654_Transfer_Form_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Di/32841278
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7482801
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7482807
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17351756
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3687363
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12574738
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21085019
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21085019
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21084084
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21084084
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20691720
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
