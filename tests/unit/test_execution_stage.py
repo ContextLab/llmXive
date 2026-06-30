@@ -250,12 +250,14 @@ def test_compute_infra_failures_flagged_distinctly(tmp_path) -> None:
     assert "load_in_8bit" in fb
 
 
-def test_data_unavailable_failures_flagged_for_synthetic_rescope(tmp_path) -> None:
+def test_data_unavailable_failures_flagged_for_real_source_not_synthetic(tmp_path) -> None:
     """A renamed/unreachable HF dataset (HfUriError on a canonical name like
     openai_humaneval) is NOT a code bug the implementer can patch on the failing
-    line — re-downloading never succeeds. It must be flagged to REPLACE the load
-    with a synthetic sample (the brainstorm cohort whose generated code loads
-    stale HF dataset ids; the PROJ-261 datasets dead-end)."""
+    line — re-downloading never succeeds. It must be flagged to switch to a REAL,
+    REACHABLE source (corrected id / mirror / small real sample), and EXPLICITLY
+    NOT to substitute synthetic data — substituting synthetic is rejected by the
+    fabrication gate, so the old 'replace with a synthetic sample' guidance made the
+    fix-loop thrash forever (implementer fabricates -> gate rejects -> repeat)."""
     from types import SimpleNamespace
 
     from llmxive.execution.stage import (
@@ -276,5 +278,7 @@ def test_data_unavailable_failures_flagged_for_synthetic_rescope(tmp_path) -> No
     res = SimpleNamespace(reason="x", declared_missing=[], artifacts_produced=[])
     _write_execution_feedback(mem, res, failures=fails)
     fb = (mem / _FEEDBACK_FILENAME).read_text(encoding="utf-8")
-    assert "DATA-UNAVAILABLE" in fb and "synthetic" in fb.lower()
-    assert "openai_humaneval" in fb
+    assert "DATA-UNAVAILABLE" in fb and "openai_humaneval" in fb
+    # New policy: steer to a REAL source and explicitly forbid synthetic substitution.
+    assert "REAL" in fb
+    assert "do not substitute synthetic" in fb.lower() or "not substitute synthetic" in fb.lower()

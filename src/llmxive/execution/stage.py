@@ -285,7 +285,10 @@ def execute_and_gate(project_dir: Path, *, repo_root: Path | None = None) -> boo
     failures = [
         f"{r.command} -> rc={r.returncode}"
         + (" [script missing]" if r.script_missing else "")
-        + (f"\n    {r.tail.strip()[-400:]}" if not r.ok and r.tail else "")
+        # Show the FULL captured tail (~1200 chars), not 400: a 400-char cut drops
+        # the top of a multi-file traceback (e.g. a circular import's chain), so the
+        # implementer saw only the final line and couldn't fix the root cause.
+        + (f"\n    {r.tail.strip()}" if not r.ok and r.tail else "")
         for r in res.commands if not r.ok
     ]
 
@@ -556,20 +559,33 @@ def _write_execution_feedback(
     data_missing = _data_unavailable_failures(failures)
     if data_missing:
         lines += [
-            "## ⚠ DATA-UNAVAILABLE failure — REPLACE the external data source with a synthetic sample",
+            "## ⚠ DATA-UNAVAILABLE failure — switch to a REAL, REACHABLE data source",
             "",
             "These commands failed because the external dataset is NOT reachable "
-            "on the free CI runner: a Hugging Face dataset that was renamed "
-            "(canonical names like `openai_humaneval` now require a "
+            "AS WRITTEN on the free CI runner: a Hugging Face dataset that was "
+            "renamed (canonical names like `openai_humaneval` now require a "
             "`namespace/name`), had its loading script removed (`datasets` >= 3 "
             "dropped `trust_remote_code` script datasets), is gated, or needs "
-            "network the runner lacks. RE-TRYING THE DOWNLOAD WILL NEVER SUCCEED. "
-            "RE-SCOPE the data, do NOT edit the failing line: REPLACE the "
-            "`load_dataset(...)` / remote download with a SMALL, deterministic, "
-            "in-repo SYNTHETIC or hand-built sample (a few hundred rows) that "
-            "exercises the SAME analysis/metric, and label it clearly as synthetic "
-            "in the output + README. Keep the scientific logic; only swap the "
-            "unreachable input for a runnable one:",
+            "network the runner lacks. RE-TRYING THE DOWNLOAD AS-IS WILL NEVER "
+            "SUCCEED. Fix it with REAL data, in this order:",
+            "",
+            "1. CORRECT the source: use the dataset's current canonical id "
+            "(`namespace/name`), a public mirror, or a direct file URL, and stream "
+            "/ download only a SMALL REAL SAMPLE (the first N rows, one split, a "
+            "few files). A verified real source may be injected below — use it.",
+            "2. If that exact dataset is truly unreachable, switch to a DIFFERENT "
+            "but genuinely-public dataset that supports the SAME analysis/metric, "
+            "and say so honestly in the README.",
+            "3. Do NOT substitute synthetic / fake / hand-built data for the real "
+            "dataset. A result computed on invented data is NOT a real finding and "
+            "is REJECTED by the deterministic fabrication gate — swapping in "
+            "synthetic data is the single most common reason this loop never "
+            "converges. The ONLY exception is a project whose OWN research question "
+            "is about synthetic / simulated data (its idea says so).",
+            "4. If, after the above, NO real data can be obtained on the CI runner, "
+            "do NOT fabricate a result: leave the run to FAIL so it escalates "
+            "honestly (model-tier escalation / re-plan), rather than producing a "
+            "fake finding.",
             "",
             *(f"- `{c}`" for c in data_missing),
             "",
