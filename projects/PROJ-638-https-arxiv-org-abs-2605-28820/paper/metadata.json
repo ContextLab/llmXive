@@ -3,27 +3,100 @@
   "arxiv_url": "https://arxiv.org/abs/2605.28820",
   "title": "From Pixels to Words -- Towards Native One-Vision Models at Scale",
   "authors": [
-    "Haiwen Diao",
-    "Jiahao Wang",
-    "Penghao Wu",
-    "Yuhao Dong",
-    "Yuwei Niu",
-    "Yue Zhu",
-    "Zhongang Cai",
-    "Weichen Fan",
-    "Linjun Dai",
-    "Silei Wu",
-    "Xuanyu Zheng",
-    "Mingxuan Li",
-    "Yuanhan Zhang",
-    "Bo Li",
-    "Hanming Deng",
-    "Huchuan Lu",
-    "Quan Wang",
-    "Lei Yang",
-    "Lewei Lu",
-    "Dahua Lin",
-    "Ziwei Liu"
+    {
+      "name": "Haiwen Diao",
+      "kind": "human"
+    },
+    {
+      "name": "Jiahao Wang",
+      "kind": "human"
+    },
+    {
+      "name": "Penghao Wu",
+      "kind": "human"
+    },
+    {
+      "name": "Yuhao Dong",
+      "kind": "human"
+    },
+    {
+      "name": "Yuwei Niu",
+      "kind": "human"
+    },
+    {
+      "name": "Yue Zhu",
+      "kind": "human"
+    },
+    {
+      "name": "Zhongang Cai",
+      "kind": "human"
+    },
+    {
+      "name": "Weichen Fan",
+      "kind": "human"
+    },
+    {
+      "name": "Linjun Dai",
+      "kind": "human"
+    },
+    {
+      "name": "Silei Wu",
+      "kind": "human"
+    },
+    {
+      "name": "Xuanyu Zheng",
+      "kind": "human"
+    },
+    {
+      "name": "Mingxuan Li",
+      "kind": "human"
+    },
+    {
+      "name": "Yuanhan Zhang",
+      "kind": "human"
+    },
+    {
+      "name": "Bo Li",
+      "kind": "human"
+    },
+    {
+      "name": "Hanming Deng",
+      "kind": "human"
+    },
+    {
+      "name": "Huchuan Lu",
+      "kind": "human"
+    },
+    {
+      "name": "Quan Wang",
+      "kind": "human"
+    },
+    {
+      "name": "Lei Yang",
+      "kind": "human"
+    },
+    {
+      "name": "Lewei Lu",
+      "kind": "human"
+    },
+    {
+      "name": "Dahua Lin",
+      "kind": "human"
+    },
+    {
+      "name": "Ziwei Liu",
+      "kind": "human"
+    },
+    {
+      "name": "qwen.qwen3.5-122b",
+      "kind": "llm",
+      "affiliation": null,
+      "email": null,
+      "agent_version": null,
+      "model_name": "qwen.qwen3.5-122b",
+      "backend": "dartmouth",
+      "first_contributed_at": "2026-06-30T09:30:37.309522Z"
+    }
   ],
   "submitter": "github-actions[bot]",
   "abstract": "Current vision-language models (VLMs) typically stitch together separate image encoders and language decoders via multi-stage alignment, a modular framework that inevitably fragments pixel-level signals across frames and scatters early pixel-word interactions. In parallel, native VLMs, despite impressive performance on single images, remain largely unexplored in multi-image, video understanding, and spatial intelligence. Hence, we introduce NEO-ov, a native foundation model that learns cross-frame and pixel-word correspondence end-to-end, without any external encoders, auxiliary adapters, or post-hoc fusion. By eliminating module boundaries entirely, NEO-ov enables fine-grained and unified spatiotemporal modeling to emerge natively inside the model. Notably, NEO-ov largely narrows the gap to modular counterparts while excelling at fine-grained visual perception, validating that native \"one-vision\" architectures are not only feasible but competitive at scale. Beyond empirical performance, we unveil systematic architectural analyses and detailed training recipes to facilitate subsequent native multimodal modeling. Our code and models are publicly available at: https://github.com/EvolvingLMMs-Lab/NEO.",
