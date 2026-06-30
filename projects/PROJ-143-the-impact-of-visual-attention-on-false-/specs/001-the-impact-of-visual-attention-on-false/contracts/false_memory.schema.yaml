@@ -1,0 +1,30 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "False Memory Flag Schema"
+type: "object"
+properties:
+  object_id:
+    type: "integer"
+    description: "Foreign key to Object"
+  participant_id:
+    type: "string"
+    description: "Foreign key to ParticipantRecall"
+  is_false_memory:
+    type: "boolean"
+    description: "Whether the object was falsely remembered"
+  verification_status:
+    type: "string"
+    description: "Status of the secondary verification"
+    enum:
+      - "confirmed"
+      - "unconfirmed"
+      - "rejected"
+  consensus_score:
+    type: "integer"
+    description: "Number of raters agreeing on the flag (for consensus coding)"
+required:
+  - "object_id"
+  - "participant_id"
+  - "is_false_memory"
+  - "verification_status"
+  - "consensus_score"
+additionalProperties: false

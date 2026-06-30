@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Visual Genome Object Schema"
+type: "object"
+properties:
+  image_id:
+    type: "integer"
+    description: "Unique identifier for the image"
+  object_id:
+    type: "integer"
+    description: "Unique identifier for the object"
+  category:
+    type: "string"
+    description: "Object category"
+  mask_path:
+    type: "string"
+    description: "Path to the binary mask file"
+  saliency_score:
+    type: "number"
+    description: "Average saliency score for the object"
+  is_irrelevant:
+    type: "boolean"
+    description: "Whether the object is salient but irrelevant"
+  object_size:
+    type: "number"
+    description: "Area of the bounding box (confounder)"
+  annotation_density:
+    type: "number"
+    description: "Number of objects in the image (confounder)"
+required:
+  - "image_id"
+  - "object_id"
+  - "category"
+  - "mask_path"
+  - "saliency_score"
+  - "is_irrelevant"
+additionalProperties: false
