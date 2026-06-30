@@ -17,7 +17,7 @@ Download crystal structures and experimental ionic conductivity data from OBELiX
 
 **Acceptance Scenarios**:
 
-1. **Given** a list of 15 oxide-based solid electrolyte compositions, **When** the data pipeline runs, **Then** all crystal structures are downloaded and stored with ≥93% success rate (at least 14 of 15 structures retrieved).
+1. **Given** a list of oxide-based solid electrolyte compositions, **When** the data pipeline runs, **Then** all crystal structures are downloaded and stored with ≥93% success rate (at least 14 of 15 structures retrieved).
 2. **Given** downloaded structures, **When** the validation script runs, **Then** a completeness report is generated listing each required variable (vacancy formation energy, interstitial formation energy, antisite formation energy, migration barrier, ionic conductivity) with its availability status per composition.
 3. **Given** missing variables in the dataset, **When** the validation script completes, **Then** a log entry is created for each missing variable with the specific dataset name and variable name.
 
@@ -29,12 +29,12 @@ Compute defect formation energies for Li vacancies, interstitials, and antisites
 
 **Why this priority**: This delivers the core computational research output; it depends on P1 data availability but is independent of the statistical analysis layer.
 
-**Independent Test**: Can be fully tested by running the calculation module on 2-3 pre-selected test systems and verifying output energy values match expected ranges from literature (within 0.5 eV tolerance for defect energies).
+**Independent Test**: Can be fully tested by running the calculation module on -3 pre-selected test systems and verifying output energy values match expected ranges from literature (within 0.5 eV tolerance for defect energies).
 
 **Acceptance Scenarios**:
 
 1. **Given** a validated crystal structure from US-1, **When** defect calculations run for vacancy, interstitial, and antisite configurations, **Then** defect formation energies are computed and stored with units in eV for each defect type.
-2. **Given** completed defect energy calculations, **When** NEB migration barrier calculations execute for 2-3 representative defect configurations, **Then** activation energies (Eₐ) are computed with convergence criteria met (force tolerance ≤0.05 eV/Å) within the 6-hour job time limit.
+2. **Given** completed defect energy calculations, **When** NEB migration barrier calculations execute for -3 representative defect configurations, **Then** activation energies (Eₐ) are computed with convergence criteria met (force tolerance ≤0.05 eV/Å) within the -hour job time limit.
 3. **Given** CPU-only execution constraints, **When** calculations run, **Then** all supercell systems contain ≤8 atoms per defect system to fit within 7 GB RAM, with explicit logging of atom counts for each calculation.
 
 ---
@@ -45,7 +45,7 @@ Perform linear regression analysis between defect formation energies and experim
 
 **Why this priority**: This synthesizes computational outputs into research findings; it depends on P1 and P2 completion but can be tested independently using synthetic or cached calculation data.
 
-**Independent Test**: Can be fully tested by running the analysis module on a cached dataset of 12 compositions and verifying regression outputs, p-values, and correlation plots are generated.
+**Independent Test**: Can be fully tested by running the analysis module on a cached dataset of compositions and verifying regression outputs, p-values, and correlation plots are generated.
 
 **Acceptance Scenarios**:
 
@@ -57,7 +57,7 @@ Perform linear regression analysis between defect formation energies and experim
 
 ### Edge Cases
 
-- What happens when OBELiX lacks defect-specific data for certain compositions? → The validation script logs `OBELiX databases primarily contain bulk ionic conductivity measurements; defect formation energies for specific compositions are NOT typically included and must be computed via DFT. This follows standard practice in computational materials science where defect data requires supercell calculations beyond database scope. The analysis will proceed with DFT-computed defect values for all target compositions, with completeness measured against the 3 defect types (vacancy, interstitial, antisite) per composition as specified in FR-003.` and the pipeline continues with available data.
+- What happens when OBELiX lacks defect-specific data for certain compositions? → The validation script logs `OBELiX databases primarily contain bulk ionic conductivity measurements; defect formation energies for specific compositions are NOT typically included and must be computed via DFT. This follows standard practice in computational materials science where defect data requires supercell calculations beyond database scope. The analysis will proceed with DFT-computed defect values for all target compositions, with completeness measured against the Several defect types (vacancy, interstitial, antisite) per composition as specified in FR-003.` and the pipeline continues with available data.
 - How does the system handle DFT calculation failures on GitHub Actions? → Failed calculations are retried up to 2 times with exponential backoff; after 2 failures, the system logs the failure and marks the composition as incomplete in the results report.
 - What happens when the 6-hour job time limit is exceeded? → The workflow detects timeout and logs which calculations were incomplete; partial results are preserved for resumption in a subsequent job.
 - How does the system handle collinearity between defect types (e.g., vacancy and interstitial concentrations are inversely related)? → The analysis includes a variance inflation factor (VIF) diagnostic and reports collinearity warnings when VIF > 5 for any predictor.
@@ -68,7 +68,7 @@ Perform linear regression analysis between defect formation energies and experim
 
 - **FR-001**: System MUST download crystal structures for ≥15 oxide-based solid electrolyte compositions from OBELiX and Materials Project with ≥93% retrieval success rate (See US-1)
 - **FR-002**: System MUST validate that all required variables (vacancy formation energy, interstitial formation energy, antisite formation energy, migration barrier, ionic conductivity) are present in the dataset for ≥12 of available compositions from FR-001 (See US-1)
-- **FR-003**: System MUST compute defect formation energies for vacancy, interstitial, and antisite defects using DFT single-point energy calculations with 2×2×2 minimum supercell expansion OR ≤8 atoms per defect system, whichever yields larger supercell (See US-2)
+- **FR-003**: System MUST compute defect formation energies for vacancy, interstitial, and antisite defects using DFT single-point energy calculations with ×2×2 minimum supercell expansion OR ≤8 atoms per defect system, whichever yields larger supercell (See US-2)
 - **FR-004**: System MUST estimate migration barriers using NEB method for 2-3 representative defect configurations per electrolyte system with force convergence ≤0.05 eV/Å (See US-2)
 - **FR-005**: System MUST perform linear regression analysis between defect formation energies and experimental ionic conductivity from OBELiX using scikit-learn with R² and p-value outputs (See US-3)
 - **FR-006**: System MUST apply multiple-comparison correction (Bonferroni or Benjamini-Hochberg) when >1 hypothesis test is executed, reporting adjusted p-values (See US-3)
@@ -102,8 +102,8 @@ Perform linear regression analysis between defect formation energies and experim
 - OBELiX dataset contains experimentally measured ionic conductivity values for ≥12 target electrolyte compositions (up to 15 if available); defect formation energies are NOT included in OBELiX and must be computed via DFT. If fewer than 12 compositions have conductivity data, the analysis proceeds with available data and documents the limitation.
 - DFT calculations using Quantum ESPRESSO (open-source) are feasible on GitHub Actions CPU-only runners; VASP is not used due to licensing constraints and GPU requirements.
 - Super-cells of ≤8 atoms per defect system will fit within 7 GB RAM; if larger supercells are required for accuracy, the system will sample a subset of compositions to maintain feasibility.
-- The 6-hour GitHub Actions job time limit is sufficient for 15 compositions × 3 defect types × 2-3 NEB configurations; if exceeded, partial results are preserved and logged for resumption.
-- Migration barriers will be estimated using the Arrhenius relationship σ = σ₀ exp(-Eₐ/kT) with Eₐ from NEB calculations; σ₀ will be set to a literature-standard default value of target conductivity magnitude (S·cm⁻¹·K) with sensitivity analysis over {0.5×10⁻³, 10⁻³, 2×10⁻³} S·cm⁻¹·K.
+- The 6-hour GitHub Actions job time limit is sufficient for Multiple compositions × 3 defect types × -3 NEB configurations; if exceeded, partial results are preserved and logged for resumption.
+- Migration barriers will be estimated using the Arrhenius relationship σ = σ₀ exp(-Eₐ/kT) with Eₐ from NEB calculations; σ₀ will be set to a literature-standard default value of target conductivity magnitude (S·cm⁻¹·K) with sensitivity analysis over a range of representative orders of magnitude..
 - The analysis is framed as associational (observational) rather than causal, given the computational/experimental nature of the data; no causal claims are made without randomization or identification strategy.
 - Statistical power is limited by n ≥ 12 compositions; the analysis will document this limitation and interpret effect sizes cautiously.
 - Predictor collinearity between defect types will be diagnosed using variance inflation factor (VIF); if VIF > 5, the analysis will frame joint relationships descriptively rather than claiming independent predictive effects.
@@ -115,4 +115,4 @@ Perform linear regression analysis between defect formation energies and experim
 
 **[REMOVED: Quantum ESPRESSO availability]**: Quantum ESPRESSO is available as an open-source package on GitHub Actions through community-maintained runners or container images. Alternative CPU-tractable methods (semi-empirical calculations) are available if DFT execution fails.
 
-**[REMOVED: Expected defect energy range]**: Defect formation energies for oxide solid electrolytes typically range from 0.5-3.0 eV based on literature benchmarks (e.g., Li₇La₃Zr₂O₁₂, Li₁₀GeP₂S₁₂). Calculation outputs will be validated against this range with tolerance ≤0.5 eV.
+**[REMOVED: Expected defect energy range]**: Defect formation energies for oxide solid electrolytes typically range from low to moderate values based on literature benchmarks. (e.g., Li₇La₃Zr₂O₁₂, Li₁₀GeP₂S₁₂). Calculation outputs will be validated against this range with tolerance ≤0.5 eV.

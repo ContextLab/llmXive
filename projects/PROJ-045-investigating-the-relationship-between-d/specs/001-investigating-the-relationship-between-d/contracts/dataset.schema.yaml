@@ -1,0 +1,102 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Defect Chemistry Dataset Schema"
+description: "Schema for the processed dataset containing composition, defect energies, and conductivity."
+type: object
+properties:
+  compositions:
+    type: array
+    items:
+      type: object
+      properties:
+        composition_id:
+          type: string
+          description: "Unique identifier for the composition"
+        formula:
+          type: string
+          description: "Chemical formula"
+        conductivity_exp:
+          type: number
+          description: "Experimental ionic conductivity in S·cm⁻¹·K"
+        source:
+          type: string
+          description: "Data source, e.g., 'OBELiX'"
+      required:
+        - composition_id
+        - formula
+        - conductivity_exp
+        - source
+  defect_energies:
+    type: array
+    items:
+      type: object
+      properties:
+        config_id:
+          type: string
+          description: "Unique identifier for the defect configuration"
+        electrolyte_id:
+          type: string
+          description: "Foreign key to composition"
+        defect_type:
+          type: string
+          enum:
+            - "vacancy"
+            - "interstitial"
+            - "antisite"
+          description: "Type of defect"
+        formation_energy_eV:
+          type: number
+          description: "Computed formation energy in eV"
+        supercell_atoms:
+          type: integer
+          description: "Number of atoms in the supercell"
+        calculation_status:
+          type: string
+          enum:
+            - "success"
+            - "failed"
+            - "pending"
+          description: "Status of the DFT calculation"
+      required:
+        - config_id
+        - electrolyte_id
+        - defect_type
+        - formation_energy_eV
+        - supercell_atoms
+        - calculation_status
+  migration_barriers:
+    type: array
+    items:
+      type: object
+      properties:
+        barrier_id:
+          type: string
+          description: "Unique identifier for the barrier"
+        electrolyte_id:
+          type: string
+          description: "Foreign key to composition"
+        defect_type:
+          type: string
+          enum:
+            - "vacancy"
+            - "interstitial"
+            - "antisite"
+          description: "Type of defect"
+        activation_energy_eV:
+          type: number
+          description: "Computed activation energy in eV"
+        convergence_status:
+          type: string
+          enum:
+            - "converged"
+            - "diverged"
+          description: "NEB convergence status"
+      required:
+        - barrier_id
+        - electrolyte_id
+        - defect_type
+        - activation_energy_eV
+        - convergence_status
+required:
+  - compositions
+  - defect_energies
+  - migration_barriers

@@ -1,0 +1,62 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Results Schema"
+description: "Schema for statistical analysis results including regression metrics, p-values, and raw data for plot generation."
+type: object
+properties:
+  results:
+    type: array
+    items:
+      type: object
+      properties:
+        result_id:
+          type: string
+          description: "Unique identifier for the result"
+        defect_type:
+          type: string
+          enum:
+            - "vacancy"
+            - "interstitial"
+            - "antisite"
+          description: "Type of defect analyzed"
+        R_squared:
+          type: number
+          description: "Coefficient of determination"
+        p_value:
+          type: number
+          description: "Raw p-value from regression"
+        adjusted_p_value:
+          type: number
+          description: "P-value after multiple-comparison correction"
+        significance_flag:
+          type: boolean
+          description: "True if adjusted p-value < 0.05"
+        vif_score:
+          type: number
+          description: "Variance Inflation Factor for collinearity check (diagnostic only)"
+        pca_components:
+          type: array
+          items:
+            type: number
+          description: "Principal components used for regression if applicable"
+        x_values:
+          type: array
+          items:
+            type: number
+          description: "Array of Total Activation Energy (Ea) values used in regression (predictor)"
+        y_values:
+          type: array
+          items:
+            type: number
+          description: "Array of experimental log(σ) values used in regression (outcome)"
+      required:
+        - result_id
+        - defect_type
+        - R_squared
+        - p_value
+        - adjusted_p_value
+        - significance_flag
+        - vif_score
+        - x_values
+        - y_values
+required:
+  - results
