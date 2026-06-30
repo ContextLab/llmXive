@@ -11,8 +11,8 @@ last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: specs/auto-revisions/PROJ-699-interleavethinker-reinforcing-agentic-in/round-1
+revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'InterleaveThinker: Reinforcing Agentic Interleaved Generation'
-updated_at: '2026-06-21T18:39:09.158215Z'
+updated_at: '2026-06-30T14:12:01.658011Z'

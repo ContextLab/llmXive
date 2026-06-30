@@ -1,5 +1,20 @@
 %%%%% NEW MATH DEFINITIONS %%%%%
 
+# Requirements for reproducibility
+# torch, transformers, diffusers, accelerate versions pinned
+torch==2.3.0
+transformers==4.41.0
+diffusers==0.28.0
+accelerate==0.30.0
+datasets==2.19.0
+numpy==1.26.4
+pandas==2.2.2
+scipy==1.13.1
+matplotlib==3.9.0
+seaborn==0.13.2
+peft==0.11.1
+bitsandbytes==0.43.1
+
 \usepackage{amsmath,amsfonts,bm}
 
 % Mark sections of captions for referring to divisions of figures

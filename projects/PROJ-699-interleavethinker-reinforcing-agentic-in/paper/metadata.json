@@ -3,13 +3,44 @@
   "arxiv_url": "https://arxiv.org/abs/2606.13679",
   "title": "InterleaveThinker: Reinforcing Agentic Interleaved Generation",
   "authors": [
-    "Dian Zheng",
-    "Harry Lee",
-    "Manyuan Zhang",
-    "Kaituo Feng",
-    "Zoey Guo",
-    "Ray Zhang",
-    "Hongsheng Li"
+    {
+      "name": "Dian Zheng",
+      "kind": "human"
+    },
+    {
+      "name": "Harry Lee",
+      "kind": "human"
+    },
+    {
+      "name": "Manyuan Zhang",
+      "kind": "human"
+    },
+    {
+      "name": "Kaituo Feng",
+      "kind": "human"
+    },
+    {
+      "name": "Zoey Guo",
+      "kind": "human"
+    },
+    {
+      "name": "Ray Zhang",
+      "kind": "human"
+    },
+    {
+      "name": "Hongsheng Li",
+      "kind": "human"
+    },
+    {
+      "name": "qwen.qwen3.5-122b",
+      "kind": "llm",
+      "affiliation": null,
+      "email": null,
+      "agent_version": null,
+      "model_name": "qwen.qwen3.5-122b",
+      "backend": "dartmouth",
+      "first_contributed_at": "2026-06-30T14:12:01.658011Z"
+    }
   ],
   "submitter": "github-actions[bot]",
   "abstract": "Recent image generators have demonstrated impressive photorealism and instruction-following capabilities in single-image generation and editing. However, constrained by their architectures, they cannot achieve interleaved generation (text-image sequence), which has crucial applications in visual narratives, guidance, and embodied manipulation. Even the latest open-source Unified Multimodal Models (UMMs) exhibit limited performance in this regard. In this paper, we introduce InterleaveThinker, the first multi-agent pipeline designed to endow any existing image generator with interleaved generation capabilities. Specifically, we employ a planner agent to organize the image-text input sequence, instructing the image generator on the required execution at each step. Subsequently, we introduce a critic agent to evaluate the generator's outputs, identify samples that deviate from the planned instructions, and refine the instructions for regeneration. To implement this pipeline, we construct the Interleave-Planner-SFT-80k and Interleave-Critic-SFT-112k to perform a format cold-start. Then we develop Interleave-Critic-RL-13k to reinforce the step-wise instruction correction capability within a generation trajectory using GRPO. Since a single interleaved generation trajectory may involve over 25 generator calls, optimizing the entire trajectory is computationally impractical. Therefore, we propose accuracy reward and step-wise reward, allowing single-step RL to effectively guide the entire generation trajectory. The results show that InterleaveThinker improves performance across various image generators. On interleaved generation benchmarks, it achieves performance comparable to Nano Banana and GPT-5. Surprisingly, it also significantly enhances the base model on reasoning-based benchmarks; for example, on 4-step FLUX.2-klein, we observe substantial gains on WISE and RISE.",
