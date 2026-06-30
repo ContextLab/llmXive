@@ -5202,3 +5202,135 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-06-30T12:34:51Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: full benchmark completes within 4 hours
+  claim_id: c_09b40719
+  context: "Goal: Execute the benchmark script on a fresh environment with default\
+    \ parameters and verify that a results report (CSV + summary PDF) is produced\
+    \ within the allotted compute budget. Full benchmark \u2264 4 hours wall-clock\
+    \ time."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Full benchmark \u2264 4 hours wall-clock time"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T13:19:44Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: "per\u2011task inference time less than or equal to 5 minutes on two\
+    \ CPU cores"
+  claim_id: c_5f14bd73
+  context: "T055c Implement per-task inference verification in src/evaluation/runtime_verification.py;\
+    \ verify per-task inference \u22645 minutes (SC-002); record pass/fail to data/runtime_metrics.yaml."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Per%E2%80%91task_inference_time_less_than_or_equal_to_5_minutes_on_t
+  kind: magnitude
+  raw_text: "Per-task inference \u2264 5 minutes on 2 CPU cores"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T13:20:11Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: confidence interval width less than or equal to 15 percent
+  claim_id: c_20741ee3
+  context: "T056 Verify reproducibility across multiple seeds (SC-004); mean accuracy\
+    \ differences within 95% CI with CI width \u226415% (implementation-specific threshold\
+    \ - document in spec as staged)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Confidence_interval_width_less_than_or_equal_to_15_percent
+  kind: magnitude
+  raw_text: "CI width \u226415% (implementation-specific threshold - document in spec\
+    \ as staged)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T13:20:32Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: model weights less than 1 GB for TimeSeries-Transformer, TabPFN, distilled
+    LLM
+  claim_id: c_235adfbd
+  context: Phase 0 task T006 validates that model weights are under 1 GB for the TimeSeries-Transformer,
+    TabPFN, and distilled LLM using HuggingFace model cards.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_weights_less_than_1_GB_for_TimeSeries-Transformer,_Tab
+  kind: magnitude
+  raw_text: Validate model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled
+    LLM via HuggingFace model cards
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T13:21:45Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: UCI_HAR dataset used for time-series and DROP/MUST dataset used for text
+  claim_id: c_ff0db3c5
+  context: "Task T022 implements dataset download and verifies URLs, specifically\
+    \ UCI_HAR for time\u2011series and DROP/MUST for text via HuggingFace datasets."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/UCI_HAR_dataset_used_for_time-series_and_DROP/MUST_dataset_u
+  kind: entity_fact
+  raw_text: 'verify URLs: UCI_HAR via `datasets.load_dataset(''UCI_HAR'')`, DROP/MUST
+    via HuggingFace datasets'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T13:22:12Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: per-task inference time at most 5 minutes on 2 CPU cores
+  claim_id: c_7439a0a2
+  context: "Per-task inference \u2264 5 minutes on 2 CPU cores (SC-002). This performance\
+    \ target is verified by runtime verification tasks."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Per-task_inference_time_at_most_5_minutes_on_2_CPU_cores
+  kind: magnitude
+  raw_text: "Per-task inference \u2264 5 minutes on 2 CPU cores"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T13:22:48Z'
+- artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  attempts: 1
+  canonical: full benchmark runtime at most 4 hours
+  claim_id: c_99f7b3ef
+  context: "Full benchmark \u2264 4 hours wall-clock time. The benchmark must complete\
+    \ within this compute budget."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_benchmark_runtime_at_most_4_hours
+  kind: magnitude
+  raw_text: "Full benchmark \u2264 4 hours wall-clock time"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T13:23:17Z'

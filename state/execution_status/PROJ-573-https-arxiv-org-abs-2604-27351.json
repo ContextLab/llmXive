@@ -11,7 +11,7 @@
     "python src/benchmark/run_benchmark.py --seed 42 -> rc=1\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-573-https-arxiv-org-abs-2604-27351/src/benchmark/run_benchmark.py\", line 73, in run_single_task\n    runner = TaskRunner(config=config)  # ``TaskRunner`` now tolerates the ``config`` kwarg.\n             ^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: TaskRunner.__init__() got an unexpected keyword argument 'config'",
     "python src/benchmark/run_benchmark.py --seed 123 -> rc=1\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-573-https-arxiv-org-abs-2604-27351/src/benchmark/run_benchmark.py\", line 73, in run_single_task\n    runner = TaskRunner(config=config)  # ``TaskRunner`` now tolerates the ``config`` kwarg.\n             ^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: TaskRunner.__init__() got an unexpected keyword argument 'config'"
   ],
-  "fix_rounds": 6,
+  "fix_rounds": 11,
   "model_tier": 1,
-  "updated_at": "2026-06-30T12:34:18Z"
+  "updated_at": "2026-06-30T13:23:21Z"
 }
