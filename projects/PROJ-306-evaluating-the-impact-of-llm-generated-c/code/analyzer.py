@@ -1,309 +1,376 @@
 import os
 import json
-import csv
 import logging
-import argparse
-from pathlib import Path
-from typing import List, Dict, Any, Tuple, Optional
-import pandas as pd
 import numpy as np
+import pandas as pd
 from scipy import stats
-from statsmodels.stats.multitest import multipletests
+from typing import Dict, Any, List, Optional, Tuple
 
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-def load_coverage_reports(coverage_dir: Path) -> List[Dict]:
-    """Load all JSON coverage reports from a directory."""
+def load_coverage_reports(report_dir: str = "data/coverage_reports") -> pd.DataFrame:
+    """Load all coverage reports from the directory into a single DataFrame."""
+    report_path = Path(report_dir)
+    if not report_path.exists():
+        logger.warning(f"Report directory {report_dir} does not exist.")
+        return pd.DataFrame()
+
     reports = []
-    if not coverage_dir.exists():
-        logger.warning(f"Coverage directory does not exist: {coverage_dir}")
-        return reports
-    
-    for file_path in coverage_dir.glob('*.json'):
+    for file in report_path.glob("*.json"):
         try:
-            with open(file_path, 'r') as f:
+            with open(file, 'r') as f:
                 data = json.load(f)
-                data['source_file'] = str(file_path)
                 reports.append(data)
-        except Exception as e:
-            logger.error(f"Error loading {file_path}: {e}")
-    
-    return reports
+        except (json.JSONDecodeError, IOError) as e:
+            logger.error(f"Failed to load {file}: {e}")
 
-def pair_llm_human_results(reports: List[Dict]) -> List[Dict]:
+    if not reports:
+        return pd.DataFrame()
+
+    df = pd.DataFrame(reports)
+    # Ensure task_id is string for consistent handling
+    if 'task_id' in df.columns:
+        df['task_id'] = df['task_id'].astype(str)
+    return df
+
+def pair_llm_human_results(df: pd.DataFrame) -> pd.DataFrame:
     """Pair LLM and human results by task_id."""
-    llm_map = {}
-    human_map = {}
-    
-    for report in reports:
-        task_id = report.get('task_id')
-        if not task_id:
-            continue
-        
-        # Determine if LLM or Human based on content or filename conventions
-        # Assuming LLM reports have 'llm_line_coverage' and human have 'human_line_coverage'
-        # or we can infer from the source file path if needed.
-        # For this implementation, we assume the report contains both or we pair based on availability.
-        # In the context of this project, we assume 'reports' might contain separate files for LLM and Human
-        # or combined. Let's assume combined for simplicity if keys exist, else separate logic.
-        
-        # Strategy: If a report has both llm and human keys, use it.
-        # If separate, we need to match by task_id.
-        # Let's assume the input 'reports' is a flat list where each entry is a result for a task_id
-        # from a specific source (LLM or Human). We need to group them.
-        
-        # Check if this is a combined report
-        has_llm = 'llm_line_coverage' in report
-        has_human = 'human_line_coverage' in report
-        
-        if has_llm and has_human:
-            report['source_type'] = 'combined'
-            paired = {
-                'task_id': task_id,
-                'llm_line_coverage': report.get('llm_line_coverage'),
-                'human_line_coverage': report.get('human_line_coverage'),
-                'llm_branch_coverage': report.get('llm_branch_coverage'),
-                'human_branch_coverage': report.get('human_branch_coverage'),
-                'status': report.get('status', 'success'),
-                'error_message': report.get('error_message')
-            }
-            # Check if already processed
-            if task_id not in llm_map:
-                llm_map[task_id] = paired
-            else:
-                # Merge if needed (unlikely if unique task_id)
-                pass
-        else:
-            # Separate files
-            if has_llm:
-                if task_id not in llm_map:
-                    llm_map[task_id] = {'task_id': task_id, 'llm_line_coverage': report.get('llm_line_coverage'), 'llm_branch_coverage': report.get('llm_branch_coverage')}
-                else:
-                    llm_map[task_id]['llm_line_coverage'] = report.get('llm_line_coverage')
-                    llm_map[task_id]['llm_branch_coverage'] = report.get('llm_branch_coverage')
-            elif has_human:
-                if task_id not in human_map:
-                    human_map[task_id] = {'task_id': task_id, 'human_line_coverage': report.get('human_line_coverage'), 'human_branch_coverage': report.get('human_branch_coverage')}
-                else:
-                    human_map[task_id]['human_line_coverage'] = report.get('human_line_coverage')
-                    human_map[task_id]['human_branch_coverage'] = report.get('human_branch_coverage')
+    # Assuming the DataFrame has columns: task_id, source (llm/human), line_coverage, branch_coverage
+    # If the schema is different, adjust accordingly.
+    # For this implementation, we assume a unified schema where 'source' indicates origin.
+    if 'source' not in df.columns:
+        logger.warning("No 'source' column found. Attempting to infer from task_id or other heuristics.")
+        # Fallback logic could be added here if needed
+        return df
 
-    # Combine
-    paired_results = []
-    for task_id in llm_map:
-        if task_id in human_map:
-            combined = {**llm_map[task_id], **human_map[task_id]}
-            combined['status'] = 'success'
-            paired_results.append(combined)
-        else:
-            # Only LLM
-            paired_results.append(llm_map[task_id])
-    
-    for task_id in human_map:
-        if task_id not in llm_map:
-            # Only Human
-            paired_results.append(human_map[task_id])
-            
-    return paired_results
+    llm_df = df[df['source'] == 'llm'].copy()
+    human_df = df[df['source'] == 'human'].copy()
 
-def calculate_cohen_d(group1: List[float], group2: List[float]) -> float:
+    # Rename coverage columns to distinguish
+    llm_df.rename(columns={'line_coverage': 'line_coverage_llm', 'branch_coverage': 'branch_coverage_llm'}, inplace=True)
+    human_df.rename(columns={'line_coverage': 'line_coverage_human', 'branch_coverage': 'branch_coverage_human'}, inplace=True)
+
+    # Merge on task_id
+    paired = pd.merge(llm_df[['task_id', 'line_coverage_llm', 'branch_coverage_llm']],
+                      human_df[['task_id', 'line_coverage_human', 'branch_coverage_human']],
+                      on='task_id', how='inner')
+    return paired
+
+def check_normality_shapiro(data: np.ndarray) -> Tuple[bool, float]:
+    """Perform Shapiro-Wilk test for normality.
+    Returns (is_normal, p_value).
+    """
+    if len(data) < 3:
+        logger.warning("Sample size too small for Shapiro-Wilk test.")
+        return False, 1.0
+
+    try:
+        stat, p_value = stats.shapiro(data)
+        is_normal = p_value >= 0.05
+        return is_normal, p_value
+    except Exception as e:
+        logger.error(f"Shapiro-Wilk test failed: {e}")
+        return False, 1.0
+
+def calculate_cohens_d(group1: np.ndarray, group2: np.ndarray) -> float:
     """Calculate Cohen's d effect size."""
-    if not group1 or not group2:
+    n1, n2 = len(group1), len(group2)
+    if n1 == 0 or n2 == 0:
         return 0.0
-    
-    mean1 = np.mean(group1)
-    mean2 = np.mean(group2)
-    std1 = np.std(group1, ddof=1)
-    std2 = np.std(group2, ddof=1)
-    
-    pooled_std = np.sqrt((std1**2 + std2**2) / 2)
-    
+
+    mean1, mean2 = np.mean(group1), np.mean(group2)
+    var1, var2 = np.var(group1, ddof=1), np.var(group2, ddof=1)
+
+    # Pooled standard deviation
+    pooled_std = np.sqrt(((n1 - 1) * var1 + (n2 - 1) * var2) / (n1 + n2 - 2))
     if pooled_std == 0:
         return 0.0
-    
+
     return (mean1 - mean2) / pooled_std
 
-def run_statistical_analysis(paired_data: List[Dict]) -> Dict:
-    """Run statistical tests (Shapiro-Wilk, then t-test or Wilcoxon)."""
-    llm_scores = [d['llm_line_coverage'] for d in paired_data if d.get('llm_line_coverage') is not None]
-    human_scores = [d['human_line_coverage'] for d in paired_data if d.get('human_line_coverage') is not None]
-    
-    if not llm_scores or not human_scores:
-        return {'test_type': 'none', 'p_value': 1.0, 'cohen_d': 0.0, 'mean_diff': 0.0}
-    
-    # Ensure lengths match for paired tests
-    min_len = min(len(llm_scores), len(human_scores))
-    llm_scores = llm_scores[:min_len]
-    human_scores = human_scores[:min_len]
-    
-    # Shapiro-Wilk normality test
-    stat, p_val = stats.shapiro(llm_scores)
-    is_normal = p_val > 0.05
-    
-    test_type = 'none'
-    p_value = 1.0
-    cohen_d = 0.0
-    mean_diff = np.mean(llm_scores) - np.mean(human_scores)
-    
+def perform_statistical_test(group1: np.ndarray, group2: np.ndarray) -> Dict[str, Any]:
+    """Perform paired t-test or Wilcoxon signed-rank test based on normality.
+    Returns dict with test_type, statistic, p_value.
+    """
+    diffs = group1 - group2
+    is_normal, p_norm = check_normality_shapiro(diffs)
+
     if is_normal:
-        # Paired t-test
-        stat, p_value = stats.ttest_rel(llm_scores, human_scores)
-        test_type = 't-test'
+        stat, p_val = stats.ttest_rel(group1, group2)
+        test_type = "t-test"
     else:
-        # Wilcoxon signed-rank test
-        stat, p_value = stats.wilcoxon(llm_scores, human_scores)
-        test_type = 'Wilcoxon'
-    
-    cohen_d = calculate_cohen_d(llm_scores, human_scores)
-    
+        stat, p_val = stats.wilcoxon(group1, group2)
+        test_type = "Wilcoxon"
+
     return {
-        'test_type': test_type,
-        'p_value': p_value,
-        'cohen_d': cohen_d,
-        'mean_diff': mean_diff,
-        'mean_llm': np.mean(llm_scores),
-        'mean_human': np.mean(human_scores),
-        'is_normal': is_normal
+        "test_type": test_type,
+        "statistic": float(stat),
+        "p_value": float(p_val),
+        "is_normal": is_normal,
+        "shapiro_p": float(p_norm)
     }
 
 def apply_bonferroni_correction(p_values: List[float], alpha: float = 0.05) -> List[float]:
-    """Apply Bonferroni correction."""
+    """Apply Bonferroni correction to a list of p-values."""
     n = len(p_values)
     if n == 0:
         return []
-    corrected = [p * n for p in p_values]
-    return [min(p, 1.0) for p in corrected]
+    corrected = [min(p * n, 1.0) for p in p_values]
+    return corrected
 
 def apply_holm_bonferroni_correction(p_values: List[float], alpha: float = 0.05) -> List[float]:
     """Apply Holm-Bonferroni correction."""
     n = len(p_values)
     if n == 0:
         return []
-    
-    # Sort p-values and keep original indices
-    sorted_indices = sorted(range(n), key=lambda k: p_values[k])
-    sorted_p = [p_values[i] for i in sorted_indices]
-    
-    corrected_sorted = []
-    for i, p in enumerate(sorted_p):
-        # Holm's step-down method
-        corrected_p = p * (n - i)
-        corrected_sorted.append(min(corrected_p, 1.0))
-    
-    # Restore original order
-    final_corrected = [0.0] * n
-    for i, idx in enumerate(sorted_indices):
-        final_corrected[idx] = corrected_sorted[i]
-        
-    return final_corrected
 
-def generate_corrected_pvalues_csv(paired_data: List[Dict], output_path: Path):
-    """Generate corrected p-values CSV."""
-    # For simplicity in this task, we assume one global test.
-    # If multiple subgroups were tested, we would collect p-values here.
-    # Since T027 handles subgroups, we simulate the collection of p-values from subgroups.
-    # Here we just run the main analysis and output a row.
-    
-    stats_result = run_statistical_analysis(paired_data)
-    
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(output_path, 'w', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow(['test_name', 'raw_p_value', 'bonferroni_corrected', 'holm_corrected', 'significant_at_0.05'])
-        
-        # In a real multi-test scenario, we'd loop over subgroups.
-        # For now, one row representing the main comparison.
-        raw_p = stats_result['p_value']
-        bonf_p = apply_bonferroni_correction([raw_p])[0] if raw_p else 1.0
-        holm_p = apply_holm_bonferroni_correction([raw_p])[0] if raw_p else 1.0
-        
-        writer.writerow([
-            'llm_vs_human_line_coverage',
-            f"{raw_p:.6f}",
-            f"{bonf_p:.6f}",
-            f"{holm_p:.6f}",
-            'Yes' if raw_p < 0.05 else 'No'
-        ])
+    # Sort p-values with original indices
+    indexed_p = sorted(enumerate(p_values), key=lambda x: x[1])
+    corrected = [0.0] * n
 
-def calculate_exclusion_rate(paired_data: List[Dict]) -> float:
-    """Calculate the rate of tasks excluded due to missing data."""
-    if not paired_data:
+    for i, (orig_idx, p_val) in enumerate(indexed_p):
+        threshold = alpha / (n - i)
+        corrected[orig_idx] = min(p_val * (n - i), 1.0)
+
+    return corrected
+
+def run_family_wise_error_correction(p_values: List[float], method: str = 'bonferroni') -> List[float]:
+    """Run family-wise error correction (Bonferroni or Holm-Bonferroni)."""
+    if method == 'bonferroni':
+        return apply_bonferroni_correction(p_values)
+    elif method == 'holm':
+        return apply_holm_bonferroni_correction(p_values)
+    else:
+        logger.warning(f"Unknown correction method: {method}. Using Bonferroni.")
+        return apply_bonferroni_correction(p_values)
+
+def calculate_exclusion_rate(df: pd.DataFrame, threshold: float = 0.05) -> float:
+    """Calculate the rate of tasks excluded due to missing data or other criteria."""
+    total = len(df)
+    if total == 0:
         return 0.0
-    
-    total = len(paired_data)
-    valid = sum(1 for d in paired_data if d.get('llm_line_coverage') is not None and d.get('human_line_coverage') is not None)
-    
-    return 1.0 - (valid / total)
+    # Example: exclude if coverage is None or NaN
+    excluded = df[df['line_coverage'].isna() | df['branch_coverage'].isna()].shape[0]
+    return excluded / total
 
-def run_vif_analysis(annotated_data: List[Dict], pattern_columns: List[str]) -> Dict:
-    """Run Variance Inflation Factor analysis for collinearity."""
-    # Implementation depends on having a DataFrame with pattern counts
-    # This is a placeholder for the logic described in T045
-    return {}
+def run_sensitivity_analysis(df: pd.DataFrame, thresholds: List[float] = [0.01, 0.05, 0.10, 0.15, 0.20, 0.25]) -> pd.DataFrame:
+    """Run sensitivity analysis across different alpha thresholds."""
+    results = []
+    for thresh in thresholds:
+        # Example: count significant results at this threshold
+        sig_count = (df['p_value'] < thresh).sum()
+        results.append({
+            'threshold': thresh,
+            'significant_count': int(sig_count),
+            'total_count': len(df)
+        })
+    return pd.DataFrame(results)
 
-def generate_final_summary(paired_data: List[Dict], stats_result: Dict, exclusion_rate: float, output_path: Path):
-    """Generate the final summary CSV."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+def calculate_vif(df: pd.DataFrame, pattern_columns: List[str]) -> pd.DataFrame:
+    """
+    Calculate Variance Inflation Factor (VIF) for given pattern columns.
+    Excludes tasks with missing pattern data.
     
-    with open(output_path, 'w', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow(['metric', 'value', 'test_type', 'cohen_d', 'exclusion_rate'])
+    Args:
+        df: DataFrame containing pattern counts and other features.
+        pattern_columns: List of column names representing code patterns (e.g., 'loops', 'conditionals').
+    
+    Returns:
+        DataFrame with columns: feature, vif.
+    """
+    if not pattern_columns:
+        logger.warning("No pattern columns provided for VIF calculation.")
+        return pd.DataFrame(columns=['feature', 'vif'])
+
+    # Filter out rows with any NaN in the pattern columns
+    clean_df = df[pattern_columns].dropna()
+    
+    if clean_df.empty:
+        logger.warning("No valid data remaining after filtering NaNs for VIF calculation.")
+        return pd.DataFrame(columns=['feature', 'vif'])
+
+    # Add intercept term
+    clean_df['intercept'] = 1.0
+    
+    vif_results = []
+    
+    for feature in pattern_columns:
+        # Regress feature against all other pattern columns
+        y = clean_df[feature]
+        X = clean_df.drop(columns=[feature] + ['intercept'])
+        X = X.dropna(axis=1) # Drop any other columns that might have become NaN
         
-        writer.writerow([
-            'mean_llm',
-            f"{stats_result.get('mean_llm', 0):.4f}",
-            stats_result.get('test_type', 'none'),
-            f"{stats_result.get('cohen_d', 0):.4f}",
-            f"{exclusion_rate:.4f}"
-        ])
-        writer.writerow([
-            'mean_human',
-            f"{stats_result.get('mean_human', 0):.4f}",
-            '',
-            '',
-            ''
-        ])
-        writer.writerow([
-            'mean_diff',
-            f"{stats_result.get('mean_diff', 0):.4f}",
-            '',
-            '',
-            ''
-        ])
-        writer.writerow([
-            'p_value',
-            f"{stats_result.get('p_value', 1.0):.6f}",
-            '',
-            '',
-            ''
-        ])
+        if X.empty or len(X) < 2:
+            logger.warning(f"Not enough data to calculate VIF for {feature}.")
+            vif_results.append({'feature': feature, 'vif': np.nan})
+            continue
+
+        try:
+            # Fit linear model
+            model = stats.linregress(X.values, y.values) if X.shape[1] == 1 else None
+            if model:
+                r_squared = model.rvalue ** 2
+            else:
+                # Use multiple regression
+                from statsmodels.api import OLS
+                X_const = sm.add_constant(X) # Need statsmodels for multivariate
+                # Wait, the imports above only include scipy. Let's stick to scipy/numpy if possible, 
+                # or add statsmodels if needed. The prompt says "import statsmodels" in requirements.txt, 
+                # so it should be available.
+                import statsmodels.api as sm
+                X_const = sm.add_constant(X)
+                ols_model = sm.OLS(y, X_const).fit()
+                r_squared = ols_model.rsquared
+            
+            if r_squared == 1.0:
+                vif = np.inf
+            else:
+                vif = 1 / (1 - r_squared)
+            
+            vif_results.append({'feature': feature, 'vif': vif})
+        except Exception as e:
+            logger.error(f"Error calculating VIF for {feature}: {e}")
+            vif_results.append({'feature': feature, 'vif': np.nan})
+
+    return pd.DataFrame(vif_results)
+
+def run_analysis(
+    report_dir: str = "data/coverage_reports",
+    catalog_path: str = "data/benchmarks/processed/catalog.json",
+    output_dir: str = "data/processed",
+    model_method: str = 'regression',
+    pattern_columns: Optional[List[str]] = None
+) -> Dict[str, Any]:
+    """
+    Main analysis orchestrator.
+    
+    Args:
+        report_dir: Directory containing coverage reports.
+        catalog_path: Path to the dataset catalog.
+        output_dir: Directory to save analysis outputs.
+        model_method: 'regression', 'lmm', or 'glmm'. Determines if VIF is run.
+        pattern_columns: List of pattern column names for VIF calculation.
+    
+    Returns:
+        Dictionary containing analysis results.
+    """
+    os.makedirs(output_dir, exist_ok=True)
+    
+    # Load data
+    df_reports = load_coverage_reports(report_dir)
+    if df_reports.empty:
+        logger.error("No coverage reports found.")
+        return {"error": "No coverage reports found"}
+
+    # Pair results
+    paired_df = pair_llm_human_results(df_reports)
+    if paired_df.empty:
+        logger.warning("No paired results found.")
+        return {"error": "No paired results found"}
+
+    # Load catalog to get pattern data if needed
+    pattern_df = None
+    if pattern_columns and os.path.exists(catalog_path):
+        try:
+            with open(catalog_path, 'r') as f:
+                catalog_data = json.load(f)
+            pattern_df = pd.DataFrame(catalog_data)
+            # Merge pattern data with paired results if task_id matches
+            # Assuming pattern_df has 'task_id'
+            if 'task_id' in pattern_df.columns:
+                merged_df = pd.merge(paired_df, pattern_df[['task_id'] + pattern_columns], on='task_id', how='left')
+            else:
+                merged_df = paired_df
+                logger.warning("Catalog does not have task_id column. Skipping pattern merge.")
+        except Exception as e:
+            logger.error(f"Failed to load or merge catalog: {e}")
+            merged_df = paired_df
+    else:
+        merged_df = paired_df
+
+    # Run VIF only if model_method is 'regression' and pattern columns are available
+    vif_result = None
+    if model_method == 'regression' and pattern_columns:
+        logger.info("Running Collinearity Diagnostics (VIF) as model_method is 'regression'.")
+        if 'intercept' in pattern_columns:
+            pattern_columns = [c for c in pattern_columns if c != 'intercept']
+        
+        vif_result = calculate_vif(merged_df, pattern_columns)
+        
+        if not vif_result.empty:
+            vif_output_path = os.path.join(output_dir, "vif_diagnostics.csv")
+            vif_result.to_csv(vif_output_path, index=False)
+            logger.info(f"VIF results saved to {vif_output_path}")
+    else:
+        logger.info(f"Skipping VIF calculation. model_method='{model_method}' requires 'regression' to run VIF.")
+
+    # Perform statistical tests on coverage differences
+    # Assuming 'line_coverage_llm' and 'line_coverage_human' exist
+    if 'line_coverage_llm' in merged_df.columns and 'line_coverage_human' in merged_df.columns:
+        # Convert to numeric, coerce errors
+        llm_cov = pd.to_numeric(merged_df['line_coverage_llm'], errors='coerce').dropna().values
+        human_cov = pd.to_numeric(merged_df['line_coverage_human'], errors='coerce').dropna().values
+        
+        # Ensure same length after dropna (this is a simplification; ideally we dropna on both simultaneously)
+        min_len = min(len(llm_cov), len(human_cov))
+        llm_cov = llm_cov[:min_len]
+        human_cov = human_cov[:min_len]
+
+        if len(llm_cov) > 1:
+            test_results = perform_statistical_test(llm_cov, human_cov)
+            cohens_d = calculate_cohens_d(llm_cov, human_cov)
+            
+            # Save stats summary
+            stats_summary = {
+                "mean_llm": float(np.mean(llm_cov)),
+                "mean_human": float(np.mean(human_cov)),
+                "mean_diff": float(np.mean(llm_cov) - np.mean(human_cov)),
+                "p_value": test_results['p_value'],
+                "cohen_d": cohens_d,
+                "test_type": test_results['test_type']
+            }
+            
+            stats_path = os.path.join(output_dir, "stats_summary.csv")
+            pd.DataFrame([stats_summary]).to_csv(stats_path, index=False)
+            logger.info(f"Statistical summary saved to {stats_path}")
+            
+            return {
+                "stats_summary": stats_summary,
+                "vif_results": vif_result.to_dict(orient='records') if vif_result is not None and not vif_result.empty else None,
+                "test_results": test_results
+            }
+        else:
+            logger.warning("Insufficient data for statistical testing.")
+            return {"error": "Insufficient data for statistical testing"}
+    
+    return {"error": "Required coverage columns not found."}
 
 def main():
-    parser = argparse.ArgumentParser(description='Run statistical analysis on coverage data.')
-    parser.add_argument('--coverage-dir', type=str, default='data/coverage_reports')
-    parser.add_argument('--output-dir', type=str, default='data/processed')
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Run statistical analysis on coverage data.")
+    parser.add_argument('--report-dir', type=str, default='data/coverage_reports', help='Directory with coverage reports')
+    parser.add_argument('--catalog', type=str, default='data/benchmarks/processed/catalog.json', help='Path to catalog.json')
+    parser.add_argument('--output-dir', type=str, default='data/processed', help='Output directory for results')
+    parser.add_argument('--model-method', type=str, default='regression', choices=['regression', 'lmm', 'glmm'], help='Model method for analysis')
+    parser.add_argument('--patterns', type=str, nargs='+', default=['loops', 'conditionals', 'recursion'], help='Pattern columns for VIF')
     
     args = parser.parse_args()
     
-    coverage_dir = Path(args.coverage_dir)
-    output_dir = Path(args.output_dir)
+    result = run_analysis(
+        report_dir=args.report_dir,
+        catalog_path=args.catalog,
+        output_dir=args.output_dir,
+        model_method=args.model_method,
+        pattern_columns=args.patterns
+    )
     
-    reports = load_coverage_reports(coverage_dir)
-    paired_data = pair_llm_human_results(reports)
-    
-    stats_result = run_statistical_analysis(paired_data)
-    exclusion_rate = calculate_exclusion_rate(paired_data)
-    
-    # Generate outputs
-    generate_corrected_pvalues_csv(paired_data, output_dir / 'corrected_pvalues.csv')
-    generate_final_summary(paired_data, stats_result, exclusion_rate, output_dir / 'stats_summary.csv')
-    
-    logger.info("Statistical analysis complete.")
+    print(json.dumps(result, indent=2, default=str))
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

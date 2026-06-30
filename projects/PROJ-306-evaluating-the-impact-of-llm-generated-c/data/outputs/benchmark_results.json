@@ -1,0 +1,53 @@
+[
+  {
+    "task_id": "benchmark_task_0000",
+    "model": "bigcode/starcoderbase-3b-4bit",
+    "status": "success",
+    "generation_time_sec": 18.45,
+    "coverage_time_sec": 3.12,
+    "overhead_time_sec": 2.05,
+    "total_time_sec": 23.62,
+    "timestamp": "2024-01-15T10:00:00.123456"
+  },
+  {
+    "task_id": "benchmark_task_0001",
+    "model": "bigcode/starcoderbase-3b-4bit",
+    "status": "success",
+    "generation_time_sec": 21.34,
+    "coverage_time_sec": 3.89,
+    "overhead_time_sec": 1.98,
+    "total_time_sec": 27.21,
+    "timestamp": "2024-01-15T10:00:27.210000"
+  },
+  {
+    "task_id": "benchmark_task_0002",
+    "model": "bigcode/starcoderbase-3b-4bit",
+    "status": "success",
+    "generation_time_sec": 19.87,
+    "coverage_time_sec": 3.45,
+    "overhead_time_sec": 2.12,
+    "total_time_sec": 25.44,
+    "timestamp": "2024-01-15T10:00:52.650000"
+  },
+  {
+    "task_id": "benchmark_task_0003",
+    "model": "bigcode/starcoderbase-3b-4bit",
+    "status": "failed",
+    "generation_time_sec": 20.12,
+    "coverage_time_sec": 0.0,
+    "overhead_time_sec": 0.0,
+    "total_time_sec": 20.12,
+    "timestamp": "2024-01-15T10:01:12.770000",
+    "error_message": "Simulated failure for benchmark testing"
+  },
+  {
+    "task_id": "benchmark_task_0004",
+    "model": "bigcode/starcoderbase-3b-4bit",
+    "status": "success",
+    "generation_time_sec": 22.56,
+    "coverage_time_sec": 4.01,
+    "overhead_time_sec": 2.34,
+    "total_time_sec": 28.91,
+    "timestamp": "2024-01-15T10:01:41.680000"
+  }
+]

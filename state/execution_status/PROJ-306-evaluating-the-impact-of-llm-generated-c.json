@@ -1,12 +1,12 @@
 {
   "project_id": "PROJ-306-evaluating-the-impact-of-llm-generated-c",
   "ok": false,
-  "reason": "1 command(s) failed: python code/main.py --num-tasks 100 --output-dir data/processed (rc=1); 4 declared deliverable(s) absent: data/benchmarks/processed/catalog.json; data/processed/corrected_pvalues.csv; data/processed/sensitivity_report.csv",
+  "reason": "235 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/.venv/lib/python3.11/site-packages/PIL/ImageCms.py: self-declared fabricated metric \u2014 \u201c\u2026outputProfile``, but tries to simulate the result that would be     obtained on\u2026\u201d; code/.venv/lib/python3.11/site-packages/PIL/ImageCms.py: self-declared fabricated metric \u2014 \u201c\u2026outputProfile``, but tries to simulate the result that would be     obtained on\u2026\u201d; code/.venv/lib/python3.11/site-packages/_pytest/subtests.py: self-declared fabricated metric \u2014 \u201c\u2026:param kwargs:             Arbitrary values that are also added to the s\u2026\u201d; 1 command(s) failed: python code/main.py --num-tasks 100 --output-dir data/processed (rc=1); 1 declared deliverable(s) absent: data/benchmarks/processed/catalog.json",
   "artifacts": [],
   "failures": [
-    "python code/main.py --num-tasks 100 --output-dir data/processed -> rc=1\n    /work/llmXive/llmXive/projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/code/main.py\", line 10, in <module>\n    from config import resolve_model, get_fallback_models, get_primary_model\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/code/config.py\", line 11, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'"
+    "python code/main.py --num-tasks 100 --output-dir data/processed -> rc=1\n    ojects/PROJ-306-evaluating-the-impact-of-llm-generated-c/code/error_handling.py\", line 16, in <module>\n    from utils import exponential_backoff_retry\nImportError: cannot import name 'exponential_backoff_retry' from partially initialized module 'utils' (most likely due to a circular import) (/home/runner/work/llmXive/llmXive/projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/code/utils.py)"
   ],
-  "fix_rounds": 1,
+  "fix_rounds": 3,
   "model_tier": 0,
-  "updated_at": "2026-06-30T13:59:10Z"
+  "updated_at": "2026-06-30T14:51:59Z"
 }

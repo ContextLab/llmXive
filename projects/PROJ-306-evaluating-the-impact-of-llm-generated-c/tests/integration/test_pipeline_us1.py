@@ -1,199 +1,191 @@
 """
-Integration test for end-to-end generation and coverage on multiple tasks (US1).
+Integration test for end-to-end generation and coverage on multiple tasks (User Story 1).
 
 This test verifies the full pipeline:
-1. Loads the task catalog.
-2. Selects a small batch of tasks (1-2) for rapid testing.
-3. Generates code using the LLM generator (with fallback to local models).
-4. Runs coverage analysis on the generated code.
-5. Validates that coverage reports are created and contain expected fields.
+1. Load a small subset of tasks from the catalog.
+2. Generate code for each task using the configured LLM.
+3. Run coverage analysis on the generated code.
+4. Verify that coverage reports are generated and contain expected fields.
+
+Note: This test uses a small batch (default 2 tasks) and a timeout to ensure
+it runs within reasonable time limits during CI/CD.
 """
-
 import os
-import sys
 import json
-import tempfile
-import shutil
-import pytest
-from pathlib import Path
-
-# Add project root to path to import local modules
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root / "code"))
-
-from dataset_loader import validate_and_save_catalog, load_mbpp, load_humaneval
-from llm_generator import generate_code, run_generation_batch
-from config import resolve_model, get_fallback_models, get_primary_model
-from utils import safe_call_with_retry, retry_with_exponential_backoff
-
-# Mock or import coverage runner if it exists, otherwise simulate coverage
-# Since T012 is not complete, we will simulate the coverage execution step
-# by calling a mock function or checking if the file exists and writing a dummy report
-# However, the task asks for an integration test of the pipeline.
-# We will implement a minimal coverage runner inline for this test to ensure it works
-# without blocking on T012.
-
 import subprocess
-import glob
+import sys
+import tempfile
+import time
+from pathlib import Path
+from typing import List, Dict, Any
 
-COVERAGE_REPORTS_DIR = project_root / "data" / "coverage_reports"
-TEST_BATCH_SIZE = 2  # Small batch for integration test speed
+import pytest
 
-def _simulate_coverage_execution(task_id: str, generated_code_path: Path) -> dict:
+# Add project root to path to import code modules
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+CODE_DIR = PROJECT_ROOT / "code"
+DATA_DIR = PROJECT_ROOT / "data"
+OUTPUTS_DIR = PROJECT_ROOT / "outputs"
+
+sys.path.insert(0, str(PROJECT_ROOT))
+
+from config import get_model_chain, get_model_config, resolve_model
+from dataset_loader import load_mbpp_dataset, load_humaneval_dataset, validate_and_create_catalog
+from llm_generator import generate_code
+from coverage_runner import run_coverage
+
+# Configuration for the integration test
+TEST_BATCH_SIZE = 2  # Small batch for CI/CD
+TEST_TIMEOUT_SECONDS = 300  # 5 minutes timeout for the whole test
+
+def _get_sample_tasks(num_tasks: int = 2) -> List[Dict[str, Any]]:
     """
-    Simulates the coverage execution step (T012) for this integration test.
-    Since T012 is not yet implemented, we create a dummy coverage report
-    to verify the pipeline flow works end-to-end.
+    Load a small sample of tasks from the catalog for integration testing.
+    Prioritizes MBPP tasks as they are generally simpler for quick generation.
     """
-    report = {
-        "task_id": task_id,
-        "status": "success",
-        "line_coverage": 0.0,
-        "branch_coverage": "N/A",  # Default for HumanEval or unknown
-        "execution_time": 0.0,
-        "timestamp": "2023-01-01T00:00:00Z"
-    }
-
-    # If the generated file exists, we could try to run it, but for this test
-    # we assume success if the file exists.
-    if generated_code_path.exists():
-        report["line_coverage"] = 100.0 if generated_code_path.stat().st_size > 0 else 0.0
+    catalog_path = DATA_DIR / "benchmarks" / "processed" / "catalog.json"
     
-    # Write the report
-    report_path = COVERAGE_REPORTS_DIR / f"{task_id}.json"
-    report_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(report_path, "w") as f:
-        json.dump(report, f, indent=2)
-    
-    return report
-
-def _get_test_catalog():
-    """Loads the catalog, falling back to generating a minimal one if needed."""
-    catalog_path = project_root / "data" / "benchmarks" / "processed" / "catalog.json"
     if not catalog_path.exists():
-        # If catalog doesn't exist, we need to create a minimal one for the test
-        # This mimics T006c
-        print("Catalog not found. Creating minimal test catalog...")
-        # We would normally call validate_and_save_catalog here, but that requires raw data.
-        # For the integration test, we assume T006a-c have run or we create a mock.
-        # Let's try to load raw data if it exists, otherwise skip.
-        # To be safe, we will create a synthetic catalog entry for testing.
-        synthetic_catalog = [
-            {
-                "task_id": "test_task_001",
-                "prompt": "Write a function that adds two numbers.",
-                "human_solution": "def add(a, b): return a + b",
-                "test_suite": "def test_add(): assert add(1, 2) == 3",
-                "difficulty": "easy",
-                "code_patterns": ["function"],
-                "dataset_source": "synthetic"
-            }
-        ]
-        with open(catalog_path, "w") as f:
-            json.dump(synthetic_catalog, f, indent=2)
+        # If catalog doesn't exist, run the loader first (should be done by setup)
+        # For robustness in CI, we try to run the loader if needed
+        print(f"Catalog not found at {catalog_path}, attempting to generate...")
+        # This assumes the main dataset loader script is available
+        # In a real CI, we would ensure prerequisites are met
+        raise FileNotFoundError(f"Catalog file not found at {catalog_path}. Please run dataset loading tasks first.")
+
+    with open(catalog_path, 'r') as f:
+        catalog = json.load(f)
+
+    # Filter for tasks that have all required fields and are likely to succeed
+    valid_tasks = [
+        t for t in catalog 
+        if all(k in t for k in ['task_id', 'prompt', 'human_solution', 'test_suite_path'])
+    ]
+
+    # Select a small sample
+    sample = valid_tasks[:num_tasks]
     
-    with open(catalog_path, "r") as f:
-        return json.load(f)
+    if len(sample) < num_tasks:
+        pytest.skip(f"Only {len(sample)} valid tasks found in catalog, need {num_tasks}")
 
-@pytest.fixture(scope="module")
-def test_catalog():
-    """Provides the test catalog."""
-    return _get_test_catalog()
+    return sample
 
-@pytest.fixture(scope="module")
-def temp_output_dir():
-    """Creates a temporary directory for test outputs to avoid pollution."""
-    # We use the actual data directory but ensure we clean up or use unique names
-    # For this test, we rely on the task_id to be unique or use a temp dir
-    # Let's use a temp dir for generated code to avoid overwriting real data
-    temp_dir = tempfile.mkdtemp(prefix="llmxive_test_")
-    yield Path(temp_dir)
-    # Cleanup is handled by pytest or manually if needed
-    # shutil.rmtree(temp_dir, ignore_errors=True)
-
-def test_pipeline_end_to_end(test_catalog, temp_output_dir):
+def _run_coverage_for_task(task: Dict[str, Any], generated_code_path: Path) -> Dict[str, Any]:
     """
-    Tests the end-to-end flow: Catalog -> Generation -> Coverage Report.
+    Run coverage analysis for a single generated task.
     """
-    # Select a small batch of tasks
-    tasks_to_process = test_catalog[:TEST_BATCH_SIZE]
-    
-    assert len(tasks_to_process) > 0, "No tasks found in catalog for testing."
+    task_id = task['task_id']
+    test_suite_path = Path(task['test_suite_path'])
 
-    generated_files = []
-    coverage_reports = []
+    if not test_suite_path.exists():
+        pytest.skip(f"Test suite not found for {task_id}: {test_suite_path}")
 
-    # 1. Generation Step
-    for task in tasks_to_process:
-        task_id = task["task_id"]
-        prompt = task["prompt"]
-        
-        # Determine output path
-        # In a real run, this would be data/generated/{task_id}.py
-        # For the test, we use the temp dir
-        output_path = temp_output_dir / f"{task_id}.py"
-        
-        # Mock generation if real LLM is too slow or unavailable
-        # We simulate the generation by writing the prompt to a file
-        # In a real integration test with T009 complete, we would call generate_code(task_id, prompt)
-        # Since T009 is marked complete, we assume it exists. However, calling real LLMs in CI is risky.
-        # We will try to call the real function but catch errors if API keys are missing.
-        
+    # Run coverage using the coverage_runner module
+    # We need to capture the result without running the full main script
+    try:
+        result = run_coverage(
+            task_id=task_id,
+            generated_code_path=generated_code_path,
+            test_suite_path=test_suite_path,
+            output_dir=DATA_DIR / "coverage_reports"
+        )
+        return result
+    except Exception as e:
+        # Log the error but don't fail the test immediately if it's a known issue
+        print(f"Coverage run failed for {task_id}: {e}")
+        return {
+            "task_id": task_id,
+            "status": "failed",
+            "error_message": str(e)
+        }
+
+@pytest.mark.integration
+def test_end_to_end_generation_and_coverage():
+    """
+    Integration test: Generate code for a small batch of tasks and verify coverage reports.
+    """
+    # Ensure directories exist
+    (DATA_DIR / "coverage_reports").mkdir(parents=True, exist_ok=True)
+    (DATA_DIR / "generated").mkdir(parents=True, exist_ok=True)
+
+    # Get sample tasks
+    tasks = _get_sample_tasks(TEST_BATCH_SIZE)
+    print(f"Running integration test on {len(tasks)} tasks: {[t['task_id'] for t in tasks]}")
+
+    results = []
+    start_time = time.time()
+
+    for i, task in enumerate(tasks):
+        # Check timeout
+        if time.time() - start_time > TEST_TIMEOUT_SECONDS:
+            pytest.fail("Integration test timed out")
+
+        task_id = task['task_id']
+        print(f"\n--- Processing Task {i+1}/{len(tasks)}: {task_id} ---")
+
         try:
-            # Attempt real generation
-            # Note: This might fail if API keys are not set, which is expected in some CI environments.
-            # We catch the exception and fallback to a mock generation to ensure the test structure is validated.
-            generated_code = generate_code(task_id, prompt)
-            with open(output_path, "w") as f:
-                f.write(generated_code)
+            # 1. Generate Code
+            print(f"  Generating code for {task_id}...")
+            generated_path = generate_code(
+                task_id=task_id,
+                prompt=task['prompt'],
+                output_dir=DATA_DIR / "generated"
+            )
+
+            if not generated_path or not generated_path.exists():
+                results.append({
+                    "task_id": task_id,
+                    "status": "failed",
+                    "error_message": "Code generation failed - no output file created"
+                })
+                continue
+
+            print(f"  Code generated at: {generated_path}")
+
+            # 2. Run Coverage
+            print(f"  Running coverage for {task_id}...")
+            coverage_result = _run_coverage_for_task(task, generated_path)
+            results.append(coverage_result)
+
+            # 3. Verify Output
+            if coverage_result.get("status") == "success":
+                report_path = DATA_DIR / "coverage_reports" / f"{task_id}.json"
+                assert report_path.exists(), f"Coverage report not found for {task_id}"
+                
+                with open(report_path, 'r') as f:
+                    report_data = json.load(f)
+                
+                assert "line_coverage" in report_data, f"Missing line_coverage in report for {task_id}"
+                print(f"  Coverage Report: Line={report_data['line_coverage']}%, Branch={report_data.get('branch_coverage', 'N/A')}%")
+            else:
+                print(f"  Coverage failed for {task_id}: {coverage_result.get('error_message', 'Unknown error')}")
+
         except Exception as e:
-            # Fallback for CI/No-API environments: write a stub
-            print(f"Real generation failed ({e}), using stub for test.")
-            stub_code = f"# Stub for {task_id}\ndef solution():\n    pass\n"
-            with open(output_path, "w") as f:
-                f.write(stub_code)
-        
-        generated_files.append(output_path)
+            print(f"  Error processing {task_id}: {e}")
+            results.append({
+                "task_id": task_id,
+                "status": "failed",
+                "error_message": str(e)
+            })
 
-    # 2. Coverage Step
-    for task, gen_path in zip(tasks_to_process, generated_files):
-        task_id = task["task_id"]
-        
-        # Call the simulated coverage runner
-        report = _simulate_coverage_execution(task_id, gen_path)
-        coverage_reports.append(report)
+    # Assertions
+    print("\n--- Test Summary ---")
+    success_count = sum(1 for r in results if r.get("status") == "success")
+    total_count = len(results)
+    
+    print(f"Total tasks: {total_count}")
+    print(f"Successful: {success_count}")
+    print(f"Failed: {total_count - success_count}")
 
-    # 3. Validation
-    assert len(coverage_reports) == len(tasks_to_process), "Coverage reports count mismatch."
+    # We expect at least one success for the test to pass (unless all tasks are inherently problematic)
+    # In a real CI, we might want 100% success, but for integration testing with LLMs,
+    # we allow some failure rate as long as the pipeline runs correctly.
+    assert success_count > 0, f"No tasks completed successfully. Results: {results}"
     
-    for report in coverage_reports:
-        assert "task_id" in report, "Report missing task_id"
-        assert "status" in report, "Report missing status"
-        assert report["status"] in ["success", "failed"], f"Invalid status: {report['status']}"
-        
-        # Verify report file exists on disk
-        report_file = COVERAGE_REPORTS_DIR / f"{report['task_id']}.json"
-        assert report_file.exists(), f"Coverage report file not found: {report_file}"
-        
-        # Verify JSON content matches
-        with open(report_file, "r") as f:
-            saved_report = json.load(f)
-        assert saved_report["task_id"] == report["task_id"]
-
-def test_batch_processing_structure():
-    """
-    Validates that the batch processing logic handles multiple tasks correctly.
-    """
-    # This is a structural test to ensure the loop logic is sound
-    task_ids = ["task_1", "task_2", "task_3"]
-    processed = []
-    
-    for tid in task_ids:
-        # Simulate processing
-        processed.append(tid)
-    
-    assert len(processed) == 3
-    assert all(tid in processed for tid in task_ids)
+    # Verify that at least one coverage report was created
+    reports = list((DATA_DIR / "coverage_reports").glob("*.json"))
+    assert len(reports) > 0, "No coverage reports were generated"
 
 if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+    # Allow running directly for debugging
+    pytest.main([__file__, "-v", "-s"])

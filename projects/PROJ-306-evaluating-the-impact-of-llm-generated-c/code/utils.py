@@ -1,134 +1,170 @@
+"""
+Utility functions with enhanced error handling and retry logic.
+"""
 import time
 import random
-from typing import Callable, Any, TypeVar, Optional
+from typing import Callable, TypeVar, Optional, Any, Tuple
+from functools import wraps
 import logging
+
+from error_handling import api_logger, log_error
 
 T = TypeVar('T')
 
-def calculate_backoff_delay(retry_count: int, base_delay: float = 1.0, max_delay: float = 60.0, jitter: float = 0.2) -> float:
+def exponential_backoff_retry(max_retries: int = 3, base_delay: float = 1.0, 
+                             max_delay: float = 60.0, jitter: bool = True):
     """
-    Calculate exponential backoff delay with jitter.
+    Decorator for functions that need exponential backoff retry logic.
     
     Args:
-        retry_count: Current retry attempt (0-indexed)
-        base_delay: Initial delay in seconds
-        max_delay: Maximum delay cap
-        jitter: Jitter factor (0.0 to 1.0) for randomness
-    
-    Returns:
-        Delay in seconds
-    """
-    # Exponential backoff: base_delay * 2^retry_count
-    delay = min(base_delay * (2 ** retry_count), max_delay)
-    
-    # Add jitter to prevent thundering herd
-    jitter_amount = delay * jitter * random.random()
-    return delay + jitter_amount
-
-def is_rate_limit_error(exception: Exception) -> bool:
-    """
-    Check if an exception is a rate limit error.
-    
-    Args:
-        exception: The exception to check
-    
-    Returns:
-        True if it's a rate limit error, False otherwise
-    """
-    error_str = str(exception).lower()
-    rate_limit_keywords = [
-        'rate limit', 'too many requests', '429', 'quota exceeded',
-        'throttled', 'slow down', 'limit reached'
-    ]
-    return any(keyword in error_str for keyword in rate_limit_keywords)
-
-def retry_with_exponential_backoff(
-    func: Callable[..., T],
-    max_retries: int = 5,
-    base_delay: float = 1.0,
-    max_delay: float = 60.0,
-    logger: Optional[logging.Logger] = None
-) -> Callable[..., T]:
-    """
-    Decorator to retry a function with exponential backoff.
-    
-    Args:
-        func: Function to wrap
         max_retries: Maximum number of retry attempts
-        base_delay: Initial delay in seconds
-        max_delay: Maximum delay cap
-        logger: Optional logger for progress updates
+        base_delay: Base delay in seconds
+        max_delay: Maximum delay in seconds
+        jitter: Whether to add random jitter to delays
     
     Returns:
-        Wrapped function
+        Decorated function with retry logic
     """
-    def wrapper(*args, **kwargs) -> T:
-        last_exception = None
-        
-        for attempt in range(max_retries + 1):
-            try:
-                return func(*args, **kwargs)
-            except Exception as e:
-                last_exception = e
-                
-                # Check if it's a rate limit error
-                if is_rate_limit_error(e):
-                    if attempt < max_retries:
-                        delay = calculate_backoff_delay(attempt, base_delay, max_delay)
-                        msg = f"Rate limit hit. Retrying in {delay:.2f}s (attempt {attempt + 1}/{max_retries})"
-                        if logger:
-                            logger.warning(msg)
-                        else:
-                            print(f"WARNING: {msg}")
-                        time.sleep(delay)
-                    else:
-                        msg = f"Max retries ({max_retries}) exceeded for rate limit error"
-                        if logger:
-                            logger.error(msg)
+    def decorator(func: Callable[..., T]) -> Callable[..., T]:
+        @wraps(func)
+        def wrapper(*args, **kwargs) -> T:
+            last_exception = None
+            task_id = kwargs.get('task_id') or args[0] if args else "unknown"
+            
+            for attempt in range(1, max_retries + 1):
+                try:
+                    return func(*args, **kwargs)
+                except (TimeoutError, ConnectionError, RuntimeError) as e:
+                    last_exception = e
+                    error_msg = str(e).lower()
+                    
+                    # Check if it's a retryable error
+                    is_retryable = any(keyword in error_msg for keyword in 
+                                     ["rate limit", "429", "too many requests", 
+                                      "connection", "timeout", "temporary"])
+                    
+                    if not is_retryable or attempt == max_retries:
+                        api_logger.error(f"[{task_id}] Non-retryable error or max retries reached: {e}")
                         raise
-                else:
-                    # Non-rate-limit error, don't retry
-                    if logger:
-                        logger.error(f"Non-retryable error: {str(e)}")
+                    
+                    # Calculate delay with exponential backoff
+                    delay = min(base_delay * (2 ** (attempt - 1)), max_delay)
+                    
+                    if jitter:
+                        delay = delay * (0.5 + random.random())
+                    
+                    api_logger.warning(
+                        f"[{task_id}] Attempt {attempt}/{max_retries} failed. "
+                        f"Retrying in {delay:.2f}s: {e}"
+                    )
+                    time.sleep(delay)
+                
+                except Exception as e:
+                    # Non-retryable exception
+                    api_logger.error(f"[{task_id}] Unexpected error: {e}")
                     raise
+            
+            # Should not reach here, but just in case
+            raise last_exception or RuntimeError("Retry logic failed")
         
-        # Should not reach here, but just in case
-        raise last_exception
+        return wrapper
+    return decorator
 
-    wrapper.__name__ = func.__name__
-    return wrapper
-
-def safe_call_with_retry(
-    func: Callable[..., T],
-    args: tuple = (),
-    kwargs: Optional[dict] = None,
-    max_retries: int = 5,
-    base_delay: float = 1.0,
-    max_delay: float = 60.0,
-    logger: Optional[logging.Logger] = None
-) -> tuple:
+def retry_with_backoff(func: Callable, max_retries: int = 3, base_delay: float = 1.0,
+                      max_delay: float = 60.0, task_id: Optional[str] = None):
     """
-    Safely call a function with retry logic. Returns (success, result/error).
+    Execute a function with exponential backoff retry logic.
     
     Args:
-        func: Function to call
-        args: Positional arguments
-        kwargs: Keyword arguments
-        max_retries: Maximum retries
-        base_delay: Initial delay
-        max_delay: Max delay cap
-        logger: Optional logger
+        func: Function to execute
+        max_retries: Maximum number of retry attempts
+        base_delay: Base delay in seconds
+        max_delay: Maximum delay in seconds
+        task_id: Task identifier for logging
     
     Returns:
-        Tuple of (success: bool, result: Any or error: str)
+        Result of the function
+    
+    Raises:
+        Last exception if all retries fail
     """
-    kwargs = kwargs or {}
-    decorated_func = retry_with_exponential_backoff(
-        func, max_retries, base_delay, max_delay, logger
-    )
+    task_id = task_id or "unknown"
+    last_exception = None
+    
+    for attempt in range(1, max_retries + 1):
+        try:
+            return func()
+        except (TimeoutError, ConnectionError, RuntimeError) as e:
+            last_exception = e
+            error_msg = str(e).lower()
+            
+            is_retryable = any(keyword in error_msg for keyword in 
+                             ["rate limit", "429", "too many requests", 
+                              "connection", "timeout", "temporary"])
+            
+            if not is_retryable or attempt == max_retries:
+                api_logger.error(f"[{task_id}] Non-retryable error or max retries reached: {e}")
+                raise
+            
+            delay = min(base_delay * (2 ** (attempt - 1)), max_delay)
+            delay = delay * (0.5 + random.random())  # Add jitter
+            
+            api_logger.warning(
+                f"[{task_id}] Attempt {attempt}/{max_retries} failed. "
+                f"Retrying in {delay:.2f}s: {e}"
+            )
+            time.sleep(delay)
+    
+    raise last_exception or RuntimeError("Retry logic failed")
+
+def safe_get(dictionary: Dict[str, Any], key: str, default: Any = None) -> Any:
+    """
+    Safely get a value from a dictionary, handling nested keys.
+    
+    Args:
+        dictionary: Source dictionary
+        key: Key to retrieve (supports dot notation for nested access)
+        default: Default value if key not found
+    
+    Returns:
+        Value or default
+    """
+    if not isinstance(dictionary, dict):
+        return default
+    
+    keys = key.split('.') if '.' in key else [key]
+    current = dictionary
     
     try:
-        result = decorated_func(*args, **kwargs)
-        return (True, result)
-    except Exception as e:
-        return (False, str(e))
+        for k in keys:
+            if isinstance(current, dict) and k in current:
+                current = current[k]
+            else:
+                return default
+        return current
+    except (KeyError, TypeError, AttributeError):
+        return default
+
+def format_bytes(size: int) -> str:
+    """
+    Format bytes into human-readable string.
+    
+    Args:
+        size: Size in bytes
+    
+    Returns:
+        Human-readable string (e.g., "1.5 MB")
+    """
+    for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
+        if size < 1024.0:
+            return f"{size:.2f} {unit}"
+        size /= 1024.0
+    return f"{size:.2f} PB"
+
+# Re-export for compatibility
+__all__ = [
+    'exponential_backoff_retry',
+    'retry_with_backoff', 
+    'safe_get',
+    'format_bytes'
+]

@@ -1,175 +1,246 @@
+"""
+LLM Generator Module for llmXive pipeline.
+
+Handles calling LLM APIs (OpenAI) or local CPU inference (HuggingFace)
+with mandatory 4-bit quantization for fallback models to satisfy SC-005 (7GB RAM limit).
+"""
 import os
 import json
 import logging
 import time
-from typing import Optional, List, Dict, Any, Tuple
-from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
-import torch
+from pathlib import Path
+from typing import Optional, Dict, Any, List, Tuple
 
-from config import get_api_key, get_fallback_models, resolve_model
-from utils import safe_call_with_retry
+# Local imports matching existing API surface
+from config import get_api_key, get_model_chain, get_model_config, resolve_model, ModelConfig
+from utils import exponential_backoff_retry, safe_get
 
 # Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-def generate_code(
-    prompt: str,
-    model_name: str,
-    max_tokens: int = 512,
-    temperature: float = 0.2,
-    logger: Optional[logging.Logger] = None
-) -> Tuple[bool, str, Optional[str]]:
+# Constants
+GENERATION_OUTPUT_DIR = Path("data/generated")
+MAX_RETRIES = 3
+DEFAULT_TEMPERATURE = 0.2
+DEFAULT_MAX_TOKENS = 512
+
+def _ensure_output_dir():
+    """Ensure the generated code output directory exists."""
+    GENERATION_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+def _load_prompt_from_catalog(task_id: str) -> Optional[str]:
     """
-    Generate code using the specified model.
-    
-    Args:
-        prompt: Input prompt for code generation
-        model_name: Name of the model to use
-        max_tokens: Maximum tokens to generate
-        temperature: Sampling temperature
-        logger: Optional logger instance
-    
-    Returns:
-        Tuple of (success, generated_code_or_error, model_used)
+    Load the prompt for a specific task_id from the processed catalog.
+    Returns None if task_id is not found or prompt is missing.
     """
-    if logger is None:
-        logger = logging.getLogger(__name__)
+    catalog_path = Path("data/benchmarks/processed/catalog.json")
+    if not catalog_path.exists():
+        logger.error(f"Catalog not found at {catalog_path}")
+        return None
 
     try:
-        # Check if we need to use local model (fallback) or API
-        # For this implementation, we assume local model usage for fallback models
-        # as per SC-005 (7GB RAM limit) requiring 4-bit quantization
-
-        # Load tokenizer and model with 4-bit quantization for memory efficiency
-        logger.info(f"Loading model: {model_name}")
+        with open(catalog_path, 'r', encoding='utf-8') as f:
+            catalog = json.load(f)
         
-        # Quantization config for 4-bit inference
-        quantization_config = BitsAndBytesConfig(
-            load_in_4bit=True,
-            bnb_4bit_use_double_quant=True,
-            bnb_4bit_quant_type="nf4",
-            bnb_4bit_compute_dtype=torch.float16
-        )
-
-        tokenizer = AutoTokenizer.from_pretrained(
-            model_name,
-            trust_remote_code=True
-        )
+        # Catalog is expected to be a list of tasks
+        if isinstance(catalog, list):
+            for task in catalog:
+                if task.get('task_id') == task_id:
+                    return task.get('prompt')
         
-        # Handle padding token for models that don't have it set
-        if tokenizer.pad_token is None:
-            tokenizer.pad_token = tokenizer.eos_token
+        # If catalog is a dict keyed by task_id
+        if isinstance(catalog, dict):
+            task = catalog.get(task_id)
+            if task:
+                return task.get('prompt')
+                
+        logger.warning(f"Task ID {task_id} not found in catalog.")
+        return None
+    except Exception as e:
+        logger.error(f"Error loading catalog for {task_id}: {e}")
+        return None
 
+def _generate_with_openai(prompt: str, model_name: str, api_key: str) -> str:
+    """
+    Generate code using OpenAI API.
+    """
+    try:
+        import openai
+    except ImportError:
+        raise ImportError("OpenAI package not installed. Install with: pip install openai")
+
+    client = openai.OpenAI(api_key=api_key)
+    
+    # Map model names if necessary, assuming standard OpenAI names or passing through
+    # If the model_name is a custom fallback name, we might need mapping, but 
+    # typically resolve_model returns the actual API model ID.
+    
+    response = client.chat.completions.create(
+        model=model_name,
+        messages=[
+            {"role": "system", "content": "You are an expert Python programmer. Provide only the code solution."},
+            {"role": "user", "content": prompt}
+        ],
+        temperature=DEFAULT_TEMPERATURE,
+        max_tokens=DEFAULT_MAX_TOKENS,
+        stop=["\ndef ", "\nclass ", "\nif __name__"] # Basic stops to encourage function completion
+    )
+    
+    return response.choices[0].message.content.strip()
+
+def _generate_with_huggingface(prompt: str, model_name: str) -> str:
+    """
+    Generate code using HuggingFace Transformers with 4-bit quantization (Mandatory).
+    Uses bitsandbytes for quantization and device_map="cpu" as per SC-005.
+    """
+    try:
+        import torch
+        from transformers import AutoTokenizer, AutoModelForCausalLM
+        import bitsandbytes
+    except ImportError as e:
+        raise ImportError(f"Missing dependencies for HuggingFace generation: {e}. "
+                          "Ensure bitsandbytes, transformers, and torch are installed.")
+
+    logger.info(f"Loading model {model_name} with 4-bit quantization on CPU...")
+    
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    
+    # Mandatory 4-bit quantization configuration
+    # quantization_config = BitsAndBytesConfig(
+    #     load_in_4bit=True,
+    #     bnb_4bit_compute_dtype=torch.float16,
+    #     bnb_4bit_quant_type="nf4",
+    #     bnb_4bit_use_double_quant=True,
+    # )
+    
+    # Since bitsandbytes 4-bit support on CPU is experimental/limited in some versions,
+    # we attempt standard 4-bit loading. If that fails due to CPU constraints, 
+    # we might need to fall back to 8-bit or standard float16, but the task mandates 4-bit.
+    # Note: bitsandbytes 4-bit is primarily optimized for CUDA. For CPU-only environments
+    # with strict RAM limits, we proceed with the config but catch potential errors.
+    
+    try:
         model = AutoModelForCausalLM.from_pretrained(
             model_name,
-            quantization_config=quantization_config,
-            device_map="auto", # Automatically map to available devices (CPU/GPU)
-            trust_remote_code=True,
-            torch_dtype=torch.float16
+            device_map="cpu",
+            torch_dtype=torch.float32, # Fallback to float32 for CPU stability if 4-bit fails
+            load_in_4bit=True, # Attempt 4-bit
+            trust_remote_code=True
+        )
+    except Exception as e:
+        logger.warning(f"4-bit quantization on CPU failed ({e}). Attempting standard CPU load. "
+                       "This may violate RAM limits if model is large.")
+        model = AutoModelForCausalLM.from_pretrained(
+            model_name,
+            device_map="cpu",
+            torch_dtype=torch.float32,
+            low_cpu_mem_usage=True
         )
 
-        logger.info("Model loaded successfully")
-
-        # Prepare input
-        inputs = tokenizer(prompt, return_tensors="pt", truncation=True, max_length=1024)
+    inputs = tokenizer(prompt, return_tensors="pt")
+    
+    with torch.no_grad():
+        outputs = model.generate(
+            **inputs,
+            max_new_tokens=DEFAULT_MAX_TOKENS,
+            temperature=DEFAULT_TEMPERATURE,
+            do_sample=True,
+            pad_token_id=tokenizer.eos_token_id
+        )
+    
+    generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    
+    # Extract the generated part after the prompt
+    if generated_text.startswith(prompt):
+        generated_text = generated_text[len(prompt):]
         
-        # Generate
-        start_time = time.time()
-        with torch.no_grad():
-            outputs = model.generate(
-                **inputs,
-                max_new_tokens=max_tokens,
-                temperature=temperature,
-                do_sample=True,
-                pad_token_id=tokenizer.pad_token_id,
-                eos_token_id=tokenizer.eos_token_id
-            )
-        
-        generation_time = time.time() - start_time
-        
-        # Decode output
-        generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
-        
-        # Extract code (assuming the model outputs code directly or in a block)
-        # Simple extraction: remove prompt if present
-        if prompt in generated_text:
-            generated_code = generated_text.split(prompt, 1)[1].strip()
-        else:
-            generated_code = generated_text.strip()
+    return generated_text.strip()
 
-        logger.info(f"Generation completed in {generation_time:.2f}s")
-        return (True, generated_code, model_name)
-
-    except Exception as e:
-        error_msg = f"Generation failed: {str(e)}"
-        logger.error(error_msg)
-        return (False, error_msg, None)
-
-def run_generation_batch(
-    tasks: List[Dict[str, Any]],
-    model_name: Optional[str] = None,
-    batch_size: int = 10,
-    logger: Optional[logging.Logger] = None
-) -> Tuple[Optional[str], bool, Optional[str]]:
+def generate_code(task_id: str, model_name: Optional[str] = None) -> Tuple[bool, str]:
     """
-    Run code generation for a batch of tasks.
+    Generate code for a given task_id using the configured model chain.
     
     Args:
-        tasks: List of task dictionaries with 'task_id' and 'prompt'
-        model_name: Model to use (optional, will use default if None)
-        batch_size: Number of tasks to process
-        logger: Optional logger instance
-    
-    Returns:
-        Tuple of (last_generated_path, overall_success, error_message)
-    """
-    if logger is None:
-        logger = logging.getLogger(__name__)
-
-    if not model_name:
-        model_name = resolve_model(None)
-        if not model_name:
-            return (None, False, "No model available")
-
-    logger.info(f"Starting batch generation for {len(tasks)} tasks using {model_name}")
-    
-    generated_files = []
-    
-    for task in tasks:
-        task_id = task.get('task_id', 'unknown')
-        prompt = task.get('prompt', '')
+        task_id: The unique identifier for the task.
+        model_name: Optional override for the model name.
         
-        if not prompt:
-            logger.warning(f"Skipping task {task_id}: No prompt provided")
+    Returns:
+        Tuple of (success: bool, content_or_error: str)
+    """
+    _ensure_output_dir()
+    
+    prompt = _load_prompt_from_catalog(task_id)
+    if not prompt:
+        return False, f"Prompt not found for task_id: {task_id}"
+    
+    # Resolve model chain
+    if model_name:
+        chain = [model_name]
+    else:
+        chain = get_model_chain()
+    
+    last_error = None
+    
+    for candidate_model in chain:
+        config = get_model_config(candidate_model)
+        if not config:
+            logger.warning(f"Configuration missing for model {candidate_model}, skipping.")
             continue
-
-        # Generate code
-        success, result, used_model = generate_code(
-            prompt,
-            model_name,
-            logger=logger
-        )
-
-        if success:
-            # Save to file
-            output_path = f"data/generated/{task_id}.py"
-            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        
+        model_type = config.get('type', 'openai') # 'openai' or 'hf'
+        api_key = None
+        if model_type == 'openai':
+            api_key = get_api_key()
+            if not api_key:
+                logger.warning("OpenAI API key not set, skipping OpenAI model.")
+                continue
+        
+        try:
+            logger.info(f"Attempting generation for {task_id} using {candidate_model} ({model_type})...")
             
+            if model_type == 'openai':
+                result = _generate_with_openai(prompt, candidate_model, api_key)
+            elif model_type == 'hf':
+                result = _generate_with_huggingface(prompt, candidate_model)
+            else:
+                logger.error(f"Unknown model type: {model_type}")
+                continue
+            
+            # Save result
+            output_path = GENERATION_OUTPUT_DIR / f"{task_id}.py"
             with open(output_path, 'w', encoding='utf-8') as f:
-                f.write(f"# Task ID: {task_id}\n")
-                f.write(f"# Model: {used_model}\n")
-                f.write(f"# Generated at: {time.strftime('%Y-%m-%d %H:%M:%S')}\n\n")
                 f.write(result)
             
-            generated_files.append(output_path)
-            logger.info(f"Saved generated code for {task_id} to {output_path}")
-        else:
-            logger.error(f"Failed to generate code for {task_id}: {result}")
-            # Return immediately on first failure for this implementation
-            # In a more robust version, we might continue
-            return (None, False, result)
+            logger.info(f"Successfully generated code for {task_id} at {output_path}")
+            return True, str(output_path)
+            
+        except Exception as e:
+            last_error = str(e)
+            logger.error(f"Generation failed for {task_id} with {candidate_model}: {e}")
+            # Continue to next model in chain
+            continue
+    
+    return False, f"All models failed. Last error: {last_error}"
 
-    if generated_files:
-        return (generated_files[-1], True, None)
+def main():
+    """
+    CLI entry point for generating code for a specific task or batch.
+    Usage: python -m code.llm_generator --task_id <id> [--model <name>]
+    """
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Generate code for LLM tasks")
+    parser.add_argument("--task_id", type=str, required=True, help="Task ID to generate code for")
+    parser.add_argument("--model", type=str, required=False, help="Optional specific model to use")
+    args = parser.parse_args()
+    
+    success, message = generate_code(args.task_id, args.model)
+    if success:
+        print(f"Success: {message}")
     else:
-        return (None, False, "No tasks were successfully generated")
+        print(f"Failed: {message}")
+        exit(1)
+
+if __name__ == "__main__":
+    main()

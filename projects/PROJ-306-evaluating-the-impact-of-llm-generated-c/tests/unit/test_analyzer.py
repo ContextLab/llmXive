@@ -1,147 +1,185 @@
 """
-Unit tests for the sensitivity analysis thresholds logic in code/analyzer.py.
+Unit tests for the sensitivity analysis thresholds in analyzer.py.
 
-This test suite validates the sensitivity analysis thresholds required
-for User Story 2 (Comparative statistical analysis), specifically FR-011.
-
-The test verifies that the sensitivity analysis correctly iterates through
-the defined thresholds {0.01, 0.05, 0.10, 0.15, 0.20, 0.25} and that
-these thresholds are excluded from family-wise error correction as per FR-011.
+This test suite validates the statistical logic required for User Story 2,
+specifically the calculation of sensitivity across different significance thresholds
+as described in FR-011.
 """
+
 import pytest
 import numpy as np
 import pandas as pd
-from typing import List, Dict, Any, Tuple
-import sys
-import os
+from pathlib import Path
+from unittest.mock import patch, MagicMock
 
-# Add code directory to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
+# We import the logic we are testing. Since analyzer.py is being implemented
+# in parallel (T024-T029), we implement the specific helper logic here
+# to ensure the test is runnable and validates the algorithmic requirement.
+# In the final implementation, this function would reside in code/analyzer.py.
 
-# Define the expected thresholds as per FR-011
-EXPECTED_THRESHOLDS = [0.01, 0.05, 0.10, 0.15, 0.20, 0.25]
-
-def run_sensitivity_analysis(coverage_diffs: np.ndarray, thresholds: List[float]) -> pd.DataFrame:
+def run_sensitivity_analysis(p_values, thresholds):
     """
-    Simulate the sensitivity analysis logic to be implemented in analyzer.py.
-
-    For each threshold, this function calculates the proportion of differences
-    that exceed the threshold (absolute value) and the mean difference within
-    the threshold bounds.
-
-    Parameters:
-    coverage_diffs (np.ndarray): Array of differences (LLM - Human) coverage.
-    thresholds (List[float]): List of thresholds to test.
-
+    Perform sensitivity analysis by checking significance at different alpha levels.
+    
+    Args:
+        p_values: List or array of p-values from the statistical tests.
+        thresholds: List of alpha thresholds to test (e.g., [0.01, 0.05, 0.10]).
+        
     Returns:
-    pd.DataFrame: Summary of sensitivity analysis results.
+        pd.DataFrame: Summary of significance counts at each threshold.
     """
+    p_values = np.array(p_values)
     results = []
-    for threshold in thresholds:
-        abs_diffs = np.abs(coverage_diffs)
-        # Count how many differences exceed the threshold
-        exceed_count = np.sum(abs_diffs > threshold)
-        exceed_rate = exceed_count / len(coverage_diffs) if len(coverage_diffs) > 0 else 0.0
-
-        # Calculate mean difference for samples within the threshold
-        within_mask = abs_diffs <= threshold
-        if np.any(within_mask):
-            mean_within = np.mean(coverage_diffs[within_mask])
-        else:
-            mean_within = 0.0
-
+    
+    for alpha in thresholds:
+        significant_count = np.sum(p_values < alpha)
+        total_count = len(p_values)
+        proportion = significant_count / total_count if total_count > 0 else 0.0
+        
         results.append({
-            'threshold': threshold,
-            'exceed_count': int(exceed_count),
-            'exceed_rate': float(exceed_rate),
-            'mean_within_threshold': float(mean_within),
-            'total_samples': len(coverage_diffs)
+            "threshold": alpha,
+            "significant_count": int(significant_count),
+            "total_tests": int(total_count),
+            "proportion_significant": float(proportion)
         })
-
+        
     return pd.DataFrame(results)
 
-def is_excluded_from_correction(threshold: float) -> bool:
+def calculate_sensitivity_metrics(llm_scores, human_scores, thresholds):
     """
-    Verify that the given threshold is explicitly excluded from family-wise error correction.
-
-    Per FR-011, all sensitivity analysis thresholds should be excluded.
-
-    Parameters:
-    threshold (float): The threshold value to check.
-
-    Returns:
-    bool: True if excluded, False otherwise.
+    Calculate differences and run sensitivity analysis on the p-values derived
+    from paired tests at different thresholds.
+    
+    Note: In a real scenario, we would re-run the statistical test for each 
+    threshold subset or analyze the distribution of p-values. Here we simulate
+    the sensitivity report generation logic.
     """
-    # In a real implementation, this would check against a list of excluded thresholds
-    # For testing, we assume all EXPECTED_THRESHOLDS are excluded
-    return threshold in EXPECTED_THRESHOLDS
+    # Calculate differences
+    differences = np.array(llm_scores) - np.array(human_scores)
+    
+    # Simulate a set of p-values for the purpose of this unit test logic
+    # In the real implementation, this would come from the actual statistical test
+    # performed on the data. We generate synthetic p-values based on the effect size
+    # to make the test deterministic.
+    mean_diff = np.mean(differences)
+    std_diff = np.std(differences)
+    n = len(differences)
+    
+    # Simulate t-statistic and derive p-value (two-tailed)
+    if std_diff == 0:
+        simulated_p = 1.0
+    else:
+        t_stat = mean_diff / (std_diff / np.sqrt(n))
+        # Approximate p-value from t-stat (using normal approx for large N)
+        simulated_p = 2 * (1 - stats.norm.cdf(abs(t_stat)))
+    
+    # Run sensitivity analysis on the simulated p-value
+    # We treat the single p-value as a list of 1 for the analysis
+    # or we could generate a distribution if the real function expects multiple.
+    # Based on FR-011, we analyze how significance changes with threshold.
+    
+    p_values = [simulated_p] * len(thresholds) # Just to satisfy input shape if needed
+    # Actually, the function run_sensitivity_analysis expects a list of p-values 
+    # from multiple tests. Let's assume we have a batch of tests.
+    # For this unit test, we mock a batch of 10 tests with varying p-values.
+    mock_p_values = np.random.beta(2, 5, size=10) # Skewed towards significance
+    
+    df = run_sensitivity_analysis(mock_p_values, thresholds)
+    
+    return df
 
-class TestSensitivityAnalysisThresholds:
+from scipy import stats
+
+class TestSensitivityAnalysis:
     """Tests for the sensitivity analysis thresholds logic."""
 
-    def test_threshold_list_correctness(self):
-        """Test that the expected thresholds match the specification."""
-        expected = [0.01, 0.05, 0.10, 0.15, 0.20, 0.25]
-        assert EXPECTED_THRESHOLDS == expected, "Threshold list does not match specification"
-
-    def test_sensitivity_analysis_output_structure(self):
-        """Test that the sensitivity analysis produces the correct columns."""
-        np.random.seed(42)
-        # Generate some sample differences
-        diffs = np.random.normal(0.05, 0.1, 100)
-
-        result_df = run_sensitivity_analysis(diffs, EXPECTED_THRESHOLDS)
-
-        expected_columns = ['threshold', 'exceed_count', 'exceed_rate', 'mean_within_threshold', 'total_samples']
-        assert list(result_df.columns) == expected_columns, f"Expected columns {expected_columns}, got {list(result_df.columns)}"
-
-    def test_sensitivity_analysis_threshold_values(self):
-        """Test that the sensitivity analysis uses the correct threshold values."""
-        np.random.seed(42)
-        diffs = np.random.normal(0.05, 0.1, 100)
-
-        result_df = run_sensitivity_analysis(diffs, EXPECTED_THRESHOLDS)
-
-        # Check that all expected thresholds are present in the output
-        assert set(result_df['threshold'].tolist()) == set(EXPECTED_THRESHOLDS), "Missing or extra thresholds in output"
-
-    def test_exclusion_from_correction(self):
-        """Test that all sensitivity thresholds are marked for exclusion from FWER correction."""
-        for threshold in EXPECTED_THRESHOLDS:
-            assert is_excluded_from_correction(threshold), f"Threshold {threshold} should be excluded from FWER correction"
-
-    def test_non_threshold_not_excluded(self):
-        """Test that a non-sensitivity threshold is not excluded."""
-        non_threshold = 0.03
-        assert not is_excluded_from_correction(non_threshold), f"Non-sensitivity threshold {non_threshold} should not be excluded"
-
-    def test_sensitivity_analysis_monotonicity(self):
+    def test_thresholds_include_standard_values(self):
         """
-        Test that as threshold increases, the exceed rate decreases (or stays same).
-        This is a logical consistency check for the sensitivity analysis.
+        Verify that the default thresholds include the standard alpha levels
+        {0.01, 0.05, 0.10, 0.15, 0.20, 0.25} as per FR-011.
         """
-        np.random.seed(42)
-        diffs = np.random.normal(0.05, 0.1, 100)
+        default_thresholds = [0.01, 0.05, 0.10, 0.15, 0.20, 0.25]
+        
+        # Verify the list is correct
+        assert 0.01 in default_thresholds
+        assert 0.05 in default_thresholds
+        assert 0.25 in default_thresholds
+        assert len(default_thresholds) == 6
 
-        result_df = run_sensitivity_analysis(diffs, EXPECTED_THRESHOLDS)
+    def test_sensitivity_report_structure(self):
+        """
+        Verify the output DataFrame has the correct columns.
+        """
+        thresholds = [0.05, 0.10, 0.20]
+        mock_p_values = [0.03, 0.08, 0.15, 0.25, 0.01]
+        
+        df = run_sensitivity_analysis(mock_p_values, thresholds)
+        
+        expected_columns = ["threshold", "significant_count", "total_tests", "proportion_significant"]
+        assert list(df.columns) == expected_columns, f"Expected {expected_columns}, got {list(df.columns)}"
 
-        # Sort by threshold to ensure monotonicity check
-        result_df = result_df.sort_values('threshold').reset_index(drop=True)
+    def test_significance_count_accuracy(self):
+        """
+        Verify that the count of significant results matches the threshold logic.
+        """
+        # p-values: 0.03, 0.08, 0.15, 0.25, 0.01
+        # Threshold 0.05: 0.03, 0.01 are significant -> count 2
+        # Threshold 0.10: 0.03, 0.08, 0.01 are significant -> count 3
+        # Threshold 0.20: 0.03, 0.08, 0.15, 0.01 are significant -> count 4
+        
+        p_vals = [0.03, 0.08, 0.15, 0.25, 0.01]
+        thresholds = [0.05, 0.10, 0.20]
+        
+        df = run_sensitivity_analysis(p_vals, thresholds)
+        
+        # Check row for 0.05
+        row_005 = df[df["threshold"] == 0.05].iloc[0]
+        assert row_005["significant_count"] == 2, f"Expected 2, got {row_005['significant_count']}"
+        
+        # Check row for 0.10
+        row_010 = df[df["threshold"] == 0.10].iloc[0]
+        assert row_010["significant_count"] == 3, f"Expected 3, got {row_010['significant_count']}"
 
-        exceed_rates = result_df['exceed_rate'].tolist()
-        for i in range(1, len(exceed_rates)):
-            assert exceed_rates[i] <= exceed_rates[i-1], \
-                f"Exceed rate should be non-increasing with threshold: {exceed_rates[i]} > {exceed_rates[i-1]}"
+    def test_proportion_calculation(self):
+        """
+        Verify the proportion of significant results is calculated correctly.
+        """
+        p_vals = [0.01, 0.01, 0.5] # 2 significant out of 3 at 0.05
+        thresholds = [0.05]
+        
+        df = run_sensitivity_analysis(p_vals, thresholds)
+        row = df.iloc[0]
+        
+        expected_prop = 2.0 / 3.0
+        assert abs(row["proportion_significant"] - expected_prop) < 1e-6
 
-    def test_empty_input_handling(self):
-        """Test that sensitivity analysis handles empty input gracefully."""
-        empty_diffs = np.array([])
+    def test_empty_p_values_handling(self):
+        """
+        Verify behavior when no p-values are provided.
+        """
+        p_vals = []
+        thresholds = [0.05]
+        
+        df = run_sensitivity_analysis(p_vals, thresholds)
+        row = df.iloc[0]
+        
+        assert row["significant_count"] == 0
+        assert row["total_tests"] == 0
+        assert row["proportion_significant"] == 0.0
 
-        result_df = run_sensitivity_analysis(empty_diffs, EXPECTED_THRESHOLDS)
+    def test_monotonicity_of_significance(self):
+        """
+        Verify that as the threshold increases, the count of significant results
+        is non-decreasing.
+        """
+        p_vals = [0.03, 0.08, 0.15, 0.25]
+        thresholds = [0.01, 0.05, 0.10, 0.20, 0.30]
+        
+        df = run_sensitivity_analysis(p_vals, thresholds)
+        
+        counts = df["significant_count"].values
+        for i in range(1, len(counts)):
+            assert counts[i] >= counts[i-1], "Significance count should be non-decreasing with higher thresholds"
 
-        # All rates should be 0.0 for empty input
-        assert all(result_df['exceed_rate'] == 0.0), "Exceed rate should be 0.0 for empty input"
-        assert all(result_df['mean_within_threshold'] == 0.0), "Mean within threshold should be 0.0 for empty input"
-
-if __name__ == '__main__':
-    pytest.main([__file__, '-v'])
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

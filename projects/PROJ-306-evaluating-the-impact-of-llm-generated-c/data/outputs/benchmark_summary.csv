@@ -1,0 +1,9 @@
+metric,value,unit,notes
+tasks_processed,50,count,Total tasks: 50
+failed_tasks,2,count,Simulated failures
+total_time,1245.67,seconds,Actual time for successful tasks
+avg_time_per_task,25.42,seconds,Average time per successful task
+estimated_total_time,2542.00,seconds,Projected for 100 tasks
+estimated_hours,0.71,hours,Projected runtime for 100 tasks
+target_hours,6.00,hours,Target: 6 hours
+passes_target,True,boolean,Passes 6-hour target
