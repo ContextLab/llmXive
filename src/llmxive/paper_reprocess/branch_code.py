@@ -199,6 +199,19 @@ def _add_submodule(
     working tree is empty is treated as a failure (the gate has nothing to run).
     """
     abs_submodule.parent.mkdir(parents=True, exist_ok=True)
+    # A prior partial run can leave a stale working-tree dir or a registered
+    # index/.gitmodules entry at this exact path; ``git submodule add`` then
+    # fails ("already exists and is not a valid git repo") and needlessly forces
+    # the no-code fallback even though the paper ships real code. Pre-clean any
+    # such debris so the add always starts from a clean slate.
+    gitmodules = repo_root / ".gitmodules"
+    is_stale = abs_submodule.exists() or (
+        gitmodules.is_file()
+        and rel_submodule in gitmodules.read_text(encoding="utf-8", errors="ignore")
+    )
+    if is_stale:
+        _cleanup_failed_submodule(repo_root, rel_submodule, abs_submodule)
+        abs_submodule.parent.mkdir(parents=True, exist_ok=True)
     # ``-c protocol.file.allow=always`` is a no-op for https/ssh remotes (the
     # production case) but re-enables cloning a local/file path, which recent git
     # blocks by default — used by hermetic tests that vendor a local source repo.

@@ -290,6 +290,30 @@ def test_empty_clone_dir_is_treated_as_failure(repo: Path, tmp_path: Path) -> No
     assert err is not None and "empty" in err.lower()
 
 
+def test_stale_submodule_path_is_cleaned_before_add(
+    repo: Path, tmp_path: Path
+) -> None:
+    """A prior partial run can leave a non-submodule dir at the target path; the
+    add must PRE-CLEAN it and succeed instead of failing into the no-code
+    fallback (the PROJ-565 regression: "already exists and is not a valid git
+    repo")."""
+    import llmxive.paper_reprocess.branch_code as bc
+
+    code_url = _make_tiny_code_repo(tmp_path)
+    pdir = repo / "projects" / _PROJECT_ID
+    rel, abs_sm = bc._submodule_relpath(pdir, code_url, repo)
+
+    # Debris from a prior partial run: a plain (non-git) dir with content at the
+    # exact path, which makes a naive `git submodule add` fail.
+    abs_sm.mkdir(parents=True)
+    (abs_sm / "leftover.txt").write_text("stale", encoding="utf-8")
+
+    err = bc._add_submodule(repo, code_url, rel, abs_sm)
+    assert err is None, f"stale path must be cleaned + re-added, got: {err}"
+    assert abs_sm.is_dir() and (abs_sm / "main.py").is_file()
+    assert not (abs_sm / "leftover.txt").exists()
+
+
 # The known-good FREE Dartmouth model (the registry default qwen.* is retired
 # and hangs; spec IV requires free models — gpt-oss-120b is the live free one).
 _FREE_MODEL = "openai.gpt-oss-120b"
