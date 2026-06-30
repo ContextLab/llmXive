@@ -1,0 +1,55 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: SubjectMetricsSchema
+description: Schema for the aggregated subject-level metrics CSV.
+type: object
+properties:
+  subject_id:
+    type: string
+    description: "Unique identifier for the subject (e.g., STDT01)."
+  stage_label:
+    type: string
+    description: "Sleep stage label (N1, N2, N3, REM)."
+    enum:
+      - N1
+      - N2
+      - N3
+      - REM
+  mean_pli:
+    type: number
+    description: "Mean Phase Lag Index across all epochs of this stage."
+    minimum: 0
+    maximum: 1
+  n_epochs:
+    type: integer
+    description: "Number of epochs included in the mean calculation."
+    minimum: 1
+  centrality_degree_mean:
+    type: number
+    description: "Mean degree centrality across nodes in the waking network."
+  centrality_betweenness_mean:
+    type: number
+    description: "Mean betweenness centrality across nodes."
+  centrality_eigenvector_mean:
+    type: number
+    description: "Mean eigenvector centrality across nodes."
+  waking_night_id:
+    type: string
+    description: "Identifier for the waking recording night."
+  sleep_night_id:
+    type: string
+    description: "Identifier for the sleep recording night."
+  temporal_proximity:
+    type: boolean
+    description: "True if waking and sleep recordings are from the same night."
+required:
+  - subject_id
+  - stage_label
+  - mean_pli
+  - n_epochs
+  - centrality_degree_mean
+  - centrality_betweenness_mean
+  - centrality_eigenvector_mean
+  - waking_night_id
+  - sleep_night_id
+  - temporal_proximity
+additionalProperties: false

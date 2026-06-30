@@ -1,0 +1,65 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: AnalysisResultSchema
+description: Schema for the LME correlation analysis results JSON.
+type: object
+properties:
+  metric_name:
+    type: string
+    description: "Centrality metric name."
+    enum:
+      - degree
+      - betweenness
+      - eigenvector
+  stage_label:
+    type: string
+    description: "Sleep stage label."
+    enum:
+      - N1
+      - N2
+      - N3
+      - REM
+  band:
+    type: string
+    description: "Frequency band used for connectivity."
+    enum:
+      - theta
+      - alpha
+  correlation_coefficient:
+    type: number
+    description: "LME fixed effect coefficient for the centrality metric."
+  p_value_raw:
+    type: number
+    description: "Unadjusted p-value."
+    minimum: 0
+    maximum: 1
+  p_value_corrected:
+    type: number
+    description: "FDR-corrected p-value."
+    minimum: 0
+    maximum: 1
+  significant:
+    type: boolean
+    description: "True if corrected p < 0.05."
+  method:
+    type: string
+    description: "Statistical method used."
+    enum:
+      - lme
+  global_connectivity_coefficient:
+    type: number
+    description: "LME coefficient for the global coherence covariate."
+  covariate_used:
+    type: boolean
+    description: "True if global coherence was included in the model."
+required:
+  - metric_name
+  - stage_label
+  - band
+  - correlation_coefficient
+  - p_value_raw
+  - p_value_corrected
+  - significant
+  - method
+  - global_connectivity_coefficient
+  - covariate_used
+additionalProperties: false

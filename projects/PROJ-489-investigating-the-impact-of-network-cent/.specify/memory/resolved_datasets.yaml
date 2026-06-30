@@ -1,0 +1,775 @@
+resolved_at: '2026-06-30T02:33:40.888699+00:00'
+datasets:
+- intent: EDF
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/pixelsandpointers/ed-for-lm/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/results-sd-v1-5-sd-v2-1-if-v1-0-karlo/edfff8d1/resolve/main/data/train-00000-of-00001-55d593365aaae992.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 1331
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/pixelsandpointers/ed-for-lm/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/results-sd-v1-5-sd-v2-1-if-v1-0-karlo/edfff8d1/resolve/main/data/train-00000-of-00001-55d593365aaae992.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/conference_contribution/MINTAQADA_YENGIL_SANOATNI_RIVOJLANTIRISHNING_ZAMONAVIY_TASHKILIY-IQTISODIY_MEXANIZMLARI/32831111
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Equity-by-design_for_socially_assistive_robots_as_digital_health_tools/32817455
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/YOMG_IRLATIB_SUG_ORISHNING_TEXNOLOGIK_ISH_JARAYONI_VA_MASHINANING_MAVSUMIY_SUG_ORISH_ME_YORI/32831105
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Mothers_experience_of_supporting_their_very_preterm_child_s_development_over_the_first_two_years_of_life_a_qualitative_reflexive_thematic_analysis/32831101
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/BO_LAJAK_BOSHLANG_ICH_SINF_O_QITUVCHILARINING_BILIM_OLISH_MUSTAQILLIGI_FAOLIYATINI_RIVOJLANTIRISH/32831096
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3843654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14730756
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3611502
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3802550
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3611531
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://pandemos.panteion.gr/handle/123456789/24994
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://pureportal.strath.ac.uk/en/datasets/data-for-mannitol-crystallization-at-sub-zero-temperatures-timete/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ww2.nemar.org/dataset/on006317
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ww2.nemar.org/dataset/on006317?v=v1.0.0
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21002298
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: EEG
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/neurofusion/eeg-restingstate/resolve/main/events.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 2963
+      parsed: true
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_train/resolve/main/data/train-00000-of-00048-3d720ad254981f90.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_eval/resolve/main/data/train-00000-of-00007-78d1928c4e4c8738.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/neurofusion/eeg-restingstate/resolve/main/events.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_train/resolve/main/data/train-00000-of-00048-3d720ad254981f90.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_eval/resolve/main/data/train-00000-of-00007-78d1928c4e4c8738.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_dev/resolve/main/data/train-00000-of-00007-78d1928c4e4c8738.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/conference_contribution/MINTAQADA_YENGIL_SANOATNI_RIVOJLANTIRISHNING_ZAMONAVIY_TASHKILIY-IQTISODIY_MEXANIZMLARI/32831111
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Equity-by-design_for_socially_assistive_robots_as_digital_health_tools/32817455
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/YOMG_IRLATIB_SUG_ORISHNING_TEXNOLOGIK_ISH_JARAYONI_VA_MASHINANING_MAVSUMIY_SUG_ORISH_ME_YORI/32831105
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Mothers_experience_of_supporting_their_very_preterm_child_s_development_over_the_first_two_years_of_life_a_qualitative_reflexive_thematic_analysis/32831101
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/BO_LAJAK_BOSHLANG_ICH_SINF_O_QITUVCHILARINING_BILIM_OLISH_MUSTAQILLIGI_FAOLIYATINI_RIVOJLANTIRISH/32831096
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3236138
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10909103
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16906198
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://open-research-europe.ec.europa.eu/articles/2-5/v1
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://open-research-europe.ec.europa.eu/articles/2-5/v2
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ww2.nemar.org/dataset/on007169
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ww2.nemar.org/dataset/on007169?v=v1.0.0
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://infoscience.epfl.ch/entities/publication/b71aab40-24a7-477e-97df-815d8b61d002
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ww2.nemar.org/dataset/on007162
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21051722
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ICA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Icannos/gpt4all-formatted-dolly-15k-multilingual/resolve/main/data/de-00000-of-00001-5ee5278187666bb6.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ecnu-icalk/educhat-sft-002-data-osm/resolve/main/MIX_BELLE.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Icannos/gpt4all-formatted-dolly-15k-multilingual/resolve/main/data/de-00000-of-00001-5ee5278187666bb6.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ecnu-icalk/educhat-sft-002-data-osm/resolve/main/MIX_BELLE.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/api/resolve-cache/datasets/Icannos/chess_studies/64b57c397dfbb32078c816869616c0a8473c0311/lichess_studies.csv?%2Fdatasets%2FIcannos%2Fchess_studies%2Fresolve%2Fmain%2Flichess_studies.csv=&etag=%224d3172e97c56b69821a64ada487b43ca24d91c78%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Isostructural_Perylene_Diimide-Based_Metal_Organic_Frameworks_for_Efficient_Photocatalytic_Oxidation_of_Benzylamines/32831122
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Adsorption_of_Cationic_Lignin_Derivatives_on_Negatively_Charged_Model_Surfaces_and_Hair_Fibers_Implications_for_Hair_Conditioning_Performance/32831119
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/NAVOIY_VILOYATIDA_YENGIL_SANOATNING_HUDUDIY_RIVOJLANISH_XUSUSIYATLARI_VA_ISTIQBOLLARI/32831117
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/MINTAQADA_YENGIL_SANOATNI_RIVOJLANTIRISHNING_ZAMONAVIY_TASHKILIY-IQTISODIY_MEXANIZMLARI/32831111
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Equity-by-design_for_socially_assistive_robots_as_digital_health_tools/32817455
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3408507
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ieeexplore.ieee.org/document/6943768/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6967838
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4423653
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11266964
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://yareta.unige.ch/archives/ef51a333-c75e-4478-95d2-a450ba234197
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://yareta.unige.ch/archives/f3c9ac2b-7423-4e41-b67e-1db54cfc68ca
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://world.physio/congress-proceeding/intervention-component-analysis-ica-and-qualitative-comparative-analysis-qca
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://world.physio/congress-proceeding/development-theoretically-informed-patient-and-clinician-level-intervention
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ojs.unito.it/index.php/jbp/article/view/13659
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: REM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/DDAI-D/ReMMDBench/resolve/main/data/2026-00000-of-00005.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/aspis/car_background_removal/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/DDAI-D/ReMMDBench/resolve/main/data/2026-00000-of-00005.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/api/resolve-cache/datasets/VioletAmethyst/ReMeDi-ATMD/1a3ec010d681f56c53601b43ceab5f2d33736596/ReMeDi_ATMD_test.jsonl?%2Fdatasets%2FVioletAmethyst%2FReMeDi-ATMD%2Fresolve%2Fmain%2FReMeDi_ATMD_test.jsonl=&etag=%22ca0f39cf6338b37856100c52c4da00cdf727274f%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/aspis/car_background_removal/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/A_typology_of_crises_and_innovation_configurations_a_paradoxical_perspective/32825003
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Mimicking_Natural_Photosynthesis_Bromide-Mediated_Photocatalysis_for_Spatially_Decoupled_Olefin_Epoxidation_and_Hydrogen_Evolution/32831125
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Isostructural_Perylene_Diimide-Based_Metal_Organic_Frameworks_for_Efficient_Photocatalytic_Oxidation_of_Benzylamines/32831122
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Adsorption_of_Cationic_Lignin_Derivatives_on_Negatively_Charged_Model_Surfaces_and_Hair_Fibers_Implications_for_Hair_Conditioning_Performance/32831119
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/NAVOIY_VILOYATIDA_YENGIL_SANOATNING_HUDUDIY_RIVOJLANISH_XUSUSIYATLARI_VA_ISTIQBOLLARI/32831117
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3836074
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15360156
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20423456
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18355988
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16192764
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ww2.nemar.org/dataset/on007120
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ww2.nemar.org/dataset/on007120?v=v1.0.0
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ww2.nemar.org/dataset/on007119
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ww2.nemar.org/dataset/on007119?v=v1.0.0
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ww2.nemar.org/dataset/on007118
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-001
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://acs.figshare.com/articles/journal_contribution/The_Exploration_of_TPhos_as_a_Monodentate_P_Ligand_for_Palladium-Catalyzed_Regioselective_Hydrothiocarbonylation_of_Styrenes_under_Neutral_Conditions/32831128
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/A_typology_of_crises_and_innovation_configurations_a_paradoxical_perspective/32825003
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Mimicking_Natural_Photosynthesis_Bromide-Mediated_Photocatalysis_for_Spatially_Decoupled_Olefin_Epoxidation_and_Hydrogen_Evolution/32831125
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Isostructural_Perylene_Diimide-Based_Metal_Organic_Frameworks_for_Efficient_Photocatalytic_Oxidation_of_Benzylamines/32831122
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Adsorption_of_Cationic_Lignin_Derivatives_on_Negatively_Charged_Model_Surfaces_and_Hair_Fibers_Implications_for_Hair_Conditioning_Performance/32831119
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19059431
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17936025
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10337909
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604131
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6373741
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15485834
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16828200
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20358997
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20358997
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MUST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 190547
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/conference_contribution/XORIJIY_TAJRIBA_ASOSIDA_YENGIL_SANOATNI_HUDUDIY_RIVOJLANTIRISH_ISTIQBOLLARI/32831129
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/The_Exploration_of_TPhos_as_a_Monodentate_P_Ligand_for_Palladium-Catalyzed_Regioselective_Hydrothiocarbonylation_of_Styrenes_under_Neutral_Conditions/32831128
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/A_typology_of_crises_and_innovation_configurations_a_paradoxical_perspective/32825003
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Mimicking_Natural_Photosynthesis_Bromide-Mediated_Photocatalysis_for_Spatially_Decoupled_Olefin_Epoxidation_and_Hydrogen_Evolution/32831125
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Isostructural_Perylene_Diimide-Based_Metal_Organic_Frameworks_for_Efficient_Photocatalytic_Oxidation_of_Benzylamines/32831122
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5746416
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16954306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8056637
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15420758
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19980220
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://works.hcommons.org/doi/10.17613/5f3zq-18n39
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21053032
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21053032
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21021303
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21021303
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: US-1
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_difficult/resolve/main/tx_log.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_easy/resolve/main/tx_log.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_difficult/resolve/main/tx_log.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_easy/resolve/main/tx_log.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/dataset/Dataset_for_Data-driven_estimates_of_global_litter_production_imply_slower_vegetation_carbon_turnover_/32831093
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/XORIJIY_TAJRIBA_ASOSIDA_YENGIL_SANOATNI_HUDUDIY_RIVOJLANTIRISH_ISTIQBOLLARI/32831129
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/The_Exploration_of_TPhos_as_a_Monodentate_P_Ligand_for_Palladium-Catalyzed_Regioselective_Hydrothiocarbonylation_of_Styrenes_under_Neutral_Conditions/32831128
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/A_typology_of_crises_and_innovation_configurations_a_paradoxical_perspective/32825003
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Mimicking_Natural_Photosynthesis_Bromide-Mediated_Photocatalysis_for_Spatially_Decoupled_Olefin_Epoxidation_and_Hydrogen_Evolution/32831125
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18190973
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7325859
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5216923
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3558197
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: http://reproduct-endo.com/article/view/290227
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://redivis.com/workflows/x7kh-5pvd4mbf1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.datalumos.org/datalumos/project/250916/version/V1/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.datalumos.org/datalumos/project/250916/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.datalumos.org/datalumos/project/250903/version/V1/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.datalumos.org/datalumos/project/250903/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+- intent: SC-001
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Dataset_for_Data-driven_estimates_of_global_litter_production_imply_slower_vegetation_carbon_turnover_/32831093
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/XORIJIY_TAJRIBA_ASOSIDA_YENGIL_SANOATNI_HUDUDIY_RIVOJLANTIRISH_ISTIQBOLLARI/32831129
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/The_Exploration_of_TPhos_as_a_Monodentate_P_Ligand_for_Palladium-Catalyzed_Regioselective_Hydrothiocarbonylation_of_Styrenes_under_Neutral_Conditions/32831128
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/A_typology_of_crises_and_innovation_configurations_a_paradoxical_perspective/32825003
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Mimicking_Natural_Photosynthesis_Bromide-Mediated_Photocatalysis_for_Spatially_Decoupled_Olefin_Epoxidation_and_Hydrogen_Evolution/32831125
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19059431
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17936025
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10389753
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8104865
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6532734
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.48565/fjd8-td33
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''bonndoc.ulb.uni-bonn.de'',
+      port=443): Max retries exceeded with url: /xmlui/handle/20.500.11811/14239 (Caused
+      by ConnectTimeoutError(<HTTPSConnection(host=''bonndoc.ulb.uni-bonn.de'', port=443)
+      at 0x7fc2a3dde7d0>, ''Connection to bonndoc.ulb.uni-bonn.de timed out. (connect
+      timeout=20.0)''))'
+  - url: https://zenodo.org/records/20635092
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.mpg4f4rgk
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20512108
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.20470525
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+- intent: PLI
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Plim/common_voice_7_0_fr_processed/resolve/main/data/train-00000-of-00029.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Plim/fr_corpora_parliament_processed/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Plim/fr_wikipedia_processed/resolve/main/data/train-00000-of-00024.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Plim/common_voice_7_0_fr_processed/resolve/main/data/train-00000-of-00029.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Plim/fr_corpora_parliament_processed/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Plim/fr_wikipedia_processed/resolve/main/data/train-00000-of-00024.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Plim/language_model_fr/resolve/main/data/train-00000-of-00012.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Dataset_for_Data-driven_estimates_of_global_litter_production_imply_slower_vegetation_carbon_turnover_/32831093
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/XORIJIY_TAJRIBA_ASOSIDA_YENGIL_SANOATNI_HUDUDIY_RIVOJLANTIRISH_ISTIQBOLLARI/32831129
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/The_Exploration_of_TPhos_as_a_Monodentate_P_Ligand_for_Palladium-Catalyzed_Regioselective_Hydrothiocarbonylation_of_Styrenes_under_Neutral_Conditions/32831128
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/A_typology_of_crises_and_innovation_configurations_a_paradoxical_perspective/32825003
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Mimicking_Natural_Photosynthesis_Bromide-Mediated_Photocatalysis_for_Spatially_Decoupled_Olefin_Epoxidation_and_Hydrogen_Evolution/32831125
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://link.springer.com/article/10.1007/BF01442456
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.k51j708
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8060812
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10553126
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7874310
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20832411
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20832411
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20993060
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20993060
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20700464
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
