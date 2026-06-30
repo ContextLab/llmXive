@@ -1,0 +1,57 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StatisticalSummary Schema"
+description: "Schema for aggregate statistical test results (LMM)."
+type: "object"
+properties:
+  metric:
+    type: "string"
+    enum:
+      - "AUC"
+      - "TSS"
+    description: "The metric being compared."
+  mean_climate_only:
+    type: "number"
+    description: "Mean score for the climate-only model."
+  mean_climate_traits:
+    type: "number"
+    description: "Mean score for the climate+traits (imputed) model."
+  mean_diff:
+    type: "number"
+    description: "Mean difference (climate+traits - climate-only)."
+  p_value_raw:
+    type: "number"
+    description: "Raw p-value from the LMM fixed effect."
+  p_value_corrected:
+    type: "number"
+    description: "Bonferroni-corrected p-value."
+  cohens_d:
+    type: "number"
+    description: "Cohen's d effect size."
+  n_species:
+    type: "integer"
+    description: "Number of species included in the test."
+  vif_warning:
+    type: "boolean"
+    description: "True if any predictor VIF > 5."
+  vif_details:
+    type: "object"
+    description: "Dictionary of VIF values for each predictor."
+  random_effect_variance:
+    type: "number"
+    description: "Variance of the random effect (SpeciesID) in the LMM."
+  fixed_effect_estimate:
+    type: "number"
+    description: "Fixed effect estimate for ModelType in the LMM."
+required:
+  - metric
+  - mean_climate_only
+  - mean_climate_traits
+  - mean_diff
+  - p_value_raw
+  - p_value_corrected
+  - cohens_d
+  - n_species
+  - vif_warning
+  - random_effect_variance
+  - fixed_effect_estimate
+additionalProperties: false
