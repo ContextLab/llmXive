@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EvaluationReport"
+description: "Schema for the aggregated evaluation report containing SAA metrics."
+type: "object"
+properties:
+  saa_score:
+    type: "number"
+    description: "Strict Attributed Accuracy score (0.0 to 1.0)."
+    minimum: 0.0
+    maximum: 1.0
+  total_samples:
+    type: "integer"
+    description: "Total number of samples processed."
+    minimum: 0
+  correct_count:
+    type: "integer"
+    description: "Number of samples where both answer and bbox were correct."
+    minimum: 0
+  answer_only_correct:
+    type: "integer"
+    description: "Number of samples where answer was correct but bbox was wrong (Attribution Hallucination)."
+    minimum: 0
+  bbox_only_correct:
+    type: "integer"
+    description: "Number of samples where bbox was correct but answer was wrong."
+    minimum: 0
+  both_wrong:
+    type: "integer"
+    description: "Number of samples where both were wrong."
+    minimum: 0
+  skipped_count:
+    type: "integer"
+    description: "Number of samples skipped due to missing data."
+    minimum: 0
+  timestamp:
+    type: "string"
+    description: "ISO 8601 timestamp of the report generation."
+    format: "date-time"
+required:
+  - saa_score
+  - total_samples
+  - correct_count
+  - answer_only_correct
+  - bbox_only_correct
+  - both_wrong
+  - skipped_count
+  - timestamp
+additionalProperties: true

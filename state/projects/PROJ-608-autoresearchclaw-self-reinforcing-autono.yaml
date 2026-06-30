@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-21T09:09:59.272509Z'
-current_stage: paper_ingested
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-608-autoresearchclaw-self-reinforcing-autono
-last_run_id: b3013592-240e-4c33-961e-f619dd2314a9
+last_run_id: a20343bd-ce0e-4214-a8bf-47fe3e009454
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: specs/auto-revisions/PROJ-608-autoresearchclaw-self-reinforcing-autono/round-1
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-608-autoresearchclaw-self-reinforcing-autono/specs/001-autoresearchclaw-self-reinforcing-autono
 title: 'AutoResearchClaw: Self-Reinforcing Autonomous Research with Human-AI Collaboration'
-updated_at: '2026-06-30T05:57:05.987917Z'
+updated_at: '2026-06-30T08:39:00.053630Z'

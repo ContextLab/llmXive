@@ -1,0 +1,45 @@
+artifact_links:
+- projects/PROJ-608-autoresearchclaw-self-reinforcing-autono/specs/001-autoresearchclaw-self-reinforcing-autono/tasks.md
+- specs/*/tasks.md
+reason: 2 concern(s) remained unresolved after 3 round(s) at stage 'tasked'; worst
+  unresolved severity = 'requirement'. Routing to 'clarified' with full provenance
+  so the next worker can address the root cause.
+stage: tasks
+to_stage: clarified
+unresolved_concerns:
+- artifact: projects/PROJ-608-autoresearchclaw-self-reinforcing-autono/specs/001-autoresearchclaw-self-reinforcing-autono/tasks.md
+  id: ordering-609933df
+  location: tasks.md:Phase 3, T010 & T011
+  reviewer: ordering
+  round: 1
+  severity: requirement
+  text: Tasks T010 and T011 are marked [P] (parallel-safe) and placed in Phase 3.
+    T010 is a 'Contract test for output schema'. T011 is an 'Integration test for
+    full CPU loop'. T011 depends on the implementation of T012 (synthetic_generators),
+    T013 (runner), T015 (validator), etc. The tasks are listed *before* the implementation
+    tasks (T012-T017). The instruction says 'Write these tests FIRST, ensure they
+    FAIL'. This is a TDD approach. The *ordering* in the file (Tests before Implementation)
+    is correct for TDD workflow. However, the [P] tag on T011 is suspicious. T011
+    ('Integration test for full CPU loop') requires the full stack (T012-T017) to
+    be implemented to even *run* (and fail). It cannot run in parallel with T012-T017
+    because it depends on their output (the code). T011 is a consumer of the implementation
+    artifacts. It should NOT be marked [P] relative to the implementation tasks. It
+    can only run *after* the implementation tasks are complete (or in a separate CI
+    job that waits for them). Marking it [P] implies it has no dependencies on T012-T017,
+    which is false.
+- artifact: projects/PROJ-608-autoresearchclaw-self-reinforcing-autono/specs/001-autoresearchclaw-self-reinforcing-autono/tasks.md
+  id: ordering-9183bf61
+  location: tasks.md:Phase 5, T029
+  reviewer: ordering
+  round: 1
+  severity: requirement
+  text: 'Task T029 (''Create a simulated error trigger'') is in Phase 5. It is used
+    to test T026/T027/T028. T029 is a test fixture. It should be created *before*
+    the integration tests (T025) that use it. T025 is listed before T029. T025 (''Integration
+    test for error evolution'') depends on T029 (the trigger). The order T025 -> T029
+    is a violation. T029 must precede T025. Also, T029 is marked [P] in the list?
+    No, T029 is not marked [P]. T025 is marked [P]. T025 depends on T029. T025 cannot
+    be parallel-safe if it depends on T029. T025 should not be [P] relative to T029.
+    The order is wrong: T025 (Consumer) is before T029 (Producer). T029 must be before
+    T025.'
+worst_severity: requirement

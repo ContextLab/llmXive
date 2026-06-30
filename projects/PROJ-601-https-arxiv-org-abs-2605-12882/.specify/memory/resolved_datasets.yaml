@@ -1,0 +1,823 @@
+resolved_at: '2026-06-30T07:44:50.650791+00:00'
+datasets:
+- intent: MUST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 190547
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/School_of_Post_Basic_Dental_Nursing_Enugu_2026_27_nursing_form_is_out_call_07031546008_to_apply_call_the_office_of_the_admin_07031546008_for_further_information_on_how_to_make_your_proper_registration_before_the_closing_date_/32833988
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/The_Anchor-Length_Method_A_Computational_Scaffold_to_Eliminate_Skewness_in_Small-Sample_Dendrogram_Topologies/32826779
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Productivity_models_for_cut-to-length_harvesters_and_harwarders_a_systematic_review_over_the_period_2013_2023/32834028
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Nickel-Catalyzed_1_2-Distyrylation_of_3_Buten-1-ol/32834026
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Potential_time-sensitive_biomarkers_for_the_detection_of_acute_mesenteric_ischaemia_a_systematic_review_of_animal_data/32747739
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5746416
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16954306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8056637
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15420758
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19980220
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/150062
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.iuav.it/handle/11578/287416
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://iris.luiss.it//handle/11385/212099
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://usiena-air.unisi.it//handle/11365/1128669
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://usiena-air.unisi.it//handle/11365/1143865
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: JSONL
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/albertvillanova/tests-public-raw-jsonl/resolve/main/wikiann-en-train.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 411
+      parsed: true
+  - url: https://huggingface.co/datasets/albertvillanova/tests-raw-jsonl/resolve/main/wikiann-bn-train.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/anzorq/kbd-ru-jsonl-tmp/resolve/main/kbd-ru-translation-pairs.json
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/albertvillanova/tests-public-raw-jsonl/resolve/main/wikiann-en-train.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/albertvillanova/tests-raw-jsonl/resolve/main/wikiann-bn-train.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/anzorq/kbd-ru-jsonl-tmp/resolve/main/kbd-ru-translation-pairs.json
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/flax-sentence-embeddings/paws-jsonl/resolve/main/positives_negatives.jsonl.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/flax-sentence-embeddings/stackexchange_math_jsonl/resolve/main/title_answer.jsonl.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://publications.cispa.de/articles/journal_contribution/Unsafe_Code_Still_a_Hurdle_Copilot_Must_Clear/32834036
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/School_of_Post_Basic_Dental_Nursing_Enugu_2026_27_nursing_form_is_out_call_07031546008_to_apply_call_the_office_of_the_admin_07031546008_for_further_information_on_how_to_make_your_proper_registration_before_the_closing_date_/32833988
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/The_Anchor-Length_Method_A_Computational_Scaffold_to_Eliminate_Skewness_in_Small-Sample_Dendrogram_Topologies/32826779
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Productivity_models_for_cut-to-length_harvesters_and_harwarders_a_systematic_review_over_the_period_2013_2023/32834028
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Nickel-Catalyzed_1_2-Distyrylation_of_3_Buten-1-ol/32834026
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14850390
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20187597
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20115267
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11622208
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17876776
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21055697
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21055697
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20341367
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20341367
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21048996
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GPU
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/makora-ai/triton-gpu-latency/resolve/main/data/test.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/davanstrien/ia-loaded-embedded-gpu/resolve/main/data/train-00000-of-00004-581edf813b59d1d8.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/We-Want-GPU/yi-ko-DPO-noprompt-dataset/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/makora-ai/triton-gpu-latency/resolve/main/data/test.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/davanstrien/ia-loaded-embedded-gpu/resolve/main/data/train-00000-of-00004-581edf813b59d1d8.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/We-Want-GPU/yi-ko-DPO-noprompt-dataset/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://ore.exeter.ac.uk/articles/journal_contribution/Causal_counterfactual_simulation_for_treatment_decisions_in_multimodal_lung_disease_data/32825663
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://publications.cispa.de/articles/journal_contribution/Unsafe_Code_Still_a_Hurdle_Copilot_Must_Clear/32834036
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/School_of_Post_Basic_Dental_Nursing_Enugu_2026_27_nursing_form_is_out_call_07031546008_to_apply_call_the_office_of_the_admin_07031546008_for_further_information_on_how_to_make_your_proper_registration_before_the_closing_date_/32833988
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/The_Anchor-Length_Method_A_Computational_Scaffold_to_Eliminate_Skewness_in_Small-Sample_Dendrogram_Topologies/32826779
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Productivity_models_for_cut-to-length_harvesters_and_harwarders_a_systematic_review_over_the_period_2013_2023/32834028
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14019209
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10298950
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12771283
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8374848
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://journals.uran.ua/eejet/article/view/197095
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rodare.hzdr.de/record/4725
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21058153
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21058153
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/6hyg8/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.3929/ethz-b-000055123
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+- intent: SAA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/SAA-Lab/LitBench-Rationales/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/saattrupdan/doc-nli/resolve/main/data/test-00000-of-00002.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/saadob12/Autochart/resolve/main/test_autochart.csv
+    source: huggingface
+    format: tsv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/SAA-Lab/LitBench-Rationales/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/saattrupdan/doc-nli/resolve/main/data/test-00000-of-00002.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/saadob12/Autochart/resolve/main/test_autochart.csv
+    source: huggingface
+    status: verified
+    format: tsv
+  - url: https://huggingface.co/datasets/saadob12/chart-to-text/resolve/main/test_c2t_big.csv
+    source: huggingface
+    status: verified
+    format: tsv
+  - url: https://huggingface.co/datasets/Saauan/leetcode-performance/resolve/main/leetcode_dataset.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://ore.exeter.ac.uk/articles/journal_contribution/Causal_counterfactual_simulation_for_treatment_decisions_in_multimodal_lung_disease_data/32825663
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://publications.cispa.de/articles/journal_contribution/Unsafe_Code_Still_a_Hurdle_Copilot_Must_Clear/32834036
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/School_of_Post_Basic_Dental_Nursing_Enugu_2026_27_nursing_form_is_out_call_07031546008_to_apply_call_the_office_of_the_admin_07031546008_for_further_information_on_how_to_make_your_proper_registration_before_the_closing_date_/32833988
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/The_Anchor-Length_Method_A_Computational_Scaffold_to_Eliminate_Skewness_in_Small-Sample_Dendrogram_Topologies/32826779
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Productivity_models_for_cut-to-length_harvesters_and_harwarders_a_systematic_review_over_the_period_2013_2023/32834028
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15170704
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.174667c
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1462615
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18045060
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S0006291X00924161
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/150187
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.29495
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21037775
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21037775
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21036557
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: RAM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/RamAnanth1/lex-fridman-podcasts/resolve/main/lex-fridman-podcast-dataset.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/huggingartists/ramil/resolve/main/datasets.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 130991
+      parsed: true
+  - url: https://huggingface.co/datasets/ramitsurana/sanskrit/resolve/main/train.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 91560
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/RamAnanth1/lex-fridman-podcasts/resolve/main/lex-fridman-podcast-dataset.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/huggingartists/ramil/resolve/main/datasets.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f18358b/f6b3240580548bf9e5ffa880b18cc34773c2f1b69b262e8efb62b55f5894cbf5?user_id=public&response-content-type=application%2Fjson&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27datasets.json%3B+filename%3D%22datasets.json%22%3B&X-Xet-Cas-Uid=public&Expires=1782808886&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgzNThiL2Y2YjMyNDA1ODA1NDhiZjllNWZmYTg4MGIxOGNjMzQ3NzNjMmYxYjY5YjI2MmU4ZWZiNjJiNTVmNTg5NGNiZjVcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdkYXRhc2V0cy5qc29uJTNCK2ZpbGVuYW1lJTNEJTIyZGF0YXNldHMuanNvbiUyMiUzQiZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyODA4ODg2fX19XX0_&Signature=MEQCIAer0oPzWS9WNHne3ghBRAgFyE9E0CCKvBGJssuCWHKuAiAVtiq8gjRDc81weYJeFI5L04ne8MhpEQiAg-yBzBveMg__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/ramitsurana/sanskrit/resolve/main/train.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/dataset/dataset_for_Responses_of_soil_bacterial_fungal_and_nematode_communities_to_drought_nitrogen_deposition_and_delayed_snowmelt_in_a_temperate_meadow_grassland/32833865
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ore.exeter.ac.uk/articles/journal_contribution/Causal_counterfactual_simulation_for_treatment_decisions_in_multimodal_lung_disease_data/32825663
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://publications.cispa.de/articles/journal_contribution/Unsafe_Code_Still_a_Hurdle_Copilot_Must_Clear/32834036
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/School_of_Post_Basic_Dental_Nursing_Enugu_2026_27_nursing_form_is_out_call_07031546008_to_apply_call_the_office_of_the_admin_07031546008_for_further_information_on_how_to_make_your_proper_registration_before_the_closing_date_/32833988
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/The_Anchor-Length_Method_A_Computational_Scaffold_to_Eliminate_Skewness_in_Small-Sample_Dendrogram_Topologies/32826779
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10272639
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20065754
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10353767
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7951034
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5150655
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21059558
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21059558
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21042952
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21042952
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21056087
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: OOM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/quocanh34/test_result_large_data_oom/resolve/main/data/train-00000-of-00001-fc17ec437033d174.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 108838
+      parsed: true
+  - url: https://huggingface.co/datasets/rtreacy/dv_keywords_desc_full-oom/resolve/main/test.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ejschwartz/oo-method-test/resolve/main/data/combined-00000-of-00001-03155245a07e9f83.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ejschwartz/oo-method-test/resolve/main/data/combined-00000-of-00001-03155245a07e9f83.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/quocanh34/test_result_large_data_oom/resolve/main/data/train-00000-of-00001-fc17ec437033d174.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/rtreacy/dv_keywords_desc_full-oom/resolve/main/test.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/dataset_for_Responses_of_soil_bacterial_fungal_and_nematode_communities_to_drought_nitrogen_deposition_and_delayed_snowmelt_in_a_temperate_meadow_grassland/32833865
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ore.exeter.ac.uk/articles/journal_contribution/Causal_counterfactual_simulation_for_treatment_decisions_in_multimodal_lung_disease_data/32825663
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://publications.cispa.de/articles/journal_contribution/Unsafe_Code_Still_a_Hurdle_Copilot_Must_Clear/32834036
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/School_of_Post_Basic_Dental_Nursing_Enugu_2026_27_nursing_form_is_out_call_07031546008_to_apply_call_the_office_of_the_admin_07031546008_for_further_information_on_how_to_make_your_proper_registration_before_the_closing_date_/32833988
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/The_Anchor-Length_Method_A_Computational_Scaffold_to_Eliminate_Skewness_in_Small-Sample_Dendrogram_Topologies/32826779
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://onlinelibrary.wiley.com/doi/10.1002/asna.19041651302
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://onlinelibrary.wiley.com/doi/10.1002/asna.18740832002
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://onlinelibrary.wiley.com/doi/10.1002/asna.18610551604
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://onlinelibrary.wiley.com/doi/10.1002/asna.19212142518
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://onlinelibrary.wiley.com/doi/10.1002/asna.19141981601
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/21042952
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21042952
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21048847
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21048847
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2605.20224
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-005
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/dataset_for_Responses_of_soil_bacterial_fungal_and_nematode_communities_to_drought_nitrogen_deposition_and_delayed_snowmelt_in_a_temperate_meadow_grassland/32833865
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ore.exeter.ac.uk/articles/journal_contribution/Causal_counterfactual_simulation_for_treatment_decisions_in_multimodal_lung_disease_data/32825663
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://publications.cispa.de/articles/journal_contribution/Unsafe_Code_Still_a_Hurdle_Copilot_Must_Clear/32834036
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/School_of_Post_Basic_Dental_Nursing_Enugu_2026_27_nursing_form_is_out_call_07031546008_to_apply_call_the_office_of_the_admin_07031546008_for_further_information_on_how_to_make_your_proper_registration_before_the_closing_date_/32833988
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/The_Anchor-Length_Method_A_Computational_Scaffold_to_Eliminate_Skewness_in_Small-Sample_Dendrogram_Topologies/32826779
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10235641
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6963486
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10123143
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6962126
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11145041
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564541
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564417
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20470525
+    source: datacite
+    status: wrong_format
+    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
+      timeout=20)'
+  - url: https://zenodo.org/records/20469943
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: US-3
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/JJY-0823/US-365K/resolve/main/test.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kuan0/us3c_llama3/resolve/main/alpaca_data_cleaned.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 5839
+      parsed: true
+  - url: https://huggingface.co/datasets/JasonXF/US3D-Enhanced/resolve/main/prompt.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 696
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/JJY-0823/US-365K/resolve/main/test.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/kuan0/us3c_llama3/resolve/main/alpaca_data_cleaned.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/JasonXF/US3D-Enhanced/resolve/main/prompt.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://figshare.com/articles/dataset/dataset_for_Responses_of_soil_bacterial_fungal_and_nematode_communities_to_drought_nitrogen_deposition_and_delayed_snowmelt_in_a_temperate_meadow_grassland/32833865
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ore.exeter.ac.uk/articles/journal_contribution/Causal_counterfactual_simulation_for_treatment_decisions_in_multimodal_lung_disease_data/32825663
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://publications.cispa.de/articles/journal_contribution/Unsafe_Code_Still_a_Hurdle_Copilot_Must_Clear/32834036
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/School_of_Post_Basic_Dental_Nursing_Enugu_2026_27_nursing_form_is_out_call_07031546008_to_apply_call_the_office_of_the_admin_07031546008_for_further_information_on_how_to_make_your_proper_registration_before_the_closing_date_/32833988
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/The_Anchor-Length_Method_A_Computational_Scaffold_to_Eliminate_Skewness_in_Small-Sample_Dendrogram_Topologies/32826779
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15805059
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7755506
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6383363
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6394296
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6405907
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.caltech.edu/records/3bxmg-r3945
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/167820
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/150265
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/151782
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/217448
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-006
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/dataset_for_Responses_of_soil_bacterial_fungal_and_nematode_communities_to_drought_nitrogen_deposition_and_delayed_snowmelt_in_a_temperate_meadow_grassland/32833865
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ore.exeter.ac.uk/articles/journal_contribution/Causal_counterfactual_simulation_for_treatment_decisions_in_multimodal_lung_disease_data/32825663
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://publications.cispa.de/articles/journal_contribution/Unsafe_Code_Still_a_Hurdle_Copilot_Must_Clear/32834036
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/School_of_Post_Basic_Dental_Nursing_Enugu_2026_27_nursing_form_is_out_call_07031546008_to_apply_call_the_office_of_the_admin_07031546008_for_further_information_on_how_to_make_your_proper_registration_before_the_closing_date_/32833988
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/The_Anchor-Length_Method_A_Computational_Scaffold_to_Eliminate_Skewness_in_Small-Sample_Dendrogram_Topologies/32826779
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3595524
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10302607
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6963506
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6962134
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10293504
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20750798
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SC-003
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: SC-005
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: NEEDS
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: CLARIFICATION
+  status: unresolved
+  candidates: []
+  candidates_tried: []

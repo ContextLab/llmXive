@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Reproduction Report Schema"
+description: "Schema for validating the reproduction_report.md content structure."
+type: object
+properties:
+  status:
+    type: string
+    enum:
+      - Success
+      - Partial
+      - Failed
+    description: "Overall status of the reproduction run."
+  build_time_seconds:
+    type: number
+    maximum: 21600
+    description: "Time taken for the build process in seconds."
+  gpu_detected:
+    type: boolean
+    description: "Whether GPU/CUDA code was detected in the source."
+  submodule_verified:
+    type: boolean
+    description: "Whether the submodule commit hash was verified."
+  errors:
+    type: array
+    items:
+      type: string
+    description: "List of error messages if the build failed."
+  artifacts_generated:
+    type: array
+    items:
+      type: string
+    description: "List of filenames that were successfully generated."
+required:
+  - status
+  - build_time_seconds
+  - gpu_detected
+  - submodule_verified
+  - errors
+  - artifacts_generated
+additionalProperties: false

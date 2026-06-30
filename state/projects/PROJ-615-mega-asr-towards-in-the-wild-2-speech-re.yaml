@@ -1,7 +1,7 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-22T09:07:50.248308Z'
-current_stage: paper_review
+current_stage: paper_ingested
 failed_stage: null
 field: computer science
 human_escalation_reason: null
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'Mega-ASR: Towards In-the-wild^2 Speech Recognition via Scaling up Real-world
   Acoustic Simulation'
-updated_at: '2026-06-27T19:49:23.662683Z'
+updated_at: '2026-06-30T07:38:45.428112Z'

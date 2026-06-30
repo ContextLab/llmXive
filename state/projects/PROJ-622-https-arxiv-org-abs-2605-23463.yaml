@@ -1,7 +1,7 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-26T09:11:38.930928Z'
-current_stage: paper_review
+current_stage: paper_ingested
 failed_stage: null
 field: engineering
 human_escalation_reason: null
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: StepAudio 2.5 Technical Report
-updated_at: '2026-06-26T12:33:08.888505Z'
+updated_at: '2026-06-30T07:38:45.439180Z'
