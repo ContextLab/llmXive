@@ -1,0 +1,72 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ENCODE Peak Dataset Schema"
+description: "Schema for validated ENCODE peak files downloaded and parsed by the pipeline."
+type: object
+properties:
+  metadata:
+    type: object
+    properties:
+      source:
+        type: string
+        const: "ENCODE"
+      cell_type:
+        type: string
+        enum:
+          - "GM12878"
+          - "K562"
+          - "HepG2"
+          - "H1-hESC"
+          - "IMR90"
+      accession_id:
+        type: string
+        description: "ENCODE accession ID (e.g., ENCFF...)"
+      download_date:
+        type: string
+        format: date-time
+      checksum_md5:
+        type: string
+        pattern: "^[a-f0-9]{32}$"
+      genome_build:
+        type: string
+        const: "hg38"
+    required:
+      - source
+      - cell_type
+      - accession_id
+      - download_date
+      - checksum_md5
+      - genome_build
+  peaks:
+    type: array
+    items:
+      type: object
+      properties:
+        chrom:
+          type: string
+          description: "Chromosome name (e.g., chr1)"
+        start:
+          type: integer
+          minimum: 0
+        end:
+          type: integer
+          minimum: 1
+        name:
+          type: string
+          nullable: true
+        score:
+          type: integer
+          nullable: true
+        strand:
+          type: string
+          enum:
+            - "+"
+            - "-"
+            - "."
+      required:
+        - chrom
+        - start
+        - end
+    minItems: 1
+required:
+  - metadata
+  - peaks

@@ -1,0 +1,68 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ChIP-seq Validation Results Schema"
+description: "Schema for the cross-validation of motif predictions against independent ChIP-seq data."
+type: object
+properties:
+  validations:
+    type: array
+    items:
+      type: object
+      properties:
+        motif_id:
+          type: string
+        cell_type:
+          type: string
+          enum:
+            - "GM12878"
+            - "K562"
+            - "HepG2"
+            - "H1-hESC"
+            - "IMR90"
+        predicted_peak_count:
+          type: integer
+          minimum: 0
+        chrip_peak_count:
+          type: integer
+          minimum: 0
+        overlap_count:
+          type: integer
+          minimum: 0
+        overlap_percentage:
+          type: number
+          minimum: 0
+          maximum: 100
+        is_validated:
+          type: boolean
+          description: "True if overlap_percentage >= 60"
+        chrip_source:
+          type: string
+          description: "Source of the independent ChIP-seq data (e.g., ENCODE accession)"
+      required:
+        - motif_id
+        - cell_type
+        - predicted_peak_count
+        - chrip_peak_count
+        - overlap_count
+        - overlap_percentage
+        - is_validated
+        - chrip_source
+    minItems: 1
+  summary:
+    type: object
+    properties:
+      total_validations:
+        type: integer
+        minimum: 0
+      successful_validations:
+        type: integer
+        minimum: 0
+      validation_threshold:
+        type: number
+        const: 60
+    required:
+      - total_validations
+      - successful_validations
+      - validation_threshold
+required:
+  - validations
+  - summary

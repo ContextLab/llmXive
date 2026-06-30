@@ -1,0 +1,72 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Motif Enrichment Results Schema"
+description: "Schema for the output of the Fisher's exact test and BH correction."
+type: object
+properties:
+  results:
+    type: array
+    items:
+      type: object
+      properties:
+        motif_id:
+          type: string
+          description: "JASPAR motif ID (e.g., MA0001.1)"
+        cell_type:
+          type: string
+          enum:
+            - "GM12878"
+            - "K562"
+            - "HepG2"
+            - "H1-hESC"
+            - "IMR90"
+        odds_ratio:
+          type: number
+          description: "Odds ratio from Fisher's exact test"
+        p_value:
+          type: number
+          minimum: 0
+          maximum: 1
+        q_value:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: "Benjamini-Hochberg adjusted p-value"
+        is_significant:
+          type: boolean
+          description: "True if q_value < 0.05"
+        matches_count:
+          type: integer
+          minimum: 0
+          description: "Number of motif matches found in this cell type"
+      required:
+        - motif_id
+        - cell_type
+        - odds_ratio
+        - p_value
+        - q_value
+        - is_significant
+        - matches_count
+    minItems: 1
+  summary:
+    type: object
+    properties:
+      total_motifs_tested:
+        type: integer
+        minimum: 1
+      total_cell_types:
+        type: integer
+        const: 5
+      significant_motifs_count:
+        type: integer
+        minimum: 0
+      correction_method:
+        type: string
+        const: "Benjamini-Hochberg"
+    required:
+      - total_motifs_tested
+      - total_cell_types
+      - significant_motifs_count
+      - correction_method
+required:
+  - results
+  - summary

@@ -1,0 +1,200 @@
+resolved_at: '2026-06-30T06:48:46.332495+00:00'
+datasets:
+- intent: RAM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/RamAnanth1/lex-fridman-podcasts/resolve/main/lex-fridman-podcast-dataset.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/huggingartists/ramil/resolve/main/datasets.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 130991
+      parsed: true
+  - url: https://huggingface.co/datasets/ramitsurana/sanskrit/resolve/main/train.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 91560
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/RamAnanth1/lex-fridman-podcasts/resolve/main/lex-fridman-podcast-dataset.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/huggingartists/ramil/resolve/main/datasets.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f18358b/f6b3240580548bf9e5ffa880b18cc34773c2f1b69b262e8efb62b55f5894cbf5?response-content-type=application%2Fjson&X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27datasets.json%3B+filename%3D%22datasets.json%22%3B&Expires=1782805666&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgzNThiL2Y2YjMyNDA1ODA1NDhiZjllNWZmYTg4MGIxOGNjMzQ3NzNjMmYxYjY5YjI2MmU4ZWZiNjJiNTVmNTg5NGNiZjVcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJlgtWGV0LUNhcy1VaWQ9cHVibGljJnVzZXJfaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdkYXRhc2V0cy5qc29uJTNCK2ZpbGVuYW1lJTNEJTIyZGF0YXNldHMuanNvbiUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyODA1NjY2fX19XX0_&Signature=MEYCIQDDmfS0i2nY4XKC9hx29X2udgEKTcGNNVj5wI33j3hVOQIhAMKlOSaKToHeWSYWieTwZN05VzV2Jv2l4ZCo-O12KvwU&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/ramitsurana/sanskrit/resolve/main/train.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://frontiersin.figshare.com/articles/figure/Image_1_Identifying_risk_and_protective_factors_for_mental_health_outcomes_a_cross-sectional_survey_predicting_stress_depression_and_suicide_ideation_among_Florida_farmers_pdf/32833826
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Global_delimitation_of_Cyanoboletus_Cacaoporus_and_Cupreoboletus_Suillelloideae_Boletaceae_/32298045
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Electric_Vehicle_Tweet_Dataset_Jakarta/32833772
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Key_soil_attributes_and_land_management_dataset_for_Australian_agroecosystems_linking_baseline_and_resampling_surveys/30716204
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/_b_Identification_of_Mobile_mRNAs_b_/32832146
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10272639
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20065754
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10353767
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7951034
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5150655
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21056057
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21056057
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2602.13875
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2601.12282
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2511.05934
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ENCODE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/flxclxc/encoded_drug_reviews/resolve/main/encoded_drug_reviews.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Ramamurthi/yelp_reviews_encoded_hidden_outputs_truncated/resolve/main/data/test-00000-of-00001-647c12b14d335442.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/pcuenq/CelebA-faces-cropped-128-encoded/resolve/main/data/test-00000-of-00001-a5876e363b0b2b5d.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/flxclxc/encoded_drug_reviews/resolve/main/encoded_drug_reviews.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/Ramamurthi/yelp_reviews_encoded_hidden_outputs_truncated/resolve/main/data/test-00000-of-00001-647c12b14d335442.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/pcuenq/CelebA-faces-cropped-128-encoded/resolve/main/data/test-00000-of-00001-a5876e363b0b2b5d.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://frontiersin.figshare.com/articles/figure/Image_1_Identifying_risk_and_protective_factors_for_mental_health_outcomes_a_cross-sectional_survey_predicting_stress_depression_and_suicide_ideation_among_Florida_farmers_pdf/32833826
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Global_delimitation_of_Cyanoboletus_Cacaoporus_and_Cupreoboletus_Suillelloideae_Boletaceae_/32298045
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Electric_Vehicle_Tweet_Dataset_Jakarta/32833772
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Key_soil_attributes_and_land_management_dataset_for_Australian_agroecosystems_linking_baseline_and_resampling_surveys/30716204
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/_b_Identification_of_Mobile_mRNAs_b_/32832146
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16414829
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17606
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3564813
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: http://amsacta.unibo.it/id/eprint/7046/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19153349
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.3929/ethz-b-000091787
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://osf.io/r9ug2/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/5hb2m/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21056253
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21056253
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
