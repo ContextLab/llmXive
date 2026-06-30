@@ -282,6 +282,27 @@ def run_analysis(
     # SHOULD have produced; missing ones are gate failures).
     tasks_md = _read_tasks(project_dir)
     declared = declared_deliverables(tasks_md) if tasks_md else set()
+    # Phantom-deliverable guard: a declared deliverable the project's code never
+    # references is a PLANNER/TASKER phantom, not an output the code intends to
+    # write — endemic to reprocessed code papers, where the back-filled tasks.md
+    # invents deliverable filenames independently of the adapted code's real
+    # outputs (the code RUNS and writes real artifacts, e.g. data/results.json,
+    # yet the gate fails on a never-written data/results_subset.csv). Gate only on
+    # deliverables the code actually writes — verified by the code referencing the
+    # path. `bool(produced)` below still requires real artifacts, so this can
+    # never pass a project that produced nothing.
+    if declared:
+        code_dir = project_dir / "code"
+        code_blob = (
+            "\n".join(
+                p.read_text(encoding="utf-8", errors="ignore")
+                for p in sorted(code_dir.rglob("*.py"))
+            )
+            if code_dir.is_dir()
+            else ""
+        )
+        if code_blob:
+            declared = {d for d in declared if d in code_blob}
     declared_missing = sorted(
         d for d in declared if not (project_dir / d).is_file()
         or (project_dir / d).stat().st_size == 0

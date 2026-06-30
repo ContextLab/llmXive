@@ -192,3 +192,68 @@ def test_pythonpath_carries_both_project_dir_and_code_dir(tmp_path, monkeypatch)
     parts = captured["env"].get("PYTHONPATH", "").split(os.pathsep)
     assert str((proj / "code").resolve()) in parts, parts
     assert str(proj.resolve()) in parts, parts
+
+
+def test_phantom_declared_deliverable_not_in_code_does_not_gate(tmp_path, monkeypatch) -> None:
+    """A declared deliverable the code never references is a tasks-back-fill
+    PHANTOM (endemic to reprocessed code papers: the back-fill invents deliverable
+    filenames independently of the adapted code's real outputs). The code RUNS and
+    writes real artifacts, so the gate must PASS despite the phantom — only
+    deliverables the code actually writes are gated."""
+    import types
+
+    from llmxive.execution import analysis_runner as ar
+
+    proj = tmp_path / "projects" / "PROJ-902-phantom"
+    (proj / "specs" / "001-x").mkdir(parents=True)
+    (proj / "code").mkdir()
+    (proj / "data").mkdir()
+    # The code writes data/real.csv; it NEVER mentions data/phantom.csv.
+    (proj / "code" / "run.py").write_text(
+        "open('data/real.csv','w').write('a,b\\n1,2\\n')\n", encoding="utf-8")
+    (proj / "specs" / "001-x" / "quickstart.md").write_text(
+        "```bash\npython code/run.py\n```\n", encoding="utf-8")
+    (proj / "specs" / "001-x" / "tasks.md").write_text(
+        "# Tasks\n- [X] T001 produce data/phantom.csv\n", encoding="utf-8")
+
+    def _fake_run(project_dir, args, timeout_s, extra_env=None):
+        (project_dir / "data" / "real.csv").write_text("a,b\n1,2\n", encoding="utf-8")
+        return types.SimpleNamespace(
+            ok=True, returncode=0, duration_s=0.01, timed_out=False, stdout="", stderr="")
+
+    monkeypatch.setattr(ar.sandbox, "run_in_venv", _fake_run)
+    res = ar.run_analysis(proj)
+    assert res.ok is True, f"phantom deliverable must not gate; reason={res.reason!r}"
+    assert "data/real.csv" in res.artifacts_produced
+
+
+def test_code_referenced_declared_deliverable_still_gates_when_absent(tmp_path, monkeypatch) -> None:
+    """A declared deliverable the code DOES reference but does NOT produce is a
+    GENUINE gate failure (the code intended it but didn't write it) — the
+    phantom-guard must not mask this."""
+    import types
+
+    from llmxive.execution import analysis_runner as ar
+
+    proj = tmp_path / "projects" / "PROJ-903-realmiss"
+    (proj / "specs" / "001-x").mkdir(parents=True)
+    (proj / "code").mkdir()
+    (proj / "data").mkdir()
+    # Code references data/wanted.csv (intends it) but writes data/other.csv instead.
+    (proj / "code" / "run.py").write_text(
+        "# intended output: data/wanted.csv\nopen('data/other.csv','w').write('x\\n')\n",
+        encoding="utf-8")
+    (proj / "specs" / "001-x" / "quickstart.md").write_text(
+        "```bash\npython code/run.py\n```\n", encoding="utf-8")
+    (proj / "specs" / "001-x" / "tasks.md").write_text(
+        "# Tasks\n- [X] T001 produce data/wanted.csv\n", encoding="utf-8")
+
+    def _fake_run(project_dir, args, timeout_s, extra_env=None):
+        (project_dir / "data" / "other.csv").write_text("x\n", encoding="utf-8")
+        return types.SimpleNamespace(
+            ok=True, returncode=0, duration_s=0.01, timed_out=False, stdout="", stderr="")
+
+    monkeypatch.setattr(ar.sandbox, "run_in_venv", _fake_run)
+    res = ar.run_analysis(proj)
+    assert res.ok is False
+    assert "data/wanted.csv" in (res.reason or "")
