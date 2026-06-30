@@ -268,6 +268,58 @@ def _spec_quality_concerns(
     return concerns
 
 
+def _fabrication_concerns(
+    artifacts: dict[str, str], *, stage: str, reviewer: str
+) -> list[Concern]:
+    """Synthesize a blocking concern per FABRICATION signal the deterministic
+    scanner finds in ANY produced doc/code artifact, at EVERY reviewable stage.
+
+    A project's plan/tasks/code/results must never DECLARE that the reported
+    metrics are simulated / placeholder / hardcoded (nor draw a metric straight
+    from an RNG) — that is fabrication, not research (the live PROJ-604 NVFP4
+    "benchmark" whose speedup was ``random.uniform(1.6, 2.3)`` tuned to the
+    paper's claim, with ``"simulated metrics"`` written into its own summary).
+    The LLM panel can catch this but is not GUARANTEED to; this pure scan is the
+    reliable deterministic backstop at every stage, mirroring
+    ``_spec_quality_concerns``. Fabrication is a SCIENCE-class integrity defect
+    (always requirement-or-worse), so it always blocks + kicks back."""
+    # Research-track only: a reprocessed code paper's paper/ artifacts are the
+    # REAL upstream publication (its legitimate "simulation" language is not the
+    # project's fabrication), and the paper draft draws from the now-gated
+    # research. Scope to the research stages the user asked for.
+    if stage.startswith("paper"):
+        return []
+    from llmxive.execution.fabrication_guard import scan_text_for_fabrication
+
+    concerns: list[Concern] = []
+    idx = 0
+    for path in sorted(artifacts):
+        if not _is_doc_artifact_key(path):
+            continue
+        # Never scan the vendored upstream paper / its sources.
+        if "/paper/" in f"/{path}" or path.startswith("paper/") or "external/" in path:
+            continue
+        for finding in scan_text_for_fabrication(artifacts[path], source=path):
+            concerns.append(
+                Concern(
+                    id=f"fabricat{idx:04d}"[:12].ljust(12, "0"),
+                    reviewer=reviewer,
+                    severity=Severity.SCIENCE,
+                    artifact=path,
+                    location="",
+                    text=(
+                        f"FABRICATED-RESULT signal — {finding}. Research results must "
+                        f"be REAL measurements, never simulated / placeholder / "
+                        f"hardcoded / drawn from random.*. The reviser must replace "
+                        f"this with a genuine computation before the stage advances."
+                    ),
+                    round=1,
+                )
+            )
+            idx += 1
+    return concerns
+
+
 # A requirement id (FR-007 / SC-012), tolerant of the non-breaking hyphen the
 # LLM emits (FR‑007), an optional leading zero-pad, AND a sub-letter suffix
 # (FR-004a / SC-010b) — the reviser creates these when it splits a requirement
@@ -656,6 +708,8 @@ def run_convergence(
     marker_concerns = _unverified_marker_concerns(
         artifacts, stage=spec.stage, reviewer=_guard_reviewer
     ) + _spec_quality_concerns(
+        artifacts, stage=spec.stage, reviewer=_guard_reviewer
+    ) + _fabrication_concerns(
         artifacts, stage=spec.stage, reviewer=_guard_reviewer
     )
     if marker_concerns:

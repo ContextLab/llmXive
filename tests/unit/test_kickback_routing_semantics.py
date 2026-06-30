@@ -109,13 +109,15 @@ def test_all_routes_are_valid_transitions_and_dispatchable():
 
 
 def test_full_revision_kickback_resets_revision_round_budget(tmp_path):
-    """A FULL-revision kickback (research_full_revision → clarified) must CLEAR
+    """A FULL-revision kickback (research_full_revision → IN_PROGRESS) must CLEAR
     the project's revision-round budget so the redone analysis gets a fresh
-    review cycle. Without this, the project returns to research_review already
-    at the 3-round cap → kicks back again → loops to human escalation, never
-    addressing concerns that surface only after the early rounds (PROJ-552's
-    layered-review stall: rounds 1-3 on placeholder docs, the real data-quality
-    defect at round 4)."""
+    review cycle. research_full_revision is not a resting step — it kicks back to
+    IMPLEMENTATION to re-do the analysis (under the fabrication-gated execution
+    gate), not all the way to clarified. Without the reset the project returns to
+    research_review already at the 3-round cap → kicks back again → loops to human
+    escalation, never addressing concerns that surface only after the early rounds
+    (PROJ-552's layered-review stall: rounds 1-3 on placeholder docs, the real
+    data-quality defect at round 4)."""
     from datetime import UTC, datetime
 
     import yaml
@@ -141,6 +143,6 @@ def test_full_revision_kickback_resets_revision_round_budget(tmp_path):
         artifact_hashes={}, speckit_research_dir=f"projects/{pid}/specs/001-t",
     )
     nxt = _decide_next_stage(proj, repo / "projects" / pid, repo_root=repo)
-    assert nxt == Stage.CLARIFIED
+    assert nxt == Stage.IN_PROGRESS
     assert not (ar).exists(), "auto-revisions rounds must be cleared on full-revision kickback"
     assert not (hist / "revision_history.yaml").exists(), "revision_history must be cleared"

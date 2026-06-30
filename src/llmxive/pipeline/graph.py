@@ -1509,15 +1509,19 @@ def _decide_next_stage(
     #   research_rejected       → brainstormed
     #   paper_fundamental_flaws → brainstormed
     if cur == Stage.RESEARCH_FULL_REVISION:
-        # FULL revision: the analysis itself must change (e.g. data_quality found
-        # the braid index populated for only ~23% of records — no doc-edit round
-        # fixes that). Redo from CLARIFIED, and RESET the revision-round budget so
-        # the regenerated analysis gets a fresh review cycle instead of returning
-        # to research_review already exhausted (which would loop straight back
-        # here). Bounded by the convergence-kickback cap → human escalation.
+        # FULL revision: the ANALYSIS itself must change (e.g. data_quality found
+        # the braid index populated for only ~23% of records, or the execution
+        # produced fabricated numbers — no doc-edit round fixes that). Kick back to
+        # IMPLEMENTATION (in_progress), NOT all the way to clarified: research_full_
+        # revision is not a resting step, and re-running the question/spec/plan is
+        # overkill when the fix is to re-do the analysis. The implementer re-runs
+        # under the (now fabrication-gated) execution gate. RESET the revision-round
+        # budget so the regenerated analysis gets a fresh review cycle instead of
+        # returning already-exhausted (which would loop straight back here).
+        # Bounded by the convergence-kickback cap → human escalation.
         if repo_root is not None:
             _reset_revision_rounds(project.id, repo_root=repo_root)
-        return Stage.CLARIFIED
+        return Stage.IN_PROGRESS
     if cur == Stage.RESEARCH_REJECTED:
         return Stage.BRAINSTORMED
     if cur == Stage.PAPER_FUNDAMENTAL_FLAWS:

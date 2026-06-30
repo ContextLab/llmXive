@@ -60,6 +60,7 @@ class AnalysisRunResult:
     declared_missing: list[str] = field(default_factory=list)    # declared deliverables absent post-run
     deadline_exceeded: bool = False
     reason: str = ""
+    fabrication: list[str] = field(default_factory=list)         # deterministic fabricated-result findings
 
 
 def extract_run_commands(quickstart_text: str) -> list[str]:
@@ -310,13 +311,29 @@ def run_analysis(
 
     # Advisory (`python -c` smoke-test) failures are reported but do not gate.
     cmd_failures = [r for r in results if not r.ok and not r.advisory]
+    # DETERMINISTIC anti-fabrication gate (PROJ-604): the code can RUN and write
+    # real files while its reported numbers are fabricated — drawn from random.*,
+    # forced by a tautological constant, or openly labelled "simulated metrics"
+    # because the real (GPU) computation could not run. "code ran + a file
+    # appeared" is satisfied by fabrication, so without this a faked benchmark
+    # reaches research_complete and only the LLM panel catches it. A non-empty
+    # finding hard-fails the gate → kickback to implementation for a REAL run.
+    from llmxive.execution.fabrication_guard import find_fabrication
+
+    fabrication = find_fabrication(project_dir)
     ok = (
         not deadline_exceeded
         and not cmd_failures
         and bool(produced)
         and not declared_missing
+        and not fabrication
     )
     reason_parts: list[str] = []
+    if fabrication:
+        reason_parts.append(
+            f"{len(fabrication)} fabricated/simulated-result signal(s) — results are "
+            "not real measurements: " + "; ".join(fabrication[:3])
+        )
     if deadline_exceeded:
         reason_parts.append(f"overall deadline {overall_deadline_s:.0f}s exceeded")
     if cmd_failures:
@@ -346,6 +363,7 @@ def run_analysis(
         declared_missing=declared_missing,
         deadline_exceeded=deadline_exceeded,
         reason="; ".join(reason_parts) or "ok",
+        fabrication=fabrication,
     )
 
 

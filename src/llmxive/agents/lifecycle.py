@@ -148,9 +148,10 @@ ALLOWED_TRANSITIONS: dict[Stage, set[Stage]] = {
         Stage.HUMAN_INPUT_NEEDED,
     },
     Stage.RESEARCH_ACCEPTED: {Stage.PAPER_DRAFTING_INIT},
-    # back to clarified with feedback, OR honest escalation when the convergence
-    # engine's kickback cap is exhausted (else the routing throws every tick).
-    Stage.RESEARCH_FULL_REVISION: {Stage.CLARIFIED, Stage.HUMAN_INPUT_NEEDED},
+    # back to IMPLEMENTATION (in_progress) to re-do the analysis with feedback —
+    # research_full_revision is not a resting step — OR honest escalation when the
+    # convergence engine's kickback cap is exhausted (else routing throws each tick).
+    Stage.RESEARCH_FULL_REVISION: {Stage.IN_PROGRESS, Stage.HUMAN_INPUT_NEEDED},
     Stage.RESEARCH_REJECTED: {Stage.BRAINSTORMED, Stage.HUMAN_INPUT_NEEDED},
     # Paper Spec Kit pipeline (US4):
     Stage.PAPER_DRAFTING_INIT: {Stage.PAPER_SPECIFIED},

@@ -497,6 +497,31 @@ def _write_execution_feedback(
         "# Execution failures — fix these before the analysis can run",
         "",
     ]
+    if getattr(res, "fabrication", None):
+        lines += [
+            "## ⛔ FABRICATED RESULTS — the analysis must MEASURE, not manufacture",
+            "",
+            "The gate detected that your reported numbers are NOT real measurements: "
+            "they are drawn from `random.*`, forced by a tautological constant, or "
+            "openly labelled simulated/placeholder because the real computation could "
+            "not run. Producing files full of invented numbers is WORSE than failing — "
+            "it is fabrication and will never be accepted. You MUST:",
+            "",
+            "1. DELETE every fabricated metric. Do NOT draw a reported value from "
+            "`random.uniform`/`np.random.*`, hardcode it to match the paper's claim, "
+            "or compute it from a tautological constant.",
+            "2. Run a REAL, honestly scaled-down experiment that MEASURES the actual "
+            "quantity on the CPU (e.g. time a real (small) computation, count real "
+            "events, compute the real statistic over real or clearly-labelled sampled "
+            "INPUT data). A small REAL result beats a big fake one.",
+            "3. If the headline quantity genuinely CANNOT be measured on a CPU (it needs "
+            "a GPU), do NOT fake it — measure a different, genuinely-computable proxy "
+            "and name it honestly, or report that the metric is unmeasurable here. "
+            "Never present a simulated number as a measurement.",
+            "",
+            *(f"- {c}" for c in res.fabrication[:8]),
+            "",
+        ]
     if regressions:
         lines += [
             "## ⚠ REGRESSIONS — your last fix BROKE these (they passed before)",
