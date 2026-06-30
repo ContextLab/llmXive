@@ -126,3 +126,29 @@ def test_text_scan_catches_simulation_intent_in_a_plan(tmp_path: Path) -> None:
         "simulate the speedup metric using a representative range.\n"
     )
     assert scan_text_for_fabrication(plan, source="plan.md")
+
+
+def test_venv_and_test_code_are_not_scanned(tmp_path: Path) -> None:
+    """The fabrication scan must NOT recurse into installed deps (code/.venv/
+    site-packages) or test code — third-party docstrings ('tries to simulate the
+    result') and test fixtures (synthetic data for unit tests) are NOT a fabricated
+    RESEARCH result. Scanning them produced 143 false positives from a single venv
+    that wrongly failed the execution gate for nearly every project."""
+    p = tmp_path / "proj"
+    (p / "code").mkdir(parents=True)
+    # honest real analysis
+    (p / "code" / "run.py").write_text(
+        "import pandas as pd\n"
+        "df = pd.read_csv('data/raw.csv')\n"
+        "corr = df['x'].corr(df['y'])\n", encoding="utf-8")
+    # installed dependency with fabrication language in a docstring
+    site = p / "code" / ".venv" / "lib" / "python3.11" / "site-packages" / "PIL"
+    site.mkdir(parents=True)
+    (site / "ImageCms.py").write_text(
+        '"""tries to simulate the result that would be obtained."""\n', encoding="utf-8")
+    # a unit test using synthetic fixtures
+    (p / "code" / "tests").mkdir()
+    (p / "code" / "tests" / "test_run.py").write_text(
+        "import numpy as np\n# synthetic data for the unit test\nX = np.random.randn(5, 3)\n",
+        encoding="utf-8")
+    assert find_fabrication(p) == []

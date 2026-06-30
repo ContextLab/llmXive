@@ -153,6 +153,33 @@ def _scan_code_rng_metrics(code_text: str, *, source: str) -> list[str]:
     return out
 
 
+#: Directory names that hold INSTALLED dependencies / build / cache artifacts —
+#: NOT the project's own authored analysis. Scanning them flags THIRD-PARTY library
+#: docstrings/comments ("…tries to simulate the result…", "Arbitrary values…") as
+#: fabrication — 143 false positives from a single ``code/.venv`` (PIL, pytest, …)
+#: that wrongly fail the execution gate for essentially every project with a venv.
+_SKIP_DIR_PARTS = frozenset({
+    ".venv", "venv", "env", ".env", "virtualenv", "site-packages", "dist-packages",
+    "__pycache__", "node_modules", ".git", ".tox", ".nox", ".mypy_cache",
+    ".pytest_cache", ".ipynb_checkpoints", "dist", "build", ".eggs", ".cache",
+    "external",  # vendored ORIGINAL repo of a reprocessed paper (not our analysis)
+})
+
+
+def _skip_path(p: Path) -> bool:
+    """True if ``p`` is NOT the project's own ANALYSIS code/output: installed
+    third-party deps, build/cache artifacts, OR test code. Test files legitimately
+    use synthetic/random fixtures and assert on stub values — that is unit testing,
+    not a fabricated RESEARCH result (the produced data/ + analysis code are still
+    scanned), so flagging them is a false positive."""
+    if any(part in _SKIP_DIR_PARTS or part.endswith(".egg-info") for part in p.parts):
+        return True
+    if "tests" in p.parts or "test" in p.parts:
+        return True
+    name = p.name
+    return name == "conftest.py" or name.startswith("test_") or name.endswith("_test.py")
+
+
 def find_code_fabrication(project_dir: Path) -> list[str]:
     """Scan a project's analysis code (``code/**/*.py``) for fabrication signals."""
     out: list[str] = []
@@ -160,6 +187,8 @@ def find_code_fabrication(project_dir: Path) -> list[str]:
     if not code_dir.is_dir():
         return out
     for py in sorted(code_dir.rglob("*.py")):
+        if _skip_path(py):
+            continue
         try:
             text = py.read_text(encoding="utf-8", errors="ignore")
         except OSError:
@@ -179,6 +208,8 @@ def find_result_fabrication(project_dir: Path) -> list[str]:
         if not d.is_dir():
             continue
         for f in sorted(d.rglob("*")):
+            if _skip_path(f):
+                continue
             if f.suffix.lower() not in (".json", ".csv", ".md", ".txt", ".yaml", ".yml"):
                 continue
             try:
@@ -244,6 +275,8 @@ def find_synthetic_data_use(project_dir: Path) -> list[str]:
         if not d.is_dir():
             continue
         for f in sorted(d.rglob("*")):
+            if _skip_path(f):
+                continue
             if f.suffix.lower() not in (".py", ".json", ".csv", ".md", ".txt", ".yaml", ".yml"):
                 continue
             try:
