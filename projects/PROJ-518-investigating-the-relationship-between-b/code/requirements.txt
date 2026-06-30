@@ -1,0 +1,8 @@
+nilearn==0.10.0
+networkx==3.2.1
+scikit-learn==1.4.2
+numpy==1.26.4
+pandas==2.2.2
+matplotlib==3.8.4
+scipy==1.12.0
+brainconn==0.1.0
