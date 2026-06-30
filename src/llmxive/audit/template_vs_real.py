@@ -38,6 +38,16 @@ STRUCTURAL_LABEL_RE = re.compile(r"^\[(Story\??|US\d+|TaskID|ID|P\??)\]$")
 #     live PROJ-530/PROJ-118 spec refusals (sample=['[See US-1]', '[See US-2]']).
 # Both name a concrete id (T### / US-#), so neither is a fill-in-the-blank slot.
 FILLED_TASK_REF_RE = re.compile(r"\bT\d{2,4}\b|\bUS-?\d+\b")
+# Claims-layer quality markers — ``[UNRESOLVED-CLAIM: <id> — <reason>]`` (specs
+# 016-020; the prefix is claims.gate.CLAIM_MARKER_PREFIX) and the legacy
+# citation-guard ``[UNVERIFIED: <ref> — <reason>]`` — are INTENTIONAL filled
+# annotations the pipeline injects to FLAG unresolved claims / unverifiable
+# references, NOT unfilled template scaffold. They must not count toward bracket
+# density: an artifact legitimately carrying them (live PROJ-308 / PROJ-520
+# tasks.md) would otherwise mis-classify ``template``, and the real-only guard
+# (speckit/_real_only_guard.py) REFUSES anything so classified — silently
+# blocking a claim-flagged project from advancing.
+CLAIM_MARKER_RE = re.compile(r"\[(?:UNRESOLVED-CLAIM|UNVERIFIED):")
 ACTION_REQUIRED_RE = re.compile(r"ACTION REQUIRED:", re.IGNORECASE)
 META_INSTRUCTION_RE = re.compile(
     r"(fill (?:them|it|this|out|in) (?:out )?with the right|placeholders\?|REMOVE IF UNUSED)",
@@ -167,6 +177,7 @@ def classify(path: Path, templates_dir: Path | None = None) -> tuple[str, list[R
         if not STRUCTURAL_LABEL_RE.match(b)
         and " " in b[1:-1].strip()
         and not FILLED_TASK_REF_RE.search(b)  # "[DEPENDS ON: T011]" is filled, not a placeholder
+        and not CLAIM_MARKER_RE.match(b)  # "[UNRESOLVED-CLAIM: …]" is a filled quality marker
     ]
     if brackets and len(brackets) >= 6:
         # treat >=6 unfilled multi-word bracket placeholders as template

@@ -174,6 +174,40 @@ class TestClassifyFixtures(unittest.TestCase):
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
 
+    def test_claim_layer_markers_do_not_classify_real_artifact_as_template(self):
+        """A real artifact carrying claims-layer quality markers
+        ([UNRESOLVED-CLAIM: <id> — <reason>] from specs 016-020, and the legacy
+        citation-guard [UNVERIFIED: <ref> — <reason>]) must classify 'real'.
+        Those markers are INTENTIONAL filled annotations, not unfilled template
+        placeholders — but their bracket density previously tripped Rule 2 and
+        classified the artifact 'template' (observed on PROJ-308 / PROJ-520
+        tasks.md). The real-only guard refuses anything classified 'template'
+        via unfilled_bracket_density, so this false-positive would BLOCK a
+        legitimately-flagged project from advancing."""
+        tmp = Path(tempfile.mkdtemp(prefix="claims_test_"))
+        try:
+            tasks = tmp / "tasks.md"
+            tasks.write_text(textwrap.dedent("""\
+                # Tasks: Quantifying Entanglement Entropy
+
+                ## Phase 3: User Story 1 (Priority: P1)
+
+                - [X] T001 [US1] Build the random-circuit sampler in code/sample.py [UNRESOLVED-CLAIM: c_4a96a144 — status=not_enough_info]
+                - [X] T002 [US1] Compute entanglement entropy in code/entropy.py [UNRESOLVED-CLAIM: c_0d966b16 — status=not_enough_info]
+                - [X] T003 [US1] Fit the scaling law in code/fit.py [UNRESOLVED-CLAIM: c_1b2c3d4e — status=not_enough_info]
+                - [X] T004 [US2] Validate against the reference value [UNRESOLVED-CLAIM: c_5f6a7b8c — status=not_enough_info]
+                - [X] T005 [US2] Compute the Renyi spectrum in code/renyi.py [UNRESOLVED-CLAIM: c_9d8e7f6a — status=not_enough_info]
+                - [X] T006 [US2] Bootstrap the error bars in code/boot.py [UNRESOLVED-CLAIM: c_2a3b4c5d — status=not_enough_info]
+                - [X] T007 [US3] Emit results to data/results/entropy.csv [UNVERIFIED: arXiv:2401.00001 — fetch failed]
+            """))
+            cls, rules = classify(tasks, templates_dir=TEMPLATES_DIR)
+            self.assertEqual(
+                cls, "real",
+                msg=f"claim-marked tasks.md misclassified {cls}; rules: {[r.rule_id for r in rules]}",
+            )
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
     def test_fenced_flowchart_bracket_labels_not_template(self):
         """Spec 014 regression: bracketed node labels inside a fenced block
         (a mermaid/ASCII data-flow chart, e.g. '[Dataset Download] -> ...') are
