@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-29T09:11:53.509109Z'
-current_stage: paper_review
+current_stage: in_progress
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-637-https-arxiv-org-abs-2605-28814
-last_run_id: aaef154f-b442-46c6-9d5f-993a88cdb8ae
+last_run_id: fedba6ec-a37c-4fe6-b8ba-1804bc09812f
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: specs/auto-revisions/PROJ-637-https-arxiv-org-abs-2605-28814/round-2
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-637-https-arxiv-org-abs-2605-28814/specs/001-https-arxiv-org-abs-2605-28814
 title: Self-Improving Language Models with Bidirectional Evolutionary Search
-updated_at: '2026-06-21T10:17:45.303113Z'
+updated_at: '2026-06-30T10:31:18.777614Z'

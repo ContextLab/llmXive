@@ -1,0 +1,96 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Reproduction Run Metadata"
+description: "Schema for the run_metadata.json file generated after execution"
+type: "object"
+required:
+  - "run_id"
+  - "start_time"
+  - "end_time"
+  - "exit_code"
+  - "environment"
+  - "input_config"
+  - "output_artifacts"
+properties:
+  run_id:
+    type: "string"
+    description: "Unique identifier for this run (UUID)"
+  start_time:
+    type: "string"
+    format: date-time
+    description: "ISO 8601 timestamp of run start"
+  end_time:
+    type: "string"
+    format: date-time
+    description: "ISO 8601 timestamp of run end"
+  exit_code:
+    type: "integer"
+    description: "Exit code of the prepare.py script (0 for success)"
+  error_message:
+    type: "string"
+    description: "Error message if exit_code is non-zero"
+    nullable: true
+  environment:
+    type: "object"
+    required:
+      - "python_version"
+      - "platform"
+      - "libraries"
+    properties:
+      python_version:
+        type: "string"
+      platform:
+        type: "string"
+      libraries:
+        type: "object"
+        description: "Map of library names to versions"
+  input_config:
+    type: "object"
+    required:
+      - "path"
+      - "entry_count"
+    properties:
+      path:
+        type: "string"
+        description: "Path to the input JSON config"
+      entry_count:
+        type: "integer"
+        description: "Number of entries in the input config"
+  sampling_strategy:
+    type: "object"
+    nullable: true
+    description: "Details of the sampling strategy if a subset was used. Null if full dataset was processed."
+    properties:
+      method:
+        type: "string"
+        description: "e.g., 'stratified_random', 'random'"
+      seed:
+        type: "integer"
+        description: "Random seed used for reproducibility"
+      fraction:
+        type: "number"
+        description: "Fraction of the dataset used"
+      strata_columns:
+        type: "array"
+        description: "List of columns used for stratification (e.g., ['speaker_id', 'duration']). Required if method is 'stratified_random'."
+        items:
+          type: "string"
+  statistical_method:
+    type: "string"
+    description: "Statistical test used for validation (e.g., 'bootstrap', 'exact_binomial')"
+  sample_size:
+    type: "integer"
+    description: "Number of samples used in the statistical test"
+  output_artifacts:
+    type: "array"
+    description: "List of generated output files"
+    items:
+      type: "object"
+      required:
+        - "path"
+        - "size_bytes"
+      properties:
+        path:
+          type: "string"
+        size_bytes:
+          type: "integer"
+additionalProperties: false

@@ -1,7 +1,7 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-29T09:12:17.602529Z'
-current_stage: paper_review
+current_stage: paper_ingested
 failed_stage: null
 field: computer science
 human_escalation_reason: null
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'ProRL: Effective Reinforcement Learning for Proactive Recommendation via Rectified
   Policy Gradient Estimation'
-updated_at: '2026-06-29T14:46:55.028333Z'
+updated_at: '2026-06-30T10:23:13.054520Z'

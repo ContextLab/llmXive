@@ -1,7 +1,7 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-28T09:17:06.345355Z'
-current_stage: paper_review
+current_stage: paper_ingested
 failed_stage: null
 field: computer science
 human_escalation_reason: null
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'LocateAnything: Fast and High-Quality Vision-Language Grounding with Parallel
   Box Decoding'
-updated_at: '2026-06-30T00:29:13.950347Z'
+updated_at: '2026-06-30T10:23:13.046566Z'

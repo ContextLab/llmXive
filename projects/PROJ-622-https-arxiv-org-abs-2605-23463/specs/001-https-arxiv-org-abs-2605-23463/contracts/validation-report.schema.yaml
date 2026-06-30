@@ -1,0 +1,89 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Validation Report Structure"
+description: "Schema for the validation_report.md content structure (logical schema)"
+type: "object"
+required:
+  - "summary"
+  - "claims_validation"
+  - "discrepancies"
+properties:
+  summary:
+    type: "object"
+    required:
+      - "status"
+      - "paper_id"
+    properties:
+      status:
+        type: "string"
+        enum:
+          - "Confirmed"
+          - "Discrepancy"
+          - "Needs Clarification"
+        description: "Overall validation status"
+      paper_id:
+        type: "string"
+        description: "ArXiv ID of the paper (e.g., 2605.23463)"
+  claims_validation:
+    type: "array"
+    description: "List of individual claim validations"
+    items:
+      type: "object"
+      required:
+        - "claim_id"
+        - "metric_name"
+        - "paper_value"
+        - "observed_value"
+        - "status"
+      properties:
+        claim_id:
+          type: "string"
+        metric_name:
+          type: "string"
+        paper_value:
+          type: "string"
+          description: "Value reported in the paper"
+        observed_value:
+          type: "string"
+          description: "Value observed in the run"
+        status:
+          type: "string"
+          enum:
+            - "Confirmed"
+            - "Discrepancy"
+            - "Needs Clarification"
+        note:
+          type: "string"
+          description: "Additional context or reason for status (e.g., 'Human MOS claim validated only by DNSMOS proxy')"
+        calibration:
+          type: "object"
+          nullable: true
+          description: "Calibration details for proxy metrics (e.g., DNSMOS to MOS). Only populated if a valid calibration study was performed."
+          properties:
+            proxy_metric:
+              type: "string"
+              description: "Name of the proxy metric used (e.g., DNSMOS P.835)"
+            correlation_coefficient:
+              type: "number"
+              description: "Correlation coefficient between proxy and ground truth"
+            offset:
+              type: "number"
+              description: "Offset applied to map proxy to claimed metric"
+  discrepancies:
+    type: "array"
+    description: "List of specific discrepancies found"
+    items:
+      type: "object"
+      required:
+        - "metric"
+        - "difference"
+        - "suggestion"
+      properties:
+        metric:
+          type: "string"
+        difference:
+          type: "string"
+          description: "Description of the difference (e.g., '+[deferred]')"
+        suggestion:
+          type: "string"
+          description: "Suggested cause or next step"
+additionalProperties: false

@@ -1,0 +1,34 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "WenetSpeech Testnet Configuration"
+description: "Schema for the input configuration file WenetSpeech_testnet_long.json. Enforces remote-only data sources."
+type: "object"
+required:
+  - "entries"
+properties:
+  entries:
+    type: "array"
+    description: "List of audio entries to process. Must reference remote audio sources."
+    items:
+      type: "object"
+      required:
+        - "id"
+        - "transcription"
+        - "audio_url"
+      properties:
+        audio_url:
+          type: "string"
+          description: "Remote URL or path to audio file. REQUIRED. Local paths are not supported."
+        id:
+          type: "string"
+          description: "Unique identifier for the audio entry"
+        transcription:
+          type: "string"
+          description: "Ground truth transcription (REQUIRED for validation)"
+        speaker_id:
+          type: "string"
+          description: "Speaker identifier"
+        duration:
+          type: "number"
+          description: "Duration of the audio in seconds"
+    minItems: 1
+additionalProperties: false

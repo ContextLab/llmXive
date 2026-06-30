@@ -49,3 +49,12 @@
 [submodule "projects/PROJ-604-https-arxiv-org-abs-2605-18739/external/LongLive"]
 	path = projects/PROJ-604-https-arxiv-org-abs-2605-18739/external/LongLive
 	url = https://github.com/NVlabs/LongLive
+[submodule "projects/PROJ-637-https-arxiv-org-abs-2605-28814/external/BES"]
+	path = projects/PROJ-637-https-arxiv-org-abs-2605-28814/external/BES
+	url = https://github.com/Embodied-Minds-Lab/BES
+[submodule "projects/PROJ-622-https-arxiv-org-abs-2605-23463/external/wenetspeech-testnet-long"]
+	path = projects/PROJ-622-https-arxiv-org-abs-2605-23463/external/wenetspeech-testnet-long
+	url = https://github.com/lawlict/wenetspeech-testnet-long
+[submodule "projects/PROJ-634-https-arxiv-org-abs-2605-27367/external/SpatialBench"]
+	path = projects/PROJ-634-https-arxiv-org-abs-2605-27367/external/SpatialBench
+	url = https://github.com/Ropedia/SpatialBench
