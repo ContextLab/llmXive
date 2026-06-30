@@ -1,0 +1,47 @@
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/docs/README.md
+  attempts: 1
+  canonical: 'Project limited to 2 verified datasets: UCI HAR and UCI Shopper'
+  claim_id: c_1dc77be1
+  context: Limitations and Notes section discussing dataset availability.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Currently limited to 2 verified datasets (UCI HAR, UCI Shopper) due to
+    public data availability constraints.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T08:55:52Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/docs/README.md
+  attempts: 2
+  canonical: Bootstrap iterations fallback to 500 for datasets exceeding 5000 rows
+  claim_id: c_ac305073
+  context: Limitations and Notes section discussing bootstrap iterations.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fallback to 500 iterations if dataset size exceeds 5000 rows for computational
+    tractability.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T08:56:08Z'
+- artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/docs/README.md
+  attempts: 1
+  canonical: Median/IQR calculations flagged as unstable for sample sizes of n=2
+  claim_id: c_05208814
+  context: Limitations and Notes section discussing statistical limitations.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Median/IQR calculations on small sample sizes (n=2) are flagged as unstable.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T08:56:31Z'

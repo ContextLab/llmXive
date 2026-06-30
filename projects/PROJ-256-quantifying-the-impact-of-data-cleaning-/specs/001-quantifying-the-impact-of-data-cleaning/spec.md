@@ -75,7 +75,7 @@ References: (DOI/arXiv/author-year) (as of 2024‑01‑26) that have n ≥ 2
 - **FR-002**: System MUST apply IQR‑based outlier removal with k=1.5 threshold (standard community default per Tukey) and record the number of rows removed per dataset (See US‑2)
 - **FR-003**: System MUST implement 3 missing‑value imputation strategies (mean, median, KNN with k=5) and allow selection of which to apply per dataset; after imputation, targeted columns must contain zero missing values (See US‑2)
 - **FR-004**: System MUST execute t‑tests and linear regressions using scipy/statsmodels on both raw and cleaned data, recording p‑values (rounded to ≥3 decimal places), % confidence intervals, and effect sizes (Cohen's d for t‑tests, R² for regression) (See US‑2)
-- **FR-005**: System MUST compute absolute p‑value difference (|p_cleaned − p_baseline|, rounded to 3 decimal places), relative CI width change ((CI_width_cleaned − CI_width_baseline)/CI_width_baseline × 100, rounded to 2 decimal places), and effect‑size delta for each cleaning strategy (See US‑3)
+- **FR-005**: System MUST compute absolute p‑value difference (|p_cleaned − p_baseline|, rounded to decimal places), relative CI width change ((CI_width_cleaned − CI_width_baseline)/CI_width_baseline × 100, rounded to 2 decimal places), and effect‑size delta for each cleaning strategy (See US‑3)
 - **FR-006**: System MUST sweep multiple outlier threshold values (k ∈ {1.5, 2.0}) and, for each, report (a) false‑positive rate estimated via A substantial number of permutation null datasets will be generated.
 
 The research question is: Can we identify robust biomarkers for predicting treatment response in patients with glioblastoma using multi-omics data integration? ()
@@ -98,7 +98,7 @@ The method will involve integrating genomic, transcriptomic, and proteomic data,
 
 ### Measurable Outcomes
 
-- **SC-001**: Median absolute p‑value shift across datasets per cleaning strategy is reported with its inter‑quartile range (IQR); shift is defined as |p_cleaned − p_baseline| (See US‑3)
+- **SC-001**: Median absolute p‑value shift across datasets per cleaning strategy is reported with its inter‑quartile range (IQR); shift is defined as |p_cleaned − p_baseline| (See US‑)
 - **SC-002**: Median percentage change in confidence‑interval width from baseline per cleaning strategy is reported with IQR (See US‑3)
 - **SC-003**: Median effect‑size change (Cohen's d or ΔR²) per cleaning strategy and dataset‑size bin is reported with IQR (See US‑3)
 - **SC-004**: Family‑wise error rate is controlled at α ≤ 0.05 using Benjamini‑Hochberg correction across all hypothesis tests (See US‑3)
@@ -120,5 +120,5 @@ The method will involve integrating genomic, transcriptomic, and proteomic data,
 - Validated statistical instruments are not required (this study uses existing public datasets, not new questionnaires)
 - Predictor collinearity diagnostics (VIF) are required when multiple predictors are included in regression models; if predictors are definitionally related, independent effects are NOT claimed
 - No GPU/CUDA/accelerators are used; all methods are CPU‑tractable (classical statistics, scikit‑learn on modest data, exact/closed‑form computation)
-- Total compute time must not exceed 6 hours on free‑tier runner; if exceeded, dataset sampling or method simplification is applied
+- Total compute time must not exceed a reasonable limit on free‑tier runner; if exceeded, dataset sampling or method simplification is applied
 - Bootstrap resampling (with a sufficient number of iterations) is CPU‑tractable for the dataset sizes studied; if not, iteration count is reduced to a predefined threshold or method is replaced with closed‑form approximation
