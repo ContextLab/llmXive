@@ -1,7 +1,7 @@
 {
   "project_id": "PROJ-607-https-arxiv-org-abs-2605-19769",
   "stage": "paper_specified",
-  "last_error": "Paper clarifier left 3 of 3 markers unresolved (attempt 2/5); will not advance. Unresolved: ['The specific \"ordering metric\" to be used for the \"Engine vs. Agent\" analysis (T035a) needs final definition in the Methods section (e.g., exact step sequence vs. total steps).', 'The exact visual style for Figure 2 (Matrix) needs to be confirmed (e.g., heatmap vs. simple table) to ensure clarity for the reader.', 'Whether the \"Limitations\" section should include a specific recommendation for future work (e.g., \"A larger sample size is required for statistical significance\") or simply state the constraint.']",
-  "last_seen": "2026-06-30T22:03:02.764970+00:00",
-  "count": 2
+  "last_error": "Paper clarifier left 3 of 3 markers unresolved (attempt 3/5); will not advance. Unresolved: ['The specific \"ordering metric\" to be used for the \"Engine vs. Agent\" analysis (T035a) needs final definition in the Methods section (e.g., exact step sequence vs. total steps).', 'The exact visual style for Figure 2 (Matrix) needs to be confirmed (e.g., heatmap vs. simple table) to ensure clarity for the reader.', 'Whether the \"Limitations\" section should include a specific recommendation for future work (e.g., \"A larger sample size is required for statistical significance\") or simply state the constraint.']",
+  "last_seen": "2026-06-30T22:39:15.969737+00:00",
+  "count": 3
 }
