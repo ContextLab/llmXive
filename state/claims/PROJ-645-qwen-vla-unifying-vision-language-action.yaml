@@ -1,168 +1,263 @@
 - artifact_path: projects/PROJ-645-qwen-vla-unifying-vision-language-action/specs/001-qwen-vla-unifying-vision-language-action/tasks.md
   attempts: 1
-  canonical: filter Open X-Embodiment dataset to approximately 50,000 demonstrations
-    across 3 or more platforms
-  claim_id: c_968f1ffb
+  canonical: filter open x-embodiment to 50000 demos across 3 platforms
+  claim_id: c_6becdc3f
   context: "Implement src/data/dataset_loader.py to fetch Open X\u2011Embodiment via\
     \ HF Datasets API and filter to ~50k demos across \u22653 platforms."
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: "filter to ~50k demos across \u22653 platforms"
+  raw_text: "Filter to ~50k demos across \u22653 platforms."
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-06-30T00:05:40Z'
+  updated_at: '2026-06-30T00:53:16Z'
 - artifact_path: projects/PROJ-645-qwen-vla-unifying-vision-language-action/specs/001-qwen-vla-unifying-vision-language-action/tasks.md
   attempts: 1
-  canonical: verify dataset row count is at least 45,000
-  claim_id: c_c52cf7fb
+  canonical: verify dataset row count is at least 45000
+  claim_id: c_ebd0bcce
   context: 'Implement src/data/verify_dataset.py to verify T012/T012b outputs: check
     row count (>= 45000), compute SHA256 checksum, and update data/metadata.yaml.'
   evidence:
     candidates_found: 1
     reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Verify_dataset_row_count_is_at_least_45,000
+    source_url: https://en.wikipedia.org/wiki/Verify_dataset_row_count_is_at_least_45000
   kind: magnitude
-  raw_text: check row count (>= 45000)
+  raw_text: Check row count (>= 45000)
   resolved_value: null
   resolver: resolve_superlative
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-06-30T00:09:56Z'
+  updated_at: '2026-06-30T00:54:11Z'
 - artifact_path: projects/PROJ-645-qwen-vla-unifying-vision-language-action/specs/001-qwen-vla-unifying-vision-language-action/tasks.md
   attempts: 1
-  canonical: implement DiT action head with memory footprint under 7GB
-  claim_id: c_4e277d32
-  context: Implement a DiT action head that fits within 7GB RAM (FR-003).
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Implement_DiT_action_head_with_memory_footprint_under_7GB
-  kind: entity_fact
-  raw_text: DiT action head that fits within 7GB RAM
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-06-30T00:10:53Z'
-- artifact_path: projects/PROJ-645-qwen-vla-unifying-vision-language-action/specs/001-qwen-vla-unifying-vision-language-action/tasks.md
-  attempts: 1
-  canonical: enforce 6-hour wall-time limit for training
-  claim_id: c_10e42012
-  context: CPU-only training loop with batch size auto-adjustment if RAM >6.5GB; enforce
-    a 6-hour (21600s) wall-time limit using time.time() checks every batch.
+  canonical: load qwen2-vl-2b model
+  claim_id: c_3eff85be
+  context: "Implement src/models/vla_model.py: Load Qwen2\u2011VL\u20112B (frozen\
+    \ vision encoder) and attach DiT action head."
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: enforce a 6-hour (21600s) wall-time limit
+  raw_text: "Load Qwen2\u2011VL\u20112B"
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-06-30T00:11:43Z'
+  updated_at: '2026-06-30T00:54:49Z'
 - artifact_path: projects/PROJ-645-qwen-vla-unifying-vision-language-action/specs/001-qwen-vla-unifying-vision-language-action/tasks.md
   attempts: 1
-  canonical: peak RAM usage under 7GB during training
-  claim_id: c_d49ca704
-  context: 'Verify: Run with 50k samples completes in <6h and logs peak RAM <7GB.'
+  canonical: enforce 6 hour wall time limit for training
+  claim_id: c_c4bcae88
+  context: 'Implement src/training/train_loop.py: CPU-only training loop with batch
+    size auto-adjustment if RAM >6.5GB; enforce a 6-hour (21600s) wall-time limit
+    using time.time() checks every batch.'
   evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Peak_RAM_usage_under_7GB_during_training
-  kind: entity_fact
-  raw_text: peak RAM <7GB
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce a 6-hour (21600s) wall-time limit
   resolved_value: null
-  resolver: resolve_entity_fact
+  resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-06-30T00:13:22Z'
+  updated_at: '2026-06-30T00:55:30Z'
 - artifact_path: projects/PROJ-645-qwen-vla-unifying-vision-language-action/specs/001-qwen-vla-unifying-vision-language-action/tasks.md
   attempts: 1
-  canonical: serialize model weights with size less than or equal to 2GB
-  claim_id: c_715a2cd7
-  context: "Implement src/utils/checkpoint_saver.py: Serialize model weights ensuring\
-    \ size \u22642GB; save to data/checkpoints/"
+  canonical: verify peak ram is less than 7 gigabytes
+  claim_id: c_e41434bd
+  context: 'Output: data/checkpoints/model_epoch_{n}.pt. Verify: Run with 50k samples
+    completes in <6h and logs peak RAM <7GB.'
   evidence:
     candidates_found: 1
     reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Serialize_model_weights_with_size_less_than_or_equal_to_2GB
+    source_url: https://en.wikipedia.org/wiki/Verify_peak_ram_is_less_than_7_gigabytes
   kind: magnitude
-  raw_text: "serialize model weights ensuring size \u22642GB"
+  raw_text: Verify peak RAM <7GB
   resolved_value: null
   resolver: resolve_superlative
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-06-30T00:14:30Z'
+  updated_at: '2026-06-30T00:55:55Z'
 - artifact_path: projects/PROJ-645-qwen-vla-unifying-vision-language-action/specs/001-qwen-vla-unifying-vision-language-action/tasks.md
   attempts: 1
-  canonical: use 5 random seeds for experiments
-  claim_id: c_935fc57f
-  context: Write deterministic data/seeds.json with the 5 random seeds used.
+  canonical: serialize model weights to ensure size is at most 2 gigabytes
+  claim_id: c_b8a24603
+  context: "Implement src/utils/checkpoint_saver.py: Serialize model weights ensuring\
+    \ size \u22642GB; save to data/checkpoints/."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Serialize_model_weights_to_ensure_size_is_at_most_2_gigabyte
+  kind: magnitude
+  raw_text: "Serialize model weights ensuring size \u22642GB"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T00:56:47Z'
+- artifact_path: projects/PROJ-645-qwen-vla-unifying-vision-language-action/specs/001-qwen-vla-unifying-vision-language-action/tasks.md
+  attempts: 1
+  canonical: write 5 random seeds to data/seeds.json
+  claim_id: c_e4741422
+  context: 'Implement src/utils/reproducibility.py: Log seeds, hyperparams, and versions
+    to manifest.yaml. Output: Write deterministic data/seeds.json with the 5 random
+    seeds used.'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: 5 random seeds used
+  raw_text: Write deterministic data/seeds.json with the 5 random seeds used
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-06-30T00:15:11Z'
+  updated_at: '2026-06-30T00:57:25Z'
 - artifact_path: projects/PROJ-645-qwen-vla-unifying-vision-language-action/specs/001-qwen-vla-unifying-vision-language-action/tasks.md
   attempts: 1
-  canonical: compute 95% confidence intervals using bootstrapping
-  claim_id: c_d55807cf
-  context: Compute 95% confidence intervals using bootstrapping (non-parametric) from
-    the 5 seeds for each ratio to align with non-normal distribution assumptions.
+  canonical: compute 95 percent confidence intervals using bootstrapping
+  claim_id: c_6426e83c
+  context: 'Implement src/statistics/confidence_intervals.py: Compute 95% confidence
+    intervals using bootstrapping (non-parametric) from the 5 seeds for each ratio
+    to align with non-normal distribution assumptions.'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: compute 95% confidence intervals using bootstrapping
+  raw_text: Compute 95% confidence intervals using bootstrapping
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-06-30T00:15:11Z'
+  updated_at: '2026-06-30T00:57:25Z'
 - artifact_path: projects/PROJ-645-qwen-vla-unifying-vision-language-action/specs/001-qwen-vla-unifying-vision-language-action/tasks.md
   attempts: 1
-  canonical: configure torch.set_num_threads to restrict parallelism
-  claim_id: c_3220368d
-  context: 'Performance optimization: Verify that torch.set_num_threads is configured
-    to restrict parallelism in all scripts.'
+  canonical: use 5 random seeds consistently across experiments
+  claim_id: c_7d99bbce
+  context: 'Note: US2 and US3 both require the same 5 random seeds to be consistent;
+    T018 and T025 must coordinate seed generation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use the same 5 random seeds to be consistent
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T00:58:13Z'
+- artifact_path: projects/PROJ-645-qwen-vla-unifying-vision-language-action/specs/001-qwen-vla-unifying-vision-language-action/tasks.md
+  attempts: 1
+  canonical: set torch num threads to 2
+  claim_id: c_a5d77266
+  context: 'CRITICAL: All training tasks must enforce torch.set_num_threads(2) and
+    monitor RAM via psutil to stay within 7GB limit.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce torch.set_num_threads(2)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T00:58:46Z'
+- artifact_path: projects/PROJ-645-qwen-vla-unifying-vision-language-action/specs/001-qwen-vla-unifying-vision-language-action/tasks.md
+  attempts: 1
+  canonical: stay within 7 gigabyte memory limit
+  claim_id: c_b8d155cd
+  context: 'CRITICAL: All training tasks must enforce torch.set_num_threads(2) and
+    monitor RAM via psutil to stay within 7GB limit.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Stay within 7GB limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T00:59:43Z'
+- artifact_path: projects/PROJ-645-qwen-vla-unifying-vision-language-action/specs/001-qwen-vla-unifying-vision-language-action/tasks.md
+  attempts: 1
+  canonical: compute wilcoxon signed-rank test on success rates
+  claim_id: c_08848503
+  context: 'Implement src/statistics/wilcoxon_test.py: Compute Wilcoxon signed-rank
+    test on success-rate vectors from US1 and US2; apply Holm-Bonferroni correction.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: data points, obtaining the corresponding p- value of 0.04 (<0.05). Thus,
+        the Wilcoxon singed-
+      source_id: '1812.08824'
+      url: https://arxiv.org/abs/1812.08824
+      value: '0.04'
+    filled: true
+  kind: entity_fact
+  raw_text: Compute Wilcoxon signed-rank test
+  resolved_value: '0.04'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-30T01:09:28Z'
+- artifact_path: projects/PROJ-645-qwen-vla-unifying-vision-language-action/specs/001-qwen-vla-unifying-vision-language-action/tasks.md
+  attempts: 1
+  canonical: apply holm-bonferroni correction to p-values
+  claim_id: c_190c21a1
+  context: 'Implement src/statistics/wilcoxon_test.py: Compute Wilcoxon signed-rank
+    test on success-rate vectors from US1 and US2; apply Holm-Bonferroni correction.'
   evidence:
     entailment_status: not_found
     reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Configure_torch.set_num_threads_to_restrict_parallelism
+    source_url: https://en.wikipedia.org/wiki/Apply_holm-bonferroni_correction_to_p-values
   kind: entity_fact
-  raw_text: Verify that torch.set_num_threads is configured to restrict parallelism
+  raw_text: Apply Holm-Bonferroni correction
   resolved_value: null
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-06-30T00:16:24Z'
+  updated_at: '2026-06-30T01:12:59Z'
 - artifact_path: projects/PROJ-645-qwen-vla-unifying-vision-language-action/specs/001-qwen-vla-unifying-vision-language-action/tasks.md
   attempts: 1
-  canonical: set torch.num_threads to 2
-  claim_id: c_5b111039
-  context: All training tasks must enforce torch.set_num_threads(2) and monitor RAM
-    via psutil to stay within 7GB limit.
+  canonical: verify memory usage is less than 7 gigabytes
+  claim_id: c_9f77e92e
+  context: Contract test for dataset streaming in tests/contract/test_dataset_stream.py
+    (verify <7GB RAM)
   evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: torch.set_num_threads(2)
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_memory_usage_is_less_than_7_gigabytes
+  kind: magnitude
+  raw_text: Verify <7GB RAM
   resolved_value: null
-  resolver: resolve_numeric_or_citation
+  resolver: resolve_superlative
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-06-30T00:17:04Z'
+  updated_at: '2026-06-30T01:13:59Z'
+- artifact_path: projects/PROJ-645-qwen-vla-unifying-vision-language-action/specs/001-qwen-vla-unifying-vision-language-action/tasks.md
+  attempts: 1
+  canonical: log timeout warning without aborting on time limit
+  claim_id: c_617b2268
+  context: Enforce a 6-hour (21600s) wall-time limit using time.time() checks every
+    batch (Log 'TIMEOUT_WARNING' but DO NOT abort).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Log_timeout_warning_without_aborting_on_time_limit
+  kind: entity_fact
+  raw_text: Log 'TIMEOUT_WARNING' but DO NOT abort
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T01:14:56Z'

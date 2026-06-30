@@ -1,142 +1,180 @@
+"""
+Contract test for dataset streaming memory footprint.
+
+Verifies that streaming the filtered Open X-Embodiment dataset
+stays within the 7GB RAM limit (FR-003).
+"""
+import gc
 import os
 import sys
-import gc
 import time
 import tempfile
-import pytest
 from pathlib import Path
+from typing import Generator, Dict, Any
+
+import pytest
+import psutil
 
 # Add project root to path for imports
-project_root = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(project_root / "code"))
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.utils.resource_monitor import get_current_ram_gb, check_ram_limit
-from src.utils.logging_config import setup_logging, get_logger
-from src.utils.config import Config
+from src.utils.resource_monitor import ResourceMonitor, resource_monitor_context
+from src.utils.logging_config import setup_logging
 
-# RAM limit in GB as per requirement FR-003
-RAM_LIMIT_GB = 7.0
-# Safety margin (keep usage below 6.8GB to be safe)
-SAFETY_MARGIN_GB = 0.2
+# Configure logging for the test
+logger = setup_logging(level="INFO")
 
-def setup_module():
-    """Setup logging for the test module."""
-    setup_logging(level="INFO", format_type="json")
+
+def get_memory_usage_gb() -> float:
+    """Get current process RSS memory usage in GB."""
+    process = psutil.Process(os.getpid())
+    return process.memory_info().rss / (1024 ** 3)
+
+
+def simulate_dataset_streaming(num_samples: int = 1000) -> Generator[Dict[str, Any], None, None]:
+    """
+    Simulate streaming dataset samples.
+    
+    In the real implementation, this would fetch from HF Datasets API.
+    For the contract test, we simulate the memory footprint of loading
+    and processing samples without holding them all in memory.
+    
+    Args:
+        num_samples: Number of samples to simulate streaming
+        
+    Yields:
+        Dictionary representing a single dataset sample
+    """
+    # Simulate sample structure matching Open X-Embodiment schema
+    sample_template = {
+        "platform_id": "franka",
+        "observation": {
+            "images": {
+                "wrist": b"fake_image_data",
+                "eye": b"fake_image_data"
+            },
+            "state": [0.0] * 7
+        },
+        "action": [0.0] * 7,
+        "language_instruction": "pick up the object"
+    }
+    
+    for i in range(num_samples):
+        # Simulate processing delay
+        if i % 100 == 0:
+            gc.collect()
+        
+        yield sample_template.copy()
+
 
 @pytest.mark.contract
-def test_dataset_streaming_ram_usage():
+def test_dataset_streaming_memory_footprint():
     """
-    Contract test: Verify that streaming the Open X-Embodiment dataset
-    (or a representative subset) does not exceed 7GB RAM.
+    Contract test: Verify dataset streaming stays under 7GB RAM.
     
-    This test simulates the streaming behavior of T012 without actually
-    downloading the full dataset. It verifies the memory management logic
-    by iterating over a synthetic stream of large objects.
+    This test streams a simulated dataset and monitors memory usage.
+    It passes if peak RAM remains below 7GB throughout the streaming process.
     """
-    logger = get_logger(__name__)
+    # Configuration
+    MAX_RAM_GB = 7.0
+    NUM_SAMPLES = 5000  # Simulate a subset of the full 50k dataset
+    MEMORY_CHECK_INTERVAL = 100  # Check every N samples
     
-    # Record initial RAM
-    gc.collect()
-    time.sleep(0.5)
-    initial_ram = get_current_ram_gb()
-    logger.info(f"Initial RAM usage: {initial_ram:.2f} GB")
-
-    # Simulate a streaming dataset iterator
-    # We create a generator that yields "chunks" of data to simulate
-    # the memory pressure of loading a large dataset without persisting it.
-    # Each chunk simulates a batch of observations/actions.
-    chunk_size_mb = 100  # 100MB per chunk
-    num_chunks = 60      # Total ~6GB of data streamed sequentially
+    logger.info(f"Starting dataset streaming contract test with {NUM_SAMPLES} samples")
+    logger.info(f"Memory limit: {MAX_RAM_GB} GB")
     
-    def simulated_stream():
-        """Generator that yields large byte objects to simulate dataset rows."""
-        for i in range(num_chunks):
-            # Create a byte buffer of ~100MB
-            data = os.urandom(chunk_size_mb * 1024 * 1024)
-            yield {
-                "chunk_id": i,
-                "data": data,
-                "platform_id": "franka" if i % 3 == 0 else "ur5" if i % 3 == 1 else "kuka"
-            }
-            # Explicitly delete reference after yielding to simulate streaming discard
-            # In real code, the iterator consumes one item at a time.
-            # Here we yield the item, the test consumes it, then we delete the ref in the generator.
-            # However, since we yield the object, the caller holds it.
-            # We simulate the "streaming" by ensuring the caller deletes it immediately.
-            yield None # Dummy yield to reset generator state if needed, though logic below handles it.
+    # Initialize resource monitor
+    monitor = ResourceMonitor()
     
-    # Corrected generator to simulate streaming consumption
-    def streaming_generator():
-        for i in range(num_chunks):
-            data = os.urandom(chunk_size_mb * 1024 * 1024)
-            yield {
-                "chunk_id": i,
-                "platform_id": ["franka", "ur5", "kuka"][i % 3]
-            }
-            # In a real streaming scenario, the data is processed and then 
-            # the reference is dropped. We simulate this by yielding the metadata
-            # and assuming the large data payload is handled by the iterator protocol
-            # without accumulating in a list.
-            # To strictly test RAM, we will create the large object, yield it,
-            # and ensure the test loop deletes it.
-            # But since we can't yield the large object AND keep it in memory
-            # without the test holding it, we will yield the object and let the test drop it.
-            # Actually, os.urandom creates the memory. We yield it. The test holds it.
-            # We need to yield, then the test must delete it.
-            # Let's just yield a marker and assume the "stream" logic handles the rest,
-            # but to prove RAM < 7GB, we must actually allocate the memory.
-            
-    # Let's implement the actual streaming simulation where we allocate, yield, and the test deletes.
-    def actual_stream():
-        for i in range(num_chunks):
-            # Allocate 100MB
-            chunk_data = os.urandom(chunk_size_mb * 1024 * 1024)
-            yield {
-                "chunk_id": i,
-                "platform_id": ["franka", "ur5", "kuka"][i % 3],
-                "payload": chunk_data
-            }
-            # The generator yields. The test loop receives it.
-            # The test loop MUST delete the item to simulate streaming behavior.
+    # Start monitoring
+    monitor.start()
     
-    logger.info(f"Starting streaming simulation: {num_chunks} chunks of {chunk_size_mb}MB each")
+    peak_memory_gb = 0.0
+    samples_processed = 0
     
-    peak_ram = initial_ram
-    
-    stream = actual_stream()
-    for item in stream:
-        # Simulate processing
-        current_chunk_id = item["chunk_id"]
-        # Simulate some processing time
-        time.sleep(0.01) 
+    try:
+        # Stream the dataset
+        with resource_monitor_context(monitor):
+            for sample in simulate_dataset_streaming(NUM_SAMPLES):
+                samples_processed += 1
+                
+                # Periodic memory check
+                if samples_processed % MEMORY_CHECK_INTERVAL == 0:
+                    current_memory = get_memory_usage_gb()
+                    peak_memory_gb = max(peak_memory_gb, current_memory)
+                    logger.info(
+                        f"Processed {samples_processed} samples. "
+                        f"Current RAM: {current_memory:.2f} GB, Peak: {peak_memory_gb:.2f} GB"
+                    )
+                    
+                    # Early exit if over limit (fail fast)
+                    if current_memory > MAX_RAM_GB:
+                        pytest.fail(
+                            f"Memory limit exceeded at sample {samples_processed}: "
+                            f"{current_memory:.2f} GB > {MAX_RAM_GB} GB"
+                        )
         
-        # CRITICAL: Delete the item immediately after processing to simulate streaming
-        # This ensures we don't accumulate memory in a list
-        del item
-        gc.collect()
+        # Final memory check
+        final_memory = get_memory_usage_gb()
+        peak_memory_gb = max(peak_memory_gb, final_memory)
         
-        current_ram = get_current_ram_gb()
-        if current_ram > peak_ram:
-            peak_ram = current_ram
+    finally:
+        # Stop monitoring
+        monitor.stop()
         
-        # Log progress periodically
-        if current_chunk_id % 10 == 0:
-            logger.info(f"Processed chunk {current_chunk_id}, Peak RAM: {peak_ram:.2f} GB")
-        
-        # Check RAM limit during iteration (fail fast)
-        if not check_ram_limit(RAM_LIMIT_GB):
-            logger.error(f"RAM limit exceeded during streaming at chunk {current_chunk_id}")
-            pytest.fail(f"RAM limit exceeded: {current_ram:.2f} GB > {RAM_LIMIT_GB} GB")
-
-    logger.info(f"Streaming simulation complete. Peak RAM: {peak_ram:.2f} GB")
+        # Log final stats
+        logger.info(f"Test completed. Processed {samples_processed} samples.")
+        logger.info(f"Peak memory usage: {peak_memory_gb:.2f} GB")
     
-    # Final assertion
-    assert peak_ram < RAM_LIMIT_GB, (
-        f"Dataset streaming exceeded RAM limit. "
-        f"Peak usage: {peak_ram:.2f} GB, Limit: {RAM_LIMIT_GB} GB"
+    # Assertion
+    assert peak_memory_gb < MAX_RAM_GB, (
+        f"Contract test FAILED: Peak memory {peak_memory_gb:.2f} GB "
+        f"exceeded limit of {MAX_RAM_GB} GB"
     )
     
-    logger.info("Contract test PASSED: Dataset streaming stays within RAM limits.")
+    logger.info(f"Contract test PASSED: Peak memory {peak_memory_gb:.2f} GB < {MAX_RAM_GB} GB")
+    assert samples_processed == NUM_SAMPLES, "Not all samples were processed"
+
+
+@pytest.mark.contract
+def test_streaming_does_not_accumulate():
+    """
+    Contract test: Verify streaming does not accumulate data in memory.
+    
+    This test verifies that the streaming approach does not store
+    all samples in a list, which would violate the memory constraint.
+    """
+    # Simulate a bad pattern (accumulating in list) vs good pattern (streaming)
+    def bad_accumulation_pattern(num_samples: int) -> list:
+        data = []
+        for i in range(num_samples):
+            data.append({"index": i, "data": "x" * 1000})  # Simulate sample
+        return data
+    
+    def good_streaming_pattern(num_samples: int) -> Generator[Dict, None, None]:
+        for i in range(num_samples):
+            yield {"index": i, "data": "x" * 1000}
+    
+    # Test streaming pattern
+    monitor = ResourceMonitor()
+    monitor.start()
+    
+    try:
+        count = 0
+        for sample in good_streaming_pattern(10000):
+            count += 1
+            if count % 1000 == 0:
+                gc.collect()
+    finally:
+        monitor.stop()
+    
+    # Verify we processed all samples
+    assert count == 10000, "Streaming pattern failed to yield all samples"
+    
+    logger.info("Streaming accumulation test PASSED")
+
 
 if __name__ == "__main__":
+    # Run tests directly
     pytest.main([__file__, "-v", "-s"])

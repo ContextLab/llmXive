@@ -1,326 +1,253 @@
 import os
-import sys
 import time
 import logging
+import argparse
 import json
-import gc
 from pathlib import Path
-from typing import Optional, Dict, Any, Tuple, List
+from typing import Dict, Any, Optional, List
 
 import torch
 import torch.nn as nn
-import torch.optim as optim
-from torch.utils.data import DataLoader
+import numpy as np
+import pandas as pd
 import psutil
 
-from src.utils.logging_config import get_logger, setup_logging
-from src.utils.resource_monitor import get_current_ram_gb, check_wall_time_limit
-from src.models.vla_model import Qwen2VLVLA
+from src.data.dataset_loader import load_open_x_embodiment_single_platform
+from src.data.preprocess_actions import ActionTokenizer, load_action_config, preprocess_actions
+from src.models.vla_model import QwenVLActionModel
+from src.utils.resource_monitor import ResourceMonitor, resource_monitor_context
+from src.utils.logging_config import setup_logging, log_model_checkpoint
 from src.models.entities import ModelCheckpoint
 
-# Configure logging
-logger = get_logger("train_loop")
+# Constants
+RAM_THRESHOLD_GB = 6.5
+WALL_TIME_LIMIT_SECONDS = 21600  # 6 hours
+DEVICE = "cpu"
+DEFAULT_BATCH_SIZE = 32
+MIN_BATCH_SIZE = 1
+EPOCHS = 1
+OUTPUT_DIR = Path("data/checkpoints")
+CHECKPOINT_PREFIX = "model_epoch"
 
-def auto_reduce_batch_size(
+logger = logging.getLogger(__name__)
+
+
+def auto_adjust_batch_size(
     current_batch_size: int,
-    min_batch_size: int = 1,
-    reduction_factor: float = 0.5
+    resource_monitor: ResourceMonitor,
+    min_batch_size: int = MIN_BATCH_SIZE,
 ) -> int:
     """
-    Dynamically reduce batch size if RAM usage exceeds the threshold.
-    
-    Args:
-        current_batch_size: The current batch size being used.
-        min_batch_size: The minimum allowable batch size.
-        reduction_factor: Factor by which to reduce the batch size (e.g., 0.5 for half).
-        
-    Returns:
-        The new reduced batch size.
+    Dynamically adjust batch size if RSS > RAM_THRESHOLD_GB.
+    Returns the new batch size.
     """
-    new_batch_size = max(int(current_batch_size * reduction_factor), min_batch_size)
-    if new_batch_size < current_batch_size:
+    if current_batch_size <= min_batch_size:
+        return min_batch_size
+
+    current_rss_gb = resource_monitor.get_current_rss_gb()
+    if current_rss_gb > RAM_THRESHOLD_GB:
+        new_size = max(min_batch_size, current_batch_size // 2)
         logger.warning(
-            f"RAM usage exceeded 6.5GB. Reducing batch size from {current_batch_size} to {new_batch_size}."
+            f"RAM usage ({current_rss_gb:.2f} GB) exceeded {RAM_THRESHOLD_GB} GB. "
+            f"Reducing batch size from {current_batch_size} to {new_size}."
         )
-    return new_batch_size
+        return new_size
+    return current_batch_size
+
 
 def train_epoch(
-    model: Qwen2VLVLA,
-    dataloader: DataLoader,
-    optimizer: optim.Optimizer,
-    device: torch.device,
+    model: nn.Module,
+    dataloader: torch.utils.data.DataLoader,
+    optimizer: torch.optim.Optimizer,
     epoch: int,
-    ram_limit_gb: float = 6.5,
-    wall_time_limit: float = 21600.0,
-    start_time: float = None
-) -> Tuple[float, int]:
+    resource_monitor: ResourceMonitor,
+    start_time: float,
+    batch_size: int,
+) -> Dict[str, float]:
     """
-    Train the model for one epoch with dynamic batch size adjustment.
-    
-    Args:
-        model: The VLA model to train.
-        dataloader: DataLoader for the training dataset.
-        optimizer: Optimizer for the model parameters.
-        device: Device to run training on.
-        epoch: Current epoch number.
-        ram_limit_gb: Maximum allowed RAM usage in GB.
-        wall_time_limit: Maximum allowed wall-clock time in seconds.
-        start_time: Start time of the training session.
-        
-    Returns:
-        Tuple of (average_loss, samples_processed)
+    Run a single training epoch with RAM and time monitoring.
     """
     model.train()
     total_loss = 0.0
-    samples_processed = 0
-    current_batch_size = dataloader.batch_size
-    if current_batch_size is None:
-        current_batch_size = 1  # Fallback if batch_size is not set
-        
-    # Create a new dataloader with the initial batch size if needed
-    # Note: In a real streaming scenario, we might need to reconstruct the loader
-    # For this implementation, we assume the loader can handle dynamic batch size 
-    # or we re-instantiate it with the new batch size.
-    
-    logger.info(f"Starting epoch {epoch} with batch size {current_batch_size}")
+    num_batches = 0
+    current_batch_size = batch_size
 
     for batch_idx, batch in enumerate(dataloader):
         # Check wall time limit
-        if start_time and not check_wall_time_limit(start_time, wall_time_limit):
-            logger.warning("TIMEOUT_WARNING: Wall time limit reached. Stopping training.")
-            return total_loss / max(samples_processed, 1), samples_processed
+        elapsed = time.time() - start_time
+        if elapsed >= WALL_TIME_LIMIT_SECONDS:
+            logger.warning("TIMEOUT_WARNING: Wall time limit (6h) reached. Stopping training gracefully.")
+            break
 
-        # Move batch to device
-        # Assuming batch is a dict with 'images', 'actions', 'prompts' etc.
-        # Adjust keys based on actual dataset structure
-        try:
-            batch = {k: v.to(device) if isinstance(v, torch.Tensor) else v for k, v in batch.items()}
-        except Exception as e:
-            logger.error(f"Error moving batch to device: {e}")
-            continue
+        # Auto-adjust batch size if needed
+        current_batch_size = auto_adjust_batch_size(current_batch_size, resource_monitor)
 
-        # Forward pass
+        # Prepare batch
+        inputs = batch["inputs"]
+        targets = batch["targets"]
+
+        if inputs.shape[0] != current_batch_size:
+            # Slice if the loader returned a different size (e.g., last batch or downsampled)
+            inputs = inputs[:current_batch_size]
+            targets = targets[:current_batch_size]
+
+        inputs = inputs.to(DEVICE)
+        targets = targets.to(DEVICE)
+
         optimizer.zero_grad()
+
         try:
-            outputs = model(**batch)
+            outputs = model(inputs)
             loss = outputs.loss
-            
-            # Backward pass
             loss.backward()
             optimizer.step()
-            
+
             total_loss += loss.item()
-            samples_processed += batch['input_ids'].size(0) if 'input_ids' in batch else batch.get('actions', torch.tensor([])).size(0)
-            
+            num_batches += 1
+
+            # Log progress every 100 batches
+            if (batch_idx + 1) % 100 == 0:
+                avg_loss = total_loss / num_batches
+                logger.info(
+                    f"Epoch {epoch} | Batch {batch_idx + 1} | Loss: {avg_loss:.4f} | "
+                    f"Batch Size: {current_batch_size} | RAM: {resource_monitor.get_current_rss_gb():.2f} GB"
+                )
+
         except RuntimeError as e:
-            if "out of memory" in str(e):
-                logger.warning(f"OOM error at batch {batch_idx}. Reducing batch size.")
-                gc.collect()
-                if torch.cuda.is_available():
-                    torch.cuda.empty_cache()
-                
-                # Reduce batch size
-                new_batch_size = auto_reduce_batch_size(current_batch_size)
-                if new_batch_size == current_batch_size:
-                    logger.error("Cannot reduce batch size further. Stopping training.")
-                    return total_loss / max(samples_processed, 1), samples_modules
-                
-                current_batch_size = new_batch_size
-                
-                # Re-create dataloader with new batch size
-                # Note: This requires the dataset to support dynamic batching or re-instantiation
-                # For simplicity, we assume we can re-create the dataloader
-                # In a production setting, you might need to handle this more gracefully
-                try:
-                    # Re-create dataloader with new batch size
-                    # Assuming 'dataloader.dataset' is accessible
-                    dataloader = DataLoader(
-                        dataloader.dataset,
-                        batch_size=new_batch_size,
-                        shuffle=dataloader.shuffle,
-                        num_workers=dataloader.num_workers,
-                        pin_memory=dataloader.pin_memory
-                    )
-                    logger.info(f"Resuming epoch {epoch} with new batch size {new_batch_size}")
-                    # Skip to next batch to avoid re-processing current one
-                    continue
-                except Exception as re_loader_err:
-                    logger.error(f"Failed to re-create dataloader: {re_loader_err}")
-                    return total_loss / max(samples_processed, 1), samples_processed
-            else:
-                logger.error(f"Unexpected error during training: {e}")
-                raise
+            logger.error(f"Runtime error during training (batch {batch_idx}): {e}")
+            # Attempt recovery by reducing batch size
+            current_batch_size = auto_adjust_batch_size(current_batch_size, resource_monitor)
+            continue
 
-        # Check RAM usage periodically (every 10 batches)
-        if batch_idx % 10 == 0:
-            current_ram = get_current_ram_gb()
-            if current_ram > ram_limit_gb:
-                logger.warning(f"RAM usage ({current_ram:.2f}GB) exceeds limit ({ram_limit_gb}GB). Reducing batch size.")
-                new_batch_size = auto_reduce_batch_size(current_batch_size)
-                if new_batch_size == current_batch_size:
-                    logger.error("Cannot reduce batch size further. Stopping training.")
-                    return total_loss / max(samples_processed, 1), samples_processed
-                
-                current_batch_size = new_batch_size
-                # Re-create dataloader
-                try:
-                    dataloader = DataLoader(
-                        dataloader.dataset,
-                        batch_size=new_batch_size,
-                        shuffle=dataloader.shuffle,
-                        num_workers=dataloader.num_workers,
-                        pin_memory=dataloader.pin_memory
-                    )
-                    logger.info(f"Resuming epoch {epoch} with new batch size {new_batch_size}")
-                except Exception as re_loader_err:
-                    logger.error(f"Failed to re-create dataloader: {re_loader_err}")
-                    return total_loss / max(samples_processed, 1), samples_processed
+    return {
+        "avg_loss": total_loss / num_batches if num_batches > 0 else 0.0,
+        "batches_completed": num_batches,
+    }
 
-    return total_loss / max(samples_processed, 1), samples_processed
 
-def train_loop(
-    model: Qwen2VLVLA,
-    train_loader: DataLoader,
-    device: torch.device,
-    num_epochs: int,
-    output_dir: str,
-    wall_time_limit: float = 21600.0,
-    ram_limit_gb: float = 6.5,
-    learning_rate: float = 1e-4
-) -> List[ModelCheckpoint]:
+def create_dataloader(
+    df: pd.DataFrame,
+    tokenizer: ActionTokenizer,
+    batch_size: int,
+    shuffle: bool = True,
+) -> torch.utils.data.DataLoader:
     """
-    Main training loop with batch size auto-adjustment and time limits.
-    
-    Args:
-        model: The VLA model to train.
-        train_loader: DataLoader for the training dataset.
-        device: Device to run training on.
-        num_epochs: Number of epochs to train for.
-        output_dir: Directory to save checkpoints.
-        wall_time_limit: Maximum allowed wall-clock time in seconds.
-        ram_limit_gb: Maximum allowed RAM usage in GB.
-        learning_rate: Learning rate for the optimizer.
-        
-    Returns:
-        List of ModelCheckpoint entities representing saved checkpoints.
+    Create a PyTorch DataLoader from the preprocessed DataFrame.
     """
+    dataset = torch.utils.data.TensorDataset(
+        torch.tensor(df["inputs"].tolist(), dtype=torch.float32),
+        torch.tensor(df["targets"].tolist(), dtype=torch.float32),
+    )
+    return torch.utils.data.DataLoader(
+        dataset, batch_size=batch_size, shuffle=shuffle
+    )
+
+
+def main(args: Optional[argparse.Namespace] = None):
+    """
+    Main training loop entry point.
+    """
+    # Setup logging
     setup_logging(level=logging.INFO)
-    logger.info(f"Starting training on {device}")
-    
-    optimizer = optim.AdamW(model.parameters(), lr=learning_rate)
-    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=1, gamma=0.95)
-    
-    output_path = Path(output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
-    
+
+    # Ensure output directory exists
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+    # Load configuration and tokenizer
+    config = load_action_config()
+    tokenizer = ActionTokenizer(config)
+
+    logger.info("Loading dataset...")
+    # Load the single-platform dataset (franka) as per T012b
+    df = load_open_x_embodiment_single_platform()
+
+    logger.info("Preprocessing actions...")
+    # Preprocess actions to token space
+    processed_df = preprocess_actions(df, tokenizer)
+
+    # Drop rows where preprocessing failed (NaN targets)
+    processed_df = processed_df.dropna(subset=["targets"])
+    logger.info(f"Dataset size after preprocessing: {len(processed_df)} samples")
+
+    # Initialize model
+    logger.info("Initializing Qwen-VL Action Model...")
+    model = QwenVLActionModel()
+    model.to(DEVICE)
+
+    # Initialize optimizer
+    optimizer = torch.optim.AdamW(model.parameters(), lr=1e-4)
+
+    # Initialize resource monitor
+    resource_monitor = ResourceMonitor()
+
+    # Set number of threads for CPU training
+    torch.set_num_threads(2)
+
     start_time = time.time()
-    checkpoints = []
-    
-    for epoch in range(num_epochs):
-        logger.info(f"--- Epoch {epoch + 1}/{num_epochs} ---")
-        
-        # Check wall time at start of epoch
-        if not check_wall_time_limit(start_time, wall_time_limit):
-            logger.warning("TIMEOUT_WARNING: Wall time limit reached before epoch start.")
-            break
-        
-        avg_loss, samples = train_epoch(
+    epoch_stats = []
+
+    logger.info(f"Starting training on CPU. Limit: {WALL_TIME_LIMIT_SECONDS}s, RAM threshold: {RAM_THRESHOLD_GB}GB")
+
+    # Training loop
+    for epoch in range(1, EPOCHS + 1):
+        logger.info(f"--- Starting Epoch {epoch} ---")
+
+        # Create dataloader with initial batch size
+        batch_size = args.batch_size if args and args.batch_size else DEFAULT_BATCH_SIZE
+        dataloader = create_dataloader(processed_df, tokenizer, batch_size)
+
+        stats = train_epoch(
             model=model,
-            dataloader=train_loader,
+            dataloader=dataloader,
             optimizer=optimizer,
-            device=device,
-            epoch=epoch + 1,
-            ram_limit_gb=ram_limit_gb,
-            wall_time_limit=wall_time_limit,
-            start_time=start_time
+            epoch=epoch,
+            resource_monitor=resource_monitor,
+            start_time=start_time,
+            batch_size=batch_size,
         )
-        
-        scheduler.step()
-        
+
+        epoch_stats.append(stats)
+
         # Save checkpoint
-        checkpoint_path = output_path / f"model_epoch_{epoch + 1}.pt"
-        torch.save({
-            'epoch': epoch + 1,
-            'model_state_dict': model.state_dict(),
-            'optimizer_state_dict': optimizer.state_dict(),
-            'loss': avg_loss,
-            'samples_processed': samples
-        }, checkpoint_path)
-        
+        checkpoint_path = OUTPUT_DIR / f"{CHECKPOINT_PREFIX}_{epoch}.pt"
+        checkpoint_data = {
+            "epoch": epoch,
+            "model_state_dict": model.state_dict(),
+            "optimizer_state_dict": optimizer.state_dict(),
+            "loss": stats["avg_loss"],
+        }
+        torch.save(checkpoint_data, checkpoint_path)
+
+        # Log checkpoint
         checkpoint_entity = ModelCheckpoint(
             path=str(checkpoint_path),
-            epoch=epoch + 1,
-            loss=avg_loss,
-            samples_processed=samples,
-            created_at=time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime())
+            epoch=epoch,
+            loss=stats["avg_loss"],
+            timestamp=datetime.now().isoformat(),
+            size_bytes=os.path.getsize(checkpoint_path),
         )
-        checkpoints.append(checkpoint_entity)
-        
-        logger.info(f"Epoch {epoch + 1} completed. Avg Loss: {avg_loss:.4f}, Samples: {samples}")
-        logger.info(f"Checkpoint saved to {checkpoint_path}")
-        
-        # Check wall time after epoch
-        if not check_wall_time_limit(start_time, wall_time_limit):
-            logger.warning("TIMEOUT_WARNING: Wall time limit reached after epoch.")
-            break
-    
-    elapsed = time.time() - start_time
-    logger.info(f"Training completed in {elapsed:.2f} seconds.")
-    return checkpoints
+        log_model_checkpoint(checkpoint_entity)
 
-def main():
-    """
-    Entry point for training loop.
-    This function demonstrates the batch size auto-adjustment logic.
-    """
-    # Setup
-    device = torch.device("cpu")  # Force CPU for this experiment
-    torch.set_num_threads(2)  # Limit parallelism
-    
-    # Create a dummy model for demonstration
-    # In a real scenario, this would be loaded from a checkpoint or initialized properly
-    model = Qwen2VLVLA()
-    model.to(device)
-    
-    # Create a dummy dataset and dataloader
-    # This is a placeholder for the actual dataset loading logic
-    from torch.utils.data import Dataset, DataLoader
-    
-    class DummyDataset(Dataset):
-        def __init__(self, size=100):
-            self.size = size
-            
-        def __len__(self):
-            return self.size
-            
-        def __getitem__(self, idx):
-            # Return dummy data matching expected model input
-            return {
-                'input_ids': torch.randint(0, 1000, (32,)),  # Dummy token IDs
-                'attention_mask': torch.ones(32),
-                'pixel_values': torch.randn(1, 3, 224, 224),  # Dummy image
-                'actions': torch.randn(8, 7)  # Dummy action vector (8 steps, 7 DOF)
-            }
-    
-    dataset = DummyDataset(size=1000)
-    train_loader = DataLoader(dataset, batch_size=32, shuffle=True, num_workers=0)
-    
-    output_dir = "data/checkpoints"
-    Path(output_dir).mkdir(parents=True, exist_ok=True)
-    
-    # Run training loop
-    checkpoints = train_loop(
-        model=model,
-        train_loader=train_loader,
-        device=device,
-        num_epochs=1,  # Just one epoch for demo
-        output_dir=output_dir,
-        wall_time_limit=60.0,  # Short limit for demo
-        ram_limit_gb=6.5,
-        learning_rate=1e-4
-    )
-    
-    logger.info(f"Training finished. Saved {len(checkpoints)} checkpoints.")
+        logger.info(f"Epoch {epoch} completed. Avg Loss: {stats['avg_loss']:.4f}")
+
+        # Check final wall time
+        elapsed = time.time() - start_time
+        if elapsed >= WALL_TIME_LIMIT_SECONDS:
+            logger.warning("TIMEOUT_WARNING: Wall time limit reached after final epoch.")
+            break
+
+    # Final summary
+    total_time = time.time() - start_time
+    peak_ram = resource_monitor.get_peak_rss_gb()
+    logger.info(f"Training completed. Total time: {total_time:.2f}s, Peak RAM: {peak_ram:.2f}GB")
+
+    return epoch_stats
+
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="Train Qwen-VL Action Model on CPU")
+    parser.add_argument("--batch-size", type=int, default=DEFAULT_BATCH_SIZE, help="Initial batch size")
+    parser.add_argument("--epochs", type=int, default=EPOCHS, help="Number of epochs")
+    args = parser.parse_args()
+
+    main(args)

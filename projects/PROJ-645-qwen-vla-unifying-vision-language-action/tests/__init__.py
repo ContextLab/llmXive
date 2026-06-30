@@ -1,3 +1,1 @@
-"""
-Test package for qwen-vla-cross-embodiment project.
-"""
+# Test package for Qwen-VLA Cross-Embodiment Transfer Study

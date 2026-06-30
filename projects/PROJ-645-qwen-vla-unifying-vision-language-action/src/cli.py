@@ -1,20 +1,24 @@
 """
-Base CLI entry point for the Qwen-VLA Cross-Embodiment Transfer Study.
+CLI entry point for the Qwen-VLA Cross-Embodiment Transfer Study.
 
-Implements the argument parser using `click` with support for the `--ratio`
-argument as specified in T005. Aggregation logic and CSV generation are
-deferred to T025/T027.
+This module implements the base CLI using `click`. It currently supports
+the `--ratio` argument for data composition ablation studies (FR-006),
+though the full aggregation and CSV generation logic is deferred to
+T025/T027.
 """
+
 import click
 import os
 import sys
 
-# Ensure the project root is in the path if running as a script
-# This allows imports from 'src' modules if the project is installed or run correctly
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if PROJECT_ROOT not in sys.path:
-    sys.path.insert(0, PROJECT_ROOT)
-
+# Ensure the project root is in the path if running directly
+# This allows imports like `from src.data.dataset_loader import ...`
+# when the script is invoked as `python src/cli.py`
+if __name__ == "__main__":
+    # Add the parent directory to sys.path to resolve 'src' imports
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    if project_root not in sys.path:
+        sys.path.insert(0, project_root)
 
 @click.group()
 @click.version_option(version="0.1.0", prog_name="qwen-vla-cli")
@@ -22,8 +26,7 @@ def cli():
     """
     Qwen-VLA Cross-Embodiment Transfer Study CLI.
 
-    This tool orchestrates data loading, training, evaluation, and statistical
-    analysis for the cross-embodiment transfer study.
+    Main entry point for training, evaluation, and ablation studies.
     """
     pass
 
@@ -33,49 +36,85 @@ def cli():
     "--ratio",
     type=float,
     default=1.0,
-    help="Data composition ratio for the experiment (0.0 to 1.0). "
-         "Used for ablation studies (T025/T027).",
+    help="Data composition ratio for ablation study (0.0, 0.5, 1.0). "
+         "Used to filter the dataset size before training.",
     show_default=True
 )
 @click.option(
-    "--output-dir",
-    type=click.Path(file_okay=False, dir_okay=True),
-    default="data",
-    help="Directory for output artifacts (checkpoints, logs, results).",
-    show_default=True
+    "--config",
+    type=click.Path(exists=True),
+    default=None,
+    help="Path to a JSON/YAML configuration file (future use)."
 )
-def run(ratio: float, output_dir: str):
+@click.option(
+    "--dry-run",
+    is_flag=True,
+    default=False,
+    help="Validate arguments and configuration without executing the full pipeline."
+)
+def train(ratio, config, dry_run):
     """
-    Execute the main pipeline with the specified data ratio.
+    Start the training pipeline.
 
-    Note: This command currently validates the arguments and prints the configuration.
-    The actual training, evaluation, and aggregation logic (FR-006) are implemented
-    in T015, T016, T025, and T027.
+    This command accepts the `--ratio` argument to determine the proportion
+    of the dataset to use. The actual training loop and dataset filtering
+    logic are implemented in `src/training/train_loop.py` and
+    `src/data/dataset_loader.py`.
+
+    Example:
+      python -m src.cli train --ratio 0.5
     """
-    # Validate ratio
-    if not (0.0 <= ratio <= 1.0):
-        raise click.BadParameter("Ratio must be between 0.0 and 1.0.")
+    click.echo(f"Training command invoked with ratio={ratio}")
 
-    # Validate output directory
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir, exist_ok=True)
-        click.echo(f"Created output directory: {output_dir}")
+    if dry_run:
+        click.echo("Dry-run mode: Validating arguments only.")
+        if not (0.0 <= ratio <= 1.0):
+            click.echo("Error: Ratio must be between 0.0 and 1.0.")
+            sys.exit(1)
+        click.echo("Validation successful.")
+        return
 
-    click.echo(f"Configuration loaded:")
-    click.echo(f"  - Data Ratio: {ratio}")
-    click.echo(f"  - Output Directory: {output_dir}")
-    click.echo(f"  - Status: Ready to run (Aggregation logic deferred to T025/T027)")
-
-    # Placeholder for future aggregation logic
-    # TODO: Integrate ablation_runner.py and stat_utils.py here in T025/T027
-    # For now, we simply acknowledge the arguments.
-    click.echo("CLI arguments parsed successfully.")
+    # Placeholder for the actual training execution.
+    # The real implementation will call src.training.train_loop.main(ratio=ratio)
+    # when T015 is implemented.
+    click.echo(f"Starting training with data ratio: {ratio}")
+    # In a real run, this would be:
+    # from src.training import train_loop
+    # train_loop.main(ratio=ratio)
+    click.echo("Training simulation complete (implementation deferred to T015).")
 
 
 @cli.command()
-def version():
-    """Print the version of the CLI tool."""
-    click.echo("Qwen-VLA Cross-Embodiment CLI v0.1.0")
+@click.option(
+    "--ratio",
+    type=float,
+    default=1.0,
+    help="Data composition ratio for evaluation (matches training ratio).",
+    show_default=True
+)
+def evaluate(ratio):
+    """
+    Run zero-shot evaluation on the trained model.
+
+    Requires a trained checkpoint. The evaluation logic is implemented
+    in `src/evaluation/libero_eval.py`.
+    """
+    click.echo(f"Evaluation command invoked with ratio={ratio}")
+    # Placeholder for T016 implementation
+    click.echo("Evaluation simulation complete (implementation deferred to T016).")
+
+
+@cli.command()
+def stats():
+    """
+    Run statistical significance tests (Wilcoxon signed-rank).
+
+    Executes the comparison between cross-embodiment and baseline results.
+    Logic is implemented in `src/statistics/wilcoxon_test.py`.
+    """
+    click.echo("Running statistical analysis...")
+    # Placeholder for T021 implementation
+    click.echo("Statistical analysis simulation complete (implementation deferred to T021).")
 
 
 if __name__ == "__main__":

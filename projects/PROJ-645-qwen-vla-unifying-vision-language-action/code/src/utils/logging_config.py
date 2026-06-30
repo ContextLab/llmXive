@@ -1,38 +1,24 @@
-"""
-Logging infrastructure configuration for llmXive research pipeline.
-
-Provides structured JSON logging for reproducibility manifest generation.
-"""
-import json
 import logging
-import sys
+import logging.handlers
+import json
 import os
-from datetime import datetime
-from typing import Optional, Dict, Any, List
+import sys
+from datetime import datetime, timezone
+from typing import Any, Dict, Optional
 from pathlib import Path
-import threading
 
-# Global logger instance
-_logger: Optional[logging.Logger] = None
-_handler: Optional[logging.Handler] = None
-_lock = threading.Lock()
+from src.models.entities import EvaluationResult, ModelCheckpoint, DatasetSubset
 
-# Log format keys for structured output
-LOG_KEYS = [
-    "timestamp", "level", "logger", "message", 
-    "module", "function", "line", "seed", "experiment_id"
-]
 
-class JSONFormatter(logging.Formatter):
-    """Custom formatter that outputs structured JSON log records."""
-    
-    def __init__(self, extra_fields: Optional[List[str]] = None):
-        super().__init__()
-        self.extra_fields = extra_fields or []
-    
+class JsonFormatter(logging.Formatter):
+    """
+    Custom formatter that outputs structured JSON log records.
+    Ensures reproducibility by including timestamps in ISO 8601 format with timezone.
+    """
+
     def format(self, record: logging.LogRecord) -> str:
         log_entry: Dict[str, Any] = {
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "timestamp": datetime.fromtimestamp(record.created, tz=timezone.utc).isoformat(),
             "level": record.levelname,
             "logger": record.name,
             "message": record.getMessage(),
@@ -40,197 +26,168 @@ class JSONFormatter(logging.Formatter):
             "function": record.funcName,
             "line": record.lineno,
         }
-        
-        # Add extra fields if present
-        for field in self.extra_fields:
-            if hasattr(record, field):
-                log_entry[field] = getattr(record, field)
-        
-        # Add exception info if present
+
+        # Include extra fields if present
+        if hasattr(record, "extra_data"):
+            log_entry["data"] = record.extra_data
+
+        # Handle exceptions
         if record.exc_info:
             log_entry["exception"] = self.formatException(record.exc_info)
-        
-        return json.dumps(log_entry, ensure_ascii=False, default=str)
 
-def get_logger(name: str = "llmXive") -> logging.Logger:
-    """
-    Get or create the project logger with JSON formatting.
-    
-    Args:
-        name: Logger name (default: "llmXive")
-        
-    Returns:
-        Configured logger instance
-    """
-    global _logger, _handler
-    
-    with _lock:
-        if _logger is None:
-            _logger = logging.getLogger(name)
-            _logger.setLevel(logging.INFO)
-            
-            # Avoid duplicate handlers
-            if not _logger.handlers:
-                _handler = logging.StreamHandler(sys.stdout)
-                _handler.setFormatter(JSONFormatter())
-                _logger.addHandler(_handler)
-                _logger.propagate = False
-    
-    return _logger
+        return json.dumps(log_entry)
 
-def log_reproducibility_manifest(
-    output_path: str,
-    seeds: List[int],
-    hyperparams: Dict[str, Any],
-    versions: Dict[str, str],
-    experiment_id: Optional[str] = None
-) -> Path:
-    """
-    Write a reproducibility manifest in JSON format.
-    
-    Args:
-        output_path: Path to write the manifest file
-        seeds: List of random seeds used
-        hyperparams: Training hyperparameters
-        versions: Dictionary of library versions
-        experiment_id: Optional experiment identifier
-        
-    Returns:
-        Path to the written manifest file
-    """
-    logger = get_logger()
-    manifest = {
-        "timestamp": datetime.utcnow().isoformat() + "Z",
-        "experiment_id": experiment_id or f"exp_{datetime.now().strftime('%Y%m%d_%H%M%S')}",
-        "seeds": seeds,
-        "hyperparameters": hyperparams,
-        "versions": versions,
-        "git_commit": versions.get("git_commit", "unknown"),
-        "python_version": versions.get("python_version", "unknown"),
-        "torch_version": versions.get("torch_version", "unknown"),
-        "cuda_available": versions.get("cuda_available", False),
-        "log_path": output_path,
-    }
-    
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(manifest, f, indent=2, default=str)
-    
-    logger.info(f"Reproducibility manifest written to {path}")
-    return path
-
-def log_event(
-    event_type: str,
-    message: str,
-    extra_data: Optional[Dict[str, Any]] = None,
-    seed: Optional[int] = None
-) -> None:
-    """
-    Log a structured event with optional extra data.
-    
-    Args:
-        event_type: Type of event (e.g., "training_start", "eval_complete")
-        message: Human-readable message
-        extra_data: Additional key-value pairs to include
-        seed: Random seed if applicable
-    """
-    logger = get_logger()
-    extra = {"event_type": event_type}
-    if extra_data:
-        extra.update(extra_data)
-    if seed is not None:
-        extra["seed"] = seed
-    
-    logger.info(message, extra=extra)
 
 def setup_logging(
-    log_level: str = "INFO",
     log_file: Optional[str] = None,
-    extra_fields: Optional[List[str]] = None
+    level: int = logging.INFO,
+    console_output: bool = True,
 ) -> logging.Logger:
     """
-    Configure logging for the project.
-    
+    Configure the root logger with structured JSON output.
+
     Args:
-        log_level: Logging level (DEBUG, INFO, WARNING, ERROR)
-        log_file: Optional file path to write logs
-        extra_fields: List of extra fields to include in JSON output
-        
+        log_file: Path to the log file. If None, logs only to console.
+        level: Logging level (e.g., logging.DEBUG, logging.INFO).
+        console_output: Whether to also output logs to stdout/stderr.
+
     Returns:
-        Configured logger instance
+        Configured root logger.
     """
-    global _logger, _handler
-    
-    with _lock:
-        _logger = logging.getLogger("llmXive")
-        _logger.setLevel(getattr(logging, log_level.upper()))
-        
-        # Clear existing handlers
-        _logger.handlers.clear()
-        
-        # Console handler with JSON formatting
+    logger = logging.getLogger()
+    logger.setLevel(level)
+
+    # Clear existing handlers to avoid duplicates
+    if logger.handlers:
+        logger.handlers.clear()
+
+    formatter = JsonFormatter()
+
+    # Console handler
+    if console_output:
         console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setFormatter(JSONFormatter(extra_fields))
-        _logger.addHandler(console_handler)
-        
-        # Optional file handler
-        if log_file:
-            file_handler = logging.FileHandler(log_file)
-            file_handler.setFormatter(JSONFormatter(extra_fields))
-            _logger.addHandler(file_handler)
-        
-        _logger.propagate = False
-    
-    return _logger
+        console_handler.setFormatter(formatter)
+        console_handler.setLevel(level)
+        logger.addHandler(console_handler)
 
-def main():
-    """Demonstrate logging configuration and manifest generation."""
-    # Setup logging
-    logger = setup_logging(
-        log_level="INFO",
-        extra_fields=["experiment_id", "seed", "batch_size"]
-    )
-    
-    # Log some events
-    log_event("experiment_start", "Starting cross-embodiment training", {
-        "experiment_id": "demo_001",
-        "batch_size": 32
-    })
-    
-    # Simulate training progress
-    for epoch in range(1, 4):
-        log_event("epoch_complete", f"Completed epoch {epoch}", {
-            "experiment_id": "demo_001",
-            "batch_size": 32,
-            "loss": 0.5 / epoch
-        }, seed=42)
-    
-    # Generate reproducibility manifest
-    manifest_path = log_reproducibility_manifest(
-        output_path="data/reproducibility_manifest.json",
-        seeds=[42, 123, 456, 789, 101112],
-        hyperparams={
-            "batch_size": 32,
-            "learning_rate": 1e-4,
-            "epochs": 10,
-            "model": "Qwen2-VL-2B"
-        },
-        versions={
-            "git_commit": "abc123def",
-            "python_version": "3.10.0",
-            "torch_version": "2.3.0",
-            "cuda_available": False
-        },
-        experiment_id="demo_001"
-    )
-    
-    log_event("experiment_complete", f"Manifest saved to {manifest_path}", {
-        "experiment_id": "demo_001"
-    })
-    
-    print(f"\nDemonstration complete. Manifest written to: {manifest_path}")
+    # File handler (if specified)
+    if log_file:
+        log_path = Path(log_file)
+        log_path.parent.mkdir(parents=True, exist_ok=True)
 
-if __name__ == "__main__":
-    main()
+        file_handler = logging.handlers.RotatingFileHandler(
+            log_file,
+            maxBytes=10 * 1024 * 1024,  # 10 MB
+            backupCount=5,
+            encoding="utf-8",
+        )
+        file_handler.setFormatter(formatter)
+        file_handler.setLevel(level)
+        logger.addHandler(file_handler)
+
+    return logger
+
+
+def log_reproducibility_manifest(
+    logger: logging.Logger,
+    manifest_data: Dict[str, Any],
+    output_path: str = "data/manifest.yaml",
+) -> None:
+    """
+    Log reproducibility manifest data in a structured JSON format.
+    This function writes the manifest to a file and logs a summary to the logger.
+
+    Args:
+        logger: The configured logger instance.
+        manifest_data: Dictionary containing reproducibility data (seeds, versions, etc.).
+        output_path: Path to write the manifest file.
+    """
+    # Ensure directory exists
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+
+    # Write manifest to file (YAML-like structure for readability, but stored as JSON for parsing)
+    with open(output_file, "w", encoding="utf-8") as f:
+        json.dump(manifest_data, f, indent=2, default=str)
+
+    logger.info(
+        "Reproducibility manifest saved",
+        extra={"extra_data": {"path": str(output_file), "entries": len(manifest_data)}},
+    )
+
+
+def log_evaluation_result(
+    logger: logging.Logger,
+    result: EvaluationResult,
+) -> None:
+    """
+    Log an EvaluationResult entity in structured JSON format.
+
+    Args:
+        logger: The configured logger instance.
+        result: The evaluation result to log.
+    """
+    logger.info(
+        "Evaluation completed",
+        extra={
+            "extra_data": {
+                "subset": result.dataset_subset,
+                "model_checkpoint": result.model_checkpoint,
+                "success_rate": result.success_rate,
+                "trajectory_length": result.trajectory_length,
+                "variance": result.variance,
+                "ci_lower": result.ci_95_lower,
+                "ci_upper": result.ci_95_upper,
+            }
+        },
+    )
+
+
+def log_model_checkpoint(
+    logger: logging.Logger,
+    checkpoint: ModelCheckpoint,
+) -> None:
+    """
+    Log a ModelCheckpoint entity in structured JSON format.
+
+    Args:
+        logger: The configured logger instance.
+        checkpoint: The model checkpoint to log.
+    """
+    logger.info(
+        "Model checkpoint saved",
+        extra={
+            "extra_data": {
+                "path": checkpoint.path,
+                "epoch": checkpoint.epoch,
+                "size_bytes": checkpoint.size_bytes,
+                "checksum": checkpoint.checksum,
+                "timestamp": checkpoint.timestamp.isoformat(),
+            }
+        },
+    )
+
+
+def log_dataset_subset(
+    logger: logging.Logger,
+    subset: DatasetSubset,
+) -> None:
+    """
+    Log a DatasetSubset entity in structured JSON format.
+
+    Args:
+        logger: The configured logger instance.
+        subset: The dataset subset to log.
+    """
+    logger.info(
+        "Dataset subset loaded",
+        extra={
+            "extra_data": {
+                "name": subset.name,
+                "source": subset.source,
+                "num_samples": subset.num_samples,
+                "platforms": subset.platforms,
+                "checksum": subset.checksum,
+            }
+        },
+    )
