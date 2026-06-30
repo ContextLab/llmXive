@@ -264,3 +264,6 @@ ready:
 - project_id: PROJ-706-memory-is-reconstructed-not-retrieved-gr
   revision_spec_path: specs/auto-revisions/PROJ-706-memory-is-reconstructed-not-retrieved-gr/round-1
   queued_at: '2026-06-30T02:30:05.169054+00:00'
+- project_id: PROJ-716-fastcontext-training-efficient-repositor
+  revision_spec_path: specs/auto-revisions/PROJ-716-fastcontext-training-efficient-repositor/round-1
+  queued_at: '2026-06-30T04:12:06.809638+00:00'
