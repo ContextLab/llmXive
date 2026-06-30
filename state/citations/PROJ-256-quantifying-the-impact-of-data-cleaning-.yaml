@@ -53,29 +53,7 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.1038/s41591-023-02382-x
   verified_at: '2026-06-28T16:21:42.386101Z'
-- artifact_hash: d049a1a37662b1345fefbf4de564aeb6bd5dcd7ec9a9149129c15dc4f5ebd18b
-  artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/plan.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/datasets/udayl/UCI_HAR/resolve/main/csv_files/test.csv`
-  verification_status: mismatch
-  verified_against_url: https://huggingface.co/datasets/udayl/UCI_HAR/resolve/main/csv_files/test.csv%60
-  verified_at: '2026-06-28T19:49:39.153756Z'
-- artifact_hash: d049a1a37662b1345fefbf4de564aeb6bd5dcd7ec9a9149129c15dc4f5ebd18b
-  artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/plan.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/datasets/jlh/uci-shopper/resolve/main/data/train-00000-of-00001-3316810f8df41d3a.parquet`
-  verification_status: mismatch
-  verified_against_url: https://huggingface.co/datasets/jlh/uci-shopper/resolve/main/data/train-00000-of-00001-3316810f8df41d3a.parquet%60
-  verified_at: '2026-06-28T19:49:39.153756Z'
-- artifact_hash: 175e2e047412e6091cd90c0e364815806668c4b42319fb70f56ec64e0f5259c0
+- artifact_hash: 06c2c3b9b18019a859fdf685dffdec6ad39963f2b5e8bdcec79ff9a1dfc73afa
   artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/research.md
   cite_id: c-001
   cited_authors: []
@@ -85,8 +63,8 @@
   value: https://huggingface.co/datasets/udayl/UCI_HAR/resolve/main/csv_files/test.csv`
   verification_status: mismatch
   verified_against_url: https://huggingface.co/datasets/udayl/UCI_HAR/resolve/main/csv_files/test.csv%60
-  verified_at: '2026-06-28T19:52:44.586204Z'
-- artifact_hash: 175e2e047412e6091cd90c0e364815806668c4b42319fb70f56ec64e0f5259c0
+  verified_at: '2026-06-30T01:45:27.467581Z'
+- artifact_hash: 06c2c3b9b18019a859fdf685dffdec6ad39963f2b5e8bdcec79ff9a1dfc73afa
   artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/research.md
   cite_id: c-002
   cited_authors: []
@@ -96,15 +74,26 @@
   value: https://huggingface.co/datasets/jlh/uci-shopper/resolve/main/data/train-00000-of-00001-3316810f8df41d3a.parquet`
   verification_status: mismatch
   verified_against_url: https://huggingface.co/datasets/jlh/uci-shopper/resolve/main/data/train-00000-of-00001-3316810f8df41d3a.parquet%60
-  verified_at: '2026-06-28T19:52:44.586204Z'
-- artifact_hash: 175e2e047412e6091cd90c0e364815806668c4b42319fb70f56ec64e0f5259c0
-  artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/research.md
-  cite_id: c-003
+  verified_at: '2026-06-30T01:45:27.467581Z'
+- artifact_hash: 0aeac5994f79e621d1d09eedb2bd1a01c21708de136bdd50b6451a396a91cacf
+  artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/ucinlp/drop/resolve/main/data/train-00000-of-00001.parquet`
+  value: https://archive.ics.uci.edu/ml/machine-learning-databases/00240/UCI
   verification_status: mismatch
-  verified_against_url: https://huggingface.co/datasets/ucinlp/drop/resolve/main/data/train-00000-of-00001.parquet%60
-  verified_at: '2026-06-28T19:52:44.586204Z'
+  verified_against_url: https://archive.ics.uci.edu/ml/machine-learning-databases/00240/UCI
+  verified_at: '2026-06-30T02:20:22.974917Z'
+- artifact_hash: 0aeac5994f79e621d1d09eedb2bd1a01c21708de136bdd50b6451a396a91cacf
+  artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://archive.ics.uci.edu/ml/datasets/Shopper+Behavior`
+  verification_status: mismatch
+  verified_against_url: https://archive.ics.uci.edu/ml/datasets/Shopper+Behavior%60
+  verified_at: '2026-06-30T02:20:22.974917Z'

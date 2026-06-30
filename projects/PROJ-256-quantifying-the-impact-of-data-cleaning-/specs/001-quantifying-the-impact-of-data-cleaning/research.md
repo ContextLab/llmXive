@@ -1,59 +1,51 @@
 # Research: Quantifying the Impact of Data Cleaning on Statistical Inference
 
 ## Research Question
+How do different data cleaning strategies (outlier removal, missing value imputation, data type correction) quantitatively **change** p-values, confidence intervals, and effect sizes in common statistical tests?
 
-How do different data cleaning strategies (outlier removal, missing value imputation, data type correction) quantitatively affect p-values, confidence intervals, and effect sizes in common statistical tests?
+> **Note**: The study measures **change** (delta) rather than **accuracy** (bias against ground truth). The research question is reframed as "How do strategies change inference" rather than "Do they improve it" due to lack of ground truth.
 
 ## Dataset Strategy
 
-**Constraint**: Per project rules, only datasets from the `# Verified datasets` block may be cited or used.
+The specification (FR-001) requests datasets from the OpenML Small Datasets collection and UCI. However, the **Verified datasets** block provided for this project contains only two verified sources. We must strictly adhere to these verified sources to satisfy Constitution Principle II (Verified Accuracy) and avoid hallucinated URLs.
 
-| Dataset Name | Verified URL | Suitability | Notes |
+**Spec Deviation**: FR-001 requires OpenML. No verified OpenML URLs are available. This project uses UCI HAR and UCI Shopper as a fallback. This deviation is logged and requires a spec kickback.
+
+| Dataset Name | Source URL | Format | Suitability |
 |:--- |:--- |:--- |:--- |
-| **UCI HAR** | ` | **High** | Numeric sensor data; suitable for t-tests/regression. |
-| **UCI Shopper** | ` | **High** | Numeric purchase data; suitable for regression. |
-| **UCI DROP** | ` | **Low** | Text-based (Reading Comprehension); unsuitable for numeric cleaning study. |
-| **Other Verified** | (F1-score, URL, IQR, MUST) | **Low** | Primarily text/audio benchmarks; lack numeric outcomes for statistical inference. |
+| **UCI HAR** | ` | CSV | **Suitable**. Contains numeric sensor data. Can be used for t-tests (e.g., activity classification vs. sensor magnitude) and regression. |
+| **UCI Shopper** | ` | Parquet | **Suitable**. Contains customer behavior data. Good for regression analysis (e.g., purchase amount vs. visit duration). |
 
-**Decision**: We will use **UCI HAR** and **UCI Shopper** as the primary sources. The spec requirement for "OpenML Small Datasets" has **NO verified source** in the allowed block. We adapt FR-001 to use the verified UCI links to ensure feasibility, noting this deviation in the plan.
+**Data Feasibility Limitation**:
+The spec requires ≥10 datasets (SC-006) to compute meaningful medians and IQRs. With only **2** verified datasets, statistical aggregation (median/IQR) is mathematically possible but statistically unstable. The plan will compute these metrics but will explicitly flag them as "Limited Sample (n=2)" in all reports. No other datasets are available in the verified block; we cannot fabricate URLs for OpenML or other UCI datasets.
 
-**Dataset-Variable Fit Check**:
-- **Required**: Numeric outcome variable, numeric predictors, missing values, outliers.
-- **UCI HAR**: Contains numeric sensor features. Outcome is activity class (can be treated as group for t-tests).
-- **UCI Shopper**: Contains numeric features (e.g., amount spent). Outcome can be derived or existing numeric column used.
-- **Gap**: Spec text contains conflicting research questions (e.g., "Can transfer learning...", "Can LLMs generate reports...", "Glioblastoma biomarkers..."). These are identified as **spec corruption** and are **excluded** from this plan. The plan follows the Title and FR-002/FR-011 (Statistical Cleaning).
+## Methodology
 
-**Feasibility Gap**: SC-006 requires ≥10 datasets but only a limited number of verified datasets are available. This creates a blocking gap. Median/IQR aggregation across 2 datasets is not statistically meaningful. The study will proceed with per-dataset analysis and descriptive summaries, noting this limitation.
+### 1. Baseline Analysis (Raw Data)
+- Load datasets.
+- Identify numeric outcome variables and predictors.
+- Perform **t-tests** (independent samples) and **linear regressions**.
+- Record: p-value, 95% CI, effect size (Cohen's d, R²).
 
-## Statistical Rigor
+### 2. Cleaning Strategies
+- **Outlier Removal**: IQR method with k=1.5. Sensitivity analysis with k=1.0, 2.0.
+- **Missing Value Imputation**: Mean, Median, KNN (k=5).
+- **Categorical Recoding**: Label encoding for factors.
 
-1. **Multiple-Comparison Correction**: Per FR-007/SC-004, Benjamini-Hochberg (BH) will be applied when >1 hypothesis test is run across datasets to control **False Discovery Rate (FDR)** at q≤0.05. **Note**: BH controls FDR, not family-wise error rate (FWER). FWER control would require Bonferroni or Holm methods.
-2. **Sample Size/Power**: Power analysis is documented below. For small-sample datasets (n<50), minimum detectable effect size (MDES) is calculated. Bootstrap may be unstable for n<50; jackknife variance estimation or analytical standard errors are used as alternatives.
- - **MDES Calculation**: For two-sample t-test with α=0.05, power=0.80, n=50 per group: MDES ≈ 0.57 (Cohen's d). For n=20 per group: MDES ≈ 0.90.
- - **Small-N Alternative**: For n<50, use jackknife resampling (n iterations) or analytical standard error formulas instead of bootstrap.
- - **Bootstrap Iterations**: 1000 for n≥50; reduced to 500 for n<50 to ensure CPU tractability.
-3. **Causal Inference**: Claims are framed as **associational**. This is an observational study of cleaning effects, not a randomized trial of cleaning strategies.
-4. **Measurement Validity**: Uses standard statistical instruments (t-tests, OLS) with established validation. No new questionnaires used.
-5. **Collinearity**: VIF diagnostics will be run on regression models. If predictors are definitionally related, independent effects are NOT claimed.
-6. **Permutation Null**: Per FR-011, outcome variables will be shuffled for **1000 permutations per dataset** to estimate false-positive rates for outlier thresholds. This ensures stable FPR estimates with acceptable variance.
+### 3. Statistical Rigor & Corrections
+- **Multiple Comparisons**: Apply Benjamini-Hochberg (BH) procedure to control False Discovery Rate (FDR) at α ≤ 0.05. *Note: Spec FR-007 mentions "family-wise error rate" (FWER), but BH controls FDR. We will implement BH as it is standard for >1 test, but explicitly note this distinction in reports. This is a deviation from the strict text of FR-007.*
+- **Bootstrap Variance**: 1000 resamples per metric shift to estimate CI of the shift (Constitution Principle VI). *Fallback: Reduce to 500 if runtime > 5 hours.*
+- **Sensitivity Analysis**: Stratify by dataset size (n<50, 50-200, >200) and missingness rate. *Note: With n=2, bins may be empty; logic handles this gracefully by logging a warning and skipping the bin.*
+- **False Positive Rate (FPR)**: Generate permutation null datasets (shuffle outcome) to estimate FPR for outlier thresholds. *Note: This estimates Type I error rate under the null, not cleaning-induced bias on real data. With n=2, FPR estimates will have high variance and be flagged as such.*
+- **Inconsistency Rate**: Calculate the proportion of datasets where significance status (p ≤ 0.05 vs p > 0.05) changes between baseline and cleaned analysis.
 
-## Computational Feasibility
+### 4. Computational Constraints
+- **Hardware**: CPU-only (2 cores, 7 GB RAM).
+- **Strategy**: Use `scipy` and `statsmodels` (closed-form solutions). No deep learning.
+- **Optimization**: If bootstrap runtime > 5 hours, reduce iterations to 500 (documented fallback).
 
-- **Hardware**: GitHub Actions free-tier (2 CPU, 7 GB RAM).
-- **Methods**:
- - **Bootstrap**: 1000 iterations per dataset (FR-009) for n≥50; jackknife for n<50. CPU-tractable for N<200. If N is larger, sample to N=200 for bootstrap to ensure ≤6h runtime.
- - **Imputation**: `sklearn.impute.KNN` (k=5) is CPU-tractable for small N.
- - **Outliers**: IQR calculation is O(N).
- - **Permutation**: 1000 permutations per dataset for FPR estimation (FR-011).
-- **Data Volume**: Datasets sampled to fit ≤7 GB RAM. If raw download exceeds limits, chunking or row sampling is applied.
-
-## Risk Mitigation
-
-| Risk | Mitigation |
-|:--- |:--- |
-| **Spec Text Corruption** | Ignore inserted text about LLM/Transfer Learning/Glioblastoma; focus on Title/FRs. Document gap in `research.md`. Flagged for kickback. |
-| **Dataset Incompatibility** | Use only verified UCI HAR/Shopper. If they lack numeric outcomes, skip dataset and log exclusion (Edge Case: Missing outcome >80%). |
-| **Runtime Exceeds 6h** | Reduce bootstrap iterations to 500; sample datasets to N≤200 for intensive steps. |
-| **Memory Overflow** | Process datasets sequentially; clear memory between runs; avoid loading all datasets at once. |
-| **Statistical Aggregation** | Only 2 datasets available; median/IQR across datasets not statistically meaningful. Use per-dataset analysis with descriptive summaries. Flagged for kickback. |
-| **Power Limitations** | Small-N datasets (n<50) have limited power. Use jackknife/analytical SE alternatives. Document MDES for each dataset. |
+## Decision Rationale
+- **Why these datasets?** They are the *only* verified sources. Using unverified URLs would violate Constitution Principle II.
+- **Why BH over Bonferroni?** BH is more powerful for exploratory research with multiple tests, though the spec mentions FWER. We prioritize statistical power while maintaining error control. This is a deviation from the strict text of FR-007.
+- **Why 1000 bootstraps?** Required by Constitution Principle VI. We implement a runtime guard to reduce to 500 if necessary, ensuring the job completes within 6 hours.
+- **Why per-dataset reporting?** With n=2, aggregate statistics (median/IQR) are invalid. Per-dataset deltas are the only statistically sound metric.

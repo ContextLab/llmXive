@@ -1,49 +1,42 @@
 # Quickstart: Quantifying the Impact of Data Cleaning on Statistical Inference
 
 ## Prerequisites
+- Python 3.11+
+- `pip` or `venv`
 
-- Python 3.11+ installed
-- Access to GitHub Actions runner or local environment matching constraints (≤7 GB RAM)
-- Internet access for dataset download
+## Installation
 
-## Setup
+1. **Clone and Setup Environment**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   pip install -r code/requirements.txt
+   ```
 
-1.  **Clone Repository**
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code
-    ```
+2. **Verify Datasets**
+   The script will automatically download the two verified datasets (UCI HAR, UCI Shopper) on first run. No manual download required.
 
-2.  **Install Dependencies**
-    ```bash
-    pip install -r requirements.txt
-    ```
-    *Note: `requirements.txt` pins versions for reproducibility (Constitution Principle I).*
+## Running the Analysis
 
-3.  **Download Data**
-    Run the acquisition script to fetch verified datasets.
-    ```bash
-    python acquisition.py
-    ```
-    *Data is saved to `data/raw/` with checksums recorded.*
+Execute the main pipeline:
+```bash
+python code/main.py
+```
 
-4.  **Run Analysis**
-    Execute the full pipeline (Cleaning → Stats → Reporting).
-    ```bash
-    python main.py
-    ```
-    *Output reports and visualizations are saved to `output/`.*
+This will:
+1. Download and checksum raw data.
+2. Run baseline analysis.
+3. Apply cleaning strategies (Outlier, Imputation, Recoding).
+4. Compute metrics and bootstrap variances.
+5. Generate visualizations and reports in `output/`.
 
-## Expected Outputs
-
-- `data/processed/`: Cleaned dataset variants.
-- `output/reports/`: JSON/CSV tables of metrics (p-values, CIs).
-- `output/plots/`: PNG files (forest plot, heatmap).
-- `state/`: Updated artifact hashes.
+## Output Artifacts
+- `output/reports/summary.json`: Raw metrics and comparisons.
+- `output/figures/forest_plot.png`: P-value shifts.
+- `output/figures/heatmap.png`: CI width changes.
+- `output/reports/sensitivity_analysis.md`: Textual summary of binning results.
 
 ## Troubleshooting
-
-- **Memory Error**: Reduce dataset sample size in `acquisition.py`.
-- **Missing Data**: Script logs warnings for >80% missing outcome (Edge Case).
-- **Runtime > 6h**: Reduce bootstrap iterations in `analysis.py` to 500.
-- **Small-N Variance**: For n<50 datasets, jackknife variance estimation is used instead of bootstrap.
+- **Runtime Error**: If the job exceeds a substantial duration, the bootstrap iterations will automatically reduce to 500. Check `output/logs/runtime.log`.
+- **Missing Data**: If a dataset has >80% missing outcome, it is skipped. Check `output/logs/warnings.log`.
+- **Memory Error**: If RAM usage > 7 GB, the script samples rows ([deferred] random sample) and logs a warning.

@@ -1,26 +1,26 @@
-resolved_at: '2026-06-28T19:09:53.125659+00:00'
+resolved_at: '2026-06-30T01:28:03.312587+00:00'
 datasets:
 - intent: 10.48550/arXiv.1907.11692
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/Bingham_University_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_released_its/32817041
+  - url: https://figshare.com/articles/conference_contribution/INDIVIDUAL_NEOLOGISMS_FORMED_BY_AFFIXATION_AND_COMPOSITION_IN_ENGLISH_AND_UZBEK_LANGUAGES/32830508
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/Bowen_University_Iwo_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_released_i/32817038
+  - url: https://figshare.com/articles/conference_contribution/Underground_mining_of_ore_bodies_at_the_Zarmitan_gold_deposit_taking_into_account_losses_and_dilution_in_the_zone_of_tectonic_stress_/32830502
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/Caleb_University_Lagos_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_released/32817035
+  - url: https://figshare.com/articles/conference_contribution/The_Socio-Philosophical_Interpretation_of_Ibn_Khaldun_s_Scientific_Legacy_and_Its_Role_in_World_Science/32830496
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/4-D_Volumetric_Slice_Cosmic_Acceleration_Principle/32817026
+  - url: https://figshare.com/articles/conference_contribution/ONOMASTIC_UNITS_AND_THEIR_PLACE_IN_THE_LANGUAGE_SYSTEM/32830490
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Caritas_University_Enugu_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_releas/32817029
+  - url: https://openresearch.newcastle.edu.au/articles/journal_contribution/Opinari_12_principles_to_connect_literacy_learning/32830487
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -73,23 +73,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/Bingham_University_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_released_its/32817041
+  - url: https://figshare.com/articles/conference_contribution/INDIVIDUAL_NEOLOGISMS_FORMED_BY_AFFIXATION_AND_COMPOSITION_IN_ENGLISH_AND_UZBEK_LANGUAGES/32830508
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/Bowen_University_Iwo_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_released_i/32817038
+  - url: https://figshare.com/articles/conference_contribution/Underground_mining_of_ore_bodies_at_the_Zarmitan_gold_deposit_taking_into_account_losses_and_dilution_in_the_zone_of_tectonic_stress_/32830502
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/Caleb_University_Lagos_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_released/32817035
+  - url: https://figshare.com/articles/conference_contribution/The_Socio-Philosophical_Interpretation_of_Ibn_Khaldun_s_Scientific_Legacy_and_Its_Role_in_World_Science/32830496
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/4-D_Volumetric_Slice_Cosmic_Acceleration_Principle/32817026
+  - url: https://figshare.com/articles/conference_contribution/ONOMASTIC_UNITS_AND_THEIR_PLACE_IN_THE_LANGUAGE_SYSTEM/32830490
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Caritas_University_Enugu_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_releas/32817029
+  - url: https://openresearch.newcastle.edu.au/articles/journal_contribution/Opinari_12_principles_to_connect_literacy_learning/32830487
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -101,35 +101,35 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10685355
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/7681792
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/4432825
+  - url: https://zenodo.org/records/10685355
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21001851
+  - url: https://zenodo.org/records/3748994
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21048838
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21048838
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://world.physio/congress-proceeding/factors-influencing-referral-cancer-patients-physiotherapy-rehabilitation
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ese-journals.unisalento.it/index.php/ejasa/article/download/15420/14085
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/21001851
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20995956
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20995956
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19813475
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -178,23 +178,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/Bingham_University_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_released_its/32817041
+  - url: https://figshare.com/articles/conference_contribution/INNOVATIVE_DIGITAL_SOLUTIONS_FOR_THE_GREEN_ECONOMY_INTERNATIONAL_EXPERIENCE_AND_NATIONAL_PRACTICE/32830514
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/Bowen_University_Iwo_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_released_i/32817038
+  - url: https://figshare.com/articles/conference_contribution/INDIVIDUAL_NEOLOGISMS_FORMED_BY_AFFIXATION_AND_COMPOSITION_IN_ENGLISH_AND_UZBEK_LANGUAGES/32830508
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/Caleb_University_Lagos_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_released/32817035
+  - url: https://figshare.com/articles/conference_contribution/Underground_mining_of_ore_bodies_at_the_Zarmitan_gold_deposit_taking_into_account_losses_and_dilution_in_the_zone_of_tectonic_stress_/32830502
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/4-D_Volumetric_Slice_Cosmic_Acceleration_Principle/32817026
+  - url: https://figshare.com/articles/conference_contribution/The_Socio-Philosophical_Interpretation_of_Ibn_Khaldun_s_Scientific_Legacy_and_Its_Role_in_World_Science/32830496
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Caritas_University_Enugu_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_releas/32817029
+  - url: https://figshare.com/articles/conference_contribution/ONOMASTIC_UNITS_AND_THEIR_PLACE_IN_THE_LANGUAGE_SYSTEM/32830490
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -206,11 +206,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://ijai.iaescore.com/index.php/IJAI/article/view/26268
+  - url: https://zenodo.org/records/18063014
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/18063014
+  - url: https://ijai.iaescore.com/index.php/IJAI/article/view/26268
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -218,23 +218,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21006937
+  - url: https://www.scidb.cn/detail?dataSetId=cbb3e608ce3c491ca4de8f4d26499649
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21006937
+  - url: https://zenodo.org/records/21051287
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://unige.iris.cineca.it/handle/11567/945784
+  - url: https://zenodo.org/records/21051287
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21002461
+  - url: https://zenodo.org/records/21047628
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21002461
+  - url: https://zenodo.org/records/21047628
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -283,23 +283,23 @@ datasets:
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Benson_Idahosa_University_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_relea/32817044
+  - url: https://figshare.com/articles/conference_contribution/INNOVATIVE_DIGITAL_SOLUTIONS_FOR_THE_GREEN_ECONOMY_INTERNATIONAL_EXPERIENCE_AND_NATIONAL_PRACTICE/32830514
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Bingham_University_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_released_its/32817041
+  - url: https://figshare.com/articles/conference_contribution/INDIVIDUAL_NEOLOGISMS_FORMED_BY_AFFIXATION_AND_COMPOSITION_IN_ENGLISH_AND_UZBEK_LANGUAGES/32830508
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/Bowen_University_Iwo_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_released_i/32817038
+  - url: https://figshare.com/articles/conference_contribution/Underground_mining_of_ore_bodies_at_the_Zarmitan_gold_deposit_taking_into_account_losses_and_dilution_in_the_zone_of_tectonic_stress_/32830502
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/Caleb_University_Lagos_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_released/32817035
+  - url: https://figshare.com/articles/conference_contribution/The_Socio-Philosophical_Interpretation_of_Ibn_Khaldun_s_Scientific_Legacy_and_Its_Role_in_World_Science/32830496
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/4-D_Volumetric_Slice_Cosmic_Acceleration_Principle/32817026
+  - url: https://figshare.com/articles/conference_contribution/ONOMASTIC_UNITS_AND_THEIR_PLACE_IN_THE_LANGUAGE_SYSTEM/32830490
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -319,30 +319,30 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/199064
+  - url: https://zenodo.org/records/20817412
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21008950
+  - url: https://zenodo.org/records/21051806
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21008950
+  - url: https://zenodo.org/records/21051806
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21010017
+  - url: https://www.datalumos.org/datalumos/project/250895/version/V1/view
     source: datacite
     status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21010017
+    reason: HTTP 403
+  - url: https://www.datalumos.org/datalumos/project/250895/view
     source: datacite
     status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.82595/scilifelab.hmwse-7kf30
+    reason: HTTP 403
+  - url: https://www.datalumos.org/datalumos/project/250894/version/V1/view
     source: datacite
-    status: unreachable
-    reason: 'reachability failed: HTTP 500'
+    status: wrong_format
+    reason: HTTP 403
 - intent: IQR
   status: verified
   candidates:
@@ -388,23 +388,23 @@ datasets:
     source: huggingface
     status: verified
     format: zip
-  - url: https://figshare.com/articles/dataset/Benson_Idahosa_University_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_relea/32817044
+  - url: https://figshare.com/articles/conference_contribution/The_use_of_folk_proverbs_and_expressions_in_the_works_of_Gafur_Ghulam/32830541
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Bingham_University_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_released_its/32817041
+  - url: https://figshare.com/articles/conference_contribution/INNOVATIVE_DIGITAL_SOLUTIONS_FOR_THE_GREEN_ECONOMY_INTERNATIONAL_EXPERIENCE_AND_NATIONAL_PRACTICE/32830514
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/Bowen_University_Iwo_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_released_i/32817038
+  - url: https://figshare.com/articles/conference_contribution/INDIVIDUAL_NEOLOGISMS_FORMED_BY_AFFIXATION_AND_COMPOSITION_IN_ENGLISH_AND_UZBEK_LANGUAGES/32830508
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/Caleb_University_Lagos_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_released/32817035
+  - url: https://figshare.com/articles/conference_contribution/Underground_mining_of_ore_bodies_at_the_Zarmitan_gold_deposit_taking_into_account_losses_and_dilution_in_the_zone_of_tectonic_stress_/32830502
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/4-D_Volumetric_Slice_Cosmic_Acceleration_Principle/32817026
+  - url: https://figshare.com/articles/conference_contribution/The_Socio-Philosophical_Interpretation_of_Ibn_Khaldun_s_Scientific_Legacy_and_Its_Role_in_World_Science/32830496
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -420,31 +420,31 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zookeys.pensoft.net/article/118414/element/2/13/
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/14886266
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/ukb7p/
+  - url: https://zookeys.pensoft.net/article/118414/element/2/13/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/A_retrospective_chart_review_of_UK_patients_with_advanced_renal_cell_carcinoma_treated_with_nivolumab_plus_ipilimumab/30871775
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/TNF_inhibitors_for_the_long-term_management_of_juvenile_idiopathic_arthritis_associated_uveitis_real-life_data_from_the_ITHACA_cohort/32815266/1
+  - url: https://tandf.figshare.com/articles/dataset/A_retrospective_chart_review_of_UK_patients_with_advanced_renal_cell_carcinoma_treated_with_nivolumab_plus_ipilimumab/30871775/1
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/TNF_inhibitors_for_the_long-term_management_of_juvenile_idiopathic_arthritis_associated_uveitis_real-life_data_from_the_ITHACA_cohort/32815266
+  - url: https://yareta.unige.ch/archives/5f1c69a3-0312-40bf-87a0-6e08ed913d7f
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20992034
+  - url: https://open.uni-marburg.de/handle/openumr/11000
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20992034
+  - url: https://www.zora.uzh.ch/handle/20.500.14742/248005
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -452,31 +452,31 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/Bells_University_of_Technology_Otta_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_offici/32817047
+  - url: https://figshare.com/articles/conference_contribution/The_use_of_folk_proverbs_and_expressions_in_the_works_of_Gafur_Ghulam/32830541
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Immunoinformatics_design_of_E8L_protein-driven_multi-epitope_candidate_vaccine_against_different_Monkeypox_variants_based_on_Monobody/30860186
+  - url: https://figshare.com/articles/conference_contribution/INNOVATIVE_DIGITAL_SOLUTIONS_FOR_THE_GREEN_ECONOMY_INTERNATIONAL_EXPERIENCE_AND_NATIONAL_PRACTICE/32830514
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Benson_Idahosa_University_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_relea/32817044
+  - url: https://figshare.com/articles/conference_contribution/INDIVIDUAL_NEOLOGISMS_FORMED_BY_AFFIXATION_AND_COMPOSITION_IN_ENGLISH_AND_UZBEK_LANGUAGES/32830508
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Bingham_University_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_released_its/32817041
+  - url: https://figshare.com/articles/conference_contribution/Underground_mining_of_ore_bodies_at_the_Zarmitan_gold_deposit_taking_into_account_losses_and_dilution_in_the_zone_of_tectonic_stress_/32830502
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/Bowen_University_Iwo_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_released_i/32817038
+  - url: https://figshare.com/articles/conference_contribution/The_Socio-Philosophical_Interpretation_of_Ibn_Khaldun_s_Scientific_Legacy_and_Its_Role_in_World_Science/32830496
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19059431
-    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/17936025
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19059431
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -488,8 +488,16 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/6373741
+  - url: https://zenodo.org/records/10173526
     source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15485834
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16828200
+    source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/20358997
@@ -501,14 +509,6 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/20635248
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20617597
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20615303
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -538,23 +538,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/Bells_University_of_Technology_Otta_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_offici/32817047
+  - url: https://figshare.com/articles/conference_contribution/The_use_of_folk_proverbs_and_expressions_in_the_works_of_Gafur_Ghulam/32830541
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Immunoinformatics_design_of_E8L_protein-driven_multi-epitope_candidate_vaccine_against_different_Monkeypox_variants_based_on_Monobody/30860186
+  - url: https://figshare.com/articles/conference_contribution/INNOVATIVE_DIGITAL_SOLUTIONS_FOR_THE_GREEN_ECONOMY_INTERNATIONAL_EXPERIENCE_AND_NATIONAL_PRACTICE/32830514
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Benson_Idahosa_University_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_relea/32817044
+  - url: https://figshare.com/articles/conference_contribution/INDIVIDUAL_NEOLOGISMS_FORMED_BY_AFFIXATION_AND_COMPOSITION_IN_ENGLISH_AND_UZBEK_LANGUAGES/32830508
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Bingham_University_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_released_its/32817041
+  - url: https://figshare.com/articles/conference_contribution/Underground_mining_of_ore_bodies_at_the_Zarmitan_gold_deposit_taking_into_account_losses_and_dilution_in_the_zone_of_tectonic_stress_/32830502
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/Bowen_University_Iwo_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_released_i/32817038
+  - url: https://figshare.com/articles/conference_contribution/The_Socio-Philosophical_Interpretation_of_Ibn_Khaldun_s_Scientific_Legacy_and_Its_Role_in_World_Science/32830496
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -578,23 +578,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21006241
+  - url: https://zenodo.org/records/21051800
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21006241
+  - url: https://doi.pangaea.de/10.1594/PANGAEA.857302
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20998071
+  - url: https://www.datalumos.org/datalumos/project/250885/version/V1/view
     source: datacite
     status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20998071
+    reason: HTTP 403
+  - url: https://www.datalumos.org/datalumos/project/250885/view
     source: datacite
     status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20971027
+    reason: HTTP 403
+  - url: https://zenodo.org/records/21051027
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -602,23 +602,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/Bells_University_of_Technology_Otta_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_offici/32817047
+  - url: https://figshare.com/articles/conference_contribution/The_use_of_folk_proverbs_and_expressions_in_the_works_of_Gafur_Ghulam/32830541
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Immunoinformatics_design_of_E8L_protein-driven_multi-epitope_candidate_vaccine_against_different_Monkeypox_variants_based_on_Monobody/30860186
+  - url: https://figshare.com/articles/conference_contribution/INNOVATIVE_DIGITAL_SOLUTIONS_FOR_THE_GREEN_ECONOMY_INTERNATIONAL_EXPERIENCE_AND_NATIONAL_PRACTICE/32830514
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Benson_Idahosa_University_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_relea/32817044
+  - url: https://figshare.com/articles/conference_contribution/INDIVIDUAL_NEOLOGISMS_FORMED_BY_AFFIXATION_AND_COMPOSITION_IN_ENGLISH_AND_UZBEK_LANGUAGES/32830508
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Bingham_University_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_released_its/32817041
+  - url: https://figshare.com/articles/conference_contribution/Underground_mining_of_ore_bodies_at_the_Zarmitan_gold_deposit_taking_into_account_losses_and_dilution_in_the_zone_of_tectonic_stress_/32830502
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/Bowen_University_Iwo_2026_2027_Admission_Form_is_out_and_currently_on_sales_CALL_DR_MRS_FAITH_07040964654_or_07040964654_Prospective_candidates_seeking_admission_into_the_University_can_now_apply_as_the_institution_has_officially_released_i/32817038
+  - url: https://figshare.com/articles/conference_contribution/The_Socio-Philosophical_Interpretation_of_Ibn_Khaldun_s_Scientific_Legacy_and_Its_Role_in_World_Science/32830496
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -626,15 +626,15 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5604159
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/5604171
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5604165
+  - url: https://zenodo.org/records/5604159
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604137
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -654,19 +654,81 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20470525
+    source: datacite
+    status: wrong_format
+    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
+      timeout=20)'
+  - url: https://doi.org/10.5281/zenodo.20469943
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+- intent: FR-003
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://acquire.cqu.edu.au/articles/journal_contribution/Risk_assessment_of_driver_performance_in_the_oil_and_gas_transportation_industry_Analyzing_the_relationship_between_driver_vigilance_attention_reaction_time_and_safe_driving_practices/32830553
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/INTEGRATION_OF_THE_FUTURE_OF_COMPUTER_NETWORKS_AND_ARTIFICIAL_INTELLIGENCE/32830556
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/Thematic_groups_of_the_Uzbek_language_lexicon_in_literary_texts_Based_on_the_works_of_Gafur_Ghulam_/32830550
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/The_use_of_folk_proverbs_and_expressions_in_the_works_of_Gafur_Ghulam/32830541
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/INNOVATIVE_DIGITAL_SOLUTIONS_FOR_THE_GREEN_ECONOMY_INTERNATIONAL_EXPERIENCE_AND_NATIONAL_PRACTICE/32830514
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10364827
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3841160
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13843104
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13213336
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10384626
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20857147
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564541
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564417
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://doi.org/10.5281/zenodo.20470525
     source: datacite
     status: unreachable
     reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
       port=443): Read timed out. (read timeout=20.0)'
-  - url: https://zenodo.org/records/20469943
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-- intent: FR-003
-  status: unresolved
-  candidates: []
-  candidates_tried: []
 - intent: KNN
   status: unresolved
   candidates: []

@@ -1,122 +1,136 @@
 # Implementation Plan: Quantifying the Impact of Data Cleaning on Statistical Inference
 
 **Branch**: `001-quantify-cleaning-impact` | **Date**: 2024-01-15 | **Spec**: `spec.md`
-**Input**: Feature specification from `/specs/001-quantify-cleaning-impact/spec.md`
+**Input**: Feature specification from `specs/001-quantify-cleaning-impact/spec.md`
 
 ## Summary
-
-This feature quantifies how data cleaning strategies (outlier removal, missing value imputation, data type correction) affect statistical inference metrics (p-values, confidence intervals, effect sizes). The system downloads verified public datasets, applies cleaning interventions, runs statistical tests (t-tests, linear regression), and compares results against baselines. The plan prioritizes CPU-tractable methods suitable for GitHub Actions free-tier runners.
+This project quantifies how standard data cleaning strategies (outlier removal, missing value imputation, categorical recoding) alter statistical inference metrics (p-values, confidence intervals, effect sizes). The approach involves downloading a curated set of small public datasets, establishing baseline metrics on raw data, applying three distinct cleaning pipelines, and performing sensitivity analyses including bootstrap variance estimation and multiple-comparison corrections. The implementation is strictly CPU-tractable to run on GitHub Actions free-tier runners.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11
-**Primary Dependencies**: pandas, numpy, scipy, statsmodels, scikit-learn, matplotlib, seaborn
-**Storage**: Local file system (`data/`, `code/`)
-**Testing**: pytest
-**Target Platform**: Linux (GitHub Actions free-tier)
-**Project Type**: Data Analysis Pipeline / CLI
-**Performance Goals**: ≤6 hours runtime, ≤7 GB RAM usage
-**Constraints**: No GPU/CUDA; CPU-only statistical methods; bootstrap iterations capped for feasibility; verified dataset URLs only.
-**Scale/Scope**: Multiple verified datasets (UCI HAR, UCI Shopper); sample sizes varying (n<50 to >200).
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `pandas`, `numpy`, `scipy`, `statsmodels`, `scikit-learn`, `matplotlib`, `seaborn`, `pyyaml`  
+**Storage**: Local filesystem (`data/raw`, `data/processed`, `output/`)  
+**Testing**: `pytest` (contract validation, statistical sanity checks)  
+**Target Platform**: Linux (GitHub Actions Free Tier: 2 CPU, ~7 GB RAM)  
+**Project Type**: Research Script / CLI Tool  
+**Performance Goals**: Complete analysis of available datasets (currently 2) within 6 hours; bootstrap resampling with a sufficient number of iterations per dataset with fallback logic if runtime exceeds thresholds.  
+**Constraints**: NO GPU; NO large model training; strict adherence to verified dataset URLs; statistical claims framed as associational.  
+**Scale/Scope**: Analysis of verified datasets (UCI HAR, UCI Shopper) due to lack of verified sources for the spec's requested ≥10 datasets.  
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+> **Dataset Feasibility Notice**: The specification (FR-001, SC-006) requests ≥10 datasets from OpenML/UCI. However, the **Verified datasets** block provided for this project contains only **2** verified sources (UCI HAR, UCI Shopper). The plan proceeds with these datasets. Statistical aggregations (median/IQR) will be reported with a severe limitation note, as they are statistically unstable with n=2. This is a known blocking gap per the spec's kickback requirements.
+
+## Kickback Required
+- **SC-006**: Requires ≥10 datasets for baseline metrics. Current data: 2. **Status: UNMET**. Requires spec amendment or kickback to lower threshold.
+- **FR-001**: Requires OpenML Small Datasets. Current data: UCI only. **Status: DEVIATION**. Requires spec amendment or kickback to accept UCI fallback.
+- **FR-008**: Requires stratification with ≥1 dataset per bin. Current data: 2. **Status: UNMET**. Requires spec amendment or kickback to allow empty bins.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+*GATE: Must pass before Phase 0 research.*
 
-| Principle | Plan Compliance Action |
-|:--- |:--- |
-| **I. Reproducibility** | All scripts in `code/` use pinned `requirements.txt`; random seeds set in `numpy`/`scipy`; external data fetched from verified URLs only. |
-| **II. Verified Accuracy** | Citations in `research.md` validated by Reference-Validator Agent against primary sources; dataset URLs restricted to the `# Verified datasets` block. |
-| **III. Data Hygiene** | Raw data downloaded to `data/raw/` with checksums; cleaned data written to `data/processed/`; no in-place modification. |
-| **IV. Single Source of Truth** | All statistics in reports generated from `data/processed/` artifacts; no hand-typed numbers in `paper/`. |
-| **V. Versioning Discipline** | Content hashes recorded for data artifacts; `state/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-.yaml` updated on artifact change. |
-| **VI. Sensitivity & Variance** | Bootstrap variance estimates (≥1000 iterations, or jackknife for n<50) included for all metric shifts; sensitivity analysis by dataset size/missingness. |
+| Principle | Status | Compliance Strategy |
+|-----------|--------|---------------------|
+| **I. Reproducibility** | PASS | All scripts pinned in `requirements.txt`; random seeds set globally; datasets fetched from verified URLs only. |
+| **II. Verified Accuracy** | PASS | Citations limited to verified URLs in `research.md`; no hallucinated dataset links. |
+| **III. Data Hygiene** | PASS | Raw data saved with checksums; transformations create new files (no in-place edits). |
+| **IV. Single Source of Truth** | PASS | All figures/stats generated by code; no hand-typed numbers in reports. |
+| **V. Versioning Discipline** | PASS | Content hashes tracked in `state/` artifacts; `updated_at` timestamps managed by agent. |
+| **VI. Statistical Sensitivity** | CONDITIONAL PASS | Bootstrap variance (≥1000 iterations) implemented. **Caveat**: With n=2, aggregate metrics (median/IQR) are statistically invalid. Per-dataset reporting will be used instead. Requires spec amendment for SC-006. |
 
-## Spec Corruption Notice
-
-The source `spec.md` contains corrupted text blocks unrelated to the cleaning-impact research question. These sections are **excluded** from this plan and flagged for kickback to spec author:
-
-- **US-1**: Contains "Can transfer learning improve..." research question (irrelevant to cleaning)
-- **FR-001**: Contains "Can LLMs generate data quality reports..." research question (irrelevant to cleaning)
-- **FR-006**: Contains "Can we identify robust biomarkers for glioblastoma..." research question (irrelevant to cleaning)
-
-The plan follows the Feature Title and FR-002 through FR-011 which correctly describe the data cleaning impact study.
+## Methodological Pivot
+Due to the constraint of n=2 datasets:
+1. **Aggregate Statistics**: Median and IQR calculations (SC-001, SC-002, SC-003) are **skipped** as they are mathematically undefined/unstable for n=2.
+2. **Reporting Strategy**: The system will report **per-dataset deltas** (cleaned vs. baseline) for each dataset individually.
+3. **Sensitivity Analysis**: Stratification by dataset size/missingness bins (FR-008) will be **skipped** if bins are empty. A warning will be logged.
+4. **FPR Estimation**: Permutation tests will be run, but confidence intervals will be flagged as "High Variance" due to low sample size.
 
 ## Project Structure
 
 ### Documentation (this feature)
-
 ```text
 specs/001-quantify-cleaning-impact/
-├── plan.md # This file
-├── research.md # Phase 0 output
-├── data-model.md # Phase 1 output
-├── quickstart.md # Phase 1 output
-├── contracts/ # Phase 1 output
-│ └── analysis_result.schema.yaml
-└── tasks.md # Phase 2 output
+├── plan.md              # This file
+├── research.md          # Phase 0 output
+├── data-model.md        # Phase 1 output
+├── quickstart.md        # Phase 1 output
+├── contracts/           # Phase 1 output
+└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
-
 ```text
 code/
 ├── __init__.py
-├── main.py # Entry point
-├── acquisition.py # Dataset download (verified URLs)
-├── cleaning.py # Outlier/Imputation/Recoding logic
-├── analysis.py # t-tests, regression, bootstrap
-├── reporting.py # Visuals (forest plot, heatmap)
-└── utils.py # Seed pinning, checksums
+├── config.py            # Configuration management (env vars, paths)
+├── utils.py             # Logging, checksums, IQR helpers
+├── data_loader.py       # Dataset acquisition (verified URLs only)
+├── cleaning.py          # Cleaning strategies (outlier, imputation, recoding)
+├── analysis.py          # Statistical tests (t-test, regression), metrics calc
+├── sensitivity.py       # Bootstrap, binning, FDR correction
+├── reporting.py         # Visualization (forest plot, heatmap), report generation
+└── main.py              # Orchestration script
 
 data/
-├── raw/ # Downloaded datasets (checksummed)
-└── processed/ # Cleaned variants
+├── raw/                 # Downloaded datasets (checksummed)
+├── processed/           # Cleaned variants
+└── artifacts/           # Checksum manifests
+
+output/
+├── figures/             # PNG visualizations
+└── reports/             # JSON/Markdown summary reports
 
 tests/
-├── unit/ # Cleaning logic tests
-└── integration/ # Full pipeline tests
+├── contract/            # Schema validation tests
+└── integration/         # End-to-end pipeline tests
 ```
 
-**Structure Decision**: Single project structure selected. All analysis logic resides in `code/` to ensure reproducibility and single-source-of-traceability per Constitution Principle IV.
+**Structure Decision**: Single-project structure (`code/`) selected to minimize I/O overhead and simplify dependency management for the research pipeline. All modules are tightly coupled for statistical reproducibility.
 
-## FR & SC Coverage Map
+## Complexity Tracking
 
-| ID | Requirement | Plan Phase | Notes |
-|:--- |:--- |:--- |:--- |
-| **FR-001** | Download representative datasets | Phase 1 (Acquisition) | **Deviation**: OpenML has NO verified source; adapted to UCI HAR/Shopper only. Spec requires kickback. |
-| **FR-002** | IQR outlier removal (k=1.5) | Phase 2 (Cleaning) | Log rows removed. |
-| **FR-003** | Imputation (mean/median/KNN) | Phase 2 (Cleaning) | Validate zero missing values post-op. |
-| **FR-004** | t-tests/linear regression | Phase 3 (Analysis) | Use `scipy.stats`/`statsmodels`. |
-| **FR-005** | Compute diffs (p, CI, effect) | Phase 3 (Analysis) | Round to 3/2 decimals. |
-| **FR-006** | Sweep outlier thresholds (k) | Phase 3 (Analysis) | **k ∈ {1.0, 1.5, 2.0}** per SC-005 (spec shows {1.5, 2.0} - inconsistency flagged). |
-| **FR-007** | BH Correction | Phase 3 (Analysis) | Apply for FDR control at q≤0.05 (controls FDR, not FWER). |
-| **FR-008** | Stratify by size/missingness | Phase 3 (Analysis) | Bins: n<50, 50-200, >200. |
-| **FR-009** | Bootstrap variance (1000) | Phase 3 (Analysis) | CPU-tractable for small N; jackknife for n<50. |
-| **FR-010** | Visualizations (PNG) | Phase 4 (Reporting) | Forest plot, heatmap. |
-| **FR-011** | Permutation null datasets | Phase 3 (Analysis) | 1000 permutations per dataset for FPR estimation. |
-| **ComparisonReport** | Create comparison outputs | Phase 3 (Analysis) | Maps to FR-005, FR-009, SC-001 through SC-003, SC-008. |
-| **SC-001** | Median p-value shift (IQR) | Phase 4 (Reporting) | **Limitation**: Only 2 datasets available; median/IQR not statistically meaningful. Flagged for kickback. |
-| **SC-002** | Median CI width change (IQR) | Phase 4 (Reporting) | **Limitation**: Only 2 datasets available. Flagged for kickback. |
-| **SC-003** | Median effect-size change | Phase 4 (Reporting) | **Limitation**: Only 2 datasets available. Flagged for kickback. |
-| **SC-004** | FDR control q≤0.05 | Phase 3 (Analysis) | BH method controls FDR (not FWER). |
-| **SC-005** | FPR variation across k | Phase 4 (Reporting) | Sensitivity analysis. |
-| **SC-006** | Baseline metrics ≥10 datasets | Phase 1 (Acquisition) | **Blocking Gap**: Only 2 verified datasets. Requires spec kickback. |
-| **SC-007** | Cleaning validation logs | Phase 2 (Cleaning) | Row counts, missing checks. |
-| **SC-008** | Bootstrap CI for shifts | Phase 3 (Analysis) | 95% CI on delta. |
-| **SC-009** | PNG visualizations | Phase 4 (Reporting) | Save to `output/`. |
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| **Bootstrap Resampling (sufficient iterations for stable estimates)** | Constitution Principle VI requires rigorous variance estimation. | Closed-form approximations are insufficient for non-normal distributions often found in small datasets. |
+| **Multiple Cleaning Strategies** | Spec requires comparative analysis of outlier, imputation, and recoding. | Single-strategy analysis would fail to answer the research question about *impact* of cleaning. |
+| **Strict Data Constraints** | Only 2 verified datasets available vs. spec's 10. | Proceeding with 2 datasets is the only viable path to generate *any* results without fabricating data sources. |
 
+## Implementation Tasks
 
-## Dataset Feasibility Notice
+### Phase 0: Data Acquisition & Baseline
+- **T010**: Setup project environment (venv, requirements.txt). [P]
+- **T011**: Download datasets from verified URLs (UCI HAR, UCI Shopper). **Explicitly log deviation from FR-001 (OpenML)**. If no verified OpenML URL is found, use UCI fallback and log "Spec Deviation". [P]
+- **T012**: Compute checksums and validate dataset integrity. [P]
+- **T013**: Load datasets and identify numeric outcome/predictor columns. [P]
+- **T014**: Run baseline statistical tests (t-test, linear regression) on raw data. [P]
+- **T015**: Record baseline metrics (p-value, CI, effect size) to `analysis_result` schema. [P]
 
-**Current Verified Datasets**: 2 (UCI HAR, UCI Shopper)
-**Required per SC-006**: ≥10 datasets
-**Status**: **BLOCKING GAP** - SC-006 requires kickback to spec author. Plan proceeds with available datasets and notes statistical aggregation limitations.
+### Phase 1: Cleaning Strategies
+- **T020**: Implement IQR-based outlier removal (k=1.5). [P]
+- **T021**: Implement missing value imputation (mean, median, KNN). [P]
+- **T022**: Implement categorical recoding. [P]
+- **T023**: Apply cleaning strategies to datasets. [P]
+- **T024**: Validate cleaning results (zero missing values, rows removed). [P]
 
-**Available Sources** (from `# Verified datasets` block):
-- UCI HAR: `
-- UCI Shopper: `
+### Phase 2: Analysis & Comparison
+- **T030**: Run statistical tests on cleaned data. [P]
+- **T031**: Compute absolute p-value difference, CI width change, effect size delta. [P]
+- **T032**: **T038**: Calculate and report **inconsistency rate** (proportion of datasets where significance status changes) alongside FPR. [P]
+- **T033**: Apply Benjamini-Hochberg (FDR) correction. **Note**: Acknowledge deviation from FR-007 (FWER) in logs. [P]
+- **T034**: Generate summary visualizations (forest plot, heatmap). [P]
+- **T035**: Save visualizations to `output/figures/`. [P]
+- **T036**: Generate comparison report (JSON/Markdown). [P]
 
-OpenML Small Datasets collection has **NO verified source** in the allowed block. Plan adapts to UCI only.
+### Phase 3: Sensitivity & Validation
+- **T037**: Implement bootstrap variance estimation with a sufficient number of iterations. **Fallback**: Reduce to 500 if runtime > 5 hours. [P]
+- **T038**: **T039**: Handle missingness/binning constraints. If <1 dataset per bin, log warning and skip stratification. [P]
+- **T039**: Implement permutation null datasets for FPR estimation. **Note**: Flag results as "High Variance" for n=2. [P]
+- **T040**: Validate all outputs against schema contracts. [P]
+- **T041**: Generate final report with "Kickback Required" notes for SC-006, FR-001, FR-008. [P]
+
+### Phase 4: Documentation
+- **T050**: Update `quickstart.md` with runtime warnings and fallback logic. [P]
+- **T051**: Update `research.md` with methodology limitations and deviation notes. [P]
+- **T052**: Update `data-model.md` with schema definitions. [P]
+
+**Task Parallelism Note**: Tasks T020-T024 and T034-T036 are marked [P] but write to separate files (`cleaning.py`, `reporting.py`) or are logically distinct. Parallel execution is safe if file writes are atomic or if tasks are split into separate modules. For simplicity, tasks are marked [P] but execution order is sequential in `main.py` to avoid race conditions.

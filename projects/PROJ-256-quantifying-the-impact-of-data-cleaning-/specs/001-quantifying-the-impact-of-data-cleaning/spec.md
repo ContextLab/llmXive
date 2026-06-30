@@ -13,7 +13,7 @@ Researcher downloads a small number of public datasets from UCI Machine Learning
 
 The research question is: Can transfer learning improve the performance of machine learning models on low-resource text classification tasks?
 
-The method is: We will evaluate transfer learning techniques—specifically fine-tuning pre-trained language models—on a collection of publicly available text classification datasets. Performance will be measured using F1-score and accuracy.
+The method is: We will evaluate transfer learning techniques—specifically fine-tuning pre-trained language models—on a collection of publicly available text classification datasets. Performance will be measured using F-score and accuracy.
 
 References: (Devlin et al., 2019); (Radford et al., 2019) https://doi.org/10.48550/arXiv.1907.11692., then runs baseline statistical analyses (t‑tests, linear regressions) on raw, uncleaned data to establish reference metrics.
 
@@ -74,7 +74,7 @@ The method is: We will evaluate the performance of a large language model in gen
 References: (DOI/arXiv/author-year) (as of 2024‑01‑26) that have n ≥ 20 and at least one numeric outcome variable (See US‑1)
 - **FR-002**: System MUST apply IQR‑based outlier removal with k=1.5 threshold (standard community default per Tukey) and record the number of rows removed per dataset (See US‑2)
 - **FR-003**: System MUST implement 3 missing‑value imputation strategies (mean, median, KNN with k=5) and allow selection of which to apply per dataset; after imputation, targeted columns must contain zero missing values (See US‑2)
-- **FR-004**: System MUST execute t‑tests and linear regressions using scipy/statsmodels on both raw and cleaned data, recording p‑values (rounded to ≥3 decimal places), 95 % confidence intervals, and effect sizes (Cohen's d for t‑tests, R² for regression) (See US‑2)
+- **FR-004**: System MUST execute t‑tests and linear regressions using scipy/statsmodels on both raw and cleaned data, recording p‑values (rounded to ≥3 decimal places), % confidence intervals, and effect sizes (Cohen's d for t‑tests, R² for regression) (See US‑2)
 - **FR-005**: System MUST compute absolute p‑value difference (|p_cleaned − p_baseline|, rounded to 3 decimal places), relative CI width change ((CI_width_cleaned − CI_width_baseline)/CI_width_baseline × 100, rounded to 2 decimal places), and effect‑size delta for each cleaning strategy (See US‑3)
 - **FR-006**: System MUST sweep multiple outlier threshold values (k ∈ {1.5, 2.0}) and, for each, report (a) false‑positive rate estimated via A substantial number of permutation null datasets will be generated.
 

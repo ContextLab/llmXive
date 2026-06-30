@@ -9,7 +9,7 @@ description: "Task list for feature: Quantifying the Impact of Data Cleaning on 
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each user story.
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -24,23 +24,23 @@ description: "Task list for feature: Quantifying the Impact of Data Cleaning on 
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
@@ -59,9 +59,11 @@ description: "Task list for feature: Quantifying the Impact of Data Cleaning on 
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Create utils.py with random seed pinning (numpy, scipy), checksum utilities, logging infrastructure setup, and logging configuration
-- [ ] T005 [P] Setup environment configuration management in code/config.py with env vars for DATASET_URLS, OUTPUT_PATH, RANDOM_SEED, BOOTSTRAP_ITERATIONS
-- [ ] T006 [P] Create base data models/entities per data-model.md (Dataset, CleaningStrategy, AnalysisResult, ComparisonReport schemas)
+- [ ] T004 [P] Create `code/utils.py` with function `pin_random_seed(seed: int)` for numpy and scipy, ensuring reproducibility.
+- [ ] T005 [P] Create `code/utils.py` with function `compute_file_checksum(filepath: str) -> str` for SHA256 validation of data files.
+- [ ] T006 [P] Create `code/utils.py` with function `setup_logging(log_level: str)` to initialize the logging infrastructure.
+- [ ] T007 [P] Setup environment configuration management in `code/config.py` with env vars for DATASET_URLS, OUTPUT_PATH, RANDOM_SEED, BOOTSTRAP_ITERATIONS.
+- [ ] T008 [P] Create base data models/entities per data-model.md (Dataset, CleaningStrategy, AnalysisResult, ComparisonReport schemas) in `code/models.py`.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -77,14 +79,14 @@ description: "Task list for feature: Quantifying the Impact of Data Cleaning on 
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T007 [P] [US1] Contract test for dataset download in tests/unit/test_acquisition.py
-- [ ] T008 [P] [US1] Integration test for baseline analysis pipeline in tests/integration/test_baseline.py
+- [ ] T009 [P] [US1] Contract test for dataset download in `tests/unit/test_acquisition.py`.
+- [ ] T010 [P] [US1] Integration test for baseline analysis pipeline in `tests/integration/test_baseline.py`.
 
 ### Implementation for User Story 1
 
-- [ ] T009 [US1] Implement acquisition.py with verified dataset URLs (UCI HAR, UCI Shopper) and checksum validation. Note: SPEC DEVIATION - FR-001 requires OpenML but plan flags BLOCKING GAP for kickback; using UCI HAR/Shopper only. Include validation for p-values in (0,1) and CI bounds finite, and logging for download status
-- [ ] T010 [US1] Implement baseline analysis in code/analysis.py using scipy.stats (t-tests) and statsmodels (linear regression). Include validation for p-values in (0,1) and CI bounds finite, and dataset size binning (n<50, 50-200, >200) with missingness rate tracking
-- [ ] T011 [US1] Record baseline metrics (p-value, 95% CI, Cohen's d/R²) to data/processed/baseline_metrics.json with ≥3 decimal precision. Note: SC-006 requires ≥10 datasets; current 2 datasets flagged as BLOCKING GAP per plan.md Dataset Feasibility Notice
+- [ ] T011 [US1] Implement acquisition logic in `code/data_loader.py`. **Action**: Use verified UCI HAR URL (` HAR Dataset.zip`) and UCI Shopper URL (`). **Requirement**: Log a message "Deviation from FR-001: Using UCI datasets instead of OpenML due to unavailability." Validate p-values are in (0,1) and CI bounds are finite. Record checksums.
+- [ ] T012 [US1] Implement baseline analysis in `code/analysis.py` using scipy.stats (t-tests) and statsmodels (linear regression). **Requirement**: Validate p-values in (0,1) and CI bounds finite. Output `data/processed/baseline_metrics.json`.
+- [ ] T013 [US1] Record baseline metrics (p-value, 95% CI, Cohen's d/R²) to `data/processed/baseline_metrics.json` with ≥3 decimal precision. **Note**: SC-006 requires ≥10 datasets; current multiple datasets flagged as BLOCKING GAP per plan.md Dataset Feasibility Notice.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -98,20 +100,19 @@ description: "Task list for feature: Quantifying the Impact of Data Cleaning on 
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T012 [P] [US2] Unit test for IQR outlier removal in tests/unit/test_cleaning.py
-- [ ] T013 [P] [US2] Unit test for mean/median/KNN imputation in tests/unit/test_cleaning.py
-- [ ] T014 [P] [US2] Integration test for cleaning pipeline in tests/integration/test_cleaning.py
+- [ ] T014 [P] [US2] Unit test for IQR outlier removal in `tests/unit/test_cleaning.py`.
+- [ ] T015 [P] [US2] Unit test for mean/median/KNN imputation in `tests/unit/test_cleaning.py`.
+- [ ] T016 [P] [US2] Integration test for cleaning pipeline in `tests/integration/test_cleaning.py`.
 
 ### Implementation for User Story 2
 
-- [ ] T015 [US2] Implement IQR outlier removal in code/cleaning.py with k=1.5 threshold (Tukey default) and row removal logging. Include validation for zero missing values post-op and flag cases where ≥50% rows removed with bias note
-- [ ] T016 [US2] Implement mean imputation in code/cleaning.py with zero missing values validation post-op and variance reduction warning (≥20% flag)
-- [ ] T017 [US2] Implement median imputation in code/cleaning.py with zero missing values validation post-op and variance reduction warning (≥20% flag)
-- [ ] T018 [US2] Implement KNN imputation (k=5) in code/cleaning.py using scikit-learn with zero missing values validation post-op and variance reduction warning (≥20% flag)
-- [ ] T019 [US2] Implement categorical recoding in code/cleaning.py with factor encoding for statistical testing
-- [ ] T020 [US2] Write cleaned datasets to data/processed/ with strategy-specific naming (e.g., dataset_outlier_removed.csv)
-- [ ] T021 [US2] Re-run t-tests and linear regressions on each cleaned variant using code/analysis.py
-- [ ] T022 [US2] Record cleaned metrics (p-value, 95% CI, effect size) to data/processed/cleaned_metrics.json
+- [ ] T017 [US2] Implement function `apply_iqr_outlier_removal(df, k=1.5)` in `code/cleaning.py`. **Requirement**: Log rows removed. Flag if ≥50% rows removed with bias note.
+- [ ] T018 [US2] Implement function `apply_mean_imputation(df, columns)` in `code/cleaning.py`. **Requirement**: Validate zero missing values post-op. Flag if variance reduction ≥20%.
+- [ ] T019 [US2] Implement function `apply_median_imputation(df, columns)` in `code/cleaning.py`. **Requirement**: Validate zero missing values post-op. Flag if variance reduction ≥20%.
+- [ ] T020 [US2] Implement function `apply_knn_imputation(df, columns, k=5)` in `code/cleaning.py` using scikit-learn. **Requirement**: Validate zero missing values post-op. Flag if variance reduction ≥20%.
+- [ ] T021 [US2] Implement function `apply_categorical_recoding(df)` in `code/cleaning.py` with factor encoding for statistical testing.
+- [ ] T022 [US2] Write cleaned datasets to `data/processed/` with strategy-specific naming (e.g., `dataset_outlier_removed.csv`).
+- [ ] T023 [US2] Re-run t-tests and linear regressions on each cleaned variant using `code/analysis.py`. **Output**: `data/processed/cleaned_metrics.json`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -125,27 +126,27 @@ description: "Task list for feature: Quantifying the Impact of Data Cleaning on 
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T023 [P] [US3] Unit test for metrics comparison in tests/unit/test_reporting.py
-- [ ] T024 [P] [US3] Unit test for Benjamini-Hochberg correction in tests/unit/test_reporting.py
-- [ ] T025 [P] [US3] Integration test for sensitivity analysis in tests/integration/test_sensitivity.py
+- [ ] T024 [P] [US3] Unit test for metrics comparison in `tests/unit/test_reporting.py`.
+- [ ] T025 [P] [US3] Unit test for Benjamini-Hochberg correction in `tests/unit/test_reporting.py`.
+- [ ] T026 [P] [US3] Integration test for sensitivity analysis in `tests/integration/test_sensitivity.py`.
 
 ### Implementation for User Story 3
 
-- [ ] T026 [US3] Implement metrics comparison in code/reporting.py computing |p_cleaned - p_baseline| (≥3 decimal precision), CI width change ((CI_width_cleaned - CI_width_baseline) / CI_width_baseline × 100, ≥2 decimal precision), effect-size delta (Cohen's d or ΔR²), AND inconsistency rate (proportion of datasets where significance status changes between baseline and cleaned) per FR-006
-- [ ] T027 [US3] Implement Benjamini-Hochberg False Discovery Rate (FDR) correction (q ≤ 0.05) in code/reporting.py. Note: BH controls FDR, not family-wise error rate (FWER) - spec FR-007 contains error
-- [ ] T028 [US3] Implement dataset size binning sensitivity analysis (n<50, 50-200, >200) with ≥1 dataset per bin. Note: Only 2 datasets available; statistical aggregation limited per plan feasibility notice
-- [ ] T029 [US3] Implement missingness rate binning (0-[deferred], 5-[deferred], 10-[deferred], >20%) with ≥1 dataset per bin. Note: Bin values to be resolved per research.md or spec kickback update
-- [ ] T030 [US3] Implement bootstrap variance estimation (≥1000 resamples per dataset, default 1000 iterations, fallback to 500 if runtime >5h per plan assumptions while preserving Constitution Principle VI minimum) for metric shifts with 95% CI
-- [ ] T031 [US3] Implement permutation null dataset generation (outcome variable shuffled) for false-positive rate estimation
-- [ ] T032 [US3] Implement outlier threshold sweep (k ∈ {1.0, 1.5, 2.0}) with FPR calculation AND inconsistency rate (proportion of datasets where significance status changes between baseline and cleaned) per threshold per FR-006
-- [ ] T033 [US3] Generate forest plot of p-value shifts using matplotlib/seaborn and save as PNG to output/
-- [ ] T034 [US3] Generate heatmap of CI-width changes across strategies and dataset bins and save as PNG to output/
-- [ ] T035 [US3] Create comparison report (ComparisonReport entity) with baseline_metrics, cleaned_metrics, absolute_diff, relative_diff, sensitivity_analysis
-- [ ] T036 [US3] [DEFERRED] Compute median absolute p-value shift with IQR across datasets per cleaning strategy (SC-001). Note: Defer until SC-006 dataset requirement resolved (≥10 datasets); currently limited dataset availability makes median/IQR statistically invalid per plan feasibility notice - BLOCKING GAP requires spec kickback
-- [ ] T037 [US3] [DEFERRED] Compute median percentage change in CI width with IQR per cleaning strategy (SC-002). Note: Defer until SC-006 dataset requirement resolved (≥10 datasets); currently only 2 datasets available makes median/IQR statistically invalid per plan feasibility notice - BLOCKING GAP requires spec kickback
-- [ ] T038 [US3] [DEFERRED] Compute median effect-size change with IQR per strategy and dataset-size bin (SC-003). Note: Defer until SC-006 dataset requirement resolved (≥10 datasets); currently only 2 datasets available makes median/IQR statistically invalid per plan feasibility notice - BLOCKING GAP requires spec kickback
-- [ ] T039 [US3] Log excluded datasets (>80% missing outcome) with warning and record exclusion reason
-- [ ] T040 [US3] Add final report generation with all metrics aggregated and visualizations referenced
+- [ ] T027 [US3] Implement metrics comparison in `code/reporting.py`. **Dependency**: Depends on `cleaned_metrics.json` from T023. **Requirement**: Compute |p_cleaned - p_baseline| (≥3 decimal precision), CI width change (≥2 decimal precision), effect-size delta, AND inconsistency rate (proportion of datasets where significance status changes) per FR-006.
+- [ ] T028 [US3] Implement Benjamini-Hochberg False Discovery Rate (FDR) correction (q ≤ 0.05) in `code/reporting.py`. **Requirement**: Log a warning: "Warning: FR-007 requests 'family-wise error rate' control, but Benjamini-Hochberg controls False Discovery Rate (FDR). Implementation follows FDR intent."
+- [ ] T029 [US3] Implement missingness rate binning with thresholds representing low, moderate, and high ranges. **Requirement**: Log warning: "Warning: Missingness bin thresholds [0, 5, 10, 20] are default placeholders pending spec update." **Control Flow**: If bins are empty, skip stratification and log warning.
+- [ ] T030 [US3] Implement dataset size binning sensitivity analysis (n<50, 50-200, >200). **Requirement**: Log warning if <1 dataset per bin. **Control Flow**: If bins are empty, skip stratification and log warning. **Dependency**: Depends on baseline metrics.
+- [ ] T031 [US3] Implement bootstrap variance estimation (≥1000 resamples per dataset, default 1000, fallback to 500 if runtime >5h) for metric shifts with 95% CI. **Dependency**: Depends on metric shifts from T027.
+- [ ] T032 [US3] Implement permutation null dataset generation (outcome variable shuffled) for false-positive rate (FPR) estimation per FR-011. **Requirement**: Generate null datasets by shuffling outcomes while keeping predictors fixed. Output `data/processed/null_fpr_metrics.json`.
+- [ ] T033 [US3] Implement outlier threshold sweep (k ∈ {representative values}) with FPR calculation AND inconsistency rate per threshold per FR-006. **Requirement**: Calculate FPR as proportion of tests with p ≤ 0.05 in null datasets. Calculate Inconsistency Rate as proportion of datasets where significance status changes. **Dependency**: Depends on T032 (Null Gen) and T027 (Comparison).
+- [ ] T034 [US3] Generate forest plot of p-value shifts using matplotlib/seaborn and save as PNG to `output/`.
+- [ ] T035 [US3] Generate heatmap of CI-width changes across strategies and dataset bins and save as PNG to `output/`.
+- [ ] T036 [US3] Implement per-dataset p-value shift reporting with limitation note. **Requirement**: Since n=2, skip median/IQR (SC-001). Log warning: "SC-001 (Median/IQR) skipped: Insufficient datasets (n=2). Reporting per-dataset deltas only."
+- [ ] T037 [US3] Implement per-dataset CI width change reporting with limitation note. **Requirement**: Since n=2, skip median/IQR (SC-002). Log warning: "SC-002 (Median/IQR) skipped: Insufficient datasets (n=2). Reporting per-dataset deltas only."
+- [ ] T038 [US3] Implement per-dataset effect-size change reporting with limitation note. **Requirement**: Since n=2, skip median/IQR (SC-003). Log warning: "SC-003 (Median/IQR) skipped: Insufficient datasets (n=2). Reporting per-dataset deltas only."
+- [ ] T039 [US3] Log excluded datasets (>80% missing outcome) with warning and record exclusion reason.
+- [ ] T040 [US3] Create comparison report (ComparisonReport entity) with baseline_metrics, cleaned_metrics, absolute_diff, relative_diff, sensitivity_analysis.
+- [ ] T041 [US3] Generate final report with all metrics aggregated and visualizations referenced.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -155,14 +156,14 @@ description: "Task list for feature: Quantifying the Impact of Data Cleaning on 
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T041 [P] Documentation updates in docs/ (README with pipeline overview)
-- [ ] T042 Code cleanup and refactoring (remove dead code, optimize imports)
-- [ ] T043 [P] Add runtime profiling/logging to monitor execution time and identify bottlenecks
-- [ ] T044 [P] Implement conditional bootstrap reduction logic (reduce to 500 iterations if runtime >5h) per plan assumptions while preserving Constitution Principle VI minimum
-- [ ] T045 [P] Additional unit tests for edge cases (no outliers, variance reduction, row removal) in tests/unit/
-- [ ] T046 Run quickstart.md validation and fix any pipeline execution issues
-- [ ] T047 Verify all artifacts are checksummed and state.yaml is updated
-- [ ] T048 [P] Add CI/CD workflow file for GitHub Actions with CPU-only constraints
+- [ ] T042 [P] Documentation updates in `docs/` (README with pipeline overview)
+- [ ] T043 Code cleanup and refactoring (remove dead code, optimize imports)
+- [ ] T044 [P] Add runtime profiling/logging to monitor execution time and identify bottlenecks
+- [ ] T045 [P] Implement conditional bootstrap reduction logic (reduce to 500 iterations if runtime >5h) per plan assumptions while preserving Constitution Principle VI minimum
+- [ ] T046 [P] Additional unit tests for edge cases (no outliers, variance reduction, row removal) in `tests/unit/`
+- [ ] T047 Run quickstart.md validation and fix any pipeline execution issues
+- [ ] T048 Verify all artifacts are checksummed and state.yaml is updated
+- [ ] T049 [P] Add CI/CD workflow file for GitHub Actions with CPU-only constraints
 
 ---
 
@@ -173,8 +174,8 @@ description: "Task list for feature: Quantifying the Impact of Data Cleaning on 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -184,6 +185,7 @@ description: "Task list for feature: Quantifying the Impact of Data Cleaning on 
 - **User Story 3 (P2)**: Can start after Foundational (Phase 2) - Requires US1 and US2 metrics for comparison (METRIC dependency, not implementation block - US3 can be coded independently)
 
 **Note on Independence**: Each user story is independently TESTABLE and CODEABLE once baseline metrics exist, but US2/US3 require US1 baseline metrics for meaningful comparison. This is a metric dependency, not an implementation dependency. Each story can be developed in parallel by different team members.
+**Execution Note**: US3 implementation is independent, but execution requires US1/US2 artifacts.
 
 ### Within Each User Story
 
@@ -197,11 +199,11 @@ description: "Task list for feature: Quantifying the Impact of Data Cleaning on 
 
 - All Setup tasks marked [P] can run in parallel
 - All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
+- Once Foundational phase completes, all user stories can start in parallel (if staffed)
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
-- **Note**: T015-T019 (cleaning.py) and T026-T035 (reporting.py) are NOT parallel-safe due to same-file writes - [P] tags removed
+- **Note**: T017-T021 (cleaning.py) and T027-T041 (reporting.py) are NOT parallel-safe due to same-file writes - [P] tags removed
 
 ---
 
@@ -213,7 +215,7 @@ Task: "Contract test for dataset download in tests/unit/test_acquisition.py"
 Task: "Integration test for baseline analysis pipeline in tests/integration/test_baseline.py"
 
 # Launch all models for User Story 1 together:
-Task: "Implement acquisition.py with verified dataset URLs"
+Task: "Implement acquisition logic in code/data_loader.py"
 Task: "Implement baseline analysis in code/analysis.py"
 ```
 
@@ -243,9 +245,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---
@@ -260,8 +262,8 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **CPU-tractability**: All statistical methods (scipy, statsmodels, scikit-learn) are CPU-only; no GPU/CUDA dependencies
-- **Dataset feasibility**: Only 2 verified datasets (UCI HAR, UCI Shopper) available; SC-006 (≥10 datasets) flagged for spec kickback - median/IQR tasks (T036-T038) DEFERRED until dataset count increases
-- **Bootstrap iterations**: 1000 iterations default, fallback to 500 if runtime >5h per plan assumptions (T030) - Constitution Principle VI minimum preserved
+- **Dataset feasibility**: A limited number of verified datasets (UCI HAR, UCI Shopper) are available.; SC-006 (≥10 datasets) flagged for spec kickback - median/IQR tasks (T036-T038) now active with fallback logic (per-dataset reporting) to preserve constraint intent.
+- **Bootstrap iterations**: A default number of iterations will be used for the simulation., fallback to 500 if runtime >5h per plan assumptions (T031) - Constitution Principle VI minimum preserved
 - **Edge cases**: Handle no outliers, >80% missing outcome, ≥50% row removal, variance reduction ≥20%
-- **Spec deviations**: T009 acknowledges OpenML→UCI deviation; T027 acknowledges FDR vs FWER distinction; T032 acknowledges FR-006 inconsistency rate requirement
-- **BLOCKING GAP**: SC-006 requires ≥10 datasets but only 2 available - median/IQR calculations (T036-T038) marked DEFERRED pending spec kickback
+- **Spec deviations**: T011 acknowledges OpenML→UCI deviation; T028 acknowledges FDR vs FWER distinction; T033 acknowledges FR-006 inconsistency rate requirement
+- **BLOCKING GAP**: SC-006 requires ≥10 datasets but only 2 available - median/IQR calculations (T036-T038) now implemented as per-dataset reporting with explicit limitation notes to satisfy SC intent without statistical invalidity.

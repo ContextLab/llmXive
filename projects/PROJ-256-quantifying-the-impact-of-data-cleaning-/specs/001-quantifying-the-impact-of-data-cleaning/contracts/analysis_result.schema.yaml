@@ -1,51 +1,41 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Analysis Result Schema
-description: "Schema for statistical analysis results (p-values, CIs, effect sizes)"
-type: object
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Result Contract"
+description: "Validates the output of a single statistical test (t-test or regression)."
+type: "object"
 required:
-  - result_id
-  - dataset_id
-  - strategy_id
-  - p_value
-  - ci_lower
-  - ci_upper
-  - effect_size
-  - sample_size
+  - "dataset_id"
+  - "strategy_id"
+  - "test_type"
+  - "p_value"
+  - "ci_lower"
+  - "ci_upper"
+  - "effect_size"
 properties:
-  result_id:
-    type: string
-    description: "Unique identifier for the result record"
   dataset_id:
-    type: string
-    description: "Foreign key to the source dataset"
+    type: "string"
   strategy_id:
-    type: string
-    description: "Foreign key to the cleaning strategy applied"
+    type: "string"
+    description: "Identifier for the cleaning strategy applied (e.g., 'outlier_iqr_1.5')."
   test_type:
-    type: string
-    description: "Type of statistical test performed"
+    type: "string"
     enum:
       - "t_test"
       - "linear_regression"
   p_value:
-    type: number
-    description: "P-value rounded to ≥3 decimal places (0 ≤ p ≤ 1)"
-    minimum: 0
-    maximum: 1
+    type: "number"
+    description: "P-value rounded to 3 decimal places."
   ci_lower:
-    type: number
-    description: "Lower bound of 95% confidence interval"
+    type: "number"
+    description: "Lower bound of the 95% confidence interval."
   ci_upper:
-    type: number
-    description: "Upper bound of 95% confidence interval"
+    type: "number"
+    description: "Upper bound of the 95% confidence interval."
   effect_size:
-    type: number
-    description: "Effect size metric (Cohen's d or R²)"
-  sample_size:
-    type: integer
-    description: "Number of observations used in the test"
-    minimum: 1
-  timestamp:
-    type: string
-    format: date-time
-    description: "ISO 8601 timestamp of analysis execution"
+    type: "number"
+    description: "Cohen's d for t-tests or R-squared for regression."
+  sample_size_final:
+    type: "integer"
+    description: "Number of rows remaining after cleaning."
+  is_valid:
+    type: "boolean"
+    description: "True if p-value is finite and within (0, 1)."

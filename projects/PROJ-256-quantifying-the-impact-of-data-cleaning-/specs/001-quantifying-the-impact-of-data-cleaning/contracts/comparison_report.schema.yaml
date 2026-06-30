@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Comparison Report Contract"
+description: "Validates the delta metrics between baseline and cleaned analysis."
+type: "object"
+required:
+  - "dataset_id"
+  - "strategy_id"
+  - "p_value_diff"
+  - "ci_width_change_pct"
+  - "effect_size_delta"
+  - "bootstrap_ci_lower"
+  - "bootstrap_ci_upper"
+properties:
+  dataset_id:
+    type: "string"
+  strategy_id:
+    type: "string"
+  p_value_diff:
+    type: "number"
+    description: "Absolute difference |p_cleaned - p_baseline|."
+  ci_width_change_pct:
+    type: "number"
+    description: "Percentage change in CI width."
+  effect_size_delta:
+    type: "number"
+    description: "Change in effect size."
+  bootstrap_ci_lower:
+    type: "number"
+    description: "Lower bound of the 95% bootstrap CI for the shift."
+  bootstrap_ci_upper:
+    type: "number"
+    description: "Upper bound of the 95% bootstrap CI for the shift."
+  bootstrap_iterations:
+    type: "integer"
+    description: "Number of bootstrap resamples used (min 1000, or 500 if fallback triggered)."
+  sensitivity_bin:
+    type: "string"
+    description: "Dataset size bin (e.g., 'n<50', '50-200', '>200')."
+  missingness_bin:
+    type: "string"
+    description: "Missingness rate bin (e.g., '0-5%', '5-10%')."

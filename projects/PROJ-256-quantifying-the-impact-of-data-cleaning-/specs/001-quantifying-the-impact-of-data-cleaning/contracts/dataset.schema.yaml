@@ -1,0 +1,34 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Ingestion Contract"
+description: "Validates the structure of a loaded dataset record before processing."
+type: "object"
+required:
+  - "dataset_id"
+  - "source_url"
+  - "checksum"
+  - "sample_size"
+  - "outcome_column"
+properties:
+  dataset_id:
+    type: "string"
+    description: "Unique identifier for the dataset (e.g., 'uci_har')."
+  source_url:
+    type: "string"
+    description: "The verified URL from which the dataset was downloaded."
+  checksum:
+    type: "string"
+    description: "SHA-256 hash of the raw file content."
+  sample_size:
+    type: "integer"
+    description: "Number of rows in the dataset."
+  missingness_rate:
+    type: "number"
+    description: "Proportion of missing values (0.0 to 1.0)."
+  outcome_column:
+    type: "string"
+    description: "Name of the target variable for statistical tests."
+  predictor_columns:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of feature column names."
