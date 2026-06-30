@@ -1,14 +1,7 @@
-last_used: daniel-kahneman
-last_used_at: '2026-06-30T05:31:53.606107+00:00'
-last_outcome: committed
+last_used: david-krakauer
+last_used_at: '2026-06-30T07:29:42.175503+00:00'
+last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: eric-kandel
-  started_at: '2026-06-20T19:32:33.693993+00:00'
-  ended_at: '2026-06-20T20:29:15.876506+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-745-resting-state-fmri-entropy-predicts-meta/reviews/research/eric-kandel-simulated__2026-06-20__research.md
 - slug: freeman-dyson
   started_at: '2026-06-20T20:29:15.876506+00:00'
   ended_at: '2026-06-20T21:30:13.720312+00:00'
@@ -1202,3 +1195,8 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-592-phenomenological-ai-first-person-experie/reviews/research/daniel-kahneman-simulated__2026-06-30__research.md
+- slug: david-krakauer
+  started_at: '2026-06-30T05:31:53.606107+00:00'
+  ended_at: '2026-06-30T07:29:42.175503+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
