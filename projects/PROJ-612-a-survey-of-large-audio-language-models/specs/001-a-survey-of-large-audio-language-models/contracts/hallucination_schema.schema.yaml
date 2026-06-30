@@ -1,0 +1,54 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Hallucination Rate Schema"
+type: "object"
+properties:
+  domain:
+    type: "string"
+    enum:
+      - "speech"
+      - "music"
+      - "environmental"
+    description: "The audio domain category."
+  total_samples:
+    type: "integer"
+    minimum: 0
+    description: "Total number of samples processed for this domain."
+  hallucinated_count:
+    type: "integer"
+    minimum: 0
+    description: "Number of samples flagged as hallucinated."
+  rate:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Calculated hallucination rate."
+  ci_lower:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Lower bound of the 95% Wilson-score confidence interval."
+  ci_upper:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Upper bound of the 95% Wilson-score confidence interval."
+  ci_width:
+    type: "number"
+    minimum: 0.0
+    description: "Width of the confidence interval (ci_upper - ci_lower)."
+  metadata_completeness_avg:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Average metadata completeness for samples in this domain."
+required:
+  - "domain"
+  - "total_samples"
+  - "hallucinated_count"
+  - "rate"
+  - "ci_lower"
+  - "ci_upper"
+  - "ci_width"
+  - "metadata_completeness_avg"
+additionalProperties: false
+description: "Schema for the per-domain hallucination rates CSV output."

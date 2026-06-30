@@ -9,7 +9,7 @@
 
 ### User Story 1 – Automated Domain‑wise Hallucination Evaluation (Priority: P1)
 
-**As a** researcher, **I want** an end‑to‑end pipeline that loads selected open‑source LALMs, runs them on 500 audio samples per domain (speech, music, environmental sounds), and outputs per‑domain hallucination rates, **so that** I can obtain a baseline trustworthiness profile for each model.
+**As a** researcher, **I want** an end‑to‑end pipeline that loads selected open‑source LALMs, runs them on a representative set of audio samples per domain (speech, music, environmental sounds), and outputs per‑domain hallucination rates, **so that** I can obtain a baseline trustworthiness profile for each model.
 
 **Why this priority**: Provides the core empirical evidence required to answer the primary research question; without it no further analysis is possible.
 
@@ -24,26 +24,26 @@
 
 ### User Story 2 – Correlation of Training‑Data Volume with Hallucination (Priority: P2)
 
-**As a** researcher, **I want** the system to estimate the amount of domain‑specific pre‑training data used for each model and compute a statistical correlation (including Kruskal‑Wallis test and multiple‑comparison correction) with the observed hallucination rates, **so that** I can test whether data availability explains domain differences.
+**As a** researcher, **I want** the system to estimate the amount of domain‑specific pre‑training data used for each model and compute a statistical correlation (Spearman’s rank correlation) with the observed hallucination rates, **so that** I can explore whether data availability explains domain differences.
 
 **Why this priority**: Directly addresses the secondary hypothesis about data scarcity driving hallucinations; essential for interpreting the domain‑wise results.
 
-**Independent Test**: Run the analysis script on the `hallucination_rates.csv` produced by US‑1 and verify that it outputs a report containing (a) estimated training‑data volumes per domain, (b) a correlation coefficient, (c) a Kruskal‑Wallis p‑value, and (d) a statement of statistical significance after correction.
+**Independent Test**: Run the analysis script on the `hallucination_rates.csv` produced by US‑1 and verify that it outputs a report containing (a) estimated training‑data volumes per domain, (b) a correlation coefficient, and (c) a statement of the correlation direction and strength.
 
 **Acceptance Scenarios**:
 
-1. **Given** valid hallucination rates and training‑data estimates, **when** the correlation analysis is executed, **then** it produces a Pearson/Spearman coefficient with a 95 % confidence interval and a corrected p‑value ≤ 0.05 (or a clear “non‑significant” statement).  
-2. **Given** missing training‑data estimates for a domain, **when** the analysis runs, **then** it aborts with a descriptive error referencing the missing information.
+1. **Given** valid hallucination rates and training‑data estimates, **when** the correlation analysis is executed, **then** it produces a Spearman correlation coefficient with a 95 % confidence interval and a descriptive statement.  
+2. **Given** missing training‑data estimates for a domain, **when** the analysis runs, **then** it derives a proxy or flags the value as 'unknown' and continues.
 
 ---
 
 ### User Story 3 – Human Validation of Hallucination Labels (Priority: P3)
 
-**As a** researcher, **I want** a subset (a modest proportion of samples) of the automatically generated captions to be reviewed by human annotators, with inter‑annotator agreement reported, **so that** I can assess the reliability of the rule‑based hallucination detector.
+**As a** researcher, **I want** a subset (exactly 150 samples) of the automatically generated captions to be reviewed by human annotators, with inter‑annotator agreement reported, **so that** I can assess the reliability of the rule‑based hallucination detector.
 
 **Why this priority**: Guarantees external validity of the automated metric; required for publication‑grade evidence.
 
-**Independent Test**: Submit the selected representative set of audio‑caption pairs to a public crowdsourcing platform., collect binary hallucination judgments from at least two independent annotators per item, compute Cohen’s κ, and verify that κ ≥ 0.6.
+**Independent Test**: Submit the selected representative set of audio‑caption pairs to a public crowdsourcing platform, collect binary hallucination judgments from at least two independent annotators per item, compute Cohen’s κ, and verify that the system correctly calculates and reports the value.
 
 **Acceptance Scenarios**:
 
@@ -61,27 +61,25 @@
   The pipeline aborts gracefully, logs the failure, and reports which model(s) could not be evaluated.
 
 - **What if the training‑data volume information is unavailable for a model?**  
-  The analysis step raises a `[NEEDS CLARIFICATION]` error (see FR‑006) and halts until the information is supplied.
+  The analysis step derives a relative volume proxy from available metadata (e.g., token counts) or flags the value as 'unknown' and proceeds, rather than halting.
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
-- **FR-001**: System MUST load each specified LALM (≤ 2 B parameters) on CPU‑only hardware without invoking GPU‑specific libraries. *(See US‑1)*
+- **FR-001**: System MUST load each specified LALM (≤ 2 B parameters) using CPU‑only execution without invoking GPU‑specific libraries. *(See US‑1)*
 - **FR-002**: System MUST resample all audio to 16 kHz and truncate or discard samples longer than 10 seconds, logging any discards. *(See US‑1)*
 - **FR-003**: System MUST generate a caption for every retained audio sample using a standardized prompting template and store the raw text output. *(See US‑1)*
-- **FR-004**: System MUST apply a rule‑based hallucination detector that flags a sample as hallucinated if any factual element (e.g., speaker identity, instrument name, animal species) in the caption contradicts the ground‑truth metadata. *(See US‑1)*
-- **FR-005**: System MUST compute per‑domain hallucination rates with Wilson‑score confidence intervals at a conventional confidence level. and write them to `hallucination_rates.csv`. *(See US‑1)*
-- **FR-006**: System MUST retrieve or estimate the volume of domain‑specific pre‑training data for each model from published documentation or dataset papers. *(See US‑2)*
-  - **[NEEDS CLARIFICATION: source and granularity of training‑data volume]**
-- **FR-007**: System MUST perform a Kruskal‑Wallis test across the three domains, apply a Bonferroni correction for multiple comparisons, and report the corrected p‑value. *(See US‑2)*
-- **FR-008**: System MUST sample A modest fraction of the evaluated captions. for human annotation, submit them to a public crowdsourcing platform, and retrieve binary hallucination judgments. *(See US‑3)*
-  - **[NEEDS CLARIFICATION: crowdsourcing platform and compensation model]**
+- **FR-004**: System MUST apply a rule‑based hallucination detector that flags a sample as hallucinated if any factual element (e.g., speaker identity, instrument name, animal species) in the caption contradicts the ground‑truth metadata, using exact string match on normalized (lowercased, stripped) entity names. *(See US‑1)*
+- **FR-005**: System MUST compute per‑domain hallucination rates with Wilson‑score confidence intervals at a 95 % confidence level and write them to `hallucination_rates.csv`. *(See US‑1)*
+- **FR-006**: System MUST retrieve or estimate domain-specific pre-training data estimates for each model from published documentation or dataset papers by parsing JSON/YAML model cards or extracting text from PDFs of technical reports. If exact counts are unavailable, the system MUST derive a relative volume proxy (e.g., hours of audio or token counts) cited from the primary source. The analysis MUST treat these values as estimates with documented uncertainty bounds. *(See US‑2)*
+- **FR-007**: System MUST perform a Spearman’s rank correlation between training‑data volume and hallucination rates across the three domains, report the correlation coefficient and 95 % confidence interval, and frame the result as exploratory due to the small sample size (N=3). *(See US‑2)*
+- **FR-008**: System MUST select exactly 150 samples from the evaluated captions, submit them to a public crowdsourcing platform compliant with local minimum wage laws (e.g., ≥ $13.00/hr in the US), and retrieve binary hallucination judgments. *(See US‑3)*
 - **FR-009**: System MUST compute Cohen’s κ for the human annotations and flag if κ < 0.6. *(See US‑3)*
 - **FR‑010**: System MUST log all processing steps, resource usage, and any errors to a reproducible `pipeline.log` file. *(General)*
 - **FR‑011**: System MUST enforce that all statistical inference is framed as associative (no causal language) because the design is observational. *(Methodological)*
-- **FR‑012**: System MUST ensure that the rule‑based detector’s factual checks are based on validated lexical resources (e.g., instrument taxonomy, speaker‑ID lists). *(Measurement validity)*
-  - **[NEEDS CLARIFICATION: specific lexical resource]**
+- **FR‑012**: System MUST ensure that the rule‑based detector’s factual checks are based on validated lexical resources (e.g., instrument taxonomies, entity lists, knowledge graphs) that are distinct from the training data of the evaluated models. *(Measurement validity)*
+- **FR‑013**: System MUST exclude any model from the analysis if its training data includes the specific test datasets (ESC-50, MusicBench, AudioBench) used for hallucination evaluation, to prevent tautological validation. *(Scientific Soundness)*
 
 ### Key Entities
 
@@ -95,10 +93,10 @@
 ### Measurable Outcomes
 
 - **SC-001**: The full evaluation pipeline (US‑1) completes in ≤ 5 hours on a GitHub Actions free‑tier runner (Multiple CPU cores, 7 GB RAM). *(See US‑1)*
-- **SC-002**: Each domain’s hallucination‑rate confidence interval width is ≤ 0.05, ensuring precise estimation. *(See US‑1)*
-- **SC-003**: The Kruskal‑Wallis test (US‑2) yields a Bonferroni‑corrected p‑value < 0.05 **or** a clear statement of non‑significance, satisfying the hypothesis‑testing requirement. *(See US‑2)*
-- **SC-004**: Human annotation agreement (Cohen’s κ) is ≥ 0.6, indicating substantial inter‑annotator reliability. *(See US‑3)*
-- **SC-005**: All multiple‑comparison corrections are applied and documented in the final analysis report. *(Methodological)*
+- **SC-002**: The system calculates and reports the width of each domain’s hallucination‑rate confidence interval. *(See US‑1)*
+- **SC-003**: The Spearman correlation analysis (US‑2) yields a descriptive report of the correlation coefficient and direction. *(See US‑2)*
+- **SC-004**: Human annotation agreement (Cohen’s κ) is calculated and reported, with a flag if κ < 0.6. *(See US‑3)*
+- **SC-005**: All statistical analyses are framed as associative and exploratory where appropriate. *(Methodological)*
 - **SC-006**: No GPU‑specific libraries (e.g., `bitsandbytes`, `torch.cuda`) are imported or executed during the run. *(Compute feasibility)*
 
 ## Assumptions
@@ -107,9 +105,8 @@
 - Public benchmarks (AudioBench speech subset, MusicBench, ESC‑50) provide reliable ground‑truth metadata for factual comparison.  
 - The rule‑based hallucination detector can rely on existing lexical resources (instrument lists, speaker‑ID name databases) that are freely downloadable.  
 - Approximate domain‑specific training‑data volumes can be extracted from model cards or associated papers; exact counts are not required for correlation analysis.  
-- Human annotation will be performed via a free‑tier crowdsourcing service (e.g., Amazon Mechanical Turk or Prolific) that allows 150 items without exceeding budget limits.  
+- Human annotation will be performed via a public crowdsourcing service (e.g., Amazon Mechanical Turk, Prolific, or similar) that allows 150 items without exceeding budget limits.  
 - All statistical analyses are associative; no causal claims will be made about training data causing hallucinations.  
 - The free‑tier CI environment provides at least 7 GB RAM and 14 GB disk; datasets will be streamed or subsampled to stay within these limits.  
 - No GPU or CUDA‑based acceleration will be used; all code must be compatible with pure CPU execution.  
-
----
+- The models selected for evaluation do not have training data that overlaps with the specific test datasets (ESC-50, MusicBench, AudioBench) used for hallucination evaluation.
