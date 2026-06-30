@@ -79,7 +79,7 @@
 - **FR‑010**: System MUST log all processing steps, resource usage, and any errors to a reproducible `pipeline.log` file. *(General)*
 - **FR‑011**: System MUST enforce that all statistical inference is framed as associative (no causal language) because the design is observational. *(Methodological)*
 - **FR‑012**: System MUST ensure that the rule‑based detector’s factual checks are based on validated lexical resources (e.g., instrument taxonomies, entity lists, knowledge graphs) that are distinct from the training data of the evaluated models. *(Measurement validity)*
-- **FR‑013**: System MUST exclude any model from the analysis if its training data includes the specific test datasets (ESC-50, MusicBench, AudioBench) used for hallucination evaluation, to prevent tautological validation. *(Scientific Soundness)*
+- **FR‑013**: System MUST exclude any model from the analysis if its training data includes the specific test datasets (ESC, MusicBench, AudioBench) used for hallucination evaluation, to prevent tautological validation. *(Scientific Soundness)*
 
 ### Key Entities
 

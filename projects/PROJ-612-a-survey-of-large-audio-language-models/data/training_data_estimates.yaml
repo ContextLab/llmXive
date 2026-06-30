@@ -1,0 +1,15 @@
+- model_name: audio-llama-base
+  speech_hours: 1000.0
+  music_hours: null
+  env_hours: 20.0
+  uncertainty_notes: Speech: Derived from datasets: librispeech; Env: Derived from datasets: esc50. Uncertainty: High.
+- model_name: music-captioner-v1
+  speech_hours: null
+  music_hours: 1500.0
+  env_hours: null
+  uncertainty_notes: Music: Derived from datasets: fma. Uncertainty: High.
+- model_name: general-sound-learner
+  speech_hours: 50.0
+  music_hours: 50.0
+  env_hours: 50.0
+  uncertainty_notes: All values explicit.

@@ -1,0 +1,5 @@
+"""
+Tests Module
+
+This directory contains unit, integration, and contract tests.
+"""

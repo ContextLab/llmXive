@@ -1,0 +1,12 @@
+torch
+transformers
+librosa
+pandas
+scikit-learn
+datasets
+pyyaml
+nltk
+fuzzywuzzy
+pdfplumber
+PyPDF2
+python-Levenshtein
