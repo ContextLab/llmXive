@@ -436,20 +436,29 @@ def run_one_step(
     if (
         project.current_stage == Stage.IN_PROGRESS
         and _all_tasks_done(_exec_project_dir)
-        and not execution_status.is_ok(project.id, repo_root=repo)
     ):
-        _at_cap = (
-            execution_status.fix_rounds(project.id, repo_root=repo)
-            >= execution_status.MAX_EXECUTION_FIX_ROUNDS
-        )
-        # Below the cap → RUN the analysis (records the outcome, may flip ok).
-        # At/over the cap → DO NOT re-run; let _decide_next_stage apply the
-        # autonomous exhaustion flow (model escalation or deterministic
-        # re-plan) on the already-recorded failure.
-        if not _at_cap:
-            from llmxive.execution.stage import execute_and_gate
-            execute_and_gate(_exec_project_dir, repo_root=repo)
-            project = project_store.load(project.id, repo_root=repo)
+        # All tasks are checked off — this is the execution GATE, not implementer
+        # work. If the analysis has NOT yet passed, run it (below the fix-round
+        # cap); if it ALREADY passed in a prior tick (``is_ok``), skip straight to
+        # the advance. Requiring ``not is_ok`` to ENTER this block stranded a
+        # project that passed the gate on a tick with no advance tick left: every
+        # later tick skipped the block and fell through to a pointless implementer
+        # dispatch, so it sat at in_progress with is_ok=True forever despite
+        # _decide_next_stage returning research_complete (the live PROJ-567 case;
+        # CI hit it too).
+        if not execution_status.is_ok(project.id, repo_root=repo):
+            _at_cap = (
+                execution_status.fix_rounds(project.id, repo_root=repo)
+                >= execution_status.MAX_EXECUTION_FIX_ROUNDS
+            )
+            # Below the cap → RUN the analysis (records the outcome, may flip ok).
+            # At/over the cap → DO NOT re-run; let _decide_next_stage apply the
+            # autonomous exhaustion flow (model escalation or deterministic
+            # re-plan) on the already-recorded failure.
+            if not _at_cap:
+                from llmxive.execution.stage import execute_and_gate
+                execute_and_gate(_exec_project_dir, repo_root=repo)
+                project = project_store.load(project.id, repo_root=repo)
         next_stage = _decide_next_stage(project, _exec_project_dir, repo_root=repo)
         if next_stage != project.current_stage:
             if not is_valid_transition(project.current_stage, next_stage):

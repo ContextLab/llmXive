@@ -193,3 +193,40 @@ def test_task_gates_use_active_feature_dir_not_stale_lower_numbered(tmp_path) ->
     # Reads the active (010-new, all checked), NOT the stale lexicographically-first.
     assert graph._all_tasks_done(pdir) is True
     assert graph._incomplete_task_count(pdir, paper=False) == 0
+
+
+def test_is_ok_already_true_advances_without_redundant_gate(tmp_path, monkeypatch) -> None:
+    """A project whose execution gate already PASSED (is_ok=True) on a prior tick,
+    with all tasks done, must ADVANCE to research_complete on the next tick — not
+    be skipped. The old `and not is_ok` guard on the execute-and-gate block meant a
+    project that passed the gate on a tick with no advance tick left was skipped by
+    every later tick (it required `not is_ok` to enter) and fell through to a
+    pointless implementer dispatch, sitting at in_progress forever despite
+    _decide_next_stage returning research_complete (live PROJ-567)."""
+    import llmxive.execution.stage as exec_stage
+    from llmxive.state import execution_status
+
+    project = _in_progress_project()
+    d = tmp_path / "projects" / project.id / "specs" / "001-x"
+    d.mkdir(parents=True, exist_ok=True)
+    (d / "tasks.md").write_text(
+        "# Tasks\n\n- [X] T001 done\n- [X] T002 done\n", encoding="utf-8")
+
+    # The gate already passed on a prior tick.
+    monkeypatch.setattr(execution_status, "is_ok", lambda pid, repo_root=None: True)
+    gate_called = {"n": 0}
+
+    def _fake_gate(project_dir, *, repo_root):
+        gate_called["n"] += 1
+
+    monkeypatch.setattr(exec_stage, "execute_and_gate", _fake_gate)
+
+    class _BoomAgent:
+        def run(self, sk_ctx):
+            raise AssertionError("implementer dispatched on an already-passing project")
+
+    _wire(monkeypatch, _BoomAgent, project)
+    result = graph.run_one_step(project, repo_root=tmp_path)
+
+    assert gate_called["n"] == 0, "must NOT re-run the gate when is_ok is already True"
+    assert result.current_stage == Stage.RESEARCH_COMPLETE, f"got {result.current_stage}"
