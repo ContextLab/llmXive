@@ -1,86 +1,125 @@
-"""Data loading utilities for the project.
+"""
+Data Loader for the GitHub Code dataset.
 
-This module provides a thin wrapper around the HuggingFace ``datasets``
-library that streams a small, reproducible subset of the
-``codeparrot/github-code`` dataset and writes it to
-``data/raw/github-code-sample.csv``.  The function is deliberately tolerant
-of different call signatures so that it can be used both from the pipeline
-orchestration (``code/main.py``) and from internal callers.
+This module provides utilities to stream a subset of the
+``codeparrot/github-code`` dataset from HuggingFace and save it as a CSV
+file under ``data/raw/``. The primary entry point is :func:`download_and_save_sample`,
+which can be invoked both directly (e.g., ``python -m code.data_loader``) and
+indirectly through the pipeline orchestrated in ``code/main.py``.
 """
 
 from __future__ import annotations
 
 import csv
 import logging
+import os
+import sys
+import time
 from pathlib import Path
-from typing import Iterable, List, Optional
+from typing import Any
 
-from datasets import load_dataset
+from datasets import load_dataset  # type: ignore
 
 logger = logging.getLogger(__name__)
 
+# --------------------------------------------------------------------------- #
+# Configuration constants
+# --------------------------------------------------------------------------- #
 DEFAULT_OUTPUT_PATH = Path("data/raw/github-code-sample.csv")
-DEFAULT_SAMPLE_SIZE = 10  # Small deterministic sample for quick‑start / tests.
+DEFAULT_NUM_SAMPLES = 10_000  # reasonable default for CI; can be increased.
 
-def _stream_dataset(sample_size: int = DEFAULT_SAMPLE_SIZE) -> Iterable[dict]:
-    """Stream ``codeparrot/github-code`` and yield ``sample_size`` rows.
 
-    The dataset is streamed to avoid pulling the full 500 MB corpus during
-    CI runs.  Each yielded record contains at least the fields
-    ``repo_name``, ``file_path`` and ``content``.
+def _stream_dataset(num_samples: int = DEFAULT_NUM_SAMPLES) -> Any:
     """
-    ds = load_dataset(
-        "codeparrot/github-code",
-        split="train",
-        streaming=True,
-    )
-    for idx, item in enumerate(ds):
-        if idx >= sample_size:
+    Stream the ``codeparrot/github-code`` dataset.
+
+    Parameters
+    ----------
+    num_samples : int
+        Maximum number of rows to stream and write.
+
+    Returns
+    -------
+    generator
+        Yields dictionaries representing rows of the dataset.
+    """
+    logger.info("Loading dataset ``codeparrot/github-code`` in streaming mode.")
+    try:
+        ds = load_dataset(
+            "codeparrot/github-code",
+            split="train",
+            streaming=True,
+        )
+    except Exception as exc:
+        logger.exception("Failed to load dataset: %s", exc)
+        raise
+
+    for i, row in enumerate(ds):
+        if i >= num_samples:
             break
-        # Normalise keys – the original dataset may have additional fields.
-        yield {
-            "repo_name": item.get("repo_name", "unknown"),
-            "file_path": item.get("file_path", f"file_{idx}.py"),
-            "content": item.get("content", ""),
-        }
+        yield row
 
-def download_and_save_sample(*args, **kwargs) -> Path:
-    """Download a deterministic sample of the GitHub‑code dataset.
-
-    The function accepts any positional or keyword arguments for backward
-    compatibility; they are ignored.  It returns the absolute ``Path`` to
-    the CSV file that was written.
+# --------------------------------------------------------------------------- #
+# Public API
+# --------------------------------------------------------------------------- #
+def download_and_save_sample(*args: Any, **kwargs: Any) -> str:
     """
-    # Respect the original signature (no‑op for unexpected arguments).
-    output_path: Path = DEFAULT_OUTPUT_PATH
+    Download a sample of the GitHub code dataset and save it to CSV.
+
+    The function is deliberately permissive in its signature (accepting
+    ``*args`` and ``**kwargs``) so that it can be called from multiple
+    locations without raising ``TypeError``. Any positional or keyword
+    arguments are ignored.
+
+    Returns
+    -------
+    str
+        Absolute path to the generated CSV file.
+    """
+    # Resolve optional overrides from kwargs; fall back to defaults.
+    output_path: Path = Path(kwargs.get("output_path", DEFAULT_OUTPUT_PATH))
+    num_samples: int = int(kwargs.get("num_samples", DEFAULT_NUM_SAMPLES))
+
+    # Ensure the parent directory exists.
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    sample_size: int = kwargs.get("sample_size", DEFAULT_SAMPLE_SIZE)
+    logger.info(
+        "Saving a sample of %d rows to %s",
+        num_samples,
+        output_path,
+    )
+    start = time.time()
+    try:
+        with output_path.open("w", newline="", encoding="utf-8") as csvfile:
+            writer = csv.writer(csvfile)
+            # Write a generic header – the dataset contains many fields; we
+            # only persist a subset useful for downstream stages.
+            writer.writerow(["repo_name", "file_path", "content"])
+            for row in _stream_dataset(num_samples):
+                repo = row.get("repo_name", "")
+                path = row.get("path", "")
+                content = row.get("content", "")
+                writer.writerow([repo, path, content])
+    except Exception as exc:
+        logger.exception("Failed while writing CSV: %s", exc)
+        raise
+    elapsed = time.time() - start
+    logger.info("Dataset sample saved in %.2f seconds.", elapsed)
 
-    logger.info("Streaming %d rows from the GitHub‑code dataset …", sample_size)
+    return str(output_path.resolve())
 
-    with output_path.open("w", newline="", encoding="utf-8") as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=["repo_name", "file_path", "content"])
-        writer.writeheader()
-        for row in _stream_dataset(sample_size=sample_size):
-            writer.writerow(row)
+def main() -> int:  # pragma: no cover
+    """
+    Simple CLI entry point so the module can be executed with:
+    ``python -m code.data_loader``.
+    """
+    logging.basicConfig(level=logging.INFO)
+    try:
+        download_and_save_sample()
+        return 0
+    except Exception as exc:  # pragma: no cover
+        logger.exception("Data download failed: %s", exc)
+        return 1
 
-    logger.info("Saved sampled dataset to %s", output_path)
-    return output_path.resolve()
-
-def stream_dataset(*args, **kwargs) -> Iterable[dict]:
-    """Public streaming helper – forwards to ``_stream_dataset``."""
-    return _stream_dataset(*args, **kwargs)
-
-def load_raw_data(csv_path: Optional[Path] = None) -> List[dict]:
-    """Load the CSV written by :func:`download_and_save_sample`."""
-    path = Path(csv_path) if csv_path else DEFAULT_OUTPUT_PATH
-    if not path.is_file():
-        raise FileNotFoundError(f"Raw data file not found: {path}")
-    with path.open(newline="", encoding="utf-8") as csvfile:
-        reader = csv.DictReader(csvfile)
-        return list(reader)
-
-def main() -> None:
-    """CLI entry‑point – useful for ad‑hoc debugging."""
-    download_and_save_sample()
+if __name__ == "__main__":  # pragma: no cover
+    sys.exit(main())

@@ -1,21 +1,33 @@
 # Execution failures — fix these before the analysis can run
 
+## ⚠ REGRESSIONS — your last fix BROKE these (they passed before)
+
+These commands were NOT failing in the previous round and ARE failing now — your last edit broke previously-working code. REVERT or correct whatever change broke each one BEFORE touching anything else; do not trade one passing script for another (that oscillation is what burns the fix-round budget toward escalation):
+
+- `python -m code.data_loader`
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 command(s) failed: python code/main.py (rc=1); 2 declared deliverable(s) absent: data/processed/clone_metrics.csv; data/raw/github-code-sample.csv
+**Summary**: 2 command(s) failed: python -m code.data_loader (rc=1); python code/main.py (rc=1); 1 declared deliverable(s) absent: data/processed/clone_metrics.csv
 
 ## Failing / missing run-book commands
 
+- python -m code.data_loader -> rc=1
+    ule_factory
+    raise e1 from None
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/code/.venv/lib/python3.11/site-packages/datasets/load.py", line 1177, in dataset_module_factory
+    raise RuntimeError(f"Dataset scripts are no longer supported, but found {filename}")
+RuntimeError: Dataset scripts are no longer supported, but found github-code.py
 - python code/main.py -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/code/main.py", line 21, in <module>
-    from .data_loader import download_and_save_sample
-ImportError: attempted relative import with no known parent package
+    ule_factory
+    raise e1 from None
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/code/.venv/lib/python3.11/site-packages/datasets/load.py", line 1177, in dataset_module_factory
+    raise RuntimeError(f"Dataset scripts are no longer supported, but found {filename}")
+RuntimeError: Dataset scripts are no longer supported, but found github-code.py
 
 ## Declared deliverables still missing
 
 - data/processed/clone_metrics.csv
-- data/raw/github-code-sample.csv
 
 ## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
 
@@ -25,21 +37,23 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 **This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
 
-### `compute_clone_density_batch` — defined in `code/ast_cloner.py`; called 1 way(s):
+### `compute_clone_density_batch` — defined in `code/ast_cloner.py`; called 2 way(s):
 
+- code/ast_cloner.py: compute_clone_density_batch(input_path=raw_dir)
 - code/main.py: compute_clone_density_batch(input_path=raw_dir)
 
 Make `compute_clone_density_batch` in `code/ast_cloner.py` accept ALL of the above.
 
 ### `download_and_save_sample` — defined in `code/data_loader.py`; called 2 way(s):
 
-- code/main.py: download_and_save_sample()
+- code/main.py: raw_csv_path = download_and_save_sample()
 - code/data_loader.py: download_and_save_sample()
 
 Make `download_and_save_sample` in `code/data_loader.py` accept ALL of the above.
 
-### `setup_memory_monitoring` — defined in `code/memory_monitor.py`; called 1 way(s):
+### `setup_memory_monitoring` — defined in `code/memory_monitor.py`; called 2 way(s):
 
+- code/memory_monitor.py: setup_memory_monitoring()
 - code/main.py: setup_memory_monitoring()
 
 Make `setup_memory_monitoring` in `code/memory_monitor.py` accept ALL of the above.
@@ -55,18 +69,3 @@ Every command may exit 0 yet a declared data/figure file is still absent. Fix th
     - `code/main.py` — IS a run-book command
     - `code/quickstart_validation.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/clone_metrics.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
-- `data/raw/github-code-sample.csv` is declared but was NOT written. Scripts referencing it:
-    - `code/main.py` — IS a run-book command
-    - `code/data_loader.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/raw/github-code-sample.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
-
-## ⚠ CROSS-SCRIPT DATA CONTRACT — make the PRODUCER write what consumers read
-
-One or more failures are DATA-SCHEMA mismatches BETWEEN scripts that exchange a file: a CONSUMER requires column/key names (or a file) that the PRODUCER did not write. The traceback you saw shows only the CONSUMER's EXPECTATION — never the producer's ACTUAL output — which is why this keeps failing. Below is the REAL schema each producer wrote on disk (read from the actual file) versus what the consumers require. Pick ONE canonical schema and make the **PRODUCER** write exactly the columns/keys the consumers read (preferred when one producer feeds several consumers), editing the producer IN PLACE. Do NOT fake or stub the data.
-
-**This list is CUMULATIVE across every fix round** — keep satisfying a contract you already fixed while you fix the rest; do not drop a column merely because it is absent from this round's traceback.
-
-### `data/raw/github-code-sample.csv`
-
-This file is MISSING — it was never written, so every consumer of it fails as a CASCADE. Its producer is `code/data_loader.py`; that script failed earlier this run (fix ITS failure first) or is not in the run-book. Make the producer run cleanly and WRITE `data/raw/github-code-sample.csv`; do NOT edit the cascade-victim consumers in isolation — they clear once the producer writes the file.
-Consumers waiting on it: `code/main.py`, `code/data_loader.py`.

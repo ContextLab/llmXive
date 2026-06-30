@@ -45,7 +45,11 @@ def test_download_resilient_to_transient_error(tmp_path, monkeypatch):
 
     # Patch the stream_dataset function to use our fake generator.
     fake_gen = fake_stream_generator(fail_first=True)
-    monkeypatch.setattr(data_loader, "stream_dataset", lambda *args, **kwargs: fake_gen())
+    monkeypatch.setattr(
+        data_loader,
+        "stream_dataset",
+        lambda *args, **kwargs: fake_gen(),
+    )
 
     # Patch sleep to avoid real delays during the back‑off.
     monkeypatch.setattr(data_loader.time, "sleep", lambda _: None)
@@ -90,4 +94,4 @@ def test_cli_parses_unknown_arguments(monkeypatch, tmp_path):
     data_loader.main(argv)
 
     # Ensure the mocked download function was called (i.e. parsing succeeded).
-    assert data_loader.download_and_save_sample.called  # type: ignore
+    assert getattr(data_loader.download_and_save_sample, "called", False)  # type: ignore

@@ -1,12 +1,15 @@
 {
   "project_id": "PROJ-261-evaluating-the-impact-of-code-duplicatio",
   "ok": false,
-  "reason": "1 command(s) failed: python code/main.py (rc=1); 2 declared deliverable(s) absent: data/processed/clone_metrics.csv; data/raw/github-code-sample.csv",
-  "artifacts": [],
-  "failures": [
-    "python code/main.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/code/main.py\", line 21, in <module>\n    from .data_loader import download_and_save_sample\nImportError: attempted relative import with no known parent package"
+  "reason": "2 command(s) failed: python -m code.data_loader (rc=1); python code/main.py (rc=1); 1 declared deliverable(s) absent: data/processed/clone_metrics.csv",
+  "artifacts": [
+    "data/raw/github-code-sample.csv"
   ],
-  "fix_rounds": 7,
+  "failures": [
+    "python -m code.data_loader -> rc=1\n    ule_factory\n    raise e1 from None\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/code/.venv/lib/python3.11/site-packages/datasets/load.py\", line 1177, in dataset_module_factory\n    raise RuntimeError(f\"Dataset scripts are no longer supported, but found {filename}\")\nRuntimeError: Dataset scripts are no longer supported, but found github-code.py",
+    "python code/main.py -> rc=1\n    ule_factory\n    raise e1 from None\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/code/.venv/lib/python3.11/site-packages/datasets/load.py\", line 1177, in dataset_module_factory\n    raise RuntimeError(f\"Dataset scripts are no longer supported, but found {filename}\")\nRuntimeError: Dataset scripts are no longer supported, but found github-code.py"
+  ],
+  "fix_rounds": 9,
   "model_tier": 1,
-  "updated_at": "2026-06-30T02:58:42Z"
+  "updated_at": "2026-06-30T04:20:44Z"
 }

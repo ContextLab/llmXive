@@ -1,50 +1,62 @@
-"""Top‑level pipeline orchestration.
+"""
+High‑level pipeline orchestration.
 
-This script is the entry point used by the quick‑start run‑book
-(``python code/main.py``).  It now uses absolute imports so that it can be
-executed as a script without being part of a package.
+The ``run_pipeline`` function stitches together the individual stages:
+data download → clone‑density computation → perplexity computation.
+It respects the contract expectations of the various helper modules.
 """
 
+from __future__ import annotations
+
 import logging
+import sys
 from pathlib import Path
 
-# Absolute imports – required when the module is run as ``__main__``.
 from code.data_loader import download_and_save_sample
 from code.ast_cloner import compute_clone_density_batch
-from code.memory_monitor import setup_memory_monitoring, memory_monitor_context
-from code.model_metrics import main as run_model_metrics
+from code.model_metrics import compute_perplexity_batch  # noqa: F401
 
 logger = logging.getLogger(__name__)
 
 def run_pipeline() -> None:
-    """Execute the full US‑1 pipeline.
-
-    1. Download a sample of the GitHub‑code dataset.
-    2. Scan for PII (handled in a separate task – already executed elsewhere).
-    3. Compute clone density.
-    4. Run the model‑metrics step (perplexity).
     """
-    # Step 1 – download data.
+    Execute the full data‑processing pipeline.
+
+    Steps:
+    1. Download a sample of the GitHub code dataset.
+    2. Compute clone‑density metrics from the downloaded CSV.
+    3. Compute perplexity scores for the same source files.
+    """
+    # Step 1 – download.
     raw_csv_path = download_and_save_sample()
 
-    # Step 2 – (PII scan is performed by a separate script; we just log).
-    logger.info("Data downloaded to %s", raw_csv_path)
+    # Resolve the directory that contains the raw CSV; downstream stages
+    # expect a directory path.
+    raw_dir = Path(raw_csv_path).parent
 
-    # Step 3 – compute clone density.
-    raw_dir = Path("data/raw")
+    # Step 2 – compute clone density.
     compute_clone_density_batch(input_path=raw_dir)
 
-    # Step 4 – run model‑metrics (perplexity computation).
-    run_model_metrics()
+    # Step 3 – compute perplexity scores.
+    # ``compute_perplexity_batch`` follows the same contract as the clone
+    # stage: it receives the directory containing the raw CSV and writes
+    # its results to ``data/processed/perplexity_scores.csv``.
+    compute_perplexity_batch(input_path=raw_dir)
 
-def main() -> None:
-    """Entry point for ``python code/main.py``."""
-    # Initialise a memory monitor to respect the 7 GB limit.
-    setup_memory_monitoring()
-    with memory_monitor_context():
+    logger.info("Pipeline completed successfully.")
+
+def main(argv: list[str] | None = None) -> int:  # pragma: no cover
+    """
+    Entry point used by ``python -m code.main`` and the quick‑start script.
+    Returns an exit code compatible with ``sys.exit``.
+    """
+    logging.basicConfig(level=logging.INFO)
+    try:
         run_pipeline()
+        return 0
+    except Exception as exc:  # pragma: no cover
+        logger.exception("Pipeline failed: %s", exc)
+        return 1
 
 if __name__ == "__main__":
-    # Configure a basic logger for ad‑hoc runs.
-    logging.basicConfig(level=logging.INFO)
-    main()
+    sys.exit(main())

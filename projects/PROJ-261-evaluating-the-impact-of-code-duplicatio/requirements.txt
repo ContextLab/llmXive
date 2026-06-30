@@ -1,8 +1,10 @@
+# Core dependencies
 datasets>=2.0.0
-psutil>=5.9.0
-# Existing requirements from earlier phases (not duplicated here):
+# Existing project dependencies (presumed from earlier tasks)
 transformers
 bitsandbytes
 scipy
 matplotlib
 pytest
+# Additional utilities used by the newly added code
+tqdm

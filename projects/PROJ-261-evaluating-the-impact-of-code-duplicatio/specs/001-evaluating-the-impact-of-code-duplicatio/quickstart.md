@@ -1,51 +1,49 @@
-# Quick‑start guide for the code‑duplication impact study
+# Quickstart Guide
 
-This document describes the minimal steps required to reproduce the
-end‑to‑end analysis. All commands are intended to be run from the
-repository root.
+This document outlines the steps required to run the full analysis pipeline
+for the *Evaluating the Impact of Code Duplication on LLM Code Understanding*
+project.
 
-## 1. Install dependencies
+## Prerequisites
 
-```bash
-pip install -r requirements.txt
-```
+* Python 3.11
+* All dependencies installed via `pip install -r requirements.txt`
 
-## 2. Run the full pipeline
+## Execution Steps
 
-The single command below executes the complete workflow:
+1. **Download a sample of the GitHub code corpus**
 
-```bash
-python code/main.py
-```
+ ```bash
+ python -m code.data_loader
+ ```
 
-The script will:
+2. **Run the full pipeline**
 
-1. Download a 500 MB (or a reduced sample if bandwidth is limited) subset
- of the `codeparrot/github-code` dataset and store it at
- `data/raw/github-code-sample.csv`.
-2. Compute AST clone‑density metrics and write them to
- `data/processed/clone_metrics.csv`.
-3. Compute token‑level perplexity scores using the CodeGen model and write
- them to `data/processed/perplexity_scores.csv`.
-4. Log any parse failures, memory usage, or other diagnostics to the
- appropriate locations under `data/`.
+ ```bash
+ python code/main.py
+ ```
 
-## 3. Verify outputs
+The pipeline will:
+* Stream the dataset (if not already present) and write `data/raw/github-code-sample.csv`.
+* Scan for PII (handled internally).
+* Compute clone density and write `data/processed/clone_metrics.csv`.
+* Load the language model, compute perplexity scores, and write the corresponding CSV.
+* Perform downstream analysis, generate figures, and produce checksum manifests.
 
-After the pipeline finishes, you can confirm that the expected files are
-present:
+## Validation
 
-```bash
-ls -l data/raw/github-code-sample.csv
-ls -l data/processed/clone_metrics.csv
-ls -l data/processed/perplexity_scores.csv
-```
-
-The unit and integration tests can be executed with:
+After the pipeline finishes, you can run the validation suite:
 
 ```bash
 pytest -q
 ```
 
-If any test fails, consult the logs in `data/logs/` and `data/parse_failures.csv`
-for details.
+This will verify that all expected artefacts are present and conform to the
+contract schemas defined in `specs/001-evaluate-code-duplication-llm-understanding/contracts/`.
+
+## Notes
+
+* The data download is performed in streaming mode; only a small subset
+ (default 1 000 rows) is materialised to keep runtime modest.
+* Subsequent runs are fast because the CSV artefact is cached; delete
+ `data/raw/github-code-sample.csv` to force a fresh download.
