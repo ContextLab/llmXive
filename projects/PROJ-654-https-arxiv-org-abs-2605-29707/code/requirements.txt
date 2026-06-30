@@ -1,0 +1,6 @@
+torch
+numpy
+matplotlib
+datasets
+tqdm
+loguru

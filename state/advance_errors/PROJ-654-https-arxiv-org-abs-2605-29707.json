@@ -1,0 +1,7 @@
+{
+  "project_id": "PROJ-654-https-arxiv-org-abs-2605-29707",
+  "stage": "paper_ingested",
+  "last_error": "PROJ-654-https-arxiv-org-abs-2605-29707: no paper/source/*.tex draft to seed from \u2014 the ingested paper LaTeX is missing",
+  "last_seen": "2026-06-30T17:07:41.133984+00:00",
+  "count": 1
+}
