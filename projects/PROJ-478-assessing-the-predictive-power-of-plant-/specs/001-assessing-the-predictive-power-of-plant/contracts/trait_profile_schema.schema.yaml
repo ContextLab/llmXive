@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "TraitProfile Schema"
+description: "Schema for species-level functional traits."
+type: "object"
+properties:
+  species_id:
+    type: "string"
+    description: "Unique identifier for the species."
+  sla:
+    type: "number"
+    description: "Specific Leaf Area (mm2/mg)."
+  seed_mass:
+    type: "number"
+    description: "Seed mass (mg)."
+  plant_height:
+    type: "number"
+    description: "Plant height (m)."
+  sla_unit:
+    type: "string"
+    description: "Unit for SLA (e.g., 'mm2/mg')."
+  seed_mass_unit:
+    type: "string"
+    description: "Unit for seed mass (e.g., 'mg')."
+  height_unit:
+    type: "string"
+    description: "Unit for plant height (e.g., 'm')."
+  source_verified:
+    type: "boolean"
+    description: "True if the trait source matches the 'Handbook 2013' protocol."
+required:
+  - species_id
+  - sla
+  - seed_mass
+  - plant_height
+  - source_verified
+additionalProperties: false

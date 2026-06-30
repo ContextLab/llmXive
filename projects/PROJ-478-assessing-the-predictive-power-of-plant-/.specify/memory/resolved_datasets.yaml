@@ -1,0 +1,509 @@
+resolved_at: '2026-06-30T17:14:47.040838+00:00'
+datasets:
+- intent: GBIF
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/boettiger-lab/gbif/resolve/main/gbif_ca_h3.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/jkbkaiser/gbif_genus_species_100k/resolve/main/data/test-00000-of-00003.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/jkbkaiser/gbif_coleoptera_eu_full/resolve/main/data/data-00000-of-00061.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/boettiger-lab/gbif/resolve/main/gbif_ca_h3.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/jkbkaiser/gbif_genus_species_100k/resolve/main/data/test-00000-of-00003.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/jkbkaiser/gbif_coleoptera_eu_full/resolve/main/data/data-00000-of-00061.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/jkbkaiser/gbif_coleoptera_hierarchical_full/resolve/main/data/test-00000-of-00009.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/In_Situ_Translation_of_Terminal_Glycans_into_Covalent_Readouts_in_Complex_Biological_Systems/32838517
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_FDM_v_OCLC_Record_Batch_Comparison_-_January_2026_b_/32838497
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Photoelectrocatalysis-Enabled_C_sp_sup_3_sup_C_sp_sup_3_sup_Cross-Coupling_of_Carboxylic_Acids_with_Alkyl_Halides/32838511
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Photodissociation_Dynamics_of_the_Zn_sup_sup_Acetylene_and_Zn_sup_sup_Ethylene_Cation_Complexes/32838508
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Engineering_a_Carbolong_Nanoplatform_for_Piezoelectric_Immunotherapy/32838505
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3603288
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13929354
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/579988
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3988271
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/344329
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.gbif.org/occurrence/download/0006880-260623161305970
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.gbif.org/occurrence/download/0006879-260623161305970
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.gbif.org/occurrence/download/0006878-260623161305970
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.gbif.org/occurrence/download/0006877-260623161305970
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.gbif.org/occurrence/download/0006837-260623161305970
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+- intent: AUC
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/ChanceFocus/flare-finarg-ecc-auc/resolve/main/data/test-00000-of-00001-fa1c3bc21bf5ca66.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 177802
+      parsed: true
+  - url: https://huggingface.co/datasets/auchoi/website_data/resolve/main/benefitscal-data.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 256589
+      parsed: true
+  - url: https://huggingface.co/datasets/Surajsangwan90/AucklandTransport-FAQs-new/resolve/main/questions_answers_NZTA_with_simple_synthetic.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 24179
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ChanceFocus/flare-finarg-ecc-auc/resolve/main/data/test-00000-of-00001-fa1c3bc21bf5ca66.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/auchoi/website_data/resolve/main/benefitscal-data.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/api/resolve-cache/datasets/Surajsangwan90/AucklandTransport-FAQs/6f8b774f6ae151509358621641ffaa77b734cdb6/auckland_transport_dialogue_based_faq.csv?%2Fdatasets%2FSurajsangwan90%2FAucklandTransport-FAQs%2Fresolve%2Fmain%2Fauckland_transport_dialogue_based_faq.csv=&etag=%2204053b600b77df84e8458e78145c6f2699390dc7%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/Surajsangwan90/AucklandTransport-FAQs-new/resolve/main/questions_answers_NZTA_with_simple_synthetic.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/tipani/Shanghai-License-Plate-Auction/resolve/main/data_csv.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://acs.figshare.com/articles/journal_contribution/In_Situ_Translation_of_Terminal_Glycans_into_Covalent_Readouts_in_Complex_Biological_Systems/32838517
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_FDM_v_OCLC_Record_Batch_Comparison_-_January_2026_b_/32838497
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Photoelectrocatalysis-Enabled_C_sp_sup_3_sup_C_sp_sup_3_sup_Cross-Coupling_of_Carboxylic_Acids_with_Alkyl_Halides/32838511
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Photodissociation_Dynamics_of_the_Zn_sup_sup_Acetylene_and_Zn_sup_sup_Ethylene_Cation_Complexes/32838508
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Engineering_a_Carbolong_Nanoplatform_for_Piezoelectric_Immunotherapy/32838505
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18836515
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15649639
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15649700
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18880607
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18897449
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21075658
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21075658
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21075378
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21075167
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21074729
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-001
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://acs.figshare.com/articles/journal_contribution/In_Situ_Translation_of_Terminal_Glycans_into_Covalent_Readouts_in_Complex_Biological_Systems/32838517
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_FDM_v_OCLC_Record_Batch_Comparison_-_January_2026_b_/32838497
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Photoelectrocatalysis-Enabled_C_sp_sup_3_sup_C_sp_sup_3_sup_Cross-Coupling_of_Carboxylic_Acids_with_Alkyl_Halides/32838511
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Photodissociation_Dynamics_of_the_Zn_sup_sup_Acetylene_and_Zn_sup_sup_Ethylene_Cation_Complexes/32838508
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Engineering_a_Carbolong_Nanoplatform_for_Piezoelectric_Immunotherapy/32838505
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19059431
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17936025
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10337909
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604131
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10173526
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15485834
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16828200
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20358997
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20358997
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MUST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 190547
+      parsed: true
+  - url: https://huggingface.co/datasets/enimai/MuST-C-fr/resolve/main/test.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/enimai/MuST-C-fr/resolve/main/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://acs.figshare.com/articles/journal_contribution/In_Situ_Translation_of_Terminal_Glycans_into_Covalent_Readouts_in_Complex_Biological_Systems/32838517
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_FDM_v_OCLC_Record_Batch_Comparison_-_January_2026_b_/32838497
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Photoelectrocatalysis-Enabled_C_sp_sup_3_sup_C_sp_sup_3_sup_Cross-Coupling_of_Carboxylic_Acids_with_Alkyl_Halides/32838511
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Photodissociation_Dynamics_of_the_Zn_sup_sup_Acetylene_and_Zn_sup_sup_Ethylene_Cation_Complexes/32838508
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Engineering_a_Carbolong_Nanoplatform_for_Piezoelectric_Immunotherapy/32838505
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5746416
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16954306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8056637
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15420758
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19980220
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21073206
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21073206
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18064194
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18064194
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21076608
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: US-1
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_difficult/resolve/main/tx_log.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_easy/resolve/main/tx_log.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_difficult/resolve/main/tx_log.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_easy/resolve/main/tx_log.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://acs.figshare.com/articles/journal_contribution/In_Situ_Translation_of_Terminal_Glycans_into_Covalent_Readouts_in_Complex_Biological_Systems/32838517
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_FDM_v_OCLC_Record_Batch_Comparison_-_January_2026_b_/32838497
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Photoelectrocatalysis-Enabled_C_sp_sup_3_sup_C_sp_sup_3_sup_Cross-Coupling_of_Carboxylic_Acids_with_Alkyl_Halides/32838511
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Photodissociation_Dynamics_of_the_Zn_sup_sup_Acetylene_and_Zn_sup_sup_Ethylene_Cation_Complexes/32838508
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Engineering_a_Carbolong_Nanoplatform_for_Piezoelectric_Immunotherapy/32838505
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18190973
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7325859
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5216923
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3558197
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: http://reproduct-endo.com/article/view/290227
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://redivis.com/workflows/x7kh-5pvd4mbf1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21076238
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21076238
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5285/d53fdf1d-767a-4046-821a-ea645001ddd3
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://doi.org/10.5285/fd6ae272-aeb5-4573-8e8a-7ccfae64f506
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+- intent: SC-001
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://acs.figshare.com/articles/journal_contribution/In_Situ_Translation_of_Terminal_Glycans_into_Covalent_Readouts_in_Complex_Biological_Systems/32838517
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_FDM_v_OCLC_Record_Batch_Comparison_-_January_2026_b_/32838497
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Photoelectrocatalysis-Enabled_C_sp_sup_3_sup_C_sp_sup_3_sup_Cross-Coupling_of_Carboxylic_Acids_with_Alkyl_Halides/32838511
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Photodissociation_Dynamics_of_the_Zn_sup_sup_Acetylene_and_Zn_sup_sup_Ethylene_Cation_Complexes/32838508
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Engineering_a_Carbolong_Nanoplatform_for_Piezoelectric_Immunotherapy/32838505
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19059431
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17936025
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10389753
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8104865
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6532734
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://bonndoc.ulb.uni-bonn.de/xmlui/handle/20.500.11811/14239
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635092
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.mpg4f4rgk
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20512108
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.20470525
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'

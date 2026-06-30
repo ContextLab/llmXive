@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelResult Schema"
+description: "Schema for per-species model performance metrics."
+type: "object"
+properties:
+  species_id:
+    type: "string"
+    description: "ID of the test species (for LOSO)."
+  model_type:
+    type: "string"
+    enum:
+      - "climate-only"
+      - "climate+traits-imputed"
+    description: "Configuration of the model."
+  auc:
+    type: "number"
+    description: "Area Under the Curve (AUC) score."
+  tss:
+    type: "number"
+    description: "True Skill Statistic (TSS) score."
+  cv_folds:
+    type: "integer"
+    description: "Number of cross-validation folds used."
+  hyperparams:
+    type: "object"
+    description: "Dictionary of hyperparameters used (e.g., max_depth, n_estimators)."
+  test_species_id:
+    type: "string"
+    description: "ID of the species used for testing (same as species_id in LOSO)."
+  trait_imputed:
+    type: "boolean"
+    description: "True if the trait values were imputed for this test."
+  imputed_traits:
+    type: "object"
+    description: "Dictionary of imputed trait values (if trait_imputed is true)."
+required:
+  - species_id
+  - model_type
+  - auc
+  - tss
+  - cv_folds
+  - hyperparams
+  - test_species_id
+  - trait_imputed
+additionalProperties: false

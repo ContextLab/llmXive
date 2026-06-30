@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "OccurrenceRecord Schema"
+description: "Schema for cleaned GBIF occurrence records."
+type: "object"
+properties:
+  record_id:
+    type: "string"
+    description: "Unique identifier for the occurrence record."
+  species_id:
+    type: "string"
+    description: "Foreign key to the Species table."
+  latitude:
+    type: "number"
+    description: "Latitude coordinate (WGS84)."
+  longitude:
+    type: "number"
+    description: "Longitude coordinate (WGS84)."
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "Date and time of observation."
+  source:
+    type: "string"
+    description: "Source of the data (e.g., 'GBIF')."
+  cleaned:
+    type: "boolean"
+    description: "Whether the record passed spatial thinning and duplicate removal."
+required:
+  - record_id
+  - species_id
+  - latitude
+  - longitude
+  - source
+  - cleaned
+additionalProperties: false
