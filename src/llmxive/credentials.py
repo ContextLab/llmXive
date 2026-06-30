@@ -15,6 +15,7 @@ managing the stored key.
 from __future__ import annotations
 
 import getpass
+import json
 import os
 import stat
 import sys
@@ -272,6 +273,56 @@ def load_zenodo_token(*, sandbox: bool = False) -> str:
     )
 
 
+def load_kaggle_creds() -> tuple[str, str] | None:
+    """Load Kaggle API creds ``(username, key)`` for the GPU-offload lane (#367).
+
+    Resolution order (mirrors the other loaders + the kaggle CLI's own, so the
+    creds can live in the SAME credentials file as the Dartmouth key instead of
+    only in env vars / ~/.kaggle/kaggle.json):
+        1. ``KAGGLE_USERNAME`` + ``KAGGLE_KEY`` env vars
+        2. ``KAGGLE_API_TOKEN`` env var (verbatim kaggle.json contents)
+        3. credentials file: ``kaggle_username`` + ``kaggle_key``, a ``[kaggle]``
+           ``username``/``key`` table, or a verbatim ``kaggle_api_token``
+        4. ``~/.kaggle/kaggle.json``
+
+    Returns ``(username, key)`` or ``None``. Never prompts (CI / offload context).
+    """
+    def _from_token(tok: str) -> tuple[str, str] | None:
+        try:
+            d = json.loads(tok)
+            u, k = str(d.get("username") or ""), str(d.get("key") or "")
+            return (u, k) if (u and k) else None
+        except (json.JSONDecodeError, TypeError, AttributeError):
+            return None
+
+    user, key = os.environ.get("KAGGLE_USERNAME"), os.environ.get("KAGGLE_KEY")
+    if user and key:
+        return (user.strip(), key.strip())
+    tok = os.environ.get("KAGGLE_API_TOKEN")
+    if tok and (pair := _from_token(tok)):
+        return pair
+
+    chk = check_permissions()
+    if chk.ok and chk.exists:
+        data = _read_file(chk.path) or {}
+        tbl = data.get("kaggle") if isinstance(data.get("kaggle"), dict) else {}
+        u = data.get("kaggle_username") or tbl.get("username")
+        k = data.get("kaggle_key") or tbl.get("key")
+        if isinstance(u, str) and isinstance(k, str) and u.strip() and k.strip():
+            return (u.strip(), k.strip())
+        tok2 = data.get("kaggle_api_token") or tbl.get("api_token")
+        if isinstance(tok2, str) and tok2.strip() and (pair := _from_token(tok2)):
+            return pair
+
+    try:
+        kj = Path.home() / ".kaggle" / "kaggle.json"
+        if kj.is_file() and (pair := _from_token(kj.read_text(encoding="utf-8"))):
+            return pair
+    except OSError:
+        pass
+    return None
+
+
 __all__ = [
     "DARTMOUTH_KEY_NAME",
     "SEMANTIC_SCHOLAR_KEY_NAME",
@@ -283,6 +334,7 @@ __all__ = [
     "clear_dartmouth_key",
     "credentials_path",
     "load_dartmouth_key",
+    "load_kaggle_creds",
     "load_semantic_scholar_key",
     "load_zenodo_token",
     "mask_key",

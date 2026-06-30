@@ -82,49 +82,35 @@ def _ensure_kaggle_auth() -> tuple[str, str] | None:
          the environment (``dispatch`` reads ``KAGGLE_USERNAME`` for the kernel
          ref) AND write ``~/.kaggle/kaggle.json`` (chmod 600) so the CLI
          authenticates;
-      3. an existing on-disk ``~/.kaggle/kaggle.json``.
+      3. an existing on-disk ``~/.kaggle/kaggle.json``;
+      4. the llmXive credentials file (``~/.config/llmxive/credentials.toml``) —
+         ``kaggle_username``/``kaggle_key``, a ``[kaggle]`` table, or a verbatim
+         ``kaggle_api_token`` — so the Kaggle creds live in the SAME place as the
+         Dartmouth key (resolution is centralized in ``credentials.load_kaggle_creds``).
 
     Returns ``(username, key)`` or ``None``. Idempotent; never raises.
     """
-    user = os.environ.get("KAGGLE_USERNAME")
-    key = os.environ.get("KAGGLE_KEY")
-    if user and key:
-        return (user, key)
+    from llmxive.credentials import load_kaggle_creds
 
-    token = os.environ.get("KAGGLE_API_TOKEN")
-    if token:
-        try:
-            data = json.loads(token)
-            user, key = str(data.get("username") or ""), str(data.get("key") or "")
-        except (json.JSONDecodeError, TypeError, AttributeError):
-            user, key = "", ""
-        if user and key:
-            os.environ["KAGGLE_USERNAME"] = user
-            os.environ["KAGGLE_KEY"] = key
-            try:
-                kdir = Path.home() / ".kaggle"
-                kdir.mkdir(parents=True, exist_ok=True)
-                kj = kdir / "kaggle.json"
-                kj.write_text(
-                    json.dumps({"username": user, "key": key}), encoding="utf-8"
-                )
-                kj.chmod(0o600)
-            except OSError as exc:
-                logger.warning("could not write ~/.kaggle/kaggle.json: %s", exc)
-            return (user, key)
-
+    pair = load_kaggle_creds()
+    if pair is None:
+        return None
+    user, key = pair
+    # Export the env pair (``dispatch`` reads KAGGLE_USERNAME for the kernel ref)
+    # AND ensure ~/.kaggle/kaggle.json exists (chmod 600) so the kaggle CLI itself
+    # authenticates.
+    os.environ.setdefault("KAGGLE_USERNAME", user)
+    os.environ.setdefault("KAGGLE_KEY", key)
     try:
-        kj = Path.home() / ".kaggle" / "kaggle.json"
-        if kj.is_file():
-            data = json.loads(kj.read_text(encoding="utf-8"))
-            user, key = str(data.get("username") or ""), str(data.get("key") or "")
-            if user and key:
-                os.environ.setdefault("KAGGLE_USERNAME", user)
-                os.environ.setdefault("KAGGLE_KEY", key)
-                return (user, key)
-    except (OSError, json.JSONDecodeError):
-        pass
-    return None
+        kdir = Path.home() / ".kaggle"
+        kdir.mkdir(parents=True, exist_ok=True)
+        kj = kdir / "kaggle.json"
+        if not kj.is_file():
+            kj.write_text(json.dumps({"username": user, "key": key}), encoding="utf-8")
+            kj.chmod(0o600)
+    except OSError as exc:
+        logger.warning("could not write ~/.kaggle/kaggle.json: %s", exc)
+    return (user, key)
 
 
 def is_available() -> bool:
