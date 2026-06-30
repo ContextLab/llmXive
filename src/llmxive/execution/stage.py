@@ -517,10 +517,18 @@ def _write_execution_feedback(
             "quantity on the CPU (e.g. time a real (small) computation, count real "
             "events, compute the real statistic over real or clearly-labelled sampled "
             "INPUT data). A small REAL result beats a big fake one.",
-            "3. If the headline quantity genuinely CANNOT be measured on a CPU (it needs "
-            "a GPU), do NOT fake it — measure a different, genuinely-computable proxy "
-            "and name it honestly, or report that the metric is unmeasurable here. "
-            "Never present a simulated number as a measurement.",
+            "3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a "
+            "transformer, a diffusion model, CUDA kernels, 8-bit quantization), do "
+            "NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code "
+            "(use `device=\"cuda\"`, the real model, 8-bit if needed) but SCALE IT "
+            "DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/"
+            "quantized model, a few-hundred-example subset, a handful of steps. The "
+            "execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with "
+            "a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, "
+            "producing a REAL (scaled) result — that is the correct path for a GPU "
+            "experiment. Do NOT add a silent CPU fallback that would run a degenerate "
+            "result locally (it would never offload). Never present a simulated "
+            "number as a measurement.",
             "",
             *(f"- {c}" for c in res.fabrication[:8]),
             "",

@@ -282,3 +282,36 @@ def test_data_unavailable_failures_flagged_for_real_source_not_synthetic(tmp_pat
     # New policy: steer to a REAL source and explicitly forbid synthetic substitution.
     assert "REAL" in fb
     assert "do not substitute synthetic" in fb.lower() or "not substitute synthetic" in fb.lower()
+
+
+def test_fabrication_feedback_steers_gpu_work_to_kaggle_offload(tmp_path) -> None:
+    """When the analysis fabricated because the metric needs a GPU, the fix-loop
+    feedback must tell the implementer to KEEP the GPU code (so it offloads to
+    Kaggle's free GPU and runs the REAL experiment), NOT to fabricate or add a
+    silent CPU fallback. (The Kaggle GPUs exist; force-crippling onto CPU is what
+    made every external GPU paper fabricate.)"""
+    from types import SimpleNamespace
+
+    from llmxive.execution.stage import _FEEDBACK_FILENAME, _write_execution_feedback
+
+    mem = tmp_path / ".specify" / "memory"
+    res = SimpleNamespace(
+        reason="fabricated", declared_missing=[], artifacts_produced=[],
+        fabrication=["code/run.py: self-declared fabricated metric — 'simulate the speedup'"],
+    )
+    _write_execution_feedback(mem, res, failures=[])
+    fb = (mem / _FEEDBACK_FILENAME).read_text(encoding="utf-8")
+    assert "Kaggle" in fb and 'device="cuda"' in fb
+    assert "do NOT add a silent CPU fallback" in fb.lower() or "silent CPU fallback" in fb
+
+
+def test_pipeline_workflow_passes_kaggle_secret_to_execution_lane() -> None:
+    """The execution gate (which dispatches the GPU offload) runs in the
+    llmxive-pipeline.yml `Run pipeline` step. That step MUST pass KAGGLE_API_TOKEN
+    or `offload.is_available()` is False and GPU papers fall back to a doomed CPU
+    run that fabricates. advance.yml already passes it; the main lane must too."""
+    from pathlib import Path
+
+    from llmxive.config import repo_root
+    wf = (repo_root() / ".github" / "workflows" / "llmxive-pipeline.yml").read_text(encoding="utf-8")
+    assert "KAGGLE_API_TOKEN" in wf, "the pipeline lane must pass the Kaggle secret"

@@ -84,6 +84,13 @@ jobs:
           DARTMOUTH_API_KEY: ${{ secrets.DARTMOUTH_API_KEY }}
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # GPU-offload lane (issue #367): the execution gate runs HERE (the
+          # speckit_implement lane), so the Kaggle creds MUST be present or the
+          # offload is inert and GPU-bound external papers fall back to a
+          # (doomed) CPU run that the fabrication gate then blocks. advance.yml
+          # already passes this; the main pipeline lane did NOT, which is why no
+          # GPU paper ever offloaded — it fabricated a CPU proxy instead.
+          KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
           PROJECT_ID: ${{ github.event.inputs.project_id }}
           STAGE: ${{ github.event.inputs.stage }}
           # Allow the guarded paid fallback (claude-haiku-4.5) when ALL free
