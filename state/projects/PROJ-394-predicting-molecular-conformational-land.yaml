@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-07T11:40:43.937260Z'
-current_stage: specified
+current_stage: in_progress
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-394-predicting-molecular-conformational-land
-last_run_id: 34ef3d3e-f063-41a3-b3ea-c22eaef3aa52
+last_run_id: b8d2765a-5799-4125-8463-2ed0b6519493
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-394-predicting-molecular-conformational-land/specs/001-predicting-molecular-conformational-land
 title: Predicting Molecular Conformational Landscapes with Variational Autoencoders
-updated_at: '2026-06-25T07:58:19.666035Z'
+updated_at: '2026-06-30T10:12:41.416945Z'

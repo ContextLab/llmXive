@@ -1,0 +1,95 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Molecule Schema"
+description: "Schema for molecule data including SMILES, graph, latent vector, and calculation metadata."
+type: object
+properties:
+  id:
+    type: string
+    description: "Unique identifier for the molecule."
+  smiles:
+    type: string
+    description: "Canonical SMILES string."
+  graph:
+    type: object
+    description: "RDKit graph representation."
+    properties:
+      nodes:
+        type: array
+        items:
+          type: object
+          properties:
+            atomic_num:
+              type: integer
+            features:
+              type: array
+              items:
+                type: number
+      edges:
+        type: array
+        items:
+          type: object
+          properties:
+            source:
+              type: integer
+            target:
+              type: integer
+            bond_type:
+              type: integer
+  latent_vector:
+    type: array
+    items:
+      type: number
+    minItems: 64
+    maxItems: 64
+    description: "64-dimensional latent vector from VAE encoder."
+  conformers:
+    type: array
+    items:
+      $ref: "#/definitions/conformer"
+  calculation_metadata:
+    type: object
+    description: "Metadata for the energy calculation (GFN2-xTB version, flags, convergence criteria) per Constitution Principle VI."
+    properties:
+      xtb_version:
+        type: string
+        description: "Version of GFN2-xTB used."
+      command_flags:
+        type: string
+        description: "Command-line flags used for xtb."
+      convergence_criteria:
+        type: string
+        description: "Convergence criteria used for xtb."
+    required:
+      - xtb_version
+      - command_flags
+      - convergence_criteria
+required:
+  - id
+  - smiles
+  - graph
+  - latent_vector
+  - calculation_metadata
+definitions:
+  conformer:
+    type: object
+    properties:
+      id:
+        type: string
+      geometry:
+        type: array
+        items:
+          type: array
+          items:
+            type: number
+        description: "3D coordinates (N_atoms x 3)."
+      xtb_energy:
+        type: number
+        description: "Energy from GFN2-xTB."
+      rank:
+        type: integer
+        description: "Rank based on energy."
+    required:
+      - id
+      - geometry
+      - xtb_energy
+      - rank

@@ -1,0 +1,16 @@
+# Python 3.11 Project Dependencies
+# Installed via: pip install -r requirements.txt
+#
+# NOTE: xtb (GFN2-xTB) is NOT included here.
+# xtb is a C++ binary library and must be installed via conda-forge or system package manager.
+# See code/scripts/install_xtb.sh for installation instructions.
+#
+# Core Dependencies (Pinned Versions)
+torch==2.3.0
+rdkit==2024.3.1
+joblib==1.4.2
+statsmodels==0.14.2
+pandas==2.2.2
+numpy==1.26.4
+scikit-learn==1.5.0
+huggingface-hub==0.23.4

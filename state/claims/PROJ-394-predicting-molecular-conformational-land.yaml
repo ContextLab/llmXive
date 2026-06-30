@@ -1,0 +1,433 @@
+- artifact_path: projects/PROJ-394-predicting-molecular-conformational-land/specs/001-predicting-molecular-conformational-land/tasks.md
+  attempts: 1
+  canonical: 'Python 3.11 project dependencies: torch 2.3.0, rdkit 2024.3.1, joblib
+    1.4.2, statsmodels 0.14.2, pandas 2.2.2, numpy 1.26.4, scikit-learn 1.5.0, huggingface-hub
+    0.23.4'
+  claim_id: c_3fb08116
+  context: 'Phase 1, Task T002: Initialize Python 3.11 project with pinned dependencies
+    in code/requirements.txt.'
+  evidence:
+    asserted: '3.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The document specifies using Python 3.11 with pinned dependencies including
+    torch==2.3.0, rdkit==2024.3.1, joblib==1.4.2, statsmodels==0.14.2, pandas==2.2.2,
+    numpy==1.26.4, scikit-learn==1.5.0, and huggingface-hub==0.23.4.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-06-30T10:02:14Z'
+- artifact_path: projects/PROJ-394-predicting-molecular-conformational-land/specs/001-predicting-molecular-conformational-land/tasks.md
+  attempts: 1
+  canonical: 'Data schema latent vector dimension: 64 floats'
+  claim_id: c_58b77843
+  context: 'Phase 2, Task T006: Create base data schema in code/contracts/molecule.schema.yaml
+    with properties including latent_vector (array of 64 floats).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The data schema requires a latent_vector defined as an array of 64 floats.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:02:40Z'
+- artifact_path: projects/PROJ-394-predicting-molecular-conformational-land/specs/001-predicting-molecular-conformational-land/tasks.md
+  attempts: 1
+  canonical: 'Metrics schema confidence interval dimension: 2 floats'
+  claim_id: c_6585524c
+  context: 'Phase 2, Task T007: Create metrics schema in code/contracts/metrics.schema.yaml
+    with properties including confidence_interval (array of 2 floats).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The metrics schema requires a confidence_interval defined as an array
+    of 2 floats.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:03:16Z'
+- artifact_path: projects/PROJ-394-predicting-molecular-conformational-land/specs/001-predicting-molecular-conformational-land/tasks.md
+  attempts: 1
+  canonical: 'VAE MPNN architecture: 2 layers'
+  claim_id: c_8ae5643a
+  context: 'Phase 3, Task T015: Implement MPNN Encoder and Decoder in code/models/vae.py
+    (2 layers...).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The VAE architecture uses an MPNN Encoder and Decoder with 2 layers.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:03:37Z'
+- artifact_path: projects/PROJ-394-predicting-molecular-conformational-land/specs/001-predicting-molecular-conformational-land/tasks.md
+  attempts: 1
+  canonical: 'Training loop CPU thread count: 2'
+  claim_id: c_b9e37600
+  context: 'Phase 3, Task T016: Implement training loop in code/train.py (CPU threads=2...).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training loop configuration sets CPU threads to 2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:04:04Z'
+- artifact_path: projects/PROJ-394-predicting-molecular-conformational-land/specs/001-predicting-molecular-conformational-land/tasks.md
+  attempts: 1
+  canonical: 'Training loop integration test loss threshold: 0.15'
+  claim_id: c_a4b015d2
+  context: "Phase 3, Task T012: Integration test for training loop... (asserts checkpoint\
+    \ exists, loss \u2264 0.15)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Training_loop_integration_test_loss_threshold:_0.15
+  kind: magnitude
+  raw_text: The integration test for the training loop asserts that the loss is less
+    than or equal to 0.15.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:05:01Z'
+- artifact_path: projects/PROJ-394-predicting-molecular-conformational-land/specs/001-predicting-molecular-conformational-land/tasks.md
+  attempts: 1
+  canonical: 'GFN2-xTB wrapper joblib parallelism: n_jobs=2'
+  claim_id: c_b0f6116b
+  context: 'Phase 4, Task T023: Implement GFN2-xTB geometry optimization wrapper in
+    code/data/energy_calc.py (parallelized via joblib n_jobs=2...).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The GFN2-xTB geometry optimization wrapper is configured to use joblib
+    with n_jobs=2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:05:23Z'
+- artifact_path: projects/PROJ-394-predicting-molecular-conformational-land/specs/001-predicting-molecular-conformational-land/tasks.md
+  attempts: 1
+  canonical: 'Energy prediction linear head dimensions: input 64, output 1'
+  claim_id: c_806d9657
+  context: 'Phase 4, Task T024: Implement linear regression head for energy prediction
+    in code/models/linear_head.py (input dim=64, output dim=1).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The linear regression head for energy prediction uses an input dimension
+    of 64 and an output dimension of 1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:06:13Z'
+- artifact_path: projects/PROJ-394-predicting-molecular-conformational-land/specs/001-predicting-molecular-conformational-land/tasks.md
+  attempts: 1
+  canonical: 'Power analysis parameters: effect size 0.5, alpha 0.05, power 0.8'
+  claim_id: c_5e68d630
+  context: 'Phase 4, Task T028: Implement power analysis function in code/evaluate.py
+    using statsmodels (effect size=0.5, alpha=0.05, power=0.8)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power analysis function uses an effect size of 0.5, alpha of 0.05,
+    and power of 0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:06:41Z'
+- artifact_path: projects/PROJ-394-predicting-molecular-conformational-land/specs/001-predicting-molecular-conformational-land/tasks.md
+  attempts: 1
+  canonical: 'Workflow success rate validation threshold: 95%'
+  claim_id: c_450f8f98
+  context: "Phase 4, Task T029: Implement workflow success rate validation (\u2265\
+    95% success) in code/data/energy_calc.py..."
+  evidence:
+    entailment_evidence: 'Workflow success rate validation threshold: 95%'
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Workflow_success_rate_validation_threshold:_95%25
+  kind: magnitude
+  raw_text: The workflow success rate validation requires a success rate greater than
+    or equal to 95%.
+  resolved_value: 'Workflow success rate validation threshold: 95%'
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-30T10:06:44Z'
+- artifact_path: projects/PROJ-394-predicting-molecular-conformational-land/specs/001-predicting-molecular-conformational-land/tasks.md
+  attempts: 1
+  canonical: 'Pilot benchmark molecule subset size: 50'
+  claim_id: c_39d00152
+  context: 'Phase 7, Task T047b: Run the conformer generation and GFN-xTB optimization
+    pipeline on the 50-molecule subset defined in T047a.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pilot benchmark runs the conformer generation and GFN-xTB optimization
+    pipeline on a 50-molecule subset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:07:04Z'
+- artifact_path: projects/PROJ-394-predicting-molecular-conformational-land/specs/001-predicting-molecular-conformational-land/tasks.md
+  attempts: 1
+  canonical: 'Dataset size check minimum sample size: 1000 molecules'
+  claim_id: c_56bfa447
+  context: 'Phase 7, Task T048: Implement dataset size check... to raise a clear error...
+    if the input dataset has < 1,000 molecules.'
+  evidence:
+    entailment_evidence: 'Dataset size check minimum sample size: 1000 molecules'
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Dataset_size_check_minimum_sample_size:_1000_molecules
+  kind: magnitude
+  raw_text: The dataset size check raises an error if the input dataset has fewer
+    than 1,000 molecules.
+  resolved_value: 'Dataset size check minimum sample size: 1000 molecules'
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-06-30T10:07:06Z'
+- artifact_path: projects/PROJ-394-predicting-molecular-conformational-land/specs/001-predicting-molecular-conformational-land/tasks.md
+  attempts: 1
+  canonical: 'Energy calculation runtime target: < 2 hours'
+  claim_id: c_e977a38c
+  context: 'Phase N, Task T044: Performance optimization... to meet the runtime constraint
+    (SC-005) with a target of < 2 hours for energy_calc.py.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Energy_calculation_runtime_target:_%3C_2_hours
+  kind: magnitude
+  raw_text: The performance optimization targets a runtime of less than 2 hours for
+    energy_calc.py.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:07:50Z'
+- artifact_path: projects/PROJ-394-predicting-molecular-conformational-land/specs/001-predicting-molecular-conformational-land/tasks.md
+  attempts: 1
+  canonical: 'Execution constraint: 2 cores, 7GB RAM, 6 hours'
+  claim_id: c_9d243357
+  context: 'Notes section: Critical Constraint: All tasks must be executable on CPU-only
+    (2 cores, 7GB RAM) within 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The critical constraint states all tasks must be executable on CPU-only
+    (2 cores, 7GB RAM) within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:08:07Z'
+- artifact_path: projects/PROJ-394-predicting-molecular-conformational-land/specs/001-predicting-molecular-conformational-land/tasks.md
+  attempts: 1
+  canonical: 'Python dependencies pinned to specific versions: torch 2.3.0, rdkit
+    2024.3.1, joblib 1.4.2, statsmodels 0.14.2, pandas 2.2.2, numpy 1.26.4, scikit-learn
+    1.5.0, huggingface-hub 0.23.4'
+  claim_id: c_425ff032
+  context: 'T002 Initialize Python 3.11 project with pinned dependencies in code/requirements.txt.
+    Python deps: torch==2.3.0, rdkit==2024.3.1, joblib==1.4.2, statsmodels==0.14.2,
+    pandas==2.2.2, numpy==1.26.4, scikit-learn==1.5.0, huggingface-hub==0.23.4.'
+  evidence:
+    asserted: '2.3'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Python deps: torch==2.3.0, rdkit==2024.3.1, joblib==1.4.2, statsmodels==0.14.2,
+    pandas==2.2.2, numpy==1.26.4, scikit-learn==1.5.0, huggingface-hub==0.23.4'
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-06-30T10:08:49Z'
+- artifact_path: projects/PROJ-394-predicting-molecular-conformational-land/specs/001-predicting-molecular-conformational-land/tasks.md
+  attempts: 1
+  canonical: Latent vector schema requires array of 64 floats
+  claim_id: c_8439fc7f
+  context: 'T006 Create base data schema in code/contracts/molecule.schema.yaml (JSON
+    Schema) with properties: smiles (string), graph (object), latent_vector (array
+    of 64 floats), conformer_set (array of objects)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: latent_vector (array of 64 floats)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:09:18Z'
+- artifact_path: projects/PROJ-394-predicting-molecular-conformational-land/specs/001-predicting-molecular-conformational-land/tasks.md
+  attempts: 1
+  canonical: Metrics schema confidence interval is array of 2 floats
+  claim_id: c_4e231f83
+  context: 'T007 Create metrics schema in code/contracts/metrics.schema.yaml (JSON
+    Schema) with properties: spearman_rho (float), p_value (float), confidence_interval
+    (array of 2 floats)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: confidence_interval (array of 2 floats)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:09:38Z'
+- artifact_path: projects/PROJ-394-predicting-molecular-conformational-land/specs/001-predicting-molecular-conformational-land/tasks.md
+  attempts: 1
+  canonical: Linear regression head for energy prediction has input dimension 64 and
+    output dimension 1
+  claim_id: c_c78cfbb6
+  context: T024 Implement linear regression head for energy prediction in code/models/linear_head.py
+    (input dim=64, output dim=1)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: input dim=64, output dim=1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:10:24Z'
+- artifact_path: projects/PROJ-394-predicting-molecular-conformational-land/specs/001-predicting-molecular-conformational-land/tasks.md
+  attempts: 1
+  canonical: Power analysis uses effect size 0.5, alpha 0.05, and power 0.8
+  claim_id: c_6644e841
+  context: T028 Implement power analysis function in code/evaluate.py using statsmodels
+    (effect size=0.5, alpha=0.05, power=0.8) and save report to data/power_analysis_report.txt
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: effect size=0.5, alpha=0.05, power=0.8
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:10:47Z'
+- artifact_path: projects/PROJ-394-predicting-molecular-conformational-land/specs/001-predicting-molecular-conformational-land/tasks.md
+  attempts: 1
+  canonical: Workflow success rate validation requires at least 95% success
+  claim_id: c_f98f0123
+  context: "T029 Implement workflow success rate validation (\u226595% success) in\
+    \ code/data/energy_calc.py"
+  evidence:
+    candidates:
+    - - ''
+      - 95.0
+    - - ''
+      - 25.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Workflow_success_rate_validation_requires_at_least_95%25_succe
+  kind: magnitude
+  raw_text: "workflow success rate validation (\u226595% success)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-06-30T10:11:11Z'
+- artifact_path: projects/PROJ-394-predicting-molecular-conformational-land/specs/001-predicting-molecular-conformational-land/tasks.md
+  attempts: 1
+  canonical: Runtime target for energy_calc.py is less than 2 hours
+  claim_id: c_b8860aab
+  context: 'T044 Performance optimization: Tune joblib parallelism (n_jobs=2) and
+    torch thread counts (threads=2) to meet the runtime constraint (SC-005) with a
+    target of < 2 hours for energy_calc.py'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Runtime_target_for_energy_calc.py_is_less_than_2_hours
+  kind: magnitude
+  raw_text: target of < 2 hours for energy_calc.py
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:11:32Z'
+- artifact_path: projects/PROJ-394-predicting-molecular-conformational-land/specs/001-predicting-molecular-conformational-land/tasks.md
+  attempts: 1
+  canonical: Hardware constraint is 2 cores and 7GB RAM
+  claim_id: c_c65f922a
+  context: 'Critical Constraint: All tasks must be executable on CPU-only (2 cores,
+    7GB RAM) within 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 2 cores, 7GB RAM
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:11:49Z'
+- artifact_path: projects/PROJ-394-predicting-molecular-conformational-land/specs/001-predicting-molecular-conformational-land/tasks.md
+  attempts: 1
+  canonical: All tasks must be executable within 6 hours
+  claim_id: c_1c55c3d3
+  context: 'Critical Constraint: All tasks must be executable on CPU-only (2 cores,
+    7GB RAM) within 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: within 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:12:09Z'
+- artifact_path: projects/PROJ-394-predicting-molecular-conformational-land/specs/001-predicting-molecular-conformational-land/tasks.md
+  attempts: 1
+  canonical: Pilot benchmark uses a 50-molecule subset
+  claim_id: c_48fdc5d7
+  context: T047b Run the conformer generation and GFN-xTB optimization pipeline on
+    the 50-molecule subset defined in T047a.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 50-molecule subset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T10:12:41Z'

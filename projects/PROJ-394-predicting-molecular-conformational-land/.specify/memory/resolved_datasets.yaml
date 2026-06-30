@@ -1,0 +1,96 @@
+resolved_at: '2026-06-30T09:33:20.353107+00:00'
+datasets:
+- intent: ZINC15
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/jonghyunlee/ZINC15/resolve/main/zinc_processed.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/jonghyunlee/ZINC15/resolve/main/zinc_processed.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/692fcada4852ae5cebd66c44/9d188a9cc6da3d5fbb0f80042313a4fd417fa16946fe4435dc654779b1fc7a52?response-content-type=text%2Fcsv&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27zinc15_40M.csv%3B+filename%3D%22zinc15_40M.csv%22%3B&X-Xet-Cas-Uid=public&user_id=public&Expires=1782815522&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjkyZmNhZGE0ODUyYWU1Y2ViZDY2YzQ0LzlkMTg4YTljYzZkYTNkNWZiYjBmODAwNDIzMTNhNGZkNDE3ZmExNjk0NmZlNDQzNWRjNjU0Nzc5YjFmYzdhNTJcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3emluYzE1XzQwTS5jc3YlM0IrZmlsZW5hbWUlM0QlMjJ6aW5jMTVfNDBNLmNzdiUyMiUzQiZYLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyODE1NTIyfX19XX0_&Signature=MEUCICXwhEaFfk6s7JIm0SUiJ4fMjsvvoW~HSYIs9DGXDmq7AiEApqwCrAf3izriwWvx7rScDmgaIDnuUswJtvpzbZFhQI4_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/692fe066da83d772a9d337ea/db2de805dd24091735fd763a74b5f075c513b8dac674e096ca41754e8bb87173?response-content-type=text%2Fcsv&X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27zinc15_190M.csv%3B+filename%3D%22zinc15_190M.csv%22%3B&Expires=1782815526&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjkyZmUwNjZkYTgzZDc3MmE5ZDMzN2VhL2RiMmRlODA1ZGQyNDA5MTczNWZkNzYzYTc0YjVmMDc1YzUxM2I4ZGFjNjc0ZTA5NmNhNDE3NTRlOGJiODcxNzNcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZYLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3emluYzE1XzE5ME0uY3N2JTNCK2ZpbGVuYW1lJTNEJTIyemluYzE1XzE5ME0uY3N2JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODI4MTU1MjZ9fX1dfQ__&Signature=MEQCIH6uvL6NWhtE6lFsDrMrWr98LYUlfAkuHI7UuzlcWyG1AiAs-Dj0U1ZMVvRBVJ5Ar7J1yn-iaKO2xYHi6MbR2NOCng__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/692fe97c6405f1d79dd94490/26568486923af6a2c64d7801c1f10e9db52d96b141f34d1a4c3d8636963b551a?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27zinc15_40m_safe.csv%3B+filename%3D%22zinc15_40m_safe.csv%22%3B&response-content-type=text%2Fcsv&Expires=1782815531&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjkyZmU5N2M2NDA1ZjFkNzlkZDk0NDkwLzI2NTY4NDg2OTIzYWY2YTJjNjRkNzgwMWMxZjEwZTlkYjUyZDk2YjE0MWYzNGQxYTRjM2Q4NjM2OTYzYjU1MWFcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3emluYzE1XzQwbV9zYWZlLmNzdiUzQitmaWxlbmFtZSUzRCUyMnppbmMxNV80MG1fc2FmZS5jc3YlMjIlM0ImcmVzcG9uc2UtY29udGVudC10eXBlPXRleHQlMkZjc3YiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MjgxNTUzMX19fV19&Signature=MEYCIQCfNsiARylUNxdZW7T36dmEkSZiNE~nnooTrkwTr2I53AIhALtxGEX7hgLQxvvfSZ2cmgxn~G2RHdwqWERosEjxdDhk&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/6933ac253d5a6342f67f4fad/965ce6ff0f8502eecc14e8ca018a840b62f6d0ba2beb90284b384789dba9f93e?response-content-type=text%2Fcsv&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27zinc15_40m_selfies.csv%3B+filename%3D%22zinc15_40m_selfies.csv%22%3B&user_id=public&Expires=1782815535&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjkzM2FjMjUzZDVhNjM0MmY2N2Y0ZmFkLzk2NWNlNmZmMGY4NTAyZWVjYzE0ZThjYTAxOGE4NDBiNjJmNmQwYmEyYmViOTAyODRiMzg0Nzg5ZGJhOWY5M2VcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3emluYzE1XzQwbV9zZWxmaWVzLmNzdiUzQitmaWxlbmFtZSUzRCUyMnppbmMxNV80MG1fc2VsZmllcy5jc3YlMjIlM0ImdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MjgxNTUzNX19fV19&Signature=MEUCIQCvYXbptEfe94ZrFiW8JfdbA5dkLM9kAli~S-5LGRSGCQIgV7leIHUHLaOtJu-qG3hpBAXhaora18lz9QERVVuNlnQ_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openresearch.newcastle.edu.au/articles/journal_contribution/Sport_and_climate_change_bottom_up_manager_perspectives_of_climate_impacts_climate_adaptation_and_implications_for_sport_policy/32834921
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ices-library.figshare.com/articles/report/Plaice_i_Pleuronectes_platessa_i_in_divisions_7_h-k_Celtic_Sea_South_southwest_of_Ireland_/30932285
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ices-library.figshare.com/articles/report/Plaice_i_Pleuronectes_platessa_i_in_divisions_7_f_and_7_g_Bristol_Channel_Celtic_Sea_/30932282
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/WordleGraphs_Data/32811581
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.rcsi.com/articles/journal_contribution/_i_That_s_just_part_of_having_a_transplant_that_s_the_price_you_pay_i_patient-reported_facilitators_and_barriers_to_immunosuppressant_medication_adherence_among_transplant_recipients_a_qualitative_study/32790324
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''repository.rcsi.com'',
+      port=443): Max retries exceeded with url: /articles/journal_contribution/_i_That_s_just_part_of_having_a_transplant_that_s_the_price_you_pay_i_patient-reported_facilitators_and_barriers_to_immunosuppressant_medication_adherence_among_transplant_recipients_a_qualitative_study/32790324
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zenodo.org/records/4606901
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12535177
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6562818
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4248976
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4278152
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.rbnzs7hq5
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://open.library.ubc.ca/collections/52383/items/1.0383362
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://open.library.ubc.ca/collections/24/items/1.0398235
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://open.library.ubc.ca/collections/24/items/1.0384604
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18067610
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

@@ -1,0 +1,101 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Metrics Schema"
+description: "Schema for evaluation metrics including Spearman correlation and p-values."
+type: object
+properties:
+  vae_ranking:
+    type: object
+    properties:
+      spearman_rho:
+        type: number
+        description: "Spearman rank correlation coefficient."
+      p_value:
+        type: number
+        description: "Raw p-value."
+      adjusted_p_value:
+        type: number
+        description: "Adjusted p-value (Mixed-Effects/Permutation)."
+      sample_size:
+        type: integer
+        description: "Number of molecules tested."
+    required:
+      - spearman_rho
+      - p_value
+      - adjusted_p_value
+      - sample_size
+  baselines:
+    type: object
+    properties:
+      ecfp4:
+        type: object
+        properties:
+          spearman_rho:
+            type: number
+        required:
+          - spearman_rho
+      random:
+        type: object
+        properties:
+          spearman_rho:
+            type: number
+        required:
+          - spearman_rho
+    required:
+      - ecfp4
+      - random
+  ablation_3d:
+    type: object
+    properties:
+      spearman_rho:
+        type: number
+        description: "Spearman rho with 3D descriptors added."
+      delta_rho:
+        type: number
+        description: "Difference between VAE and VAE+3D."
+    required:
+      - spearman_rho
+      - delta_rho
+  sensitivity_analysis:
+    type: array
+    items:
+      type: object
+      properties:
+        alpha:
+          type: number
+          enum:
+            - 0.01
+            - 0.05
+            - 0.10
+        adjusted_p_value:
+          type: number
+      required:
+        - alpha
+        - adjusted_p_value
+  power_analysis:
+    type: object
+    properties:
+      min_sample_size:
+        type: integer
+ description: "Minimum sample size required for [deferred] power."
+      effect_size:
+        type: number
+        description: "Effect size used (rho)."
+      power:
+        type: number
+        description: "Target power (0.80)."
+    required:
+      - min_sample_size
+      - effect_size
+      - power
+  workflow_success_rate:
+    type: number
+    description: "Percentage of molecules where conformer generation and energy calculation succeeded (FR-011)."
+    minimum: 0
+    maximum: 100
+required:
+  - vae_ranking
+  - baselines
+  - ablation_3d
+  - sensitivity_analysis
+  - power_analysis
+  - workflow_success_rate
