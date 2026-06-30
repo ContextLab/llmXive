@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2405.03520",
+  "judged_at": "2026-06-30T05:22:15Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "dreamx-world 1.0: a general-purpose interactive world model computer science",
+  "rationale": "This paper is a foundational survey on \"General World Models\" and explicitly discusses the Sora model's simulation capabilities, which directly addresses the core mechanism and domain of the user's question regarding \"Interactive World Models.\" It satisfies criteria (d) as a canonical reference for the field and (a) by measuring the same biological/physical mechanism (simulation of physical laws) the user is investigating.",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.09032",
+  "judged_at": "2026-06-30T05:22:17Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "dreamx-world 1.0: a general-purpose interactive world model computer science",
+  "rationale": "This paper satisfies criteria (d) and (f) as it provides a foundational framework and systematic review of \"world models\" for interactive agents, which is the core mechanism and canonical vocabulary cluster for the user's question about \"Interactive World Models,\" even though the specific domain (textual vs. general-purpose) differs slightly.",
+  "relevant": true
+}

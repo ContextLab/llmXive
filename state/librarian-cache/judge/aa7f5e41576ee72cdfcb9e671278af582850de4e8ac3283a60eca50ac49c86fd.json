@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.23993",
+  "judged_at": "2026-06-30T05:22:06Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "dreamx-world 1.0: a general-purpose interactive world model computer science",
+  "rationale": "This paper satisfies criteria (d) as a foundational methodology and (a) as same-mechanism evidence, since it provides a canonical, reproducible implementation and empirical study of the core \"world model\" mechanism (future video prediction, action-conditioning, and autoregressive rollout) that the user's question targets, even though it focuses on a minimalist scale rather than a \"general-purpose\" system.",
+  "relevant": true
+}

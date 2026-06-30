@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2508.02912",
+  "judged_at": "2026-06-30T05:22:24Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "dreamx-world 1.0: a general-purpose interactive world model computer science",
+  "rationale": "This paper satisfies criteria (a) and (d) as it investigates the core mechanism of \"embodied world models\" for decision-making and coordination, which is the central component of the user's query regarding an \"Interactive World Model.\" Although the specific application (multi-agent coordination) differs from the user's implied \"general-purpose\" scope, the paper provides foundational evidence on the utility and architecture of world models in interactive environments, making it a canonical refere",
+  "relevant": true
+}

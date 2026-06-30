@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-17T09:40:31.382935Z'
-current_stage: paper_review
+current_stage: clarified
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-717-dreamx-world-1-0-a-general-purpose-inter
-last_run_id: null
+last_run_id: f43c748f-367b-41fa-92d4-cd7dbcb5b8e9
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-717-dreamx-world-1-0-a-general-purpose-inter/specs/001-dreamx-world-1-0-a-general-purpose-inter
 title: 'DreamX-World 1.0: A General-Purpose Interactive World Model'
-updated_at: '2026-06-17T09:40:31.841016Z'
+updated_at: '2026-06-30T05:28:20.668308Z'
