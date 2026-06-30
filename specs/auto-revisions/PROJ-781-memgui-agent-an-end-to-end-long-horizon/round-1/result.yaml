@@ -1,0 +1,430 @@
+project_id: PROJ-781-memgui-agent-an-end-to-end-long-horizon
+round: 1
+revision_kind: paper_science
+from_stage: paper_review
+to_stage: clarified
+worst_severity: science
+seed_action_items:
+- id: 703e6b7001ee
+  text: The claim 'best open-data 8B performance' lacks a direct competitor in Table
+    2. Explicitly cite the specific 8B model surpassed or clarify the 'open-data'
+    definition to support the superlative.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-781-memgui-agent-an-end-to-end-long-horizon/paper/source/
+  location: ''
+- id: ec054ed6d45b
+  text: The 71.6%/38.2%/11.7% drop implies a single baseline across benchmarks. Verify
+    if the cited sources used the same model/config for these figures to ensure a
+    valid apples-to-apples comparison.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-781-memgui-agent-an-end-to-end-long-horizon/paper/source/
+  location: ''
+- id: 8e3127d839c6
+  text: Section 3.1 calls Qwen3-VL-235B-Thinking the 'strongest' backbone, but Table
+    1 shows its baseline (5.0%) is weaker than Instruct (23.4%). Correct the phrasing
+    to reflect it is the only one benefiting from ConAct.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-781-memgui-agent-an-end-to-end-long-horizon/paper/source/
+  location: ''
+- id: 8f33ca82ba42
+  text: The paper claims to release code and models (GitHub/HuggingFace links in e002)
+    but provides no repository structure, dependency list (requirements.txt/pyproject.toml),
+    or Dockerfile. Without a 'reproducibility from scratch' guide, the code quality
+    cannot be verified. Add a 'Reproducibility' section or appendix detailing the
+    environment setup and entry points.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-781-memgui-agent-an-end-to-end-long-horizon/paper/source/
+  location: ''
+- id: 03a0035db031
+  text: The training setup (e002, Sec. Appendix-Train) specifies 'AdamW fused' and
+    'bfloat16' on 8x80GB GPUs. The code artifacts (implied by the GitHub link) must
+    explicitly document the specific deep learning framework version (e.g., PyTorch
+    2.x) and CUDA version to ensure the 'fused' optimizer and precision modes are
+    supported. Missing this causes reproducibility failure.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-781-memgui-agent-an-end-to-end-long-horizon/paper/source/
+  location: ''
+- id: d4dc1c3c04f2
+  text: The dataset construction pipeline (e002, Fig. Data-Pipeline) involves 'MemGUI-Eval
+    filtering' and 'Teacher Rollouts'. The code quality review requires the evaluation
+    scripts and filtering logic to be modular and testable. The current text describes
+    the process but does not reference specific script paths or test suites for the
+    data pipeline, making it impossible to verify the '2,956 trajectory' count independently.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-781-memgui-agent-an-end-to-end-long-horizon/paper/source/
+  location: ''
+- id: 2cded2ed9148
+  text: The paper claims to release 'MemGUI-3K' (2,956 trajectories) and 'MemGUI-8B-SFT'
+    via HuggingFace (lgy0404/MemGUI-3K, lgy0404/MemGUI-8B-SFT) and GitHub (kwai/MemGUI-Agent).
+    However, the manuscript lacks explicit license declarations (e.g., MIT, Apache
+    2.0, CC-BY) for the dataset and model weights. Without a stated license, the reproducibility
+    and legal usability of the data are undefined.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-781-memgui-agent-an-end-to-end-long-horizon/paper/source/
+  location: ''
+- id: d5150036cf95
+  text: The dataset construction pipeline (Section 3.2, Fig 2) relies on a 'teacher'
+    model (Qwen3-VL-235B-Thinking) and a 'MemGUI-Eval' filter. The paper does not
+    provide the specific schema or JSON structure of the resulting MemGUI-3K dataset,
+    nor does it detail how 'folded' context states are serialized. A data schema definition
+    or a sample data file is required to verify the 'proactive context' claims.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-781-memgui-agent-an-end-to-end-long-horizon/paper/source/
+  location: ''
+- id: 358238aea568
+  text: External links to the project page (memgui-agent.github.io), HuggingFace repos,
+    and GitHub repo are provided in the header and abstract. The review cannot verify
+    the current availability or integrity of these resources (link rot check) as the
+    paper is a static preprint. The authors must ensure these links are persistent
+    (e.g., via Zenodo DOIs) and that the data is actually accessible at the time of
+    publication.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-781-memgui-agent-an-end-to-end-long-horizon/paper/source/
+  location: ''
+- id: a721d8ec73a8
+  text: "The paper mentions 'MemGUI-Eval' as a filtering mechanism for the dataset\
+    \ (Section 3.2, Table 4). The provenance of this evaluation tool is unclear\u2014\
+    is it an open-source script, a proprietary internal tool, or a heuristic? If it\
+    \ is not open-sourced alongside the dataset, the reproducibility of the data filtering\
+    \ process is compromised."
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-781-memgui-agent-an-end-to-end-long-horizon/paper/source/
+  location: ''
+- id: 655de60ba226
+  text: 'Figure 1 (main-performance.png): The caption claims a token saving of ''~1.5k''
+    by step 150, but the y-axis of subplot (a) lacks a visible scale or gridlines
+    to verify this magnitude. Add explicit y-axis ticks and units (tokens) to validate
+    the claim visually.'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-781-memgui-agent-an-end-to-end-long-horizon/paper/source/
+  location: ''
+- id: 42d01b371fcb
+  text: 'Figure 3 (dataset-stats.drawio): Subplot (b) compares trajectory lengths
+    (28.8 vs 15.3), but the bar chart lacks error bars or standard deviation indicators.
+    Given the variance in long-horizon tasks, visualizing uncertainty is required
+    to support the statistical significance of the difference.'
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-781-memgui-agent-an-end-to-end-long-horizon/paper/source/
+  location: ''
+- id: 145b9051c937
+  text: 'Figure 5 (failure-heatmap.drawio): The heatmap uses color intensity to represent
+    failure counts (99 vs 58), but the color bar legend is missing. Without a scale,
+    readers cannot distinguish between minor and major reductions in specific failure
+    categories.'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-781-memgui-agent-an-end-to-end-long-horizon/paper/source/
+  location: ''
+- id: df8eff2555de
+  text: 'Figure 6 (case-study-good.drawio): The figure is extremely dense with text
+    overlays (screenshots, folding directives, memory writes). At standard print resolution
+    (300 DPI), the text within the ''Folded History'' and ''Memory'' boxes is likely
+    illegible. Consider splitting into two panels or increasing font size/contrast
+    significantly.'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-781-memgui-agent-an-end-to-end-long-horizon/paper/source/
+  location: ''
+- id: 0fe8ca7cdd1e
+  text: 'Figure 7 (training_curves.png): The x-axis label ''Training Steps'' is present,
+    but the y-axes for ''Loss'' and ''Gradient Norm'' lack units or scale markers.
+    Ensure all axes have clear numerical ticks to allow reproduction of the training
+    dynamics.'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-781-memgui-agent-an-end-to-end-long-horizon/paper/source/
+  location: ''
+- id: 85d8cb5aaf3e
+  text: The manuscript relies heavily on internal jargon and undefined acronyms that
+    hinder accessibility for non-specialist readers. First, the core contribution,
+    ConAct (Context-as-Action), is introduced via the macro \conact in the Abstract
+    without a clear, plain-English definition for the general audience. The term "Context-as-Action"
+    itself is a coined phrase that requires immediate, explicit definition upon first
+    mention, rather than assuming the reader understands the "first-class action"
+    metapho
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-781-memgui-agent-an-end-to-end-long-horizon/paper/source/
+  location: ''
+- id: 3721d086da54
+  text: The claim that ReAct causes 'information loss' (Abstract) lacks evidence.
+    The paper shows token explosion but not that facts are actually lost vs. just
+    noisy. A retrieval metric on context is needed to support this causal mechanism.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-781-memgui-agent-an-end-to-end-long-horizon/paper/source/
+  location: ''
+- id: 76ad05d87ad8
+  text: Table 1 (e002) shows ConAct hurts Qwen3-VL-235B-Instruct (P@1 drops 23.4%->19.5%),
+    yet the text implies 235B models benefit. The paper fails to explain why the mechanism
+    works for 'Thinking' but fails for 'Instruct' variants of the same size.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-781-memgui-agent-an-end-to-end-long-horizon/paper/source/
+  location: ''
+- id: dce86d829297
+  text: The 'Deep Fold Ratio' metric in Table 3 (e002) is undefined in the text. It
+    is unclear if this measures action frequency or compression. This ambiguity weakens
+    the logical link between the folding component and the reported MTPR/IRR improvements.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-781-memgui-agent-an-end-to-end-long-horizon/paper/source/
+  location: ''
+- id: e78c2ef8a83e
+  text: The claim that MemGUI-8B-SFT sets the 'best open-data 8B performance' on MemGUI-Bench
+    (Abstract, Sec 5.2) is overreaching. Table 2 shows GUI-Owl-1.5-32B (32B) achieving
+    43.9% SR on MobileWorld, but the paper does not explicitly compare MemGUI-8B-SFT
+    against other open 8B models (e.g., Qwen-VL-8B variants with different memory
+    modules) on the *same* benchmark to justify the superlative 'best'.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-781-memgui-agent-an-end-to-end-long-horizon/paper/source/
+  location: ''
+- id: b5c1cf689b21
+  text: The assertion that ReAct-style prompting causes 'information loss' of critical
+    UI facts (Abstract, Intro) is a causal claim not directly supported by the provided
+    data. The paper shows performance drops but does not present an ablation or analysis
+    isolating 'information loss' from other ReAct failure modes (e.g., reasoning errors,
+    action hallucination) as the primary cause.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-781-memgui-agent-an-end-to-end-long-horizon/paper/source/
+  location: ''
+- id: c1e3c65a5146
+  text: The claim that ConAct 'saves ~1.5k input tokens by step 150' (Fig 1 caption)
+    lacks a clear baseline definition. Is this compared to a naive ReAct baseline
+    with no truncation? If the baseline is truncated, the comparison is invalid. The
+    methodology for this token count calculation is not detailed in the text.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-781-memgui-agent-an-end-to-end-long-horizon/paper/source/
+  location: ''
+- id: 59d9084f33b7
+  text: The paper states MemGUI-8B-SFT 'generalizes to MobileWorld' (Abstract, Conclusion)
+    based on a 17.9% SR. However, Table 3 shows GUI-Owl-1.5-32B achieving 43.9% on
+    the same benchmark. Claiming 'generalization' as a primary contribution without
+    addressing the significant performance gap with larger open models or explaining
+    why 17.9% constitutes a successful generalization is an overstatement of the result's
+    significance.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-781-memgui-agent-an-end-to-end-long-horizon/paper/source/
+  location: ''
+- id: 9e75747267ab
+  text: The paper describes training on 'MemGUI-3K' (2,956 trajectories) derived from
+    'task expansion' and 'teacher rollouts' (Section 4.2, Fig 3). It is unclear if
+    these trajectories involve real user data or simulated interactions. If real user
+    data was used, the paper must explicitly state IRB approval status, consent procedures,
+    and data anonymization methods. If synthetic, the generation process must be detailed
+    to ensure no PII leakage from the teacher model's training data.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-781-memgui-agent-an-end-to-end-long-horizon/paper/source/
+  location: ''
+- id: 8c767269591f
+  text: The agent is designed to perform 'memory_add', 'memory_update', and 'memory_delete'
+    actions (Eq 3, Appendix e001) on mobile devices. The paper lacks a safety analysis
+    regarding the potential for the agent to autonomously delete user data, modify
+    sensitive settings, or leak private information (e.g., passwords, financial data)
+    into its 'Folded UI State' or 'Memory' fields. A discussion on guardrails or constraints
+    to prevent harmful autonomous actions is required.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-781-memgui-agent-an-end-to-end-long-horizon/paper/source/
+  location: ''
+- id: 435352b64e54
+  text: The dataset construction relies on a single teacher model (Qwen3-VL-235B-Thinking)
+    for trajectory generation and filtering. This introduces potential bias where
+    the student model (MemGUI-8B-SFT) merely mimics the teacher's specific reasoning
+    patterns rather than learning generalizable context management. Include a cross-teacher
+    validation or a human-annotated subset to prove generalization.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-781-memgui-agent-an-end-to-end-long-horizon/paper/source/
+  location: ''
+- id: 1530eab28a78
+  text: The claim of 'best open-data 8B performance' (Abstract) is based on a single
+    run without reporting variance across random seeds. For SFT experiments, standard
+    practice requires multiple seeds (e.g., 3-5) to demonstrate that the performance
+    gain is not an artifact of a specific initialization or data split.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-781-memgui-agent-an-end-to-end-long-horizon/paper/source/
+  location: ''
+- id: 873e110b2811
+  text: The failure analysis (Figure 5) aggregates counts but does not provide a statistical
+    breakdown of error types relative to task difficulty. To support the claim that
+    ConAct specifically reduces 'process hallucination,' a chi-squared test or similar
+    statistical comparison between the ReAct baseline and ConAct variants is required.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-781-memgui-agent-an-end-to-end-long-horizon/paper/source/
+  location: ''
+- id: 70caead9550e
+  text: "Table 1 (Model Scale Ablation) and Table 3 (Main Results) report point estimates\
+    \ (e.g., 40.0%, 62.5%) without confidence intervals or standard deviations. Given\
+    \ the task-level stochasticity in agent benchmarks, single-run or single-seed\
+    \ results are insufficient to claim statistical significance. Re-run experiments\
+    \ with multiple seeds (n>=5) and report mean \xB1 std or 95% CIs."
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-781-memgui-agent-an-end-to-end-long-horizon/paper/source/
+  location: ''
+- id: 6cf6f876f402
+  text: The ablation study in Table 2 claims 'Full ConAct' significantly outperforms
+    components (e.g., +35.0% P@1 over ReAct). Without a statistical test (e.g., paired
+    t-test or Wilcoxon signed-rank test) across tasks, it is unclear if these gains
+    are robust or due to random variance in task difficulty distribution. Include
+    p-values for all ablation comparisons.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-781-memgui-agent-an-end-to-end-long-horizon/paper/source/
+  location: ''
+- id: 769dde28e6ae
+  text: The dataset construction (MemGUI-3K) involves filtering based on 'MemGUI-Eval'
+    (Section 3.2). The criteria for 'reasonable steps' and the filtering thresholds
+    are not statistically defined. If the teacher model (235B) is used to generate
+    labels for the student (8B), there is a risk of confirmation bias. Clarify the
+    independence of the evaluation metric from the training signal generation.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-781-memgui-agent-an-end-to-end-long-horizon/paper/source/
+  location: ''
+- id: 99c14e2e6a34
+  text: Figure 1b and Table 3 compare MemGUI-8B-SFT against baselines. The sample
+    sizes (n=128 for MemGUI-Bench, n=117 for MobileWorld) are fixed. However, the
+    difficulty split (Easy/Medium/Hard) in Table 3 shows large variance in P@1 (e.g.,
+    25.0% vs 21.1%). Report if the performance gains are consistent across difficulty
+    strata or driven by a specific subset, and provide error bars for the bar charts
+    in Figure 1.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-781-memgui-agent-an-end-to-end-long-horizon/paper/source/
+  location: ''
+- id: 249f78dbb81c
+  text: In Section 3 (Dataset), the table caption for Table 1 references 'Table~\ref{tab:ablation-model-size}'
+    but the label is defined in the appendix. Ensure cross-references point to the
+    correct location or move the table to the main text if referenced there.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-781-memgui-agent-an-end-to-end-long-horizon/paper/source/
+  location: ''
+- id: f0fc6304f550
+  text: The LaTeX source contains multiple instances of `\ourmethod` and `\conact`
+    macros. While defined, ensure these are consistently used and do not conflict
+    with standard LaTeX commands in the target class `llmxive` or `ant_tech_report`.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-781-memgui-agent-an-end-to-end-long-horizon/paper/source/
+  location: ''
+- id: 541aa0da8e40
+  text: In Section 3 (Method), the definition of the state S_t and output y_t uses
+    LaTeX math mode that may not render correctly in all viewers (e.g., \mathcal{S}_t).
+    Ensure all math symbols are properly escaped or use standard text descriptions
+    for non-math readers. Also, the equation numbering (Eq 1-5) is present but the
+    text references them inconsistently (e.g., 'Figure 1 visualizes a single step'
+    without referencing Eq 5).
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-781-memgui-agent-an-end-to-end-long-horizon/paper/source/
+  location: ''
+- id: 95ad21bf81de
+  text: The abstract and introduction contain several bolded numbers and percentages
+    (e.g., '71.6%', '38.2%'). While effective for emphasis, ensure these are consistent
+    with the table formatting in Section 4. Some numbers in the text (e.g., '2,956'
+    in abstract) use a comma, while others (e.g., '2956' in dataset section) do not.
+    Standardize number formatting throughout.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-781-memgui-agent-an-end-to-end-long-horizon/paper/source/
+  location: ''
+- id: 021a31d5bfee
+  text: 'In the Appendix, Section A.4 (Training Setup), the table ''Training hyperparameters''
+    lists ''LoRA rank / alpha / dropout'' as a single row with values ''8 / 32 / 0.05''.
+    This is ambiguous. Split into three separate rows or use a clearer format (e.g.,
+    ''LoRA Rank: 8, Alpha: 32, Dropout: 0.05'') to improve readability.'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-781-memgui-agent-an-end-to-end-long-horizon/paper/source/
+  location: ''
+- id: 9b18bada082c
+  text: The paper frequently uses the term 'folded' (e.g., 'Folded Action History',
+    'history folding'). Ensure this terminology is consistently defined and used.
+    In Section 3.1, 'History folding' is defined, but later sections sometimes use
+    'compression' or 'summarization' interchangeably. Clarify if these are distinct
+    concepts or synonyms.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-781-memgui-agent-an-end-to-end-long-horizon/paper/source/
+  location: ''
+kickback_reason: 'advancement.evaluate: paper-review non-convergence; routing via
+  engine adapter.'
+kickback_artifact_links:
+- projects/PROJ-781-memgui-agent-an-end-to-end-long-horizon/paper/source/
+stage_results:
+- name: specify
+  status: success
+- name: clarify
+  status: success
+  note: auto-resolved; deterministic adapter needs no clarifications
+- name: plan
+  status: success
+- name: tasks
+  status: success
+  note: 38 tasks emitted (one per concern)
+- name: analyze
+  status: success
+  iterations: 1
+  finding_count: 0
+final_outcome: ready_for_implementation
+produced_at: '2026-06-30T19:34:06.831536+00:00'

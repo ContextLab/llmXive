@@ -6,14 +6,14 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-781-memgui-agent-an-end-to-end-long-horizon
-last_run_id: null
+last_run_id: 8b932540-3ecf-451b-94b0-604cf4346b79
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-781-memgui-agent-an-end-to-end-long-horizon/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'MemGUI-Agent: An End-to-End Long-Horizon Mobile GUI Agent with Proactive Context
   Management'
-updated_at: '2026-06-25T09:08:55.384130Z'
+updated_at: '2026-06-30T19:34:06.892236Z'

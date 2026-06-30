@@ -306,3 +306,6 @@ ready:
 - project_id: PROJ-780-openthoughts-agent-data-recipes-for-agen
   revision_spec_path: specs/auto-revisions/PROJ-780-openthoughts-agent-data-recipes-for-agen/round-1
   queued_at: '2026-06-30T18:56:37.120508+00:00'
+- project_id: PROJ-781-memgui-agent-an-end-to-end-long-horizon
+  revision_spec_path: specs/auto-revisions/PROJ-781-memgui-agent-an-end-to-end-long-horizon/round-1
+  queued_at: '2026-06-30T19:34:06.850190+00:00'
