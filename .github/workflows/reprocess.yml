@@ -1,0 +1,73 @@
+name: Pipeline — Reprocess ingested code papers (autonomous drain)
+
+# Spec 024: externally-ingested CODE papers are vendored as a git submodule and
+# CPU-adapted (code_adapter) so the execution gate can run them. Each tick this
+# SINGLE job (a) migrates a few stranded code papers paper_review -> paper_ingested
+# and (b) drains paper_ingested via `run --stage` (branch_code: vendor + back-fill
+# + code_adapter -> in_progress). It is a SINGLE job ON PURPOSE: every code paper
+# adds a git submodule (a .gitmodules edit), and concurrent workers committing
+# submodules would collide on .gitmodules in the rebase-push. One serialized job
+# never modifies .gitmodules concurrently, so the commit-and-push rebase is clean
+# (the parallel advance.yml matrix touches OTHER files, so it never conflicts here).
+# Grinds through the ~80 code papers over ~2 days; the advance matrix then runs
+# each one's adapted code through the execution gate + fix-loop.
+
+on:
+  schedule:
+    - cron: '7,27,47 * * * *'   # every 20 min, offset from advance.yml's */15
+  workflow_dispatch:
+    inputs:
+      migrate_limit:
+        description: "Code papers to migrate -> paper_ingested per tick."
+        required: false
+        default: "5"
+      drain_tasks:
+        description: "paper_ingested papers to reprocess per tick (wall-budget capped)."
+        required: false
+        default: "3"
+
+permissions:
+  contents: write
+  issues: write
+
+# Serialize: never two reprocess jobs at once (submodule / .gitmodules safety).
+concurrency:
+  group: reprocess-drain
+  cancel-in-progress: false
+
+jobs:
+  drain:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    env:
+      DARTMOUTH_CHAT_API_KEY: ${{ secrets.DARTMOUTH_CHAT_API_KEY }}
+      # Back-filling a code paper (speckit chain + code_adapter) is longer than a
+      # normal advance tick; give the run loop room to finish 1-2 papers per tick.
+      LLMXIVE_RUN_WALL_BUDGET_S: "5400"
+      LLMXIVE_PAID_OPT_IN: "1"
+      LLMXIVE_PAID_BUDGET_FRACTION: "0.9"
+      LLMXIVE_EXECUTION_PAID_TIERS: "anthropic.claude-haiku-4-5-20251001,anthropic.claude-sonnet-4-6,anthropic.claude-opus-4-6"
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@v5
+        with: { ref: main }
+      - uses: actions/setup-python@v6
+        with: { python-version: "3.11", cache: pip }
+      - run: pip install -e ".[dev]"
+      - run: pip install kaggle
+      - run: python -m llmxive preflight
+      - name: Migrate a batch of code papers -> paper_ingested
+        env:
+          MIGRATE_LIMIT: ${{ github.event.inputs.migrate_limit || '5' }}
+        run: |
+          python -c "import os, re; from llmxive.paper_reprocess.migrate import migrate_unprocessed_external_papers as M; n = int(re.sub(r'\D', '', os.environ.get('MIGRATE_LIMIT','') ) or '5'); print('migrated', len(M(kind='code', limit=n)))"
+      - name: Drain paper_ingested (vendor + back-fill + CPU-adapt -> in_progress)
+        env:
+          DRAIN_TASKS: ${{ github.event.inputs.drain_tasks || '3' }}
+        run: |
+          TASKS="$(printf '%s' "${DRAIN_TASKS:-3}" | tr -cd '0-9')"
+          python -m llmxive run --stage paper_ingested --max-tasks "${TASKS:-3}"
+      - name: Commit + push
+        run: |
+          bash scripts/ci/commit-and-push.sh "reprocess(code): drain tick"
