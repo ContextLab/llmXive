@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  sleep-fmri-pipeline:
+    build: .
+    container_name: sleep-fmri-analysis
+    working_dir: /app
+    volumes:
+      # Mount local data directories to persist results and avoid re-downloading
+      - ./data/raw:/app/data/raw
+      - ./data/processed:/app/data/processed
+      - ./data/results:/app/data/results
+      - ./data/logs:/app/data/logs
+      - ./figures:/app/figures
+    # Resource constraints to match CI limits (approximate)
+    deploy:
+      resources:
+        limits:
+          memory: 6G
+        reservations:
+          memory: 2G
+    # Environment variables for reproducibility
+    environment:
+      - PYTHONHASHSEED=42
+      - OMP_NUM_THREADS=1
+      - MKL_NUM_THREADS=1
+      - NUMEXPR_NUM_THREADS=1
+      - OPENBLAS_NUM_THREADS=1
+    # Default command
+    command: ["code/main.py"]
+
+# Optional: A service for running tests
+tests:
+  build: .
+  container_name: sleep-fmri-tests
+  volumes:
+    - ./tests:/app/tests
+    - ./data:/app/data
+  command: ["pytest", "tests/", "-v", "--tb=short"]
+  depends_on:
+    - sleep-fmri-pipeline
+  deploy:
+    resources:
+      limits:
+        memory: 6G
