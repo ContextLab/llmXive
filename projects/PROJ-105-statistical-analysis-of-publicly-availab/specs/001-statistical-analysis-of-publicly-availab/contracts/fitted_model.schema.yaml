@@ -1,0 +1,57 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "FittedModel"
+description: "Schema for a parametric distribution model fit result."
+type: "object"
+properties:
+  name:
+    type: "string"
+    description: "Name of the distribution (e.g., 'Log-Normal')."
+  parameters:
+    type: "object"
+    description: "MLE estimated parameters."
+    additionalProperties:
+      type: "number"
+  metrics:
+    type: "object"
+    description: "Goodness-of-fit statistics."
+    properties:
+      aic:
+        type: "number"
+      bic:
+        type: "number"
+      ks_stat:
+        type: "number"
+      ad_stat:
+        type: "number"
+      # New fields for tail analysis
+      tail_ks_stat:
+        type: "number"
+        description: "KS statistic calculated only on the tail region (x > x_min)."
+      tail_ks_p_value:
+        type: "number"
+        description: "P-value for the tail KS test. Used as a validity gate."
+      x_min:
+        type: "number"
+        description: "Threshold used for Pareto fitting and tail analysis."
+      vuong_p_value:
+        type: "number"
+        description: "P-value from Vuong test comparing this model to the runner-up."
+    required:
+      - aic
+      - bic
+      - ks_stat
+      - ad_stat
+      - tail_ks_stat
+      - tail_ks_p_value
+  converged:
+    type: "boolean"
+    description: "Whether MLE optimization succeeded."
+  is_valid_tail:
+    type: "boolean"
+    description: "True if the model passed the Tail KS test (p > 0.05) and Hill stability."
+required:
+  - name
+  - parameters
+  - metrics
+  - converged
+  - is_valid_tail
