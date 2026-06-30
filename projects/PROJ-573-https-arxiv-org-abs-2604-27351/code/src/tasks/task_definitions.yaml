@@ -1,0 +1,84 @@
+# Task Definitions for Heterogeneous Scientific Foundation Model Collaboration Benchmark
+# Schema: task_id, modalities (list), datasets (list), label_column (string)
+# Total tasks: 10 (T001-T010)
+
+tasks:
+  - task_id: T001
+    modalities:
+      - time_series
+    datasets:
+      - UCI_HAR
+    label_column: activity_label
+
+  - task_id: T002
+    modalities:
+      - tabular
+    datasets:
+      - UCI_Adult
+    label_column: income
+
+  - task_id: T003
+    modalities:
+      - text
+    datasets:
+      - DROP
+    label_column: answer
+
+  - task_id: T004
+    modalities:
+      - time_series
+      - tabular
+    datasets:
+      - UCI_HAR
+      - UCI_Adult
+    label_column: activity_label
+
+  - task_id: T005
+    modalities:
+      - text
+      - tabular
+    datasets:
+      - MUST
+      - UCI_Adult
+    label_column: answer
+
+  - task_id: T006
+    modalities:
+      - time_series
+      - text
+    datasets:
+      - UCI_HAR
+      - DROP
+    label_column: activity_label
+
+  - task_id: T007
+    modalities:
+      - time_series
+      - tabular
+      - text
+    datasets:
+      - UCI_HAR
+      - UCI_Adult
+      - DROP
+    label_column: activity_label
+
+  - task_id: T008
+    modalities:
+      - tabular
+    datasets:
+      - UCI_Credit_Card
+    label_column: default_payment
+
+  - task_id: T009
+    modalities:
+      - text
+    datasets:
+      - MUST
+    label_column: answer
+
+  - task_id: T010
+    modalities:
+      - time_series
+    datasets:
+      - UCI_HAR
+    label_column: activity_label

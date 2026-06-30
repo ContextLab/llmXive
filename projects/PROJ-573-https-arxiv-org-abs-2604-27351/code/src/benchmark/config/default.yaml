@@ -1,0 +1,78 @@
+# Default configuration for Heterogeneous Scientific Foundation Model Collaboration Benchmark
+# Used by run_benchmark.py --config default.yaml
+#
+# This configuration defines the datasets, modalities, and execution parameters
+# for the benchmark run.
+
+# List of datasets to include in the benchmark
+# Referenced from research.md dataset verification section
+datasets:
+  - name: UCI_HAR
+    url: "UCI_HAR"  # Loaded via datasets.load_dataset('UCI_HAR')
+    modality: time_series
+    variables:
+      - accelerometer_x
+      - accelerometer_y
+      - accelerometer_z
+      - gyroscope_x
+      - gyroscope_y
+      - gyroscope_z
+    size_mb: 2.5
+    verification_status: verified
+
+  - name: DROP
+    url: "drop"  # Loaded via datasets.load_dataset('drop')
+    modality: text
+    variables:
+      - question
+      - passage
+      - answer
+    size_mb: 150.0
+    verification_status: verified
+
+  - name: MUST
+    url: "must"  # Loaded via datasets.load_dataset('must')
+    modality: text
+    variables:
+      - query
+      - document
+      - relevance
+    size_mb: 85.0
+    verification_status: verified
+
+# List of modalities to evaluate
+modalities:
+  - id: time_series
+    model_type: TimeSeries-Transformer
+    config_file: src/benchmark/config/modalities/timeseries.yaml
+    enabled: true
+  - id: tabular
+    model_type: TabPFN
+    config_file: src/benchmark/config/modalities/tabular.yaml
+    enabled: true
+  - id: text
+    model_type: DistilledLLM
+    config_file: src/benchmark/config/modalities/text.yaml
+    enabled: true
+
+# Execution parameters
+seeds: 5
+timeout_per_task: 300  # seconds (5 minutes per task as per SC-002)
+bootstrap_resamples: 1000  # Number of resamples for bootstrap CI (FR-007)
+
+# Statistical test configuration
+statistical_tests:
+  alpha: 0.05
+  effect_size_method: wilcoxon_r
+  ci_confidence: 0.95
+
+# Output configuration
+output:
+  results_csv: data/results.csv
+  summary_pdf: data/summary.pdf
+  statistical_summary: data/statistical_summary.yaml
+  logs: logs/benchmark.log
+
+# Mode selection
+# Options: "heterogeneous" (modality-specific models) or "unified" (text-only translation)
+mode: heterogeneous

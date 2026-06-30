@@ -1,0 +1,27 @@
+model_id: TabPFN
+model_type: tabular
+max_memory_gb: 1.0
+inference_script: src/models/tabular_model.py
+description: "CPU-tractable tabular foundation model for heterogeneous benchmark"
+hf_id: "TabPFN/TabPFN-small"
+input_schema:
+  - name: features
+    type: array
+    description: "Numerical features array"
+  - name: label
+    type: string
+    description: "Target label column name"
+output_schema:
+  - name: prediction
+    type: object
+    fields:
+      - name: class
+        type: string
+      - name: probability
+        type: float
+parameters:
+  n_estimators: 100
+  max_depth: 10
+dependencies:
+  - torch>=2.0.0
+  - tabpfn>=0.1.0

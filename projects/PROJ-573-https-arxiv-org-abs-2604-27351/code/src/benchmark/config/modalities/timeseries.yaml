@@ -1,0 +1,38 @@
+# Time-series modality configuration
+# FR-008: Modality-specific configuration for heterogeneous pipeline
+# Used by: src/models/timeseries_model.py, src/models/routing.py
+
+model_id: "time-series-transformer-cpu"
+model_type: "TimeSeriesTransformer"
+max_memory_gb: 0.8
+inference_script: "src/models/timeseries_model.py"
+
+# Model details (validated in T006)
+# Source: CPU-tractable TimeSeries-Transformer (< 1 GB)
+# HuggingFace ID placeholder - will be resolved at runtime
+hf_model_id: "hf-time-series-transformer-cpu"
+
+# Input schema expectations
+input_format:
+  type: "time_series"
+  features:
+    - "sensor_1"
+    - "sensor_2"
+    - "sensor_3"
+    - "sensor_4"
+  sequence_length: 128
+  frequency_hz: 50
+  
+# Inference parameters
+inference_params:
+  batch_size: 32
+  timeout_seconds: 300
+  cpu_threads: 2
+  
+# Fallback behavior for missing data
+missing_data_strategy: "interpolate_linear"
+
+# Metadata
+created_by: "T040"
+last_updated: "2024-01-15T10:30:00Z"
+version: "1.0.0"

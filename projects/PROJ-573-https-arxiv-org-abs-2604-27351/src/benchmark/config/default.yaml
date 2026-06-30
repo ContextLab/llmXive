@@ -1,0 +1,67 @@
+# Default configuration for the Heterogeneous Scientific Foundation Model Collaboration Benchmark
+# This file defines the datasets, modalities, and execution parameters for the benchmark run.
+
+# List of datasets to include in the benchmark
+# Each dataset should be available via HuggingFace datasets.load_dataset() or a verified URL
+datasets:
+  - name: UCI_HAR
+    url: "UCI_HAR"  # Loaded via datasets.load_dataset('UCI_HAR')
+    modality: timeseries
+    label_column: "activity_label"
+  - name: DROP
+    url: "drop"  # Loaded via datasets.load_dataset('drop')
+    modality: text
+    label_column: "answer"
+  - name: MUST
+    url: "must"  # Loaded via datasets.load_dataset('must')
+    modality: text
+    label_column: "label"
+  - name: UCI_Adult
+    url: "UCI/adult"
+    modality: tabular
+    label_column: "class"
+
+# Modality definitions
+modalities:
+  - name: timeseries
+    model_type: "TimeSeries-Transformer"
+    max_memory_gb: 1.0
+  - name: tabular
+    model_type: "TabPFN"
+    max_memory_gb: 1.0
+  - name: text
+    model_type: "Distilled-LLM"
+    max_memory_gb: 1.0
+
+# Execution parameters
+seeds: 5  # Number of random seeds for reproducibility
+timeout_per_task: 300  # Maximum time in seconds per task (5 minutes)
+bootstrap_resamples: 1000  # Number of bootstrap resamples for statistical analysis
+
+# Statistical analysis parameters
+alpha: 0.05  # Significance level for hypothesis testing
+
+# Task definitions (simplified for default run)
+tasks:
+  - task_id: T001
+    modalities: ["timeseries"]
+    datasets: ["UCI_HAR"]
+  - task_id: T002
+    modalities: ["text"]
+    datasets: ["DROP"]
+  - task_id: T003
+    modalities: ["tabular"]
+    datasets: ["UCI_Adult"]
+  - task_id: T004
+    modalities: ["timeseries", "text"]
+    datasets: ["UCI_HAR", "DROP"]
+  - task_id: T005
+    modalities: ["timeseries", "tabular"]
+    datasets: ["UCI_HAR", "UCI_Adult"]
+
+# Output settings
+output_dir: "data"
+report_format: ["csv", "pdf"]
+
+# Logging settings
+log_level: "INFO"

@@ -48,7 +48,7 @@
 - [X] T001 [P] Verify time-series dataset availability (UCI_HAR) via `datasets.load_dataset('UCI_HAR')`; create `src/research/verify_timeseries.py` script; document in research.md section "Dataset Verification" with fields: dataset_name, url, variables (list), size_mb, verification_status (FR-001, Phase 0.1)
 - [X] T002 [P] Verify tabular dataset availability (selected UCI sets) via HuggingFace datasets; create `src/research/verify_tabular.py` script; document in research.md section "Dataset Verification" with fields: dataset_name, url, variables (list), size_mb, verification_status (FR-001, Phase 0.1)
 - [X] T003 [P] Verify text dataset availability (DROP/MUST) via HuggingFace datasets; create `src/research/verify_text.py` script; document in research.md section "Dataset Verification" with fields: dataset_name, url, variables (list), size_mb, verification_status (FR-001, Phase 0.1)
-- [X] T004 Validate statistical methodology (paired t-test, Wilcoxon signed-rank, bootstrap 1000 resamples); document in research.md section "Methodology" with formula, α-level (0.05), and effect size calculation (FR-007, FR-014, Phase 0.3)
+- [X] T004 Validate statistical methodology (paired t-test, Wilcoxon signed-rank, bootstrap 1000 resamples); document in research.md section "Methodology" with formula, {{claim:c_101df1fb}}, and effect size calculation (FR-007, FR-014, Phase 0.3)
 - [X] T005 Document dataset-variable fit and flag any missing variables in research.md section "Gap Analysis" with fields: dataset_name, missing_variables (list), impact_assessment (FR-001, Phase 0.4)
 - [X] T006 Validate model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM via HuggingFace model cards; create `src/research/verify_models.py` script; document in research.md section "Model Verification" with fields: model_name, hf_id, size_mb, cpu_tractable (boolean) (FR-002, SC-002, Phase 0.5)
 - [X] T006a Implement Reference-Validator Agent in `src/validators/reference_validator.py` with title-token-overlap ≥ 0.7 check before contributing review points; add blocking gate for Constitution II compliance (Constitution II, Plan Gap)
@@ -111,11 +111,11 @@ Examples of foundational tasks (adjust based on your project):
 - [X] T025 [US1] Implement seed/version AND environment details logging in src/utils/logging.py (FR-005); depends on T016 completion; functions: log_random_seed(seed), log_model_versions(models), log_environment_details(); log random seeds, model versions, AND environment details (Python version, OS, CPU info)
 - [X] T026 [US1] Implement metrics computation (F1, MAPE) in src/evaluation/metrics.py (FR-004); function signatures: compute_f1(y_true, y_pred) -> float, compute_mape(y_true, y_pred) -> float; handle edge cases (division by zero, empty arrays)
 - [X] T027 [US1] Implement statistical tests in src/evaluation/statistical_tests.py (FR-007, FR-014, FR-011); MUST include: paired t-test (scipy.stats.ttest_rel), Wilcoxon signed-rank with effect sizes (r = Z/sqrt(N)) and 95% CI as PRIMARY outcome (document formula), bootstrap 1000 resamples (explicit count), configurable α threshold (default 0.05 (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value)) with logging; function signatures: paired_ttest(condition_a, condition_b, alpha=0.05), wilcoxon_effect_size(condition_a, condition_b), bootstrap_ci(values, n_resamples=1000, confidence=0.95)
-- [ ] T028 [US1] Implement report generator in src/evaluation/report_generator.py (FR-007); MUST verify report includes (a) t-statistic, (b) p-value, (c) bootstrap CI (1000 resamples), (d) Wilcoxon effect size as PRIMARY outcome with 95% CI; function signatures: generate_csv_report(results, output_path), generate_pdf_report(results, output_path)
-- [ ] T029 [US1] Create run_benchmark.py main entry point in src/benchmark/run_benchmark.py (FR-001, FR-006, FR-010); CLI arguments: --config (default default.yaml), --mode (heterogeneous|unified), --seeds (5); depends on T024, T025 logging complete
-- [ ] T030 [US1] Create default.yaml config in src/benchmark/config/default.yaml with required keys: datasets (list), modalities (list), seeds (5), timeout_per_task (300), bootstrap_resamples (1000)
-- [ ] T031 [US1] Create task_definitions.yaml with a set of multi-modal task definitions in src/tasks/task_definitions.yaml (not "multiple" - explicit count); schema: task_id (T001-T020), modalities (list), datasets (list), label_column (string); depends on T010, T011 complete
-- [ ] T032 [US1] Create StatisticalSummary persistence in data/statistical_summary.yaml (Constitution IV); YAML structure: task_results (list of {task_id, accuracy, condition, timestamp}), aggregate_stats (mean_accuracy_diff, p_value, effect_size, ci_lower, ci_upper); schema reference: contracts/results.schema.yaml
+- [X] T028 [US1] Implement report generator in src/evaluation/report_generator.py (FR-007); MUST verify report includes (a) t-statistic, (b) p-value, (c) bootstrap CI (1000 resamples), (d) Wilcoxon effect size as PRIMARY outcome with 95% CI; function signatures: generate_csv_report(results, output_path), generate_pdf_report(results, output_path)
+- [X] T029 [US1] Create run_benchmark.py main entry point in src/benchmark/run_benchmark.py (FR-001, FR-006, FR-010); CLI arguments: --config (default default.yaml), --mode (heterogeneous|unified), --seeds (5); depends on T024, T025 logging complete
+- [X] T030 [US1] Create default.yaml config in src/benchmark/config/default.yaml with required keys: datasets (list), modalities (list), seeds (5), timeout_per_task (300), bootstrap_resamples (1000)
+- [X] T031 [US1] Create task_definitions.yaml with a set of multi-modal task definitions in src/tasks/task_definitions.yaml (not "multiple" - explicit count); schema: task_id (T001-T020), modalities (list), datasets (list), label_column (string); depends on T010, T011 complete
+- [X] T032 [US1] Create StatisticalSummary persistence in data/statistical_summary.yaml (Constitution IV); YAML structure: task_results (list of {task_id, accuracy, condition, timestamp}), aggregate_stats (mean_accuracy_diff, p_value, effect_size, ci_lower, ci_upper); schema reference: contracts/results.schema.yaml
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -129,20 +129,20 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T033 [P] [US2] Contract test for modality_model schema in tests/contract/test_modality_model_schema.py
-- [ ] T034 [P] [US2] Integration test for modality addition in tests/integration/test_modality_addition.py
+- [X] T033 [P] [US2] Contract test for modality_model schema in tests/contract/test_modality_model_schema.py
+- [X] T034 [P] [US2] Integration test for modality addition in tests/integration/test_modality_addition.py
 
 ### Implementation for User Story 2
 
-- [ ] T035 [P] [US2] Implement modality-specific model wrapper for time-series in src/models/timeseries_model.py (FR-002); use CPU-tractable TimeSeries-Transformer (< 1 GB); class TimeSeriesModel with methods: load_model(model_id), predict(input_data), get_embedding(input_data); handle CPU-only inference
-- [ ] T036 [P] [US2] Implement modality-specific model wrapper for tabular in src/models/tabular_model.py (FR-002); use TabPFN (< 1 GB); class TabularModel with methods: load_model(model_id), predict(input_data), get_embedding(input_data); handle CPU-only inference
-- [ ] T037 [P] [US2] Implement modality-specific model wrapper for text in src/models/text_model.py (FR-002); use distilled LLM (< 1 GB); class TextModel with methods: load_model(model_id), predict(input_data), get_embedding(input_data); handle CPU-only inference
-- [ ] T038 [US2] Implement heterogeneous routing layer in src/models/routing.py (FR-002); depends on T035-T037 complete; class ModalityRouter with methods: route(modality, input_data), get_model(modality); routing logic: forward each modality's raw input to its native model; interface: predict(modalities_dict) -> prediction
-- [ ] T039 [US2] Implement missing modality handler in src/utils/missing_handler.py (FR-009, FR-012); function signatures: handle_missing_modality(task_id, missing_modality, condition) -> placeholder; fallback behavior: heterogeneous condition skips modality, unified condition inserts placeholder text; logging format: "WARNING: Missing modality {modality} for task {task_id}"
-- [ ] T040 [US2] Create timeseries.yaml modality config in src/benchmark/config/modalities/timeseries.yaml (FR-008); required keys: model_id, model_type, max_memory_gb, inference_script; depends on T017, T018 complete; update state/artifact_hashes after config changes
-- [ ] T041 [US2] Create tabular.yaml modality config in src/benchmark/config/modalities/tabular.yaml (FR-008); required keys: model_id, model_type, max_memory_gb, inference_script; depends on T017, T018 complete; update state/artifact_hashes after config changes
-- [ ] T042 [US2] Create text.yaml modality config in src/benchmark/config/modalities/text.yaml (FR-008); required keys: model_id, model_type, max_memory_gb, inference_script; depends on T017, T018 complete; update state/artifact_hashes after config changes
-- [ ] T043 [US2] Implement run_task.py single task execution in src/benchmark/run_task.py (FR-008, FR-009); CLI arguments: --task-id (required), --add-modality (optional); task loading logic: load task from task_definitions.yaml, load modality configs; output format: JSON with prediction, modality_contributions, timing
+- [X] T035 [P] [US2] Implement modality-specific model wrapper for time-series in src/models/timeseries_model.py (FR-002); use CPU-tractable TimeSeries-Transformer (< 1 GB); class TimeSeriesModel with methods: load_model(model_id), predict(input_data), get_embedding(input_data); handle CPU-only inference
+- [X] T036 [P] [US2] Implement modality-specific model wrapper for tabular in src/models/tabular_model.py (FR-002); use TabPFN (< 1 GB); class TabularModel with methods: load_model(model_id), predict(input_data), get_embedding(input_data); handle CPU-only inference
+- [X] T037 [P] [US2] Implement modality-specific model wrapper for text in src/models/text_model.py (FR-002); use distilled LLM (< 1 GB); class TextModel with methods: load_model(model_id), predict(input_data), get_embedding(input_data); handle CPU-only inference
+- [X] T038 [US2] Implement heterogeneous routing layer in src/models/routing.py (FR-002); depends on T035-T037 complete; class ModalityRouter with methods: route(modality, input_data), get_model(modality); routing logic: forward each modality's raw input to its native model; interface: predict(modalities_dict) -> prediction
+- [X] T039 [US2] Implement missing modality handler in src/utils/missing_handler.py (FR-009, FR-012); function signatures: handle_missing_modality(task_id, missing_modality, condition) -> placeholder; fallback behavior: heterogeneous condition skips modality, unified condition inserts placeholder text; logging format: "WARNING: Missing modality {modality} for task {task_id}"
+- [X] T040 [US2] Create timeseries.yaml modality config in src/benchmark/config/modalities/timeseries.yaml (FR-008); required keys: model_id, model_type, max_memory_gb, inference_script; depends on T017, T018 complete; update state/artifact_hashes after config changes
+- [X] T041 [US2] Create tabular.yaml modality config in src/benchmark/config/modalities/tabular.yaml (FR-008); required keys: model_id, model_type, max_memory_gb, inference_script; depends on T017, T018 complete; update state/artifact_hashes after config changes
+- [X] T042 [US2] Create text.yaml modality config in src/benchmark/config/modalities/text.yaml (FR-008); required keys: model_id, model_type, max_memory_gb, inference_script; depends on T017, T018 complete; update state/artifact_hashes after config changes
+- [X] T043 [US2] Implement run_task.py single task execution in src/benchmark/run_task.py (FR-008, FR-009); CLI arguments: --task-id (required), --add-modality (optional); task loading logic: load task from task_definitions.yaml, load modality configs; output format: JSON with prediction, modality_contributions, timing
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -156,12 +156,12 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T044 [P] [US3] Contract test for unified translation schema in tests/contract/test_translation_schema.py
-- [ ] T045 [P] [US3] Integration test for unified mode execution in tests/integration/test_unified_mode.py
+- [X] T044 [P] [US3] Contract test for unified translation schema in tests/contract/test_translation_schema.py
+- [X] T045 [P] [US3] Integration test for unified mode execution in tests/integration/test_unified_mode.py
 
 ### Implementation for User Story 3
 
-- [ ] T046 [US3] Implement unified translation layer in src/models/translation.py (FR-003); class UnifiedTranslator with methods: translate_timeseries(input_data), translate_tabular(input_data), translate_all(modalities_dict); deterministic schema documented
+- [X] T046 [US3] Implement unified translation layer in src/models/translation.py (FR-003); class UnifiedTranslator with methods: translate_timeseries(input_data), translate_tabular(input_data), translate_all(modalities_dict); deterministic schema documented
 - [ ] T047 [US3] Implement time-series to text conversion logic in src/models/translation.py (US-3 Scenario 1); deterministic schema: "Mean heart rate = X bpm, max = Y bpm, min = Z bpm, std = W bpm" (all quantitative information retained); function signature: timeseries_to_text(data, label_name) -> string
 - [ ] T048 [US3] Implement tabular to text conversion logic in src/models/translation.py (US-3 Scenario 1); deterministic schema: CSV-style text representation with column names and values; function signature: tabular_to_text(df, label_column) -> string
 - [ ] T049 [US3] Add fidelity validation for translation quality in src/models/translation.py (FR-003); function signature: validate_translation(original_data, translated_text) -> fidelity_score; measure information loss; log warning if fidelity < threshold
@@ -285,13 +285,13 @@ With multiple developers:
 
 ## Compute Feasibility Notes
 
-- All models must be CPU-tractable (< 1 GB weights) [UNRESOLVED-CLAIM: c_9a0e1087 — status=not_enough_info] - validated in T006
-- No GPU/CUDA dependencies [UNRESOLVED-CLAIM: c_be3a8429 — status=not_enough_info]
-- Total dataset size ≤ 5 GB [UNRESOLVED-CLAIM: c_728310c2 — status=not_enough_info]
-- Per-task inference ≤ 5 minutes on 2 CPU cores [UNRESOLVED-CLAIM: c_f76f2172 — status=not_enough_info]
-- Full benchmark ≤ 4 hours wall-clock time [UNRESOLVED-CLAIM: c_415adee5 — status=not_enough_info]
-- Use UCI_HAR for time-series [UNRESOLVED-CLAIM: c_2d693a8d — status=not_enough_info], DROP/MUST for text (per plan.md substitution strategy)
-- No 8-bit/4-bit quantization [UNRESOLVED-CLAIM: c_6b296be1 — status=not_enough_info] (bitsandbytes requires CUDA)
+- All models must be CPU-tractable (< 1 GB weights) - validated in T006
+- No GPU/CUDA dependencies
+- Total dataset size ≤ 5 GB
+- Per-task inference ≤ 5 minutes on 2 CPU cores
+- Full benchmark ≤ 4 hours wall-clock time
+- Use UCI_HAR for time-series, DROP/MUST for text (per plan.md substitution strategy)
+- No 8-bit/4-bit quantization (bitsandbytes requires CUDA)
 - Dataset downloads MUST use verified URLs or HuggingFace datasets.load_dataset()
 
 ## SC-001 Empirical Determination Note

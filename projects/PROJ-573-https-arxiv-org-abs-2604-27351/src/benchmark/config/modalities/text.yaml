@@ -1,0 +1,21 @@
+# Text Modality Configuration
+# FR-008: Modality-specific configuration for text processing
+# Used by UnifiedTranslator and ModalityRouter for text inputs
+# Dataset: DROP/MUST (HuggingFace)
+# Model: Distilled LLM (CPU-tractable, < 1 GB)
+
+model_id: "distilbert-base-uncased"
+model_type: "transformer_text"
+max_memory_gb: 0.8
+inference_script: "src/models/text_model.py"
+task_type: "classification"
+tokenizer: "distilbert-base-uncased"
+max_sequence_length: 512
+batch_size: 8
+# Reference to research verification (T006)
+model_source: "huggingface"
+verified_cpu_tractable: true
+# Fallback for missing modality (FR-009)
+missing_placeholder: "[MISSING_TEXT]"
+# Translation fidelity threshold (FR-003)
+translation_fidelity_threshold: 0.85
