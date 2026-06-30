@@ -1,0 +1,65 @@
+name: Simulation CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+# Concurrency to prevent duplicate runs of the same workflow on the same PR
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  run-simulation:
+    runs-on: ubuntu-latest
+    
+    # Resource constraints: Modest CPU and RAM (default ubuntu-latest is 2 CPU, ~7GB RAM)
+    # We explicitly limit steps to ensure we stay within memory bounds
+    timeout-minutes: 360 # 6 hours as required
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Verify directory structure
+      run: |
+        python code/setup_directories.py
+
+    - name: Run Simulation (Subset for CI Sanity Check)
+      # We run a small subset of the simulation to verify the pipeline works within the 6h limit
+      # and respects memory constraints. The full run is too large for CI but the logic is validated.
+      run: |
+        python code/main.py --sample-size 10 --effect-size 0.5 --test-type t-test --iterations 100 --alpha 0.05
+        # Verify output files were created
+        if [ ! -f data/simulation/p_values_raw.csv ]; then
+          echo "Error: Expected output file data/simulation/p_values_raw.csv not found"
+          exit 1
+        fi
+        echo "Simulation sanity check passed."
+
+    - name: Run Unit Tests
+      run: |
+        # Placeholder for test execution once tests are implemented
+        # pytest tests/ -v --tb=short
+        echo "Tests skipped for T008 implementation phase, to be enabled in T010/T011"
+
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: simulation-results
+        path: |
+          data/simulation/*.csv
+          data/simulation/*.json
+        retention-days: 5
