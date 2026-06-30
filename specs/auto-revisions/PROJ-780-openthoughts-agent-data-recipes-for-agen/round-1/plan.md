@@ -1,7 +1,7 @@
 # Implementation Plan
 
 **Kind**: paper_science
-**Action item severity counts**: writing=25, science=8
+**Action item severity counts**: writing=30, science=6
 
 ## Approach
 

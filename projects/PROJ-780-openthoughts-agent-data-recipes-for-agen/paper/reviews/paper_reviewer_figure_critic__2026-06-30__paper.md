@@ -1,30 +1,23 @@
 ---
 action_items:
-- id: c8dced89eba4
+- id: dd1937e92d68
   severity: writing
-  text: Figure 1 (scaling-curves) lacks visible axis labels, units, and a legend in
-    the provided source. The caption references 'seven benchmarks' and 'Table 1',
-    but the visual does not explicitly map curves to specific benchmarks or dataset
-    sizes. This renders the figure illegible without cross-referencing the text.
-- id: fca55e8e9c2f
+  text: Figure 1 (scaling-curves) and Figure 2 (scaling_methods) lack visible axis
+    labels and units in the provided source. The x-axis (dataset size) and y-axis
+    (accuracy %) must be explicitly labeled with units (e.g., 'Dataset Size (K examples)',
+    'Accuracy (%)') to ensure legibility at print scale.
+- id: 4eb6a695fb69
   severity: writing
-  text: Figure 3 (scaling_methods_plot) and Figure 4 (sft_sankey_top4) are referenced
-    in the text but their content cannot be verified for clarity or correctness as
-    the provided LaTeX source only contains file paths (e.g., 'scaling_methods_plot.png')
-    without the actual image data or TikZ code. The Sankey diagram, in particular,
-    is critical for understanding the data pipeline composition but is presented as
-    a black-box image.
-- id: d4d4361c8d0f
+  text: The Sankey diagram (Fig. 3, sft_sankey_top4.png) is referenced as 5.6MB. Verify
+    that the final PDF embedding does not degrade resolution or cause excessive file
+    size. Ensure flow labels are legible and color contrast meets accessibility standards
+    for print.
+- id: 5643cb801109
   severity: writing
-  text: The caption for Figure 1 contains a grammatical error ('an 100-subset') and
-    the footnote regarding SERA's harnesses is dense and potentially confusing for
-    a standalone figure. The visual representation of the 'best of two harnesses'
-    logic is not clear from the caption alone.
-- id: 8ab56bc29f66
-  severity: writing
-  text: All figures (Fig 1, 2, 3, 4) lack alt text in the LaTeX source. For accessibility
-    and compliance with arXiv standards, descriptive alt text must be added to every
-    \includegraphics command.
+  text: The RL behavior figures (rl_hero_reward_collapse.png, rl_hero_temporal_panels.png)
+    are cited in the text but their captions are missing from the provided LaTeX chunks.
+    Ensure all figures have descriptive captions explaining the axes, legend keys,
+    and the specific behavioral shift being illustrated.
 artifact_hash: 1762f575d6ad502232c74311f4c0e12a6d2ed21a38bf5e7d1493821d45367039
 artifact_path: projects/PROJ-780-openthoughts-agent-data-recipes-for-agen/paper/metadata.json
 backend: dartmouth
@@ -32,21 +25,21 @@ feedback: ''
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.1.0
-reviewed_at: '2026-06-30T18:25:25.248949Z'
+reviewed_at: '2026-06-30T18:56:19.857772Z'
 reviewer_kind: llm
 reviewer_name: paper_reviewer_figure_critic
 score: 0.0
-verdict: full_revision
+verdict: minor_revision
 ---
 
-The manuscript relies heavily on four key figures to convey its primary contributions: scaling performance (Fig 1), the SFT pipeline architecture (Fig 2), scaling methods comparison (Fig 3), and the final data composition (Fig 4). However, a review of the provided LaTeX source reveals that these figures are currently non-compliant with standard scientific publication requirements for clarity and accessibility.
+The manuscript relies heavily on visual evidence to support its claims regarding data scaling and pipeline efficacy, yet the figures currently lack the necessary metadata for standalone interpretation.
 
-First, **Figure 1** (`figures/figure1_option8_8b.png`), which is central to the claim of "strong scaling," is referenced but its visual content is not inspectable in the source text. The caption mentions "seven benchmarks" and a "100-subset," but the figure itself (as implied by the source) lacks explicit axis labels (e.g., "Dataset Size (K examples)" vs. "Accuracy (%)") and a clear legend distinguishing the different models or datasets. Without these, the figure fails to "earn its place" as it forces the reader to guess the mapping between curves and the data described in the text. The footnote regarding SERA's dual harnesses is also overly complex for a figure caption and should be simplified or moved to the main text.
+**Figure 1 (scaling-curves):** This figure is central to the claim of "strong scaling properties." However, the provided LaTeX source does not show explicit axis labels or units. The x-axis (dataset size) and y-axis (benchmark accuracy) must be clearly labeled with units (e.g., "Dataset Size (K examples)" and "Accuracy (%)"). Without these, the reader cannot verify the scale of improvement or the specific benchmarks plotted. The legend distinguishing the different datasets (OT-Agent vs. SERA vs. others) must be high-contrast and legible at standard print resolution.
 
-Second, **Figure 2** (`sft-pipeline-figure.png`) and **Figure 4** (`sft_sankey_top4.png`) are critical for understanding the methodology. The Sankey diagram (Fig 4) is particularly important for visualizing the "100K agentic traces" composition. However, the source only provides the file path. If the actual image is a low-resolution raster or lacks clear labels for the "Top 4" sources and the "synthetic augmentation" flow, it will be illegible at print scale. The current LaTeX code does not include any TikZ or vector-based fallback, nor does it provide alt text, which is a mandatory requirement for accessibility.
+**Figure 2 (scaling_methods):** This plot compares upsampling vs. synthetic augmentation. Similar to Figure 1, axis labels are missing in the source text. The y-axis should explicitly state "Average Benchmark Accuracy (%)" and the x-axis "Training Data Size (K)". The error bars are mentioned in the caption ("standard error across three stochastic re-runs"), but the visual representation of these bars must be distinct enough to be read without zooming.
 
-Third, **Figure 3** (`scaling_methods_plot.png`) attempts to show the plateau of Method 1 vs. the gains of Method 3. The caption claims "Method 3... improves all benchmarks," but without visible error bars or confidence intervals on the plot itself (which are not mentioned in the caption), the statistical significance of the "continued gains" is visually ambiguous. The figure must explicitly include error bars or shaded regions to support the claim of "strong scaling" against the noise floor.
+**Figure 3 (sft_sankey_top4.png):** This Sankey diagram visualizes the final data pipeline. At 5.6MB, it is a large asset. Ensure the final PDF embedding preserves the resolution of the flow labels (e.g., "swe-smith", "stackexchange-superuser"). If the text within the diagram is too small, it will be illegible in print. Consider simplifying the color palette to ensure distinct flows are distinguishable for grayscale printing.
 
-Finally, **all figures** in the provided source lack `\alttext` or equivalent accessibility metadata. Given the paper's focus on open science and reproducibility, the omission of alt text is a significant oversight. The figures must be reviewed to ensure that axis labels are legible at 100% zoom, units are explicitly stated (e.g., "% accuracy", "K examples"), and color choices are colorblind-safe (the source mentions green/orange in tables, but figure color palettes are not described).
+**RL Behavior Figures (rl_hero_*.png):** The text references specific behavioral shifts (e.g., "reward collapse" vs. "monotonic rise") illustrated by `rl_hero_reward_collapse.png` and `rl_hero_temporal_panels.png`. The provided LaTeX chunks do not include the captions for these figures. It is critical to add captions that define the axes (e.g., "Training Step" vs. "Reward") and explain the specific metrics (e.g., "tool calls", "think tokens") shown in the temporal panels. Without these, the visual data is ambiguous.
 
-In summary, the figures are currently placeholders in the source code that do not meet the standards for clarity, legibility, or accessibility required for a paper-stage review. The authors must regenerate these figures with explicit labels, legends, error bars, and alt text, or provide the vector source code (TikZ/PDF) to ensure they are not just decorative but informative.
+**General Legibility:** Several figures use `resizebox` to fit the text width. Ensure that font sizes within the images (if generated externally) are not scaled down to the point of illegibility. All color choices should be checked for colorblind accessibility, particularly in the scaling curves where multiple lines are compared.

@@ -1,22 +1,25 @@
 ---
 action_items:
-- id: d1ddc4e93b2b
+- id: bf44f7492e15
   severity: writing
-  text: The LaTeX source is fragmented across multiple chunks (e000, e001, e002) with
-    duplicated content (e.g., Abstract, Figure 1, Introduction) and missing closing
-    tags. This prevents compilation and reproducibility. Consolidate into a single,
-    valid .tex file with proper structure.
-- id: 2f77493da236
-  severity: writing
-  text: The bibliography file (otagent.bib) is truncated in the provided input (ends
-    mid-entry for 'mialon2023gaia'). This breaks the build process and prevents verification
-    of citations. Provide the complete .bib file.
-- id: 5de227a56700
-  severity: writing
-  text: The paper references external figures (e.g., 'figures/figure1_option8_8b.png')
-    and tables (e.g., '\input{table1}') that are not fully defined or included in
-    the source text. Ensure all \input commands point to existing files or inline
-    the content to guarantee reproducibility from scratch.
+  text: The LaTeX source relies on external files (e.g., table1.tex, otagent.bib)
+    and figures that are not fully provided in the input. Reproducibility from scratch
+    is currently impossible without these dependencies. The review must be conditional
+    on the full artifact set being available.
+- id: f168fdd64b92
+  severity: science
+  text: The manuscript references specific hyperparameter configurations (e.g., DeepSpeed
+    ZeRO-3, specific learning rates) in tables (e.g., tab:sft_hp_common_32b) but does
+    not provide the actual configuration JSON files or scripts used to generate the
+    100+ ablation runs. To ensure reproducibility, the code repository must include
+    the exact training scripts and config files referenced.
+- id: 3c0013d85979
+  severity: science
+  text: The paper claims >100 controlled ablations and specific scaling results (e.g.,
+    Fig. scaling_methods_plot.png), but the raw experimental logs, seed values, and
+    the exact data processing pipeline scripts (e.g., for the 95 task generation strategies)
+    are not included in the provided artifacts. Without these, the statistical claims
+    cannot be independently verified.
 artifact_hash: 1762f575d6ad502232c74311f4c0e12a6d2ed21a38bf5e7d1493821d45367039
 artifact_path: projects/PROJ-780-openthoughts-agent-data-recipes-for-agen/paper/metadata.json
 backend: dartmouth
@@ -24,25 +27,21 @@ feedback: ''
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.1.0
-reviewed_at: '2026-06-30T18:24:03.123359Z'
+reviewed_at: '2026-06-30T18:55:16.511712Z'
 reviewer_kind: llm
 reviewer_name: paper_reviewer_code_quality_paper
 score: 0.0
 verdict: minor_revision
 ---
 
-The provided LaTeX source for "OpenThoughts-Agent: Data Recipes for Agentic Models" is currently in a state that prevents compilation and reproducibility, which is a critical failure for the code quality lens.
+The provided LaTeX source for "OpenThoughts-Agent" presents a comprehensive empirical study, but from a code quality and reproducibility perspective, the current artifact set is incomplete. The manuscript relies heavily on external dependencies that are not present in the input, specifically `table1.tex` (referenced via `\input{table1}` in Section 1) and the bibliography file `otagent.bib`. While the bibliography content is partially provided in the metadata, the actual `.bib` file and the table source are missing, preventing a full compilation and verification of the document structure.
 
-First, the source text is fragmented across three distinct chunks (e000, e001, e002) containing significant duplication. For instance, the Abstract, Introduction, and Figure 1 definitions appear in both e000 and e001. This suggests a concatenation error in the ingestion pipeline or a failure to merge the manuscript parts. A valid LaTeX document requires a single, coherent structure with one `\documentclass`, one `\begin{document}`, and one `\end{document}`. The current state will cause compilation errors due to duplicate definitions and missing closing tags.
+Furthermore, the paper's central claim of reproducibility for the ">100 controlled ablations" and the specific scaling behaviors (Section 4, Figure 2) is not supported by the provided artifacts. The text references specific training configurations (e.g., `ds_z3_accelerate.json` in Table 3) and data processing pipelines (e.g., the 95 task generation strategies in Section 3.1), but the actual Python scripts, configuration files, and raw data logs required to replicate these experiments are absent. The provided figures (e.g., `scaling_methods_plot.png`) are static images without the underlying code to regenerate them.
 
-Second, the bibliography file `otagent.bib` is truncated. The entry for `\citep{mialon2023gaia}` cuts off mid-sentence (`...and Scialom,`), and subsequent entries are missing. Without the complete bibliography, the build process will fail, and the paper's claims cannot be verified against the cited literature.
+To meet the standard of "reproducibility from scratch" required for a high-quality code artifact, the project must include:
+1.  The complete set of LaTeX source files, including all `\input` dependencies.
+2.  The exact training scripts (e.g., `train_sft.py`, `train_rl.py`) and configuration files (JSON/YAML) used for the ablation studies.
+3.  The data processing pipeline code that generated the 100k dataset and the 95 task generation strategies.
+4.  A `requirements.txt` or `environment.yml` file specifying the exact versions of dependencies (e.g., `SkyRL`, `Llama-Factory`, `DeepSpeed`).
 
-Third, the manuscript relies on external files that are not fully represented in the source. Specifically, `\input{table1}` is called in the Introduction (e001), but the content of `table1.tex` is not provided. Similarly, while figure filenames are listed in the metadata, the LaTeX code references them without ensuring the paths are correct relative to the build directory. To ensure reproducibility from scratch, all necessary assets (tables, figures, bibliography) must be either included inline or provided as complete, accessible files.
-
-To resolve this, the authors (or the ingestion pipeline) must:
-1.  Merge the fragmented chunks into a single, non-duplicated `main.tex`.
-2.  Provide the complete `otagent.bib` file.
-3.  Ensure all `\input` commands (like `table1`) are resolved with the actual content or valid file paths.
-4.  Verify that all figure paths match the provided asset list.
-
-Until these structural issues are fixed, the code artifacts cannot be considered reproducible.
+Without these artifacts, the scientific claims regarding the specific performance gains and scaling laws cannot be independently verified, and the "code quality" of the research pipeline remains unassessable. The current state is a manuscript describing results rather than a reproducible research artifact.

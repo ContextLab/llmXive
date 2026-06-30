@@ -1,33 +1,25 @@
 ---
 action_items:
-- id: 6754ada84fc8
+- id: fae291a4c002
   severity: science
-  text: The paper reports standard errors (subscripts) for benchmark scores but does
-    not specify the statistical test used to determine significance. For claims like
-    'beating alternatives at every size' or specific pp gains (e.g., +3.9pp), authors
-    must report p-values or confidence intervals derived from the n=3 stochastic runs
-    to distinguish signal from noise.
-- id: b12afcccbfea
+  text: Report p-values or confidence intervals for all benchmark comparisons (e.g.,
+    Table 1). Claims of superiority (e.g., Top-4 vs Top-2) lack statistical significance
+    testing across the n=3 runs.
+- id: 4c4320a97604
   severity: science
-  text: In Table 1 (32B scale) and Table 3 (8B scale), multiple benchmarks are compared
-    simultaneously without correction for multiple comparisons. With 7+ benchmarks,
-    the family-wise error rate is inflated. Authors should apply a correction (e.g.,
-    Bonferroni or Holm-Bonferroni) or use a hierarchical testing framework to validate
-    the 'SotA' claims across the full suite.
-- id: d409ef567033
+  text: Address the multiple-comparisons problem in the >100 ablation study (Section
+    3.1). Apply corrections (e.g., Bonferroni) to p-values or explicitly label results
+    as exploratory to avoid false positives.
+- id: 2f4404317a05
   severity: science
-  text: The ablation studies (e.g., Table 2, Table 4) present point estimates and
-    standard errors but lack formal hypothesis testing. Claims that 'Method 3 continues
-    improving' or 'Top-4 is best' rely on visual inspection of error bars. Authors
-    must perform paired t-tests (or non-parametric equivalents given n=3) between
-    the best and runner-up configurations to confirm statistical significance.
-- id: 44eb3dca9184
+  text: Provide formal statistical tests (e.g., ANOVA) for scaling claims in Figure
+    2. Visual error bar overlap suggests the 'plateau' vs 'improvement' distinction
+    may not be significant without trend analysis.
+- id: 19c0c0b83814
   severity: science
-  text: The RL reproducibility section (Appendix) notes a ~1.6pp variance between
-    runs. However, the main text claims gains of similar magnitude (e.g., +1.2pp normalized
-    gain in Table 3). The authors must demonstrate that the reported improvements
-    are statistically distinguishable from the observed run-to-run variance, likely
-    requiring more than 3 seeds or a larger effect size.
+  text: Quantify uncertainty for the teacher model drop (Section 3.5). A confidence
+    interval for the ~5pp difference is required to validate the claim that GPT-5.3
+    is a worse teacher.
 artifact_hash: 1762f575d6ad502232c74311f4c0e12a6d2ed21a38bf5e7d1493821d45367039
 artifact_path: projects/PROJ-780-openthoughts-agent-data-recipes-for-agen/paper/metadata.json
 backend: dartmouth
@@ -35,19 +27,21 @@ feedback: ''
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.1.0
-reviewed_at: '2026-06-30T18:23:41.703254Z'
+reviewed_at: '2026-06-30T18:54:59.720071Z'
 reviewer_kind: llm
 reviewer_name: paper_reviewer_statistical_analysis
 score: 0.0
-verdict: full_revision
+verdict: minor_revision
 ---
 
-The statistical rigor of the empirical evaluation is insufficient to support the strong claims of "SotA" performance and "strong scaling" across multiple benchmarks. While the paper provides standard errors (subscripts) for many metrics, it fails to define the statistical methodology used to interpret them.
+The manuscript presents an extensive empirical study of data recipes for agentic models, but the statistical rigor is insufficient to support the strength of the claims.
 
-First, the determination of statistical significance is absent. The paper claims specific improvements (e.g., +3.9pp over Nemotron, +3pp from filtering) based on $n=3$ stochastic runs. Without reporting p-values or 95% confidence intervals derived from these runs, it is impossible to verify if these gains exceed the noise floor. For instance, in Table 3 (8B RL results), the "Normalized" gain of +1.2 is comparable to the run-to-run variance reported in the Appendix (~1.6pp). The authors must perform paired statistical tests (e.g., paired t-test or Wilcoxon signed-rank) between the proposed method and baselines to validate these differences.
+First, while standard errors (SE) are reported for benchmark scores (e.g., Table 1, 2, 3), no statistical significance tests are performed. For instance, in Table 1, the difference between "Top 4" (29.33 ± 1.63) and "Top 2" (29.00 ± 1.60) on SWE-Bench is small relative to the SE. Without paired t-tests or non-parametric equivalents across the three runs, it is impossible to distinguish signal from noise. Claims of "best performance" require p-values or confidence intervals.
 
-Second, the paper conducts multiple hypothesis tests across seven different benchmarks without addressing the multiple comparisons problem. Claiming superiority "across seven benchmarks" implies a family-wise error rate that is likely inflated. The authors should apply a correction method (e.g., Bonferroni, Holm-Bonferroni) or aggregate the results into a single composite metric with a unified significance test to support the aggregate "average accuracy" claims.
+Second, the study involves >100 ablations and 95 task generation strategies. The paper ignores the multiple-comparisons problem. With 95 hypotheses tested, the probability of false positives is high. Authors must apply corrections (e.g., Bonferroni or Benjamini-Hochberg) or explicitly state results are exploratory.
 
-Third, the ablation studies (Tables 2, 4, 5) rely heavily on visual inspection of error bars to declare winners (e.g., "Top-4 yields best balanced performance"). Given the small sample size ($n=3$), the power to detect differences is low. The authors must explicitly state which differences are statistically significant. For example, in Table 2, the difference between Top-4 (18.19) and Top-2 (18.08) is 0.11pp; without a test, this is indistinguishable from noise.
+Third, the scaling claims in Figure 2 lack statistical backing. The assertion that Method 1 "plateaus" while Method 3 "improves" relies on visual inspection. Given error bar overlap between 31.6K and 100K for Method 1, a formal test for trend or slope comparison is necessary to reject the null hypothesis of constant performance.
 
-Finally, the scaling curves (Figure 1) show overlapping error bars at several data points, yet the text asserts "strong scaling" and "beating alternatives at every size." The authors must provide a statistical test for the trend (e.g., regression analysis with confidence bands) to substantiate the scaling law claims. The current presentation of point estimates with subscripts is descriptive but not inferential.
+Finally, the conclusion regarding the "worse teacher" model (Section 3.5) cites a ~5pp drop without quantifying uncertainty. A confidence interval for the difference in means is needed to validate this conclusion.
+
+To resolve these issues, the authors must: (1) perform and report statistical significance tests for all key comparisons; (2) apply multiple-comparison corrections; and (3) provide confidence intervals for all reported performance differences.

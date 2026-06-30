@@ -1,14 +1,14 @@
 ---
 action_items:
-- id: d978e7ea2422
+- id: 7245eb032b89
   severity: writing
-  text: 'The paper presents a logical inconsistency between its high-level claims
-    and the granular data presented in the tables. First, the Introduction and Abstract
-    assert that "Repeating top sources yields diminishing returns; diversity is crucial."
-    However, Table 1 (labeled tab:top16_negative in the text) demonstrates a non-monotonic
-    relationship: performance peaks at Top-8 (49.00% on SWE-Bench) and then drops
-    significantly at Top-16 (40.33%). The conclusion that "diversity is crucial" is
-    an over-gene'
+  text: The paper presents a logical inconsistency in its central argument regarding
+    teacher model selection (Section 3.5). The authors claim that GPT-5.3-Codex is
+    a "worse teacher" despite being the "strongest on benchmarks." However, Table
+    6 (Teacher Model Ablation) explicitly shows that GPT-5.3-Codex achieves the lowest
+    SWE-Bench Verified score (21.67%) among the listed teachers, while GLM 4.7 achieves
+    28.00%. The premise that GPT-5.3 is the "strongest" model is not supported by
+    the data presented in
 artifact_hash: 1762f575d6ad502232c74311f4c0e12a6d2ed21a38bf5e7d1493821d45367039
 artifact_path: projects/PROJ-780-openthoughts-agent-data-recipes-for-agen/paper/metadata.json
 backend: dartmouth
@@ -16,19 +16,15 @@ feedback: ''
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.1.0
-reviewed_at: '2026-06-30T18:21:29.386089Z'
+reviewed_at: '2026-06-30T18:52:41.595491Z'
 reviewer_kind: llm
 reviewer_name: paper_reviewer_logical_consistency
 score: 0.0
 verdict: minor_revision
 ---
 
-The paper presents a logical inconsistency between its high-level claims and the granular data presented in the tables.
+The paper presents a logical inconsistency in its central argument regarding teacher model selection (Section 3.5). The authors claim that GPT-5.3-Codex is a "worse teacher" despite being the "strongest on benchmarks." However, Table 6 (Teacher Model Ablation) explicitly shows that GPT-5.3-Codex achieves the lowest SWE-Bench Verified score (21.67%) among the listed teachers, while GLM 4.7 achieves 28.00%. The premise that GPT-5.3 is the "strongest" model is not supported by the data presented in the very table used to support the conclusion. This undermines the causal mechanism proposed: that a model's raw benchmark strength does not correlate with its utility as a teacher. The argument would be logically sound if the data showed GPT-5.3 had high benchmark scores but low transfer performance, but the data shows it has low benchmark scores *and* low transfer performance.
 
-First, the Introduction and Abstract assert that "Repeating top sources yields diminishing returns; diversity is crucial." However, Table 1 (labeled `tab:top16_negative` in the text) demonstrates a non-monotonic relationship: performance peaks at Top-8 (49.00% on SWE-Bench) and then drops significantly at Top-16 (40.33%). The conclusion that "diversity is crucial" is an over-generalization; the data actually suggests that *optimal* diversity exists at Top-8, and *excessive* diversity (Top-16) degrades performance. The causal claim that "diversity is crucial" implies a positive correlation that the data refutes at the upper bound. The conclusion should be revised to state that "moderate diversity (Top-8) is optimal, while excessive diversity harms performance."
+Additionally, the conclusion in Section 3.2 that "Mixing the top-N sources... improves balanced performance" is only partially supported by Table 1. The "Top 1" strategy (Rank 6) actually outperforms the "Top 4" mix (Rank 1) on the primary SWE-Bench metric (30.67% vs 29.33%). The paper concludes that mixing is superior based on the "Raw" average, but fails to logically justify why the "Raw" average is the definitive metric for success when the single-source strategy wins on the most prominent benchmark. This creates a gap between the evidence (Top 1 wins on SWE-Bench) and the conclusion (Mixing is better).
 
-Second, the Abstract claims a "44.8% average accuracy across seven agentic benchmarks." The main results table (Table 1 in the Appendix) lists 9 distinct benchmarks. The caption for the main table notes that "OpenThoughts-TBLite and SWE-Bench-Verified-100 are shown as columns but excluded from the average." However, the text does not explicitly list the seven benchmarks included in the average calculation. Without this explicit enumeration, the reader cannot verify that the 44.8% figure is derived from the correct subset of data, breaking the logical link between the evidence and the summary claim.
-
-Third, Section 3.2 states that "Mixing the top-4 to top-8 sources yields balanced performance." Table 2 (`tab:mixing_strategies`) shows that the Top-2 mix achieves a higher score on OT-TBLite (18.12) than the Top-4 mix (17.00). The claim that Top-4 is "best balanced" is not supported by the raw numbers unless a specific, unstated definition of "balance" (e.g., a weighted harmonic mean) is applied. The conclusion should either provide the formula for "balance" or rephrase the claim to reflect that Top-4 offers the best *aggregate* performance across the specific core benchmarks, rather than being universally "balanced."
-
-These issues do not invalidate the experimental results but require the authors to align their textual conclusions more precisely with the non-monotonic and multi-dimensional nature of their data.
+Finally, the claim in Section 4 that upsampling "plateaus" is slightly contradicted by the data in Figure 2 caption, which notes a +3pp gain on SWE-Bench for the upsampling method. While the gain is smaller than the augmentation method, describing it as a "plateau" when there is a positive gain on the primary benchmark requires more precise logical framing to avoid overstatement.
