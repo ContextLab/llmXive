@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2403.09513",
+  "judged_at": "2026-06-30T22:12:24Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "shuttermuse: capture-time photography guidance with mllms computer science",
+  "rationale": "The paper focuses on security and defense mechanisms (jailbreak attacks) for Multimodal Large Language Models, which is a distinct construct from the user's question regarding photography guidance and capture-time assistance. While both involve MLLMs, the paper does not measure the same mechanism, variables, or empirical setting related to photographic guidance, failing to meet any of the inclusion criteria (a-f).",
+  "relevant": false
+}

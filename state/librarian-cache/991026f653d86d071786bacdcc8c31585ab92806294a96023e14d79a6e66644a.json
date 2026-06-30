@@ -1,0 +1,547 @@
+{
+  "fetched_at": "2026-06-30T22:12:34Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "ShutterMuse: Capture-Time Photography Guidance with MLLMs",
+      "target_n": 5
+    },
+    "duration_seconds": 64.817,
+    "ended_at": "2026-06-30T22:12:34Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "real-time photography assistance using multimodal large language models"
+        ],
+        [
+          2,
+          "in-camera guidance systems powered by vision-language models"
+        ],
+        [
+          3,
+          "capture-time image composition feedback with MLLMs"
+        ],
+        [
+          4,
+          "multimodal AI for photographic scene understanding and advice"
+        ],
+        [
+          5,
+          "interactive photography coaching using large language models"
+        ],
+        [
+          6,
+          "vision-language models for automated camera settings recommendation"
+        ],
+        [
+          7,
+          "real-time visual composition correction with generative AI"
+        ],
+        [
+          8,
+          "multimodal reasoning for on-device photography support"
+        ],
+        [
+          9,
+          "AI-driven photographic framing and lighting suggestions"
+        ],
+        [
+          10,
+          "language-guided image capture optimization"
+        ],
+        [
+          11,
+          "human-AI collaboration in digital photography workflows"
+        ],
+        [
+          12,
+          "intelligent camera assistants using multimodal transformers"
+        ],
+        [
+          13,
+          "context-aware photography guidance via large language models"
+        ],
+        [
+          14,
+          "visual question answering for camera operation support"
+        ],
+        [
+          15,
+          "generative AI for photographic composition critique"
+        ],
+        [
+          16,
+          "multimodal perception for real-time image quality assessment"
+        ],
+        [
+          17,
+          "adaptive photography instruction systems using deep learning"
+        ],
+        [
+          18,
+          "large language models for visual scene analysis and feedback"
+        ],
+        [
+          19,
+          "automated photography coaching using computer vision and NLP"
+        ],
+        [
+          20,
+          "intelligent image capture assistance with vision-language agents"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "ShutterMuse: Capture-Time Photography Guidance with MLLMs computer science": 0,
+        "real-time photography assistance using multimodal large language models": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "multimodal large language model visual feedback",
+      "real-time camera settings exposure composition",
+      "computer vision aesthetic scoring image quality",
+      "human-in-the-loop photography instruction generation",
+      "vision-language reasoning camera parameter optimization"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2606.25763"
+      ]
+    },
+    "per_query_hit_count": {
+      "ShutterMuse: Capture-Time Photography Guidance with MLLMs computer science": 3,
+      "computer vision aesthetic scoring image quality": 3,
+      "human-in-the-loop photography instruction generation": 2,
+      "multimodal large language model visual feedback": 3,
+      "real-time camera settings exposure composition": 3,
+      "vision-language reasoning camera parameter optimization": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2502.00425",
+          "rationale": "The paper focuses on the technical optimization of MLLMs via quantization to reduce latency and model size, which is a distinct construct from the user's question about using MLLMs to provide real-time photography guidance (a specific application domain). While both involve MLLMs, the paper does not measure the mechanism of photography guidance, the specific variables of capture-time feedback, or the empirical population of photographers, failing to meet any of the inclusion criteria (a-f) for a",
+          "title": "MQuant: Unleashing the Inference Potential of Multimodal Large Language Models via Full Static Quantization"
+        },
+        {
+          "primary_pointer": "2403.09513",
+          "rationale": "The paper focuses on security and defense mechanisms (jailbreak attacks) for Multimodal Large Language Models, which is a distinct construct from the user's question regarding photography guidance and capture-time assistance. While both involve MLLMs, the paper does not measure the same mechanism, variables, or empirical setting related to photographic guidance, failing to meet any of the inclusion criteria (a-f).",
+          "title": "AdaShield: Safeguarding Multimodal Large Language Models from Structure-based Attack via Adaptive Shield Prompting"
+        },
+        {
+          "primary_pointer": "2312.05434",
+          "rationale": "The paper focuses on detecting harmful memes using multimodal reasoning, which is a distinct application domain (content safety/moderation) from the user's question about providing photography guidance at capture time. While both involve multimodal models, the paper does not measure the same mechanism, variables, or empirical setting required for a literature review on photography guidance, and thus falls under the \"off-domain entirely\" rejection rule.",
+          "title": "Beneath the Surface: Unveiling Harmful Memes with Multimodal Reasoning Distilled from Large Language Models"
+        },
+        {
+          "primary_pointer": "2306.13394",
+          "rationale": "The paper focuses on creating a general evaluation benchmark for Multimodal Large Language Models (MLLMs) across 14 subtasks, but it does not address the specific mechanism of \"capture-time photography guidance\" or the application of MLLMs to real-time camera control. While it shares the domain of MLLMs, it fails to meet the criteria for inclusion as it does not measure the specific variable (guidance during capture), the specific population (photography systems), or the specific mechanism (real",
+          "title": "MME: A Comprehensive Evaluation Benchmark for Multimodal Large Language Models"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-30T22:11:29Z",
+    "term_input": {
+      "normalized": "shuttermuse: capture-time photography guidance with mllms computer science",
+      "raw": "ShutterMuse: Capture-Time Photography Guidance with MLLMs computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Single-photon avalanche diodes (SPADs) are an emerging sensor technology capable of detecting individual incident photons, and capturing their time-of-arrival with high timing precision. While these sensors were limited to single-pixel or low-resolution devices in the past, recently, large (up to 1 MPixel) SPAD arrays have been developed. These single-photon cameras (SPCs) are capable of capturing high-speed sequences of binary single-photon images with no read noise. We present quanta burst photography, a computational photography technique that leverages SPCs as passive imaging devices for photography in challenging conditions, including ultra low-light and fast motion. Inspired by recent success of conventional burst photography, we design algorithms that align and merge binary sequences captured by SPCs into intensity images with minimal motion blur and artifacts, high signal-to-noise ratio (SNR), and high dynamic range. We theoretically analyze the SNR and dynamic range of quanta burst photography, and identify the imaging regimes where it provides significant benefits. We demonstrate, via a recently developed SPAD array, that the proposed method is able to generate high-quality images for scenes with challenging lighting, complex geometries, high dynamic range and moving objects. With the ongoing development of SPAD arrays, we envision quanta burst photography finding applications in both consumer and scientific photography.",
+          "claimed_authors": [
+            "Sizhuo Ma",
+            "Shantanu Gupta",
+            "Arin C. Ulku",
+            "Claudio Bruschini",
+            "Edoardo Charbon",
+            "Mohit Gupta"
+          ],
+          "claimed_title": "Quanta Burst Photography",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.11840"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='ShutterMuse: Capture-Time Photography Guidance with MLLMs computer science', candidate_title='Quanta Burst Photography')",
+        "failed_at": "2026-06-30T22:11:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='ShutterMuse: Capture-Time Photography Guidance with MLLMs computer science', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-06-30T22:11:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recently, Multimodal Large Language Model (MLLM) represented by GPT-4V has been a new rising research hotspot, which uses powerful Large Language Models (LLMs) as a brain to perform multimodal tasks. The surprising emergent capabilities of MLLM, such as writing stories based on images and OCR-free math reasoning, are rare in traditional multimodal methods, suggesting a potential path to artificial general intelligence. To this end, both academia and industry have endeavored to develop MLLMs that can compete with or even better than GPT-4V, pushing the limit of research at a surprising speed. In this paper, we aim to trace and summarize the recent progress of MLLMs. First of all, we present the basic formulation of MLLM and delineate its related concepts, including architecture, training strategy and data, as well as evaluation. Then, we introduce research topics about how MLLMs can be extended to support more granularity, modalities, languages, and scenarios. We continue with multimodal hallucination and extended techniques, including Multimodal ICL (M-ICL), Multimodal CoT (M-CoT), and LLM-Aided Visual Reasoning (LAVR). To conclude the paper, we discuss existing challenges and point out promising research directions. In light of the fact that the era of MLLM has only just begun, we will keep updating this survey and hope it can inspire more research. An associated GitHub link collecting the latest papers is available at https://github.com/BradyFU/Awesome-Multimodal-Large-Language-Models.",
+          "claimed_authors": [
+            "Shukang Yin",
+            "Chaoyou Fu",
+            "Sirui Zhao",
+            "Ke Li",
+            "Xing Sun",
+            "Tong Xu",
+            "Enhong Chen"
+          ],
+          "claimed_title": "A Survey on Multimodal Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.13549"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='ShutterMuse: Capture-Time Photography Guidance with MLLMs computer science', candidate_title='A Survey on Multimodal Large Language Models')",
+        "failed_at": "2026-06-30T22:11:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose LogicVista, an evaluation benchmark that assesses the integrated logical reasoning capabilities of multimodal large language models (MLLMs) in Visual contexts. Recent advancements in MLLMs have demonstrated various fascinating abilities, from crafting poetry based on an image to performing mathematical reasoning. However, there is still a lack of systematic evaluation of MLLMs' proficiency in logical reasoning tasks, which are essential for activities like navigation and puzzle-solving. Thus we evaluate general logical cognition abilities across 5 logical reasoning tasks encompassing 9 different capabilities, using a sample of 448 multiple-choice questions. Each question is annotated with the correct answer and the human-written reasoning behind the selection, enabling both open-ended and multiple-choice evaluation. A total of 8 MLLMs are comprehensively evaluated using LogicVista. Code and Data Available at https://github.com/Yijia-Xiao/LogicVista.",
+          "claimed_authors": [
+            "Yijia Xiao",
+            "Edward Sun",
+            "Tianyu Liu",
+            "Wei Wang"
+          ],
+          "claimed_title": "LogicVista: Multimodal LLM Logical Reasoning Benchmark in Visual Contexts",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.04973"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='ShutterMuse: Capture-Time Photography Guidance with MLLMs computer science', candidate_title='LogicVista: Multimodal LLM Logical Reasoning Benchmark in Visual Contexts')",
+        "failed_at": "2026-06-30T22:11:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Visual Word Sense Disambiguation (VWSD) is a novel challenging task with the goal of retrieving an image among a set of candidates, which better represents the meaning of an ambiguous word within a given context. In this paper, we make a substantial step towards unveiling this interesting task by applying a varying set of approaches. Since VWSD is primarily a text-image retrieval task, we explore the latest transformer-based methods for multimodal retrieval. Additionally, we utilize Large Language Models (LLMs) as knowledge bases to enhance the given phrases and resolve ambiguity related to the target word. We also study VWSD as a unimodal problem by converting to text-to-text and image-to-image retrieval, as well as question-answering (QA), to fully explore the capabilities of relevant models. To tap into the implicit knowledge of LLMs, we experiment with Chain-of-Thought (CoT) prompting to guide explainable answer generation. On top of all, we train a learn to rank (LTR) model in order to combine our different modules, achieving competitive ranking results. Extensive experiments on VWSD demonstrate valuable insights to effectively drive future directions.",
+          "claimed_authors": [
+            "Anastasia Kritharoula",
+            "Maria Lymperaiou",
+            "Giorgos Stamou"
+          ],
+          "claimed_title": "Large Language Models and Multimodal Retrieval for Visual Word Sense Disambiguation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2310.14025"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='ShutterMuse: Capture-Time Photography Guidance with MLLMs computer science', candidate_title='Large Language Models and Multimodal Retrieval for Visual Word Sense Disambiguation')",
+        "failed_at": "2026-06-30T22:11:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Currently, there are no learning-free or neural techniques for real-time recalibration of infrared multi-camera systems. In this paper, we address the challenge of real-time, highly-accurate calibration of multi-camera infrared systems, a critical task for time-sensitive applications. Unlike traditional calibration techniques that lack adaptability and struggle with on-the-fly recalibrations, we propose a neural network-based method capable of dynamic real-time calibration. The proposed method integrates a differentiable projection model that directly correlates 3D geometries with their 2D image projections and facilitates the direct optimization of both intrinsic and extrinsic camera parameters. Key to our approach is the dynamic camera pose synthesis with perturbations in camera parameters, emulating realistic operational challenges to enhance model robustness. We introduce two model variants: one designed for multi-camera systems with onboard processing of 2D points, utilizing the direct 2D projections of 3D fiducials, and another for image-based systems, employing color-coded projected points for implicitly establishing correspondence. Through rigorous experimentation, we demonstrate our method is more accurate than traditional calibration techniques with or without perturbations while also being real-time, marking a significant leap in the field of real-time multi-camera system calibration. The source code can be found at https://github.com/theICTlab/neural-recalibration",
+          "claimed_authors": [
+            "Benyamin Mehmandar",
+            "Reza Talakoob",
+            "Charalambos Poullis"
+          ],
+          "claimed_title": "Neural Real-Time Recalibration for Infrared Multi-Camera Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.14505"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='ShutterMuse: Capture-Time Photography Guidance with MLLMs computer science', candidate_title='Neural Real-Time Recalibration for Infrared Multi-Camera Systems')",
+        "failed_at": "2026-06-30T22:11:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Motor is the most widely used production equipment in industrial field. In order to realize the real-time state monitoring and multi-fault pre-diagnosis of three-phase motor, this paper presents a design of three-phase motor state monitoring and fault diagnosis system based on LabVIEW.\n  The multi-dimensional vibration acceleration, rotational speed, temperature, current and voltage signals of the motor are collected with NI cDAQ acquisition equipment in real time and high speed. At the same time, the model of motor health state and fault state is established. The order analysis algorithm is used to analyze the data at an advanced level, and the diagnosis and classification of different fault types are realized. The system is equipped with multi-channel acquisition, display, analysis and storage. Combined with the current cloud transmission technology, we will back up the data to the cloud to be used by other terminals.",
+          "claimed_authors": [
+            "S. Q. Liu",
+            "Z. S. Ji",
+            "Y Wang",
+            "Z. C. Zhang"
+          ],
+          "claimed_title": "Real time state monitoring and fault diagnosis system for motor based on LabVIEW",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1806.09998"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='ShutterMuse: Capture-Time Photography Guidance with MLLMs computer science', candidate_title='Real time state monitoring and fault diagnosis system for motor based on LabVIEW')",
+        "failed_at": "2026-06-30T22:11:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Vehicular Edge Computing (VEC) has emerged as a promising paradigm for enhancing the computational efficiency and service quality in intelligent transportation systems by enabling vehicles to wirelessly offload computation-intensive tasks to nearby Roadside Units. However, efficient task offloading and resource allocation for time-critical applications in VEC remain challenging due to constrained network bandwidth and computational resources, stringent task deadlines, and rapidly changing network conditions. To address these challenges, we formulate a Deadline-Constrained Task Offloading and Resource Allocation Problem (DOAP), denoted as $\\mathbf{P}$, in VEC with both bandwidth and computational resource constraints, aiming to maximize the total vehicle utility. To solve $\\mathbf{P}$, we propose $\\mathtt{SARound}$, an approximation algorithm based on Linear Program rounding and local-ratio techniques, that improves the best-known approximation ratio for DOAP from $\\frac{1}{6}$ to $\\frac{1}{4}$. Additionally, we design an online service subscription and offloading control framework to address the challenges of short task deadlines and rapidly changing wireless network conditions. To validate our approach, we develop a comprehensive VEC simulator, VecSim, using the open-source simulation libraries OMNeT++ and Simu5G. VecSim integrates our designed framework to manage the full life-cycle of real-time vehicular tasks. Experimental results, based on profiled object detection applications and real-world taxi trace data, show that $\\mathtt{SARound}$ consistently outperforms state-of-the-art baselines under varying network conditions while maintaining runtime efficiency.",
+          "claimed_authors": [
+            "Chuanchao Gao",
+            "Arvind Easwaran"
+          ],
+          "claimed_title": "Real-Time Service Subscription and Adaptive Offloading Control in Vehicular Edge Computing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.14002"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='ShutterMuse: Capture-Time Photography Guidance with MLLMs computer science', candidate_title='Real-Time Service Subscription and Adaptive Offloading Control in Vehicular Edge Computing')",
+        "failed_at": "2026-06-30T22:11:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We devise a universal adaptive neural layer to \"learn\" optimal frequency filter for each image together with the weights of the base neural network that performs some computer vision task. The proposed approach takes the source image in the spatial domain, automatically selects the best frequencies from the frequency domain, and transmits the inverse-transform image to the main neural network. Remarkably, such a simple add-on layer dramatically improves the performance of the main network regardless of its design. We observe that the light networks gain a noticeable boost in the performance metrics; whereas, the training of the heavy ones converges faster when our adaptive layer is allowed to \"learn\" alongside the main architecture. We validate the idea in four classical computer vision tasks: classification, segmentation, denoising, and erasing, considering popular natural and medical data benchmarks.",
+          "claimed_authors": [
+            "Viktor Shipitsin",
+            "Iaroslav Bespalov",
+            "Dmitry V. Dylov"
+          ],
+          "claimed_title": "Global Adaptive Filtering Layer for Computer Vision",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2010.01177"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='ShutterMuse: Capture-Time Photography Guidance with MLLMs computer science', candidate_title='Global Adaptive Filtering Layer for Computer Vision')",
+        "failed_at": "2026-06-30T22:11:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper we present the Women in Computer Vision Workshop - WiCV 2019, organized in conjunction with CVPR 2019. This event is meant for increasing the visibility and inclusion of women researchers in the computer vision field. Computer vision and machine learning have made incredible progress over the past years, but the number of female researchers is still low both in academia and in industry. WiCV is organized especially for the following reason: to raise visibility of female researchers, to increase collaborations between them, and to provide mentorship to female junior researchers in the field. In this paper, we present a report of trends over the past years, along with a summary of statistics regarding presenters, attendees, and sponsorship for the current workshop.",
+          "claimed_authors": [
+            "Irene Amerini",
+            "Elena Balashova",
+            "Sayna Ebrahimi",
+            "Kathryn Leonard",
+            "Arsha Nagrani",
+            "Amaia Salvador"
+          ],
+          "claimed_title": "WiCV 2019: The Sixth Women In Computer Vision Workshop",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1909.10225"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='ShutterMuse: Capture-Time Photography Guidance with MLLMs computer science', candidate_title='WiCV 2019: The Sixth Women In Computer Vision Workshop')",
+        "failed_at": "2026-06-30T22:11:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Research in neural models inspired by mammal's visual cortex has led to many spiking neural networks such as pulse-coupled neural networks (PCNNs). These models are oscillating, spatio-temporal models stimulated with images to produce several time-based responses. This paper reviews PCNN's state of the art, covering its mathematical formulation, variants, and other simplifications found in the literature. We present several applications in which PCNN architectures have successfully addressed some fundamental image processing and computer vision challenges, including image segmentation, edge detection, medical imaging, image fusion, image compression, object recognition, and remote sensing. Results achieved in these applications suggest that the PCNN architecture generates useful perceptual information relevant to a wide variety of computer vision tasks.",
+          "claimed_authors": [
+            "Nurul Rafi",
+            "Pablo Rivas"
+          ],
+          "claimed_title": "A Review of Pulse-Coupled Neural Network Applications in Computer Vision and Image Processing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.00239"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='ShutterMuse: Capture-Time Photography Guidance with MLLMs computer science', candidate_title='A Review of Pulse-Coupled Neural Network Applications in Computer Vision and Image Processing')",
+        "failed_at": "2026-06-30T22:11:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) are capable of performing conditional sequence generation tasks, such as translation or summarization, through instruction fine-tuning. The fine-tuning data is generally sequentially concatenated from a specific task instruction, an input sentence, and the corresponding response. Considering the locality modeled by the self-attention mechanism of LLMs, these models face the risk of instruction forgetting when generating responses for long input sentences. To mitigate this issue, we propose enhancing the instruction-following capability of LLMs by shifting the position of task instructions after the input sentences. Theoretical analysis suggests that our straightforward method can alter the model's learning focus, thereby emphasizing the training of instruction-following capabilities. Concurrently, experimental results demonstrate that our approach consistently outperforms traditional settings across various model scales (1B / 7B / 13B) and different sequence generation tasks (translation and summarization), without any additional data or annotation costs. Notably, our method significantly improves the zero-shot performance on conditional sequence generation, e.g., up to 9.7 BLEU points on WMT zero-shot translation tasks.",
+          "claimed_authors": [
+            "Yijin Liu",
+            "Xianfeng Zeng",
+            "Fandong Meng",
+            "Jie Zhou"
+          ],
+          "claimed_title": "Instruction Position Matters in Sequence Generation with Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2308.12097"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='ShutterMuse: Capture-Time Photography Guidance with MLLMs computer science', candidate_title='Instruction Position Matters in Sequence Generation with Large Language Models')",
+        "failed_at": "2026-06-30T22:11:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Language Models are traditionally finetuned on large instruction datasets. However recent studies suggest that small, high-quality datasets can suffice for general purpose instruction following. This lack of consensus surrounding finetuning best practices is in part due to rapidly diverging approaches to LLM evaluation. In this study, we ask whether a small amount of diverse finetuning samples can improve performance on both traditional perplexity-based NLP benchmarks, and on open-ended, model-based evaluation. We finetune open-source MPT-7B and MPT-30B models on instruction finetuning datasets of various sizes ranging from 1k to 60k samples. We find that subsets of 1k-6k instruction finetuning samples are sufficient to achieve good performance on both (1) traditional NLP benchmarks and (2) model-based evaluation. Finally, we show that mixing textbook-style and open-ended QA finetuning datasets optimizes performance on both evaluation paradigms.",
+          "claimed_authors": [
+            "Aditi Jha",
+            "Sam Havens",
+            "Jeremy Dohmann",
+            "Alex Trott",
+            "Jacob Portes"
+          ],
+          "claimed_title": "LIMIT: Less Is More for Instruction Tuning Across Evaluation Paradigms",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.13133"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='ShutterMuse: Capture-Time Photography Guidance with MLLMs computer science', candidate_title='LIMIT: Less Is More for Instruction Tuning Across Evaluation Paradigms')",
+        "failed_at": "2026-06-30T22:11:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Flow theory describes an optimal cognitive state where individuals experience deep focus and intrinsic motivation when a task's difficulty aligns with their skill level. In AI-augmented reasoning, interventions that disrupt the state of cognitive flow can hinder rather than enhance decision-making. This paper proposes a context-aware cognitive augmentation framework that adapts interventions based on three key contextual factors: type, timing, and scale. By leveraging multimodal behavioral cues (e.g., gaze behavior, typing hesitation, interaction speed), AI can dynamically adjust cognitive support to maintain or restore flow. We introduce the concept of cognitive flow, an extension of flow theory in AI-augmented reasoning, where interventions are personalized, adaptive, and minimally intrusive. By shifting from static interventions to context-aware augmentation, our approach ensures that AI systems support deep engagement in complex decision-making and reasoning without disrupting cognitive immersion.",
+          "claimed_authors": [
+            "Dinithi Dissanayake",
+            "Suranga Nanayakkara"
+          ],
+          "claimed_title": "Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.16021"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='ShutterMuse: Capture-Time Photography Guidance with MLLMs computer science', candidate_title='Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support')",
+        "failed_at": "2026-06-30T22:11:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the past few years, the emergence of pre-training models has brought uni-modal fields such as computer vision (CV) and natural language processing (NLP) to a new era. Substantial works have shown they are beneficial for downstream uni-modal tasks and avoid training a new model from scratch. So can such pre-trained models be applied to multi-modal tasks? Researchers have explored this problem and made significant progress. This paper surveys recent advances and new frontiers in vision-language pre-training (VLP), including image-text and video-text pre-training. To give readers a better overall grasp of VLP, we first review its recent advances from five aspects: feature extraction, model architecture, pre-training objectives, pre-training datasets, and downstream tasks. Then, we summarize the specific VLP models in detail. Finally, we discuss the new frontiers in VLP. To the best of our knowledge, this is the first survey focused on VLP. We hope that this survey can shed light on future research in the VLP field.",
+          "claimed_authors": [
+            "Feilong Chen",
+            "Duzhen Zhang",
+            "Minglun Han",
+            "Xiuyi Chen",
+            "Jing Shi",
+            "Shuang Xu",
+            "Bo Xu"
+          ],
+          "claimed_title": "VLP: A Survey on Vision-Language Pre-training",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2202.09061"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='ShutterMuse: Capture-Time Photography Guidance with MLLMs computer science', candidate_title='VLP: A Survey on Vision-Language Pre-training')",
+        "failed_at": "2026-06-30T22:11:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reinforcement learning (RL) has become a key technique for enhancing the reasoning abilities of large language models (LLMs), with policy-gradient algorithms dominating the post-training stage because of their efficiency and effectiveness. However, most existing benchmarks evaluate large-language-model reasoning under idealized settings, overlooking performance in realistic, non-ideal scenarios. We identify three representative non-ideal scenarios with practical relevance: summary inference, fine-grained noise suppression, and contextual filtering. We introduce a new research direction guided by brain-science findings that human reasoning remains reliable under imperfect inputs. We formally define and evaluate these challenging scenarios. We fine-tune three LLMs and a state-of-the-art large vision-language model (LVLM) using RL with a representative policy-gradient algorithm and then test their performance on eight public datasets. Our results reveal that while RL fine-tuning improves baseline reasoning under idealized settings, performance declines significantly across all three non-ideal scenarios, exposing critical limitations in advanced reasoning capabilities. Although we propose a scenario-specific remediation method, our results suggest current methods leave these reasoning deficits largely unresolved. This work highlights that the reasoning abilities of large models are often overstated and underscores the importance of evaluating models under non-ideal scenarios. The code and data will be released at XXXX.",
+          "claimed_authors": [
+            "Chang Tian",
+            "Matthew B. Blaschko",
+            "Mingzhe Xing",
+            "Xiuxing Li",
+            "Yinliang Yue",
+            "Marie-Francine Moens"
+          ],
+          "claimed_title": "Large Language Models Reasoning Abilities Under Non-Ideal Conditions After RL-Fine-Tuning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2508.04848"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='ShutterMuse: Capture-Time Photography Guidance with MLLMs computer science', candidate_title='Large Language Models Reasoning Abilities Under Non-Ideal Conditions After RL-Fine-Tuning')",
+        "failed_at": "2026-06-30T22:11:58Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jiayu Li",
+            "Yixiao Fang",
+            "Tianyu Hu",
+            "Wei Cheng",
+            "Ping Huang",
+            "Zheheng Fan",
+            "Gang Yu",
+            "Xingjun Ma"
+          ],
+          "title": "ShutterMuse: Capture-Time Photography Guidance with MLLMs",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.25763",
+        "summary": "Real-world photography requires capture-time guidance for both camera framing and subject pose. Yet existing aesthetic cropping benchmarks mainly evaluate post-hoc crop prediction and overlook subject-side recommendations, leaving the capture-time guidance capabilities of multimodal large language models (MLLMs) underexplored. To address this gap, we introduce CaptureGuide-Bench, a benchmark with two complementary tasks: photographer-side composition decision and refinement, and subject-side scene-conditioned pose recommendation. Our evaluation reveals limitations: general-purpose MLLMs can make composition decisions but lack precise refinement localization, while specialized aesthetic cropping models localize crops effectively but are limited to refinement; neither provides actionable pose guidance. To support model development, we further construct CaptureGuide-Dataset, comprising 130K samples with textual rationales and structured visual annotations, and develop ShutterMuse, a unified MLLM trained with supervised and reinforcement fine-tuning. Experiments on CaptureGuide-Bench show that ShutterMuse achieves the best overall photographer-side performance among evaluated baselines and competitive subject-side pose recommendation with substantially lower inference cost, demonstrating the potential of MLLMs as interactive assistants for photography during image capture.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.25763",
+          "http_status": 200,
+          "pdf_sample_score": 0.3094,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-30T22:11:58Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Shukang Yin",
+            "Chaoyou Fu",
+            "Sirui Zhao",
+            "Ke Li",
+            "Xing Sun",
+            "Tong Xu",
+            "Enhong Chen"
+          ],
+          "title": "A Survey on Multimodal Large Language Models",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2306.13549",
+        "summary": "Recently, Multimodal Large Language Model (MLLM) represented by GPT-4V has been a new rising research hotspot, which uses powerful Large Language Models (LLMs) as a brain to perform multimodal tasks. The surprising emergent capabilities of MLLM, such as writing stories based on images and OCR-free math reasoning, are rare in traditional multimodal methods, suggesting a potential path to artificial general intelligence. To this end, both academia and industry have endeavored to develop MLLMs that can compete with or even better than GPT-4V, pushing the limit of research at a surprising speed. In this paper, we aim to trace and summarize the recent progress of MLLMs. First of all, we present the basic formulation of MLLM and delineate its related concepts, including architecture, training strategy and data, as well as evaluation. Then, we introduce research topics about how MLLMs can be extended to support more granularity, modalities, languages, and scenarios. We continue with multimodal hallucination and extended techniques, including Multimodal ICL (M-ICL), Multimodal CoT (M-CoT), and LLM-Aided Visual Reasoning (LAVR). To conclude the paper, we discuss existing challenges and point out promising research directions. In light of the fact that the era of MLLM has only just begun, we will keep updating this survey and hope it can inspire more research. An associated GitHub link collecting the latest papers is available at https://github.com/BradyFU/Awesome-Multimodal-Large-Language-Models.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2306.13549",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4444,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-30T22:12:09Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "shuttermuse: capture-time photography guidance with mllms computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

@@ -1,0 +1,55 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Result Schema"
+description: "Schema for statistical analysis results (Chi-square or Fisher's Exact)."
+type: "object"
+properties:
+  analysis_id:
+    type: "string"
+    description: "Unique identifier for the analysis run."
+  test_type:
+    type: "string"
+    description: "Statistical test used."
+    enum:
+      - "Chi-square"
+      - "Fisher's Exact"
+  variable_x:
+    type: "string"
+    description: "Independent variable (e.g., Subject Gender, Lighting Condition)."
+  variable_y:
+    type: "string"
+    description: "Dependent variable (e.g., Error Type)."
+  statistic_value:
+    type: "number"
+    description: "The calculated test statistic (Chi-square value or Fisher's statistic)."
+  p_value:
+    type: "number"
+    description: "The p-value of the test."
+    minimum: 0.0
+    maximum: 1.0
+  significant:
+    type: "boolean"
+    description: "True if p-value < 0.05 (alpha threshold)."
+  correction_applied:
+    type: "string"
+    description: "Multiple comparison correction method used (e.g., Bonferroni) or null."
+    enum:
+      - "Bonferroni"
+      - "Holm"
+      - "None"
+  effect_size:
+    type: "number"
+    description: "Cramér's V effect size (0‑1)."
+    minimum: 0.0
+    maximum: 1.0
+  confidence_interval:
+    type: "string"
+    description: "JSON string with lower and upper bounds for the effect size."
+required:
+  - analysis_id
+  - test_type
+  - variable_x
+  - variable_y
+  - statistic_value
+  - p_value
+  - significant
+additionalProperties: false

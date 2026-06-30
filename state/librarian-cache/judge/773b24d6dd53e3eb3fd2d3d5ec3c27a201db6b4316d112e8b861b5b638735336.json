@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.13549",
+  "judged_at": "2026-06-30T22:12:18Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "shuttermuse: capture-time photography guidance with mllms computer science",
+  "rationale": "This paper qualifies under category (d) as a foundational survey and canonical reference for the core technology (Multimodal Large Language Models) required to understand the \"MLLM\" component of the user's specific application in photography guidance. Additionally, it satisfies category (b) by covering the general domain of MLLM capabilities and evaluation, which establishes the baseline for any specific downstream task like capture-time guidance.",
+  "relevant": true
+}

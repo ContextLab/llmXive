@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.13394",
+  "judged_at": "2026-06-30T22:12:32Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "shuttermuse: capture-time photography guidance with mllms computer science",
+  "rationale": "The paper focuses on creating a general evaluation benchmark for Multimodal Large Language Models (MLLMs) across 14 subtasks, but it does not address the specific mechanism of \"capture-time photography guidance\" or the application of MLLMs to real-time camera control. While it shares the domain of MLLMs, it fails to meet the criteria for inclusion as it does not measure the specific variable (guidance during capture), the specific population (photography systems), or the specific mechanism (real",
+  "relevant": false
+}

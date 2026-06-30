@@ -1,0 +1,709 @@
+resolved_at: '2026-06-30T22:27:42.367284+00:00'
+datasets:
+- intent: AVA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/huggingartists/the-avalanches/resolve/main/datasets.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 96308
+      parsed: true
+  - url: https://huggingface.co/datasets/avacaondata/lfqa_squad/resolve/main/data/train-00000-of-00002.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/avacaondata/randomq/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/huggingartists/the-avalanches/resolve/main/datasets.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/avacaondata/lfqa_squad/resolve/main/data/train-00000-of-00002.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/avacaondata/randomq/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/media/Igbinedion_University_Okada_b_0704_096_4654_Transfer_Form_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diploma_For/32841296
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Madonna_University_Okija_b_0704_096_4654_Transfer_Form_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diploma_Form_F/32841290
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openaccess.wgtn.ac.nz/articles/journal_contribution/Orating_Origins_the_Formation_of_Pakistan_in_Contemporary_Urdu_Shi_i_Khitabat_in_Karachi/32841293
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Bowen_University_Iwo_b_0704_096_4654_Transfer_Form_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diploma_Form_For_m/32841281
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openaccess.wgtn.ac.nz/articles/chapter/The_Somatic_and_the_Sonic_in_Contemporary_Urdu_Shi_i_Khi_bat/32841287
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5299192
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8340267
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17901754
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15255676
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4553185
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.sciencebase.gov/catalog/item/69a5d5f3b66b011d83258f82
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21034191
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21034191
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.4qrfj6qkk
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/24vgx/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: COCO
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/yerevann/coco-karpathy/resolve/main/coco.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/guangyil/laion-coco-aesthetic/resolve/main/laion-coco_v3_filter.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/lmms-lab/COCO-Caption/resolve/main/data/test-00000-of-00014.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/yerevann/coco-karpathy/resolve/main/coco.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/guangyil/laion-coco-aesthetic/resolve/main/laion-coco_v3_filter.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/lmms-lab/COCO-Caption/resolve/main/data/test-00000-of-00014.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ChristophSchuhmann/MS_COCO_2017_URL_TEXT/resolve/main/mscoco.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/huggingartists/cocomelon/resolve/main/datasets.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://figshare.com/articles/dataset/HySpex-Constrained_Synthetic_Maize_Weed_UAV_Multispectral_Image_Dataset_MicaSense_Altum_and_DJI_Phantom_4_Emulations/32841041
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Igbinedion_University_Okada_b_0704_096_4654_Transfer_Form_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diploma_For/32841296
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Madonna_University_Okija_b_0704_096_4654_Transfer_Form_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diploma_Form_F/32841290
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openaccess.wgtn.ac.nz/articles/journal_contribution/Orating_Origins_the_Formation_of_Pakistan_in_Contemporary_Urdu_Shi_i_Khitabat_in_Karachi/32841293
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Bowen_University_Iwo_b_0704_096_4654_Transfer_Form_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diploma_Form_For_m/32841281
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13930108
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19722207
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20573001
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14671547
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6984072
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21070108
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21070108
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21070104
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21070104
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21072026
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MLLMs
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/LongThan/Hallucination_MLLMs/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 233197
+      parsed: true
+  - url: https://huggingface.co/datasets/LongThan/Hallucination_MLLMs_Data_preprocessing/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 233197
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/palpit/MLLM-Safety-Study/resolve/main/urls_10k.jsonl
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/LongThan/Hallucination_MLLMs/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/LongThan/Hallucination_MLLMs_Data_preprocessing/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/journal_contribution/Babcock_University_b_0704_096_4654_Transfer_Form_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diploma_Form_For_mor/32841305
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/HySpex-Constrained_Synthetic_Maize_Weed_UAV_Multispectral_Image_Dataset_MicaSense_Altum_and_DJI_Phantom_4_Emulations/32841041
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Igbinedion_University_Okada_b_0704_096_4654_Transfer_Form_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diploma_For/32841296
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Madonna_University_Okija_b_0704_096_4654_Transfer_Form_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diploma_Form_F/32841290
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openaccess.wgtn.ac.nz/articles/journal_contribution/Orating_Origins_the_Formation_of_Pakistan_in_Contemporary_Urdu_Shi_i_Khitabat_in_Karachi/32841293
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19004817
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dl.acm.org/doi/10.1145/3625468.3652193
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.idiap.ch/en/scientific-research/data/fairfacegpt
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2604.14069
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17595883
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.27999
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.27264
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.26654
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.24538
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.02482
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MLLM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Logics-MLLM/Logics-STEM-SFT-Dataset-Open-1.6M/resolve/main/data/train-00000-of-00010.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Logics-MLLM/Logics-STEM-SFT-Dataset-Open-1.6M/resolve/main/data/train-00000-of-00010.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/65e2db834ca1449815d6bcd8/86b2dccc3ea48a4aaac8c21913cf27b2d1494158d6fed9319ad535a1fd2934f2?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27batch_data.tsv%3B+filename%3D%22batch_data.tsv%22%3B&response-content-type=text%2Ftab-separated-values&X-Xet-Cas-Uid=public&user_id=public&Expires=1782861839&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjVlMmRiODM0Y2ExNDQ5ODE1ZDZiY2Q4Lzg2YjJkY2NjM2VhNDhhNGFhYWM4YzIxOTEzY2YyN2IyZDE0OTQxNThkNmZlZDkzMTlhZDUzNWExZmQyOTM0ZjJcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3YmF0Y2hfZGF0YS50c3YlM0IrZmlsZW5hbWUlM0QlMjJiYXRjaF9kYXRhLnRzdiUyMiUzQiZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRnRhYi1zZXBhcmF0ZWQtdmFsdWVzJlgtWGV0LUNhcy1VaWQ9cHVibGljJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODI4NjE4Mzl9fX1dfQ__&Signature=MEQCICmcZB8SGUOTdWgVb1Wwe8vbn12MpGmiQYgArTJ6y925AiAuTzBpj8Jc1tF79SdiTWBqT-C46hIp3t8TfMeYvrmy~w__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/65f26498aeeecb9eb043afa6/646b0507313763ced0c469d16c97acc7b5f4b536f1b2f43ba931df73429603fd?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27Td-qwen.json%3B+filename%3D%22Td-qwen.json%22%3B&response-content-type=application%2Fjson&user_id=public&Expires=1782861840&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjVmMjY0OThhZWVlY2I5ZWIwNDNhZmE2LzY0NmIwNTA3MzEzNzYzY2VkMGM0NjlkMTZjOTdhY2M3YjVmNGI1MzZmMWIyZjQzYmE5MzFkZjczNDI5NjAzZmRcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3VGQtcXdlbi5qc29uJTNCK2ZpbGVuYW1lJTNEJTIyVGQtcXdlbi5qc29uJTIyJTNCJnJlc3BvbnNlLWNvbnRlbnQtdHlwZT1hcHBsaWNhdGlvbiUyRmpzb24mdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4Mjg2MTg0MH19fV19&Signature=MEYCIQDba~oyXAkhNoFbuRSVVfzO92AZYGiPxX2IEMwPiaWw3QIhAPKUmdAPjIXpUT50md~px6tz6TkZy0S75JMqbQmN16gU&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Babcock_University_b_0704_096_4654_Transfer_Form_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diploma_Form_For_mor/32841305
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/HySpex-Constrained_Synthetic_Maize_Weed_UAV_Multispectral_Image_Dataset_MicaSense_Altum_and_DJI_Phantom_4_Emulations/32841041
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Igbinedion_University_Okada_b_0704_096_4654_Transfer_Form_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diploma_For/32841296
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Madonna_University_Okija_b_0704_096_4654_Transfer_Form_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diploma_Form_F/32841290
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openaccess.wgtn.ac.nz/articles/journal_contribution/Orating_Origins_the_Formation_of_Pakistan_in_Contemporary_Urdu_Shi_i_Khitabat_in_Karachi/32841293
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18027674
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15676783
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18695364
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17038557
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19369321
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21068240
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21085634
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21063275
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ruor.uottawa.ca/handle/10393/51789
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.24538
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MUST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 190547
+      parsed: true
+  - url: https://huggingface.co/datasets/enimai/MuST-C-fr/resolve/main/test.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/enimai/MuST-C-fr/resolve/main/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://portal.sds.ox.ac.uk/articles/online_resource/P_Oxy_LXXI_4830_Top_of_a_Lease/21180133
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Babcock_University_b_0704_096_4654_Transfer_Form_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diploma_Form_For_mor/32841305
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/HySpex-Constrained_Synthetic_Maize_Weed_UAV_Multispectral_Image_Dataset_MicaSense_Altum_and_DJI_Phantom_4_Emulations/32841041
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Igbinedion_University_Okada_b_0704_096_4654_Transfer_Form_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diploma_For/32841296
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Madonna_University_Okija_b_0704_096_4654_Transfer_Form_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diploma_Form_F/32841290
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5746416
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16954306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15420758
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8056637
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7847500
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20826438
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20826438
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openaccess.wgtn.ac.nz/articles/chapter/The_Somatic_and_the_Sonic_in_Contemporary_Urdu_Shi_i_Khi_bat/32841287
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://open.uni-marburg.de/handle/openumr/10202
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21085212
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-001
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/A_Profile_Analysis_of_Leader_Interpersonal_Emotion_Management_Strategies/32830076
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://portal.sds.ox.ac.uk/articles/online_resource/P_Oxy_LXXI_4830_Top_of_a_Lease/21180133
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Babcock_University_b_0704_096_4654_Transfer_Form_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diploma_Form_For_mor/32841305
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/HySpex-Constrained_Synthetic_Maize_Weed_UAV_Multispectral_Image_Dataset_MicaSense_Altum_and_DJI_Phantom_4_Emulations/32841041
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Igbinedion_University_Okada_b_0704_096_4654_Transfer_Form_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diploma_For/32841296
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17936025
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19059431
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10337909
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604131
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10173526
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15485834
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16828200
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20358997
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20358997
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: US-1
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_difficult/resolve/main/tx_log.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_easy/resolve/main/tx_log.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_difficult/resolve/main/tx_log.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_easy/resolve/main/tx_log.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/A_Profile_Analysis_of_Leader_Interpersonal_Emotion_Management_Strategies/32830076
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://portal.sds.ox.ac.uk/articles/online_resource/P_Oxy_LXXI_4830_Top_of_a_Lease/21180133
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Babcock_University_b_0704_096_4654_Transfer_Form_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diploma_Form_For_mor/32841305
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/HySpex-Constrained_Synthetic_Maize_Weed_UAV_Multispectral_Image_Dataset_MicaSense_Altum_and_DJI_Phantom_4_Emulations/32841041
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Igbinedion_University_Okada_b_0704_096_4654_Transfer_Form_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diploma_For/32841296
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18190973
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7325859
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5216923
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3558197
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: http://reproduct-endo.com/article/view/290227
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Provider_perspectives_on_HPV_vaccine_hesitancy_in_the_post-COVID-19_era/29985845/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Provider_perspectives_on_HPV_vaccine_hesitancy_in_the_post-COVID-19_era/29985845
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Identifying_HPV_vaccination_research_priorities_for_the_US/30762177
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Identifying_HPV_vaccination_research_priorities_for_the_US/30762177/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Budget_impact_of_maternal_vaccination_with_RSVpreF_to_protect_privately_insured_infants_in_Dubai_against_respiratory_syncytial_virus/29458627
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SC-004
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/journal_contribution/Wellspring_University_b_0704_096_4654_Transfer_Form_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diploma_Form_For_/32841308
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/A_Profile_Analysis_of_Leader_Interpersonal_Emotion_Management_Strategies/32830076
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://portal.sds.ox.ac.uk/articles/online_resource/P_Oxy_LXXI_4830_Top_of_a_Lease/21180133
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Babcock_University_b_0704_096_4654_Transfer_Form_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diploma_Form_For_mor/32841305
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/HySpex-Constrained_Synthetic_Maize_Weed_UAV_Multispectral_Image_Dataset_MicaSense_Altum_and_DJI_Phantom_4_Emulations/32841041
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3594903
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19522446
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10389753
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10296042
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10123427
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20806255
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20806255
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635092
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20512108
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20471461
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-008
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/journal_contribution/Wellspring_University_b_0704_096_4654_Transfer_Form_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diploma_Form_For_/32841308
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/A_Profile_Analysis_of_Leader_Interpersonal_Emotion_Management_Strategies/32830076
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://portal.sds.ox.ac.uk/articles/online_resource/P_Oxy_LXXI_4830_Top_of_a_Lease/21180133
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: RAM
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: GPU
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: FR-004
+  status: unresolved
+  candidates: []
+  candidates_tried: []

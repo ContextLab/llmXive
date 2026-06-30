@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2502.00425",
+  "judged_at": "2026-06-30T22:12:22Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "shuttermuse: capture-time photography guidance with mllms computer science",
+  "rationale": "The paper focuses on the technical optimization of MLLMs via quantization to reduce latency and model size, which is a distinct construct from the user's question about using MLLMs to provide real-time photography guidance (a specific application domain). While both involve MLLMs, the paper does not measure the mechanism of photography guidance, the specific variables of capture-time feedback, or the empirical population of photographers, failing to meet any of the inclusion criteria (a-f) for a",
+  "relevant": false
+}
