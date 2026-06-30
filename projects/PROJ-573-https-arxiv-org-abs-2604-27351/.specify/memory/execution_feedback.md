@@ -24,13 +24,11 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 ## Failing / missing run-book commands
 
 - python src/benchmark/run_benchmark.py --config default.yaml -> rc=1
-    tps-arxiv-org-abs-2604-27351/code/src/tasks/task_runner.py", line 175, in run_task
-    task = self.get_task(task_id)
-           ^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-573-https-arxiv-org-abs-2604-27351/code/src/tasks/task_runner.py", line 114, in get_task
-    task = self.tasks.get(task_id)
-           ^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: unhashable type: 'dict'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-573-https-arxiv-org-abs-2604-27351/src/benchmark/run_benchmark.py", line 73, in run_single_task
+    runner = TaskRunner(config=config)  # ``TaskRunner`` now tolerates the ``config`` kwarg.
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: TaskRunner.__init__() got an unexpected keyword argument 'config'
 - python src/benchmark/run_task.py --task-id 3 --add-modality image -> rc=1
     ", line 155, in main
     task_def = load_task_definition(args.task_id)
@@ -40,13 +38,11 @@ TypeError: unhashable type: 'dict'
                  ^^^^^^^^^^^^^
 AttributeError: 'list' object has no attribute 'get'
 - python src/benchmark/run_benchmark.py --config default.yaml --mode unified -> rc=1
-    tps-arxiv-org-abs-2604-27351/code/src/tasks/task_runner.py", line 175, in run_task
-    task = self.get_task(task_id)
-           ^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-573-https-arxiv-org-abs-2604-27351/code/src/tasks/task_runner.py", line 114, in get_task
-    task = self.tasks.get(task_id)
-           ^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: unhashable type: 'dict'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-573-https-arxiv-org-abs-2604-27351/src/benchmark/run_benchmark.py", line 73, in run_single_task
+    runner = TaskRunner(config=config)  # ``TaskRunner`` now tolerates the ``config`` kwarg.
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: TaskRunner.__init__() got an unexpected keyword argument 'config'
 - python src/benchmark/run_task.py --task-id 3 --add-modality image -> rc=1
     ", line 155, in main
     task_def = load_task_definition(args.task_id)
@@ -56,21 +52,17 @@ TypeError: unhashable type: 'dict'
                  ^^^^^^^^^^^^^
 AttributeError: 'list' object has no attribute 'get'
 - python src/benchmark/run_benchmark.py --seed 42 -> rc=1
-    tps-arxiv-org-abs-2604-27351/code/src/tasks/task_runner.py", line 175, in run_task
-    task = self.get_task(task_id)
-           ^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-573-https-arxiv-org-abs-2604-27351/code/src/tasks/task_runner.py", line 114, in get_task
-    task = self.tasks.get(task_id)
-           ^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: unhashable type: 'dict'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-573-https-arxiv-org-abs-2604-27351/src/benchmark/run_benchmark.py", line 73, in run_single_task
+    runner = TaskRunner(config=config)  # ``TaskRunner`` now tolerates the ``config`` kwarg.
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: TaskRunner.__init__() got an unexpected keyword argument 'config'
 - python src/benchmark/run_benchmark.py --seed 123 -> rc=1
-    tps-arxiv-org-abs-2604-27351/code/src/tasks/task_runner.py", line 175, in run_task
-    task = self.get_task(task_id)
-           ^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-573-https-arxiv-org-abs-2604-27351/code/src/tasks/task_runner.py", line 114, in get_task
-    task = self.tasks.get(task_id)
-           ^^^^^^^^^^^^^^^^^^^^^^^
-TypeError: unhashable type: 'dict'
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-573-https-arxiv-org-abs-2604-27351/src/benchmark/run_benchmark.py", line 73, in run_single_task
+    runner = TaskRunner(config=config)  # ``TaskRunner`` now tolerates the ``config`` kwarg.
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: TaskRunner.__init__() got an unexpected keyword argument 'config'
 
 ## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
 

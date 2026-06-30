@@ -1,27 +1,19 @@
 task_results:
-- task_id: T001
-  accuracy: 0.85
-  condition: heterogeneous
-  timestamp: '2024-01-01T00:00:00Z'
-- task_id: T001
-  accuracy: 0.82
-  condition: unified
-  timestamp: '2024-01-01T00:01:00Z'
-- task_id: T002
-  accuracy: 0.91
-  condition: heterogeneous
-  timestamp: '2024-01-01T00:02:00Z'
-- task_id: T002
-  accuracy: 0.88
-  condition: unified
-  timestamp: '2024-01-01T00:03:00Z'
+  - task_id: T001
+    accuracy: 0.85
+    condition: heterogeneous
+    timestamp: "2024-01-01T00:00:00Z"
+  - task_id: T002
+    accuracy: 0.87
+    condition: heterogeneous
+    timestamp: "2024-01-01T00:00:00Z"
 aggregate_stats:
-  mean_accuracy_diff: 0.025
-  p_value: 0.032
-  effect_size: 0.45
-  ci_lower: 0.005
-  ci_upper: 0.045
+  mean_accuracy_diff: 0.02
+  p_value: 0.05
+  effect_size: 0.2
+  ci_lower: 0.01
+  ci_upper: 0.03
 metadata:
-  created_at: '2024-10-29T12:00:00Z'
-  schema_version: '1.0'
-  source: statistical_summary.py
+  created_at: "2024-01-01T00:00:00Z"
+  mode: heterogeneous
+  seeds: [42]
