@@ -1,12 +1,7 @@
-last_used: albert-einstein
-last_used_at: '2026-06-30T01:00:34.537201+00:00'
-last_outcome: committed
+last_used: dan-rockmore
+last_used_at: '2026-06-30T03:17:26.035615+00:00'
+last_outcome: triage_rejected_advanced_as_abstain
 history:
-- slug: daniel-kahneman
-  started_at: '2026-06-20T17:07:44.636340+00:00'
-  ended_at: '2026-06-20T17:58:52.917120+00:00'
-  outcome: abstained
-  action: abstain
 - slug: david-krakauer
   started_at: '2026-06-20T17:58:52.917120+00:00'
   ended_at: '2026-06-20T19:32:33.693993+00:00'
@@ -1200,3 +1195,8 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-308-quantifying-entanglement-entropy-in-rand/reviews/research/albert-einstein-simulated__2026-06-30__research.md
+- slug: dan-rockmore
+  started_at: '2026-06-30T01:00:34.537201+00:00'
+  ended_at: '2026-06-30T03:17:26.035615+00:00'
+  outcome: triage_rejected_advanced_as_abstain
+  action: comment
