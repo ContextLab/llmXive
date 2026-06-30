@@ -1,0 +1,485 @@
+resolved_at: '2026-06-30T13:42:02.097925+00:00'
+datasets:
+- intent: AUC
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/ChanceFocus/flare-finarg-ecc-auc/resolve/main/data/test-00000-of-00001-fa1c3bc21bf5ca66.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 177802
+      parsed: true
+  - url: https://huggingface.co/datasets/auchoi/website_data/resolve/main/benefitscal-data.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 256589
+      parsed: true
+  - url: https://huggingface.co/datasets/Surajsangwan90/AucklandTransport-FAQs-new/resolve/main/questions_answers_NZTA_with_simple_synthetic.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 24179
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ChanceFocus/flare-finarg-ecc-auc/resolve/main/data/test-00000-of-00001-fa1c3bc21bf5ca66.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/auchoi/website_data/resolve/main/benefitscal-data.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/api/resolve-cache/datasets/Surajsangwan90/AucklandTransport-FAQs/6f8b774f6ae151509358621641ffaa77b734cdb6/auckland_transport_dialogue_based_faq.csv?%2Fdatasets%2FSurajsangwan90%2FAucklandTransport-FAQs%2Fresolve%2Fmain%2Fauckland_transport_dialogue_based_faq.csv=&etag=%2204053b600b77df84e8458e78145c6f2699390dc7%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/Surajsangwan90/AucklandTransport-FAQs-new/resolve/main/questions_answers_NZTA_with_simple_synthetic.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/tipani/Shanghai-License-Plate-Auction/resolve/main/data_csv.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://acs.figshare.com/articles/journal_contribution/Design_and_Synthesis_of_a_Novel_Covalent_Dihydropteridinone_Derivative_as_a_Highly_Potent_and_Orally_Bioavailable_PLK1_Inhibitor_for_the_Treatment_of_Chronic_Myeloid_Leukemia/32836236
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Calibration-Free_On-Chip_Spectrometer_Based_on_Topological_Waveguides/32836233
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Machine_Learning-Assisted_Nanopore_for_Enhanced_Fingerprinting_Analysis_of_Functional_Glycans/32836230
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rs.figshare.com/articles/dataset/GHG_and_biogeochemical_data_from_six_peat_swamp_forest_sites_in_the_Central_from_Environmental_controls_over_greenhouse_gas_dynamics_of_peatlands_of_the_Central_Congo_Basin/32836227
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rs.figshare.com/articles/journal_contribution/Supplementary_tables_and_figures_from_Environmental_controls_over_greenhouse_gas_dynamics_of_peatlands_of_the_Central_Congo_Basin/32836224
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18836515
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15649639
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15649700
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18880607
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18897449
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://world.physio/congress-proceeding/mini-bestest-valid-tool-assessing-balance-control-ambulatory-individuals-spinal
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://world.physio/congress-proceeding/challenging-threshold-intervention-breast-cancer-related-lymphoedema-low
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://world.physio/congress-proceeding/diagnostic-validity-combining-selected-history-elements-and-physical
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://world.physio/congress-proceeding/utility-mayo-clinics-early-screen-discharge-planning-tool-critical-narrative
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://world.physio/congress-proceeding/diagnostic-accuracy-kidfit-screening-tool-identifying-children-health-and-motor
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ROC
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/gigant/ro_corpora_parliament_processed/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/gigant/ro_corpora_parliament_processed/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f18358f/cda53e4ff1bb4fef85ba5ac792118de969ffe9903c41c79651a609eccf28afa7?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27datasets.json%3B+filename%3D%22datasets.json%22%3B&response-content-type=application%2Fjson&Expires=1782830266&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgzNThmL2NkYTUzZTRmZjFiYjRmZWY4NWJhNWFjNzkyMTE4ZGU5NjlmZmU5OTAzYzQxYzc5NjUxYTYwOWVjY2YyOGFmYTdcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGF0YXNldHMuanNvbiUzQitmaWxlbmFtZSUzRCUyMmRhdGFzZXRzLmpzb24lMjIlM0ImcmVzcG9uc2UtY29udGVudC10eXBlPWFwcGxpY2F0aW9uJTJGanNvbiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyODMwMjY2fX19XX0_&Signature=MEUCIBJLnxrcMhwfl6zZsdl3mpp1XlugSlPZeKUKPuxUEdVOAiEA-2BVC71ic7jbShzRlsRj-mxJax-hQIL-yqPmGB5npDQ_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ore.exeter.ac.uk/articles/journal_contribution/What_Next_for_Trauma-Informed_Education_Research_A_Research_Prioritisation_Exercise_with_Young_People_as_Informants/32834678
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Nanocomplexes_Integrated_into_a_Polymeric_Bilayer_Film_Enhance_Buccal_Permeation_of_a_GLP_1_Peptide_Analogue/32836242
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Design_and_Synthesis_of_a_Novel_Covalent_Dihydropteridinone_Derivative_as_a_Highly_Potent_and_Orally_Bioavailable_PLK1_Inhibitor_for_the_Treatment_of_Chronic_Myeloid_Leukemia/32836239
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Design_and_Synthesis_of_a_Novel_Covalent_Dihydropteridinone_Derivative_as_a_Highly_Potent_and_Orally_Bioavailable_PLK1_Inhibitor_for_the_Treatment_of_Chronic_Myeloid_Leukemia/32836236
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Calibration-Free_On-Chip_Spectrometer_Based_on_Topological_Waveguides/32836233
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14101796
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5618274
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14101800
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4063551
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15225198
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://world.physio/congress-proceeding/tampas-scale-predictive-ability-identify-patients-chronic-low-back-pain-risk
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://world.physio/congress-proceeding/development-predictive-model-early-functional-recovery-hip-fracture-population
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://world.physio/congress-proceeding/can-functional-movement-screen-predict-running-injuries-male-collegiate
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://world.physio/congress-proceeding/pelvic-girdle-questionnaire-responsiveness-and-minimal-important-change-women
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://iris.uniupo.it//handle/11579/128428
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-001
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://acs.figshare.com/articles/journal_contribution/Selective_Effects_of_Backbone_Cyclization_and_Disulfide_Bonding_as_Global_Covalent_Constraints_on_the_Conformational_Ensemble_of_Sunflower_Trypsin_Inhibitor_1/32836245
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ore.exeter.ac.uk/articles/journal_contribution/What_Next_for_Trauma-Informed_Education_Research_A_Research_Prioritisation_Exercise_with_Young_People_as_Informants/32834678
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Nanocomplexes_Integrated_into_a_Polymeric_Bilayer_Film_Enhance_Buccal_Permeation_of_a_GLP_1_Peptide_Analogue/32836242
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Design_and_Synthesis_of_a_Novel_Covalent_Dihydropteridinone_Derivative_as_a_Highly_Potent_and_Orally_Bioavailable_PLK1_Inhibitor_for_the_Treatment_of_Chronic_Myeloid_Leukemia/32836239
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Design_and_Synthesis_of_a_Novel_Covalent_Dihydropteridinone_Derivative_as_a_Highly_Potent_and_Orally_Bioavailable_PLK1_Inhibitor_for_the_Treatment_of_Chronic_Myeloid_Leukemia/32836236
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17936025
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19059431
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10337909
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604131
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10173526
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15485834
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16828200
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20358997
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20358997
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MUST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 190547
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Selective_Effects_of_Backbone_Cyclization_and_Disulfide_Bonding_as_Global_Covalent_Constraints_on_the_Conformational_Ensemble_of_Sunflower_Trypsin_Inhibitor_1/32836245
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ore.exeter.ac.uk/articles/journal_contribution/What_Next_for_Trauma-Informed_Education_Research_A_Research_Prioritisation_Exercise_with_Young_People_as_Informants/32834678
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Nanocomplexes_Integrated_into_a_Polymeric_Bilayer_Film_Enhance_Buccal_Permeation_of_a_GLP_1_Peptide_Analogue/32836242
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Design_and_Synthesis_of_a_Novel_Covalent_Dihydropteridinone_Derivative_as_a_Highly_Potent_and_Orally_Bioavailable_PLK1_Inhibitor_for_the_Treatment_of_Chronic_Myeloid_Leukemia/32836239
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Design_and_Synthesis_of_a_Novel_Covalent_Dihydropteridinone_Derivative_as_a_Highly_Potent_and_Orally_Bioavailable_PLK1_Inhibitor_for_the_Treatment_of_Chronic_Myeloid_Leukemia/32836236
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5746416
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16954306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8056637
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15420758
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19980220
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://usiena-air.unisi.it//handle/11365/1143865
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://usiena-air.unisi.it//handle/11365/1143828
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/23674
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://iris.unitn.it/handle/11572/98196
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/152912
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SNP
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/ManuBansal/33param_snp500/resolve/main/df_instruct.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ManuBansal/33param_snp500_trainingSet/resolve/main/df_testing_final.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ManuBansal/33param_snp500_validationSet/resolve/main/df_testing_final.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ManuBansal/33param_snp500/resolve/main/df_instruct.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/ManuBansal/33param_snp500_trainingSet/resolve/main/df_testing_final.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/ManuBansal/33param_snp500_validationSet/resolve/main/df_testing_final.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://acs.figshare.com/articles/journal_contribution/Selective_Effects_of_Backbone_Cyclization_and_Disulfide_Bonding_as_Global_Covalent_Constraints_on_the_Conformational_Ensemble_of_Sunflower_Trypsin_Inhibitor_1/32836245
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ore.exeter.ac.uk/articles/journal_contribution/What_Next_for_Trauma-Informed_Education_Research_A_Research_Prioritisation_Exercise_with_Young_People_as_Informants/32834678
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Nanocomplexes_Integrated_into_a_Polymeric_Bilayer_Film_Enhance_Buccal_Permeation_of_a_GLP_1_Peptide_Analogue/32836242
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Design_and_Synthesis_of_a_Novel_Covalent_Dihydropteridinone_Derivative_as_a_Highly_Potent_and_Orally_Bioavailable_PLK1_Inhibitor_for_the_Treatment_of_Chronic_Myeloid_Leukemia/32836239
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Design_and_Synthesis_of_a_Novel_Covalent_Dihydropteridinone_Derivative_as_a_Highly_Potent_and_Orally_Bioavailable_PLK1_Inhibitor_for_the_Treatment_of_Chronic_Myeloid_Leukemia/32836236
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4423098
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12750653
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14750745
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5555945
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19412362
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://usiena-air.unisi.it//handle/11365/1106623
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/169568
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21069734
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21069734
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadoi.ee/dataset.xhtml?persistentId=doi:10.23673/RE-574
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-008
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://tandf.figshare.com/articles/journal_contribution/A_Study_on_the_Prognosis_of_Patients_with_Sepsis_or_Septic_Shock_Based_on_Plasma_Proenkephalin_Levels_A_Meta-Analysis/32836248
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Selective_Effects_of_Backbone_Cyclization_and_Disulfide_Bonding_as_Global_Covalent_Constraints_on_the_Conformational_Ensemble_of_Sunflower_Trypsin_Inhibitor_1/32836245
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ore.exeter.ac.uk/articles/journal_contribution/What_Next_for_Trauma-Informed_Education_Research_A_Research_Prioritisation_Exercise_with_Young_People_as_Informants/32834678
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Nanocomplexes_Integrated_into_a_Polymeric_Bilayer_Film_Enhance_Buccal_Permeation_of_a_GLP_1_Peptide_Analogue/32836242
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Design_and_Synthesis_of_a_Novel_Covalent_Dihydropteridinone_Derivative_as_a_Highly_Potent_and_Orally_Bioavailable_PLK1_Inhibitor_for_the_Treatment_of_Chronic_Myeloid_Leukemia/32836239
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10355702
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3595521
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3596136
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3595492
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SC-001
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: US-1
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: SNPs
+  status: unresolved
+  candidates: []
+  candidates_tried: []

@@ -1,0 +1,69 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PlantMultiOmicsDataset"
+description: "Schema for aligned plant genomic and metabolomic dataset with phenotypes."
+type: "object"
+properties:
+  metadata:
+    type: "object"
+    properties:
+      species:
+        type: "string"
+        description: "Plant species name."
+      study_accession:
+        type: "string"
+        description: "Source study accession ID (e.g., SRP123456)."
+      retrieval_date:
+        type: "string"
+        format: "date"
+        description: "Date data was retrieved."
+    required:
+      - species
+      - study_accession
+      - retrieval_date
+  samples:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        sample_id:
+          type: "string"
+        resistance_phenotype:
+          type: "number"
+          description: "Continuous disease severity score or encoded categorical label."
+        snp_features:
+          type: "array"
+          items:
+            type: "number"
+          description: "Allele counts (0, 1, 2) for selected SNPs."
+        metabolite_features:
+          type: "array"
+          items:
+            type: "number"
+          description: "Normalized metabolite intensities."
+      required:
+        - sample_id
+        - resistance_phenotype
+        - snp_features
+        - metabolite_features
+    minItems: 100
+  feature_names:
+    type: "object"
+    properties:
+      snps:
+        type: "array"
+        items:
+          type: "string"
+        description: "List of SNP IDs."
+      metabolites:
+        type: "array"
+        items:
+          type: "string"
+        description: "List of metabolite IDs."
+    required:
+      - snps
+      - metabolites
+required:
+  - metadata
+  - samples
+  - feature_names
+additionalProperties: false
