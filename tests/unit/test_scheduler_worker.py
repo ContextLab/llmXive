@@ -164,3 +164,33 @@ def test_terminal_stages_never_picked(tmp_path: Path) -> None:
         p = scheduler.pick_for_worker(i, 12, repo_root=repo)
         if p is not None:
             assert p.current_stage not in scheduler._NEVER_PICK
+
+
+def test_sparse_transient_stage_is_always_drained(tmp_path: Path) -> None:
+    """A sparse transient routing stage (research_full_revision) has tiny
+    load-balance weight and would rank below the worker count — so a worker never
+    reaches it and the project is stranded FOREVER (PROJ-604 parked there: review
+    correctly flagged full_revision, it routed to research_full_revision, then no
+    worker ever picked that floor-weight stage to apply the -> in_progress
+    routing). It MUST be floated to the front so a worker drains it every tick."""
+    from datetime import UTC, datetime, timedelta
+
+    repo = _population(tmp_path)  # high-weight piles, no transient stage
+    now = datetime.now(UTC) - timedelta(days=1)
+    parked = Project(
+        id="PROJ-9001-fullrev", title="t", field="test",
+        current_stage=Stage.RESEARCH_FULL_REVISION, created_at=now, updated_at=now,
+        artifact_hashes={}, speckit_research_dir="projects/PROJ-9001-fullrev/specs/001-t",
+    )
+    project_store.save(parked, repo_root=repo)
+
+    # Worker 0 (highest priority) must land on the transient stage.
+    p0 = scheduler.pick_for_worker(0, 6, repo_root=repo)
+    assert p0 is not None and p0.id == "PROJ-9001-fullrev", (
+        f"transient routing stage must be drained first; worker 0 got "
+        f"{p0.id if p0 else None} ({p0.current_stage.value if p0 else '-'})"
+    )
+    # And the 6 workers still pick DISTINCT projects (no double-work regression).
+    picks = [scheduler.pick_for_worker(i, 6, repo_root=repo) for i in range(6)]
+    ids = [p.id for p in picks if p is not None]
+    assert len(ids) == len(set(ids)), f"workers double-picked: {ids}"

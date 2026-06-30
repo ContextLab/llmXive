@@ -122,6 +122,25 @@ _NEVER_PICK: set[Stage] = {
     Stage.AWAITING_PUBLICATION_SIGNOFF,
 }
 
+# Transient pass-through / recovery stages have NO agent — run_one_step /
+# _decide_next_stage routes them forward in a single cheap tick (full_revision
+# -> in_progress, rejected -> brainstormed, fundamental_flaws -> brainstormed,
+# accepted -> awaiting_signoff, the retired human_input_needed -> planned). They
+# are usually SPARSE (1-2 projects), so the load-balanced stage weight ranks them
+# BELOW the worker count and `pick_for_worker` (which fans the N workers across
+# the top-N ranked stages) never reaches them — stranding the project forever
+# (PROJ-604 parked at research_full_revision: review correctly flagged it, it
+# routed to research_full_revision, then no worker ever picked that floor-weight
+# stage to apply the -> in_progress routing). Float these to the FRONT of the
+# worker rotation every tick: routing them is free and unblocks a stuck project.
+_PRIORITY_DRAIN_STAGES: frozenset[Stage] = frozenset({
+    Stage.RESEARCH_FULL_REVISION,
+    Stage.RESEARCH_REJECTED,
+    Stage.PAPER_FUNDAMENTAL_FLAWS,
+    Stage.PAPER_ACCEPTED,
+    Stage.HUMAN_INPUT_NEEDED,
+})
+
 
 # Exponential-decay base for the stage-depth score. Larger values =
 # *steeper* preference for late-stage projects. 1.5 gives roughly:
@@ -398,6 +417,13 @@ def pick_for_worker(
     )
     if not ranked_stages:
         return None
+    # Float transient pass-through / recovery stages to the FRONT so a worker
+    # always reaches them this tick (they are sparse, so the load-balanced rank
+    # otherwise leaves them below the worker count → never picked → stranded).
+    priority = [s for s in ranked_stages if s in _PRIORITY_DRAIN_STAGES]
+    if priority:
+        rest = [s for s in ranked_stages if s not in _PRIORITY_DRAIN_STAGES]
+        ranked_stages = priority + rest
     stage = ranked_stages[worker_index % len(ranked_stages)]
     depth = worker_index // len(ranked_stages)
     in_stage = sorted(by_stage[stage], key=lambda p: (p.updated_at, p.id))
