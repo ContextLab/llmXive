@@ -1,0 +1,44 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: QuestionItem
+description: "Schema for a single medical question item, including injected misleading claims and validation status."
+type: object
+required:
+  - id
+  - original_stem
+  - options
+  - gold_answer
+  - is_valid
+  - validation_status
+properties:
+  id:
+    type: string
+    description: "Unique identifier for the question."
+  original_stem:
+    type: string
+    description: "The original text of the question."
+  options:
+    type: array
+    items:
+      type: string
+    description: "List of multiple-choice options."
+  gold_answer:
+    type: string
+    pattern: "^[A-E]$"
+    description: "The correct option letter."
+  injected_claim:
+    type: ["string", "null"]
+    description: "The false medical claim injected into the stem."
+  mislead_stem:
+    type: ["string", "null"]
+    description: "The question stem with the injected claim."
+  is_valid:
+    type: boolean
+    description: "True if the injection preserved the gold standard answer and passed plausibility check."
+  validation_status:
+    type: string
+    enum: ["valid", "invalid_plausibility", "invalid_structure", "excluded"]
+    description: "Status of the injection validation process."
+  source_dataset:
+    type: string
+    description: "Name of the source dataset."
+additionalProperties: false

@@ -1,0 +1,313 @@
+resolved_at: '2026-06-30T09:37:39.158742+00:00'
+datasets:
+- intent: JSON
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/a3xrfgb/ideogram-v4-Json-prompts/resolve/main/idev4-json
+      (1).json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 2769
+      parsed: true
+  candidates_tried:
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/67109a6b07325c4b0ae03fc7/74c38f03d64fdd1b8116283c3b061c9a44f47759cb058c2a932978d37887b257?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27industrial_design.json%3B+filename%3D%22industrial_design.json%22%3B&user_id=public&X-Xet-Cas-Uid=public&response-content-type=application%2Fjson&Expires=1782815520&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjcxMDlhNmIwNzMyNWM0YjBhZTAzZmM3Lzc0YzM4ZjAzZDY0ZmRkMWI4MTE2MjgzYzNiMDYxYzlhNDRmNDc3NTljYjA1OGMyYTkzMjk3OGQzNzg4N2IyNTdcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3aW5kdXN0cmlhbF9kZXNpZ24uanNvbiUzQitmaWxlbmFtZSUzRCUyMmluZHVzdHJpYWxfZGVzaWduLmpzb24lMjIlM0ImdXNlcl9pZD1wdWJsaWMmWC1YZXQtQ2FzLVVpZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC10eXBlPWFwcGxpY2F0aW9uJTJGanNvbiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyODE1NTIwfX19XX0_&Signature=MEUCIESP6CJ-2oyY41R0DjMqgbYw3rPhxUlJspfYDWGJeAXYAiEA-vNVdM0ZfSE-k7y56e5K6LiSW0adx~ZpmpRXwCpjrcQ_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/a3xrfgb/ideogram-v4-Json-prompts/resolve/main/idev4-json
+      (1).json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/cagliostrolab/1.2m-ordered-tags-json/resolve/main/data/data.json
+    source: huggingface
+    status: unreachable
+    reason: 'reachability failed: HTTP 401'
+  - url: https://huggingface.co/api/resolve-cache/datasets/GEM-submissions/lewtun__hugging-face-test-t5-base.outputs.json-36bf2a59__1645558682/3162f569ba2d639018f912b3f7692823d3b1148a/submission.json?%2Fdatasets%2FGEM-submissions%2Flewtun__hugging-face-test-t5-base.outputs.json-36bf2a59__1645558682%2Fresolve%2Fmain%2Fsubmission.json=&etag=%22b3b17c651beaf9198d8c8e2014ebfcab477caaf8%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/api/resolve-cache/datasets/GEM-submissions/lewtun__hugging-face-test-t5-base.outputs.json-36bf2a59__1645559101/3b0d72d19fba40c0727b4c079aa3bda0fec7df73/submission.json?%2Fdatasets%2FGEM-submissions%2Flewtun__hugging-face-test-t5-base.outputs.json-36bf2a59__1645559101%2Fresolve%2Fmain%2Fsubmission.json=&etag=%22b3b17c651beaf9198d8c8e2014ebfcab477caaf8%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openresearch.newcastle.edu.au/articles/journal_contribution/Sport_and_climate_change_bottom_up_manager_perspectives_of_climate_impacts_climate_adaptation_and_implications_for_sport_policy/32834921
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ices-library.figshare.com/articles/report/Plaice_i_Pleuronectes_platessa_i_in_divisions_7_h-k_Celtic_Sea_South_southwest_of_Ireland_/30932285
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ices-library.figshare.com/articles/report/Plaice_i_Pleuronectes_platessa_i_in_divisions_7_f_and_7_g_Bristol_Channel_Celtic_Sea_/30932282
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/WordleGraphs_Data/32811581
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.rcsi.com/articles/journal_contribution/_i_That_s_just_part_of_having_a_transplant_that_s_the_price_you_pay_i_patient-reported_facilitators_and_barriers_to_immunosuppressant_medication_adherence_among_transplant_recipients_a_qualitative_study/32790324
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''repository.rcsi.com'',
+      port=443): Max retries exceeded with url: /articles/journal_contribution/_i_That_s_just_part_of_having_a_transplant_that_s_the_price_you_pay_i_patient-reported_facilitators_and_barriers_to_immunosuppressant_medication_adherence_among_transplant_recipients_a_qualitative_study/32790324
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://zenodo.org/records/7482807
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7482801
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17351756
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3687363
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12574738
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21063444
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21063444
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21062722
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21062722
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20414547
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: USMLE-style
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://ices-library.figshare.com/articles/report/Sole_i_Solea_solea_i_in_divisions_8_a-b_northern_and_central_Bay_of_Biscay_/30932423
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ices-library.figshare.com/articles/report/Sand_sole_i_Pegusa_lascaris_i_in_divisions_8_c_and_9_a_Cantabrian_Sea_and_Atlantic_Iberian_waters_/31999332
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/The_Role_of_Governance_Professionals_in_Rebuilding_Ethical_Foundations_for_Bangladesh_towards_further_Development_/32385468
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.rcsi.com/articles/journal_contribution/Implementing_the_recovery_approach_in_mental_health_progress_made_challenges_faced_and_future_directions/32790318
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''repository.rcsi.com'',
+      port=443): Max retries exceeded with url: /articles/journal_contribution/Implementing_the_recovery_approach_in_mental_health_progress_made_challenges_faced_and_future_directions/32790318
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://openresearch.newcastle.edu.au/articles/journal_contribution/Sport_and_climate_change_bottom_up_manager_perspectives_of_climate_impacts_climate_adaptation_and_implications_for_sport_policy/32834921
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20337247
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S0140673601520991
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S0140673600557390
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S0140673602108269
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S0140673601245449
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21032824
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21032824
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20725978
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20725978
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2605.28301
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GPU
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/makora-ai/triton-gpu-latency/resolve/main/data/test.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/davanstrien/ia-loaded-embedded-gpu/resolve/main/data/train-00000-of-00004-581edf813b59d1d8.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/We-Want-GPU/yi-ko-DPO-noprompt-dataset/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/makora-ai/triton-gpu-latency/resolve/main/data/test.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/davanstrien/ia-loaded-embedded-gpu/resolve/main/data/train-00000-of-00004-581edf813b59d1d8.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/We-Want-GPU/yi-ko-DPO-noprompt-dataset/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://ices-library.figshare.com/articles/report/Sole_i_Solea_solea_i_in_divisions_8_a-b_northern_and_central_Bay_of_Biscay_/30932423
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ices-library.figshare.com/articles/report/Sand_sole_i_Pegusa_lascaris_i_in_divisions_8_c_and_9_a_Cantabrian_Sea_and_Atlantic_Iberian_waters_/31999332
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/The_Role_of_Governance_Professionals_in_Rebuilding_Ethical_Foundations_for_Bangladesh_towards_further_Development_/32385468
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.rcsi.com/articles/journal_contribution/Implementing_the_recovery_approach_in_mental_health_progress_made_challenges_faced_and_future_directions/32790318
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''repository.rcsi.com'',
+      port=443): Max retries exceeded with url: /articles/journal_contribution/Implementing_the_recovery_approach_in_mental_health_progress_made_challenges_faced_and_future_directions/32790318
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://openresearch.newcastle.edu.au/articles/journal_contribution/Sport_and_climate_change_bottom_up_manager_perspectives_of_climate_impacts_climate_adaptation_and_implications_for_sport_policy/32834921
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14019209
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10298950
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8374848
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10156579
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12771283
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20218350
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openresearch.surrey.ac.uk/esploro/outputs/doctoral/991132595502346
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://livrepository.liverpool.ac.uk/3198949/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21061697
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21061697
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-001
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://ices-library.figshare.com/articles/report/Flounder_i_Platichthys_flesus_i_in_Subarea_4_North_Sea_and_Subdivision_20_Skagerrak_/32788611
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ices-library.figshare.com/articles/report/Senegalese_sole_i_Solea_senegalensis_i_in_divisions_8_c_and_9_a_Cantabrian_Sea_and_Atlantic_Iberian_waters_/31999314
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ices-library.figshare.com/articles/report/Sole_i_Solea_solea_i_in_divisions_8_a-b_northern_and_central_Bay_of_Biscay_/30932423
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ices-library.figshare.com/articles/report/Sand_sole_i_Pegusa_lascaris_i_in_divisions_8_c_and_9_a_Cantabrian_Sea_and_Atlantic_Iberian_waters_/31999332
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/The_Role_of_Governance_Professionals_in_Rebuilding_Ethical_Foundations_for_Bangladesh_towards_further_Development_/32385468
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19059431
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MUST
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: US-1
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: SC-001
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: US-3
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: API
+  status: unresolved
+  candidates: []
+  candidates_tried: []

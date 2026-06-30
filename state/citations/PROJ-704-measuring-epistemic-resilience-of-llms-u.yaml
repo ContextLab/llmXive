@@ -1,0 +1,11 @@
+- artifact_hash: 9e02d303e2c0d63def26b4a44792ec934671b9e95e82692fd6104bef5d4b4225
+  artifact_path: projects/PROJ-704-measuring-epistemic-resilience-of-llms-u/specs/001-measuring-epistemic-resilience-of-llms-u/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/medmcqa`
+  verification_status: mismatch
+  verified_against_url: https://huggingface.co/medmcqa%60/datasets
+  verified_at: '2026-06-30T09:48:45.859914Z'
