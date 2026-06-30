@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1906.04452",
+  "judged_at": "2026-06-30T17:52:16Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "self-distilled agentic reinforcement learning computer science",
+  "rationale": "The paper satisfies acceptance criteria (a) and (b) by measuring the core mechanism of \"policy distillation\" (a form of self-distillation) within the domain of \"Reinforcement Learning,\" which are the primary technical components of the user's query, even though the specific \"agentic\" framing and \"continual\" setting differ slightly from the user's exact phrasing.",
+  "relevant": true
+}

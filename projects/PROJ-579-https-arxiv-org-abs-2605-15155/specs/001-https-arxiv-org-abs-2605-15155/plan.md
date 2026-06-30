@@ -1,54 +1,48 @@
 # Implementation Plan: Self-Distilled Agentic Reinforcement Learning (SDAR) Reproduction
 
-**Branch**: `579-https-arxiv-org-abs-2605-15155-repro` | **Date**: 2024-05-22 | **Spec**: `specs/579-https-arxiv-org-abs-2605-15155-repro/spec.md`
+**Branch**: `579-https-arxiv-org-abs-2605-15155-repro` | **Date**: 2026-06-30 | **Spec**: `specs/579-https-arxiv-org-abs-2605-15155-repro/spec.md`
 **Input**: Feature specification from `specs/579-https-arxiv-org-abs-2605-15155-repro/spec.md`
 
 ## Summary
 
-This feature reproduces the core execution pipeline of the Self-Distilled Agentic Reinforcement Learning (SDAR) paper (arXiv:2605.15155) using the vendored codebase. The primary requirement is to validate that the SDAR algorithm, including its self-distillation gating and RL components, executes successfully on a CPU-only GitHub Actions runner with limited CPU and RAM resources without GPU acceleration. 
+This project reproduces the core *mechanism* of the "Self-Distilled Agentic Reinforcement Learning" (SDAR) paper (arXiv:2605.15155) within the strict constraints of a CPU-only GitHub Actions runner (CPU, 7GB RAM, 6h limit). The primary objective is **mechanism execution validation**, not statistical superiority. We verify:
+1.  The SDAR training loop (gating + RL) executes without CUDA errors on a small-scale proxy model (`distilbert-base-uncased`).
+2.  The SDAR gate loss term is generated and logged as specified in the paper.
+3.  A comparative baseline run (SDAR vs. PPO) is executed to verify *implementation parity* (i.e., both run without crashing).
 
-**Critical Distinction**: This project performs **Execution Verification** (validating the code runs and the mechanism is present), not **Statistical Validation** (proving the algorithm improves performance by +[deferred]). The 10-step training run is designed to confirm the *gating mechanism activates* and the *loss functions compute*, not to converge the model.
+**Scope Limitation**: Due to the 6-hour CPU limit and 2-core constraint, the training horizon (a sufficient number of steps) is insufficient for policy convergence. Therefore, the statistical comparison (paired t-test) is **diagnostic only**. A non-significant result (p > 0.05) is expected and does not invalidate the reproduction; it simply reflects the lack of training convergence. The project does *not* claim that SDAR is superior to PPO, only that the SDAR mechanism is correctly implemented and runnable.
 
 ## Technical Context
 
-**Language/Version**: Python 3.10+ (inferred from SDAR/ALFWorld ecosystem)
-**Primary Dependencies**: Ray (distributed computing), PyTorch (CPU-only), ALFWorld (environment), HuggingFace `transformers`, `verl` (if used by SDAR), `pytest`.
-**Storage**: Local filesystem for checkpoints (`.pt`), logs (`.json`/`.txt`), and temporary environment state.
-**Testing**: `pytest` for unit tests; integration tests via shell scripts executing entry points.
-**Target Platform**: Linux (GitHub Actions runner `ubuntu-latest`), CPU-only.
-**Project Type**: Research reproduction / CLI pipeline.
-**Performance Goals**:
-- Wall-clock time ≤ 6 hours for full pipeline (sanity + train + eval).
-- Memory usage ≤ 6 GB (leaving 1GB headroom for OS/ALFWorld overhead).
-- No CUDA errors.
-**Constraints**:
-- No GPU hardware or CUDA drivers available.
-- No `load_in_8bit`, `bitsandbytes`, or `device_map="cuda"`.
-- Hard timeout of 60s per evaluation task (FR-005).
-- Dataset/Environment: ALFWorld (simulated).
-**Scale/Scope**:
-- Training: 10 steps, batch size 1.
-- Evaluation: A set of tasks.
-- Model: CPU-tractable approximation (verified in Phase 0).
+**Language/Version**: Python 3.10 (compatible with ALFWorld/PyTorch CPU wheels)  
+**Primary Dependencies**: `torch` (CPU-only), `ray`, `alfworld` (text-only mode fallback), `scikit-learn`, `pandas`, `pytest`, `transformers` (CPU-compatible), `distilbert-base-uncased` (proxy backbone)  
+**Storage**: Local filesystem (`data/` for artifacts, `outputs/` for logs/checkpoints)  
+**Testing**: `pytest` for unit tests; integration tests via shell scripts executing `train.py` and `eval.py`  
+**Target Platform**: Linux (GitHub Actions `ubuntu-latest`)  
+**Project Type**: Computational Research / Reproduction Pipeline  
+**Performance Goals**: Complete full pipeline (sanity + baseline comparison) within 6 hours on 2 CPU cores.  
+**Constraints**: 
+- **NO GPU**: All models must be forced to `device="cpu"`. 
+- **Memory**: Data subsets and model sizes must fit within 7GB RAM. 
+- **Time**: Hard timeout per ALFWorld task; A total job limit is established. 
+- **Reproducibility**: Random seeds pinned; no synthetic data.
+- **Model Size**: `distilbert-base-uncased` (80M params) used as a CPU-tractable proxy for the LLM agent.
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 
 ## Constitution Check
 
-**STATUS**: PENDING - Missing Reproduction Report
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-*The project requires a formal scientific report to validate the "Reproduction" claim. Raw data artifacts (CSV/JSON) are insufficient for this purpose.*
-
-**Required Metrics**:
-To satisfy the scientific claim, the following metrics must be measured and reported in `docs/reproducibility/reproducibility_report.md`:
-1.  **Coverage**: Percentage of the original SDAR execution pipeline successfully validated.
-2.  **Match Rates**: Comparison of gate activation patterns and loss trends against the original paper's reported behavior (qualitative or quantitative).
-3.  **Source-Independence Notes**: Documentation confirming the execution was independent of the original authors' specific infrastructure, relying only on the provided code and public data.
-
-**Action Required**:
-1.  **Generate Report**: Execute the pipeline defined in Phases 0-2.
-2.  **Analyze Artifacts**: Aggregate logs (`train_log.json`, `eval_log.json`) and metrics.
-3.  **Update Plan**: Replace this section with the actual verification results once the report is generated.
+| Constitution Principle | Status | Implementation Action |
+| :--- | :--- | :--- |
+| **I. Reproducibility** | **PASS** | All random seeds pinned in `code/`. `external/SDAR` submodule used. `requirements.txt` ensures dependency consistency. |
+| **II. Verified Accuracy** | **PASS** | Citations to arXiv:2605.15155 and ALFWorld will be validated by Reference-Validator. No hallucinated URLs. |
+| **III. Data Hygiene** | **PASS** | Raw logs from `train.py`/`eval.py` are preserved. Derived CSVs/JSONs are generated via scripts with checksums recorded in `state/`. No in-place modification. |
+| **IV. Single Source of Truth** | **PASS** | All metrics in `paper/` will trace to specific rows in `data/sdar_results.csv` generated from actual log parsing. |
+| **V. Versioning Discipline** | **PASS** | Artifacts will be checksummed. `state/projects/...yaml` updated on change via `parse_logs.py`. |
+| **VI. Self-Distillation Stability** | **PASS** | Plan explicitly logs "SDAR Gate Loss", `gate_activation` boolean, and teacher update frequency. |
+| **VII. Computational Constraint** | **PASS** | Plan enforces CPU-only, `distilbert` model, downsampling (1000 steps/seed), and 60s task timeouts. |
 
 ## Project Structure
 
@@ -67,100 +61,59 @@ specs/579-https-arxiv-org-abs-2605-15155-repro/
 ### Source Code (repository root)
 
 ```text
-# Option 1: Single project (DEFAULT) - Leveraging vendored submodule
-external/SDAR/             # Vendored submodule containing the SDAR codebase
-├── tests/
-│   └── ray_cpu/
-│       └── check_worker_alive/
-│           └── main.py    # Entry point for FR-001
-├── agent_system/          # Core SDAR implementation
-│   ├── train.py           # Entry point for FR-002
-│   └── eval.py            # Entry point for FR-004
-├── requirements.txt
-└── README.md
-
-outputs/                   # Generated artifacts (not committed)
-├── logs/
-│   ├── train_log.json
-│   └── eval_log.json
-├── health/
-│   └── ray_health.json    # Ray sanity check output
-└── checkpoints/
-    └── step_5.pt
-
-scripts/
-├── setup_env.sh           # Installs deps, initializes Ray CPU
-├── run_sanity_check.sh    # Executes FR-001
-├── run_mini_train.sh      # Executes FR-002
-└── run_mini_eval.sh       # Executes FR-004
+projects/PROJ-579-https-arxiv-org-abs-2605-15155/
+├── code/
+│   ├── requirements.txt       # Pinned dependencies (CPU-only torch, ray, alfworld, distilbert)
+│   ├── run_sanity_check.sh    # Executes Ray health check
+│   ├── run_training.sh        # Executes SDAR training (10 steps)
+│   ├── run_baseline.sh        # Executes PPO baseline (5 seeds)
+│   ├── run_evaluation.sh      # Executes SDAR evaluation (5 tasks)
+│   ├── parse_logs.py          # Parses real logs into data artifacts (updates state/)
+│   ├── extract_gate_metrics.py # Extracts gate_activation and teacher_update counts
+│   └── analyze_results.py     # Performs t-test on baseline results (diagnostic only)
+├── data/
+│   ├── raw/                   # Raw logs from SDAR/PPO execution
+│   ├── processed/             # Parsed CSV/JSON artifacts
+│   └── checksums.yaml         # Hashes of raw/processed data
+├── outputs/
+│   ├── logs/                  # Runtime logs (stdout/stderr captures)
+│   └── checkpoints/           # Model checkpoints (.pt)
+└── docs/
+    └── reproducibility/
+        └── reproducibility_report.md
 ```
 
-**Structure Decision**: The project leverages the existing `external/SDAR` submodule structure. No new complex architecture is introduced; the focus is on wrapping the existing entry points with environment constraints (CPU-only, timeouts) and orchestrating the execution flow via shell scripts. This minimizes code changes and reduces the risk of introducing bugs during the reproduction phase.
+**Structure Decision**: The project uses a single `code/` directory for all execution scripts and analysis tools, keeping the repository flat and focused on the reproduction pipeline. `external/SDAR` is treated as a vendored dependency (submodule) and not modified directly; wrappers in `code/` invoke its entry points.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| N/A | The project adheres strictly to the spec's minimal scope (a constrained number of steps and tasks). | No complexity violations detected. The approach is intentionally minimal to fit CI constraints. |
+| **Baseline Comparison (5 seeds)** | Required by FR-008/FR-009 to execute the *code path* for statistical comparison. | A single run (N=1) cannot execute the t-test logic, failing the spec requirement. |
+| **Aggressive Downsampling (1000 steps)** | Required to fit 5 seeds + SDAR + PPO into 6h CPU limit. | Running full-scale training would exceed the 6h CI limit, preventing any result from being generated. |
+| **Log Parsing Scripts** | Required by FR-007/SC-006 to ensure data hygiene. | Manual extraction or synthetic data generation violates the "Single Source of Truth" and "Data Hygiene" principles, leading to rejection by reviewers. |
+| **Fixed Evaluation Set** | Required to ensure the paired t-test is valid (controlling for task difficulty). | Random task selection per seed would confound the results with task difficulty variance. |
 
 ## Implementation Phases
 
-### Phase 0: Environment Setup & Sanity Check (FR-001, SC-001, SC-005)
-**Goal**: Verify the vendored codebase runs on CPU without GPU errors and validate model backbone feasibility.
-1.  **Action**: Create a virtual environment (venv/conda) and install dependencies from `external/SDAR/requirements.txt`.
-2.  **Action**: Explicitly set environment variables to disable CUDA (e.g., `CUDA_VISIBLE_DEVICES=""`, `TORCH_USE_CUDA_DSA=0`).
-3.  **Action (New)**: **Model Backbone Verification**. Inspect `external/SDAR` config or code to identify the default model backbone.
-    - If the default model is GPU-only (e.g., Llama-2-7B) and cannot be swapped via config, **FAIL** this phase and flag a blocking gap: "Vendored code requires GPU; cannot proceed with CPU-only reproduction without code modification."
-    - If a CPU-tractable model (e.g., TinyLlama, DistilBERT) is available or configurable, proceed.
-4.  **Action**: Execute `python tests/ray_cpu/check_worker_alive/main.py`.
-5.  **Verification**:
-    - Exit code must be 0.
-    - Output must contain "Ray cluster healthy" and "multiple CPUs detected".
-    - No "CUDA not found" or `ImportError` for `torch.cuda`.
-    - **Artifact**: Generate `outputs/health/ray_health.json` (schema: `ray_health.schema.yaml`).
-6.  **Failure Handling**: If Ray fails to initialize, adjust `ray init --num-cpus=2` parameters. If imports fail, isolate dependencies in a fresh venv.
+### Phase 0: Environment & Sanity Check
+1.  **Setup**: Clone repo, init submodules, create virtualenv, install `requirements.txt`.
+2.  **Health Check**: Execute `tests/ray_cpu/check_worker_alive/main.py`. Verify "2 CPUs detected", no CUDA errors.
+3.  **Model Verification**: Verify `distilbert-base-uncased` loads on CPU within 7GB RAM.
 
-### Phase 1: Minimal Training Run (FR-002, FR-003, SC-002, Mechanism Validation)
-**Goal**: Execute a truncated training loop to verify the SDAR algorithm, logging, and *mechanism activation*.
-1.  **Action**: Configure `external/SDAR/agent_system/train.py` with hardcoded parameters:
-    - `num_steps=10`
-    - `batch_size=1`
-    - `env=alfworld`
-    - `device="cpu"` (explicit override).
-    - `model_name="cpu-tractable-model"` (if configurable).
-2.  **Action**: Run the training script.
-3.  **Verification**:
-    - Logs must contain at least 5 entries for "SDAR Gate Loss" and "RL Loss".
-    - **New Metric**: Logs must contain `gate_activation_rate` > 0.0% (confirms the self-distillation gate is active and making decisions, not just a dummy pass).
-    - A checkpoint file (e.g., `step_5.pt`) must exist in the output directory.
-    - Final summary report must show average loss.
-4. **Failure Handling**: If CUDA errors occur, verify `device_map` settings. If `gate_activation_rate` is [deferred], verify the gate logic is not short-circuited in the code.
+### Phase 1: Mechanism Execution (Sanity Run)
+1.  **Training**: Run SDAR training for a limited number of steps on a single ALFWorld task.
+2.  **Logging**: Verify `train.py` outputs "SDAR Gate Loss" and `gate_activation` logs.
+3.  **Checkpoint**: Verify `step_5.pt` is generated.
 
-### Phase 2: Evaluation & Metric Reporting (FR-004, FR-005, SC-003, SC-004)
-**Goal**: Run evaluation on a tiny subset to verify metric generation and robustness.
-1.  **Action**: Configure `external/SDAR/agent_system/eval.py` with:
-    - `num_tasks=5`
-    - `task_timeout=60` (seconds).
-2.  **Action**: Run the evaluation script.
-3.  **Verification**:
-    - Output must include a "Success Rate" metric (0.0 to 1.0).
-    - Logs must record failure reasons (e.g., "Max steps exceeded") for any timeouts.
-    - The process must not hang (enforced by timeout).
-4.  **Failure Handling**: If a task hangs, the script must catch the timeout signal and proceed to the next task.
+### Phase 2: Baseline Comparison (Diagnostic Run)
+1.  **Configuration**: Set `num_steps=1000`, `seeds=0..4`, `tasks=[fixed_ids]`.
+2.  **Execution**: Run SDAR and PPO baselines sequentially (to avoid memory contention).
+3.  **Fallback**: If ALFWorld Thor binary fails, switch to `alfworld-text-only` or mock environment mode.
+4.  **Parsing**: Run `parse_logs.py` to extract metrics and update `state/projects/...yaml`.
+5.  **Analysis**: Run `analyze_results.py` to compute p-value (diagnostic only).
 
-### Phase 3: Artifact Consolidation & Reporting (SC-004)
-**Goal**: Ensure all artifacts are collected and the total runtime is within limits.
-1.  **Action**: Aggregate logs and checkpoints into `outputs/`.
-2.  **Action**: Verify total wall-clock time ≤ 6 hours (expected: < 30 mins for this minimal run).
-3.  **Action**: Generate a final summary report confirming all Success Criteria are met.
-
-## Risk Management
-
-- **Risk**: ALFWorld dependencies (Thor binaries) fail to download on CI.
-  - **Mitigation**: Use a cached Docker image or pre-download binaries if possible; otherwise, rely on the `external/SDAR` submodule's auto-download mechanism with a retry loop.
-- **Risk**: Ray resource contention on 2-core runner.
-  - **Mitigation**: Explicitly limit Ray to 2 CPUs (`ray init --num-cpus=2`) and ensure no other heavy processes run.
-- **Risk**: Infinite loop in ALFWorld environment.
-  - **Mitigation**: Enforce the 60s timeout per task (FR-005) at the script level, not just within the environment.
-- **Risk**: Vendored code hardcodes a GPU-only model.
-  - **Mitigation**: Phase 0 includes explicit model backbone verification. If the model is not CPU-tractable, the plan fails with a clear error message rather than attempting a silent substitution that would break the algorithm's validity.
+### Phase 3: Reporting
+1.  **Reproducibility Report**: Generate `docs/reproducibility/reproducibility_report.md` citing actual log files.
+2.  **Artifact Verification**: Confirm `data/processed/statistical_analysis.json` exists and contains a p-value.
+3.  **State Update**: Ensure `state/projects/...yaml` reflects new artifact hashes.

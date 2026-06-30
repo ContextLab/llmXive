@@ -1,0 +1,596 @@
+{
+  "fetched_at": "2026-06-30T17:52:23Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "Self-Distilled Agentic Reinforcement Learning",
+      "target_n": 5
+    },
+    "duration_seconds": 78.971,
+    "ended_at": "2026-06-30T17:52:23Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "distillation in reinforcement learning"
+        ],
+        [
+          2,
+          "self-training reinforcement learning agents"
+        ],
+        [
+          3,
+          "knowledge distillation for RL policies"
+        ],
+        [
+          4,
+          "student-teacher reinforcement learning"
+        ],
+        [
+          5,
+          "policy distillation in multi-agent systems"
+        ],
+        [
+          6,
+          "offline reinforcement learning with distillation"
+        ],
+        [
+          7,
+          "self-improving reinforcement learning agents"
+        ],
+        [
+          8,
+          "iterative policy improvement via distillation"
+        ],
+        [
+          9,
+          "reinforcement learning with expert demonstration distillation"
+        ],
+        [
+          10,
+          "agentic reinforcement learning frameworks"
+        ],
+        [
+          11,
+          "autonomous agent learning via self-distillation"
+        ],
+        [
+          12,
+          "compact policy learning in RL"
+        ],
+        [
+          13,
+          "recursive self-improvement in reinforcement learning"
+        ],
+        [
+          14,
+          "model compression for reinforcement learning agents"
+        ],
+        [
+          15,
+          "distillation-based curriculum learning for RL"
+        ],
+        [
+          16,
+          "meta-reinforcement learning with distillation"
+        ],
+        [
+          17,
+          "hierarchical reinforcement learning and distillation"
+        ],
+        [
+          18,
+          "imitation learning with self-generated trajectories"
+        ],
+        [
+          19,
+          "efficient policy transfer in agentic systems"
+        ],
+        [
+          20,
+          "learning from self-generated rewards in RL"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Self-Distilled Agentic Reinforcement Learning computer science": 0,
+        "distillation in reinforcement learning": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "knowledge distillation self-training policy refinement",
+      "LLM agent self-improvement chain-of-thought reasoning",
+      "recursive reward modeling agent optimization",
+      "policy gradient convergence reward function stability",
+      "model collapse iterative distillation feedback loop"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2511.13649"
+      ]
+    },
+    "per_query_hit_count": {
+      "LLM agent self-improvement chain-of-thought reasoning": 3,
+      "Self-Distilled Agentic Reinforcement Learning computer science": 3,
+      "knowledge distillation self-training policy refinement": 3,
+      "model collapse iterative distillation feedback loop": 3,
+      "policy gradient convergence reward function stability": 3,
+      "recursive reward modeling agent optimization": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "2602.12375",
+          "rationale": "The paper focuses on exploration mechanisms using ensemble errors and value bonuses in standard Reinforcement Learning, but it does not address the specific constructs of \"Self-Distillation\" or \"Agentic\" architectures (e.g., LLM agents, multi-step planning, or self-improvement loops) central to the user's query. While it is a relevant RL exploration paper, it lacks the specific methodological or domain connection required by criteria (a) or (b) for \"Self-Distilled Agentic\" research.",
+          "title": "Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning"
+        },
+        {
+          "primary_pointer": "2507.02910",
+          "rationale": "The paper focuses on curriculum reinforcement learning and task sequencing using Structural Causal Models, which is a distinct mechanism from \"Self-Distilled Agentic Reinforcement Learning\" (a specific paradigm involving agent self-improvement via distillation). While both fall under the broad domain of reinforcement learning, the candidate paper does not measure the self-distillation mechanism, the agentic loop, or the specific variables central to the user's query, failing to meet the criteria",
+          "title": "Causal-Paced Deep Reinforcement Learning"
+        },
+        {
+          "primary_pointer": "1807.05037",
+          "rationale": "The paper focuses on Inverse Reinforcement Learning (IRL) and hierarchical planning, which is a distinct mechanism from Self-Distilled Agentic Reinforcement Learning (which typically involves an agent learning from its own distilled outputs or policies). While both fall under the broad domain of Reinforcement Learning, the paper does not measure the specific mechanism of self-distillation, nor does it address the agentic loop or the specific variables (distillation, self-training) central to the",
+          "title": "Exploring Hierarchy-Aware Inverse Reinforcement Learning"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-30T17:51:04Z",
+    "term_input": {
+      "normalized": "self-distilled agentic reinforcement learning computer science",
+      "raw": "Self-Distilled Agentic Reinforcement Learning computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Optimistic value estimates provide one mechanism for directed exploration in reinforcement learning (RL). The agent acts greedily with respect to an estimate of the value plus what can be seen as a value bonus. The value bonus can be learned by estimating a value function on reward bonuses, propagating local uncertainties around rewards. However, this approach only increases the value bonus for an action retroactively, after seeing a higher reward bonus from that state and action. Such an approach does not encourage the agent to visit a state and action for the first time. In this work, we introduce an algorithm for exploration called Value Bonuses with Ensemble errors (VBE), that maintains an ensemble of random action-value functions (RQFs). VBE uses the errors in the estimation of these RQFs to design value bonuses that provide first-visit optimism and deep exploration. The key idea is to design the rewards for these RQFs in such a way that the value bonus can decrease to zero. We show that VBE outperforms Bootstrap DQN and two reward bonus approaches (RND and ACB) on several classic environments used to test exploration and provide demonstrative experiments that it can scale easily to more complex environments like Atari.",
+          "claimed_authors": [
+            "Abdul Wahab",
+            "Raksha Kumaraswamy",
+            "Martha White"
+          ],
+          "claimed_title": "Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.12375"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Self-Distilled Agentic Reinforcement Learning computer science', candidate_title='Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning')",
+        "failed_at": "2026-06-30T17:51:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Designing effective task sequences is crucial for curriculum reinforcement learning (CRL), where agents must gradually acquire skills by training on intermediate tasks. A key challenge in CRL is to identify tasks that promote exploration, yet are similar enough to support effective transfer. While recent approach suggests comparing tasks via their Structural Causal Models (SCMs), the method requires access to ground-truth causal structures, an unrealistic assumption in most RL settings. In this work, we propose Causal-Paced Deep Reinforcement Learning (CP-DRL), a curriculum learning framework aware of SCM differences between tasks based on interaction data approximation. This signal captures task novelty, which we combine with the agent's learnability, measured by reward gain, to form a unified objective. Empirically, CP-DRL outperforms existing curriculum methods on the Point Mass benchmark, achieving faster convergence and higher returns. CP-DRL demonstrates reduced variance with comparable final returns in the Bipedal Walker-Trivial setting, and achieves the highest average performance in the Infeasible variant. These results indicate that leveraging causal relationships between tasks can improve the structure-awareness and sample efficiency of curriculum reinforcement learning. We provide the full implementation of CP-DRL to facilitate the reproduction of our main results at https://github.com/Cho-Geonwoo/CP-DRL.",
+          "claimed_authors": [
+            "Geonwoo Cho",
+            "Jaegyun Im",
+            "Doyoon Kim",
+            "Sundong Kim"
+          ],
+          "claimed_title": "Causal-Paced Deep Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.02910"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Self-Distilled Agentic Reinforcement Learning computer science', candidate_title='Causal-Paced Deep Reinforcement Learning')",
+        "failed_at": "2026-06-30T17:51:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This article provides the first survey of computational models of emotion in reinforcement learning (RL) agents. The survey focuses on agent/robot emotions, and mostly ignores human user emotions. Emotions are recognized as functional in decision-making by influencing motivation and action selection. Therefore, computational emotion models are usually grounded in the agent's decision making architecture, of which RL is an important subclass. Studying emotions in RL-based agents is useful for three research fields. For machine learning (ML) researchers, emotion models may improve learning efficiency. For the interactive ML and human-robot interaction (HRI) community, emotions can communicate state and enhance user investment. Lastly, it allows affective modelling (AM) researchers to investigate their emotion theories in a successful AI agent class. This survey provides background on emotion theory and RL. It systematically addresses 1) from what underlying dimensions (e.g., homeostasis, appraisal) emotions can be derived and how these can be modelled in RL-agents, 2) what types of emotions have been derived from these dimensions, and 3) how these emotions may either influence the learning efficiency of the agent or be useful as social signals. We also systematically compare evaluation criteria, and draw connections to important RL sub-domains like (intrinsic) motivation and model-based RL. In short, this survey provides both a practical overview for engineers wanting to implement emotions in their RL agents, and identifies challenges and directions for future emotion-RL research.",
+          "claimed_authors": [
+            "Thomas M. Moerland",
+            "Joost Broekens",
+            "Catholijn M. Jonker"
+          ],
+          "claimed_title": "Emotion in Reinforcement Learning Agents and Robots: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1705.05172"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Self-Distilled Agentic Reinforcement Learning computer science', candidate_title='Emotion in Reinforcement Learning Agents and Robots: A Survey')",
+        "failed_at": "2026-06-30T17:51:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In recent years, deep learning has spread rapidly, and deeper, larger models have been proposed. However, the calculation cost becomes enormous as the size of the models becomes larger. Various techniques for compressing the size of the models have been proposed to improve performance while reducing computational costs. One of the methods to compress the size of the models is knowledge distillation (KD). Knowledge distillation is a technique for transferring knowledge of deep or ensemble models with many parameters (teacher model) to smaller shallow models (student model). Since the purpose of knowledge distillation is to increase the similarity between the teacher model and the student model, we propose to introduce the concept of metric learning into knowledge distillation to make the student model closer to the teacher model using pairs or triplets of the training samples. In metric learning, the researchers are developing the methods to build a model that can increase the similarity of outputs for similar samples. Metric learning aims at reducing the distance between similar and increasing the distance between dissimilar. The functionality of the metric learning to reduce the differences between similar outputs can be used for the knowledge distillation to reduce the differences between the outputs of the teacher model and the student model. Since the outputs of the teacher model for different objects are usually different, the student model needs to distinguish them. We think that metric learning can clarify the difference between the different outputs, and the performance of the student model could be improved. We have performed experiments to compare the proposed method with state-of-the-art knowledge distillation methods.",
+          "claimed_authors": [
+            "Hideki Oki",
+            "Motoshi Abe",
+            "Junichi Miyao",
+            "Takio Kurita"
+          ],
+          "claimed_title": "Triplet Loss for Knowledge Distillation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2004.08116"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Self-Distilled Agentic Reinforcement Learning computer science', candidate_title='Triplet Loss for Knowledge Distillation')",
+        "failed_at": "2026-06-30T17:51:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Standard Knowledge Distillation (KD) compresses Large Language Models (LLMs) by optimizing final outputs, yet it typically treats the teacher's intermediate layer's thought process as a black box. While feature-based distillation attempts to bridge this gap, existing methods (e.g., MSE and asymmetric KL divergence) ignore the rich uncertainty profiles required for the final output. In this paper, we introduce DistillLens, a framework that symmetrically aligns the evolving thought processes of student and teacher models. By projecting intermediate hidden states into the vocabulary space via the Logit Lens, we enforce structural alignment using a symmetric divergence objective. Our analysis proves that this constraint imposes a dual-sided penalty, preventing both overconfidence and underconfidence while preserving the high-entropy information conduits essential for final deduction. Extensive experiments on GPT-2 and Llama architectures demonstrate that DistillLens consistently outperforms standard KD and feature-transfer baselines on diverse instruction-following benchmarks. The code is available at https://github.com/manishdhakal/DistillLens.",
+          "claimed_authors": [
+            "Manish Dhakal",
+            "Uthman Jinadu",
+            "Anjila Budathoki",
+            "Rajshekhar Sunderraman",
+            "Yi Ding"
+          ],
+          "claimed_title": "DistillLens: Symmetric Knowledge Distillation Through Logit Lens",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.13567"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Self-Distilled Agentic Reinforcement Learning computer science', candidate_title='DistillLens: Symmetric Knowledge Distillation Through Logit Lens')",
+        "failed_at": "2026-06-30T17:51:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Deep neural networks have achieved remarkable performance for artificial intelligence tasks. The success behind intelligent systems often relies on large-scale models with high computational complexity and storage costs. The over-parameterized networks are often easy to optimize and can achieve better performance. However, it is challenging to deploy them over resource-limited edge-devices. Knowledge Distillation (KD) aims to optimize a lightweight network from the perspective of over-parameterized training. The traditional offline KD transfers knowledge from a cumbersome teacher to a small and fast student network. When a sizeable pre-trained teacher network is unavailable, online KD can improve a group of models by collaborative or mutual learning. Without needing extra models, Self-KD boosts the network itself using attached auxiliary architectures. KD mainly involves knowledge extraction and distillation strategies these two aspects. Beyond KD schemes, various KD algorithms are widely used in practical applications, such as multi-teacher KD, cross-modal KD, attention-based KD, data-free KD and adversarial KD. This paper provides a comprehensive KD survey, including knowledge categories, distillation schemes and algorithms, as well as some empirical studies on performance comparison. Finally, we discuss the open challenges of existing KD works and prospect the future directions.",
+          "claimed_authors": [
+            "Chuanguang Yang",
+            "Xinqiang Yu",
+            "Zhulin An",
+            "Yongjun Xu"
+          ],
+          "claimed_title": "Categories of Response-Based, Feature-Based, and Relation-Based Knowledge Distillation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.10687"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Self-Distilled Agentic Reinforcement Learning computer science', candidate_title='Categories of Response-Based, Feature-Based, and Relation-Based Knowledge Distillation')",
+        "failed_at": "2026-06-30T17:51:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Chain-of-Thought (CoT) reasoning improves multi-step mathematical problem solving in large language models but remains vulnerable to exposure bias and error accumulation, as early mistakes propagate irreversibly through autoregressive decoding. In this work, we propose DiffCoT, a diffusion-styled CoT framework that reformulates CoT reasoning as an iterative denoising process. DiffCoT integrates diffusion principles at the reasoning-step level via a sliding-window mechanism, enabling unified generation and retrospective correction of intermediate steps while preserving token-level autoregression. To maintain causal consistency, we further introduce a causal diffusion noise schedule that respects the temporal structure of reasoning chains. Extensive experiments on three multi-step CoT reasoning benchmarks across diverse model backbones demonstrate that DiffCoT consistently outperforms existing CoT preference optimization methods, yielding improved robustness and error-correction capability in CoT reasoning.",
+          "claimed_authors": [
+            "Shidong Cao",
+            "Hongzhan Lin",
+            "Yuxuan Gu",
+            "Ziyang Luo",
+            "Jing Ma"
+          ],
+          "claimed_title": "DiffCoT: Diffusion-styled Chain-of-Thought Reasoning in LLMs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.03559"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Self-Distilled Agentic Reinforcement Learning computer science', candidate_title='DiffCoT: Diffusion-styled Chain-of-Thought Reasoning in LLMs')",
+        "failed_at": "2026-06-30T17:51:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Language Models have demonstrated remarkable abilities across various tasks, with Chain-of-Thought (CoT) prompting emerging as a key technique to enhance reasoning capabilities. However, existing research primarily focuses on improving performance, lacking a comprehensive framework to explain and understand the fundamental factors behind CoT's success. To bridge this gap, we introduce a novel perspective grounded in the Hopfieldian view of cognition in cognitive neuroscience. We establish a connection between CoT reasoning and key cognitive elements such as stimuli, actions, neural populations, and representation spaces. From our view, we can understand the reasoning process as the movement between these representation spaces. Building on this insight, we develop a method for localizing reasoning errors in the response of CoTs. Moreover, we propose the Representation-of-Thought (RoT) framework, which leverages the robustness of low-dimensional representation spaces to enhance the robustness of the reasoning process in CoTs. Experimental results demonstrate that RoT improves the robustness and interpretability of CoT reasoning while offering fine-grained control over the reasoning process.",
+          "claimed_authors": [
+            "Lijie Hu",
+            "Liang Liu",
+            "Shu Yang",
+            "Xin Chen",
+            "Zhen Tan",
+            "Muhammad Asif Ali",
+            "Mengdi Li",
+            "Di Wang"
+          ],
+          "claimed_title": "Understanding Reasoning in Chain-of-Thought from the Hopfieldian View",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.03595"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Self-Distilled Agentic Reinforcement Learning computer science', candidate_title='Understanding Reasoning in Chain-of-Thought from the Hopfieldian View')",
+        "failed_at": "2026-06-30T17:51:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent advancements in reasoning with large language models (RLLMs), such as OpenAI-O1 and DeepSeek-R1, have demonstrated their impressive capabilities in complex domains like mathematics and coding. A central factor in their success lies in the application of long chain-of-thought (Long CoT) characteristics, which enhance reasoning abilities and enable the solution of intricate problems. However, despite these developments, a comprehensive survey on Long CoT is still lacking, limiting our understanding of its distinctions from traditional short chain-of-thought (Short CoT) and complicating ongoing debates on issues like \"overthinking\" and \"inference-time scaling.\" This survey seeks to fill this gap by offering a unified perspective on Long CoT. (1) We first distinguish Long CoT from Short CoT and introduce a novel taxonomy to categorize current reasoning paradigms. (2) Next, we explore the key characteristics of Long CoT: deep reasoning, extensive exploration, and feasible reflection, which enable models to handle more complex tasks and produce more efficient, coherent outcomes compared to the shallower Short CoT. (3) We then investigate key phenomena such as the emergence of Long CoT with these characteristics, including overthinking, and inference-time scaling, offering insights into how these processes manifest in practice. (4) Finally, we identify significant research gaps and highlight promising future directions, including the integration of multi-modal reasoning, efficiency improvements, and enhanced knowledge frameworks. By providing a structured overview, this survey aims to inspire future research and further the development of logical reasoning in artificial intelligence.",
+          "claimed_authors": [
+            "Qiguang Chen",
+            "Libo Qin",
+            "Jinhao Liu",
+            "Dengyun Peng",
+            "Jiannan Guan",
+            "Peng Wang",
+            "Mengkang Hu",
+            "Yuhang Zhou",
+            "Te Gao",
+            "Wanxiang Che"
+          ],
+          "claimed_title": "Towards Reasoning Era: A Survey of Long Chain-of-Thought for Reasoning Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.09567"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Self-Distilled Agentic Reinforcement Learning computer science', candidate_title='Towards Reasoning Era: A Survey of Long Chain-of-Thought for Reasoning Large Language Models')",
+        "failed_at": "2026-06-30T17:51:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper introduces and investigates a regularity condition in the asymptotic sense for optimization problems whose objective functions are polynomial. Under this regularity condition, the normalization argument in asymptotic analysis enables us to see the solution existence as well as the solution stability of these problems. We prove a Frank-Wolfe type theorem for regular optimization problems and an Eaves type theorem for non-regular pseudoconvex optimization problems. Moreover, we show results on the stability such as upper semicontinuity and local upper-Hölder stability of the solution map of polynomial optimization problems. At the end of the paper, we discuss the genericity of the regularity condition.",
+          "claimed_authors": [
+            "Vu Trung Hieu"
+          ],
+          "claimed_title": "On the solution existence and stability of polynomial optimization problems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1808.06100"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Self-Distilled Agentic Reinforcement Learning computer science', candidate_title='On the solution existence and stability of polynomial optimization problems')",
+        "failed_at": "2026-06-30T17:51:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reinforcement learning from human feedback (RLHF) has emerged as the primary method for aligning large language models (LLMs) with human preferences. The RLHF process typically starts by training a reward model (RM) using human preference data. Conventional RMs are trained on pairwise responses to the same user request, with relative ratings indicating which response humans prefer. The trained RM serves as a proxy for human preferences. However, due to the black-box nature of RMs, their outputs lack interpretability, as humans cannot intuitively understand why an RM thinks a response is good or not. As RMs act as human preference proxies, we believe they should be human-interpretable to ensure that their internal decision processes are consistent with human preferences and to prevent reward hacking in LLM alignment. To build RMs with interpretable preferences, we propose a two-stage approach: i) train an Absolute-Rating Multi-Objective Reward Model (ArmoRM) with multi-dimensional absolute-rating data, each dimension corresponding to a human-interpretable objective (e.g., honesty, verbosity, safety); ii) employ a Mixture-of-Experts (MoE) strategy with a gating network that automatically selects the most suitable reward objectives based on the context. We efficiently trained an ArmoRM with Llama-3 8B and a gating network consisting of a shallow MLP on top of the ArmoRM. Our trained model, ArmoRM-Llama3-8B, obtains state-of-the-art performance on RewardBench, a benchmark evaluating RMs for language modeling. Notably, the performance of our model surpasses the LLM-as-a-judge method with GPT-4 judges by a margin, and approaches the performance of the much larger Nemotron-4 340B reward model.",
+          "claimed_authors": [
+            "Haoxiang Wang",
+            "Wei Xiong",
+            "Tengyang Xie",
+            "Han Zhao",
+            "Tong Zhang"
+          ],
+          "claimed_title": "Interpretable Preferences via Multi-Objective Reward Modeling and Mixture-of-Experts",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.12845"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Self-Distilled Agentic Reinforcement Learning computer science', candidate_title='Interpretable Preferences via Multi-Objective Reward Modeling and Mixture-of-Experts')",
+        "failed_at": "2026-06-30T17:51:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper presents a novel approach to Multi-Agent Reinforcement Learning (MARL) that combines cooperative task decomposition with the learning of reward machines (RMs) encoding the structure of the sub-tasks. The proposed method helps deal with the non-Markovian nature of the rewards in partially observable environments and improves the interpretability of the learnt policies required to complete the cooperative task. The RMs associated with each sub-task are learnt in a decentralised manner and then used to guide the behaviour of each agent. By doing so, the complexity of a cooperative multi-agent problem is reduced, allowing for more effective learning. The results suggest that our approach is a promising direction for future research in MARL, especially in complex environments with large state spaces and multiple agents.",
+          "claimed_authors": [
+            "Leo Ardon",
+            "Daniel Furelos-Blanco",
+            "Alessandra Russo"
+          ],
+          "claimed_title": "Learning Reward Machines in Cooperative Multi-Agent Tasks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.14061"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Self-Distilled Agentic Reinforcement Learning computer science', candidate_title='Learning Reward Machines in Cooperative Multi-Agent Tasks')",
+        "failed_at": "2026-06-30T17:51:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Here we survey the compactness and geometric stability conjectures formulated by the participants at the 2018 IAS Emerging Topics Workshop on {\\em Scalar Curvature and Convergence}. We have tried to survey all the progress towards these conjectures as well as related examples, although it is impossible to cover everything. We focus primarily on sequences of compact Riemannian manifolds with nonnegative scalar curvature and their limit spaces. Christina Sormani is grateful to have had the opportunity to write up our ideas and has done her best to credit everyone involved within the paper even though she is the only author listed above. In truth we are a team of over thirty people working together and apart on these deep questions and we welcome everyone who is interested in these conjectures to join us.",
+          "claimed_authors": [
+            "Christina Sormani",
+            "Participants at the IAS Emerging Topics Workshop on Scalar Curvature",
+            " Convergence"
+          ],
+          "claimed_title": "Conjectures on Convergence and Scalar Curvature",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.10093"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Self-Distilled Agentic Reinforcement Learning computer science', candidate_title='Conjectures on Convergence and Scalar Curvature')",
+        "failed_at": "2026-06-30T17:51:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Despite its popularity in the reinforcement learning community, a provably convergent policy gradient method for continuous space-time control problems with nonlinear state dynamics has been elusive. This paper proposes proximal gradient algorithms for feedback controls of finite-time horizon stochastic control problems. The state dynamics are nonlinear diffusions with control-affine drift, and the cost functions are nonconvex in the state and nonsmooth in the control. The system noise can degenerate, which allows for deterministic control problems as special cases. We prove under suitable conditions that the algorithm converges linearly to a stationary point of the control problem, and is stable with respect to policy updates by approximate gradient steps. The convergence result justifies the recent reinforcement learning heuristics that adding entropy regularization or a fictitious discount factor to the optimization objective accelerates the convergence of policy gradient methods. The proof exploits careful regularity estimates of backward stochastic differential equations.",
+          "claimed_authors": [
+            "Christoph Reisinger",
+            "Wolfgang Stockinger",
+            "Yufei Zhang"
+          ],
+          "claimed_title": "Linear convergence of a policy gradient method for some finite horizon continuous time control problems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.11758"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Self-Distilled Agentic Reinforcement Learning computer science', candidate_title='Linear convergence of a policy gradient method for some finite horizon continuous time control problems')",
+        "failed_at": "2026-06-30T17:51:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present the first finite time global convergence analysis of policy gradient in the context of infinite horizon average reward Markov decision processes (MDPs). Specifically, we focus on ergodic tabular MDPs with finite state and action spaces. Our analysis shows that the policy gradient iterates converge to the optimal policy at a sublinear rate of $O\\left({\\frac{1}{T}}\\right),$ which translates to $O\\left({\\log(T)}\\right)$ regret, where $T$ represents the number of iterations. Prior work on performance bounds for discounted reward MDPs cannot be extended to average reward MDPs because the bounds grow proportional to the fifth power of the effective horizon. Thus, our primary contribution is in proving that the policy gradient algorithm converges for average-reward MDPs and in obtaining finite-time performance guarantees. In contrast to the existing discounted reward performance bounds, our performance bounds have an explicit dependence on constants that capture the complexity of the underlying MDP. Motivated by this observation, we reexamine and improve the existing performance bounds for discounted reward MDPs. We also present simulations to empirically evaluate the performance of average reward policy gradient algorithm.",
+          "claimed_authors": [
+            "Navdeep Kumar",
+            "Yashaswini Murthy",
+            "Itai Shufaro",
+            "Kfir Y. Levy",
+            "R. Srikant",
+            "Shie Mannor"
+          ],
+          "claimed_title": "On the Global Convergence of Policy Gradient in Average Reward Markov Decision Processes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2403.06806"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Self-Distilled Agentic Reinforcement Learning computer science', candidate_title='On the Global Convergence of Policy Gradient in Average Reward Markov Decision Processes')",
+        "failed_at": "2026-06-30T17:51:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Despite the remarkable performance of score distillation in text-to-3D generation, such techniques notoriously suffer from view inconsistency issues, also known as \"Janus\" artifact, where the generated objects fake each view with multiple front faces. Although empirically effective methods have approached this problem via score debiasing or prompt engineering, a more rigorous perspective to explain and tackle this problem remains elusive. In this paper, we reveal that the existing score distillation-based text-to-3D generation frameworks degenerate to maximal likelihood seeking on each view independently and thus suffer from the mode collapse problem, manifesting as the Janus artifact in practice. To tame mode collapse, we improve score distillation by re-establishing the entropy term in the corresponding variational objective, which is applied to the distribution of rendered images. Maximizing the entropy encourages diversity among different views in generated 3D assets, thereby mitigating the Janus problem. Based on this new objective, we derive a new update rule for 3D score distillation, dubbed Entropic Score Distillation (ESD). We theoretically reveal that ESD can be simplified and implemented by just adopting the classifier-free guidance trick upon variational score distillation. Although embarrassingly straightforward, our extensive experiments successfully demonstrate that ESD can be an effective treatment for Janus artifacts in score distillation.",
+          "claimed_authors": [
+            "Peihao Wang",
+            "Dejia Xu",
+            "Zhiwen Fan",
+            "Dilin Wang",
+            "Sreyas Mohan",
+            "Forrest Iandola",
+            "Rakesh Ranjan",
+            "Yilei Li",
+            "Qiang Liu",
+            "Zhangyang Wang",
+            "Vikas Chandra"
+          ],
+          "claimed_title": "Taming Mode Collapse in Score Distillation for Text-to-3D Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2401.00909"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Self-Distilled Agentic Reinforcement Learning computer science', candidate_title='Taming Mode Collapse in Score Distillation for Text-to-3D Generation')",
+        "failed_at": "2026-06-30T17:51:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "AI training datasets will inevitably contain AI-generated examples, leading to ``feedback'' in which the output of one model impacts the training of another. It is known that such iterative feedback can lead to model collapse, yet the mechanisms underlying this degeneration remain poorly understood. Here we show that a broad class of feedback processes converges to a low-dimensional invariant structure in latent space, a phenomenon we call neural resonance. By modeling iterative feedback as a Markov Chain, we show that two conditions are needed for this resonance to occur: ergodicity of the feedback process and directional contraction of the latent representation. By studying diffusion models on MNIST and ImageNet, as well as CycleGAN and an audio feedback experiment, we map how local and global manifold geometry evolve, and we introduce an eight-pattern taxonomy of collapse behaviors. Neural resonance provides a unified explanation for long-term degenerate behavior in generative models and provides practical diagnostics for identifying, characterizing, and eventually mitigating collapse.",
+          "claimed_authors": [
+            "Vibhas Kumar Vats",
+            "David J. Crandall",
+            "Samuel Goree"
+          ],
+          "claimed_title": "A Markovian View of Iterative-Feedback Loops in Image Generative Models: Neural Resonance and Model Collapse",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.19033"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Self-Distilled Agentic Reinforcement Learning computer science', candidate_title='A Markovian View of Iterative-Feedback Loops in Image Generative Models: Neural Resonance and Model Collapse')",
+        "failed_at": "2026-06-30T17:51:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Conditioning a language model on additional context, such as feedback on a previous attempt, typically improves its response. Self-distillation trains the model to retain this improvement when the context is not present. The method works by matching the model's output distribution under two settings: a student that sees only the question, and a self-teacher that also sees the context. What the model learns therefore depends on what context the self-teacher receives, yet the design of this context remains largely unexplored.\n  We study context design for self-distillation by training a solver on feedback from a frozen critic. We compare three conditions: (i) a binary reward (GRPO), (ii) the reference solution, and (iii) a step-by-step critique aligned to the solver's reasoning trace.\n  Step-aligned critique yields the largest gains, outperforming GRPO by 16.11 points and reference-solution-conditioned self-distillation by 5.27 points (Avg@12). Per-token advantage analysis reveals why: step-aligned feedback targets only the tokens where reasoning fails, leaving correct behavior intact. Conditioning on the reference solution, by contrast, pressures the model to change its behavior at every token (even correct steps) because an alternative derivation inevitably differs in phrasing and approach. This suggests that structural alignment between feedback and the solver's reasoning is a key driver of self-distillation effectiveness.",
+          "claimed_authors": [
+            "Semih Kara",
+            "Oğuzhan Ersoy"
+          ],
+          "claimed_title": "The Role of Feedback Alignment in Self-Distillation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.11173"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Self-Distilled Agentic Reinforcement Learning computer science', candidate_title='The Role of Feedback Alignment in Self-Distillation')",
+        "failed_at": "2026-06-30T17:51:42Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Dengyang Jiang",
+            "Dongyang Liu",
+            "Zanyi Wang",
+            "Qilong Wu",
+            "Liuzhuozheng Li",
+            "Hengzhuang Li",
+            "Xin Jin",
+            "David Liu",
+            "Changsheng Lu",
+            "Zhen Li",
+            "Bo Zhang",
+            "Mengmeng Wang",
+            "Steven Hoi",
+            "Peng Gao",
+            "Harry Yang"
+          ],
+          "title": "Distribution Matching Distillation Meets Reinforcement Learning",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2511.13649",
+        "summary": "Distribution Matching Distillation (DMD) facilitates efficient inference by distilling multi-step diffusion models into few-step variants. Concurrently, Reinforcement Learning (RL) has emerged as a vital tool for aligning generative models with human preferences. While both represent critical post-training stages for large-scale diffusion models, existing studies typically treat them as independent, sequential processes, leaving a systematic framework for their unification largely unexplored. In this work, we demonstrate that jointly optimizing these two objectives yields mutual benefits: RL enables more preference-aware and controllable distillation rather than uniformly compressing the full data distribution, while DMD serves as an effective regularizer to mitigate reward hacking during RL training. Building on these insights, we propose DMDR, a unified framework that incorporates Reward-Tilted Distribution Matching optimization alongside two dynamic distillation training strategies in the initial stage, followed by the joint DMD and RL optimization in the second stage. Extensive experiments demonstrate that DMDR achieves state-of-the-art visual quality and prompt adherence among few-step generation methods, even surpassing the performance of its multi-step teacher model.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2511.13649",
+          "http_status": 200,
+          "pdf_sample_score": 0.2587,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-30T17:51:55Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "René Traoré",
+            "Hugo Caselles-Dupré",
+            "Timothée Lesort",
+            "Te Sun",
+            "Natalia Díaz-Rodríguez",
+            "David Filliat"
+          ],
+          "title": "Continual Reinforcement Learning deployed in Real-life using Policy Distillation and Sim2Real Transfer",
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1906.04452",
+        "summary": "We focus on the problem of teaching a robot to solve tasks presented sequentially, i.e., in a continual learning scenario. The robot should be able to solve all tasks it has encountered, without forgetting past tasks. We provide preliminary work on applying Reinforcement Learning to such setting, on 2D navigation tasks for a 3 wheel omni-directional robot. Our approach takes advantage of state representation learning and policy distillation. Policies are trained using learned features as input, rather than raw observations, allowing better sample efficiency. Policy distillation is used to combine multiple policies into a single one that solves all encountered tasks.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1906.04452",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-30T17:51:55Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "self-distilled agentic reinforcement learning computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

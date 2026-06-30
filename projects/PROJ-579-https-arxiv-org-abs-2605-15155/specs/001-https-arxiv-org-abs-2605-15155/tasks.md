@@ -61,10 +61,10 @@
 - [X] T004b [P] Activate virtual environment and verify Python version is 3.10+.
 - [X] T004c [P] Install dependencies from `external/SDAR/requirements.txt` into the active virtual environment.
 - [X] T005 [P] Explicitly disable CUDA imports and set `CUDA_VISIBLE_DEVICES=""` in `scripts/setup_env.sh`.
-- [X] T005b [P] **Model Backbone Verification**: Inspect `external/SDAR` config/code to identify the default model. If GPU-only (e.g., Llama-2-7B) and not configurable, **FAIL this phase** and generate `outputs/gaps/gpu_model_blocking_gap.txt`. If CPU-tractable, proceed.
-- [X] T006 [P] Configure Ray initialization script to bind exclusively to 2 CPU cores (`ray init --num-cpus=2`).
+- [X] T005b [P] **Model Proxy Configuration**: Configure the project to use `distilbert-base-uncased` as the CPU-tractable proxy model via environment variable `SDAR_MODEL_PROXY=distilbert-base-uncased` or config file override. If the default model in `external/SDAR` is GPU-only and cannot be overridden via config, **ABORT pipeline** and generate `outputs/gaps/gpu_model_blocking_gap.txt` with content `{"reason": "GPU model detected", "action": "abort"}`.
+- [X] T006 [P] Configure Ray initialization script to bind exclusively to a limited number of CPU cores. (`ray init --num-cpus=2`).
 - [X] T006b [P] **Training Timeout Integration**: Modify `external/SDAR/agent_system/train.py` to wrap execution with the global timeout wrapper (T006c) and include a verification step that simulates a hang to confirm the timeout triggers correctly.
-- [X] T006c [P] **Global Timeout Wrapper**: Create `scripts/global_timeout_wrapper.sh` that enforces a hard timeout (e.g., 60s per task/step) and logs the timeout event.
+- [X] T006c [P] **Global Timeout Wrapper**: Create `scripts/global_timeout_wrapper.sh` that enforces a hard timeout (e.g., a predefined duration per task/step) and logs the timeout event.
 - [X] T007 [P] Create base logging infrastructure at `src/logging_config.py` defining a JSON logger that explicitly outputs keys `SDAR Gate Loss`, `RL Loss`, and `gate_activation_rate`.
 - [X] T008 [P] Setup output directory structure (`outputs/health/`, `outputs/logs/`, `outputs/checkpoints/`, `outputs/gaps/`, `outputs/timing/`).
 
@@ -81,13 +81,13 @@
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-> **NOTE: T009 requires T010 to exist (even if empty) to run the test. T009 is NOT parallel to T010.**
+> **NOTE: T009 depends on T010 to exist (even if empty) to run the test.**
 
-- [X] T009 [US1] Contract test for Ray CPU initialization in `tests/unit/test_ray_cpu_init.py`.
+- [X] T009 [US1] Contract test for Ray CPU initialization in `tests/unit/test_ray_cpu_init.py`. **Depends: T010**
 
 ### Implementation for User Story 1
 
-- [X] T010 [US1] **RELOCATED**: The Ray CPU health check logic previously intended for `external/SDAR/tests/ray_cpu/check_worker_alive/main.py` has been consolidated into `code/src/sdar_sim.py` (see T001/T002). The modular test directory structure was intentionally abandoned to reduce overhead; `sdar_sim.py` now serves as the primary entry point for environment sanity and health verification. Update `docs/reproducibility/reproducibility_report.md` to reflect this single-file execution model.
+- [X] T010 [US1] **Execute Vendored Entry Point**: Execute `external/SDAR/tests/ray_cpu/check_worker_alive/main.py` in the active virtual environment. Verify the script logs "2 CPUs detected" (or >= 2) and "Ray cluster healthy" without raising `ImportError` for `torch.cuda`. Generate `outputs/health/ray_health.json` with the exit code and detected CPU count.
 - [X] T011 [US1] Add logic to detect and report available CPU count (expecting >= 2) without raising `ImportError` for `torch.cuda`.
 - [X] T012 [US1] Ensure script exits with code 0 and generates `outputs/health/ray_health.json` on success.
 - [X] T013 [US1] Verify no CUDA-related errors occur when running on a GPU-less runner.
@@ -109,8 +109,9 @@
 ### Implementation for User Story 2
 
 - [X] T015 [US2] Configure `external/SDAR/agent_system/train.py` with `num_steps=10`, `batch_size=1`, `env=alfworld`, and `device="cpu"`.
-- [X] T016 [US2] Implement logic to select CPU-tractable model (e.g., `TinyLlama-1.1B`) if the default is not CPU-tractable. **Do NOT modify vendored code** unless T005b failed.
+- [X] T015b [US2] **Model Proxy Enforcement**: Ensure the `distilbert-base-uncased` model is loaded by setting `SDAR_MODEL_PROXY=distilbert-base-uncased` in the environment before running the training script. Verify the log confirms the proxy model is active.
 - [X] T017 [US2] Ensure training loop logs "SDAR Gate Loss" and "RL Loss" for at least 5 steps using the schema defined in T007.
+- [X] T017b [US2] **Logging Enforcement**: If the vendored `train.py` does not log "SDAR Gate Loss" or "RL Loss" by default, create a wrapper script `scripts/patch_train_logging.py` that monkey-patches the logger or modifies the output stream to inject these keys with actual values from the training step.
 - [X] T018 [US2] Implement checkpoint saving to `outputs/checkpoints/step_5.pt` upon completion.
 - [X] T019 [US2] Verify `gate_activation_rate > 0.0%` is logged to confirm the self-distillation gate is active.
 - [X] T020 [US2] Generate a summary report in `outputs/logs/train_log.json` with final average loss.
@@ -142,7 +143,51 @@
 
 ---
 
-## Phase 6: Polish & Cross-Cutting Concerns
+## Phase 6: Revision & Corrective Actions (Addressing Research Reviewer Concerns)
+
+**Purpose**: Replace fabricated/simulated artifacts with actual execution of the SDAR codebase on ALFWorld, as mandated by multiple research-stage reviewers (Code Quality, Data Quality, Implementation Correctness, Idea Quality).
+
+### Task: Replace Simulation with Actual Execution (Reviewers: Code Quality, Data Quality, Implementation Correctness)
+
+- [X] T033 [US2] **CREATE SANITY CHECK SCRIPT**: Create `scripts/run_sanity_check.py` that executes `external/SDAR/tests/ray_cpu/check_worker_alive/main.py` and verifies CPU-only initialization. **Depends: T010**
+- [X] T034 [US2] **CREATE MINI TRAIN SCRIPT**: Create `scripts/run_mini_train.py` that invokes `external/SDAR/agent_system/train.py` with `--num-steps=10 --batch-size=1 --device=cpu`, ensuring it imports `alfworld.agents.environment`. **Depends: T015b**
+- [X] T035 [US2] **LOGGING INTEGRATION**: Verify that `run_mini_train.py` explicitly logs "SDAR Gate Loss" and "RL Loss" keys as defined in `spec.md` FR-002/FR-003, derived from actual training steps, not synthetic values. **Depends: T017b**
+
+### Task: Decompose Logic & Enforce Modularity (Reviewer: Code Quality)
+
+- [X] T036b [US2] **MODULARIZE ACTUAL EXECUTION**: If the vendored `external/SDAR` code is monolithic, split the *actual* execution logic into:
+  - `code/src/sdar_runner.py` (logic only, <200 lines)
+  - `code/src/data_loader.py` (data loading only, <200 lines)
+  - `code/src/plotting.py` (visualization only, <200 lines)
+  Ensure no file mixes I/O with algorithm logic. **Depends: T034**
+
+### Task: Data Hygiene & Artifact Regeneration (Reviewers: Data Quality, Implementation Completeness, Idea Quality)
+
+- [X] T037 [US2] **DELETE FABRICATED ARTIFACTS**: Remove `data/sdar_results.csv`, `data/sdar_summary.json`, and the entire `figures/` directory as they contain fabricated data not derived from actual execution.
+- [X] T038 [US2] **REGENERATE ARTIFACTS**: Re-run the pipeline (`scripts/run_sanity_check.py` → `scripts/run_mini_train.py` → `scripts/run_evaluation.py`) to produce real `outputs/logs/train_log.json` and `outputs/logs/eval_log.json`. **Depends: T033, T034**
+- [X] T039 [US2] **PARSE REAL LOGS**: Create `code/parse_logs.py` to extract actual metrics (Success Rate, Gate Activation, Loss values) from the real execution logs. **Expected Format**: JSON lines with keys "SDAR Gate Loss", "RL Loss", "success". Populate `data/sdar_results.csv` and `data/sdar_summary.json` with empirically derived values. **Depends: T033, T034**
+- [X] T040 [US2] **REGENERATE FIGURES**: If visualization is required, regenerate `figures/gate_attenuation.png` and `figures/success_rate_vs_noise.png` using the new, empirically derived data, ensuring consistency with actual results.
+
+### Task: Documentation Correction (Reviewers: Filesystem Hygiene, Idea Quality, Implementation Completeness)
+
+- [X] T041 [US2] **UPDATE REPRODUCIBILITY REPORT**: Rewrite `docs/reproducibility/reproducibility_report.md` to:
+  - Correct all file paths (e.g., `code/sdar_sim.py` → `scripts/run_mini_train.py`, `code/requirements.txt` → `requirements.txt`).
+  - Align "Environment" section with `spec.md` constraints: Change "Steps: 1000" to "Steps: 10", "Batch Size: 32" to "Batch Size: 1".
+ - Remove all claims of "[deferred] ALFWorld coverage" or "Measured metrics" until actual execution proves them.
+  - Add a "Gap Analysis" section detailing the current inability to run the full pipeline on CPU and the specific steps taken to enable it.
+  - Explicitly state that results are from a multi-step diagnostic run, not a full statistical validation.
+  **Depends: T032, T033, T034, T038, T039**
+- [X] T042 [US2] **VERIFY ARTIFACT PATHS**: Ensure `data/sdar_results.csv` exists at the root `data/` directory (or update report to reflect actual location if it differs, e.g., `outputs/logs/`).
+
+### Task: Baseline Comparison Implementation (Reviewers: Implementation Completeness, Idea Quality)
+
+- [X] T043b [US4] **VERIFY/CHECK PPO BASELINE**: Check if `external/SDAR` contains a PPO baseline script. If not, create `code/baseline_ppo.py` using `stable-baselines3` or equivalent to implement a standard PPO agent for ALFWorld.
+- [X] T043 [US4] **CREATE BASELINE SCRIPT**: Create `scripts/run_baseline.py` that executes a standard PPO training run (without self-distillation) for 5 independent random seeds with `num_steps=1000` (aggressively downscaled) to enable statistical comparison. **Depends: T043b**
+- [X] T044 [US4] **STATISTICAL ANALYSIS**: Create `code/analyze_results.py` to perform a paired t-test on the results from 5 seeds comparing SDAR vs. PPO, outputting a p-value and significance conclusion to `data/statistical_analysis.json`.
+
+---
+
+## Phase 7: Polish & Cross-Cutting Concerns
 
 **Purpose**: Improvements that affect multiple user stories
 
@@ -163,6 +208,7 @@
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
   - User stories can then proceed in parallel (if staffed)
   - Or sequentially in priority order (P1 → P2 → P3)
+- **Revision (Phase 6)**: Depends on completion of Phase 2 and initial execution of Phases 3-5. **MUST** be completed before any statistical claims are made.
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -170,6 +216,7 @@
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
+- **User Story 4 (P1)**: Depends on US2 and US3 completion; requires real execution logs for statistical analysis.
 
 ### Within Each User Story
 
@@ -194,7 +241,7 @@
 
 ```bash
 # Launch all models for User Story 1 together:
-Task: "Implement Ray CPU health check script at external/SDAR/tests/ray_cpu/check_worker_alive/main.py"
+Task: "Execute vendored entry point at external/SDAR/tests/ray_cpu/check_worker_alive/main.py"
 ```
 
 ---
@@ -239,3 +286,4 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- **CRITICAL**: All tasks in Phase 6 (Revision) MUST be completed before any statistical claims or reproducibility reports are finalized. Fabricated data is strictly prohibited.

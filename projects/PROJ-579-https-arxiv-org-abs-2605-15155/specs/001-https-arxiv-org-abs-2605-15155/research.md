@@ -1,65 +1,67 @@
 # Research: Self-Distilled Agentic Reinforcement Learning (SDAR) Reproduction
 
-## Executive Summary
+## 1. Research Objective
 
-This research validates the feasibility of reproducing the SDAR paper (arXiv:2605.15155) on a CPU-only CI environment. The core challenge is adapting a likely GPU-accelerated RL pipeline to run on CPU cores with 7GB RAM. The research confirms that by reducing the training steps to 10 and the evaluation set to 5 tasks, the pipeline becomes tractable **for execution verification only**. 
+To reproduce and validate the *implementation* of the Self-Distilled Agentic Reinforcement Learning (SDAR) algorithm as described in arXiv:2605.15155. The primary goal is **mechanism execution validation** on the ALFWorld environment under strict CPU-only constraints, specifically verifying:
+1. The correct execution of the SDAR training loop (gating + RL) without CUDA errors.
+2. The ability to generate real loss metrics (Gate Loss, RL Loss) from actual environment interaction (or mock interaction if Thor fails).
+3. A comparative baseline run (SDAR vs. PPO) to verify *implementation parity* (i.e., both algorithms run without crashing).
 
-**Critical Distinction**: The goal of this reproduction is **Code Validity** (does the algorithm run? does the gate activate?), not **Statistical Significance** (does it achieve +[deferred] improvement?). A limited-step run cannot validate the algorithmic efficacy claimed in the paper. The success of this project is defined by the successful execution of the SDAR mechanism (gating logic, loss calculation) without crashing, not by matching the paper's performance metrics.
+**Scope Limitation**: Due to the 6-hour CI limit and 2-core constraint, the training horizon (1000 steps) is insufficient for policy convergence. The statistical comparison (paired t-test) is **diagnostic only**. A non-significant result (p > 0.05) is expected and does not invalidate the reproduction; it simply reflects the lack of training convergence. The project does *not* claim that SDAR is superior to PPO.
 
-## Dataset Strategy
+## 2. Dataset Strategy
 
-The SDAR pipeline relies on the **ALFWorld** environment for training and evaluation. ALFWorld is a simulated household task environment based on the TextWorld framework and the Thor engine.
+The "dataset" for this project is the **ALFWorld** environment, which provides the simulated household tasks for training and evaluation. No external static datasets are used; the data is generated dynamically during execution.
 
-| Dataset/Source | URL/Loader | Verification Status | Notes |
-| :--- | :--- | :--- | :--- |
-| **ALFWorld Environment** | `pip install alfworld` (Standard PyPI package) | **Verified** | The environment is not a static dataset but a dynamic simulator. The `alfworld` Python package handles the download of pre-compiled assets (PDDL files, Thor binaries) upon first run. |
-| **Vendored SDAR Code** | `external/SDAR` (Git Submodule) | **Verified** | The codebase is provided as a submodule. No external dataset download is required beyond ALFWorld's internal assets. |
-| **Paper Data** | arXiv:2605.15155 | **Verified** | The paper provides the algorithmic specification and baseline metrics. No external raw data files are needed for the reproduction of the *code execution*. |
+| Dataset/Source | Role | Verified Source | Loading Method |
+|:--- |:--- |:--- |:--- |
+| **ALFWorld (Text-Only)** | Environment for RL training/evaluation. | ` (Official) | `import alfworld` (via `pip install alfworld`). Fallback to `alfworld-text-only` if Thor binary fails. |
+| **Vendored SDAR Code** | Implementation of the algorithm. | `external/SDAR` (Git Submodule) | Local import from `external/SDAR/agent_system/` |
+| **Base LLM** | Teacher/Student model backbone. | `distilbert-base-uncased` (HuggingFace) | `transformers` (CPU-only load). Replaces 8B models for CPU feasibility. |
 
-**Data Strategy Rationale**: Since the "dataset" is a simulated environment, the primary constraint is the computational cost of environment interaction (Thor engine) rather than data I/O. The plan minimizes this by limiting the number of steps (10) and tasks (5).
+**Thor Binary Fallback**: If the official Thor binary download fails or cannot run on the CI headless environment, the pipeline will switch to `alfworld-text-only` mode (if available in the vendored code) or a mock environment that simulates the `success` flag and `reward` structure to verify the gating logic without the full simulator.
 
-## Algorithm & Methodology Analysis
+## 3. Methodology & Statistical Rigor
 
-### SDAR Algorithm Overview
-SDAR (Self-Distilled Agentic Reinforcement Learning) combines Reinforcement Learning (RL) with self-distillation.
-1.  **Self-Distillation**: The agent uses its own past policies to guide current learning, acting as a regularizer.
-2.  **Agentic RL**: The agent interacts with the ALFWorld environment to maximize task success rewards.
-3.  **Gating Mechanism**: A gate network decides when to rely on the distilled policy vs. the RL policy.
+### 3.1 Experimental Design
+The experiment consists of two parallel tracks:
+1. **SDAR Track**: Training with the self-distillation gating mechanism enabled.
+2. **PPO Baseline Track**: Training with standard PPO (no distillation) for comparison.
 
-### Compute Feasibility Analysis
-- **Model Backbone**: The paper likely uses a Transformer-based LLM (e.g., Llama-2-7B or similar). Running this on CPU is **not feasible** for full training or even a single step if the model is large.
-- **Reproduction Strategy**: The plan assumes the "reproduction" refers to validating the *code path* and *algorithmic logic*. 
-- **Approximation & Validity**:
-    - **Model Size**: The plan requires **Phase 0** to verify if the vendored codebase supports a CPU-tractable backbone (e.g., TinyLlama). 
-    - **Construct Validity**: If the codebase hardcodes a large GPU-only model, the "Self-Distilled" mechanism cannot be tested on CPU. In that case, the project will fail Phase 0 with a clear error: "Algorithm requires GPU; CPU reproduction impossible without code modification." This prevents a **Construct Validity Failure** (testing a different algorithm).
-    - **Precision**: Default float32 precision is used. 8-bit quantization is avoided as it often requires CUDA-specific libraries (bitsandbytes) which are not available on CPU.
+Both tracks will run for **5 independent random seeds** (`seed=0` to `seed=4`). To satisfy the 6-hour CI limit on 2 CPUs, the number of training steps per seed will be aggressively downscaled to **1000 steps**.
 
-### Statistical Rigor (Reproduction Context)
-- **Sample Size**: The "sample" is 10 training steps and 5 evaluation tasks. This is **not** statistically significant for claiming performance improvements.
-- **Justification**: The goal is **Code Validity**, not **Statistical Significance**. The success criteria (SC-001 to SC-005) focus on *execution* (no crashes, logs produced, metrics reported) rather than *performance*.
-- **Mechanism Validation**: To address the "mechanism validity" concern, the plan introduces a new metric: `gate_activation_rate`. If the gate never activates (rate = 0%), the "Self-Distilled" nature of the algorithm is not observed, even if the code runs. This provides a minimal validation of the algorithm's core logic.
-- **Limitations**: The plan explicitly acknowledges that the results will not match the paper's reported metrics due to the truncated run. This is a deliberate design choice to fit the CI constraints.
+**Fixed Evaluation Set**: To ensure the paired t-test is valid, the same 5 ALFWorld tasks (hardcoded IDs from the test split) will be used for all seeds and both methods. This controls for task difficulty variance.
 
-## Technical Constraints & Mitigations
+### 3.2 Statistical Analysis
+- **Metric**: Final Success Rate (binary: 0 or 1 per task) and/or Cumulative Reward.
+- **Test**: Paired t-test (or Wilcoxon signed-rank test if normality assumptions fail) comparing SDAR vs. PPO success rates across the 5 seeds.
+- **Significance Threshold**: $p < 0.05$.
+- **Power Limitation**: Acknowledged that with $N=5$ seeds and 1000 steps, the statistical power to detect any meaningful effect size is effectively zero. The result is reported as a "diagnostic metric" only. A non-significant result is expected and does not imply algorithmic failure.
+- **Multiple Comparisons**: Not applicable, as only one primary comparison is performed.
 
-| Constraint | Impact | Mitigation Strategy |
-| :--- | :--- | :--- |
-| **No GPU / CUDA** | Cannot use `torch.cuda`, `load_in_8bit`, or mixed-precision training. | Force `device="cpu"` in all PyTorch calls. Use standard float32. |
-| **2 CPU Cores** | Slow environment interaction and model inference. | Limit `num_steps` to 10. Limit `num_tasks` to 5. |
-| **7 GB RAM** | Risk of OOM with large models or environment overhead. | Ensure ALFWorld assets are loaded once. Use a minimal batch size. |
-| **6 Hour Limit** | Full training is impossible. | Truncate the run to a "smoke test" scale. |
-| **Infinite Loops** | ALFWorld tasks can hang. | Enforce 60s timeout per task (FR-005). |
-| **Model Backbone** | Large models break CPU feasibility. | **Phase 0** verifies model size. If the codebase requires a GPU-only model, the plan fails explicitly rather than substituting a different algorithm. |
+### 3.3 Measurement Validity
+- **Success Rate**: Defined strictly by the ALFWorld environment's `success=True` flag (or mock flag if Thor fails).
+- **Loss Values**: Parsed directly from the `train.py` stdout logs to ensure they reflect actual gradient computations.
+- **Device Binding**: Verified by checking logs for "0 GPUs detected" and explicit `device="cpu"` assignments.
+- **Gate Activation**: Explicitly logged as a boolean per step to validate the self-distillation mechanism (Constitution Principle VI).
 
-## Decision Log
+## 4. Compute Feasibility Strategy
 
-1.  **Decision**: Use `external/SDAR` submodule directly.
-    - **Rationale**: The spec mandates using the vendored codebase.
-2.  **Decision**: Hardcode `num_steps=10` and `num_tasks=5`.
-    - **Rationale**: Required to fit the CI time limit and RAM constraint while still exercising the code path.
-3.  **Decision**: Disable 8-bit quantization.
-    - **Rationale**: `bitsandbytes` requires CUDA. CPU-only quantization is slower and often unsupported for LLMs in standard PyTorch.
-4.  **Decision**: Use `ray init --num-cpus=2`.
-    - **Rationale**: To prevent Ray from attempting to use non-existent GPUs or exceeding available CPU cores.
-5.  **Decision**: Introduce `gate_activation_rate` metric.
-    - **Rationale**: To validate the *mechanism* (gating logic) is active, addressing the concern that "no crash" is insufficient for algorithmic validation.
+To ensure the plan is runnable on the GitHub Actions free-tier (2 CPU, 7GB RAM, 6h):
+- **Model Size**: `distilbert-base-uncased` (approx. 80M params). This fits comfortably in 7GB RAM on CPU, unlike 8B models.
+- **Batch Size**: Fixed to `1` to minimize memory footprint.
+- **Ray Configuration**: `ray.init(num_cpus=2, num_gpus=0)` to prevent resource contention.
+- **Timeouts**: Hard 60s timeout per task in the evaluation loop to prevent hanging.
+- **Memory Management**: Explicit garbage collection (`gc.collect()`) and tensor deletion between seeds to prevent memory leaks.
+- **Feasibility Rationale**: 1000 steps x 5 seeds x 2 methods on a 80M model is estimated to take [deferred] per seed on 2 cores, totaling [deferred], which fits within the 6-hour limit.
+
+## 5. Risk Mitigation
+
+| Risk | Mitigation Strategy |
+|:--- |:--- |
+| **CUDA Import Errors** | Force `CUDA_VISIBLE_DEVICES=""` in environment variables before import. |
+| **ALFWorld Binary Missing** | Rely on `alfworld` package's auto-download; if it fails, switch to `alfworld-text-only` or mock mode. |
+| **Memory Overflow (OOM)** | Monitor RAM usage; if OOM occurs, reduce model size (e.g., to a smaller DistilBERT variant) or further downsample steps. |
+| **Timeout Exceeded** | Enforce `signal.alarm(60)` in the evaluation loop; log "Timeout" as failure and continue. |
+| **Statistical Non-Significance** | Report the p-value and effect size regardless of significance; the goal is validation of the *process*, not necessarily a positive result. |
+| **Thor Binary Failure** | Fallback to text-only mode or mock environment to verify the SDAR gating logic without the simulator. |

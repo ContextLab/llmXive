@@ -27,6 +27,7 @@ properties:
       - "num_steps"
       - "batch_size"
       - "device"
+      - "model_name"
     properties:
       num_steps:
         type: "integer"
@@ -40,6 +41,9 @@ properties:
         type: "string"
         pattern: "^cpu$"
         description: "Target device. Must be 'cpu' for this reproduction."
+      model_name:
+        type: "string"
+        description: "Name of the model used (e.g., 'distilbert-base-uncased')."
   steps:
     type: "array"
     minItems: 5
@@ -53,6 +57,7 @@ properties:
         - "total_loss"
         - "timestamp"
         - "gate_activation"
+        - "teacher_update"
       properties:
         step:
           type: "integer"
@@ -69,6 +74,9 @@ properties:
         gate_activation:
           type: "boolean"
           description: "Whether the gate chose the distillation path for this step."
+        teacher_update:
+          type: "boolean"
+          description: "Whether a teacher update occurred at this step."
         timestamp:
           type: "string"
           format: "date-time"
@@ -79,6 +87,7 @@ properties:
       - "final_avg_sdar_gate_loss"
       - "final_avg_rl_loss"
       - "gate_activation_rate"
+      - "teacher_update_count"
       - "status"
     properties:
       final_avg_sdar_gate_loss:
@@ -92,6 +101,9 @@ properties:
         minimum: 0.0
         maximum: 1.0
         description: "Percentage of steps where the gate activated (distillation path chosen)."
+      teacher_update_count:
+        type: "integer"
+        description: "Total number of teacher updates performed."
       status:
         type: "string"
         enum:
