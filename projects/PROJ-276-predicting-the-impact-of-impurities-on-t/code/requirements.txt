@@ -1,0 +1,10 @@
+pandas
+scikit-learn
+xgboost
+pymatgen
+requests
+pyyaml
+matplotlib
+seaborn
+statsmodels
+pytest
