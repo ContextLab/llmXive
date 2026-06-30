@@ -1,0 +1,81 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Analysis Output Schema
+description: >
+  Schema for the statistical analysis results including correlations,
+  regression coefficients, and significance testing.
+type: object
+required:
+  - trait
+  - genre
+  - correlation_rho
+  - p_value
+  - adjusted_p_value
+  - is_significant
+  - beta_coefficients
+  - model_definition
+properties:
+  trait:
+    type: string
+    description: Name of the personality trait
+    enum:
+      - extraversion
+      - agreeableness
+      - conscientiousness
+      - neuroticism
+      - openness
+  genre:
+    type: string
+    description: Standardized genre category
+    minLength: 1
+  correlation_rho:
+    type: number
+    description: Spearman correlation coefficient
+  p_value:
+    type: number
+    description: Raw p-value from the correlation test
+    minimum: 0
+    maximum: 1
+  adjusted_p_value:
+    type: number
+    description: Benjamini-Hochberg FDR adjusted p-value
+    minimum: 0
+    maximum: 1
+  is_significant:
+    type: boolean
+    description: Whether the result is significant after FDR correction (q < 0.05)
+  beta_coefficients:
+    type: object
+    description: Regression coefficients for the model
+    properties:
+      intercept:
+        type: number
+      age:
+        type: number
+      gender:
+        type: object
+        additionalProperties:
+          type: number
+      country:
+        type: object
+        additionalProperties:
+          type: number
+    required:
+      - intercept
+  model_definition:
+    type: array
+    description: List of covariates actually used in the regression model
+    items:
+      type: string
+  effect_size_pearson_r:
+    type: number
+    description: Pearson's r effect size for significant results
+  confidence_interval_lower:
+    type: number
+    description: Lower bound of Fisher's z confidence interval
+  confidence_interval_upper:
+    type: number
+    description: Upper bound of Fisher's z confidence interval
+  analysis_timestamp:
+    type: string
+    format: date-time
+    description: Timestamp of analysis execution

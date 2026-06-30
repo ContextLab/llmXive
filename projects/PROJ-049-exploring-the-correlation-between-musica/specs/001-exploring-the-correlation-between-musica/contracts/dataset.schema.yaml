@@ -1,0 +1,55 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Merged Dataset Schema"
+description: "Schema for the analysis-ready merged dataset containing personality and listening data."
+type: "object"
+properties:
+  user_id:
+    type: "string"
+    description: "Unique hashed identifier for the user."
+  openness_score:
+    type: "number"
+    description: "Big Five Openness score (continuous)."
+  conscientiousness_score:
+    type: "number"
+    description: "Big Five Conscientiousness score (continuous)."
+  extraversion_score:
+    type: "number"
+    description: "Big Five Extraversion score (continuous)."
+  agreeableness_score:
+    type: "number"
+    description: "Big Five Agreeableness score (continuous)."
+  neuroticism_score:
+    type: "number"
+    description: "Big Five Neuroticism score (continuous)."
+  age:
+    type: "integer"
+    description: "User age in years."
+  gender:
+    type: "string"
+    description: "User gender category."
+  country:
+    type: "string"
+    description: "User country code or region."
+  genre_name:
+    type: "string"
+    description: "Standardized genre name (Rock, Pop, etc.)."
+  listening_minutes:
+    type: "number"
+    description: "Total minutes listened for this genre."
+  genre_score:
+    type: "number"
+    description: "Normalized genre score (0.0 to 1.0)."
+required:
+  - user_id
+  - openness_score
+  - conscientiousness_score
+  - extraversion_score
+  - agreeableness_score
+  - neuroticism_score
+  - age
+  - gender
+  - country
+  - genre_name
+  - listening_minutes
+  - genre_score
+additionalProperties: false

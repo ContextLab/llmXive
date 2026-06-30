@@ -1,0 +1,56 @@
+[lint]
+# Enable a comprehensive set of rules while avoiding conflicts with common style guides
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort (import sorting)
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+    "UP", # pyupgrade (modern Python syntax)
+    "N",  # pep8-naming
+]
+ignore = [
+    "E501", # Line length too long (handled by Black separately)
+    "B008", # Do not perform function call in argument defaults (common in FastAPI/Pydantic)
+]
+
+# Allow automatic fixes for all selected rules
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude standard directories and virtual environments
+extend-exclude = [
+    "__pycache__",
+    ".git",
+    ".venv",
+    "venv",
+    "env",
+    "data",
+    "logs",
+    "results",
+]
+
+[lint.isort]
+# Configuration for import sorting to match project style
+known-first-party = ["code", "tests"]
+known-third-party = [
+    "pandas",
+    "numpy",
+    "scipy",
+    "sklearn",
+    "matplotlib",
+    "seaborn",
+    "openml",
+    "requests",
+    "pytest",
+    "statsmodels",
+]
+force-sort-within-sections = true
+case-sensitive = false
+lines-after-imports = 2
+
+[lint.per-file-ignores]
+# Ignore specific rules for test files where assertions might look like unused variables
+"tests/*" = ["N802", "F811"]
+"code/__init__.py" = ["F401"]

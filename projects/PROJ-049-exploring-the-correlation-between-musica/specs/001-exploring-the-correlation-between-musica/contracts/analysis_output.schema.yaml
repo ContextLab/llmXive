@@ -1,0 +1,55 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Output Schema"
+description: "Schema for the statistical analysis results including correlations and regression metrics."
+type: "object"
+properties:
+  trait:
+    type: "string"
+    description: "The Big Five trait name."
+  genre:
+    type: "string"
+    description: "The standardized genre name."
+  correlation_rho:
+    type: "number"
+    description: "Spearman rank correlation coefficient."
+  p_value:
+    type: "number"
+    description: "Raw p-value from the correlation test."
+  adjusted_p_value:
+    type: "number"
+    description: "Benjamini-Hochberg FDR corrected p-value."
+  is_significant:
+    type: "boolean"
+    description: "True if adjusted_p_value < 0.05."
+  effect_size_r:
+    type: "number"
+    description: "Pearson's r effect size."
+  effect_size_fisher_z:
+    type: "number"
+    description: "Fisher's z transformation of the effect size."
+  ci_low:
+    type: "number"
+    description: "Lower bound of the 95% confidence interval."
+  ci_high:
+    type: "number"
+    description: "Upper bound of the 95% confidence interval."
+  effect_size_threshold_met:
+    type: "boolean"
+    description: "True if |effect_size_r| > 0.3, as per SC-001."
+  beta_delta:
+    type: "number"
+    description: "Change in regression coefficient when covariates are added, as per SC-003."
+required:
+  - trait
+  - genre
+  - correlation_rho
+  - p_value
+  - adjusted_p_value
+  - is_significant
+  - effect_size_r
+  - effect_size_fisher_z
+  - ci_low
+  - ci_high
+  - effect_size_threshold_met
+  - beta_delta
+additionalProperties: false
