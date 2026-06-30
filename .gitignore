@@ -313,3 +313,4 @@ projects/*/paper/.chunk_summaries/
 .omc/
 .summaries/
 .claude/scheduled_tasks.lock
+projects/PROJ-577-multabench-benchmarking-multimodal-tabul/data/synthetic_multimodal.csv

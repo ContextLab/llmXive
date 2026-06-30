@@ -52,6 +52,11 @@ Produce a runnable adaptation that:
    numeric results as `data/<name>.csv` / `data/<name>.json`, plots as
    `figures/<name>.png`. These artifacts are exactly what the execution gate
    checks, so EVERY run path must end by writing at least one real artifact.
+   **Keep every written artifact SMALL — they are committed to git.** A
+   synthetic/sampled dataset is a few hundred (at most a few thousand) rows; do
+   NOT dump a multi-megabyte intermediate. Persist summary/result tables and
+   figures, not giant raw or synthetic data dumps (target well under ~5 MB per
+   file). If you must build a large array in memory, do not write it to disk.
 3. **Is self-contained under `code/`.** Import from `external/<name>/` ONLY when
    those imports are CPU-safe and lightweight; otherwise reimplement the small
    core you need directly in `code/`. If the real dataset is unavailable or too
