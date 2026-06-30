@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1803.02124",
+  "judged_at": "2026-06-30T04:47:44Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "dataclaw0: agentic tailoring multimodal data from raw streams computer science",
+  "rationale": "This paper satisfies criterion (b) as it measures the dependent variable of \"multimodal data\" (specifically multimodal chat-based interaction and situation awareness) within the domain of \"autonomous systems,\" which aligns with the user's focus on agentic tailoring for autonomous vehicles. Additionally, it serves as a foundational or canonical reference (criterion d) for multimodal interfaces in autonomous systems, providing necessary context for a literature review on agentic data tailoring.",
+  "relevant": true
+}

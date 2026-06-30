@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2506.13642",
+  "judged_at": "2026-06-30T04:47:48Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "dataclaw0: agentic tailoring multimodal data from raw streams computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it addresses the core domain of \"multimodal data from raw streams\" (specifically text, vision, and speech) and investigates the mechanism of \"agentic tailoring\" through its proposed method of efficient modality alignment and intermediate output generation, which are central to the user's query about tailoring multimodal streams.",
+  "relevant": true
+}

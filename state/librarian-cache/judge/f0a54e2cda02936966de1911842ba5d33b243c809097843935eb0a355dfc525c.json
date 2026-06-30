@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1607.04771",
+  "judged_at": "2026-06-30T04:49:12Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of interoceptive awareness on emotional regulation during simulated stress psychology",
+  "rationale": "This paper satisfies criterion (b) by measuring Heart Rate Variability (HRV), which is the primary physiological proxy for interoceptive awareness and a key variable in the user's domain of stress and emotional regulation. Additionally, it addresses the \"simulated stress\" aspect of the user's question by explicitly implementing a stress classification system using HRV data, providing an empirical baseline for the mechanism under study.",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2604.03350",
+  "judged_at": "2026-06-30T04:47:55Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "dataclaw0: agentic tailoring multimodal data from raw streams computer science",
+  "rationale": "The paper focuses on sensitivity analysis and surrogate modeling for stochastic Agent-Based Models (ABMs) in a general simulation context (predator-prey), which does not address the user's specific question about \"agentic tailoring\" of \"multimodal data\" from \"raw streams.\" While both involve \"agents,\" the paper studies the internal parameter dynamics of a simulation model rather than the mechanism of an agent processing and adapting to external multimodal data streams, failing to meet the criter",
+  "relevant": false
+}

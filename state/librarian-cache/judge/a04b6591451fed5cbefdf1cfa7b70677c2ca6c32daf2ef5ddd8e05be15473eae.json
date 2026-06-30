@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2604.24527",
+  "judged_at": "2026-06-30T04:49:09Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of interoceptive awareness on emotional regulation during simulated stress psychology",
+  "rationale": "The paper focuses on applying interoceptive principles to artificial intelligence architectures and computational agents, which is an off-domain application distinct from the user's question regarding human psychological mechanisms of emotional regulation during stress. It does not measure the biological pathway, empirical population, or psychological variables specified in the user's query, failing to meet any inclusion criteria (a-f).",
+  "relevant": false
+}

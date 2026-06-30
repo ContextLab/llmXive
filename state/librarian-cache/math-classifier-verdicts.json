@@ -231,6 +231,10 @@
     "classified_at": "2026-06-27T19:43:49Z",
     "verdict": false
   },
+  "PROJ-402-the-impact-of-interoceptive-awareness-on::1.6.0": {
+    "classified_at": "2026-06-30T04:48:56Z",
+    "verdict": false
+  },
   "PROJ-406-investigating-neural-signatures-of-predi::1.6.0": {
     "classified_at": "2026-06-27T00:08:07Z",
     "verdict": false
@@ -697,6 +701,10 @@
   },
   "PROJ-772-testing-cosmic-ray-arrival-direction-iso::1.6.0": {
     "classified_at": "2026-06-24T13:10:02Z",
+    "verdict": false
+  },
+  "PROJ-774-dataclaw0-agentic-tailoring-multimodal-d::1.6.0": {
+    "classified_at": "2026-06-30T04:47:15Z",
     "verdict": false
   },
   "PROJ-777-analyzing-the-trade-off-between-prompt-s::1.6.0": {

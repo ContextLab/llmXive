@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1607.04770",
+  "judged_at": "2026-06-30T04:49:20Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of interoceptive awareness on emotional regulation during simulated stress psychology",
+  "rationale": "The paper focuses on a machine learning engineering task (classifying stress vs. influenza using heart rate variance and SVMs) rather than investigating the psychological mechanism of how interoceptive awareness influences emotional regulation. It fails to measure the specific psychological construct of \"interoceptive awareness\" or the process of \"emotional regulation,\" and instead treats stress as a binary classification target for a healthcare device, which constitutes an off-domain applicatio",
+  "relevant": false
+}

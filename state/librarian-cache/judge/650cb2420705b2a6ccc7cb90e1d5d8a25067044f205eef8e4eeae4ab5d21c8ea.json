@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1005.0776",
+  "judged_at": "2026-06-30T04:49:18Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of interoceptive awareness on emotional regulation during simulated stress psychology",
+  "rationale": "This paper satisfies criterion (a) and (b) because it investigates Heart Rate Variability (HRV), which is the primary physiological proxy and measurable mechanism for \"interoceptive awareness\" in the context of stress and emotional regulation research. Although the paper focuses on the spectral structure of HRV rather than the psychological outcome of emotional regulation directly, it establishes the foundational empirical baseline for the independent variable (interoceptive signal) required to ",
+  "relevant": true
+}

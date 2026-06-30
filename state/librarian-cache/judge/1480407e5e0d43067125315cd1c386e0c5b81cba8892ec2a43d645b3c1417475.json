@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2510.27028",
+  "judged_at": "2026-06-30T04:49:16Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of interoceptive awareness on emotional regulation during simulated stress psychology",
+  "rationale": "The paper focuses exclusively on the technical methodology for estimating Heart Rate Variability (HRV) from video, which is a measurement tool rather than a study of the psychological mechanism linking interoceptive awareness to emotional regulation. It does not measure the psychological constructs (interoceptive awareness, emotional regulation), the stress condition, or the causal relationship between them, failing to satisfy the criteria for same-mechanism evidence, variable measurement on the",
+  "relevant": false
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2210.01791",
+  "judged_at": "2026-06-30T04:49:23Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of interoceptive awareness on emotional regulation during simulated stress psychology",
+  "rationale": "The paper focuses on the technical methodology for estimating physiological stress markers (HRV, heart rate) via computer vision, but it does not measure or discuss \"interoceptive awareness\" (the psychological construct of perceiving internal bodily states) or its specific impact on \"emotional regulation.\" While it addresses the \"simulated stress\" and \"physiological data\" aspects, it fails to satisfy criteria (a) or (b) because it lacks the critical psychological variables (interoception and emo",
+  "relevant": false
+}

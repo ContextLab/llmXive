@@ -1,0 +1,490 @@
+{
+  "fetched_at": "2026-06-30T04:47:59Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "DataClaw0: Agentic Tailoring Multimodal Data from Raw Streams",
+      "target_n": 5
+    },
+    "duration_seconds": 78.686,
+    "ended_at": "2026-06-30T04:47:59Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "agentic multimodal data processing"
+        ],
+        [
+          2,
+          "autonomous multimodal stream curation"
+        ],
+        [
+          3,
+          "intelligent raw data tailoring"
+        ],
+        [
+          4,
+          "agent-based multimodal data extraction"
+        ],
+        [
+          5,
+          "real-time multimodal stream adaptation"
+        ],
+        [
+          6,
+          "automated multimodal data refinement"
+        ],
+        [
+          7,
+          "agentic data preprocessing pipelines"
+        ],
+        [
+          8,
+          "multimodal raw stream synthesis"
+        ],
+        [
+          9,
+          "adaptive multimodal data ingestion"
+        ],
+        [
+          10,
+          "autonomous multimodal feature selection"
+        ],
+        [
+          11,
+          "agentic data stream normalization"
+        ],
+        [
+          12,
+          "intelligent multimodal data filtering"
+        ],
+        [
+          13,
+          "raw multimodal data transformation agents"
+        ],
+        [
+          14,
+          "self-adaptive multimodal data pipelines"
+        ],
+        [
+          15,
+          "agentic content-aware data streaming"
+        ],
+        [
+          16,
+          "multimodal data stream optimization"
+        ],
+        [
+          17,
+          "autonomous raw sensor data processing"
+        ],
+        [
+          18,
+          "agentic multimodal information retrieval"
+        ],
+        [
+          19,
+          "dynamic multimodal data stream management"
+        ],
+        [
+          20,
+          "AI-driven multimodal data stream tailoring"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "DataClaw0: Agentic Tailoring Multimodal Data from Raw Streams computer science": 0,
+        "agent-based multimodal data extraction": 2,
+        "agentic multimodal data processing": 0,
+        "autonomous multimodal stream curation": 2,
+        "intelligent raw data tailoring": 0
+      },
+      "total_queries_issued": 4
+    },
+    "extracted_queries": [
+      "multimodal data filtering deduplication contamination",
+      "video audio stream agent data curation",
+      "multimodal instruction tuning data quality pipeline",
+      "noisy stream multimodal model training efficiency",
+      "data selection curriculum learning multimodal agents"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1803.02124"
+      ]
+    },
+    "per_query_hit_count": {
+      "DataClaw0: Agentic Tailoring Multimodal Data from Raw Streams computer science": 3,
+      "data selection curriculum learning multimodal agents": 1,
+      "multimodal data filtering deduplication contamination": 1,
+      "multimodal instruction tuning data quality pipeline": 3,
+      "noisy stream multimodal model training efficiency": 3,
+      "video audio stream agent data curation": 2
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "2604.03350",
+          "rationale": "The paper focuses on sensitivity analysis and surrogate modeling for stochastic Agent-Based Models (ABMs) in a general simulation context (predator-prey), which does not address the user's specific question about \"agentic tailoring\" of \"multimodal data\" from \"raw streams.\" While both involve \"agents,\" the paper studies the internal parameter dynamics of a simulation model rather than the mechanism of an agent processing and adapting to external multimodal data streams, failing to meet the criter",
+          "title": "From Model-Based Screening to Data-Driven Surrogates: A Multi-Stage Workflow for Exploring Stochastic Agent-Based Models"
+        },
+        {
+          "primary_pointer": "1311.5108",
+          "rationale": "The paper focuses on a methodology for engineering and validating multi-level agent-based simulations to optimize computational resources, which does not address the user's specific question about \"agentic tailoring\" of \"multimodal data from raw streams.\" While both involve agents, the candidate paper lacks the specific mechanisms of data stream processing, multimodal data integration, or the \"tailoring\" of raw data streams required by the user's query, failing to meet any of the inclusion crite",
+          "title": "A Methodology to Engineer and Validate Dynamic Multi-level Multi-agent Based Simulations"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-06-30T04:46:40Z",
+    "term_input": {
+      "normalized": "dataclaw0: agentic tailoring multimodal data from raw streams computer science",
+      "raw": "DataClaw0: Agentic Tailoring Multimodal Data from Raw Streams computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='DataClaw0: Agentic Tailoring Multimodal Data from Raw Streams computer science', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-06-30T04:47:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='DataClaw0: Agentic Tailoring Multimodal Data from Raw Streams computer science', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-06-30T04:47:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper we use H II starburst galaxy apparent magnitude versus redshift data from Siegel et al. (2005) to constrain dark energy cosmological model parameters. These constraints are generally consistent with those derived using other data sets, but are not as restrictive as the tightest currently available constraints.",
+          "claimed_authors": [
+            "Data Mania",
+            "Bharat Ratra"
+          ],
+          "claimed_title": "Constraints on dark energy from H II starburst galaxy apparent magnitude versus redshift data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1110.5626"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='DataClaw0: Agentic Tailoring Multimodal Data from Raw Streams computer science', candidate_title='Constraints on dark energy from H II starburst galaxy apparent magnitude versus redshift data')",
+        "failed_at": "2026-06-30T04:47:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Curated databases have become important sources of information across scientific disciplines, and due to the manual work of experts, often become important reference works. Features such as provenance tracking, archiving, and data citation are widely regarded as important features for curated databases, but implementing such features is challenging, and small database projects often lack the resources to do so. A scientific database application is not just the database itself, but also an ecosystem of web applications to display the data, and applications supporting data curation. Supporting advanced curation features requires changing all of these components, and there is currently no way to provide such capabilities in a reusable way. Cross-tier programming languages have been proposed to simplify the creation of web applications, where developers write an application in a single, uniform language. Consequently, database queries and updates can be written in the same language as the rest of the program, and at least in principle, it should be possible to provide curation features reusably via program transformations. As a first step, it is important to establish that realistic curated databases can be implemented in a cross-tier programming language. In this paper, we describe such a case study: reimplementing the web frontend of a real-world scientific database, the IUPHAR/BPS Guide to Pharmacology (GtoPdb), in the Links programming language. We show how features such as language-integrated query simplify the development process, and rule out common errors. We show that the Links implementation performs fewer database queries, while the time needed to handle the queries is comparable to the Java version. While there is some overhead to using Links because of its comparative immaturity compared to Java, the Links version is viable as a proof-of-concept case study.",
+          "claimed_authors": [
+            "Simon Fowler",
+            "Simon D. Harding",
+            "Joanna Sharman",
+            "James Cheney"
+          ],
+          "claimed_title": "Cross-tier web programming for curated databases: A case study",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2003.03845"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='DataClaw0: Agentic Tailoring Multimodal Data from Raw Streams computer science', candidate_title='Cross-tier web programming for curated databases: A case study')",
+        "failed_at": "2026-06-30T04:47:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Audio inpainting aims to reconstruct missing segments in corrupted recordings. Most of existing methods produce plausible reconstructions when the gap lengths are short, but struggle to reconstruct gaps larger than about 100 ms. This paper explores recent advancements in deep learning and, particularly, diffusion models, for the task of audio inpainting. The proposed method uses an unconditionally trained generative model, which can be conditioned in a zero-shot fashion for audio inpainting, and is able to regenerate gaps of any size. An improved deep neural network architecture based on the constant-Q transform, which allows the model to exploit pitch-equivariant symmetries in audio, is also presented. The performance of the proposed algorithm is evaluated through objective and subjective metrics for the task of reconstructing short to mid-sized gaps, up to 300 ms. The results of a formal listening test show that the proposed method delivers comparable performance against the compared baselines for short gaps, such as 50 ms, while retaining a good audio quality and outperforming the baselines for wider gaps that are up to 300 ms long. The method presented in this paper can be applied to restoring sound recordings that suffer from severe local disturbances or dropouts, which must be reconstructed.",
+          "claimed_authors": [
+            "Eloi Moliner",
+            "Vesa Välimäki"
+          ],
+          "claimed_title": "Diffusion-Based Audio Inpainting",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2305.15266"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='DataClaw0: Agentic Tailoring Multimodal Data from Raw Streams computer science', candidate_title='Diffusion-Based Audio Inpainting')",
+        "failed_at": "2026-06-30T04:47:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Despite vision-language models' (VLMs) remarkable capabilities as versatile visual assistants, two substantial challenges persist within the existing VLM frameworks: (1) lacking task diversity in pretraining and visual instruction tuning, and (2) annotation error and bias in GPT-4 synthesized instruction tuning data. Both challenges lead to issues such as poor generalizability, hallucination, and catastrophic forgetting. To address these challenges, we construct Vision-Flan, the most diverse publicly available visual instruction tuning dataset to date, comprising 187 diverse tasks and 1,664,261 instances sourced from academic datasets, and each task is accompanied by an expert-written instruction. In addition, we propose a two-stage instruction tuning framework, in which VLMs are firstly finetuned on Vision-Flan and further tuned on GPT-4 synthesized data. We find this two-stage tuning framework significantly outperforms the traditional single-stage visual instruction tuning framework and achieves the state-of-the-art performance across a wide range of multi-modal evaluation benchmarks. Finally, we conduct in-depth analyses to understand visual instruction tuning and our findings reveal that: (1) GPT-4 synthesized data does not substantially enhance VLMs' capabilities but rather modulates the model's responses to human-preferred formats; (2) A minimal quantity (e.g., 1,000) of GPT-4 synthesized data can effectively align VLM responses with human-preference; (3) Visual instruction tuning mainly helps large-language models (LLMs) to understand visual features.",
+          "claimed_authors": [
+            "Zhiyang Xu",
+            "Chao Feng",
+            "Rulin Shao",
+            "Trevor Ashby",
+            "Ying Shen",
+            "Di Jin",
+            "Yu Cheng",
+            "Qifan Wang",
+            "Lifu Huang"
+          ],
+          "claimed_title": "Vision-Flan: Scaling Human-Labeled Tasks in Visual Instruction Tuning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.11690"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='DataClaw0: Agentic Tailoring Multimodal Data from Raw Streams computer science', candidate_title='Vision-Flan: Scaling Human-Labeled Tasks in Visual Instruction Tuning')",
+        "failed_at": "2026-06-30T04:47:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Instruction tuning significantly enhances the performance of large language models (LLMs) across various tasks. However, the procedure to optimizing the mixing of instruction datasets for LLM fine-tuning is still poorly understood. This study categorizes instructions into three primary types: NLP downstream tasks, coding, and general chat. We explore the effects of instruction tuning on different combinations of datasets on LLM performance, and find that certain instruction types are more advantageous for specific applications but can negatively impact other areas. This work provides insights into instruction mixtures, laying the foundations for future research.",
+          "claimed_authors": [
+            "Renxi Wang",
+            "Haonan Li",
+            "Minghao Wu",
+            "Yuxia Wang",
+            "Xudong Han",
+            "Chiyu Zhang",
+            "Timothy Baldwin"
+          ],
+          "claimed_title": "Demystifying Instruction Mixing for Fine-tuning Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.10793"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='DataClaw0: Agentic Tailoring Multimodal Data from Raw Streams computer science', candidate_title='Demystifying Instruction Mixing for Fine-tuning Large Language Models')",
+        "failed_at": "2026-06-30T04:47:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the swiftly expanding domain of Natural Language Processing (NLP), the potential of GPT-based models for the financial sector is increasingly evident. However, the integration of these models with financial datasets presents challenges, notably in determining their adeptness and relevance. This paper introduces a distinctive approach anchored in the Instruction Tuning paradigm for open-source large language models, specifically adapted for financial contexts. Through this methodology, we capitalize on the interoperability of open-source models, ensuring a seamless and transparent integration. We begin by explaining the Instruction Tuning paradigm, highlighting its effectiveness for immediate integration. The paper presents a benchmarking scheme designed for end-to-end training and testing, employing a cost-effective progression. Firstly, we assess basic competencies and fundamental tasks, such as Named Entity Recognition (NER) and sentiment analysis to enhance specialization. Next, we delve into a comprehensive model, executing multi-task operations by amalgamating all instructional tunings to examine versatility. Finally, we explore the zero-shot capabilities by earmarking unseen tasks and incorporating novel datasets to understand adaptability in uncharted terrains. Such a paradigm fortifies the principles of openness and reproducibility, laying a robust foundation for future investigations in open-source financial large language models (FinLLMs).",
+          "claimed_authors": [
+            "Neng Wang",
+            "Hongyang Yang",
+            "Christina Dan Wang"
+          ],
+          "claimed_title": "FinGPT: Instruction Tuning Benchmark for Open-Source Large Language Models in Financial Datasets",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2310.04793"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='DataClaw0: Agentic Tailoring Multimodal Data from Raw Streams computer science', candidate_title='FinGPT: Instruction Tuning Benchmark for Open-Source Large Language Models in Financial Datasets')",
+        "failed_at": "2026-06-30T04:47:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The emergence of GPT-4o-like large multimodal models (LMMs) has raised the exploration of integrating text, vision, and speech modalities to support more flexible multimodal interaction. Existing LMMs typically concatenate representation of modalities along the sequence dimension and feed them into a large language model (LLM) backbone. While sequence-dimension concatenation is straightforward for modality integration, it often relies heavily on large-scale data to learn modality alignments. In this paper, we aim to model the relationships between modalities more purposefully, thereby achieving more efficient and flexible modality alignments. To this end, we propose Stream-Omni, a large language-vision-speech model with efficient modality alignments, which can simultaneously support interactions under various modality combinations. Stream-Omni employs LLM as the backbone and aligns the vision and speech to the text based on their relationships. For vision that is semantically complementary to text, Stream-Omni uses sequence-dimension concatenation to achieve vision-text alignment. For speech that is semantically consistent with text, Stream-Omni introduces a CTC-based layer-dimension mapping to achieve speech-text alignment. In this way, Stream-Omni can achieve modality alignments with less data (especially speech), enabling the transfer of text capabilities to other modalities. Experiments on various benchmarks demonstrate that Stream-Omni achieves strong performance on visual understanding, speech interaction, and vision-grounded speech interaction tasks. Owing to the layer-dimensional mapping, Stream-Omni can simultaneously provide intermediate text outputs (such as ASR transcriptions and model responses) during speech interaction, offering users a comprehensive multimodal experience.",
+          "claimed_authors": [
+            "Shaolei Zhang",
+            "Shoutao Guo",
+            "Qingkai Fang",
+            "Yan Zhou",
+            "Yang Feng"
+          ],
+          "claimed_title": "Stream-Omni: Simultaneous Multimodal Interactions with Large Language-Vision-Speech Model",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.13642"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='DataClaw0: Agentic Tailoring Multimodal Data from Raw Streams computer science', candidate_title='Stream-Omni: Simultaneous Multimodal Interactions with Large Language-Vision-Speech Model')",
+        "failed_at": "2026-06-30T04:47:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Automated deception detection systems can enhance health, justice, and security in society by helping humans detect deceivers in high-stakes situations across medical and legal domains, among others. This paper presents a novel analysis of the discriminative power of dimensional representations of facial affect for automated deception detection, along with interpretable features from visual, vocal, and verbal modalities. We used a video dataset of people communicating truthfully or deceptively in real-world, high-stakes courtroom situations. We leveraged recent advances in automated emotion recognition in-the-wild by implementing a state-of-the-art deep neural network trained on the Aff-Wild database to extract continuous representations of facial valence and facial arousal from speakers. We experimented with unimodal Support Vector Machines (SVM) and SVM-based multimodal fusion methods to identify effective features, modalities, and modeling approaches for detecting deception. Unimodal models trained on facial affect achieved an AUC of 80%, and facial affect contributed towards the highest-performing multimodal approach (adaptive boosting) that achieved an AUC of 91% when tested on speakers who were not part of training sets. This approach achieved a higher AUC than existing automated machine learning approaches that used interpretable visual, vocal, and verbal features to detect deception in this dataset, but did not use facial affect. Across all videos, deceptive and truthful speakers exhibited significant differences in facial valence and facial arousal, contributing computational support to existing psychological theories on affect and deception. The demonstrated importance of facial affect in our models informs and motivates the future development of automated, affect-aware machine learning approaches for modeling and detecting deception and other social behaviors in-the-wild.",
+          "claimed_authors": [
+            "Leena Mathur",
+            "Maja J Matarić"
+          ],
+          "claimed_title": "Introducing Representations of Facial Affect in Automated Multimodal Deception Detection",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2008.13369"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='DataClaw0: Agentic Tailoring Multimodal Data from Raw Streams computer science', candidate_title='Introducing Representations of Facial Affect in Automated Multimodal Deception Detection')",
+        "failed_at": "2026-06-30T04:47:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Visual Question Answering (VQA) is a challenging task that requires systems to provide accurate answers to questions based on image content. Current VQA models struggle with complex questions due to limitations in capturing and integrating multimodal information effectively. To address these challenges, we propose the Rank VQA model, which leverages a ranking-inspired hybrid training strategy to enhance VQA performance. The Rank VQA model integrates high-quality visual features extracted using the Faster R-CNN model and rich semantic text features obtained from a pre-trained BERT model. These features are fused through a sophisticated multimodal fusion technique employing multi-head self-attention mechanisms. Additionally, a ranking learning module is incorporated to optimize the relative ranking of answers, thus improving answer accuracy. The hybrid training strategy combines classification and ranking losses, enhancing the model's generalization ability and robustness across diverse datasets. Experimental results demonstrate the effectiveness of the Rank VQA model. Our model significantly outperforms existing state-of-the-art models on standard VQA datasets, including VQA v2.0 and COCO-QA, in terms of both accuracy and Mean Reciprocal Rank (MRR). The superior performance of Rank VQA is evident in its ability to handle complex questions that require understanding nuanced details and making sophisticated inferences from the image and text. This work highlights the effectiveness of a ranking-based hybrid training strategy in improving VQA performance and lays the groundwork for further research in multimodal learning methods.",
+          "claimed_authors": [
+            "Peiyuan Chen",
+            "Zecheng Zhang",
+            "Yiping Dong",
+            "Li Zhou",
+            "Han Wang"
+          ],
+          "claimed_title": "Enhancing Visual Question Answering through Ranking-Based Hybrid Training and Multimodal Fusion",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2408.07303"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='DataClaw0: Agentic Tailoring Multimodal Data from Raw Streams computer science', candidate_title='Enhancing Visual Question Answering through Ranking-Based Hybrid Training and Multimodal Fusion')",
+        "failed_at": "2026-06-30T04:47:15Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Quantum machine learning (QML) requires significant quantum resources to address practical real-world problems. When the underlying quantum information exhibits hierarchical structures in the data, limitations persist in training complexity and generalization. Research should prioritize both the efficient design of quantum architectures and the development of learning strategies to optimize resource usage. We propose a framework called quantum curriculum learning (Q-CurL) for quantum data, where the curriculum introduces simpler tasks or data to the learning model before progressing to more challenging ones. Q-CurL exhibits robustness to noise and data limitations, which is particularly relevant for current and near-term noisy intermediate-scale quantum devices. We achieve this through a curriculum design based on quantum data density ratios and a dynamic learning schedule that prioritizes the most informative quantum data. Empirical evidence shows that Q-CurL significantly enhances training convergence and generalization for unitary learning and improves the robustness of quantum phase recognition tasks. Q-CurL is effective with physical learning applications in physics and quantum chemistry.",
+          "claimed_authors": [
+            "Quoc Hoan Tran",
+            "Yasuhiro Endo",
+            "Hirotaka Oshima"
+          ],
+          "claimed_title": "Quantum Curriculum Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.02419"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='DataClaw0: Agentic Tailoring Multimodal Data from Raw Streams computer science', candidate_title='Quantum Curriculum Learning')",
+        "failed_at": "2026-06-30T04:47:15Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Cong Wan",
+            "Zeyu Guo",
+            "Zijian Cai",
+            "Jiangyang Li",
+            "SongLin Dong",
+            "Lin Peng",
+            "Xiangyang Luo",
+            "Zhiheng Ma",
+            "Yihong Gong"
+          ],
+          "title": "DataClaw0: Agentic Tailoring Multimodal Data from Raw Streams",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.21337",
+        "summary": "Massive unstructured multimodal streams suffer from high \"data entropy,\" impeding both efficient human knowledge acquisition and high-quality AI post-training. Existing passive annotation paradigms, heavily reliant on heuristic rules or general VLMs, are costly, monotonous, and fail to unlock the deep procedural logic embedded in raw data. We elevate data processing to a learnable capability, proposing a paradigm shift towards Agentic Data Tailoring, which actively refining and structuring data to align with diverse user and downstream intents. To overcome the data scarcity bottleneck in training such high-order capabilities, we design a two-stage pipeline grounding generative semantic synthesis in deterministic Factual Anchors, yielding a large-scale dataset spanning five core physical and digital domains. Building upon this, $\\text{DataClaw}_0$-9B model synergizes Supervised Fine-Tuning (SFT) with Group Relative Policy Optimization (GRPO), achieving robust alignment with complex refinement and tailoring intents. To systematically quantify this capability, we construct $\\text{DataClaw}_0$-val, the first benchmark dedicated to data refinement. Crucially, we adopt downstream post-training as the ultimate validation touchstone. Evaluations on video generation, real-world VQA, and GUI navigation confirm that $\\text{DataClaw}_0$ delivers high-information-density tailored data, facilitating efficient model adaptation to new tasks under limited training data regimes. Project page: https://czjdsg.github.io/MakeAnyData",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.21337",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.7778,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-30T04:47:15Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Helen Hastie",
+            "Francisco J. Chiyah Garcia",
+            "David A. Robb",
+            "Pedro Patron",
+            "Atanas Laskov"
+          ],
+          "title": "MIRIAM: A Multimodal Chat-Based Interface for Autonomous Systems",
+          "venue": "arXiv",
+          "year": 2018
+        },
+        "primary_pointer": "1803.02124",
+        "summary": "We present MIRIAM (Multimodal Intelligent inteRactIon for Autonomous systeMs), a multimodal interface to support situation awareness of autonomous vehicles through chat-based interaction. The user is able to chat about the vehicle's plan, objectives, previous activities and mission progress. The system is mixed initiative in that it pro-actively sends messages about key events, such as fault warnings. We will demonstrate MIRIAM using SeeByte's SeeTrack command and control interface and Neptune autonomy simulator.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1803.02124",
+          "http_status": 200,
+          "pdf_sample_score": 0.1272,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-30T04:47:25Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Shaolei Zhang",
+            "Shoutao Guo",
+            "Qingkai Fang",
+            "Yan Zhou",
+            "Yang Feng"
+          ],
+          "title": "Stream-Omni: Simultaneous Multimodal Interactions with Large Language-Vision-Speech Model",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2506.13642",
+        "summary": "The emergence of GPT-4o-like large multimodal models (LMMs) has raised the exploration of integrating text, vision, and speech modalities to support more flexible multimodal interaction. Existing LMMs typically concatenate representation of modalities along the sequence dimension and feed them into a large language model (LLM) backbone. While sequence-dimension concatenation is straightforward for modality integration, it often relies heavily on large-scale data to learn modality alignments. In this paper, we aim to model the relationships between modalities more purposefully, thereby achieving more efficient and flexible modality alignments. To this end, we propose Stream-Omni, a large language-vision-speech model with efficient modality alignments, which can simultaneously support interactions under various modality combinations. Stream-Omni employs LLM as the backbone and aligns the vision and speech to the text based on their relationships. For vision that is semantically complementary to text, Stream-Omni uses sequence-dimension concatenation to achieve vision-text alignment. For speech that is semantically consistent with text, Stream-Omni introduces a CTC-based layer-dimension mapping to achieve speech-text alignment. In this way, Stream-Omni can achieve modality alignments with less data (especially speech), enabling the transfer of text capabilities to other modalities. Experiments on various benchmarks demonstrate that Stream-Omni achieves strong performance on visual understanding, speech interaction, and vision-grounded speech interaction tasks. Owing to the layer-dimensional mapping, Stream-Omni can simultaneously provide intermediate text outputs (such as ASR transcriptions and model responses) during speech interaction, offering users a comprehensive multimodal experience.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2506.13642",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-06-30T04:47:25Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "dataclaw0: agentic tailoring multimodal data from raw streams computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}
