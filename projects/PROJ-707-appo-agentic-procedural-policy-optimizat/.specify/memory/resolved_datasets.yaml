@@ -1,5 +1,91 @@
-resolved_at: '2026-06-30T11:57:00.204495+00:00'
+resolved_at: '2026-06-30T12:38:56.467272+00:00'
 datasets:
+- intent: MUST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 190547
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/software/Artifact_for_Datura_Progressive_Red_Teaming_Testing_for_Tool_Invocation_Chain_in_LLM_Agents/32744022
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/DArTseq_genotyping_data_of_a_diverse_panel_of_177_maize_inbred_lines_for_population_structure_and_cold_tolerance_GWAS/32835887
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/_b_The_Role_of_Health_Administration_in_Spa_Service_Management_as_a_Preventive_Health_Measure_b_/32835863
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ices-library.figshare.com/articles/report/Roadmap_for_ICES_Human_Dimension_Steering_Group/32835398
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rs.figshare.com/articles/dataset/supplementary_material-1_from_Capturing_regional_variation_in_aortic_mechanics_dual-estimation_method_for_material_parameter_identification_and_biological_correlation/32835918
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5746416
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16954306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8056637
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15420758
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19980220
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21068881
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21068881
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21068815
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21068815
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21056823
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
 - intent: MATH
   status: verified
   candidates:
@@ -45,29 +131,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://repository.rcsi.com/articles/journal_contribution/Age_at_type_2_diabetes_diagnosis_and_prevalence_of_obesity_hypertension_anxiety_and_depression_a_retrospective_observational_study/32237607
-    source: figshare
-    status: unreachable
-    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''repository.rcsi.com'',
-      port=443): Max retries exceeded with url: /articles/journal_contribution/Age_at_type_2_diabetes_diagnosis_and_prevalence_of_obesity_hypertension_anxiety_and_depression_a_retrospective_observational_study/32237607
-      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
-      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
-  - url: https://figshare.com/articles/conference_contribution/Reevaluating-Detection-of-Equivalent-Mutants-Using-LLM/32835686
+  - url: https://acs.figshare.com/articles/journal_contribution/Comparison_of_ELISA_and_MS_MS_Methods_for_Urinary_Glyphosate_Analysis_Reveals_Overestimation_and_Poor_Repeatability_in_Evaluated_ELISA_Methods/32835996
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.rcsi.com/articles/journal_contribution/Intracameral_moxifloxacin_for_endophthalmitis_prophylaxis_after_cataract_surgery_a_systematic_review_and_meta-analysis/32325489
-    source: figshare
-    status: unreachable
-    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''repository.rcsi.com'',
-      port=443): Max retries exceeded with url: /articles/journal_contribution/Intracameral_moxifloxacin_for_endophthalmitis_prophylaxis_after_cataract_surgery_a_systematic_review_and_meta-analysis/32325489
-      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
-      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
-  - url: https://figshare.com/articles/dataset/Matbench_Discovery_-_Model_Predictions_for_Diatomics/28437344
+  - url: https://acs.figshare.com/articles/journal_contribution/Enhanced_CO_sub_2_sub_Uptake_in_Cobalt-Based_MOFs_via_Textural_Optimization_and_Water-Induced_Flexibility/32634995
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://smu-za.figshare.com/articles/dataset/Additional_file_2_of_R425_first_year_student_nurses_experience_of_encounters_with_death_of_a_patient_during_clinical_placement/32586762
+  - url: https://sussex.figshare.com/articles/journal_contribution/Comment_on_Kimberly_Chong_Conceptual_Colour_Race_Economic_Knowledge_and_the_Anthropology_of_Financialization_/32824253
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/Artifact_for_Datura_Progressive_Red_Teaming_Testing_for_Tool_Invocation_Chain_in_LLM_Agents/32744022
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/DArTseq_genotyping_data_of_a_diverse_panel_of_177_maize_inbred_lines_for_population_structure_and_cold_tolerance_GWAS/32835887
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -83,14 +163,15 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/18866579
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/8093367
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.18866579
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
   - url: https://www.researchgate.net/doi/10.13140/RG.2.2.10804.21127
     source: datacite
     status: wrong_format
@@ -98,11 +179,13 @@ datasets:
   - url: https://zenodo.org/records/20993159
     source: datacite
     status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20993159
+    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
+      timeout=20)'
+  - url: https://doi.org/10.5281/zenodo.20993159
     source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
   - url: https://world.physio/congress-proceeding/implementation-holistic-admissions-process-increase-diversity
     source: datacite
     status: wrong_format
@@ -110,111 +193,5 @@ datasets:
   - url: https://zenodo.org/records/20364778
     source: datacite
     status: wrong_format
-    reason: unrecognized/non-dataset content
-- intent: CPU
-  status: verified
-  candidates:
-  - url: https://huggingface.co/datasets/yzhuang/metatree_cpu_small/resolve/main/data/train-00000-of-00001-a82af1977b6acbbe.parquet
-    source: huggingface
-    format: parquet
-    relevance: 1.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  - url: https://huggingface.co/datasets/yzhuang/metatree_cpu_act/resolve/main/data/train-00000-of-00001-437c729472ba4fd6.parquet
-    source: huggingface
-    format: parquet
-    relevance: 1.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  - url: https://huggingface.co/datasets/bilgedogan/facebook_mms-tts-eng_GPU-CPU/resolve/main/facebook_mms-tts-eng_CPU/train-00000-of-00001.parquet
-    source: huggingface
-    format: parquet
-    relevance: 1.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  candidates_tried:
-  - url: https://huggingface.co/datasets/yzhuang/metatree_cpu_small/resolve/main/data/train-00000-of-00001-a82af1977b6acbbe.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/yzhuang/metatree_cpu_act/resolve/main/data/train-00000-of-00001-437c729472ba4fd6.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/bilgedogan/facebook_mms-tts-eng_GPU-CPU/resolve/main/facebook_mms-tts-eng_CPU/train-00000-of-00001.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/optimum-benchmark/cpu/resolve/main/cpu_inference_diffusers_stable-diffusion_CompVis/stable-diffusion-v1-4/benchmark.json
-    source: huggingface
-    status: verified
-    format: json
-  - url: https://rs.figshare.com/articles/journal_contribution/ESM2-Declaration_of_AI_use_from_Crossing_experiments_suggest_a_simple_genetic_basis_of_complex_male_self-sacrifice_phenotypes_in_widow_spiders/32835718
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://repository.rcsi.com/articles/journal_contribution/Age_at_type_2_diabetes_diagnosis_and_prevalence_of_obesity_hypertension_anxiety_and_depression_a_retrospective_observational_study/32237607
-    source: figshare
-    status: unreachable
-    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''repository.rcsi.com'',
-      port=443): Max retries exceeded with url: /articles/journal_contribution/Age_at_type_2_diabetes_diagnosis_and_prevalence_of_obesity_hypertension_anxiety_and_depression_a_retrospective_observational_study/32237607
-      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
-      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
-  - url: https://figshare.com/articles/conference_contribution/Reevaluating-Detection-of-Equivalent-Mutants-Using-LLM/32835686
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://repository.rcsi.com/articles/journal_contribution/Intracameral_moxifloxacin_for_endophthalmitis_prophylaxis_after_cataract_surgery_a_systematic_review_and_meta-analysis/32325489
-    source: figshare
-    status: unreachable
-    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''repository.rcsi.com'',
-      port=443): Max retries exceeded with url: /articles/journal_contribution/Intracameral_moxifloxacin_for_endophthalmitis_prophylaxis_after_cataract_surgery_a_systematic_review_and_meta-analysis/32325489
-      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
-      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
-  - url: https://figshare.com/articles/dataset/Matbench_Discovery_-_Model_Predictions_for_Diatomics/28437344
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15543159
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15543253
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3810211
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/17854610
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10199277
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://unige.iris.cineca.it/handle/11567/929442
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://air.unimi.it/handle/2434/155476
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21067428
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21067428
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21064062
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
+    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
+      timeout=20)'

@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-707-appo-agentic-procedural-policy-optimizat
-last_run_id: 925ecb83-0a81-4b66-9ec3-7523d55c4732
+last_run_id: a14d8f7d-61c2-4a7f-9a6b-f6db5ddce368
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-707-appo-agentic-procedural-policy-optimizat/specs/001-appo-agentic-procedural-policy-optimizat
 title: 'APPO: Agentic Procedural Policy Optimization'
-updated_at: '2026-06-30T12:31:05.954669Z'
+updated_at: '2026-06-30T13:25:09.010295Z'

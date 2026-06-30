@@ -1,107 +1,106 @@
 # Feature Specification: APPO: Agentic Procedural Policy Optimization
 
-**Feature Branch**: `001-appo-branching-score`  
-**Created**: 2026-06-18  
-**Status**: Draft  
-**Input**: User description: "Investigate how the Branching Score (token-entropy × future-value) affects sample-efficiency in agentic RL tool-use tasks using HotpotQA, MATH, and WebShop benchmarks on CPU-only runners."
+**Feature Branch**: `001-appo-branching-score`
+**Created**: 2026-06-18
+**Status**: Draft
+**Input**: User description: "Investigate how the Branching Score (product of token-level entropy and future-value estimate) affects sample-efficiency of agentic RL agents in multi-step tool-use tasks, specifically measuring episodes-to-threshold on HotpotQA, MATH, and WebShop benchmarks using CPU-only training."
 
 ## User Scenarios & Testing
 
-### User Story 1 - Baseline & Score-Default Execution (Priority: P1)
+### User Story 1 - Core Training Loop with Branching Score (Priority: P1)
 
-The researcher MUST be able to execute the training pipeline for the "No-Score" baseline and the "Score-Default" configuration on the GitHub Actions runner to establish a comparative baseline for sample efficiency.
+The system MUST execute the core training loop for an agentic RL agent on a tool-use benchmark (e.g., HotpotQA), implementing the Branching Score mechanism (product of token entropy and future-value estimate) as a credit-assignment heuristic, and recording the number of training steps required to reach a predefined performance threshold (80% of the maximum pilot score, where the pilot score is defined as the best success rate achieved by the `No-Score` baseline across 5 seeds).
 
-**Why this priority**: This is the core MVP. Without establishing the performance gap between the standard PPO and the APPO default configuration, no further ablation or analysis is possible. It directly addresses the primary research question.
+**Why this priority**: This is the foundational experiment. Without a functional training loop that correctly computes and applies the Branching Score and tracks the primary metric (steps-to-threshold), no comparison or statistical analysis is possible. It directly addresses the core research question.
 
-**Independent Test**: The system can be tested by running the training script with `--config=default` and `--config=baseline` flags. The test passes if the script completes within the 6-hour limit, produces log files containing step-wise success rates and tool-call counts, and outputs a CSV summary of "episodes to reach 80% threshold" for both runs.
+**Independent Test**: Can be fully tested by running the training script for a single seed on a small subset of the WebShop benchmark, verifying that the "steps-to-threshold" metric is logged correctly and that the Branching Score values are non-zero and vary per step.
 
 **Acceptance Scenarios**:
 
-1. **Given** the HuggingFace datasets (HotpotQA, MATH, WebShop) are downloaded and the Llama 3.1 8B model is loaded in CPU mode, **When** the training script is executed with the "No-Score" configuration for 5 seeds, **Then** the system must complete training within 6 hours and record the number of steps to reach the 80% performance threshold for each seed.
-2. **Given** the same environment, **When** the training script is executed with the "Score-Default" configuration (ε=0.1, ε′=0.05, b=0.5) for 5 seeds, **Then** the system must complete training within 6 hours and record the corresponding steps-to-threshold metrics.
-3. **Given** both runs complete, **When** the results are aggregated, **Then** a Kaplan-Meier survival analysis comparing the two configurations must be generated and logged, including the log-rank test statistic and p-value.
+1. **Given** a configured environment (WebShop) and a model (Llama 3.1 8B 4-bit), **When** the training script runs with the `Score-Default` variant, **Then** the system logs the cumulative training steps at the moment the agent's success rate first exceeds 80% of the maximum pilot score (derived from the `No-Score` baseline).
+2. **Given** the same setup, **When** the training script runs with the `No-Score` baseline, **Then** the system logs the cumulative training steps at the moment the agent's success rate first exceeds 80% of the maximum pilot score (derived from the `No-Score` baseline), ensuring the metric is comparable.
+3. **Given** a training run, **When** the system computes the Branching Score, **Then** the score is calculated as the product of the token-level entropy and the pre-trained, frozen future-value estimate for each step, and this value is recorded in the step log.
 
 ---
 
-### User Story 2 - Hyperparameter Ablation & Sensitivity Analysis (Priority: P2)
+### User Story 2 - Hyperparameter Sensitivity Analysis (Priority: P2)
 
-The researcher MUST be able to run the "Score-Ablation" suite to vary clipping thresholds (ε, ε′) and weighting (b) and perform a sensitivity analysis to determine if the observed effects are robust to small changes in these hyperparameters.
+The system MUST execute the training loop for the `Score-Ablation` variant, systematically varying the Branching Score hyperparameters (clipping thresholds ε, ε′, and weighting b) across a defined grid (ε ∈ {0.05, 0.2}, ε′ ∈ {0.02, 0.1}, b ∈ {0.3, 0.5, 0.7}) to measure the sensitivity of sample efficiency to these parameters.
 
-**Why this priority**: The research question explicitly asks about the sensitivity of the Branching Score. Without this, the findings could be dismissed as artifacts of a single lucky parameter set. This validates the robustness of the heuristic.
+**Why this priority**: The research question explicitly mentions the lack of systematic evaluation of hyperparameter sensitivity. This story extends the core loop to explore the parameter space, providing the necessary data to determine if the heuristic's benefit is robust or fragile.
 
-**Independent Test**: The system can be tested by running the ablation loop over a specified grid of hyperparameters, including a range of values for ε, ε′, and b, as detailed in standard RL ablation practices and HuggingFace Datasets documentation. The test passes if the system generates a sensitivity report showing how the "episodes to threshold" metric varies across the grid and identifies the optimal configuration.
+**Independent Test**: Can be tested by running the ablation script with a specific set of hyperparameters (e.g., ε=0.05, ε′=0.02, b=0.3) and verifying that the resulting performance curve and steps-to-threshold differ from the `Score-Default` run.
 
 **Acceptance Scenarios**:
 
-1. **Given** the baseline results are established, **When** the ablation script iterates through the defined grid of hyperparameters (ε ∈ {0.05, 0.2}, ε′ ∈ {0.02, 0.1}, b ∈ {0.3, 0.7}), **Then** the system must execute each configuration (or a representative subset if CPU time is constrained) and log the resulting sample efficiency.
-2. **Given** the ablation runs complete, **When** the sensitivity analysis is triggered, **Then** the system must generate a report showing the variance in the headline success rate (binary success/failure proxy) as the thresholds sweep across the defined grid, explicitly noting if the trend holds.
-3. **Given** the sensitivity report, **When** the researcher reviews the data, **Then** the report must clearly indicate whether the performance gain is monotonic or if there is a sharp drop-off at specific threshold values.
-4. **Given** the ablation results, **When** the "Best Ablation" is selected, **Then** the system must select the configuration with the lowest mean steps-to-threshold among those that achieve ≥ 80% success rate, ensuring a deterministic selection criteria.
+1. **Given** the ablation configuration, **When** the system runs a training variant with ε=0.2, **Then** the system records the steps-to-threshold for this specific configuration in the results table.
+2. **Given** the ablation configuration, **When** the system runs a training variant with b=0.7, **Then** the system records the steps-to-threshold for this specific configuration, ensuring it is distinct from the b=0.5 default.
+3. **Given** all ablation runs complete, **When** the results are aggregated, **Then** the system produces a summary table mapping each (ε, ε′, b) tuple to its corresponding steps-to-threshold value.
 
 ---
 
-### User Story 3 - Statistical Significance & Reporting (Priority: P3)
+### User Story 3 - Statistical Validation and Reporting (Priority: P3)
 
-The researcher MUST be able to generate a final report containing statistically significant results (p < 0.05) comparing the best Score variant against the baseline, including confidence intervals and a summary of tool-call efficiency.
+The system MUST perform statistical analysis (Wilcoxon signed-rank tests) across independent random seeds to compare the sample efficiency (steps-to-threshold) and tool-call efficiency (mean tool calls per episode) between the `No-Score` baseline and each `Score` variant, generating a report with p-values and 95% confidence intervals.
 
-**Why this priority**: This synthesizes the experimental data into a scientific conclusion. It is necessary to answer the "How does it affect..." question with scientific rigor, distinguishing signal from noise.
+**Why this priority**: The expected results section explicitly requires statistical significance (p < 0.05) to claim a genuine learning-speed benefit. This story ensures the experimental design is methodologically sound and the conclusions are statistically valid, not just anecdotal, specifically accounting for non-normal distributions in RL metrics.
 
-**Independent Test**: The system can be tested by parsing the aggregated CSV logs from all seeds and configurations. The test passes if the output includes a table of means, standard deviations, t-statistics, p-values, and confidence intervals for the primary metric (episodes to threshold).
+**Independent Test**: Can be tested by providing a synthetic dataset of seed results for two conditions and verifying that the analysis script correctly computes the Wilcoxon signed-rank statistic, p-value, and confidence intervals.
 
 **Acceptance Scenarios**:
 
-1. **Given** the log files from all 5 seeds for both "No-Score" and "Score-Default" (and best ablation), **When** the analysis script runs, **Then** it must output a summary table comparing the mean steps-to-threshold and the mean tool-calls-per-episode.
-2. **Given** the summary statistics, **When** the statistical test is performed, **Then** the system must report the p-value from a Kaplan-Meier log-rank test and state whether the null hypothesis (no difference in sample efficiency) can be rejected at the α=0.05 level.
-3. **Given** the results, **When** the final report is generated, **Then** it must include a visualization (e.g., learning curve plot) showing the convergence speed of the best Score variant versus the baseline.
+1. **Given** the results from seeds for `No-Score` and `Score-Default`, **When** the analysis script runs, **Then** it outputs a p-value from a Wilcoxon signed-rank test comparing the steps-to-threshold metrics.
+2. **Given** the results from seeds, **When** the analysis script runs, **Then** it calculates and reports the 95% confidence interval for the difference in median steps-to-threshold.
+3. **Given** the full set of results, **When** the final report is generated, **Then** it includes a section summarizing the tool-call efficiency (mean tool calls per episode) at the threshold crossing for each variant.
 
 ---
 
 ### Edge Cases
 
-- **What happens when** the training process exceeds the 6-hour GitHub Actions timeout? The system MUST detect the timeout, log the current progress, and save a partial checkpoint to allow manual inspection or resumption (though resumption logic is out of scope for this spec, the logging is required).
-- **How does system handle** the scenario where the Llama 3.1 8B model fails to load in CPU mode due to memory constraints (OOM)? The system MUST catch the OOM error, log a specific "Memory Limit Exceeded" message, and abort gracefully rather than hanging the runner.
-- **What happens when** the "80% performance threshold" is never reached within the 2M step limit? The system MUST record the final performance score and flag the episode count as "censored" or ">2M steps" in the results CSV, rather than crashing or returning a null value.
+- What happens if the agent fails to reach the 80% performance threshold within the 2 million step limit? (The system MUST record the final performance and steps, and flag the run as "threshold-not-reached" rather than crashing or reporting infinity).
+- How does the system handle a situation where the token-level entropy is zero for a sequence of steps? (The Branching Score calculation MUST handle this gracefully, resulting in a score of zero for those steps, without causing division by zero or NaN errors).
+- What happens if the `datasets` library fails to download the WebShop benchmark due to network issues? (The system MUST exit with a clear error message indicating the missing data dependency and not proceed with training).
 
 ## Requirements
 
 ### Functional Requirements
 
-- **FR-001**: System MUST load the Llama 3.1 8B model in CPU-only mode (no CUDA/GPU) and process inputs with a maximum sequence length of 256 tokens to ensure memory footprint remains < 7 GB RAM. (See US-1)
-- **FR-002**: System MUST implement the Branching Score calculation as the product of per-step token-level entropy and a learned future-value estimate (V(s)), where V(s) is the standard value function trained on task rewards. The Branching Score serves as an exploration bonus and does not replace the task reward signal. (See US-1)
-- **FR-003**: System MUST support three distinct configuration modes: "No-Score" (baseline PPO), "Score-Default" (ε=0.1, ε′=0.05, b=0.5), and "Score-Ablation" (iterating over specified hyperparameter grids). (See US-1, US-2)
-- **FR-004**: System MUST execute training for multiple independent random seeds for each configuration to enable paired statistical analysis. (See US-1, US-3)
-- **FR-005**: System MUST log step-wise metrics (task success rate, average tool calls, mean Branching Score) at regular intervals to a structured CSV file. (See US-1, US-3)
-- **FR-006**: System MUST calculate the "episodes to reach [deferred] of the theoretical maximum success rate (1.0)" by interpolating between logged steps if the exact threshold is not hit. (See US-1, US-3)
-- **FR-007**: System MUST perform a Kaplan-Meier survival analysis with a log-rank test across multiple seeds for each comparison (Baseline vs. Score-Default, Baseline vs. Best Ablation) and output the p-value and 95% confidence intervals. (See US-3)
-- **FR-008**: System MUST enforce a hard limit of [deferred] environment steps per training run to prevent exceeding the 6-hour CI time limit. (See US-1)
-- **FR-009**: System MUST calculate and log the Pearson correlation coefficient between token-level entropy and future-value estimates for each seed to verify they are not perfectly collinear (|r| < 0.9). (See US-2)
+- **FR-001**: The system MUST implement a training loop for an agentic RL agent that computes the Branching Score as the product of token-level entropy and a pre-trained, frozen future-value estimate at every step. (See US-1)
+- **FR-002**: The system MUST support two distinct training configurations: a `No-Score` baseline (standard PPO) and a `Score-Default` configuration using the APPO Branching Score with ε=0.1, ε′=0.05, b=0.5. (See US-1)
+- **FR-003**: The system MUST execute a `Score-Ablation` configuration that iterates through the hyperparameter grid: ε ∈ {0.05, 0.2}, ε′ ∈ {0.02, 0.1}, b ∈ {0.3, 0.5, 0.7}, running a separate training instance for each combination. (See US-2)
+- **FR-004**: The system MUST record the exact number of training steps (interpolated if necessary) at which the agent's task success rate first crosses [deferred] of the maximum pilot score (derived from the `No-Score` baseline) for every training run. (See US-1)
+- **FR-005**: The system MUST calculate and log the mean number of tool calls per episode at the point of threshold crossing for every training run. (See US-3)
+- **FR-006**: The system MUST execute multiple independent training runs (seeds) for the `No-Score` and `Score-Default` configurations, and multiple independent training runs (seeds) for each `Score-Ablation` variant, to enable statistical testing while managing computational load. (See US-3)
+- **FR-007**: The system MUST perform Wilcoxon signed-rank tests comparing the steps-to-threshold and tool-call efficiency metrics between the `No-Score` baseline and each `Score` variant across the defined seeds. (See US-3)
+- **FR-008**: The system MUST generate a final report containing the p-values and 95% confidence intervals for all statistical comparisons performed. (See US-3)
 
 ### Key Entities
 
-- **TrainingRun**: Represents a single execution of the RL agent with specific hyperparameters and a random seed. Attributes: `config_id`, `seed`, `steps_executed`, `final_success_rate`, `steps_to_threshold`.
-- **BranchingScore**: A scalar value computed at each token generation step. Attributes: `token_entropy`, `future_value_estimate`, `branching_score_value`.
-- **BenchmarkDataset**: Represents the external tool-use environment (HotpotQA, MATH, WebShop). Attributes: `name`, `split`, `total_episodes`.
-- **ComparisonResult**: The aggregated statistical output comparing two configurations. Attributes: `config_a`, `config_b`, `mean_diff`, `log_rank_statistic`, `p_value`, `ci_lower`, `ci_upper`.
+- **TrainingRun**: Represents a single execution of the training loop with a specific configuration (variant, seed, benchmark). Attributes: `variant`, `seed`, `benchmark`, `steps_to_threshold`, `final_success_rate`, `mean_tool_calls`.
+- **BranchingScoreConfig**: Represents the hyperparameters for the Branching Score. Attributes: `epsilon`, `epsilon_prime`, `beta_weight`.
+- **StatisticalResult**: Represents the outcome of a comparison between two configurations. Attributes: `config_a`, `config_b`, `metric`, `p_value`, `confidence_interval`.
 
 ## Success Criteria
 
 ### Measurable Outcomes
 
-- **SC-001**: The system MUST output the p-value and log-rank statistic from a Kaplan-Meier survival analysis comparing the "episodes to reach [deferred] of the theoretical maximum success rate (1.0)" for the "Score-Default" configuration against "No-Score". The reduction in steps is considered statistically significant if p < 0.05. (See US-1, US-3)
-- **SC-002**: The sensitivity of the sample efficiency to hyperparameter variations (ε, ε′, b) is measured against the "Score-Default" performance to determine if the effect is robust; specifically, the variance in steps-to-threshold across the grid must be < 15% of the mean. (See US-2)
-- **SC-003**: The average number of tool calls per episode at the threshold crossing is measured against the baseline to assess if the Branching Score improves tool-call efficiency while maintaining success. (See US-1, US-3)
-- **SC-004**: The total compute time per training run is measured against the designated time limit to ensure the methodology is feasible on free-tier CI runners. (See US-1)
-- **SC-005**: The memory footprint of the training process is measured against a constrained RAM limit to verify CPU-only feasibility without GPU offloading. (See US-1)
-- **SC-006**: The consistency of results across multiple random seeds is measured (standard deviation of steps-to-threshold) to ensure the observed effect is not an artifact of a specific seed. (See US-3)
-- **SC-007**: The system MUST output the Pearson correlation coefficient between entropy and value estimates; if |r| ≥ 0.9, the system MUST flag a warning that the Branching Score may be ineffective due to collinearity. (See US-2)
+> Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
+
+- **SC-001**: The difference in median steps-to-threshold between the `No-Score` baseline and the `Score-Default` variant is measured against the null hypothesis of no difference using a Wilcoxon signed-rank test across seeds. (See US-3)
+- **SC-002**: The sensitivity of the steps-to-threshold metric to variations in ε, ε′, and b is measured by the range of observed steps-to-threshold values across the ablation grid. (See US-2)
+- **SC-003**: The tool-call efficiency improvement (reduction in mean tool calls per episode) of the `Score` variants relative to the `No-Score` baseline is measured at the threshold crossing point. (See US-3)
+- **SC-004**: The statistical significance of the observed improvements is measured by the p-value (target < 0.05) derived from the Wilcoxon signed-rank test. (See US-3)
+- **SC-005**: The computational feasibility of the experiment is measured by the total runtime of the training runs on a 4-core CPU runner with 16GB RAM, ensuring the full suite (5 seeds baseline/default + 3 seeds ablation) completes within the allocated CI runner time budget (typically 24 hours). (See Assumptions)
 
 ## Assumptions
 
-- **Assumption about dataset-variable fit**: The HotpotQA, MATH, and WebShop datasets available on HuggingFace contain sufficient interaction traces (tool calls, success/failure states) to compute the "future-value estimate" required for the Branching Score without needing external annotations.
-- **Assumption about compute constraints**: The 8-billion parameter Llama 3.1 model, when loaded in default precision (float32 or float16) with batch size 4 and sequence length 256, will fit within the ~7 GB RAM limit of a GitHub Actions free runner.
-- **Assumption about inference framing**: Since the experiment involves training an agent (intervention) rather than observing a static dataset, the comparison of "No-Score" vs. "Score" configurations allows for causal claims regarding the *effect of the algorithm* on sample efficiency, provided the random seeds are fixed.
-- **Assumption about threshold justification**: The 80% performance threshold (relative to theoretical maximum 1.0) is a community-standard proxy for "convergence" in RL benchmarks when the theoretical optimum is unknown or difficult to reach; the 2M step limit is a standard budget for lightweight experiments.
-- **Assumption about power**: The sample size of 5 seeds is sufficient to detect a large effect size (Cohen's d > 0.8) with 80% power at α=0.05; smaller effects may be underpowered, which is acknowledged as a limitation.
-- **Assumption about collinearity**: While token-level entropy and the future-value estimate are treated as distinct components of the Branching Score, the system assumes they are not perfectly collinear (|r| < 0.9). If they are highly collinear, the product may be noise; FR-009 and SC-007 are implemented to detect and flag this condition.
-- **Assumption about model availability**: The Llama checkpoint (ggml-compatible) is publicly available on HuggingFace and can be downloaded within the 14 GB disk limit of the runner.
-- **Assumption about circularity**: The "future-value estimate" is the standard V(s) trained on task rewards. The Branching Score is an *exploration bonus* derived from the product of entropy and V(s), not a replacement for the reward signal. The validation target (success rate) is an outcome measure, while the Branching Score is an internal signal; the comparison tests if the internal signal accelerates the outcome, not if they are independent signals.
+- The Llama 3.1 8B model (quantized to 4-bit, ggml-compatible) is available on the HuggingFace Hub and can be loaded and run on a 4-core CPU environment with 16GB RAM using batch size 4 and sequence length 256.
+- The HotpotQA (`hotpotqa`), MATH (`math`), and WebShop (`webshop`) benchmarks are accessible via the HuggingFace `datasets` library and fit within the disk limit of the GitHub Actions runner.
+- The WebShop benchmark DOI () is the canonical source for the dataset.
+- The `trl` library (or equivalent) is available and compatible with the CPU-only execution environment for implementing the PPO baseline and agentic RL logic.
+- The maximum step limit per training run is sufficient to reach the 80% performance threshold for at least some configurations; if not, the run is capped and flagged.
+- The "future-value estimate" component of the Branching Score is a pre-trained, frozen heuristic (or a separate, frozen value network trained on a distinct reward signal) that does not require GPU acceleration or heavy training overhead during the main RL loop.
+- The statistical power of 5 seeds for baseline/default and 3 seeds for ablation variants is considered adequate for the initial exploratory study, acknowledging that a larger sample size might be required for definitive conclusions in future work.
+- The "maximum pilot score" is defined as the highest success rate achieved by the `No-Score` baseline across its 5 seeds in a preliminary run, ensuring the threshold is fixed and independent of the treatment variants.
+- The token-level entropy is computed directly from the model's logits during generation and does not require additional model passes or significant computational overhead.
+- The total runtime for the full experimental suite (baseline/default seeds plus seeds for 12 ablation variants) is estimated at [deferred] on the specified hardware, fitting within the 24-hour CI budget.

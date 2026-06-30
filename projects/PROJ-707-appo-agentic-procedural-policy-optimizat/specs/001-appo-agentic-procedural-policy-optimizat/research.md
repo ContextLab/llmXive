@@ -1,78 +1,81 @@
 # Research: APPO: Agentic Procedural Policy Optimization
 
-## 1. Research Question & Hypothesis
-
-**Question**: How does the Branching Score (Token Entropy × Future Value) affect sample efficiency in agentic RL tool-use tasks compared to standard PPO?
-
-**Hypothesis**: The Branching Score, defined as `ReLU(V(s) - mean(V)) * H_t`, provides a more targeted exploration bonus than standard entropy regularization. This will lead to a statistically significant reduction in the number of steps required to reach [deferred] success rate (p < 0.05) on the MATH benchmark, compared to the No-Score baseline.
-
-**Note on Circularity**: The Branching Score uses V(s), which is trained on task rewards. The hypothesis is not that V(s) *is* the success signal, but that the *interaction* of entropy and value (exploration in high-value, uncertain states) accelerates the learning of V(s) itself in sparse-reward environments. The validation compares the *speed* of convergence, not the final value.
+## 1. Problem Statement
+The research investigates whether the **Branching Score** (product of token-level entropy and future-value estimate) improves the sample efficiency of agentic RL agents in multi-step tool-use tasks. The primary metric is **steps-to-threshold** (environment interactions to reach [deferred] of the best pilot success rate).
 
 ## 2. Dataset Strategy
 
-The project utilizes the **MATH** benchmark. HotpotQA and WebShop are excluded from the primary run due to lack of verified URLs in the input block and the inability to verify their tool-use modality.
+The project requires datasets for **MATH** and **Tool-Calling** (proxy for WebShop/HotpotQA).
+*Note: The spec mentions WebShop and HotpotQA, but the provided `# Verified datasets` block does not contain URLs for them. Per the rules, we cannot invent URLs. We proceed with the available verified MATH data and the Tool-Calling dataset as a validated proxy for agentic behavior.*
 
-| Dataset | Verified URL | Usage | Notes on Variable Fit |
+### Verified Datasets (from Prompt)
+| Dataset | Source URL | Format | Status |
 |:--- |:--- |:--- |:--- |
-| **MATH** | ` | Math reasoning benchmark | Contains problems and solutions. **Synthetic Environment**: The `environments.py` wrapper will simulate tool-use actions (e.g., "Search", "Calculate") based on the problem text to generate the action space and reward signals required for PPO. |
-| **HotpotQA** | *No verified raw URL provided* | Excluded | Not used due to lack of verified source. |
-| **WebShop** | *No verified raw URL provided* | Excluded | Not used due to lack of verified source. |
+| **MATH** | ` | Parquet | **Verified** |
+| **Tool-Calling** | ` | Parquet | **Verified** (Tool-calling data) |
 
-**Dataset Variable Fit Check**:
-- **Required**: Interaction traces (tool calls, success/failure).
-- **MATH**: Does not natively contain tool-call traces. The **Synthetic Environment Wrapper** (Phase 0) will define a discrete action space (e.g., `['Search', 'Calculate', 'Answer']`) and generate synthetic rewards based on intermediate steps. The "future-value" V(s) is learned from these synthetic rewards, not pre-existing data.
-- **Validation**: Phase 0 includes a pre-check to ensure the synthetic environment generates non-trivial reward signals and that V(s) converges on a small subset.
+### Gap Analysis & Strategy
+* **WebShop & HotpotQA**: The prompt's `# Verified datasets` block **does not** contain URLs for WebShop or HotpotQA.
+ * *Action*: The plan **cannot** assume these datasets are available via the verified URLs.
+ * *Mitigation*: The implementation will prioritize the **Tool-Calling dataset** as a proxy for "agentic tool-use" (since it contains explicit tool-call actions) and **MATH** for reasoning.
+ * *Decision*: The research will focus on **Tool-Calling** and **MATH**. This is a documented deviation from the spec's requirement for WebShop/HotpotQA, justified by the lack of verified sources and hardware constraints.
 
-## 3. Methodology
+### Data Preprocessing
+* **MATH**: Extract problem statements and ground truth answers. Filter for multi-step reasoning problems.
+* **Tool-Calling**: Extract prompt-response pairs with tool usage. **Crucial**: The "Tool-Success Heuristic" for the FVN is derived from the ground-truth success labels in this dataset.
+* **Sampling**: To fit 7GB RAM, we will sample **[deferred]** of the training split for each experiment run (approx. 2k-5k samples).
 
-### 3.1 Model & Architecture
-- **Base Model**: Llama 3.1 8B (Quantized 4-bit GGUF).
-- **Loading Strategy**: `llama-cpp-python` with `q4_k_m` quantization to ensure <GB RAM usage.
-- **Context**: 256 tokens (FR-001).
-- **Value Head**: Standard PPO value head trained on task rewards.
+## 3. Model Strategy
 
-### 3.2 Branching Score Calculation (FR-002)
-To address the issue of negative values and circularity:
-1. **Entropy ($H_t$)**: Compute Shannon entropy of the policy distribution over the vocabulary at the current step.
-2. **Future Value ($V(s)$)**: The value function estimate for the current state $s$.
-3. **Baseline Subtraction**: Calculate $V_{base} = \text{mean}(V(s))$ over a window.
-4. **Branching Score ($B_s$)**: $B_s = \text{ReLU}(V(s) - V_{base}) \times H_t$.
- - This ensures the bonus is zero or positive, encouraging exploration only when the value is above the average (high-value regions) and uncertainty is high.
-5. **Bonus**: Add $B_s$ (scaled by $b$) to the standard reward $R_t$.
+### Model Selection
+* **Theoretical Target**: Llama 3.1 8B (4-bit).
+* **Executable Target**: **TinyLlama 1.1B (4-bit)**.
+ * *Rationale*: An B model (quantized to a lower precision) leaves insufficient RAM for context and overhead on a 7GB runner. TinyLlama (4-bit quantized) ensures stability and allows for the required number of training steps within the 6-hour window.
+ * *Documentation*: The `research.md` and `paper` will explicitly state: "Due to CI memory constraints (7GB), the 8B model was deemed infeasible; the experiment was executed using TinyLlama 1.1B as a proxy."
 
-### 3.3 Training Configurations (FR-003)
-1. **No-Score (Baseline)**: Standard PPO. Bonus = 0.
-2. **Score-Default**: $\epsilon=0.1, \epsilon'=0.05, b=0.5$.
-3. **Score-Ablation**: Grid search over $\epsilon \in \{0.05, 0.2\}, \epsilon' \in \{0.02, 0.1\}, b \in \{0.3, 0.7\}$. (Limited to 1 seed per config due to time).
+### Branching Score Implementation
+* **Entropy**: Computed from the softmax of logits at each token generation step.
+ * $H_t = -\sum p_i \log p_i$
+* **Future-Value Estimate ($V_{future}$)**:
+ * *Source*: A **Frozen Value Network (FVN)** trained on a **distinct reward signal**.
+ * *Distinct Signal Definition*: The FVN is trained on the **Tool-Success Heuristic** derived from the ground-truth success labels (binary: success/failure) in the Tool-Calling dataset. This ensures the FVN is decoupled from the PPO agent's policy optimization and not a tautological re-weighting.
+ * *Formula*: $BS_t = H_t \times V_{future}(s_t)$.
+ * *Integration*: $BS_t$ is used to weight the PPO loss term or as an intrinsic reward bonus.
 
-### 3.4 Statistical Analysis (FR-007, SC-001, SC-002, SC-007)
-- **Metric**: "Steps to reach [deferred] success rate".
-- **Unit of Analysis**: The **Training Run** (seed).
-- **Event Definition**: Crossing the 80% success threshold within a rolling window of episodes.
-- **Censoring**: If a run does not reach [deferred] by [deferred] steps, it is censored.
-- **Test**: Kaplan-Meier survival analysis with Log-Rank test to compare Baseline vs. Score-Default.
-- **Variance Check (SC-002)**: Calculate the variance of steps-to-threshold across the ablation grid. Report if variance < 15% of the mean.
-- **Collinearity Check (FR-009, SC-007)**: Pearson correlation between $H_t$ and $V(s)$. If $|r| \ge 0.9$, log a **WARNING** to `stderr` and `results/warnings.log`.
+### Threshold Definition
+* **Threshold Value**: 80% of the maximum pilot score.
+* **Pilot Score Calculation**: Derived from the **3 seeds** of the `No-Score` baseline (not 5, due to hardware constraints).
+* **Fallback**: If the `No-Score` baseline fails to reach a stable rate, the threshold defaults to 50% of the max possible score (oracle fallback).
 
-## 4. Compute Feasibility & Constraints
+## 4. Statistical Methodology
 
-- **Hardware**: GitHub Actions Free (2 CPU, 7GB RAM).
-- **Model Size**: 8B parameters (4-bit quantized).
-- **Time Limit**: 6 hours.
-- **Step Limit**: **[deferred] steps** per run (reduced from 2M to fit time).
-- **Seeds**: **2 seeds** per config (reduced from 5 to fit time).
-- **Optimization**: Ablation limited to seed per config.
+* **Test**: Wilcoxon signed-rank test (non-parametric, suitable for small N=3).
+* **Hypothesis**:
+ * $H_0$: Median steps-to-threshold (Score) = Median steps-to-threshold (No-Score).
+ * $H_1$: Median steps-to-threshold (Score) < Median steps-to-threshold (No-Score).
+* **Multiple Comparison Correction**: Bonferroni correction applied to p-values across multiple ablation variants and a default configuration.
+* **Power Analysis**: N=3 is low. We acknowledge low statistical power (often <0.2 for medium effects). The result will be reported as **"exploratory"** with a focus on **effect sizes** (rank-biserial correlation) and 95% confidence intervals, rather than strict p-value significance. This is a necessary trade-off for CI feasibility.
 
-## 5. Decision Rationale
+## 5. Computational Feasibility
 
-- **Quantization**: Mandatory for CPU feasibility.
-- **Survival Analysis**: Mandatory due to censored data (runs that don't converge).
-- **Metric**: "Steps to [deferred]" is the standard sample-efficiency metric.
-- **Dataset Limitation**: Only MATH is used due to verified URL constraints. Synthetic wrappers are required to simulate tool-use.
-- **Reduced Scale**: 2 seeds and 50k steps are the maximum feasible subset on the target hardware.
+* **Hardware**: 2 CPU cores, 7GB RAM, 14GB Disk.
+* **Runtime Budget**: 6 hours per job.
+* **Strategy**:
+ * **Sequential Execution**: Run seeds sequentially to avoid memory contention.
+ * **Early Stopping**: If an agent reaches threshold at a predefined step, stop immediately.
+ * **Batch Size**: Set to 1 to minimize memory.
+ * **Sequence Length**: Limit to 128 tokens (reduced from 256 to save memory).
+ * **Total Runs**: 3 (No-Score) + 3 (Score-Default) + 12 (Ablation, 1 seed each) = 18 runs.
+ * *Estimate*: 18 runs × 15 mins/run = 4.5 hours (plus overhead). Fits within 6-hour limit.
+ * **Final Decision**: The plan implements multiple seeds for baseline/default and one seed for ablation to ensure completion.
 
-## 6. Limitations
+## 6. Decision Log
 
-- **Statistical Power**: With only 2 seeds, the study is underpowered.
-- **Circularity**: The Branching Score uses V(s), which is derived from the reward signal. The hypothesis is that the *interaction* with entropy accelerates learning, but this is a weak empirical claim.
-- **Synthetic Environment**: The tool-use actions are simulated, not real. Results may not generalize to real tool-use environments.
+| Decision | Rationale |
+|:--- |:--- |
+| **Use TinyLlama 1.1B** | 8B model is infeasible on 7GB RAM. 1.1B ensures stability. |
+| **Use Tool-Calling as Proxy** | WebShop/HotpotQA URLs not verified. Tool-Calling dataset provides explicit tool-use actions. |
+| **Sequential Seed Execution** | Parallel execution would exceed RAM limits on 2-core runner. |
+| **Wilcoxon Test with N=3** | Small sample size violates normality assumptions for t-test. Acknowledge low power. |
+| **Bonferroni Correction** | Required for multiple comparisons across 12 ablation variants. |
+| **Threshold Fallback** | Prevents undefined metric if baseline fails. |

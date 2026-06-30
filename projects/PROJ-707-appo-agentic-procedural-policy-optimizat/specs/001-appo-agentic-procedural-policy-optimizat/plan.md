@@ -1,151 +1,151 @@
 # Implementation Plan: APPO: Agentic Procedural Policy Optimization
 
-**Branch**: `001-appo-branching-score` | **Date**: 2026-06-18 | **Spec**: `specs/001-appo-branching-score/spec.md`
+**Branch**: `001-appo-branching-score` | **Date**: 2026-06-18 | **Spec**: `spec.md`
 **Input**: Feature specification from `/specs/001-appo-branching-score/spec.md`
 
 ## Summary
 
-This project implements **APPO (Agentic Procedural Policy Optimization)**, an RL algorithm variant that introduces a **Branching Score** exploration bonus (Token Entropy × Future Value) to improve sample efficiency in agentic tool-use tasks. The implementation targets CPU-only GitHub Actions runners with limited CPU and memory resources using a Llama model (quantized to 4-bit GGUF) and the MATH benchmark. 
+This project implements and evaluates the **Agentic Procedural Policy Optimization (APPO)** algorithm, specifically investigating the impact of a **Branching Score** heuristic on sample efficiency. The Branching Score is defined as the product of token-level entropy and a pre-trained, frozen future-value estimate. The system will compare the `Score-Default` variant against a `No-Score` baseline (standard PPO) on the **MATH** and **Tool-Calling** benchmarks (proxies for HotpotQA/WebShop due to URL verification constraints) to measure **"steps-to-threshold"** (environment interactions required to reach [deferred] of the best pilot success rate). The implementation is constrained to CPU-only execution on GitHub Actions free-tier runners, requiring careful optimization of model loading (4-bit quantization), data sampling, and training loop efficiency.
 
-**Feasibility Revision**: To meet the 6-hour runtime limit on 2 CPU cores, the sample size is reduced from 5 seeds to **2 seeds** per configuration, and the maximum steps per run is reduced from 2M to **[deferred] steps**. The original spec's scale (5 seeds, 2M steps) is not feasible on the target hardware; this revision prioritizes a valid proof-of-concept over statistical power.
-
-The plan covers the baseline (No-Score), the default Score configuration, and a limited hyperparameter ablation suite, culminating in a Kaplan-Meier survival analysis to determine statistical significance of sample efficiency gains.
+**Critical Constraint**: The spec assumes a multi-core/high-memory runner, but the CI environment is a lower-configuration runner with reduced CPU cores and RAM. To ensure feasibility, the plan explicitly reduces the seed count (3 for baseline/default, 1 for ablation) and model size (TinyLlama 1.1B proxy) to fit within the 6-hour job limit.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `transformers` (CPU-optimized), `torch` (CPU-only wheel), `datasets` (HuggingFace), `scikit-learn`, `lifelines` (for survival analysis), `pandas`, `numpy`, `accelerate` (CPU configuration), `llama-cpp-python` (for GGUF loading).  
-**Storage**: Local filesystem (`data/` for cached datasets, `results/` for CSV logs).  
-**Testing**: `pytest` (unit tests for score calculation, integration tests for pipeline completion).  
-**Target Platform**: Linux (GitHub Actions Free Tier).  
-**Project Type**: Research CLI / Training Pipeline.  
-**Performance Goals**: Complete 2 seeds of baseline + default config within 6 hours total runtime; memory < 7GB.  
-**Constraints**: No GPU/CUDA; strict 256-token context; **[deferred] step limit** per run; 80% success threshold definition.
-**Scale/Scope**: 1 Benchmark (MATH), 2 Configurations (Baseline + Default) + Limited Ablation, **2 Seeds** each.
+**Primary Dependencies**: `torch` (CPU wheel), `transformers`, `llama-cpp-python` (for CPU quantization), `trl`, `datasets`, `scikit-learn`, `scipy`, `pandas`, `pyyaml`.  
+**Storage**: Local filesystem (`data/`, `results/`); HuggingFace Hub for model/dataset caching.  
+**Testing**: `pytest` (unit tests for score calculation, integration tests for training loop).  
+**Target Platform**: Linux (GitHub Actions `ubuntu-latest` runner).  
+**Project Type**: Research/Algorithmic Benchmarking.  
+**Performance Goals**: Complete 3 seeds (No-Score) + 3 seeds (Score-Default) + 12 seeds (Ablation, 1 each) within 6 hours of wall-clock time on a 2-core/7GB RAM runner.  
+**Constraints**: No GPU; Max 7GB RAM; Max 14GB disk; No 8-bit/4-bit quantization requiring CUDA kernels; Max 2M steps per run.  
+**Scale/Scope**: ~1B parameters (TinyLlama 1.1B quantized) × 18 training runs; ~50k episodes total.
 
-> **Spec Assumption Revision**: The spec's `Assumption about compute constraints` states the model will fit in 7GB in FP16/FP32. This plan explicitly **rejects** that assumption as infeasible. The implementation **MUST** use 4-bit quantization (GGUF) via `llama-cpp-python` to fit within 7GB RAM and complete within 6 hours. This is a necessary deviation from the spec's assumption to ensure the project is runnable.
-
-> **Critical Feasibility Note**: Loading a Llama large language model in full precision (float32) requires a substantial amount of RAM. Even float often exceeds 7GB with context overhead. The plan assumes a quantized (4-bit) GGUF model loaded via `llama-cpp-python` to fit in ~5-6GB RAM.
+> **Model Feasibility Note**: The spec's target of a "Llama large-parameter 4-bit" model is infeasible on a 7GB RAM runner with context and overhead.. The plan **explicitly targets TinyLlama 1.1B (4-bit)** as the primary executable model. This is a documented deviation from the spec's model choice to ensure CI feasibility.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research.*
-
-| Constitution Principle | Compliance Strategy |
-| :--- | :--- |
-| **I. Reproducibility** | All seeds pinned in config; `requirements.txt` pinned; datasets loaded from canonical HF URLs (MATH only) with checksums recorded in `data/`. HotpotQA/WebShop excluded due to lack of verified URLs. |
-| **II. Verified Accuracy** | Citations restricted to verified HF URLs (MATH). No external links in code. HotpotQA/WebShop marked as optional/unverified. |
-| **III. Data Hygiene** | Raw benchmark data cached in `data/raw/` with SHA256 checksums. Derived logs in `data/processed/`. No in-place edits. |
-| **IV. Single Source of Truth** | All stats in paper derived from `results/summary.csv` generated by the pipeline. No manual entry. |
-| **V. Versioning Discipline** | Content hashes for `code/` and `data/` tracked in project state YAML. |
-| **VI. Sample-Efficiency Transparency** | `results/summary.csv` explicitly logs `steps_to_80pct`, `seeds`, `interpolation_method` (linear), and `threshold_value` (0.8). |
-| **VII. Benchmark Integrity** | `data/benchmark_logs/` stores per-episode tool-call counts and success states with version hashes. |
+| Principle | Compliance Status | Implementation Detail |
+| :--- | :--- | :--- |
+| **I. Reproducibility** | **Partially Met / Deviation** | Seeds pinned, but reduced from multiple to a baseline/default and further reduced for ablation due to hardware constraints. |
+| **II. Verified Accuracy** | **Met** | Dataset URLs verified against the `# Verified datasets` block. No external URLs invented. |
+| **III. Data Hygiene** | **Met** | Raw data downloaded to `data/raw/` with checksums. Processed data (logs) written to `data/processed/` with new filenames. |
+| **IV. Single Source of Truth** | **Met** | All metrics (steps-to-threshold, tool calls) derived from `results/training_logs/` CSVs. |
+| **V. Versioning** | **Met** | Artifacts tracked via content hashes in `state/`. |
+| **VI. Sample-Efficiency Transparency** | **Met** | "Steps-to-threshold" calculated via interpolation. Threshold defined as a high percentage of `No-Score` max pilot score (derived from 3 seeds). |
+| **VII. Benchmark & Tool-Call Integrity** | **Partially Met / Deviation** | WebShop/HotpotQA excluded due to missing verified URLs. **Tool-Calling dataset** used as a proxy for agentic behavior. |
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/001-appo-branching-score/
+specs/001-appo-agentic-procedural-policy-optimizat/
 ├── plan.md              # This file
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 └── contracts/           # Phase 1 output
-    ├── training_run.schema.yaml
-    └── benchmark_log.schema.yaml
+    ├── dataset.schema.yaml
+    └── training_log.schema.yaml
 ```
 
 ### Source Code (repository root)
 
 ```text
 code/
-├── app/
-│   ├── __init__.py
-│   ├── agent.py          # PPO Agent with Branching Score logic (ReLU, Baseline)
-│   ├── environments.py   # Synthetic tool-use wrappers for MATH
-│   ├── metrics.py        # Entropy, Value, Branching Score calculators
-│   └── stats.py          # Kaplan-Meier, Log-Rank, Correlation, Variance Check
-├── cli/
-│   └── train.py          # Entry point: --config, --seed, --max-steps
 ├── config/
-│   ├── baseline.yaml     # No-Score
-│   ├── default.yaml      # Score-Default (ε=0.1, b=0.5)
-│   └── ablation.yaml     # Grid definition
+│   ├── base.yaml        # Base hyperparameters
+│   ├── ablation_grid.yaml # Grid for FR-003
+│   └── seeds.yaml       # Seed list
 ├── data/
-│   ├── raw/              # Cached datasets
-│   └── processed/        # Logs and results
+│   ├── raw/             # Downloaded datasets (cached)
+│   └── processed/       # Preprocessed batches, logs
+├── models/
+│   ├── loader.py        # CPU-safe model loading (GGUF/Quantized)
+│   └── branching_score.py # Implementation of FR-001
+├── training/
+│   ├── loop.py          # Main PPO loop with APPO logic
+│   ├── ablation_runner.py # Orchestrator for FR-003
+│   └── utils.py         # Logging, interpolation
+├── analysis/
+│   ├── stats.py         # Wilcoxon tests (FR-007)
+│   └── report_gen.py    # Report generation (FR-008)
+├── benchmarks/
+│   ├── tool_calling.py  # Tool-Calling environment wrapper
+│   └── math.py          # MATH wrapper
 ├── tests/
-│   ├── test_metrics.py
-│   └── test_pipeline.py
+│   ├── unit/
+│   │   └── test_branching_score.py
+│   └── integration/
+│       └── test_training_loop.py
 └── requirements.txt
+
+results/
+├── logs/                # Per-run JSON/CSV logs
+├── stats/               # Statistical test outputs
+└── report.md            # Final aggregated report
 ```
 
-**Structure Decision**: Single `code/` directory with modular `app/` package. Separation of `cli/` for entry points ensures reproducibility. Config files drive the "No-Score" vs "Score" logic without code changes.
+**Structure Decision**: Monolithic Python project under `code/`. Separation of concerns between `training` (logic), `benchmarks` (envs), and `analysis` (stats) ensures modularity. `config/` allows easy grid search without code changes.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| **Quantized Model Loading** | Llama 3.1 8B in FP16/FP32 exceeds 7GB RAM on CI. | Standard `transformers` FP16 fails OOM on 7GB runners; GGUF/Quantization is mandatory for feasibility. |
-| **Survival Analysis (Kaplan-Meier)** | Standard t-tests assume normality; "steps to threshold" is censored (some may not reach [deferred]). | T-tests would yield invalid p-values for censored data; KM is the statistical standard for time-to-event (here, step-to-threshold). |
-| **Synthetic Environment** | Datasets (MATH) lack native tool-use traces. | Cannot run "tool-use" RL without an action space; synthetic wrappers are the only path forward. |
-| **Reduced Sample Size** | 5 seeds/2M steps exceeds 6h CI limit. | Full scale is impossible; 2 seeds/50k steps is the maximum feasible subset. |
-
-## Functional Requirements Mapping
-
-- **FR-001**: Load Llama 3.1 8B in CPU mode (4-bit GGUF). Sequence length 256.
-- **FR-002**: Branching Score = `ReLU(V(s) - mean(V)) * H_t`. Bonus added to reward.
-- **FR-003**: Configs: "No-Score", "Score-Default", "Score-Ablation".
-- **FR-004**: Execute for **2 seeds** (reduced from 5 for feasibility).
-- **FR-005**: Log step-wise metrics to CSV.
-- **FR-006**: Calculate "steps to reach **0.8** of theoretical max" using **linear interpolation**.
-- **FR-007**: Kaplan-Meier survival analysis with log-rank test.
-- **FR-008**: Hard limit of **[deferred] steps** per run (reduced from 2M for feasibility).
-- **FR-009**: Calculate Pearson correlation. If |r| ≥ 0.9, log **WARNING** to `stderr` and `results/warnings.log`.
-
-## Success Criteria Mapping
-
-- **SC-001**: Output p-value and log-rank statistic.
-- **SC-002**: Calculate variance of steps-to-threshold across ablation grid; report if < 15% of mean.
-- **SC-003**: Log mean tool calls.
-- **SC-004**: Log total compute time.
-- **SC-005**: Log memory footprint.
-- **SC-006**: Log standard deviation across seeds.
-- **SC-007**: Flag warning if |r| ≥ 0.9.
+| :--- | :--- | :--- |
+| **Ablation Grid (12 configs)** | Required by FR-003 to map sensitivity (SC-002). | Testing only 1 config fails to address the "lack of systematic evaluation" in the spec. |
+| **Multiple Benchmarks** | Required by spec to ensure generalizability. | Single benchmark (e.g., MATH) risks overfitting to specific task dynamics. |
+| **CPU-Only Constraint** | Mandatory for CI feasibility (7GB RAM). | GPU training is impossible on free-tier runners; 8-bit quantization often requires CUDA kernels. |
+| **Seed Reduction** | Mandatory for CI feasibility (6h limit). | Multiple seeds per variant would exceed runtime budget on 2-core CPU. |
 
 ## Phase Plan
 
-### Phase 0: Environment Validation (Pre-Training)
-1.  Load MATH dataset.
-2.  Initialize synthetic tool-use wrapper (Search/Calculate actions).
-3.  Run a sequence of steps with a random policy.
-4.  Verify reward signal is non-zero and V(s) can be initialized.
-5.  If validation fails, abort and log error.
+### Phase 0: Research & Feasibility
+*   **Goal**: Confirm dataset availability, model feasibility, and define the Frozen Value Network (FVN) signal.
+*   **Research Task**: Select the executable proxy model (TinyLlama 1.1B) and define the FVN training signal (Tool-Success Heuristic).
+*   **Implementation Task**: Define the `BranchingScoreConfig` and `TrainingRun` schemas (pre-implementation).
+*   **Output**: `research.md`, `data-model.md`.
 
-### Phase 1: Baseline & Default Training
-1.  Run 2 seeds for "No-Score" (50k steps each).
-2.  Run 2 seeds for "Score-Default" (50k steps each).
-3.  Log metrics to `results/training_logs.csv`.
+### Phase 1: Data & Contracts
+*   **Goal**: Establish data schemas and download mechanisms.
+*   **Task**: Implement `BranchingScoreConfig` and `TrainingRun` schemas.
+*   **Task**: Define `StatisticalResult` schema (FR-007/008 data model only).
+*   **Output**: `contracts/*.schema.yaml`, `quickstart.md`.
 
-### Phase 2: Ablation (Limited)
-1.  Run a seed for a subset of ablation grid (e.g., a few configurations) if time permits.
-2.  Calculate variance of steps-to-threshold.
+### Phase 2: Implementation (Code Generation)
+*   **Goal**: Generate code for training loop, ablation runner, and analysis.
+*   **FR-001**: Implement `branching_score.py` with FVN integration.
+*   **FR-002**: Implement `No-Score` and `Score-Default` configs.
+*   **FR-003**: Implement `ablation_runner.py` (12 runs, 1 seed each).
+*   **FR-004/005**: Implement logging and threshold detection (80% of 3-seed pilot).
+*   **FR-006**: Implement seed loop (3 seeds for baseline/default, 1 for ablation).
+*   **FR-007/008**: Implement `stats.py` and `report_gen.py`.
+*   **Output**: `code/` directory.
 
-### Phase 3: Statistical Analysis
-1.  Load `training_logs.csv`.
-2.  Compute Kaplan-Meier curves and Log-Rank test.
-3. Check SC-002 ([deferred] variance).
-4.  Check SC-007 (Collinearity warning).
-5.  Generate `results/summary_report.md`.
+### Phase 3: Execution & Validation
+*   **Goal**: Run experiments and validate results.
+* **FR-004**: Verify "threshold-not-reached" handling (fallback to [deferred] oracle).
+*   **FR-007**: Verify p-values and CIs (acknowledge low power).
+*   **FR-008**: Generate final report.
+*   **Output**: `results/`, `paper/`.
 
-### Phase 4: Reporting
-1.  Generate final report with tables and plots.
-2.  Archive `data/` and `results/` with checksums.
+## Risk Mitigation
 
-## Limitations
+1.  **RAM Overflow (1.1B Model)**:
+    *   *Mitigation*: Use `llama-cpp-python` with `q4_0` GGUF. If RAM < 2GB, fallback to a 0.5B model (TinyLlama-0.5B) and note this limitation.
+2.  **Runtime > 6h**:
+    *   *Mitigation*: Aggressive sampling of benchmarks (e.g., first k samples of Tool-Calling). Limit max steps to a sufficiently large number to ensure convergence.
+3.  **Dataset Missing Variables**:
+    *   *Mitigation*: Verify "tool call" capability in Tool-Calling dataset. If missing, redefine metric as "tokens generated" (documented in `research.md`).
+4.  **Threshold Undefined**:
+    *   *Mitigation*: If No-Score baseline fails to reach a stable rate, threshold defaults to a proportion of the max possible score (oracle fallback).
 
-- **Statistical Power**: With a limited number of seeds, the study is underpowered to detect small effect sizes. Results should be interpreted as a feasibility proof-of-concept.
-- **Dataset Scope**: Only MATH is used due to lack of verified URLs for HotpotQA/WebShop.
-- **Step Limit**: 50k steps may be insufficient for convergence; many runs will be censored.
-- **Circularity**: The Branching Score uses V(s), which is trained on the same reward signal used for the success metric. This is acknowledged as a limitation in the interpretation of results.
+## Assumptions
+
+- The TinyLlama 1.1B model (quantized to 4-bit, ggml-compatible) is available on the HuggingFace Hub and can be loaded and run on a 2-core CPU environment with 7GB RAM.
+- The MATH (`math`) and Tool-Calling (`Mustafaege/qwen3.5-toolcalling-v2`) benchmarks are accessible via the HuggingFace `datasets` library and fit within the 14 GB disk limit.
+- The "maximum pilot score" is defined as the highest success rate achieved by the `No-Score` baseline across its **3 seeds** in a preliminary run.
+- The total runtime for the full experimental suite (multiple runs) is estimated at [deferred] on the specified hardware.
+- The "future-value estimate" component is a frozen network trained on a distinct reward signal (Tool-Success Heuristic) derived from ground-truth labels.
+- The statistical power of 3 seeds is considered adequate for an **exploratory** study, with results reported as effect sizes rather than strict significance.
+- The "steps-to-threshold" metric is the primary measure of sample efficiency, not "episodes-to-threshold".

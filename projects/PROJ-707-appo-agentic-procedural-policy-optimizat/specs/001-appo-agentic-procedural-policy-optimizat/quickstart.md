@@ -1,9 +1,9 @@
 # Quickstart: APPO: Agentic Procedural Policy Optimization
 
 ## Prerequisites
-- Python 3.11+
-- 7GB+ RAM (Recommended: 8GB+ for safety)
-- Git
+*   Python 3.11+
+*   7GB+ RAM (Free-tier CI compatible)
+*   Git
 
 ## Installation
 
@@ -11,49 +11,57 @@
     ```bash
     git clone <repo-url>
     cd projects/PROJ-707-appo-agentic-procedural-policy-optimizat/code
+    python -m venv venv
+    source venv/bin/activate
     pip install -r requirements.txt
     ```
 
-2.  **Download Model**:
-    Ensure a quantized Llama 3.1 8B (GGUF) is available or download via:
+2.  **Verify Dependencies**:
     ```bash
-    # Example using huggingface-cli (adjust for specific GGUF repo)
-    huggingface-cli download TheBloke/Llama-3.1-8B-GGUF llama-3.1-8b.Q4_K_M.gguf --local-dir ./models
+    python -c "import torch; import datasets; import scipy; print('OK')"
     ```
 
-3.  **Verify Datasets**:
-    The code will automatically download MATH, HotpotQA, and WebShop from HuggingFace on first run. Ensure internet access.
+## Running the Experiment
 
-## Running the Baseline (No-Score)
-
-Execute 5 seeds for the baseline configuration:
+### 1. Data Download
+Download verified datasets (MATH, Tool-Calling):
 ```bash
-python cli/train.py --config baseline --seeds 0 1 2 3 4 --benchmark MATH
+python scripts/download_data.py --benchmarks MATH,ToolCalling
+```
+*Note: WebShop/HotpotQA are skipped if not in the verified list.*
+
+### 2. Baseline Run (No-Score)
+Run 3 seeds of the baseline:
+```bash
+python training/loop.py --variant No-Score --seeds 1 2 3 --benchmark ToolCalling
 ```
 
-## Running the Default APPO
-
-Execute 5 seeds for the Score-Default configuration:
+### 3. Default Run (Score-Default)
+Run 3 seeds of the APPO variant:
 ```bash
-python cli/train.py --config default --seeds 0 1 2 3 4 --benchmark MATH
+python training/loop.py --variant Score-Default --seeds 1 2 3 --benchmark ToolCalling
 ```
 
-## Running Ablation (Optional)
-
-Run a subset of the ablation grid (recommended for CI):
+### 4. Ablation Run (Optional)
+Run 1 seed for each grid point (12 runs):
 ```bash
-python cli/train.py --config ablation --grid-limit 4 --seeds 0 --benchmark MATH
+python training/ablation_runner.py --grid --seeds 1
 ```
 
-## Analyzing Results
-
-Generate the statistical report (Kaplan-Meier):
+### 5. Statistical Analysis
+Generate the final report:
 ```bash
-python cli/analyze.py --input results/training_logs.csv --output results/summary_report.md
+python analysis/stats.py --compare No-Score Score-Default
+python analysis/report_gen.py
 ```
+
+## Output
+Results will be located in `results/`:
+*   `results/logs/`: Raw training logs.
+*   `results/stats/summary.csv`: Aggregated metrics.
+*   `results/report.md`: Final human-readable report with p-values, CIs, and effect sizes.
 
 ## Troubleshooting
-
-- **OOM Error**: If you see "Memory Limit Exceeded", ensure you are using a 4-bit quantized model (GGUF) and not the full FP16 model.
-- **Timeout**: If the job exceeds 6 hours, check `max_steps` in the config. Reduce `max_steps` to 50,000 for CI testing.
-- **Dataset Missing**: If HotpotQA/WebShop fail to load, the code will fallback to MATH only and log a warning.
+*   **OOM Error**: Reduce `batch_size` in `config/base.yaml` to 1.
+*   **Dataset Missing**: Check `data/raw/` for checksums. If missing, re-run `download_data.py`.
+*   **Timeout**: The ablation grid is large. Run `ablation_runner.py` with `--seeds 1` for a quick sanity check.

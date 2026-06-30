@@ -1,7 +1,7 @@
 # Tasks: APPO: Agentic Procedural Policy Optimization
 
-**Input**: Design documents from `/specs/001-appo-agentic-procedural-policy-optimizat/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories)
+**Input**: Design documents from `/specs/001-appo-branching-score/`
+**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 
@@ -20,13 +20,32 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
+<!-- 
+  ============================================================================
+  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+  
+  The /speckit-tasks command MUST replace these with actual tasks based on:
+  - User stories from spec.md (with their priorities P1, P2, P3...)
+  - Feature requirements from plan.md
+  - Entities from data-model.md
+  - Endpoints from contracts/
+  
+  Tasks MUST be organized by user story so each story can be:
+  - Implemented independently
+  - Tested independently
+  - Delivered as an MVP increment
+  
+  DO NOT keep these sample tasks in the generated tasks.md file.
+  ============================================================================
+-->
+
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per `plan.md` with exact paths: `code/app/__init__.py`, `code/app/agent.py`, `code/app/environments.py`, `code/app/metrics.py`, `code/app/stats.py`, `code/cli/train.py`, `code/config/baseline.yaml`, `code/config/default.yaml`, `code/config/ablation.yaml`, `code/tests/test_metrics.py`, `code/tests/test_pipeline.py`.
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (pins: `torch==2.1.0+cpu`, `transformers==4.37.0`, `datasets==2.16.0`, `scikit-learn==1.4.0`, `lifelines==0.28.0`, `pandas==2.1.0`, `numpy==1.26.0`, `accelerate==0.26.0`, `llama-cpp-python==0.2.50`, `pytest==7.4.0`, `ruff==0.1.0`, `black==23.12.0`).
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [ ] T001a [P] Create project directories: `code/`, `config/`, `data/raw/`, `data/processed/`, `results/logs/`, `results/stats/`
+- [ ] T001b [P] Initialize Python 3.11 project with `requirements.txt` (torch-cpu, transformers, datasets, trl, scipy, pandas, llama-cpp-python, pyyaml)
+- [ ] T002 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
 
@@ -36,84 +55,73 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T011 [P] Implement data loading logic in `code/app/environments.py` to fetch **MATH dataset only** (HotpotQA/WebShop excluded due to unverified URLs) from HuggingFace (`datasets.load_dataset("HuggingFaceH4/MATH")`), cache to `data/raw/` with **SHA-256 checksums**, and save to `data/raw/math_{version}.json`.
-- [ ] T011a [P] Log dataset version hashes and validation split info to `data/benchmark_logs/` with SHA-256 checksums as required by Constitution VII.
-- [ ] T007 [P] Create `code/app/environments.py`: Synthetic tool-use wrapper for **MATH dataset** (Search/Calculate actions) using loaded data.
-- [ ] T007a [P] Implement `code/app/agent.py` model loader: Load Llama 3.1 8B in CPU mode using **4-bit GGUF** via `llama-cpp-python`, sequence length 256, max memory < 7GB (FR-001).
-- [ ] T008 [P] Implement `code/app/metrics.py`: Token entropy calculator, Future Value (V(s)) estimator, Branching Score logic.
-- [ ] T009 [P] Implement `code/app/stats.py`: Kaplan-Meier estimator, Log-Rank test, Pearson correlation, Variance calculation.
-- [ ] T010 [P] Implement `code/cli/train.py`: Entry point with `--config`, `--seed` flags; argument parsing logic.
-- [ ] T010a [P] Implement 4-bit GGUF loading logic in `code/cli/train.py` (call T007a loader) with OOM error catching and graceful abort.
-- [ ] T010b [P] Implement hard step limit (**50k steps**) enforcement in `code/cli/train.py`, timeout detection, and partial checkpoint saving (FR-008).
+- [ ] T003 [P] Implement CPU-safe model loader in `code/models/loader.py` using `llama-cpp-python` (low-bit GGUF quantization) for TinyLlama. **Note**: Explicitly acknowledge deviation from Spec's Llama 8B requirement due to CI RAM constraints.
+- [ ] T004 [P] Implement dataset downloader in `code/data/download.py` fetching `Mustafaege/qwen3-toolcalling` and `math` via `datasets.load_dataset`. **Requirement**: Explicitly document exclusion of HotpotQA/WebShop due to URL constraints in code comments AND in `README.md` with rationale mapping to Spec requirements.
+- [ ] T005 [P] Implement base environment wrapper in `code/benchmarks/tool_calling.py` (CPU-compatible step/reset)
+- [ ] T006 [P] Create base schemas in `code/config/`: `base.yaml`, `ablation_grid.yaml`, `seeds.yaml`
+- [ ] T007 [P] Implement logging infrastructure in `code/training/utils.py` (JSON logger, CSV writer for `results/logs/`)
+- [ ] T008 [P] Implement "future-value estimate" (Frozen Value Network) proxy interface in `code/models/branching_score.py`. **Requirement**: Must define a functional, pre-trained small model (TinyLlama-0.5B) trained on a synthetic 'Tool-Success' signal, NOT a constant heuristic, to satisfy Spec FR-001.
+- [ ] T009 [P] Train the FVN proxy model defined in T008 using a synthetic dataset. **Depends on**: T004, T005. **Output**: Saved model weights in `code/models/fvn_weights/`.
+- [ ] T010 [P] Implement `BranchingScoreConfig` and `TrainingRun` dataclasses in `code/models/branching_score.py`
+- [ ] T011 [P] Implement base threshold calculation logic in `code/training/utils.py` (generic function to compute X% of a given score).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
 ---
 
-## Phase 3: User Story 1 - Baseline & Score-Default Execution (Priority: P1) 🎯 MVP
+## Phase 3: User Story 1 - Core Training Loop with Branching Score (Priority: P1) 🎯 MVP
 
-**Goal**: Execute training for "No-Score" and "Score-Default" configurations on CPU to establish sample efficiency baseline.
+**Goal**: Execute the core training loop for an agentic RL agent on the Tool-Calling benchmark, implementing the Branching Score mechanism (entropy × future-value) and recording steps-to-threshold.
 
-**Independent Test**: Run `python code/cli/train.py --config=baseline --seed=0` and `--config=default --seed=0`. Verify completion within 6h, CSV logs generated, and "steps to 80% threshold" recorded.
-
-### Tests for User Story 1
-
-- [ ] T012 [P] [US1] Write test stubs for Branching Score calculation in `code/tests/test_metrics.py` (verify product of entropy and V(s))
-- [ ] T013 [P] [US1] Write test stubs for pipeline completion in `code/tests/test_pipeline.py` (run multiple steps, verify CSV output)
+**Independent Test**: Run a single seed on a small subset of the Tool-Calling dataset; verify `results/logs/run_seed_0.json` contains non-zero, varying Branching Scores and a logged `steps_to_threshold`.
 
 ### Implementation for User Story 1
 
-- [ ] T014 [US1] Implement PPO agent logic in `code/app/agent.py` (No-Score baseline mode) with hyperparameters: clip=0.2, gamma=0.99, lambda=0.95.
-- [ ] T015 [US1] Implement Branching Score reward bonus injection in `code/app/agent.py` (Score-Default mode: ε=0.1, ε′=0.05, b=0.5).
-- [ ] T016 [US1] Implement "steps to reach **0.8** threshold" calculation with linear interpolation in `code/app/metrics.py`; output format: float (Depends on T008).
-- [ ] T017 [US1] Implement logging of step-wise metrics (success rate, tool calls, Branching Score) to `results/training_logs.csv` (Depends on T016).
-- [ ] T018 [US1] Implement timeout detection and partial checkpoint saving in `code/cli/train.py` (T010b dependency).
-- [ ] T019 [US1] Implement OOM error catching and graceful abort in `code/cli/train.py` (T010a dependency).
-- [ ] T014a [US1] Implement seed-loop logic for **2 independent seeds** and aggregation of results across seeds for statistical analysis (FR-004, SC-006).
+- [ ] T012 [US1] Implement `No-Score` (standard PPO) training loop in `code/training/loop.py`. **Requirement**: Ensure identical hyperparameters to Score-Default except the score mechanism. Verify this in code comments. **Plan Deviation**: This task implements a reduced number of seeds (Plan) compared to the specification (Spec) due to CI constraints; document this in code.
+- [ ] T013 [US1] Implement `Score-Default` training loop (with Branching Score heuristic) in `code/training/loop.py`. **Depends on**: T003, T004, T005, T007, T008, T009, T010. **Config**: ε=0.1, ε′=0.05, b=0.5. **Requirement**: Explicitly load FVN weights from `code/models/fvn_weights/` produced by T009. **Note**: Must be parallelizable with T012.
+- [ ] T014 [US1] Unit test for Branching Score calculation (entropy × value) in `code/tests/unit/test_branching_score.py`. **Depends on**: T009, T013.
+- [ ] T015 [US1] Integration test for single-step training loop in `code/tests/integration/test_training_loop.py`. **Depends on**: T012, T013.
+- [ ] T016 [US1] Implement "threshold-not-reached" flagging logic in `code/training/loop.py`. **Requirement**: If the maximum step limit is reached without crossing the threshold, log `threshold_reached: false`, `final_steps` at the maximum limit, `final_performance`, and `mean_tool_calls`. **Output Format**: JSON fields must match Spec Edge Cases.
+- [ ] T017 [US1] Create runner script `code/run_training.py` to execute multiple seeds for `No-Score` (3 seeds) and `Score-Default` (3 seeds). **Note**: Acknowledge Plan deviation from Spec seed count; implement logic to report effect sizes (Cohen's d) for reduced power.
+- [ ] T018 [US1] Verify logs: Ensure `steps_to_threshold` and `mean_tool_calls` are recorded per run in `results/logs/`. **Depends on**: T017.
+- [ ] T010b [US1] Implement 'pilot score aggregation' logic in `code/training/utils.py` to compute the threshold specifically from the Plan's No-Score seeds. **Depends on**: T012, T017. **Note**: This task must run AFTER pilot runs are complete to aggregate their results.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
 ---
 
-## Phase 4: User Story 2 - Hyperparameter Ablation & Sensitivity Analysis (Priority: P2)
+## Phase 4: User Story 2 - Hyperparameter Sensitivity Analysis (Priority: P2)
 
-**Goal**: Run ablation suite to vary ε, ε′, b and perform sensitivity analysis.
+**Goal**: Execute the `Score-Ablation` variant, systematically varying ε, ε′, and b across the defined grid to measure sensitivity.
 
-**Independent Test**: Run ablation loop over grid. Verify sensitivity report generated showing variance in "episodes to threshold".
-
-### Tests for User Story 2
-
-- [ ] T020 [P] [US2] Unit test for grid iteration logic in `code/tests/test_ablation.py`
+**Independent Test**: Run the ablation script with a specific grid point (e.g., ε=0.05, ε′=0.02, b=0.3) and verify the result is distinct in `results/logs/`.
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Implement ablation loop in `code/cli/train.py` (iterates over **limited subset (2 configs)** from `ablation.yaml` grid; generate `results/ablation_summary.csv`).
-- [ ] T022 [US2] Implement sensitivity analysis report generator in `code/app/stats.py` (variance calculation across grid).
-- [ ] T022a [US2] Calculate variance of steps-to-threshold across **executed subset** and compare against **15% threshold** defined in SC-002.
-- [ ] T023 [US2] Implement "Best Ablation" selection logic (lowest mean steps-to-threshold with ≥80% success) in `code/app/stats.py`.
-- [ ] T024 [US2] Implement Pearson correlation check (|r| < 0.9) and warning logging in `code/app/metrics.py`.
+- [ ] T019 [US2] Define `ablation_grid.yaml` with the SPECIFIC hyperparameter grid: ε ∈ {, 0.2}, ε′ ∈ {0.02, 0.1}, b ∈ {0.3, 0.5, 0.7}. **Depends on**: T006.
+- [ ] T020 [US2] Implement `AblationRunner` in `code/training/ablation_runner.py` to iterate `ablation_grid.yaml`. **Depends on**: T012, T013, T019. **Seed Count**: 1 seed per variant (12 runs total). **Note**: Explicitly document Plan deviation from Spec (3 seeds) and the resulting statistical limitations in code.
+- [ ] T021 [US2] Implement result aggregation logic to map (ε, ε′, b) tuples to `steps_to_threshold` in `code/analysis/stats.py`
+- [ ] T022 [US2] Create runner script `code/run_ablation.py` to execute the full grid
+- [ ] T023 [US2] Verify logs: Ensure all 12 ablation runs produce distinct `results/logs/` files with correct hyperparameters
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
 ---
 
-## Phase 5: User Story 3 - Statistical Significance & Reporting (Priority: P3)
+## Phase 5: User Story 3 - Statistical Validation and Reporting (Priority: P3)
 
-**Goal**: Generate final report with statistically significant results (p < 0.05) comparing best variant vs baseline.
+**Goal**: Perform Wilcoxon signed-rank tests across seeds to compare sample efficiency and tool-call efficiency, generating a final report.
 
-**Independent Test**: Run analysis script on aggregated CSVs. Verify output includes t-statistics, p-values, confidence intervals, and Kaplan-Meier plots.
-
-### Tests for User Story 3
-
-- [ ] T025 [P] [US3] Unit test for Kaplan-Meier and Log-Rank test in `code/tests/test_stats.py`
+**Independent Test**: Provide synthetic seed results; verify `results/stats/report.md` contains correct p-values and CIs.
 
 ### Implementation for User Story 3
 
-- [ ] T026 [US3] Implement data aggregation script to parse `results/training_logs.csv` across all seeds/configs.
-- [ ] T027 [US3] Implement Kaplan-Meier survival analysis and Log-Rank test in `code/app/stats.py`.
-- [ ] T028 [US3] Implement final report generation (`results/summary_report.md`) including **Table 1: Mean steps-to-threshold**, **Figure 1: KM Curve**, and p-values.
-- [ ] T028a [US3] Calculate **tool-call efficiency** (average tool calls per episode at threshold crossing) and compare against baseline (SC-003).
-- [ ] T029 [US3] Implement censored data handling (flag as ">50k steps" or "censored") in `code/app/metrics.py`.
+- [ ] T024 [US3] Implement `WilcoxonTest` wrapper in `code/analysis/stats.py`. **Logic**: Perform Wilcoxon for No-Score vs Score-Default (n=3). **Critical**: If n < 2 (e.g., for Ablation variants), skip Wilcoxon and use Bootstrap CI/effect size calculation only to prevent runtime errors. **Comparison Pairs**: Explicitly code No-Score vs Score-Default and No-Score vs each Ablation variant.
+- [ ] T025 [US3] Implement Confidence Interval calculation for median difference in `code/analysis/stats.py`
+- [ ] T026 [US3] Implement `ReportGenerator` in `code/analysis/report_gen.py` to aggregate logs and generate `results/report.md`. **Requirement**: Include p-values and confidence intervals for ALL comparisons (No-Score vs Default, No-Score vs each Ablation variant).
+- [ ] T027 [US3] Implement tool-call efficiency aggregation in `code/analysis/stats.py`. **Requirement**: Calculate mean tool calls per episode **at threshold crossing point**. For runs where `threshold_reached: false`, calculate mean tool calls at `final_steps`.
+- [ ] T028 [US3] Create runner script `code/run_analysis.py` to execute stats and generate report
+- [ ] T029 [US3] Verify report: Ensure `results/report.md` lists p-values, CIs, and tool-call metrics for all comparisons
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -123,12 +131,13 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T030a [P] Update `README.md` sections: Installation, Usage, Results.
-- [ ] T030b [P] Update `docs/quickstart.md` with step-by-step execution guide.
-- [ ] T031a Code cleanup: Extract metrics calculation to separate module in `code/app/metrics.py`.
-- [ ] T031b Code cleanup: Refactor imports in `code/app/agent.py` and `code/cli/train.py` for clarity.
-- [ ] T032 [P] Additional unit tests for edge cases (censored data, OOM) in `code/tests/`.
-- [ ] T033 Run quickstart.md validation
+- [ ] T030 [P] Update `README.md` with usage instructions and benchmark exclusion rationale
+- [ ] T031 [P] Update `docs/usage_guide.md` with detailed execution flow
+- [ ] T032 Code cleanup and refactoring (remove unused imports, optimize loops)
+- [ ] T033 [P] Performance optimization (batching, memory management for CPU)
+- [ ] T034 [P] Additional unit tests for edge cases (NaN handling, network failures) in `code/tests/unit/`
+- [ ] T035 Run `quickstart.md` validation to ensure end-to-end flow works
+- [ ] T036 Verify dataset download URLs are valid and accessible (no 404s)
 
 ---
 
@@ -138,8 +147,6 @@
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-  - **T011 (Data Loading)** is a hard blocker for **T007 (Environment)** and **T007a (Model Loader)**.
-  - **T007** and **T007a** can run in parallel after T011 completes.
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
   - User stories can then proceed in parallel (if staffed)
   - Or sequentially in priority order (P1 → P2 → P3)
@@ -148,24 +155,22 @@
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Relies on US1 training loop logic
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Relies on logs from US1 and US2
 
 ### Within Each User Story
 
 - Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
+- Models/Config before services/logic
 - Core implementation before integration
 - Story complete before moving to next priority
 
 ### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel **AFTER T011 completes** (T007, T007a).
+- All Foundational tasks marked [P] can run in parallel (within Phase 2)
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
 
 ---
@@ -173,14 +178,17 @@
 ## Parallel Example: User Story 1
 
 ```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Write test stubs for Branching Score calculation in code/tests/test_metrics.py"
-Task: "Write test stubs for pipeline completion in code/tests/test_pipeline.py"
-
 # Launch all models for User Story 1 together:
-Task: "Implement PPO agent logic in code/app/agent.py"
-Task: "Implement Branching Score reward bonus injection in code/app/agent.py"
-Task: "Implement seed-loop and result aggregation for 2 seeds in code/cli/train.py"
+Task: "Implement BranchingScoreConfig in code/models/branching_score.py"
+Task: "Implement TrainingRun dataclass in code/models/branching_score.py"
+
+# Launch all implementation for User Story 1 together (after T008/T009/T010):
+Task: "Implement No-Score training loop in code/training/loop.py"
+Task: "Implement Score-Default training loop in code/training/loop.py"
+
+# Launch tests AFTER implementation:
+Task: "Unit test for Branching Score calculation (Depends on T009, T013)"
+Task: "Integration test for single-step training loop (Depends on T012, T013)"
 ```
 
 ---
@@ -209,21 +217,24 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+   - Developer A: User Story 1 (Core Loop)
+   - Developer B: User Story 2 (Ablation Grid)
+   - Developer C: User Story 3 (Stats & Report)
 3. Stories complete and integrate independently
 
 ---
 
 ## Notes
 
-- [P] tasks = different files, no dependencies (after T011 completion for Phase 2)
+- [P] tasks = different files, no dependencies
 - [Story] label maps task to specific user story for traceability
 - Each user story should be independently completable and testable
 - Verify tests fail before implementing
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Feasibility Note**: All training tasks MUST use 4-bit GGUF model loading via `llama-cpp-python`, limit steps to **50k**, and use **2 seeds** to fit 6h/7GB constraints.
-- **Data Note**: Only **MATH** dataset is used; HotpotQA/WebShop excluded due to unverified URLs.
+- **CPU Constraint**: All tasks must run on multi-core CPU runners.; no GPU or heavy quantization kernels allowed.
+- **Data Constraint**: Use `Mustafaege/qwen3.5-toolcalling-v2` and `math` datasets; ensure URLs are verified.
+- **Model Constraint**: Use TinyLlama as the executable proxy; do not attempt Llama 8B.
+- **Statistical Mitigation**: Due to seed count reductions (Spec 5→Plan 3, Spec 3→Plan 1), tasks T017 and T020 include explicit fallback logic (effect sizes, bootstrap CIs) to ensure analysis remains valid.
+- **FVN Requirement**: The "future-value estimate" must be a functional, pre-trained model (T009), not a constant stub.

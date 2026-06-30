@@ -1,60 +1,67 @@
 # Data Model: APPO: Agentic Procedural Policy Optimization
 
-## 1. Entities & Relationships
+## 1. Overview
+This document defines the data structures, schemas, and relationships for the APPO project. All data artifacts adhere to the **Data Hygiene** principle (checksummed, immutable raw data, derived processed data).
 
-### TrainingRun
-Represents a single execution of the RL agent.
-- **Attributes**:
-  - `run_id`: UUID (unique identifier).
-  - `config_id`: String (e.g., "baseline", "default", "ablation_001").
-  - `seed`: Integer.
-  - `model_name`: String (e.g., "llama-3.1-8b-q4_k_m").
-  - `model_hash`: String (SHA256 of the GGUF file for reproducibility).
-  - `benchmark`: String ("MATH").
- - `max_steps`: Integer (hard limit, [deferred]).
-  - `steps_executed`: Integer (actual steps).
-  - `final_success_rate`: Float (0.0 - 1.0).
-  - `steps_to_threshold`: Float or String ("Censored" if not reached).
-  - `timestamp`: ISO8601.
+## 2. Core Entities
 
-### BranchingScore (Transient)
-Computed at each token step. **Note**: This entity is **transient** and not persisted to disk as a separate file. Its values are aggregated into the `TrainingRun` metrics (e.g., mean Branching Score) or logged in the step-wise CSV if debugging is enabled.
-- **Attributes**:
-  - `step_index`: Integer.
-  - `token_entropy`: Float.
-  - `future_value_estimate`: Float.
-  - `branching_score_value`: Float.
-  - `reward`: Float.
+### 2.1 TrainingRun
+Represents a single execution of the training loop.
+*   **Attributes**:
+    *   `run_id`: Unique identifier (UUID).
+    *   `variant`: `No-Score`, `Score-Default`, or `Score-Ablation-{config_id}`.
+    *   `seed`: Integer (random seed).
+    *   `benchmark`: `MATH`, `ToolCalling`.
+    *   `config`: JSON object containing hyperparameters (epsilon, epsilon_prime, beta_weight).
+    *   `steps_to_threshold`: Integer (or `null` if not reached).
+    *   `threshold_value`: Float (80% of pilot max).
+    *   `final_success_rate`: Float.
+    *   `mean_tool_calls`: Float.
+    *   `status`: `completed`, `threshold-not-reached`, `oom`, `error`.
+    *   `start_time`, `end_time`: ISO 8601 timestamps.
 
-### BenchmarkLog
-Per-episode log for a run.
-- **Attributes**:
-  - `episode_id`: Integer.
-  - `success`: Boolean.
-  - `tool_calls_count`: Integer.
-  - `steps_in_episode`: Integer.
-  - `final_score`: Float.
+### 2.2 BranchingScoreConfig
+Hyperparameters for the Branching Score.
+*   **Attributes**:
+    *   `epsilon`: Float (clipping threshold).
+    *   `epsilon_prime`: Float (secondary clipping threshold).
+    *   `beta_weight`: Float (weighting factor).
 
-## 2. File Formats
+### 2.3 StepLog
+Granular log of each training step.
+*   **Attributes**:
+    *   `run_id`: FK to `TrainingRun`.
+    *   `step`: Integer.
+    *   `entropy`: Float.
+    *   `future_value`: Float.
+    *   `branching_score`: Float.
+    *   `reward`: Float.
+    *   `success`: Boolean.
 
-### CSV: `results/training_logs.csv`
-Aggregated logs from all seeds.
-- Columns: `run_id`, `config_id`, `seed`, `benchmark`, `steps_to_threshold`, `final_success_rate`, `mean_tool_calls`, `collinearity_r`, `model_hash`.
+### 2.4 StatisticalResult
+Outcome of hypothesis testing.
+*   **Attributes**:
+    *   `comparison_id`: Unique ID.
+    *   `config_a`: Variant name.
+    *   `config_b`: Variant name.
+    *   `metric`: `steps_to_threshold`, `mean_tool_calls`.
+    *   `test_type`: `wilcoxon`.
+    *   `p_value`: Float.
+    *   `confidence_interval`: [Float, Float].
+    *   `effect_size`: Float (rank-biserial correlation).
+    *   `significant`: Boolean (based on corrected alpha).
 
-### CSV: `results/ablation_summary.csv`
-Summary of ablation grid.
-- Columns: `config_id`, `epsilon`, `epsilon_prime`, `b`, `mean_steps_to_threshold`, `std_steps_to_threshold`, `variance_check` (boolean: <15%).
+## 3. File Formats
 
-### JSON: `data/checkpoints/run_<run_id>_metrics.json`
-Intermediate metrics (optional, for debugging).
+*   **Raw Data**: Parquet/JSONL (downloaded from HuggingFace).
+*   **Processed Data**: CSV (aggregated logs), JSON (config snapshots).
+*   **Logs**: JSON Lines (`.jsonl`) for streaming, CSV for final aggregation.
+*   **Results**: JSON (for programmatic access), Markdown (for human reading).
 
-### Log: `results/warnings.log`
-Specific warnings, including collinearity flags (|r| ≥ 0.9).
+## 4. Data Flow
 
-## 3. Data Flow
-
-1.  **Download**: Datasets fetched from HF and cached in `data/raw/`.
-2.  **Preprocess**: `environments.py` wraps datasets into RL environments (Synthetic).
-3.  **Train**: `cli/train.py` executes loop, logging to `results/training_logs.csv`.
-4.  **Aggregate**: `app/stats.py` reads CSVs, computes KM curves, checks variance, generates `results/summary.csv`.
-5.  **Report**: Final report generated from `results/summary.csv`.
+1.  **Ingestion**: `datasets.load_dataset` -> `data/raw/` (checksummed).
+2.  **Preprocessing**: `code/data/prepare.py` -> `data/processed/` (filtered, tokenized).
+3.  **Training**: `code/training/loop.py` reads `processed/`, writes `results/logs/{run_id}.jsonl`.
+4.  **Aggregation**: `code/analysis/aggregate.py` reads `logs/`, writes `results/stats/summary.csv`.
+5.  **Reporting**: `code/analysis/report_gen.py` reads `summary.csv`, writes `results/report.md`.

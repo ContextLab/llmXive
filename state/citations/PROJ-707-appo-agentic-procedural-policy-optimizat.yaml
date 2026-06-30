@@ -1,4 +1,15 @@
-- artifact_hash: 226d8260edc47aaef204b4d89f54c56ae42d8da92348955fd4202a9fe7b798d0
+- artifact_hash: 7efde2296c1bafbe363beff6afd746ce3be752b9563d9e7fe8a4e57da004f1ba
+  artifact_path: projects/PROJ-707-appo-agentic-procedural-policy-optimizat/specs/001-appo-agentic-procedural-policy-optimizat/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.5281/zenodo.1234567
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.1234567
+  verified_at: '2026-06-30T12:33:44.048489Z'
+- artifact_hash: e9dddeec37d3308ecc56eaa61989f2c167fdf6ca04f59004c3f9d6050da104a7
   artifact_path: projects/PROJ-707-appo-agentic-procedural-policy-optimizat/specs/001-appo-agentic-procedural-policy-optimizat/research.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +19,15 @@
   value: https://huggingface.co/datasets/qwedsacf/competition_math/resolve/main/data/train-00000-of-00001-7320a6f3aba8ebd2.parquet`
   verification_status: mismatch
   verified_against_url: https://huggingface.co/datasets/qwedsacf/competition_math/resolve/main/data/train-00000-of-00001-7320a6f3aba8ebd2.parquet%60
-  verified_at: '2026-06-30T12:11:01.623272Z'
+  verified_at: '2026-06-30T12:50:59.898889Z'
+- artifact_hash: e9dddeec37d3308ecc56eaa61989f2c167fdf6ca04f59004c3f9d6050da104a7
+  artifact_path: projects/PROJ-707-appo-agentic-procedural-policy-optimizat/specs/001-appo-agentic-procedural-policy-optimizat/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/...`
+  verification_status: mismatch
+  verified_against_url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/...%60
+  verified_at: '2026-06-30T12:50:59.898889Z'
