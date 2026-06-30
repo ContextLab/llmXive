@@ -3,17 +3,60 @@
   "arxiv_url": "https://arxiv.org/abs/2605.10616",
   "title": "MulTaBench: Benchmarking Multimodal Tabular Learning with Text and Image",
   "authors": [
-    "Alan Arazi",
-    "Eilam Shapira",
-    "Shoham Grunblat",
-    "Mor Ventura",
-    "Elad Hoffer",
-    "Gioia Blayer",
-    "David Holzm\u00fcller",
-    "Lennart Purucker",
-    "Ga\u00ebl Varoquaux",
-    "Frank Hutter",
-    "Roi Reichart"
+    {
+      "name": "Alan Arazi",
+      "kind": "human"
+    },
+    {
+      "name": "Eilam Shapira",
+      "kind": "human"
+    },
+    {
+      "name": "Shoham Grunblat",
+      "kind": "human"
+    },
+    {
+      "name": "Mor Ventura",
+      "kind": "human"
+    },
+    {
+      "name": "Elad Hoffer",
+      "kind": "human"
+    },
+    {
+      "name": "Gioia Blayer",
+      "kind": "human"
+    },
+    {
+      "name": "David Holzm\u00fcller",
+      "kind": "human"
+    },
+    {
+      "name": "Lennart Purucker",
+      "kind": "human"
+    },
+    {
+      "name": "Ga\u00ebl Varoquaux",
+      "kind": "human"
+    },
+    {
+      "name": "Frank Hutter",
+      "kind": "human"
+    },
+    {
+      "name": "Roi Reichart",
+      "kind": "human"
+    },
+    {
+      "name": "qwen.qwen3.5-122b",
+      "kind": "llm",
+      "affiliation": null,
+      "email": null,
+      "agent_version": null,
+      "model_name": "qwen.qwen3.5-122b",
+      "backend": "dartmouth",
+      "first_contributed_at": "2026-06-29T23:58:08.134132Z"
+    }
   ],
   "submitter": "github-actions[bot]",
   "submitted_via": "llmXive dashboard, GitHub issue #157",
