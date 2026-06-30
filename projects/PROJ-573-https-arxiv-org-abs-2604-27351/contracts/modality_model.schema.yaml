@@ -1,0 +1,58 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: ModalityModel Schema
+description: >
+  Contract defining the structure for modality-specific model configurations
+  within the Heterogeneous Scientific Foundation Model Collaboration Benchmark.
+  Used to validate model definitions in config files (e.g., timeseries.yaml, tabular.yaml).
+type: object
+required:
+  - model_id
+  - model_type
+  - max_memory_gb
+properties:
+  model_id:
+    type: string
+    description: >
+      Unique identifier for the model instance.
+      Example: 'timeseries-transformer-v1', 'tabpfn-base', 'distilled-llm-7b'
+    pattern: '^[a-zA-Z0-9_-]+$'
+    minLength: 1
+  model_type:
+    type: string
+    description: >
+      The architectural type of the model.
+      Valid values: 'TimeSeries-Transformer', 'TabPFN', 'Distilled-LLM', 'CNN', 'RNN'
+    enum:
+      - TimeSeries-Transformer
+      - TabPFN
+      - Distilled-LLM
+      - CNN
+      - RNN
+      - Random-Forest
+      - XGBoost
+  max_memory_gb:
+    type: number
+    description: >
+      Maximum memory footprint of the model weights in Gigabytes.
+      Must be <= 1.0 for CPU tractability per FR-002 and SC-002.
+      Used to verify hardware compatibility before inference.
+    minimum: 0.01
+    maximum: 1.0
+  inference_script:
+    type: string
+    description: >
+      Relative path to the Python script or entry point used for inference.
+      Example: 'src/models/timeseries_model.py'
+    pattern: '^src/.*\.py$'
+    default: ''
+  hf_id:
+    type: string
+    description: >
+      Optional HuggingFace model identifier for automatic downloading.
+      Example: 'google/t5-small', 'TabPFN/TabPFN-small'
+    default: ''
+  description:
+    type: string
+    description: Human-readable description of the model's purpose or capabilities.
+    default: ''
+additionalProperties: false

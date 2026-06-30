@@ -48,10 +48,10 @@
 - [X] T001 [P] Verify time-series dataset availability (UCI_HAR) via `datasets.load_dataset('UCI_HAR')`; create `src/research/verify_timeseries.py` script; document in research.md section "Dataset Verification" with fields: dataset_name, url, variables (list), size_mb, verification_status (FR-001, Phase 0.1)
 - [X] T002 [P] Verify tabular dataset availability (selected UCI sets) via HuggingFace datasets; create `src/research/verify_tabular.py` script; document in research.md section "Dataset Verification" with fields: dataset_name, url, variables (list), size_mb, verification_status (FR-001, Phase 0.1)
 - [X] T003 [P] Verify text dataset availability (DROP/MUST) via HuggingFace datasets; create `src/research/verify_text.py` script; document in research.md section "Dataset Verification" with fields: dataset_name, url, variables (list), size_mb, verification_status (FR-001, Phase 0.1)
-- [ ] T004 Validate statistical methodology (paired t-test, Wilcoxon signed-rank, bootstrap 1000 resamples); document in research.md section "Methodology" with formula, α-level (0.05), and effect size calculation (FR-007, FR-014, Phase 0.3)
-- [ ] T005 Document dataset-variable fit and flag any missing variables in research.md section "Gap Analysis" with fields: dataset_name, missing_variables (list), impact_assessment (FR-001, Phase 0.4)
-- [ ] T006 Validate model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM via HuggingFace model cards; create `src/research/verify_models.py` script; document in research.md section "Model Verification" with fields: model_name, hf_id, size_mb, cpu_tractable (boolean) (FR-002, SC-002, Phase 0.5)
-- [ ] T006a Implement Reference-Validator Agent in `src/validators/reference_validator.py` with title-token-overlap ≥ 0.7 check before contributing review points; add blocking gate for Constitution II compliance (Constitution II, Plan Gap)
+- [X] T004 Validate statistical methodology (paired t-test, Wilcoxon signed-rank, bootstrap 1000 resamples); document in research.md section "Methodology" with formula, α-level (0.05), and effect size calculation (FR-007, FR-014, Phase 0.3)
+- [X] T005 Document dataset-variable fit and flag any missing variables in research.md section "Gap Analysis" with fields: dataset_name, missing_variables (list), impact_assessment (FR-001, Phase 0.4)
+- [X] T006 Validate model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM via HuggingFace model cards; create `src/research/verify_models.py` script; document in research.md section "Model Verification" with fields: model_name, hf_id, size_mb, cpu_tractable (boolean) (FR-002, SC-002, Phase 0.5)
+- [X] T006a Implement Reference-Validator Agent in `src/validators/reference_validator.py` with title-token-overlap ≥ 0.7 check before contributing review points; add blocking gate for Constitution II compliance (Constitution II, Plan Gap)
 
 **Checkpoint**: Research gate complete - plan.md Constitution Check must show ✅ COMPLIANT before Phase 1 begins
 
@@ -61,9 +61,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T007 Create project structure with exact directories: src/, tests/, data/, data/processed/, state/, contracts/, src/benchmark/, src/models/, src/tasks/, src/evaluation/, src/utils/, src/benchmark/config/, src/benchmark/config/modalities/, src/research/, src/validators/ (per plan.md project structure)
-- [ ] T008 Initialize Python 3.11 project with pinned dependencies in requirements.txt (scikit-learn>=1.3.0, pandas>=2.0.0, numpy>=1.24.0, pyyaml>=6.0, datasets>=2.14.0, scipy>=1.11.0, matplotlib>=3.7.0, reportlab>=4.0.0, requests>=2.31.0)
-- [ ] T009 [P] Configure linting and formatting tools: ruff.toml (line-length=88, target-version=py311) and pyproject.toml (black config) in repository root
+- [X] T007 Create project structure with exact directories: src/, tests/, data/, data/processed/, state/, contracts/, src/benchmark/, src/models/, src/tasks/, src/evaluation/, src/utils/, src/benchmark/config/, src/benchmark/config/modalities/, src/research/, src/validators/ (per plan.md project structure)
+- [X] T008 Initialize Python 3.11 project with pinned dependencies in requirements.txt (scikit-learn>=1.3.0, pandas>=2.0.0, numpy>=1.24.0, pyyaml>=6.0, datasets>=2.14.0, scipy>=1.11.0, matplotlib>=3.7.0, reportlab>=4.0.0, requests>=2.31.0)
+- [X] T009 [P] Configure linting and formatting tools: ruff.toml (line-length=88, target-version=py311) and pyproject.toml (black config) in repository root
 
 ---
 
@@ -75,15 +75,15 @@
 
 Examples of foundational tasks (adjust based on your project):
 
-- [ ] T010 [P] Create dataset schema contract in contracts/dataset.schema.yaml with required fields (name, url, variables, size_mb, checksum)
-- [ ] T011 [P] Create task schema contract in contracts/task.schema.yaml with required fields (task_id, modalities, label, datasets)
-- [ ] T012 [P] Create results schema contract in contracts/results.schema.yaml with required fields (task_id, condition, accuracy, timestamp)
-- [ ] T013 [P] Create modality_model schema contract in contracts/modality_model.schema.yaml with required fields (model_id, model_type, max_memory_gb)
-- [ ] T014 Create data-model.md with entity relationships (Dataset, ModalityModel, Task); include sections: (1) Entity definitions with attributes, (2) Relationship diagram (Mermaid or PlantUML), (3) Cardinality specifications (Plan Consistency)
-- [ ] T015 Create quickstart.md with setup instructions; include sections: (1) Prerequisites list (Python 3.11, pip, git), (2) Setup commands (clone, venv, install), (3) Verification steps (run --help, check data/), (4) Troubleshooting common issues (US-1)
-- [ ] T016 [P] Setup base logging module in src/utils/logging.py with functions: setup_logger(), get_logger(), log_environment() (foundation for seed/version/environment logging)
-- [ ] T017 Create checksum tracking infrastructure in state/projects/PROJ-573-https-arxiv-org-abs-2604-27351.yaml artifact_hashes map with sha256 format (Constitution III)
-- [ ] T018 Update state/projects/PROJ-573-https-arxiv-org-abs-2604-27351.yaml updated_at timestamp on any artifact change; create helper function in src/utils/versioning.py with function update_artifact_timestamp(artifact_path) (Constitution V)
+- [X] T010 [P] Create dataset schema contract in contracts/dataset.schema.yaml with required fields (name, url, variables, size_mb, checksum)
+- [X] T011 [P] Create task schema contract in contracts/task.schema.yaml with required fields (task_id, modalities, label, datasets)
+- [X] T012 [P] Create results schema contract in contracts/results.schema.yaml with required fields (task_id, condition, accuracy, timestamp)
+- [X] T013 [P] Create modality_model schema contract in contracts/modality_model.schema.yaml with required fields (model_id, model_type, max_memory_gb)
+- [X] T014 Create data-model.md with entity relationships (Dataset, ModalityModel, Task); include sections: (1) Entity definitions with attributes, (2) Relationship diagram (Mermaid or PlantUML), (3) Cardinality specifications (Plan Consistency)
+- [X] T015 Create quickstart.md with setup instructions; include sections: (1) Prerequisites list (Python 3.11, pip, git), (2) Setup commands (clone, venv, install), (3) Verification steps (run --help, check data/), (4) Troubleshooting common issues (US-1)
+- [X] T016 [P] Setup base logging module in src/utils/logging.py with functions: setup_logger(), get_logger(), log_environment() (foundation for seed/version/environment logging)
+- [X] T017 Create checksum tracking infrastructure in state/projects/PROJ-573-https-arxiv-org-abs-2604-27351.yaml artifact_hashes map with sha256 format (Constitution III)
+- [X] T018 Update state/projects/PROJ-573-https-arxiv-org-abs-2604-27351.yaml updated_at timestamp on any artifact change; create helper function in src/utils/versioning.py with function update_artifact_timestamp(artifact_path) (Constitution V)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -99,18 +99,18 @@ Examples of foundational tasks (adjust based on your project):
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T019 [P] [US1] Contract test for dataset schema validation in tests/contract/test_dataset_schema.py
-- [ ] T020 [P] [US1] Contract test for results schema validation in tests/contract/test_results_schema.py
-- [ ] T021 [P] [US1] Integration test for full benchmark execution in tests/integration/test_benchmark_run.py
+- [X] T019 [P] [US1] Contract test for dataset schema validation in tests/contract/test_dataset_schema.py
+- [X] T020 [P] [US1] Contract test for results schema validation in tests/contract/test_results_schema.py
+- [X] T021 [P] [US1] Integration test for full benchmark execution in tests/integration/test_benchmark_run.py
 
 ### Implementation for User Story 1
 
-- [ ] T022 [US1] Implement dataset download with 3-retry logic in src/data/download.py (FR-010); function signatures: download_dataset(url, max_retries=3, timeout=300) -> (path, checksum); verify URLs: UCI_HAR via `datasets.load_dataset('UCI_HAR')`, DROP/MUST via HuggingFace datasets; depends on T007/T008 complete
-- [ ] T023 [US1] Create task_runner.py in src/tasks/task_runner.py (FR-001, FR-006); class TaskRunner with methods: run_task(task_id), get_task(task_id), validate_task(task_id); depends on T017 complete
-- [ ] T024 [US1] Implement timeout enforcement in src/utils/timeout.py (FR-006, FR-013); function signatures: enforce_timeout(func, timeout_seconds=300) -> result; raise TimeoutError if exceeded; depends on T016 complete
-- [ ] T025 [US1] Implement seed/version AND environment details logging in src/utils/logging.py (FR-005); depends on T016 completion; functions: log_random_seed(seed), log_model_versions(models), log_environment_details(); log random seeds, model versions, AND environment details (Python version, OS, CPU info)
-- [ ] T026 [US1] Implement metrics computation (F1, MAPE) in src/evaluation/metrics.py (FR-004); function signatures: compute_f1(y_true, y_pred) -> float, compute_mape(y_true, y_pred) -> float; handle edge cases (division by zero, empty arrays)
-- [ ] T027 [US1] Implement statistical tests in src/evaluation/statistical_tests.py (FR-007, FR-014, FR-011); MUST include: paired t-test (scipy.stats.ttest_rel), Wilcoxon signed-rank with effect sizes (r = Z/sqrt(N)) and 95% CI as PRIMARY outcome (document formula), bootstrap 1000 resamples (explicit count), configurable α threshold (default 0.05) with logging; function signatures: paired_ttest(condition_a, condition_b, alpha=0.05), wilcoxon_effect_size(condition_a, condition_b), bootstrap_ci(values, n_resamples=1000, confidence=0.95)
+- [X] T022 [US1] Implement dataset download with 3-retry logic in src/data/download.py (FR-010); function signatures: download_dataset(url, max_retries=3, timeout=300) -> (path, checksum); verify URLs: UCI_HAR via `datasets.load_dataset('UCI_HAR')`, DROP/MUST via HuggingFace datasets; depends on T007/T008 complete
+- [X] T023 [US1] Create task_runner.py in src/tasks/task_runner.py (FR-001, FR-006); class TaskRunner with methods: run_task(task_id), get_task(task_id), validate_task(task_id); depends on T017 complete
+- [X] T024 [US1] Implement timeout enforcement in src/utils/timeout.py (FR-006, FR-013); function signatures: enforce_timeout(func, timeout_seconds=300) -> result; raise TimeoutError if exceeded; depends on T016 complete
+- [X] T025 [US1] Implement seed/version AND environment details logging in src/utils/logging.py (FR-005); depends on T016 completion; functions: log_random_seed(seed), log_model_versions(models), log_environment_details(); log random seeds, model versions, AND environment details (Python version, OS, CPU info)
+- [X] T026 [US1] Implement metrics computation (F1, MAPE) in src/evaluation/metrics.py (FR-004); function signatures: compute_f1(y_true, y_pred) -> float, compute_mape(y_true, y_pred) -> float; handle edge cases (division by zero, empty arrays)
+- [X] T027 [US1] Implement statistical tests in src/evaluation/statistical_tests.py (FR-007, FR-014, FR-011); MUST include: paired t-test (scipy.stats.ttest_rel), Wilcoxon signed-rank with effect sizes (r = Z/sqrt(N)) and 95% CI as PRIMARY outcome (document formula), bootstrap 1000 resamples (explicit count), configurable α threshold (default 0.05 (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value)) with logging; function signatures: paired_ttest(condition_a, condition_b, alpha=0.05), wilcoxon_effect_size(condition_a, condition_b), bootstrap_ci(values, n_resamples=1000, confidence=0.95)
 - [ ] T028 [US1] Implement report generator in src/evaluation/report_generator.py (FR-007); MUST verify report includes (a) t-statistic, (b) p-value, (c) bootstrap CI (1000 resamples), (d) Wilcoxon effect size as PRIMARY outcome with 95% CI; function signatures: generate_csv_report(results, output_path), generate_pdf_report(results, output_path)
 - [ ] T029 [US1] Create run_benchmark.py main entry point in src/benchmark/run_benchmark.py (FR-001, FR-006, FR-010); CLI arguments: --config (default default.yaml), --mode (heterogeneous|unified), --seeds (5); depends on T024, T025 logging complete
 - [ ] T030 [US1] Create default.yaml config in src/benchmark/config/default.yaml with required keys: datasets (list), modalities (list), seeds (5), timeout_per_task (300), bootstrap_resamples (1000)
@@ -285,13 +285,13 @@ With multiple developers:
 
 ## Compute Feasibility Notes
 
-- All models must be CPU-tractable (< 1 GB weights) - validated in T006
-- No GPU/CUDA dependencies
-- Total dataset size ≤ 5 GB
-- Per-task inference ≤ 5 minutes on 2 CPU cores
-- Full benchmark ≤ 4 hours wall-clock time
-- Use UCI_HAR for time-series, DROP/MUST for text (per plan.md substitution strategy)
-- No 8-bit/4-bit quantization (bitsandbytes requires CUDA)
+- All models must be CPU-tractable (< 1 GB weights) [UNRESOLVED-CLAIM: c_9a0e1087 — status=not_enough_info] - validated in T006
+- No GPU/CUDA dependencies [UNRESOLVED-CLAIM: c_be3a8429 — status=not_enough_info]
+- Total dataset size ≤ 5 GB [UNRESOLVED-CLAIM: c_728310c2 — status=not_enough_info]
+- Per-task inference ≤ 5 minutes on 2 CPU cores [UNRESOLVED-CLAIM: c_f76f2172 — status=not_enough_info]
+- Full benchmark ≤ 4 hours wall-clock time [UNRESOLVED-CLAIM: c_415adee5 — status=not_enough_info]
+- Use UCI_HAR for time-series [UNRESOLVED-CLAIM: c_2d693a8d — status=not_enough_info], DROP/MUST for text (per plan.md substitution strategy)
+- No 8-bit/4-bit quantization [UNRESOLVED-CLAIM: c_6b296be1 — status=not_enough_info] (bitsandbytes requires CUDA)
 - Dataset downloads MUST use verified URLs or HuggingFace datasets.load_dataset()
 
 ## SC-001 Empirical Determination Note

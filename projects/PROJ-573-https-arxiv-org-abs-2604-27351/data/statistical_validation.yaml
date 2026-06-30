@@ -1,0 +1,55 @@
+section: Methodology
+version: '1.0'
+timestamp: '2024-01-01T00:00:00Z'
+statistical_tests:
+  paired_t_test:
+    name: Paired t-test
+    purpose: Compare means of two related samples
+    formula: 't = (mean(d) - 0) / (std(d) / sqrt(n))'
+    alpha_level: 0.05
+    assumptions:
+    - Differences are approximately normally distributed
+    - Data pairs are independent
+    - Scale of measurement is interval or ratio
+    output_fields:
+    - t_statistic
+    - p_value
+    - degrees_of_freedom
+  wilcoxon_signed_rank:
+    name: Wilcoxon Signed-Rank Test
+    purpose: Non-parametric test for paired data
+    formula: 'r = |Z| / sqrt(N)'
+    alpha_level: 0.05
+    effect_size_calculation: 'r = |Z| / sqrt(N)'
+    effect_size_interpretation:
+      negligible: < 0.1
+      small: 0.1 - 0.3
+      medium: 0.3 - 0.5
+      large: > 0.5
+    primary_outcome: true
+    output_fields:
+    - z_statistic
+    - p_value
+    - effect_size_r
+    - interpretation
+  bootstrap_ci:
+    name: Bootstrap Confidence Interval
+    purpose: Estimate uncertainty of mean difference
+    n_resamples: 1000
+    confidence_level: 0.95
+    formula: 'Percentile method: [{alpha/2}%, {1-alpha/2}%]'
+    method: Percentile method
+    output_fields:
+    - mean
+    - ci_lower
+    - ci_upper
+    - n_resamples
+validation_results:
+  test_data_size: 50
+  ttest_significant: true
+  wilcoxon_significant: true
+  wilcoxon_effect_size: 0.57
+  bootstrap_ci:
+  - 0.0176
+  - 0.0454
+  methodology_validated: true

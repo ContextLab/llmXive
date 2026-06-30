@@ -1,0 +1,85 @@
+# Results Schema Contract
+# Defines the structure for benchmark results data
+# Reference: FR-007, FR-014, Phase 3
+# Version: 1.0.0
+
+version: "1.0.0"
+description: "Schema for benchmark execution results including task performance metrics"
+
+required_fields:
+  - task_id
+  - condition
+  - accuracy
+  - timestamp
+
+fields:
+  task_id:
+    type: string
+    description: "Unique identifier for the task (e.g., T022)"
+    pattern: "^T[0-9]{3}$"
+    example: "T022"
+
+  condition:
+    type: string
+    description: "Execution condition mode (heterogeneous or unified)"
+    enum:
+      - heterogeneous
+      - unified
+    example: "heterogeneous"
+
+  accuracy:
+    type: number
+    description: "Accuracy score between 0 and 1"
+    minimum: 0.0
+    maximum: 1.0
+    example: 0.85
+
+  timestamp:
+    type: string
+    description: "ISO 8601 formatted timestamp of execution"
+    format: date-time
+    example: "2024-01-15T10:30:00Z"
+
+  # Optional fields for extended reporting
+  f1_score:
+    type: number
+    description: "F1 score (optional)"
+    minimum: 0.0
+    maximum: 1.0
+    required: false
+
+  mape:
+    type: number
+    description: "Mean Absolute Percentage Error (optional)"
+    required: false
+
+  p_value:
+    type: number
+    description: "Statistical test p-value (optional)"
+    required: false
+
+  effect_size:
+    type: number
+    description: "Effect size from statistical test (optional)"
+    required: false
+
+  ci_lower:
+    type: number
+    description: "Lower bound of confidence interval (optional)"
+    required: false
+
+  ci_upper:
+    type: number
+    description: "Upper bound of confidence interval (optional)"
+    required: false
+
+constraints:
+  - "accuracy must be between 0.0 and 1.0"
+  - "timestamp must be valid ISO 8601 format"
+  - "task_id must match pattern T[0-9]{3}"
+
+metadata:
+  source: "Heterogeneous Scientific Foundation Model Collaboration Benchmark"
+  created: "2024-01-01T00:00:00Z"
+  updated: "2024-01-15T10:00:00Z"
+  author: "llmXive Pipeline"

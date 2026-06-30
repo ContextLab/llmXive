@@ -1,134 +1,129 @@
 # Data Model: Heterogeneous Scientific Foundation Model Collaboration Benchmark
 
-## Entities
+This document defines the core entities, attributes, relationships, and cardinalities for the benchmarking system. It serves as the canonical reference for data persistence, API contracts, and state management.
 
-### Dataset
+## 1. Entity Definitions
 
-Represents a public scientific dataset with associated metadata.
+### 1.1 Dataset
+Represents an external data source used for benchmarking tasks.
 
-| Field | Type | Description | Constraint |
-|-------|------|-------------|------------|
-| dataset_id | string | Unique identifier | Primary key |
-| name | string | Human-readable name | Required |
-| modality | enum | time-series, tabular, text | Required |
-| source_url | string | Verified download URL | Required (if available) |
-| size_mb | float | Dataset size in MB | Required |
-| checksum | string | SHA-256 hash | Required (Constitution III) |
-| variables | array | List of feature names | Required |
-| label_column | string | Ground-truth label field | Required |
-| verified | boolean | Source verified by Reference-Validator | Required |
+**Attributes:**
+- `dataset_id` (string, PK): Unique identifier (e.g., "UCI_HAR", "DROP").
+- `name` (string): Human-readable name.
+- `url` (string): Source URL or HuggingFace dataset ID.
+- `variables` (list[string]): List of column/feature names available.
+- `size_mb` (float): Size in megabytes.
+- `checksum` (string): SHA-256 hash of the downloaded artifact for integrity.
+- `modality` (enum): "time-series", "tabular", "text".
+- `verification_status` (string): Status from Phase 0 verification (e.g., "verified", "failed").
 
-### Task
+### 1.2 ModalityModel
+Represents a machine learning model specialized for a specific data modality.
 
-Represents a multi-modal prediction problem linking datasets.
+**Attributes:**
+- `model_id` (string, PK): Unique identifier.
+- `model_type` (string): e.g., "TimeSeries-Transformer", "TabPFN", "DistilledLLM".
+- `hf_id` (string): HuggingFace model identifier.
+- `max_memory_gb` (float): Maximum memory footprint for CPU inference.
+- `cpu_tractable` (boolean): True if the model runs within constraints (< 1GB).
+- `modalities` (list[string]): List of modalities this model can process.
 
-| Field | Type | Description | Constraint |
-|-------|------|-------------|------------|
-| task_id | string | Unique identifier (e.g., "task-001") | Primary key |
-| name | string | Human-readable task name | Required |
-| modalities | array | List of modalities (2-3 items) | Required |
-| dataset_ids | array | Linked dataset identifiers | Required |
-| target_label | string | Prediction target | Required |
-| metric_type | enum | classification, regression | Required |
-| primary_metric | string | F1 or MAPE | Required |
-| enabled | boolean | Whether task is active | Default: true |
+### 1.3 Task
+Represents a specific benchmarking scenario requiring one or more modalities and datasets.
 
-### ModalityModel
+**Attributes:**
+- `task_id` (string, PK): Unique identifier (e.g., "T001", "T020").
+- `description` (string): Brief description of the task.
+- `modalities` (list[string]): Required modalities (e.g., ["time-series", "text"]).
+- `datasets` (list[string]): List of `dataset_id`s required.
+- `label_column` (string): The target variable name for supervised tasks.
+- `status` (enum): "pending", "running", "completed", "failed".
 
-Encapsulates a pre-trained model for a single modality.
+### 1.4 TaskResult (Derived/Transient)
+Represents the outcome of executing a Task.
 
-| Field | Type | Description | Constraint |
-|-------|------|-------------|------------|
-| model_id | string | Unique identifier | Primary key |
-| modality | enum | time-series, tabular, text | Required |
-| hf_identifier | string | HuggingFace model path | Required |
-| size_mb | float | Model weight size | Required (<1 GB) |
-| inference_time_max | float | Max inference time (minutes) | Required (≤5) |
-| cpu_compatible | boolean | Runs on CPU-only | Required (true) |
-| version | string | Model version hash | Required (Constitution V) |
+**Attributes:**
+- `result_id` (string, PK): Unique identifier.
+- `task_id` (string, FK): Reference to Task.
+- `condition` (string): "heterogeneous" or "unified".
+- `accuracy` (float): Performance metric.
+- `f1_score` (float): F1 metric.
+- `mape` (float): Mean Absolute Percentage Error.
+- `timestamp` (datetime): Execution time.
+- `statistical_summary` (dict): Aggregated stats (p-value, effect_size, ci).
 
-### Result
+## 2. Relationship Diagram
 
-Represents evaluation output for a task under a condition.
+The following Mermaid diagram illustrates the relationships between entities.
 
-| Field | Type | Description | Constraint |
-|-------|------|-------------|------------|
-| result_id | string | Unique identifier | Primary key |
-| task_id | string | Linked task | Required |
-| condition | enum | heterogeneous, unified | Required |
-| seed | integer | Random seed used | Required (Constitution I) |
-| metric_value | float | F1 or MAPE score | Required |
-| inference_time | float | Wall-clock time (minutes) | Required (≤5) |
-| success | boolean | Task completed successfully | Required |
-| error_message | string | Error if failed | Optional |
-| timestamp | datetime | Execution timestamp | Required |
+```mermaid
+erDiagram
+ DATASET ||--o{ TASK: "used_by"
+ TASK ||--o{ TASK_RESULT: "produces"
+ MODALITY_MODEL ||--o{ TASK: "supports"
+ TASK ||--o{ MODALITY_MODEL: "requires"
 
-### StatisticalSummary
+ DATASET {
+ string dataset_id PK
+ string name
+ string url
+ list variables
+ float size_mb
+ string checksum
+ string modality
+ }
 
-Aggregated results across tasks and seeds.
+ TASK {
+ string task_id PK
+ string description
+ list modalities
+ list datasets FK
+ string label_column
+ string status
+ }
 
-| Field | Type | Description | Constraint |
-|-------|------|-------------|------------|
-| summary_id | string | Unique identifier | Primary key |
-| metric_name | string | F1 or MAPE | Required |
-| condition_heterogeneous | float | Mean accuracy (Condition A) | Required |
-| condition_unified | float | Mean accuracy (Condition B) | Required |
-| absolute_diff | float | Percentage difference | Required |
-| t_statistic | float | Paired t-test statistic | Required |
-| p_value | float | Paired t-test p-value | Required |
-| wilcoxon_statistic | float | Wilcoxon statistic | Required (FR-014) |
-| wilcoxon_p_value | float | Wilcoxon p-value | Required (FR-014) |
-| effect_size | float | Cohen's d | Required (FR-014) |
-| ci_lower | float | Bootstrap CI lower bound | Required (FR-007) |
-| ci_upper | float | Bootstrap CI upper bound | Required (FR-007) |
-| bootstrap_resamples | integer | Number of bootstrap samples | Required (sufficient number) |
-| alpha_threshold | float | Significance threshold | Required (0.05) |
-| generated_at | datetime | Generation timestamp | Required |
+ MODALITY_MODEL {
+ string model_id PK
+ string model_type
+ string hf_id
+ float max_memory_gb
+ boolean cpu_tractable
+ }
 
-## Relationships
-
-```
-Dataset (1) ──< Task (N)
-Task (1) ──< Result (N)
-ModalityModel (1) ──< Task (N)
-Result (N) ──> StatisticalSummary (1)
-```
-
-## Data Flow
-
-```
-┌─────────────┐    ┌─────────────┐    ┌─────────────┐
-│   Dataset   │───>│    Task     │───>│    Result   │
-└─────────────┘    └─────────────┘    └─────────────┘
-       │                  │                   │
-       │                  │                   ▼
-       │                  │          ┌─────────────────┐
-       │                  │          │ StatisticalSum  │
-       │                  │          └─────────────────┘
-       ▼                  ▼
-┌─────────────┐    ┌─────────────┐
-│  Checksums  │    │   Contracts │
-│ (Constitution│   │   Validation │
-│    III)     │    └─────────────┘
-└─────────────┘
+ TASK_RESULT {
+ string result_id PK
+ string task_id FK
+ string condition
+ float accuracy
+ float f1_score
+ float mape
+ datetime timestamp
+ }
 ```
 
-## Schema Files
+## 3. Cardinality Specifications
 
-| Schema | Path | Purpose |
-|--------|------|---------|
-| dataset.schema.yaml | contracts/dataset.schema.yaml | Validate dataset downloads |
-| task.schema.yaml | contracts/task.schema.yaml | Validate task definitions |
-| results.schema.yaml | contracts/results.schema.yaml | Validate results output |
-| modality_model.schema.yaml | contracts/modality_model.schema.yaml | Validate model configurations |
+### 3.1 Dataset to Task
+- **Relationship**: Many-to-Many
+- **Description**: A single `Dataset` can be used in multiple `Tasks` (e.g., UCI_HAR used in T022 and T029). A single `Task` may require multiple `Datasets` (e.g., a multi-modal task requiring both a time-series dataset and a text dataset).
+- **Implementation**: Resolved via the `datasets` list attribute in the `Task` entity.
 
-## Reproducibility Requirements
+### 3.2 ModalityModel to Task
+- **Relationship**: Many-to-Many
+- **Description**: A `ModalityModel` can support multiple `Tasks` (e.g., TabPFN used for all tabular tasks). A `Task` may require multiple models if it involves multiple modalities (e.g., TimeSeries-Transformer + TextModel).
+- **Implementation**: Resolved via the `modalities` list in `Task` and the `modalities` list in `ModalityModel`.
 
-| Requirement | Implementation |
-|-------------|----------------|
-| Random seeds | Logged in Result.seed (FR-005) |
-| Model versions | Logged in ModalityModel.version (Constitution V) |
-| Environment details | Logged in logging.py (FR-005) |
-| Data checksums | Recorded in data/checksums.yaml (Constitution III) |
-| Content hashes | Stored in state/ artifact_hashes (Constitution V) |
-| StatisticalSummary | Persisted to data/statistical_summary.yaml (Constitution IV) |
+### 3.3 Task to TaskResult
+- **Relationship**: One-to-Many
+- **Description**: A single `Task` is executed multiple times (across different seeds or conditions), producing multiple `TaskResult` records.
+- **Implementation**: `TaskResult` contains a foreign key `task_id`.
+
+## 4. Plan Consistency
+
+This data model aligns with the project plan (`plan.md`) and the following schema contracts:
+- `contracts/dataset.schema.yaml` (T010)
+- `contracts/task.schema.yaml` (T011)
+- `contracts/results.schema.yaml` (T012)
+- `contracts/modality_model.schema.yaml` (T013)
+
+All entities defined above map directly to the required fields in these schema contracts.

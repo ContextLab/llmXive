@@ -1,0 +1,80 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Task Definition Schema"
+description: "Schema for defining benchmark tasks in the Heterogeneous Scientific Foundation Model Collaboration Benchmark"
+type: object
+required:
+  - task_id
+  - modalities
+  - label
+  - datasets
+properties:
+  task_id:
+    type: string
+    description: "Unique identifier for the task (e.g., T001, T002)"
+    pattern: "^T[0-9]{3,}$"
+  modalities:
+    type: array
+    description: "List of data modalities involved in this task"
+    items:
+      type: string
+      enum:
+        - time_series
+        - tabular
+        - text
+        - image
+        - audio
+    minItems: 1
+  label:
+    type: object
+    description: "Definition of the target variable for the task"
+    required:
+      - column_name
+      - task_type
+    properties:
+      column_name:
+        type: string
+        description: "Name of the column in the dataset representing the label"
+      task_type:
+        type: string
+        description: "Type of learning task"
+        enum:
+          - classification
+          - regression
+          - clustering
+  datasets:
+    type: array
+    description: "List of datasets applicable to this task"
+    items:
+      type: object
+      required:
+        - dataset_name
+      properties:
+        dataset_name:
+          type: string
+          description: "Name of the dataset (must match entry in dataset schema)"
+        split:
+          type: string
+          description: "Dataset split to use (e.g., train, test, validation)"
+          default: "train"
+    minItems: 1
+  description:
+    type: string
+    description: "Human-readable description of the task"
+    default: ""
+  priority:
+    type: string
+    description: "Priority level of the task"
+    enum:
+      - P1
+      - P2
+      - P3
+    default: "P3"
+  user_story:
+    type: string
+    description: "Associated user story identifier (e.g., US1, US2)"
+    default: ""
+  metadata:
+    type: object
+    description: "Additional metadata for the task"
+    additionalProperties: true
+additionalProperties: false
