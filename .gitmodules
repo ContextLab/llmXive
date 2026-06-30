@@ -58,3 +58,12 @@
 [submodule "projects/PROJ-634-https-arxiv-org-abs-2605-27367/external/SpatialBench"]
 	path = projects/PROJ-634-https-arxiv-org-abs-2605-27367/external/SpatialBench
 	url = https://github.com/Ropedia/SpatialBench
+[submodule "projects/PROJ-636-locateanything-fast-and-high-quality-vis/external/Eagle"]
+	path = projects/PROJ-636-locateanything-fast-and-high-quality-vis/external/Eagle
+	url = https://github.com/NVlabs/Eagle
+[submodule "projects/PROJ-644-omniretrieval-unified-retrieval-across-h/external/OmniRetrieval"]
+	path = projects/PROJ-644-omniretrieval-unified-retrieval-across-h/external/OmniRetrieval
+	url = https://github.com/JinheonBaek/OmniRetrieval
+[submodule "projects/PROJ-652-https-arxiv-org-abs-2606-00408/external/observation-masking"]
+	path = projects/PROJ-652-https-arxiv-org-abs-2606-00408/external/observation-masking
+	url = https://github.com/i-DeepSearch/observation-masking

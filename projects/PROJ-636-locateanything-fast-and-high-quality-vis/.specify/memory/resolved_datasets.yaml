@@ -1,0 +1,420 @@
+resolved_at: '2026-06-30T12:18:01.189076+00:00'
+datasets:
+- intent: MUST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 190547
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/figure/multisource_remote_sensing_distribution/32835800
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_2_of_Exploratory_analysis_of_circulating_inflammatory_factors_associated_with_diabetic_nephropathy_and_subclinical_systolic_dysfunction_in_type_2_diabetes_mellitus/32835860
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/dataset/Additional_file_1_of_Exploratory_analysis_of_circulating_inflammatory_factors_associated_with_diabetic_nephropathy_and_subclinical_systolic_dysfunction_in_type_2_diabetes_mellitus/32835857
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_1_of_Exploring_client_and_clinician_experiences_of_cognitive_behavioural_therapy_for_depersonalisation-derealisation_disorder_CBT-f-DDD_/32835854
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_4_of_Community_perspectives_on_mass_malaria_vaccine_and_drug_administration_in_the_Chittagong_Hill_Tracts_Bangladesh_a_qualitative_study/32835851
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5746416
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16954306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8056637
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15420758
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19980220
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20807424
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19757014
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18216437
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18216437
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21056823
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: Flickr30K
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/carlosejimenez/flickr30k_clip-ViT-B-32-caption_pairs/resolve/main/data/train-00000-of-00029.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/carlosejimenez/flickr30k_captions_simCSE/resolve/main/data/train-00000-of-00002.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/carlosejimenez/flickr30k_images_SimCLRv2/resolve/main/data/train-00000-of-00004.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/carlosejimenez/flickr30k_clip-ViT-B-32-caption_pairs/resolve/main/data/train-00000-of-00029.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/carlosejimenez/flickr30k_captions_simCSE/resolve/main/data/train-00000-of-00002.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/carlosejimenez/flickr30k_images_SimCLRv2/resolve/main/data/train-00000-of-00004.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/embedding-data/flickr30k_captions_quintets/resolve/main/flickr30k_captions.jsonl.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://figshare.com/articles/figure/multisource_remote_sensing_distribution/32835800
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_2_of_Exploratory_analysis_of_circulating_inflammatory_factors_associated_with_diabetic_nephropathy_and_subclinical_systolic_dysfunction_in_type_2_diabetes_mellitus/32835860
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/dataset/Additional_file_1_of_Exploratory_analysis_of_circulating_inflammatory_factors_associated_with_diabetic_nephropathy_and_subclinical_systolic_dysfunction_in_type_2_diabetes_mellitus/32835857
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_1_of_Exploring_client_and_clinician_experiences_of_cognitive_behavioural_therapy_for_depersonalisation-derealisation_disorder_CBT-f-DDD_/32835854
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_4_of_Community_perspectives_on_mass_malaria_vaccine_and_drug_administration_in_the_Chittagong_Hill_Tracts_Bangladesh_a_qualitative_study/32835851
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10728674
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijai.iaescore.com/index.php/IJAI/article/view/26891
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijece.iaescore.com/index.php/IJECE/article/view/15743
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.18653/v1/w19-6809
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+  - url: https://ijece.iaescore.com/index.php/IJECE/article/view/36630
+    source: zenodo
+    status: wrong_format
+    reason: 'HTTPSConnectionPool(host=''ijece.iaescore.com'', port=443): Read timed
+      out. (read timeout=20)'
+  - url: https://zenodo.org/records/21006920
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21006920
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20919634
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20919634
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20788435
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-003
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/figure/multisource_remote_sensing_distribution/32835800
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_2_of_Exploratory_analysis_of_circulating_inflammatory_factors_associated_with_diabetic_nephropathy_and_subclinical_systolic_dysfunction_in_type_2_diabetes_mellitus/32835860
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/dataset/Additional_file_1_of_Exploratory_analysis_of_circulating_inflammatory_factors_associated_with_diabetic_nephropathy_and_subclinical_systolic_dysfunction_in_type_2_diabetes_mellitus/32835857
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_1_of_Exploring_client_and_clinician_experiences_of_cognitive_behavioural_therapy_for_depersonalisation-derealisation_disorder_CBT-f-DDD_/32835854
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_4_of_Community_perspectives_on_mass_malaria_vaccine_and_drug_administration_in_the_Chittagong_Hill_Tracts_Bangladesh_a_qualitative_study/32835851
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10364827
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3841160
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13843104
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13213336
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10384626
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20857147
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564541
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564417
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.20470525
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+- intent: US-2
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/gimarchetti/winnie-us2/resolve/main/data/chunk-000/file-000.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/gimarchetti/eval_so101_winnie_us2_act/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 103062
+      parsed: true
+  - url: https://huggingface.co/datasets/gimarchetti/eval_so101_winnie_us2_diffusion/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 11221
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/gimarchetti/winnie-us2/resolve/main/data/chunk-000/file-000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/gimarchetti/eval_so101_winnie_us2_act/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/gimarchetti/eval_so101_winnie_us2_diffusion/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/gimarchetti/eval_so101_winnie_us2_smolvla/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/figure/multisource_remote_sensing_distribution/32835800
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_2_of_Exploratory_analysis_of_circulating_inflammatory_factors_associated_with_diabetic_nephropathy_and_subclinical_systolic_dysfunction_in_type_2_diabetes_mellitus/32835860
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/dataset/Additional_file_1_of_Exploratory_analysis_of_circulating_inflammatory_factors_associated_with_diabetic_nephropathy_and_subclinical_systolic_dysfunction_in_type_2_diabetes_mellitus/32835857
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_1_of_Exploring_client_and_clinician_experiences_of_cognitive_behavioural_therapy_for_depersonalisation-derealisation_disorder_CBT-f-DDD_/32835854
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_4_of_Community_perspectives_on_mass_malaria_vaccine_and_drug_administration_in_the_Chittagong_Hill_Tracts_Bangladesh_a_qualitative_study/32835851
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3559755
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5216923
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7372808
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5245315
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17102351
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://redivis.com/workflows/x7kh-5pvd4mbf1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.repository.cam.ac.uk/handle/1810/405562
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://usiena-air.unisi.it//handle/11365/1133797
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://usiena-air.unisi.it//handle/11365/1118557
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://usiena-air.unisi.it//handle/11365/1148962
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SC-002
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/figure/multisource_remote_sensing_distribution/32835800
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_2_of_Exploratory_analysis_of_circulating_inflammatory_factors_associated_with_diabetic_nephropathy_and_subclinical_systolic_dysfunction_in_type_2_diabetes_mellitus/32835860
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/dataset/Additional_file_1_of_Exploratory_analysis_of_circulating_inflammatory_factors_associated_with_diabetic_nephropathy_and_subclinical_systolic_dysfunction_in_type_2_diabetes_mellitus/32835857
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_1_of_Exploring_client_and_clinician_experiences_of_cognitive_behavioural_therapy_for_depersonalisation-derealisation_disorder_CBT-f-DDD_/32835854
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_4_of_Community_perspectives_on_mass_malaria_vaccine_and_drug_administration_in_the_Chittagong_Hill_Tracts_Bangladesh_a_qualitative_study/32835851
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16877562
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16898112
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16898107
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16898117
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16898125
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://world.physio/congress-proceeding/improved-cardiorespiratory-fitness-and-cardiovascular-risks-are-associated
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20806255
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20806255
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635092
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20512108
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

@@ -1,0 +1,78 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EvaluationRun"
+description: "Schema for a single evaluation run summary"
+type: "object"
+required:
+  - run_id
+  - timestamp
+  - config
+  - summary
+  - artifacts
+properties:
+  run_id:
+    type: "string"
+    description: "Unique identifier for the run (UUID)"
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of the run"
+  config:
+    type: "object"
+    required:
+      - masking_enabled
+      - model_id
+      - dataset_subset
+      - sample_size
+    properties:
+      masking_enabled:
+        type: "boolean"
+        description: "Whether observation masking was enabled"
+      model_id:
+        type: "string"
+        description: "Identifier of the model used"
+      dataset_subset:
+        type: "string"
+        description: "Name of the dataset subset (e.g., 'SWE-bench_Verified')"
+      sample_size:
+        type: "integer"
+        minimum: 1
+        description: "Number of tasks evaluated"
+  summary:
+    type: "object"
+    required:
+      - total_tasks
+      - successful_tasks
+      - accuracy
+      - avg_tokens
+      - avg_turns
+    properties:
+      total_tasks:
+        type: "integer"
+        description: "Total number of tasks in the run"
+      successful_tasks:
+        type: "integer"
+        description: "Number of tasks completed successfully"
+      accuracy:
+        type: "number"
+        minimum: 0.0
+        maximum: 1.0
+        description: "Accuracy score (successful_tasks / total_tasks)"
+      avg_tokens:
+        type: "number"
+        description: "Average tokens used per task"
+      avg_turns:
+        type: "number"
+        description: "Average turns taken per task"
+  artifacts:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of relative paths to generated artifacts"
+  rate_limit_events:
+    type: "integer"
+    default: 0
+    description: "Count of rate limit events encountered during the run"
+  truncation_events:
+    type: "integer"
+    default: 0
+    description: "Count of context truncation events encountered during the run"

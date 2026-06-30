@@ -1,0 +1,54 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EvaluationMetric"
+description: "Schema for the aggregate performance on a benchmark subset."
+type: "object"
+required:
+  - benchmark_name
+  - subset_size
+  - mean_iou
+  - throughput_images_per_sec
+  - total_runtime_sec
+  - peak_memory_mb
+  - pass_claim
+  - memory_limit_pass
+  - ground_truth_available
+  - validation_mode
+  - ground_truth_source
+properties:
+  benchmark_name:
+    type: "string"
+    description: "Name of the benchmark (e.g., flickr30k_subset)."
+  subset_size:
+    type: "integer"
+    description: "Number of images evaluated."
+  mean_iou:
+    type: "number"
+    description: "Mean Intersection-over-Union score. Set to -1 if Ground Truth is missing."
+  throughput_images_per_sec:
+    type: "number"
+    description: "Average number of images processed per second."
+  total_runtime_sec:
+    type: "number"
+    description: "Total time taken for the evaluation run."
+  peak_memory_mb:
+    type: "number"
+    description: "Peak RAM usage during the evaluation run."
+  pass_claim:
+    type: "boolean"
+    description: "True if the pipeline validated correctly (or relative quality passed)."
+  memory_limit_pass:
+    type: "boolean"
+    description: "True if peak_memory_mb was below 7000 MB (SC-003 threshold)."
+  ground_truth_available:
+    type: "boolean"
+    description: "True if bounding box ground truth was available for IoU calculation."
+  validation_mode:
+    type: "string"
+    enum:
+      - "real"
+      - "synthetic"
+      - "pipeline_only"
+    description: "Indicates the nature of the validation: 'real' (verified dataset), 'synthetic' (injected boxes), or 'pipeline_only' (no GT)."
+  ground_truth_source:
+    type: "string"
+    description: "Description of the ground truth source (e.g., 'synthetic_injection', 'verified_dataset', 'none')."

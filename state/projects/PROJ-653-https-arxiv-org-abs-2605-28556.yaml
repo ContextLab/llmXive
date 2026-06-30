@@ -1,7 +1,7 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-03T09:39:12.754832Z'
-current_stage: paper_review
+current_stage: paper_ingested
 failed_stage: null
 field: computer science
 human_escalation_reason: null
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'A Matter of TASTE: Improving Coverage and Difficulty of Agent Benchmarks'
-updated_at: '2026-06-29T16:10:18.991695Z'
+updated_at: '2026-06-30T12:11:19.211471Z'
