@@ -1,0 +1,44 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MMN Metrics Schema"
+description: "Schema for participant-level MMN amplitude and latency metrics derived from difference waves."
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique participant identifier."
+  electrode:
+    type: "string"
+    enum: ["Fz", "FCz"]
+    description: "Electrode location."
+  condition:
+    type: "string"
+    const: "difference"
+    description: "Always 'difference' as this metric is derived from Deviant - Standard."
+  amplitude:
+    type: ["number", "null"]
+    description: "Peak negative voltage in microvolts (µV) of the difference wave. Null if no peak detected."
+  latency:
+    type: ["number", "null"]
+    description: "Time of peak in milliseconds (ms). Null if no peak detected."
+  peak_detected:
+    type: "boolean"
+    description: "True if a peak was found within the primary (150-250 ms) OR fallback (100-300 ms) window."
+  snr:
+    type: "number"
+    description: "Signal-to-Noise Ratio of the detected peak."
+  is_excluded:
+    type: "boolean"
+    description: "True if participant was excluded due to >50% artifact rejection."
+  peak_window:
+    type: ["string", "null"]
+    enum: ["primary", "fallback", null]
+    description: "Indicates whether the peak was found in the primary (150-250 ms), fallback (100-300 ms), or null (no peak)."
+required:
+  - subject_id
+  - electrode
+  - condition
+  - peak_detected
+  - snr
+  - is_excluded
+  - peak_window
+additionalProperties: false

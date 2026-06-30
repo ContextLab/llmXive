@@ -1,0 +1,72 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Results Schema"
+description: "Schema for the final statistical analysis results (t-tests, FDR, cluster, mixed-effects)."
+type: "object"
+properties:
+  comparison:
+    type: "string"
+    description: "Description of the comparison (e.g., 'deviant_vs_standard_difference')."
+  metric:
+    type: "string"
+    enum:
+      - "amplitude"
+      - "latency"
+    description: "The metric being tested."
+  electrode:
+    type: "string"
+    enum:
+      - "Fz"
+      - "FCz"
+    description: "Electrode location."
+  t_stat:
+    type: "number"
+    description: "T-statistic value."
+  p_value:
+    type: "number"
+    description: "Raw p-value."
+  p_value_fdr:
+    type: "number"
+    description: "FDR-corrected p-value."
+  cohens_d:
+    type: "number"
+    description: "Cohen's d effect size."
+  ci_95:
+    type: "array"
+    items:
+      type: "number"
+    minItems: 2
+    maxItems: 2
+    description: "95% Confidence Interval [lower, upper]."
+  cluster_p:
+    type: "number"
+    description: "P-value from cluster-based permutation test."
+  mixed_effects_p:
+    type: "number"
+    description: "P-value for the fixed effect in the mixed-effects model."
+  prevalence:
+    type: "number"
+    description: "Proportion of participants with peak_detected=true."
+  outlier_count:
+    type: "integer"
+    description: "Number of participants excluded due to artifacts."
+  total_n:
+    type: "integer"
+    description: "Total number of participants in the study (including those with no peak)."
+  analyzed_n:
+    type: "integer"
+    description: "Number of participants included in the t-test (excluding artifacts and no-peak)."
+required:
+  - comparison
+  - metric
+  - electrode
+  - t_stat
+  - p_value
+  - p_value_fdr
+  - cohens_d
+  - ci_95
+  - cluster_p
+  - mixed_effects_p
+  - prevalence
+  - outlier_count
+  - total_n
+  - analyzed_n
