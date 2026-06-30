@@ -1,12 +1,7 @@
-last_used: marie-curie
-last_used_at: '2026-06-30T20:46:35.913197+00:00'
+last_used: richard-feynman
+last_used_at: '2026-06-30T22:34:02.053260+00:00'
 last_outcome: committed
 history:
-- slug: rosalind-franklin
-  started_at: '2026-06-21T00:38:30.860455+00:00'
-  ended_at: '2026-06-21T01:50:34.222277+00:00'
-  outcome: abstained
-  action: abstain
 - slug: stephen-wolfram
   started_at: '2026-06-21T01:50:34.222277+00:00'
   ended_at: '2026-06-21T03:08:29.075480+00:00'
@@ -1206,3 +1201,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-511-predicting-molecular-packing-efficiency-/reviews/research/marie-curie-simulated__2026-06-30__research.md
+- slug: richard-feynman
+  started_at: '2026-06-30T20:46:35.913197+00:00'
+  ended_at: '2026-06-30T22:34:02.053260+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-750-dragmesh-2-physically-plausible-dexterou/reviews/research/richard-feynman-simulated__2026-06-30__research.md
