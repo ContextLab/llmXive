@@ -156,3 +156,39 @@ def test_overall_deadline_reads_analysis_deadline_env(tmp_path, monkeypatch) -> 
     # Neither set → the sane 2700s default must NOT trip on a fast run.
     monkeypatch.delenv("LLMXIVE_RUN_WALL_BUDGET_S", raising=False)
     assert ar.run_analysis(proj).deadline_exceeded is False
+
+
+def test_pythonpath_carries_both_project_dir_and_code_dir(tmp_path, monkeypatch) -> None:
+    """Generated analysis code mixes two absolute-import styles within ONE project:
+    bare `from data_loader import X` (needs code/ on the path) AND
+    `from code.data_loader import X` (needs the PROJECT dir on the path, since
+    code/ is a package). The runner MUST place BOTH on PYTHONPATH so neither style
+    ModuleNotFoundErrors — otherwise the import randomly fails and the execution
+    fix-loop can't converge (the PROJ-261 7-round thrash that never reached
+    research_complete)."""
+    import os
+    import types
+
+    from llmxive.execution import analysis_runner as ar
+
+    proj = tmp_path / "projects" / "PROJ-901-pythonpath"
+    (proj / "specs" / "001-x").mkdir(parents=True)
+    (proj / "code").mkdir()
+    (proj / "code" / "main.py").write_text("x=1\n", encoding="utf-8")
+    (proj / "specs" / "001-x" / "quickstart.md").write_text(
+        "```bash\npython code/main.py\n```\n", encoding="utf-8")
+
+    captured: dict = {}
+
+    def _fake_run(project_dir, args, timeout_s, extra_env=None):
+        captured["env"] = extra_env or {}
+        return types.SimpleNamespace(
+            ok=True, returncode=0, duration_s=0.01, timed_out=False, stdout="", stderr="",
+        )
+
+    monkeypatch.setattr(ar.sandbox, "run_in_venv", _fake_run)
+    ar.run_analysis(proj)
+
+    parts = captured["env"].get("PYTHONPATH", "").split(os.pathsep)
+    assert str((proj / "code").resolve()) in parts, parts
+    assert str(proj.resolve()) in parts, parts

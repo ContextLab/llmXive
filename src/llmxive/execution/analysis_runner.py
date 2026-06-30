@@ -240,14 +240,24 @@ def run_analysis(
             elif resolved != args[0]:
                 args = [resolved, *args[1:]]
                 command = "python " + " ".join(shlex.quote(a) for a in args)
-        # Put the project's code/ dir on PYTHONPATH: the generated scripts
-        # use package-relative sibling imports (`from reproducibility.logs
-        # import ...`, `from download.x import ...`) that assume code/ is on
-        # the path — they are run as `python code/x.py` from the project
-        # root, so without this every script dies with ModuleNotFoundError.
+        # Put BOTH the project's code/ dir AND the project root on PYTHONPATH.
+        # Generated analysis code mixes two absolute-import conventions, often
+        # within one project: bare sibling imports (`from data_loader import ...`,
+        # `from reproducibility.logs import ...`) need code/ on the path, while
+        # package-qualified imports (`from code.data_loader import ...`, natural
+        # when code/ has an __init__.py) need the project ROOT on the path. With
+        # only code/ on PYTHONPATH the `code.`-prefixed form ModuleNotFErrors and
+        # the execution fix-loop can't converge it (the PROJ-261 7-round thrash
+        # that never reached research_complete). Carrying both makes either style
+        # run without a rewrite. code/ goes first so a bare sibling import always
+        # wins over a same-named top-level module.
+        pythonpath = os.pathsep.join((
+            str((project_dir / "code").resolve()),
+            str(project_dir.resolve()),
+        ))
         res = sandbox.run_in_venv(
             project_dir=project_dir, args=args, timeout_s=per_cmd_timeout_s,
-            extra_env={"PYTHONPATH": str((project_dir / "code").resolve())},
+            extra_env={"PYTHONPATH": pythonpath},
         )
         tail = ((res.stdout or "") + "\n" + (res.stderr or ""))[-1200:]
         # `python -c "..."` lines are quickstart SMOKE-TESTS (import checks),
