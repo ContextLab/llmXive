@@ -11,8 +11,8 @@ from dataclasses import dataclass
 from datetime import datetime
 import pandas as pd
 
-from reproducibility.logs import log_operation, get_logger
-from analysis.dataset_counts import load_cleaned_knots
+from code.reproducibility.logs import log_operation, get_logger
+from code.analysis.dataset_counts import load_cleaned_knots
 
 
 @dataclass

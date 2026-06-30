@@ -23,10 +23,11 @@ See `docs/PROJECT_STRUCTURE.md` for detailed directory layout.
 
 ## Quick Start
 
-1. Run `code/setup/create_structure.py` to create directories
-2. Install dependencies from `pyproject.toml`
-3. Execute download pipeline: `python -m code.download.knot_atlas_downloader`
-4. Run analysis: `python -m code.analysis.regression`
+See `docs/reproducibility/quickstart.md` for step-by-step instructions.
+
+## Data Quality
+
+See `docs/reproducibility/data_quality_report.md` for the dataset assessment.
 
 ## Reproducibility
 

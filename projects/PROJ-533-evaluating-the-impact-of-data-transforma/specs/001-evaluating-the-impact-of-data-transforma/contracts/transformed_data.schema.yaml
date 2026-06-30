@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+properties:
+  dataset_id:
+    type: string
+    description: "Foreign key to the original dataset"
+  variable_name:
+    type: string
+    description: "Name of the transformed variable"
+  method:
+    type: string
+    enum:
+      - "Box-Cox"
+      - "Yeo-Johnson"
+      - "rank-based"
+    description: "Transformation method applied"
+  lambda_param:
+    type: number
+    nullable: true
+    description: "Optimized λ parameter (null for rank-based)"
+  transformed_values:
+    type: array
+    items:
+      type: number
+    description: "Array of transformed values"
+  success:
+    type: boolean
+    description: "Whether the transformation succeeded"
+  log_message:
+    type: string
+    nullable: true
+    description: "Intervention log (e.g., 'log-shift applied for negative values')"
+required:
+  - dataset_id
+  - variable_name
+  - method
+  - transformed_values
+  - success
+additionalProperties: false

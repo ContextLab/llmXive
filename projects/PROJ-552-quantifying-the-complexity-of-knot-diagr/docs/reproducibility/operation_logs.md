@@ -1,11 +1,9 @@
 # Operation Logs
 
-A chronological log of all pipeline operations is stored in `logs/reproducibility.log`. [UNRESOLVED-CLAIM: c_be44726a — status=not_enough_info] Each entry records:
+All operational logs for this project are consolidated in the canonical location: `docs/reproducibility/logs/`. [UNRESOLVED-CLAIM: 2903c818c6a5 — status=resolved] This directory contains the primary log artifacts.
 
-- Timestamp
-- Operation name
-- Input and output file paths
-- Parameters used
-- Status and duration
+- The directory structure is as follows:
+  - `docs/reproducibility/logs/logs.json`: JSON-formatted log entries.
+  - `docs/reproducibility/logs/logs.jsonl`: Newline-delimited JSON log entries.
 
-The log file is generated automatically by the `reproducibility.logs` module. [UNRESOLVED-CLAIM: c_89397b8d — status=not_enough_info]
+Logs previously located in `data/logs/`, `data/logs.jsonl`, `data/operation_logs.jsonl`, and `reproducibility_logs.jsonl` have been migrated to this canonical location.

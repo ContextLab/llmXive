@@ -1,0 +1,52 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+properties:
+  method:
+    type: string
+    enum:
+      - "Box-Cox"
+      - "Yeo-Johnson"
+      - "rank-based"
+    description: "Transformation method"
+  test_type:
+    type: string
+    enum:
+      - "t-test"
+      - "ANOVA"
+    description: "Statistical test type"
+  metric:
+    type: string
+    enum:
+      - "type1_error"
+      - "power"
+    description: "Metric being aggregated"
+  mean:
+    type: number
+    description: "Mean estimate across datasets"
+  ci_lower:
+    type: number
+    description: "95% bootstrap CI lower bound"
+  ci_upper:
+    type: number
+    description: "95% bootstrap CI upper bound"
+  n_datasets:
+    type: integer
+    minimum: 50
+    description: "Number of datasets aggregated"
+  alpha:
+    type: number
+    enum:
+      - 0.01
+      - 0.05
+      - 0.1
+    description: "Significance threshold used"
+required:
+  - method
+  - test_type
+  - metric
+  - mean
+  - ci_lower
+  - ci_upper
+  - n_datasets
+  - alpha
+additionalProperties: false

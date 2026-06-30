@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+properties:
+  dataset_id:
+    type: string
+    description: "Unique identifier for the dataset (e.g., 'uci_har', 'openml_123')"
+  source_url:
+    type: string
+    description: "Canonical URL of the dataset source"
+  sample_size:
+    type: integer
+    minimum: 30
+    description: "Number of rows in the dataset"
+  num_continuous:
+    type: integer
+    minimum: 1
+    description: "Number of continuous variables"
+  num_groups:
+    type: integer
+    minimum: 2
+    description: "Number of group levels in the categorical variable"
+  shapiro_p:
+    type: number
+    description: "Shapiro-Wilk normality test p-value"
+  missing_rate:
+    type: number
+    maximum: 0.1
+    description: "Proportion of missing values (must be ≤10% for inclusion)"
+  checksum:
+    type: string
+    pattern: "^[a-f0-9]{64}$"
+    description: "SHA-256 checksum of the raw dataset file"
+  included:
+    type: boolean
+    description: "Whether the dataset passed filtering criteria"
+required:
+  - dataset_id
+  - source_url
+  - sample_size
+  - num_continuous
+  - num_groups
+  - shapiro_p
+  - missing_rate
+  - checksum
+  - included
+additionalProperties: false

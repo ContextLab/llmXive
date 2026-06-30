@@ -12,19 +12,10 @@ The following table summarizes the counts of each data quality flag applied to t
 
 ## Flag Summary
 
-| Flag | Count |
-|------|-------|
-| data_quality_flags | 1 |
- | missing_invariant_flags | TBD |
-
-
-## Flag Summary
-
-| Flag Type | Count |
-|-----------|-------|
-| data_quality_flags | 1 |
- | missing_invariant_flags | TBD |
- | other_flags | TBD |
+| Flag | Description | Record Count |
+|------|-------------|--------------|
+| data_quality_flags | General quality issues | 1 |
+| missing_invariant_flags | Uncomputable invariants | 9988 |
 
 
 This document summarizes the data quality assessment performed on the processed knot dataset.

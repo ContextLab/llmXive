@@ -34,7 +34,7 @@ As a researcher, I want to apply Box-Cox, Yeo-Johnson, and rank-based transforma
 **Acceptance Scenarios**:
 
 1. **Given** a filtered dataset with continuous variables, **When** the three transformations (Box-Cox with λ optimized per dataset, Yeo-Johnson with λ optimized per dataset, rank-based inverse normal) are applied, **Then** transformed data is produced for each method without errors.
-2. **Given** transformed data, **When** group labels are shuffled 1000 times for null simulation with fixed random seed (e.g., 42), **Then** t-test/ANOVA p-values are computed and the proportion of p < 0.05 is recorded as the Type I error estimate.
+2. **Given** transformed data, **When** group labels are shuffled multiple times for null simulation with fixed random seed (e.g., 42), **Then** t-test/ANOVA p-values are computed and the proportion of p < 0.05 is recorded as the Type I error estimate.
 
 ---
 
@@ -44,7 +44,7 @@ As a researcher, I want to aggregate results across all datasets and generate su
 
 **Why this priority**: This produces the final deliverables that answer the research question. It depends on US-2 and US-4 completing successfully.
 
-**Independent Test**: Can be fully tested by executing the aggregation script on pre-computed results and verifying that summary tables contain mean Type I error and power for each transformation-test combination with 95% bootstrap confidence intervals.
+**Independent Test**: Can be fully tested by executing the aggregation script on pre-computed results and verifying that summary tables contain mean Type I error and power for each transformation-test combination with % bootstrap confidence intervals.
 
 **Acceptance Scenarios**:
 
@@ -64,7 +64,7 @@ As a researcher, I want to generate simulated datasets with known effect sizes a
 
 **Acceptance Scenarios**:
 
-1. **Given** specified effect sizes (Cohen's d ∈ {0.2, 0.5, 0.8}), **When** simulated datasets are generated with known group differences, **Then** at least 1000 simulated datasets per effect size are produced with ground truth labels.
+1. **Given** specified effect sizes (Cohen's d ∈ {small, 0.5, 0.8}), **When** simulated datasets are generated with known group differences, **Then** at least 1000 simulated datasets per effect size are produced with ground truth labels.
 2. **Given** simulated datasets with transformations applied, **When** t-test/ANOVA is run, **Then** the proportion of significant results (p < 0.05) is recorded as the power estimate for each transformation-test-effect combination.
 3. **Given** power estimates, **When** bootstrap confidence intervals are computed, **Then** the intervals are validated against the ±0.02 half-width target.
 
@@ -89,7 +89,7 @@ As a researcher, I want to generate simulated datasets with known effect sizes a
 - **FR-005**: System MUST generate simulated datasets with known effect sizes (Cohen's d ∈ {0.2, 0.5, 0.8}) and ground truth labels for power analysis (See US-4)
 - **FR-006**: System MUST compute statistical power by testing simulated data with known ground truth and recording the proportion of significant results (p < 0.05) for each transformation-test-effect combination (See US-4)
 - **FR-007**: System MUST aggregate results across all 50+ datasets and compute mean Type I error and power for each transformation-test combination with 95% bootstrap confidence intervals (See US-3)
-- **FR-008**: System MUST perform Friedman test (non-parametric repeated measures ANOVA) with p < 0.05 significance threshold to assess whether transformation type significantly affects error rates, followed by post-hoc pairwise comparisons with Bonferroni correction for multiplicity, and perform sensitivity analysis sweeping α ∈ {0.01, 0.05, 0.1} (See US-3)
+- **FR-008**: System MUST perform Friedman test (non-parametric repeated measures ANOVA) with p < 0.05 significance threshold to assess whether transformation type significantly affects error rates, followed by post-hoc pairwise comparisons with Bonferroni correction for multiplicity, and perform sensitivity analysis sweeping α across a range of small values (See US-3)
 - **FR-009**: System MUST produce summary tables and bar plots (matplotlib/seaborn) showing error rates and power by transformation and test type (See US-3)
 - **FR-010**: System MUST compute SHA-256 checksums for all downloaded datasets and record them under data/checksums.csv (See US-1)
 
@@ -114,7 +114,7 @@ As a researcher, I want to generate simulated datasets with known effect sizes a
 
 ## Assumptions
 
-- **Compute feasibility**: All analysis runs on GitHub Actions free-tier runner (2 CPU cores, ~7 GB RAM, ~14 GB disk, NO GPU, ≤6 h per job); no GPU/CUDA, no 8-bit/4-bit quantization, no large-model training required
+- **Compute feasibility**: All analysis runs on GitHub Actions free-tier runner (CPU cores, ~7 GB RAM, A substantial disk capacity., NO GPU, ≤6 h per job); no GPU/CUDA, no 8-bit/4-bit quantization, no large-model training required
 - **Dataset-variable fit**: UCI and OpenML datasets contain continuous variables and group labels required for t-test/ANOVA; Datasets are filtered to retain only those containing both (a) at least one continuous variable (for Shapiro-Wilk normality testing) and (b) at least one categorical group label with ≥2 levels (for t-test/ANOVA applicability). Datasets lacking either requirement are excluded with logging. This filtering is enforced by FR-002 (See US-1). Note: group labels are available for testing, but true effect sizes are unknown—power estimation requires simulated data (US-4).
 - **Inference framing**: All findings are framed as ASSOCIATIONAL (observational design, no random assignment); no causal claims are made about transformation effects
 - **Multiplicity correction**: Bonferroni correction is used for post-hoc pairwise comparisons to control family-wise error rate; power limitations are acknowledged and sample size per condition is [deferred] pending dataset availability

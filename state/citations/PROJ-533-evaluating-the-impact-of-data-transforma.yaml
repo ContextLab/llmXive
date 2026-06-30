@@ -1,1 +1,44 @@
-[]
+- artifact_hash: 6c8797c843c83fb6b7998aa6e71ecb862aec648d54684e668838bf5cbbeb3103
+  artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: '1591'
+  kind: url
+  value: https://www.openml.org/api/v1/data/1591
+  verification_status: verified
+  verified_against_url: https://www.openml.org/api/v1/data/1591
+  verified_at: '2026-06-30T12:58:27.784620Z'
+- artifact_hash: 6c8797c843c83fb6b7998aa6e71ecb862aec648d54684e668838bf5cbbeb3103
+  artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: '534'
+  kind: url
+  value: https://www.openml.org/api/v1/data/534
+  verification_status: verified
+  verified_against_url: https://www.openml.org/api/v1/data/534
+  verified_at: '2026-06-30T12:58:27.784620Z'
+- artifact_hash: 6c8797c843c83fb6b7998aa6e71ecb862aec648d54684e668838bf5cbbeb3103
+  artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: UCI Machine Learning Repository
+  kind: url
+  value: https://archive.ics.uci.edu/ml/datasets/wine+quality
+  verification_status: verified
+  verified_against_url: https://archive.ics.uci.edu/dataset/186/wine+quality
+  verified_at: '2026-06-30T12:58:27.784620Z'
+- artifact_hash: 6c8797c843c83fb6b7998aa6e71ecb862aec648d54684e668838bf5cbbeb3103
+  artifact_path: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma/research.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: UCI Machine Learning Repository
+  kind: url
+  value: https://archive.ics.uci.edu/ml/datasets/concrete+compressive+strength
+  verification_status: verified
+  verified_against_url: https://archive.ics.uci.edu/dataset/165/concrete+compressive+strength
+  verified_at: '2026-06-30T12:58:27.784620Z'

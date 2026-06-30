@@ -1,0 +1,60 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+properties:
+  result_id:
+    type: string
+    description: "Unique identifier for the test result"
+  dataset_id:
+    type: string
+    description: "Foreign key to the dataset"
+  method:
+    type: string
+    enum:
+      - "Box-Cox"
+      - "Yeo-Johnson"
+      - "rank-based"
+    description: "Transformation method used"
+  test_type:
+    type: string
+    enum:
+      - "t-test"
+      - "ANOVA"
+      - "Mann-Whitney U"
+    description: "Statistical test performed"
+  p_value:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "P-value from the statistical test"
+  significant:
+    type: boolean
+    description: "Whether p < α (default 0.05)"
+  condition:
+    type: string
+    enum:
+      - "null"
+      - "alternative"
+    description: "Simulation condition (null for Type I error, alternative for power)"
+  effect_size:
+    type: number
+    nullable: true
+    description: "Cohen's d (only for simulated data)"
+  iteration:
+    type: integer
+    minimum: 1
+    maximum: 1000
+    description: "Simulation iteration number"
+  seed:
+    type: integer
+    description: "Random seed used (fixed at 42)"
+required:
+  - result_id
+  - dataset_id
+  - method
+  - test_type
+  - p_value
+  - significant
+  - condition
+  - iteration
+  - seed
+additionalProperties: false

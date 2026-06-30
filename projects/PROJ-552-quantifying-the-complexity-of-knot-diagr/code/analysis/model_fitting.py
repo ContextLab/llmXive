@@ -1,12 +1,14 @@
-"""Model fitting and regression analysis utilities.
+"""Pure model fitting logic for knot complexity analysis.
 
-This module provides functions to fit linear, polynomial, and logarithmic
-regression models to predict hyperbolic volume from crossing number and
-braid index. It also computes goodness-of-fit metrics (R², AIC, BIC, MAE),
-performs residual analysis, and identifies knot families with large residuals.
+This module contains ONLY the logic for fitting regression models (linear,
+polynomial, logarithmic) and computing goodness-of-fit metrics (R², AIC, BIC,
+MAE). It does NOT perform residual analysis, family identification, or plotting.
+Those responsibilities have been moved to:
+  - code/analysis/residual_analysis.py (residual calculation and family ID)
+  - code/analysis/plotting.py (figure generation)
 
-All output is written to ``data/analysis/regression_metrics.json`` and
-``docs/reproducibility/residual_analysis.md``.
+Output from this module is limited to model coefficients and metrics;
+residuals are returned as data but not analyzed or logged here.
 """
 
 from __future__ import annotations
@@ -25,7 +27,6 @@ from sklearn.metrics import mean_absolute_error, r2_score
 from sklearn.preprocessing import PolynomialFeatures
 
 from analysis._utils import load_cleaned_knots
-from reproducibility.logs import get_logger, log_operation
 
 
 @dataclass
