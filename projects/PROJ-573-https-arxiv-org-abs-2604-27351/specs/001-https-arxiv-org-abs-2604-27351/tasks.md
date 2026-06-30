@@ -50,7 +50,7 @@
 - [X] T003 [P] Verify text dataset availability (DROP/MUST) via HuggingFace datasets; create `src/research/verify_text.py` script;document in research.md section "Dataset Verification" with fields: dataset_name, url, variables (list), size_mb, verification_status (FR-001, Phase 0.1)
 - [X] T004 Validate statistical methodology ({{claim:c_5cb9c0de}} (1311.5354, https://arxiv.org/abs/1311.5354), {{claim:c_55db4237}})); document in research.md section "Methodology" with formula, {{claim:c_101df1fb}}, and effect size calculation (FR-007, FR-014, Phase 0.3)
 - [X] T005 Document dataset-variable fit and flag any missing variables in research.md section "Gap Analysis" with fields: dataset_name, missing_variables (list), impact_assessment (FR-001, Phase 0.4)
-- [ ] T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM via HuggingFace model cards; create `src/research/verify_models.py` script; document in research.md section "Model Verification" with fields: model_name, hf_id, size_mb, cpu_tractable (boolean) (FR-002, SC-002, Phase 0.5)
+- [ ] T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM via HuggingFace model cards [UNRESOLVED-CLAIM: c_9f96ea29 — status=not_enough_info]; create `src/research/verify_models.py` script; document in research.md section "Model Verification" with fields: model_name, hf_id, size_mb, cpu_tractable (boolean) (FR-002, SC-002, Phase 0.5)
 - [X] T006a Implement Reference-Validator Agent in `src/validators/reference_validator.py` with title-token-overlap ≥ 0.7 check before contributing review points; add blocking gate for Constitution II compliance (Constitution II, Plan Gap)
 
 **Checkpoint**: Research gate complete - plan.md Constitution Check must show ✅ COMPLIANT before Phase 1 begins
@@ -63,7 +63,7 @@
 
 - [X] T007 Create project structure with exact directories: src/, tests/, data/, data/processed/, state/, contracts/, src/benchmark/, src/models/, src/tasks/, src/evaluation/, src/utils/, src/benchmark/config/, src/benchmark/config/modalities/, src/research/, src/validators/ (per plan.md project structure)
 - [X] T008 Initialize Python 3.11 project with {{claim:c_9da78e09}}
-- [ ] T009 [P] Configure linting and formatting tools: ruff.toml (line-length=88, target-version=py311) and pyproject.toml (black config) in repository root
+- [X] T009 [P] Configure linting and formatting tools: ruff.toml (line-length=88, target-version=py311) and pyproject.toml (black config) in repository root
 
 ---
 
@@ -110,10 +110,10 @@ Examples of foundational tasks (adjust based on your project):
 - [X] T024 [US1] Implement timeout enforcement in src/utils/timeout.py (FR-006, FR-013); function signatures: enforce_timeout(func, timeout_seconds=300) -> result; raise TimeoutError if exceeded; depends on T016 complete
 - [X] T025 [US1] Implement seed/version AND environment details logging in src/utils/logging.py (FR-005); depends on T016 completion; functions: log_random_seed(seed), log_model_versions(models), log_environment_details(); log random seeds, model versions, AND environment details (Python version, OS, CPU info)
 - [X] T026 [US1] Implement metrics computation (F1, MAPE) in src/evaluation/metrics.py (FR-004); function signatures: compute_f1(y_true, y_pred) -> float, compute_mape(y_true, y_pred) -> float; handle edge cases (division by zero, empty arrays)
-- [ ] T027 [US1] Implement statistical tests in src/evaluation/statistical_tests.py (FR-007, FR-014, FR-011); MUST include: {{claim:c_2c09cbc3}}, {{claim:c_2c7597de}} (1809.01635, https://arxiv.org/abs/1809.01635) with {{claim:c_7c3d210d}} and 95% CI as PRIMARY outcome (document formula), {{claim:c_55db4237}} (explicit count), configurable α threshold (default 0.05 (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value)) with logging; function signatures: paired_ttest(condition_a, condition_b, {{claim:c_08e60571}}), wilcoxon_effect_size(condition_a, condition_b), bootstrap_ci(values, {{claim:c_e50ac6bc}}, {{claim:c_dadece63}} (1710.08708, https://arxiv.org/abs/1710.08708))
+- [ ] T027 [US1] Implement statistical tests in src/evaluation/statistical_tests.py (FR-007, FR-014, FR-011); MUST include: {{claim:c_2c09cbc3}}, {{claim:c_2c7597de}} (1809.01635, https://arxiv.org/abs/1809.01635) with {{claim:c_7c3d210d}} and 95% CI as PRIMARY outcome [UNRESOLVED-CLAIM: c_a35b2254 — status=not_enough_info] (document formula), {{claim:c_55db4237}} (explicit count), configurable α threshold (default 0.05 (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value)) with logging; function signatures: paired_ttest(condition_a, condition_b, {{claim:c_08e60571}}), wilcoxon_effect_size(condition_a, condition_b), bootstrap_ci(values, {{claim:c_e50ac6bc}}, {{claim:c_dadece63}} (1710.08708, https://arxiv.org/abs/1710.08708))
 - [ ] T028 [US1] Implement report generator in src/evaluation/report_generator.py (FR-007); MUST verify report includes (a) t-statistic, (b) p-value, (c) bootstrap CI ({{claim:c_8176747a}}), (d) Wilcoxon effect size as PRIMARY outcome with 95% CI; function signatures: generate_csv_report(results, output_path), generate_pdf_report(results, output_path)
 - [X] T029 [US1] Create run_benchmark.py main entry point in src/benchmark/run_benchmark.py (FR-001, FR-006, FR-010); CLI arguments: --config (default default.yaml), --mode (heterogeneous|unified), --seeds (5); depends on T024, T025 logging complete
-- [ ] T030 [US1] Create default.yaml config in src/benchmark/config/default.yaml with required keys: datasets (list), modalities (list), seeds (5), timeout_per_task (300), {{claim:c_340e25bd}} (Wikipedia: Bootstrapping (statistics), https://en.wikipedia.org/wiki/Bootstrapping_(statistics))
+- [ ] T030 [US1] Create default.yaml config in src/benchmark/config/default.yaml with required keys: datasets (list), modalities (list), seeds (5), timeout_per_task (300) [UNRESOLVED-CLAIM: c_ca8b56cf — status=not_enough_info], {{claim:c_340e25bd}} (Wikipedia: Bootstrapping (statistics), https://en.wikipedia.org/wiki/Bootstrapping_(statistics))
 - [X] T031 [US1] Create task_definitions.yaml with {{claim:c_3bd8ba9e}} in src/tasks/task_definitions.yaml (not "multiple" - explicit count); schema: task_id (T001-T020), modalities(list), datasets (list), label_column (string); depends on T010, T011 complete
 - [X] T032 [US1] Create StatisticalSummary persistence in data/statistical_summary.yaml (Constitution IV); YAML structure: task_results (list of {task_id, accuracy, condition, timestamp}), aggregate_stats (mean_accuracy_diff, p_value, effect_size, ci_lower, ci_upper); schema reference: contracts/results.schema.yaml
 
@@ -181,8 +181,8 @@ Examples of foundational tasks (adjust based on your project):
 - [X] T054 Run quickstart.md validation to ensure reproducible setup; validation method: fresh venv, pip install -r requirements.txt, run --help, verify no errors
 - [X] T055a Create runtime measurement script in src/utils/runtime_monitor.py (SC-003, SC-002); function signatures: measure_total_benchmark_time(), measure_per_task_time(task_id); record results to data/runtime_metrics.yaml
 - [ ] T055b Implement total runtime verification in src/evaluation/runtime_verification.py; verify total runtime ≤4 hours on reference hardware (SC-003); record pass/fail to data/runtime_metrics.yaml <!-- FAILED: unspecified -->
-- [ ] T055c Implement per-task inference verification in src/evaluation/runtime_verification.py; Verify per-task inference ≤5 minutes (SC-002); record pass/fail to data/runtime_metrics.yaml
-- [ ] T056 Verify reproducibility across multiple seeds (SC-004); mean accuracy differences within 95% CI with CI width ≤15% (implementation-specific threshold - document in spec as staged); run benchmark 5 times with different seeds, compare results
+- [ ] T055c Implement per-task inference verification in src/evaluation/runtime_verification.py; Verify per-task inference ≤5 minutes [UNRESOLVED-CLAIM: c_13dd3b57 — status=not_enough_info] (SC-002); record pass/fail to data/runtime_metrics.yaml
+- [ ] T056 Verify reproducibility across multiple seeds (SC-004); mean accuracy differences within 95% CI with CI width ≤15% [UNRESOLVED-CLAIM: c_1a57426d — status=not_enough_info] (implementation-specific threshold - document in spec as staged); run benchmark 5 times with different seeds [UNRESOLVED-CLAIM: c_171b45d6 — status=not_enough_info], compare results
 - [ ] T057 Archive artifacts with content hashes in state/artifact_hashes (Constitution V); artifacts to archive: data/, state/, src/ (excluding __pycache__); hash format: sha256; update procedure: compute hash for each file, write to state/artifact_hashes.yaml with file_path and hash value
 - [X] T058 Update state/projects/PROJ-573-https-arxiv-org-abs-2604-27351.yaml updated_at timestamp on artifact changes; depends on T018; helper function: update_timestamp_on_change(artifact_path); integrate with T040-T042 config updates
 
@@ -285,13 +285,13 @@ With multiple developers:
 
 ## Compute Feasibility Notes
 
-- All models must be CPU-tractable (< 1 GB weights) [UNRESOLVED-CLAIM: c_a8c194c5 — status=not_enough_info] - validated in T006
+- All models must be CPU-tractable (< 1 GB weights) - validated in T006
 - No GPU/CUDA dependencies
 - {{claim:c_b9b3cab2}} (Wikipedia: {{claim:c_0929bcb6}}, https://en.wikipedia.org/wiki/Hutter_Prize)
 - {{claim:c_e38700cc}}
 - Full benchmark ≤ 4 hours wall-clock time
-- Use UCI_HAR for time-series [UNRESOLVED-CLAIM: c_cdfc4f62 — status=not_enough_info], DROP/MUST for text (per plan.md substitution strategy)
-- No 8-bit/4-bit quantization [UNRESOLVED-CLAIM: c_eda6e217 — status=not_enough_info] (bitsandbytes requires CUDA)
+- Use UCI_HAR for time-series, DROP/MUST for text (per plan.md substitution strategy)
+- No 8-bit/4-bit quantization [UNRESOLVED-CLAIM: c_13784e29 — status=not_enough_info] (bitsandbytes requires CUDA)
 - Dataset downloads MUST use verified URLs or HuggingFace datasets.load_dataset()
 
 ## SC-001 Empirical Determination Note

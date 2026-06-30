@@ -9,27 +9,37 @@ description = "Heterogeneous Scientific Foundation Model Collaboration Benchmark
 readme = "README.md"
 requires-python = ">=3.11"
 license = {text = "MIT"}
+authors = [
+    {name = "llmXive Team"}
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+]
 dependencies = [
     "numpy>=1.24.0",
     "pandas>=2.0.0",
-    "scipy>=1.10.0",
     "pyyaml>=6.0",
+    "scipy>=1.10.0",
     "datasets>=2.14.0",
-    "transformers>=4.33.0",
-    "tabpfn>=0.1.0",
+    "transformers>=4.30.0",
     "torch>=2.0.0",
-    "pillow>=9.0.0",
-    "reportlab>=4.0.0",
+    "tabpfn>=0.1.0",
+    "pytest>=7.0.0",
+    "ruff>=0.1.0",
+    "black>=23.0.0",
     "matplotlib>=3.7.0",
+    "seaborn>=0.12.0",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "ruff>=0.1.0",
-    "black>=23.0.0",
-    "pytest>=7.4.0",
-    "pytest-cov>=4.1.0",
-    "mypy>=1.5.0",
+    "pytest-cov>=4.0.0",
+    "pytest-mock>=3.10.0",
+    "mypy>=1.0.0",
 ]
 
 [tool.black]
@@ -53,26 +63,11 @@ exclude = '''
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-addopts = "-v --strict-markers"
-markers = [
-    "unit: Unit tests",
-    "integration: Integration tests",
-    "contract: Contract tests",
-]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
 
-[tool.mypy]
-python_version = "3.11"
-warn_return_any = true
-warn_unused_configs = true
-ignore_missing_imports = true
-disallow_untyped_defs = false
-
-[tool.ruff]
-line-length = 88
-target-version = "py311"
-extend-exclude = [
-    ".venv",
-    "__pycache__",
-    "data",
-    "state",
-]
+[tool.setuptools.packages.find]
+where = ["code"]
+include = ["src*", "tests*", "research*"]
+exclude = ["*.tests", "*.tests.*"]

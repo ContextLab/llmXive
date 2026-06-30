@@ -33,6 +33,18 @@
   \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
   \ (boolean) (FR-002, SC-002, Phase 0.5)"
 : 1
+? "T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM\
+  \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_9f96ea29 \u2014 status=not_enough_info];\
+  \ create `src/research/verify_models.py` script; document in research.md section\
+  \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
+  \ (boolean) (FR-002, SC-002, Phase 0.5)"
+: 1
+? "T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM\
+  \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_c7c6ae25 \u2014 status=not_enough_info];\
+  \ create `src/research/verify_models.py` script; document in research.md section\
+  \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
+  \ (boolean) (FR-002, SC-002, Phase 0.5)"
+: 1
 ? 'T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM
   via HuggingFace model cards; create `src/research/verify_models.py` script; document
   in research.md section "Model Verification" with fields: model_name, hf_id, size_mb,
@@ -70,9 +82,6 @@
   \ [UNRESOLVED-CLAIM: c_09293d6f \u2014 status=not_enough_info] and pyproject.toml\
   \ (black config) in repository root"
 : 1
-? 'T009 [P] Configure linting and formatting tools: ruff.toml (line-length=88, target-version=py311)
-  and pyproject.toml (black config) in repository root'
-: 2
 ? "T015 Create quickstart.md with setup instructions; include sections: (1) Prerequisites\
   \ list (Python 3.11 [UNRESOLVED-CLAIM: c_31b68441 \u2014 status=not_enough_info],\
   \ pip, git), (2) Setup commands (clone, venv, install), (3) Verification steps (run\
