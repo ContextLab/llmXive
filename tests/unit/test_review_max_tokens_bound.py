@@ -39,3 +39,36 @@ def test_router_generation_default_unchanged():
     # chat_with_fallback applies the generation budget when the caller omits one.
     src = inspect.getsource(router.chat_with_fallback)
     assert "GENERATION_MAX_TOKENS" in src
+
+
+def test_specialist_reviewers_use_the_reasoning_budget():
+    """The SPECIALIST reviewers (base-Agent path) must carry the SAME reasoning-safe
+    bound as the convergence LLMReviewer. The base Agent omitted max_tokens, so they
+    used the 131072 GENERATION default → a reasoning model hangs past the deadline,
+    worst for the large-prompt artifact reviewers (code/data/filesystem), leaving
+    review coverage perpetually incomplete (3/7) so no project ever advanced."""
+    from llmxive.agents.paper_reviewer import PaperReviewerAgent
+    from llmxive.agents.research_reviewer import ResearchReviewerAgent
+
+    assert ResearchReviewerAgent.chat_max_tokens == router.REASONING_MAX_TOKENS
+    assert PaperReviewerAgent.chat_max_tokens == router.REASONING_MAX_TOKENS
+
+
+def test_base_agent_threads_chat_max_tokens_into_the_call():
+    """base.Agent.run must pass its chat_max_tokens to chat_with_fallback (else the
+    reviewer bound is silently ignored and the router applies the 131072 default)."""
+    import inspect
+
+    from llmxive.agents import base
+
+    src = inspect.getsource(base.Agent.run)
+    assert "max_tokens=self.chat_max_tokens" in src
+
+
+def test_generative_agents_keep_the_generation_budget():
+    """The base default is None (→ router GENERATION budget): generative agents
+    (brainstorm/flesh_out) legitimately emit large documents and must NOT be capped
+    to the reasoning budget — only the short-verdict reasoning reviewers are."""
+    from llmxive.agents.base import Agent
+
+    assert Agent.chat_max_tokens is None

@@ -96,6 +96,20 @@ class Agent(abc.ABC):
     #: agents (implementer/tasker) leave it None to keep useful sampling.
     chat_temperature: float | None = None
 
+    #: Completion-token budget for this agent's chat calls. ``None`` = the router's
+    #: GENERATION budget (131072) — correct for GENERATIVE agents (brainstorm /
+    #: flesh_out) that legitimately emit large documents. REASONING agents (the
+    #: specialist reviewers) emit a SHORT structured verdict and must pin this to
+    #: the reasoning-safe ``REASONING_MAX_TOKENS`` (32768): with the 131072 budget
+    #: a reasoning model keeps generating/reasoning past the wall-clock deadline
+    #: and HANGS — and the hang surface grows with prompt size, so the
+    #: large-prompt artifact reviewers (code+data+docs) flap in CI while the
+    #: small-prompt prose reviewers squeak by, leaving review coverage permanently
+    #: incomplete (3/7) so no project ever advances. This is the SAME bound the
+    #: convergence reviewer already carries (llm_reviewer.LLMReviewer) — applied
+    #: here so the specialist-reviewer path is reasoning-safe too (SSoT).
+    chat_max_tokens: int | None = None
+
     def __init__(self, registry_entry: AgentRegistryEntry) -> None:
         self.entry = registry_entry
 
@@ -141,6 +155,7 @@ class Agent(abc.ABC):
                     fallback_backends=[b.value for b in self.entry.fallback_backends],
                     model=self.entry.default_model,
                     temperature=self.chat_temperature,
+                    max_tokens=self.chat_max_tokens,
                 )
                 captured_messages = attempt_messages
                 captured_response = response

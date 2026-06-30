@@ -24,6 +24,7 @@ from pydantic import ValidationError
 from llmxive.agents.base import Agent, AgentContext, MalformedResponseError
 from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage, ChatResponse
+from llmxive.backends.router import REASONING_MAX_TOKENS
 from llmxive.config import repo_root as _repo_root
 from llmxive.state import reviews as reviews_store
 from llmxive.state import runlog as runlog_store
@@ -209,6 +210,13 @@ class ResearchReviewerAgent(Agent):
     #: Deterministic verdicts (Constitution VI reliability): same artifact ->
     #: same verdict, so the unanimous-accept gate stops flapping run-to-run.
     chat_temperature = 0.0
+
+    #: Reasoning-safe completion budget (a verdict is a SHORT structured output;
+    #: the 131072 generation default lets a reasoning model run past the deadline
+    #: and HANG — worse for the large-prompt artifact reviewers, which is why
+    #: code/data/filesystem coverage went perpetually incomplete). Same bound as
+    #: the convergence LLMReviewer.
+    chat_max_tokens = REASONING_MAX_TOKENS
 
     def __init__(self, registry_entry: AgentRegistryEntry) -> None:
         super().__init__(registry_entry)
