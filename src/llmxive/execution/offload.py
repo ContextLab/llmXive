@@ -305,7 +305,13 @@ def dispatch(project_dir: Path, repo_root: Path) -> str | None:
         )
         metadata = {
             "id": kernel_ref,
-            "title": f"llmXive {project_id}",
+            # Title MUST slugify back to the (possibly TRUNCATED) slug or the
+            # kaggle>=2 CLI rejects the push with 400 "title does not resolve to the
+            # specified id". The old ``f"llmXive {project_id}"`` slugified to the
+            # UNtruncated id, so any project whose name exceeded the 50-char slug cap
+            # failed to offload. Derive the title FROM the slug (dashes->spaces) so
+            # it round-trips exactly.
+            "title": slug.replace("-", " "),
             "code_file": code_file,
             "language": "python",
             "kernel_type": "script",
@@ -343,15 +349,23 @@ def poll(kernel_ref: str) -> str:
     proc = _run_kaggle(["kernels", "status", kernel_ref])
     if proc is None:
         return _STATUS_RUNNING
-    low = ((proc.stdout or "") + " " + (proc.stderr or "")).lower()
-    # `kaggle kernels status` reports e.g. `<ref> has status "complete"`. Match
-    # the reported token in priority order; an unrecognised line stays RUNNING
-    # (the safe non-terminal default → keep polling, never escalate).
-    if "cancelacknowledged" in low or "cancelrequested" in low:
+    out = (proc.stdout or "") + " " + (proc.stderr or "")
+    # `kaggle kernels status` reports e.g. `<ref> has status "complete"` (or, on the
+    # kaggle>=2 client, `... has status "KernelWorkerStatus.COMPLETE"`). Parse ONLY
+    # that reported token — a TRANSIENT query failure ("404 Client Error",
+    # "Permission denied", a flaky 5xx) must NOT be read as a terminal state: the old
+    # whole-output substring match read the word "error" out of "404 Client Error"
+    # and wrongly reported a still-running kernel as ERROR. No "has status" token ->
+    # RUNNING (the safe non-terminal default → keep polling, never escalate).
+    m = re.search(r'has status ["\']?(?P<s>[A-Za-z.]+)', out)
+    if not m:
+        return _STATUS_RUNNING
+    s = m.group("s").lower()
+    if "cancel" in s:
         return _STATUS_CANCELLED
-    if "complete" in low:
+    if "complete" in s:
         return _STATUS_COMPLETE
-    if "error" in low:
+    if "error" in s:
         return _STATUS_ERROR
     return _STATUS_RUNNING
 

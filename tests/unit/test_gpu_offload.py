@@ -150,6 +150,44 @@ def test_dispatch_generates_kernel_metadata_with_gpu_and_internet(tmp_path, monk
     assert "ContextLab/llmXive" in script
 
 
+def test_dispatch_long_name_title_resolves_to_truncated_slug(tmp_path, monkeypatch) -> None:
+    """For a project whose name exceeds Kaggle's 50-char slug cap, the kernel TITLE
+    must still slugify to the (truncated) id — else the kaggle>=2 CLI rejects the
+    push with 400 'title does not resolve to the specified id', silently breaking
+    offload for every long-named (e.g. arXiv) project."""
+    import re
+
+    monkeypatch.setenv("KAGGLE_USERNAME", "tester")
+    monkeypatch.setenv("KAGGLE_KEY", "k")
+    long_id = "PROJ-488-evaluating-the-impact-of-code-generation-on-software-quality"
+    proj = _bootstrap_project(tmp_path, long_id, "- [x] T001 produce data/out.csv\n",
+                              quickstart="```bash\npython main.py\n```\n")
+    captured: dict[str, Path] = {}
+
+    class _Proc:
+        returncode = 0
+        stdout = "Kernel pushed"
+        stderr = ""
+
+    def _fake_run_kaggle(args, *, timeout_s=300):
+        if args[:2] == ["kernels", "push"]:
+            captured["dir"] = Path(args[args.index("-p") + 1])
+        return _Proc()
+
+    monkeypatch.setattr(offload, "_run_kaggle", _fake_run_kaggle)
+    monkeypatch.setattr(offload, "_current_commit_sha", lambda root: "abc123")
+
+    offload.dispatch(proj, tmp_path)
+    meta = json.loads((captured["dir"] / "kernel-metadata.json").read_text())
+    slug = meta["id"].split("/", 1)[1]
+    assert len(slug) <= 50
+    # Kaggle derives the slug from the title by lowercasing + collapsing any run of
+    # non-alphanumerics to a single dash; the title MUST round-trip to the id.
+    def _kaggle_slugify(t: str) -> str:
+        return re.sub(r"-+", "-", re.sub(r"[^a-z0-9]+", "-", t.lower())).strip("-")
+    assert _kaggle_slugify(meta["title"]) == slug
+
+
 def test_dispatch_returns_none_without_quickstart_commands(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("KAGGLE_USERNAME", "tester")
     monkeypatch.setenv("KAGGLE_KEY", "k")
@@ -340,3 +378,33 @@ def test_compute_infra_failure_without_offload_uses_existing_path(tmp_path, monk
     assert "COMPUTE-ENVIRONMENT" in fb and "RE-SCOPE" in fb
     new_tasks = (proj / "specs" / "001-x" / "tasks.md").read_text()
     assert "- [ ] T001 run code/model_metrics.py" in new_tasks
+
+
+def test_poll_transient_http_error_stays_running(monkeypatch) -> None:
+    """A TRANSIENT status-query failure (404/permission/5xx — the kaggle>=2 client
+    emits 'NNN Client Error: ...') must NOT be read as the kernel's terminal ERROR
+    state; poll() returns RUNNING so the offload keeps polling instead of wrongly
+    failing a still-running kernel."""
+    class _Proc:
+        returncode = 1
+        stdout = ""
+        stderr = "404 Client Error: Not Found for url: .../GetKernelSessionStatus"
+    monkeypatch.setattr(offload, "_run_kaggle", lambda *a, **k: _Proc())
+    assert offload.poll("u/k") == "running"
+
+
+def test_poll_reports_real_kernel_error_and_complete(monkeypatch) -> None:
+    """A SUCCESSFUL status query that reports the kernel's own ERROR/COMPLETE state
+    (incl. the kaggle>=2 'KernelWorkerStatus.X' enum form) is parsed correctly."""
+    def _mk(status_text):
+        class _P:
+            returncode = 0
+            stdout = f'u/k has status "{status_text}"'
+            stderr = ""
+        return _P()
+    monkeypatch.setattr(offload, "_run_kaggle", lambda *a, **k: _mk("KernelWorkerStatus.ERROR"))
+    assert offload.poll("u/k") == "error"
+    monkeypatch.setattr(offload, "_run_kaggle", lambda *a, **k: _mk("KernelWorkerStatus.COMPLETE"))
+    assert offload.poll("u/k") == "complete"
+    monkeypatch.setattr(offload, "_run_kaggle", lambda *a, **k: _mk("complete"))
+    assert offload.poll("u/k") == "complete"
