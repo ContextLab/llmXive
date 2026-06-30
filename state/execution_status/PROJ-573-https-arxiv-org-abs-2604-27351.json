@@ -1,0 +1,17 @@
+{
+  "project_id": "PROJ-573-https-arxiv-org-abs-2604-27351",
+  "ok": false,
+  "reason": "6 command(s) failed: python src/benchmark/run_benchmark.py --config default.yaml (rc=1); python code/src/benchmark/run_task.py --task-id 3 --add-modality image (rc=1); python src/benchmark/run_benchmark.py --config default.yaml --mode unified (rc=1)",
+  "artifacts": [],
+  "failures": [
+    "python src/benchmark/run_benchmark.py --config default.yaml -> rc=1\n    rg-abs-2604-27351/code/src/evaluation/report_generator.py\", line 23, in <module>\n    from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Break\nImportError: cannot import name 'Break' from 'reportlab.platypus' (/home/runner/work/llmXive/llmXive/projects/PROJ-573-https-arxiv-org-abs-2604-27351/code/.venv/lib/python3.11/site-packages/reportlab/platypus/__init__.py)",
+    "python code/src/benchmark/run_task.py --task-id 3 --add-modality image -> rc=1\n    2026-06-30 09:55:59 - run_task - ERROR - Task definition not found for ID: 3\n{\n  \"error\": \"Task definition not found for ID: 3\",\n  \"status\": \"failed\"\n}",
+    "python src/benchmark/run_benchmark.py --config default.yaml --mode unified -> rc=1\n    rg-abs-2604-27351/code/src/evaluation/report_generator.py\", line 23, in <module>\n    from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Break\nImportError: cannot import name 'Break' from 'reportlab.platypus' (/home/runner/work/llmXive/llmXive/projects/PROJ-573-https-arxiv-org-abs-2604-27351/code/.venv/lib/python3.11/site-packages/reportlab/platypus/__init__.py)",
+    "python code/src/benchmark/run_task.py --task-id 3 --add-modality image -> rc=1\n    2026-06-30 09:56:00 - run_task - ERROR - Task definition not found for ID: 3\n{\n  \"error\": \"Task definition not found for ID: 3\",\n  \"status\": \"failed\"\n}",
+    "python src/benchmark/run_benchmark.py --seed 42 -> rc=1\n    rg-abs-2604-27351/code/src/evaluation/report_generator.py\", line 23, in <module>\n    from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Break\nImportError: cannot import name 'Break' from 'reportlab.platypus' (/home/runner/work/llmXive/llmXive/projects/PROJ-573-https-arxiv-org-abs-2604-27351/code/.venv/lib/python3.11/site-packages/reportlab/platypus/__init__.py)",
+    "python src/benchmark/run_benchmark.py --seed 123 -> rc=1\n    rg-abs-2604-27351/code/src/evaluation/report_generator.py\", line 23, in <module>\n    from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer, Break\nImportError: cannot import name 'Break' from 'reportlab.platypus' (/home/runner/work/llmXive/llmXive/projects/PROJ-573-https-arxiv-org-abs-2604-27351/code/.venv/lib/python3.11/site-packages/reportlab/platypus/__init__.py)"
+  ],
+  "fix_rounds": 4,
+  "model_tier": 0,
+  "updated_at": "2026-06-30T09:56:01Z"
+}

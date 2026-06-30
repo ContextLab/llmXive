@@ -8,131 +8,169 @@ import pytest
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-# Import the class under test
 from src.tasks.task_runner import TaskRunner
+
+
+@pytest.fixture
+def temp_task_file():
+    """Create a temporary task definitions file."""
+    tasks = [
+        {
+            "task_id": "T001",
+            "modalities": ["timeseries", "tabular"],
+            "datasets": ["UCI_HAR"],
+            "label_column": "activity"
+        },
+        {
+            "task_id": "T002",
+            "modalities": ["text"],
+            "datasets": ["DROP"],
+            "label_column": "answer"
+        }
+    ]
+    
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+        yaml.dump(tasks, f)
+        temp_path = f.name
+    
+    yield temp_path
+    
+    os.unlink(temp_path)
+
+
+@pytest.fixture
+def runner_with_tasks(temp_task_file):
+    """Create a TaskRunner with the temporary task file."""
+    return TaskRunner(task_definitions_path=temp_task_file)
 
 
 class TestTaskRunner:
     """Tests for the TaskRunner class."""
-
-    @pytest.fixture
-    def temp_task_file(self, tmp_path):
-        """Create a temporary task definitions file."""
-        task_def_path = tmp_path / "task_definitions.yaml"
-        tasks = {
-            "T001": {
-                "task_id": "T001",
-                "modalities": ["time_series"],
-                "datasets": ["UCI_HAR"],
-                "label_column": "activity"
-            },
-            "T002": {
-                "task_id": "T002",
-                "modalities": ["tabular", "text"],
-                "datasets": ["DROP", "MUST"],
-                "label_column": "answer"
-            },
-            "T003_INVALID": {
-                "task_id": "T003_INVALID",
-                # Missing required fields
-            }
-        }
-        with open(task_def_path, 'w') as f:
-            yaml.dump(tasks, f)
-        return task_def_path
-
-    @pytest.fixture
-    def temp_state_file(self, tmp_path):
-        """Create a temporary state file."""
-        state_path = tmp_path / "state.yaml"
-        state_data = {
-            "artifact_hashes": {},
-            "updated_at": "2023-01-01T00:00:00Z"
-        }
-        with open(state_path, 'w') as f:
-            yaml.dump(state_data, f)
-        return state_path
-
-    def test_init_loads_tasks(self, temp_task_file, temp_state_file):
-        """Test that TaskRunner loads tasks from the file."""
-        runner = TaskRunner(
-            task_definitions_path=str(temp_task_file),
-            state_path=str(temp_state_file)
-        )
-        assert len(runner.list_tasks()) == 3
-        assert "T001" in runner.list_tasks()
-        assert "T002" in runner.list_tasks()
-
-    def test_get_task_existing(self, temp_task_file, temp_state_file):
+    
+    def test_init_with_valid_path(self, temp_task_file):
+        """Test initialization with a valid file path."""
+        runner = TaskRunner(task_definitions_path=temp_task_file)
+        assert runner.task_definitions_path == Path(temp_task_file)
+        assert "T001" in runner.tasks
+        assert "T002" in runner.tasks
+    
+    def test_init_with_default_path_missing(self):
+        """Test initialization when default path does not exist."""
+        # Create a runner pointing to a non-existent default location
+        # We need to mock the default path resolution or use a specific path
+        # Here we test the behavior when the file doesn't exist by passing a non-existent path
+        with tempfile.TemporaryDirectory() as tmpdir:
+            non_existent = os.path.join(tmpdir, "non_existent.yaml")
+            runner = TaskRunner(task_definitions_path=non_existent)
+            assert runner.tasks == {}
+    
+    def test_get_task_found(self, runner_with_tasks):
         """Test retrieving an existing task."""
-        runner = TaskRunner(
-            task_definitions_path=str(temp_task_file),
-            state_path=str(temp_state_file)
-        )
-        task = runner.get_task("T001")
+        task = runner_with_tasks.get_task("T001")
         assert task is not None
-        assert task['task_id'] == "T001"
-        assert task['modalities'] == ["time_series"]
-
-    def test_get_task_nonexistent(self, temp_task_file, temp_state_file):
+        assert task["task_id"] == "T001"
+        assert task["modalities"] == ["timeseries", "tabular"]
+    
+    def test_get_task_not_found(self, runner_with_tasks):
         """Test retrieving a non-existent task."""
-        runner = TaskRunner(
-            task_definitions_path=str(temp_task_file),
-            state_path=str(temp_state_file)
-        )
-        task = runner.get_task("NONEXISTENT")
+        task = runner_with_tasks.get_task("T999")
         assert task is None
-
-    def test_validate_task_valid(self, temp_task_file, temp_state_file):
+    
+    def test_validate_task_valid(self, runner_with_tasks):
         """Test validation of a valid task."""
-        runner = TaskRunner(
-            task_definitions_path=str(temp_task_file),
-            state_path=str(temp_state_file)
-        )
-        assert runner.validate_task("T001") is True
-        assert runner.validate_task("T002") is True
-
-    def test_validate_task_invalid_missing_fields(self, temp_task_file, temp_state_file):
-        """Test validation of a task missing required fields."""
-        runner = TaskRunner(
-            task_definitions_path=str(temp_task_file),
-            state_path=str(temp_state_file)
-        )
-        assert runner.validate_task("T003_INVALID") is False
-
-    def test_validate_task_nonexistent(self, temp_task_file, temp_state_file):
+        is_valid, errors = runner_with_tasks.validate_task("T001")
+        assert is_valid is True
+        assert len(errors) == 0
+    
+    def test_validate_task_not_found(self, runner_with_tasks):
         """Test validation of a non-existent task."""
-        runner = TaskRunner(
-            task_definitions_path=str(temp_task_file),
-            state_path=str(temp_state_file)
-        )
-        assert runner.validate_task("NONEXISTENT") is False
-
-    def test_run_task_success(self, temp_task_file, temp_state_file):
+        is_valid, errors = runner_with_tasks.validate_task("T999")
+        assert is_valid is False
+        assert "Task definition not found for ID: T999" in errors
+    
+    def test_validate_task_missing_field(self, temp_task_file):
+        """Test validation of a task missing required fields."""
+        tasks = [
+            {
+                "task_id": "T003",
+                "modalities": ["text"]
+                # Missing label_column
+            }
+        ]
+        
+        with open(temp_task_file, 'w') as f:
+            yaml.dump(tasks, f)
+        
+        runner = TaskRunner(task_definitions_path=temp_task_file)
+        is_valid, errors = runner.validate_task("T003")
+        
+        assert is_valid is False
+        assert any("Missing required field: label_column" in e for e in errors)
+    
+    def test_run_task_success(self, runner_with_tasks):
         """Test running a valid task."""
-        runner = TaskRunner(
-            task_definitions_path=str(temp_task_file),
-            state_path=str(temp_state_file)
-        )
-        result = runner.run_task("T001")
+        result = runner_with_tasks.run_task("T001")
+        
         assert result["task_id"] == "T001"
         assert result["status"] == "completed"
-        assert "metrics" in result
+        assert "execution_time" in result
+        assert result["details"]["modalities"] == ["timeseries", "tabular"]
+    
+    def test_run_task_invalid(self, runner_with_tasks):
+        """Test running a non-existent task raises error."""
+        with pytest.raises(ValueError) as exc_info:
+            runner_with_tasks.run_task("T999")
+        
+        assert "Task validation failed" in str(exc_info.value)
+    
+    def test_list_tasks(self, runner_with_tasks):
+        """Test listing all tasks."""
+        task_ids = runner_with_tasks.list_tasks()
+        assert set(task_ids) == {"T001", "T002"}
 
-    def test_run_task_failure_invalid(self, temp_task_file, temp_state_file):
-        """Test running an invalid task raises ValueError."""
-        runner = TaskRunner(
-            task_definitions_path=str(temp_task_file),
-            state_path=str(temp_state_file)
-        )
-        with pytest.raises(ValueError, match="Validation failed"):
-            runner.run_task("T003_INVALID")
 
-    def test_run_task_failure_nonexistent(self, temp_task_file, temp_state_file):
-        """Test running a non-existent task raises ValueError."""
-        runner = TaskRunner(
-            task_definitions_path=str(temp_task_file),
-            state_path=str(temp_state_file)
-        )
-        with pytest.raises(ValueError, match="Validation failed"):
-            runner.run_task("NONEXISTENT")
+def test_load_empty_file():
+    """Test loading an empty YAML file."""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+        f.write("")
+        temp_path = f.name
+    
+    try:
+        runner = TaskRunner(task_definitions_path=temp_path)
+        assert runner.tasks == {}
+    finally:
+        os.unlink(temp_path)
+
+
+def test_load_nonexistent_file():
+    """Test loading a non-existent file."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        non_existent = os.path.join(tmpdir, "does_not_exist.yaml")
+        runner = TaskRunner(task_definitions_path=non_existent)
+        assert runner.tasks == {}
+
+
+def test_dict_format_loading():
+    """Test loading tasks in dictionary format."""
+    tasks = {
+        "T001": {
+            "modalities": ["timeseries"],
+            "label_column": "activity"
+        },
+        "T002": {
+            "modalities": ["text"],
+            "label_column": "answer"
+        }
+    }
+    
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+        yaml.dump(tasks, f)
+        temp_path = f.name
+    
+    try:
+        runner = TaskRunner(task_definitions_path=temp_path)
+        assert len(runner.tasks) == 2
+        assert "T001" in runner.tasks
+        assert "T002" in runner.tasks
+    finally:
+        os.unlink(temp_path)

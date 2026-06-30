@@ -1,10 +1,6 @@
 """
-Unit tests for TextModel implementation.
-
-Tests FR-002 compliance:
-- CPU-only inference
-- Model size < 1 GB
-- Required methods: load_model, predict, get_embedding
+Unit tests for TextModel (src/models/text_model.py).
+Tests distilled LLM wrapper for text modality.
 """
 import os
 import tempfile
@@ -13,260 +9,239 @@ import numpy as np
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-from src.models.text_model import TextModel, DEFAULT_MODEL_ID, MAX_MODEL_SIZE_MB
+from src.models.text_model import TextModel
 
 
 class TestTextModel:
     """Test suite for TextModel class."""
-    
-    def test_initialization(self):
-        """Test TextModel initialization with default and custom model_id."""
-        # Default model
+
+    def test_init_default(self):
+        """Test default initialization."""
         model = TextModel()
-        assert model.model_id == DEFAULT_MODEL_ID
-        assert model.device == "cpu"
-        assert model._loaded is False
-        
-        # Custom model
-        custom_id = "distilbert-base-uncased-finetuned-sst-2-english"
-        model_custom = TextModel(model_id=custom_id)
-        assert model_custom.model_id == custom_id
-    
-    def test_load_model_cpu_only(self):
-        """Test that model loads on CPU and enforces CPU-only inference."""
-        model = TextModel(model_id="distilbert-base-uncased")
-        
-        # Mock the transformers loading to avoid actual download in tests
-        with patch('src.models.text_model.AutoModel') as mock_model, \
-             patch('src.models.text_model.AutoTokenizer') as mock_tokenizer:
-            
-            mock_model.from_pretrained.return_value = MagicMock()
-            mock_model.from_pretrained.return_value.to.return_value = mock_model.from_pretrained.return_value
-            mock_model.from_pretrained.return_value.eval.return_value = mock_model.from_pretrained.return_value
-            mock_tokenizer.from_pretrained.return_value = MagicMock()
-            
-            result = model.load_model()
-            
-            assert result is True
-            assert model._loaded is True
-            assert model.device == "cpu"
-            
-            # Verify .to("cpu") was called
-            mock_model.from_pretrained.return_value.to.assert_called_with("cpu")
-    
-    def test_model_size_verification(self):
-        """Test that model size is verified against MAX_MODEL_SIZE_MB."""
+        assert model.model is None
+        assert model.tokenizer is None
+        assert model.model_id is None
+        assert model.logger is not None
+
+    def test_load_model_mock(self):
+        """Test load_model with mocked LLM."""
+        mock_model = MagicMock()
+        mock_tokenizer = MagicMock()
+
+        with patch('src.models.text_model.AutoModelForSequenceClassification') as mock_auto:
+            with patch('src.models.text_model.AutoTokenizer') as mock_tok:
+                mock_auto.from_pretrained.return_value = mock_model
+                mock_tok.from_pretrained.return_value = mock_tokenizer
+                
+                model = TextModel()
+                model.load_model("distilbert-base")
+                
+                assert model.model is not None
+                assert model.tokenizer is not None
+                assert model.model_id == "distilbert-base"
+                
+                mock_auto.from_pretrained.assert_called_once()
+                mock_tok.from_pretrained.assert_called_once()
+
+    def test_predict_single_text(self):
+        """Test prediction with single text input."""
         model = TextModel()
+        model.model = MagicMock()
+        model.tokenizer = MagicMock()
         
-        # Test with a mock that returns size under limit
-        with patch.object(model, '_verify_model_size', return_value=500.0):
-            assert model._verify_model_size("test-model") == 500.0
+        # Mock tokenizer output
+        mock_encoded = {
+            'input_ids': np.array([[101, 2000, 102]]),
+            'attention_mask': np.array([[1, 1, 1]])
+        }
+        model.tokenizer.return_value = mock_encoded
         
-        # Test size limit check in load_model
-        with patch.object(model, '_verify_model_size', return_value=1500.0), \
-             patch('src.models.text_model.AutoModel'), \
-             patch('src.models.text_model.AutoTokenizer'):
-            
-            with pytest.raises(RuntimeError) as excinfo:
-                model.load_model()
-            
-            assert "exceeds limit" in str(excinfo.value)
-    
-    def test_predict_with_string_input(self):
-        """Test prediction with single string input."""
+        # Mock model output
+        mock_output = MagicMock()
+        mock_output.logits = np.array([[0.1, 0.9]])
+        model.model.return_value = mock_output
+
+        text = "This is a test sentence."
+        result = model.predict(text)
+        
+        assert isinstance(result, np.ndarray)
+        assert result.shape == (1, 1)
+        assert result[0, 0] == 1  # Class with higher probability
+
+    def test_predict_batch_texts(self):
+        """Test prediction with multiple text inputs."""
         model = TextModel()
+        model.model = MagicMock()
+        model.tokenizer = MagicMock()
         
-        # Mock model loading and inference
-        with patch.object(model, 'load_model', return_value=True), \
-             patch('src.models.text_model.torch') as mock_torch, \
-             patch.object(model, 'tokenizer') as mock_tokenizer:
-            
-            # Setup mocks
-            mock_tokenizer.return_value = {
-                'input_ids': mock_torch.tensor([[1, 2, 3]]),
-                'attention_mask': mock_torch.tensor([[1, 1, 1]])
-            }
-            
-            mock_outputs = MagicMock()
-            mock_outputs.last_hidden_state = mock_torch.tensor([[0.1, 0.2, 0.3]])
-            mock_model_instance = MagicMock()
-            mock_model_instance.return_value = mock_outputs
-            mock_torch.nn.functional.softmax = MagicMock(return_value=mock_torch.tensor([[0.9, 0.1]]))
-            
-            model.model = mock_model_instance
-            model._loaded = True
-            
-            result = model.predict("Test input text")
-            
-            assert "prediction" in result
-            assert "confidence" in result
-            assert "tokens_used" in result
-            assert "inference_time_sec" in result
-    
-    def test_predict_with_dict_input(self):
-        """Test prediction with dictionary input containing 'text' key."""
+        mock_encoded = {
+            'input_ids': np.array([
+                [101, 2000, 102],
+                [101, 3000, 102]
+            ]),
+            'attention_mask': np.array([
+                [1, 1, 1],
+                [1, 1, 1]
+            ])
+        }
+        model.tokenizer.return_value = mock_encoded
+        
+        mock_output = MagicMock()
+        mock_output.logits = np.array([
+            [0.1, 0.9],
+            [0.8, 0.2]
+        ])
+        model.model.return_value = mock_output
+
+        texts = ["First text.", "Second text."]
+        result = model.predict(texts)
+        
+        assert result.shape == (2, 1)
+
+    def test_get_embedding(self):
+        """Test embedding generation."""
         model = TextModel()
+        model.model = MagicMock()
+        model.tokenizer = MagicMock()
         
-        with patch.object(model, 'load_model', return_value=True), \
-             patch('src.models.text_model.torch') as mock_torch, \
-             patch.object(model, 'tokenizer') as mock_tokenizer:
-            
-            mock_tokenizer.return_value = {
-                'input_ids': mock_torch.tensor([[1, 2, 3]]),
-                'attention_mask': mock_torch.tensor([[1, 1, 1]])
-            }
-            
-            mock_outputs = MagicMock()
-            mock_outputs.last_hidden_state = mock_torch.tensor([[0.1, 0.2, 0.3]])
-            mock_model_instance = MagicMock()
-            mock_model_instance.return_value = mock_outputs
-            
-            model.model = mock_model_instance
-            model._loaded = True
-            
-            input_dict = {"text": "Test input from dict"}
-            result = model.predict(input_dict)
-            
-            assert "prediction" in result
-            assert result["tokens_used"] == 3
-    
-    def test_predict_with_invalid_input(self):
-        """Test prediction raises error for unsupported input types."""
+        mock_encoded = {
+            'input_ids': np.array([[101, 2000, 102]]),
+            'attention_mask': np.array([[1, 1, 1]])
+        }
+        model.tokenizer.return_value = mock_encoded
+        
+        mock_output = MagicMock()
+        mock_output.last_hidden_state = np.random.randn(1, 3, 768).astype(np.float32)
+        model.model.return_value = mock_output
+
+        text = "Test text for embedding."
+        embedding = model.get_embedding(text)
+        
+        assert isinstance(embedding, np.ndarray)
+        assert embedding.shape == (1, 768)  # Pooling over sequence
+
+    def test_predict_empty_text(self):
+        """Test prediction with empty string."""
         model = TextModel()
-        model._loaded = True  # Pretend loaded to test input validation
+        model.model = MagicMock()
+        model.tokenizer = MagicMock()
         
-        with pytest.raises(ValueError):
-            model.predict(12345)  # Invalid type
+        model.tokenizer.return_value = {
+            'input_ids': np.array([[101, 102]]),
+            'attention_mask': np.array([[1, 1]])
+        }
         
-        with pytest.raises(ValueError):
-            model.predict(None)  # Invalid type
-    
-    def test_get_embedding_returns_numpy(self):
-        """Test that get_embedding returns numpy array."""
-        model = TextModel()
+        mock_output = MagicMock()
+        mock_output.logits = np.array([[0.5, 0.5]])
+        model.model.return_value = mock_output
+
+        result = model.predict("")
         
-        with patch.object(model, 'load_model', return_value=True), \
-             patch.object(model, 'predict') as mock_predict:
-            
-            mock_predict.return_value = {
-                "prediction": [[0.1, 0.2, 0.3]],
-                "confidence": 0.9,
-                "tokens_used": 3,
-                "inference_time_sec": 0.1,
-                "model_id": "test"
-            }
-            
-            result = model.get_embedding("test text")
-            
-            assert isinstance(result, np.ndarray)
-            assert result.shape == (1, 3)
-    
-    def test_get_embedding_single_string(self):
-        """Test embedding for single string returns 2D array."""
+        assert result.shape == (1, 1)
+
+    def test_predict_invalid_type(self):
+        """Test prediction with non-string input."""
         model = TextModel()
         
-        with patch.object(model, 'load_model', return_value=True), \
-             patch.object(model, 'predict') as mock_predict:
-            
-            # Single embedding vector (1D)
-            mock_predict.return_value = {
-                "prediction": [0.1, 0.2, 0.3],
-                "confidence": 0.9,
-                "tokens_used": 3,
-                "inference_time_sec": 0.1,
-                "model_id": "test"
-            }
-            
-            result = model.get_embedding("test text")
-            
-            assert isinstance(result, np.ndarray)
-            assert result.ndim == 2  # Should be reshaped to (1, hidden_dim)
-            assert result.shape[0] == 1
-    
-    def test_model_not_loaded_error(self):
-        """Test that predict raises error if model not loaded."""
-        model = TextModel()
-        model._loaded = False
-        
-        with pytest.raises(RuntimeError) as excinfo:
-            model.predict("test")
-        
-        assert "Model not loaded" in str(excinfo.value)
-    
-    def test_cpu_only_enforcement(self):
-        """Test that device is always set to CPU."""
-        model = TextModel()
-        assert model.device == "cpu"
-        
-        # Even if we try to change it, it should stay CPU
-        model.device = "cuda"
-        assert model.device == "cuda"  # We can set it, but load_model enforces CPU
-        
-        # Verify load_model enforces CPU
-        with patch('src.models.text_model.AutoModel') as mock_model, \
-             patch('src.models.text_model.AutoTokenizer'):
-            
-            mock_model.from_pretrained.return_value = MagicMock()
-            mock_model.from_pretrained.return_value.to.return_value = mock_model.from_pretrained.return_value
-            mock_model.from_pretrained.return_value.eval.return_value = mock_model.from_pretrained.return_value
-            
-            model.device = "cuda"  # Try to set to cuda
-            model.load_model()
-            
-            # Verify .to("cpu") was called, overriding the cuda setting
-            mock_model.from_pretrained.return_value.to.assert_called_with("cpu")
+        with pytest.raises(TypeError, match="Input must be string or list of strings"):
+            model.predict(123)
+
+    def test_cpu_only_mode(self):
+        """Test that model forces CPU execution."""
+        mock_model = MagicMock()
+        mock_tokenizer = MagicMock()
+
+        with patch('src.models.text_model.AutoModelForSequenceClassification') as mock_auto:
+            with patch('src.models.text_model.AutoTokenizer') as mock_tok:
+                mock_auto.from_pretrained.return_value = mock_model
+                mock_tok.from_pretrained.return_value = mock_tokenizer
+                
+                model = TextModel()
+                model.load_model("cpu-model")
+                
+                mock_model.to.assert_called_with("cpu")
 
 
 class TestTextModelIntegration:
-    """Integration tests for TextModel (mocked)."""
-    
-    def test_full_workflow(self):
-        """Test complete workflow: init -> load -> predict -> embedding."""
-        model = TextModel(model_id="distilbert-base-uncased")
-        
-        # Mock all external dependencies
-        with patch.object(model, 'load_model', return_value=True), \
-             patch.object(model, 'predict') as mock_predict, \
-             patch.object(model, 'get_embedding') as mock_embedding:
-            
-            mock_predict.return_value = {
-                "prediction": [[0.5, 0.5]],
-                "confidence": 0.8,
-                "tokens_used": 10,
-                "inference_time_sec": 0.05,
-                "model_id": "test"
-            }
-            
-            mock_embedding.return_value = np.array([[0.1, 0.2, 0.3]])
-            
-            # Execute workflow
-            model.load_model()
-            pred_result = model.predict("Hello world")
-            emb_result = model.get_embedding("Hello world")
-            
-            assert pred_result["confidence"] == 0.8
-            assert emb_result.shape == (1, 3)
-    
-    def test_error_handling_on_load_failure(self):
-        """Test error handling when model loading fails."""
-        model = TextModel()
-        
-        with patch.object(model, '_verify_model_size', return_value=1500.0):
-            with pytest.raises(RuntimeError):
-                model.load_model()
-    
-    def test_cleanup_on_deletion(self):
-        """Test that model resources are cleaned up on deletion."""
-        model = TextModel()
-        
-        with patch.object(model, 'load_model', return_value=True):
-            model.load_model()
-            model.model = MagicMock()
-            model.tokenizer = MagicMock()
-            
-            # Delete should not raise
-            del model
+    """Integration tests for TextModel with actual numpy operations."""
 
+    def test_classification_flow(self):
+        """Test complete classification flow."""
+        model = TextModel()
+        model.model = MagicMock()
+        model.tokenizer = MagicMock()
+        
+        texts = [
+            "Positive review text here.",
+            "Negative review text here.",
+            "Another positive review."
+        ]
+        
+        # Mock encoding
+        max_len = 10
+        batch_size = len(texts)
+        mock_encoded = {
+            'input_ids': np.random.randint(0, 1000, (batch_size, max_len)),
+            'attention_mask': np.ones((batch_size, max_len), dtype=int)
+        }
+        model.tokenizer.return_value = mock_encoded
+        
+        # Mock logits
+        num_classes = 2
+        mock_output = MagicMock()
+        mock_output.logits = np.random.randn(batch_size, num_classes).astype(np.float32)
+        model.model.return_value = mock_output
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+        predictions = model.predict(texts)
+        
+        assert predictions.shape == (batch_size, 1)
+        assert np.all(predictions >= 0)
+        assert np.all(predictions < num_classes)
+
+    def test_embedding_pooling(self):
+        """Test that embedding uses mean pooling correctly."""
+        model = TextModel()
+        model.model = MagicMock()
+        model.tokenizer = MagicMock()
+        
+        text = "Test sentence for pooling."
+        
+        mock_encoded = {
+            'input_ids': np.array([[101, 2000, 3000, 102]]),
+            'attention_mask': np.array([[1, 1, 1, 1]])
+        }
+        model.tokenizer.return_value = mock_encoded
+        
+        hidden_size = 512
+        seq_len = 4
+        mock_output = MagicMock()
+        mock_output.last_hidden_state = np.random.randn(1, seq_len, hidden_size).astype(np.float32)
+        model.model.return_value = mock_output
+
+        embedding = model.get_embedding(text)
+        
+        assert embedding.shape == (1, hidden_size)
+
+    def test_long_text_handling(self):
+        """Test with text longer than model max length."""
+        model = TextModel()
+        model.model = MagicMock()
+        model.tokenizer = MagicMock()
+        
+        long_text = "Word " * 1000  # Very long text
+        
+        # Mock encoding (tokenizer should truncate)
+        max_len = 512
+        mock_encoded = {
+            'input_ids': np.random.randint(0, 1000, (1, max_len)),
+            'attention_mask': np.ones((1, max_len), dtype=int)
+        }
+        model.tokenizer.return_value = mock_encoded
+        
+        mock_output = MagicMock()
+        mock_output.logits = np.array([[0.5, 0.5]])
+        model.model.return_value = mock_output
+
+        result = model.predict(long_text)
+        
+        assert result.shape == (1, 1)

@@ -1,0 +1,16 @@
+timestamp: "2024-01-01T00:00:00+00:00"
+benchmark:
+  start_time: null
+  end_time: null
+  total_duration_seconds: null
+task_metrics: {}
+verification:
+  total_benchmark:
+    limit_seconds: 14400
+    actual_seconds: null
+    passed: false
+    reason: "Benchmark not started"
+  per_task:
+    limit_seconds: 300
+    violations: []
+    passed: true

@@ -1,338 +1,316 @@
-"""
-Unified translation layer for converting heterogeneous data modalities to text.
-Implements FR-003: Unified Text-Only Translation.
-"""
 import logging
 import numpy as np
 from typing import Dict, Any, List, Union, Optional, Tuple
 from pathlib import Path
-
+import pandas as pd
 from src.utils.logging import get_logger
 
 logger = get_logger(__name__)
 
+# Default fidelity threshold (configurable via environment or argument)
+DEFAULT_FIDELITY_THRESHOLD = 0.85
+
+def timeseries_to_text(data: Union[np.ndarray, List[float], pd.Series], label_name: Optional[str] = None) -> str:
+    """
+    Convert time-series data to a deterministic text representation.
+    
+    Args:
+        data: 1D array-like time-series data
+        label_name: Optional label for the series (e.g., "heart_rate")
+    
+    Returns:
+        String representation with statistical summary
+    """
+    if isinstance(data, list):
+        data = np.array(data)
+    elif isinstance(data, pd.Series):
+        data = data.values
+    
+    # Ensure 1D
+    if data.ndim != 1:
+        raise ValueError(f"Expected 1D time-series, got shape {data.shape}")
+    
+    if len(data) == 0:
+        return "Time-series is empty."
+    
+    mean_val = np.mean(data)
+    max_val = np.max(data)
+    min_val = np.min(data)
+    std_val = np.std(data)
+    median_val = np.median(data)
+    
+    # Format with consistent precision
+    text = f"Time-series stats: mean={mean_val:.4f}, std={std_val:.4f}, "
+    text += f"min={min_val:.4f}, max={max_val:.4f}, median={median_val:.4f}"
+    
+    if label_name:
+        text = f"{label_name.capitalize()}: {text}"
+    
+    return text
+
+def tabular_to_text(df: pd.DataFrame, label_column: Optional[str] = None) -> str:
+    """
+    Convert tabular data (DataFrame) to a deterministic text representation.
+    
+    Args:
+        df: Pandas DataFrame
+        label_column: Optional name of the label/target column
+    
+    Returns:
+        String representation with column values
+    """
+    if df.empty:
+        return "Table is empty."
+    
+    rows = []
+    for idx, row in df.iterrows():
+        row_parts = []
+        for col in df.columns:
+            val = row[col]
+            # Format numeric values consistently
+            if isinstance(val, (int, float, np.number)):
+                if np.isnan(val):
+                    val_str = "NaN"
+                elif isinstance(val, float):
+                    val_str = f"{val:.6f}"
+                else:
+                    val_str = str(val)
+            else:
+                val_str = str(val)
+            row_parts.append(f"{col}={val_str}")
+        
+        row_text = ", ".join(row_parts)
+        if label_column and label_column in df.columns:
+            # Highlight label if present
+            label_val = row[label_column]
+            row_text += f" [LABEL={label_val}]"
+        
+        rows.append(f"Row {idx}: {row_text}")
+    
+    return "; ".join(rows)
+
+def validate_translation(original_data: Union[np.ndarray, List, pd.DataFrame, Dict], 
+                         translated_text: str, 
+                         threshold: float = DEFAULT_FIDELITY_THRESHOLD) -> float:
+    """
+    Validate the quality of a translation by measuring information loss.
+    
+    This function compares the statistical properties of the original data
+    against the information preserved in the translated text.
+    
+    Args:
+        original_data: The original numerical data (array, list, or DataFrame)
+        translated_text: The generated text representation
+        threshold: Minimum acceptable fidelity score (default 0.85)
+    
+    Returns:
+        Fidelity score between 0.0 and 1.0, where 1.0 is perfect preservation.
+    
+    Note:
+        - For time-series: Checks if mean, std, min, max, median are present in text.
+        - For tabular: Checks if column names and numeric values are present.
+        - Returns 0.0 if translation text is empty or malformed.
+    """
+    if not translated_text or not isinstance(translated_text, str):
+        logger.warning("Translation text is empty or invalid.")
+        return 0.0
+    
+    text_lower = translated_text.lower()
+    
+    if isinstance(original_data, pd.DataFrame):
+        # Tabular validation
+        if original_data.empty:
+            return 1.0 if "empty" in text_lower else 0.0
+        
+        # Check for presence of column names
+        columns_present = 0
+        total_columns = len(original_data.columns)
+        
+        for col in original_data.columns:
+            if str(col).lower() in text_lower:
+                columns_present += 1
+        
+        column_score = columns_present / total_columns if total_columns > 0 else 0.0
+        
+        # Check for numeric patterns (simple heuristic)
+        # Count digits in text vs expected from data
+        text_digits = sum(c.isdigit() for c in translated_text)
+        # Estimate expected digits (very rough heuristic: 6 decimal places per value * num cells)
+        expected_digits = len(original_data) * len(original_data.columns) * 6
+        
+        # Normalize digit count (cap at 1.0)
+        digit_ratio = min(1.0, text_digits / max(1, expected_digits))
+        
+        # Combined score: weighted average
+        fidelity = 0.6 * column_score + 0.4 * digit_ratio
+        
+    elif isinstance(original_data, (np.ndarray, list, pd.Series)):
+        # Time-series validation
+        if isinstance(original_data, list):
+            original_data = np.array(original_data)
+        elif isinstance(original_data, pd.Series):
+            original_data = original_data.values
+        
+        if len(original_data) == 0:
+            return 1.0 if "empty" in text_lower else 0.0
+        
+        # Calculate expected stats
+        expected_stats = {
+            'mean': np.mean(original_data),
+            'std': np.std(original_data),
+            'min': np.min(original_data),
+            'max': np.max(original_data),
+            'median': np.median(original_data)
+        }
+        
+        # Check presence of each stat in text
+        stats_found = 0
+        total_stats = len(expected_stats)
+        
+        for name, value in expected_stats.items():
+            # Convert value to string with similar precision as translator
+            val_str = f"{value:.4f}"
+            # Also check without leading zeros for robustness
+            if val_str in translated_text or f"{value:.2f}" in translated_text:
+                stats_found += 1
+        
+        fidelity = stats_found / total_stats if total_stats > 0 else 0.0
+        
+    else:
+        logger.warning(f"Unsupported data type for fidelity validation: {type(original_data)}")
+        return 0.0
+    
+    # Log warning if fidelity is below threshold
+    if fidelity < threshold:
+        logger.warning(f"Translation fidelity {fidelity:.4f} is below threshold {threshold}. "
+                     "Significant information loss detected.")
+    else:
+        logger.debug(f"Translation fidelity {fidelity:.4f} meets threshold {threshold}.")
+    
+    return fidelity
 
 class UnifiedTranslator:
     """
-    Translates time-series, tabular, and other modalities into deterministic text
-    representations suitable for feeding into a single LLM.
+    Unified translator for heterogeneous data modalities to text.
+    Supports time-series and tabular data translation with fidelity validation.
     """
-
-    def __init__(self, fidelity_threshold: float = 0.85):
+    
+    def __init__(self, fidelity_threshold: float = DEFAULT_FIDELITY_THRESHOLD):
         """
         Initialize the translator.
-
+        
         Args:
-            fidelity_threshold: Minimum acceptable fidelity score (0.0 to 1.0)
+            fidelity_threshold: Minimum acceptable fidelity score for translations.
         """
         self.fidelity_threshold = fidelity_threshold
-        logger.info(f"UnifiedTranslator initialized with fidelity threshold: {fidelity_threshold}")
-
-    def translate_timeseries(self, input_data: Union[np.ndarray, List[List[float]], Dict[str, Any]], label_name: Optional[str] = None) -> str:
+        self.logger = get_logger(__name__)
+    
+    def translate_timeseries(self, input_data: Union[np.ndarray, List, pd.Series], 
+                             label_name: Optional[str] = None) -> Tuple[str, float]:
         """
-        Convert time-series data to a deterministic text description.
-
-        Schema:
-            "Mean {label} = {mean} {unit}, max = {max}, min = {min}, std = {std}, trend = {trend}"
-
+        Translate time-series data to text and validate fidelity.
+        
         Args:
-            input_data: Time-series data. Can be:
-                - 1D numpy array or list of floats (single variable)
-                - 2D numpy array or list of lists (multiple variables, columns)
-                - Dict with 'values' (array) and 'label' (string)
-            label_name: Optional label for the variable (e.g., "heart rate")
-
+            input_data: 1D time-series data
+            label_name: Optional label for the series
+        
         Returns:
-            Deterministic text string representation
+            Tuple of (translated_text, fidelity_score)
         """
-        try:
-            # Normalize input to numpy array
-            if isinstance(input_data, dict):
-                values = np.array(input_data.get('values', []))
-                label_name = input_data.get('label', label_name)
-            elif isinstance(input_data, (list, np.ndarray)):
-                values = np.array(input_data)
-            else:
-                raise ValueError(f"Unsupported input type for timeseries: {type(input_data)}")
-
-            if values.ndim == 0:
-                values = np.array([values])
-
-            if values.ndim > 1:
-                # If 2D, assume multiple variables; flatten or process column-wise
-                # For simplicity, we process each column and concatenate
-                if values.shape[1] == 1:
-                    values = values.flatten()
-                else:
-                    # Multi-variate: describe each column
-                    descriptions = []
-                    for i in range(values.shape[1]):
-                        col = values[:, i]
-                        desc = self._describe_1d_timeseries(col, f"Variable {i+1}")
-                        descriptions.append(desc)
-                    return " | ".join(descriptions)
-
-            # Single variable case
-            desc = self._describe_1d_timeseries(values, label_name)
-            return desc
-
-        except Exception as e:
-            logger.error(f"Error translating time-series: {e}")
-            raise
-
-    def _describe_1d_timeseries(self, values: np.ndarray, label_name: str) -> str:
-        """Generate description for 1D time-series."""
-        if len(values) == 0:
-            return f"{label_name}: No data"
-
-        mean_val = np.mean(values)
-        max_val = np.max(values)
-        min_val = np.min(values)
-        std_val = np.std(values)
-
-        # Simple trend detection: compare first half mean vs second half mean
-        mid = len(values) // 2
-        if mid > 0:
-            first_half_mean = np.mean(values[:mid])
-            second_half_mean = np.mean(values[mid:])
-            if second_half_mean > first_half_mean * 1.05:
-                trend = "increasing"
-            elif second_half_mean < first_half_mean * 0.95:
-                trend = "decreasing"
-            else:
-                trend = "stable"
-        else:
-            trend = "insufficient data"
-
-        # Format numbers consistently
-        desc = (
-            f"Mean {label_name} = {mean_val:.4f}, "
-            f"max = {max_val:.4f}, "
-            f"min = {min_val:.4f}, "
-            f"std = {std_val:.4f}, "
-            f"trend = {trend}"
-        )
-        return desc
-
-    def translate_tabular(self, df: Any, label_column: Optional[str] = None) -> str:
+        text = timeseries_to_text(input_data, label_name)
+        fidelity = validate_translation(input_data, text, self.fidelity_threshold)
+        return text, fidelity
+    
+    def translate_tabular(self, df: pd.DataFrame, label_column: Optional[str] = None) -> Tuple[str, float]:
         """
-        Convert tabular data to a deterministic text representation.
-
-        Schema:
-            "Row 1: col1=val1, col2=val2, ... | Row 2: ..."
-            If label_column is provided, it is highlighted.
-
+        Translate tabular data to text and validate fidelity.
+        
         Args:
-            df: Pandas DataFrame or similar (must support .columns and .iloc)
-            label_column: Name of the target label column
-
+            df: Input DataFrame
+            label_column: Optional label column name
+        
         Returns:
-            Deterministic text string representation
+            Tuple of (translated_text, fidelity_score)
         """
-        try:
-            # Handle list of dicts or dict of lists if not DataFrame
-            if isinstance(df, dict):
-                # Assume dict of lists, convert to simple row iteration
-                keys = list(df.keys())
-                rows = []
-                for i in range(len(df[keys[0]])):
-                    row_desc = ", ".join(f"{k}={df[k][i]}" for k in keys)
-                    rows.append(f"Row {i+1}: {row_desc}")
-                return " | ".join(rows)
-
-            if isinstance(df, list):
-                # List of dicts
-                if not df:
-                    return "No data"
-                keys = list(df[0].keys())
-                rows = []
-                for i, row in enumerate(df):
-                    row_desc = ", ".join(f"{k}={row[k]}" for k in keys)
-                    rows.append(f"Row {i+1}: {row_desc}")
-                return " | ".join(rows)
-
-            # Pandas-like
-            if label_column and label_column in df.columns:
-                # Highlight label column in description
-                cols = list(df.columns)
-                label_idx = cols.index(label_column)
-                cols_reordered = [label_column] + [c for c in cols if c != label_column]
-            else:
-                cols_reordered = list(df.columns)
-
-            rows = []
-            for i in range(len(df)):
-                row_vals = []
-                for col in cols_reordered:
-                  val = df.iloc[i][col]
-                  if isinstance(val, float):
-                      val_str = f"{val:.4f}"
-                  else:
-                      val_str = str(val)
-                  row_vals.append(f"{col}={val_str}")
-                row_desc = ", ".join(row_vals)
-                rows.append(f"Row {i+1}: {row_desc}")
-
-            return " | ".join(rows)
-
-        except Exception as e:
-            logger.error(f"Error translating tabular data: {e}")
-            raise
-
-    def translate_all(self, modalities_dict: Dict[str, Any], label_column: Optional[str] = None) -> str:
+        text = tabular_to_text(df, label_column)
+        fidelity = validate_translation(df, text, self.fidelity_threshold)
+        return text, fidelity
+    
+    def translate_all(self, modalities_dict: Dict[str, Any]) -> Dict[str, Dict[str, Any]]:
         """
-        Translate all modalities in a dictionary and combine into a single text.
-
+        Translate all modalities in a dictionary.
+        
         Args:
-            modalities_dict: Dictionary with keys as modality names (e.g., 'timeseries', 'tabular')
-                             and values as the data.
-            label_column: Optional label column name for tabular data
-
+            modalities_dict: Dictionary mapping modality names to data
+        
         Returns:
-            Combined text representation
+            Dictionary with translated text and fidelity scores for each modality
         """
-        parts = []
+        results = {}
+        
         for modality, data in modalities_dict.items():
-            if data is None:
-                continue
-            if modality == "timeseries":
-                text = self.translate_timeseries(data, label_name="timeseries_value")
-            elif modality == "tabular":
-                text = self.translate_tabular(data, label_column=label_column)
-            elif modality == "text":
-                # Already text, just pass through
-                text = str(data)
+            if isinstance(data, pd.DataFrame):
+                text, fidelity = self.translate_tabular(data)
+            elif isinstance(data, (np.ndarray, list, pd.Series)):
+                text, fidelity = self.translate_timeseries(data)
             else:
-                logger.warning(f"Unknown modality type: {modality}, skipping")
+                self.logger.warning(f"Unsupported modality type for {modality}: {type(data)}")
+                results[modality] = {
+                    "text": "Unsupported data type",
+                    "fidelity": 0.0,
+                    "status": "error"
+                }
                 continue
-            parts.append(f"[{modality.upper()}]: {text}")
-
-        return " | ".join(parts)
-
-    def validate_translation(self, original_data: Any, translated_text: str) -> float:
-        """
-        Validate the quality of translation by measuring information retention.
-
-        This is a heuristic validation. For time-series, it checks if key statistics
-        mentioned in the text can be roughly reconstructed. For tabular, it checks
-        if row count and column names are preserved.
-
-        Args:
-            original_data: Original data (array, DataFrame, etc.)
-            translated_text: The generated text
-
-        Returns:
-            Fidelity score between 0.0 and 1.0
-        """
-        score = 0.0
-        total_checks = 0
-
-        try:
-            # Check 1: Text length (basic sanity)
-            total_checks += 1
-            if len(translated_text) > 20:
-                score += 0.2
-            else:
-                logger.warning("Translation text too short, possible data loss")
-
-            # Check 2: Presence of key keywords based on data type
-            total_checks += 1
-            keywords = []
-            if isinstance(original_data, (np.ndarray, list)):
-                keywords = ["mean", "max", "min", "std"]
-            elif hasattr(original_data, 'columns'):  # DataFrame-like
-                keywords = [str(col) for col in original_data.columns] + ["Row"]
-            elif isinstance(original_data, dict):
-                keywords = list(original_data.keys())
-
-            for kw in keywords:
-                if kw.lower() in translated_text.lower():
-                    score += 0.1
-                    break  # One point per type, not per keyword
-
-            # Check 3: Numeric presence for time-series
-            if isinstance(original_data, (np.ndarray, list)):
-                total_checks += 1
-                if any(c.isdigit() for c in translated_text):
-                    score += 0.3
-                else:
-                    logger.warning("No numbers found in translation for numeric data")
-
-            # Check 4: Row count approximation for tabular
-            if hasattr(original_data, 'shape'):
-                total_checks += 1
-                if "Row" in translated_text:
-                    # Count "Row" occurrences as proxy for row count
-                    row_count_text = translated_text.count("Row")
-                    actual_row_count = original_data.shape[0]
-                    if row_count_text == actual_row_count:
-                        score += 0.3
-                    elif row_count_text > 0 and actual_row_count > 0:
-                        score += 0.15
-                else:
-                    logger.warning("No row indicators found for tabular data")
-
-        except Exception as e:
-            logger.error(f"Error during fidelity validation: {e}")
-            return 0.0
-
-        final_score = min(score / (total_checks or 1), 1.0)
-
-        if final_score < self.fidelity_threshold:
-            logger.warning(
-                f"Translation fidelity {final_score:.2f} below threshold {self.fidelity_threshold}. "
-                f"Original type: {type(original_data)}, Text length: {len(translated_text)}"
-            )
-
-        return final_score
-
+            
+            status = "ok" if fidelity >= self.fidelity_threshold else "warning"
+            results[modality] = {
+                "text": text,
+                "fidelity": fidelity,
+                "status": status
+            }
+        
+        return results
 
 def main():
     """
-    CLI entry point for testing translation functionality.
+    Main entry point for testing the translation module.
+    Demonstrates fidelity validation with sample data.
     """
-    import argparse
-
-    parser = argparse.ArgumentParser(description="Unified Translator CLI")
-    parser.add_argument("--mode", type=str, choices=["timeseries", "tabular", "all"], default="timeseries")
-    parser.add_argument("--fidelity-threshold", type=float, default=0.85)
-    args = parser.parse_args()
-
-    translator = UnifiedTranslator(fidelity_threshold=args.fidelity_threshold)
-
-    if args.mode == "timeseries":
-        # Sample time-series data
-        data = np.random.randn(100).cumsum() + 50
-        text = translator.translate_timeseries(data, label_name="sensor_reading")
-        print(f"Translated Time-Series:\n{text}")
-        fidelity = translator.validate_translation(data, text)
-        print(f"Fidelity Score: {fidelity:.4f}")
-
-    elif args.mode == "tabular":
-        try:
-            import pandas as pd
-            df = pd.DataFrame({
-                "feature_a": np.random.randn(5),
-                "feature_b": np.random.randn(5),
-                "label": np.random.choice([0, 1], 5)
-            })
-            text = translator.translate_tabular(df, label_column="label")
-            print(f"Translated Tabular:\n{text}")
-            fidelity = translator.validate_translation(df, text)
-            print(f"Fidelity Score: {fidelity:.4f}")
-        except ImportError:
-            print("Pandas not installed, skipping tabular test.")
-
-    elif args.mode == "all":
-        # Mock data for all modalities
-        ts_data = np.random.randn(50)
-        tab_data = {"col1": [1, 2], "col2": [3.5, 4.1], "target": [0, 1]}
-        modalities = {"timeseries": ts_data, "tabular": tab_data}
-        text = translator.translate_all(modalities, label_column="target")
-        print(f"Translated All:\n{text}")
-        fidelity = translator.validate_translation(modalities, text)
-        print(f"Fidelity Score: {fidelity:.4f}")
-
+    logger.info("Starting translation fidelity validation demo.")
+    
+    # Sample time-series data
+    ts_data = np.random.randn(100) * 10 + 50
+    ts_label = "heart_rate"
+    
+    # Sample tabular data
+    df = pd.DataFrame({
+        'age': [25, 30, 35],
+        'income': [50000.50, 60000.75, 75000.25],
+        'score': [0.85, 0.92, 0.78]
+    })
+    
+    translator = UnifiedTranslator(fidelity_threshold=0.80)
+    
+    # Test time-series
+    ts_text, ts_fidelity = translator.translate_timeseries(ts_data, ts_label)
+    logger.info(f"Time-series translation: {ts_text}")
+    logger.info(f"Time-series fidelity: {ts_fidelity:.4f}")
+    
+    # Test tabular
+    tab_text, tab_fidelity = translator.translate_tabular(df, 'score')
+    logger.info(f"Tabular translation: {tab_text}")
+    logger.info(f"Tabular fidelity: {tab_fidelity:.4f}")
+    
+    # Test full dict
+    multi_result = translator.translate_all({
+        "ts": ts_data,
+        "tab": df
+    })
+    
+    for modality, result in multi_result.items():
+        logger.info(f"Modality '{modality}' -> Fidelity: {result['fidelity']:.4f}, Status: {result['status']}")
+    
+    logger.info("Translation demo completed.")
 
 if __name__ == "__main__":
     main()

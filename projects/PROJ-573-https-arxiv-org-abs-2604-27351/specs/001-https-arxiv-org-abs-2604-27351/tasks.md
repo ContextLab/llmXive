@@ -48,7 +48,7 @@
 - [X] T001 [P] Verify time-series dataset availability (UCI_HAR) via `datasets.load_dataset('UCI_HAR')`; create `src/research/verify_timeseries.py` script; document in research.md section "Dataset Verification" with fields: dataset_name, url, variables (list), size_mb, verification_status (FR-001, Phase 0.1)
 - [X] T002 [P] Verify tabular dataset availability (selected UCI sets) via HuggingFace datasets; create `src/research/verify_tabular.py` script; document in research.md section "Dataset Verification" with fields: dataset_name, url, variables (list), size_mb, verification_status (FR-001, Phase 0.1)
 - [X] T003 [P] Verify text dataset availability (DROP/MUST) via HuggingFace datasets; create `src/research/verify_text.py` script; document in research.md section "Dataset Verification" with fields: dataset_name, url, variables (list), size_mb, verification_status (FR-001, Phase 0.1)
-- [X] T004 Validate statistical methodology (paired t-test, Wilcoxon signed-rank, bootstrap 1000 resamples); document in research.md section "Methodology" with formula, {{claim:c_101df1fb}}, and effect size calculation (FR-007, FR-014, Phase 0.3)
+- [X] T004 Validate statistical methodology (paired t-test, Wilcoxon signed-rank, {{claim:c_55db4237}} (Wikipedia: Bootstrapping (statistics), https://en.wikipedia.org/wiki/Bootstrapping_(statistics))); document in research.md section "Methodology" with formula, {{claim:c_101df1fb}}, and effect size calculation (FR-007, FR-014, Phase 0.3)
 - [X] T005 Document dataset-variable fit and flag any missing variables in research.md section "Gap Analysis" with fields: dataset_name, missing_variables (list), impact_assessment (FR-001, Phase 0.4)
 - [X] T006 Validate model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM via HuggingFace model cards; create `src/research/verify_models.py` script; document in research.md section "Model Verification" with fields: model_name, hf_id, size_mb, cpu_tractable (boolean) (FR-002, SC-002, Phase 0.5)
 - [X] T006a Implement Reference-Validator Agent in `src/validators/reference_validator.py` with title-token-overlap ≥ 0.7 check before contributing review points; add blocking gate for Constitution II compliance (Constitution II, Plan Gap)
@@ -110,7 +110,7 @@ Examples of foundational tasks (adjust based on your project):
 - [X] T024 [US1] Implement timeout enforcement in src/utils/timeout.py (FR-006, FR-013); function signatures: enforce_timeout(func, timeout_seconds=300) -> result; raise TimeoutError if exceeded; depends on T016 complete
 - [X] T025 [US1] Implement seed/version AND environment details logging in src/utils/logging.py (FR-005); depends on T016 completion; functions: log_random_seed(seed), log_model_versions(models), log_environment_details(); log random seeds, model versions, AND environment details (Python version, OS, CPU info)
 - [X] T026 [US1] Implement metrics computation (F1, MAPE) in src/evaluation/metrics.py (FR-004); function signatures: compute_f1(y_true, y_pred) -> float, compute_mape(y_true, y_pred) -> float; handle edge cases (division by zero, empty arrays)
-- [X] T027 [US1] Implement statistical tests in src/evaluation/statistical_tests.py (FR-007, FR-014, FR-011); MUST include: paired t-test (scipy.stats.ttest_rel), Wilcoxon signed-rank with effect sizes (r = Z/sqrt(N)) and 95% CI as PRIMARY outcome (document formula), bootstrap 1000 resamples (explicit count), configurable α threshold (default 0.05 (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value)) with logging; function signatures: paired_ttest(condition_a, condition_b, alpha=0.05), wilcoxon_effect_size(condition_a, condition_b), bootstrap_ci(values, n_resamples=1000, confidence=0.95)
+- [X] T027 [US1] Implement statistical tests in src/evaluation/statistical_tests.py (FR-007, FR-014, FR-011); MUST include: paired t-test (scipy.stats.ttest_rel), Wilcoxon signed-rank with effect sizes (r = Z/sqrt(N)) and 95% CI as PRIMARY outcome (document formula), {{claim:c_55db4237}} (explicit count), configurable α threshold (default 0.05 (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value)) with logging; function signatures: paired_ttest(condition_a, condition_b, alpha=0.05), wilcoxon_effect_size(condition_a, condition_b), bootstrap_ci(values, n_resamples=1000, confidence=0.95)
 - [X] T028 [US1] Implement report generator in src/evaluation/report_generator.py (FR-007); MUST verify report includes (a) t-statistic, (b) p-value, (c) bootstrap CI (1000 resamples), (d) Wilcoxon effect size as PRIMARY outcome with 95% CI; function signatures: generate_csv_report(results, output_path), generate_pdf_report(results, output_path)
 - [X] T029 [US1] Create run_benchmark.py main entry point in src/benchmark/run_benchmark.py (FR-001, FR-006, FR-010); CLI arguments: --config (default default.yaml), --mode (heterogeneous|unified), --seeds (5); depends on T024, T025 logging complete
 - [X] T030 [US1] Create default.yaml config in src/benchmark/config/default.yaml with required keys: datasets (list), modalities (list), seeds (5), timeout_per_task (300), bootstrap_resamples (1000)
@@ -142,7 +142,7 @@ Examples of foundational tasks (adjust based on your project):
 - [X] T040 [US2] Create timeseries.yaml modality config in src/benchmark/config/modalities/timeseries.yaml (FR-008); required keys: model_id, model_type, max_memory_gb, inference_script; depends on T017, T018 complete; update state/artifact_hashes after config changes
 - [X] T041 [US2] Create tabular.yaml modality config in src/benchmark/config/modalities/tabular.yaml (FR-008); required keys: model_id, model_type, max_memory_gb, inference_script; depends on T017, T018 complete; update state/artifact_hashes after config changes
 - [X] T042 [US2] Create text.yaml modality config in src/benchmark/config/modalities/text.yaml (FR-008); required keys: model_id, model_type, max_memory_gb, inference_script; depends on T017, T018 complete; update state/artifact_hashes after config changes
-- [X] T043 [US2] Implement run_task.py single task execution in src/benchmark/run_task.py (FR-008, FR-009); CLI arguments: --task-id (required), --add-modality (optional); task loading logic: load task from task_definitions.yaml, load modality configs; output format: JSON with prediction, modality_contributions, timing
+- [ ] T043 [US2] Implement run_task.py single task execution in src/benchmark/run_task.py (FR-008, FR-009); CLI arguments: --task-id (required), --add-modality (optional); task loading logic: load task from task_definitions.yaml, load modality configs; output format: JSON with prediction, modality_contributions, timing
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -162,10 +162,10 @@ Examples of foundational tasks (adjust based on your project):
 ### Implementation for User Story 3
 
 - [X] T046 [US3] Implement unified translation layer in src/models/translation.py (FR-003); class UnifiedTranslator with methods: translate_timeseries(input_data), translate_tabular(input_data), translate_all(modalities_dict); deterministic schema documented
-- [ ] T047 [US3] Implement time-series to text conversion logic in src/models/translation.py (US-3 Scenario 1); deterministic schema: "Mean heart rate = X bpm, max = Y bpm, min = Z bpm, std = W bpm" (all quantitative information retained); function signature: timeseries_to_text(data, label_name) -> string
-- [ ] T048 [US3] Implement tabular to text conversion logic in src/models/translation.py (US-3 Scenario 1); deterministic schema: CSV-style text representation with column names and values; function signature: tabular_to_text(df, label_column) -> string
-- [ ] T049 [US3] Add fidelity validation for translation quality in src/models/translation.py (FR-003); function signature: validate_translation(original_data, translated_text) -> fidelity_score; measure information loss; log warning if fidelity < threshold
-- [ ] T050 [US3] Update run_benchmark.py to support --mode unified flag (US-3); CLI argument: --mode (heterogeneous|unified, default heterogeneous); when unified, route all inputs through UnifiedTranslator
+- [X] T047 [US3] Implement time-series to text conversion logic in src/models/translation.py (US-3 Scenario 1); deterministic schema: "Mean heart rate = X bpm, max = Y bpm, min = Z bpm, std = W bpm" (all quantitative information retained); function signature: timeseries_to_text(data, label_name) -> string
+- [X] T048 [US3] Implement tabular to text conversion logic in src/models/translation.py (US-3 Scenario 1); deterministic schema: CSV-style text representation with column names and values; function signature: tabular_to_text(df, label_column) -> string
+- [X] T049 [US3] Add fidelity validation for translation quality in src/models/translation.py (FR-003); function signature: validate_translation(original_data, translated_text) -> fidelity_score; measure information loss; log warning if fidelity < threshold
+- [X] T050 [US3] Update run_benchmark.py to support --mode unified flag (US-3); CLI argument: --mode (heterogeneous|unified, default heterogeneous); when unified, route all inputs through UnifiedTranslator
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -175,16 +175,16 @@ Examples of foundational tasks (adjust based on your project):
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T051 [P] Documentation updates: quickstart.md (setup/dependencies sections) and data-model.md (entity relationships and schema references); update specific sections: quickstart.md "Setup Commands", data-model.md "Entity Attributes"
-- [ ] T052 Code cleanup and refactoring across src/: remove unused imports, consolidate duplicate code, resolve TODO comments, remove dead code; scope: all files in src/; criteria: no linting errors, no dead code warnings
-- [ ] T053 [P] Additional unit tests in tests/unit/ (model wrappers, metrics, statistical tests); specific tests: test_timeseries_model.py, test_tabular_model.py, test_text_model.py, test_metrics.py, test_statistical_tests.py
-- [ ] T054 Run quickstart.md validation to ensure reproducible setup; validation method: fresh venv, pip install -r requirements.txt, run --help, verify no errors
-- [ ] T055a Create runtime measurement script in src/utils/runtime_monitor.py (SC-003, SC-002); function signatures: measure_total_benchmark_time(), measure_per_task_time(task_id); record results to data/runtime_metrics.yaml
-- [ ] T055b Implement total runtime verification in src/evaluation/runtime_verification.py; verify total runtime ≤4 hours on reference hardware (SC-003); record pass/fail to data/runtime_metrics.yaml
-- [ ] T055c Implement per-task inference verification in src/evaluation/runtime_verification.py; verify per-task inference ≤5 minutes (SC-002); record pass/fail to data/runtime_metrics.yaml
-- [ ] T056 Verify reproducibility across multiple seeds (SC-004); mean accuracy differences within 95% CI with CI width ≤15% (implementation-specific threshold - document in spec as staged); run benchmark 5 times with different seeds, compare results
-- [ ] T057 Archive artifacts with content hashes in state/artifact_hashes (Constitution V); artifacts to archive: data/, state/, src/ (excluding __pycache__); hash format: sha256; update procedure: compute hash for each file, write to state/artifact_hashes.yaml with file_path and hash value
-- [ ] T058 Update state/projects/PROJ-573-https-arxiv-org-abs-2604-27351.yaml updated_at timestamp on artifact changes; depends on T018; helper function: update_timestamp_on_change(artifact_path); integrate with T040-T042 config updates
+- [X] T051 [P] Documentation updates: quickstart.md (setup/dependencies sections) and data-model.md (entity relationships and schema references); update specific sections: quickstart.md "Setup Commands", data-model.md "Entity Attributes"
+- [X] T052 Code cleanup and refactoring across src/: remove unused imports, consolidate duplicate code, resolve TODO comments, remove dead code; scope: all files in src/; criteria: no linting errors, no dead code warnings
+- [X] T053 [P] Additional unit tests in tests/unit/ (model wrappers, metrics, statistical tests); specific tests: test_timeseries_model.py, test_tabular_model.py, test_text_model.py, test_metrics.py, test_statistical_tests.py
+- [X] T054 Run quickstart.md validation to ensure reproducible setup; validation method: fresh venv, pip install -r requirements.txt, run --help, verify no errors
+- [X] T055a Create runtime measurement script in src/utils/runtime_monitor.py (SC-003, SC-002); function signatures: measure_total_benchmark_time(), measure_per_task_time(task_id); record results to data/runtime_metrics.yaml
+- [X] T055b Implement total runtime verification in src/evaluation/runtime_verification.py; verify total runtime ≤4 hours on reference hardware (SC-003); record pass/fail to data/runtime_metrics.yaml
+- [X] T055c Implement per-task inference verification in src/evaluation/runtime_verification.py; verify per-task inference ≤5 minutes (SC-002); record pass/fail to data/runtime_metrics.yaml
+- [X] T056 Verify reproducibility across multiple seeds (SC-004); mean accuracy differences within 95% CI with CI width ≤15% (implementation-specific threshold - document in spec as staged); run benchmark 5 times with different seeds, compare results
+- [X] T057 Archive artifacts with content hashes in state/artifact_hashes (Constitution V); artifacts to archive: data/, state/, src/ (excluding __pycache__); hash format: sha256; update procedure: compute hash for each file, write to state/artifact_hashes.yaml with file_path and hash value
+- [X] T058 Update state/projects/PROJ-573-https-arxiv-org-abs-2604-27351.yaml updated_at timestamp on artifact changes; depends on T018; helper function: update_timestamp_on_change(artifact_path); integrate with T040-T042 config updates
 
 **Checkpoint**: All user stories complete; verification tasks executed; artifacts archived
 
@@ -285,11 +285,11 @@ With multiple developers:
 
 ## Compute Feasibility Notes
 
-- All models must be CPU-tractable (< 1 GB weights) - validated in T006
+- All models must be CPU-tractable (< 1 GB weights) [UNRESOLVED-CLAIM: c_97dca646 — status=not_enough_info] - validated in T006
 - No GPU/CUDA dependencies
-- Total dataset size ≤ 5 GB
-- Per-task inference ≤ 5 minutes on 2 CPU cores
-- Full benchmark ≤ 4 hours wall-clock time
+- {{claim:c_b9b3cab2}} (Wikipedia: Hutter Prize, https://en.wikipedia.org/wiki/Hutter_Prize)
+- Per-task inference ≤ 5 minutes on 2 CPU cores [UNRESOLVED-CLAIM: c_5f5b0faa — status=refuted]
+- Full benchmark ≤ 4 hours wall-clock time [UNRESOLVED-CLAIM: c_2b8f05b0 — status=not_enough_info]
 - Use UCI_HAR for time-series, DROP/MUST for text (per plan.md substitution strategy)
 - No 8-bit/4-bit quantization (bitsandbytes requires CUDA)
 - Dataset downloads MUST use verified URLs or HuggingFace datasets.load_dataset()
