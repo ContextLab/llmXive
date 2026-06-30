@@ -248,3 +248,33 @@ def test_compute_infra_failures_flagged_distinctly(tmp_path) -> None:
     fb = (mem / _FEEDBACK_FILENAME).read_text(encoding="utf-8")
     assert "COMPUTE-ENVIRONMENT" in fb and "RE-SCOPE" in fb
     assert "load_in_8bit" in fb
+
+
+def test_data_unavailable_failures_flagged_for_synthetic_rescope(tmp_path) -> None:
+    """A renamed/unreachable HF dataset (HfUriError on a canonical name like
+    openai_humaneval) is NOT a code bug the implementer can patch on the failing
+    line — re-downloading never succeeds. It must be flagged to REPLACE the load
+    with a synthetic sample (the brainstorm cohort whose generated code loads
+    stale HF dataset ids; the PROJ-261 datasets dead-end)."""
+    from types import SimpleNamespace
+
+    from llmxive.execution.stage import (
+        _FEEDBACK_FILENAME,
+        _data_unavailable_failures,
+        _write_execution_feedback,
+    )
+
+    fails = [
+        "python code/data_loader.py -> rc=1\n  HfUriError: Invalid HF URI ... "
+        "Repository id must be 'namespace/name', got 'openai_humaneval'",
+        "python code/clean.py -> rc=1\n  KeyError: 'col'",  # a normal code bug
+    ]
+    data = _data_unavailable_failures(fails)
+    assert data == ["python code/data_loader.py"]  # only the dataset one
+
+    mem = tmp_path / ".specify" / "memory"
+    res = SimpleNamespace(reason="x", declared_missing=[], artifacts_produced=[])
+    _write_execution_feedback(mem, res, failures=fails)
+    fb = (mem / _FEEDBACK_FILENAME).read_text(encoding="utf-8")
+    assert "DATA-UNAVAILABLE" in fb and "synthetic" in fb.lower()
+    assert "openai_humaneval" in fb

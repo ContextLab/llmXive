@@ -45,6 +45,24 @@ _COMPUTE_INFRA_RE = re.compile(
     re.IGNORECASE,
 )
 
+#: A failing command whose error signals the external DATA SOURCE is unreachable
+#: on the free CI runner — most commonly a Hugging Face dataset that was renamed
+#: (canonical names like ``openai_humaneval`` now require a ``namespace/name`` →
+#: ``HfUriError: Repository id must be 'namespace/name'``), had its loading script
+#: removed (datasets >= 3 dropped ``trust_remote_code`` script datasets), is gated,
+#: or simply needs network the runner lacks. Re-downloading can NEVER succeed; the
+#: fix is to REPLACE the load with a small in-repo synthetic/sampled input, not to
+#: edit the failing line. (The PROJ-261 datasets dead-end + the brainstorm cohort
+#: whose generated code loads stale HF dataset ids.)
+_DATA_UNAVAILABLE_RE = re.compile(
+    r"hfurierror|invalid hf uri|repository id must be|datasetnotfounderror|"
+    r"doesn'?t exist on the hub|couldn'?t reach|couldn'?t find a dataset|"
+    r"dataset scripts are no longer supported|trust_remote_code|gated dataset|"
+    r"connectionerror|newconnectionerror|max retries exceeded|failed to download|"
+    r"name or service not known|temporary failure in name resolution|read timed out",
+    re.IGNORECASE,
+)
+
 
 def _compute_infra_failures(failures: list[str]) -> list[str]:
     """Failing commands whose error signals a COMPUTE-ENVIRONMENT limit
@@ -55,6 +73,18 @@ def _compute_infra_failures(failures: list[str]) -> list[str]:
     out: list[str] = []
     for f in failures:
         if _COMPUTE_INFRA_RE.search(f):
+            out.append(f.split(" -> rc=", 1)[0].strip())
+    return out
+
+
+def _data_unavailable_failures(failures: list[str]) -> list[str]:
+    """Failing commands whose error signals the external DATA SOURCE is
+    unreachable on the free CI runner (renamed/removed HF dataset, gated, or
+    needs network) — the fix is to REPLACE the load with a small in-repo
+    synthetic/sampled input, NOT to re-try the download."""
+    out: list[str] = []
+    for f in failures:
+        if _DATA_UNAVAILABLE_RE.search(f):
             out.append(f.split(" -> rc=", 1)[0].strip())
     return out
 
@@ -496,6 +526,27 @@ def _write_execution_feedback(
             "line that threw:",
             "",
             *(f"- `{c}`" for c in infra),
+            "",
+        ]
+    data_missing = _data_unavailable_failures(failures)
+    if data_missing:
+        lines += [
+            "## ⚠ DATA-UNAVAILABLE failure — REPLACE the external data source with a synthetic sample",
+            "",
+            "These commands failed because the external dataset is NOT reachable "
+            "on the free CI runner: a Hugging Face dataset that was renamed "
+            "(canonical names like `openai_humaneval` now require a "
+            "`namespace/name`), had its loading script removed (`datasets` >= 3 "
+            "dropped `trust_remote_code` script datasets), is gated, or needs "
+            "network the runner lacks. RE-TRYING THE DOWNLOAD WILL NEVER SUCCEED. "
+            "RE-SCOPE the data, do NOT edit the failing line: REPLACE the "
+            "`load_dataset(...)` / remote download with a SMALL, deterministic, "
+            "in-repo SYNTHETIC or hand-built sample (a few hundred rows) that "
+            "exercises the SAME analysis/metric, and label it clearly as synthetic "
+            "in the output + README. Keep the scientific logic; only swap the "
+            "unreachable input for a runnable one:",
+            "",
+            *(f"- `{c}`" for c in data_missing),
             "",
         ]
     lines += [
