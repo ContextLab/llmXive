@@ -1,0 +1,52 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CRERankedOutput"
+description: "Schema for the ranked CRE output table (Markdown/CSV)."
+type: object
+properties:
+  cre_id:
+    type: string
+    description: "Unique identifier for the CRE."
+  chromosome:
+    type: string
+    description: "Chromosome name."
+  start:
+    type: integer
+    description: "Start position (0-based)."
+  end:
+    type: integer
+    description: "End position."
+  context:
+    type: string
+    enum: ["promoter", "distal"]
+    description: "Genomic context."
+  associated_tfs:
+    type: array
+    items:
+      type: string
+    description: "List of associated TFs."
+  log2fc:
+    type: number
+    description: "Expression fold change of the nearest gene."
+  beta_1:
+    type: number
+    description: "LMM fixed effect estimate for ΔPeakSignal."
+  q_value:
+    type: number
+    description: "Benjamini-Hochberg adjusted p-value."
+  is_significant:
+    type: boolean
+    description: "True if q_value <= 0.05."
+  validated_by_atac:
+    type: boolean
+    description: "True if CRE was validated by ATAC-seq; False if ATAC data was missing (ATAC-Deferred Mode)."
+required:
+  - cre_id
+  - chromosome
+  - start
+  - end
+  - context
+  - log2fc
+  - beta_1
+  - q_value
+  - is_significant
+  - validated_by_atac

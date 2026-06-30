@@ -1,0 +1,508 @@
+resolved_at: '2026-06-30T22:37:33.573597+00:00'
+datasets:
+- intent: GEO
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/cyborvirtue/Geoaux/resolve/main/metadata.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/GeorgiaTech/HERCULES/resolve/main/Australia
+      Center Sequence/data/label_color_map_ausenv_roadseq.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 14725
+      parsed: true
+  - url: https://huggingface.co/datasets/Georgii/poetry-genre/resolve/main/en_poems_dataset.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/cyborvirtue/Geoaux/resolve/main/metadata.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/GeorgiaTech/HERCULES/resolve/main/Australia
+      Center Sequence/data/label_color_map_ausenv_roadseq.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/Georgii/poetry-genre/resolve/main/en_poems_dataset.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/poster/Nile_University_of_Nigeria_Abuja_b_0704_096_4654_Transfer_Form_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diplom/32841326
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Oduduwa_University_b_0704_096_4654_Transfer_Form_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diploma_Form_For_mor/32841323
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Paul_University_b_0704_096_4654_Transfer_Form_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diploma_Form_For_more_i/32841317
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://portal.sds.ox.ac.uk/articles/online_resource/P_Oxy_LXVI_4531_Report_to_the_Strategus/21179095
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Rhema_University_b_0704_096_4654_Transfer_Form_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diploma_Form_For_more_/32841311
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://meetingorganizer.copernicus.org/iag-comm4-2022/iag-comm4-2022-15.html
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19467316
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7603435
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20798419
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16736158
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/The_construction_of_a_prognostic_nomogram_model_for_colorectal_cancer_and_the_prediction_of_immune_characteristics_and_immune_treatment_responses_based_on_the_bioinformatics_analysis_of_soluble_mediator-related_genes/30113508/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/The_construction_of_a_prognostic_nomogram_model_for_colorectal_cancer_and_the_prediction_of_immune_characteristics_and_immune_treatment_responses_based_on_the_bioinformatics_analysis_of_soluble_mediator-related_genes/30113508
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21084395
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21084395
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21084115
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CREs
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Crespo/llm-test/resolve/main/test.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 719
+      parsed: true
+  - url: https://huggingface.co/datasets/CyberHarem/crescent_azurlane/resolve/main/meta.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 3065
+      parsed: true
+  - url: https://huggingface.co/datasets/convolution-cadence-crescendo/studio-recordings/resolve/main/deprox.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 10824
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Crespo/llm-test/resolve/main/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/CyberHarem/crescent_azurlane/resolve/main/meta.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/convolution-cadence-crescendo/studio-recordings/resolve/main/deprox.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/CresCat01/RefCOCO-Triplets/resolve/main/gpt_refcoco+_testa.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://figshare.com/articles/poster/Nile_University_of_Nigeria_Abuja_b_0704_096_4654_Transfer_Form_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diplom/32841326
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Oduduwa_University_b_0704_096_4654_Transfer_Form_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diploma_Form_For_mor/32841323
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Paul_University_b_0704_096_4654_Transfer_Form_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diploma_Form_For_more_i/32841317
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://portal.sds.ox.ac.uk/articles/online_resource/P_Oxy_LXVI_4531_Report_to_the_Strategus/21179095
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Rhema_University_b_0704_096_4654_Transfer_Form_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diploma_Form_For_more_/32841311
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8298520
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6946566
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1257379
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1257282
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1257377
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.caltech.edu/records/0cdk2-7s361
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21074159
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21074159
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.0zpc8677w
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21005402
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-011
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/_b_The_Universal_Access_Paradox_A_Cross-Sectional_Evaluation_of_Long-Lasting_Insecticidal_Treated_Net_Ownership_and_Utilization_Discrepancies_among_Pregnant_Women_in_Nkoranza_South_District_Ghana_b_/31846072
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Godfrey_Okoye_University_Ugwuomu-Nike_-_Enugu_State_b_0704_096_4654_Transfer_Form_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Pre-Degree_Form_Jupeb_Form_Master_s_form_P/32841332
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Nile_University_of_Nigeria_Abuja_b_0704_096_4654_Transfer_Form_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diplom/32841326
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Oduduwa_University_b_0704_096_4654_Transfer_Form_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diploma_Form_For_mor/32841323
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Paul_University_b_0704_096_4654_Transfer_Form_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diploma_Form_For_more_i/32841317
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10323271
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/843489
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10118403
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6963614
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6962265
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564417
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.20470525
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://doi.org/10.5281/zenodo.20469943
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://zenodo.org/records/20453648
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MUST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 190547
+      parsed: true
+  - url: https://huggingface.co/datasets/enimai/MuST-C-fr/resolve/main/test.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/enimai/MuST-C-fr/resolve/main/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/_The_Sovereign_Wrecks_Agreement_/32836151
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Hybodontiformes_Chondrichthyes_Euselachii_from_South_America_and_Where_to_Find_More_Quantitative_Analyses_and_Forecasts_for_Research_-_SCRIPT/31895170
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Afe_Babalola_University_Ado-Ekiti_b_0704_096_4654_Transfer_Form_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diplo/32841335
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_The_Universal_Access_Paradox_A_Cross-Sectional_Evaluation_of_Long-Lasting_Insecticidal_Treated_Net_Ownership_and_Utilization_Discrepancies_among_Pregnant_Women_in_Nkoranza_South_District_Ghana_b_/31846072
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Godfrey_Okoye_University_Ugwuomu-Nike_-_Enugu_State_b_0704_096_4654_Transfer_Form_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Pre-Degree_Form_Jupeb_Form_Master_s_form_P/32841332
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5746416
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16954306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15420758
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8056637
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19980220
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Clinical_and_economic_burden_of_herpes_zoster_in_Mexico_A_retrospective_medical_chart_analysis_in_a_private_healthcare_setting/30438113/2
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Clinical_and_economic_burden_of_herpes_zoster_in_Mexico_A_retrospective_medical_chart_analysis_in_a_private_healthcare_setting/30438113
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Clinical_and_economic_burden_of_herpes_zoster_in_Mexico_A_retrospective_medical_chart_analysis_in_a_private_healthcare_setting/30438113/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20826438
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20826438
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: US-1
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_difficult/resolve/main/tx_log.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_easy/resolve/main/tx_log.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_difficult/resolve/main/tx_log.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_easy/resolve/main/tx_log.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/_The_Sovereign_Wrecks_Agreement_/32836151
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Hybodontiformes_Chondrichthyes_Euselachii_from_South_America_and_Where_to_Find_More_Quantitative_Analyses_and_Forecasts_for_Research_-_SCRIPT/31895170
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Afe_Babalola_University_Ado-Ekiti_b_0704_096_4654_Transfer_Form_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diplo/32841335
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_The_Universal_Access_Paradox_A_Cross-Sectional_Evaluation_of_Long-Lasting_Insecticidal_Treated_Net_Ownership_and_Utilization_Discrepancies_among_Pregnant_Women_in_Nkoranza_South_District_Ghana_b_/31846072
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Godfrey_Okoye_University_Ugwuomu-Nike_-_Enugu_State_b_0704_096_4654_Transfer_Form_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Pre-Degree_Form_Jupeb_Form_Master_s_form_P/32841332
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18190973
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7325859
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5216923
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3558197
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: http://reproduct-endo.com/article/view/290227
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.designsafe-ci.org/data/browser/public/designsafe.storage.published/PRJ-6373
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Provider_perspectives_on_HPV_vaccine_hesitancy_in_the_post-COVID-19_era/29985845
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Provider_perspectives_on_HPV_vaccine_hesitancy_in_the_post-COVID-19_era/29985845/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Identifying_HPV_vaccination_research_priorities_for_the_US/30762177/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Identifying_HPV_vaccination_research_priorities_for_the_US/30762177
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-013
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/_The_Sovereign_Wrecks_Agreement_/32836151
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Hybodontiformes_Chondrichthyes_Euselachii_from_South_America_and_Where_to_Find_More_Quantitative_Analyses_and_Forecasts_for_Research_-_SCRIPT/31895170
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Afe_Babalola_University_Ado-Ekiti_b_0704_096_4654_Transfer_Form_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diplo/32841335
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_The_Universal_Access_Paradox_A_Cross-Sectional_Evaluation_of_Long-Lasting_Insecticidal_Treated_Net_Ownership_and_Utilization_Discrepancies_among_Pregnant_Women_in_Nkoranza_South_District_Ghana_b_/31846072
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Godfrey_Okoye_University_Ugwuomu-Nike_-_Enugu_State_b_0704_096_4654_Transfer_Form_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Pre-Degree_Form_Jupeb_Form_Master_s_form_P/32841332
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10338631
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10118243
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10290773
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10336705
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10382148
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20615161
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20470525
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CRE
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: ATAC-seq
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: US-2
+  status: unresolved
+  candidates: []
+  candidates_tried: []
