@@ -715,6 +715,10 @@
     "classified_at": "2026-06-23T11:24:52Z",
     "verdict": false
   },
+  "PROJ-769-perceptiondlm-parallel-region-perception::1.6.0": {
+    "classified_at": "2026-06-30T17:28:24Z",
+    "verdict": false
+  },
   "PROJ-770-resting-state-network-modularity-predict::1.6.0": {
     "classified_at": "2026-06-24T12:52:35Z",
     "verdict": false

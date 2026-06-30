@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2604.17585",
+  "judged_at": "2026-06-30T17:28:54Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "perceptiondlm: parallel region perception with multimodal diffusion language models computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the integration of diffusion models with state-space architectures for multimodal perception tasks, directly addressing the core mechanism (diffusion-based perception) and domain (multimodal computer vision) of the user's question, even though it focuses on salient object detection rather than the specific \"Parallel Region\" or \"Language Model\" aspects of the user's proposed system.",
+  "relevant": true
+}

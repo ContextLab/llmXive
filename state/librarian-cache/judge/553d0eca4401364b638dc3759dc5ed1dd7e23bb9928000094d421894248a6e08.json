@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2508.19294",
+  "judged_at": "2026-06-30T17:28:48Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "perceptiondlm: parallel region perception with multimodal diffusion language models computer science",
+  "rationale": "This paper satisfies criteria (b) and (d) as it provides a foundational review of the core domain (Multimodal Large Vision-Language Models) and the specific application area (object detection/perception) referenced in the user's question, establishing the necessary empirical and architectural baseline for the proposed \"Parallel Region Perception\" work. Although the user's title mentions \"Diffusion Language Models\" specifically, the candidate paper covers the broader \"Multimodal Large Vision-Lang",
+  "relevant": true
+}

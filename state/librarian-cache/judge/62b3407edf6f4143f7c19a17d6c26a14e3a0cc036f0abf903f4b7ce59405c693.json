@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.13549",
+  "judged_at": "2026-06-30T17:28:34Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "perceptiondlm: parallel region perception with multimodal diffusion language models computer science",
+  "rationale": "This paper qualifies under category (d) as a foundational survey and canonical reference for the domain of Multimodal Large Language Models (MLLMs), which is the core technology stack for the user's specific \"Multimodal Diffusion Language Models\" research. Additionally, it satisfies category (b) by covering the general architecture and evaluation of MLLMs, providing the necessary baseline context for any new work proposing specific parallel region perception mechanisms within this field.",
+  "relevant": true
+}
