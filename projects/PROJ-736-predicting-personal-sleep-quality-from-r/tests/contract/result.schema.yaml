@@ -1,0 +1,141 @@
+%YAML 1.2
+---
+$schema: http://json-schema.org/draft-07/schema#
+title: Modeling Result Schema
+description: >
+  Schema for the final modeling results report (ResultReport.json).
+  Includes metrics, validation results, and sensitivity analysis.
+type: object
+properties:
+  metadata:
+    type: object
+    properties:
+      version:
+        type: string
+      generated_at:
+        type: string
+        format: date-time
+      pipeline_version:
+        type: string
+      config_snapshot:
+        type: object
+        description: Snapshot of configuration used
+    required:
+      - version
+      - generated_at
+  primary_metrics:
+    type: object
+    description: Primary model performance metrics on full dataset
+    properties:
+      mean_r:
+        type: number
+        description: Mean Pearson correlation coefficient
+      mean_r_squared:
+        type: number
+        description: Mean R-squared value
+      std_r:
+        type: number
+      std_r_squared:
+        type: number
+      best_model_alpha:
+        type: number
+      best_model_l1_ratio:
+        type: number
+    required:
+      - mean_r
+      - mean_r_squared
+  statistical_validation:
+    type: object
+    description: Results from permutation testing and bootstrapping
+    properties:
+      permutation_test:
+        type: object
+        properties:
+          p_value:
+            type: number
+            description: Approximate p-value from subset permutation test
+          n_permutations:
+            type: integer
+          subset_size:
+            type: integer
+            description: Number of subjects used in permutation test
+          note:
+            type: string
+            description: Documentation that this is an approximation
+        required:
+          - p_value
+          - n_permutations
+          - subset_size
+          - note
+      bootstrap_ci:
+        type: object
+        properties:
+          r_squared_ci_95:
+            type: array
+            items:
+              type: number
+            minItems: 2
+            maxItems: 2
+            description: [lower, upper] 95% CI for R-squared
+          n_bootstraps:
+            type: integer
+        required:
+          - r_squared_ci_95
+          - n_bootstraps
+  sensitivity_analysis:
+    type: object
+    description: Results from hyperparameter sensitivity analysis
+    properties:
+      completed:
+        type: boolean
+        description: Whether the analysis completed within time budget
+      grid_points:
+        type: array
+        items:
+          type: object
+          properties:
+            variance_threshold:
+              type: number
+            pca_retention:
+              type: number
+            mean_r_squared:
+              type: number
+            mean_r:
+              type: number
+          required:
+            - variance_threshold
+            - pca_retention
+            - mean_r_squared
+            - mean_r
+      time_budget_seconds:
+        type: integer
+        description: Time budget enforced for this analysis
+  resource_usage:
+    type: object
+    properties:
+      peak_ram_gb:
+        type: number
+      wall_clock_time_seconds:
+        type: number
+      cpu_only:
+        type: boolean
+  output_files:
+    type: object
+    properties:
+      predictions_path:
+        type: string
+      feature_importance_path:
+        type: string
+      visualization_path:
+        type: string
+        nullable: true
+    required:
+      - predictions_path
+required:
+  - metadata
+  - primary_metrics
+  - statistical_validation
+  - sensitivity_analysis
+  - resource_usage
+  - output_files
+additionalProperties: false

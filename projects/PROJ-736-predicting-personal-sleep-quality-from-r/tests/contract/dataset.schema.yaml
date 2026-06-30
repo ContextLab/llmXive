@@ -1,0 +1,81 @@
+%YAML 1.2
+---
+$schema: http://json-schema.org/draft-07/schema#
+title: Preprocessed Dataset Schema
+description: >
+  Schema for the preprocessed connectivity dataset produced by the US1 pipeline.
+  Defines the structure of the feature matrix and associated metadata.
+type: object
+properties:
+  metadata:
+    type: object
+    properties:
+      version:
+        type: string
+        description: Schema version identifier
+      created_at:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of dataset creation
+      source:
+        type: string
+        description: Source dataset identifier (e.g., "HCP_1200")
+      preprocessing_steps:
+        type: array
+        items:
+          type: string
+        description: List of preprocessing steps applied
+      n_subjects:
+        type: integer
+        minimum: 0
+        description: Number of subjects in the dataset
+      n_features:
+        type: integer
+        minimum: 0
+        description: Number of connectivity features (edges)
+      feature_type:
+        type: string
+        enum: [fisher_z_correlation]
+        description: Type of connectivity metric
+      atlas:
+        type: string
+        description: Parcellation atlas used (e.g., "Schaefer_400")
+    required:
+      - version
+      - created_at
+      - source
+      - n_subjects
+      - n_features
+      - feature_type
+      - atlas
+  subjects:
+    type: array
+    description: List of subject records
+    items:
+      type: object
+      properties:
+        subject_id:
+          type: string
+          description: HCP subject ID
+        sleep_score:
+          type: number
+          description: Mean Sleep Score from behavioral data
+        feature_vector_path:
+          type: string
+          description: Relative path to the .npy file containing connectivity features
+        excluded:
+          type: boolean
+          default: false
+          description: Flag indicating if subject was excluded from modeling
+        exclusion_reason:
+          type: string
+          nullable: true
+          description: Reason for exclusion if applicable
+      required:
+        - subject_id
+        - feature_vector_path
+    minItems: 1
+required:
+  - metadata
+  - subjects
+additionalProperties: false
