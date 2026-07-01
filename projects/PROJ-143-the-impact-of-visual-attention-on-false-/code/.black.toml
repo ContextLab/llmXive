@@ -1,0 +1,3 @@
+# Standalone Black configuration file
+# Extends settings from pyproject.toml
+extend = "pyproject.toml"

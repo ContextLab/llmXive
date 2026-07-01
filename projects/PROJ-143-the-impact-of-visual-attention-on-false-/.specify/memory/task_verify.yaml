@@ -1,0 +1,18 @@
+? 'T008a [P] Research task: Identify and verify URL for Visual Genome (subset). Document
+  in `data/verified_sources.md`. BLOCKS T009 if invalid.'
+: 1
+? 'T008b [P] Research task: Identify and verify URL for SALICON. Document in `data/verified_sources.md`.
+  BLOCKS T021 if invalid.'
+: 1
+? T008c Update `plan.md` and `spec.md` Constitution Check sections to change status
+  from 'FAIL/Blocked' to 'PASS' once T008a/b are complete and verified.
+: 1
+T009 [P] Implement `src/data/download.py` using verified URLs from T008a/b (blocking if URLs invalid): 1
+? T010 Implement `src/data/linking.py` to align Visual Genome image IDs with recall
+  transcripts (FR-011) with exclusion logic
+: 1
+? 'T018 [P] [US1] Implement power analysis script in `src/analysis/metrics.py` to
+  calculate required sample size for r=0.30 (FR-010). **Parameters: alpha=0.01, power=0.80**.
+  Output to `data/processed/power_analysis.json` including calculated sample size,
+  power, and a flag documenting any shortfall against the image limit (SC-005).'
+: 1
