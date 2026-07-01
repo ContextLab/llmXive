@@ -218,6 +218,40 @@ def probe_candidate(c: DatasetCandidate, *, relevance: float = 0.0) -> VerifyRes
 _DOI_RE = re.compile(r"\b(10\.\d{4,9}/[^\s)\]\"'>}]+)", re.IGNORECASE)
 # Capitalized/alnum dataset-name tokens, e.g. QM9, ImageNet, CIFAR-10, MD17.
 _NAME_RE = re.compile(r"\b([A-Z][A-Za-z]*\d[\w-]*|[A-Z]{2,}[A-Za-z0-9-]*)\b")
+
+# Tokens ``_NAME_RE`` matches but that are NEVER dataset names — requirement/task
+# IDs, RFC-2119 keywords, file formats, and generic tech acronyms. Without this
+# filter the resolver "searches" real sources for garbage like ``FR-001`` / ``MUST``
+# / ``CSV`` / ``PNG`` (all of which appear on lines containing the word "dataset"),
+# finds nothing, and the project — lacking a verified real source — fabricates. This
+# is the single biggest driver of empty resolution, upstream of which sources exist.
+_INTENT_ID_RE = re.compile(
+    r"^(?:FR|NFR|SC|US|AC|UC)-?\d+[a-z]?$|^T\d{2,}[a-z]?$", re.IGNORECASE
+)
+_INTENT_STOPWORDS = frozenset({
+    # RFC-2119 / spec keywords
+    "must", "should", "may", "shall", "required", "recommended", "optional",
+    "note", "notes", "todo", "tbd", "tba", "na", "nan", "null", "none",
+    # file formats / extensions
+    "csv", "tsv", "json", "jsonl", "ndjson", "png", "jpg", "jpeg", "svg", "pdf",
+    "yaml", "yml", "xml", "html", "htm", "txt", "md", "parquet", "arff", "npy",
+    "npz", "hdf5", "h5", "feather", "zip", "gz", "tar", "sqlite", "db", "xlsx",
+    "pkl", "pickle", "tex", "bib",
+    # generic tech / non-dataset acronyms
+    "api", "url", "uri", "cli", "cpu", "gpu", "ram", "id", "ids", "http", "https",
+    "readme", "license", "doi", "arxiv", "sha", "md5", "uuid", "rng", "llm", "ai",
+    "ml", "nlp", "ci", "cd", "ok", "pr", "os", "io", "fr", "sc", "us", "uc",
+})
+
+
+def _is_dataset_intent(nm: str) -> bool:
+    """A ``_NAME_RE`` token is a plausible dataset intent only if it is not a
+    requirement/task ID, a spec keyword, a file format, or a generic acronym."""
+    if len(nm) < 3:
+        return False
+    if _INTENT_ID_RE.match(nm):
+        return False
+    return nm.lower() not in _INTENT_STOPWORDS
 # Source authority for tie-breaking (higher = preferred).
 _AUTHORITY = {"huggingface": 4, "zenodo": 3, "figshare": 3, "datacite": 2, "semantic_scholar": 1}
 
@@ -244,7 +278,7 @@ def extract_dataset_intents(spec_text: str) -> list[str]:
     for line in spec_text.splitlines():
         if "dataset" in line.lower():
             for nm in _NAME_RE.findall(line):
-                if nm.lower() not in {"doi", "fr", "sc", "us"} and len(nm) >= 3:
+                if _is_dataset_intent(nm):
                     intents.append(nm)
     # De-dup, preserve order.
     seen: set[str] = set()

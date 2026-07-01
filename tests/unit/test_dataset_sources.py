@@ -74,3 +74,26 @@ def test_openml_wired_into_resolver_source_aggregation():
     import inspect
     from llmxive.librarian import dataset_resolver
     assert "search_openml" in inspect.getsource(dataset_resolver)
+
+
+def test_extract_dataset_intents_filters_noise_keeps_real_names():
+    # The resolver extracted requirement IDs / RFC-2119 keywords / file formats as
+    # bogus "dataset intents" (FR-001, MUST, CSV, PNG), searched real sources for
+    # garbage, found nothing, and the project fabricated for lack of a verified
+    # source. The filter must drop the noise and keep genuine dataset names.
+    from llmxive.librarian.dataset_resolver import (
+        _is_dataset_intent,
+        extract_dataset_intents,
+    )
+    for noise in ["FR-001", "SC-015", "US1", "T044", "MUST", "CSV", "PNG",
+                  "JSON", "API", "DOI", "PDF", "YAML"]:
+        assert not _is_dataset_intent(noise), f"{noise} must be filtered"
+    for real in ["HCP", "S1200", "QM9", "MNIST", "ImageNet", "NAB", "MBPP",
+                 "CIFAR10"]:
+        assert _is_dataset_intent(real), f"{real} must be kept"
+    spec = ("The analysis MUST load the HCP S1200 dataset (see FR-001); the "
+            "dataset export is CSV + PNG.")
+    intents = extract_dataset_intents(spec)
+    assert "HCP" in intents and "S1200" in intents
+    for noise in ("FR-001", "MUST", "CSV", "PNG"):
+        assert noise not in intents
