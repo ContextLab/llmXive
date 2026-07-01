@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-30T11:37:06.164789Z'
-current_stage: specified
+current_stage: analyzed
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-036-exploring-the-impact-of-cosmic-microwave
-last_run_id: 440ea8ea-8a0f-4264-acb0-4f821e228292
+last_run_id: 568fce6f-c8e5-4b84-961f-a1f1d636ed42
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-036-exploring-the-impact-of-cosmic-microwave/specs/001-exploring-the-impact-of-cosmic-microwave
 title: Exploring the Impact of Cosmic Microwave Background Anomalies on Early Universe
   Simulations
-updated_at: '2026-06-26T01:47:28.156278Z'
+updated_at: '2026-07-01T23:11:58.691079Z'
