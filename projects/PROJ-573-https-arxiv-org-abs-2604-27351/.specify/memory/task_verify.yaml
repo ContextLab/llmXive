@@ -178,6 +178,12 @@
   \ (boolean) (FR-002, SC-002, Phase 0.5)"
 : 1
 ? "T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM\
+  \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_b36b447a \u2014 status=not_enough_info];\
+  \ create `src/research/verify_models.py` script; document in research.md section\
+  \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
+  \ (boolean) (FR-002, SC-002, Phase 0.5)"
+: 1
+? "T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM\
   \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_c7c6ae25 \u2014 status=not_enough_info];\
   \ create `src/research/verify_models.py` script; document in research.md section\
   \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
@@ -202,6 +208,12 @@
   \ (boolean) (FR-002, SC-002, Phase 0.5)"
 : 1
 ? "T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM\
+  \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_d9760c68 \u2014 status=not_enough_info];\
+  \ create `src/research/verify_models.py` script; document in research.md section\
+  \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
+  \ (boolean) (FR-002, SC-002, Phase 0.5)"
+: 1
+? "T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM\
   \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_d9e0f460 \u2014 status=not_enough_info];\
   \ create `src/research/verify_models.py` script; document in research.md section\
   \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
@@ -219,11 +231,6 @@
   \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
   \ (boolean) (FR-002, SC-002, Phase 0.5)"
 : 1
-? 'T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM
-  via HuggingFace model cards; create `src/research/verify_models.py` script; document
-  in research.md section "Model Verification" with fields: model_name, hf_id, size_mb,
-  cpu_tractable (boolean) (FR-002, SC-002, Phase 0.5)'
-: 2
 ? "T006a Implement Reference-Validator Agent in `src/validators/reference_validator.py`\
   \ with title-token-overlap \u2265 0.7 [UNRESOLVED-CLAIM: c_0d8fe0be \u2014 status=not_enough_info]\
   \ check before contributing review points; add blocking gate for Constitution II\
@@ -236,6 +243,11 @@
 : 1
 ? "T006a Implement Reference-Validator Agent in `src/validators/reference_validator.py`\
   \ with title-token-overlap \u2265 0.7 [UNRESOLVED-CLAIM: c_7e5196f0 \u2014 status=not_enough_info]\
+  \ check before contributing review points; add blocking gate for Constitution II\
+  \ compliance (Constitution II, Plan Gap)"
+: 1
+? "T006a Implement Reference-Validator Agent in `src/validators/reference_validator.py`\
+  \ with title-token-overlap \u2265 0.7 [UNRESOLVED-CLAIM: c_92e2f7f6 \u2014 status=not_enough_info]\
   \ check before contributing review points; add blocking gate for Constitution II\
   \ compliance (Constitution II, Plan Gap)"
 : 1
@@ -271,6 +283,11 @@
 : 1
 ? "T006a Implement Reference-Validator Agent in `src/validators/reference_validator.py`\
   \ with title-token-overlap \u2265 0.7 check before contributing review points [UNRESOLVED-CLAIM:\
+  \ c_4971e5de \u2014 status=not_enough_info]; add blocking gate for Constitution\
+  \ II compliance (Constitution II, Plan Gap)"
+: 1
+? "T006a Implement Reference-Validator Agent in `src/validators/reference_validator.py`\
+  \ with title-token-overlap \u2265 0.7 check before contributing review points [UNRESOLVED-CLAIM:\
   \ c_5b89c1f7 \u2014 status=not_enough_info]; add blocking gate for Constitution\
   \ II compliance (Constitution II, Plan Gap)"
 : 1
@@ -279,12 +296,19 @@
   \ c_bb5d85cf \u2014 status=not_enough_info]; add blocking gate for Constitution\
   \ II compliance (Constitution II, Plan Gap)"
 : 1
+? "T006a Implement Reference-Validator Agent in `src/validators/reference_validator.py`\
+  \ with title-token-overlap \u2265 0.7 check before contributing review points; add\
+  \ blocking gate for Constitution II compliance (Constitution II, Plan Gap)"
+: 1
 "T008 Initialize Python 3.11 [UNRESOLVED-CLAIM: c_31b68441 \u2014 status=not_enough_info] project with {{claim:c_9da78e09}}": 1
 "T008 Initialize Python 3.11 [UNRESOLVED-CLAIM: c_92679e95 \u2014 status=not_enough_info] project with {{claim:c_9da78e09}}": 1
+"T008 Initialize Python 3.11 [UNRESOLVED-CLAIM: c_d0b1d988 \u2014 status=not_enough_info] project with {{claim:c_9da78e09}}": 1
 "T008 Initialize Python 3.11 [UNRESOLVED-CLAIM: c_f21aed3b \u2014 status=not_enough_info] project with {{claim:c_9da78e09}}": 1
 "T008 Initialize Python 3.11 project [UNRESOLVED-CLAIM: c_07dfde9b \u2014 status=not_enough_info] with {{claim:c_9da78e09}}": 1
+"T008 Initialize Python 3.11 project [UNRESOLVED-CLAIM: c_1f2d82d4 \u2014 status=not_enough_info] with {{claim:c_9da78e09}}": 1
 "T008 Initialize Python 3.11 project [UNRESOLVED-CLAIM: c_5b5fd135 \u2014 status=not_enough_info] with {{claim:c_9da78e09}}": 1
 "T008 Initialize Python 3.11 project [UNRESOLVED-CLAIM: c_b468013a \u2014 status=not_enough_info] with {{claim:c_9da78e09}}": 1
+T008 Initialize Python 3.11 project with {{claim:c_9da78e09}}: 1
 ? "T009 [P] Configure linting and formatting tools: ruff.toml (line-length=88 [UNRESOLVED-CLAIM:\
   \ c_894bffc9 \u2014 status=not_enough_info], target-version=py311) and pyproject.toml\
   \ (black config) in repository root"
@@ -470,6 +494,12 @@ T011 [P] Create task schema contract in contracts/task.schema.yaml with required
   \ MUST verify report includes (a) t-statistic, (b) p-value, (c) bootstrap CI ({{claim:c_8176747a}})\
   \ [UNRESOLVED-CLAIM: c_517f038e \u2014 status=not_enough_info], (d) Wilcoxon effect\
   \ size as PRIMARY outcome with 95% CI; function signatures: generate_csv_report(results,\
+  \ output_path), generate_pdf_report(results, output_path)"
+: 1
+? "T028 [US1] Implement report generator in src/evaluation/report_generator.py (FR-007);\
+  \ MUST verify report includes (a) t-statistic, (b) p-value, (c) bootstrap CI ({{claim:c_8176747a}}),\
+  \ (d) Wilcoxon effect size as PRIMARY outcome with 95% CI [UNRESOLVED-CLAIM: c_1066d643\
+  \ \u2014 status=not_enough_info]; function signatures: generate_csv_report(results,\
   \ output_path), generate_pdf_report(results, output_path)"
 : 1
 ? "T029 [US1] Create run_benchmark.py main entry point in src/benchmark/run_benchmark.py\

@@ -1,3 +1,3 @@
 """
-Data modules
+Data download and processing utilities.
 """

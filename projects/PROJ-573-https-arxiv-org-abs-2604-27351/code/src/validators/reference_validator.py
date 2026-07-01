@@ -1,9 +1,12 @@
 """
-Reference Validator Agent for llmXive.
+Reference-Validator Agent for llmXive scientific benchmark.
 
-Implements a blocking gate for Constitution II compliance and validates
-reference contributions using title-token-overlap scoring.
+This module implements a validator agent that checks reference claims
+before contributing review points. It enforces:
+1. Title-token-overlap >= 0.7 threshold for reference matching
+2. Constitution II compliance gating
 """
+
 import re
 import logging
 from typing import Dict, Any, List, Optional, Tuple, Set
@@ -13,27 +16,15 @@ from src.utils.logging import get_logger
 
 logger = get_logger(__name__)
 
-# Constants for validation
-MIN_TITLE_OVERLAP_SCORE = 0.7
-CONSTITUTION_II_REQUIREMENTS = [
-    "title_token_overlap",
-    "source_verification",
-    "citation_format",
-]
 
-
-def normalize_text(text: str) -> str:
-    """Normalize text for token comparison: lowercase and remove punctuation."""
-    text = text.lower()
-    # Remove punctuation and extra whitespace
-    text = re.sub(r'[^\w\s]', '', text)
-    text = re.sub(r'\s+', ' ', text).strip()
-    return text
-
-
-def tokenize(text: str) -> Set[str]:
-    """Tokenize normalized text into a set of words."""
-    return set(normalize_text(text).split())
+# Constitution II compliance requirements
+CONSTITUTION_II_REQUIREMENTS = {
+    "requires_citation": True,
+    "requires_verification": True,
+    "requires_reproducibility": True,
+    "min_token_overlap": 0.7,
+    "max_age_days": 365,  # References should be within 1 year unless seminal
+}
 
 
 def compute_title_token_overlap(title1: str, title2: str) -> float:
@@ -41,12 +32,22 @@ def compute_title_token_overlap(title1: str, title2: str) -> float:
     Compute the Jaccard similarity (token overlap) between two titles.
 
     Args:
-        title1: First title string.
-        title2: Second title string.
+        title1: First title string
+        title2: Second title string
 
     Returns:
-        Float between 0.0 and 1.0 representing the overlap score.
+        Float between 0.0 and 1.0 representing token overlap ratio
     """
+    # Normalize and tokenize
+    def tokenize(text: str) -> Set[str]:
+        # Lowercase, remove punctuation, split on whitespace
+        text = text.lower()
+        text = re.sub(r'[^\w\s]', ' ', text)
+        tokens = set(text.split())
+        # Remove common stop words that don't add semantic value
+        stop_words = {'the', 'a', 'an', 'and', 'or', 'of', 'to', 'in', 'for', 'on', 'with', 'as', 'by', 'at', 'from'}
+        return tokens - stop_words
+
     tokens1 = tokenize(title1)
     tokens2 = tokenize(title2)
 
@@ -59,192 +60,301 @@ def compute_title_token_overlap(title1: str, title2: str) -> float:
     return len(intersection) / len(union)
 
 
+def validate_reference_claim(claim: Dict[str, Any], reference_db: List[Dict[str, Any]]) -> Tuple[bool, Dict[str, Any]]:
+    """
+    Validate a scientific claim against a reference database.
+
+    Args:
+        claim: Dictionary containing claim details with 'title' and 'source'
+        reference_db: List of reference dictionaries with 'title', 'url', 'verified'
+
+    Returns:
+        Tuple of (is_valid, validation_details)
+    """
+    claim_title = claim.get('title', '')
+    validation_details = {
+        'claim_title': claim_title,
+        'matched_reference': None,
+        'overlap_score': 0.0,
+        'constitution_compliant': False,
+        'issues': []
+    }
+
+    if not claim_title:
+        validation_details['issues'].append("Claim missing title")
+        return False, validation_details
+
+    # Find best matching reference
+    best_match = None
+    best_score = 0.0
+
+    for ref in reference_db:
+        ref_title = ref.get('title', '')
+        score = compute_title_token_overlap(claim_title, ref_title)
+
+        if score > best_score:
+            best_score = score
+            best_match = ref
+
+    validation_details['overlap_score'] = best_score
+
+    # Check threshold
+    if best_score < CONSTITUTION_II_REQUIREMENTS['min_token_overlap']:
+        validation_details['issues'].append(
+            f"Token overlap {best_score:.2f} below threshold {CONSTITUTION_II_REQUIREMENTS['min_token_overlap']}"
+        )
+        return False, validation_details
+
+    validation_details['matched_reference'] = best_match.get('url', 'unknown')
+
+    # Check Constitution II compliance
+    is_compliant = True
+
+    if not best_match.get('verified', False):
+        validation_details['issues'].append("Matched reference not verified")
+        is_compliant = False
+
+    if 'citation' not in claim:
+        validation_details['issues'].append("Claim missing citation")
+        is_compliant = False
+
+    validation_details['constitution_compliant'] = is_compliant
+
+    if is_compliant:
+        logger.info(f"Claim validated: {claim_title} (overlap: {best_score:.2f})")
+    else:
+        logger.warning(f"Claim validation failed: {claim_title} - {validation_details['issues']}")
+
+    return is_compliant, validation_details
+
+
 class ReferenceValidatorAgent:
     """
-    Agent responsible for validating reference contributions against
-    Constitution II compliance requirements.
+    Agent that validates references before contributing review points.
 
-    This agent enforces:
-    1. Title-token-overlap score >= 0.7 for reference matching.
-    2. Blocking gate for Constitution II compliance before points contribution.
+    This agent enforces Constitution II compliance by:
+    1. Checking title-token-overlap >= 0.7 for reference matching
+    2. Verifying claims against a reference database
+    3. Blocking non-compliant contributions
     """
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, reference_db_path: Optional[str] = None):
         """
-        Initialize the ReferenceValidatorAgent.
+        Initialize the Reference Validator Agent.
 
         Args:
-            config: Optional configuration dictionary. Can contain:
-                    - min_overlap_threshold: Override default 0.7 threshold.
+            reference_db_path: Path to YAML file containing reference database
         """
-        self.config = config or {}
-        self.min_overlap_threshold = self.config.get(
-            "min_overlap_threshold", MIN_TITLE_OVERLAP_SCORE
-        )
-        logger.info(f"ReferenceValidatorAgent initialized with threshold {self.min_overlap_threshold}")
+        self.reference_db: List[Dict[str, Any]] = []
+        self.validation_log: List[Dict[str, Any]] = []
+        self._load_reference_db(reference_db_path)
 
-    def validate_title_match(
-        self, submitted_title: str, reference_title: str
-    ) -> Tuple[bool, float]:
+    def _load_reference_db(self, db_path: Optional[str]) -> None:
+        """Load reference database from file or initialize empty."""
+        import yaml
+
+        if db_path:
+            try:
+                path = Path(db_path)
+                if path.exists():
+                    with open(path, 'r', encoding='utf-8') as f:
+                        data = yaml.safe_load(f)
+                        self.reference_db = data.get('references', [])
+                    logger.info(f"Loaded {len(self.reference_db)} references from {db_path}")
+                else:
+                    logger.warning(f"Reference database not found at {db_path}, using empty database")
+            except Exception as e:
+                logger.error(f"Failed to load reference database: {e}")
+                self.reference_db = []
+        else:
+            # Initialize with common scientific references for benchmark
+            self.reference_db = [
+                {
+                    'title': 'Attention Is All You Need',
+                    'url': 'https://arxiv.org/abs/1706.03762',
+                    'verified': True,
+                    'year': 2017
+                },
+                {
+                    'title': 'BERT Pre-Training of Deep Bidirectional Transformers',
+                    'url': 'https://arxiv.org/abs/1810.04805',
+                    'verified': True,
+                    'year': 2018
+                },
+                {
+                    'title': 'TabPFN: A Transformer That Solves Tabular Problems',
+                    'url': 'https://arxiv.org/abs/2207.01848',
+                    'verified': True,
+                    'year': 2022
+                },
+                {
+                    'title': 'Time Series Transformer for Human Activity Recognition',
+                    'url': 'https://arxiv.org/abs/2101.11991',
+                    'verified': True,
+                    'year': 2021
+                }
+            ]
+            logger.info("Initialized with default reference database")
+
+    def validate(self, claim: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Validate if a submitted reference title matches a known reference.
+        Validate a single claim against the reference database.
 
         Args:
-            submitted_title: Title from the contribution.
-            reference_title: Title from the known reference database.
+            claim: Dictionary containing claim details
 
         Returns:
-            Tuple of (is_valid, overlap_score).
-            is_valid is True if overlap_score >= min_overlap_threshold.
+            Validation result dictionary
         """
-        score = compute_title_token_overlap(submitted_title, reference_title)
-        is_valid = score >= self.min_overlap_threshold
-
-        if not is_valid:
-            logger.warning(
-                f"Title overlap {score:.3f} below threshold {self.min_overlap_threshold} "
-                f"for submitted: '{submitted_title[:50]}...' vs ref: '{reference_title[:50]}...'"
-            )
-        else:
-            logger.debug(
-                f"Title overlap {score:.3f} passed for: '{submitted_title[:50]}...'"
-            )
-
-        return is_valid, score
-
-    def check_constitution_ii_compliance(
-        self, contribution_data: Dict[str, Any]
-    ) -> Tuple[bool, List[str]]:
-        """
-        Check if a contribution meets Constitution II compliance requirements.
-
-        Args:
-            contribution_data: Dictionary containing contribution details.
-                               Expected keys: 'title', 'source', 'citation'.
-
-        Returns:
-            Tuple of (is_compliant, list_of_missing_requirements).
-        """
-        missing = []
-        requirements_met = []
-
-        # Check 1: Title Token Overlap
-        if "title" not in contribution_data:
-            missing.append("title_token_overlap")
-        elif "reference_title" not in contribution_data:
-            missing.append("title_token_overlap")
-        else:
-            is_valid, score = self.validate_title_match(
-                contribution_data["title"], contribution_data["reference_title"]
-            )
-            if not is_valid:
-                missing.append("title_token_overlap")
-            else:
-                requirements_met.append(f"title_token_overlap (score: {score:.3f})")
-
-        # Check 2: Source Verification
-        if "source" not in contribution_data or not contribution_data["source"]:
-            missing.append("source_verification")
-        else:
-            requirements_met.append("source_verification")
-
-        # Check 3: Citation Format
-        if "citation" not in contribution_data or not contribution_data["citation"]:
-            missing.append("citation_format")
-        else:
-            requirements_met.append("citation_format")
-
-        is_compliant = len(missing) == 0
-
-        if not is_compliant:
-            logger.warning(
-                f"Contribution failed Constitution II check. Missing: {missing}"
-            )
-        else:
-            logger.info(f"Contribution passed Constitution II check: {requirements_met}")
-
-        return is_compliant, missing
-
-    def evaluate_contribution(
-        self, contribution_data: Dict[str, Any]
-    ) -> Dict[str, Any]:
-        """
-        Perform full evaluation of a contribution.
-
-        Args:
-            contribution_data: Dictionary with contribution details.
-
-        Returns:
-            Dictionary with evaluation results including:
-            - passed: Boolean indicating if contribution is approved.
-            - score: Overlap score (if applicable).
-            - missing_requirements: List of failed checks.
-        """
-        is_compliant, missing = self.check_constitution_ii_compliance(contribution_data)
+        is_valid, details = validate_reference_claim(claim, self.reference_db)
 
         result = {
-            "passed": is_compliant,
-            "missing_requirements": missing,
-            "score": None,
-            "message": ""
+            'claim': claim,
+            'is_valid': is_valid,
+            'details': details,
+            'can_contribute': is_valid and details['constitution_compliant']
         }
 
-        if is_compliant:
-            result["message"] = "Contribution approved for points allocation."
-        else:
-            result["message"] = f"Contribution blocked. Missing: {', '.join(missing)}"
-
-        # Extract score if title validation was attempted
-        if "title" in contribution_data and "reference_title" in contribution_data:
-            _, score = self.validate_title_match(
-                contribution_data["title"], contribution_data["reference_title"]
-            )
-            result["score"] = score
-
+        self.validation_log.append(result)
         return result
+
+    def validate_batch(self, claims: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """
+        Validate multiple claims at once.
+
+        Args:
+            claims: List of claim dictionaries
+
+        Returns:
+            List of validation results
+        """
+        return [self.validate(claim) for claim in claims]
+
+    def get_validation_summary(self) -> Dict[str, Any]:
+        """
+        Get summary of all validations performed.
+
+        Returns:
+            Summary dictionary with counts and statistics
+        """
+        total = len(self.validation_log)
+        valid = sum(1 for v in self.validation_log if v['is_valid'])
+        compliant = sum(1 for v in self.validation_log if v['can_contribute'])
+
+        return {
+            'total_validations': total,
+            'valid_claims': valid,
+            'constitution_compliant': compliant,
+            'compliance_rate': compliant / total if total > 0 else 0.0,
+            'recent_validations': self.validation_log[-10:]  # Last 10 validations
+        }
+
+    def add_reference(self, reference: Dict[str, Any]) -> None:
+        """
+        Add a new reference to the database.
+
+        Args:
+            reference: Reference dictionary with title, url, verified fields
+        """
+        if 'title' not in reference or 'url' not in reference:
+            raise ValueError("Reference must have 'title' and 'url' fields")
+
+        self.reference_db.append(reference)
+        logger.info(f"Added reference: {reference['title']}")
+
+    def export_validation_report(self, output_path: str) -> None:
+        """
+        Export validation log to a YAML file.
+
+        Args:
+            output_path: Path to output file
+        """
+        import yaml
+
+        report = {
+            'summary': self.get_validation_summary(),
+            'validations': self.validation_log
+        }
+
+        path = Path(output_path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+
+        with open(path, 'w', encoding='utf-8') as f:
+            yaml.dump(report, f, default_flow_style=False, sort_keys=False)
+
+        logger.info(f"Exported validation report to {output_path}")
 
 
 def main():
-    """
-    Entry point for standalone execution and demonstration.
-    """
-    logger.info("Starting ReferenceValidatorAgent demonstration.")
+    """Main entry point for standalone execution."""
+    import argparse
+    import json
 
-    # Create agent instance
-    validator = ReferenceValidatorAgent()
+    parser = argparse.ArgumentParser(description='Reference Validator Agent')
+    parser.add_argument('--test', action='store_true', help='Run self-test with sample claims')
+    parser.add_argument('--db', type=str, help='Path to reference database YAML')
+    parser.add_argument('--output', type=str, help='Path to output validation report')
 
-    # Test Case 1: Valid Match
-    test_contribution_1 = {
-        "title": "Heterogeneous Scientific Foundation Model Collaboration Benchmark",
-        "reference_title": "Heterogeneous Scientific Foundation Model Collaboration Benchmark",
-        "source": "arxiv.org",
-        "citation": "2604.27351"
-    }
-    result_1 = validator.evaluate_contribution(test_contribution_1)
-    logger.info(f"Test 1 (Exact Match): {result_1}")
+    args = parser.parse_args()
 
-    # Test Case 2: Invalid Match (Low Overlap)
-    test_contribution_2 = {
-        "title": "Different Paper Title Completely Unrelated",
-        "reference_title": "Heterogeneous Scientific Foundation Model Collaboration Benchmark",
-        "source": "arxiv.org",
-        "citation": "1234.5678"
-    }
-    result_2 = validator.evaluate_contribution(test_contribution_2)
-    logger.info(f"Test 2 (Low Overlap): {result_2}")
+    # Initialize agent
+    agent = ReferenceValidatorAgent(reference_db_path=args.db)
 
-    # Test Case 3: Missing Source
-    test_contribution_3 = {
-        "title": "Heterogeneous Scientific Foundation Model Collaboration Benchmark",
-        "reference_title": "Heterogeneous Scientific Foundation Model Collaboration Benchmark",
-        "source": "",
-        "citation": "2604.27351"
-    }
-    result_3 = validator.evaluate_contribution(test_contribution_3)
-    logger.info(f"Test 3 (Missing Source): {result_3}")
+    if args.test:
+        # Run self-test with sample claims
+        test_claims = [
+            {
+                'title': 'Attention Is All You Need',
+                'source': 'arxiv',
+                'citation': 'Vaswani et al., 2017'
+            },
+            {
+                'title': 'BERT Pre-Training of Deep Bidirectional Transformers for Language Understanding',
+                'source': 'arxiv',
+                'citation': 'Devlin et al., 2018'
+            },
+            {
+                'title': 'Completely Made Up Paper Title That Should Not Match',
+                'source': 'unknown',
+                'citation': None
+            }
+        ]
 
-    logger.info("ReferenceValidatorAgent demonstration complete.")
+        print("Running self-test with sample claims...")
+        results = agent.validate_batch(test_claims)
+
+        for i, result in enumerate(results):
+            print(f"\nClaim {i+1}: {result['claim']['title']}")
+            print(f"  Valid: {result['is_valid']}")
+            print(f"  Overlap Score: {result['details']['overlap_score']:.2f}")
+            print(f"  Constitution Compliant: {result['details']['constitution_compliant']}")
+            print(f"  Can Contribute: {result['can_contribute']}")
+            if result['details']['issues']:
+                print(f"  Issues: {', '.join(result['details']['issues'])}")
+
+        summary = agent.get_validation_summary()
+        print(f"\nSummary: {summary['valid_claims']}/{summary['total_validations']} valid "
+              f"({summary['compliance_rate']:.1%} compliance rate)")
+
+        if args.output:
+            agent.export_validation_report(args.output)
+            print(f"Report exported to {args.output}")
+
+    else:
+        print("Reference Validator Agent initialized.")
+        print("Use --test to run self-test or integrate via Python API.")
+
+        # Interactive mode example
+        if not args.test:
+            sample_claim = {
+                'title': 'Attention Is All You Need',
+                'source': 'arxiv',
+                'citation': 'Vaswani et al., 2017'
+            }
+            result = agent.validate(sample_claim)
+            print(f"\nSample validation result:")
+            print(json.dumps(result, indent=2))
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

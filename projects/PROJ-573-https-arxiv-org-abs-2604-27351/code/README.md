@@ -1,39 +1,57 @@
-# llmXive Benchmark Project
+# llmXive: Heterogeneous Scientific Foundation Model Collaboration Benchmark
 
-Heterogeneous Scientific Foundation Model Collaboration Benchmark.
+## Overview
+This project implements a benchmark for evaluating heterogeneous scientific foundation models across time-series, tabular, and text modalities.
 
-## Prerequisites
-
+## Requirements
 - Python 3.11+
 - pip
 
-## Setup
+## Installation
+```bash
+# Clone the repository
+git clone <repository-url>
+cd PROJ-573-https-arxiv-org-abs-2604-27351
 
-1. Create a virtual environment:
- ```bash
- python -m venv.venv
- source.venv/bin/activate
- ```
+# Create virtual environment (Python 3.11)
+python3.11 -m venv.venv
+source.venv/bin/activate # On Windows:.venv\Scripts\activate
 
-2. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
+# Install dependencies
+pip install -r requirements.txt
+```
 
-3. Verify installation:
- ```bash
- python -c "import src; print('Project structure verified.')"
- ```
+## Quick Start
+```bash
+# Run the full benchmark with default config
+python src/benchmark/run_benchmark.py --config default.yaml
+
+# Run a single task
+python src/benchmark/run_task.py --task-id T001
+
+# Run in unified mode (text-only translation)
+python src/benchmark/run_benchmark.py --config default.yaml --mode unified
+```
 
 ## Project Structure
+```
+code/
+├── src/ # Source code
+│ ├── benchmark/ # Benchmark execution logic
+│ ├── data/ # Data download and processing
+│ ├── evaluation/ # Metrics and statistical tests
+│ ├── models/ # Model wrappers and routing
+│ ├── tasks/ # Task definitions and runners
+│ ├── utils/ # Utility functions
+│ └── validators/ # Validation agents
+├── tests/ # Test suite
+├── data/ # Downloaded datasets
+├── state/ # Project state tracking
+├── contracts/ # Schema contracts
+├── requirements.txt # Dependencies
+├── pyproject.toml # Project configuration
+└── README.md
+```
 
-- `src/`: Source code
-- `tests/`: Test suites
-- `data/`: Data storage
-- `state/`: State tracking
-- `contracts/`: Schema definitions
-- `research/`: Research scripts and documentation
-
-## Development
-
-Linting and formatting are configured via `pyproject.toml` (Black) and `ruff.toml` (Ruff).
+## License
+Apache 2.0

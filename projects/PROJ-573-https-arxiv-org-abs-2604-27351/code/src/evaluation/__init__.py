@@ -1,3 +1,3 @@
 """
-Evaluation modules
+Evaluation metrics and statistical tests.
 """
