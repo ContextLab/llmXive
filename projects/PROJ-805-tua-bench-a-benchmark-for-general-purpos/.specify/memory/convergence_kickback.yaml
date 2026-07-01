@@ -1,0 +1,164 @@
+artifact_links:
+- projects/PROJ-805-tua-bench-a-benchmark-for-general-purpos/specs/001-tua-bench-a-benchmark-for-general-purpos/plan.md
+- specs/*/contracts/*
+- specs/*/data-model.md
+- specs/*/plan.md
+- specs/*/quickstart.md
+- specs/*/research.md
+reason: 12 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst
+  unresolved severity = 'science'. Routing to 'specified' with full provenance so
+  the next worker can address the root cause.
+stage: plan
+to_stage: specified
+unresolved_concerns:
+- artifact: projects/PROJ-805-tua-bench-a-benchmark-for-general-purpos/specs/001-tua-bench-a-benchmark-for-general-purpos/plan.md
+  id: methodology-0be0d74d
+  location: research.md:Statistical & Methodological Rigor
+  reviewer: methodology
+  round: 1
+  severity: methodology
+  text: The plan explicitly states the subset selection (~5-10 tasks) is a 'feasibility
+    compromise, not a statistical sampling method' and that the success rate is a
+    'proxy' for the full suite. This methodology cannot support the spec's claim (US-3,
+    SC-005) to 'confirm the reproduction matches the published findings' regarding
+    the benchmark's overall success rate. A non-representative convenience sample
+    cannot validate a population-level metric; the approach conflates 'pipeline feasibility'
+    with 'benchmark validity'.
+- artifact: projects/PROJ-805-tua-bench-a-benchmark-for-general-purpos/specs/001-tua-bench-a-benchmark-for-general-purpos/plan.md
+  id: methodology-326fa112
+  location: plan.md:Summary
+  reviewer: methodology
+  round: 1
+  severity: methodology
+  text: The plan aims to 'compare execution metrics against the paper's claims' using
+    a subset of 5-10 tasks. If the paper claims a specific success rate (e.g., 85%)
+    for the full 120-task suite, a 5-task subset lacks the statistical power to detect
+    deviations from that claim with any confidence, rendering the comparison methodologically
+    unsound for validation purposes.
+- artifact: projects/PROJ-805-tua-bench-a-benchmark-for-general-purpos/specs/001-tua-bench-a-benchmark-for-general-purpos/plan.md
+  id: methodology-66ab418e
+  location: research.md:Dataset Strategy
+  reviewer: methodology
+  round: 1
+  severity: writing
+  text: The plan excludes 'live-web' tasks to ensure reproducibility. While valid
+    for CI stability, the methodology must explicitly define how this exclusion impacts
+    the validity of the reproduction claim. If the paper's success rate includes these
+    tasks, the reproduction is comparing a filtered subset against an unfiltered claim,
+    introducing a selection bias that invalidates the direct comparison.
+- artifact: projects/PROJ-805-tua-bench-a-benchmark-for-general-purpos/specs/001-tua-bench-a-benchmark-for-general-purpos/plan.md
+  id: spec_coverage-6b867f75
+  location: spec.md:FR-007
+  reviewer: spec_coverage
+  round: 1
+  severity: requirement
+  text: FR-007 requires logging specific failure reasons (e.g., 'File Missing', 'Value
+    Mismatch') to stderr. The plan.md and data-model.md define 'error_message' in
+    ExecutionResult but do not explicitly mandate the parsing of the verification
+    script's output to extract these specific semantic reasons. The plan assumes the
+    orchestrator can generate these specific strings without defining the logic to
+    parse them from the vendored `verify.py` output, risking a silent failure to meet
+    the 'specific reason' requirement.
+- artifact: projects/PROJ-805-tua-bench-a-benchmark-for-general-purpos/specs/001-tua-bench-a-benchmark-for-general-purpos/plan.md
+  id: spec_coverage-c906f923
+  location: spec.md:SC-002
+  reviewer: spec_coverage
+  round: 1
+  severity: requirement
+  text: "SC-002 requires measuring scoring protocol accuracy against control cases\
+    \ (\u226595% accuracy). The plan.md mentions 'Validation of ~5-10 representative\
+    \ tasks' and 'subset selection' but does not explicitly include a step to generate\
+    \ or run 'deliberately corrupted solutions' (as required by US-2 and SC-002) to\
+    \ validate the scoring logic. The current plan focuses on running the benchmark\
+    \ tasks, not on the specific control-case validation required to measure the scoring\
+    \ protocol's accuracy."
+- artifact: projects/PROJ-805-tua-bench-a-benchmark-for-general-purpos/specs/001-tua-bench-a-benchmark-for-general-purpos/plan.md
+  id: spec_coverage-79cbf2dc
+  location: spec.md:SC-005
+  reviewer: spec_coverage
+  round: 1
+  severity: requirement
+  text: "SC-005 requires verifying the task count against the paper's claim (\u2265\
+    110 tasks). The plan.md mentions 'Validation of ~5-10 representative tasks' and\
+    \ 'subset selection' but does not explicitly include a phase or task to perform\
+    \ the full directory count verification against the paper's claim of 120 tasks.\
+    \ The plan focuses on execution, not the metadata verification required by SC-005."
+- artifact: projects/PROJ-805-tua-bench-a-benchmark-for-general-purpos/specs/001-tua-bench-a-benchmark-for-general-purpos/plan.md
+  id: plan_consistency-cc3069cd
+  location: plan.md:Constitution Check
+  reviewer: plan_consistency
+  round: 1
+  severity: requirement
+  text: 'The ''Constitution Check'' section explicitly states: ''The provided input
+    did not contain the text of constitution.md.'' This violates Constitution Principle
+    I (SSoT) and the panel review protocol which requires the per-project constitution
+    to be appended to inputs. A plan cannot be validated for constitutional compliance
+    (Principles I, II, V) without the actual text of the constitution. The plan assumes
+    a ''standard constitution'' rather than adhering to the specific FR-030 principles
+    of the project.'
+- artifact: projects/PROJ-805-tua-bench-a-benchmark-for-general-purpos/specs/001-tua-bench-a-benchmark-for-general-purpos/plan.md
+  id: plan_consistency-878cacae
+  location: plan.md:Technical Context
+  reviewer: plan_consistency
+  round: 1
+  severity: writing
+  text: The plan references 'FR-003', 'FR-006', 'SC-004' in the 'Constitution Check'
+    and 'Technical Context' sections. While these IDs exist in spec.md, the plan does
+    not explicitly map the *plan steps* (e.g., 'Initialize containerized environments')
+    to these specific requirement IDs in a traceable manner. The 'Constitution Check'
+    claims 'Every Functional Requirement... is mapped' but provides no evidence of
+    this mapping within the plan text itself, only a summary assertion.
+- artifact: projects/PROJ-805-tua-bench-a-benchmark-for-general-purpos/specs/001-tua-bench-a-benchmark-for-general-purpos/plan.md
+  id: plan_consistency-3fc817ad
+  location: plan.md:Project Structure
+  reviewer: plan_consistency
+  round: 1
+  severity: writing
+  text: The 'Project Structure' section lists `tasks.md` as 'NOT created by /speckit-plan'.
+    However, the 'Plan' lens requires that every plan element that calls an API matches
+    a defined contract. The plan mentions `scripts/run_validation.py` and `scripts/generate_report.py`
+    but does not explicitly reference the `contracts/execution_result.schema.yaml`
+    or `contracts/reproduction_report.schema.yaml` as the source of truth for the
+    output format of these scripts, creating a potential gap between the plan's output
+    description and the defined contracts.
+- artifact: projects/PROJ-805-tua-bench-a-benchmark-for-general-purpos/specs/001-tua-bench-a-benchmark-for-general-purpos/plan.md
+  id: scientific_soundness-dd98bd1c
+  location: plan.md:Technical Context
+  reviewer: scientific_soundness
+  round: 1
+  severity: science
+  text: 'The plan defines validation as ''comparing execution metrics against the
+    paper''s claims'' but fails to define the ground-truth for the ''success rate''
+    metric. If the plan validates the benchmark''s *own* scoring logic (verify.py)
+    against the benchmark''s *own* reference outputs, the result is tautological:
+    the score will always be 1.0 by definition. To scientifically validate the benchmark,
+    the plan must specify an independent ground-truth (e.g., human-annotated solutions
+    or a separate oracle) to measure the *accuracy* of the automated scoring, not
+    just its *consistency*.'
+- artifact: projects/PROJ-805-tua-bench-a-benchmark-for-general-purpos/specs/001-tua-bench-a-benchmark-for-general-purpos/plan.md
+  id: scientific_soundness-f7656d57
+  location: research.md:Statistical & Methodological Rigor
+  reviewer: scientific_soundness
+  round: 1
+  severity: science
+  text: The plan treats the 'success rate' of the subset as a proxy for the full suite
+    without addressing selection bias. Selecting tasks based on 'feasibility' (CPU-bound,
+    no network) creates a non-representative sample. If the paper's claimed success
+    rate includes network-dependent tasks that are now excluded, the validation will
+    be comparing apples to oranges. The plan must explicitly state that the validation
+    target is 'feasibility of execution' rather than 'reproduction of the paper's
+    success rate metric' to avoid a category error.
+- artifact: projects/PROJ-805-tua-bench-a-benchmark-for-general-purpos/specs/001-tua-bench-a-benchmark-for-general-purpos/plan.md
+  id: scientific_soundness-c124aa90
+  location: spec.md:Success Criteria SC-002
+  reviewer: scientific_soundness
+  round: 1
+  severity: methodology
+  text: "SC-002 requires '\u2265 95% accuracy' on control cases (known pass/fail inputs)\
+    \ to validate the scoring protocol. However, the 'known pass' input is the reference\
+    \ solution itself. Running the verifier against the reference solution is a unit\
+    \ test of the verifier's logic, not a validation of the benchmark's scientific\
+    \ validity. This is a circular validation: 'The verifier works because it returns\
+    \ 1.0 on the input it was designed to accept.' The plan needs an independent oracle\
+    \ or human verification step to break this circle."
+worst_severity: science

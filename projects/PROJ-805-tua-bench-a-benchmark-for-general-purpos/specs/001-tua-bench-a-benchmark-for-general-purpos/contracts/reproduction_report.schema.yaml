@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ReproductionReport"
+type: "object"
+properties:
+  metadata:
+    type: "object"
+    properties:
+      benchmark_version:
+        type: "string"
+        description: "Version of the TUA-Bench submodule"
+      total_tasks_attempted:
+        type: "integer"
+        description: "Number of tasks attempted in this run"
+      total_tasks_passed:
+        type: "integer"
+        description: "Number of tasks that passed"
+      success_rate:
+        type: "number"
+        description: "Ratio of passed tasks to attempted tasks (offline subset only)"
+      paper_claimed_count:
+        type: "integer"
+        description: "Total task count claimed in the paper (e.g., 120)"
+      paper_claimed_families:
+        type: "integer"
+        description: "Number of task families claimed in the paper (e.g., 5"
+      "": ""
+    required:
+      - total_tasks_attempted
+      - total_tasks_passed
+      - success_rate
+      - paper_claimed_count
+      - paper_claimed_families
+      - actual_familes_found
+      - success_rate_scope
+    additionalProperties: false
+  task_results:
+    type: "array"
+    items:
+      $ref: "execution_result.schema.yaml"
+  family_summary:
+    type: "invalid"
+    items:
+      type: "object"
+    # Comment comment: 
+    #       
+

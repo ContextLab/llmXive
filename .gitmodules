@@ -154,9 +154,6 @@
 [submodule "projects/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i/external/Macaron-A2UI-Bench"]
 	path = projects/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i/external/Macaron-A2UI-Bench
 	url = https://github.com/MindLab-Research/Macaron-A2UI-Bench
-[submodule "projects/PROJ-805-tua-bench-a-benchmark-for-general-purpos/external/TUA-Bench"]
-	path = projects/PROJ-805-tua-bench-a-benchmark-for-general-purpos/external/TUA-Bench
-	url = https://github.com/facebookresearch/TUA-Bench
 [submodule "projects/PROJ-795-opid-on-policy-skill-distillation-for-ag/external/OPID"]
 	path = projects/PROJ-795-opid-on-policy-skill-distillation-for-ag/external/OPID
 	url = https://github.com/jinyangwu/OPID
@@ -196,3 +193,9 @@
 [submodule "projects/PROJ-720-joyai-vl-interaction-real-time-vision-la/external/JoyAI-VL-Interaction"]
 	path = projects/PROJ-720-joyai-vl-interaction-real-time-vision-la/external/JoyAI-VL-Interaction
 	url = https://github.com/jd-opensource/JoyAI-VL-Interaction
+[submodule "projects/PROJ-805-tua-bench-a-benchmark-for-general-purpos/external/TUA-Bench"]
+	path = projects/PROJ-805-tua-bench-a-benchmark-for-general-purpos/external/TUA-Bench
+	url = https://github.com/facebookresearch/TUA-Bench
+[submodule "projects/PROJ-792-are-we-ready-for-an-agent-native-memory/external/awesome-agent-memory"]
+	path = projects/PROJ-792-are-we-ready-for-an-agent-native-memory/external/awesome-agent-memory
+	url = https://github.com/OpenDataBox/awesome-agent-memory
