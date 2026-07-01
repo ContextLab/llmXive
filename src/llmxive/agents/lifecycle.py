@@ -249,7 +249,15 @@ ALLOWED_TRANSITIONS: dict[Stage, set[Stage]] = {
     # project (-> in_progress; the execution gate runs the existing code) or a
     # no-code follow-up idea (-> brainstormed). Both targets registered so the
     # transition is valid for any caller / completeness check.
-    Stage.PAPER_INGESTED: {Stage.BRAINSTORMED, Stage.IN_PROGRESS},
+    # Reviewed-Preprints (2026-07-01): intake now parks the paper at the TERMINAL
+    # REVIEWED_PREPRINT (review-only, never modified) and spawns a SEPARATE follow-up
+    # brainstorm project. BRAINSTORMED/IN_PROGRESS retained so the one-time migration
+    # and any legacy in-flight intake can still route.
+    Stage.PAPER_INGESTED: {
+        Stage.REVIEWED_PREPRINT, Stage.BRAINSTORMED, Stage.IN_PROGRESS,
+    },
+    # Terminal: a reviewed preprint never advances.
+    Stage.REVIEWED_PREPRINT: set(),
     # RETIRED state: auto-recovered into the pipeline (run_one_step re-plans a
     # straggler here -> PLANNED / PAPER_PLANNED). No human action is required.
     Stage.HUMAN_INPUT_NEEDED: {Stage.PLANNED, Stage.PAPER_PLANNED},
