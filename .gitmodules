@@ -175,3 +175,9 @@
 [submodule "projects/PROJ-599-mmskills-towards-multimodal-skills-for-g/external/MMSkills"]
 	path = projects/PROJ-599-mmskills-towards-multimodal-skills-for-g/external/MMSkills
 	url = https://github.com/DeepExperience/MMSkills
+[submodule "projects/PROJ-782-mobileforge-annotation-free-adaptation-f/external/MobileForge"]
+	path = projects/PROJ-782-mobileforge-annotation-free-adaptation-f/external/MobileForge
+	url = https://github.com/kwai/MobileForge
+[submodule "projects/PROJ-793-viq-text-aligned-visual-quantized-repres/external/ViQ"]
+	path = projects/PROJ-793-viq-text-aligned-visual-quantized-repres/external/ViQ
+	url = https://github.com/yuxumin/ViQ

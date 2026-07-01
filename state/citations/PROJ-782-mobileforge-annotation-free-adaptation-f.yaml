@@ -1,0 +1,22 @@
+- artifact_hash: d2a174a9aba18bdae8cf68ec846aeaf8b1c1634fa85bead57f9fba54daad85e5
+  artifact_path: projects/PROJ-782-mobileforge-annotation-free-adaptation-f/specs/001-mobileforge-annotation-free-adaptation-f/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - your-org/your-repo \xB7 GitHub"
+  kind: url
+  value: https://github.com/your-org/your-repo.git
+  verification_status: verified
+  verified_against_url: https://github.com/your-org/your-repo
+  verified_at: '2026-07-01T13:37:48.670719Z'
+- artifact_hash: d2a174a9aba18bdae8cf68ec846aeaf8b1c1634fa85bead57f9fba54daad85e5
+  artifact_path: projects/PROJ-782-mobileforge-annotation-free-adaptation-f/specs/001-mobileforge-annotation-free-adaptation-f/quickstart.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: cpu
+  kind: url
+  value: https://download.pytorch.org/whl/cpu
+  verification_status: pending
+  verified_against_url: https://download.pytorch.org/whl/cpu
+  verified_at: '2026-07-01T13:37:48.670719Z'

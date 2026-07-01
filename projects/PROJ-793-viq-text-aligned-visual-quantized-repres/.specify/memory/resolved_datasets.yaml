@@ -1,0 +1,260 @@
+resolved_at: '2026-07-01T13:56:36.295689+00:00'
+datasets:
+- intent: PSNR
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/predict-SIREN-PSNR/COIN-collection/resolve/main/data/mscoco/mscoco_unique_urls.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/heboya8/realesrgan-psnr-score/resolve/main/0/psnr_data_0.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 54504
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/predict-SIREN-PSNR/COIN-collection/resolve/main/data/mscoco/mscoco_unique_urls.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/api/resolve-cache/datasets/heboya8/realesrgan-psnr/241375097baa555abb9a47cc683c89d3b61b1e8b/file_names_bacth.json?%2Fdatasets%2Fheboya8%2Frealesrgan-psnr%2Fresolve%2Fmain%2Ffile_names_bacth.json=&etag=%2290fc0569367b1f274e2302402a19a5b6742df333%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/heboya8/realesrgan-psnr-score/resolve/main/0/psnr_data_0.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://figshare.com/articles/dataset/_b_Climate-driven_gains_fail_to_mask_the_anthropogenic_water_crisis_in_Northern_China_b_/32812820
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Published_data_and_notebooks/32859851
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/_O_7046805833_Basic_Nursing_School_of_Nursing_Gombe_2026_-2027_Registration_Form_Is_Open_Now_O_7O46-805-833_MRS_FAITH_07046805833_Admission_form_process_into_the_school_Office_Applicants_are_advised_to_ensure_that_all_information_provided_d/32859902
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/The_role_of_meso-institutions_in_complying_with_European_legislation_analysis_of_the_coffee_supply_chain_in_Brazil_and_Colombia/32859904
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_O_7046805833_Basic_Nursing_Central_Washington_College_of_Nursing_Sciences_Enugu_2026_-2027_Registration_Form_Is_Open_Now_O_7O46-805-833_MRS_FAITH_07046805833_Admission_form_process_into_the_school_Office_Applicants_are_advised_to_ensure_th/32859881
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijeecs.iaescore.com/index.php/IJEECS/article/view/22205
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5272961
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijece.iaescore.com/index.php/IJECE/article/view/33117
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijeecs.iaescore.com/index.php/IJEECS/article/view/8856
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1175824
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21101234
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21101234
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.13016/iydt-yey3
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''drum.lib.umd.edu'',
+      port=443): Max retries exceeded with url: /handle/1903/35419 (Caused by ConnectTimeoutError(<HTTPSConnection(host=''drum.lib.umd.edu'',
+      port=443) at 0x7f0534a18850>, ''Connection to drum.lib.umd.edu timed out. (connect
+      timeout=20.0)''))'
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Empirical_curvelet_transform_based_deep_DenseNet_model_to_predict_NDVI_using_RGB_drone_imagery_data/32843696
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.31095
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SSIM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Hemabhushan/capstone_sakuga_preproc_ssim/resolve/main/sample_subset/train-00000-of-00060.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/FastVideo/ssim-reference-videos/resolve/main/reference_videos/default/L40S_reference_videos/TurboWan2.2-I2V-A14B-Diffusers/SLA_ATTN/steps4_An
+      astronaut hatching from an egg, on the surface of the moon, the darkness and
+      depth of space reali_ssim.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 872
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Hemabhushan/capstone_sakuga_preproc_ssim/resolve/main/sample_subset/train-00000-of-00060.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/FastVideo/ssim-reference-videos/resolve/main/reference_videos/default/L40S_reference_videos/TurboWan2.2-I2V-A14B-Diffusers/SLA_ATTN/steps4_An
+      astronaut hatching from an egg, on the surface of the moon, the darkness and
+      depth of space reali_ssim.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://karger.figshare.com/articles/dataset/Supplementary_Material_for_Differences_in_Reported_Anaphylaxis_Associated_With_Common_Nonsteroidal_Anti-inflammatory_Drugs_A_Pharmacovigilance_Study/32859923
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_O_7046805833_Basic_Nursing_Holy_Rosary_School_of_Nursing_Emekuku_2026_-2027_Registration_Form_Is_Open_Now_O_7O46-805-833_MRS_FAITH_07046805833_Admission_form_process_into_the_school_Office_Applicants_are_advised_to_ensure_that_all_informat/32859920
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Supplementary_file_3_showing_Glossina_pallidipes_Trypanosome_infection_rates_in_different_in_midgut_and_mouthpart_tissues/32859836
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_O_7046805833_Basic_Nursing_College_of_Nursing_St_Mary_s_Joint_Hospital_Amaigbo_2026_-2027_Registration_Form_Is_Open_Now_O_7O46-805-833_MRS_FAITH_07046805833_Admission_form_process_into_the_school_Office_Applicants_are_advised_to_ensure_tha/32859908
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Climate-driven_gains_fail_to_mask_the_anthropogenic_water_crisis_in_Northern_China_b_/32812820
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7950300
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10793339
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4274935
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5569195
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20623728
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21101234
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21101234
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21099324
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21099324
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Empirical_curvelet_transform_based_deep_DenseNet_model_to_predict_NDVI_using_RGB_drone_imagery_data/32843696
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-only
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://karger.figshare.com/articles/dataset/Supplementary_Material_for_Differences_in_Reported_Anaphylaxis_Associated_With_Common_Nonsteroidal_Anti-inflammatory_Drugs_A_Pharmacovigilance_Study/32859923
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_O_7046805833_Basic_Nursing_Holy_Rosary_School_of_Nursing_Emekuku_2026_-2027_Registration_Form_Is_Open_Now_O_7O46-805-833_MRS_FAITH_07046805833_Admission_form_process_into_the_school_Office_Applicants_are_advised_to_ensure_that_all_informat/32859920
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Supplementary_file_3_showing_Glossina_pallidipes_Trypanosome_infection_rates_in_different_in_midgut_and_mouthpart_tissues/32859836
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_O_7046805833_Basic_Nursing_College_of_Nursing_St_Mary_s_Joint_Hospital_Amaigbo_2026_-2027_Registration_Form_Is_Open_Now_O_7O46-805-833_MRS_FAITH_07046805833_Admission_form_process_into_the_school_Office_Applicants_are_advised_to_ensure_tha/32859908
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Climate-driven_gains_fail_to_mask_the_anthropogenic_water_crisis_in_Northern_China_b_/32812820
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.11591/eei.v9i2.1972
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 415'
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6127654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unige.iris.cineca.it/handle/11567/929442
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21104198
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21104198
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21103827
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21103827
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

@@ -1,0 +1,69 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Evaluation Metrics Schema"
+description: "Schema for aggregated Pass@3 metrics and Exact Binomial Confidence Intervals. Baseline comparison is removed (Contextual Only)."
+type: "object"
+properties:
+  pass_k:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Pass@3 success rate (0.0 to 1.0)"
+  total_tasks:
+    type: "integer"
+    minimum: 1
+    description: "Total number of tasks evaluated"
+  solved_tasks:
+    type: "integer"
+    minimum: 0
+    description: "Number of tasks solved within 3 attempts"
+  confidence_interval:
+    type: "object"
+    properties:
+      method:
+        type: "string"
+        enum: ["exact_binomial"]
+        description: "Method used for CI calculation (Exact Binomial for small N)"
+      level:
+        type: "number"
+        enum: [0.95]
+        description: "Confidence level (fixed at 95%)"
+      lower_bound:
+        type: "number"
+        minimum: 0
+        maximum: 1
+        description: "Lower bound of the 95% CI"
+      upper_bound:
+        type: "number"
+        minimum: 0
+        maximum: 1
+        description: "Upper bound of the 95% CI"
+    required:
+      - method
+      - level
+      - lower_bound
+      - upper_bound
+  run_context:
+    type: "object"
+    description: "Contextual information about the run environment"
+    properties:
+      environment_mode:
+        type: "string"
+        enum: ["mock", "headless"]
+        description: "Environment mode used"
+      model_used:
+        type: "string"
+        description: "Model used (e.g., Qwen2.5-VL-7B, Qwen2-VL-2B)"
+      sample_size_note:
+        type: "string"
+        description: "Note on sample size limitations"
+    required:
+      - environment_mode
+      - model_used
+      - sample_size_note
+required:
+  - pass_k
+  - total_tasks
+  - solved_tasks
+  - confidence_interval
+  - run_context
+additionalProperties: false
