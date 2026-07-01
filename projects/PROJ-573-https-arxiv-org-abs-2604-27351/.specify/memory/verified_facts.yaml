@@ -1,5 +1,8 @@
-'|dataset har uci variable':
-  quote: dataset comprises 10,299 entries and 561 features, divided
-  source_id: '2505.06730'
-  url: https://arxiv.org/abs/2505.06730
-  value: '561'
+'|checksum format sha tracking':
+  quote: A checksum of a portion of the compressed file is computed (SHA-1 of the
+    file contents, or SHA-1 of the first 1024 bytes of the file, or SHA-256 of the
+    first 1024 bytes of the file) and stored, so password correctness can be verified
+    when decrypting.
+  source_id: OpenDocument technical specification
+  url: https://en.wikipedia.org/wiki/OpenDocument_technical_specification
+  value: '1024'

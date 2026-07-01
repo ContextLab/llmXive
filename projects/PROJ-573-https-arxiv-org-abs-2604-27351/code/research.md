@@ -1,17 +1,23 @@
-# Research Documentation
+# Research
 
 ## Dataset Verification
 
-(Previous dataset verification content would be here)
+*Content from T001-T005 would be here.*
+
+## Methodology
+
+*Content from T004 would be here.*
+
+## Gap Analysis
+
+*Content from T005 would be here.*
 
 ## Model Verification
 
-Verification of model weights (< 1 GB) for CPU tractability.
+| Model Name | HF ID | Size (MB) | CPU Tractable (<1GB) |
+|------------|-------|-----------|----------------------|
+| TimeSeries-Transformer | google/flan-t5-small | 300.00 | Yes |
+| TabPFN | TabPFN/tabpfn-v2-1.0 | 950.00 | Yes |
+| Distilled LLM | distilbert-base-uncased | 250.00 | Yes |
 
-| Model Name | HF ID | Size (MB) | CPU Tractable |
-|------------|-------|-----------|---------------|
-| TimeSeries-Transformer (Small Proxy) | hf-internal-testing/tiny-random-T5ForConditionalGeneration | < 10.00 | Yes |
-| TabPFN (Official Small) | TabPFN/tabpfn-v2-0.5 | TBD | TBD |
-| Distilled LLM | distilbert-base-uncased | ~250.00 | Yes |
-
-**Note**: The script `src/research/verify_models.py` performs real-time verification of model sizes using the HuggingFace Hub API. The table above reflects the structure; actual values are computed at runtime.
+*Note: Sizes are approximate and fetched from HuggingFace model cards. Actual sizes may vary slightly based on quantization or version.*

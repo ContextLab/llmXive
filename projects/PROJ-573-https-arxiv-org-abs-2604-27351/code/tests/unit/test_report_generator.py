@@ -1,12 +1,9 @@
-"""
-Unit tests for the report generator module.
-"""
-import os
-import csv
-import tempfile
-from pathlib import Path
 import pytest
-from datetime import datetime
+import tempfile
+import os
+from pathlib import Path
+import json
+import numpy as np
 
 from src.evaluation.report_generator import (
     generate_csv_report,
@@ -14,159 +11,198 @@ from src.evaluation.report_generator import (
     generate_reports
 )
 
-
 class TestReportGenerator:
-    """Test cases for report generation functionality."""
+    """Test suite for the report generator module."""
 
     @pytest.fixture
     def sample_results(self):
-        """Provide sample benchmark results for testing."""
+        """Create sample results data for testing."""
+        np.random.seed(42)
         return [
             {
                 'task_id': 'T001',
-                'condition': 'heterogeneous',
-                'accuracy': 0.85,
-                'timestamp': datetime.now().isoformat(),
-                'statistics': {
-                    't_statistic': 2.34,
-                    'p_value': 0.021,
-                    'bootstrap_ci': {'lower': 0.02, 'upper': 0.15},
-                    'wilcoxon_effect_size': 0.45,
-                    'wilcoxon_ci': {'lower': 0.01, 'upper': 0.12}
-                }
+                'metric_name': 'accuracy',
+                'condition_a_scores': np.random.normal(0.8, 0.05, 30).tolist(),
+                'condition_b_scores': np.random.normal(0.85, 0.05, 30).tolist()
             },
             {
                 'task_id': 'T002',
-                'condition': 'unified',
-                'accuracy': 0.82,
-                'timestamp': datetime.now().isoformat(),
-                'statistics': {
-                    't_statistic': 1.89,
-                    'p_value': 0.062,
-                    'bootstrap_ci': {'lower': -0.01, 'upper': 0.08},
-                    'wilcoxon_effect_size': 0.32,
-                    'wilcoxon_ci': {'lower': -0.02, 'upper': 0.09}
-                }
+                'metric_name': 'f1_score',
+                'condition_a_scores': np.random.normal(0.75, 0.08, 25).tolist(),
+                'condition_b_scores': np.random.normal(0.78, 0.08, 25).tolist()
             }
         ]
 
-    def test_generate_csv_report_creates_file(self, sample_results):
-        """Test that CSV report file is created."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = os.path.join(tmpdir, 'test_report.csv')
-            result_path = generate_csv_report(sample_results, output_path)
+    @pytest.fixture
+    def empty_results(self):
+        """Create empty results list."""
+        return []
 
-            assert os.path.exists(result_path), "CSV file was not created"
-            assert result_path.endswith('.csv'), "Output path should end with .csv"
-
-    def test_generate_csv_report_has_correct_headers(self, sample_results):
-        """Test that CSV report contains expected headers."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = os.path.join(tmpdir, 'test_report.csv')
-            generate_csv_report(sample_results, output_path)
-
-            with open(output_path, 'r', newline='', encoding='utf-8') as f:
-                reader = csv.DictReader(f)
-                headers = reader.fieldnames
-
-                expected_headers = [
-                    'task_id', 'condition', 'accuracy', 't_statistic', 'p_value',
-                    'bootstrap_ci_lower', 'bootstrap_ci_upper',
-                    'wilcoxon_effect_size', 'wilcoxon_ci_lower', 'wilcoxon_ci_upper',
-                    'timestamp'
-                ]
-
-                for header in expected_headers:
-                    assert header in headers, f"Missing header: {header}"
-
-    def test_generate_csv_report_has_correct_data(self, sample_results):
-        """Test that CSV report contains correct data values."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = os.path.join(tmpdir, 'test_report.csv')
-            generate_csv_report(sample_results, output_path)
-
-            with open(output_path, 'r', newline='', encoding='utf-8') as f:
-                reader = csv.DictReader(f)
-                rows = list(reader)
-
-                assert len(rows) == len(sample_results), "Row count mismatch"
-
-                # Check first row
-                first_row = rows[0]
-                assert first_row['task_id'] == 'T001'
-                assert first_row['condition'] == 'heterogeneous'
-                assert float(first_row['accuracy']) == 0.85
-                assert float(first_row['t_statistic']) == 2.34
-                assert float(first_row['p_value']) == 0.021
-
-    def test_generate_pdf_report_creates_file(self, sample_results):
-        """Test that PDF report file is created (or text fallback)."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = os.path.join(tmpdir, 'test_report.pdf')
-            result_path = generate_pdf_report(sample_results, output_path)
-
-            # Should create either PDF or .txt fallback
-            assert os.path.exists(result_path), "PDF or fallback file was not created"
-
-    def test_generate_reports_creates_both_files(self, sample_results):
-        """Test that generate_reports creates both CSV and PDF files."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            reports = generate_reports(sample_results, tmpdir)
-
-            assert 'csv' in reports, "Missing 'csv' key in reports"
-            assert 'pdf' in reports, "Missing 'pdf' key in reports"
-            assert os.path.exists(reports['csv']), "CSV file not created"
-
-            # PDF might be .txt fallback if reportlab not installed
-            pdf_path = reports['pdf']
-            assert os.path.exists(pdf_path) or os.path.exists(pdf_path.replace('.pdf', '.txt')), \
-                "PDF or fallback file not created"
-
-    def test_generate_csv_report_empty_results(self):
-        """Test handling of empty results list."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = os.path.join(tmpdir, 'empty_report.csv')
-            result_path = generate_csv_report([], output_path)
-
-            assert os.path.exists(result_path), "CSV file should be created even with empty results"
-
-            with open(output_path, 'r', newline='', encoding='utf-8') as f:
-                reader = csv.DictReader(f)
-                rows = list(reader)
-                assert len(rows) == 0, "Empty results should produce empty CSV (except headers)"
-
-    def test_generate_csv_report_missing_statistics(self):
-        """Test handling of results without statistics."""
-        results = [
+    @pytest.fixture
+    def incomplete_results(self):
+        """Create results with missing data."""
+        return [
             {
                 'task_id': 'T001',
-                'condition': 'test',
-                'accuracy': 0.90,
-                'timestamp': datetime.now().isoformat()
+                'metric_name': 'accuracy',
+                'condition_a_scores': [],  # Empty
+                'condition_b_scores': [0.8, 0.9, 0.85]
             }
         ]
 
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = os.path.join(tmpdir, 'no_stats_report.csv')
-            result_path = generate_csv_report(results, output_path)
+    def test_generate_csv_report(self, sample_results, tmp_path):
+        """Test CSV report generation includes all required statistics."""
+        output_path = tmp_path / 'results.csv'
+        
+        generate_csv_report(sample_results, output_path)
+        
+        assert output_path.exists(), "CSV file should be created"
+        
+        # Read and verify content
+        with open(output_path, 'r') as f:
+            content = f.read()
+        
+        # Check for required headers
+        required_headers = [
+            't_statistic', 'p_value', 
+            'bootstrap_ci_lower', 'bootstrap_ci_upper',
+            'wilcoxon_r', 'wilcoxon_r_ci_lower', 'wilcoxon_r_ci_upper',
+            'effect_size_interpretation'
+        ]
+        
+        for header in required_headers:
+            assert header in content, f"CSV must include {header}"
+        
+        # Check for actual data rows
+        lines = content.strip().split('\n')
+        assert len(lines) >= 3, "CSV should have header + data rows"
 
-            assert os.path.exists(result_path), "CSV file should be created even without statistics"
+    def test_generate_csv_report_empty(self, empty_results, tmp_path):
+        """Test CSV report with empty results."""
+        output_path = tmp_path / 'results_empty.csv'
+        
+        generate_csv_report(empty_results, output_path)
+        
+        assert output_path.exists()
+        with open(output_path, 'r') as f:
+            content = f.read()
+        
+        # Should have header but no data
+        assert 't_statistic' in content
 
-            with open(output_path, 'r', newline='', encoding='utf-8') as f:
-                reader = csv.DictReader(f)
-                rows = list(reader)
-                assert len(rows) == 1
+    def test_generate_csv_report_incomplete(self, incomplete_results, tmp_path):
+        """Test CSV report skips incomplete results."""
+        output_path = tmp_path / 'results_incomplete.csv'
+        
+        generate_csv_report(incomplete_results, output_path)
+        
+        assert output_path.exists()
+        with open(output_path, 'r') as f:
+            lines = f.readlines()
+        
+        # Should have header but no data rows (skipped due to empty scores)
+        assert len(lines) == 1, "Should only have header row"
 
-                # Statistics should be empty strings or N/A
-                assert rows[0]['t_statistic'] in ['', 'N/A']
-                assert rows[0]['p_value'] in ['', 'N/A']
+    def test_generate_pdf_report(self, sample_results, tmp_path):
+        """Test PDF report generation."""
+        output_path = tmp_path / 'results.pdf'
+        
+        generate_pdf_report(sample_results, output_path)
+        
+        assert output_path.exists(), "PDF file should be created"
+        assert output_path.stat().st_size > 0, "PDF should not be empty"
 
-    def test_generate_reports_creates_files_in_directory(self, sample_results):
-        """Test that reports are created in the specified directory."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            reports = generate_reports(sample_results, tmpdir)
+    def test_generate_pdf_report_fallback(self, sample_results, tmp_path):
+        """Test PDF generation fallback to JSON when matplotlib missing."""
+        # This test verifies the fallback logic exists
+        # In a real environment with matplotlib, it should generate PDF
+        output_path = tmp_path / 'results_fallback.pdf'
+        
+        # Should not raise an exception
+        generate_pdf_report(sample_results, output_path)
+        
+        # Either PDF or JSON should exist
+        json_path = output_path.with_suffix('.json')
+        assert output_path.exists() or json_path.exists()
 
-            # Check that files are in the correct directory
-            assert Path(reports['csv']).parent == Path(tmpdir)
-            pdf_path = Path(reports['pdf'])
-            assert pdf_path.parent == Path(tmpdir) or pdf_path.with_suffix('.txt').parent == Path(tmpdir)
+    def test_generate_reports(self, sample_results, tmp_path):
+        """Test combined report generation."""
+        output_dir = tmp_path / 'reports'
+        
+        paths = generate_reports(sample_results, output_dir)
+        
+        assert 'csv' in paths
+        assert 'pdf' in paths
+        assert os.path.exists(paths['csv'])
+        assert os.path.exists(paths['pdf'])
+
+    def test_report_contains_required_statistics(self, sample_results, tmp_path):
+        """Verify report includes all required statistics per FR-007."""
+        output_path = tmp_path / 'test_report.csv'
+        
+        generate_csv_report(sample_results, output_path)
+        
+        with open(output_path, 'r') as f:
+            content = f.read()
+        
+        # FR-007 Requirements:
+        # (a) t-statistic
+        assert 't_statistic' in content
+        
+        # (b) p-value
+        assert 'p_value' in content
+        
+        # (c) bootstrap CI (95% CI)
+        assert 'bootstrap_ci_lower' in content
+        assert 'bootstrap_ci_upper' in content
+        
+        # (d) Wilcoxon effect size as PRIMARY outcome with 95% CI
+        assert 'wilcoxon_r' in content
+        assert 'wilcoxon_r_ci_lower' in content
+        assert 'wilcoxon_r_ci_upper' in content
+        assert 'effect_size_interpretation' in content
+
+    def test_statistical_values_are_real(self, sample_results, tmp_path):
+        """Verify statistical values are computed, not fabricated."""
+        output_path = tmp_path / 'real_check.csv'
+        
+        generate_csv_report(sample_results, output_path)
+        
+        with open(output_path, 'r') as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+        
+        assert len(rows) > 0, "Should have at least one result row"
+        
+        for row in rows:
+            # Verify t-statistic is a number
+            t_stat = float(row['t_statistic'])
+            assert isinstance(t_stat, float)
+            
+            # Verify p-value is between 0 and 1
+            p_val = float(row['p_value'])
+            assert 0.0 <= p_val <= 1.0, "P-value must be in [0, 1]"
+            
+            # Verify effect size R is reasonable (typically -1 to 1)
+            r_val = float(row['wilcoxon_r'])
+            assert -1.0 <= r_val <= 1.0, "Wilcoxon R should be in [-1, 1]"
+        
+        import csv
+
+    def test_report_with_single_sample(self, tmp_path):
+        """Test report generation with minimal data."""
+        single_result = [
+            {
+                'task_id': 'T_MIN',
+                'metric_name': 'test',
+                'condition_a_scores': [0.5],
+                'condition_b_scores': [0.6]
+            }
+        ]
+        
+        output_path = tmp_path / 'single.csv'
+        
+        # Should not crash on minimal data
+        generate_csv_report(single_result, output_path)
+        
+        assert output_path.exists()

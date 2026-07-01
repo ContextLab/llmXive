@@ -1,5 +1,16 @@
+? "T002 [P] Verify tabular dataset availability (selected UCI sets) via HuggingFace\
+  \ datasets [UNRESOLVED-CLAIM: c_dd8f0bb0 \u2014 status=not_enough_info]; create\
+  \ `src/research/verify_tabular.py` script; document in research.md section \"Dataset\
+  \ Verification\" with fields: dataset_name, url, variables (list), size_mb, verification_status\
+  \ (FR-001, Phase 0.1)"
+: 1
 ? "T003 [P] Verify text dataset availability (DROP/MUST) via HuggingFace datasets\
   \ [UNRESOLVED-CLAIM: c_bb2f55be \u2014 status=not_enough_info]; create `src/research/verify_text.py`\
+  \ script;document in research.md section \"Dataset Verification\" with fields: dataset_name,\
+  \ url, variables (list), size_mb, verification_status (FR-001, Phase 0.1)"
+: 1
+? "T003 [P] Verify text dataset availability (DROP/MUST) via HuggingFace datasets\
+  \ [UNRESOLVED-CLAIM: c_fe427784 \u2014 status=not_enough_info]; create `src/research/verify_text.py`\
   \ script;document in research.md section \"Dataset Verification\" with fields: dataset_name,\
   \ url, variables (list), size_mb, verification_status (FR-001, Phase 0.1)"
 : 1
@@ -92,6 +103,12 @@
   \ create `src/research/verify_models.py` script; document in research.md section\
   \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
   \ (boolean) (FR-002, SC-002, Phase 0.5)"
+: 2
+? "T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM\
+  \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_93ce84ee \u2014 status=not_enough_info];\
+  \ create `src/research/verify_models.py` script; document in research.md section\
+  \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
+  \ (boolean) (FR-002, SC-002, Phase 0.5)"
 : 1
 ? "T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM\
   \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_a4b272a4 \u2014 status=not_enough_info];\
@@ -141,11 +158,6 @@
   \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
   \ (boolean) (FR-002, SC-002, Phase 0.5)"
 : 1
-? 'T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM
-  via HuggingFace model cards; create `src/research/verify_models.py` script; document
-  in research.md section "Model Verification" with fields: model_name, hf_id, size_mb,
-  cpu_tractable (boolean) (FR-002, SC-002, Phase 0.5)'
-: 2
 ? "T006a Implement Reference-Validator Agent in `src/validators/reference_validator.py`\
   \ with title-token-overlap \u2265 0.7 [UNRESOLVED-CLAIM: c_0d8fe0be \u2014 status=not_enough_info]\
   \ check before contributing review points; add blocking gate for Constitution II\
@@ -186,9 +198,15 @@
   \ c_5b89c1f7 \u2014 status=not_enough_info]; add blocking gate for Constitution\
   \ II compliance (Constitution II, Plan Gap)"
 : 1
+? "T006a Implement Reference-Validator Agent in `src/validators/reference_validator.py`\
+  \ with title-token-overlap \u2265 0.7 check before contributing review points [UNRESOLVED-CLAIM:\
+  \ c_bb5d85cf \u2014 status=not_enough_info]; add blocking gate for Constitution\
+  \ II compliance (Constitution II, Plan Gap)"
+: 1
 "T008 Initialize Python 3.11 [UNRESOLVED-CLAIM: c_31b68441 \u2014 status=not_enough_info] project with {{claim:c_9da78e09}}": 1
 "T008 Initialize Python 3.11 [UNRESOLVED-CLAIM: c_92679e95 \u2014 status=not_enough_info] project with {{claim:c_9da78e09}}": 1
 "T008 Initialize Python 3.11 [UNRESOLVED-CLAIM: c_f21aed3b \u2014 status=not_enough_info] project with {{claim:c_9da78e09}}": 1
+"T008 Initialize Python 3.11 project [UNRESOLVED-CLAIM: c_07dfde9b \u2014 status=not_enough_info] with {{claim:c_9da78e09}}": 1
 "T008 Initialize Python 3.11 project [UNRESOLVED-CLAIM: c_5b5fd135 \u2014 status=not_enough_info] with {{claim:c_9da78e09}}": 1
 "T008 Initialize Python 3.11 project [UNRESOLVED-CLAIM: c_b468013a \u2014 status=not_enough_info] with {{claim:c_9da78e09}}": 1
 ? "T009 [P] Configure linting and formatting tools: ruff.toml (line-length=88 [UNRESOLVED-CLAIM:\
@@ -207,6 +225,10 @@
 : 1
 ? "T009 [P] Configure linting and formatting tools: ruff.toml (line-length=88, target-version=py311)\
   \ [UNRESOLVED-CLAIM: c_09293d6f \u2014 status=not_enough_info] and pyproject.toml\
+  \ (black config) in repository root"
+: 1
+? "T009 [P] Configure linting and formatting tools: ruff.toml (line-length=88, target-version=py311)\
+  \ [UNRESOLVED-CLAIM: c_3e5fd4de \u2014 status=not_enough_info] and pyproject.toml\
   \ (black config) in repository root"
 : 1
 ? "T015 Create quickstart.md with setup instructions; include sections: (1) Prerequisites\
@@ -252,12 +274,6 @@
   DROP/MUST via HuggingFace datasets; depends on T007/T008 complete <!-- FAILED: unspecified
   -->'
 : 1
-? 'T022 [US1] Implement dataset download with 3-retry logic in src/data/download.py
-  (FR-010); function signatures: download_dataset(url, max_retries=3, timeout=300)
-  -> (path, checksum); verify URLs: UCI_HAR via `datasets.load_dataset(''UCI_HAR'')`,
-  DROP/MUST via HuggingFace datasets; depends on T007/T008 complete <!-- FAILED: unspecified
-  --> <!-- FAILED: unspecified -->'
-: 2
 ? "T024 [US1] Implement timeout enforcement in src/utils/timeout.py (FR-006, FR-013);\
   \ function signatures: enforce_timeout(func, timeout_seconds=300 [UNRESOLVED-CLAIM:\
   \ c_1d4cac1d \u2014 status=not_enough_info]) -> result; raise TimeoutError if exceeded;\
@@ -297,14 +313,6 @@
   \ condition_b), bootstrap_ci(values, {{claim:c_e50ac6bc}}, confidence=0.95 [UNRESOLVED-CLAIM:\
   \ c_ebb9c190 \u2014 status=not_enough_info])"
 : 1
-? "T027 [US1] Implement statistical tests in src/evaluation/statistical_tests.py (FR-007,\
-  \ FR-014, FR-011); MUST include: {{claim:c_2c09cbc3}}, {{claim:c_2c7597de}} with\
-  \ {{claim:c_7c3d210d}} and 95% CI as PRIMARY outcome (document formula), {{claim:c_55db4237}}\
-  \ (explicit count), configurable \u03B1 threshold) with logging; function signatures:\
-  \ paired_ttest(condition_a, condition_b, {{claim:c_08e60571}}), wilcoxon_effect_size(condition_a,\
-  \ condition_b), bootstrap_ci(values, {{claim:c_e50ac6bc}}, {{claim:c_dadece63}}\
-  \ (1710.08708, https://arxiv.org/abs/1710.08708))"
-: 2
 ? "T028 [US1] Implement report generator in src/evaluation/report_generator.py (FR-007);\
   \ MUST verify report includes (a) t-statistic, (b) p-value, (c) bootstrap CI ({{claim:c_8176747a}})\
   \ [UNRESOLVED-CLAIM: c_517f038e \u2014 status=not_enough_info], (d) Wilcoxon effect\
@@ -315,7 +323,7 @@
   MUST verify report includes (a) t-statistic, (b) p-value, (c) bootstrap CI ({{claim:c_8176747a}}),
   (d) Wilcoxon effect size as PRIMARY outcome with 95% CI; function signatures: generate_csv_report(results,
   output_path), generate_pdf_report(results, output_path)'
-: 1
+: 2
 ? "T029 [US1] Create run_benchmark.py main entry point in src/benchmark/run_benchmark.py\
   \ (FR-001, FR-006, FR-010); CLI arguments: --config (default default.yaml), --mode\
   \ (heterogeneous|unified), --seeds (5) [UNRESOLVED-CLAIM: c_1deb9e69 \u2014 status=not_enough_info];\
