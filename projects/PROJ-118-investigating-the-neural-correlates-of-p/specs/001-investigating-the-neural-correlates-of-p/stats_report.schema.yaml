@@ -1,0 +1,20 @@
+comparison:
+  type: string
+  required: true
+  description: Description of the statistical comparison performed
+p_value:
+  type: float
+  required: false
+  description: P-value from the statistical test
+effect_size:
+  type: float
+  required: false
+  description: Effect size metric (e.g., Cohen's d)
+ci_lower:
+  type: float
+  required: false
+  description: Lower bound of the confidence interval
+ci_upper:
+  type: float
+  required: false
+  description: Upper bound of the confidence interval

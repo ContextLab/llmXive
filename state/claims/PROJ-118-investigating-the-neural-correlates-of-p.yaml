@@ -1,0 +1,279 @@
+- artifact_path: projects/PROJ-118-investigating-the-neural-correlates-of-p/specs/001-investigating-the-neural-correlates-of-p/tasks.md
+  attempts: 1
+  canonical: dataset source OpenNeuro ds003645
+  claim_id: c_1c4eca02
+  context: 'Goal: Automatically download OpenNeuro ds003645, subsample to 32 channels,
+    filter, re-reference, epoch, and remove artifacts via ICA.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_source_OpenNeuro_ds003645
+  kind: entity_fact
+  raw_text: The dataset is OpenNeuro ds003645.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T16:49:27Z'
+- artifact_path: projects/PROJ-118-investigating-the-neural-correlates-of-p/specs/001-investigating-the-neural-correlates-of-p/tasks.md
+  attempts: 1
+  canonical: 32 channel EEG montage list
+  claim_id: c_93800481
+  context: 'Subsample the COPY to the 32-channel montage defined in code/config.yaml
+    (channels: Fp1, Fp2, F7, F8, F3, F4, Fz, FC3, FC4, FCz, C3, C4, Cz, CP3, CP4,
+    CPz, P3, P4, Pz, PO7, PO8, O1, O2, Oz, AF7, AF8, FT7, FT8, TP7, TP8, PO3, PO4)
+    using raw.pick_channels().'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The montage consists of 32 channels: Fp1, Fp2, F7, F8, F3, F4, Fz, FC3,
+    FC4, FCz, C3, C4, Cz, CP3, CP4, CPz, P3, P4, Pz, PO7, PO8, O1, O2, Oz, AF7, AF8,
+    FT7, FT8, TP7, TP8, PO3, PO4.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T16:54:31Z'
+- artifact_path: projects/PROJ-118-investigating-the-neural-correlates-of-p/specs/001-investigating-the-neural-correlates-of-p/tasks.md
+  attempts: 1
+  canonical: epoch time window -200ms to 600ms
+  claim_id: c_44bc78f9
+  context: Epoch data (-200 ms to 600 ms) into standard and deviant conditions using
+    mne.Epochs() based on event codes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The epoch time window is -200 ms to 600 ms.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T16:56:00Z'
+- artifact_path: projects/PROJ-118-investigating-the-neural-correlates-of-p/specs/001-investigating-the-neural-correlates-of-p/tasks.md
+  attempts: 1
+  canonical: eye-blink correlation threshold > 0.8
+  claim_id: c_0bb6c307
+  context: Run ICA using mne.preprocessing.ICA(), identify eye-blink components using
+    ica.find_bads_eog() with correlation threshold > 0.8 on frontal channels (Fp1,
+    Fp2, F7, F8, Fz, FCz), and remove them via ica.apply().
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Eye-blink components are identified using a correlation threshold > 0.8
+    on frontal channels.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T16:56:00Z'
+- artifact_path: projects/PROJ-118-investigating-the-neural-correlates-of-p/specs/001-investigating-the-neural-correlates-of-p/tasks.md
+  attempts: 1
+  canonical: exclusion threshold >50% rejected trials
+  claim_id: c_aa4f198d
+  context: 'Parse lines matching regex r''Subject (\w+): Rejected (\d+) epochs''.
+    Exclude participants with >50% rejected trials from statistical analysis (T027),
+    but log their IDs to results/excluded_subjects.txt.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Participants with >50% rejected trials are excluded from statistical analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T16:56:00Z'
+- artifact_path: projects/PROJ-118-investigating-the-neural-correlates-of-p/specs/001-investigating-the-neural-correlates-of-p/tasks.md
+  attempts: 1
+  canonical: peak detection amplitude threshold 2.0 uV
+  claim_id: c_609b8ef8
+  context: "If no clear peak is found (amplitude < 2.0 \xB5V or no peak in window),\
+    \ record NaN for amplitude/latency and set peak_detected=false."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "A peak is considered clear if amplitude is >= 2.0 \xB5V."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T16:58:32Z'
+- artifact_path: projects/PROJ-118-investigating-the-neural-correlates-of-p/specs/001-investigating-the-neural-correlates-of-p/tasks.md
+  attempts: 1
+  canonical: 4 statistical comparisons for amplitude and latency at Fz and FCz
+  claim_id: c_16634146
+  context: 'Perform paired-sample t-tests on Raw Condition Vectors (Deviant vs Standard)
+    for Amplitude and Latency at Fz and FCz using scipy.stats.ttest_rel. This results
+    in multiple comparisons: Amplitude Fz, Amplitude FCz, Latency Fz, Latency FCz.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Statistical comparisons involve 4 specific tests: Amplitude Fz, Amplitude
+    FCz, Latency Fz, Latency FCz.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T16:59:26Z'
+- artifact_path: projects/PROJ-118-investigating-the-neural-correlates-of-p/specs/001-investigating-the-neural-correlates-of-p/tasks.md
+  attempts: 1
+  canonical: runtime constraint <=6 hours on GitHub Actions free-tier
+  claim_id: c_9eaea76b
+  context: "Performance optimization: Ensure total runtime \u22646 hours on GitHub\
+    \ Actions free-tier (SC-004)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The total runtime must be \u22646 hours on GitHub Actions free-tier."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T16:59:26Z'
+- artifact_path: projects/PROJ-118-investigating-the-neural-correlates-of-p/specs/001-investigating-the-neural-correlates-of-p/tasks.md
+  attempts: 1
+  canonical: dataset OpenNeuro ds003645
+  claim_id: c_f1ffb4e9
+  context: 'Goal: Automatically download OpenNeuro ds003645, subsample to 32 channels,
+    filter, re-reference, epoch, and remove artifacts via ICA.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_OpenNeuro_ds003645
+  kind: entity_fact
+  raw_text: The dataset used is OpenNeuro ds003645.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T17:04:34Z'
+- artifact_path: projects/PROJ-118-investigating-the-neural-correlates-of-p/specs/001-investigating-the-neural-correlates-of-p/tasks.md
+  attempts: 1
+  canonical: 32-channel montage subsampling
+  claim_id: c_bf285c66
+  context: 'Subsample the COPY to the 32-channel montage defined in code/config.yaml
+    (channels: Fp1, Fp2, F7, F8, F3, F4, Fz, FC3, FC4, FCz, C3, C4, Cz, CP3, CP4,
+    CPz, P3, P4, Pz, PO7, PO8, O1, O2, Oz, AF7, AF8, FT7, FT8, TP7, TP8, PO3, PO4).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The preprocessing pipeline subsamples data to a 32-channel montage.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T17:04:48Z'
+- artifact_path: projects/PROJ-118-investigating-the-neural-correlates-of-p/specs/001-investigating-the-neural-correlates-of-p/tasks.md
+  attempts: 1
+  canonical: epoch window -200 ms to 600 ms
+  claim_id: c_b1c65f49
+  context: Epoch data (-200 ms to 600 ms) into 'standard' and 'deviant' conditions
+    using mne.Epochs() based on event codes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The epoch window for data is set from -200 ms to 600 ms.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T17:05:15Z'
+- artifact_path: projects/PROJ-118-investigating-the-neural-correlates-of-p/specs/001-investigating-the-neural-correlates-of-p/tasks.md
+  attempts: 1
+  canonical: ICA eye-blink correlation threshold > 0.8
+  claim_id: c_d96f32c2
+  context: identify eye-blink components using ica.find_bads_eog() with correlation
+    threshold > 0.8 on frontal channels (Fp1, Fp2, F7, F8, Fz, FCz).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/ICA_eye-blink_correlation_threshold_%3E_0.8
+  kind: magnitude
+  raw_text: ICA eye-blink component identification uses a correlation threshold greater
+    than 0.8 on frontal channels.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T17:06:05Z'
+- artifact_path: projects/PROJ-118-investigating-the-neural-correlates-of-p/specs/001-investigating-the-neural-correlates-of-p/tasks.md
+  attempts: 1
+  canonical: peak detection window 150-250ms
+  claim_id: c_29f30306
+  context: Write test skeleton for peak detection logic within 150-250ms window in
+    tests/unit/test_extract.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The peak detection window for MMN is within 150-250ms.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T17:06:25Z'
+- artifact_path: projects/PROJ-118-investigating-the-neural-correlates-of-p/specs/001-investigating-the-neural-correlates-of-p/tasks.md
+  attempts: 1
+  canonical: exclude participants with >50% rejected trials
+  claim_id: c_9bd3b1d1
+  context: Exclude participants with >50% rejected trials from statistical analysis
+    (T027), but log their IDs to results/excluded_subjects.txt.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/exclude_participants_with_%3E50%25_rejected_trials
+  kind: magnitude
+  raw_text: Participants with greater than 50% rejected trials are excluded from statistical
+    analysis.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T17:07:01Z'
+- artifact_path: projects/PROJ-118-investigating-the-neural-correlates-of-p/specs/001-investigating-the-neural-correlates-of-p/tasks.md
+  attempts: 2
+  canonical: SNR baseline window -200ms to 0ms
+  claim_id: c_a264017a
+  context: 'SNR Formula: abs(peak_amplitude) / std_dev(baseline_window) where baseline
+    is -200ms to 0ms.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/SNR_baseline_window_-200ms_to_0ms
+  kind: entity_fact
+  raw_text: The baseline window for SNR calculation is -200ms to 0ms.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T17:07:03Z'
+- artifact_path: projects/PROJ-118-investigating-the-neural-correlates-of-p/specs/001-investigating-the-neural-correlates-of-p/tasks.md
+  attempts: 1
+  canonical: 4 statistical comparisons for amplitude and latency at Fz and FCz
+  claim_id: c_07ff6a44
+  context: 'This results in multiple comparisons: Amplitude Fz, Amplitude FCz, Latency
+    Fz, Latency FCz.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Statistical analysis involves 4 comparisons: Amplitude Fz, Amplitude
+    FCz, Latency Fz, Latency FCz.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T17:07:26Z'

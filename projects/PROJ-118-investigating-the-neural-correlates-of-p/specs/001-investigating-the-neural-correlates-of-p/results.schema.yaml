@@ -1,0 +1,12 @@
+metric_name:
+  type: string
+  required: true
+  description: Name of the metric being reported
+value:
+  type: float
+  required: true
+  description: Numerical value of the metric
+unit:
+  type: string
+  required: false
+  description: Unit of measurement (e.g., 'µV', 'ms')

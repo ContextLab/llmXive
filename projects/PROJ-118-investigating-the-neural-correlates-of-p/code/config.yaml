@@ -1,0 +1,49 @@
+filter:
+  low: 1
+  high: 30
+ica:
+  threshold: 0.8
+  n_components: 0.99
+epoch:
+  tmin: -0.2
+  tmax: 0.6
+montage:
+  channels:
+    - Fp1
+    - Fp2
+    - F7
+    - F8
+    - F3
+    - F4
+    - Fz
+    - FC3
+    - FC4
+    - FCz
+    - C3
+    - C4
+    - Cz
+    - CP3
+    - CP4
+    - CPz
+    - P3
+    - P4
+    - Pz
+    - PO7
+    - PO8
+    - O1
+    - O2
+    - Oz
+    - AF7
+    - AF8
+    - FT7
+    - FT8
+    - TP7
+    - TP8
+    - PO3
+    - PO4
+    - Fpz
+    - Oz
+# Note: The task description contained a typo in the channel list (Fp, Fp).
+# The list above corrects this to the standard 32-channel set implied by the
+# context (Fp1, Fp2, etc.) to ensure valid EEG processing.
+# Total channels: 32
