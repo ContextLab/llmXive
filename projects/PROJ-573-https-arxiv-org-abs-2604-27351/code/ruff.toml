@@ -1,23 +1,18 @@
-# Ruff configuration for llmXive benchmark project
+# Ruff configuration for llmXive project
+# Line length and target version per task T009 requirements
+
 line-length = 88
 target-version = "py311"
 
 [lint]
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-    "UP", # pyupgrade
-]
-ignore = [
-    "E501", # line too long (handled by black/ruff format)
-    "B008", # do not perform function calls in argument defaults (common in CLI/ML)
-]
+# Enable pycodestyle (E), Pyflakes (F), and isort (I) rules
+select = ["E", "F", "I", "W"]
+
+# Ignore specific rules if necessary (add as project grows)
+ignore = []
 
 [lint.isort]
+# Configuration for import sorting
 known-first-party = ["src", "tests", "research", "setup"]
 force-single-line = false
 lines-after-imports = 2

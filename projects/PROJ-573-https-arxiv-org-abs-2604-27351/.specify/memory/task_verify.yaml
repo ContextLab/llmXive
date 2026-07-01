@@ -58,6 +58,12 @@
   size_mb, cpu_tractable (boolean) (FR-002, SC-002, Phase 0.5)'
 : 2
 ? "T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM\
+  \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_02279103 \u2014 status=not_enough_info];\
+  \ create `src/research/verify_models.py` script; document in research.md section\
+  \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
+  \ (boolean) (FR-002, SC-002, Phase 0.5)"
+: 1
+? "T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM\
   \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_0ee4f569 \u2014 status=not_enough_info];\
   \ create `src/research/verify_models.py` script; document in research.md section\
   \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
@@ -123,11 +129,6 @@
   \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
   \ (boolean) (FR-002, SC-002, Phase 0.5)"
 : 1
-? 'T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM
-  via HuggingFace model cards; create `src/research/verify_models.py` script; document
-  in research.md section "Model Verification" with fields: model_name, hf_id, size_mb,
-  cpu_tractable (boolean) (FR-002, SC-002, Phase 0.5)'
-: 1
 ? "T006a Implement Reference-Validator Agent in `src/validators/reference_validator.py`\
   \ with title-token-overlap \u2265 0.7 [UNRESOLVED-CLAIM: c_0d8fe0be \u2014 status=not_enough_info]\
   \ check before contributing review points; add blocking gate for Constitution II\
@@ -168,12 +169,15 @@
   \ c_5b89c1f7 \u2014 status=not_enough_info]; add blocking gate for Constitution\
   \ II compliance (Constitution II, Plan Gap)"
 : 1
+? "T006a Implement Reference-Validator Agent in `src/validators/reference_validator.py`\
+  \ with title-token-overlap \u2265 0.7 check before contributing review points; add\
+  \ blocking gate for Constitution II compliance (Constitution II, Plan Gap)"
+: 1
 "T008 Initialize Python 3.11 [UNRESOLVED-CLAIM: c_31b68441 \u2014 status=not_enough_info] project with {{claim:c_9da78e09}}": 1
 "T008 Initialize Python 3.11 [UNRESOLVED-CLAIM: c_92679e95 \u2014 status=not_enough_info] project with {{claim:c_9da78e09}}": 1
 "T008 Initialize Python 3.11 [UNRESOLVED-CLAIM: c_f21aed3b \u2014 status=not_enough_info] project with {{claim:c_9da78e09}}": 1
 "T008 Initialize Python 3.11 project [UNRESOLVED-CLAIM: c_5b5fd135 \u2014 status=not_enough_info] with {{claim:c_9da78e09}}": 1
 "T008 Initialize Python 3.11 project [UNRESOLVED-CLAIM: c_b468013a \u2014 status=not_enough_info] with {{claim:c_9da78e09}}": 1
-T008 Initialize Python 3.11 project with {{claim:c_9da78e09}}: 2
 ? "T009 [P] Configure linting and formatting tools: ruff.toml (line-length=88 [UNRESOLVED-CLAIM:\
   \ c_894bffc9 \u2014 status=not_enough_info], target-version=py311) and pyproject.toml\
   \ (black config) in repository root"
@@ -191,6 +195,9 @@ T008 Initialize Python 3.11 project with {{claim:c_9da78e09}}: 2
 ? "T009 [P] Configure linting and formatting tools: ruff.toml (line-length=88, target-version=py311)\
   \ [UNRESOLVED-CLAIM: c_09293d6f \u2014 status=not_enough_info] and pyproject.toml\
   \ (black config) in repository root"
+: 1
+? 'T009 [P] Configure linting and formatting tools: ruff.toml (line-length=88, target-version=py311)
+  and pyproject.toml (black config) in repository root'
 : 1
 ? "T015 Create quickstart.md with setup instructions; include sections: (1) Prerequisites\
   \ list (Python 3.11 [UNRESOLVED-CLAIM: c_31b68441 \u2014 status=not_enough_info],\
@@ -318,6 +325,11 @@ T008 Initialize Python 3.11 project with {{claim:c_9da78e09}}: 2
   (US-3 Scenario 1); deterministic schema: CSV (Wikidata Q28914856, https://www.wikidata.org/wiki/Q28914856)-style
   text representation with column names and values; function signature: tabular_to_text(df,
   label_column) -> string'
+: 1
+? "T049 [US3] Add fidelity validation for translation quality in src/models/translation.py\
+  \ (FR-003); function signature: validate_translation(original_data, translated_text)\
+  \ -> fidelity_score; measure information loss; log warning if fidelity < threshold\
+  \ [UNRESOLVED-CLAIM: c_0599b40f \u2014 status=not_enough_info]"
 : 1
 ? "T055b Implement total runtime verification in src/evaluation/runtime_verification.py;\
   \ verify total runtime \u22644 hours on reference hardware (SC-003); record pass/fail\

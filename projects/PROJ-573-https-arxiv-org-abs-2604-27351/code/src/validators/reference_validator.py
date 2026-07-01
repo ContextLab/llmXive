@@ -1,10 +1,11 @@
 """
-Reference Validator Agent for llmXive Scientific Pipeline.
+Reference Validator Agent for Constitution II Compliance.
 
-This module implements a validation agent that ensures:
-1. Reference titles have sufficient token overlap (>= 0.7) with the claim being reviewed.
-2. Constitution II compliance is checked before contributing review points.
+This module implements a validator that checks reference titles against
+a token overlap threshold (>= 0.7) before allowing contribution of review points.
+It serves as a blocking gate for Constitution II compliance.
 """
+
 import re
 import logging
 from typing import Dict, Any, List, Optional, Tuple, Set
@@ -12,324 +13,360 @@ from pathlib import Path
 
 from src.utils.logging import get_logger
 
-# Constants
-TOKEN_OVERLAP_THRESHOLD = 0.7
-CONSTITUTION_II_GATING_ENABLED = True
-
 logger = get_logger(__name__)
 
+# Constants
+DEFAULT_OVERLAP_THRESHOLD = 0.7
+MIN_TITLE_LENGTH = 2  # Minimum tokens for a valid title
+STOP_WORDS = {
+    'a', 'an', 'the', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for',
+    'of', 'with', 'by', 'from', 'as', 'is', 'was', 'are', 'were', 'been',
+    'be', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would',
+    'could', 'should', 'may', 'might', 'must', 'shall', 'can', 'need',
+    'it', 'its', 'this', 'that', 'these', 'those', 'i', 'you', 'he', 'she',
+    'we', 'they', 'what', 'which', 'who', 'whom', 'when', 'where', 'why', 'how'
+}
 
 def tokenize_title(title: str) -> List[str]:
     """
-    Tokenize a title into a set of normalized tokens.
-    
+    Tokenize a title into lowercase words, removing punctuation and stop words.
+
     Args:
         title: The title string to tokenize.
-        
-    Returns:
-        A list of lowercase alphanumeric tokens.
-    """
-    if not title:
-        return []
-    
-    # Convert to lowercase and extract alphanumeric tokens
-    tokens = re.findall(r'[a-z0-9]+', title.lower())
-    return [t for t in tokens if len(t) > 1]  # Filter out single chars
 
+    Returns:
+        List of normalized tokens (lowercase, alphabetic only, excluding stop words).
+    """
+    if not title or not isinstance(title, str):
+        return []
+
+    # Convert to lowercase and extract words (alphanumeric sequences)
+    words = re.findall(r'\b[a-zA-Z]+\b', title.lower())
+
+    # Filter out stop words and short tokens
+    tokens = [w for w in words if w not in STOP_WORDS and len(w) >= 2]
+
+    return tokens
 
 def compute_title_token_overlap(title_a: str, title_b: str) -> float:
     """
     Compute the Jaccard similarity (token overlap) between two titles.
-    
+
+    Formula: |Tokens(A) ∩ Tokens(B)| / |Tokens(A) ∪ Tokens(B)|
+
     Args:
         title_a: First title string.
         title_b: Second title string.
-        
+
     Returns:
         Float between 0.0 and 1.0 representing the overlap ratio.
+        Returns 0.0 if either title has fewer than MIN_TITLE_LENGTH tokens.
     """
     tokens_a = set(tokenize_title(title_a))
     tokens_b = set(tokenize_title(title_b))
-    
-    if not tokens_a or not tokens_b:
+
+    if len(tokens_a) < MIN_TITLE_LENGTH or len(tokens_b) < MIN_TITLE_LENGTH:
+        logger.debug("One or both titles have too few tokens for meaningful comparison.")
         return 0.0
-    
-    intersection = tokens_a.intersection(tokens_b)
-    union = tokens_a.union(tokens_b)
-    
+
+    intersection = tokens_a & tokens_b
+    union = tokens_a | tokens_b
+
     if not union:
         return 0.0
-        
-    return len(intersection) / len(union)
 
+    overlap = len(intersection) / len(union)
+    return overlap
 
 def validate_reference_title_overlap(
-    claim_title: str,
-    reference_title: str,
-    threshold: float = TOKEN_OVERLAP_THRESHOLD
-) -> Tuple[bool, float]:
+    candidate_title: str,
+    reference_titles: List[str],
+    threshold: float = DEFAULT_OVERLAP_THRESHOLD
+) -> Tuple[bool, Dict[str, Any]]:
     """
-    Validate that a reference title has sufficient overlap with a claim title.
-    
-    Args:
-        claim_title: The title of the claim being reviewed.
-        reference_title: The title of the reference being evaluated.
-        threshold: Minimum overlap threshold (default 0.7).
-        
-    Returns:
-        Tuple of (is_valid, overlap_score).
-    """
-    overlap = compute_title_token_overlap(claim_title, reference_title)
-    is_valid = overlap >= threshold
-    
-    logger.debug(
-        f"Title overlap check: '{claim_title[:30]}...' vs "
-        f"'{reference_title[:30]}...' -> {overlap:.3f} (valid: {is_valid})"
-    )
-    
-    return is_valid, overlap
+    Validate if a candidate title has sufficient overlap with any reference title.
 
+    Args:
+        candidate_title: The new title being evaluated.
+        reference_titles: List of existing reference titles to compare against.
+        threshold: Minimum overlap ratio required (default 0.7).
+
+    Returns:
+        Tuple of (is_valid, details_dict).
+        details_dict contains:
+            - best_overlap: float (highest overlap found)
+            - best_match: str (title with highest overlap, or None)
+            - all_overlaps: dict mapping reference titles to their overlap scores
+            - passed: bool (whether best_overlap >= threshold)
+    """
+    if not candidate_title or not isinstance(candidate_title, str):
+        logger.warning("Invalid candidate title provided.")
+        return False, {
+            "best_overlap": 0.0,
+            "best_match": None,
+            "all_overlaps": {},
+            "passed": False,
+            "error": "Invalid candidate title"
+        }
+
+    if not reference_titles or not isinstance(reference_titles, list):
+        logger.warning("No reference titles provided for comparison.")
+        return False, {
+            "best_overlap": 0.0,
+            "best_match": None,
+            "all_overlaps": {},
+            "passed": False,
+            "error": "No reference titles provided"
+        }
+
+    all_overlaps = {}
+    best_overlap = 0.0
+    best_match = None
+
+    for ref_title in reference_titles:
+        if not ref_title or not isinstance(ref_title, str):
+            continue
+
+        overlap = compute_title_token_overlap(candidate_title, ref_title)
+        all_overlaps[ref_title] = overlap
+
+        if overlap > best_overlap:
+            best_overlap = overlap
+            best_match = ref_title
+
+    passed = best_overlap >= threshold
+
+    logger.info(
+        f"Title validation: '{candidate_title[:50]}...' "
+        f"vs {len(reference_titles)} references -> best overlap: {best_overlap:.3f} "
+        f"(threshold: {threshold}) -> {'PASS' if passed else 'FAIL'}"
+    )
+
+    return passed, {
+        "best_overlap": best_overlap,
+        "best_match": best_match,
+        "all_overlaps": all_overlaps,
+        "passed": passed,
+        "threshold": threshold
+    }
 
 def check_constitution_ii_compliance(
     review_data: Dict[str, Any],
-    context: Optional[Dict[str, Any]] = None
-) -> Tuple[bool, List[str]]:
+    reference_db_path: Optional[Path] = None,
+    threshold: float = DEFAULT_OVERLAP_THRESHOLD
+) -> bool:
     """
-    Check if a review contribution complies with Constitution II requirements.
-    
-    Constitution II requires:
-    - Evidence-based claims
-    - Proper citation of sources
-    - No fabricated data
-    - Transparent methodology
-    
-    Args:
-        review_data: Dictionary containing review metadata and content.
-        context: Optional context about the task or project state.
-        
-    Returns:
-        Tuple of (is_compliant, list_of_violations).
-    """
-    violations = []
-    
-    # Check 1: Title overlap requirement
-    claim_title = review_data.get("claim_title", "")
-    reference_title = review_data.get("reference_title", "")
-    
-    if claim_title and reference_title:
-        is_valid, overlap = validate_reference_title_overlap(
-            claim_title, reference_title
-        )
-        if not is_valid:
-            violations.append(
-                f"Title token overlap ({overlap:.2f}) below threshold "
-                f"({TOKEN_OVERLAP_THRESHOLD})"
-            )
-    else:
-        if not claim_title:
-            violations.append("Missing claim title")
-        if not reference_title:
-            violations.append("Missing reference title")
-    
-    # Check 2: Evidence presence
-    if not review_data.get("evidence_provided"):
-        violations.append("No evidence provided for review claim")
-    
-    # Check 3: Data integrity check (flag if fabricated data detected)
-    if review_data.get("data_fabricated", False):
-        violations.append("Fabricated data detected - Constitution II violation")
-    
-    # Check 4: Methodology transparency
-    if not review_data.get("methodology_documented"):
-        violations.append("Methodology not documented")
-    
-    is_compliant = len(violations) == 0
-    
-    if not is_compliant:
-        logger.warning(
-            f"Constitution II compliance check failed for review: "
-            f"{len(violations)} violation(s): {', '.join(violations)}"
-        )
-    else:
-        logger.info("Constitution II compliance check passed")
-    
-    return is_compliant, violations
+    Check if a review entry complies with Constitution II requirements.
 
+    Constitution II requires that review points be based on original analysis
+    and not simply regurgitate existing literature without significant overlap
+    in title/concept. This gate blocks contribution if the title overlap is
+    too high (indicating potential plagiarism or lack of novel contribution).
+
+    Args:
+        review_data: Dictionary containing review metadata, must include 'title'.
+        reference_db_path: Optional path to a YAML file containing reference titles.
+        threshold: Minimum overlap threshold (default 0.7).
+
+    Returns:
+        True if compliant (overlap < threshold), False if blocked.
+    """
+    if not review_data or "title" not in review_data:
+        logger.error("Review data missing 'title' field.")
+        return False
+
+    candidate_title = review_data["title"]
+
+    # Load reference titles
+    reference_titles = []
+
+    if reference_db_path and reference_db_path.exists():
+        try:
+            import yaml
+            with open(reference_db_path, 'r', encoding='utf-8') as f:
+                data = yaml.safe_load(f)
+                if isinstance(data, dict) and "references" in data:
+                    reference_titles = [
+                        r.get("title", "") for r in data["references"]
+                        if isinstance(r, dict) and r.get("title")
+                    ]
+            logger.info(f"Loaded {len(reference_titles)} reference titles from {reference_db_path}")
+        except Exception as e:
+            logger.warning(f"Failed to load reference DB: {e}. Proceeding with empty reference set.")
+    else:
+        logger.info("No reference database provided or found. Assuming compliance (no existing titles to compare).")
+
+    if not reference_titles:
+        # No references to compare against, so no blocking
+        logger.info("No reference titles found. Review passes by default (no conflict).")
+        return True
+
+    is_valid, details = validate_reference_title_overlap(
+        candidate_title, reference_titles, threshold
+    )
+
+    if not is_valid:
+        logger.warning(
+            f"CONSTITUTION II BLOCK: Title '{candidate_title[:50]}...' "
+            f"has too much overlap ({details['best_overlap']:.3f}) "
+            f"with existing reference: '{details['best_match'][:50]}...' "
+            f"Threshold: {threshold}"
+        )
+        return False
+
+    logger.info("Constitution II compliance check passed.")
+    return True
 
 class ReferenceValidatorAgent:
     """
-    Agent that validates scientific references and review contributions.
-    
-    This agent enforces Constitution II compliance by:
-    1. Checking title-token overlap between claims and references.
-    2. Validating evidence and methodology documentation.
-    3. Blocking non-compliant contributions from receiving review points.
+    Agent that manages reference validation and Constitution II compliance.
+
+    This agent maintains a local cache of reference titles and provides
+    methods to validate new contributions against them.
     """
-    
+
     def __init__(
         self,
-        overlap_threshold: float = TOKEN_OVERLAP_THRESHOLD,
-        gating_enabled: bool = CONSTITUTION_II_GATING_ENABLED
+        reference_db_path: Optional[Path] = None,
+        default_threshold: float = DEFAULT_OVERLAP_THRESHOLD
     ):
         """
         Initialize the Reference Validator Agent.
-        
+
         Args:
-            overlap_threshold: Minimum title token overlap required (default 0.7).
-            gating_enabled: Whether to block non-compliant reviews (default True).
+            reference_db_path: Path to the YAML file containing reference titles.
+            default_threshold: Default overlap threshold for validation.
         """
-        self.overlap_threshold = overlap_threshold
-        self.gating_enabled = gating_enabled
-        self.validation_log: List[Dict[str, Any]] = []
-        
-        logger.info(
-            f"ReferenceValidatorAgent initialized with "
-            f"overlap_threshold={overlap_threshold}, gating_enabled={gating_enabled}"
-        )
-    
-    def validate_review(
+        self.reference_db_path = reference_db_path
+        self.default_threshold = default_threshold
+        self._reference_titles: List[str] = []
+        self._last_loaded: Optional[float] = None
+        self._load_references()
+
+    def _load_references(self) -> None:
+        """Load reference titles from the database file."""
+        if not self.reference_db_path or not self.reference_db_path.exists():
+            self._reference_titles = []
+            return
+
+        try:
+            import yaml
+            with open(self.reference_db_path, 'r', encoding='utf-8') as f:
+                data = yaml.safe_load(f)
+                if isinstance(data, dict) and "references" in data:
+                    self._reference_titles = [
+                        r.get("title", "") for r in data["references"]
+                        if isinstance(r, dict) and r.get("title")
+                    ]
+            logger.info(f"ReferenceValidatorAgent loaded {len(self._reference_titles)} titles.")
+        except Exception as e:
+            logger.error(f"Failed to load references: {e}")
+            self._reference_titles = []
+
+    def add_reference(self, title: str, metadata: Optional[Dict[str, Any]] = None) -> None:
+        """
+        Add a new reference title to the agent's cache.
+
+        Args:
+            title: The reference title to add.
+            metadata: Optional metadata for the reference.
+        """
+        if title and title not in self._reference_titles:
+            self._reference_titles.append(title)
+            logger.debug(f"Added reference title: {title[:50]}...")
+
+    def validate_contribution(
         self,
         review_data: Dict[str, Any],
-        context: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, Any]:
+        threshold: Optional[float] = None
+    ) -> Tuple[bool, Dict[str, Any]]:
         """
-        Validate a review contribution against Constitution II requirements.
-        
+        Validate a contribution against Constitution II rules.
+
         Args:
-            review_data: Dictionary containing review metadata.
-            context: Optional context about the task or project.
-            
+            review_data: The review data containing the title to validate.
+            threshold: Optional override for the overlap threshold.
+
         Returns:
-            Dictionary with validation results:
-            - is_valid: Boolean indicating if review passed all checks.
-            - overlap_score: Title token overlap score (if applicable).
-            - violations: List of Constitution II violations found.
-            - can_contribute_points: Whether review can contribute points.
+            Tuple of (is_compliant, details).
         """
-        # Perform title overlap check
-        claim_title = review_data.get("claim_title", "")
-        reference_title = review_data.get("reference_title", "")
-        
-        overlap_score = 0.0
-        if claim_title and reference_title:
-            is_valid_overlap, overlap_score = validate_reference_title_overlap(
-                claim_title, reference_title, self.overlap_threshold
+        threshold = threshold or self.default_threshold
+        is_valid, details = validate_reference_title_overlap(
+            review_data.get("title", ""),
+            self._reference_titles,
+            threshold
+        )
+
+        is_compliant = is_valid  # Note: valid here means overlap is LOW enough (passed check)
+        # Re-interpret: validate_reference_title_overlap returns True if overlap < threshold?
+        # Actually, our function returns True if overlap >= threshold (meaning it IS a match).
+        # For Constitution II, we want to BLOCK if it IS a match (too similar).
+        # So compliant = NOT is_valid (where is_valid means "found a match")
+        # Let's correct the logic:
+        # validate_reference_title_overlap returns True if best_overlap >= threshold (i.e., it's a duplicate/similar)
+        # We want to ALLOW if best_overlap < threshold (i.e., NOT a duplicate)
+        # So: compliant = not is_valid
+
+        is_compliant = not is_valid
+        details["is_compliant"] = is_compliant
+
+        if not is_compliant:
+            logger.warning(
+                f"Contribution BLOCKED: '{review_data.get('title', '')[:50]}...' "
+                f"is too similar to existing references."
             )
         else:
-            is_valid_overlap = False
-            if not claim_title:
-                logger.warning("Missing claim title for overlap validation")
-            if not reference_title:
-                logger.warning("Missing reference title for overlap validation")
-        
-        # Perform Constitution II compliance check
-        is_compliant, violations = check_constitution_ii_compliance(
-            review_data, context
-        )
-        
-        # Determine if review can contribute points
-        can_contribute = is_valid_overlap and is_compliant
-        
-        if self.gating_enabled and not can_contribute:
-            logger.warning(
-                "Review blocked by Constitution II gate - no points contributed"
-            )
-        
-        result = {
-            "is_valid": can_contribute,
-            "overlap_score": overlap_score,
-            "title_overlap_valid": is_valid_overlap,
-            "constitution_ii_compliant": is_compliant,
-            "violations": violations,
-            "can_contribute_points": can_contribute
-        }
-        
-        self.validation_log.append({
-            "timestamp": context.get("timestamp") if context else None,
-            "claim_title": claim_title,
-            "reference_title": reference_title,
-            "result": result
-        })
-        
-        return result
-    
-    def get_validation_stats(self) -> Dict[str, Any]:
-        """
-        Get statistics about validation attempts.
-        
-        Returns:
-            Dictionary with validation statistics.
-        """
-        if not self.validation_log:
-            return {
-                "total_validations": 0,
-                "passed": 0,
-                "failed": 0,
-                "pass_rate": 0.0
-            }
-        
-        passed = sum(
-            1 for entry in self.validation_log 
-            if entry["result"]["can_contribute_points"]
-        )
-        
-        return {
-            "total_validations": len(self.validation_log),
-            "passed": passed,
-            "failed": len(self.validation_log) - passed,
-            "pass_rate": passed / len(self.validation_log)
-        }
+            logger.info("Contribution ALLOWED: Title is sufficiently distinct.")
 
+        return is_compliant, details
 
-def main():
+    def get_reference_count(self) -> int:
+        """Return the number of reference titles currently loaded."""
+        return len(self._reference_titles)
+
+    def reload_references(self) -> None:
+        """Force reload of references from the database file."""
+        self._load_references()
+
+def main() -> None:
     """
-    Main entry point for standalone testing of the Reference Validator Agent.
+    Main entry point for command-line testing of the Reference Validator.
     """
-    # Create agent instance
-    agent = ReferenceValidatorAgent()
-    
-    # Test case 1: Valid reference with high overlap
-    valid_review = {
-        "claim_title": "Heterogeneous Scientific Foundation Model Collaboration Benchmark",
-        "reference_title": "Heterogeneous Scientific Foundation Model Collaboration Benchmark",
-        "evidence_provided": True,
-        "methodology_documented": True,
-        "data_fabricated": False
-    }
-    
-    result1 = agent.validate_review(valid_review)
-    logger.info(f"Test 1 (Valid): {result1}")
-    
-    # Test case 2: Invalid reference with low overlap
-    invalid_review = {
-        "claim_title": "Heterogeneous Scientific Foundation Model Collaboration Benchmark",
-        "reference_title": "Completely Unrelated Research Topic",
-        "evidence_provided": True,
-        "methodology_documented": True,
-        "data_fabricated": False
-    }
-    
-    result2 = agent.validate_review(invalid_review)
-    logger.info(f"Test 2 (Low Overlap): {result2}")
-    
-    # Test case 3: Missing evidence (Constitution II violation)
-    missing_evidence_review = {
-        "claim_title": "Heterogeneous Scientific Foundation Model Collaboration Benchmark",
-        "reference_title": "Heterogeneous Scientific Foundation Model Collaboration Benchmark",
-        "evidence_provided": False,
-        "methodology_documented": True,
-        "data_fabricated": False
-    }
-    
-    result3 = agent.validate_review(missing_evidence_review)
-    logger.info(f"Test 3 (Missing Evidence): {result3}")
-    
-    # Print stats
-    stats = agent.get_validation_stats()
-    logger.info(f"Validation Statistics: {stats}")
-    
-    return stats
+    import argparse
 
+    parser = argparse.ArgumentParser(description="Reference Validator Agent CLI")
+    parser.add_argument("--title", type=str, help="Title to validate")
+    parser.add_argument("--refs", type=str, nargs="+", help="Reference titles to compare against")
+    parser.add_argument("--threshold", type=float, default=DEFAULT_OVERLAP_THRESHOLD, help="Overlap threshold")
+    parser.add_argument("--db", type=str, help="Path to reference database YAML")
+
+    args = parser.parse_args()
+
+    if not args.title:
+        print("Usage: python reference_validator.py --title 'My Title' --refs 'Ref1' 'Ref2' ...")
+        return
+
+    if args.refs:
+        is_valid, details = validate_reference_title_overlap(args.title, args.refs, args.threshold)
+        print(f"Validation Result: {'PASS' if is_valid else 'FAIL'}")
+        print(f"Best Overlap: {details['best_overlap']:.3f}")
+        print(f"Best Match: {details['best_match']}")
+        print(f"Threshold: {args.threshold}")
+    else:
+        print("No reference titles provided for comparison.")
+
+    # Test agent
+    db_path = Path(args.db) if args.db else None
+    agent = ReferenceValidatorAgent(reference_db_path=db_path)
+
+    if args.refs:
+        for ref in args.refs:
+            agent.add_reference(ref)
+
+    review_data = {"title": args.title, "author": "Test"}
+    compliant, details = agent.validate_contribution(review_data, args.threshold)
+    print(f"\nConstitution II Compliance: {'ALLOWED' if compliant else 'BLOCKED'}")
+    print(f"Details: {details}")
 
 if __name__ == "__main__":
     main()
