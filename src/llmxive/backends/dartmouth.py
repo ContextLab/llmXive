@@ -19,6 +19,7 @@ from llmxive.backends.base import (
     BaseBackend,
     ChatMessage,
     ChatResponse,
+    EmptyReplyError,
     ModelDownError,
     PermanentBackendError,
     TransientBackendError,
@@ -54,6 +55,13 @@ _DEFAULT_MAX_RETRIES = int(os.environ.get("DARTMOUTH_MAX_RETRIES", "8"))
 _DEFAULT_RETRY_BASE_S = float(os.environ.get("DARTMOUTH_RETRY_BASE_S", "5.0"))
 _DEFAULT_RETRY_MAX_DELAY_S = float(os.environ.get("DARTMOUTH_RETRY_MAX_DELAY_S", "60.0"))
 _RETRY_MULTIPLIER = 2.0
+# An EMPTY reply (the qwen <think>-mode flap) is a consistent model behavior, not a
+# network blip: a couple of stochastic retries may recover, but burning the full
+# 8-retry budget (~5 min) on a flapping model just delays the fall-through to a
+# healthy peer / the fast paid fallback — the dominant reasoning-throughput cost.
+# Cap it low so the router escapes quickly (still a few tries to catch a stochastic
+# recovery). Overridable via DARTMOUTH_EMPTY_REPLY_MAX_RETRIES.
+_EMPTY_REPLY_MAX_RETRIES = int(os.environ.get("DARTMOUTH_EMPTY_REPLY_MAX_RETRIES", "2"))
 
 # --- reasoning-aware per-request wall-clock deadline ---------------------
 #
@@ -307,6 +315,11 @@ def _retry_with_backoff(
             # flaps (generic 5xx/reset) are NOT ModelDownError and keep the
             # generous retry budget below.
             if isinstance(exc, ModelDownError):
+                break
+            # An empty reply is a consistent model behavior — cap its retries LOW so
+            # the router falls through to a healthy peer / the fast paid fallback
+            # quickly instead of burning the full budget on a flapping model.
+            if isinstance(exc, EmptyReplyError) and attempt >= _EMPTY_REPLY_MAX_RETRIES:
                 break
             if attempt >= max_retries:
                 break
@@ -747,7 +760,7 @@ class DartmouthBackend(BaseBackend):
                 # clarifier: gpt-oss-120b returned '' + finish_reason='stop',
                 # refusal=None → the step died instead of retrying a peer).
                 usage = meta.get("token_usage", {}) or {}
-                raise TransientBackendError(
+                raise EmptyReplyError(
                     f"Dartmouth model {model!r} returned empty content "
                     f"(finish_reason={finish_reason!r}, "
                     f"completion_tokens={usage.get('completion_tokens')}) "

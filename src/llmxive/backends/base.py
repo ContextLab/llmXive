@@ -62,6 +62,18 @@ class DeadlineExceededError(ModelDownError):
     per-request wall-clock deadline (e.g. 360s for a reasoning model)."""
 
 
+class EmptyReplyError(TransientBackendError):
+    """The model ANSWERED (HTTP 200, finish_reason stop/length) but the content was
+    EMPTY — the qwen ``<think>``-mode flap: it burns completion tokens reasoning and
+    returns nothing. Unlike a network 5xx (a true transient blip that a retry rides
+    out), an empty reply is a CONSISTENT model behavior: a couple of stochastic
+    retries may recover, but retrying the SAME flapping model the full ~8× (~5 min)
+    just delays the fall-through to a healthy peer / the fast paid fallback. Retry
+    layers cap it low (:data:`~llmxive.backends.dartmouth._EMPTY_REPLY_MAX_RETRIES`)
+    so the router escapes quickly. Still a TransientBackendError so the model-
+    fallback chain + panel transient-no-escalation path treat it as recoverable."""
+
+
 class PermanentBackendError(BackendError):
     """A failure that should not trigger fallback (auth, bad request)."""
 
@@ -164,6 +176,7 @@ __all__ = [
     "ChatMessage",
     "ChatResponse",
     "DeadlineExceededError",
+    "EmptyReplyError",
     "ModelDownError",
     "PermanentBackendError",
     "TransientBackendError",

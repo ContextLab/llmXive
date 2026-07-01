@@ -354,3 +354,36 @@ def test_default_retry_window_spans_several_minutes():
     )
     total = sum(min(base * (mult ** a), cap) for a in range(dartmouth._DEFAULT_MAX_RETRIES))
     assert total >= 240.0, f"default retry window only {total}s — too short to ride a few-min outage"
+
+
+def test_empty_reply_caps_retries_low():
+    """An EmptyReplyError (qwen <think>-mode flap) retries only a few times before
+    falling through — NOT the full 8-retry budget — so the router reaches a healthy
+    peer / the fast paid fallback quickly instead of stalling ~5 min on a flapper."""
+    from llmxive.backends.base import EmptyReplyError
+    from llmxive.backends.dartmouth import _EMPTY_REPLY_MAX_RETRIES
+
+    calls = []
+
+    def fn():
+        calls.append(1)
+        raise EmptyReplyError("empty")
+
+    with pytest.raises(EmptyReplyError):
+        _retry_with_backoff(fn, max_retries=8, base_delay_s=0.001)
+    assert len(calls) == _EMPTY_REPLY_MAX_RETRIES + 1
+    assert len(calls) < 9  # NOT the full budget
+
+
+def test_generic_transient_keeps_full_retry_budget():
+    """A generic transient (5xx/reset — a true network blip) still gets the full
+    retry budget; only the empty-reply flap is capped low."""
+    calls = []
+
+    def fn():
+        calls.append(1)
+        raise TransientBackendError("5xx")
+
+    with pytest.raises(TransientBackendError):
+        _retry_with_backoff(fn, max_retries=4, base_delay_s=0.001)
+    assert len(calls) == 5  # max_retries + 1
