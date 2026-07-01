@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Configuration Schema"
+type: "object"
+description: "Schema for the configuration parameters of the EfficientRollout run."
+properties:
+  model_path:
+    type: "string"
+    description: "Path to the target model or quantized drafter."
+  data_path:
+    type: "string"
+    description: "Path to the input JSONL file. Must be 'prompts.jsonl' for this validation."
+  max_seqs:
+    type: "integer"
+    minimum: 1
+    maximum: 100
+    description: "Maximum number of sequences to process."
+  trials:
+    type: "integer"
+    minimum: 1
+    maximum: 10
+    description: "Number of trials per prompt for variance estimation."
+  device:
+    type: "string"
+    enum:
+      - "cpu"
+    description: "Target device. Must be 'cpu' for this validation."
+  toggle_enabled:
+    type: "boolean"
+    description: "Whether to enable the system-aware toggle logic."
+  synthetic_regime:
+    type: "boolean"
+    description: "If true, artificially inflate draft cost to force toggle 'Enable' for logic validation."
+  memory_limit_mb:
+    type: "integer"
+    minimum: 1024
+    description: "Maximum allowed RAM in MB (default 6144 for 7GB runner)."
+required:
+  - "model_path"
+  - "data_path"
+  - "max_seqs"
+  - "device"
+additionalProperties: false

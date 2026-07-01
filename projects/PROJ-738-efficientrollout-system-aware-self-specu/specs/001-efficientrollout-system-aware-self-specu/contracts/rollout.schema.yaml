@@ -1,0 +1,58 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Rollout Trace Schema"
+type: "object"
+description: "Schema for the output of a single rollout generation (Baseline or Speculative)."
+properties:
+  run_id:
+    type: "string"
+    description: "Unique identifier for the run."
+  prompt_id:
+    type: "string"
+    description: "Reference to the input prompt ID."
+  method:
+    type: "string"
+    enum:
+      - "baseline"
+      - "speculative"
+    description: "The decoding method used."
+  tokens:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of generated tokens."
+  acceptance_flags:
+    type: "array"
+    items:
+      type: "boolean"
+    description: "List of acceptance flags (True=accepted, False=rejected). Null for baseline."
+    nullable: true
+  latency_per_token:
+    type: "array"
+    items:
+      type: "number"
+    description: "Latency in seconds for each token."
+  total_latency:
+    type: "number"
+    description: "Total end-to-end latency in seconds."
+  memory_peak_mb:
+    type: "number"
+    description: "Peak RAM usage in megabytes."
+  toggle_decision:
+    type: "string"
+    enum:
+      - "enable"
+      - "disable"
+      - "n/a"
+    description: "Decision made by the system-aware toggle."
+  trial_index:
+    type: "integer"
+    description: "Index of the trial (0, 1, or 2)."
+required:
+  - "run_id"
+  - "prompt_id"
+  - "method"
+  - "tokens"
+  - "total_latency"
+  - "memory_peak_mb"
+  - "trial_index"
+additionalProperties: false

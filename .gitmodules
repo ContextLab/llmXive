@@ -121,3 +121,12 @@
 [submodule "projects/PROJ-654-https-arxiv-org-abs-2605-29707/external/Domino"]
 	path = projects/PROJ-654-https-arxiv-org-abs-2605-29707/external/Domino
 	url = https://github.com/jianuo-huang/Domino
+[submodule "projects/PROJ-738-efficientrollout-system-aware-self-specu/external/EfficientRollout"]
+	path = projects/PROJ-738-efficientrollout-system-aware-self-specu/external/EfficientRollout
+	url = https://github.com/furiosa-ai/EfficientRollout
+[submodule "projects/PROJ-791-https-arxiv-org-abs-2606-26058/external/DomainShuttle"]
+	path = projects/PROJ-791-https-arxiv-org-abs-2606-26058/external/DomainShuttle
+	url = https://github.com/HKUST-C4G/DomainShuttle
+[submodule "projects/PROJ-602-https-arxiv-org-abs-2605-18661/external/awesome-ai-auto-research"]
+	path = projects/PROJ-602-https-arxiv-org-abs-2605-18661/external/awesome-ai-auto-research
+	url = https://github.com/worldbench/awesome-ai-auto-research

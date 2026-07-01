@@ -1,0 +1,460 @@
+resolved_at: '2026-07-01T00:15:34.587524+00:00'
+datasets:
+- intent: FR-002
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/O9164691706_Ekiti_State_University_Teaching_Hospital_Ado-Ekiti_Undergraduate_screening_2026-_2027_FORM_Is_Open_Now_O_9164691706_MRS_GRACE_09164691706_Admission_form_Office_Applicants_are_advised_to_ensure_that_all_information_provided_durin/32841791
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Atmospheric_physics/32841788
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/O9164691706_Sancta_Maria_Catholic_College_of_Nursing_Sciences_Auchi_Undergraduate_screening_2026-_2027_FORM_Is_Open_Now_O_9164691706_MRS_GRACE_09164691706_Admission_form_Office_Applicants_are_advised_to_ensure_that_all_information_provided_/32841785
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://research-repository.rmit.edu.au/articles/thesis/Relational_Materials_Rethinking_Architectural_Production_Through_Situated_Practice/32692029
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/O9164691706_School_of_Basic_Midwifery_St_Camillus_Hosp_Uromi_Undergraduate_screening_2026-_2027_FORM_Is_Open_Now_O_9164691706_MRS_GRACE_09164691706_Admission_form_Office_Applicants_are_advised_to_ensure_that_all_information_provided_during_/32841782
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10358914
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604171
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604159
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604137
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604165
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564541
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564417
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.20470525
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://zenodo.org/records/20469943
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MUST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 190547
+      parsed: true
+  - url: https://huggingface.co/datasets/enimai/MuST-C-fr/resolve/main/test.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/enimai/MuST-C-fr/resolve/main/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/dataset/O9164691706_School_of_Nursing_FTH_Ido-Ekiti_Undergraduate_screening_2026-_2027_FORM_Is_Open_Now_O_9164691706_MRS_GRACE_09164691706_Admission_form_Office_Applicants_are_advised_to_ensure_that_all_information_provided_during_the_application_p/32841797
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/O9164691706_Ekiti_State_University_Teaching_Hospital_Ado-Ekiti_Undergraduate_screening_2026-_2027_FORM_Is_Open_Now_O_9164691706_MRS_GRACE_09164691706_Admission_form_Office_Applicants_are_advised_to_ensure_that_all_information_provided_durin/32841791
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Atmospheric_physics/32841788
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/O9164691706_Sancta_Maria_Catholic_College_of_Nursing_Sciences_Auchi_Undergraduate_screening_2026-_2027_FORM_Is_Open_Now_O_9164691706_MRS_GRACE_09164691706_Admission_form_Office_Applicants_are_advised_to_ensure_that_all_information_provided_/32841785
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://research-repository.rmit.edu.au/articles/thesis/Relational_Materials_Rethinking_Architectural_Production_Through_Situated_Practice/32692029
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5746416
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16954306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15420758
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8056637
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19980220
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21087822
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21087822
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20267064
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21087687
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21087687
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: RAM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/RamAnanth1/lex-fridman-podcasts/resolve/main/lex-fridman-podcast-dataset.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/huggingartists/ramil/resolve/main/datasets.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 130991
+      parsed: true
+  - url: https://huggingface.co/datasets/ramitsurana/sanskrit/resolve/main/train.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 91560
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/RamAnanth1/lex-fridman-podcasts/resolve/main/lex-fridman-podcast-dataset.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/huggingartists/ramil/resolve/main/datasets.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f18358b/f6b3240580548bf9e5ffa880b18cc34773c2f1b69b262e8efb62b55f5894cbf5?user_id=public&response-content-type=application%2Fjson&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27datasets.json%3B+filename%3D%22datasets.json%22%3B&Expires=1782868435&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgzNThiL2Y2YjMyNDA1ODA1NDhiZjllNWZmYTg4MGIxOGNjMzQ3NzNjMmYxYjY5YjI2MmU4ZWZiNjJiNTVmNTg5NGNiZjVcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJlgtWGV0LUNhcy1VaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdkYXRhc2V0cy5qc29uJTNCK2ZpbGVuYW1lJTNEJTIyZGF0YXNldHMuanNvbiUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyODY4NDM1fX19XX0_&Signature=MEQCICoPvtEWh1UZ~0UF6CAjivUs0RnARjGR~q8VIpQ2v8GPAiBVVh-VBCMZABwD~M28jAWXpzUVJobUlmZCPO0BjxJ7Gw__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/ramitsurana/sanskrit/resolve/main/train.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://acs.figshare.com/articles/journal_contribution/Preferentially_Targeting_the_Endoplasmic_Reticulum_as_a_Unique_Mechanism_of_Ferroptosis_Induction_by_a_Lipophilic_Iron-Hinokitiol_Complex/32841810
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/O9164691706_School_of_Nursing_Bishop_Shanahan_Hospital_Nsukka_Undergraduate_screening_2026-_2027_FORM_Is_Open_Now_O_9164691706_MRS_GRACE_09164691706_Admission_form_Office_Applicants_are_advised_to_ensure_that_all_information_provided_during/32841806
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/O9164691706_School_of_Nursing_FTH_Ido-Ekiti_Undergraduate_screening_2026-_2027_FORM_Is_Open_Now_O_9164691706_MRS_GRACE_09164691706_Admission_form_Office_Applicants_are_advised_to_ensure_that_all_information_provided_during_the_application_p/32841797
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/O9164691706_Ekiti_State_University_Teaching_Hospital_Ado-Ekiti_Undergraduate_screening_2026-_2027_FORM_Is_Open_Now_O_9164691706_MRS_GRACE_09164691706_Admission_form_Office_Applicants_are_advised_to_ensure_that_all_information_provided_durin/32841791
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Atmospheric_physics/32841788
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10272639
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20065754
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10353767
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7951034
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5365769
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Detection_of_S1_spike_protein_in_CD16_monocytes_up_to_245_days_in_SARS-CoV-2-negative_post-COVID-19_vaccine_syndrome_PCVS_individuals/29062725
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Detection_of_S1_spike_protein_in_CD16_monocytes_up_to_245_days_in_SARS-CoV-2-negative_post-COVID-19_vaccine_syndrome_PCVS_individuals/29062725/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21085491
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21085491
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20420229
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: US-2
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/gimarchetti/winnie-us2/resolve/main/data/chunk-000/file-000.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/gimarchetti/eval_so101_winnie_us2_act/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 103062
+      parsed: true
+  - url: https://huggingface.co/datasets/gimarchetti/eval_so101_winnie_us2_diffusion/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 11221
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/gimarchetti/winnie-us2/resolve/main/data/chunk-000/file-000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/gimarchetti/eval_so101_winnie_us2_act/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/gimarchetti/eval_so101_winnie_us2_diffusion/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/gimarchetti/eval_so101_winnie_us2_smolvla/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/poster/O9164691706_School_of_Nursing_ESUTH_Parklane_Enugu_Undergraduate_screening_2026-_2027_FORM_Is_Open_Now_O_9164691706_MRS_GRACE_09164691706_Admission_form_Office_Applicants_are_advised_to_ensure_that_all_information_provided_during_the_applic/32841812
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Preferentially_Targeting_the_Endoplasmic_Reticulum_as_a_Unique_Mechanism_of_Ferroptosis_Induction_by_a_Lipophilic_Iron-Hinokitiol_Complex/32841810
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/O9164691706_School_of_Nursing_Bishop_Shanahan_Hospital_Nsukka_Undergraduate_screening_2026-_2027_FORM_Is_Open_Now_O_9164691706_MRS_GRACE_09164691706_Admission_form_Office_Applicants_are_advised_to_ensure_that_all_information_provided_during/32841806
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/O9164691706_School_of_Nursing_FTH_Ido-Ekiti_Undergraduate_screening_2026-_2027_FORM_Is_Open_Now_O_9164691706_MRS_GRACE_09164691706_Admission_form_Office_Applicants_are_advised_to_ensure_that_all_information_provided_during_the_application_p/32841797
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/O9164691706_Ekiti_State_University_Teaching_Hospital_Ado-Ekiti_Undergraduate_screening_2026-_2027_FORM_Is_Open_Now_O_9164691706_MRS_GRACE_09164691706_Admission_form_Office_Applicants_are_advised_to_ensure_that_all_information_provided_durin/32841791
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3559755
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5216923
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7372808
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5245315
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17102351
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.caltech.edu/records/sb3ne-sfb42
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.caltech.edu/records/56b4c-dvc39
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.caltech.edu/records/2a9g1-pd584
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.caltech.edu/records/pwcwe-5ex15
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.caltech.edu/records/57hze-ddy15
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: URL
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/ChristophSchuhmann/MS_COCO_2017_URL_TEXT/resolve/main/mscoco.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/bs-modeling-metadata/c4_newslike_url_only/resolve/main/c4_newslike.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/flwrlabs/fed-phishing-urls/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/flwrlabs/fed-phishing-urls/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ChristophSchuhmann/MS_COCO_2017_URL_TEXT/resolve/main/mscoco.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/bs-modeling-metadata/c4_newslike_url_only/resolve/main/c4_newslike.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/marksverdhei/reddit-syac-urls/resolve/main/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/api/resolve-cache/datasets/AmirulOm/lottie-urls/709fd56c19915e82eafc9bc39780e078daee5e00/data%2Flots%2Furls.csv?%2Fdatasets%2FAmirulOm%2Flottie-urls%2Fresolve%2Fmain%2Fdata%2Flots%2Furls.csv=&etag=%226b32914e2f563eb13122769f44977e30c2b266f8%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/O9164691706_School_of_Nursing_ESUTH_Parklane_Enugu_Undergraduate_screening_2026-_2027_FORM_Is_Open_Now_O_9164691706_MRS_GRACE_09164691706_Admission_form_Office_Applicants_are_advised_to_ensure_that_all_information_provided_during_the_applic/32841812
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Preferentially_Targeting_the_Endoplasmic_Reticulum_as_a_Unique_Mechanism_of_Ferroptosis_Induction_by_a_Lipophilic_Iron-Hinokitiol_Complex/32841810
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/O9164691706_School_of_Nursing_Bishop_Shanahan_Hospital_Nsukka_Undergraduate_screening_2026-_2027_FORM_Is_Open_Now_O_9164691706_MRS_GRACE_09164691706_Admission_form_Office_Applicants_are_advised_to_ensure_that_all_information_provided_during/32841806
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/O9164691706_School_of_Nursing_FTH_Ido-Ekiti_Undergraduate_screening_2026-_2027_FORM_Is_Open_Now_O_9164691706_MRS_GRACE_09164691706_Admission_form_Office_Applicants_are_advised_to_ensure_that_all_information_provided_during_the_application_p/32841797
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/O9164691706_Ekiti_State_University_Teaching_Hospital_Ado-Ekiti_Undergraduate_screening_2026-_2027_FORM_Is_Open_Now_O_9164691706_MRS_GRACE_09164691706_Admission_form_Office_Applicants_are_advised_to_ensure_that_all_information_provided_durin/32841791
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8371046
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20015164
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7502186
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15016031
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20817412
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://envidat.ch/#/metadata/from-point-clouds-to-forest-management-quantifying-the-sensitivity-of-a-decision
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.envidat.ch/#/metadata/case-study-applications-demonstrating-the-use-and-potential-of-the-treemig-frame
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://envidat.ch/#/metadata/early-leaf-discoloration-maps-for-the-swiss-forest
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://yareta.unige.ch/archives/5209415f-d109-4c9f-94b1-46e4842294a7
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://yareta.unige.ch/archives/18b1b975-8e72-4ed0-a35c-6aa47d73499d
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

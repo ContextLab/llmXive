@@ -1,0 +1,11 @@
+- artifact_hash: a4a98d16a2ee67c5e63b74b9de62ef07c1d0ff2ee9b704aac35c83227ae11795
+  artifact_path: projects/PROJ-791-https-arxiv-org-abs-2606-26058/specs/001-https-arxiv-org-abs-2606-26058/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: cpu
+  kind: url
+  value: https://download.pytorch.org/whl/cpu`
+  verification_status: pending
+  verified_against_url: https://download.pytorch.org/whl/cpu
+  verified_at: '2026-07-01T01:13:19.816377Z'
