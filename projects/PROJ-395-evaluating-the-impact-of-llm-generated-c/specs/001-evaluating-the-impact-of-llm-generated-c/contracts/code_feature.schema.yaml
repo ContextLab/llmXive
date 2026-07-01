@@ -1,0 +1,26 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CodeFeature"
+description: "Schema for static code feature extraction results"
+type: "object"
+properties:
+  solution_id:
+    type: "string"
+    description: "Unique identifier for the code solution"
+  lines_of_code:
+    type: "integer"
+    description: "Total lines of code"
+  cyclomatic_complexity:
+    type: "integer"
+    description: "McCabe cyclomatic complexity score"
+  library_import_count:
+    type: "integer"
+    description: "Number of import statements"
+  residual_memory:
+    type: "number"
+    description: "Derived metric: peak_memory / lines_of_code (reporting only)"
+required:
+  - solution_id
+  - lines_of_code
+  - cyclomatic_complexity
+  - library_import_count
+additionalProperties: false

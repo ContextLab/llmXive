@@ -1,0 +1,9 @@
+datasets
+pandas
+numpy
+matplotlib
+tqdm
+pyarrow
+tiktoken
+# Optional: if you want to test the full HF loader without network issues
+# huggingface_hub

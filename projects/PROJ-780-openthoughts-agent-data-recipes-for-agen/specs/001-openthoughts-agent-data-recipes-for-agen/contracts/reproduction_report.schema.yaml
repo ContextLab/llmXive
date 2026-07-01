@@ -1,0 +1,50 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ReproductionReport"
+description: "Schema for the reproduction report."
+type: "object"
+properties:
+  execution_status:
+    type: "string"
+    enum:
+      - "PASS"
+      - "FAIL"
+    description: "Overall execution status."
+  artifact_counts:
+    type: "object"
+    description: "Counts of generated files."
+    properties:
+      task_files:
+        type: "integer"
+        description: "Number of task files generated."
+        minimum: 0
+      manifest_files:
+        type: "integer"
+        description: "Number of manifest files generated."
+        minimum: 0
+    required:
+      - task_files
+      - manifest_files
+  discrepancies:
+    type: "array"
+    description: "List of discrepancies found."
+    items:
+      type: "object"
+      properties:
+        type:
+          type: "string"
+          description: "Type of discrepancy."
+        description:
+          type: "string"
+          description: "Description of the discrepancy."
+      required:
+        - type
+        - description
+  execution_time:
+    type: "string"
+    description: "Time taken for generation in ISO 8601 duration format."
+required:
+  - execution_status
+  - artifact_counts
+  - discrepancies
+  - execution_time
+additionalProperties: false

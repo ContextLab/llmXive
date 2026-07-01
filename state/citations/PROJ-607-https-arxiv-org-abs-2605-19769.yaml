@@ -1,11 +1,12 @@
-- artifact_hash: 07c571434ff875fcd307d3e45942b1c5e11e6f7c5bdd8939f6e8bcab5989c7a5
-  artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/specs/001-https-arxiv-org-abs-2605-19769/data-model.md
+- artifact_hash: 44b88dac4be00e8b57552ca58a11138f710b39e4c3fc291b879058d3c9d34f17
+  artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/specs/001-https-arxiv-org-abs-2605-19769/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: schema#
+  fetched_title: '[2605.19769] OpenComputer: Verifiable Software Worlds for Computer-Use
+    Agents'
   kind: url
-  value: http://json-schema.org/draft-07/schema#
+  value: https://arxiv.org/abs/2605.19769`
   verification_status: verified
-  verified_against_url: https://json-schema.org/draft-07/schema
-  verified_at: '2026-06-30T07:16:59.608462Z'
+  verified_against_url: https://arxiv.org/abs/2605.19769
+  verified_at: '2026-07-01T00:22:35.488109Z'

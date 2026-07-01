@@ -1,0 +1,4 @@
+# This file has been removed.
+# The authoritative Source of Truth (SSoT) for metrics is now contracts/benchmark_metrics.schema.yaml.
+# Keeping this file would create a contradiction between scalar and statistical schemas.
+# Please refer to benchmark_metrics.schema.yaml for all metrics validation.

@@ -5,3 +5,6 @@
 {"at": "2026-06-30T17:05:17.108527+00:00", "from_stage": "research_complete", "last_run_id": "36dbf5e9-be6c-4b74-b0c9-41d86204dbcb", "to_stage": "research_accepted"}
 {"at": "2026-06-30T17:05:39.613431+00:00", "from_stage": "research_accepted", "last_run_id": "2ce89762-bd74-42db-9d7e-d1161e0b0080", "to_stage": "paper_drafting_init"}
 {"at": "2026-06-30T21:25:47.133259+00:00", "from_stage": "paper_drafting_init", "last_run_id": "ea9f01e2-6766-4bc4-925f-5116cf1d5c8b", "to_stage": "paper_specified"}
+{"at": "2026-06-30T23:57:44.547623+00:00", "from_stage": "paper_specified", "last_run_id": "f64c9861-67d1-4fc3-9f94-8a93ab2ab906", "to_stage": "clarified"}
+{"at": "2026-07-01T00:22:56.068176+00:00", "from_stage": "clarified", "last_run_id": "d974fc92-8de7-4e3f-85a1-648cf0332075", "to_stage": "planned"}
+{"at": "2026-07-01T00:48:50.062290+00:00", "from_stage": "planned", "last_run_id": "930a31aa-53e0-4bd9-8d81-ea1cd87b94b3", "to_stage": "tasked"}

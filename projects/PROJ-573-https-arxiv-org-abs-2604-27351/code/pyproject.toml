@@ -1,73 +1,67 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=68.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmXive-benchmark"
+name = "llmxive-benchmark"
 version = "0.1.0"
 description = "Heterogeneous Scientific Foundation Model Collaboration Benchmark"
 readme = "README.md"
 requires-python = ">=3.11"
-license = {text = "MIT"}
+license = {text = "Apache-2.0"}
 authors = [
-    {name = "llmXive Team"}
-]
-classifiers = [
-    "Development Status :: 3 - Alpha",
-    "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: MIT License",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.11",
+    {name = "llmXive Research Team"}
 ]
 dependencies = [
     "numpy>=1.24.0",
     "pandas>=2.0.0",
-    "pyyaml>=6.0",
-    "scipy>=1.10.0",
+    "scipy>=1.11.0",
     "datasets>=2.14.0",
-    "transformers>=4.30.0",
-    "torch>=2.0.0",
-    "tabpfn>=0.1.0",
-    "pytest>=7.0.0",
-    "ruff>=0.1.0",
-    "black>=23.0.0",
+    "huggingface_hub>=0.17.0",
+    "transformers>=4.33.0",
+    "accelerate>=0.23.0",
+    "pyyaml>=6.0",
     "matplotlib>=3.7.0",
     "seaborn>=0.12.0",
+    "reportlab>=4.0.0",
+    "pytest>=7.4.0",
+    "ruff>=0.0.290",
+    "psutil>=5.9.0",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "pytest-cov>=4.0.0",
-    "pytest-mock>=3.10.0",
-    "mypy>=1.0.0",
+    "pytest-cov>=4.1.0",
+    "black>=23.0.0",
+    "mypy>=1.5.0",
 ]
+
+[tool.setuptools.packages.find]
+where = ["code/src"]
+exclude = ["tests*"]
 
 [tool.black]
 line-length = 88
 target-version = ['py311']
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-)/
-'''
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
+ignore = ["E501", "E731"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+src = ["code/src", "code/tests", "code/research", "code/setup"]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "C4", "UP"]
+ignore = ["E501"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
+testpaths = ["code/tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = "-v --tb=short"
-
-[tool.setuptools.packages.find]
-where = ["code"]
-include = ["src*", "tests*", "research*"]
-exclude = ["*.tests", "*.tests.*"]

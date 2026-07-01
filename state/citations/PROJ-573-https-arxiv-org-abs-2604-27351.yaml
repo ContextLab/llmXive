@@ -131,7 +131,7 @@
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/1311.5354
   verified_at: '2026-06-30T22:36:32.776403Z'
-- artifact_hash: ac60bab0d0dcb458d6ee560bd8d88e48b9cc7727973fae5e7828f67dbd50da28
+- artifact_hash: e1a5c417cffcb4797506255bb58b3e9007f3834c2ba12128696c783314152829
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -142,8 +142,8 @@
   value: https://arxiv.org/abs/1311.5354
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/1311.5354
-  verified_at: '2026-06-30T22:44:06.563224Z'
-- artifact_hash: ac60bab0d0dcb458d6ee560bd8d88e48b9cc7727973fae5e7828f67dbd50da28
+  verified_at: '2026-06-30T23:53:57.119695Z'
+- artifact_hash: e1a5c417cffcb4797506255bb58b3e9007f3834c2ba12128696c783314152829
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -153,8 +153,8 @@
   value: https://arxiv.org/abs/1809.01635
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/1809.01635
-  verified_at: '2026-06-30T22:44:06.563224Z'
-- artifact_hash: ac60bab0d0dcb458d6ee560bd8d88e48b9cc7727973fae5e7828f67dbd50da28
+  verified_at: '2026-06-30T23:53:57.119695Z'
+- artifact_hash: e1a5c417cffcb4797506255bb58b3e9007f3834c2ba12128696c783314152829
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -164,8 +164,8 @@
   value: https://en.wikipedia.org/wiki/P-value
   verification_status: verified
   verified_against_url: https://en.wikipedia.org/wiki/P-value
-  verified_at: '2026-06-30T22:44:06.563224Z'
-- artifact_hash: ac60bab0d0dcb458d6ee560bd8d88e48b9cc7727973fae5e7828f67dbd50da28
+  verified_at: '2026-06-30T23:53:57.119695Z'
+- artifact_hash: e1a5c417cffcb4797506255bb58b3e9007f3834c2ba12128696c783314152829
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-004
   cited_authors: []
@@ -176,8 +176,8 @@
   value: https://arxiv.org/abs/1710.08708
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/1710.08708
-  verified_at: '2026-06-30T22:44:06.563224Z'
-- artifact_hash: ac60bab0d0dcb458d6ee560bd8d88e48b9cc7727973fae5e7828f67dbd50da28
+  verified_at: '2026-06-30T23:53:57.119695Z'
+- artifact_hash: e1a5c417cffcb4797506255bb58b3e9007f3834c2ba12128696c783314152829
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-005
   cited_authors: []
@@ -187,15 +187,26 @@
   value: https://en.wikipedia.org/wiki/Bootstrapping_
   verification_status: verified
   verified_against_url: https://en.wikipedia.org/wiki/Bootstrapping
-  verified_at: '2026-06-30T22:44:06.563224Z'
-- artifact_hash: ac60bab0d0dcb458d6ee560bd8d88e48b9cc7727973fae5e7828f67dbd50da28
+  verified_at: '2026-06-30T23:53:57.119695Z'
+- artifact_hash: e1a5c417cffcb4797506255bb58b3e9007f3834c2ba12128696c783314152829
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-006
   cited_authors: []
   cited_title: null
+  fetched_title: SHA-2 - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/SHA-2
+  verification_status: verified
+  verified_against_url: https://en.wikipedia.org/wiki/SHA-2
+  verified_at: '2026-06-30T23:53:57.119695Z'
+- artifact_hash: e1a5c417cffcb4797506255bb58b3e9007f3834c2ba12128696c783314152829
+  artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  cite_id: c-007
+  cited_authors: []
+  cited_title: null
   fetched_title: Hutter Prize - Wikipedia
   kind: url
-  value: https://en.wikipedia.org/wiki/Hutter_Prize
+  value: https://www.wikidata.org/wiki/Q129317410
   verification_status: verified
   verified_against_url: https://en.wikipedia.org/wiki/Hutter_Prize
-  verified_at: '2026-06-30T22:44:06.563224Z'
+  verified_at: '2026-06-30T23:53:57.119695Z'

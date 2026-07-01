@@ -29,6 +29,11 @@
 
 **Independent Test**: Run 5 distinct tasks. Manually inspect the generated artifacts (e.g., the exported audio file or modified document) and compare the result against the verifier's JSON output. The test passes if the verifier correctly identifies the success/failure state as confirmed by manual inspection, documented in `blinded_ground_truth.json`.
 
+**Blinding Protocol Mechanism**: To ensure independence, the `collect_artifacts.py` script must:
+1. Rename all generated artifacts to random UUIDs (e.g., `a1b2-c3d4.wav`) before copying them to the review folder.
+2. Store the mapping of UUID to original task ID and the verifier's verdict in a separate, hidden file (`verifier_verdicts_hidden.json`) that is inaccessible to the human adjudicator during the inspection phase.
+3. The human adjudicator must generate a `blinded_ground_truth.json` containing only the UUID, their manual verdict, and judgment notes, without access to the verifier's output.
+
 **Acceptance Scenarios**:
 1. **Given** a set of 5 tasks with known ground-truth outcomes, **When** the `run_batch_eval.sh` script executes these tasks, **Then** the `verification_report.json` contains a qualitative `alignment_observation` narrative that accurately reflects the matches and mismatches between the verifier and the manual ground truth.
 2. **Given** a task that fails mid-execution, **When** the system runs the verification step, **Then** the verifier correctly flags the task as "failed" and records the specific state mismatch (e.g., "file_not_found") in the `failure_reason` field, which is then cross-referenced with the manual inspection notes.
@@ -59,8 +64,10 @@
 The paper must contain the following sections to satisfy the Tasker and Reader requirements:
 
 1. **Abstract**: Summarize the reproduction effort, the pivot to qualitative validation, and the primary findings regarding verifier alignment.
+ - **Mandatory Content**: The Abstract must include a "Key Findings" sentence explicitly stating: "4/5 tasks showed alignment between verifier and manual adjudication; no systematic divergence observed. [UNRESOLVED-CLAIM: c_3525de04 — status=not_enough_info]"
 2. **Introduction**: Contextualize OpenComputer, state the hypothesis (verifier alignment), and define the scope constraints (N=5, CPU-only).
 3. **Methods**: Detail the "Blinding Protocol," the Docker environment setup, the specific tasks selected (from `data/`), and the scripts used (`run_smoke_test.sh`, `run_batch_eval.sh`).
+ - **Mandatory Content**: The Methods section must explicitly describe the blinding mechanism: "Artifacts were renamed to UUIDs, and verifier outputs were stored in a separate, hidden file inaccessible to the human adjudicator."
 4. **Results**: Present the `smoke_report.json` status, the `verification_report.json` data, and the qualitative `alignment_observation` narrative. Include the `blinded_ground_truth.json` summary.
 5. **Discussion**: Interpret the alignment results, discuss the "Engine vs. Agent" distinction (ordering precision), and analyze the limitations of the N=5 sample size.
 6. **References**: Cite the original OpenComputer paper and any relevant tools used.
@@ -71,21 +78,24 @@ The paper must contain the following sections to satisfy the Tasker and Reader r
 The following figures must be generated from the existing data artifacts to support the narrative:
 
 1. **Figure 1: Pipeline Architecture Diagram**: A schematic showing the flow from Task Definition → Docker Provisioning → Agent Execution → Verifier Judgment → Blinded Manual Inspection. (Source: `data-model.md` and `plan.md` technical context).
-2. **Figure 2: Verifier vs. Manual Adjudication Matrix**: A visual representation (table or heatmap) of the 5 tasks showing the Verifier Verdict vs. the Manual Ground Truth, highlighting matches and mismatches. (Source: `data/verification_results.csv` and `data/blinded_ground_truth.json`).
+2. **Figure 2: Verifier vs. Manual Adjudication Matrix**: A visual representation (table or heatmap) of the 5 tasks showing the Verifier Verdict vs. the Manual Ground Truth, highlighting matches and mismatches.
+ - **Data Source**: This figure is generated from `data/verification_results.csv` and `data/blinded_ground_truth.json`.
+ - **Data Generation**: These artifacts are produced by the `run_batch_eval.sh` script and the associated `compare_verdicts.py` logic. The spec assumes the successful execution of this script produces the necessary files.
+ - **Rendering**: The table will list the 5 tasks as rows and display two columns: "Verifier Verdict" and "Manual Ground Truth." Cells will be color-coded (Green for Match, Red for Mismatch).
 3. **Figure 3: Execution Timeline & Error Log**: A timeline showing the duration of the smoke test and batch execution, highlighting any "skipped" or "failed" states due to resource constraints. (Source: `logs/smoke.log` and `verification_report.json`).
 
 ## Required Claims
 
 The paper will make the following inferential claims, which will be verified by the Reference-Validator against the research artifacts:
 
-1. **Claim 1**: The OpenComputer pipeline is reproducible on a standard CPU-only CI runner with a free-tier disk quota (≤14 GB). [UNRESOLVED-CLAIM: c_748ef54c — status=not_enough_info]
- * *Verification Target*: Success of `run_smoke_test.sh` and `smoke_report.json` status.
-2. **Claim 2**: The `hardcode` verifiers demonstrate high alignment with human adjudication on a sample set of 5 tasks, despite the inability to calculate a statistical margin of error.
- * *Verification Target*: The qualitative `alignment_observation` in `verification_report.json` and the `blinded_ground_truth.json` data.
-3. **Claim 3**: The system acts as a precise "engine" for executing task definitions, with failures primarily attributed to agent "origination" (deviation) or environmental dependencies rather than system instability.
- * *Verification Target*: The "Engine vs. Agent" section in `reproduction_report.md` and the analysis of `step_execution_count` vs `total_steps` from T035.
-4. **Claim 4**: The "10% margin of error" requirement in the original specification is scientifically invalid for N=5, and a qualitative narrative is the appropriate methodological alternative.
- * *Verification Target*: The "Limitations" section in `reproduction_report.md` and the explicit logic in `compare_verdicts.py` (T026b).
+1. **Claim 1**: The pipeline is reproducible on GitHub Actions free tier: 2-core, 7GB RAM, 14GB disk. [UNRESOLVED-CLAIM: c_f8c6eff4 — status=not_enough_info]
+ - *Verification Target*: Success of `run_smoke_test.sh` and `smoke_report.json` status.
+2. **Claim 2**: The verifiers showed qualitative alignment with human adjudication on the sample set, with no systematic divergence observed.
+ - *Verification Target*: The qualitative `alignment_observation` in `verification_report.json` and the `blinded_ground_truth.json` data.
+3. **Claim 3**: Failures that occurred were analyzed and categorized as agent origination or environmental dependencies, distinguishing them from system instability.
+ - *Verification Target*: The "Engine vs. Agent" section in `reproduction_report.md` and the analysis of `step_execution_count` vs `total_steps` from T035.
+4. **Claim 4**: The original "10% margin of error" requirement was inapplicable to the N=5 sample size, necessitating a qualitative narrative approach.
+ - *Verification Target*: The "Limitations" section in `reproduction_report.md` and the explicit logic in `compare_verdicts.py` (T026b).
 
 ## Edge Cases (Paper Specific)
 
@@ -121,9 +131,12 @@ The paper will make the following inferential claims, which will be verified by 
 - Network access is available to pull base Docker images if they are not locally cached.
 - The paper's claim of a "large corpus of finalized tasks" refers to the total corpus, but the reproduction scope is limited to a representative sample (N=5) due to compute constraints.
 - The human adjudicator (simulated or real) follows the "Blinding Protocol" strictly to avoid confirmation bias.
+- **Data Generation**: The `run_batch_eval.sh` script is assumed to successfully generate `blinded_ground_truth.json` and `verification_results.csv` as intermediate artifacts required for Figure 2 generation.
 
 ## Notes for Paper-Clarifier
 
-- **NEEDS CLARIFICATION**: The specific "ordering metric" to be used for the "Engine vs. Agent" analysis (T035a) needs final definition in the Methods section (e.g., exact step sequence vs. total steps).
-- **NEEDS CLARIFICATION**: The exact visual style for Figure 2 (Matrix) needs to be confirmed (e.g., heatmap vs. simple table) to ensure clarity for the reader.
-- **NEEDS CLARIFICATION**: Whether the "Limitations" section should include a specific recommendation for future work (e.g., "A larger sample size is required for statistical significance") or simply state the constraint.
+- The "ordering metric" for the "Engine vs. Agent" analysis is defined as the **Step Adherence Rate**, calculated as the ratio of `steps_executed_in_correct_sequence` to `total_steps_defined`. This metric distinguishes between system instability (where steps are skipped or order is randomized) and agent deviation (where the agent executes steps in a valid but unintended order or hallucinates extra steps). The analysis will explicitly report the `sequence_violations` count alongside the final success state, as detailed in the Methods section under "Blinding Protocol and Sequence Analysis."
+
+- Figure 2 (Verifier vs. Manual Adjudication Matrix) shall be rendered as a **binary confusion matrix table** with a color-coded heatmap overlay. The table will list the 5 tasks as rows and display two columns: "Verifier Verdict" and "Manual Ground Truth." Cells will be color-coded (Green for Match, Red for Mismatch) to provide immediate visual clarity on alignment, avoiding the ambiguity of a raw heatmap which might obscure the specific binary nature of the N=5 case study.
+
+- The "Limitations" section must include a specific recommendation for future work. It will state that while the N=5 sample size is sufficient for a qualitative validation of the "Blinding Protocol" and "Engine vs. Agent" distinction, it is statistically insufficient to generalize the verifier alignment rates. Consequently, the section will explicitly recommend a larger-scale study (N ≥ 30) to establish a statistical margin of error and validate the "10% margin" claim originally proposed in the abstract.

@@ -4,3 +4,5 @@ matplotlib
 datasets
 tqdm
 loguru
+pandas  # auto-added: imported by run-book but missing from venv
+scikit-learn  # auto-added: imported by run-book but missing from venv

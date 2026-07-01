@@ -1,0 +1,52 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "DatasetManifest"
+description: "Schema for the dataset manifest file."
+type: "object"
+properties:
+  generated_at:
+    type: "string"
+    format: "date-time"
+    description: "Timestamp of manifest creation."
+  task_count:
+    type: "integer"
+    description: "Total number of tasks generated."
+    minimum: 0
+  tasks:
+    type: "array"
+    description: "List of task metadata."
+    items:
+      type: "object"
+      properties:
+        task_id:
+          type: "string"
+          description: "Unique identifier for the task."
+        file_path:
+          type: "string"
+          description: "Path to the generated file."
+        size_bytes:
+          type: "integer"
+          description: "Size of the file in bytes."
+          minimum: 0
+        validation_status:
+          type: "string"
+          enum:
+            - "PASS"
+            - "FAIL"
+          description: "Validation status of the task."
+      required:
+        - task_id
+        - file_path
+        - size_bytes
+        - validation_status
+  validation_status:
+    type: "string"
+    enum:
+      - "PASS"
+      - "FAIL"
+    description: "Overall validation status of the dataset."
+required:
+  - generated_at
+  - task_count
+  - tasks
+  - validation_status
+additionalProperties: false

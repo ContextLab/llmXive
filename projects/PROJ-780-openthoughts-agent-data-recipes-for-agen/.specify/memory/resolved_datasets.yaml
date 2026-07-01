@@ -1,0 +1,584 @@
+resolved_at: '2026-06-30T23:03:28.077562+00:00'
+datasets:
+- intent: CPU
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/yzhuang/metatree_cpu_small/resolve/main/data/train-00000-of-00001-a82af1977b6acbbe.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/yzhuang/metatree_cpu_act/resolve/main/data/train-00000-of-00001-437c729472ba4fd6.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/bilgedogan/facebook_mms-tts-eng_GPU-CPU/resolve/main/facebook_mms-tts-eng_CPU/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/yzhuang/metatree_cpu_small/resolve/main/data/train-00000-of-00001-a82af1977b6acbbe.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/yzhuang/metatree_cpu_act/resolve/main/data/train-00000-of-00001-437c729472ba4fd6.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/bilgedogan/facebook_mms-tts-eng_GPU-CPU/resolve/main/facebook_mms-tts-eng_CPU/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/optimum-benchmark/cpu/resolve/main/cpu_inference_diffusers_stable-diffusion_CompVis/stable-diffusion-v1-4/benchmark.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://figshare.com/articles/poster/O9164691706_School_of_Post_Basic_Midwifery_Abiriba_Undergraduate_screening_2026-_2027_FORM_Is_Open_Now_O_9164691706_MRS_GRACE_09164691706_Admission_form_Office_Applicants_are_advised_to_ensure_that_all_information_provided_during_the_applic/32841434
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Entrepreneurial_thinking_A_signature_pedagogy_for_an_uncertain_21st_century/20685712
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Babcock_University_0704_096_4654_officially_release_the_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Transfer_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Dipl/32841431
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Editorial/24502813
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/O9164691706_School_of_Nursing_ABSUTH_Aba_Undergraduate_screening_2026-_2027_FORM_Is_Open_Now_O_9164691706_MRS_GRACE_09164691706_Admission_form_Office_Applicants_are_advised_to_ensure_that_all_information_provided_during_the_application_proc/32841416
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15543159
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15543253
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3810211
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21086365
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21086365
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21086269
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21085728
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21085728
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: JSONDecodeError
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/poster/O9164691706_School_of_Post_Basic_Midwifery_Abiriba_Undergraduate_screening_2026-_2027_FORM_Is_Open_Now_O_9164691706_MRS_GRACE_09164691706_Admission_form_Office_Applicants_are_advised_to_ensure_that_all_information_provided_during_the_applic/32841434
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Entrepreneurial_thinking_A_signature_pedagogy_for_an_uncertain_21st_century/20685712
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Babcock_University_0704_096_4654_officially_release_the_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Transfer_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Dipl/32841431
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Editorial/24502813
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/O9164691706_School_of_Nursing_ABSUTH_Aba_Undergraduate_screening_2026-_2027_FORM_Is_Open_Now_O_9164691706_MRS_GRACE_09164691706_Admission_form_Office_Applicants_are_advised_to_ensure_that_all_information_provided_during_the_application_proc/32841416
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15814071
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15814071
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15814071
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15772940
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20376854
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20313703
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: PASS
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/kenax69/EU-Air-Passenger-Rights-Instruction-Dataset-AAA/resolve/main/dataset_train_converti_sharegpt.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Tevatron/msmarco-passage-corpus/resolve/main/corpus.jsonl.gz
+    source: huggingface
+    format: gzip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Tevatron/msmarco-passage/resolve/main/dev.jsonl.gz
+    source: huggingface
+    format: gzip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 134665
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Karmane/one-million-passive-income-opportunities/resolve/main/data/data.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/kenax69/EU-Air-Passenger-Rights-Instruction-Dataset-AAA/resolve/main/dataset_train_converti_sharegpt.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/Tevatron/msmarco-passage-corpus/resolve/main/corpus.jsonl.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/Tevatron/msmarco-passage/resolve/main/dev.jsonl.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://figshare.com/articles/poster/O9164691706_School_of_Post_Basic_Midwifery_Abiriba_Undergraduate_screening_2026-_2027_FORM_Is_Open_Now_O_9164691706_MRS_GRACE_09164691706_Admission_form_Office_Applicants_are_advised_to_ensure_that_all_information_provided_during_the_applic/32841434
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Entrepreneurial_thinking_A_signature_pedagogy_for_an_uncertain_21st_century/20685712
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Babcock_University_0704_096_4654_officially_release_the_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Transfer_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Dipl/32841431
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Editorial/24502813
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/O9164691706_School_of_Nursing_ABSUTH_Aba_Undergraduate_screening_2026-_2027_FORM_Is_Open_Now_O_9164691706_MRS_GRACE_09164691706_Admission_form_Office_Applicants_are_advised_to_ensure_that_all_information_provided_during_the_application_proc/32841416
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16016972
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://academic.oup.com/jts/article-lookup/doi/10.1093/jts/os-IX.34.267
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/8278351
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8285234
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://academic.oup.com/jts/article-lookup/doi/10.1093/jts/os-VI.23.445
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://yareta.unige.ch/archives/14d1bb0c-6b6e-4701-8c2c-32c4f907f304
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21086252
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21086252
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21086293
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21086293
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FAIL
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/ibm-research/FailureSensorIQ/resolve/main/failuresensoriq_perturbed/all_10_options_all_perturbed_simple.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/josefchen/co-failure-67-models/resolve/main/cost_registry.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 2168
+      parsed: true
+  - url: https://huggingface.co/datasets/aaronngx/failbench-libero-v2/resolve/main/v2/libero_goal/manifest.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ibm-research/FailureSensorIQ/resolve/main/failuresensoriq_perturbed/all_10_options_all_perturbed_simple.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/josefchen/co-failure-67-models/resolve/main/cost_registry.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/aaronngx/failbench-libero-v2/resolve/main/v2/libero_goal/manifest.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/aaronngx/failbench-robocasa-v2/resolve/main/v2/manifest.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/merve/supersoaker-failures/resolve/main/supersoaker.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/poster/O9164691706_School_of_Post_Basic_Midwifery_Abiriba_Undergraduate_screening_2026-_2027_FORM_Is_Open_Now_O_9164691706_MRS_GRACE_09164691706_Admission_form_Office_Applicants_are_advised_to_ensure_that_all_information_provided_during_the_applic/32841434
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Entrepreneurial_thinking_A_signature_pedagogy_for_an_uncertain_21st_century/20685712
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Babcock_University_0704_096_4654_officially_release_the_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Transfer_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Dipl/32841431
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Editorial/24502813
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/O9164691706_School_of_Nursing_ABSUTH_Aba_Undergraduate_screening_2026-_2027_FORM_Is_Open_Now_O_9164691706_MRS_GRACE_09164691706_Admission_form_Office_Applicants_are_advised_to_ensure_that_all_information_provided_during_the_application_proc/32841416
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7914037
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7921937
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7922058
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7920483
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11217229
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21078377
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://yareta.unige.ch/archives/f7bab9f8-23c3-4c1e-bee1-00bc5ee673db
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://yareta.unige.ch/archives/ddb3e3b6-a9ba-4893-b058-2cd5c334bda7
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17254184
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17254184
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SC-002
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Hip_structural_analysis_and_incident_fractures_in_a_cohort_of_Australian_women/32841440
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/O9164691706_School_of_Post_Basic_Midwifery_Abiriba_Undergraduate_screening_2026-_2027_FORM_Is_Open_Now_O_9164691706_MRS_GRACE_09164691706_Admission_form_Office_Applicants_are_advised_to_ensure_that_all_information_provided_during_the_applic/32841434
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Entrepreneurial_thinking_A_signature_pedagogy_for_an_uncertain_21st_century/20685712
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Babcock_University_0704_096_4654_officially_release_the_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Transfer_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Dipl/32841431
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Editorial/24502813
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16877562
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16898112
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16898107
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16898117
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16898125
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://world.physio/congress-proceeding/improved-cardiorespiratory-fitness-and-cardiovascular-risks-are-associated
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20806255
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20806255
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635092
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20512108
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-001
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Smartphone_dependence_and_sport_participation_among_Chinese_adolescents_chain_mediation_by_self-control_and_health_beliefs_and_direct-path_moderation_by_interpersonal_support_xlsx/32841452
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Rhema_University_0704_096_4654_officially_release_the_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Transfer_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diplom/32841437
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Hip_structural_analysis_and_incident_fractures_in_a_cohort_of_Australian_women/32841440
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/O9164691706_School_of_Post_Basic_Midwifery_Abiriba_Undergraduate_screening_2026-_2027_FORM_Is_Open_Now_O_9164691706_MRS_GRACE_09164691706_Admission_form_Office_Applicants_are_advised_to_ensure_that_all_information_provided_during_the_applic/32841434
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Entrepreneurial_thinking_A_signature_pedagogy_for_an_uncertain_21st_century/20685712
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19059431
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17936025
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10337909
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604131
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10173526
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15485834
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16828200
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20358997
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20358997
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SC-003
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Paul_University_0704_096_4654_officially_release_the_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Transfer_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diploma/32841455
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Orienteering_and_adolescent_depressive_and_anxiety_symptoms_indirect_associations_via_psychological_resilience_and_moderation_by_ADHD_symptoms_xlsx/32841458
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Smartphone_dependence_and_sport_participation_among_Chinese_adolescents_chain_mediation_by_self-control_and_health_beliefs_and_direct-path_moderation_by_interpersonal_support_xlsx/32841452
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Rhema_University_0704_096_4654_officially_release_the_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Transfer_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diplom/32841437
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Hip_structural_analysis_and_incident_fractures_in_a_cohort_of_Australian_women/32841440
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3841160
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10389753
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13843104
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10384626
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6963358
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20813212
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20813212
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635092
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20512108
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.20470525
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+- intent: RAM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/RamAnanth1/lex-fridman-podcasts/resolve/main/lex-fridman-podcast-dataset.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/huggingartists/ramil/resolve/main/datasets.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 130991
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/RamAnanth1/lex-fridman-podcasts/resolve/main/lex-fridman-podcast-dataset.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/huggingartists/ramil/resolve/main/datasets.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f18358b/f6b3240580548bf9e5ffa880b18cc34773c2f1b69b262e8efb62b55f5894cbf5?user_id=public&response-content-type=application%2Fjson&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27datasets.json%3B+filename%3D%22datasets.json%22%3B&Expires=1782864204&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgzNThiL2Y2YjMyNDA1ODA1NDhiZjllNWZmYTg4MGIxOGNjMzQ3NzNjMmYxYjY5YjI2MmU4ZWZiNjJiNTVmNTg5NGNiZjVcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJlgtWGV0LUNhcy1VaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdkYXRhc2V0cy5qc29uJTNCK2ZpbGVuYW1lJTNEJTIyZGF0YXNldHMuanNvbiUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyODY0MjA0fX19XX0_&Signature=MEUCIAt2rjEDxBV006mpn-zCb2eOLXXif4ZpTXDGljU5Hig7AiEAn8a56nJHwTECJScVUcAwisbHlMIDSo4xcAR4Vks~9uM_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: API
+  status: unresolved
+  candidates: []
+  candidates_tried: []

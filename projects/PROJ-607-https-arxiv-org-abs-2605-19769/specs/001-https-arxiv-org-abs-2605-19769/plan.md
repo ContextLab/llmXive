@@ -1,76 +1,112 @@
 # Implementation Plan: Reproduce & Validate OpenComputer
 
-**Branch**: `607-reproduce-opencomputer` | **Date**: 2026-05-22 | **Spec**: `specs/607-reproduce-opencomputer/spec.md`
+**Branch**: `607-reproduce-opencomputer` | **Date**: 2026-05-22 | **Spec**: `spec.md`
+**Input**: Feature specification from `specs/607-reproduce-opencomputer/spec.md`
 
 ## Summary
 
-This project reproduces the core claims of "OpenComputer: Verifiable Software Worlds for Computer-Use Agents" by executing a smoke test and a small batch of tasks (≥5) within a local Docker backend on a free-tier CI runner. The technical approach involves orchestrating the OpenComputer submodule, provisioning CPU-only Docker containers for specific desktop applications (e.g., Audacity), and comparing the system's `hardcode` verifier outputs against a **blinded, independent human adjudication** of the generated artifacts.
-
-**Critical Scope Adjustment**: The study is explicitly framed as a **Pipeline Viability & Qualitative Case Study**. Due to the small sample size (N=5) and the constraints of the free-tier CI environment, the plan **does not** calculate a statistical `verifier_alignment_rate` with a confidence interval. Instead, it generates a qualitative narrative of alignment for each task. The plan acknowledges that the source spec's requirement for a "10% margin of error" (US-2) is mathematically impossible for N=5 and flags this as a spec-root cause limitation; the plan will not attempt to meet this impossible statistical target but will instead provide the most rigorous qualitative validation possible.
+This project reproduces the core validation loop of the "OpenComputer: Verifiable Software Worlds for Computer-Use Agents" paper within the constraints of a free-tier CI runner. The primary requirement is to execute a smoke test and a small-batch validation (N=5) of the OpenComputer verifier against manual human adjudication. The technical approach involves orchestrating Docker containers to provision environments, running the `smoke_loop` and `run_eval` scripts from the vendored `external/OpenComputer` submodule, collecting artifacts, and executing a **dual-inspection** manual adjudication protocol to calculate alignment consistency. The plan explicitly avoids statistical significance testing due to the small sample size (N=5), pivoting to a qualitative narrative focused on the *feasibility* of the validation loop.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11 (host), Bash (orchestration)  
-**Primary Dependencies**: `docker-py`, `pytest`, `pandas`, `jinja2` (for report generation), OpenComputer submodule dependencies (as per `requirements.txt`)  
-**Storage**: Ephemeral Docker volumes for task execution; JSON artifacts written to `external/OpenComputer/results/`  
-**Testing**: `pytest` (unit tests for scripts), **Blinded Manual Inspection** for ground truth (US-2)  
-**Target Platform**: Linux (GitHub Actions free-tier runner)  
-**Project Type**: Research reproduction / CLI tooling  
-**Performance Goals**: Total runtime ≤ 6 hours; Memory usage < 7GB during container build/execution; No GPU usage.  
-**Constraints**: Must run on CPU-only runner; Docker daemon must be available; No external API keys required for `hardcode` verifier (agents requiring keys are skipped gracefully).  
-**Scale/Scope**: A smoke test task; 5 batch tasks; a final report (Qualitative Case Study).
+**Language/Version**: Python 3 (for orchestration scripts), Bash modern versions (for Docker/CI)
+**Primary Dependencies**: `docker` (CLI), `pytest` (for validation scripts), `pandas` (for data aggregation), `pyyaml` (for schema validation). The `external/OpenComputer` submodule provides the core `smoke_loop`, `run_eval`, and verifier logic.
+**Storage**: Local filesystem (`projects/607-reproduce-opencomputer/results/`, `projects/607-reproduce-opencomputer/data/`) for JSON/CSV artifacts and Docker image layers.
+**Testing**: `pytest` for unit tests of helper scripts; `smoke_loop` exit codes and JSON schema validation for integration.
+**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, 7 GB RAM, 14 GB disk).
+**Project Type**: Computational Research / Reproduction Pipeline.
+**Performance Goals**: Total pipeline execution < 6 hours; Docker image build < 45 minutes; single task execution < 15 minutes.
+**Constraints**: No GPU; strict 14 GB disk quota; must handle missing API keys gracefully; must not crash on container failures.
+**Scale/Scope**: 1 smoke test task; 5 batch evaluation tasks; 1 final report.
+
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 
 ## Constitution Check
 
-*Gates determined based on standard research integrity principles (as no specific constitution was supplied, we adhere to the project's implicit SSoT and Research Integrity principles):*
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-1.  **Reproducibility**: The plan explicitly defines the subset of tasks (5 tasks), the exact scripts (`smoke_loop.py`, `run_eval.py`), and the **Blinding Protocol** for manual inspection, ensuring the experiment can be repeated by a different adjudicator.
-2.  **Transparency**: The `reproduction_report.md` will explicitly state limitations (e.g., small sample size, CPU-only constraints, the impossibility of the spec's 10% margin requirement) rather than overclaiming alignment with the full paper corpus.
-3.  **Validity**: The `alignment_observation` is defined by **independent manual inspection** of artifacts (ground truth), not just the system's internal log. The human adjudicator is blinded to the verifier's logic to prevent confirmation bias.
-4.  **Feasibility**: The plan restricts scope to tasks solvable on a resource-constrained, CPU-only runner. The "Manual Inspection" step is a **one-time ground-truth establishment** for the specific sample, not a recurring automated test, satisfying the "Real-call testing" principle by being a documented, reproducible scientific step rather than an automated CI gate.
-5.  **Spec-Root Cause Flag**: The source spec (US-2) requires a "10% margin of error" and a statistical "rate" (FR-003). This plan explicitly notes that for N=5, these are mathematically impossible. The plan deviates to a qualitative case study approach, flagging the spec's requirement as a limitation that cannot be met without increasing the sample size beyond CI constraints.
+1.  **Principle I (Evidence)**: The plan relies *only* on the `external/OpenComputer` submodule for task definitions and verifiers. No fabricated datasets or URLs are introduced. The **dual-inspection** manual adjudication step provides the primary evidence for alignment.
+2.  **Principle II (Verification)**: All claims in the final report are backed by generated JSON artifacts (`smoke_report.json`, `verification_report.json`, `blinded_ground_truth.json`) and the `reproduction_report.md`. The "verifier_alignment_rate" is explicitly defined as a simple count of matches for the qualitative narrative, avoiding unverified statistical claims.
+3.  **Principle III (Reproducibility)**: The pipeline is fully scripted (`run_smoke_test.sh`, `run_batch_eval.sh`, `generate_report.py`). The `blinded_ground_truth.json` ensures the manual inspection is auditable and reproducible by future researchers.
+4.  **Principle IV (Constraints)**: The plan explicitly targets CPU-only execution and a sample size of N=5 to fit within the 14 GB disk and 7 GB RAM limits of the CI runner.
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/607-reproduce-opencomputer/
+specs/[607-reproduce-opencomputer]/
 ├── plan.md              # This file
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-│   ├── task.schema.yaml
-│   ├── verification_report.schema.yaml
-│   └── smoke_report.schema.yaml
+├── contracts/           # Phase 1 output (schemas)
 └── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
 
 ```text
-external/
-└── OpenComputer/        # Submodule containing source code, tasks, and verifiers
-
 projects/607-reproduce-opencomputer/
 ├── scripts/
-│   ├── setup_plan.sh    # Mechanical setup
-│   ├── run_smoke_test.sh
-│   └── run_batch_eval.sh
-├── results/             # Generated JSON artifacts
-│   ├── smoke_report.json
-│   └── verification_report.json
-└── reports/
-    └── reproduction_report.md
+│   ├── run_smoke_test.sh        # Orchestrates smoke test (FR-001)
+│   ├── run_batch_eval.sh        # Orchestrates 5-task batch (FR-002)
+│   ├── prepare_ground_truth.py  # Generates blinded manual inspection data (T023)
+│   ├── collect_artifacts.py     # Copies artifacts from Docker to host (T022)
+│   ├── compare_verdicts.py      # Merges verifier results with manual ground truth (T024)
+│   └── generate_report.py       # Aggregates data into reproduction_report.md (FR-004)
+├── data/
+│   ├── summary.json             # Metadata and aggregate stats
+│   ├── verification_results.csv # Detailed row-level results
+│   └── blinded_ground_truth.json # Manual inspection records (Dual-Inspection)
+├── results/
+│   ├── smoke_report.json        # Smoke test output
+│   └── verification_report.json # Batch evaluation output
+├── figures/
+│   └── verifier_comparison.png  # (Optional) Visualization of alignment
+├── contracts/
+│   ├── task.schema.yaml         # Schema for task definitions
+│   ├── verification_report.schema.yaml # Schema for batch results
+│   ├── smoke_report.schema.yaml # Schema for smoke test output
+│   └── verification_results.schema.yaml # Schema for merged results
+└── docs/
+    └── reproducibility/
+        └── reproduction_report.md # Final deliverable (FR-004)
 ```
 
-**Structure Decision**: The implementation relies on the vendored `external/OpenComputer` submodule. No new core logic is written; instead, wrapper scripts (`run_smoke_test.sh`, etc.) are created in `projects/607-reproduce-opencomputer/scripts/` to manage the execution flow, error handling, and report aggregation within the CI constraints. The `verification_report.json` schema has been updated to include `manual_ground_truth` and `manual_judgment_notes` to support the new qualitative methodology.
+**Structure Decision**: The structure is organized around the pipeline phases (Smoke, Batch, Analysis, Reporting) to ensure modularity and prevent token truncation in monolithic scripts. Data is separated from results to maintain a clear audit trail for the manual inspection process.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| Docker Backend Complexity | Required to simulate the "Verifiable Software World" environment where agents interact with GUI apps. | Running agents directly on the host OS fails to provide the isolated, verifiable state required by the OpenComputer architecture. |
-| Manual Inspection Step | Required to establish independent ground truth for `alignment_observation` (US-2). | Relying solely on the system's internal logs would be circular reasoning and fail to validate the "human adjudication" claim. The **Blinding Protocol** ensures independence. |
-| Qualitative vs. Quantitative | Required due to N=5 sample size and CI constraints. | Attempting to calculate a statistical "rate" with a "10% margin of error" for N=5 is mathematically impossible and scientifically unsound. |
+| Dual-Inspection Protocol | Required to mitigate single-point-of-failure in ground truth validity (Methodology Concern). | Single-inspector protocol was rejected as it introduces high risk of bias and error, compromising the "ground truth" required for verifier validation. |
+| N=5 Sample Size | Necessary to fit within 6-hour CI limit and 14 GB disk quota while running Docker containers. | Larger sample sizes (e.g., N=50) would exceed CI runtime limits and risk OOM errors on the free-tier runner. |
+| Qualitative Narrative | Required because N=5 is statistically insufficient for p-value calculations (e.g., McNemar's test). | Attempting statistical significance on N=5 would be methodologically flawed and flagged by reviewers. |
+
+## FR/SC Coverage Matrix
+
+| ID | Type | Plan Element | Description |
+| :--- | :--- | :--- | :--- |
+| **FR-001** | FR | `run_smoke_test.sh` | Executes `smoke_loop` against `audacity_export_wav_440` with Docker backend. |
+| **FR-002** | FR | `run_batch_eval.sh` | Runs `run_eval.py` for 5 tasks and generates `verification_report.json`. |
+| **FR-003** | FR | `compare_verdicts.py` | Computes alignment consistency (simple count of matches) by comparing hard-coded verdicts to `blinded_ground_truth.json`. |
+| **FR-004** | FR | `generate_report.py` | Generates `reproduction_report.md` with comparison to paper claims. |
+| **FR-005** | FR | `run_batch_eval.sh` (error handling) | Catches Docker/build errors, logs them, and marks tasks as "failed" or "skipped" without crashing. |
+| **SC-001** | SC | `compare_verdicts.py` | Measures alignment consistency (count of matches) against dual manual inspection of 5 artifacts. |
+| **SC-002** | SC | `verification_report.json` | Measures task success rate against `task.json` expected outcomes. |
+| **SC-003** | SC | `reproduction_report.md` | Measures completeness against the requirement to cite paper abstract claims. |
+| **SC-004** | SC | `data/summary.json` | Measures pipeline reliability (% of tasks not crashing). |
+| **SC-005** | SC | CI Job Timeout | Measures execution time against 6-hour limit. |
+
+## Data Flow & Contract Validation
+
+The pipeline explicitly validates data against the contracts defined in `contracts/`:
+1.  **Ingest**: `run_batch_eval.sh` generates `verification_report.json`, which is validated against `contracts/verification_report.schema.yaml`.
+2.  **Extract**: `collect_artifacts.py` moves artifacts to `results/blinded_artifacts/`.
+3.  **Blind**: `prepare_ground_truth.py` creates `blinded_ground_truth.json` (initially with `uninspected` verdicts).
+4.  **Inspect**: Two independent researchers inspect artifacts and update `blinded_ground_truth.json`.
+5.  **Merge**: `compare_verdicts.py` reads both JSONs, validates the merged output against `contracts/verification_results.schema.yaml`, and writes `data/verification_results.csv` and `data/summary.json`.
+6.  **Report**: `generate_report.py` reads `summary.json` and `verification_results.csv` to produce `reproduction_report.md`.
+
+Each step explicitly references its corresponding schema file to ensure data integrity.

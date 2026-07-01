@@ -1,57 +1,95 @@
 # Research: Reproduce & Validate OpenComputer
 
-## Dataset Strategy
+## 1. Problem Statement & Hypothesis
 
-This research does not utilize external statistical datasets but relies on the **OpenComputer Task Corpus** embedded within the `external/OpenComputer` submodule.
+**Problem**: The "OpenComputer" paper claims that its hard-coded verifiers align more closely with human adjudication than LLM-as-judge baselines. To validate this, we must reproduce the execution loop and compare the verifier's output against a manually adjudicated ground truth.
 
-| Dataset/Source | Description | Usage in Plan | Verification Status |
-| :--- | :--- | :--- | :--- |
-| `external/OpenComputer` | Submodule containing `task_generator/`, `evaluation/apps/`, and `smoke/smoke_loop.py`. | Source of task definitions (`task.json`), environment manifests (`env_manifest.json`), and hard-coded verifiers. | **Verified**: The spec assumes the submodule is correctly cloned. If the repo URL is missing, the plan fails at the "Dataset" check. |
-| `audacity_export_wav_440` | Specific task instance within the task generator. | Selected for the P1 Smoke Test (US-1) due to low resource requirements and deterministic output (audio file). | **Verified**: Listed in spec as the canonical smoke test task. |
-| `hardcode` Verifier | Logic embedded in the task evaluation scripts. | Used to generate binary pass/fail judgments for the 5-task batch (US-2). | **Verified**: Part of the OpenComputer evaluation suite. |
+**Hypothesis**: On a representative sample of 5 tasks from the OpenComputer corpus, the hard-coded verifier's pass/fail judgment will show **consistent alignment** with the manual human adjudication, confirming the *feasibility* of the validation loop.
 
-**Note on Dataset Fit**: The OpenComputer task corpus is the *only* source of tasks. The plan does not substitute external datasets. The constraint is that the selected tasks must be executable within the 7GB RAM/2 CPU limit. Tasks requiring heavy GUI rendering or large memory footprints (e.g., video editing) will be excluded from the batch.
+**Null Hypothesis**: The hard-coded verifier's judgment is inconsistent with manual adjudication, indicating a fundamental flaw in the verification logic or the task definitions.
 
-## Methodological Rigor
+**Decision Rule**: Success is defined as **consistent alignment** across the majority of the sample (e.g., 4 out of 5 tasks match). We do not set a specific percentage threshold (e.g., 90%) as N=5 is insufficient for statistical generalization. The study assesses the *mechanism* of verification, not the statistical superiority of the paper's claims.
 
-### Statistical Approach
-This is a **Pipeline Viability & Qualitative Case Study** with a small sample size (N=5 for batch, N=1 for smoke).
-- **Metric**: `alignment_observation` (Qualitative Summary).
-- **Statistical Limitation**: With N=5, a statistical margin of error (e.g., 10%) is mathematically impossible (Margin of Error ≈ 44% for p=0.5, n=5). The source spec (US-2) requests a 10% margin, which is a **spec-root cause limitation**. This plan explicitly **does not** calculate a statistical rate to avoid scientific unsoundness.
-- **Bias Control**: Tasks are selected based on `spec.md` priority (P1/P2) and resource feasibility. **Blinding Protocol** ensures the human adjudicator is independent of the verifier's logic.
+## 2. Dataset Strategy
 
-### Causal/Associational Claims
-- The study tests **associational** validity: "Does the OpenComputer verifier match human judgment on this specific sample?"
-- It does **not** claim causal effects of the agent on the software world beyond the specific task execution.
-- **Collinearity**: Not applicable for this specific validation loop, as the verifier logic is deterministic (hard-coded).
+The study utilizes tasks defined within the `external/OpenComputer` submodule. These tasks are not a separate dataset but are embedded in the repository's `task_generator` and `evaluation/apps/specs` directories.
 
-### Measurement Validity
-- **Ground Truth**: Established via **Blinded Manual Inspection** of generated artifacts.
-  - **Blinding Protocol**: The human adjudicator receives the task prompt and the generated artifact (e.g., WAV file) but **does not** see the verifier's output or the specific file-check logic (e.g., "file exists", "sample rate = 440Hz").
-  - **Distinct Ground Truth**: The adjudicator judges the **utility** and **correctness** of the output (e.g., "Is the audio playable? Does it sound like 440Hz?") based on the task prompt alone. This ensures the ground truth is independent of the verifier's likely file-existence checks, preventing tautological validation.
-- **Instrument Validity**: The `hardcode` verifier is assumed valid per the paper's description. The study validates this assumption by comparing it against the **independent** human ground truth.
+| Dataset Source | Description | Access Method | Verified URL |
+|:--- |:--- |:--- |:--- |
+| OpenComputer Submodule | Contains task definitions (`task.json`), environment manifests, and hard-coded verifiers. | Git Submodule (`git submodule update --init --recursive`) | N/A (Local Repository) |
+| OpenComputer Paper | The primary reference for claims being reproduced (e.g., "33 applications"). | arXiv | ` |
 
-### Verifier Logic Validation
-Before the batch run, the plan includes a **Verifier Logic Validation** step. The `hardcode` verifier's logic for each selected task is manually reviewed against the task spec to ensure it checks the correct properties (e.g., file content vs. just existence). If a verifier is found to be misaligned (e.g., checking for a file that exists but is empty), this is noted in the report as a "Verifier Logic Flaw" rather than a "Task Failure".
+**Variable Fit**: The study requires:
+1. **Task Definition**: Provided by `task.json` (outcome criteria).
+2. **Verifier Logic**: Provided by `evaluation/apps/specs/` (hard-coded checks).
+3. **Ground Truth**: Generated manually via `collect_artifacts.py` and `prepare_ground_truth.py` using dual inspection.
 
-## Compute Feasibility Analysis
+**Constraint**: The free-tier CI environment (limited disk space) cannot host the full OpenComputer corpus.. The study is restricted to a **sample of 5 tasks** selected from the `task_generator` directory, ensuring they are lightweight enough to run within the time and memory limits.
 
-The plan is constrained to the GitHub Actions free-tier runner (limited CPU, limited RAM, 14GB Disk, No GPU).
+## 3. Methodology
 
-1.  **Docker Overhead**: Building the base image for Audacity/GIMP may consume significant RAM.
-    - *Mitigation*: The plan orders phases to build the image *before* running tasks. If the build exceeds 7GB RAM, the job fails gracefully (FR-005).
-    - *Mitigation*: Use a minimal base image (e.g., `ubuntu:22.04` with only required apps) rather than a pre-baked "heavy" image if the submodule allows.
-2.  **Agent Execution**:
-    - *Constraint*: No GPU. The plan uses `hardcode` verifiers and assumes the agent (if invoked) is a CPU-only LLM or a mock agent for the smoke test.
-    - *Decision*: If the spec implies a heavy LLM agent (e.g., `claude_agent`), the plan will use a "dummy" agent or a small local CPU model (e.g., `llama-3-8b` via `llama-cpp-python` with quantization) *only if* the spec allows. However, per FR-002, the focus is on the *verifier* alignment. The agent's output is the input to the verifier. If the agent fails, the verifier should correctly report "failed".
-3.  **Disk Space**:
-    - *Constraint*: 14GB total.
-    - *Mitigation*: Tasks are limited to 5. Artifacts (audio files, logs) are small (<10MB). Docker layers are cached.
-    - *Risk*: If the base image is >10GB, the job fails. The plan includes a check for available disk space before building.
+### 3.1. Execution Pipeline (Phases)
 
-## Decision Rationale
+The pipeline is strictly ordered to ensure data availability:
+1. **Provisioning**: Build/Run Docker container (if image missing).
+2. **Smoke Test**: Execute 1 task to validate the loop.
+3. **Batch Execution**: Run 5 tasks via `run_eval.py`.
+4. **Artifact Collection**: Extract generated files (e.g., `.wav`, `.docx`) to host.
+5. **Blinding**: Anonymize artifacts and generate `blinded_ground_truth.json` (human inspection).
+6. **Comparison**: Merge verifier results with manual ground truth.
+7. **Reporting**: Generate `reproduction_report.md`.
 
-- **Why 5 tasks?** The paper claims "1000 tasks". Running on a 6-hour, 7GB runner is infeasible. 5 tasks provide a representative sample to test the *pipeline* (US-2) without exceeding resources.
-- **Why `audacity_export_wav_440`?** It is a deterministic, file-based task. It does not require complex GUI interaction (reducing rendering load) and has a clear pass/fail state (file exists, correct metadata).
-- **Why `hardcode` verifier?** It removes LLM-as-judge variability, isolating the *system's* ability to detect state changes, which is the core claim being tested.
-- **Why Qualitative Case Study?** Calculating a statistical "rate" with a "10% margin of error" for N=5 is mathematically impossible. The plan prioritizes scientific soundness over meeting an impossible spec constraint, reframing the output as a detailed case study.
+### 3.2. Manual Adjudication Protocol (Blinding & Dual-Inspection)
+
+To avoid bias and ensure construct validity, the manual inspection step follows a **Dual-Inspection Protocol**:
+
+1. **Collection**: `collect_artifacts.py` copies the output files from the Docker container to a local `results/blinded_artifacts/` folder.
+2. **Preparation**: `prepare_ground_truth.py` renames files to random IDs and generates a `blinded_ground_truth.json` with fields: `task_id`, `inspector_1_verdict`, `inspector_2_verdict`, `arbitration_verdict`, `manual_judgment_notes`.
+3. **Independence**: Two independent researchers (human_01 and human_02), who are **distinct from the pipeline designer**, inspect the artifacts.
+4. **Tool-Assisted Verification**: Inspectors must use **distinct, independent validation instruments** to verify semantic correctness, not just visual inspection.
+ * *Audio Tasks*: Use `ffprobe` to check frequency spectra and duration (distinct from verifier's file-existence check).
+ * *Document Tasks*: Use `pandoc` or `diff` tools to compare semantic content (distinct from verifier's byte-exact check).
+5. **Arbitration**: If `inspector_1_verdict` and `inspector_2_verdict` disagree, a third-party senior researcher (human_03) arbitrates to determine the `arbitration_verdict`.
+6. **Comparison**: `compare_verdicts.py` merges the verifier's `verification_report.json` with the `arbitration_verdict` to calculate alignment.
+
+### 3.3. Statistical Considerations
+
+**Sample Size Limitation**: With N=5, statistical tests (e.g., McNemar's test, Chi-square) are invalid due to insufficient degrees of freedom. The study **does not** calculate p-values or confidence intervals. Instead, it relies on a **qualitative narrative** and a simple alignment consistency (matches / total) to assess fidelity.
+
+**Collinearity**: Not applicable (no predictors/covariates in this validation loop).
+
+**Multiple Comparisons**: Not applicable (single hypothesis: verifier alignment feasibility).
+
+## 4. Feasibility & Risks
+
+### 4.1. Compute Feasibility
+- **CPU/GPU**: All tasks are CPU-bound (Docker container execution). No GPU required.
+- **Memory**: Adequate RAM is sufficient for a single Docker container running lightweight apps (e.g., Audacity, LibreOffice) and the Python orchestration scripts.
+- **Disk**: 14 GB is tight. The plan ensures:
+ - Base Docker images are pulled once and cached.
+ - Artifacts are deleted from the container after extraction.
+ - Only 5 task artifacts are stored on the host.
+
+### 4.2. Risk Mitigation
+
+| Risk | Mitigation Strategy |
+|:--- |:--- |
+| **Docker Build Failure** | `run_smoke_test.sh` checks for image existence; if missing, attempts build. If build fails, logs error and marks task "failed" without crashing. |
+| **Disk Quota Exceeded** | Scripts check disk usage before build. If >12 GB, aborts with "disk_quota_exceeded" error. |
+| **Missing API Keys** | Agent scripts catch `KeyError` for env vars (e.g., `ANTHROPIC_API_KEY`), log "missing_credentials", and skip the agent/task gracefully. |
+| **Verifier Mismatch** | If a task requires an app not in the Docker image, the verifier records "dependency_missing" and the task is marked "skipped". |
+| **Inspection Bias** | Mitigated by Dual-Inspection Protocol and mandatory tool-assisted verification. |
+
+## 5. Decision Rationale
+
+**Why N=5?**
+The free-tier CI limit and disk quota make a large-scale reproduction impossible.. A sample of 5 tasks allows for a deep-dive validation of the *mechanism* (verifier vs. human) without exhausting resources. This aligns with the "smoke test" philosophy: proving the loop works, not proving the paper's entire corpus is valid.
+
+**Why Qualitative Narrative?**
+Recent reviewer feedback (T024, T031) explicitly rejected statistical significance testing for N=5. The plan adopts a qualitative narrative to describe the alignment, focusing on specific examples of matches and mismatches rather than a single p-value.
+
+**Why Hard-Coded Verifiers?**
+The paper claims hard-coded verifiers are superior to LLM-as-judge. Validating this requires comparing the hard-coded verifier against *human* judgment, not another LLM. The **Dual-Inspection Protocol** ensures this comparison is fair and independent of the pipeline designer's bias.
+
+**Why Feasibility Over Superiority?**
+The study is reframed as a feasibility assessment of the validation loop. A qualitative narrative on N=5 cannot validate a comparative claim about "better alignment" (which implies statistical superiority). The hypothesis is thus narrowed to "assess feasibility of the validation loop" rather than "validate the paper's claim".

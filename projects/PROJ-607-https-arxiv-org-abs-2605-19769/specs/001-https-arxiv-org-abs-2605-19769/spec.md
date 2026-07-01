@@ -27,7 +27,7 @@
 
 **Why this priority**: The core claim of the paper is that OpenComputer's verifiers align better with human adjudication than LLM-as-judge. Validating this alignment on a sample set is the primary scientific contribution of the reproduction.
 
-**Independent Test**: Run 5 distinct tasks. Manually inspect the generated artifacts (e.g., the exported audio file or the modified document) and compare the result against the verifier's JSON output. The test passes if the verifier correctly identifies the success/failure state as confirmed by manual inspection of the artifact.
+**Independent Test**: Run multiple distinct tasks. Manually inspect the generated artifacts (e.g., the exported audio file or the modified document) and compare the result against the verifier's JSON output. The test passes if the verifier correctly identifies the success/failure state as confirmed by manual inspection of the artifact.
 
 **Acceptance Scenarios**:
 1. **Given** a set of 5 tasks with known ground-truth outcomes (success/failure), **When** the `run_eval.py` script executes these tasks with `--agent claude_agent` and `--verifier hardcode`, **Then** the `verification_report.json` contains a `verifier_accuracy` metric that matches the manual inspection of the artifacts within a 10% margin of error (allowing for edge-case ambiguity).
@@ -49,7 +49,7 @@
 
 ### Edge Cases
 
-- **Given** the Docker backend runs out of disk space (limit ~14 GB) during image build, **When** the provisioning step occurs, **Then** the system fails gracefully with a "disk_quota_exceeded" error and does not attempt to run the task.
+- **Given** the Docker backend runs out of disk space (limit ~ GB) during image build, **When** the provisioning step occurs, **Then** the system fails gracefully with a "disk_quota_exceeded" error and does not attempt to run the task.
 - **Given** an agent (e.g., `gemini_agent`) requires an API key that is not provided in the environment, **When** the agent initialization occurs, **Then** the system skips that agent and logs a "missing_credentials" warning rather than crashing the entire pipeline.
 - **Given** a task requires a specific GUI application (e.g., GIMP) that is not installed in the Docker base image, **When** the task runner attempts to launch the app, **Then** the verifier records a "dependency_missing" failure and the task is marked as "skipped" in the report.
 

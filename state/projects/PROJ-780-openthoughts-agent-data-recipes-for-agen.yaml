@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-25T09:08:39.004518Z'
-current_stage: paper_ingested
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-780-openthoughts-agent-data-recipes-for-agen
-last_run_id: a6347bad-44ee-40d6-b26a-780fb29ba2b3
+last_run_id: fcee50ce-cd6f-4ea0-88ce-181f0c156f32
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: specs/auto-revisions/PROJ-780-openthoughts-agent-data-recipes-for-agen/round-1
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-780-openthoughts-agent-data-recipes-for-agen/specs/001-openthoughts-agent-data-recipes-for-agen
 title: 'OpenThoughts-Agent: Data Recipes for Agentic Models'
-updated_at: '2026-06-30T19:33:55.531572Z'
+updated_at: '2026-06-30T23:15:00.677673Z'

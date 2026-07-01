@@ -82,9 +82,6 @@
 [submodule "projects/PROJ-667-https-arxiv-org-abs-2606-05259/external/VideoKR"]
 	path = projects/PROJ-667-https-arxiv-org-abs-2606-05259/external/VideoKR
 	url = https://github.com/Fu-Fu-Fu-Fu/VideoKR
-[submodule "projects/PROJ-654-https-arxiv-org-abs-2605-29707/external/Domino"]
-	path = projects/PROJ-654-https-arxiv-org-abs-2605-29707/external/Domino
-	url = https://github.com/jianuo-huang/Domino
 [submodule "projects/PROJ-688-agents-last-exam/external/agents-last-exam"]
 	path = projects/PROJ-688-agents-last-exam/external/agents-last-exam
 	url = https://github.com/rdi-berkeley/agents-last-exam
@@ -118,3 +115,9 @@
 [submodule "projects/PROJ-668-https-arxiv-org-abs-2606-05622/external/AdaPlanBench"]
 	path = projects/PROJ-668-https-arxiv-org-abs-2606-05622/external/AdaPlanBench
 	url = https://github.com/JiayuJeff/AdaPlanBench
+[submodule "projects/PROJ-780-openthoughts-agent-data-recipes-for-agen/external/OpenThoughts-Agent"]
+	path = projects/PROJ-780-openthoughts-agent-data-recipes-for-agen/external/OpenThoughts-Agent
+	url = https://github.com/open-thoughts/OpenThoughts-Agent
+[submodule "projects/PROJ-654-https-arxiv-org-abs-2605-29707/external/Domino"]
+	path = projects/PROJ-654-https-arxiv-org-abs-2605-29707/external/Domino
+	url = https://github.com/jianuo-huang/Domino

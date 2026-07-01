@@ -1,38 +1,45 @@
 # llmXive: Heterogeneous Scientific Foundation Model Collaboration Benchmark
 
-A research benchmark for evaluating heterogeneous scientific foundation models across time-series, tabular, and text modalities.
+A Python 3.11 project for benchmarking heterogeneous scientific foundation models across time-series, tabular, and text modalities.
 
 ## Quick Start
 
-```bash
-# Clone and setup
-git clone <repo-url>
-cd llmXive
-python setup_project.py
+1. **Initialize the project**:
+ ```bash
+ python setup_project.py
+ ```
 
-# Activate environment
-source.venv/bin/activate # Linux/Mac
+2. **Activate the virtual environment**:
+ ```bash
+ source.venv/bin/activate # Linux/macOS
 .venv\\Scripts\\activate # Windows
+ ```
 
-# Run benchmark
-python src/benchmark/run_benchmark.py --config default.yaml
-```
+3. **Run the benchmark**:
+ ```bash
+ python code/src/benchmark/run_benchmark.py --config code/src/benchmark/config/default.yaml
+ ```
 
 ## Project Structure
 
-- `src/` - Source code
-- `tests/` - Test suite
-- `data/` - Datasets and processed data
-- `state/` - Runtime state and artifacts
-- `contracts/` - Schema contracts
-- `docs/` - Documentation
+```
+.
+├── code/
+│ ├── src/ # Source code
+│ ├── tests/ # Test suite
+│ ├── data/ # Dataset storage
+│ ├── state/ # State tracking
+│ └── contracts/ # Schema contracts
+├── requirements.txt # Python dependencies
+├── pyproject.toml # Project configuration
+└── README.md
+```
 
 ## Requirements
 
 - Python 3.11+
-- CPU-tractable models (<1GB weights)
-- No GPU/CUDA dependencies
+- pip
 
 ## License
 
-MIT
+Apache 2.0
