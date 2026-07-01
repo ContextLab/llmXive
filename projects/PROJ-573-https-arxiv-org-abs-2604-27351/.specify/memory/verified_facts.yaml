@@ -1,14 +1,10 @@
-'|format hash sha256':
-  quote: 'SHA-2 includes significant changes from its predecessor, SHA-1. The SHA-2
-    family consists of six hash functions with digests (hash values) that are 224,
-    256, 384 or 512 bits: SHA-224, SHA-256, SHA-384, SHA-512, SHA-512/224, SHA-512/256.
-    SHA-256 and SHA-512 are hash functions whose digests are eight 32-bit and 64-bit
-    words, respectively. They use different shift amounts and additive constants,
-    but their structures are otherwise virtually identical, differing only in the
-    number of rounds. SHA-224 and SHA-384 are truncated versions of SHA-256 and SHA-512
-    respectively, computed with different initial values. SHA-512/224 and SHA-512/256
-    are also truncated versions of SHA-512, but the initial values are generated using
-    the method described in Federal Information Processing Standards (FIPS) PUB 180-4.'
-  source_id: SHA-2
-  url: https://en.wikipedia.org/wiki/SHA-2
-  value: '256'
+'|alpha default statistical test threshold use':
+  quote: The p-value is the probability that a test statistic which is at least as
+    extreme as the one obtained would occur under the null hypothesis. At a significance
+    level of 0.05, a fair coin would be expected to (incorrectly) reject the null
+    hypothesis (that it is fair) in 1 out of 20 tests on average. The p-value does
+    not provide the probability that either the null hypothesis or its opposite is
+    correct (a common source of confusion).
+  source_id: Statistical hypothesis test
+  url: https://en.wikipedia.org/wiki/Statistical_hypothesis_test
+  value: '0.05'
