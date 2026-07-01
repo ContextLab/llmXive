@@ -1,0 +1,9 @@
+T001 [P] Create `data/` and `data/defects4j/` directories: 2
+T002 [P] Create `code/`, `code/utils/`, `code/models/` directories: 2
+T003 [P] Create `explanations/`, `state/`, `tests/` directories: 2
+T005 [P] Configure linting (ruff) and formatting (black) tools: 2
+? 'T006b [P] **SPEC AMENDMENT**: Update `spec.md` to replace FR-006 (BLEU/ROUGE) with
+  FR-006-REV (Internal Coherence), update US-2 Acceptance Scenario 3 to output `coherence_score`,
+  and update SC-007 to define expected range for cosine similarity (0-1). This task
+  creates the formal requirement alignment needed for T029.'
+: 1

@@ -35,3 +35,14 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/codellama/CodeLlama-7b-Instruct-hf
   verified_at: '2026-06-29T16:14:21.007058Z'
+- artifact_hash: ea8eab961b0951e3179f5ab43e89fdaf288ec316d7a533afe2d37dd8b5209f64
+  artifact_path: projects/PROJ-130-evaluating-the-explainability-of-llm-bas/specs/001-evaluating-the-explainability-of-llm-bas/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: v2.0.0.zip
+  kind: url
+  value: https://github.com/rjust/defects4j/archive/refs/tags/v2.0.0.zip
+  verification_status: verified
+  verified_against_url: https://codeload.github.com/rjust/defects4j/zip/refs/tags/v2.0.0
+  verified_at: '2026-07-01T02:22:32.092622Z'

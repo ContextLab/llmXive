@@ -1,0 +1,5 @@
+# This file is a symlink target for ruff if the project uses a flat config,
+# but pyproject.toml is the primary source of truth for this project.
+# Keeping this file to satisfy explicit tool checks that look for .ruff.toml
+# or to allow overriding specific settings without editing pyproject.toml.
+extend = "pyproject.toml"

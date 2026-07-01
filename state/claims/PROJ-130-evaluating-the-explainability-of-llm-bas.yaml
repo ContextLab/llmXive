@@ -1,0 +1,365 @@
+- artifact_path: projects/PROJ-130-evaluating-the-explainability-of-llm-bas/specs/001-evaluating-the-explainability-of-llm-bas/tasks.md
+  attempts: 1
+  canonical: CodeLlama-7B-Instruct used for patch generation
+  claim_id: c_56f50480
+  context: 'Goal: Download Defects4J, generate patches using CodeLlama-7B-Instruct,
+    and determine correctness via test suite execution.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CodeLlama-7B-Instruct_used_for_patch_generation
+  kind: entity_fact
+  raw_text: The project uses CodeLlama-7B-Instruct to generate patches.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T02:05:35Z'
+- artifact_path: projects/PROJ-130-evaluating-the-explainability-of-llm-bas/specs/001-evaluating-the-explainability-of-llm-bas/tasks.md
+  attempts: 1
+  canonical: Defects4J v2.0 downloaded from GitHub
+  claim_id: c_cc4d0dad
+  context: Implement code/01_download_data.py to download Defects4J v2.0 from official
+    GitHub repo (https://github.com/rjust/defects4j/archive/refs/tags/v2.0.0.zip)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Defects4J v2.0 is downloaded from the official GitHub repository.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T02:07:37Z'
+- artifact_path: projects/PROJ-130-evaluating-the-explainability-of-llm-bas/specs/001-evaluating-the-explainability-of-llm-bas/tasks.md
+  attempts: 1
+  canonical: 60s timeout per bug for test execution
+  claim_id: c_9af5a301
+  context: Implement code/03_execute_tests.py to run Defects4J test suite with 60s
+    timeout per bug and record pass/fail/unsafe status...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/60s_timeout_per_bug_for_test_execution
+  kind: entity_fact
+  raw_text: The pipeline uses a 60s timeout per bug for test suite execution.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T02:09:05Z'
+- artifact_path: projects/PROJ-130-evaluating-the-explainability-of-llm-bas/specs/001-evaluating-the-explainability-of-llm-bas/tasks.md
+  attempts: 1
+  canonical: CodeLlama-7B-Instruct runs at 16-bit CPU precision
+  claim_id: c_75ebac12
+  context: Implement code/02_generate_patches.py to prompt CodeLlama-7B-Instruct (16-bit
+    CPU precision, temperature=0.7, max_tokens=512)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model is configured with 16-bit CPU precision.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T02:10:12Z'
+- artifact_path: projects/PROJ-130-evaluating-the-explainability-of-llm-bas/specs/001-evaluating-the-explainability-of-llm-bas/tasks.md
+  attempts: 1
+  canonical: Max tokens set to 512
+  claim_id: c_85480f78
+  context: Implement code/02_generate_patches.py to prompt CodeLlama-7B-Instruct (16-bit
+    CPU precision, temperature=0.7, max_tokens=512)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum number of tokens for generation is 512.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T02:11:03Z'
+- artifact_path: projects/PROJ-130-evaluating-the-explainability-of-llm-bas/specs/001-evaluating-the-explainability-of-llm-bas/tasks.md
+  attempts: 1
+  canonical: sentence-transformers/all-MiniLM-L6-v2 used for coherence cosine similarity
+  claim_id: c_1ed8ad7a
+  context: Implement code/07_compute_rationale_coherence.py to compute internal coherence
+    of generated rationales against code change semantics using sentence-transformers/all-MiniLM-L6-v2
+    (cosine similarity).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sentence-transformers/all-MiniLM-L6-v2_used_for_coherence_co
+  kind: entity_fact
+  raw_text: The sentence-transformers/all-MiniLM-L6-v2 model is used to compute cosine
+    similarity for rationale coherence.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T02:12:14Z'
+- artifact_path: projects/PROJ-130-evaluating-the-explainability-of-llm-bas/specs/001-evaluating-the-explainability-of-llm-bas/tasks.md
+  attempts: 1
+  canonical: Coherence threshold set to cosine similarity >= 0.6
+  claim_id: c_59f7aa7a
+  context: 'Threshold for valid coherence: cosine_similarity >= 0.6. Handles missing
+    rationales by recording coherence_score as null...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The threshold for valid coherence is set to a cosine similarity of 0.6
+    or greater.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T02:13:21Z'
+- artifact_path: projects/PROJ-130-evaluating-the-explainability-of-llm-bas/specs/001-evaluating-the-explainability-of-llm-bas/tasks.md
+  attempts: 1
+  canonical: Bonferroni corrected alpha 0.0083 for 6 comparisons
+  claim_id: c_3a840297
+  context: "Implement paired t-tests comparing predictive power of the three techniques\
+    \ with Bonferroni correction (\u03B1_corrected = 0.05 / 6 = 0.0083 for 6 comparisons:\
+    \ 3 techniques \xD7 2 tests)..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bonferroni correction uses an alpha of 0.0083 for 6 comparisons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T02:14:23Z'
+- artifact_path: projects/PROJ-130-evaluating-the-explainability-of-llm-bas/specs/001-evaluating-the-explainability-of-llm-bas/tasks.md
+  attempts: 1
+  canonical: Download Defects4J version 2.0 from GitHub
+  claim_id: c_90213b87
+  context: Implement `code/01_download_data.py` to download Defects4J v2.0 from official
+    GitHub repo...
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: Download Defects4J v2.0 from official GitHub repo (https://github.com/rjust/defects4j/archive/refs/tags/v2.0.0.zip)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T02:16:38Z'
+- artifact_path: projects/PROJ-130-evaluating-the-explainability-of-llm-bas/specs/001-evaluating-the-explainability-of-llm-bas/tasks.md
+  attempts: 1
+  canonical: Use sentence-transformers/all-MiniLM-L6-v2 for coherence computation
+  claim_id: c_39290b5a
+  context: Implement `code/07_compute_rationale_coherence.py` to compute internal
+    coherence... using `sentence-transformers/all-MiniLM-L6-v2`...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_sentence-transformers/all-MiniLM-L6-v2_for_coherence_com
+  kind: entity_fact
+  raw_text: Use sentence-transformers/all-MiniLM-L6-v2 for computing internal coherence
+    of generated rationales
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T02:17:24Z'
+- artifact_path: projects/PROJ-130-evaluating-the-explainability-of-llm-bas/specs/001-evaluating-the-explainability-of-llm-bas/tasks.md
+  attempts: 1
+  canonical: Coherence validity threshold is cosine similarity of 0.6
+  claim_id: c_2a37aeb5
+  context: 'Threshold for valid coherence: `cosine_similarity >= 0.6`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Threshold for valid coherence is cosine_similarity >= 0.6
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T02:18:22Z'
+- artifact_path: projects/PROJ-130-evaluating-the-explainability-of-llm-bas/specs/001-evaluating-the-explainability-of-llm-bas/tasks.md
+  attempts: 1
+  canonical: Bonferroni corrected alpha is 0.0083 for 6 comparisons
+  claim_id: c_9c4395e1
+  context: "Bonferroni correction (\u03B1_corrected = 0.05 / 6 = 0.0083 for 6 comparisons:\
+    \ 3 techniques \xD7 2 tests)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bonferroni correction uses alpha of 0.0083 for 6 comparisons
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T02:18:22Z'
+- artifact_path: projects/PROJ-130-evaluating-the-explainability-of-llm-bas/specs/001-evaluating-the-explainability-of-llm-bas/tasks.md
+  attempts: 1
+  canonical: 'CodeLlama-7B-Instruct parameters: temperature 0.7, max_tokens 512'
+  claim_id: c_480fbe0b
+  context: prompt CodeLlama-7B-Instruct (16-bit CPU precision, temperature=0.7, max_tokens=512)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: CodeLlama-7B-Instruct is used with temperature 0.7 and max_tokens 512
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T02:19:02Z'
+- artifact_path: projects/PROJ-130-evaluating-the-explainability-of-llm-bas/specs/001-evaluating-the-explainability-of-llm-bas/tasks.md
+  attempts: 1
+  canonical: Defects4J test suite timeout is 60 seconds per bug
+  claim_id: c_5ca07172
+  context: run Defects4J test suite with 60s timeout per bug
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Defects4J test suite runs with a 60s timeout per bug
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T02:19:34Z'
+- artifact_path: projects/PROJ-130-evaluating-the-explainability-of-llm-bas/specs/001-evaluating-the-explainability-of-llm-bas/tasks.md
+  attempts: 1
+  canonical: 'Dependencies list: transformers 4.36.0, datasets 2.16.0, captum 0.7.0,
+    scikit-learn 1.4.0, pytest 7.4.0, pandas 2.1.0, numpy 1.26.0, evaluate 0.4.1,
+    sentence-transformers 2.2.2, radon 6.0.1'
+  claim_id: c_810fbceb
+  context: Initialize Python 3.11 project with dependencies in `code/requirements.txt`
+    (transformers==4.36.0...)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Project dependencies include transformers==4.36.0, datasets==2.16.0, captum==0.7.0,
+    scikit-learn==1.4.0, pytest==7.4.0, pandas==2.1.0, numpy==1.26.0, evaluate==0.4.1,
+    sentence-transformers==2.2.2, radon==6.0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T02:19:51Z'
+- artifact_path: projects/PROJ-130-evaluating-the-explainability-of-llm-bas/specs/001-evaluating-the-explainability-of-llm-bas/tasks.md
+  attempts: 1
+  canonical: Defects4J version 2.0 source URL
+  claim_id: c_cb452dff
+  context: Task T019 to download Defects4J v2.0 from official GitHub repo
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: Download Defects4J v2.0 from official GitHub repo (https://github.com/rjust/defects4j/archive/refs/tags/v2.0.0.zip)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T02:23:28Z'
+- artifact_path: projects/PROJ-130-evaluating-the-explainability-of-llm-bas/specs/001-evaluating-the-explainability-of-llm-bas/tasks.md
+  attempts: 1
+  canonical: 'CodeLlama-7B-Instruct generation parameters: 16-bit precision, temperature
+    0.7, max tokens 512'
+  claim_id: c_7b68a08f
+  context: Task T020 to implement patch generation with specific model parameters
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Prompt CodeLlama-7B-Instruct using 16-bit CPU precision, temperature=0.7,
+    max_tokens=512
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T02:24:33Z'
+- artifact_path: projects/PROJ-130-evaluating-the-explainability-of-llm-bas/specs/001-evaluating-the-explainability-of-llm-bas/tasks.md
+  attempts: 1
+  canonical: Defects4J test suite timeout set to 60 seconds
+  claim_id: c_b2727751
+  context: Task T021 to execute tests with a specific timeout
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run Defects4J test suite with 60s timeout per bug
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T02:24:33Z'
+- artifact_path: projects/PROJ-130-evaluating-the-explainability-of-llm-bas/specs/001-evaluating-the-explainability-of-llm-bas/tasks.md
+  attempts: 1
+  canonical: Coherence computation uses sentence-transformers/all-MiniLM-L6-v2 model
+  claim_id: c_8cc4c992
+  context: Task T029 to compute rationale coherence against code change semantics
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Coherence_computation_uses_sentence-transformers/all-MiniLM-
+  kind: entity_fact
+  raw_text: Compute internal coherence using sentence-transformers/all-MiniLM-L6-v2
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T02:25:52Z'
+- artifact_path: projects/PROJ-130-evaluating-the-explainability-of-llm-bas/specs/001-evaluating-the-explainability-of-llm-bas/tasks.md
+  attempts: 1
+  canonical: Coherence validity threshold is 0.6 cosine similarity
+  claim_id: c_8fed9f4c
+  context: Task T029 specifies the threshold for valid coherence scores
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Threshold for valid coherence is cosine_similarity >= 0.6
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T02:25:52Z'
+- artifact_path: projects/PROJ-130-evaluating-the-explainability-of-llm-bas/specs/001-evaluating-the-explainability-of-llm-bas/tasks.md
+  attempts: 1
+  canonical: Bonferroni corrected alpha value is 0.0083 for 6 comparisons
+  claim_id: c_fab6b970
+  context: Task T035 describes the statistical correction for 3 techniques and 2 tests
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bonferroni correction alpha is 0.05 / 6 = 0.0083 for 6 comparisons
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T02:27:09Z'
+- artifact_path: projects/PROJ-130-evaluating-the-explainability-of-llm-bas/specs/001-evaluating-the-explainability-of-llm-bas/tasks.md
+  attempts: 1
+  canonical: Statistical analysis involves 6 comparisons for Bonferroni correction
+  claim_id: c_ecce8c3f
+  context: Task T035 details the number of comparisons in the paired t-tests
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Bonferroni correction involves 6 comparisons (3 techniques \xD7 2 tests)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T02:28:01Z'
