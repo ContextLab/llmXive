@@ -1,263 +1,271 @@
 """
 Verify text dataset availability (DROP/MUST) via HuggingFace datasets.
-Implements FR-001, Phase 0.1.
+
+This script checks the availability of the DROP and MUST datasets from HuggingFace,
+computes basic statistics (size, variables), and updates the research.md file.
+
+FR-001, Phase 0.1
 """
+
 import os
 import sys
 import time
 import logging
 import hashlib
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Tuple
+from typing import List, Dict, Any, Optional
 
 try:
     from datasets import load_dataset
 except ImportError:
-    print("ERROR: 'datasets' library not found. Please install it via: pip install datasets")
+    print("Error: 'datasets' package not found. Please install: pip install datasets")
     sys.exit(1)
 
 # Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
-if not logger.handlers:
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
-    logger.addHandler(handler)
-logger.setLevel(logging.INFO)
 
-# Project root relative to this script location
-# Assuming script is at code/src/research/verify_text.py
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
-RESEARCH_MD_PATH = PROJECT_ROOT / "specs" / "001-https-arxiv-org-abs-2604-27351" / "research.md"
+# Project paths
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+RESEARCH_MD_PATH = PROJECT_ROOT / "research.md"
 DATA_DIR = PROJECT_ROOT / "data"
-DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 # Datasets to verify
-# Using "drop" (Dense Passage Retrieval) and "must" (Multimodal Understanding of Stories - text component)
-# Note: 'must' might be 'must_qa' or similar depending on exact HF ID. We try common variants.
-DATASETS_TO_VERIFY = [
+TEXT_DATASETS = [
     {
-        "name": "drop",
-        "hf_id": "drop",
-        "description": "Dense Passage Retrieval dataset for reading comprehension",
-        "expected_splits": ["train", "validation", "test"]
+        "name": "DROP",
+        "hf_id": "ucinl/drop",
+        "description": "DROP: A Reading Comprehension Benchmark Requiring Discrete Reasoning Over Paragraphs",
+        "url": "https://huggingface.co/datasets/ucinl/drop"
     },
     {
-        "name": "must_qa",
-        "hf_id": "must_qa",
-        "description": "Multimodal Understanding of Stories - QA text component",
-        "expected_splits": ["train", "validation"]
+        "name": "MUST",
+        "hf_id": "musr/must", 
+        "description": "MUST: Multi-Modal Understanding and Reasoning Benchmark",
+        "url": "https://huggingface.co/datasets/musr/must"
     }
 ]
 
-def compute_dataset_checksum(dataset_obj: Any, max_samples: int = 1000) -> str:
-    """
-    Compute a deterministic checksum of the dataset content (first max_samples rows).
-    Uses a subset to avoid excessive I/O for large datasets.
-    """
-    hasher = hashlib.sha256()
+def compute_dataset_checksum(dataset_name: str, split_name: str = "train") -> str:
+    """Compute a simple checksum for a dataset split (based on sample count)."""
     try:
-        # Try to get a representative sample
-        # Handle different dataset structures
-        if hasattr(dataset_obj, 'data'):
-            # HuggingFace dataset object
-            sample_iter = iter(dataset_obj)
-        else:
-            # Fallback
-            sample_iter = iter([dataset_obj])
+        # Load a small sample to get row count
+        ds = load_dataset(dataset_name, split=split_name)
+        count = len(ds)
+        # Create a deterministic hash based on count and name
+        data = f"{dataset_name}:{split_name}:{count}".encode('utf-8')
+        return hashlib.sha256(data).hexdigest()[:16]
+    except Exception as e:
+        logger.warning(f"Could not compute checksum for {dataset_name}: {e}")
+        return "unavailable"
 
+def estimate_dataset_size_mb(hf_id: str, split_name: str = "train") -> float:
+    """
+    Estimate dataset size in MB.
+    For HuggingFace datasets, we load a small sample and estimate based on memory usage.
+    """
+    try:
+        # Load with streaming to avoid downloading full dataset if large
+        ds = load_dataset(hf_id, split=split_name, streaming=True)
+        
+        # Sample 100 examples to estimate size
+        sample_size = 0
         count = 0
-        for item in sample_iter:
+        max_samples = 100
+        
+        for item in ds:
+            sample_size += len(str(item).encode('utf-8'))
+            count += 1
             if count >= max_samples:
                 break
-            # Serialize item to string for hashing
-            item_str = str(item)
-            hasher.update(item_str.encode('utf-8'))
-            count += 1
         
-        return hasher.hexdigest()
+        if count == 0:
+            return 0.0
+        
+        avg_size_bytes = sample_size / count
+        total_count = len(load_dataset(hf_id, split=split_name))
+        estimated_total_bytes = avg_size_bytes * total_count
+        estimated_mb = estimated_total_bytes / (1024 * 1024)
+        
+        return round(estimated_mb, 2)
     except Exception as e:
-        logger.warning(f"Could not compute checksum for dataset: {e}")
-        return "checksum_error"
+        logger.warning(f"Could not estimate size for {hf_id}: {e}")
+        return 0.0
 
-def estimate_dataset_size_mb(dataset_obj: Any) -> float:
-    """
-    Estimate dataset size in MB by checking local cache if available,
-    or by sampling and extrapolating.
-    """
-    # Try to get size from dataset info if available
-    if hasattr(dataset_obj, '_info') and dataset_obj._info:
-        info = dataset_obj._info
-        if hasattr(info, 'download_size') and info.download_size:
-            return info.download_size / (1024 * 1024)
-        if hasattr(info, 'dataset_size') and info.dataset_size:
-            return info.dataset_size / (1024 * 1024)
-    
-    # Fallback: estimate by sampling
-    # Load a small sample and estimate
+def get_dataset_variables(hf_id: str, split_name: str = "train") -> List[str]:
+    """Get the list of variable names (columns) in the dataset."""
     try:
-        if hasattr(dataset_obj, 'select'):
-            sample = dataset_obj.select(range(min(100, len(dataset_obj))))
-            # Approximate size based on string length of first item
-            first_item_str = str(sample[0]) if len(sample) > 0 else ""
-            avg_char_size = len(first_item_str)
-            total_rows = len(dataset_obj)
-            estimated_bytes = avg_char_size * total_rows
-            return estimated_bytes / (1024 * 1024)
+        ds = load_dataset(hf_id, split=split_name, streaming=True)
+        # Get features/columns
+        if hasattr(ds, 'features'):
+            return list(ds.features.keys())
+        else:
+            # For streaming datasets, get first example keys
+            for item in ds:
+                return list(item.keys())
     except Exception as e:
-        logger.warning(f"Could not estimate size: {e}")
-    
-    return 0.0
+        logger.warning(f"Could not get variables for {hf_id}: {e}")
+        return []
 
 def verify_dataset(dataset_config: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Verify a single dataset from HuggingFace.
-    Returns a dict with verification results.
+    Verify a single dataset's availability and collect metadata.
+    
+    Returns a dict with:
+    - dataset_name
+    - url
+    - variables (list)
+    - size_mb
+    - verification_status (available/unavailable/partial)
+    - checksum
     """
     name = dataset_config["name"]
     hf_id = dataset_config["hf_id"]
-    expected_splits = dataset_config.get("expected_splits", [])
+    url = dataset_config["url"]
     
     result = {
         "dataset_name": name,
-        "url": f"https://huggingface.co/datasets/{hf_id}",
+        "url": url,
         "variables": [],
         "size_mb": 0.0,
-        "verification_status": "FAILED",
-        "error": None,
-        "checksum": None
+        "verification_status": "unavailable",
+        "checksum": "unknown"
     }
     
-    logger.info(f"Verifying dataset: {name} (ID: {hf_id})")
-    
     try:
-        # Attempt to load the dataset
-        # Use streaming=True to avoid downloading full dataset for verification
-        start_time = time.time()
-        dataset = load_dataset(hf_id, split="train", streaming=True)
-        load_time = time.time() - start_time
-        logger.info(f"Loaded {name} in {load_time:.2f}s (streaming)")
+        logger.info(f"Verifying dataset: {name} ({hf_id})")
         
-        # Get column names (variables)
-        # For streaming, we need to peek at the first item
-        try:
-            first_item = next(iter(dataset))
-            result["variables"] = list(first_item.keys())
-            logger.info(f"Variables found: {result['variables']}")
-        except StopIteration:
-            logger.warning(f"Dataset {name} appears to be empty.")
-            result["variables"] = []
-        except Exception as e:
-            logger.warning(f"Could not inspect variables: {e}")
-            result["variables"] = []
+        # Try to load the dataset
+        ds = load_dataset(hf_id, split="train", streaming=True)
+        
+        # Get variables
+        variables = get_dataset_variables(hf_id)
+        result["variables"] = variables
         
         # Estimate size
-        # For streaming, we estimate based on available info or sampling
-        # Re-load non-streaming for size estimation if possible, but this might be slow
-        # For now, we'll use a heuristic or mark as estimated
-        try:
-            # Try to get full dataset info for size
-            full_dataset = load_dataset(hf_id, split="train", trust_remote_code=True)
-            result["size_mb"] = estimate_dataset_size_mb(full_dataset)
-            result["checksum"] = compute_dataset_checksum(full_dataset, max_samples=500)
-            del full_dataset # Explicit cleanup
-        except Exception as e:
-            logger.warning(f"Could not get full size/checksum: {e}. Using streaming estimate.")
-            # Fallback estimate
-            result["size_mb"] = estimate_dataset_size_mb(dataset) if hasattr(dataset, '__len__') else 0.0
-            result["checksum"] = "streaming_estimate"
+        size_mb = estimate_dataset_size_mb(hf_id)
+        result["size_mb"] = size_mb
         
-        result["verification_status"] = "VERIFIED"
-        logger.info(f"Dataset {name} verified successfully. Size: {result['size_mb']:.2f} MB")
+        # Compute checksum
+        checksum = compute_dataset_checksum(hf_id)
+        result["checksum"] = checksum
+        
+        if variables and size_mb > 0:
+            result["verification_status"] = "available"
+        elif variables:
+            result["verification_status"] = "partial"
+        else:
+            result["verification_status"] = "unavailable"
+            
+        logger.info(f"✓ {name}: {len(variables)} variables, {size_mb} MB, status: {result['verification_status']}")
         
     except Exception as e:
-        result["error"] = str(e)
-        result["verification_status"] = "FAILED"
-        logger.error(f"Failed to verify dataset {name}: {e}")
+        logger.error(f"✗ {name}: Failed to verify - {e}")
+        result["verification_status"] = "unavailable"
     
     return result
 
+def generate_verification_table(results: List[Dict[str, Any]]) -> str:
+    """Generate a markdown table for the verification results."""
+    if not results:
+        return "No datasets verified."
+    
+    table = "| Dataset | URL | Variables | Size (MB) | Status |\n"
+    table += "|---------|-----|-----------|-----------|--------|\n"
+    
+    for r in results:
+        var_str = ", ".join(r["variables"][:5])  # Show first 5
+        if len(r["variables"]) > 5:
+            var_str += f" (+{len(r['variables'])-5} more)"
+        
+        table += f"| {r['dataset_name']} | {r['url']} | {var_str} | {r['size_mb']} | {r['verification_status']} |\n"
+    
+    return table
+
 def update_research_md(results: List[Dict[str, Any]]) -> None:
-    """
-    Update research.md with the verification results.
-    Creates the 'Dataset Verification' section if it doesn't exist.
-    """
+    """Update research.md with the dataset verification section."""
     if not RESEARCH_MD_PATH.exists():
         logger.warning(f"research.md not found at {RESEARCH_MD_PATH}. Creating new file.")
-        RESEARCH_MD_PATH.parent.mkdir(parents=True, exist_ok=True)
-        content = "# Research Documentation\n\n"
+        research_content = "# Research Documentation\n\n"
     else:
-        content = RESEARCH_MD_PATH.read_text(encoding='utf-8')
+        research_content = RESEARCH_MD_PATH.read_text(encoding='utf-8')
     
-    # Ensure Dataset Verification section exists
-    section_header = "## Dataset Verification"
-    if section_header not in content:
-        logger.info("Adding 'Dataset Verification' section to research.md")
-        content += f"\n\n{section_header}\n\n"
-        # Append initial table header
-        content += "| Dataset Name | URL | Variables | Size (MB) | Status |\n"
-        content += "|---|---|---|---|---|\n"
+    # Define the section to insert/update
+    section_title = "## Dataset Verification"
+    section_content = f"""
+{section_title}
+
+This section documents the verification of text datasets (DROP, MUST) for the benchmark.
+Datasets are verified via HuggingFace datasets library.
+
+### Verification Results
+
+{generate_verification_table(results)}
+
+### Details
+
+"""
     
-    # Find the start of the table (after the header)
-    lines = content.split('\n')
-    table_start_idx = -1
-    for i, line in enumerate(lines):
-        if line.strip().startswith("|") and "Dataset Name" in line:
-            table_start_idx = i + 1
-            break
+    # Add details for each dataset
+    for r in results:
+        section_content += f"""
+#### {r['dataset_name']}
+
+- **URL**: {r['url']}
+- **Variables**: {', '.join(r['variables']) if r['variables'] else 'N/A'}
+- **Estimated Size**: {r['size_mb']} MB
+- **Status**: {r['verification_status']}
+- **Checksum**: {r['checksum']}
+
+"""
     
-    # Prepare new table rows
-    new_rows = []
-    for res in results:
-        if res["verification_status"] == "VERIFIED":
-            variables_str = ", ".join(res["variables"]) if res["variables"] else "N/A"
-            row = f"| {res['dataset_name']} | {res['url']} | {variables_str} | {res['size_mb']:.2f} | ✅ {res['verification_status']} |\n"
-            new_rows.append(row)
-        else:
-            row = f"| {res['dataset_name']} | {res['url']} | {res.get('error', 'Unknown error')} | N/A | ❌ {res['verification_status']} |\n"
-            new_rows.append(row)
-    
-    # Insert new rows after the header row
-    if table_start_idx != -1:
-        # Insert at the beginning of the table body
-        lines[table_start_idx:table_start_idx] = new_rows
-        content = "\n".join(lines)
+    # Insert or replace the section
+    if section_title in research_content:
+        # Find the section and replace it
+        start_idx = research_content.find(section_title)
+        # Find the next section (starts with ##) after this one
+        next_section_idx = research_content.find("\n## ", start_idx + len(section_title))
+        if next_section_idx == -1:
+            next_section_idx = len(research_content)
+        
+        # Replace the section
+        new_content = (
+            research_content[:start_idx] + 
+            section_content + 
+            research_content[next_section_idx:]
+        )
     else:
-        # Fallback: append to end
-        content += "\n" + "".join(new_rows)
+        # Append to end
+        new_content = research_content + "\n" + section_content
     
     # Write back
-    RESEARCH_MD_PATH.write_text(content, encoding='utf-8')
-    logger.info(f"Updated {RESEARCH_MD_PATH}")
+    RESEARCH_MD_PATH.write_text(new_content, encoding='utf-8')
+    logger.info(f"Updated {RESEARCH_MD_PATH} with verification results")
 
 def main():
-    """Main entry point for the verification script."""
+    """Main entry point for dataset verification."""
     logger.info("Starting text dataset verification...")
     
-    all_results = []
+    results = []
+    for dataset_config in TEXT_DATASETS:
+        result = verify_dataset(dataset_config)
+        results.append(result)
     
-    for dataset_cfg in DATASETS_TO_VERIFY:
-        result = verify_dataset(dataset_cfg)
-        all_results.append(result)
+    # Generate and save table
+    table = generate_verification_table(results)
+    logger.info("\n" + table)
     
     # Update research.md
-    update_research_md(all_results)
+    update_research_md(results)
     
     # Summary
-    verified_count = sum(1 for r in all_results if r["verification_status"] == "VERIFIED")
-    logger.info(f"Verification complete. {verified_count}/{len(all_results)} datasets verified.")
+    available_count = sum(1 for r in results if r["verification_status"] == "available")
+    logger.info(f"\nVerification complete: {available_count}/{len(results)} datasets available")
     
-    # Print summary to stdout for quick viewing
-    print("\n--- Text Dataset Verification Summary ---")
-    for res in all_results:
-        status_icon = "✅" if res["verification_status"] == "VERIFIED" else "❌"
-        print(f"{status_icon} {res['dataset_name']}: {res['verification_status']} ({res['size_mb']:.2f} MB)")
-        if res["error"]:
-            print(f"   Error: {res['error']}")
-    print("-----------------------------------------")
-    
-    # Exit with error if any verification failed
-    if verified_count < len(all_results):
-        sys.exit(1)
+    return results
 
 if __name__ == "__main__":
     main()
