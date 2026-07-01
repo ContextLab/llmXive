@@ -128,6 +128,7 @@
     paper_major_revision_science: "Paper revision (science)",
     paper_fundamental_flaws: "Fundamental flaws",
     posted: "Posted",
+    reviewed_preprint: "Reviewed preprint",
     // Spec 012/013 convergence + publication stages
     ready_for_implementation: "Ready for implementer",
     paper_revision_in_progress: "Revision planning",
@@ -180,6 +181,9 @@
         if (stages.has(proj.current_stage)) buckets[tab].push(proj);
       }
     }
+    // Reviewed Preprints are a DEDICATED, server-built collection (third-party
+    // papers llmXive reviewed but never authored) — not filtered from `projects`.
+    buckets.reviewedPreprints = (payload.reviewed_preprints || []).slice();
     // Sort each bucket by updated_at desc by default.
     for (const k of Object.keys(buckets)) {
       buckets[k].sort((a, b) => (b.updated_at || "").localeCompare(a.updated_at || ""));

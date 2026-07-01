@@ -121,14 +121,22 @@ class Stage(StrEnum):
     # up. See ``llmxive.convergence.revision_adapter`` for the bridge.
     RESEARCH_FULL_REVISION = "research_full_revision"
     RESEARCH_REJECTED = "research_rejected"
-    # External-paper intake triage (spec 024). A submitted/HF-ingested paper
-    # lands HERE — NOT at paper_review, which is reserved for an llmXive-authored
-    # paper under review. The reprocessor triages each project: a code-included
-    # paper back-fills spec/plan/tasks from the existing code (added as a
-    # submodule) + routes into the execution gate; a no-code paper becomes a
-    # brainstormed follow-up idea. The project is BARE here (no speckit dirs) —
-    # deliberately excluded from the _stage_invariants dir validators below.
+    # External-paper intake (spec 024, revised by the Reviewed-Preprints ethics
+    # change 2026-07-01). A submitted/HF-ingested paper lands HERE — NOT at
+    # paper_review, which is reserved for an llmXive-authored paper under review.
+    # We have NO consent to modify a third party's paper, so the reprocessor now
+    # NEVER modifies it: it (a) reviews the paper once (review-only) and parks it
+    # at REVIEWED_PREPRINT (terminal), and (b) spawns a SEPARATE llmXive brainstorm
+    # follow-up project (our own research, drops the original byline, cites the
+    # source). The project is BARE here (no speckit dirs) — deliberately excluded
+    # from the _stage_invariants dir validators below.
     PAPER_INGESTED = "paper_ingested"
+    # Terminal state for an ingested paper after review-only processing: the
+    # original paper is preserved (never modified), llmXive peer-review artifacts +
+    # a prepended themed title page are attached, and credit goes ONLY to the
+    # original authors + submitter + the underlying review models. Displayed in the
+    # dashboard's "Reviewed Preprints" tab. Never advances.
+    REVIEWED_PREPRINT = "reviewed_preprint"
     # Paper drafting Spec Kit pipeline
     PAPER_DRAFTING_INIT = "paper_drafting_init"
     PAPER_SPECIFIED = "paper_specified"

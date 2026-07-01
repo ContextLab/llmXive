@@ -69,6 +69,7 @@
   <div class="shell">
     <div class="tabs-row" role="tablist">
       <button class="tab active" data-tab="papers"      role="tab"><i class="fa-regular fa-file-lines"></i> Published <span class="count" data-count="papers"></span></button>
+      <button class="tab"        data-tab="reviewedPreprints" role="tab"><i class="fa-solid fa-file-circle-check"></i> Reviewed Preprints <span class="count" data-count="reviewedPreprints"></span></button>
       <button class="tab"        data-tab="inProgress"  role="tab"><i class="fa-regular fa-pen-to-square"></i> In Progress <span class="count" data-count="inProgress"></span></button>
       <button class="tab"        data-tab="activity"    role="tab"><i class="fa-regular fa-clock"></i> Activity</button>
       <button class="tab"        data-tab="contributors"role="tab"><i class="fa-regular fa-user"></i> Contributors</button>
@@ -135,6 +136,23 @@
 
     <!-- Kanban board — one column per stage; app.js renderInProgress(). -->
     <div class="ip-board" id="inProgress-cards"></div>
+  </section>
+
+  <section class="panel" data-panel="reviewedPreprints">
+    <div class="panel-head">
+      <div>
+        <h2>Reviewed preprints</h2>
+        <p>Third-party papers llmXive has <strong>auto-reviewed but never modified</strong>. Each carries an llmXive cover page over the untouched original, an automated-review report, and a link to the separate llmXive follow-up study it inspired. Credit stays with the original authors — llmXive claims no authorship.</p>
+      </div>
+    </div>
+    <div class="bar">
+      <span class="label">Sort</span>
+      <button class="chip active" data-sort="updated">Recently updated</button>
+      <button class="chip" data-sort="title">Title (A–Z)</button>
+      <span class="grow"></span>
+      <span class="search"><i class="fa-solid fa-magnifying-glass"></i><input data-search="reviewedPreprints" placeholder="Search preprints…" /></span>
+    </div>
+    <div class="cards" id="reviewedPreprints-cards"></div>
   </section>
 
   <section class="panel" data-panel="contributors">

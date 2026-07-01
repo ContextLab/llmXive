@@ -462,14 +462,27 @@ def run_one_step(
     # all artifacts + returns the project at a normal pipeline stage; the next
     # tick advances it normally.
     if project.current_stage == Stage.PAPER_INGESTED:
-        from llmxive.paper_reprocess import reprocess_ingested_paper
+        from llmxive.paper_reprocess import finalize_reviewed_preprint
 
-        reprocessed = reprocess_ingested_paper(project, repo_root=repo).model_copy(
-            update={"last_run_id": run_id}
-        )
+        # Ethics change (2026-07-01): NEVER modify an ingested paper. Mark it a
+        # review-only Reviewed Preprint, peer-review it once, and spawn a SEPARATE
+        # llmXive brainstorm follow-up that cites (not re-authors) the original —
+        # all in this one terminal tick (REVIEWED_PREPRINT is never re-picked).
+        reprocessed = finalize_reviewed_preprint(
+            project, repo_root=repo, run_id=run_id
+        ).model_copy(update={"last_run_id": run_id})
         project_store.save(reprocessed, repo_root=repo)
+        # Themed artifacts (cover-prepended original + peer-review report). Best
+        # effort: a missing LaTeX toolchain / failed arXiv fetch must not sink the
+        # intake — the migration/dashboard can rebuild them later.
+        try:
+            from llmxive.paper_reprocess.preprint_pdf import build_preprint_pdfs
+
+            build_preprint_pdfs(reprocessed, repo_root=repo)
+        except Exception as exc:  # noqa: BLE001
+            logger.warning("preprint PDF build failed for %s: %s", project.id, exc)
         logger.info(
-            "reprocessed ingested paper %s -> %s",
+            "reprocessed ingested paper %s -> %s (reviewed preprint + follow-up)",
             project.id, reprocessed.current_stage.value,
         )
         return reprocessed

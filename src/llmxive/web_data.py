@@ -921,6 +921,14 @@ def _project_authors(repo: Path, project_id: str) -> list[dict[str, str]]:
 
     pdir = _project_dir(repo, project_id)
 
+    # Reviewed-Preprint ethics (2026-07-01): a review-only ingested paper credits
+    # ONLY the original authors + the submitter + the UNDERLYING review models.
+    # llmXive never modified the paper, so no implementer/planner/tasker/reviser
+    # may be credited — the run-log loop below is filtered to reviewer runs when
+    # this flag is set (protects the invariant against legacy/pre-migration runs).
+    from llmxive.paper_reprocess.preprint import is_reviewed_preprint
+    is_preprint = is_reviewed_preprint(pdir)
+
     # 1. Idea submitter
     #    Skip bot submitters (github-actions[bot] etc.) — the user's rule:
     #    bots that act on behalf of the platform never count as authors. The
@@ -1009,6 +1017,11 @@ def _project_authors(repo: Path, project_id: str) -> list[dict[str, str]]:
                         continue
                     model = (e.get("model_name") or "").strip()
                     role = (e.get("agent_name") or "").strip()
+                    # Reviewed-Preprint invariant: credit reviewer runs only; a
+                    # modifier run (implementer/planner/tasker/reviser/etc.) must
+                    # never appear as an author of a paper we did not write.
+                    if is_preprint and "reviewer" not in role.lower():
+                        continue
                     if model:
                         add(model, "llm", role or "agent")
 
@@ -1619,6 +1632,83 @@ def _build_personalities_block(repo: Path) -> list[dict[str, Any]]:
     return out
 
 
+_GH_BLOB = "https://github.com/ContextLab/llmXive/blob/main/"
+_GH_RAW = "https://raw.githubusercontent.com/ContextLab/llmXive/main/"
+
+
+def _preprint_action_items(repo: Path, project_id: str) -> list[dict[str, Any]]:
+    """Per-lens action items from the preprint's paper-review records."""
+    from llmxive.state import reviews as reviews_store
+
+    out: list[dict[str, Any]] = []
+    try:
+        records = reviews_store.list_for(project_id, stage="paper", repo_root=repo)
+    except Exception:  # a malformed record must not sink the payload
+        return out
+    for rec in sorted(records, key=lambda r: r.reviewer_name):
+        items = [
+            {"text": (it.text or "").strip(),
+             "severity": getattr(getattr(it, "severity", ""), "value", getattr(it, "severity", ""))}
+            for it in (rec.action_items or [])
+        ]
+        out.append({
+            "reviewer": rec.reviewer_name,
+            "verdict": str(rec.verdict),
+            "items": items,
+        })
+    return out
+
+
+def _reviewed_preprint_entry(repo: Path, project: Project) -> dict[str, Any]:
+    """Enriched entry for the dashboard's Reviewed Preprints tab.
+
+    Extends the standard project entry with a ``preprint`` block: provenance
+    (source/ingestion), the credit list split into ORIGINAL authors + submitter +
+    review MODELS (never a modifier — llmXive did not write the paper), the
+    consolidated action items, the two themed PDFs, and the follow-up link.
+    """
+    from llmxive.paper_reprocess.preprint import (
+        ingestion_statement,
+        load_preprint_manifest,
+    )
+
+    entry = _project_to_entry(repo, project)
+    pdir = _project_dir(repo, project.id)
+    manifest = load_preprint_manifest(pdir) or {}
+
+    # Original authors (paper_author role) + review models (any reviewer role),
+    # reusing the preprint-aware attribution (SSoT).
+    authors = _project_authors(repo, project.id)
+    original_authors = [a for a in authors if "paper_author" in (a.get("roles") or [])]
+    review_models = [
+        a for a in authors
+        if a.get("kind") == "llm" and any("reviewer" in r for r in (a.get("roles") or []))
+    ]
+
+    def _pdf(name: str) -> dict[str, str] | None:
+        p = pdir / "paper" / "pdf" / name
+        if not p.is_file():
+            return None
+        rel = p.relative_to(repo).as_posix()
+        return {"repo_path": rel, "raw_url": _GH_RAW + rel, "github_url": _GH_BLOB + rel}
+
+    followup_id = manifest.get("followup_project_id")
+    entry["preprint"] = {
+        "source_url": manifest.get("source_url") or "",
+        "ingested_via": manifest.get("ingested_via") or "",
+        "ingested_at": manifest.get("ingested_at") or "",
+        "submitter": manifest.get("submitter") or "",
+        "ingestion_statement": ingestion_statement(manifest) if manifest else "",
+        "original_authors": original_authors,
+        "review_models": review_models,
+        "action_items": _preprint_action_items(repo, project.id),
+        "original_pdf": _pdf("original-llmxive.pdf"),
+        "peer_review_pdf": _pdf("peer-review-llmxive.pdf"),
+        "followup_project_id": followup_id,
+    }
+    return entry
+
+
 def build_payload(repo: Path) -> dict[str, Any]:
     """Top-level builder: returns the dict to be serialized to projects.json."""
     # Clear the per-build registry-name cache (a long-lived process building
@@ -1669,11 +1759,19 @@ def build_payload(repo: Path) -> dict[str, Any]:
 
     aggregates = _aggregates(projects, contributors, by_kind)
 
+    # Reviewed Preprints (2026-07-01 ethics change) get a DEDICATED collection —
+    # they are third-party papers llmXive reviewed but never authored, so they
+    # never appear in the authored-project shelves (Published / In Progress). The
+    # spawned follow-ups are ordinary projects and stay in `projects`.
+    preprints = [p for p in projects if p.current_stage == Stage.REVIEWED_PREPRINT]
+    non_preprints = [p for p in projects if p.current_stage != Stage.REVIEWED_PREPRINT]
+
     return {
         "schema_version": SCHEMA_VERSION,
         "generated_at": datetime.now(UTC).isoformat(),
         "aggregates": aggregates,
-        "projects": [_project_to_entry(repo, p) for p in projects],
+        "projects": [_project_to_entry(repo, p) for p in non_preprints],
+        "reviewed_preprints": [_reviewed_preprint_entry(repo, p) for p in preprints],
         "contributors": contributors,
         "agents": _build_agents_block(repo),
         "personalities": _build_personalities_block(repo),
