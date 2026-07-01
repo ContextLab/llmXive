@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Climate Centroid Schema"
+description: "Schema for the computed climate centroids per species and period."
+type: object
+properties:
+  species_name:
+    type: string
+    description: "Scientific name."
+  period:
+    type: string
+    description: "Time period label (e.g., '1970-2000')."
+    enum:
+      - "1970-2000"
+      - "1991-2020"
+  mean_temp_c:
+    type: number
+    description: "Mean annual temperature in Celsius."
+  mean_prec_mm:
+    type: number
+    description: "Mean annual precipitation in millimeters."
+  n_records:
+    type: integer
+    description: "Number of records used for the centroid."
+  region_band:
+    type: integer
+    description: "Latitudinal band index (e.g., 30 for 30-40°)."
+  static_envelope_id:
+    type: string
+    description: "Identifier for the static historical envelope used for regional warming calculation."
+required:
+  - species_name
+  - period
+  - mean_temp_c
+  - mean_prec_mm
+  - n_records
+  - region_band
+  - static_envelope_id
+additionalProperties: false

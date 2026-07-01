@@ -74,7 +74,7 @@ The researcher requests a robustness check that repeatedly **subsamples [deferre
 - **FR-008**: System MUST generate a scatter‑plot of **niche‑shift magnitude vs. regional warming rate**, with points colored by taxonomic group, and save it as a **high‑resolution PNG of at least 1200 × 800 pixels** (See US-2).  
 - **FR-009**: System MUST conduct a sensitivity analysis by random subsampling **50% of records**, 10 replicates, and report mean shift, standard deviation, and flag species with SD ≥ 0.2 climate‑space units (See US-3).
 - **FR-010**: System MUST produce a comprehensive log file for each pipeline execution, documenting data retrieval counts, filtering decisions, centroid calculations, regression steps (including per‑region regressions), sensitivity analysis runs, and any warnings or errors encountered, as mandated by User Stories 1‑3 (See US-1, US-2, US-3).  
-- **FR-011**: System MUST assign each species to a geographic region (e.g., latitudinal band of 10°) and perform the regression of niche‑shift magnitude vs. regional warming separately for each region, outputting a summary table of regression coefficients (including 95% CI) per region (See US-2).
+- **FR-011**: System MUST assign each species to a geographic region (e.g., latitudinal band) and perform the regression of niche‑shift magnitude vs. regional warming separately for each region, outputting a summary table of regression coefficients (including 95% CI) per region (See US-2).
 - **FR-012**: System MUST perform a power analysis to justify the regression sample size (minimum 30 species required for adequate statistical power) and report margin‑of‑error for the slope estimate to address statistical power concerns (See US-2).
 
 ### Key Entities  
