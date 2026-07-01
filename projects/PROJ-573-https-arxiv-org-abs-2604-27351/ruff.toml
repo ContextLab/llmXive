@@ -1,4 +1,10 @@
+# Ruff configuration for llmXive project
+# Targeting Python 3.11 as per project requirements
+target-version = "py311"
+line-length = 88
+
 [lint]
+# Enable a comprehensive set of rules
 select = [
     "E",  # pycodestyle errors
     "W",  # pycodestyle warnings
@@ -8,55 +14,11 @@ select = [
     "C4", # flake8-comprehensions
     "UP", # pyupgrade
 ]
-ignore = []
-
-# Allow autofix for all enabled rules (if `--fix` is provided).
-fixable = ["ALL"]
-unfixable = []
-
-# Exclude a few specific files/directories.
-exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
-    ".git",
-    ".git-rewrite",
-    ".hg",
-    ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".pytype",
-    ".ruff_cache",
-    ".svn",
-    ".tox",
-    ".venv",
-    "__pypackages__",
-    "_build",
-    "buck-out",
-    "build",
-    "dist",
-    "node_modules",
-    "venv",
+ignore = [
+    "E501", # Line too long (handled by formatter)
+    "B008", # Do not perform function call in argument defaults (common in FastAPI/CLI)
 ]
 
-# Same as the global `extend-exclude` setting.
-per-file-ignores = {}
-
-# Line length configuration (matching Black default)
-line-length = 88
-
-# Target version
-target-version = "py311"
-
-# Dummy variable names (e.g., unused variables)
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
-
 [lint.isort]
-force-single-line = false
-force-sort-within-sections = false
-lines-after-imports = 2
-known-first-party = []
-known-third-party = []
-no-lines-before = []
-order-by-type = true
-relative-imports-order = "closest-to-furthest"
+known-first-party = ["src", "tests", "research"]
+force-sort-within-sections = true

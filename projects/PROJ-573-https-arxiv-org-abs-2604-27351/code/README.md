@@ -1,45 +1,39 @@
-# llmXive: Heterogeneous Scientific Foundation Model Collaboration Benchmark
+# llmXive Benchmark Project
 
-A Python 3.11 project for benchmarking heterogeneous scientific foundation models across time-series, tabular, and text modalities.
+Heterogeneous Scientific Foundation Model Collaboration Benchmark.
 
-## Quick Start
-
-1. **Initialize the project**:
- ```bash
- python setup_project.py
- ```
-
-2. **Activate the virtual environment**:
- ```bash
- source.venv/bin/activate # Linux/macOS
-.venv\\Scripts\\activate # Windows
- ```
-
-3. **Run the benchmark**:
- ```bash
- python code/src/benchmark/run_benchmark.py --config code/src/benchmark/config/default.yaml
- ```
-
-## Project Structure
-
-```
-.
-├── code/
-│ ├── src/ # Source code
-│ ├── tests/ # Test suite
-│ ├── data/ # Dataset storage
-│ ├── state/ # State tracking
-│ └── contracts/ # Schema contracts
-├── requirements.txt # Python dependencies
-├── pyproject.toml # Project configuration
-└── README.md
-```
-
-## Requirements
+## Prerequisites
 
 - Python 3.11+
 - pip
 
-## License
+## Setup
 
-Apache 2.0
+1. Create a virtual environment:
+ ```bash
+ python -m venv.venv
+ source.venv/bin/activate
+ ```
+
+2. Install dependencies:
+ ```bash
+ pip install -r requirements.txt
+ ```
+
+3. Verify installation:
+ ```bash
+ python -c "import src; print('Project structure verified.')"
+ ```
+
+## Project Structure
+
+- `src/`: Source code
+- `tests/`: Test suites
+- `data/`: Data storage
+- `state/`: State tracking
+- `contracts/`: Schema definitions
+- `research/`: Research scripts and documentation
+
+## Development
+
+Linting and formatting are configured via `pyproject.toml` (Black) and `ruff.toml` (Ruff).

@@ -1,1 +1,3 @@
-# Benchmark Package
+"""
+Benchmark modules
+"""

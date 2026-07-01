@@ -1,99 +1,67 @@
-# Default benchmark configuration for Heterogeneous Scientific Foundation Model Collaboration
-# Task: T030 [US1] Create default.yaml config
-# References: FR-001, FR-006, FR-010, SC-003, SC-004
-# Bootstrapping methodology: https://en.wikipedia.org/wiki/Bootstrapping_(statistics)
+# Default benchmark configuration
+# This file defines the default parameters for running the benchmark
 
-# Datasets to include in the benchmark run
-# These must be available via HuggingFace datasets.load_dataset() or verified URLs
+# Datasets to use in the benchmark
 datasets:
   - name: UCI_HAR
-    source: "UCI HAR Dataset"
-    modality: time-series
     url: "https://huggingface.co/datasets/UCI_HAR"
-    variables:
-      - body_acc_x
-      - body_acc_y
-      - body_acc_z
-      - body_gyro_x
-      - body_gyro_y
-      - body_gyro_z
-      - total_acc_x
-      - total_acc_y
-      - total_acc_z
-      - activity_label
+    modalities:
+      - time_series
   - name: DROP
-    source: "DROP Dataset"
-    modality: text
     url: "https://huggingface.co/datasets/drop"
-    variables:
-      - passage
-      - question
-      - answer
-      - answer_type
+    modalities:
+      - text
   - name: MUST
-    source: "MUST Dataset"
-    modality: text
     url: "https://huggingface.co/datasets/must"
-    variables:
-      - context
-      - query
-      - label
+    modalities:
+      - text
 
-# Modalities to process
-# Each modality maps to a specific model wrapper defined in src/models/
+# Modalities to evaluate
 modalities:
-  - time-series
+  - time_series
   - tabular
   - text
 
-# Random seeds for reproducibility (SC-004)
+# Random seeds for reproducibility
 seeds:
   - 42
   - 123
   - 456
   - 789
-  - 101112
+  - 1011
 
-# Timeout configuration (FR-006, FR-013)
-# Maximum seconds allowed per task execution
+# Timeout settings (in seconds)
 timeout_per_task: 300
+total_benchmark_timeout: 14400  # 4 hours
 
-# Statistical analysis configuration
-# Bootstrapping parameters for confidence interval estimation
-# Reference: https://en.wikipedia.org/wiki/Bootstrapping_(statistics)
-statistical:
-  method: bootstrap
-  n_iterations: 1000
-  confidence_level: 0.95
-  effect_size_method: wilcoxon_r
-  alpha: 0.05
+# Model configuration
+models:
+  time_series:
+    model_id: "google/t5-small"
+    max_memory_gb: 1.0
+  tabular:
+    model_id: "TabPFN/tabpfn-v2-cifar10"
+    max_memory_gb: 1.0
+  text:
+    model_id: "distilbert-base-uncased"
+    max_memory_gb: 1.0
 
-# Runtime constraints (SC-003)
-max_total_runtime_hours: 4
-per_task_inference_max_minutes: 5
+# Evaluation settings
+evaluation:
+  metrics:
+    - accuracy
+    - f1
+    - mape
+  statistical_tests:
+    - paired_ttest
+    - wilcoxon
+    - bootstrap_ci
 
-# Mode selection (heterogeneous vs unified)
-default_mode: heterogeneous
-
-# Logging and output configuration
+# Output settings
 output:
-  results_csv: "data/results.csv"
-  statistical_summary: "data/statistical_summary.yaml"
-  runtime_metrics: "data/runtime_metrics.yaml"
-  report_pdf: "figures/benchmark_report.pdf"
+  results_dir: "data/results"
+  reports_dir: "data/reports"
+  log_level: "INFO"
 
-# Model configuration (references modality-specific configs)
-model_configs:
-  time-series: "src/benchmark/config/modalities/timeseries.yaml"
-  tabular: "src/benchmark/config/modalities/tabular.yaml"
-  text: "src/benchmark/config/modalities/text.yaml"
-
-# Task definitions file
-task_definitions: "src/tasks/task_definitions.yaml"
-
-# Contract validation settings
-contracts:
-  dataset_schema: "contracts/dataset.schema.yaml"
-  task_schema: "contracts/task.schema.yaml"
-  results_schema: "contracts/results.schema.yaml"
-  modality_model_schema: "contracts/modality_model.schema.yaml"
+# Running mode
+mode: heterogeneous  # Options: heterogeneous, unified

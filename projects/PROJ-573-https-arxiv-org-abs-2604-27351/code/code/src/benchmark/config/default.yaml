@@ -1,0 +1,63 @@
+# Default configuration for the Heterogeneous Scientific Foundation Model Collaboration Benchmark
+# This file defines the default parameters for running the benchmark
+
+# Datasets to include in the benchmark
+datasets:
+  - name: UCI_HAR
+    url: "https://huggingface.co/datasets/UCI_HAR"
+    modality: time-series
+    label_column: activity
+  - name: DROP
+    url: "https://huggingface.co/datasets/drop"
+    modality: text
+    label_column: answer
+  - name: MUST
+    url: "https://huggingface.co/datasets/must"
+    modality: text
+    label_column: label
+
+# Modalities to evaluate
+modalities:
+  - time-series
+  - tabular
+  - text
+
+# Number of random seeds for reproducibility
+seeds:
+  - 42
+  - 123
+  - 456
+  - 789
+  - 101112
+
+# Timeout per task in seconds
+timeout_per_task: 300
+
+# Bootstrapping configuration for statistical analysis
+bootstrap:
+  n_iterations: 1000
+  confidence_level: 0.95
+  method: "percentile"
+
+# Model configurations
+models:
+  time-series:
+    model_id: "time-series-transformer-small"
+    max_memory_gb: 1.0
+  tabular:
+    model_id: "tabpfn-base"
+    max_memory_gb: 1.0
+  text:
+    model_id: "distilbert-base-uncased"
+    max_memory_gb: 1.0
+
+# Output paths
+output:
+  results_dir: "data/results"
+  reports_dir: "data/reports"
+  figures_dir: "figures"
+
+# Logging configuration
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
