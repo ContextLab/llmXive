@@ -11,6 +11,8 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 concurrency:
   group: pages-deploy
@@ -19,10 +21,20 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v5
         with:
           fetch-depth: 0
+          # docs/ is a static build from web/ — it NEVER needs the projects'
+          # external submodules. The legacy "Deploy from branch" built-in recursed
+          # them and died on a broken NESTED submodule in an ingested paper's
+          # vendored code (PROJ-780 .../tokviz/repos/emptylist has no url in its
+          # .gitmodules) → every Pages deploy failed, leaving the dashboard stale.
+          # Artifact deploy (below) + submodules:false avoids that recursion.
+          submodules: false
 
       - name: Sync web/ -> docs/
         run: |
@@ -59,3 +71,20 @@ jobs:
         # wholesale from web/), so the rebase is conflict-free.
         run: |
           bash scripts/ci/commit-and-push.sh "deploy: sync web/ -> docs/ for GitHub Pages [skip ci]"
+
+      # Deploy docs/ via the GitHub Actions artifact path (NOT the legacy
+      # deploy-from-branch built-in, which re-checks-out the repo recursively and
+      # dies on the broken nested submodule above). Requires the Pages source to be
+      # "GitHub Actions" (build_type=workflow) — set once via the repo Pages
+      # settings / `gh api ... -f build_type=workflow`.
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload docs/ as the Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
