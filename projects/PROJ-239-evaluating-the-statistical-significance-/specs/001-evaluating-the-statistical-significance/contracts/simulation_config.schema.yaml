@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Simulation Configuration Schema"
+description: "Defines the valid parameters for the A/B test simulation engine."
+type: "object"
+properties:
+  icc_range:
+    type: "array"
+    items:
+      type: "number"
+      minimum: 0.0
+      maximum: 1.0
+    description: "List of Intra-Cluster Correlation coefficients to test."
+  alpha_levels:
+    type: "array"
+    items:
+      type: "number"
+      minimum: 0.0
+      maximum: 1.0
+    description: "List of significance thresholds (alpha) to test."
+  n_iterations:
+    type: "integer"
+    minimum: 1
+    description: "Number of Monte Carlo iterations per configuration."
+  n_clusters:
+    type: "integer"
+    minimum: 50
+    description: "Number of clusters in the synthetic dataset. Must be >= 50 for CRSE validity."
+  cluster_size_mean:
+    type: "number"
+    minimum: 1
+    description: "Mean number of observations per cluster."
+  cluster_size_sd:
+    type: "number"
+    minimum: 0
+    description: "Standard deviation of cluster sizes."
+  seed:
+    type: "integer"
+    description: "Random seed for reproducibility."
+required:
+  - icc_range
+  - alpha_levels
+  - n_iterations
+  - n_clusters
+  - cluster_size_mean
+  - seed
+additionalProperties: false

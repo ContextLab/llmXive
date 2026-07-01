@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Individual Simulation Run Schema"
+description: "Defines the structure of a single iteration's output."
+type: "object"
+properties:
+  run_id:
+    type: "integer"
+    description: "Unique identifier for the simulation run."
+  icc_level:
+    type: "number"
+    description: "ICC level used in this run."
+  alpha:
+    type: "number"
+    description: "Alpha level used in this run."
+  method:
+    type: "string"
+    enum:
+      - "standard_t"
+      - "cluster_robust"
+      - "block_permutation"
+    description: "Method used."
+  p_value:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Calculated p-value."
+  reject_h0:
+    type: "boolean"
+    description: "Whether H0 was rejected (p < alpha)."
+required:
+  - run_id
+  - icc_level
+  - alpha
+  - method
+  - p_value
+  - reject_h0
+additionalProperties: false

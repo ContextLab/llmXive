@@ -13,12 +13,12 @@ The researcher needs to generate synthetic clustered data with known intra-clust
 
 **Why this priority**: This establishes the baseline risk (inflation of false positives) which is the primary motivation for the research. Without this, the value of robust methods cannot be quantified.
 
-**Independent Test**: Can be fully tested by running the data generation and standard t-test loop for a fixed ICC (e.g., 0.1) and verifying the output error rate exceeds 0.05.
+**Independent Test**: System outputs a calculated error rate for the given ICC and method parameters.
 
 **Acceptance Scenarios**:
 
-1. **Given** a specified ICC level of 0.1, **When** the simulation runs 1,000 iterations, **Then** the empirical Type I error rate for the standard t-test is calculated and reported.
-2. **Given** the UCI Online Retail dataset structure, **When** session clusters are extracted, **Then** synthetic treatment labels are assigned maintaining the cluster structure.
+1. **Given** a specified ICC level of 0.1 and a configuration ensuring H0 is true (no mean difference), **When** the simulation runs 1,000 iterations, **Then** the empirical Type I error rate for the standard t-test is calculated and reported.
+2. **Given** the UCI Online Retail dataset structure, **When** session clusters are extracted, **Then** synthetic treatment labels are assigned maintaining the cluster structure with random assignment at the cluster level.
 
 ---
 
@@ -62,11 +62,11 @@ The researcher needs to sweep significance thresholds and compute confidence int
 
 ### Functional Requirements
 
-- **FR-001**: System MUST generate synthetic treatment/control labels with controlled intra-cluster correlation coefficients (ICC) ranging from 0.0 to 0.5 in steps of 0.1 (See US-01).
-- **FR-002**: System MUST implement a standard two-sample t-test and chi-squared test as baselines for comparison (See US-01).
+- **FR-001**: System MUST generate synthetic outcome data with controlled intra-cluster correlation coefficients (ICC) using a random intercept model to ensure the true effect size is zero (H0: mu1 = mu2), and MUST assign treatment labels randomly at the cluster level. The system MUST accept a user-specified ICC value and MUST support a default simulation range of [0.0, 0.5] with a configurable step size (See US-01).
+- **FR-002**: System MUST implement a standard two-sample t-test as a baseline for comparison to evaluate Type I error inflation in continuous metrics (See US-01).
 - **FR-003**: System MUST implement cluster-robust variance estimation that does not assume independence of observations within clusters (See US-02).
 - **FR-004**: System MUST implement a block permutation test that permutes labels at the cluster level rather than the observation level (See US-02).
-- **FR-005**: System MUST use α = 0.05 as the primary significance threshold, justified by standard community convention for Type I error control, and MUST perform a sensitivity analysis sweeping α over {0.01, 0.05, 0.10} to report Type I error variance (See US-03).
+- **FR-005**: System MUST allow configuration of the significance threshold α and MUST support batch execution over a user-provided list of α values. The default experimental configuration shall use α levels {0.01, 0.05, 0.10} (See US-03).
 - **FR-006**: System MUST execute all simulations on CPU-only hardware within 6 hours and ≤ 7 GB RAM, avoiding GPU/CUDA dependencies (See US-03).
 
 ### Key Entities *(include if feature involves data)*
@@ -83,8 +83,8 @@ The researcher needs to sweep significance thresholds and compute confidence int
 > measured against; defer specific empirical values (counts, dataset sizes,
 > measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: Empirical Type I error rate for standard t-tests is measured against the nominal alpha of 0.05 to quantify inflation (See US-01).
-- **SC-002**: Empirical Type I error rate for robust methods is measured against the nominal alpha of 0.05 to verify restoration of validity (See US-02).
+- **SC-001**: Empirical Type I error rate for standard t-tests is calculated and reported for a given ICC and method (See US-01).
+- **SC-002**: Empirical Type I error rate for robust methods is calculated and reported for a given ICC and method (See US-02).
 - **SC-003**: Total compute time is measured against the 6-hour limit for the simulation suite (See US-03).
 - **SC-004**: Sensitivity analysis coverage is measured against the requirement of at least 3 distinct alpha levels (See US-03).
 
@@ -95,3 +95,5 @@ The researcher needs to sweep significance thresholds and compute confidence int
 - The simulation dataset fits within 7 GB RAM (sub-sampling applied if necessary).
 - The nominal significance threshold α = 0.05 is fixed based on standard statistical convention.
 - No GPU acceleration is available or required for the statistical methods used.
+- The default simulation range for ICC is [0.0, 0.5] with a step size of 0.1.
+- The default set of alpha levels for sensitivity analysis is {0.01, 0.05, 0.10}.
