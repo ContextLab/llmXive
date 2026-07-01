@@ -1,0 +1,188 @@
+resolved_at: '2026-07-01T16:24:44.514297+00:00'
+datasets:
+- intent: TimeSeries
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AutonLab/Timeseries-PILE/resolve/main/forecasting/autoformer/ETTh1.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/jettisonthenet/timeseries_trending_youtube_videos_2019-04-15_to_2020-04-15/resolve/main/videostats.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/nenils/time_series_energy/resolve/main/train.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 162311
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AutonLab/Timeseries-PILE/resolve/main/forecasting/autoformer/ETTh1.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/694a58a5a2e570d97a3d0da3/39d02ce6b7d8788831e8ce2959763ee850a9385f0e4ccb12addbd20eefa2cb38?user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27ecl.npy%3B+filename%3D%22ecl.npy%22%3B&X-Xet-Cas-Uid=public&Expires=1782926614&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjk0YTU4YTVhMmU1NzBkOTdhM2QwZGEzLzM5ZDAyY2U2YjdkODc4ODgzMWU4Y2UyOTU5NzYzZWU4NTBhOTM4NWYwZTRjY2IxMmFkZGJkMjBlZWZhMmNiMzhcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZWNsLm5weSUzQitmaWxlbmFtZSUzRCUyMmVjbC5ucHklMjIlM0ImWC1YZXQtQ2FzLVVpZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MjkyNjYxNH19fV19&Signature=MEYCIQDyP07ZqwGLmOEohezQnyTPz0dRVLYelQHC~Qq0wf~MBwIhAMx~fx0ItYmpqQh913E3jdqATdWCDZO2lC4k-RN-Zdsg&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/jettisonthenet/timeseries_trending_youtube_videos_2019-04-15_to_2020-04-15/resolve/main/videostats.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/nenils/time_series_energy/resolve/main/train.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/ym0v0my/Time_series_dataset/resolve/main/all_six_datasets.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://figshare.com/articles/preprint/Control-Oriented_Testing_of_Quantizer-Gain_Mismatch_in_Neural_Turbo_Detection_for_1-bit_LS-MIMO/32861933
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/_O_7046805833_Basic_Nursing_Lagos_State_College_of_Nursing_and_Midwifery_Igando_2026_-2027_Registration_Form_Is_Open_Now_O_7O46-805-833_MRS_FAITH_07046805833_Admission_form_process_into_the_school_Office_Applicants_are_advised_to_ensure_tha/32861945
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.arts.ac.uk/articles/presentation/Sound_Arts_Lecture_Series_Spring_Term_2026/32789505
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''figshare.arts.ac.uk'',
+      port=443): Max retries exceeded with url: /articles/presentation/Sound_Arts_Lecture_Series_Spring_Term_2026/32789505
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://figshare.com/articles/poster/_O_7046805833_Basic_Nursing_University_of_Ilorin_Teaching_Hospital_UITH_2026_-2027_Registration_Form_Is_Open_Now_O_7O46-805-833_MRS_FAITH_07046805833_Admission_form_process_into_the_school_Office_Applicants_are_advised_to_ensure_that_all_in/32861939
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/_O_7046805833_Basic_Nursing_College_of_Nursing_Sciences_Oke-Ode_2026_-2027_Registration_Form_Is_Open_Now_O_7O46-805-833_MRS_FAITH_07046805833_Admission_form_process_into_the_school_Office_Applicants_are_advised_to_ensure_that_all_informatio/32861930
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5553829
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10925786
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10887311
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19885252
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3871193
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21105887
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21105887
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21105116
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21105116
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21104749
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-only
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.arts.ac.uk/articles/presentation/Sound_Arts_Lecture_Series_Summer_Term_2024/32789478
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''figshare.arts.ac.uk'',
+      port=443): Max retries exceeded with url: /articles/presentation/Sound_Arts_Lecture_Series_Summer_Term_2024/32789478
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://figshare.com/articles/preprint/DNA_Methylation_at_Core_NMDA_Receptor_Genes_Reveals_a_Glutamatergic_Signature_of_Aging_in_Post-COVID_Whole_Blood_with_Implications_for_Long_COVID_Neuropsychiatric_Sequelae/32861942
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/_O_7046805833_Basic_Nursing_School_of_Post_Basic_Anaesthetic_Nursing_Badagry_2026_-2027_Registration_Form_Is_Open_Now_O_7O46-805-833_MRS_FAITH_07046805833_Admission_form_process_into_the_school_Office_Applicants_are_advised_to_ensure_that_a/32861954
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Control-Oriented_Testing_of_Quantizer-Gain_Mismatch_in_Neural_Turbo_Detection_for_1-bit_LS-MIMO/32861933
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/_O_7046805833_Basic_Nursing_Lagos_State_College_of_Nursing_and_Midwifery_Igando_2026_-2027_Registration_Form_Is_Open_Now_O_7O46-805-833_MRS_FAITH_07046805833_Admission_form_process_into_the_school_Office_Applicants_are_advised_to_ensure_tha/32861945
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://beei.org/index.php/EEI/article/view/1972
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6127654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21107296
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21106521
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21106521
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unige.iris.cineca.it/handle/11567/929442
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21104198
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
