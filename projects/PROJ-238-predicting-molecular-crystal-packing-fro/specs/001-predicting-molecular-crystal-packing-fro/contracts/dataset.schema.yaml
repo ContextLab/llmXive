@@ -1,0 +1,56 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Molecular Crystal Packing Dataset Schema"
+type: "object"
+properties:
+  id:
+    type: "string"
+    description: "Unique identifier (e.g., COD ID)"
+  smiles:
+    type: "string"
+    description: "Canonical SMILES string"
+  molecular_weight:
+    type: "number"
+    description: "Molecular weight in Daltons"
+  volume:
+    type: "number"
+    description: "Molecular volume in cubic Angstroms (Å³)"
+  surface_area:
+    type: "number"
+    description: "Molecular surface area in square Angstroms (Å²)"
+  dipole_moment:
+    type: "number"
+    description: "Dipole moment in Debye"
+  h_bond_donor_count:
+    type: "integer"
+    description: "Number of hydrogen bond donors"
+  h_bond_acceptor_count:
+    type: "integer"
+    description: "Number of hydrogen bond acceptors"
+  polar_surface_area:
+    type: "number"
+    description: "Polar surface area in square Angstroms (Å²)"
+  unit_cell_volume:
+    type: "number"
+    description: "Unit cell volume in cubic Angstroms (Å³)"
+  packing_coefficient:
+    type: "number"
+    description: "Derived packing coefficient (volume / unit_cell_volume)"
+    minimum: 0.0
+    maximum: 1.0
+  interaction_type:
+    type: "string"
+    description: "Dominant intermolecular interaction type (heuristic proxy)"
+  missing_data_flag:
+    type: "boolean"
+    description: "True if any auxiliary descriptor was imputed"
+required:
+  - id
+  - smiles
+  - molecular_weight
+  - volume
+  - surface_area
+  - h_bond_donor_count
+  - h_bond_acceptor_count
+  - unit_cell_volume
+  - packing_coefficient
+additionalProperties: false
