@@ -17,7 +17,7 @@ As a researcher, I need to load, filter, and preprocess resting-state fMRI data 
 
 **Acceptance Scenarios**:
 
-1. **Given** a raw ABCD/HCP dataset with a sufficient number of subjects meeting inclusion criteria, **When** the pipeline filters for participants with ≥1 year of musical training vs. none and matches for age/sex/motion, **Then** the output subset contains up to 75 subjects per group (provided ≥50 are available), and the memory footprint during processing never exceeds 7GB. If fewer than 50 subjects per group are available, the system MUST halt and report "Insufficient Data for Power".
+1. **Given** a raw ABCD/HCP dataset with a sufficient number of subjects meeting inclusion criteria, **When** the pipeline filters for participants with ≥1 year of musical training vs. none and matches for age/sex/motion, **Then** the output subset contains up to 75 subjects per group (provided ≥50 are available), and the memory footprint during processing never exceeds a predefined system threshold. If fewer than 50 subjects per group are available, the system MUST halt and report "Insufficient Data for Power".
 2. **Given** subjects with missing musical training history, **When** the pipeline encounters them, **Then** they are excluded from the final analysis set, and a log entry records the exclusion count.
 3. **Given** a subject with corrupted fMRI NIfTI files, **When** the preprocessing step attempts to load the file, **Then** the pipeline skips the subject, logs the error, and continues without crashing.
 
@@ -29,7 +29,7 @@ As a researcher, I need to compute functional connectivity matrices for the filt
 
 **Why this priority**: This is the core analytical engine of the research. It directly addresses the primary research question regarding group differences while ensuring statistical validity through robust methods and topological validation.
 
-**Independent Test**: Can be fully tested by running the analysis on a pre-computed set of 10 synthetic correlation matrices (5 per group) and verifying that the output includes t-statistics, p-values, FDR-corrected q-values, and the largest connected component size from the NBS analysis.
+**Independent Test**: Can be fully tested by running the analysis on a pre-computed set of synthetic correlation matrices (multiple per group) and verifying that the output includes t-statistics, p-values, FDR-corrected q-values, and the largest connected component size from the NBS analysis.
 
 **Acceptance Scenarios**:
 
@@ -45,7 +45,7 @@ As a researcher, I need to correlate connectivity strength with years of musical
 
 **Why this priority**: This addresses the secondary research question (correlation with training duration) and satisfies the methodological requirement for threshold justification and sensitivity analysis, ensuring the results are not artifacts of a specific p-value cutoff.
 
-**Independent Test**: Can be fully tested by running the correlation and sensitivity scripts on a fixed dataset of 50 musicians and verifying that the output includes correlation coefficients (r), p-values, effect sizes, 95% confidence intervals, and a table showing how the number of significant connections changes across a swept threshold range.
+**Independent Test**: Can be fully tested by running the correlation and sensitivity scripts on a fixed dataset of musicians. and verifying that the output includes correlation coefficients (r), p-values, effect sizes, 95% confidence intervals, and a table showing how the number of significant connections changes across a swept threshold range.
 
 **Acceptance Scenarios**:
 
@@ -92,7 +92,7 @@ As a researcher, I need to correlate connectivity strength with years of musical
 - **SC-001**: The size of the largest connected component (number of edges) identified by NBS is measured against the null hypothesis of no network-level difference, with the source being the NBS output (See FR-008, US-2).
 - **SC-002**: The correlation coefficient (r) between years of musical training and connectivity strength is measured against the null hypothesis of zero correlation, with the source being the Pearson/Spearman test output (See FR-004, US-3).
 - **SC-003**: The robustness of the primary findings is measured against the sensitivity analysis results by comparing the count of significant connections at p < 0.05 versus p < 0.01 and p < 0.10 (See FR-005, US-3).
-- **SC-004**: The computational feasibility is measured against the 6-hour time limit and 7GB RAM constraint by recording the peak memory usage and total runtime of the analysis pipeline (See FR-006, US-1).
+- **SC-004**: The computational feasibility is measured against the time limit and 7GB RAM constraint by recording the peak memory usage and total runtime of the analysis pipeline (See FR-006, US-1).
 - **SC-005**: The validity of the dataset is measured against the inclusion criteria by verifying that [deferred] of subjects in the final dataset have valid musical training history labels and complete fMRI data (See FR-001, US-1).
 
 ## Assumptions
