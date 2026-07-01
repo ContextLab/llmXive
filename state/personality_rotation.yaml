@@ -1,14 +1,7 @@
-last_used: dan-rockmore
-last_used_at: '2026-07-01T16:54:28.048837+00:00'
-last_outcome: triage_rejected_advanced_as_abstain
+last_used: daniel-kahneman
+last_used_at: '2026-07-01T18:48:31.315055+00:00'
+last_outcome: committed
 history:
-- slug: david-krakauer
-  started_at: '2026-06-21T14:16:56.852724+00:00'
-  ended_at: '2026-06-21T16:11:10.581071+00:00'
-  outcome: librarian_held
-  action: comment
-  committed_paths:
-  - projects/PROJ-689-searchswarm-towards-delegation-intellige/paper/reviews/_held/david-krakauer-simulated__2026-06-21__paper.md
 - slug: david-krakauer
   started_at: '2026-06-21T16:11:10.581071+00:00'
   ended_at: '2026-06-21T18:04:03.751678+00:00'
@@ -1206,3 +1199,10 @@ history:
   ended_at: '2026-07-01T16:54:28.048837+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
+- slug: daniel-kahneman
+  started_at: '2026-07-01T16:54:28.048837+00:00'
+  ended_at: '2026-07-01T18:48:31.315055+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-239-evaluating-the-statistical-significance-/reviews/research/daniel-kahneman-simulated__2026-07-01__research.md
