@@ -76,3 +76,79 @@ def reprocess_ingested_paper(project: Project, *, repo_root: Path | None = None)
         ingested_at=datetime.now(UTC).isoformat(),
     )
     return project.model_copy(update={"current_stage": Stage.REVIEWED_PREPRINT})
+
+
+def finalize_reviewed_preprint(
+    project: Project,
+    *,
+    repo_root: Path | None = None,
+    run_id: str | None = None,
+    spawn_followup: bool = True,
+    review_agent_names: list[str] | None = None,
+    _extension_fn=None,
+) -> Project:
+    """Full intake processing for one ingested paper (design spec §1).
+
+    Three deterministic effects, in order, none of which touches the original:
+
+    1. **Mark** it a Reviewed Preprint (:func:`reprocess_ingested_paper` — writes
+       ``paper/preprint.json``, preserves the paper bytes + original authors,
+       parks it terminal at ``REVIEWED_PREPRINT``).
+    2. **Review** it once with the paper-review panel (peer-review feedback →
+       ``paper/reviews/*`` + ``paper/action_items.md``; no accept/reject).
+    3. **Spawn** a SEPARATE llmXive brainstorm follow-up project (our own study,
+       which drops the original byline and CITES the source), recording its id in
+       ``preprint.json::followup_project_id``.
+
+    Returns the preprint project at ``REVIEWED_PREPRINT``. Review/spawn failures
+    are non-fatal — the preprint is still marked + preserved, and the manifest
+    records whatever follow-up id was obtained (``None`` on failure).
+
+    Precondition: any prior llmXive ``*-llmxive.*`` modifications must already be
+    stripped from ``paper/source`` (the migration does this) so the panel reviews
+    the ORIGINAL work; a fresh intake has none.
+    """
+    import logging
+
+    from llmxive.paper_reprocess.branch_nocode import spawn_followup_project
+    from llmxive.paper_reprocess.preprint import (
+        load_preprint_manifest,
+        write_preprint_manifest,
+    )
+    from llmxive.paper_reprocess.preprint_review import run_preprint_review
+
+    logger = logging.getLogger(__name__)
+    repo = repo_root or _repo_root()
+    marked = reprocess_ingested_paper(project, repo_root=repo)
+    pdir = project_dir(project, repo)
+
+    try:
+        run_preprint_review(
+            marked, repo_root=repo, run_id=run_id, agent_names=review_agent_names
+        )
+    except Exception as exc:  # review is advisory; never sink intake
+        logger.warning("finalize_reviewed_preprint: review failed for %s: %s", project.id, exc)
+
+    followup_id: str | None = None
+    if spawn_followup:
+        try:
+            followup_id = spawn_followup_project(
+                marked, repo_root=repo, _extension_fn=_extension_fn
+            )
+        except Exception as exc:  # a missing follow-up must not sink intake
+            logger.warning(
+                "finalize_reviewed_preprint: follow-up spawn failed for %s: %s",
+                project.id, exc,
+            )
+
+    # Record the follow-up link, preserving the provenance the mark step wrote.
+    existing = load_preprint_manifest(pdir) or {}
+    write_preprint_manifest(
+        pdir,
+        source_url=str(existing.get("source_url") or "").strip(),
+        ingested_via=str(existing.get("ingested_via") or "").strip(),
+        submitter=str(existing.get("submitter") or "").strip(),
+        ingested_at=str(existing.get("ingested_at") or "").strip(),
+        followup_project_id=followup_id,
+    )
+    return marked

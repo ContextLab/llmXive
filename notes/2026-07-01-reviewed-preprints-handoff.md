@@ -78,3 +78,44 @@ models only; spawn a separate llmXive follow-up.
 - Build both PDFs for one real intake (e.g. PROJ-601) and open them.
 - Build projects.json + screenshot the new tab.
 - Then merge `feat/reviewed-preprints` → main; run the dry-run migration; present it.
+
+## COMPLETED — items 4–7 (2026-07-01, this session)
+
+**4. Review-only runner** — `paper_reprocess/preprint_review.py`:
+`run_preprint_review` runs the SAME `PaperReviewerAgent` panel (all
+`paper_reviewer*` lenses) ONCE via `run_agent` — no convergence/revise/accept —
+writing normal review records under `paper/reviews/` + consolidating
+`paper/action_items.md`. `reprocess.finalize_reviewed_preprint` orchestrates
+mark→review→spawn-follow-up→record `followup_project_id`; wired into
+`graph.py` PAPER_INGESTED (reprocess stays lean = mark-only). Tests:
+`test_preprint_review.py`, `test_reviewed_preprint_finalize.py`,
+`tests/real_call/test_preprint_review_real.py` (REAL panel ran 12.35s, passed).
+
+**5. PDFs** — `paper_reprocess/preprint_pdf.py`: `build_preprint_pdfs` →
+`original-llmxive.pdf` (llmxive.cls cover PREPENDED to the untouched original
+via pypdf — page-count asserted = 1+orig; original resolved from disk or
+downloaded from arXiv) + `peer-review-llmxive.pdf` (reviewer verdicts/action
+items via llmxive.cls). Wired best-effort into the graph handler. Tests:
+`test_preprint_pdf.py` (fast + a `slow` real-lualatex compile). Eyeballed both.
+
+**6. Web UI** — `web_data.py` builds a `reviewed_preprints` collection (preprints
+excluded from `projects`); `index.html` tab (right of Published, `fa-file-circle-check`);
+`app.js` `preprintCardHTML` ("Reviewed preprint" / "auto-reviewed") + `wireCards`
+routes through `openProjectFromEl` (finds preprints); `dialog.js` `_preprintBlockHTML`
++ `_resolveArtifact` features the cover-prepended PDF (viewable in-modal) + "View
+automated-review report". `data.js` bucket + STAGE_LABELS. Screenshotted tab +
+modal (PDF viewer shows cover→original). Deploy PDF mirror (pages.yml) already
+covers `projects/*/paper/pdf/*.pdf` generically.
+
+**7. Migration** — `scripts/migrate_reviewed_preprints.py`: `--dry-run` reports
+per intake (177 found; 1307 scaffolding artifacts to discard; 71 with code/data
+flagged for MANUAL review = possible submodule; 1 dropped-byline PROJ-624
+recoverable from git). `--execute --confirm [--limit N]` reverts each to a clean
+`paper_ingested` (discards `*-llmxive.*` / specs/ / paper/reviews/ /
+revision_history / upstream_feedback / transformed idea; preserves original
+paper+authors; restores dropped authors from git; resets state) — the LIVE
+pipeline then produces the Reviewed Preprint + follow-up + PDFs one/tick.
+**NOT executed** (needs maintainer approval). Tests: `test_migrate_reviewed_preprints.py`.
+
+Design note: "peer-review" → "auto-reviewed"/"automated review" everywhere
+(these are LLM reviews, not human peer review) — per maintainer.
