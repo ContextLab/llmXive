@@ -1,0 +1,34 @@
+? 'T008 [P] Add unit test for `code/data_generator.py`. **Deliverable**: Implement
+  `tests/unit/test_data_generator.py` with function `test_generate_data_h0_true()`
+  asserting that generated treatment groups have equal means (within tolerance) and
+  that cluster IDs are preserved. <!-- FAILED: unspecified -->'
+: 1
+? "T015 [US2] Add unit test for cluster\u2011robust variance. **Deliverable**: `tests/unit/test_estimators.py`\
+  \ function `test_cluster_robust_variance_fixed_data()` that runs `run_cluster_robust_ttest`\
+  \ on a small fixed dataset and asserts the p\u2011value is within an expected range.\
+  \ <!-- ATOMIZE: requested -->"
+: 1
+? "T015 [US2] Add unit test for cluster\u2011robust variance. **Deliverable**: `tests/unit/test_estimators.py`\
+  \ function `test_cluster_robust_variance_fixed_data()` that runs `run_cluster_robust_ttest`\
+  \ on a small fixed dataset and asserts the p\u2011value is within an expected range.\
+  \ <!-- ATOMIZE: requested --> <!-- FAILED: unspecified -->"
+: 1
+? "T016 [US2] Add unit test for block permutation logic. **Deliverable**: `tests/unit/test_estimators.py`\
+  \ function `test_block_permutation_respects_clusters()` that verifies no observation\u2011\
+  level swaps occur during permutation. <!-- ATOMIZE: requested -->"
+: 2
+? "T017 [US2] Implement cluster\u2011robust variance estimator in `code/estimators.py`.\
+  \ **Deliverable**: Function `run_cluster_robust_ttest(data, treatment_col, outcome_col,\
+  \ cluster_id_col) -> float` using statsmodels `cov_type='cluster'` with CR2 adjustment.\
+  \ This is the constitutionally compliant method."
+: 2
+? "T018 [US2] Implement block permutation test in `code/estimators.py`. **Deliverable**:\
+  \ Function `run_block_permutation(data, treatment_col, outcome_col, cluster_id_col,\
+  \ n_permutations=1000) -> float` that permutes treatment labels at the cluster level\
+  \ and returns a p\u2011value."
+: 1
+? "T019 [US2] Extend `code/simulation_runner.py` to include robust methods. **Deliverable**:\
+  \ Update the loop to also run `run_cluster_robust_ttest` and `run_block_permutation`\
+  \ for each iteration, storing their p\u2011values alongside the naive result. **Depends\
+  \ on** T012 (baseline runner) and T017/T018."
+: 1
