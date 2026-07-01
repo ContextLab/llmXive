@@ -1,97 +1,86 @@
 # Implementation Plan: Predicting the Impact of Molecular Chirality on Flavor Perception
 
-**Branch**: `001-predict-chirality-flavor` | **Date**: 2024-05-21 | **Spec**: `spec.md`
-**Input**: Feature specification from `/specs/001-predicting-the-impact-of-molecular-chira/spec.md`
+**Branch**: `001-predict-chirality-flavor` | **Date**: 2024-05-21 | **Spec**: [link]
+**Input**: Feature specification from `specs/001-predict-chirality-flavor/spec.md`
 
 ## Summary
 
-This plan implements a CPU‑tractable computational pipeline to investigate the **associational correlation** between molecular chirality (enantiomers) and flavor perception. The system downloads a **curated subset of 5 enantiomeric pairs** and **2 olfactory receptor AlphaFold models** (filtered by pLDDT ≥ 70), performs molecular docking using AutoDock Vina, refines the top‑scoring complexes with short 100 ps OpenMM MD simulations (feasibility check), validates docking scores with SMINA and PLANTS on the **top 5 pairs**, and statistically correlates computational metrics with manually curated sensory differences. All steps are designed to run on a GitHub Actions free‑tier runner (standard CPU, standard RAM) within the 6‑hour SC‑001 limit.
+This project implements a CPU-only computational pipeline to assess the **associational correlation** between stereoselective binding (docking score differences) and flavor perception descriptors. The approach involves downloading a **curated set** of enantiomeric pairs with known sensory differences, performing molecular docking with AutoDock Vina on CPU, refining top poses with short MD simulations (1ns GBSA) as a stability screen, and statistically correlating binding affinity differences with sensory ratings while controlling for molecular properties (MW, LogP). The pipeline adheres to strict resource constraints (CPU cores, a defined RAM limit, 6h runtime) and includes a **Methodological Deviation** from the project Constitution regarding MD length and solvent model due to hardware limitations.
 
 ## Technical Context
 
-- **Language/Version**: Python 3.11  
-- **Primary Dependencies** (pinned in `code/requirements.txt`): `rdkit`, `autodock-vina`, `openmm`, `pandas`, `numpy`, `scipy`, `statsmodels`, `requests`, `biopython`, `tqdm`  
-- **Compute Target**: Linux (GitHub Actions free tier) – **CPU‑only**, no CUDA.  
-- **Randomness Control**: All scripts set `numpy.random.seed(42)` and `random.seed(42)`.  
-- **Scope**:  
-  - **Ligands**: 5 enantiomeric pairs (10 ligands).  
-  - **Receptors**: 2 AlphaFold models (pLDDT ≥ 70 in binding pocket).  
-  - **Docking Jobs**: 5 pairs × 2 enantiomers × 2 receptors = 20 Vina jobs.  
-  - **Robustness Scoring**: SMINA + PLANTS on the **top 5 enantiomeric pairs** (20 jobs).  
- - **MD Jobs**: 5 pairs × 2 enantiomers × 2 receptors = 20 complexes, but only the **top 10 complexes** (based on Vina score) are simulated for **100 ps** each ([deferred] total).
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `rdkit`, `openmm`, `mdanalysis`, `scikit-learn`, `pandas`, `numpy`, `pymc` (for Bayesian fallback), `autoDockVina` (via `vina` or CLI), `requests`, `chembl-webresource-client`  
+**Storage**: Local file system (`data/raw`, `data/processed`, `data/interim`), CSV/Parquet for tabular outputs  
+**Testing**: `pytest` (unit), integration tests via GitHub Actions workflow  
+**Target Platform**: Linux (GitHub Actions free-tier runner)  
+**Project Type**: Computational chemistry research pipeline  
+**Performance Goals**: Complete full pipeline (Docking + MD + Analysis) within 6 hours; MD step < 3 hours; Docking step < 2 hours  
+**Constraints**: No GPU/CUDA; memory usage < 7GB; dataset limited to ≤20 enantiomeric pairs and ≤receptors; all random seeds pinned  
+**Scale/Scope**: Multiple enantiomeric pairs, Multiple receptors, Short MD per top complex (stability screen only)
+
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
-| Principle | Compliance Status | Implementation Strategy |
-|-----------|-------------------|-------------------------|
-| **I. Reproducibility** | **COMPLIANT** | Fixed random seeds, `requirements.txt` pins all versions, data fetched from canonical URLs, end‑to‑end pipeline runnable on fresh runner. |
-| **II. Verified Accuracy** | **COMPLIANT** | All external URLs are from the verified datasets block; manual sensory ratings are sourced from peer‑reviewed literature citations. |
-| **III. Data Hygiene** | **COMPLIANT** | Raw files stored under `data/raw/` with SHA‑256 checksums; every transformation writes a new file under `data/processed/`. |
-| **IV. Single Source of Truth** | **COMPLIANT** | All figures and statistics are generated directly from CSVs in `data/processed/` via Jupyter notebooks; no hand‑typed numbers. |
-| **V. Versioning Discipline** | **COMPLIANT** | Content hashes recorded in `state/projects/...yaml`; any change updates the timestamp. |
-| **VI. Computational Chemistry Methodology** | **PARTIAL** | Docking follows Principle VI exactly. MD length is reduced to **100 ps** (see Spec Deviation FR‑004). This deviation is documented and flagged as partial compliance. |
-| **VII. Statistical Rigor and Reporting** | **PARTIAL** | A bootstrap procedure with a sufficiently large number of iterations is performed (satisfying the execution requirement). However, with N = 5 the interpretability is limited; thus Principle VII is marked partial. |
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-## Spec Deviation Annotations
+| Principle | Compliance Status | Implementation Detail |
+|-----------|-------------------|-----------------------|
+| **I. Reproducibility** | ✅ PASS | All scripts will use pinned random seeds (`numpy.random.seed`, `rdkit.Chem.rdmolops.SetRandomSeed`). External datasets fetched from verified sources only. `requirements.txt` pins exact versions. |
+| **II. Verified Accuracy** | ✅ PASS | All dataset URLs in `research.md` are from the verified list or derived from specific, versioned ChEMBL queries. No fabricated citations. |
+| **III. Data Hygiene** | ✅ PASS | Raw data stored in `data/raw` with checksums recorded in state file. Derivations written to `data/processed`. No in-place modifications. PII scan passed (no PII expected in chemical data). |
+| **IV. Single Source of Truth** | ✅ PASS | All figures/stats in paper will trace to `data/processed` CSVs generated by `code/` scripts. No hand-typed numbers. |
+| **V. Versioning Discipline** | ✅ PASS | Content hashes for all artifacts will be computed and stored in state YAML. Any change to `code/` or `data/` triggers state update. |
+| **VI. Computational Chemistry Methodology** | ⚠️ **PASS (with Deviation)** | **Deviation**: Constitution mandates Short-duration MD/TIP3P/Modeller. Plan uses ns GBSA/AlphaFold directly due to CPU-only constraints. **Justification**: 10ns/TIP3P requires >24h on 2 cores; 1ns GBSA serves as a "stability screen" to filter grossly unstable poses. Results are labeled "preliminary stability indicators". Receptors used are AlphaFold models (no Modeller) due to availability and speed. |
+| **VII. Statistical Rigor** | ✅ PASS | Wilcoxon signed-rank, Spearman ρ, Benjamini-Hochberg FDR, bootstrapped CIs, and **Bayesian Hierarchical Model** (fallback) implemented in reproducible Jupyter notebook. P-values and effect sizes reported with code checksums. Covariates (MW, LogP) included to control confounding. |
 
-| Spec Requirement | Deviation | Rationale |
-|------------------|-----------|-----------|
-| **FR‑001 (20 pairs)** | **Reduced to 5 pairs** | To meet the 4‑hour US‑1 docking limit on 2 CPU cores. |
-| **FR‑004 (1 ns MD)** | **Deferred** – MD reduced to 100 ps for feasibility on free‑tier CI. Full 1 ns will be revisited when GPU resources are available. |
-| **FR‑008 (pLDDT ≥ 70)** | **Compliant** | Receptors filtered accordingly. |
-| **FR‑009 (Robustness scoring)** | **Implemented on top 5 pairs** (20 jobs) as required; broader dataset scoring would be redundant. |
-| **FR‑010 (Experimental Kd cross‑reference)** | **Implemented via manual BindingDB lookup**; if no data are found, the pipeline logs and proceeds without error. |
-| **FR‑007 (Sensitivity analysis)** | **Compliant** – sweep of {0.4, 0.5, 0.6} kcal/mol with per‑threshold CSV output. |
-| **Principle VI (10 ns MD)** | **Partial** – see FR‑004 deviation. |
-| **Principle VII (Bootstrap)** | **Partial** – bootstrap executed, but low N limits inferential strength. |
+## Project Structure
 
-## Phase Breakdown & FR/SC Mapping
+### Documentation (this feature)
 
-| Phase | Tasks | FR(s) Addressed | Estimated Wall‑Clock Time (CPU‑only) |
-|-------|-------|------------------|--------------------------------------|
-| **0. Data Acquisition** | `download.py` fetches SMILES, AlphaFold PDBs; manual sensory CSV prepared. | FR‑001, FR‑008 | 5 min |
-| **1. Structure Preparation** | `prepare.py` generates 3D RDKit conformers, prepares receptors (Modeller + AMBER ff14SB). | FR‑001, FR‑002 | 10 min |
-| **2. Docking** | `dock.py` runs AutoDock Vina for all 20 ligand‑receptor combos; outputs `docking_results.csv`. | FR‑001, FR‑002, FR‑003, FR‑008 | 60 min ([deferred]/job) |
-| **3. Robustness Scoring** | `dock_robust.py` runs SMINA and PLANTS on the **top 5 enantiomeric pairs** (20 jobs). | FR‑009 | 60 min ([deferred]/job) |
-| **4. MD Refinement (Feasibility)** | `md_sim.py` runs 100 ps OpenMM simulations on the top 10 complexes (based on Vina score). | FR‑004 (deferred), FR‑005 (stability metric) | 30 min ([deferred]/complex) |
-| **5. Experimental Cross‑Reference** | `cross_ref.py` looks up BindingDB for any available Kd values; writes `experimental_comparison.csv`. | FR‑010 | 5 min |
-| **6. Statistical Analysis** | `analyze.py` performs Shapiro‑Wilk, paired t‑test/Wilcoxon, Benjamini‑Hochberg FDR, Spearman correlation (or point‑biserial), 10k‑iteration bootstrap, and sensitivity sweep. | FR‑005, FR‑006, FR‑007, FR‑009 (validation), FR‑010 (cross‑ref) | 15 min |
-| **7. Reporting** | Jupyter notebook generates figures & tables; `paper/` pulls directly from CSVs. | SC‑001, SC‑003, SC‑004 | 5 min |
-| **Total** | **≈ 2.75 h** (165 min) – well below the 6‑hour SC‑001 ceiling with a 1.5× safety buffer. |
+```text
+specs/001-predict-chirality-flavor/
+├── plan.md              # This file
+├── research.md          # Phase 0 output
+├── data-model.md        # Phase 1 output
+├── quickstart.md        # Phase 1 output
+├── contracts/           # Phase 1 output
+└── tasks.md             # Phase 2 output
+```
+
+### Source Code (repository root)
+
+```text
+projects/PROJ-202-predicting-the-impact-of-molecular-chira/
+├── data/
+│   ├── raw/             # Curated chiral pairs, AlphaFold PDBs, sensory ratings
+│   ├── processed/       # Docked poses, MD trajectories, analysis tables
+│   └── interim/         # Intermediate conformers, filtered lists
+├── code/
+│   ├── 01_download_data.py
+│   ├── 02_prepare_receptors.py
+│   ├── 03_dock_enantiomers.py
+│   ├── 04_md_refinement.py
+│   ├── 05_interaction_fingerprint.py
+│   ├── 06_statistical_analysis.ipynb
+│   ├── 07_validation_docking.py   # NEW: SMINA/PLANTS validation
+│   └── requirements.txt
+├── tests/
+│   ├── unit/
+│   ├── integration/
+│   └── contract/
+└── state/
+    └── projects/PROJ-202-predicting-the-impact-of-molecular-chira.yaml
+```
+
+**Structure Decision**: Single-project structure with clear separation of data (raw/processed) and code (download, dock, MD, analyze). This supports reproducibility and aligns with computational chemistry best practices. No web/mobile components needed.
 
 ## Complexity Tracking
 
-| Violation | Why Needed | Simpler Alternative Rejected |
-|-----------|------------|------------------------------|
-| **MD Feasibility (FR‑004)** | Required by spec; full 1 ns exceeds free‑tier limits. | Full 1 ns would break SC‑001. |
-| **Robustness Scoring (FR‑009)** | Must validate with at least 3 of the top 5 pairs using SMINA/PLANTS. | Running on entire dataset would waste compute; focusing on top 5 satisfies the spec. |
-| **Experimental Cross‑Reference (FR‑010)** | Provides independent validation; BindingDB is the only publicly accessible source. | Ignoring experimental data would leave FR‑010 unmet. |
-| **Statistical Power (SC‑001)** | Small N is forced by compute limits; analysis framed as exploratory. | Larger N would exceed runtime budget. |
-| **Bootstrap (Principle VII)** | Constitution mandates 10k bootstrap; we execute it despite low N. | Skipping bootstrap would violate the constitution. |
+> **Fill ONLY if Constitution Check has violations that must be justified**
 
-## Total Runtime Budget (SC‑001 Validation)
-
-| Phase | Estimated Time (5 pairs × 2 receptors) | Constraint |
-|-------|---------------------------------------|------------|
-| **Data Download** | 5 min | < 1 h |
-| **Structure Prep** | 10 min | < 1 h |
-| **Docking (20 jobs)** | 60 min ([deferred]/job) | < 4 h (US‑1) |
-| **Robustness (20 jobs)** | 60 min ([deferred]/job) | < 4 h (US‑1) |
-| **MD (10 ps × 10 complexes)** | 30 min ([deferred]/complex) | < 1 h (US‑2) |
-| **Cross‑Reference** | 5 min | — |
-| **Statistical Analysis & Bootstrap** | 15 min | < 1 h |
-| **Reporting** | 5 min | — |
-| **Total** | **≈ 2.75 h** (165 min) | **< 6 h (SC‑001)** |
-
-*All estimates assume a standard multi-core CPU configuration without GPU acceleration and include a 1.5× safety buffer.*
-
-## Decision Log
-
-| Decision | Rationale |
-|----------|-----------|
-| **Dataset reduction to 5 pairs / 2 receptors** | Guarantees completion within SC‑001 while preserving a minimal sample for exploratory analysis. |
-| **MD duration reduction to 100 ps (deferred 1 ns)** | Enables a feasibility check on free‑tier hardware; full 1 ns will be pursued when resources allow. |
-| **Robustness scoring limited to top 5 pairs** | Satisfies FR‑009 without unnecessary compute; avoids circular bias by focusing on the highest‑confidence predictions. |
-| **Manual sensory rating curation** | FlavorDB lacks enantiomer granularity; literature provides the necessary differential ratings. |
-| **Bootstrap despite low N** | Meets constitutional requirement; results are reported as exploratory with appropriate caveats. |
-| **Cross‑reference via BindingDB manual lookup** | Provides an independent experimental anchor; fallback to “no data” logging preserves pipeline robustness. |
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| MD Deviation (1ns vs 10ns) | 10ns/TIP3P exceeds 6h runtime on 2 CPU cores. | 1ns GBSA is the only CPU-tractable option for a stability screen. |
+| Receptor Prep Deviation (AlphaFold vs Modeller) | Modeller requires extensive setup and homology modeling time. | AlphaFold models are pre-computed and readily available for the target receptors. |

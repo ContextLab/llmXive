@@ -1,0 +1,15 @@
+# Core Chemistry & Molecular Modeling
+rdkit==2024.3.5
+openmm==8.1.1
+mdanalysis==2.7.0
+vina==1.2.0
+pymc==5.15.0
+
+# Data Manipulation & Analysis
+pandas==2.2.2
+numpy==1.26.4
+scikit-learn==1.5.0
+
+# External Data Fetching
+requests==2.32.3
+chembl-webresource-client==0.10.10

@@ -1,4 +1,4 @@
-resolved_at: '2026-07-01T21:27:55.261484+00:00'
+resolved_at: '2026-07-01T21:46:57.364736+00:00'
 datasets:
 - intent: SMILES
   status: verified
@@ -22,11 +22,11 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/644260f772b4ca7eeee6a0a2/ee5e0945c5893ba9e9d61a5a44e33ed2c6c53949715c546f42243abbcb858121?user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27smiles40m.txt%3B+filename%3D%22smiles40m.txt%22%3B&X-Xet-Cas-Uid=public&response-content-type=text%2Fplain&Expires=1782944736&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0MjYwZjc3MmI0Y2E3ZWVlZTZhMGEyL2VlNWUwOTQ1YzU4OTNiYTllOWQ2MWE1YTQ0ZTMzZWQyYzZjNTM5NDk3MTVjNTQ2ZjQyMjQzYWJiY2I4NTgxMjFcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3c21pbGVzNDBtLnR4dCUzQitmaWxlbmFtZSUzRCUyMnNtaWxlczQwbS50eHQlMjIlM0ImWC1YZXQtQ2FzLVVpZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC10eXBlPXRleHQlMkZwbGFpbiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyOTQ0NzM2fX19XX0_&Signature=MEUCICYdMm4L33Yvnqf~EGXSBHlSpnDYrAeGa7lVgdttiA2~AiEAziQa9yav5IED~11E6dyvp92jgHTmbIq933fArStJhjo_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/644260f772b4ca7eeee6a0a2/ee5e0945c5893ba9e9d61a5a44e33ed2c6c53949715c546f42243abbcb858121?user_id=public&X-Xet-Cas-Uid=public&response-content-type=text%2Fplain&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27smiles40m.txt%3B+filename%3D%22smiles40m.txt%22%3B&Expires=1782945894&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0MjYwZjc3MmI0Y2E3ZWVlZTZhMGEyL2VlNWUwOTQ1YzU4OTNiYTllOWQ2MWE1YTQ0ZTMzZWQyYzZjNTM5NDk3MTVjNTQ2ZjQyMjQzYWJiY2I4NTgxMjFcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRnBsYWluJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdzbWlsZXM0MG0udHh0JTNCK2ZpbGVuYW1lJTNEJTIyc21pbGVzNDBtLnR4dCUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyOTQ1ODk0fX19XX0_&Signature=MEQCIAdeliWsNTEjnPK15gB3O2EsGgAnkm2EW0M0rjjFibd-AiAieulVJ~g3RF9wqeAWyWnxEpfH~tGiIOjBwyM68XYSCg__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/6442697272b4ca7eeee79576/fb2d3ed18b9a6500524ccf2ebae2a495d4e8c931ce3f999cd436852984f0e424?X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27smiles4m.txt%3B+filename%3D%22smiles4m.txt%22%3B&response-content-type=text%2Fplain&Expires=1782944738&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0MjY5NzI3MmI0Y2E3ZWVlZTc5NTc2L2ZiMmQzZWQxOGI5YTY1MDA1MjRjY2YyZWJhZTJhNDk1ZDRlOGM5MzFjZTNmOTk5Y2Q0MzY4NTI5ODRmMGU0MjRcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3c21pbGVzNG0udHh0JTNCK2ZpbGVuYW1lJTNEJTIyc21pbGVzNG0udHh0JTIyJTNCJnJlc3BvbnNlLWNvbnRlbnQtdHlwZT10ZXh0JTJGcGxhaW4iLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4Mjk0NDczOH19fV19&Signature=MEYCIQChgXEFSxmE~bl5t23CbUTcOzwCSAbvvCGCa8wVLsSAyQIhAPQ--QzLLvfska8G4dE2t2WMAxWjGYUhA~sAtFa27qaJ&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/6442697272b4ca7eeee79576/fb2d3ed18b9a6500524ccf2ebae2a495d4e8c931ce3f999cd436852984f0e424?response-content-type=text%2Fplain&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27smiles4m.txt%3B+filename%3D%22smiles4m.txt%22%3B&user_id=public&Expires=1782945895&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0MjY5NzI3MmI0Y2E3ZWVlZTc5NTc2L2ZiMmQzZWQxOGI5YTY1MDA1MjRjY2YyZWJhZTJhNDk1ZDRlOGM5MzFjZTNmOTk5Y2Q0MzY4NTI5ODRmMGU0MjRcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRnBsYWluJlgtWGV0LUNhcy1VaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdzbWlsZXM0bS50eHQlM0IrZmlsZW5hbWUlM0QlMjJzbWlsZXM0bS50eHQlMjIlM0ImdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4Mjk0NTg5NX19fV19&Signature=MEYCIQCgvzB41pVgEfk5d2UnB2uq2N920l9koeWKNU2g1eHdcAIhALTVtfypLyLOhhIR7aO6iXtTCfoRU0v8Nr7ArEoB1vVb&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -34,23 +34,23 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Preliminary_evaluation_of_the_open_democracy_bill_and_interim_policy_guidelines_for_spatial_information/32867606
+  - url: https://figshare.com/articles/conference_contribution/_07033307887_Department_of_Nursing_Science_University_of_Port_Harcourt_07033307887_proudly_announces_that_the_2026_2027_Admission_Application_form_is_out_and_currently_on_sale_Applications_are_invited_from_suitably_qualified_candidates_for_/32868011
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/HSRC_research_for_the_Professional_Provident_Society_second_addendum_to_phase_2_remuneration_of_university_graduates_ninety-fifth_percentile_full-time_only/32867657
+  - url: https://smithsonian.figshare.com/articles/dataset/Table_S2_Summary_climatic_data_at_known_Atelopus_sites_in_Panama_2005-2009_compared_to_2014-2018_to_understand_global_warming_trends_/31282579
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Core_datasets_for_the_state_of_the_environment_reporting_in_SARDC/32867603
+  - url: https://figshare.com/articles/dataset/Dataset_S6_orthogroup_analysis_and_annotation/32867789
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/HSRC_research_for_the_Professional_Provident_Society_second_addendum_to_phase_6_technikon_graduates/32867654
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Demarcating_the_new_provinces_a_critical_reflection_of_the_process/32867918
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/1998_crime_statistics_with_1996_census_data/32867600
+  - url: https://figshare.com/articles/dataset/S_07033307887_Faculty_of_Nursing_Sciences_Madonna_University_Elele_07033307887_proudly_announces_that_the_2026_2027_Admission_Application_form_is_out_and_currently_on_sale_/32867942
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -70,8 +70,16 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://www.scientificamerican.com/article/john-harrison-the-chronometer-maker/
+  - url: https://chemistry-europe.onlinelibrary.wiley.com/doi/10.1002/cber.19140470182
     source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/21115339
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21115339
+    source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/21112435
@@ -83,14 +91,6 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/21112353
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21112244
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21111650
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -131,23 +131,23 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Adding_value_the_functioning_of_the_provincial_safety_and_security_secretariats/32867618
+  - url: https://figshare.com/articles/conference_contribution/_07033307887_Department_of_Nursing_Science_University_of_Port_Harcourt_07033307887_proudly_announces_that_the_2026_2027_Admission_Application_form_is_out_and_currently_on_sale_Applications_are_invited_from_suitably_qualified_candidates_for_/32868011
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Visit_to_Scotland_and_England_as_part_of_the_ETQA_task_team_on_the_invitation_of_the_National_Department_of_Education/32867669
+  - url: https://smithsonian.figshare.com/articles/dataset/Table_S2_Summary_climatic_data_at_known_Atelopus_sites_in_Panama_2005-2009_compared_to_2014-2018_to_understand_global_warming_trends_/31282579
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Removing_the_stigma_of_mental_disorder/32867612
+  - url: https://figshare.com/articles/dataset/Dataset_S6_orthogroup_analysis_and_annotation/32867789
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Pilot_project_45_adult_learning_centres/32867666
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Demarcating_the_new_provinces_a_critical_reflection_of_the_process/32867918
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/The_role_of_local_authorities_in_supporting_the_facilitation_of_formal_education_services/32867663
+  - url: https://figshare.com/articles/dataset/S_07033307887_Faculty_of_Nursing_Sciences_Madonna_University_Elele_07033307887_proudly_announces_that_the_2026_2027_Admission_Application_form_is_out_and_currently_on_sale_/32867942
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -155,11 +155,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15619521
+  - url: https://zenodo.org/records/18682210
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/18682210
+  - url: https://zenodo.org/records/15619521
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -187,7 +187,7 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Novel_coumarin-1_2_3-triazole-isatin_hybrids_design_synthesis_i_in-vitro_i_i_in-silico_i_and_SAR_study_for_antimicrobial_activity_and_-glucosidase_inhibition/32509134/1
+  - url: https://tandf.figshare.com/articles/journal_contribution/Novel_coumarin-1_2_3-triazole-isatin_hybrids_design_synthesis_i_in-vitro_i_i_in-silico_i_and_SAR_study_for_antimicrobial_activity_and_-glucosidase_inhibition/32509134
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -236,23 +236,23 @@ datasets:
     source: huggingface
     status: verified
     format: gzip
-  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Linking_universities_and_marginalised_communities_South_African_case_studies_of_innovation_focused_on_livelihoods_in_informal_settings/32867684
+  - url: https://smithsonian.figshare.com/articles/figure/High_resolution_pngs_for_Figure_5_Sites_with_i_Atelopus_i_habitat_by_model_Presence_Absence_PA_Medium_Infection_Intensity_MI_High_Infection_Intensity_HI_that_are_Mostly_Unsuitable_fewer_than_1_3_of_all_seasons_suitable_for_i_Bd_i_and_Trendi/31267000
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Safe_water_access_to_health_care_and_other_factors_affecting_infant_and_child_survival_under_African_and_coloured_populations_in_South_Africa/32867633
+  - url: https://figshare.com/articles/conference_contribution/_07033307887_Department_of_Nursing_Science_University_of_Port_Harcourt_07033307887_proudly_announces_that_the_2026_2027_Admission_Application_form_is_out_and_currently_on_sale_Applications_are_invited_from_suitably_qualified_candidates_for_/32868011
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/African_sociology_towards_a_critical_perspective_the_collected_essays_of_Bernard_Makhosezwe_Magubane/32867681
+  - url: https://smithsonian.figshare.com/articles/dataset/Table_S2_Summary_climatic_data_at_known_Atelopus_sites_in_Panama_2005-2009_compared_to_2014-2018_to_understand_global_warming_trends_/31282579
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Perceptions_about_economic_issues/32867630
+  - url: https://figshare.com/articles/dataset/Dataset_S6_orthogroup_analysis_and_annotation/32867789
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Toward_a_sustainable_transport_and_communication_sector_in_Southern_Africa/32867678
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Demarcating_the_new_provinces_a_critical_reflection_of_the_process/32867918
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -276,11 +276,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/CaE_AF-Cluster_example_dataset_for_DNA_origami-enhanced_single-molecule_force_spectroscopy_analysis/32861552
+  - url: https://figshare.com/articles/dataset/CaE_AF-Cluster_example_dataset_for_DNA_origami-enhanced_single-molecule_force_spectroscopy_analysis/32861552/1
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/CaE_AF-Cluster_example_dataset_for_DNA_origami-enhanced_single-molecule_force_spectroscopy_analysis/32861552/1
+  - url: https://figshare.com/articles/dataset/CaE_AF-Cluster_example_dataset_for_DNA_origami-enhanced_single-molecule_force_spectroscopy_analysis/32861552
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -311,31 +311,27 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Small_market_areas_SMAs_for_South_Africa/32867609
+  - url: https://smithsonian.figshare.com/articles/figure/High_resolution_pngs_for_Figure_5_Sites_with_i_Atelopus_i_habitat_by_model_Presence_Absence_PA_Medium_Infection_Intensity_MI_High_Infection_Intensity_HI_that_are_Mostly_Unsuitable_fewer_than_1_3_of_all_seasons_suitable_for_i_Bd_i_and_Trendi/31267000
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Recovering_the_basis_for_effective_transformation_and_development_of_South_Africa/32867642
+  - url: https://figshare.com/articles/conference_contribution/_07033307887_Department_of_Nursing_Science_University_of_Port_Harcourt_07033307887_proudly_announces_that_the_2026_2027_Admission_Application_form_is_out_and_currently_on_sale_Applications_are_invited_from_suitably_qualified_candidates_for_/32868011
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Service_delivery_perceptions_during_Mandela_rule_1994-1999/32867696
+  - url: https://smithsonian.figshare.com/articles/dataset/Table_S2_Summary_climatic_data_at_known_Atelopus_sites_in_Panama_2005-2009_compared_to_2014-2018_to_understand_global_warming_trends_/31282579
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Monitoring_learning_achievement_pilot_grade_4_results_for_the_numeracy_tests/32867639
+  - url: https://figshare.com/articles/dataset/Dataset_S6_orthogroup_analysis_and_annotation/32867789
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Development_funding_and_service_provision_for_efficient_planning/32867693
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Demarcating_the_new_provinces_a_critical_reflection_of_the_process/32867918
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.11591/eei.v9i2.1972
-    source: zenodo
-    status: unreachable
-    reason: 'reachability failed: HTTP 415'
-  - url: https://zenodo.org/records/3810211
+  - url: https://beei.org/index.php/EEI/article/view/1972
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -348,6 +344,10 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/6127654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -408,23 +408,23 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/HSRC_research_for_the_Professional_Provident_Society_second_addendum_to_phase_6_technikon_graduates/32867654
+  - url: https://smithsonian.figshare.com/articles/figure/High_resolution_pngs_for_Figure_5_Sites_with_i_Atelopus_i_habitat_by_model_Presence_Absence_PA_Medium_Infection_Intensity_MI_High_Infection_Intensity_HI_that_are_Mostly_Unsuitable_fewer_than_1_3_of_all_seasons_suitable_for_i_Bd_i_and_Trendi/31267000
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Small_market_areas_SMAs_for_South_Africa/32867609
+  - url: https://figshare.com/articles/conference_contribution/_07033307887_Department_of_Nursing_Science_University_of_Port_Harcourt_07033307887_proudly_announces_that_the_2026_2027_Admission_Application_form_is_out_and_currently_on_sale_Applications_are_invited_from_suitably_qualified_candidates_for_/32868011
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Race_discontent_/32867624
+  - url: https://smithsonian.figshare.com/articles/dataset/Table_S2_Summary_climatic_data_at_known_Atelopus_sites_in_Panama_2005-2009_compared_to_2014-2018_to_understand_global_warming_trends_/31282579
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Economic_policies/32867708
+  - url: https://figshare.com/articles/dataset/Dataset_S6_orthogroup_analysis_and_annotation/32867789
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Visit_to_the_University_of_Minnesota_International_Counseling_Institute_MICI_to_attend_conference/32867651
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Demarcating_the_new_provinces_a_critical_reflection_of_the_process/32867918
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -432,14 +432,14 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/16299984
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://doi.org/10.1653/024.099.0440
     source: zenodo
     status: unreachable
     reason: 'reachability failed: HTTP 500'
+  - url: https://zenodo.org/records/16299984
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/7683127
     source: zenodo
     status: wrong_format

@@ -2,86 +2,87 @@
 
 ## Prerequisites
 
-- Python 3.11+  
-- Git  
-- Access to a Linux environment with **2 CPU cores** and **≥ 7 GB RAM** (GitHub Actions free tier or local machine).
+- Python 3.11+
+- Git
+- 7GB+ free RAM, 14GB+ disk
+- GitHub Actions free-tier runner (or local equivalent)
 
 ## Installation
 
-```bash
-git clone <repo-url>
-cd projects/PROJ-202-predicting-the-impact-of-molecular-chira
-python -m venv venv
-source venv/bin/activate   # Windows: venv\Scripts\activate
-pip install -r code/requirements.txt
-```
+1. Clone the repository:
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-202-predicting-the-impact-of-molecular-chira
+   ```
+
+2. Create virtual environment and install dependencies:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # Linux/Mac
+   pip install -r code/requirements.txt
+   ```
+
+3. Verify dependencies:
+   ```bash
+   python -c "import rdkit, openmm, mdanalysis, pymc; print('All imports OK')"
+   ```
 
 ## Running the Pipeline
 
-### 1️⃣ Download Data
+### Step 1: Download Data & Check Fallback
 ```bash
-python code/download.py
+python code/01_download_data.py
 ```
-*Downloads SMILES, AlphaFold PDBs, and creates `data/manual_enantiomer_ratings.csv` (manually curated sensory ratings).*
+- Downloads curated chiral pairs and AlphaFold PDBs.
+- Checks FlavorDB coverage; if <50%, triggers `01_fallback_chembl.py`.
+- Output: `data/raw/curated_chiral_pairs.csv`, `data/raw/receptors.tar.gz`
 
-### 2️⃣ Prepare Structures
+### Step 2: Prepare Receptors & Conformers
 ```bash
-python code/prepare.py
+python code/02_prepare_receptors.py
 ```
-*Generates 3D conformers (RDKit) and prepares receptors (Modeller + AMBER ff14SB).*
+- Extracts PDBs, filters by pLDDT ≥70 in **pre-defined** pocket, generates 3D conformers for enantiomers.
+- Output: `data/interim/conformers.sdf`, `data/interim/receptors_filtered.pdb`
 
-### 3️⃣ Docking (AutoDock Vina)
+### Step 3: Docking
 ```bash
-python code/dock.py
+python code/03_dock_enantiomers.py
 ```
-*Runs 20 Vina jobs (5 pairs × 2 enantiomers × 2 receptors). Output: `data/processed/docking_results.csv`.*
+- Runs AutoDock Vina (CPU-only) for all pairs.
+- Output: `data/processed/docking_results.csv`
 
-### 3b️⃣ Robustness Scoring (SMINA & PLANTS)
+### Step 4: MD Refinement (Stability Screen)
 ```bash
-python code/dock_robust.py
+python code/04_md_refinement.py
 ```
-*Rescores the **top 5 enantiomeric pairs** (20 jobs) with SMINA and PLANTS. Results appended to `docking_results.csv`.*
+- Runs nanosecond-scale MD on top 10 complexes with OpenMM (GBSA).
+- Output: `data/processed/md_trajectories/`, `data/processed/interaction_fingerprints.csv`
 
-### 4️⃣ MD Refinement (Feasibility 100 ps)
+### Step 5: Validation Docking (FR-009)
 ```bash
-python code/md_sim.py
+python code/07_validation_docking.py
 ```
-*Simulates the top 10 complexes (100 ps each) on CPU. Generates `md_summary.csv`.*
+- Runs SMINA and PLANTS on top-ranked pairs.
+- Output: `data/processed/validation_scores.csv`
 
-### 5️⃣ Experimental Cross‑Reference
+### Step 6: Statistical Analysis
 ```bash
-python code/cross_ref.py
+jupyter notebook code/06_statistical_analysis.ipynb
 ```
-*Looks up BindingDB for any available Kd/Ki values; writes `experimental_comparison.csv`. If no data are found, a log entry is created and the pipeline continues.*
-
-### 6️⃣ Statistical Analysis & Sensitivity Sweep
-```bash
-python code/analyze.py
-```
-*Performs Shapiro‑Wilk, paired t‑test/Wilcoxon, Benjamini‑Hochberg FDR, Spearman (or point‑biserial) correlation, 10 000‑iteration bootstrap, and sweeps thresholds {0.4, 0.5, 0.6} kcal/mol. Output: `statistical_analysis.csv` (one row per threshold).*
-
-### 7️⃣ Generate Report
-```bash
-jupyter nbconvert --to html notebooks/report.ipynb
-```
-*The notebook pulls directly from the CSVs; no hand‑typed numbers.*
+- Runs Wilcoxon, Spearman (with covariates), FDR, sensitivity analysis, bootstrapping, and Bayesian fallback.
+- Checks success metric |ρ| > 0.3.
+- Output: `data/processed/statistical_results.csv`, `data/processed/sensitivity_analysis.csv`, figures in `data/processed/plots/`
 
 ## Verification
 
-```bash
-pytest tests/
-```
-*All contract schemas are validated; the suite should pass on a fresh runner.*
-
-## Runtime Expectations (SC‑001)
-
-- **Total wall‑clock time**: ≈ 2.75 h (see `plan.md` for detailed budget).  
-- **Peak RAM**: < 4 GB during MD.  
+- Check runtime: Should be ≤6 hours on GitHub Actions.
+- Check memory: Peak ≤7GB during MD.
+- Check outputs: All CSVs present, checksums match state YAML.
+- Check sensitivity analysis: `sensitivity_analysis.csv` must exist.
 
 ## Troubleshooting
 
-- **Memory errors**: Reduce the number of receptors in `code/config.py`.  
-- **Docking failures**: Check that the receptor pLDDT ≥ 70; failing receptors are automatically excluded.  
-- **Missing sensory ratings**: Edit `data/manual_enantiomer_ratings.csv` to add any literature values you locate. Pairs without ratings are omitted from the correlation step.  
-- **No BindingDB data**: The pipeline logs “No experimental data found” and proceeds; this is expected for many odorant‑receptor pairs.  
-- **Runtime exceeds 6 h**: Verify you are using a reduced dataset (a small number of pairs, 2 receptors). The scripts will abort if more than the allowed number of jobs are detected.
+- **Docking fails**: Check ligand/receptor compatibility; log errors in `docking_errors.log`.
+- **MD OOM**: Reduce simulation length or number of complexes; check `md_memory.log`.
+- **Missing sensory data**: Fallback to ChEMBL set; ensure `data/raw/chembl_chiral_pairs.csv` exists.
+- **Power issues**: If Wilcoxon p-value is >0.05, check Bayesian output in notebook for effect size distribution.

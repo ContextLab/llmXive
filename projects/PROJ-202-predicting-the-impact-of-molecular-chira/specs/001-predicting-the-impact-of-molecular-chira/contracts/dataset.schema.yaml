@@ -1,0 +1,33 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Enantiomeric Pair Dataset Schema"
+type: "object"
+properties:
+  compound_id:
+    type: "string"
+    description: "Unique identifier for the compound"
+  smiles:
+    type: "string"
+    description: "Canonical SMILES for one enantiomer"
+  enantiomer_smiles:
+    type: "string"
+    description: "Mirror-image SMILES for the enantiomer"
+  chiral_center:
+    type: "integer"
+    description: "Atom index of the chiral center"
+  sensory_rating:
+    type: ["number", "null"]
+    description: "Sensory rating (intensity/pleasantness) from curated list"
+  molecular_weight:
+    type: "number"
+    description: "Molecular weight for covariate control"
+  logp:
+    type: "number"
+    description: "LogP (hydrophobicity) for covariate control"
+required:
+  - compound_id
+  - smiles
+  - enantiomer_smiles
+  - chiral_center
+  - molecular_weight
+  - logp
+additionalProperties: false
