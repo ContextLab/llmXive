@@ -1,0 +1,42 @@
+% commenting
+\newcommand\lucy[1]{{\color{magenta}\{\textit{#1}\}$_{lucy}$}}
+
+
+\newcommand\bingbing[1]{{\color{orange}\{\textit{#1}\}$_{bingbing}$}}
+
+\newcommand\todoit[1]{{\color{red}\{TODO: \textit{#1}\}}}
+\newcommand\todo{{\color{red}{TODO}}\xspace}
+\newcommand\todocite{{\color{red}{CITE}}\xspace}
+
+\newcommand\doneit[1]{{\color{blue}{DONE: \textit{#1}}}}
+
+
+
+% \newcommand\uwname{{our institution\xspace\xspace}}
+
+% special table column type (p but raggedright); use in conjunction with X
+\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}p{#1}}
+\newcolumntype{M}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{C}[1]{>{\centering\arraybackslash\hspace{0pt}}p{#1}}
+
+% vertical rule
+\newcommand{\rulesep}{\unskip\ \textcolor{gray}{\vrule}\ }
+
+% colors
+\definecolor{darkgreen}{rgb}{0.0, 0.4, 0.13}
+
+\newcommand{\spo}{SpO$_{2}$\xspace}
+\newcommand{\sao}{SaO$_{2}$\xspace}
+\newcommand{\mathspo}{$SpO$_{2}}
+\newcommand{\mathsao}{$SaO$_{2}}
+
+\newcommand{\tikzxmark}{%
+\color{red}\tikz[scale=0.23] {
+    \draw[line width=0.7,line cap=round] (0,0) to [bend left=6] (1,1);
+    \draw[line width=0.7,line cap=round] (0.2,0.95) to [bend right=3] (0.8,0.05);
+}}
+\newcommand{\tikzcmark}{%
+\color{green}\tikz[scale=0.23] {
+    \draw[line width=0.7,line cap=round] (0.25,0) to [bend left=10] (1,1);
+    \draw[line width=0.8,line cap=round] (0,0.35) to [bend right=1] (0.23,0);
+}}
