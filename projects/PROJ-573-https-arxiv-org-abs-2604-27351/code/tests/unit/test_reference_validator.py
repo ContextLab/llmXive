@@ -1,7 +1,6 @@
 """
-Unit tests for the ReferenceValidatorAgent.
+Unit tests for the Reference Validator Agent.
 """
-
 import pytest
 from src.validators.reference_validator import (
     tokenize_title,
@@ -11,210 +10,294 @@ from src.validators.reference_validator import (
     ReferenceValidatorAgent
 )
 
+
 class TestTokenizeTitle:
-    def test_simple_title(self):
-        title = "Hello World"
+    """Tests for the tokenize_title function."""
+    
+    def test_basic_tokenization(self):
+        """Test basic title tokenization."""
+        title = "Heterogeneous Scientific Foundation Model"
         tokens = tokenize_title(title)
-        assert "hello" in tokens
-        assert "world" in tokens
-
-    def test_empty_title(self):
+        assert "heterogeneous" in tokens
+        assert "scientific" in tokens
+        assert "foundation" in tokens
+        assert "model" in tokens
+    
+    def test_empty_string(self):
+        """Test tokenization of empty string."""
         assert tokenize_title("") == []
-        assert tokenize_title(None) == []
-
+    
     def test_special_characters(self):
-        title = "A Study on 123-456: The Results!"
+        """Test handling of special characters."""
+        title = "Model v2.0: A New Approach!"
         tokens = tokenize_title(title)
-        assert "study" in tokens
-        assert "123" in tokens
-        assert "456" in tokens
-        assert "results" in tokens
+        assert "model" in tokens
+        assert "v20" in tokens  # Version number should be tokenized
+        assert "a" in tokens
+        assert "new" in tokens
+        assert "approach" in tokens
+    
+    def test_single_char_filtering(self):
+        """Test that single characters are filtered out."""
+        title = "A B C Test"
+        tokens = tokenize_title(title)
+        assert "a" not in tokens
+        assert "b" not in tokens
+        assert "c" not in tokens
+        assert "test" in tokens
 
-    def test_case_insensitivity(self):
-        title = "HeLLo WoRLd"
-        tokens = tokenize_title(title)
-        assert "hello" in tokens
-        assert "world" in tokens
 
 class TestComputeTitleTokenOverlap:
+    """Tests for the compute_title_token_overlap function."""
+    
     def test_identical_titles(self):
-        title = "Same Title"
-        assert compute_title_token_overlap(title, title) == 1.0
-
-    def test_no_overlap(self):
-        title_a = "Completely Different"
-        title_b = "Nothing In Common"
-        assert compute_title_token_overlap(title_a, title_b) == 0.0
-
-    def test_partial_overlap(self):
-        title_a = "Scientific Foundation Models"
-        title_b = "Foundation Models for Science"
+        """Test overlap of identical titles."""
+        title = "Heterogeneous Scientific Foundation Model"
+        overlap = compute_title_token_overlap(title, title)
+        assert overlap == 1.0
+    
+    def test_completely_different_titles(self):
+        """Test overlap of completely different titles."""
+        title_a = "Heterogeneous Scientific Foundation Model"
+        title_b = "Completely Unrelated Research Topic"
         overlap = compute_title_token_overlap(title_a, title_b)
-        # Common: "foundation", "models", "science"/"scientific" (different)
-        # tokens_a: scientific, foundation, models
-        # tokens_b: foundation, models, science
-        # intersection: foundation, models (2)
-        # union: scientific, foundation, models, science (4)
-        assert overlap == 0.5
-
+        assert overlap == 0.0
+    
+    def test_partial_overlap(self):
+        """Test overlap with partial common tokens."""
+        title_a = "Heterogeneous Scientific Foundation Model"
+        title_b = "Heterogeneous Approach to Foundation Models"
+        overlap = compute_title_token_overlap(title_a, title_b)
+        # Common tokens: heterogeneous, foundation, model(s)
+        assert 0.0 < overlap < 1.0
+    
     def test_empty_titles(self):
+        """Test overlap with empty titles."""
         assert compute_title_token_overlap("", "") == 0.0
-        assert compute_title_token_overlap("Title", "") == 0.0
+        assert compute_title_token_overlap("Title A", "") == 0.0
+        assert compute_title_token_overlap("", "Title B") == 0.0
+
 
 class TestValidateReferenceTitleOverlap:
-    def test_pass_threshold(self):
-        ref_title = "Heterogeneous Scientific Foundation Model Collaboration Benchmark"
-        target_title = "Heterogeneous Scientific Foundation Model Collaboration Benchmark"
-        is_valid, score = validate_reference_title_overlap(ref_title, target_title, threshold=0.7)
+    """Tests for the validate_reference_title_overlap function."""
+    
+    def test_above_threshold(self):
+        """Test validation when overlap is above threshold."""
+        title_a = "Heterogeneous Scientific Foundation Model"
+        title_b = "Heterogeneous Scientific Foundation Model"
+        is_valid, score = validate_reference_title_overlap(
+            title_a, title_b, threshold=0.7
+        )
         assert is_valid is True
         assert score == 1.0
-
-    def test_fail_threshold(self):
-        ref_title = "Completely Unrelated Title"
-        target_title = "Heterogeneous Scientific Foundation Model Collaboration Benchmark"
-        is_valid, score = validate_reference_title_overlap(ref_title, target_title, threshold=0.7)
+    
+    def test_below_threshold(self):
+        """Test validation when overlap is below threshold."""
+        title_a = "Heterogeneous Scientific Foundation Model"
+        title_b = "Completely Unrelated Research Topic"
+        is_valid, score = validate_reference_title_overlap(
+            title_a, title_b, threshold=0.7
+        )
         assert is_valid is False
-        assert score < 0.7
-
+        assert score == 0.0
+    
     def test_custom_threshold(self):
-        ref_title = "Some Shared Words Here"
-        target_title = "Some Words Different Here"
-        # Common: "some", "words", "here" (3)
-        # Union: "some", "shared", "words", "here", "different" (5)
-        # Overlap = 0.6
-        is_valid_high, _ = validate_reference_title_overlap(ref_title, target_title, threshold=0.7)
-        is_valid_low, _ = validate_reference_title_overlap(ref_title, target_title, threshold=0.5)
-        assert is_valid_high is False
-        assert is_valid_low is True
+        """Test with custom threshold."""
+        title_a = "Heterogeneous Scientific Foundation Model"
+        title_b = "Heterogeneous Approach to Foundation Models"
+        is_valid, score = validate_reference_title_overlap(
+            title_a, title_b, threshold=0.9
+        )
+        assert is_valid is False  # Likely below 0.9
+        assert score < 0.9
+
 
 class TestCheckConstitutionIICompliance:
-    def test_valid_reference(self):
-        ref = {
-            "title": "Test Title",
-            "abstract": "This is a sufficiently long abstract that meets the requirements.",
-            "doi": "10.1234/test",
-            "authors": ["Alice", "Bob"]
+    """Tests for the check_constitution_ii_compliance function."""
+    
+    def test_full_compliance(self):
+        """Test review with all requirements met."""
+        review = {
+            "claim_title": "Test Claim",
+            "reference_title": "Test Claim",
+            "evidence_provided": True,
+            "methodology_documented": True,
+            "data_fabricated": False
         }
-        is_compliant, violations = check_constitution_ii_compliance(ref)
+        is_compliant, violations = check_constitution_ii_compliance(review)
         assert is_compliant is True
         assert len(violations) == 0
-
-    def test_missing_abstract(self):
-        ref = {
-            "title": "Test Title",
-            "doi": "10.1234/test",
-            "authors": ["Alice"]
+    
+    def test_missing_claim_title(self):
+        """Test review with missing claim title."""
+        review = {
+            "claim_title": "",
+            "reference_title": "Test Reference",
+            "evidence_provided": True,
+            "methodology_documented": True,
+            "data_fabricated": False
         }
-        is_compliant, violations = check_constitution_ii_compliance(ref)
+        is_compliant, violations = check_constitution_ii_compliance(review)
         assert is_compliant is False
-        assert any("abstract" in v for v in violations)
-
-    def test_missing_doi_arxiv(self):
-        ref = {
-            "title": "Test Title",
-            "abstract": "This is a sufficiently long abstract that meets the requirements.",
-            "authors": ["Alice"]
+        assert any("Missing claim title" in v for v in violations)
+    
+    def test_missing_reference_title(self):
+        """Test review with missing reference title."""
+        review = {
+            "claim_title": "Test Claim",
+            "reference_title": "",
+            "evidence_provided": True,
+            "methodology_documented": True,
+            "data_fabricated": False
         }
-        is_compliant, violations = check_constitution_ii_compliance(ref)
+        is_compliant, violations = check_constitution_ii_compliance(review)
         assert is_compliant is False
-        assert any("DOI" in v or "arXiv" in v for v in violations)
-
-    def test_too_many_authors(self):
-        ref = {
-            "title": "Test Title",
-            "abstract": "This is a sufficiently long abstract that meets the requirements.",
-            "doi": "10.1234/test",
-            "authors": [f"Author{i}" for i in range(51)]
+        assert any("Missing reference title" in v for v in violations)
+    
+    def test_no_evidence(self):
+        """Test review with no evidence provided."""
+        review = {
+            "claim_title": "Test Claim",
+            "reference_title": "Test Reference",
+            "evidence_provided": False,
+            "methodology_documented": True,
+            "data_fabricated": False
         }
-        is_compliant, violations = check_constitution_ii_compliance(ref)
+        is_compliant, violations = check_constitution_ii_compliance(review)
         assert is_compliant is False
-        assert any("authors" in v for v in violations)
+        assert any("No evidence provided" in v for v in violations)
+    
+    def test_fabricated_data(self):
+        """Test review with fabricated data."""
+        review = {
+            "claim_title": "Test Claim",
+            "reference_title": "Test Reference",
+            "evidence_provided": True,
+            "methodology_documented": True,
+            "data_fabricated": True
+        }
+        is_compliant, violations = check_constitution_ii_compliance(review)
+        assert is_compliant is False
+        assert any("Fabricated data" in v for v in violations)
+
 
 class TestReferenceValidatorAgent:
-    @pytest.fixture
-    def validator(self):
-        return ReferenceValidatorAgent(target_title="Heterogeneous Scientific Foundation Model Collaboration Benchmark")
-
-    def test_validate_valid_reference(self, validator):
-        ref = {
-            "id": "ref_001",
-            "title": "Heterogeneous Scientific Foundation Model Collaboration Benchmark",
-            "abstract": "This is a sufficiently long abstract that meets the requirements.",
-            "doi": "10.1234/test",
-            "authors": ["Alice", "Bob"]
+    """Tests for the ReferenceValidatorAgent class."""
+    
+    def test_init(self):
+        """Test agent initialization."""
+        agent = ReferenceValidatorAgent(
+            overlap_threshold=0.8,
+            gating_enabled=False
+        )
+        assert agent.overlap_threshold == 0.8
+        assert agent.gating_enabled is False
+        assert len(agent.validation_log) == 0
+    
+    def test_validate_valid_review(self):
+        """Test validation of a compliant review."""
+        agent = ReferenceValidatorAgent()
+        review = {
+            "claim_title": "Test Claim",
+            "reference_title": "Test Claim",
+            "evidence_provided": True,
+            "methodology_documented": True,
+            "data_fabricated": False
         }
-        result = validator.validate_reference(ref)
-        assert result["should_contribute_points"] is True
-        assert result["passed_title_overlap"] is True
-        assert result["passed_constitution_ii"] is True
-
-    def test_validate_invalid_overlap(self, validator):
-        ref = {
-            "id": "ref_002",
-            "title": "Completely Unrelated Title About Cats",
-            "abstract": "This is a sufficiently long abstract that meets the requirements.",
-            "doi": "10.1234/test",
-            "authors": ["Alice"]
+        result = agent.validate_review(review)
+        
+        assert result["is_valid"] is True
+        assert result["can_contribute_points"] is True
+        assert result["constitution_ii_compliant"] is True
+        assert len(result["violations"]) == 0
+        assert len(agent.validation_log) == 1
+    
+    def test_validate_invalid_overlap(self):
+        """Test validation of a review with low title overlap."""
+        agent = ReferenceValidatorAgent()
+        review = {
+            "claim_title": "Heterogeneous Scientific Foundation Model",
+            "reference_title": "Completely Unrelated Research",
+            "evidence_provided": True,
+            "methodology_documented": True,
+            "data_fabricated": False
         }
-        result = validator.validate_reference(ref)
-        assert result["should_contribute_points"] is False
-        assert result["passed_title_overlap"] is False
-
-    def test_validate_invalid_constitution(self, validator):
-        ref = {
-            "id": "ref_003",
-            "title": "Heterogeneous Scientific Foundation Model Collaboration Benchmark",
-            "abstract": "Short",
-            "authors": ["Alice"]
+        result = agent.validate_review(review)
+        
+        assert result["is_valid"] is False
+        assert result["can_contribute_points"] is False
+        assert result["title_overlap_valid"] is False
+    
+    def test_validate_constitution_violation(self):
+        """Test validation of a review with Constitution II violation."""
+        agent = ReferenceValidatorAgent()
+        review = {
+            "claim_title": "Test Claim",
+            "reference_title": "Test Claim",
+            "evidence_provided": False,
+            "methodology_documented": True,
+            "data_fabricated": False
         }
-        result = validator.validate_reference(ref)
-        assert result["should_contribute_points"] is False
-        assert result["passed_title_overlap"] is True
-        assert result["passed_constitution_ii"] is False
-
-    def test_validate_batch(self, validator):
-        refs = [
-            {
-                "id": "ref_001",
-                "title": "Heterogeneous Scientific Foundation Model Collaboration Benchmark",
-                "abstract": "This is a sufficiently long abstract that meets the requirements.",
-                "doi": "10.1234/test",
-                "authors": ["Alice"]
-            },
-            {
-                "id": "ref_002",
-                "title": "Completely Unrelated",
-                "abstract": "This is a sufficiently long abstract that meets the requirements.",
-                "doi": "10.1234/test",
-                "authors": ["Alice"]
-            }
-        ]
-        results = validator.validate_batch(refs)
-        assert len(results) == 2
-        assert results[0]["should_contribute_points"] is True
-        assert results[1]["should_contribute_points"] is False
-
-    def test_validation_summary(self, validator):
-        refs = [
-            {
-                "id": "ref_001",
-                "title": "Heterogeneous Scientific Foundation Model Collaboration Benchmark",
-                "abstract": "This is a sufficiently long abstract that meets the requirements.",
-                "doi": "10.1234/test",
-                "authors": ["Alice"]
-            },
-            {
-                "id": "ref_002",
-                "title": "Completely Unrelated",
-                "abstract": "This is a sufficiently long abstract that meets the requirements.",
-                "doi": "10.1234/test",
-                "authors": ["Alice"]
-            }
-        ]
-        validator.validate_batch(refs)
-        summary = validator.get_validation_summary()
-        assert summary["total_validated"] == 2
-        assert summary["passed"] == 1
-        assert summary["failed_overlap"] == 1
-        assert summary["failed_constitution"] == 0
-        assert summary["contribution_rate"] == 0.5
+        result = agent.validate_review(review)
+        
+        assert result["is_valid"] is False
+        assert result["can_contribute_points"] is False
+        assert result["constitution_ii_compliant"] is False
+        assert any("No evidence provided" in v for v in result["violations"])
+    
+    def test_gating_disabled(self):
+        """Test that gating can be disabled."""
+        agent = ReferenceValidatorAgent(gating_enabled=False)
+        review = {
+            "claim_title": "Test Claim",
+            "reference_title": "Completely Unrelated",
+            "evidence_provided": True,
+            "methodology_documented": True,
+            "data_fabricated": False
+        }
+        result = agent.validate_review(review)
+        
+        # Should still be invalid, but the log message about blocking won't appear
+        assert result["is_valid"] is False
+        assert result["can_contribute_points"] is False
+    
+    def test_validation_stats(self):
+        """Test validation statistics calculation."""
+        agent = ReferenceValidatorAgent()
+        
+        # Add some valid reviews
+        for i in range(3):
+            agent.validate_review({
+                "claim_title": "Test Claim",
+                "reference_title": "Test Claim",
+                "evidence_provided": True,
+                "methodology_documented": True,
+                "data_fabricated": False
+            })
+        
+        # Add some invalid reviews
+        for i in range(2):
+            agent.validate_review({
+                "claim_title": "Test Claim",
+                "reference_title": "Unrelated",
+                "evidence_provided": True,
+                "methodology_documented": True,
+                "data_fabricated": False
+            })
+        
+        stats = agent.get_validation_stats()
+        
+        assert stats["total_validations"] == 5
+        assert stats["passed"] == 3
+        assert stats["failed"] == 2
+        assert stats["pass_rate"] == 0.6
+    
+    def test_empty_stats(self):
+        """Test statistics when no validations have occurred."""
+        agent = ReferenceValidatorAgent()
+        stats = agent.get_validation_stats()
+        
+        assert stats["total_validations"] == 0
+        assert stats["passed"] == 0
+        assert stats["failed"] == 0
+        assert stats["pass_rate"] == 0.0

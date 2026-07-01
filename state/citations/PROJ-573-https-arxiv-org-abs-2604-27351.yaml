@@ -141,7 +141,7 @@
   verification_status: unreachable
   verified_against_url: null
   verified_at: '2026-07-01T01:29:00.780355Z'
-- artifact_hash: 3e2e3d243dc739ddf7f1a54563995ad9152549d268f31c7fe7b4f887bd3252a7
+- artifact_hash: 51466c6499fc34d43db85a9540dc90f7e366a543c1bd827f9e291d0eb712bd1f
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -152,8 +152,8 @@
   value: https://arxiv.org/abs/1311.5354
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/1311.5354
-  verified_at: '2026-07-01T03:18:59.122314Z'
-- artifact_hash: 3e2e3d243dc739ddf7f1a54563995ad9152549d268f31c7fe7b4f887bd3252a7
+  verified_at: '2026-07-01T04:30:08.000923Z'
+- artifact_hash: 51466c6499fc34d43db85a9540dc90f7e366a543c1bd827f9e291d0eb712bd1f
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -164,8 +164,8 @@
   value: https://arxiv.org/abs/1710.08708
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/1710.08708
-  verified_at: '2026-07-01T03:18:59.122314Z'
-- artifact_hash: 3e2e3d243dc739ddf7f1a54563995ad9152549d268f31c7fe7b4f887bd3252a7
+  verified_at: '2026-07-01T04:30:08.000923Z'
+- artifact_hash: 51466c6499fc34d43db85a9540dc90f7e366a543c1bd827f9e291d0eb712bd1f
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -175,8 +175,8 @@
   value: https://en.wikipedia.org/wiki/Bootstrapping_
   verification_status: verified
   verified_against_url: https://en.wikipedia.org/wiki/Bootstrapping
-  verified_at: '2026-07-01T03:18:59.122314Z'
-- artifact_hash: 3e2e3d243dc739ddf7f1a54563995ad9152549d268f31c7fe7b4f887bd3252a7
+  verified_at: '2026-07-01T04:30:08.000923Z'
+- artifact_hash: 51466c6499fc34d43db85a9540dc90f7e366a543c1bd827f9e291d0eb712bd1f
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-004
   cited_authors: []
@@ -186,8 +186,8 @@
   value: https://www.wikidata.org/wiki/Q1344670
   verification_status: verified
   verified_against_url: https://www.wikidata.org/wiki/Q1344670
-  verified_at: '2026-07-01T03:18:59.122314Z'
-- artifact_hash: 3e2e3d243dc739ddf7f1a54563995ad9152549d268f31c7fe7b4f887bd3252a7
+  verified_at: '2026-07-01T04:30:08.000923Z'
+- artifact_hash: 51466c6499fc34d43db85a9540dc90f7e366a543c1bd827f9e291d0eb712bd1f
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-005
   cited_authors: []
@@ -197,8 +197,8 @@
   value: https://en.wikipedia.org/wiki/SHA-2
   verification_status: verified
   verified_against_url: https://en.wikipedia.org/wiki/SHA-2
-  verified_at: '2026-07-01T03:18:59.122314Z'
-- artifact_hash: 3e2e3d243dc739ddf7f1a54563995ad9152549d268f31c7fe7b4f887bd3252a7
+  verified_at: '2026-07-01T04:30:08.000923Z'
+- artifact_hash: 51466c6499fc34d43db85a9540dc90f7e366a543c1bd827f9e291d0eb712bd1f
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-006
   cited_authors: []
@@ -208,4 +208,4 @@
   value: https://en.wikipedia.org/wiki/Hutter_Prize
   verification_status: verified
   verified_against_url: https://en.wikipedia.org/wiki/Hutter_Prize
-  verified_at: '2026-07-01T03:18:59.122314Z'
+  verified_at: '2026-07-01T04:30:08.000923Z'

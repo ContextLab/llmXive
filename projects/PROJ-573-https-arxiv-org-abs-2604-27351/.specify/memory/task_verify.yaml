@@ -88,12 +88,6 @@
   \ (boolean) (FR-002, SC-002, Phase 0.5)"
 : 2
 ? "T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM\
-  \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_9f96ea29 \u2014 status=not_enough_info];\
-  \ create `src/research/verify_models.py` script; document in research.md section\
-  \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
-  \ (boolean) (FR-002, SC-002, Phase 0.5)"
-: 2
-? "T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM\
   \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_a4b272a4 \u2014 status=not_enough_info];\
   \ create `src/research/verify_models.py` script; document in research.md section\
   \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
@@ -119,6 +113,12 @@
 : 1
 ? "T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM\
   \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_d9e0f460 \u2014 status=not_enough_info];\
+  \ create `src/research/verify_models.py` script; document in research.md section\
+  \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
+  \ (boolean) (FR-002, SC-002, Phase 0.5)"
+: 1
+? "T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM\
+  \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_e30906d5 \u2014 status=not_enough_info];\
   \ create `src/research/verify_models.py` script; document in research.md section\
   \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
   \ (boolean) (FR-002, SC-002, Phase 0.5)"
@@ -149,6 +149,11 @@
   \ compliance (Constitution II, Plan Gap)"
 : 1
 ? "T006a Implement Reference-Validator Agent in `src/validators/reference_validator.py`\
+  \ with title-token-overlap \u2265 0.7 check [UNRESOLVED-CLAIM: c_7674ebb2 \u2014\
+  \ status=not_enough_info] before contributing review points; add blocking gate for\
+  \ Constitution II compliance (Constitution II, Plan Gap)"
+: 1
+? "T006a Implement Reference-Validator Agent in `src/validators/reference_validator.py`\
   \ with title-token-overlap \u2265 0.7 check [UNRESOLVED-CLAIM: c_b5fa644f \u2014\
   \ status=not_enough_info] before contributing review points; add blocking gate for\
   \ Constitution II compliance (Constitution II, Plan Gap)"
@@ -163,10 +168,6 @@
   \ c_5b89c1f7 \u2014 status=not_enough_info]; add blocking gate for Constitution\
   \ II compliance (Constitution II, Plan Gap)"
 : 1
-? "T006a Implement Reference-Validator Agent in `src/validators/reference_validator.py`\
-  \ with title-token-overlap \u2265 0.7 check before contributing review points; add\
-  \ blocking gate for Constitution II compliance (Constitution II, Plan Gap)"
-: 2
 "T008 Initialize Python 3.11 [UNRESOLVED-CLAIM: c_31b68441 \u2014 status=not_enough_info] project with {{claim:c_9da78e09}}": 1
 "T008 Initialize Python 3.11 [UNRESOLVED-CLAIM: c_92679e95 \u2014 status=not_enough_info] project with {{claim:c_9da78e09}}": 1
 "T008 Initialize Python 3.11 [UNRESOLVED-CLAIM: c_f21aed3b \u2014 status=not_enough_info] project with {{claim:c_9da78e09}}": 1
