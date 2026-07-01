@@ -1,0 +1,41 @@
+# Ruff configuration for llmXive
+# Enforces strict linting rules including unused imports and loop optimizations
+line-length = 120
+target-version = "py311"
+
+[lint]
+# Enable specific rule sets
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort (import sorting)
+    "C90", # mccabe (complexity)
+    "UP",  # pyupgrade
+    "N",   # pep8-naming
+    "SIM", # flake8-simplify
+    "PERF",# Perflint (performance)
+    "RUF", # Ruff-specific rules
+]
+
+# Explicitly define rules for unused imports (F401) and loop optimizations
+# F401: Unused import - treated as an error to force cleanup
+# PERF401: Use a list comprehension instead of a for loop to create a list
+# PERF402: Use a list comprehension instead of a for loop to create a set
+ignore = []
+
+[lint.isort]
+known-first-party = ["code", "tests"]
+force-sort-within-sections = true
+
+[lint.per-file-ignores]
+# Allow unused imports in __init__.py for public API exposure
+"__init__.py" = ["F401"]
+
+# Allow unused variables in tests for fixture definitions
+"tests/**/*.py" = ["F841"]
+
+[format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
