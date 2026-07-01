@@ -1,0 +1,22 @@
+[flake8]
+max-line-length = 100
+extend-ignore = E203, W503
+exclude =
+    .git,
+    __pycache__,
+    build,
+    dist,
+    .venv,
+    venv,
+    env,
+    state,
+    data/raw,
+    data/processed,
+    figures,
+    *.egg-info
+per-file-ignores =
+    # Allow imports in __init__.py
+    code/analysis/contracts/__init__.py: F401
+    code/scripts/__init__.py: F401
+statistics = True
+count = True

@@ -1,0 +1,53 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "BenchmarkRun"
+description: "Schema for a single benchmark run record in the raw CSV data."
+type: "object"
+properties:
+  run_id:
+    type: "string"
+    description: "Unique identifier for the run (e.g., UUID or timestamp)."
+  thread_count:
+    type: "integer"
+    description: "Number of worker threads (1, 2, 4, or 8)."
+    minimum: 1
+    maximum: 8
+  configuration:
+    type: "string"
+    description: "Counter variant."
+    enum:
+      - "packed"
+      - "padded"
+  iteration_count:
+    type: "integer"
+    description: "Number of atomic increments per thread."
+    const: 10000000
+  wall_clock_time_ms:
+    type: "number"
+    description: "Wall-clock time for the run in milliseconds."
+    minimum: 0
+  cpu_model:
+    type: "string"
+    description: "CPU model string (e.g., 'Intel Xeon...')."
+  core_count:
+    type: "integer"
+    description: "Number of physical cores available."
+    minimum: 1
+  cache_line_size:
+    type: "integer"
+    description: "Cache line size in bytes (typically 64)."
+    const: 64
+  timestamp:
+    type: "string"
+    description: "ISO 8601 timestamp of the run."
+    format: "date-time"
+required:
+  - run_id
+  - thread_count
+  - configuration
+  - iteration_count
+  - wall_clock_time_ms
+  - cpu_model
+  - core_count
+  - cache_line_size
+  - timestamp
+additionalProperties: false

@@ -20,32 +20,32 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 [P] Create `code/` directory structure
-- [ ] T002 [P] Create `data/`, `artifacts/`, `tests/` directories
-- [ ] T003 [P] Create `code/data/`, `code/models/`, `code/analysis/` subdirectories
+- [X] T001 [P] Create `code/` directory structure
+- [X] T002 [P] Create `data/`, `artifacts/`, `tests/` directories
+- [X] T003 [P] Create `code/data/`, `code/models/`, `code/analysis/` subdirectories
 
 **Checkpoint**: Setup complete
 
@@ -57,10 +57,10 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 [P] Initialize Python 3.11 virtual environment
-- [ ] T006 [P] Create `requirements.txt` with pinned versions: pandas, numpy, scikit-learn, statsmodels, xgboost, requests, lxml, pyyaml
-- [ ] T007 [P] Configure linting (ruff) and formatting (black) tools
-- [ ] T008 [P] Create `pytest.ini` and basic test harness
+- [X] T005 [P] Initialize Python 3.11 virtual environment
+- [X] T006 [P] Create `requirements.txt` with pinned versions: pandas, numpy, scikit-learn, statsmodels, xgboost, requests, lxml, pyyaml
+- [X] T007 [P] Configure linting (ruff) and formatting (black) tools
+- [X] T008 [P] Create `pytest.ini` and basic test harness
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,37 +76,37 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T013 [P] [US1] Unit test for unit conversion logic in `code/tests/test_data_cleaning.py`
-- [ ] T014 [P] [US1] Unit test for missing value exclusion logic in `code/tests/test_data_cleaning.py`
+- [X] T013 [P] [US1] Unit test for unit conversion logic in `code/tests/test_data_cleaning.py`
+- [X] T014 [P] [US1] Unit test for missing value exclusion logic in `code/tests/test_data_cleaning.py`
 
 ### Implementation for User Story 1
 
-- [ ] T015 [US1] Implement data acquisition in `code/data/acquisition.py`:
-  - **Primary Source**: Parse supplementary tables from the four cited papers (using `lxml` or manual CSV ingestion) as the primary source per `plan.md`.
-  - **Secondary Source**: Attempt to query the HuggingFace "additive-manufacturing-superalloy" collection.
-  - **Merge**: Combine all successful sources.
-  - **Error Handling**: If HuggingFace is unreachable or returns empty, log a CRITICAL warning but **DO NOT** fail. Proceed with the data from the primary source (papers).
-  - **Output**: A unified DataFrame.
-- [ ] T016 [US1] Implement Materials Project descriptor fetch in `code/data/acquisition.py`:
-  - Query the Materials Project API **only** for alloy crystallographic descriptors (lattice parameters, space group) for the alloys present in the dataset.
-  - Merge these descriptors into the unified DataFrame.
-  - Log any API failures but proceed with available data.
-- [ ] T017 [US1] Implement data cleaning in `code/data/cleaning.py`:
-  - Convert all raw units to SI (W, mm/s, µm, %).
-  - Filter out records with missing ductility or incomplete process specs (log reasons).
-  - Map alloy composition to binary flags for specific elements: Cr, Al, Ti, Co, Mo, W.
-  - Output `data/curated_builds.csv`.
-- [ ] T018 [US1] Implement feature engineering in `code/data/preprocessing.py`:
-  - Calculate volumetric energy density: `E_v = P / (v * h * t)`.
-  - Add `E_v` to the dataset.
-  - Verify column integrity.
+- [X] T015 [US1] Implement data acquisition in `code/data/acquisition.py`:
+ - **Primary Source**: Parse supplementary tables from the four cited papers (using `lxml` or manual CSV ingestion) as the primary source per `plan.md`.
+ - **Secondary Source**: Attempt to query the HuggingFace "additive-manufacturing-superalloy" collection.
+ - **Merge**: Combine all successful sources.
+ - **Error Handling**: If HuggingFace is unreachable or returns empty, log a CRITICAL warning but **DO NOT** fail. Proceed with the data from the primary source (papers).
+ - **Output**: A unified DataFrame.
+- [ ] T016 [US1] Implement Materials Project descriptor fetch in `code/data/acquisition.py`: <!-- FAILED: unspecified -->
+ - Query the Materials Project API **only** for alloy crystallographic descriptors (lattice parameters, space group) for the alloys present in the dataset.
+ - Merge these descriptors into the unified DataFrame.
+ - Log any API failures but proceed with available data.
+- [X] T017 [US1] Implement data cleaning in `code/data/cleaning.py`:
+ - Convert all raw units to SI (W, mm/s, µm, %).
+ - Filter out records with missing ductility or incomplete process specs (log reasons).
+ - Map alloy composition to binary flags for specific elements: Cr, Al, Ti, Co, Mo, W.
+ - Output `data/curated_builds.csv`.
+- [X] T018 [US1] Implement feature engineering in `code/data/preprocessing.py`:
+ - Calculate volumetric energy density: `E_v = P / (v * h * t)`.
+ - Add `E_v` to the dataset.
+ - Verify column integrity.
 - [ ] T019 [US1] Add validation check in `code/data/cleaning.py`:
-  - If row count < 50, log critical warning but proceed.
-  - Log total excluded records and reasons.
+ - If row count < 50, log critical warning but proceed.
+ - Log total excluded records and reasons.
 - [ ] T020 [US1] Version the `data/curated_builds.csv` artifact:
-  - Compute SHA-256 hash of the CSV file.
-  - **MANDATORY**: Record the hash in `state/projects/PROJ-224-predicting-the-ductility-of-additively-m.yaml` under the `artifact_hashes` key.
-  - Do not store hashes in alternative locations (e.g., `data/.checksums` or `state/` root).
+ - Compute SHA-256 hash of the CSV file.
+ - **MANDATORY**: Record the hash in `state/projects/PROJ-224-predicting-the-ductility-of-additively-m.yaml` under the `artifact_hashes` key.
+ - Do not store hashes in alternative locations (e.g., `data/.checksums` or `state/` root).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -120,33 +120,33 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T021 [P] [US2] Unit test for VIF calculation logic in `code/tests/test_models.py`
-- [ ] T022 [P] [US2] Unit test for mixed-effects convergence check in `code/tests/test_models.py`
+- [~] T021 [P] [US2] Unit test for VIF calculation logic in `code/tests/test_models.py`
+- [~] T022 [P] [US2] Unit test for mixed-effects convergence check in `code/tests/test_models.py`
 
 ### Implementation for User Story 2
 
-- [ ] T023 [US2] Implement VIF analysis and feature filtering in `code/data/preprocessing.py`:
-  - Calculate VIF for all fixed-effect predictors (Power, Speed, Hatch, Thickness, Energy Density).
-  - **Logic**: IF Energy Density VIF > 5 THEN:
-    - Drop the individual constituent predictors (Power, Speed, Hatch, Thickness).
-    - Retain ONLY Energy Density as the representative for that group.
-  - **Verification**: Re-calculate VIF on the reduced set to confirm max VIF ≤ 5.
-  - Log the final set of predictors used.
-  - Output the filtered dataset.
-- [ ] T024 [US2] Implement Linear Mixed-Effects model in `code/models/lme_model.py`:
-  - Fit model with fixed effects (selected predictors from T023) and random intercept for `alloy_family`.
-  - Ensure model uses CPU-only execution.
-  - Extract standardized coefficients, 95% CIs, and p-values.
-  - **Random Effects**: Extract and store the random intercept estimates for each alloy family.
-  - **Convergence Check**: If the model fails to converge, log an ERROR, set a `convergence_failed` flag in the output artifact, and DO NOT proceed with coefficient interpretation.
-- [ ] T025 [US2] Implement model diagnostics in `code/analysis/sensitivity.py`:
-  - Compute partial R².
-  - If partial R² < 0.50, log warning (do not abort).
-  - **Likelihood-Ratio Test**: Construct a null intercept-only model and perform a likelihood-ratio test against the full model at α=0.05. Record the test statistic and p-value.
-- [ ] T026 [US2] Implement sensitivity analysis in `code/analysis/sensitivity.py`:
-  - Repeat LME fit for α ∈ {0.05, 0.10} and other representative significance levels..
-  - Report variation in coefficients and partial R².
-- [ ] T027 [US2] Save `MixedEffectsResult` artifact (JSON/CSV) with all metrics, convergence status, and random effect estimates.
+- [~] T023 [US2] Implement VIF analysis and feature filtering in `code/data/preprocessing.py`:
+ - Calculate VIF for all fixed-effect predictors (Power, Speed, Hatch, Thickness, Energy Density).
+ - **Logic**: IF Energy Density VIF > 5 THEN:
+ - Drop the individual constituent predictors (Power, Speed, Hatch, Thickness).
+ - Retain ONLY Energy Density as the representative for that group.
+ - **Verification**: Re-calculate VIF on the reduced set to confirm max VIF ≤ 5.
+ - Log the final set of predictors used.
+ - Output the filtered dataset.
+- [~] T024 [US2] Implement Linear Mixed-Effects model in `code/models/lme_model.py`:
+ - Fit model with fixed effects (selected predictors from T023) and random intercept for `alloy_family`.
+ - Ensure model uses CPU-only execution.
+ - Extract standardized coefficients, 95% CIs, and p-values.
+ - **Random Effects**: Extract and store the random intercept estimates for each alloy family.
+ - **Convergence Check**: If the model fails to converge, log an ERROR, set a `convergence_failed` flag in the output artifact, and DO NOT proceed with coefficient interpretation.
+- [~] T025 [US2] Implement model diagnostics in `code/analysis/sensitivity.py`:
+ - Compute partial R².
+ - If partial R² < 0.50, log warning (do not abort).
+ - **Likelihood-Ratio Test**: Construct a null intercept-only model and perform a likelihood-ratio test against the full model at α=0.05. Record the test statistic and p-value.
+- [~] T026 [US2] Implement sensitivity analysis in `code/analysis/sensitivity.py`:
+ - Repeat LME fit for α ∈ {0.05, 0.10} and other representative significance levels..
+ - Report variation in coefficients and partial R².
+- [~] T027 [US2] Save `MixedEffectsResult` artifact (JSON/CSV) with all metrics, convergence status, and random effect estimates.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -160,31 +160,31 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T028 [P] [US3] Unit test for train/val/test split logic in `code/tests/test_models.py`
-- [ ] T029 [P] [US3] Integration test for model training time budget in `code/tests/test_models.py`
+- [~] T028 [P] [US3] Unit test for train/val/test split logic in `code/tests/test_models.py`
+- [~] T029 [P] [US3] Integration test for model training time budget in `code/tests/test_models.py`
 
 ### Implementation for User Story 3
 
-- [ ] T030 [US3] Implement data splitting in `code/data/preprocessing.py`:
-  - **Logic**:
-    - If N < 100: Use **Leave-One-Alloy-Family-Out (LOAFO)** as the stratification strategy within a 5-fold cross-validation loop. In each fold, the left-out alloy family serves as the "held-out test set" for that iteration.
-    - If N ≥ 100: Use standard stratified train/val/test split by `alloy_family`.
-  - Ensure the test set (left-out fold or held-out split) is used only for final evaluation.
-  - Output split data artifacts.
-- [ ] T031 [US3] Implement XGBoost training in `code/models/xgboost_model.py`:
-  - Train with `tree_method="hist"` (CPU-optimized).
-  - Perform 5-fold **stratified** CV for hyperparameter tuning (max_depth, learning_rate, n_estimators) within a fixed time budget.
-  - Save best model to `artifacts/xgboost_model.pkl`.
-- [ ] T032 [US3] Implement model evaluation in `code/models/xgboost_model.py`:
-  - Evaluate on held-out test set (or LOAFO aggregated metrics).
-  - Record R², MAE, RMSE.
-  - If R² < 0.60, log result but do not abort.
-- [ ] T033 [US3] Implement feature importance in `code/models/xgboost_model.py`:
-  - Compute permutation feature importance.
-  - Load `MixedEffectsResult` artifact from T027.
-  - **Comparison**: Compare the top 3 features from XGBoost with the top 3 coefficients from the LME model.
-  - **Conditional Logic**: If FR-005 logic (in T023) resulted in a reduced feature set (e.g., only Energy Density), compare the importance/coefficient of the shared feature(s). If the feature sets are disjoint, log a warning and compare only the intersection of features.
-- [ ] T034 [US3] Save `PredictiveModelArtifact` with metrics and hyperparameters.
+- [~] T030 [US3] Implement data splitting in `code/data/preprocessing.py`:
+ - **Logic**:
+ - If N < 100: Use **Leave-One-Alloy-Family-Out (LOAFO)** as the stratification strategy within a 5-fold cross-validation loop. In each fold, the left-out alloy family serves as the "held-out test set" for that iteration.
+ - If N ≥ 100: Use standard stratified train/val/test split by `alloy_family`.
+ - Ensure the test set (left-out fold or held-out split) is used only for final evaluation.
+ - Output split data artifacts.
+- [~] T031 [US3] Implement XGBoost training in `code/models/xgboost_model.py`:
+ - Train with `tree_method="hist"` (CPU-optimized).
+ - Perform 5-fold **stratified** CV for hyperparameter tuning (max_depth, learning_rate, n_estimators) within a fixed time budget.
+ - Save best model to `artifacts/xgboost_model.pkl`.
+- [~] T032 [US3] Implement model evaluation in `code/models/xgboost_model.py`:
+ - Evaluate on held-out test set (or LOAFO aggregated metrics).
+ - Record R², MAE, RMSE.
+ - If R² < 0.60, log result but do not abort.
+- [~] T033 [US3] Implement feature importance in `code/models/xgboost_model.py`:
+ - Compute permutation feature importance.
+ - Load `MixedEffectsResult` artifact from T027.
+ - **Comparison**: Compare the top 3 features from XGBoost with the top 3 coefficients from the LME model.
+ - **Conditional Logic**: If FR-005 logic (in T023) resulted in a reduced feature set (e.g., only Energy Density), compare the importance/coefficient of the shared feature(s). If the feature sets are disjoint, log a warning and compare only the intersection of features.
+- [~] T034 [US3] Save `PredictiveModelArtifact` with metrics and hyperparameters.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -194,15 +194,15 @@
 
 **Purpose**: Final reporting and validation
 
-- [ ] T035 [US2/US3] Generate final report in `code/analysis/reporting.py`:
-  - Include table of standardized coefficients (US2).
-  - Include partial dependence plots for top 3 parameters (US3).
-  - Include predictive model metrics (R², MAE, RMSE).
-  - Include VIF and sensitivity analysis results.
-- [ ] T036 [P] Validate final report renders as PDF/Markdown within 30s on CI.
-- [ ] T037 [P] Update `research.md` with final findings and limitations.
-- [ ] T038 [P] Run full pipeline integration test (`main.py`) to ensure end-to-end execution ≤ 600s.
-- [ ] T039 [P] Run quickstart.md validation.
+- [~] T035 [US2/US3] Generate final report in `code/analysis/reporting.py`:
+ - Include table of standardized coefficients (US2).
+ - Include partial dependence plots for top 3 parameters (US3).
+ - Include predictive model metrics (R², MAE, RMSE).
+ - Include VIF and sensitivity analysis results.
+- [~] T036 [P] Validate final report renders as PDF/Markdown within 30s on CI.
+- [~] T037 [P] Update `research.md` with final findings and limitations.
+- [~] T038 [P] Run full pipeline integration test (`main.py`) to ensure end-to-end execution ≤ 600s.
+- [~] T039 [P] Run quickstart.md validation.
 
 ---
 
@@ -213,8 +213,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -280,9 +280,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---

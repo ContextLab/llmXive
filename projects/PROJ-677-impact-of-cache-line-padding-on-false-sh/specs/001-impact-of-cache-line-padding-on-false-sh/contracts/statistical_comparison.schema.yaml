@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StatisticalComparison"
+description: "Schema for statistical comparison results (t-test, FDR, Cohen's d)."
+type: "object"
+properties:
+  thread_count:
+    type: "integer"
+    description: "Number of worker threads."
+    minimum: 1
+    maximum: 8
+  t_statistic:
+    type: "number"
+    description: "T-statistic from the two-sample t-test."
+  p_value:
+    type: "number"
+    description: "Raw p-value."
+    minimum: 0
+    maximum: 1
+  p_value_fdr:
+    type: "number"
+    description: "FDR-adjusted p-value."
+    minimum: 0
+    maximum: 1
+  cohen_d:
+    type: "number"
+    description: "Effect size (Cohen's d)."
+  significant:
+    type: "boolean"
+    description: "True if p_value_fdr ≤ 0.05."
+required:
+  - thread_count
+  - t_statistic
+  - p_value
+  - p_value_fdr
+  - cohen_d
+  - significant
+additionalProperties: false

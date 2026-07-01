@@ -1,0 +1,20 @@
+# Ruff configuration
+target-version = "py311"
+line-length = 88
+
+[lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+ignore = [
+    "E501", # Line too long (handled by black)
+    "B008", # Do not perform function call in argument defaults
+]
+
+[lint.per-file-ignores]
+"tests/*" = ["S101"] # Asserts allowed in tests

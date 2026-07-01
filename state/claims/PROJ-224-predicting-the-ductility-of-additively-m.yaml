@@ -1,0 +1,114 @@
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/research.md
+  attempts: 1
+  canonical: curated dataset of 85 unique build configurations
+  claim_id: c_f676233d
+  context: By integrating data from four key literature sources and augmenting it
+    with crystallographic descriptors from the Materials Project, we constructed a
+    curated dataset of 85 unique build configurations.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: we constructed a curated dataset of 85 unique build configurations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T01:27:02Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/research.md
+  attempts: 1
+  canonical: 12 records excluded due to missing ductility values or incomplete process
+    specifications
+  claim_id: c_2aaff39d
+  context: 'Data Quality: 12 records were excluded due to missing ductility values
+    or incomplete process specifications.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 12 records were excluded due to missing ductility values or incomplete
+    process specifications
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T01:28:44Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/research.md
+  attempts: 1
+  canonical: Aluminum content coefficient 0.18
+  claim_id: c_50fa9143
+  context: "Aluminum Content: Positive coefficient (\u03B2 = 0.18), suggesting that\
+    \ higher Al content (within the studied range) may support \u03B3' precipitation\
+    \ strengthening without compromising ductility if process parameters are optimized."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Aluminum Content: Positive coefficient (beta = 0.18)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T01:31:12Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/research.md
+  attempts: 1
+  canonical: Partial R squared 0.54
+  claim_id: c_3c76c2de
+  context: "Model Fit: Partial R\xB2 = 0.54. The Likelihood-Ratio Test confirmed the\
+    \ fixed effects significantly improved the model over an intercept-only baseline\
+    \ (\u03C7\xB2 = 14.2, p < 0.001)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Partial R squared equals 0.54
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T01:31:27Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/research.md
+  attempts: 1
+  canonical: XGBoost R squared 0.63 held-out alloy families
+  claim_id: c_bc4926e5
+  context: "Performance: R\xB2: 0.63 (on held-out alloy families)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: XGBoost R squared equals 0.63 on held-out alloy families
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T01:31:29Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/research.md
+  attempts: 1
+  canonical: XGBoost MAE 1.2% elongation
+  claim_id: c_3cf4c327
+  context: 'MAE: 1.2% elongation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: XGBoost MAE equals 1.2% elongation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T01:31:29Z'
+- artifact_path: projects/PROJ-224-predicting-the-ductility-of-additively-m/research.md
+  attempts: 1
+  canonical: XGBoost RMSE 1.5% elongation
+  claim_id: c_18652230
+  context: 'RMSE: 1.5% elongation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: XGBoost RMSE equals 1.5% elongation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T01:31:29Z'
