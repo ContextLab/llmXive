@@ -13,11 +13,11 @@ This project reproduces the core validation loop of the "OpenComputer: Verifiabl
 **Primary Dependencies**: `docker` (CLI), `pytest` (for validation scripts), `pandas` (for data aggregation), `pyyaml` (for schema validation). The `external/OpenComputer` submodule provides the core `smoke_loop`, `run_eval`, and verifier logic.
 **Storage**: Local filesystem (`projects/607-reproduce-opencomputer/results/`, `projects/607-reproduce-opencomputer/data/`) for JSON/CSV artifacts and Docker image layers.
 **Testing**: `pytest` for unit tests of helper scripts; `smoke_loop` exit codes and JSON schema validation for integration.
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, 7 GB RAM, 14 GB disk).
+**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, 7 GB RAM, GB disk).
 **Project Type**: Computational Research / Reproduction Pipeline.
 **Performance Goals**: Total pipeline execution < 6 hours; Docker image build < 45 minutes; single task execution < 15 minutes.
-**Constraints**: No GPU; strict 14 GB disk quota; must handle missing API keys gracefully; must not crash on container failures.
-**Scale/Scope**: 1 smoke test task; 5 batch evaluation tasks; 1 final report.
+**Constraints**: No GPU; strict disk quota; must handle missing API keys gracefully; must not crash on container failures.
+**Scale/Scope**: smoke test task; batch evaluation tasks; final report.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 
@@ -50,7 +50,7 @@ specs/[607-reproduce-opencomputer]/
 projects/607-reproduce-opencomputer/
 ├── scripts/
 │   ├── run_smoke_test.sh        # Orchestrates smoke test (FR-001)
-│   ├── run_batch_eval.sh        # Orchestrates 5-task batch (FR-002)
+│   ├── run_batch_eval.sh        # Orchestrates -task batch (FR-002)
 │   ├── prepare_ground_truth.py  # Generates blinded manual inspection data (T023)
 │   ├── collect_artifacts.py     # Copies artifacts from Docker to host (T022)
 │   ├── compare_verdicts.py      # Merges verifier results with manual ground truth (T024)
@@ -93,7 +93,7 @@ projects/607-reproduce-opencomputer/
 | **FR-003** | FR | `compare_verdicts.py` | Computes alignment consistency (simple count of matches) by comparing hard-coded verdicts to `blinded_ground_truth.json`. |
 | **FR-004** | FR | `generate_report.py` | Generates `reproduction_report.md` with comparison to paper claims. |
 | **FR-005** | FR | `run_batch_eval.sh` (error handling) | Catches Docker/build errors, logs them, and marks tasks as "failed" or "skipped" without crashing. |
-| **SC-001** | SC | `compare_verdicts.py` | Measures alignment consistency (count of matches) against dual manual inspection of 5 artifacts. |
+| **SC-001** | SC | `compare_verdicts.py` | Measures alignment consistency (count of matches) against dual manual inspection of artifacts. |
 | **SC-002** | SC | `verification_report.json` | Measures task success rate against `task.json` expected outcomes. |
 | **SC-003** | SC | `reproduction_report.md` | Measures completeness against the requirement to cite paper abstract claims. |
 | **SC-004** | SC | `data/summary.json` | Measures pipeline reliability (% of tasks not crashing). |
