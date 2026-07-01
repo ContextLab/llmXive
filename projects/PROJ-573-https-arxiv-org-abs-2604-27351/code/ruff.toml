@@ -1,25 +1,10 @@
-# Ruff configuration
-target-version = "py311"
+[lint]
+select = ["E", "F", "W", "I", "N", "B", "C4", "UP"]
+ignore = ["E501"] # Handled by formatter
+
+[format]
 line-length = 88
-
-select = [
-    "E",
-    "W",
-    "F",
-    "I",
-    "C",
-    "B",
-]
-
-ignore = [
-    "E501",
-    "B008",
-]
-
-exclude = [
-    ".git",
-    ".venv",
-    "__pycache__",
-    "build",
-    "dist",
-]
+target-version = "py311"
+indent-width = 4
+quote-style = "double"
+skip-magic-trailing-comma = false

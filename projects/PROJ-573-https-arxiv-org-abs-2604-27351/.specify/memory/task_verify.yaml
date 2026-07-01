@@ -145,13 +145,19 @@
   \ create `src/research/verify_models.py` script; document in research.md section\
   \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
   \ (boolean) (FR-002, SC-002, Phase 0.5)"
-: 1
+: 2
 ? "T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM\
   \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_93ce84ee \u2014 status=not_enough_info];\
   \ create `src/research/verify_models.py` script; document in research.md section\
   \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
   \ (boolean) [UNRESOLVED-CLAIM: c_674e7f12 \u2014 status=not_enough_info] (FR-002,\
   \ SC-002, Phase 0.5)"
+: 1
+? "T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM\
+  \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_93dcb29e \u2014 status=not_enough_info];\
+  \ create `src/research/verify_models.py` script; document in research.md section\
+  \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
+  \ (boolean) (FR-002, SC-002, Phase 0.5)"
 : 1
 ? "T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM\
   \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_a4b272a4 \u2014 status=not_enough_info];\
@@ -217,7 +223,7 @@
   via HuggingFace model cards; create `src/research/verify_models.py` script; document
   in research.md section "Model Verification" with fields: model_name, hf_id, size_mb,
   cpu_tractable (boolean) (FR-002, SC-002, Phase 0.5)'
-: 1
+: 2
 ? "T006a Implement Reference-Validator Agent in `src/validators/reference_validator.py`\
   \ with title-token-overlap \u2265 0.7 [UNRESOLVED-CLAIM: c_0d8fe0be \u2014 status=not_enough_info]\
   \ check before contributing review points; add blocking gate for Constitution II\
@@ -305,9 +311,15 @@
   \ [UNRESOLVED-CLAIM: c_3e5fd4de \u2014 status=not_enough_info] and pyproject.toml\
   \ (black config) in repository root"
 : 1
+? 'T009 [P] Configure linting and formatting tools: ruff.toml (line-length=88, target-version=py311)
+  and pyproject.toml (black config) in repository root'
+: 1
 ? "T010 [P] Create dataset schema contract in contracts/dataset.schema.yaml with required\
   \ fields (name, url, variables, size_mb, checksum [UNRESOLVED-CLAIM: c_c8b13512\
   \ \u2014 status=not_enough_info])"
+: 1
+? T010 [P] Create dataset schema contract in contracts/dataset.schema.yaml with required
+  fields (name, url, variables, size_mb, checksum)
 : 1
 T011 [P] Create task schema contract in contracts/task.schema.yaml with required fields ({{claim:c_6a929bb3}}): 1
 ? T013 [P] Create modality_model schema contract in contracts/modality_model.schema.yaml
@@ -393,6 +405,11 @@ T011 [P] Create task schema contract in contracts/task.schema.yaml with required
   \ function signatures: enforce_timeout(func, timeout_seconds=300) [UNRESOLVED-CLAIM:\
   \ c_e77c9091 \u2014 status=not_enough_info] -> result; raise TimeoutError if exceeded;\
   \ depends on T016 complete"
+: 1
+? "T026 [US1] Implement metrics computation (F1, MAPE) in src/evaluation/metrics.py\
+  \ [UNRESOLVED-CLAIM: c_1675d947 \u2014 status=not_enough_info] (FR-004); function\
+  \ signatures: compute_f1(y_true, y_pred) -> float, compute_mape(y_true, y_pred)\
+  \ -> float; handle edge cases (division by zero, empty arrays)"
 : 1
 ? "T027 [US1] Implement statistical tests in src/evaluation/statistical_tests.py (FR-007,\
   \ FR-014, FR-011); MUST include: paired t-test (scipy.stats.ttest_rel), Wilcoxon\

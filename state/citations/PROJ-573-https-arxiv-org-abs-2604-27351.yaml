@@ -86,7 +86,7 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/mustard/mustard
   verified_at: '2026-07-01T19:36:20.190036Z'
-- artifact_hash: f63108fe80d31ea5085b042b8fe12df4deb3f056dc079f5c63cc815ae556ec74
+- artifact_hash: 74b53d1009b569abe20146b611442b53f2300094f963b54e2034644d4b3dac3a
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -97,8 +97,8 @@
   value: https://arxiv.org/abs/1311.5354
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/1311.5354
-  verified_at: '2026-07-01T20:44:47.490468Z'
-- artifact_hash: f63108fe80d31ea5085b042b8fe12df4deb3f056dc079f5c63cc815ae556ec74
+  verified_at: '2026-07-01T21:41:26.160087Z'
+- artifact_hash: 74b53d1009b569abe20146b611442b53f2300094f963b54e2034644d4b3dac3a
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -108,8 +108,8 @@
   value: https://www.wikidata.org/wiki/Q50376371
   verification_status: verified
   verified_against_url: https://www.wikidata.org/wiki/Q50376371
-  verified_at: '2026-07-01T20:44:47.490468Z'
-- artifact_hash: f63108fe80d31ea5085b042b8fe12df4deb3f056dc079f5c63cc815ae556ec74
+  verified_at: '2026-07-01T21:41:26.160087Z'
+- artifact_hash: 74b53d1009b569abe20146b611442b53f2300094f963b54e2034644d4b3dac3a
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -120,8 +120,8 @@
   value: https://arxiv.org/abs/1710.08708
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/1710.08708
-  verified_at: '2026-07-01T20:44:47.490468Z'
-- artifact_hash: f63108fe80d31ea5085b042b8fe12df4deb3f056dc079f5c63cc815ae556ec74
+  verified_at: '2026-07-01T21:41:26.160087Z'
+- artifact_hash: 74b53d1009b569abe20146b611442b53f2300094f963b54e2034644d4b3dac3a
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-004
   cited_authors: []
@@ -131,8 +131,8 @@
   value: https://en.wikipedia.org/wiki/Bootstrapping_
   verification_status: verified
   verified_against_url: https://en.wikipedia.org/wiki/Bootstrapping
-  verified_at: '2026-07-01T20:44:47.490468Z'
-- artifact_hash: f63108fe80d31ea5085b042b8fe12df4deb3f056dc079f5c63cc815ae556ec74
+  verified_at: '2026-07-01T21:41:26.160087Z'
+- artifact_hash: 74b53d1009b569abe20146b611442b53f2300094f963b54e2034644d4b3dac3a
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-005
   cited_authors: []
@@ -142,8 +142,8 @@
   value: https://en.wikipedia.org/wiki/SHA-2
   verification_status: verified
   verified_against_url: https://en.wikipedia.org/wiki/SHA-2
-  verified_at: '2026-07-01T20:44:47.490468Z'
-- artifact_hash: f63108fe80d31ea5085b042b8fe12df4deb3f056dc079f5c63cc815ae556ec74
+  verified_at: '2026-07-01T21:41:26.160087Z'
+- artifact_hash: 74b53d1009b569abe20146b611442b53f2300094f963b54e2034644d4b3dac3a
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-006
   cited_authors: []
@@ -154,8 +154,8 @@
   value: https://www.wikidata.org/wiki/Q129317410
   verification_status: verified
   verified_against_url: https://www.wikidata.org/wiki/Q129317410
-  verified_at: '2026-07-01T20:44:47.490468Z'
-- artifact_hash: f63108fe80d31ea5085b042b8fe12df4deb3f056dc079f5c63cc815ae556ec74
+  verified_at: '2026-07-01T21:41:26.160087Z'
+- artifact_hash: 74b53d1009b569abe20146b611442b53f2300094f963b54e2034644d4b3dac3a
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-007
   cited_authors: []
@@ -166,4 +166,4 @@
   value: https://arxiv.org/abs/2505.06730
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/2505.06730
-  verified_at: '2026-07-01T20:44:47.490468Z'
+  verified_at: '2026-07-01T21:41:26.160087Z'
