@@ -1,4 +1,4 @@
-- artifact_hash: 6db7df25c99a6d1ed54d5375d52791702ef830f63346e5744109b3eb859b8e2c
+- artifact_hash: 7165b575981dcce68a37dde67081ae0a07bb44ad664e5ce43bcdbc02ef7c85fe
   artifact_path: projects/PROJ-599-mmskills-towards-multimodal-skills-for-g/specs/001-mmskills-towards-multimodal-skills-for-g/spec.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +8,4 @@
   value: '2605.13527'
   verification_status: unreachable
   verified_against_url: null
-  verified_at: '2026-06-30T19:24:38.529285Z'
+  verified_at: '2026-07-01T11:44:08.432565Z'

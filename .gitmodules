@@ -94,9 +94,6 @@
 [submodule "projects/PROJ-750-dragmesh-2-physically-plausible-dexterou/external/DragMesh-2"]
 	path = projects/PROJ-750-dragmesh-2-physically-plausible-dexterou/external/DragMesh-2
 	url = https://github.com/AIGeeksGroup/DragMesh-2
-[submodule "projects/PROJ-599-mmskills-towards-multimodal-skills-for-g/external/MMSkills"]
-	path = projects/PROJ-599-mmskills-towards-multimodal-skills-for-g/external/MMSkills
-	url = https://github.com/DeepExperience/MMSkills
 [submodule "projects/PROJ-656-crafter-a-multi-agent-harness-for-editab/external/Crafter"]
 	path = projects/PROJ-656-crafter-a-multi-agent-harness-for-editab/external/Crafter
 	url = https://github.com/HaozheZhao/Crafter
@@ -169,3 +166,9 @@
 [submodule "projects/PROJ-788-improved-large-language-diffusion-models/external/LLaDA"]
 	path = projects/PROJ-788-improved-large-language-diffusion-models/external/LLaDA
 	url = https://github.com/ML-GSAI/LLaDA
+[submodule "projects/PROJ-776-planbench-xl-evaluating-long-horizon-pla/external/PlanBench-XL"]
+	path = projects/PROJ-776-planbench-xl-evaluating-long-horizon-pla/external/PlanBench-XL
+	url = https://github.com/JiayuJeff/PlanBench-XL
+[submodule "projects/PROJ-599-mmskills-towards-multimodal-skills-for-g/external/MMSkills"]
+	path = projects/PROJ-599-mmskills-towards-multimodal-skills-for-g/external/MMSkills
+	url = https://github.com/DeepExperience/MMSkills
