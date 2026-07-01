@@ -154,3 +154,9 @@
 [submodule "projects/PROJ-703-evoarena-tracking-memory-evolution-for-r/external/EvoArena"]
 	path = projects/PROJ-703-evoarena-tracking-memory-evolution-for-r/external/EvoArena
 	url = https://github.com/Aiden0526/EvoArena
+[submodule "projects/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i/external/Macaron-A2UI-Bench"]
+	path = projects/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i/external/Macaron-A2UI-Bench
+	url = https://github.com/MindLab-Research/Macaron-A2UI-Bench
+[submodule "projects/PROJ-805-tua-bench-a-benchmark-for-general-purpos/external/TUA-Bench"]
+	path = projects/PROJ-805-tua-bench-a-benchmark-for-general-purpos/external/TUA-Bench
+	url = https://github.com/facebookresearch/TUA-Bench

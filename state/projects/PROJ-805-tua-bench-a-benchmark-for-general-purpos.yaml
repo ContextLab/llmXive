@@ -13,6 +13,6 @@ points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-805-tua-bench-a-benchmark-for-general-purpos/specs/001-tua-bench-a-benchmark-for-general-purpos
 title: 'TUA-Bench: A Benchmark for General-Purpose Terminal-Use Agents'
 updated_at: '2026-07-01T01:49:18.406152Z'

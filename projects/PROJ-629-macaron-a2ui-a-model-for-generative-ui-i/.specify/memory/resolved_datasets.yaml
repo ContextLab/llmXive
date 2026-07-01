@@ -1,0 +1,50 @@
+resolved_at: '2026-07-01T07:53:58.545369+00:00'
+datasets:
+- intent: A2UI-Bench
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/State_of_South_African_public_service_in_the_context_of_macro_socio-economic_environment/32846495
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Bodies_that_divide_and_bind_tracing_the_social_roles_of_association_in_Chinese_communities_in_Pretoria_South_Africa/32846534
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Child_maltreatment_relational_diagnosis_using_ICD_codes_considerations_for_low-_and_middle-income_settings/32846453
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/The_challenge_of_employment_creation_in_South_Africa/32846573
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/The_impact_of_the_implementation_of_security_acts_on_physical_and_general_psychological_well-being_of_travellers_within_South_African_boarders/32846492
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10127445
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7688873
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10934589
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1300687
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8251074
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2605.24830
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
