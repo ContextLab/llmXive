@@ -105,6 +105,12 @@
   \ (boolean) (FR-002, SC-002, Phase 0.5)"
 : 1
 ? "T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM\
+  \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_202335c6 \u2014 status=not_enough_info];\
+  \ create `src/research/verify_models.py` script; document in research.md section\
+  \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
+  \ (boolean) (FR-002, SC-002, Phase 0.5)"
+: 1
+? "T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM\
   \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_23f1879a \u2014 status=not_enough_info];\
   \ create `src/research/verify_models.py` script; document in research.md section\
   \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
@@ -195,12 +201,6 @@
   \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
   \ (boolean) (FR-002, SC-002, Phase 0.5)"
 : 1
-? "T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM\
-  \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_d1791c3b \u2014 status=not_enough_info];\
-  \ create `src/research/verify_models.py` script; document in research.md section\
-  \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
-  \ (boolean) (FR-002, SC-002, Phase 0.5)"
-: 2
 ? "T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM\
   \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_d8c6ec75 \u2014 status=not_enough_info];\
   \ create `src/research/verify_models.py` script; document in research.md section\
@@ -299,7 +299,7 @@
 ? "T006a Implement Reference-Validator Agent in `src/validators/reference_validator.py`\
   \ with title-token-overlap \u2265 0.7 check before contributing review points; add\
   \ blocking gate for Constitution II compliance (Constitution II, Plan Gap)"
-: 1
+: 2
 "T008 Initialize Python 3.11 [UNRESOLVED-CLAIM: c_31b68441 \u2014 status=not_enough_info] project with {{claim:c_9da78e09}}": 1
 "T008 Initialize Python 3.11 [UNRESOLVED-CLAIM: c_92679e95 \u2014 status=not_enough_info] project with {{claim:c_9da78e09}}": 1
 "T008 Initialize Python 3.11 [UNRESOLVED-CLAIM: c_d0b1d988 \u2014 status=not_enough_info] project with {{claim:c_9da78e09}}": 1

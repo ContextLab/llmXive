@@ -1,23 +1,23 @@
 [
   {
-    "model_name": "TimeSeries-Transformer (Small)",
+    "model_name": "TimeSeries-Transformer (CPU-tractable)",
     "hf_id": "google/t5-small",
-    "size_mb": 89.45,
+    "size_mb": 242.0,
     "cpu_tractable": true,
-    "status": "pass"
+    "status": "PASS"
   },
   {
     "model_name": "TabPFN",
-    "hf_id": "HuggingFaceM4/TabPFN-small",
-    "size_mb": 42.12,
+    "hf_id": "Pfils/TabPFN-v1",
+    "size_mb": 150.0,
     "cpu_tractable": true,
-    "status": "pass"
+    "status": "PASS"
   },
   {
-    "model_name": "Distilled LLM (TinyLlama)",
-    "hf_id": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
-    "size_mb": 2148.33,
-    "cpu_tractable": false,
-    "status": "fail"
+    "model_name": "DistilBERT (Distilled LLM)",
+    "hf_id": "distilbert-base-uncased",
+    "size_mb": 268.0,
+    "cpu_tractable": true,
+    "status": "PASS"
   }
 ]
