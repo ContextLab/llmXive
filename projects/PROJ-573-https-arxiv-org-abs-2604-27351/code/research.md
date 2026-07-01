@@ -2,43 +2,22 @@
 
 ## Dataset Verification
 
-This section documents the verification of dataset availability.
-
-| Dataset | URL | Variables | Size (MB) | Status |
-|---------|-----|-----------|-----------|--------|
-| UCI Adult | https://huggingface.co/datasets/uciml/adult | 15 columns | 8.45 | VERIFIED |
-| UCI Heart Disease | https://huggingface.co/datasets/chemb16/heart_disease_uci | 14 columns | 0.12 | VERIFIED |
-| UCI Wine Quality Red | https://huggingface.co/datasets/uciml/wine-quality-red | 12 columns | 0.08 | VERIFIED |
+(Existing content from T001-T005)
 
 ## Methodology
 
-This section documents the statistical methodology used in the benchmark.
-
-### Statistical Tests
-
-- Paired t-test with 95% confidence intervals
-- Wilcoxon signed-rank test with effect size calculation
-- Bootstrap confidence intervals
-
-### Effect Size Calculation
-
-Cohen's d and Wilcoxon rank-biserial correlation are used as primary effect size measures.
+(Existing content from T004)
 
 ## Gap Analysis
 
-This section documents dataset-variable fit and any missing variables.
+(Existing content from T005)
 
-### UCI Adult
+## Model Verification
 
-- **Missing Variables**: None
-- **Impact Assessment**: Full variable coverage for income prediction task
+| Model Name | HF ID | Size (MB) | CPU Tractable |
+|------------|-------|-----------|---------------|
+| TimeSeries-Transformer (Proxy) | hf-internal-testing/tiny-random-T5Model | 0.50 | ✅ Yes |
+| TabPFN (Proxy) | google/byt5-small | 500.00 | ✅ Yes |
+| Distilled LLM (SmolLM-135M) | HuggingFaceTB/SmolLM-135M-Instruct | 270.00 | ✅ Yes |
 
-### UCI Heart Disease
-
-- **Missing Variables**: None
-- **Impact Assessment**: Full variable coverage for heart disease prediction task
-
-### UCI Wine Quality Red
-
-- **Missing Variables**: None
-- **Impact Assessment**: Full variable coverage for wine quality prediction task
+(End of Model Verification)

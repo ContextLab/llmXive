@@ -1,121 +1,137 @@
 """
-Contract tests for ReferenceValidatorAgent.
-
-These tests verify that the Reference Validator Agent correctly implements
-the Constitution II compliance gate and title-token-overlap logic.
+Contract tests for the ReferenceValidatorAgent.
 """
 import pytest
-from src.validators.reference_validator import ReferenceValidatorAgent
+import json
+import tempfile
+from pathlib import Path
+
+from src.validators.reference_validator import ReferenceValidatorAgent, compute_title_token_overlap
 
 
 class TestReferenceValidatorSchema:
-    """Contract tests for the Reference Validator Agent API."""
+    """Contract tests ensuring ReferenceValidatorAgent meets specification."""
 
-    @pytest.fixture
-    def agent(self):
-        """Create a fresh agent instance for each test."""
-        return ReferenceValidatorAgent(threshold=0.7)
+    def test_init_default(self):
+        """Test initialization with default configuration."""
+        agent = ReferenceValidatorAgent()
+        assert agent.min_overlap_threshold == 0.7
+        assert agent.config == {}
 
-    def test_init(self):
-        """Test that agent initializes with correct threshold."""
-        agent = ReferenceValidatorAgent(threshold=0.5)
-        assert agent.threshold == 0.5
-        assert agent.get_review_points() == 0
+    def test_init_custom_threshold(self):
+        """Test initialization with custom threshold."""
+        agent = ReferenceValidatorAgent(config={"min_overlap_threshold": 0.5})
+        assert agent.min_overlap_threshold == 0.5
 
-    def test_tokenization(self, agent):
-        """Test that title tokenization works correctly."""
-        title = "Heterogeneous Scientific Foundation Model"
-        tokens = agent.tokenize_title(title)
-        assert "heterogeneous" in tokens
-        assert "scientific" in tokens
-        assert "foundation" in tokens
-        assert "model" in tokens
-        # Short words should be filtered
-        assert "a" not in tokens
-
-    def test_overlap_identical_titles(self, agent):
-        """Test that identical titles yield 1.0 overlap."""
-        title = "Exact Match Title"
-        score = agent.compute_title_token_overlap(title, title)
+    def test_title_token_overlap_exact(self):
+        """Test overlap calculation for identical titles."""
+        score = compute_title_token_overlap("Test Title", "Test Title")
         assert score == 1.0
 
-    def test_overlap_completely_different(self, agent):
-        """Test that completely different titles yield 0.0 overlap."""
-        score = agent.compute_title_token_overlap("Apple Banana", "Carrot Date")
+    def test_title_token_overlap_partial(self):
+        """Test overlap calculation for partially matching titles."""
+        score = compute_title_token_overlap("Heterogeneous Model", "Model Heterogeneous")
+        # Both have 2 tokens, intersection is 2, union is 2 -> 1.0
+        assert score == 1.0
+
+    def test_title_token_overlap_none(self):
+        """Test overlap calculation for empty titles."""
+        score = compute_title_token_overlap("", "Title")
+        assert score == 0.0
+        score = compute_title_token_overlap("Title", "")
         assert score == 0.0
 
-    def test_validate_reference_pass(self, agent):
-        """Test validation passes when overlap >= threshold."""
-        ref = {"title": "Heterogeneous Scientific Foundation Model"}
-        target = "Heterogeneous Scientific Foundation Model Benchmark"
-        
-        is_valid, score, reason = agent.validate_reference(ref, target)
-        
+    def test_validate_title_match_pass(self):
+        """Test validation when overlap is above threshold."""
+        agent = ReferenceValidatorAgent()
+        is_valid, score = agent.validate_title_match("Good Title", "Good Title")
         assert is_valid is True
-        assert score >= agent.threshold
-        assert "PASS" in reason or "threshold" in reason
+        assert score == 1.0
 
-    def test_validate_reference_fail(self, agent):
-        """Test validation fails when overlap < threshold."""
-        ref = {"title": "Completely Unrelated Topic"}
-        target = "Heterogeneous Scientific Foundation Model"
-        
-        is_valid, score, reason = agent.validate_reference(ref, target)
-        
+    def test_validate_title_match_fail(self):
+        """Test validation when overlap is below threshold."""
+        agent = ReferenceValidatorAgent()
+        is_valid, score = agent.validate_title_match("Different", "Good Title")
         assert is_valid is False
-        assert score < agent.threshold
+        assert score < 0.7
 
-    def test_constitution_ii_gate_pass(self, agent):
-        """Test that the blocking gate allows compliant references."""
-        ref = {"title": "Heterogeneous Scientific Foundation Model"}
-        target = "Heterogeneous Scientific Foundation Model Benchmark"
-        
-        is_compliant = agent.check_constitution_ii_compliance(ref, target)
-        
+    def test_constitution_ii_compliance_pass(self):
+        """Test full compliance check with valid data."""
+        agent = ReferenceValidatorAgent()
+        data = {
+            "title": "Test Title",
+            "reference_title": "Test Title",
+            "source": "arxiv.org",
+            "citation": "1234.5678"
+        }
+        is_compliant, missing = agent.check_constitution_ii_compliance(data)
         assert is_compliant is True
+        assert len(missing) == 0
 
-    def test_constitution_ii_gate_block(self, agent):
-        """Test that the blocking gate blocks non-compliant references."""
-        ref = {"title": "Completely Unrelated Topic"}
-        target = "Heterogeneous Scientific Foundation Model"
-        
-        is_compliant = agent.check_constitution_ii_compliance(ref, target)
-        
+    def test_constitution_ii_compliance_fail_title(self):
+        """Test compliance check failing on title overlap."""
+        agent = ReferenceValidatorAgent()
+        data = {
+            "title": "Different Title",
+            "reference_title": "Original Title",
+            "source": "arxiv.org",
+            "citation": "1234.5678"
+        }
+        is_compliant, missing = agent.check_constitution_ii_compliance(data)
         assert is_compliant is False
+        assert "title_token_overlap" in missing
 
-    def test_contribute_points_on_pass(self, agent):
-        """Test that points are awarded only when gate passes."""
-        initial_points = agent.get_review_points()
-        ref = {"title": "Heterogeneous Scientific Foundation Model"}
-        target = "Heterogeneous Scientific Foundation Model Benchmark"
-        
-        points = agent.contribute_review_points(ref, target)
-        
-        assert points == 1
-        assert agent.get_review_points() == initial_points + 1
+    def test_constitution_ii_compliance_fail_source(self):
+        """Test compliance check failing on missing source."""
+        agent = ReferenceValidatorAgent()
+        data = {
+            "title": "Test Title",
+            "reference_title": "Test Title",
+            "source": "",
+            "citation": "1234.5678"
+        }
+        is_compliant, missing = agent.check_constitution_ii_compliance(data)
+        assert is_compliant is False
+        assert "source_verification" in missing
 
-    def test_contribute_points_on_fail(self, agent):
-        """Test that points are NOT awarded when gate blocks."""
-        initial_points = agent.get_review_points()
-        ref = {"title": "Completely Unrelated Topic"}
-        target = "Heterogeneous Scientific Foundation Model"
-        
-        points = agent.contribute_review_points(ref, target)
-        
-        assert points == 0
-        assert agent.get_review_points() == initial_points
+    def test_constitution_ii_compliance_fail_citation(self):
+        """Test compliance check failing on missing citation."""
+        agent = ReferenceValidatorAgent()
+        data = {
+            "title": "Test Title",
+            "reference_title": "Test Title",
+            "source": "arxiv.org",
+            "citation": ""
+        }
+        is_compliant, missing = agent.check_constitution_ii_compliance(data)
+        assert is_compliant is False
+        assert "citation_format" in missing
 
-    def test_batch_validation(self, agent):
-        """Test batch validation logic."""
-        refs = [
-            {"title": "Heterogeneous Scientific Foundation Model"},
-            {"title": "Completely Unrelated Topic"}
-        ]
-        target = "Heterogeneous Scientific Foundation Model Benchmark"
-        
-        results = agent.validate_batch(refs, target)
-        
-        assert results["total_references"] == 2
-        assert results["valid_count"] == 1
-        assert results["invalid_count"] == 1
-        assert len(results["details"]) == 2
+    def test_evaluate_contribution_complete(self):
+        """Test the full evaluate_contribution method."""
+        agent = ReferenceValidatorAgent()
+        data = {
+            "title": "Test Title",
+            "reference_title": "Test Title",
+            "source": "arxiv.org",
+            "citation": "1234.5678"
+        }
+        result = agent.evaluate_contribution(data)
+        assert result["passed"] is True
+        assert result["missing_requirements"] == []
+        assert result["score"] == 1.0
+        assert "approved" in result["message"]
+
+    def test_evaluate_contribution_blocked(self):
+        """Test the full evaluate_contribution method for blocked case."""
+        agent = ReferenceValidatorAgent()
+        data = {
+            "title": "Bad Title",
+            "reference_title": "Good Title",
+            "source": "arxiv.org",
+            "citation": "1234.5678"
+        }
+        result = agent.evaluate_contribution(data)
+        assert result["passed"] is False
+        assert "title_token_overlap" in result["missing_requirements"]
+        assert "blocked" in result["message"]

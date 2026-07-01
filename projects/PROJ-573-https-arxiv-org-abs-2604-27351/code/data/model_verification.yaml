@@ -1,0 +1,16 @@
+models:
+- cpu_tractable: true
+  hf_id: hf-internal-testing/tiny-random-T5Model
+  max_size_gb: 1.0
+  model_name: TimeSeries-Transformer (Proxy)
+  size_mb: 0.5
+- cpu_tractable: true
+  hf_id: google/byt5-small
+  max_size_gb: 1.0
+  model_name: TabPFN (Proxy)
+  size_mb: 500.0
+- cpu_tractable: true
+  hf_id: HuggingFaceTB/SmolLM-135M-Instruct
+  max_size_gb: 1.0
+  model_name: Distilled LLM (SmolLM-135M)
+  size_mb: 270.0
