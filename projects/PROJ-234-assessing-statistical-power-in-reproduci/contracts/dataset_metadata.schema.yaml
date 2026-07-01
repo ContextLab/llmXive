@@ -1,0 +1,87 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Dataset Metadata Schema
+description: Schema for OpenML dataset metadata used in statistical power assessment.
+type: object
+required:
+  - dataset_id
+  - name
+  - version
+  - task_type
+  - download_count
+  - status
+properties:
+  dataset_id:
+    type: integer
+    description: Unique identifier for the dataset on OpenML.
+  name:
+    type: string
+    description: Human-readable name of the dataset.
+  version:
+    type: integer
+    description: Version number of the dataset.
+  task_type:
+    type: string
+    description: Type of task (e.g., "Supervised Classification").
+  task_id:
+    type: integer
+    nullable: true
+    description: Associated task ID if available.
+  publication_link:
+    type: string
+    format: uri
+    nullable: true
+    description: Link to the publication describing the dataset.
+  download_count:
+    type: integer
+    minimum: 0
+    description: Number of times the dataset has been downloaded.
+  status:
+    type: string
+    enum:
+      - active
+      - inactive
+      - deleted
+    description: Current status of the dataset.
+  number_of_instances:
+    type: integer
+    nullable: true
+    description: Number of instances (rows) in the dataset.
+  number_of_features:
+    type: integer
+    nullable: true
+    description: Number of features (columns) in the dataset.
+  number_of_classes:
+    type: integer
+    nullable: true
+    description: Number of classes for classification tasks.
+  class_attribute:
+    type: string
+    nullable: true
+    description: Name of the class attribute.
+  md5_checksum:
+    type: string
+    nullable: true
+    description: MD5 checksum of the dataset file.
+  upload_date:
+    type: string
+    format: date-time
+    nullable: true
+    description: Date the dataset was uploaded.
+  language:
+    type: string
+    nullable: true
+    description: Language of the dataset documentation.
+  licence:
+    type: string
+    nullable: true
+    description: License under which the dataset is distributed.
+  url:
+    type: string
+    format: uri
+    description: Direct URL to the dataset on OpenML.
+  tags:
+    type: array
+    items:
+      type: string
+    description: List of tags associated with the dataset.
+additionalProperties: false

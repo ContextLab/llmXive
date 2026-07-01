@@ -1,0 +1,15 @@
+? "T007 Implement `code/utils/api_client.py` with OpenML connection and exponential\
+  \ backoff retry logic (handles HTTP\u202F429). **Unit test** `tests/unit/test_api_client.py::test_api_client_retry_on_429`\
+  \ validates backoff."
+: 1
+? "T008 Implement `code/utils/oa_checker.py` to validate Open Access status of publication\
+  \ links (uses DOI content\u2011type checks). **Unit test** `tests/unit/test_oa_checker.py::test_oa_status`\
+  \ validates behavior."
+: 1
+T010 Create `contracts/report.schema.yaml` defining final audit report JSON structure (used by later contract tests).: 1
+? 'T010 [P] [US1] Unit test `tests/unit/test_api_client.py::test_api_client_retry_on_429`
+  (already covered by T007). <!-- FAILED: unspecified -->'
+: 1
+? T011 [P] [US1] Contract test `tests/contract/test_schemas.py::test_dataset_metadata_schema`
+  validates `data/raw/openml_metadata_filtered.json` against `contracts/dataset_metadata.schema.yaml`.
+: 1

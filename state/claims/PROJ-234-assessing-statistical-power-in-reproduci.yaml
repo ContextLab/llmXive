@@ -1,0 +1,152 @@
+- artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
+  attempts: 1
+  canonical: Research question is to determine if observed power is appropriate for
+    post-hoc validation
+  claim_id: c_c7e4d5cf
+  context: The method involves a theoretical analysis of the monotonic relationship
+    between observed power and p-values.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Research_question_is_to_determine_if_observed_power_is_appro
+  kind: entity_fact
+  raw_text: "The research question is to determine whether observed power is appropriate\
+    \ for post\u2011hoc validation."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T21:05:27Z'
+- artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
+  attempts: 1
+  canonical: OpenML dataset ingestion returns max 50 entries with publication link
+    or task ID
+  claim_id: c_197f4598
+  context: 'Independent Test: Execute code/01_ingest_openml.py and verify data/raw/openml_metadata_filtered.json
+    contains a list of entries (max 50) with non-null publication_link or task_id.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The independent test executes code/01_ingest_openml.py and verifies data/raw/openml_metadata_filtered.json
+    contains a list of entries (max 50) with non-null publication_link or task_id.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T21:07:56Z'
+- artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
+  attempts: 1
+  canonical: Synthetic input N=100 and d=0.2 yields observed power of 0.30 and MDES
+    of 0.25
+  claim_id: c_21597473
+  context: "Unit test tests/unit/test_sensitivity.py::test_compute_observed_power_and_mdes\
+    \ using synthetic input N=100, d=0.2 expects observed power \u22480.30 (\xB10.05)\
+    \ and MDES \u22480.25 (\xB10.05)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Unit test tests/unit/test_sensitivity.py::test_compute_observed_power_and_mdes\
+    \ using synthetic input N=100, d=0.2 expects observed power \u22480.30 (\xB10.05)\
+    \ and MDES \u22480.25 (\xB10.05)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T21:10:16Z'
+- artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
+  attempts: 1
+  canonical: Pipeline peak memory usage is less than 7 GB
+  claim_id: c_7ab2215c
+  context: Assert peak RSS < 7 GB using memory_profiler; fail with clear message if
+    exceeded.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_peak_memory_usage_is_less_than_7_GB
+  kind: magnitude
+  raw_text: The pipeline asserts peak RSS < 7 GB using memory_profiler.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T21:10:45Z'
+- artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
+  attempts: 1
+  canonical: Test tasks are optional unless explicitly requested in the feature specification
+  claim_id: c_4e258cb4
+  context: "Tests: The examples below include test tasks. Tests are OPTIONAL \u2013\
+    \ only include them if explicitly requested in the feature specification."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Test_tasks_are_optional_unless_explicitly_requested_in_the_f
+  kind: entity_fact
+  raw_text: "The examples below include test tasks. Tests are OPTIONAL \u2013 only\
+    \ include them if explicitly requested in the feature specification."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T21:21:18Z'
+- artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
+  attempts: 1
+  canonical: OpenML metadata filtered file contains a maximum of 50 entries with non-null
+    publication links or task IDs
+  claim_id: c_645e3d79
+  context: 'Independent Test: Execute code/01_ingest_openml.py and verify data/raw/openml_metadata_filtered.json
+    contains a list of entries (max 50) with non-null publication_link or task_id.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute code/01_ingest_openml.py and verify data/raw/openml_metadata_filtered.json
+    contains a list of entries (max 50) with non-null publication_link or task_id.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T21:21:36Z'
+- artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
+  attempts: 1
+  canonical: Synthetic input with N=100 and d=0.2 yields observed power of approximately
+    0.30 and MDES of approximately 0.25
+  claim_id: c_5321c46c
+  context: "Unit test tests/unit/test_sensitivity.py::test_compute_observed_power_and_mdes\
+    \ using synthetic input N=100, d=0.2 expects observed power \u22480.30 (\xB10.05)\
+    \ and MDES \u22480.25 (\xB10.05)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Unit test tests/unit/test_sensitivity.py::test_compute_observed_power_and_mdes\
+    \ using synthetic input N=100, d=0.2 expects observed power \u22480.30 (\xB10.05)\
+    \ and MDES \u22480.25 (\xB10.05)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T21:21:36Z'
+- artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/tasks.md
+  attempts: 1
+  canonical: Peak RSS must be less than 7 GB
+  claim_id: c_d07052d5
+  context: Assert peak RSS < 7 GB using memory_profiler; fail with clear message if
+    exceeded.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RSS_must_be_less_than_7_GB
+  kind: magnitude
+  raw_text: Assert peak RSS < 7 GB using memory_profiler; fail with clear message
+    if exceeded.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T21:22:03Z'
