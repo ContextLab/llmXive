@@ -20,42 +20,15 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
--->
-
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create directory `projects/PROJ-478-assessing-the-predictive-power-of-plant-/code/src`
-- [ ] T001b [P] Create directory `projects/PROJ-478-assessing-the-predictive-power-of-plant-/code/src/data`
-- [ ] T001c [P] Create directory `projects/PROJ-478-assessing-the-predictive-power-of-plant-/code/src/modeling`
-- [ ] T001d [P] Create directory `projects/PROJ-478-assessing-the-predictive-power-of-plant-/code/src/analysis`
-- [ ] T001e [P] Create directory `projects/PROJ-478-assessing-the-predictive-power-of-plant-/code/src/utils`
-- [ ] T001f [P] Create directory `projects/PROJ-478-assessing-the-predictive-power-of-plant-/code/tests`
-- [ ] T001g [P] Create directory `projects/PROJ-478-assessing-the-predictive-power-of-plant-/code/data/raw`
-- [ ] T001h [P] Create directory `projects/PROJ-478-assessing-the-predictive-power-of-plant-/code/data/processed`
-- [ ] T001i [P] Create directory `projects/PROJ-478-assessing-the-predictive-power-of-plant-/code/data/metadata`
-- [ ] T001j [P] Create directory `projects/PROJ-478-assessing-the-predictive-power-of-plant-/code/results`
-- [ ] T001k [P] Create `__init__.py` in all `src/` and `tests/` subdirectories
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (scikit-learn, geopandas, rasterio, statsmodels, requests, tqdm, numpy, pandas)
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+- [ ] T001a [P] Create `src/`, `src/data/`, `src/modeling/`, `src/analysis/`, `src/utils/` directories
+- [ ] T001b [P] Create `data/raw`, `data/processed`, `data/metadata`, `results` directories
+- [ ] T001c [P] Create `tests/unit`, `tests/integration`, `tests/contract` directories
+- [ ] T002 Initialize a Python project with dependencies in `requirements.txt` (scikit-learn, pandas, geopandas, rasterio, rasterstats, pyyaml, requests, tqdm, numpy, statsmodels, linearmodels)
+- [ ] T003 [P] Configure linting (flake/ruff) and formatting (black) tools
 
 ---
 
@@ -65,12 +38,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 [P] Implement `src/utils/config.py` for constants, seeds, and paths
-- [ ] T006 [P] Implement `src/utils/logging.py` for structured logging and progress bars
-- [ ] T007 Create base data models (Pydantic/Dataclasses) for `Species`, `OccurrenceRecord`, `ClimateRasterStack`, `TraitProfile` in `src/models/`
-- [ ] T008 Setup environment configuration management (`.env` handling for API keys)
-- [ ] T009 Implement checksum verification utilities in `src/utils/checksum.py` for raw data integrity
-- [ ] T009b [P] Implement URL reachability and checksum verification gate in `src/utils/verify_data.py` to validate GBIF, WorldClim, and TRY URLs before download (Constitution Principle II)
+- [ ] T004 [P] Implement `src/utils/config.py` with constants, random seeds, and resource limits (max_depth=10, n_estimators=100)
+- [~] T005 [P] Implement `src/utils/logging.py` for structured logging and provenance tracking
+- [~] T007 Implement `src/data/loaders.py` for raster loading utilities and coordinate alignment checks
+- [~] T008 Implement `src/data/preprocess.py` for spatial thinning (default 10 km, min 1 km) and density-based background sampling using exactly **[deferred] points** per species (as per Spec Assumptions)
+- [~] T009 Setup environment configuration management and checksum verification for raw downloads
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -78,26 +50,30 @@
 
 ## Phase 3: User Story 1 - Generate a climate‑only SDM for a single species (Priority: P1) 🎯 MVP
 
-**Goal**: Establish baseline SDM performance using climate-only variables for a single species (e.g., *Helianthus annuus*) to serve as a reference point.
+**Goal**: Establish a baseline SDM using only climate variables for a single species (e.g., *Helianthus annuus*) to serve as a reference point.
 
-**Independent Test**: Run the workflow for one species and verify that a cleaned occurrence file, climate rasters, and cross-validated AUC/TSS values are produced.
+**Independent Test**: Run the workflow for one species and verify that a cleaned occurrence file, climate rasters, and cross‑validated AUC/TSS values are produced, retaining ≥80% of raw records.
 
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+### Tests for User Story 1
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-
-- [ ] T010 [P] [US1] Unit test for spatial thinning logic in `tests/unit/test_preprocess.py` (verify ≥80% retention)
-- [ ] T011 [P] [US1] Integration test for end-to-end climate-only training in `tests/integration/test_us1_climate_only.py`
+- [~] T010 [P] [US1] Unit test for spatial thinning logic in `tests/unit/test_preprocess.py` (verify record retention ≥80%)
+- [~] T011 [P] [US1] Integration test for GBIF fetch and cleaning in `tests/integration/test_fetch_gbif.py` (verify duplicate removal and coordinate validity)
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `src/data/fetch_gbif.py` to retrieve occurrences, remove duplicates, and apply spatial thinning (a default distance, min 1km) per FR-001. **Logic**: If thinning reduces records to <80% of raw, iteratively reduce thinning distance by 1km steps until retention >= 80% or 1km minimum is reached. If still insufficient, flag species as 'insufficient data'.
-- [ ] T013 [US1] Implement `src/data/fetch_climate.py` to download WorldClim bioclimatic layers and align to occurrence extent per FR-002
-- [ ] T014 [US1] Implement `src/data/preprocess.py` for density-based background sampling (a sufficiently large set of points) and coordinate alignment
-- [ ] T015 [US1] Implement `src/modeling/train_rf.py` for CPU-only Random Forest training (n_estimators=100, max_depth=10) with k-fold CV
-- [ ] T016 [US1] Implement `src/modeling/metrics.py` to calculate AUC and TSS scores
-- [ ] T017 [US1] Create `src/main.py` entry point to orchestrate the single-species climate-only pipeline
-- [ ] T018 [US1] Add error handling for "No occurrence records" and "Model training failure" (retry with reduced max_depth) per Edge Cases
+- [~] T012 [P] [US1] Implement `src/data/fetch_gbif.py` to retrieve records, remove duplicates, and apply spatial thinning (FR-001)
+- [~] T013 [P] [US1] Implement `src/data/fetch_climate.py` to download WorldClim v2.1 rasters covering the convex hull and align to occurrences (FR-002) <!-- FAILED: unspecified -->
+- [~] T014 [US1] Implement `src/modeling/train_rf.py` for training a Random Forest classifier (climate-only) using **5-fold cross-validation** (per Spec Constitution) to calculate AUC and TSS (SC-001, SC-002)
+- [~] T015 [US1] Implement `src/modeling/metrics.py` to calculate and report AUC and TSS values (SC-001, SC-002)
+- [~] T016 [US1] Add error handling for "No occurrence records" and "Model training failure" (retry with reduced max_depth)
+- [~] T017 [US1] Add logging for data provenance and thinning statistics <!-- SKIPPED: YAML+regex parse failed (while scanning a simple key
+ in "<unicode string>", line 8, column 1:
+ The code uses only imports from...
+ ^
+could not find expected ':'
+ in "<unicode string>", line 8, column 245:
+... statistics as specified in US1.
+ ^) -->
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -105,23 +81,28 @@
 
 ## Phase 4: User Story 2 - Add functional trait covariates and re‑train the SDM (Priority: P2)
 
-**Goal**: Augment the climate model with functional traits using a Leave-One-Species-Out (LOSO) design with **known trait values** for the held-out species.
+**Goal**: Augment the climate-only model with species-level functional traits.
+**Critical Note**: The Spec (FR-004) mandates using **known trait values** for the held-out species. The Plan's "Trait Imputation" strategy is implemented as an optional validation step (T021b) to avoid circularity, but the primary task (T021a) must satisfy the Spec requirement.
 
-**Independent Test**: Run the workflow for a subset of species and validate the model against the held-out species using the known trait values.
+**Independent Test**: Run the workflow for a subset of species using LOSO; verify that the model uses **known** trait values for the test species (Spec) and optionally compare with imputed traits (Plan).
 
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
+### Tests for User Story 2
 
-- [ ] T019 [P] [US2] Unit test for trait source verification (Handbook 2013) in `tests/unit/test_fetch_traits.py`
-- [ ] T020 [P] [US2] Integration test for LOSO loop with known traits in `tests/integration/test_us2_loso_known_traits.py`
+- [~] T018 [P] [US2] Unit test for TRY data fetching and source verification (Handbook 2013) in `tests/unit/test_fetch_traits.py`
+- [~] T019 [P] [US2] Integration test for LOSO loop logic in `tests/integration/test_loso_cv.py` (verify **known trait values** usage for test set per Spec FR-004)
 
 ### Implementation for User Story 2
 
-- [ ] T021 [P] [US2] Implement `src/data/fetch_traits.py` to retrieve SLA, seed mass, height from TRY, verify source metadata (FR-010). **Logic**: If source is not 'Handbook 2013', flag the value as 'unverified protocol' but **retain** the record with a warning. If any of the three required traits are missing entirely (null/NaN), flag the species as '[missing trait]'.
-- [ ] T022 [US2] Implement `src/modeling/loso_cv.py` to orchestrate the LOSO cycle: train on N-1 species, then for the held-out species, use its **known trait values** (from T021) as inputs to the 'climate+traits' model. Train and evaluate using these known traits. **Note**: This strictly follows Spec FR-004 and US-2. **Priority**: The Spec's requirement for 'known trait values' takes precedence over the Plan's 'Trait Imputation' design decision. Do NOT implement trait imputation.
-- [ ] T023 [US2] Implement `src/modeling/collinearity.py` to compute Variance Inflation Factor (VIF) for the full predictor set and flag VIF > 5 (FR-011)
-- [ ] T024 [US2] Extend `src/main.py` to run the full LOSO loop for all species with complete trait data
-- [ ] T025 [US2] Implement logic to exclude species with **missing** traits (not unverified) from the trait-augmented branch and log exclusions (FR-006). **Logic**: Only exclude if any of the three required traits are null/NaN. 'Unverified protocol' traits must be retained.
-- [ ] T026b [US2] Add logging to track "unverified protocol" traits and include a warning in the final report (do NOT exclude these species from the analysis)
+- [~] T020 [P] [US2] Implement `src/data/fetch_traits.py` to retrieve SLA, seed mass, and plant height from TRY public subset; verify source metadata and explicitly flag values as **'unverified protocol'** if source is not 'Handbook 2013' (FR-003, FR-010)
+- [ ] T022a [US2] Implement `src/analysis/collinearity.py` to merge climate and trait data for the full predictor set across all species (prerequisite for VIF)
+- [ ] T022 [US2] Implement `src/analysis/collinearity.py` to compute Variance Inflation Factor (VIF) for the full predictor set using the merged data from T022a and flag VIF > 5 (FR-011, SC-005)
+- [ ] T023 [US2] Implement logic to flag/exclude species with missing traits and log exclusion reasons (FR-006)
+- [ ] T021a [US2] Implement `src/modeling/loso_cv.py` to orchestrate the full LOSO cycle: train on N-1 species, **use the known trait values** of the 1 held-out species as inputs, and evaluate (FR-004, US-2)
+- [ ] T021b [US2] Implement `src/modeling/loso_cv.py` (optional branch) to **predict traits** for the held-out species using a climate-niche model trained on N-1 species (Plan Override of FR-004), and evaluate using these imputed values
+- [ ] T024 [US2] Integrate both **known** (T021a) and **imputed** (T021b) trait data into the Random Forest training pipeline for the "climate + traits" configuration, ensuring the Spec-compliant path (known values) is the default
+- [ ] T025 [US2] Add explicit disclaimer logic in the report generation to frame relationships as associative, not causal (FR-007)
+- [ ] T025b [US2] Add explicit documentation in the final report explaining the **Trait Imputation** strategy as a Plan override of Spec FR-004 to ensure scientific validity
+- [ ] T025c [US2] Create a formal note in `research.md` or `plan.md` documenting the Spec-Plan divergence regarding Trait Imputation (FR-004 override) to ensure traceability
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -129,25 +110,23 @@
 
 ## Phase 5: User Story 3 - Conduct a comparative statistical analysis across 50 species (Priority: P3)
 
-**Goal**: Evaluate community-level performance differences between climate-only and trait-augmented models using paired t-tests and sensitivity analysis.
+**Goal**: Evaluate at the community level whether trait-augmented models outperform climate-only models using **paired two-sided t-test** (Spec FR-005) and sensitivity analysis. The Plan's LMM is an additional analysis step (T028b).
 
-**Independent Test**: Execute the full pipeline for all focal species, run paired t-tests with Bonferroni correction, and verify sensitivity analysis results.
+**Independent Test**: Execute the full pipeline for all focal species, run the paired t-test with Bonferroni correction, and verify sensitivity analysis results meet success criteria.
 
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
+### Tests for User Story 3
 
-- [ ] T027 [P] [US3] Unit test for paired t-test and Bonferroni correction logic in `tests/unit/test_stats.py`
-- [ ] T028 [P] [US3] Integration test for sensitivity analysis sweep in `tests/integration/test_us3_sensitivity.py`
+- [ ] T026 [P] [US3] Unit test for t-test logic and Bonferroni correction in `tests/unit/test_stats.py`
+- [ ] T027 [P] [US3] Integration test for sensitivity analysis sweep in `tests/integration/test_sensitivity.py`
 
 ### Implementation for User Story 3
 
-- [ ] T029 [US3] Implement `src/analysis/stats.py` to perform paired two-sided t-tests on AUC/TSS results, apply Bonferroni correction (FR-005, FR-008), and calculate Cohen's d. **Output**: `results/stats_report.json` with corrected p-value and effect size. **Primary Method**: Spec FR-005 t-test. **Note**: This task implements the Spec's required verification. The Plan's LMM suggestion is optional (see T029b).
-- [ ] T029b [US3] Implement optional exploratory Linear Mixed-Effects Modeling (LMM) in `src/analysis/stats.py` to account for non-independence. **Note**: This is optional and does not replace the primary t-test in T029 for acceptance criteria.
-- [ ] T030 [US3] Implement sensitivity analysis sweep over thresholds {0.01, 0.02, 0.05} to verify direction of improvement in ≥67% of cases (FR-009, US-3). **Output**: `results/sensitivity_analysis.json` containing a table with columns: `threshold`, `count_positive_delta`, `percentage_positive`.
-- [ ] T031 [US3] Implement logic to check mean AUC < 0.70 and flag in report (SC-002)
-- [ ] T031b [US3] Perform power analysis to determine the exact N required (targeting a sufficient sample size if feasible) and report the final count (resolving scope ambiguity)
-- [ ] T032 [US3] Generate `results/model_results.json` with per-species metrics and `results/stats_report.json` with aggregate test results
-- [ ] T033 [US3] Add explicit disclaimer to final report framing results as associative, not causal (FR-007)
-- [ ] T034 [US3] Create final report generator that includes VIF warnings, p-values, effect sizes, and sensitivity tables
+- [ ] T028a [US3] Implement `src/analysis/stats.py` to perform **paired two-sided t-test** on AUC/TSS differences across species, apply **Bonferroni correction**, and calculate **Cohen's d** (FR-005, FR-008, SC-003)
+- [ ] T028b [US3] Implement `src/analysis/stats.py` (optional branch) to perform **Linear Mixed-Effects Modeling (LMM)** with random species effects to account for non-independence (Plan Override of FR-005)
+- [ ] T029 [US3] Report fixed effects, variance components (if LMM used), **Bonferroni-corrected p-values**, and **Cohen's d** from the t-test (FR-005, SC-003)
+- [ ] T030 [US3] Implement sensitivity analysis sweep over thresholds {0.01, 0.02, 0.05} to verify direction of improvement consistency **≥ 67% (at least 2 out of 3)** and generate the specific sensitivity table (FR-009, SC-004)
+- [ ] T031 [US3] Generate final JSON/CSV reports: `results/model_results.json`, `results/stats_report.json`, `results/sensitivity_analysis.json`
+- [ ] T032 [US3] Add validation to ensure all VIF > 5 findings are reflected in the final report with appropriate caveats (SC-005)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -157,12 +136,12 @@
 
 **Purpose**: Improvements that affect multiple user stories and final validation
 
-- [ ] T035 [P] Documentation updates in `README.md` and `docs/` with execution instructions
-- [ ] T036 Code cleanup and refactoring of `src/` modules. **Rules**: Remove unused imports, enforce black formatting, reduce cyclomatic complexity < 10.
-- [ ] T037 Performance optimization to ensure total runtime ≤ 6 hours on CPU-only runner
-- [ ] T038 [P] Run quickstart.md validation script
-- [ ] T039 Verify all data provenance logs in `data/metadata/` match spec requirements
-- [ ] T040 Final integration test: Run full pipeline from raw data fetch to final report generation
+- [ ] T033 [P] Documentation updates in `docs/` including data provenance and methodology notes
+- [ ] T034 [P] Implement **chunked loading** in `src/data/loaders.py` to ensure memory usage stays within acceptable limits during LOSO
+- [ ] T035 [P] Implement **sequential species iterator** in `src/modeling/loso_cv.py` to manage RAM during full pipeline execution
+- [ ] T036 [P] Additional unit tests for edge cases (missing traits, zero records) in `tests/unit/`
+- [ ] T037 Run `quickstart.md` validation to ensure the full pipeline executes within 6 hours on CPU-only runner
+- [ ] T038 Verify reproducibility by re-running with fixed seeds and comparing checksums
 
 ---
 
@@ -173,15 +152,15 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data structures (Species, OccurrenceRecord)
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on results from US1 and US2
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1's data fetching logic for climate
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2's model results
 
 ### Within Each User Story
 
@@ -207,11 +186,11 @@
 ```bash
 # Launch all tests for User Story 1 together (if tests requested):
 Task: "Unit test for spatial thinning logic in tests/unit/test_preprocess.py"
-Task: "Integration test for end-to-end climate-only training in tests/integration/test_us1_climate_only.py"
+Task: "Integration test for GBIF fetch and cleaning in tests/integration/test_fetch_gbif.py"
 
 # Launch all models for User Story 1 together:
-Task: "Implement fetch_gbif.py"
-Task: "Implement fetch_climate.py"
+Task: "Implement src/data/fetch_gbif.py"
+Task: "Implement src/data/fetch_climate.py"
 ```
 
 ---
@@ -240,9 +219,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---
@@ -256,7 +235,9 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All tasks must run on CPU-only GitHub Actions runners (limited cores, constrained RAM). No GPU, no CUDA, no 8-bit quantization.
-- **Data Integrity**: All datasets must be real and fetched from verified URLs (GBIF, WorldClim, TRY). No synthetic data generation for inputs.
-- **Validation Design**: The LOSO loop MUST use the held-out species' **known trait values** (from TRY) for the 'climate+traits' model, as per Spec FR-004 and US-2. Do NOT use trait imputation. **Note**: This Spec requirement overrides the Plan.md's "Critical Design Decision" if they conflict.
-- **Statistical Method**: The primary verification method is the Spec-mandated paired t-test with Bonferroni correction (T029). LMM (T029b) is optional exploratory analysis.
+- **Critical**: All Random Forest training must use `max_depth=10` and `n_estimators=100` to comply with CPU-only runner constraints.
+- **Critical**: **Spec FR-004 Compliance**: The primary LOSO task (T021a) MUST use **known trait values** for the held-out species. The Plan's "Trait Imputation" (T021b) is an optional validation step.
+- **Critical**: **Spec FR-005 Compliance**: The primary statistical task (T028a) MUST implement the **paired two-sided t-test** with Bonferroni correction and Cohen's d. The Plan's LMM (T028b) is an optional add-on.
+- **Critical**: **Sensitivity Analysis**: Task T030 MUST verify the **≥ 67% (2 out of 3)** consistency metric across thresholds.
+- **Critical**: **Data Hygiene**: Task T008 MUST use exactly **[deferred] background points**.
+- **Critical**: **Trait Verification**: Task T020 MUST flag 'unverified protocol' for non-Handbook 2013 sources.

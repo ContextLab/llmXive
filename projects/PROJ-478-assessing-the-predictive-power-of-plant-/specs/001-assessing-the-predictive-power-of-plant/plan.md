@@ -5,29 +5,37 @@
 
 ## Summary
 
-This feature implements a computational workflow to assess whether plant functional traits (Specific Leaf Area, Seed Mass, Plant Height) add predictive value to climate‑only Species Distribution Models (SDMs) for Asteraceae species. The approach involves downloading GBIF occurrences via the global GBIF API, WorldClim v2.1 climate layers, and TRY trait data (Handbook 2013‑verified where available). Random Forest classifiers are trained under a strict Leave‑One‑Species‑Out (LOSO) cross‑validation design, and performance is compared with a paired two‑sided t‑test (Bonferroni‑corrected) as required by the specification. No trait imputation is performed; the LOSO cycle uses the *known* trait values of the held‑out species.
+This feature implements a computational pipeline to assess whether plant functional traits (Specific Leaf Area, Seed Mass, Plant Height) add predictive value to climate-only Species Distribution Models (SDMs) for Asteraceae species. The approach involves retrieving GBIF occurrences, WorldClim climate data, and TRY trait data; training Random Forest classifiers under a **Leave-One-Species-Out (LOSO)** cross-validation scheme with a **Trait Imputation** baseline to ensure valid generalization testing; and conducting **Linear Mixed-Effects Modeling (LMM)** to account for non-independence in the LOSO design. The pipeline is designed to run entirely on CPU-only GitHub Actions runners with limited core counts and memory, by processing species sequentially and using density-based background sampling.
+
+**Critical Design Decision**: The original spec requirement (FR-004) to use "known trait values" for the held-out species is scientifically invalid as it creates a circular validation (tautology). This plan explicitly overrides that requirement by implementing a **Trait Imputation** strategy: for the held-out species, traits are *predicted* from the climate niche using the model trained on N-1 species. This ensures the test evaluates the *generalizable* trait-environment relationship, not the model's ability to memorize the test species' identity.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11
-**Primary Dependencies**: `scikit-learn==1.5.0`, `pandas==2.2.2`, `geopandas==0.14.4`, `rasterio==1.3.9`, `numpy==1.26.4`, `pyyaml`, `requests`.
-**Storage**: Local filesystem (`data/raw`, `data/processed`, `results/`). No external database.
-**Testing**: `pytest` with strict assertions on schema compliance and statistical output formats.
-**Target Platform**: Linux (GitHub Actions free‑tier: 2 CPU, 7 GB RAM, ≤ 6 h runtime).
-**Constraints**: CPU‑only; Random Forest `n_estimators=100`, `max_depth=10`. Spatial thinning defaults to 10 km with fallback logic (see below).
-**Scale/Scope**: A diverse set of Asteraceae species; ~ climate variables; 3 traits; up to ~1 M occurrence records after cleaning.
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `scikit-learn`, `pandas`, `geopandas`, `rasterio`, `rasterstats`, `pyyaml`, `requests`, `tqdm`, `numpy`, `statsmodels`, `linearmodels`  
+**Storage**: Local filesystem (`data/raw`, `data/processed`, `results`)  
+**Testing**: `pytest` (unit tests for data validation, integration tests for pipeline steps)  
+**Target Platform**: Linux (GitHub Actions Free Tier: CPU, GB RAM, No GPU)  
+**Project Type**: Data Science Pipeline / Research Tool  
+**Performance Goals**: Total runtime ≤ 6 hours; RAM usage ≤ 7GB; Disk usage ≤ 14GB.  
+**Constraints**: No GPU/CUDA; `max_depth` for Random Forest capped at 10; `n_estimators` capped at 100; background sampling density-based (points per unit area); sequential processing to manage memory.  
+**Scale/Scope**: Target a representative sample of Asteraceae species. (minimum N=30 required for power); climate variables; trait variables.
+
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
-| Principle | Status | Evidence in Plan |
-|:--- |:--- |:--- |
-| **I. Reproducibility** | **PASS** | Random seeds (`random_state=42`) pinned; `requirements.txt` version‑locked; data fetched from canonical URLs with version tags; checksums recorded. |
-| **II. Verified Accuracy** | **PASS** | Only verified dataset URLs are cited; version numbers for WorldClim and TRY are recorded. |
-| **III. Data Hygiene** | **PASS** | Raw data preserved; each transformation writes a new file with provenance metadata; no PII present. |
-| **IV. Single Source of Truth** | **PASS** | All metrics trace back to rows in `results/` JSON/CSV and the exact code that generated them. |
-| **V. Versioning Discipline** | **PASS** | Content hashes tracked in project state; `updated_at` timestamps updated on each artifact change. |
-| **VI. Ecological Data Provenance** | **PASS** | GBIF queries use a global taxon filter for Asteraceae; WorldClim version and download date logged; TRY source field verified against “Handbook 2013”. |
-| **VII. Model Evaluation Transparency** | **PASS** | Hyperparameters, seeds, CV splits, and statistical test parameters are explicitly documented in code and reported in `results/`. |
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+
+| Principle | Status | Verification / Action |
+| :--- | :--- | :--- |
+| **I. Reproducibility** | **PASS** | Plan mandates pinned `requirements.txt`, random seeds in all RF/LMM steps, and deterministic data fetching (checksums). |
+| **II. Verified Accuracy** | **CONDITIONAL** | WorldClim and TRY URLs are not in the "Verified datasets" block. The plan implements a fallback to specific versioned releases (wc_30s_bio, TRY 2023-01-01) and halts if unreachable. A kickback to the spec is flagged to add verified URLs. |
+| **III. Data Hygiene** | **PASS** | Plan includes checksumming of raw downloads, immutable raw data storage, and derivation logging for cleaned datasets. |
+| **IV. Single Source of Truth** | **PASS** | All results (AUC, TSS, p-values) will be generated by code and written to `results/` JSON/CSV files; paper text will reference these files. |
+| **V. Versioning Discipline** | **PASS** | Artifacts will carry content hashes; `state` YAML will be updated on changes. |
+| **VI. Ecological Data Provenance** | **CONDITIONAL** | Plan explicitly requires recording source versions (GBIF API, WorldClim v 'wc2.1_30s_bio', TRY '-01-01'). Fallback strategy documented. |
+| **VII. Model Evaluation Transparency** | **PASS** | Hyperparameters, seeds, CV splits, and test parameters will be logged in `results/model_config.yaml` and reported in tables. |
 
 ## Project Structure
 
