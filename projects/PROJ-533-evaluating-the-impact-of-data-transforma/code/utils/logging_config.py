@@ -1,68 +1,88 @@
 """
-Logging configuration for the research pipeline.
-
-Configures a logger that writes to results/pipeline.log with a specific format
-to record exclusions, imputation rates, and transformation interventions.
+Logging configuration for the llmXive pipeline.
+Configures a logger that writes to results/pipeline.log.
 """
-
 import logging
 import os
 from pathlib import Path
 from typing import Optional
 
-LOG_FILE = "results/pipeline.log"
-LOG_FORMAT = "%(asctime)s - %(levelname)s - %(name)s - %(message)s"
-
-
-def setup_logger(name: str = "research_pipeline", level: int = logging.INFO) -> logging.Logger:
+def setup_pipeline_logger(log_file: str = "results/pipeline.log") -> logging.Logger:
     """
-    Set up and return a logger configured to write to results/pipeline.log.
-
+    Configure and return a logger that writes to the specified log file.
+    
+    The log format includes timestamp, level, and message to record:
+    - Dataset exclusions
+    - Imputation rates
+    - Transformation interventions
+    
     Args:
-        name: Logger name
-        level: Logging level (default: INFO)
-
+        log_file: Path to the log file (default: results/pipeline.log)
+    
     Returns:
-        Configured logger instance
+        A configured logger instance named "pipeline"
     """
-    logger = logging.getLogger(name)
-    logger.setLevel(level)
-
-    # Avoid adding handlers multiple times
-    if logger.handlers:
-        return logger
-
-    # Ensure log directory exists
-    log_path = Path(LOG_FILE)
+    # Ensure the log directory exists
+    log_path = Path(log_file)
     log_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # File handler
-    file_handler = logging.FileHandler(LOG_FILE)
-    file_handler.setLevel(level)
-    file_handler.setFormatter(logging.Formatter(LOG_FORMAT))
-
-    # Console handler (optional, for immediate feedback)
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.WARNING)
-    console_handler.setFormatter(logging.Formatter(LOG_FORMAT))
-
+    
+    logger = logging.getLogger("pipeline")
+    logger.setLevel(logging.INFO)
+    
+    # Remove existing handlers to avoid duplicates
+    if logger.hasHandlers():
+        logger.handlers.clear()
+    
+    # Create file handler
+    file_handler = logging.FileHandler(log_file)
+    file_handler.setLevel(logging.INFO)
+    
+    # Create formatter with specific format for pipeline events
+    formatter = logging.Formatter(
+        "%(asctime)s - %(levelname)s - %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S"
+    )
+    file_handler.setFormatter(formatter)
+    
+    # Add handler to logger
     logger.addHandler(file_handler)
-    logger.addHandler(console_handler)
-
+    
+    # Prevent propagation to root logger to avoid duplicate logs
+    logger.propagate = False
+    
     return logger
 
-
-def get_logger(name: str = "research_pipeline") -> logging.Logger:
+def log_exclusion(logger: logging.Logger, dataset_id: str, reason: str) -> None:
     """
-    Get an existing logger or create a new one with default config.
-
+    Log a dataset exclusion event.
+    
     Args:
-        name: Logger name
-
-    Returns:
-        Logger instance
+        logger: The pipeline logger instance
+        dataset_id: The ID of the excluded dataset
+        reason: The reason for exclusion (e.g., "Shapiro p > 0.05", "N < 30")
     """
-    logger = logging.getLogger(name)
-    if not logger.handlers:
-        return setup_logger(name, logger.level)
-    return logger
+    logger.info(f"EXCLUSION: dataset_id={dataset_id} reason={reason}")
+
+def log_imputation_rate(logger: logging.Logger, dataset_id: str, rate: float) -> None:
+    """
+    Log the imputation rate for a dataset.
+    
+    Args:
+        logger: The pipeline logger instance
+        dataset_id: The ID of the dataset
+        rate: The fraction of missing values imputed (0.0 to 1.0)
+    """
+    logger.info(f"IMPUTATION: dataset_id={dataset_id} rate={rate:.4f}")
+
+def log_transformation_intervention(logger: logging.Logger, dataset_id: str, 
+                                   transformation: str, intervention: str) -> None:
+    """
+    Log a transformation intervention event.
+    
+    Args:
+        logger: The pipeline logger instance
+        dataset_id: The ID of the dataset
+        transformation: The transformation type (e.g., "box_cox", "yeo_johnson")
+        intervention: The specific intervention applied (e.g., "log_shift applied for negative values")
+    """
+    logger.info(f"TRANSFORMATION: dataset_id={dataset_id} type={transformation} intervention={intervention}")

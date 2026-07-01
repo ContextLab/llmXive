@@ -1,161 +1,175 @@
 """
-Statistical test wrappers for the llmXive pipeline.
+Statistical test wrappers for hypothesis testing.
 
-Provides consistent interfaces for t-tests, ANOVA, Shapiro-Wilk, and Friedman tests.
-Handles input validation and returns standardized result dictionaries.
+This module provides standardized interfaces for common statistical tests
+used in the data transformation sensitivity analysis pipeline.
 """
 
-from typing import List, Tuple, Union, Dict, Any, Optional
 import numpy as np
+import pandas as pd
 from scipy import stats
+from typing import Union, List, Tuple, Optional
 
-# Type alias for array-like input
-ArrayLike = Union[List[float], np.ndarray]
+# Type alias for array-like inputs
+ArrayLike = Union[List[float], np.ndarray, pd.Series]
 
 
-def independent_t_test(
+def t_test(
     group1: ArrayLike,
     group2: ArrayLike,
-    equal_variance: bool = False
-) -> Dict[str, Any]:
+    equal_var: bool = True,
+    alternative: str = "two-sided"
+) -> Tuple[float, float]:
     """
     Perform an independent two-sample t-test.
 
-    Args:
-        group1: Data for the first group.
-        group2: Data for the second group.
-        equal_variance: If True, use Student's t-test (equal variance).
-                        If False, use Welch's t-test (unequal variance).
+    Parameters
+    ----------
+    group1 : array-like
+        First group of data.
+    group2 : array-like
+        Second group of data.
+    equal_var : bool, optional
+        If True (default), perform a standard independent 2 sample t-test
+        that assumes equal population variances. If False, perform Welch's
+        t-test, which does not assume equal population variances.
+    alternative : str, optional
+        Defines the alternative hypothesis. Default is 'two-sided'.
+        Must be one of 'two-sided', 'less', or 'greater'.
 
-    Returns:
-        Dictionary containing:
-            - 'statistic': float, t-statistic
-            - 'p_value': float, two-tailed p-value
-            - 'test_type': str, 'welch' or 'student'
+    Returns
+    -------
+    statistic : float
+        The t-statistic.
+    pvalue : float
+        The p-value associated with the hypothesis test.
     """
-    arr1 = np.asarray(group1, dtype=float)
-    arr2 = np.asarray(group2, dtype=float)
+    # Convert inputs to numpy arrays
+    x1 = np.asarray(group1)
+    x2 = np.asarray(group2)
 
-    if arr1.size == 0 or arr2.size == 0:
-        raise ValueError("Input arrays cannot be empty.")
+    # Remove NaN values if present
+    x1 = x1[~np.isnan(x1)]
+    x2 = x2[~np.isnan(x2)]
 
-    result = stats.ttest_ind(arr1, arr2, equal_var=equal_variance)
+    if len(x1) < 2 or len(x2) < 2:
+        raise ValueError("Each group must have at least 2 non-NaN values.")
 
-    return {
-        "statistic": float(result.statistic),
-        "p_value": float(result.pvalue),
-        "test_type": "welch" if not equal_variance else "student"
-    }
+    result = stats.ttest_ind(
+        x1, x2, equal_var=equal_var, alternative=alternative
+    )
+    return float(result.statistic), float(result.pvalue)
 
 
-def one_way_anova(*groups: ArrayLike) -> Dict[str, Any]:
+def anova_one_way(
+    *groups: ArrayLike
+) -> Tuple[float, float]:
     """
-    Perform a one-way ANOVA.
+    Perform a one-way ANOVA to compare means of two or more independent groups.
 
-    Args:
-        *groups: Variable number of array-like groups.
+    Parameters
+    ----------
+    *groups : array-like
+        Two or more groups of data to compare.
 
-    Returns:
-        Dictionary containing:
-            - 'statistic': float, F-statistic
-            - 'p_value': float, p-value
+    Returns
+    -------
+    statistic : float
+        The F-statistic.
+    pvalue : float
+        The p-value associated with the hypothesis test.
     """
     if len(groups) < 2:
-        raise ValueError("At least two groups are required for ANOVA.")
+        raise ValueError("At least two groups must be provided for ANOVA.")
 
-    arrays = [np.asarray(g, dtype=float) for g in groups]
+    # Convert and clean inputs
+    clean_groups = []
+    for i, g in enumerate(groups):
+        arr = np.asarray(g)
+        arr = arr[~np.isnan(arr)]
+        if len(arr) == 0:
+            raise ValueError(f"Group {i+1} contains no valid data after NaN removal.")
+        clean_groups.append(arr)
 
-    if any(arr.size == 0 for arr in arrays):
-        raise ValueError("Input groups cannot be empty.")
-
-    result = stats.f_oneway(*arrays)
-
-    return {
-        "statistic": float(result.statistic),
-        "p_value": float(result.pvalue)
-    }
+    result = stats.f_oneway(*clean_groups)
+    return float(result.statistic), float(result.pvalue)
 
 
-def shapiro_wilk(data: ArrayLike) -> Dict[str, Any]:
+def shapiro_test(
+    data: ArrayLike
+) -> Tuple[float, float]:
     """
     Perform the Shapiro-Wilk test for normality.
 
-    Args:
-        data: Array-like data to test.
+    Parameters
+    ----------
+    data : array-like
+        The data to test for normality.
 
-    Returns:
-        Dictionary containing:
-            - 'statistic': float, W statistic
-            - 'p_value': float, p-value
+    Returns
+    -------
+    statistic : float
+        The W-statistic of the test.
+    pvalue : float
+        The p-value of the test.
+
+    Notes
+    -----
+    The null hypothesis is that the data is drawn from a normal distribution.
+    A small p-value (typically < 0.05) indicates rejection of the null hypothesis.
     """
-    arr = np.asarray(data, dtype=float)
+    arr = np.asarray(data)
+    arr = arr[~np.isnan(arr)]
 
-    if arr.size < 3:
-        raise ValueError("Shapiro-Wilk test requires at least 3 data points.")
+    if len(arr) < 3:
+        raise ValueError("Shapiro-Wilk test requires at least 3 non-NaN values.")
+    if len(arr) > 5000:
+        # scipy.stats.shapiro has a limit of 5000 for some versions
+        # We take a random sample if too large, though typically we filter size earlier
+        arr = np.random.choice(arr, size=5000, replace=False)
 
     result = stats.shapiro(arr)
-
-    return {
-        "statistic": float(result.statistic),
-        "p_value": float(result.pvalue)
-    }
+    return float(result.statistic), float(result.pvalue)
 
 
-def friedman_test(*groups: ArrayLike) -> Dict[str, Any]:
+def friedman_test(
+    *groups: ArrayLike
+) -> Tuple[float, float]:
     """
     Perform the Friedman test for repeated measures.
 
-    Args:
-        *groups: Variable number of array-like groups (conditions).
-                 All groups must have the same length (subjects).
+    This is a non-parametric alternative to repeated measures ANOVA.
 
-    Returns:
-        Dictionary containing:
-            - 'statistic': float, Chi-squared statistic
-            - 'p_value': float, p-value
+    Parameters
+    ----------
+    *groups : array-like
+        Two or more related samples (groups) of data.
+
+    Returns
+    -------
+    statistic : float
+        The chi-squared statistic.
+    pvalue : float
+        The p-value associated with the hypothesis test.
     """
     if len(groups) < 2:
-        raise ValueError("At least two groups are required for Friedman test.")
+        raise ValueError("At least two groups must be provided for Friedman test.")
 
-    arrays = [np.asarray(g, dtype=float) for g in groups]
-    n_groups = len(arrays)
+    # Convert and clean inputs
+    clean_groups = []
+    for i, g in enumerate(groups):
+        arr = np.asarray(g)
+        arr = arr[~np.isnan(arr)]
+        if len(arr) == 0:
+            raise ValueError(f"Group {i+1} contains no valid data after NaN removal.")
+        clean_groups.append(arr)
 
-    # Validate that all groups have the same length
-    lengths = [len(arr) for arr in arrays]
+    # Ensure all groups have the same length for Friedman test
+    lengths = [len(g) for g in clean_groups]
     if len(set(lengths)) != 1:
-        raise ValueError(
-            f"All groups must have the same number of observations. "
-            f"Found lengths: {lengths}"
-        )
+        # Truncate to the shortest length to maintain alignment
+        min_len = min(lengths)
+        clean_groups = [g[:min_len] for g in clean_groups]
 
-    if arrays[0].size == 0:
-        raise ValueError("Input groups cannot be empty.")
-
-    # Convert to 2D array (rows=subjects, cols=conditions)
-    data_matrix = np.column_stack(arrays)
-
-    result = stats.friedmanchisquare(*arrays)
-
-    return {
-        "statistic": float(result.statistic),
-        "p_value": float(result.pvalue)
-    }
-
-
-def get_test_summary(test_name: str) -> str:
-    """
-    Return a description of a supported statistical test.
-
-    Args:
-        test_name: Name of the test (e.g., 't-test', 'anova', 'shapiro', 'friedman').
-
-    Returns:
-        String description of the test.
-    """
-    descriptions = {
-        "t-test": "Independent two-sample t-test (Student or Welch).",
-        "anova": "One-way Analysis of Variance.",
-        "shapiro": "Shapiro-Wilk test for normality.",
-        "friedman": "Friedman test for repeated measures (non-parametric ANOVA)."
-    }
-    return descriptions.get(test_name.lower(), "Unknown test.")
+    result = stats.friedmanchisquare(*clean_groups)
+    return float(result.statistic), float(result.pvalue)

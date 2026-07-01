@@ -1,3 +1,30 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-proj-533"
+version = "0.1.0"
+description = "Evaluating the Impact of Data Transformation on Statistical Test Sensitivity"
+requires-python = ">=3.11"
+dependencies = [
+    "scikit-learn",
+    "scipy",
+    "pandas",
+    "numpy",
+    "seaborn",
+    "matplotlib",
+    "requests",
+    "pyyaml",
+    "statsmodels"
+]
+
+[project.optional-dependencies]
+dev = [
+    "flake8>=6.0",
+    "black>=23.0"
+]
+
 [tool.black]
 line-length = 88
 target-version = ['py311']
@@ -5,13 +32,16 @@ include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
 )/
 '''
+
+[tool.setuptools.packages.find]
+where = ["code"]

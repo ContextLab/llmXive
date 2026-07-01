@@ -1,133 +1,137 @@
 """
-Unit tests for checkpointing functionality.
+Unit tests for checkpointing utilities.
 """
 
-import json
 import os
-import shutil
-from pathlib import Path
+import json
 import tempfile
+from pathlib import Path
 import pytest
 
-# We need to mock the CHECKPOINT_DIR for testing
-# We'll use a temporary directory during tests
-import code.utils.checkpointing as checkpointing_module
+# Adjust import path for testing context
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
+from code.utils.checkpointing import (
+    save_checkpoint,
+    load_checkpoint,
+    has_checkpoint,
+    delete_checkpoint,
+    list_checkpoints,
+    ensure_checkpoint_dir,
+    compute_file_hash,
+    save_state_snapshot,
+    get_resume_info
+)
 
 
 @pytest.fixture
-def temp_checkpoint_dir():
-    """Create a temporary directory for checkpoint tests."""
-    temp_dir = tempfile.mkdtemp()
-    original_dir = checkpointing_module.CHECKPOINT_DIR
-    checkpointing_module.CHECKPOINT_DIR = temp_dir
-    yield temp_dir
-    # Cleanup
-    checkpointing_module.CHECKPOINT_DIR = original_dir
-    shutil.rmtree(temp_dir, ignore_errors=True)
+def temp_checkpoint_dir(tmp_path):
+    """Create a temporary directory to simulate checkpoint storage."""
+    # Override the global CHECKPOINT_DIR for testing
+    import code.utils.checkpointing as cp_module
+    original_dir = cp_module.CHECKPOINT_DIR
+    cp_module.CHECKPOINT_DIR = tmp_path
+    yield tmp_path
+    cp_module.CHECKPOINT_DIR = original_dir
 
 
-class TestCheckpointing:
-    def test_save_and_load_checkpoint(self, temp_checkpoint_dir):
-        """Test saving and loading a checkpoint."""
-        run_id = "test_run_123"
-        state = {"processed_datasets": 5, "current_step": "filtering"}
-        metadata = {"version": "1.0", "timestamp": "2024-01-01"}
+def test_save_and_load_checkpoint(temp_checkpoint_dir):
+    """Test saving and loading a basic checkpoint."""
+    run_id = "test_run_001"
+    state = {"progress": 50, "items": [1, 2, 3]}
+    metadata = {"config": "v1"}
 
-        # Save
-        path = checkpointing_module.save_checkpoint(run_id, state, metadata)
-        assert path.exists()
+    path = save_checkpoint(run_id, state, metadata=metadata)
 
-        # Load
-        loaded = checkpointing_module.load_checkpoint(run_id)
-        assert loaded is not None
-        assert loaded["run_id"] == run_id
-        assert loaded["state"] == state
-        assert loaded["metadata"] == metadata
+    assert path.exists()
+    assert has_checkpoint(run_id)
 
-    def test_load_nonexistent_checkpoint(self, temp_checkpoint_dir):
-        """Test loading a checkpoint that doesn't exist returns None."""
-        result = checkpointing_module.load_checkpoint("nonexistent_run")
-        assert result is None
+    loaded_state = load_checkpoint(run_id)
+    assert loaded_state == state
 
-    def test_delete_checkpoint(self, temp_checkpoint_dir):
-        """Test deleting a checkpoint."""
-        run_id = "to_delete"
-        checkpointing_module.save_checkpoint(run_id, {"data": "test"})
+    # Verify metadata is saved in the file structure
+    with open(path, "r") as f:
+        data = json.load(f)
+    assert data["metadata"] == metadata
+    assert data["run_id"] == run_id
 
-        # Verify exists
-        assert checkpointing_module.load_checkpoint(run_id) is not None
 
-        # Delete
-        deleted = checkpointing_module.delete_checkpoint(run_id)
-        assert deleted is True
+def test_load_nonexistent_checkpoint(temp_checkpoint_dir):
+    """Test loading a checkpoint that doesn't exist returns None."""
+    assert load_checkpoint("fake_run") is None
+    assert not has_checkpoint("fake_run")
 
-        # Verify gone
-        assert checkpointing_module.load_checkpoint(run_id) is None
 
-    def test_delete_nonexistent_checkpoint(self, temp_checkpoint_dir):
-        """Test deleting a non-existent checkpoint returns False."""
-        result = checkpointing_module.delete_checkpoint("nonexistent")
-        assert result is False
+def test_delete_checkpoint(temp_checkpoint_dir):
+    """Test deleting a checkpoint."""
+    run_id = "run_to_delete"
+    save_checkpoint(run_id, {"key": "value"})
 
-    def test_compute_state_hash_determinism(self, temp_checkpoint_dir):
-        """Test that state hash is deterministic."""
-        state1 = {"a": 1, "b": [2, 3]}
-        state2 = {"b": [2, 3], "a": 1}  # Same content, different order
+    assert has_checkpoint(run_id)
+    assert delete_checkpoint(run_id)
+    assert not has_checkpoint(run_id)
 
-        hash1 = checkpointing_module.compute_state_hash(state1)
-        hash2 = checkpointing_module.compute_state_hash(state2)
+    # Deleting again should return False
+    assert not delete_checkpoint(run_id)
 
-        assert hash1 == hash2
 
-    def test_compute_state_hash_uniqueness(self, temp_checkpoint_dir):
-        """Test that different states produce different hashes."""
-        state1 = {"a": 1}
-        state2 = {"a": 2}
+def test_list_checkpoints(temp_checkpoint_dir):
+    """Test listing available checkpoints."""
+    save_checkpoint("run_a", {})
+    save_checkpoint("run_b", {})
+    # Create a non-json file to ensure it's ignored
+    (temp_checkpoint_dir / "ignore_me.txt").touch()
 
-        hash1 = checkpointing_module.compute_state_hash(state1)
-        hash2 = checkpointing_module.compute_state_hash(state2)
+    checkpoints = list_checkpoints()
+    assert "run_a" in checkpoints
+    assert "run_b" in checkpoints
+    assert "ignore_me" not in checkpoints
 
-        assert hash1 != hash2
 
-    def test_get_all_checkpoint_ids(self, temp_checkpoint_dir):
-        """Test retrieving all checkpoint IDs."""
-        checkpointing_module.save_checkpoint("run_a", {})
-        checkpointing_module.save_checkpoint("run_b", {})
-        checkpointing_module.save_checkpoint("run_c", {})
+def test_compute_file_hash(temp_checkpoint_dir):
+    """Test SHA-256 hash computation."""
+    test_file = temp_checkpoint_dir / "test.txt"
+    test_file.write_text("Hello, World!")
 
-        ids = checkpointing_module.get_all_checkpoint_ids()
-        assert set(ids) == {"run_a", "run_b", "run_c"}
+    hash1 = compute_file_hash(test_file)
+    hash2 = compute_file_hash(test_file)
 
-    def test_update_checkpoint(self, temp_checkpoint_dir):
-        """Test updating an existing checkpoint."""
-        run_id = "update_test"
-        initial_state = {"step": 1}
-        checkpointing_module.save_checkpoint(run_id, initial_state)
+    assert len(hash1) == 64  # SHA-256 hex length
+    assert hash1 == hash2
 
-        # Update
-        new_state = {"step": 2, "extra": "data"}
-        path = checkpointing_module.update_checkpoint(run_id, new_state)
+    # Different content should yield different hash
+    test_file.write_text("Different content")
+    hash3 = compute_file_hash(test_file)
+    assert hash1 != hash3
 
-        assert path is not None
-        loaded = checkpointing_module.load_checkpoint(run_id)
-        assert loaded["state"]["step"] == 2
-        assert loaded["state"]["extra"] == "data"
 
-    def test_update_nonexistent_checkpoint(self, temp_checkpoint_dir):
-        """Test updating a non-existent checkpoint returns None."""
-        result = checkpointing_module.update_checkpoint("nonexistent", {"data": "test"})
-        assert result is None
+def test_save_state_snapshot(temp_checkpoint_dir):
+    """Test the convenience snapshot function."""
+    run_id = "snapshot_run"
+    path = save_state_snapshot(
+        run_id,
+        current_step="filtering",
+        processed_items=["dataset_1", "dataset_2"],
+        errors=[{"msg": "Missing value"}],
+        extra_state={"config_hash": "abc123"}
+    )
 
-    def test_checkpoint_with_special_characters_in_run_id(self, temp_checkpoint_dir):
-        """Test that run IDs with slashes are handled safely."""
-        run_id = "dataset/with/slashes"
-        state = {"test": True}
+    resume = get_resume_info(run_id)
+    assert resume is not None
+    assert resume["current_step"] == "filtering"
+    assert resume["processed_items"] == ["dataset_1", "dataset_2"]
+    assert len(resume["errors"]) == 1
 
-        path = checkpointing_module.save_checkpoint(run_id, state)
-        # The path should exist and be valid
-        assert path.exists()
 
-        # Should be loadable with the same ID
-        loaded = checkpointing_module.load_checkpoint(run_id)
-        assert loaded is not None
-        assert loaded["state"] == state
+def test_overwrite_checkpoint_false(temp_checkpoint_dir):
+    """Test that saving without overwrite raises error if exists."""
+    run_id = "overwrite_test"
+    save_checkpoint(run_id, {"v": 1})
+
+    with pytest.raises(FileExistsError):
+        save_checkpoint(run_id, {"v": 2})
+
+    # Verify overwrite works
+    save_checkpoint(run_id, {"v": 2}, overwrite=True)
+    assert load_checkpoint(run_id) == {"v": 2}
