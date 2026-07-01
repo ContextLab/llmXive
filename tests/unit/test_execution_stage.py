@@ -315,3 +315,73 @@ def test_pipeline_workflow_passes_kaggle_secret_to_execution_lane() -> None:
     from llmxive.config import repo_root
     wf = (repo_root() / ".github" / "workflows" / "llmxive-pipeline.yml").read_text(encoding="utf-8")
     assert "KAGGLE_API_TOKEN" in wf, "the pipeline lane must pass the Kaggle secret"
+
+
+def test_reopen_appends_reconciliation_task_for_missing_runbook_script(
+    tmp_path: Path,
+) -> None:
+    """A run-book command that invokes a script NO task created (a plan/impl name
+    mismatch) must not silently re-open 0 tasks — the auto-fix loop would never
+    engage and the project would stall at in_progress forever. This is the live
+    PROJ-552 stall: the quickstart calls ``checksum_generator.py`` but the
+    implementer built ``checksums.py``, so re-open matched no task. Assert a
+    reconciliation task is appended (so the implementer runs) and that it is
+    idempotent (no runaway duplicate appends)."""
+    from llmxive.execution.stage import _reopen_failing_tasks
+
+    tasks_md = (
+        "# Tasks\n"
+        "- [X] T044 [US4] Generate SHA-256 checksums in "
+        "`code/reproducibility/checksums.py`.\n"
+        "- [X] T045 [US4] Record checksums in `data/checksums.sha256`.\n"
+    )
+    proj = _bootstrap_project(tmp_path, "PROJ-552-x", tasks_md)
+    res = AnalysisRunResult(
+        ok=False,
+        commands=[
+            RunCommandResult(
+                "python code/reproducibility/checksum_generator.py",
+                False, -1, 0.0, False, "FileNotFoundError", script_missing=True,
+            ),
+        ],
+        reason="1 run-book script(s) missing (plan/impl path mismatch)",
+    )
+    n = _reopen_failing_tasks(proj, res)
+    assert n >= 1, "a missing run-book script with no owning task must engage the loop"
+    updated = (proj / "specs" / "001-x" / "tasks.md").read_text(encoding="utf-8")
+    assert "checksum_generator.py" in updated
+    assert "- [ ] " in updated and "Reconcile run-book" in updated
+    assert "- [X] T044" in updated  # pre-existing real task untouched
+
+    # Idempotent: a second identical failure must NOT double-append — the appended
+    # task now OWNS the name, so no runaway growth of tasks.md across fix rounds.
+    _reopen_failing_tasks(proj, res)
+    after = (proj / "specs" / "001-x" / "tasks.md").read_text(encoding="utf-8")
+    assert after.count("Reconcile run-book") == 1
+
+
+def test_reopen_still_reopens_owned_missing_script_normally(tmp_path: Path) -> None:
+    """When the missing run-book script IS owned by a checked task, the normal
+    re-open path handles it (no reconciliation task needed) — the self-heal must
+    not fire spuriously."""
+    from llmxive.execution.stage import _reopen_failing_tasks
+
+    tasks_md = (
+        "# Tasks\n"
+        "- [X] T010 Build `code/reproducibility/checksum_generator.py`.\n"
+    )
+    proj = _bootstrap_project(tmp_path, "PROJ-777-x", tasks_md)
+    res = AnalysisRunResult(
+        ok=False,
+        commands=[
+            RunCommandResult(
+                "python code/reproducibility/checksum_generator.py",
+                False, -1, 0.0, False, "FileNotFoundError", script_missing=True,
+            ),
+        ],
+    )
+    n = _reopen_failing_tasks(proj, res)
+    updated = (proj / "specs" / "001-x" / "tasks.md").read_text(encoding="utf-8")
+    assert n == 1
+    assert "- [ ] T010" in updated  # the owning task was re-opened
+    assert "Reconcile run-book" not in updated  # no spurious self-heal task

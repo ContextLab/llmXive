@@ -699,6 +699,7 @@ def _reopen_failing_tasks(
 
     # Collect failing/missing script paths + stems from the run.
     targets: set[str] = set()
+    missing_scripts: list[str] = []  # run-book scripts that DON'T exist (script_missing)
     for r in res.commands:
         if r.ok:
             continue
@@ -707,6 +708,8 @@ def _reopen_failing_tasks(
             rel = m.group(1)
             targets.add(rel)
             targets.add(Path(rel).stem)
+            if r.script_missing:
+                missing_scripts.append(rel)
     for d in res.declared_missing:
         targets.add(d)
         targets.add(Path(d).name)
@@ -729,7 +732,7 @@ def _reopen_failing_tasks(
             targets |= reopen_targets(data_contract_issues)
         except Exception:
             pass
-    if not targets:
+    if not targets and not missing_scripts:
         return 0
 
     out_lines: list[str] = []
@@ -741,6 +744,50 @@ def _reopen_failing_tasks(
             reopened += 1
         else:
             out_lines.append(line)
+
+    # PLAN/IMPL MISMATCH SELF-HEAL: a run-book command that invokes a script which
+    # does NOT exist (script_missing) and that NO task line references leaves the
+    # auto-fix loop with nothing to dispatch — the implementer is never run and
+    # execution fails FOREVER, so the project is stuck at in_progress (the live
+    # PROJ-552 stall: the quickstart run-book calls
+    # code/reproducibility/checksum_generator.py but the implementer created
+    # checksums.py, so no task owns the name and re-open matched 0). Append an
+    # explicit reconciliation task (referencing the real script) so the implementer
+    # either creates the script or fixes the run-book to call the one that exists.
+    # The appended task itself then OWNS the name, so subsequent rounds route
+    # through the normal re-open path (no duplicate appends, no infinite loop).
+    unowned = [
+        rel for rel in dict.fromkeys(missing_scripts)
+        if not any(
+            rel in ln or Path(rel).name in ln or Path(rel).stem in ln
+            for ln in out_lines
+        )
+    ]
+    if unowned:
+        ids = [
+            int(mm.group(1))
+            for ln in out_lines
+            if (mm := re.search(r"\bT(\d+)", ln))
+        ]
+        nxt = (max(ids) + 1) if ids else 1
+        if out_lines and out_lines[-1].strip():
+            out_lines.append("")
+        out_lines.append(
+            "<!-- auto-added by the execution fix loop: run-book / implementation "
+            "path mismatch (a quickstart command names a script no task created) -->"
+        )
+        for rel in unowned:
+            out_lines.append(
+                f"- [ ] T{nxt:03d} Reconcile run-book vs implementation for "
+                f"`{rel}`: the quickstart run-book invokes this script but it does "
+                f"not exist. Either create `{rel}`, or update the run-book "
+                f"(quickstart.md / plan.md) to invoke the script that actually "
+                f"implements this step. See `.specify/memory/{_FEEDBACK_FILENAME}` "
+                f"for the exact failing command and the scripts that DO exist."
+            )
+            nxt += 1
+            reopened += 1
+
     if reopened:
         tasks_path.write_text("\n".join(out_lines) + "\n", encoding="utf-8")
     return reopened
