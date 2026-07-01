@@ -181,3 +181,12 @@
 [submodule "projects/PROJ-793-viq-text-aligned-visual-quantized-repres/external/ViQ"]
 	path = projects/PROJ-793-viq-text-aligned-visual-quantized-repres/external/ViQ
 	url = https://github.com/yuxumin/ViQ
+[submodule "projects/PROJ-663-https-arxiv-org-abs-2606-04923/external/CHERRL"]
+	path = projects/PROJ-663-https-arxiv-org-abs-2606-04923/external/CHERRL
+	url = https://github.com/THUAIS-Lab/CHERRL
+[submodule "projects/PROJ-691-role-agent-bootstrapping-llm-agents-via/external/roleagent"]
+	path = projects/PROJ-691-role-agent-bootstrapping-llm-agents-via/external/roleagent
+	url = https://github.com/AMAP-ML/roleagent
+[submodule "projects/PROJ-698-toward-generalist-autonomous-research-vi/external/Arbor"]
+	path = projects/PROJ-698-toward-generalist-autonomous-research-vi/external/Arbor
+	url = https://github.com/RUC-NLPIR/Arbor

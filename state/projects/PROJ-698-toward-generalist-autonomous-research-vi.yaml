@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-12T09:26:39.022831Z'
-current_stage: paper_ingested
+current_stage: in_progress
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-698-toward-generalist-autonomous-research-vi
-last_run_id: 29c246d2-df46-4e2b-b15e-4b2568c35b36
+last_run_id: f6318789-ab9f-446b-8da0-bd5042a8bb1a
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-698-toward-generalist-autonomous-research-vi/specs/001-toward-generalist-autonomous-research-vi
 title: Toward Generalist Autonomous Research via Hypothesis-Tree Refinement
-updated_at: '2026-06-30T17:12:11.676633Z'
+updated_at: '2026-07-01T16:03:38.968465Z'

@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Detection Report Row"
+description: "Schema for a single row in the threshold sensitivity analysis report (CSV)."
+type: "object"
+properties:
+  threshold:
+    type: "number"
+    description: "The detection threshold used for this row."
+    minimum: 0
+    maximum: 1
+  detected_onset_step:
+    type: "integer"
+    description: "The step identified as the start of hacking."
+    minimum: 0
+  true_positives:
+    type: "integer"
+    description: "Number of correct detections."
+    minimum: 0
+  false_positives:
+    type: "integer"
+    description: "Number of incorrect detections."
+    minimum: 0
+  true_negative_rate:
+    type: "number"
+    description: "Proportion of non-hacking steps correctly identified."
+    minimum: 0
+    maximum: 1
+  false_negative_rate:
+    type: "number"
+    description: "Proportion of hacking steps missed."
+    minimum: 0
+    maximum: 1
+required:
+  - threshold
+  - detected_onset_step
+  - true_positives
+  - false_positives
+  - true_negative_rate
+  - false_negative_rate
+additionalProperties: false

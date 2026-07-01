@@ -1,0 +1,30 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: AIW_Report Schema
+description: Schema for the Agent-In-World analysis report structure.
+type: object
+required:
+  - sample_size
+  - total_tasks
+  - dual_role_observed
+  - limitations
+  - reproduction_summary
+properties:
+  sample_size:
+    type: integer
+    description: Number of episodes processed.
+  total_tasks:
+    type: integer
+    description: Total tasks attempted (usually equals sample_size).
+  failures_identified:
+    type: integer
+    description: Number of failures retrieved from logs.
+  dual_role_observed:
+    type: boolean
+    description: Whether the dual-role mechanism was successfully observed (plumbing verification).
+  limitations:
+    type: string
+    description: Qualitative description of limitations (e.g., sample size, model substitution, plumbing verification only).
+  reproduction_summary:
+    type: string
+    description: Qualitative assessment of the reproduction results.
+additionalProperties: false

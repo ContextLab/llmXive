@@ -1,0 +1,34 @@
+- artifact_hash: 2f91e6c4cdf461a130d669dce71e4e892f55ac9c4115523d188df1fc0668ce17
+  artifact_path: projects/PROJ-691-role-agent-bootstrapping-llm-agents-via/specs/001-role-agent-bootstrapping-llm-agents-via/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - alfworld/alfworld: ALFWorld: Aligning Text and Embodied\
+    \ Environments for Interactive Learning \xB7 GitHub"
+  kind: url
+  value: https://github.com/alfworld/alfworld`
+  verification_status: verified
+  verified_against_url: https://github.com/alfworld/alfworld
+  verified_at: '2026-07-01T15:18:06.657093Z'
+- artifact_hash: 2f91e6c4cdf461a130d669dce71e4e892f55ac9c4115523d188df1fc0668ce17
+  artifact_path: projects/PROJ-691-role-agent-bootstrapping-llm-agents-via/specs/001-role-agent-bootstrapping-llm-agents-via/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: "facebook/opt-125m \xB7 Hugging Face"
+  kind: url
+  value: https://huggingface.co/facebook/opt-125m`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/facebook/opt-125m
+  verified_at: '2026-07-01T15:18:06.657093Z'
+- artifact_hash: 9d5fd6e57cef85384a04f9f39bdd0a8867b34521a118d81b277f21b3ccfdb5a8
+  artifact_path: projects/PROJ-691-role-agent-bootstrapping-llm-agents-via/specs/001-role-agent-bootstrapping-llm-agents-via/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: cpu
+  kind: url
+  value: https://download.pytorch.org/whl/cpu
+  verification_status: pending
+  verified_against_url: https://download.pytorch.org/whl/cpu
+  verified_at: '2026-07-01T15:18:23.856391Z'
