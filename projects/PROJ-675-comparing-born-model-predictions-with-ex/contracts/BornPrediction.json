@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "BornPrediction.json",
+  "title": "BornPrediction",
+  "description": "Schema for Born model theoretical predictions.",
+  "type": "object",
+  "properties": {
+    "ion_identifier": {
+      "type": "string",
+      "description": "Unique identifier for the ion."
+    },
+    "solvent_identifier": {
+      "type": "string",
+      "description": "Unique identifier for the solvent."
+    },
+    "predicted_deltaG": {
+      "type": "number",
+      "description": "Predicted solvation free energy in kcal/mol."
+    },
+    "ionic_radius": {
+      "type": "number",
+      "description": "Ionic radius used in calculation in Angstroms."
+    },
+    "dielectric_constant": {
+      "type": "number",
+      "description": "Dielectric constant of the solvent."
+    },
+    "calculation_timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of the calculation."
+    }
+  },
+  "required": [
+    "ion_identifier",
+    "solvent_identifier",
+    "predicted_deltaG",
+    "ionic_radius",
+    "dielectric_constant",
+    "calculation_timestamp"
+  ],
+  "additionalProperties": false
+}

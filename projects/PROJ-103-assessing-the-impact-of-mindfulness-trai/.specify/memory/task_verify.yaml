@@ -1,0 +1,22 @@
+? 'T008 [P] Implement random seed pinning for reproducibility at src/utils/seeding.py
+  with seed value 42 for numpy, random, torch modules; verification criteria: deterministic
+  output on re-run'
+: 1
+? T009 [P] Setup environment variable management for dataset API keys at src/config/env.py
+  with env vars (OPENNEURO_API_KEY, DATA_DIR) and validation rules (required, non-empty)
+: 1
+? T010 [US1] Implement OpenNeuro API client for dataset discovery at src/datasets/openneuro_client.py
+  with API endpoints (/datasets, /datasets/{id}), methods (list_datasets, get_dataset_info),
+  return types (dict)
+: 1
+? T011 [US1] Create dataset download script with URL validation at src/datasets/download_datasets.py
+  with validation rules (URL format, checksum verification) and output format (downloaded
+  files in data/raw/)
+: 1
+? "T019 [P] Implement post-hoc power analysis script using statsmodels.stats.power.TTestPower\
+  \ at src/analysis/power_analysis.py with sample-size requirements documentation\
+  \ (power \u226580% target) for methods output <!-- SKIPPED: non-mapping output -->"
+: 1
+? T043 [P] [US1] Write unit tests for preprocessing pipeline in tests/unit/test_preprocessing.py
+  (FAIL before implementation)
+: 1

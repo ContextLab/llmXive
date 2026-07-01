@@ -1,0 +1,15 @@
+# Core dependencies
+requests>=2.31.0
+numpy>=1.24.0
+pandas>=2.0.0
+
+# Testing
+pytest>=7.4.0
+
+# Existing project dependencies (inferred from context)
+# scikit-learn
+# nilearn
+# statsmodels
+# torch
+# seaborn
+# matplotlib

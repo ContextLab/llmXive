@@ -1,0 +1,18 @@
+? 'T003 [P] Configure linting (flake8) and formatting (black) tools: create.flake8
+  config file at repo root and pyproject.toml with [tool.black] section; verify via
+  `flake8 --version` and `black --version`'
+: 1
+? T004 [P] Setup data schema contracts in contracts/ as JSON Schema files (IonSolventPair.json,
+  BornPrediction.json, ResidualAnalysis.json); validate via jsonschema library; verify
+  schema matches Pydantic models (T007a-c must complete first)
+: 1
+? T005 [P] Implement physical constants module in code/physical_constants.py (fundamental
+  physical constants and units) with NIST/CRC citations to appropriate precision
+: 1
+? 'T007b [P] Create BornPrediction Pydantic model in code/data_models.py with fields:
+  ion_identifier, solvent_identifier, predicted_deltaG, ionic_radius, dielectric_constant,
+  calculation_timestamp'
+: 1
+? 'T007c [P] Create ResidualAnalysis Pydantic model in code/data_models.py with fields:
+  residual, ion_size_class, solvent_class, statistical_significance, p_value, confidence_interval'
+: 1

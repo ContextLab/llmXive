@@ -1,0 +1,68 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelOutput"
+description: "Schema for the Ridge Regression model results."
+type: "object"
+properties:
+  results:
+    type: "array"
+    description: "List of results for each metabolite"
+    items:
+      type: "object"
+      properties:
+        metabolite_id:
+          type: "string"
+        rmse_mean:
+          type: "number"
+          minimum: 0.0
+        rmse_std:
+          type: "number"
+          minimum: 0.0
+        pearson_r:
+          type: "number"
+          minimum: -1.0
+          maximum: 1.0
+        p_value_raw:
+          type: "number"
+          minimum: 0.0
+          maximum: 1.0
+        p_value_corrected:
+          type: "number"
+          minimum: 0.0
+          maximum: 1.0
+        is_significant:
+          type: "boolean"
+      required:
+        - metabolite_id
+        - rmse_mean
+        - rmse_std
+        - pearson_r
+        - p_value_raw
+        - p_value_corrected
+        - is_significant
+    minItems: 1
+  summary:
+    type: "object"
+    properties:
+      total_metabolites_tested:
+        type: "integer"
+        minimum: 0
+      significant_metabolites:
+        type: "integer"
+        minimum: 0
+      max_pearson_r:
+        type: "number"
+        minimum: -1.0
+        maximum: 1.0
+      min_p_value_corrected:
+        type: "number"
+        minimum: 0.0
+        maximum: 1.0
+    required:
+      - total_metabolites_tested
+      - significant_metabolites
+      - max_pearson_r
+      - min_p_value_corrected
+required:
+  - results
+  - summary
+additionalProperties: false

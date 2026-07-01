@@ -59,7 +59,7 @@
 - [X] T007 [P] Create base configuration management at src/config/settings.py with required config items: dataset_paths (dict with raw/processed/result keys as strings), preprocessing_params (dict with motion_correction=bool, slice_timing=bool, normalization=bool, smoothing_mm=int, bandpass_range=tuple[float, float]), atlas_choice (str: 'AAL' per Constitution Principle VI), motion_thresholds (dict with translation_mm=float, rotation_deg=float), statistical_thresholds (dict with nbs_t=float, nbs_alpha=float, power_target=float), all with Python type hints and JSON-serializable format
 - [ ] T008 [P] Implement random seed pinning for reproducibility at src/utils/seeding.py with seed value 42 for numpy, random, torch modules; verification criteria: deterministic output on re-run
 - [ ] T009 [P] Setup environment variable management for dataset API keys at src/config/env.py with env vars (OPENNEURO_API_KEY, DATA_DIR) and validation rules (required, non-empty)
-- [ ] T019 [P] Implement post-hoc power analysis script using statsmodels.stats.power.TTestPower at src/analysis/power_analysis.py with sample-size requirements documentation (power ≥80% target) for methods output
+- [ ] T019 [P] Implement post-hoc power analysis script using statsmodels.stats.power.TTestPower at src/analysis/power_analysis.py with sample-size requirements documentation (power ≥80% target) for methods output <!-- SKIPPED: non-mapping output -->
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -79,10 +79,10 @@
 
 - [ ] T010 [US1] Implement OpenNeuro API client for dataset discovery at src/datasets/openneuro_client.py with API endpoints (/datasets, /datasets/{id}), methods (list_datasets, get_dataset_info), return types (dict)
 - [ ] T011 [US1] Create dataset download script with URL validation at src/datasets/download_datasets.py with validation rules (URL format, checksum verification) and output format (downloaded files in data/raw/)
-- [ ] T012 [US1] Implement dataset design verification to confirm pre/post resting-state scans with mindfulness metadata at src/datasets/verify_design.py with required metadata fields (pre_scan_count:int, post_scan_count:int, intervention_type:str, scan_type:str) and verification logic (pre_scan_count > 0 AND post_scan_count > 0 AND intervention_type matches regex 'mindfulness|MBSR|MBC' case-insensitive, scan_type equals 'rs-fMRI' or 'resting')
-- [ ] T013 [US1] Create fMRIPrep Docker runner script at src/preprocessing/fmriprep_runner.py with appropriate thread and memory configuration settings
-- [ ] T014 [US1] Implement motion parameter extraction from fMRIPrep output at src/preprocessing/extract_motion.py with output format (CSV with columns: subject_id, translation_x/y/z, rotation_x/y/z) and 6 rigid-body motion parameters
-- [ ] T015 [US1] Create motion exclusion filter (>3mm translation or >3° rotation) at src/preprocessing/motion_filter.py
+- [~] T012 [US1] Implement dataset design verification to confirm pre/post resting-state scans with mindfulness metadata at src/datasets/verify_design.py with required metadata fields (pre_scan_count:int, post_scan_count:int, intervention_type:str, scan_type:str) and verification logic (pre_scan_count > 0 AND post_scan_count > 0 AND intervention_type matches regex 'mindfulness|MBSR|MBC' case-insensitive, scan_type equals 'rs-fMRI' or 'resting')
+- [~] T013 [US1] Create fMRIPrep Docker runner script at src/preprocessing/fmriprep_runner.py with appropriate thread and memory configuration settings
+- [~] T014 [US1] Implement motion parameter extraction from fMRIPrep output at src/preprocessing/extract_motion.py with output format (CSV with columns: subject_id, translation_x/y/z, rotation_x/y/z) and 6 rigid-body motion parameters
+- [~] T015 [US1] Create motion exclusion filter (>3mm translation or >3° rotation) at src/preprocessing/motion_filter.py
 - [ ] T016 [US1] Implement Nilearn lightweight preprocessing fallback (motion correction, slice timing, MNI152 normalization, 6mm smoothing, bandpass) at src/preprocessing/nilearn_fallback.py as independent alternative to T013 (not dependent on T013 completion)
 - [ ] T017 [US1] Create fMRIPrep HTML report parser for quality control at src/preprocessing/qc_parser.py with QC metrics (motion summary, SNR, temporal SNR) and output format (JSON summary + HTML report path)
 - [ ] T018 [US1] Implement dataset-variable fit verification (pre/post scans, DMN node coordinates) and document results per FR-008 at src/datasets/verify_variables.py

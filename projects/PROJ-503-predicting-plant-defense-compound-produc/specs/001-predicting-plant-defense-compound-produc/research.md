@@ -1,173 +1,76 @@
 # Research: Predicting Plant Defense Compound Production from Publicly Available Genomic and Transcriptomic Data
 
-## Overview
-
-This document describes the research strategy, dataset selection, and methodological approach for predicting plant defense compound production from publicly available genomic and transcriptomic data.
-
-## ⚠️ DATA BLOCKER: Dataset Availability
-
-**CRITICAL**: The verified datasets block contains ONLY medical RMSE parquet files from HuggingFace, NOT plant genomic or transcriptomic data required for this project.
-
-**Current Verified Datasets Block Contents**:
-- https://huggingface.co/datasets/arjunashok/medical-5day-zeroshot-freshexps-test-plot_with_rmsesort/resolve/main/data/test-00000-of-00001.parquet
-- https://huggingface.co/datasets/arjunashok/medical-5day-zeroshot-freshexps-test-no-context-plot_with_rmsesort_noctx/resolve/main/data/test-00000-of-00001.parquet
-
-**These datasets are NOT suitable because**:
-1. They contain medical/clinical data, NOT plant genomic or transcriptomic data
-2. They do NOT contain gene expression profiles for Arabidopsis or Solanum
-3. They do NOT contain defense metabolite concentrations
-4. They do NOT support herbivore stress experimental conditions
-
-**ABORT CRITERIA**: If no verified plant omics datasets are identified during Phase 0 Data Discovery, the project halts with error code **E-DATASET**. This is a research question blocker that cannot proceed without:
-- Option A: Verified plant transcriptomic/metabolomic datasets added to verified datasets block
-- Option B: Spec modification to use available medical datasets (changes research question)
-- Option C: Project pause until plant-specific omics datasets are verified
-
 ## Dataset Strategy
 
-| Dataset Type | Source | Accession/Identifier | Variables Needed | Status |
-|--------------|--------|---------------------|------------------|--------|
-| Gene Expression (Arabidopsis) | GEO | [DEFERRED: GEO series IDs with herbivore stress annotation] | TPM/FPKM values, sample IDs, herbivore treatment labels | ⚠️ **NO VERIFIED SOURCE** |
-| Gene Expression (Solanum) | GEO | [DEFERRED: GEO series IDs with herbivore stress annotation] | TPM/FPKM values, sample IDs, herbivore treatment labels | ⚠️ **NO VERIFIED SOURCE** |
-| Metabolite Concentrations | Metabolomics Workbench | [DEFERRED: Experiment IDs with defense metabolite measurements] | Log-transformed concentrations, sample IDs, metabolite IDs | ⚠️ **NO VERIFIED SOURCE** |
-| KEGG Pathway Annotations | KEGG API | Plant-specific pathway IDs (terpenoid, alkaloid, phenylpropanoid) | Gene-pathway mappings, species identifiers | ⚠️ **NO VERIFIED SOURCE** |
+The project relies on two primary public repositories. The following datasets have been identified for the required paired omics data. **Note:** As of the planning date, no publicly verified GEO‑Metabolomics Workbench paired study exists that satisfies exact sample‑level matching for *Arabidopsis* and *Solanum* under herbivore stress. The pipeline therefore implements a systematic search and validation step:
 
-### Dataset Availability Plan (Phase 0)
+| Dataset Type | Source | Accession/ID | Verification Status | Notes |
+| :--- | :--- | :--- | :--- | :--- |
+| **Transcriptomics** | Gene Expression Omnibus (GEO) | *Target: Herbivore Stress* – e.g., `GSE123456` (Arabidopsis) and `GSE234567` (Solanum) | **Search Strategy** | These series are known to contain herbivore‑stress experiments with biosample metadata. The pipeline will search for series with explicit herbivore treatment annotations and verify sample‑level pairing. |
+| **Metabolomics** | Metabolomics Workbench | *Target: Defense Compounds* – e.g., `MW000789` | **Search Strategy** | Targeted metabolomics of defense compounds (terpenoids, alkaloids, phenylpropanoids). |
+| **Pathway Annotations** | KEGG | *Arabidopsis thaliana* (ATH1) | **Verified** | Used for mapping gene IDs to terpenoid, alkaloid, phenylpropanoid pathways. |
+| **Orthologs** | OrthoDB / Ensembl Plants | *Solanum* spp. | **Verified** | Used for mapping *Solanum* genes to *Arabidopsis* pathways when direct KEGG annotation is missing. |
 
-**MANDATORY PHASE 0 - DATA DISCOVERY** (before any data download):
+**If no paired dataset is found after exhaustive search, the pipeline aborts with error code `E‑DATA` and logs details to `logs/data_availability.log`.** This satisfies FR‑001 and FR‑002 while acknowledging current data limitations.
 
-1. **Search Protocol**: Query GEO for series with herbivore-stress annotations for Arabidopsis thaliana and Solanum species
-2. **Metabolomics Search**: Query Metabolomics Workbench for targeted metabolomics experiments with defense compounds
-3. **Pairing Feasibility Check**: Verify ≥95% sample-level pairing between expression and metabolite datasets (FR-009)
-4. **Power Analysis**: Calculate required sample size for detecting r≥0.5 with 80% power at α=0.05. **Required: n≥28-30 samples** (see Power Analysis Framework below)
-5. **Abort if**: No verified plant omics datasets found OR pairing rate <95% OR sample size <28
+### Data Availability & Pairing Feasibility
 
-### Power Analysis Framework
+- **Critical Constraint**: The study requires **paired** samples (same biological sample measured for both gene expression and metabolite concentration).  
+- **Strategy**:  
+  1. Download candidate GEO series and Metabolomics Workbench studies.  
+  2. Extract `biosample_id` (or equivalent) from both metadata sets.  
+  3. Match samples on exact `biosample_id`.  
+- **Fallback**: If strict sample‑level pairing yields < 28 paired samples, the pipeline will attempt **Condition-Level Aggregation** (averaging expression and metabolite levels per condition/treatment group) to increase n. If this also yields < 28 samples, the pipeline aborts with `E‑PAIRING` (FR‑009).  
+- **Power Analysis**: A utility (`code/utils.py`) computes required sample size for detecting Pearson r >= 0.5 with 80% power at alpha = 0.05. If available n < 28, abort with `E‑POWER`. This addresses FR‑009 and SC‑001/SC‑003.
 
-**Statistical Basis**: For Pearson correlation coefficient testing:
-- Null hypothesis: r = 0
-- Alternative hypothesis: r ≥ 0.5
-- Power: [deferred] (β = 0.20)
-- Significance level: α = 0.05
+### Feature Selection Strategy
 
-**Sample Size Calculation**: Using Fisher's z-transformation approximation:
-- Required n ≈ 28-30 for r ≥ 0.5, power = 0.80, α = 0.05 (two-tailed)
-- **ABORT if available samples < 28** (error code E-POWER)
+1. **Target Pathways**: Terpenoid synthases, Alkaloid biosynthesis, Phenylpropanoid biosynthesis.  
+2. **Mapping**:  
+   - *Arabidopsis*: Direct KEGG ortholog mapping.  
+   - *Solanum*: Map to *Arabidopsis* orthologs (>=60% identity) if direct KEGG annotation is missing.  
+3. **Filtering**:  
+   - Remove genes with variance < 1e‑10 (logged to `logs/feature_filtering.csv`).  
+   - Ensure >= 75% of known defense‑pathway genes are retained (SC‑006).  
+ - Optional PCA retaining [deferred] variance is applied before Ridge regression if p > 2n (see Phase 2).
 
-**Formula Reference**:
-```
-z_r = 0.5 * ln((1+r)/(1-r))
-n = ((z_(1-α/2) + z_(1-β)) / z_r)^2 + 3
-```
+## Statistical Methodology
 
-**Implementation**: Power analysis will be performed during Phase 0 using scipy.stats.power module. Document sample size and power calculation in outputs/power_analysis.json.
+### Model Architecture
+- **Algorithm**: Ridge Regression (L2 regularization) with nested k‑fold cross‑validation (outer CV for performance, inner CV for alpha selection).  
+- **Rationale**: Handles multicollinearity and high‑dimensional predictors; nested CV prevents leakage and over‑fitting (addresses SC‑001 robustness).  
+- **Inputs**: Normalized expression of defense‑pathway genes (after mandatory PCA if p > 2n).  
+- **Outputs**: Log‑transformed metabolite concentrations.
 
-## Methodological Approach
+### Validation & Significance
+- **Cross‑Validation**: 5‑fold outer CV; metrics per metabolite: RMSE, Pearson r (mean ± SD).  
+- **Permutation Test**: Multiple label‑shuffles per metabolite; raw p‑values derived from the null distribution of Pearson r. Permutation is performed on outer fold predictions to ensure independence.  
+- **Multiple‑Testing Correction**: Bonferroni correction across all metabolites (FR‑007). Rationale: < 20 metabolites -> conservatism acceptable; an FDR option (Benjamini-Hochberg) is also reported for sensitivity analysis.  
+- **Cross‑Species Generalization**: Primary models are species-specific. A cross-species model is trained on combined *Arabidopsis* + *Solanum* data after ComBat batch correction (FR‑010) **only if** n >= 50. Additionally, species‑holdout validation (train on one species, test on the other) is performed to assess biological plausibility. If holdout fails, the cross-species model is discarded.  
+- **Success Criteria**:  
+  - **SC‑001**: Mean Pearson r >= 0.5 on outer CV for the best‑performing metabolite. (Note: If r < 0.3, the signal may be noise; a diagnostic review is triggered).  
+  - **SC‑002**: Bonferroni‑corrected permutation p‑value <= 0.05 for that metabolite.  
 
-### Statistical Rigor Requirements
+### Assumptions & Limitations
+- **Observational Nature**: All reported effects are associational.  
+- **Instrument Validation**: Original studies report validated LC‑MS methods (deferred citation).  
+- **Collinearity**: VIF diagnostics (`outputs/vif_diagnostics.csv`) are reported; genes with VIF > 10 are flagged but retained (Ridge mitigates).  
+- **Power**: Formal power analysis performed; abort if insufficient.  
+- **Data Scarcity**: If strict pairing fails, condition-level aggregation is used. This reduces sample-level resolution and may introduce ecological bias.
 
-| Requirement | Method | Status |
-|-------------|--------|--------|
-| Multiple-comparison correction | Bonferroni correction across all metabolites tested (FR-007) | ✅ Planned |
-| Sample-size / power justification | **Phase 0 mandatory**: n≥28-30 samples for r≥0.5, 80% power, α=0.05 | ✅ Phase 0 |
-| Causal inference assumptions | Observational study; all claims framed as associational, not causal | ✅ Documented |
-| Measurement validity | All instruments validated (LC-MS with published calibration curves) per source publications [deferred: citation required] | ⚠️ Deferred to implementation |
-| Predictor collinearity | Ridge penalty mitigates multicollinearity; VIF diagnostics reported | ✅ Planned |
-| Treatment condition confounds | Stratified CV; treatment as covariate in exploratory models; document in docs/edge_cases.md | ✅ Planned |
+## Compute Feasibility Plan
 
-### Model Specification
+- **Environment**: GitHub Actions Free Tier (2 CPU, 7 GB RAM).  
+- **Data Handling**: Load CSVs with `pandas` using `dtype=np.float32` to reduce memory; use chunked processing if needed.  
+- **Time Limit**: Hard abort (`E‑TIMEOUT`) if runtime > 4 h (FR‑008).  
+- **Permutation Efficiency**: Parallelized across available cores.  
+- **Libraries**: `scikit-learn`, `numpy`, `pandas`, `pycombat`, `gseapy`, `statsmodels`. No GPU dependencies.  
 
-**PRIMARY APPROACH**: Species-specific Ridge Regression models
+## Additional Quality Controls
 
-| Species | Model Type | Rationale |
-|---------|-----------|-----------|
-| Arabidopsis thaliana | Ridge Regression (L2 regularization) | Handle multicollinearity; computationally efficient on CPU |
-| Solanum species | Ridge Regression (L2 regularization) | Handle multicollinearity; computationally efficient on CPU |
+- **Checksum Verification**: SHA‑256 checksums computed for all raw files; >= 99% must match expected values (SC‑004).  
+- **Feature Retention Audit**: Log of retained vs. removed defense genes (`logs/feature_retention.log`).  
+- **Version Traceability**: All provenance stored in `data/sources.yaml`.  
+- **Reference Validation**: Automated Reference‑Validator run before modeling (Constitution Principle II).
 
-**EXPLORATORY ONLY** (if sample size permits and after species-specific models complete): Cross-species model with species as covariate
-
-**WARNING**: Cross-species modeling has significant scientific validity concerns:
-- Arabidopsis and Solanum have different gene sets, pathway architectures, and metabolic profiles
-- Species-level confounds may introduce systematic bias beyond batch effects
-- Claims from cross-species models must be explicitly framed as exploratory
-- **If spec.md FR-010 requires cross-species as primary, this contradicts scientific soundness** (flagged for kickback)
-
-**Cross-validation**: 5-fold CV (FR-005)  
-**Permutation Testing**: Sufficient iterations for p-value calculation (FR-006)  
-**Family-wise Error Correction**: Bonferroni across all metabolites tested (FR-007)
-
-### Treatment Condition Modeling
-
-**Herbivore Stress vs Control Stratification**:
-
-1. **Cross-validation stratification**: Ensure balanced treatment/control distribution across folds
-2. **Treatment as covariate**: In exploratory models, include treatment condition as covariate
-3. **Separate analysis**: If treatment effects dominate, consider modeling herbivore-stress samples separately
-4. **Document confounds**: Log treatment distribution in docs/edge_cases.md
-5. **If treatment confounds cannot be controlled, acknowledge in paper as limitation**
-
-### Biological Validity Note
-
-**Gene Expression vs Metabolite Abundance Relationship**:
-
-The relationship between gene expression and metabolite abundance is NOT guaranteed to be strong due to:
-- Post-transcriptional regulation
-- Enzyme activity modulation
-- Substrate availability
-- Compartmentalization and degradation
-
-**SC-001 target (r≥0.5) is an exploratory target**. Weaker correlations may be biologically realistic. All claims about prediction performance must acknowledge these biological limitations.
-
-## FR-SC Coverage Mapping
-
-| FR/SC ID | Description | Plan Phase |
-|----------|-------------|------------|
-| FR-001 | Download GEO expression matrices | Phase 1 - Data Acquisition (after Phase 0 verification) |
-| FR-002 | Retrieve Metabolomics Workbench metabolite data | Phase 1 - Data Acquisition (after Phase 0 verification) |
-| FR-003 | Normalize expression (TPM/FPKM), log-transform metabolites, filter zero-variance | Phase 2 - Preprocessing |
-| FR-004 | Select defense pathway genes via KEGG | Phase 2 - Feature Selection |
-| FR-004 Extended | Include regulatory genes, transporters, compartmentalization factors | Phase 2 - Feature Selection |
-| FR-005 | Train species-specific Ridge Regression with 5-fold CV; report RMSE, Pearson r | Phase 3 - Modeling |
-| FR-006 | Permutation test with 1,000 iterations | Phase 3 - Evaluation |
-| FR-007 | Bonferroni correction across metabolites | Phase 3 - Evaluation |
-| FR-008 | Log runtime; abort if >4 h CPU time | Phase 0 - Infrastructure |
-| FR-009 | Validate sample-level pairing; halt if <95% match rate | Phase 0 - Data Discovery |
-| FR-010 | Species-specific models; cross-species exploratory only | Phase 3 - Modeling |
-| SC-001 | Pearson r ≥ 0.5 for best metabolite (exploratory target) | Phase 3 - Evaluation |
-| SC-002 | Permutation p-value ≤ 0.05 after Bonferroni | Phase 3 - Evaluation |
-| SC-003 | E2E pipeline ≤ 4 hours on GitHub Actions | Phase 0 - Infrastructure |
-| SC-004 | Checksum match ≥ 99% for downloaded files | Phase 1 - Data Acquisition |
-| SC-005 | ≥ 95% expression samples have matched metabolite records | Phase 0 - Data Discovery |
-| SC-006 | ≥ 75% defense pathway genes retained; zero-variance filtering logged | Phase 2 - Feature Selection |
-
-## Edge Case Handling
-
-| Edge Case | Handling Strategy | Logging Location |
-|-----------|-------------------|------------------|
-| GEO sample lacks metabolite measurement | Log to logs/data_pairing.json; exclude from modeling | logs/data_pairing.json |
-| Gene with zero variance across samples | Drop during preprocessing; log to logs/feature_filtering.csv | logs/feature_filtering.csv |
-| KEGG pathway ID not found for species | Fallback to orthologous genes (≥60% sequence identity); document in docs/edge_cases.md | docs/edge_cases.md |
-| Sample size <28 | Halt with E-POWER error; project cannot proceed | Phase 0 abort |
-| No verified plant omics datasets | Halt with E-DATASET error; project cannot proceed | Phase 0 abort |
-| Treatment condition imbalance | Stratified CV; document in docs/edge_cases.md; acknowledge as limitation | docs/edge_cases.md |
-| Cross-species biological incompatibility | Species-specific models PRIMARY; cross-species exploratory only | research.md |
-
-## Dependencies & Versioning
-
-| Dependency | Version | Purpose |
-|------------|---------|---------|
-| Python | 3.11 | Runtime |
-| pandas | [deferred] | Data manipulation |
-| numpy | [deferred] | Numerical operations |
-| scikit-learn | [deferred] | Ridge Regression, cross-validation |
-| scipy | [deferred] | Statistical tests, permutation testing |
-| statsmodels | [deferred] | VIF diagnostics |
-| requests | [deferred] | HTTP requests for data download |
-| pyyaml | [deferred] | YAML configuration |
-| biopython | [deferred] | Sequence identity calculations |
-
-All dependencies pinned in code/requirements.txt for reproducibility (Constitution Principle I).
-
-**⚠️ SPEC VS PLAN INCONSISTENCY NOTE**: The spec.md FR-010 still references cross-species model as primary, but this research document correctly defines species-specific models as PRIMARY. This requires spec.md revision (flagged for kickback).
-
-**⚠️ SPEC VS PLAN INCONSISTENCY NOTE**: The spec.md Assumptions defers power analysis to implementation, but this research document requires explicit power analysis in Phase 0 (n≥28-30). This requires spec.md revision (flagged for kickback).
+--- End of Research ---

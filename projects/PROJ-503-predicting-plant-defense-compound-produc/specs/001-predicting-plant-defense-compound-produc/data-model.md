@@ -1,157 +1,73 @@
-# Data Model: Predicting Plant Defense Compound Production from Publicly Available Genomic and Transcriptomic Data
+# Data Model: Predicting Plant Defense Compound Production
 
 ## Overview
 
-This document describes the data model for the plant defense compound prediction pipeline, including entity definitions, relationships, and validation schemas.
+This document defines the data schemas for the pipeline, ensuring type safety and structural integrity across the download, preprocessing, and modeling stages. All data artifacts must conform to these schemas to pass contract tests.
 
-## Data Population Strategy
+## Entity Definitions
 
-**CRITICAL**: All data matrices below are populated ONLY after Phase 0 Data Discovery confirms verified plant omics datasets. If no verified sources exist, the pipeline halts with error code E-DATASET.
+### 1. ExpressionMatrix
+**Description**: Normalized gene expression values (TPM/FPKM) for defense‑pathway genes.  
+**Source**: `data/processed/expression_matrix.csv`  
+**Dimensions**: Rows = Gene IDs, Columns = Sample IDs.
 
-### Population Protocol
+| Column Name | Type | Description | Constraints |
+| :--- | :--- | :--- | :--- |
+| `gene_id` | string | Unique gene identifier (e.g., AT1G01010) | Primary Key, Non‑null |
+| `species` | string | Species name (*Arabidopsis* or *Solanum*) | Enum: ['Arabidopsis', 'Solanum'] |
+| `pathway` | string | KEGG pathway name | Enum: ['Terpenoid', 'Alkaloid', 'Phenylpropanoid'] |
+| `sample_001` | float | Expression value for sample 001 | ≥ 0.0, No NaN |
+| `sample_002` | float | Expression value for sample 002 | ≥ 0.0, No NaN |
+| … | float | … | … |
 
-1. **Phase 0 Verification**: Confirm GEO series and Metabolomics Workbench experiment IDs exist in verified datasets block
-2. **Pairing Check**: Verify ≥95% sample-level pairing between expression and metabolite datasets
-3. **Power Check**: Verify n≥28 samples for adequate statistical power
-4. **Download**: Fetch data from verified sources only (GEO, Metabolomics Workbench)
-5. **Validation**: Verify checksums (SHA-256) match expected values
-6. **Populate**: Create ExpressionMatrix and MetaboliteMatrix only after steps 1-5 pass
-7. **Log**: Record all population steps in data/sources.yaml with accession IDs, download dates, and preprocessing script versions
+### 2. MetaboliteMatrix
+**Description**: Log‑transformed concentrations of defense metabolites.  
+**Source**: `data/processed/metabolite_matrix.csv`  
+**Dimensions**: Rows = Metabolite IDs, Columns = Sample IDs.
 
-**⚠️ ABORT CONDITIONS**:
-- If verified datasets block does not contain plant omics data → E-DATASET
-- If pairing rate <95% → E-PAIRING
-- If sample size <28 → E-POWER
+| Column Name | Type | Description | Constraints |
+| :--- | :--- | :--- | :--- |
+| `metabolite_id` | string | Unique metabolite identifier | Primary Key, Non‑null |
+| `compound_class` | string | Chemical class | Enum: ['Terpenoid', 'Alkaloid', 'Phenylpropanoid'] |
+| `sample_001` | float | Log‑concentration for sample 001 | Real number, No NaN |
+| `sample_002` | float | Log‑concentration for sample 002 | Real number, No NaN |
+| … | float | … | … |
 
-## Core Entities
+### 3. PairedSampleIndex
+**Description**: A mapping of sample IDs that exist in both matrices.  
+**Source**: `data/processed/paired_samples.csv`
 
-### ExpressionMatrix
+| Column Name | Type | Description | Constraints |
+| :--- | :--- | :--- | :--- |
+| `sample_id` | string | Unique biological sample ID | Primary Key |
+| `expression_source` | string | GEO Accession ID | Non‑null |
+| `metabolite_source` | string | Metabolomics Workbench Study ID | Non‑null |
+| `pairing_confidence` | string | Confidence level | Enum: ['exact', 'inferred'] |
 
-**Description**: Gene expression values normalized to TPM/FPKM  
-**Rows**: Gene identifiers (e.g., AT1G01010 for Arabidopsis, Solyc genes for Solanum)  
-**Columns**: Sample IDs  
-**Values**: TPM/FPKM values (float64)  
-**Population Source**: GEO series after Phase 0 verification
+### 4. ModelOutput
+**Description**: Results from the Ridge Regression and permutation tests.  
+**Source**: `outputs/metrics/model_results.json`
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| gene_id | string | Yes | Gene identifier (species-specific format) |
-| sample_id | string | Yes | Sample identifier matching metabolite matrix |
-| expression_value | float | Yes | TPM or FPKM value |
-
-**Population Steps**:
-1. Download raw expression matrix from GEO (data/raw/expression_GEO-*.csv)
-2. Normalize to TPM/FPKM if not already normalized
-3. Filter zero-variance genes (variance < 1e-10)
-4. Log removed genes to logs/feature_filtering.csv
-5. Write normalized matrix to data/processed/expression_normalized.csv
-
-### MetaboliteMatrix
-
-**Description**: Defense metabolite concentrations (log-transformed)  
-**Rows**: Metabolite identifiers  
-**Columns**: Sample IDs  
-**Values**: Log-transformed concentrations (float64)  
-**Population Source**: Metabolomics Workbench after Phase 0 verification
-
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| metabolite_id | string | Yes | Metabolite identifier (e.g., compound name or HMDB ID) |
-| sample_id | string | Yes | Sample identifier matching expression matrix |
-| concentration | float | Yes | Log-transformed concentration value |
-
-**Population Steps**:
-1. Download raw metabolite data from Metabolomics Workbench (data/raw/metabolite_MW-*.csv)
-2. Log-transform concentration values
-3. Filter metabolites with <5 samples having quantified values
-4. Write normalized matrix to data/processed/metabolite_normalized.csv
-
-### FeatureSet
-
-**Description**: Subset of genes belonging to defense biosynthetic pathways PLUS regulatory genes, transporters, and compartmentalization factors  
-**Rows**: Gene identifiers  
-**Columns**: Pathway membership flags
-
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| gene_id | string | Yes | Gene identifier |
-| pathway_id | string | Yes | KEGG pathway ID (e.g., terpenoid, alkaloid, phenylpropanoid) |
-| species | string | Yes | Species identifier (Arabidopsis or Solanum) |
-| ortholog_mapped | boolean | No | True if gene was ortholog-mapped from reference species |
-| feature_type | string | Yes | One of: "biosynthetic", "regulatory", "transporter", "compartmentalization" |
-
-**Population Steps**:
-1. Query KEGG API for defense pathway gene lists (terpenoid, alkaloid, phenylpropanoid)
-2. Map gene IDs to expression matrix gene IDs
-3. For unannotated genes, fallback to ortholog mapping (≥60% sequence identity)
-4. Add regulatory genes, transporters, compartmentalization factors (FR-004 Extended)
-5. Write FeatureSet to data/processed/features.csv
-6. Log substitutions to docs/edge_cases.md
-
-### ModelArtifact
-
-**Description**: Serialized Ridge Regression model and evaluation metrics (species-specific)
-
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| metabolite_id | string | Yes | Target metabolite identifier |
-| species | string | Yes | Species (Arabidopsis or Solanum) |
-| coefficients | array[float] | Yes | Ridge regression coefficients (one per gene feature) |
-| alpha | float | Yes | Regularization parameter |
-| rmse_mean | float | Yes | Mean RMSE across CV folds |
-| rmse_std | float | Yes | Standard deviation of RMSE across CV folds |
-| pearson_r | float | Yes | Pearson correlation coefficient |
-| p_value | float | Yes | Permutation test p-value |
-| bonferroni_corrected_p | float | Yes | Bonferroni-corrected p-value |
-
-**Population Steps**:
-1. Train species-specific Ridge Regression models (separate for Arabidopsis and Solanum)
-2. Perform 5-fold cross-validation
-3. Run permutation test (1,000 iterations)
-4. Apply Bonferroni correction across metabolites
-5. Write ModelArtifact to outputs/models/metabolite_*.pkl
-6. Write evaluation summary to outputs/evaluation_summary.json
+| Field | Type | Description | Constraints |
+| :--- | :--- | :--- | :--- |
+| `metabolite_id` | string | Target metabolite | Non‑null |
+| `rmse_mean` | float | Mean RMSE across CV folds | ≥ 0.0 |
+| `rmse_std` | float | Std dev of RMSE | ≥ 0.0 |
+| `pearson_r` | float | Mean Pearson correlation | [-1.0, 1.0] |
+| `p_value_raw` | float | Raw permutation p‑value | [0.0, 1.0] |
+| `p_value_corrected` | float | Bonferroni‑corrected p‑value | [0.0, 1.0] |
+| `is_significant` | boolean | True if corrected p < 0.05 | Boolean |
 
 ## Data Flow
 
-```
-Phase 0: Data Discovery → Verify dataset availability (abort if none)
-    ↓
-GEO Download → ExpressionMatrix (raw)
-Metabolomics Workbench Download → MetaboliteMatrix (raw)
-    ↓
-Pairing Validation (FR-009)
-    ↓
-Normalization (FR-003) + Batch Correction (FR-010)
-    ↓
-Feature Selection (FR-004, FR-004 Extended) → FeatureSet
-    ↓
-Species-Specific Model Training (FR-005) → ModelArtifact
-    ↓
-Evaluation (FR-006, FR-007) → Final Results
-```
+1. **Raw Download**: `data/raw/` contains unmodified files from GEO and Metabolomics Workbench.  
+2. **Preprocessing**:  
+   - Pairing logic creates `PairedSampleIndex`.  
+   - Filtering creates `ExpressionMatrix` and `MetaboliteMatrix`.  
+   - Retention audit logs ensure ≥ 75 % of known defense pathway genes are kept (SC‑006).  
+3. **Modeling**:  
+   - Input: `ExpressionMatrix` (columns subset to paired samples).  
+   - Input: `MetaboliteMatrix` (columns subset to paired samples).  
+   - Output: `ModelOutput` (metrics) and serialized model artifacts (`outputs/models/`).  
 
-## Storage Locations
-
-| Entity | Storage Path | Format |
-|--------|--------------|--------|
-| Raw Expression | data/raw/expression_*.csv | CSV |
-| Raw Metabolite | data/raw/metabolite_*.csv | CSV |
-| Paired Data | data/paired/paired_*.csv | CSV |
-| Feature Set | data/processed/features.csv | CSV |
-| Model Artifacts | outputs/models/*.pkl | Pickle |
-| Pairing Logs | logs/data_pairing.json | JSON |
-| Feature Filtering Logs | logs/feature_filtering.csv | CSV |
-| Power Analysis | outputs/power_analysis.json | JSON |
-| Sources Documentation | data/sources.yaml | YAML |
-
-## Data Integrity Requirements
-
-**All data transformations must**:
-1. Preserve raw data unchanged (data/raw/ is read-only after download)
-2. Create new files for derived data (data/processed/, data/paired/)
-3. Record SHA-256 checksums in state/artifact_hashes
-4. Document derivation in data/sources.yaml with script version and parameters
-5. Log all edge cases and exclusions to appropriate log files
-
-**⚠️ SPEC VS PLAN INCONSISTENCY NOTE**: The spec.md FR-010 still references cross-species model as primary, but this data model correctly defines species-specific models as PRIMARY. This requires spec.md revision (flagged for kickback).
+--- End of Data Model ---

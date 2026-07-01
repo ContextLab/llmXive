@@ -1,0 +1,63 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "IonSolventPair.json",
+  "title": "IonSolventPair",
+  "description": "Schema for experimental ion-solvent solvation energy data points.",
+  "type": "object",
+  "properties": {
+    "ion_identifier": {
+      "type": "string",
+      "description": "Unique identifier for the ion (e.g., 'Na+', 'Cl-')."
+    },
+    "solvent_identifier": {
+      "type": "string",
+      "description": "Unique identifier for the solvent (e.g., 'water', 'ethanol')."
+    },
+    "experimental_deltaG": {
+      "type": "number",
+      "description": "Experimental solvation free energy in kcal/mol."
+    },
+    "uncertainty": {
+      "type": "number",
+      "description": "Uncertainty associated with the experimental measurement."
+    },
+    "temperature": {
+      "type": "number",
+      "description": "Temperature in Kelvin."
+    },
+    "charge": {
+      "type": "integer",
+      "description": "Integer charge of the ion."
+    },
+    "radius": {
+      "type": "number",
+      "description": "Ionic radius in Angstroms."
+    },
+    "radius_type": {
+      "type": "string",
+      "enum": ["crystal", "hydrated"],
+      "description": "Type of radius used (crystal or hydrated)."
+    },
+    "instrument_metadata": {
+      "type": "object",
+      "description": "Metadata regarding the instrument or source of the data.",
+      "properties": {
+        "source": { "type": "string" },
+        "citation": { "type": "string" },
+        "instrument_type": { "type": "string" }
+      },
+      "additionalProperties": true
+    }
+  },
+  "required": [
+    "ion_identifier",
+    "solvent_identifier",
+    "experimental_deltaG",
+    "uncertainty",
+    "temperature",
+    "charge",
+    "radius",
+    "radius_type"
+  ],
+  "additionalProperties": false
+}
