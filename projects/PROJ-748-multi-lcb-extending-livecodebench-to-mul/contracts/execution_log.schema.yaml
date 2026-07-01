@@ -1,0 +1,135 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Multi-LCB Execution Log Schema
+description: >
+  Schema for the execution log produced by the pipeline.
+  Records Pass@k results, runtime failures, and token usage.
+type: object
+required:
+  - meta
+  - run_results
+properties:
+  meta:
+    type: object
+    required:
+      - pipeline_version
+      - start_time
+      - end_time
+      - config_snapshot
+    properties:
+      pipeline_version:
+        type: string
+        description: Version of the execution pipeline
+      start_time:
+        type: string
+        format: date-time
+      end_time:
+        type: string
+        format: date-time
+      config_snapshot:
+        type: object
+        description: Snapshot of configuration used for this run
+        properties:
+          models:
+            type: array
+            items:
+              type: string
+          temperatures:
+            type: array
+            items:
+              type: number
+          seed:
+            type: integer
+          languages:
+            type: array
+            items:
+              type: string
+  run_results:
+    type: array
+    description: Individual execution results
+    items:
+      type: object
+      required:
+        - task_id
+        - model
+        - temperature
+        - language
+        - run_index
+        - status
+        - timestamp
+      properties:
+        task_id:
+          type: string
+        model:
+          type: string
+        temperature:
+          type: number
+        language:
+          type: string
+        run_index:
+          type: integer
+          minimum: 0
+          maximum: 9
+          description: Index of the independent run (0-9)
+        status:
+          type: string
+          enum: [pass, fail, timeout, runtime_error, generation_error]
+          description: Outcome of the execution
+        timestamp:
+          type: string
+          format: date-time
+        duration_ms:
+          type: integer
+          minimum: 0
+          description: Execution duration in milliseconds
+        error_message:
+          type: string
+          description: Error details if status is not 'pass'
+        tokens_used:
+          type: object
+          properties:
+            prompt:
+              type: integer
+            completion:
+              type: integer
+            total:
+              type: integer
+  aggregated_results:
+    type: array
+    description: Pre-calculated Pass@k metrics
+    items:
+      type: object
+      required:
+        - model
+        - language
+        - temperature
+        - pass_1
+        - pass_5
+        - pass_10
+        - std_dev_pass_1
+        - std_dev_pass_5
+        - std_dev_pass_10
+      properties:
+        model:
+          type: string
+        language:
+          type: string
+        temperature:
+          type: number
+        pass_1:
+          type: number
+          minimum: 0
+          maximum: 1
+        pass_5:
+          type: number
+          minimum: 0
+          maximum: 1
+        pass_10:
+          type: number
+          minimum: 0
+          maximum: 1
+        std_dev_pass_1:
+          type: number
+        std_dev_pass_5:
+          type: number
+        std_dev_pass_10:
+          type: number

@@ -1,0 +1,4 @@
+? T007 [P] Define JSON schemas for dataset, execution log, and statistical results
+  (`contracts/dataset.schema.yaml`, `contracts/execution_log.schema.yaml`, `contracts/statistical_results.schema.yaml`)
+  to ensure Single Source of Truth (Constitution Principle IV).
+: 1

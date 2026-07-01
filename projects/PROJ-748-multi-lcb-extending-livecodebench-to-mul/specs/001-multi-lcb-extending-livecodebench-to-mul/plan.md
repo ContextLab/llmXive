@@ -11,7 +11,7 @@ This project implements a reproducible, CPU-tractable benchmarking pipeline to e
 
 The plan strictly adheres to the project constitution, ensuring data hygiene, temporal contamination control, and statistical rigor (Bonferroni correction, LOO-PCA) within the constraints of the CI environment for validation.
 
-**Note on Spec Alignment**: While the specification (FR-005) mentions "Linear Mixed-Effects Model (LMM)", the implementation will use a **Generalized Linear Mixed Model (GLMM)** to correctly handle raw binary pass/fail outcomes. Similarly, the specification currently defines PCA on all 12 languages, but the implementation will use **Leave-One-Out PCA (LOO-PCA)** to ensure independence from Python. These methodological improvements are necessary for statistical validity and will be flagged for spec amendment.
+**Note on Spec Alignment**: While the specification (FR-005) mentions "Linear Mixed-Effects Model (LMM)", the implementation will use a **Generalized Linear Mixed Model (GLMM)** to correctly handle raw binary pass/fail outcomes. Similarly, the specification currently defines PCA on all languages, but the implementation will use **Leave-One-Out PCA (LOO-PCA)** to ensure independence from Python. These methodological improvements are necessary for statistical validity and will be flagged for spec amendment.
 
 ## Technical Context
 
@@ -103,16 +103,16 @@ projects/PROJ-748-multi-lcb-extending-livecodebench-to-mul/
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 | :--- | :--- | :--- |
-| **Docker Sandbox** | Required for language-agnostic execution (C++, Rust, Java) and security. | Direct execution on runner is unsafe and lacks standardized STDIN/STDOUT for 12 languages. |
+| **Docker Sandbox** | Required for language-agnostic execution (C++, Rust, Java) and security. | Direct execution on runner is unsafe and lacks standardized STDIN/STDOUT for multiple languages. |
 | **LOO-PCA** | Required to ensure 'General Capability' is independent of Python performance. | Standard PCA includes Python, creating circular validation risk. |
-| **GLMM** | Required to handle raw binary pass/fail data and 10 runs per task without aggregation bias. | Aggregated Pass@k loses variance information needed for robust inference; LMM on aggregated data is invalid for binary outcomes. |
+| **GLMM** | Required to handle raw binary pass/fail data and Multiple runs per task without aggregation bias. | Aggregated Pass@k loses variance information needed for robust inference; LMM on aggregated data is invalid for binary outcomes. |
 | **Two-Stage Execution** | Required to satisfy FR-001 (ALL tasks) while meeting CI time limits. | Single-stage sampling violates FR-001; single-stage full run violates CI limits. |
 | **Secondary Non-Parametric Tests** | Required by Constitution Principle VI (Wilcoxon/T-tests). | GLMM alone does not satisfy the specific constitutional requirement for these tests. |
 
 ## Implementation Phases
 
 ### Phase 0: Research & Design (Current)
-- Validate dataset availability (12 languages).
+- Validate dataset availability across multiple languages.
 - Define statistical methods (LOO-PCA, GLMM).
 - Draft schemas.
 
@@ -124,13 +124,13 @@ projects/PROJ-748-multi-lcb-extending-livecodebench-to-mul/
 - **Output**: `contracts/statistical_results.schema.yaml`.
 
 ### Phase 2: Execution Pipeline (Stage 1 - CI)
-- Run on sampled subset (100 tasks/language).
+- Run on a sampled subset of tasks per language.
 - Docker sandbox execution at T=0.2, 0.6, 1.0.
 - Generate `execution_log.json`.
 
 ### Phase 3: Statistical Analysis (Stage 1 - CI)
 - **PCA Validity Check**: KMO, Scree plot. Fallback if invalid.
-- **LOO-PCA**: Compute General Capability from 11 languages.
+- **LOO-PCA**: Compute General Capability from multiple languages.
 - **GLMM**: Fit with `Pass ~ Language + LOO_PC + (1|Task_ID)` on raw binary data.
 - **Correlation**: Test Python vs LOO_PC1 against zero; compare to intra-model baseline.
 - **Overfitting**: Residual > k*SE.

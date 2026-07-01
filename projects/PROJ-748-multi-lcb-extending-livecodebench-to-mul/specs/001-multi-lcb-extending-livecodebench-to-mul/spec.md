@@ -29,7 +29,7 @@ A researcher needs to analyze the generated performance data to quantify the cor
 
 **Why this priority**: This directly answers the research question. It transforms raw execution logs into the scientific findings (correlation coefficients, rankings, residuals) required to validate or refute the hypothesis about Python as a proxy, using a statistically independent baseline.
 
-**Independent Test**: Can be fully tested by feeding a pre-computed mock dataset (simulating 24 models × 12 languages) into the analysis script, verifying that it outputs a Pearson correlation matrix, a ranked list of models, and a list of outliers based on residual analysis with correct Bonferroni-corrected p-values.
+**Independent Test**: Can be fully tested by feeding a pre-computed mock dataset (simulating multiple models across several languages) into the analysis script, verifying that it outputs a Pearson correlation matrix, a ranked list of models, and a list of outliers based on residual analysis with correct Bonferroni-corrected p-values.
 
 **Acceptance Scenarios**:
 
@@ -63,11 +63,11 @@ A researcher needs to verify that the results are robust to temperature variatio
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download the Multi-LCB dataset (12 languages, ALL available tasks) from the Hugging Face repository, pinning to the specific commit hash provided in the source paper to ensure reproducibility. The system MUST verify the downloaded task count matches the source repository's total and log the exact number (See US-1).
-- **FR-002**: System MUST convert all STDIN/STDOUT test cases across all 12 languages into a unified execution format using a Docker-based sandbox environment (See US-1).
-- **FR-003**: System MUST execute target LLMs on the dataset at three distinct temperatures (0.2, 0.6, 1.0) with 10 independent runs per task to estimate variance. The system MUST produce an `execution_log.json` artifact explicitly recording the attempt count (10) and result status for every task-temperature combination (See US-1).
+- **FR-001**: System MUST download the Multi-LCB dataset (multiple languages, ALL available tasks) from the Hugging Face repository, pinning to the specific commit hash provided in the source paper to ensure reproducibility. The system MUST verify the downloaded task count matches the source repository's total and log the exact number (See US-1).
+- **FR-002**: System MUST convert all STDIN/STDOUT test cases across all supported languages into a unified execution format using a Docker-based sandbox environment (See US-1).
+- **FR-003**: System MUST execute target LLMs on the dataset at three distinct temperatures (low, medium, and high) with 10 independent runs per task to estimate variance. The system MUST produce an `execution_log.json` artifact explicitly recording the attempt count (10) and result status for every task-temperature combination (See US-1).
 - **FR-004**: System MUST calculate Pass@1, Pass@5, and Pass@10 metrics for every model-language-temperature combination, storing mean and standard deviation (See US-2).
-- **FR-005**: System MUST perform Pearson correlation analysis between Python pass rates and the "General Code Capability" score (derived via PCA on all 12 languages). Additionally, the system MUST fit a linear mixed-effects model (LMM) with 'Model' and 'Language' as random effects to assess ranking stability, outputting a `statistical_results.json` file containing the raw p-values, Bonferroni-corrected p-values, and significance flags for all 288 comparisons (See US-2).
+- **FR-005**: System MUST perform Pearson correlation analysis between Python pass rates and the "General Code Capability" score (derived via PCA on all 12 languages). Additionally, the system MUST fit a linear mixed-effects model (LMM) with 'Model' and 'Language' as random effects to assess ranking stability, outputting a `statistical_results.json` file containing the raw p-values, Bonferroni-corrected p-values, and significance flags for all pairwise comparisons (See US-2).
 - **FR-006**: System MUST filter the dataset to exclude any tasks released after a model's training cutoff date to prevent data contamination (See US-3).
 - **FR-007**: System MUST perform a sensitivity analysis sweeping the "Python overfitting" residual threshold over {0.10, 0.15, 0.20} and report the variation in identified outliers, where overfitting is defined as (Python Score - Predicted Score from PC1) > threshold (See US-3).
 - **FR-008**: System MUST generate visualization artifacts (radar charts, heatmaps) showing performance distributions and correlation clusters (See US-2).
@@ -96,7 +96,7 @@ A researcher needs to verify that the results are robust to temperature variatio
 
 - The Multi-LCB dataset provided in the source paper contains all necessary variables (problem statements, test cases, reference solutions, release dates) for the 12 languages; if any language lacks test cases, the analysis will proceed only on languages with complete data, and this limitation will be documented.
 - The GitHub Actions free-tier runner (multi-core CPU, sufficient RAM) is sufficient to execute the Docker sandbox and run the statistical analysis on a sampled subset of the data (e.g., 100 tasks per language) if the full dataset exceeds memory limits, as the methodology allows for sampling.
-- The LLM APIs or local models used for execution can be accessed without GPU acceleration; the analysis assumes CPU-only inference is feasible for the chosen model sizes (e.g., 7B-13B parameters) within the 6-hour job limit.
+- The LLM APIs or local models used for execution can be accessed without GPU acceleration; the analysis assumes CPU-only inference is feasible for the chosen model sizes (e.g., B-13B parameters) within the 6-hour job limit.
 - The Docker images required for C++, Java, Rust, and other non-Python languages are available and lightweight enough to be pulled and run within the runner's disk and memory constraints.
 - The "Python overfitting" residual threshold is defined as a discrepancy of ≥ 0.15 between Python performance and the predicted performance from the General Code Capability score, based on community standards for significant performance gaps in benchmark evaluations.
 - The dataset release dates are accurate and reliable; if metadata is missing for a task, that task is excluded from the contamination check, assuming the risk of contamination is low for older, untagged tasks.

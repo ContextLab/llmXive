@@ -1,0 +1,2 @@
+# Data directory - contains downloaded and processed datasets
+# This file ensures the directory exists in git

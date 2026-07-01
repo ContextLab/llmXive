@@ -1,0 +1,2 @@
+# Logs directory - contains runtime logs and error reports
+# This file ensures the directory exists in git

@@ -1,0 +1,135 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Multi-LCB Statistical Results Schema
+description: >
+  Schema for the final statistical analysis output.
+  Contains correlation matrices, rankings, and significance tests.
+type: object
+required:
+  - meta
+  - correlation_analysis
+  - ranking_analysis
+properties:
+  meta:
+    type: object
+    required:
+      - analysis_timestamp
+      - input_log_path
+      - methods_used
+    properties:
+      analysis_timestamp:
+        type: string
+        format: date-time
+      input_log_path:
+        type: string
+      methods_used:
+        type: array
+        items:
+          type: string
+        description: List of methods used (e.g., "LOO-PCA", "GLMM", "Bonferroni")
+  correlation_analysis:
+    type: object
+    required:
+      - python_pass1_vs_pc1
+      - intra_model_baseline
+    properties:
+      python_pass1_vs_pc1:
+        type: object
+        required:
+          - pearson_r
+          - p_value
+          - sample_size
+        properties:
+          pearson_r:
+            type: number
+          p_value:
+            type: number
+          sample_size:
+            type: integer
+      intra_model_baseline:
+        type: object
+        description: Correlation of model performance across languages excluding Python
+        properties:
+          mean_correlation:
+            type: number
+          std_correlation:
+            type: number
+  ranking_analysis:
+    type: object
+    required:
+      - glmm_rankings
+      - significant_differences
+    properties:
+      glmm_rankings:
+        type: array
+        description: Models ranked by estimated general capability
+        items:
+          type: object
+          required:
+            - model
+            - rank
+            - estimated_effect
+            - confidence_interval
+          properties:
+            model:
+              type: string
+            rank:
+              type: integer
+            estimated_effect:
+              type: number
+            confidence_interval:
+              type: object
+              properties:
+                lower:
+                  type: number
+                upper:
+                  type: number
+      significant_differences:
+        type: array
+        description: Pairs with significant differences after Bonferroni correction
+        items:
+          type: object
+          required:
+            - model_a
+            - model_b
+            - p_value_raw
+            - p_value_corrected
+            - significant
+          properties:
+            model_a:
+              type: string
+            model_b:
+              type: string
+            p_value_raw:
+              type: number
+            p_value_corrected:
+              type: number
+            significant:
+              type: boolean
+  sensitivity_analysis:
+    type: object
+    description: Optional sensitivity analysis results
+    properties:
+      temperature_variance:
+        type: array
+        items:
+          type: object
+          properties:
+            model:
+              type: string
+            temperature:
+              type: number
+            variance:
+              type: number
+  overfitting_detection:
+    type: object
+    description: Optional overfitting residual analysis
+    properties:
+      residuals_by_threshold:
+        type: array
+        items:
+          type: object
+          properties:
+            threshold:
+              type: number
+            detected_count:
+              type: integer
