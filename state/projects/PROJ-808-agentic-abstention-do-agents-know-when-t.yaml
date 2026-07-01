@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-01T03:11:09.649029Z'
-current_stage: paper_ingested
+current_stage: brainstormed
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-808-agentic-abstention-do-agents-know-when-t
-last_run_id: null
+last_run_id: a03f8cc4-241c-4193-8b2e-275d0f377bf6
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'Agentic Abstention: Do Agents Know When to Stop Instead of Act?'
-updated_at: '2026-07-01T03:11:10.039072Z'
+updated_at: '2026-07-01T23:12:51.282333Z'

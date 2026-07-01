@@ -1,26 +1,26 @@
-resolved_at: '2026-07-01T20:02:18.189125+00:00'
+resolved_at: '2026-07-01T23:14:38.196996+00:00'
 datasets:
 - intent: CPU-supported
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/poster/_O9167660199_Augustine_University_Remedial_2026-2027Jupeb_Application_Form_are_now_open_O916-766-0199_MRS_ANITA_i_admission_Form_i_Prospective_candidates_seeking_i_admission_Form_i_into_the_i_University_i_can_now_apply_for_the_Academic_Sess/32867045
+  - url: https://figshare.com/articles/preprint/THE_HARMONIC_RESET_Ancient_Prophecies_Climate_Upheaval_and_the_Choice_Before_Humanity/32868590
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Separating_and_analyzing_wind-_and_boat-induced_waves_a_filtering_framework_for_hydraulic_lake_monitoring/32867028
+  - url: https://figshare.com/articles/dataset/P_07033307887_St_Anna_College_of_Nursing_Port_Harcourt_07033307887_proudly_announces_that_the_2026_2027_Admission_Application_form_is_out_and_currently_on_sale_/32868578
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/online_resource/Legislative_Congruence_Interactive_Map/32680776
+  - url: https://figshare.com/articles/dataset/_07033307887_St_Anna_College_of_Nursing_Port_Harcourt_07033307887_proudly_announces_that_the_2026_2027_Admission_Application_form_is_out_and_currently_on_sale_/32868548
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/_O9167660199_Al-Hikmah_University_Ilorin_Remedial_2026-2027Jupeb_Application_Form_are_now_open_O916-766-0199_MRS_ANITA_i_admission_Form_i_Prospective_candidates_seeking_i_admission_Form_i_into_the_i_University_i_can_now_apply_for_the_Academ/32867042
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_2_Impact_of_two_brief_behavioral_theory_driven_professional_training_programs_on_fitness_center_attendance_protocol_for_pragmatic_controlled_intervention_with_random_allocation_docx/32868575
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/media/Call_O9167660199_Ajayi_Crowther_University_Ibadan_2026-2027Jupeb_Application_Form_are_now_open_Call_O916-766-0199_MRS_ANITA_i_admission_Form_i_Prospective_candidates_seeking_i_admission_Form_i_into_the_i_University_i_can_now_apply_for_the_A/32867036
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_3_Impact_of_two_brief_behavioral_theory_driven_professional_training_programs_on_fitness_center_attendance_protocol_for_pragmatic_controlled_intervention_with_random_allocation_docx/32868569
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content

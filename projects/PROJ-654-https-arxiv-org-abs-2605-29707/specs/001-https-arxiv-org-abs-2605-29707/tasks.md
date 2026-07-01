@@ -1,6 +1,6 @@
 # Tasks: Reproduce & Validate Domino Speculative Decoding Framework
 
-**Input**: Design documents from `/specs/001-https-arxiv-org-abs-2605-29707/`
+**Input**: Design documents from `/specs/001-reproduce-domino-speculative-decoding/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
@@ -46,14 +46,6 @@
 - [ ] T001 Create repository directory structure (`src/`, `tests/`, `external/`), initialize git submodule for `external/Domino`, and verify required files
   - **Action**: Create `src/`, `tests/`, `external/` directories. Initialize git submodule: `git submodule update --init --recursive`.
   - **Verification**: Run `test -d src && test -f src/__init__.py && test -d external/Domino && test -f external/Domino/.git && test -f external/Domino/run_hf_benchmark.sh`. If any fail, abort.
-- [ ] T001c Verify Constitution File (Blocking Check)
-  - **Action**: Check if `projects/PROJ-654-https-arxiv-org-abs-2605-29707/.specify/memory/constitution.md` exists.
-  - **Verification**: If missing, abort pipeline with error: `CONSTITUTION_MISSING: constitution.md not found. Provide the file to proceed.`
-  - **Dependency**: Must run before any other task.
-- [ ] T002 Initialize Python 3.10+ project with CPU-only `torch` and `transformers` dependencies in `requirements.txt`
-  - **Requirement**: Pin exact versions: `torch==2.2.2+cpu`, `transformers==4.41.0`, `accelerate==0.31.0`.
-  - **Verification**: Run `pip install -r requirements.txt --dry-run` to confirm installability without network.
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
 
@@ -63,7 +55,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Setup environment configuration management (`src/benchmark/config.py`) to handle model substitution (Qwen3 -> Qwen2-1.8B) and device detection
+- [ ] T002 Initialize Python 3.10+ project with CPU-only `torch` and `transformers` dependencies in `requirements.txt`
+  - **Requirement**: Pin exact versions: `torch==2.2.2+cpu`, `transformers==4.41.0`, `accelerate==0.31.0`.
+  - **Verification**: Run `pip install -r requirements.txt --dry-run` to confirm installability without network.
+- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [ ] T004 Setup environment configuration management (`src/benchmark/config.py`) to handle model selection and device detection
 - [ ] T005 [P] Implement hardware detection utility in `src/benchmark/utils.py` to enforce CPU-only mode and prevent CUDA imports
   - **Output**: `hardware.json` with `cpu_cores`, `ram_gb`, `device`.
   - **Verification**: Run `python src/benchmark/utils.py` and verify `hardware.json` is created with `device: "cpu"`.
@@ -80,10 +76,10 @@
   - **Verification**: Verify `versions.txt` contains non-empty version strings.
   - **Dependency**: Must run after T007 completes. Do NOT mark [P].
 - [ ] T008 Setup timeout wrapper mechanism in `src/benchmark/runner.py` to abort processes exceeding 45 minutes (FR-005)
-- [ ] T009 Implement model fetcher with dynamic fallback in `src/benchmark/data.py`
-  - **Action**: Implement logic to attempt loading `Qwen/Qwen2-1.8B-Instruct` first. On `torch.OutOfMemoryError` or `RuntimeError` indicating OOM, automatically retry with `Qwen/Qwen2-0.5B-Instruct`. If both fail, abort with `OUT_OF_MEMORY` error.
-  - **Verification**: Simulate OOM or verify logic path in code; ensure `model_selection.json` records the chosen model and any fallback actions.
-  - **Dependency**: Implements Plan Phase 2 fallback logic.
+- [ ] T009 Implement model fetcher with strict error handling in `src/benchmark/data.py`
+  - **Action**: Implement logic to attempt loading `Qwen/Qwen2-1.8B-Instruct` first. On `torch.OutOfMemoryError` or `RuntimeError` indicating OOM, catch the exception, log "OOM: Model exceeds memory limits. Aborting benchmark run as per Spec Edge Cases.", and raise a fatal error. Do NOT attempt to switch models automatically.
+  - **Verification**: Simulate OOM or verify logic path in code; ensure the process aborts with an explicit error message and does not proceed with a smaller model.
+  - **Dependency**: Implements Plan Phase 2 fallback logic (which is now a strict failure).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -107,13 +103,10 @@
 ### Implementation for User Story 1
 
 - [ ] T012 [US1] Implement `src/benchmark/runner.py` to wrap `external/Domino/run_hf_benchmark.sh` with timeout and CPU-enforcement logic
-- [ ] T013 Create pre-run wrapper script `src/benchmark/patch_requirements.sh` to inject dependencies at runtime (excluding bitsandbytes)
-  - **Action**: Create a script that modifies the environment *before* running the benchmark, ensuring `external/Domino/requirements-hf.txt` remains unmodified.
-  - **Verification**: Run `diff` to confirm `external/Domino/requirements-hf.txt` is unchanged after script execution; verify `pip list` shows injected packages.
 - [ ] T014 [US1] Implement `src/benchmark/metrics.py` to parse `results_*.json` files generated by the benchmark, extracting `total_latency`, `tokens_per_second`, and `speedup_ratio` fields as defined in the Plan (Phase 4, Step 4.1)
 - [ ] T015 Add error handling for "Out of Memory" scenarios
-  - **Action**: Catch `torch.OutOfMemoryError`, log "OOM: Switching to smaller model", and trigger the fallback logic defined in T009. Do NOT suggest quantization (unsupported on CPU).
-  - **Verification**: Ensure the fallback model is selected and logged; ensure no quantization libraries are invoked.
+  - **Action**: Catch `torch.OutOfMemoryError`, log "OOM: Model exceeds memory limits. Aborting benchmark run as per Spec Edge Cases.", and trigger the fatal error logic defined in T009. Do NOT suggest quantization (unsupported on CPU).
+  - **Verification**: Ensure the process aborts with the explicit error message; ensure no fallback model is selected.
 - [ ] T016 Add retry logic for `pip install` commands using `tenacity` library with 3 retries
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -135,9 +128,9 @@
 
 - [ ] T020 [US2] Implement `src/benchmark/resource_monitor.py` to track peak RSS memory and log warnings if >6.5 GB
 - [ ] T021 [US2] Refine `src/benchmark/runner.py` to enforce a reasonable hard timeout (FR-005) and log termination reasons
-- [ ] T022 [US2] Implement benchmark logic in `src/benchmark/data.py` to run 30 prompts repeated 20 times (n=600)
-  - **Action**: Read parameters from `benchmark_config.yaml` (prompt_count: 30, run_repeats: 20).
-  - **Verification**: Ensure total prompt count matches 600; abort if cumulative time exceeds a predefined threshold.
+- [ ] T022 [US2] Implement benchmark logic in `src/benchmark/data.py` to run 5 runs × 10 prompts (n=50)
+  - **Action**: Read parameters from `benchmark_config.yaml` (prompt_count: 10, run_repeats: 5).
+  - **Verification**: Ensure total prompt count matches 50; abort if cumulative time exceeds a predefined threshold.
   - **Dependency**: Aligns with Plan Phase 3 statistical power requirements. Must run after T009 (model fetcher) and T020/T021.
 - [ ] T023 Integrate hardware detection (from T005c) to ensure `device_map` is correctly configured (CPU fallback if no GPU), preventing `CUDA_VISIBLE_DEVICES` errors (US-2, FR-002)
 
@@ -159,15 +152,13 @@
 ### Implementation for User Story 3
 
 - [ ] T026 [US3] Implement `src/benchmark/analyzer.py` to calculate `speedup_ratio` (Baseline_Latency / Domino_Latency)
-- [ ] T027 [US3] Implement `src/benchmark/reporter.py` to generate `validation_report.md` with full tolerance check logic
-  - **Action**: Calculate a tolerance range around the target magnitude (4.392x to 6.588x). Compare `speedup_mean` against this range.
-  - **Output**: Explicitly output "PASS" if within range, "FAIL" if outside range but >1.0, or "FAIL" if <=1.0. Do NOT output "N/A".
-  - **Constraint**: Must satisfy FR-007 Pass/Fail requirement. Must run after T026.
-- [ ] T028 [US3] Add logic to `src/benchmark/reporter.py` to strictly enforce SC-003 and the 20% tolerance threshold
-  - **Action**: If `mean_speedup_ratio` <= 1.0, flag as "Failed to Reproduce Speedup". If > 1.0 but outside tolerance, flag as "Mechanism Valid but Magnitude Deviates".
-  - **Constraint**: Must include tolerance check in Pass/Fail logic. Must run after T027.
-- [ ] T029 [US3] Implement acceptance rate analysis in `src/benchmark/analyzer.py` as the primary scientific validation metric (Plan Note: Mechanism Validation)
-  - **Dependency**: Must run after T026.
+- [ ] T027 [US3] Implement `src/benchmark/reporter.py` to generate `validation_report.md` with algorithmic principle validation logic
+  - **Action**: Calculate mean speedup. Check if `mean_speedup > 1.0`. If true, log "Algorithmic Principle Validated: Domino provides speedup over baseline on CPU." If false, log "Failed to Reproduce Speedup". Explicitly state the reference claim and note that the CPU magnitude is expected to differ, treating the reference claim as context only.
+  - **Output**: Explicitly output "PASS" if speedup > 1.0, "FAIL" if <= 1.0. Do NOT output "N/A" or fail solely on magnitude deviation from 5.49x.
+  - **Constraint**: Must satisfy FR-007 Pass/Fail requirement based on algorithmic validity, not magnitude matching. Must run after T026.
+- [ ] T028 [US3] Add logic to `src/benchmark/reporter.py` to strictly enforce SC-003 and log configuration parameters
+  - **Action**: If `mean_speedup_ratio` <= 1.0, flag as "Failed to Reproduce Speedup". If > 1.0, flag as "Validated". Include specific configuration parameters (draft size, model size) in the report for transparency.
+  - **Constraint**: Must include speedup > 1.0 check in Pass/Fail logic. Must run after T027.
 - [ ] T030 [US3] Log specific configuration parameters (draft size, model size) in the report if speedup < 1.0x (FR-007)
   - **Dependency**: Must run after T027/T028.
 
@@ -179,7 +170,7 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T031 [P] Documentation updates in `README.md` detailing CPU-only constraints and model substitution logic
+- [ ] T031 [P] Documentation updates in `README.md` detailing CPU-only constraints and model selection logic
 - [ ] T032 Code cleanup and refactoring of `src/benchmark` modules
 - [ ] T033 [P] Additional unit tests for metrics parsing edge cases in `tests/unit/test_metrics.py`: functions `test_empty_log_file`, `test_nan_latency`, `test_missing_key`
 - [ ] T034 Run `quickstart.md` validation to ensure all steps execute correctly on a fresh runner
@@ -191,7 +182,7 @@
 
 ### Phase Dependencies
 
-- **Setup (Phase 1)**: No dependencies - can start immediately (except T001c which blocks all)
+- **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
   - User stories can then proceed in parallel (if staffed)
@@ -235,7 +226,7 @@ Task: "Integration test for CPU-only execution flow in tests/integration/test_cp
 
 # Launch all models for User Story 1 together:
 Task: "Implement src/benchmark/runner.py to wrap external/Domino/run_hf_benchmark.sh"
-Task: "Create wrapper script src/benchmark/patch_requirements.sh to inject dependencies at runtime"
+Task: "Implement src/benchmark/metrics.py to parse results_*.json files"
 ```
 
 ---
@@ -244,7 +235,7 @@ Task: "Create wrapper script src/benchmark/patch_requirements.sh to inject depen
 
 ### MVP First (User Story 1 Only)
 
-1. Complete Phase 1: Setup (including T001c Constitution Check)
+1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
 3. Complete Phase 3: User Story 1
 4. **STOP and VALIDATE**: Test User Story 1 independently

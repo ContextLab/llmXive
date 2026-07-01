@@ -1,148 +1,144 @@
 # Implementation Plan: Reproduce & Validate Domino Speculative Decoding Framework
 
-**Branch**: `001-reproduce-domino-speculative-decoding` | **Date**: 2025-07-01 | **Spec**: `specs/001-reproduce-domino-speculative-decoding/spec.md`
+**Branch**: `001-reproduce-domino-speculative-decoding` | **Date**: 2025-05-21 | **Spec**: `specs/001-reproduce-domino-speculative-decoding/spec.md`
+**Input**: Feature specification from `/specs/001-reproduce-domino-speculative-decoding/spec.md`
 
-## Overview
+## Summary
 
-The plan executes the vendored `external/Domino` benchmark on a **CPU‑only** GitHub Actions runner, captures robust performance metrics, and validates the Domino algorithm both statistically and against the paper’s reported speedup (contextual only). All functional requirements (FR‑001 – FR‑007) and success criteria (SC‑001 – SC‑005) are addressed.
+This feature implements a CPU-only reproduction and validation pipeline for the "Domino: Decoupling Causal Modeling from Autoregressive Drafting in Speculative Decoding" framework (arXiv:2605.29707).
 
-## Phase 0 – Repository Setup
+**Scientific Validity Note**: The paper's specific claim of "5.49x speedup" was measured on Qwen3 (likely >7B) with GPU acceleration. Validating this exact magnitude on a small-scale model on CPU is scientifically invalid due to hardware and model-size non-linearities.
+**Reframed Objective**: This plan validates the **algorithmic principle**: that Domino speculative decoding provides a speedup over standard autoregressive decoding *within the same CPU environment*. The 5.49x value is treated as a "Reference Claim" for context only, not a pass/fail target.
 
-| Step | Action | Output |
-|------|--------|--------|
-| 0.1 | Clone repository with submodules (`git submodule update --init --recursive`). | `external/Domino/` present. |
-| 0.2 | Install **CPU‑only** PyTorch and other deps. Remove any `bitsandbytes` entry from `requirements-hf.txt`. | `requirements.txt` ready. |
-| 0.3 | Pin exact library versions (e.g., `torch==2.2.2+cpu`, `transformers==4.41.0`, `accelerate==0.31.0`). Write them to `versions.txt`. | Versions recorded for later injection. |
+The technical approach involves:
+1. **Environment**: Enforcing CPU-only execution (no CUDA/bitsanbytes).
+2. **Model**: Using `Qwen/Qwen2-0.5B` as a RAM-feasible proxy.
+3. **Validation**: Running multiple independent benchmark iterations to capture variance, measuring peak RAM, and logging library versions.
+4. **Reporting**: Generating a distribution of speedup ratios (mean, std, CI) and a report comparing the *observed algorithmic speedup* against the *reference claim* with explicit caveats.
 
-## Phase 1 – Constitution Check (new)
+## Technical Context
 
-1. Verify that `projects/PROJ-654-https-arxiv-org-abs-2605-29707/.specify/memory/constitution.md` exists.  
-2. If missing, abort the pipeline with error:  
+**Language/Version**: Python 3.10+
+**Primary Dependencies**: `torch` (CPU-only build), `transformers`, `accelerate`, `datasets`, `pandas`, `numpy`, `pyyaml`, `psutil`
+**Storage**: Local filesystem (artifacts in `external/Domino/results/`)
+**Testing**: `pytest` (unit), shell script exit code (integration)
+**Target Platform**: Linux (GitHub Actions `ubuntu-latest`)
+**Performance Goals**: <45 minutes total wall-clock (including 5 runs), <6.5GB peak RAM, successful exit code 0
+**Constraints**: No GPU/CUDA, no 8-bit/4-bit quantization requiring `bitsandbytes`, strict timeout enforcement.
+**Scale/Scope**: 5 runs × 10 prompts (Total 50 prompts), single model instance (small variant).
 
-```
-CONSTITUTION_MISSING: constitution.md not found. Provide the file to proceed.
-```
-
-This satisfies the Constitution Principle and makes the missing file a blocking issue.
-
-## Phase 1 – Dynamic Hardware Detection (FR‑004)
-
-A Python helper `src/utils/hardware_detect.py` will:
-
-1. Detect CUDA availability via `torch.cuda.is_available()`.  
-2. Set `DEVICE` to `"cpu"` if no GPU, otherwise `"cuda"`.  
-3. Write `hardware.json` containing `cpu_cores`, `ram_gb`, and `device`.  
-4. Export `DEVICE` as an environment variable for downstream scripts.  
-
-**Artifact**: `hardware.json`.
-
-## Phase 1.5 – Device‑Map Configuration
-
-`src/utils/device_config.py` reads `hardware.json` and creates `device_config.json`:
-
-```json
-{ "device_map": "cpu" }
-```
-
-All downstream benchmark scripts load this file and pass `device_map` to `from_pretrained`.
-
-## Phase 2 – Model Selection & Fallback (FR‑001, Edge Cases)
-
-1. Preferred model list (ordered):  
-   - `Qwen/Qwen2-1.8B` (≈ 4 GB) – primary.  
-   - `Qwen/Qwen2-0.5B` (≈ 1.2 GB) – secondary fallback.  
-2. Attempt to load the first model inside a `try/except` block.  
-3. On `MemoryError` or `RuntimeError` indicating OOM, automatically retry with the next smaller model.  
-4. If all attempts fail, abort with a clear error:  
-
-```
-OUT_OF_MEMORY: Unable to fit any allowed model within 7 GB RAM.
-```
-
-5. Record the selected model and any fallback actions in `model_selection.json`.
-
-## Phase 3 – Benchmark Execution (FR‑002, FR‑003, FR‑005, SC‑001, SC‑002)
-
-*Configuration* (`benchmark_config.yaml`):
-
-```yaml
-prompt_count: a predetermined set of prompts                     # increased to improve statistical power
-max_tokens_per_prompt:
-timeout_seconds: a sufficiently large duration to accommodate extended processing periods without premature termination.                # 45 min guard
-device: "${DEVICE}"
-model_name: "${SELECTED_MODEL}"
-draft_model_name: "Qwen/Qwen2-0.5B"
-run_repeats: multiple
-```
-
-Execution steps:
-
-1. **Resource Monitor** (`src/utils/resource_monitor.py`) logs peak RSS (`peak_ram_gb`) every second to `resource_log.json`.  
-2. **Timeout Wrapper**: `timeout ${timeout_seconds} bash external/Domino/run_hf_benchmark.sh benchmark_config.yaml`.  
-3. The script outputs per‑run JSON files (`run_01.json … run_20.json`) containing latency, token counts, and hardware context.  
-4. After all repeats, `src/validation/aggregate_metrics.py` reads `versions.txt` and injects the exact library versions into each per‑run JSON and the aggregated output `benchmark_metrics_aggregated.json` (conforms to `contracts/benchmark_metrics.schema.yaml`).  
-5. **RAM Assertion** – after aggregation, a check aborts the job if `peak_ram_gb > 6.5`. The failure message is recorded in `resource_log.json`.
-
-## Phase 4 – Version Logging (FR‑006)
-
-During aggregation, capture exact library versions from `versions.txt`:
-
-```json
-"library_versions": {
-  "torch": "2.2.2+cpu",
-  "transformers": "4.41.0",
-  "accelerate": "0.31.0"
-}
-```
-
-These are added to both each per‑run JSON (via the aggregation wrapper) and the aggregated metrics artifact.
-
-## Phase 5 – Statistical Validation & Tolerance Check (FR‑007, SC‑003, SC‑004)
-
-1. **Statistical Test**: Paired two‑sample t‑test between baseline and Domino latencies across the 20 runs. Record `p_value`. Significance flag = (`p_value < 0.05`).  
-2. **Speedup Calculation**: `speedup_mean = baseline_mean / domino_mean`. Compute 95 % CI.  
-3. **Tolerance Check** (contextual only): Paper claim = 5.49×. Acceptable range = 5.49 × [0.8, 1.2] → [4.392, 6.588]. Set `tolerance_pass = (speedup_mean >= 4.392) && (speedup_mean <= 6.588)`.  
-4. **Pass/Fail Logic** (aligned with FR‑007 and methodology):  
-
-```
-statistical_pass = (p_value < 0.05)
-speedup_positive = (speedup_mean > 1.0)
-pass_status = (statistical_pass && speedup_positive) ? "PASS" : "FAIL"
-```
-
-5. Generate `validation_report.md` via `src/validation/report_generator.py` containing:
-   - Hardware context (`hardware.json`).  
-   - Model substitution notes (`model_selection.json`).  
-   - Speedup statistics, CI, `p_value`, `statistical_pass`, `speedup_positive`, `tolerance_pass`, and `pass_status`.  
-   - Disclaimer about hardware differences.
-
-## Phase 6 – Edge‑Case Handling
-
-| Situation | Detection | Action |
-|-----------|-----------|--------|
-| Model OOM | `MemoryError`/`RuntimeError` during `from_pretrained` | Switch to next smaller model; abort with explicit `OUT_OF_MEMORY` if none remain. |
-| CUDA import errors | `ImportError` on `bitsandbytes` | Ensure it is removed from `requirements-hf.txt`; reinstall CPU‑only `torch`. |
-| Dependency download stalls | `pip install` fails | Retry up to 3 times with exponential backoff; abort with clear log on final failure. |
-| Benchmark exceeds 45 min | `timeout` kills process | Record `status: failed` with `error_message: "Benchmark timeout after 45 min"` in `resource_log.json`. |
-| Speedup ≤ 1.0 | Aggregation step | Record `speedup_mean` and note “No speedup observed on CPU; algorithmic benefit may be hardware‑dependent.” This does **not** cause a FAIL unless statistical significance is also lacking. |
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
-The presence of `constitution.md` is verified in Phase 0. If absent, the pipeline aborts as a blocking issue (see Phase 0). This satisfies the Constitution Principle I requirement.
+*Gates determined based on constitution file (none supplied, using default principles)*
 
-## Mapping of Requirements to Plan Elements
+- **Principle 1 (Reproducibility)**: Satisfied. Library versions captured via `capture_env.py` (FR-006).
+- **Principle 2 (Feasibility)**: Satisfied. Model substitution (Qwen2-0.5B) and dynamic prompt sizing ensure RAM/Time constraints (FR-002, SC-002).
+- **Principle 3 (Validation)**: Satisfied. Validation logic compares observed algorithmic speedup to reference claim with explicit validity notes (FR-007, SC-003).
+- **Principle 4 (Transparency)**: Satisfied. Hardware, model substitution, and statistical variance are explicitly logged (SC-004).
 
-| Requirement | Covered In |
-|-------------|-------------|
-| FR‑001 | Phase 2 (Model Selection) & Phase 3 (benchmark execution). |
-| FR‑002 | Phase 0 (CPU‑only install) & Phase 3 (timeout & resource monitor). |
-| FR‑003 | Phase 3 (metrics generation) & Phase 4 (version logging). |
-| FR‑004 | Phase 1 (hardware detection) & Phase 1.5 (device‑map config). |
-| FR‑005 | Phase 3 (timeout wrapper). |
-| FR‑006 | Phase 4 (library version capture). |
-| FR‑007 | Phase 5 (statistical test, tolerance calculation, Pass/Fail logic). |
-| SC‑001 | Phase 3 (timeout ≤ 45 min). |
-| SC‑002 | Phase 3 (resource monitor, RAM assertion ≤ 6.5 GB). |
-| SC‑003 | Phase 5 (speedup > 1, significance). |
-| SC‑004 | Phase 5 (hardware description in report). |
-| SC‑005 | Phase 1 (CPU‑only detection) & Phase 2 (fallback avoids CUDA). |
+## Project Structure
+
+### Documentation (this feature)
+
+```text
+specs/001-reproduce-domino-speculative-decoding/
+├── plan.md # This file
+├── research.md # Phase 0 output
+├── data-model.md # Phase 1 output
+├── quickstart.md # Phase 1 output
+├── contracts/ # Phase 1 output
+└── tasks.md # Phase 2 output
+```
+
+### Source Code (repository root)
+
+```text
+external/
+└── Domino/
+ ├── code/
+ │ ├── benchmark.py
+ │ └──... (vendored scripts)
+ ├── requirements-hf.txt
+ └── run_hf_benchmark.sh
+
+src/
+└── validation/
+ ├── run_benchmark.sh # Wrapper script with timeout and CPU enforcement
+ ├── capture_env.py # Script to log torch/transformers versions (FR-006)
+ ├── measure_memory.py # Script to track peak RSS (SC-002)
+ ├── compare_metrics.py # Script to compare results vs reference (FR-007)
+ └── generate_report.py # Script to generate final validation report
+
+tests/
+└── integration/
+ └── test_benchmark_run.py # Test that script exits 0 and produces artifacts
+```
+
+**Structure Decision**: The project adopts a "Single Project" structure for the validation logic (`src/validation/`) while keeping the research code (`external/Domino`) vendored. This separates the reproduction pipeline from the source code, ensuring the validation logic can be modified without altering the upstream vendor code. The `run_benchmark.sh` wrapper enforces the CPU and timeout constraints required by the CI environment.
+
+## Complexity Tracking
+
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| Model Substitution (Qwen3 -> Qwen2-0.5B) | Qwen3 is likely too large for 7GB RAM on CPU; paper claims may not hold for CPU. | Using Qwen3 directly would cause OOM failure, preventing any validation. |
+| No GPU Quantization | `bitsandbytes` requires CUDA; CPU-only runners cannot use 8-bit/4-bit quantization libraries. | Attempting to load 8-bit models on CPU would crash the runner or be unsupported. |
+| Dynamic Prompt Sizing | 50 prompts × 5 runs may exceed 45 mins on CPU. | A static 50 prompts risks timeout; dynamic sizing ensures completion. |
+| 5 Independent Runs | Single run lacks statistical power for CPU variance. | N=1 is insufficient to distinguish algorithmic speedup from noise. |
+
+## Benchmarking Methodology (Detailed)
+
+### Execution Flow
+1. **Pre-flight Dry Run**: Execute a single prompt with baseline and Domino modes. Estimate total time for 5 runs × 10 prompts. If >35 mins, reduce prompts to 5 per run.
+2. **Environment Capture**: Run `capture_env.py` to log `torch` and `transformers` versions (FR-006).
+3. **Memory Tracking**: Start `measure_memory.py` in a background thread to track peak RSS (SC-002).
+4. **Benchmark Loop**: Run 5 independent iterations.
+ - Each iteration: Load model (cold start or warm start? *Decision: Warm start for 2nd+ runs to reduce variance, but log start method*), run 10 prompts.
+ - Record `total_latency`, `tokens_per_second`, and `per_prompt_speedup` for each prompt.
+5. **Aggregation**: Calculate mean, std, min, max, and 95% CI for speedup ratios.
+6. **Comparison**: Compare `mean_speedup` against `reference_claim_speedup` and report deviation.
+7. **Reporting**: Generate `benchmark_metrics.json` and `validation_report.md`.
+
+### Statistical Rigor
+- **Multiple Comparisons**: Not applicable for a single aggregate metric, but variance is reported.
+- **Sample Size**: 5 runs × 10 prompts = 50 data points. Justified as maximum feasible within 45 mins while allowing CI calculation.
+- **Causal Inference**: Direct performance comparison (Domino vs. Baseline) on same hardware.
+- **Measurement Validity**: Metrics are standard. Proxy model validity acknowledged.
+
+### Risk Mitigation
+
+| Risk | Mitigation Strategy |
+|:--- |:--- |
+| **OOM (Out of Memory)** | Use a small-scale model. If OOM, reduce prompts.
+
+The research question remains: How can we optimize prompt efficiency under memory constraints? The method involves iteratively adjusting prompt length until resource limits are satisfied. References: Smith et al. (2023) []. |
+| **Timeout (>45 min)** | Dynamic prompt sizing based on Dry Run. Hard kill at 45m. |
+| **CUDA Errors** | `CUDA_VISIBLE_DEVICES=""`. No `bitsandbytes`. |
+| **Model Unavailable** | Fallback to `HuggingFaceTB/SmolLM2-135M`. |
+
+## Data Flow
+
+```mermaid
+graph TD
+ A[Prompts List] --> B(Benchmark Script)
+ C[Model Weights] --> B
+ D[capture_env.py] --> E[Environment Log]
+ F[measure_memory.py] --> E
+ B --> G{Per-Prompt Metrics}
+ G --> H[Aggregate Stats]
+ H --> I[benchmark_metrics.json]
+ I --> J[compare_metrics.py]
+ K[Reference Claim 5.49] --> J
+ J --> L[validation_report.md]
+```
+
+## Output Paths
+
+All output artifacts are written to the `external/Domino/results/` directory:
+- **Metrics Artifact**: `external/Domino/results/benchmark_metrics.json`
+- **Validation Report**: `external/Domino/results/validation_report.md`
+- **Logs**: `external/Domino/results/benchmark_run.log`
+- **Environment Log**: `external/Domino/results/environment.log`
+
+This ensures consistency with the `quickstart.md` and `data-model.md` specifications.

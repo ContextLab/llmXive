@@ -1,189 +1,112 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: Benchmark Metrics Schema
-description: Schema for the aggregated metrics output from the Domino benchmark (mean over n runs).
+title: Benchmark Metrics Artifact
+description: "Structured output from the Domino benchmark run, containing latency and speedup metrics."
 type: object
 required:
-  - model_name
-  - draft_model_name
-  - baseline_latency_ms
-  - domino_latency_ms
-  - speedup_ratio
-  - acceptance_rate
-  - total_tokens
-  - prompt_count
-  - run_count
-  - peak_ram_gb
-  - library_versions
+  - run_id
   - timestamp
+  - environment
+  - peak_memory_mb
+  - baseline
+  - domino
+  - speedup_ratio
+  - per_prompt_speedup
+  - aggregated
   - status
 properties:
-  model_name:
+  run_id:
     type: string
-    description: "Name of the target model used (e.g., 'Qwen2-1.8B')"
-  draft_model_name:
-    type: string
-    description: "Name of the draft model used (e.g., 'Qwen2-0.5B')"
-  baseline_latency_ms:
-    type: object
-    required:
-      - mean
-      - std
-      - min
-      - max
-    properties:
-      mean:
-        type: number
-        description: "Mean baseline latency (ms)"
-        minimum: 0
-      std:
-        type: number
-        description: "Standard deviation of baseline latency (ms)"
-      min:
-        type: number
-        description: "Minimum baseline latency (ms)"
-        minimum: 0
-      max:
-        type: number
-        description: "Maximum baseline latency (ms)"
-        minimum: 0
-  domino_latency_ms:
-    type: object
-    required:
-      - mean
-      - std
-      - min
-      - max
-    properties:
-      mean:
-        type: number
-        description: "Mean Domino latency (ms)"
-        minimum: 0
-      std:
-        type: number
-        description: "Standard deviation of Domino latency (ms)"
-        minimum: 0
-      min:
-        type: number
-        description: "Minimum Domino latency (ms)"
-        minimum: 0
-      max:
-        type: number
-        description: "Maximum Domino latency (ms)"
-        minimum: 0
-  tokens_per_second_baseline:
-    type: object
-    properties:
-      mean:
-        type: number
-        description: "Mean baseline throughput (tokens/sec)"
-      std:
-        type: number
-        description: "Standard deviation of baseline throughput"
-  tokens_per_second_domino:
-    type: object
-    properties:
-      mean:
-        type: number
-        description: "Mean Domino throughput (tokens/sec)"
-      std:
-        type: number
-        description: "Standard deviation of Domino throughput"
-  speedup_ratio:
-    type: object
-    required:
-      - mean
-      - std
-      - min
-      - max
-    properties:
-      mean:
-        type: number
-        description: "Mean speedup (baseline_latency / domino_latency)"
-        minimum: 0
-      std:
-        type: number
-        description: "Standard deviation of speedup"
-        minimum: 0
-      min:
-        type: number
-        description: "Minimum speedup"
-        minimum: 0
-      max:
-        type: number
-        description: "Maximum speedup"
-        minimum: 0
-  acceptance_rate:
-    type: object
-    required:
-      - mean
-      - std
-      - min
-      - max
-    properties:
-      mean:
-        type: number
-        description: "Mean acceptance rate (fraction of draft tokens accepted)"
-        minimum: 0
-        maximum: 1
-      std:
-        type: number
-        description: "Standard deviation of acceptance rate"
-        minimum: 0
-        maximum: 1
-      min:
-        type: number
-        description: "Minimum acceptance rate"
-        minimum: 0
-        maximum: 1
-      max:
-        type: number
-        description: "Maximum acceptance rate"
-        minimum: 0
-        maximum: 1
-  total_tokens:
-    type: integer
-    description: "Total number of tokens generated across all runs"
-    minimum: 0
-  prompt_count:
-    type: integer
-    description: "Number of distinct prompts processed per run"
-    minimum: 1
-  run_count:
-    type: integer
-    description: "Number of independent runs aggregated"
-    minimum: 1
-  peak_ram_gb:
-    type: number
-    description: "Peak resident set size observed during the benchmark (GB)"
-    minimum: 0
-    maximum: 6.5
-  library_versions:
-    type: object
-    required:
-      - torch
-      - transformers
-      - accelerate
-    properties:
-      torch:
-        type: string
-        minLength: 1
-        description: "Torch version string, e.g., '2.2.2+cpu'"
-      transformers:
-        type: string
-        minLength: 1
-        description: "Transformers version string"
-      accelerate:
-        type: string
-        minLength: 1
-        description: "Accelerate version string"
+    description: "Unique identifier for the benchmark run."
   timestamp:
     type: string
     format: date-time
-    description: "ISO 8601 timestamp of aggregation"
+    description: "ISO8601 timestamp of the run."
+  environment:
+    type: object
+    required:
+      - torch_version
+      - transformers_version
+      - python_version
+    properties:
+      torch_version:
+        type: string
+        description: "Version of PyTorch used."
+      transformers_version:
+        type: string
+        description: "Version of Transformers used."
+      python_version:
+        type: string
+        description: "Version of Python used."
+  peak_memory_mb:
+    type: number
+    minimum: 0
+    description: "Peak RAM usage in MB during the run."
+  baseline:
+    type: object
+    required:
+      - total_latency_seconds
+      - tokens_per_second
+      - total_tokens
+    properties:
+      total_latency_seconds:
+        type: number
+        description: "Total latency for the baseline run."
+      tokens_per_second:
+        type: number
+        description: "Tokens per second for the baseline run."
+      total_tokens:
+        type: integer
+        description: "Total tokens generated."
+  domino:
+    type: object
+    required:
+      - total_latency_seconds
+      - tokens_per_second
+      - total_tokens
+    properties:
+      total_latency_seconds:
+        type: number
+        description: "Total latency for the Domino run."
+      tokens_per_second:
+        type: number
+        description: "Tokens per second for the Domino run."
+      total_tokens:
+        type: integer
+        description: "Total tokens generated."
+  speedup_ratio:
+    type: number
+    description: "Calculated speedup ratio (Baseline Latency / Domino Latency) - Mean of all runs."
+  per_prompt_speedup:
+    type: array
+    items:
+      type: number
+    description: "Speedup ratio for each individual prompt."
+  aggregated:
+    type: object
+    required:
+      - mean
+      - std
+      - min
+      - max
+      - ci_95
+    properties:
+      mean:
+        type: number
+      std:
+        type: number
+      min:
+        type: number
+      max:
+        type: number
+      ci_95:
+        type: array
+        items:
+          type: number
+        description: "95% Confidence Interval [lower, upper]."
   status:
     type: string
     enum:
       - success
-      - failed
-    description: "Overall aggregation status"
-additionalProperties: false
+      - timeout
+      - oom
+    description: "Status of the benchmark run."

@@ -1,27 +1,21 @@
-# Quickstart: Domino Mechanism Verification
+# Domino Adaptation Quickstart
 
-This guide runs the scaled-down adaptation of the **Domino** paper. It verifies the core claim: that a lightweight causal refinement head (Domino) improves draft quality over a parallel draft backbone, using tiny models on a CPU.
+This guide runs the scaled-down CPU adaptation of the Domino paper.
+It reproduces the core finding: **Decoupling causal modeling (Domino Head) improves draft acceptance rates** compared to a naive parallel baseline.
 
 ## Prerequisites
-- Python 3.9+
-- `pip install torch transformers datasets numpy`
+- Python 3.8+
+- `pip install torch transformers datasets matplotlib pandas tqdm rich`
 
 ## Run Commands
-Execute the following command to run the verification:
+Execute the following commands in order:
 
 ```bash
-python code/verify_domino_mechanism.py
+python code/run_domino_analysis.py
 ```
 
-## Expected Output
-The script will:
-1. Load tiny GPT-2 models (Target) and DistilGPT-2 (Draft).
-2. Process the first 50 samples of the GSM8K dataset.
-3. Simulate speculative decoding steps.
-4. Calculate **Acceptance Rates** and **KL Divergence** for:
-   - Baseline (Parallel Draft)
-   - Domino (Refined Draft)
-5. Save results to `data/results.json` and `data/results.csv`.
-
-## Verification
-Check `data/results.json` for the `acceptance_improvement_pct`. A positive value confirms the Domino mechanism improves draft quality, aligning with the paper's core quantitative claim.
+This script will:
+1. Load a small subset of real text (WikiText-2 or snippets).
+2. Initialize a tiny target model (DistilGPT2) and draft simulators.
+3. Simulate Parallel vs. Domino drafting and verification.
+4. Output `data/acceptance_rates.csv`, `data/summary.json`, and `figures/acceptance_comparison.png`.
