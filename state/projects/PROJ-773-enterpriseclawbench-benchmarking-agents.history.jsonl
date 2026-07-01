@@ -1,2 +1,3 @@
 {"at": "2026-06-24T09:08:42.972398+00:00", "from_stage": "brainstormed", "last_run_id": null, "to_stage": "paper_review"}
 {"at": "2026-06-30T18:41:00.885827+00:00", "from_stage": "paper_review", "last_run_id": "9714d28f-9ee7-4cb8-9fc4-7716f93ec36b", "to_stage": "paper_ingested"}
+{"at": "2026-07-01T04:29:26.157496+00:00", "from_stage": "paper_ingested", "last_run_id": "9714d28f-9ee7-4cb8-9fc4-7716f93ec36b", "to_stage": "in_progress"}

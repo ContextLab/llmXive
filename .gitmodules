@@ -136,3 +136,9 @@
 [submodule "projects/PROJ-650-colleague-skill-automated-ai-skill-gener/external/colleague-skill"]
 	path = projects/PROJ-650-colleague-skill-automated-ai-skill-gener/external/colleague-skill
 	url = https://github.com/titanwings/colleague-skill
+[submodule "projects/PROJ-784-qwen-agentworld-language-world-models-fo/external/express"]
+	path = projects/PROJ-784-qwen-agentworld-language-world-models-fo/external/express
+	url = https://github.com/expressjs/express
+[submodule "projects/PROJ-773-enterpriseclawbench-benchmarking-agents/external/EnterpriseClawBench"]
+	path = projects/PROJ-773-enterpriseclawbench-benchmarking-agents/external/EnterpriseClawBench
+	url = https://github.com/FrontisAI/EnterpriseClawBench
