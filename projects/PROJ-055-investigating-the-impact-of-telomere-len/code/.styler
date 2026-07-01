@@ -1,0 +1,13 @@
+style: tidyverse
+indent: 2
+reindents: true
+align:
+  - assignments
+  - pipes
+whitespace:
+  - around_operators
+  - around_commas
+  - around_braces
+comment:
+  - hash: true
+  - inline: true

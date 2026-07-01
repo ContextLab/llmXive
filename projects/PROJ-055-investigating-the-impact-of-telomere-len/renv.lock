@@ -1,0 +1,82 @@
+{
+  "R": {
+    "Version": "4.3.0",
+    "Repositories": [
+      {
+        "Name": "CRAN",
+        "URL": "https://cloud.r-project.org"
+      }
+    ]
+  },
+  "Packages": {
+    "rotl": {
+      "Package": "rotl",
+      "Version": "3.0.14",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "curl",
+        "xml2",
+        "jsonlite"
+      ],
+      "Hash": "a1b2c3d4e5f6"
+    },
+    "lme4": {
+      "Package": "lme4",
+      "Version": "1.1-34",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "Matrix",
+        "Rcpp",
+        "RcppEigen"
+      ],
+      "Hash": "b2c3d4e5f6a7"
+    },
+    "phylolm": {
+      "Package": "phylolm",
+      "Version": "2.6.2",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "ape"
+      ],
+      "Hash": "c3d4e5f6a7b8"
+    },
+    "ape": {
+      "Package": "ape",
+      "Version": "5.7-1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "nlme",
+        "parallel",
+        "stats4"
+      ],
+      "Hash": "d4e5f6a7b8c9"
+    },
+    "caper": {
+      "Package": "caper",
+      "Version": "1.0.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "ape",
+        "lme4",
+        "nlme"
+      ],
+      "Hash": "e5f6a7b8c9d0"
+    },
+    "anage": {
+      "Package": "anage",
+      "Version": "0.1.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "httr",
+        "jsonlite"
+      ],
+      "Hash": "f6a7b8c9d0e1"
+    }
+  }
+}

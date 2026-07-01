@@ -1,0 +1,2204 @@
+\documentclass{article}
+\usepackage[preprint]{neurips_2026}
+
+% Ensure local style and macro files are found from the workspace root.
+\makeatletter
+\def\input@path{{Styles/}{../Styles/}}
+\makeatother
+
+% if you need to pass options to natbib, use, e.g.:
+%     \PassOptionsToPackage{numbers, compress}{natbib}
+% before loading neurips_2025
+
+% The authors should use one of these tracks.
+% Before accepting by the NeurIPS conference, select one of the options below.
+% 0. "default" for submission
+\usepackage{neurips_2026}
+\usepackage{amsthm}
+\newtheorem{lemma}{Lemma}
+\newtheorem{definition}{definition}
+\newtheorem{assumption}{assumption}
+\newtheorem{theorem}{theorem}
+
+% the "default" option is equal to the "main" option, which is used for the Main Track with double-blind reviewing.
+% 1. "main" option is used for the Main Track
+%  \usepackage[main]{neurips_2025}
+% 2. "position" option is used for the Position Paper Track
+%  \usepackage[position]{neurips_2025}
+% 3. "dandb" option is used for the Datasets & Benchmarks Track
+ % \usepackage[dandb]{neurips_2025}
+% 4. "creativeai" option is used for the Creative AI Track
+%  \usepackage[creativeai]{neurips_2025}
+% 5. "sglblindworkshop" option is used for the Workshop with single-blind reviewing
+ % \usepackage[sglblindworkshop]{neurips_2025}
+% 6. "dblblindworkshop" option is used for the Workshop with double-blind reviewing
+%  \usepackage[dblblindworkshop]{neurips_2025}
+
+% After being accepted, the authors should add "final" behind the track to compile a camera-ready version.
+% 1. Main Track
+ % \usepackage[main, final]{neurips_2025}
+% 2. Position Paper Track
+%  \usepackage[position, final]{neurips_2025}
+% 3. Datasets & Benchmarks Track
+ % \usepackage[dandb, final]{neurips_2025}
+% 4. Creative AI Track
+%  \usepackage[creativeai, final]{neurips_2025}
+% 5. Workshop with single-blind reviewing
+%  \usepackage[sglblindworkshop, final]{neurips_2025}
+% 6. Workshop with double-blind reviewing
+%  \usepackage[dblblindworkshop, final]{neurips_2025}
+% Note. For the workshop paper template, both \title{} and \workshoptitle{} are required, with the former indicating the paper title shown in the title and the latter indicating the workshop title displayed in the footnote.
+% For workshops (5., 6.), the authors should add the name of the workshop, "\workshoptitle" command is used to set the workshop title.
+% \workshoptitle{WORKSHOP TITLE}
+
+% "preprint" option is used for arXiv or other preprint submissions
+ % \usepackage[preprint]{neurips_2025}
+
+% to avoid loading the natbib package, add option nonatbib:
+%    \usepackage[nonatbib]{neurips_2025}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{xcolor}         % colors
+
+
+\newcommand{\headerbox}[2]{%
+  \colorbox{gray!15}{\makebox[#1][c]{\textbf{#2}}}%
+}
+\newcommand{\headerboxleft}[2]{%
+  \colorbox{gray!15}{\makebox[#1][l]{\textbf{#2}}}%
+}
+
+
+
+
+
+
+\usepackage[table]{xcolor}
+\usepackage{soul}
+\sethlcolor{yellow!20}
+
+
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage[table]{xcolor}
+\usepackage{multirow}
+\usepackage{colortbl}
+
+\definecolor{SPColor}{RGB}{245,248,255}   % very light blue
+\definecolor{UIColor}{RGB}{245,250,245}   % very light green
+\definecolor{FPColor}{RGB}{255,247,240}   % very light orange
+
+\definecolor{ForestGreen}{RGB}{34,139,34}
+\definecolor{RewriteBlue}{RGB}{31,119,180}
+\definecolor{Maroon}{cmyk}{0,0.87,0.68,0.32}
+
+\usepackage{enumitem}
+
+
+\input{commands}
+
+\newcommand{\ind}[1]{\mathbf{1}\!\left\{#1\right\}}
+\newcommand{\abstain}{\text{\textsc{Abstain}}\xspace}
+\newcommand{\method}{\textsc{convolve}\xspace}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{amsmath}
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{xspace}
+\usepackage{cleveref}
+\usepackage[breakable]{tcolorbox}
+\usepackage{listings}
+\usepackage{bbold}
+\usepackage{enumitem}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{ifthen}
+\usepackage{fontawesome5}
+
+\usepackage{amsthm}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{fvextra}
+
+\usepackage{pifont}
+\newcommand{\cmark}{\ding{51}}%
+\newcommand{\xmark}{\ding{55}}%
+
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{balance}
+\usepackage{flushend}
+\usepackage{soul}
+\usepackage{mwe}
+\usepackage{subcaption}
+\usepackage{multirow}
+\usepackage{colortbl}
+\usepackage{wrapfig}
+\tcbuselibrary{listings}
+
+\input{macros.tex}
+
+% Avoid underfull \vbox warnings on sparse pages.
+\raggedbottom
+
+% Note. For the workshop paper template, both \title{} and \workshoptitle{} are required, with the former indicating the paper title shown in the title and the latter indicating the workshop title displayed in the footnote. 
+\title{Agentic Abstention: Do Agents Know When to Stop Instead of Act?}
+
+
+% The \author macro works with any number of authors. There are two commands
+% used to separate the names and addresses of multiple authors: \And and \AND.
+%
+% Using \And between authors leaves it to LaTeX to determine where to break the
+% lines. Using \AND forces a line break at that point. So, if LaTeX puts 3 of 4
+% authors names on the first line, and the last on the second line, try using
+% \AND instead of \And before the third author name.
+
+
+\author{%
+  Han Luo$^{1,2,3}$\footnotemark[1], Bingbing Wen$^{3}$\footnotemark[1], Lucy Lu Wang$^{3,4}$  \\
+  $^{1}$University of Leeds $^{2}$Southwest Jiaotong University, $^{3}$University of Washington, $^{4}$Allen Institute for AI \\
+  \texttt{\{hanluo,bingbw,lucylw\}@uw.edu} \\
+  \url{https://lhannnn.github.io/agentic-abstention} \\
+}
+
+\begin{document}
+
+\maketitle
+
+{
+\renewcommand{\thefootnote}{}
+\footnotetext{\hspace{-1.5em}${}^{*}$Equal contribution.}
+% \footnotetext{\hspace{-1.5em}${}^{\dagger}$Corresponding author.}
+}
+
+\begin{abstract}
+
+LLM agents are expected to act over multiple turns, using search, browsing interfaces, and terminal tools to complete user goals. Yet not every goal is well specified or achievable in the available environment. In such cases, a reliable agent should recognize that further interaction is unlikely to help and abstain from additional tool calls. We define \textit{Agentic Abstention}, the problem of deciding when an agent should stop acting under uncertainty. Unlike standard LLM abstention, which is usually evaluated as a single-turn answer-or-abstain decision, agentic abstention is a sequential decision problem: an agent can answer, abstain, or gather more information at each turn, and the need to abstain may only become clear after interacting with the environment. We study this problem across web shopping, terminal environments, and question answering, evaluating 13 LLM-as-agent systems and 2 agent scaffolds on more than 28,000 tasks. Our results show that the main challenge is not only whether agents \emph{can} abstain, but also \emph{when} they abstain. Some agents never abstain when they should, while others do so only after many unnecessary interactions. This gap is especially large on tasks where the instruction appears feasible until the environment reveals otherwise (e.g., no valid result matches the instruction). We further find that model scale, reasoning, and agent scaffolding affect abstention in different ways, where larger or more capable models sometimes perform worse at timely abstention. Finally, we introduce \textit{\method}, a context engineering method for improving agentic abstention that distills full interaction trajectories into reusable stopping rules. On WebShop, \method substantially improves timely abstention without updating model parameters, raising Llama-3.3-70B's timely recall rate from 26.7 to 57.4.
+% , and overall recall from 83.2 to 100.0. 
+Our dataset and code are available at \href{https://lhannnn.github.io/agentic-abstention}{https://lhannnn.github.io/agentic-abstention}.
+
+
+
+\end{abstract}
+
+\vspace{-3mm}
+\section{Introduction}
+\vspace{-2mm}
+Agents are designed to follow user instructions and act in an environment to complete tasks such as browsing the web \cite{deng2023mind2web}, shopping online \cite{yao2022webshop, guo2026susbench}, or operating in a terminal \cite{merrill2026terminal}. Agents accomplish these tasks by iteratively choosing actions, invoking tools, and incorporating observations from the environment to make progress toward the user’s goal. Prior work has largely focused on measuring and improving successful task completion, for example through better memory and context management \cite{packer2024memgptllmsoperatingsystems}, stronger planning and decision-making \cite{yao2022react}, and more effective agent architectures or scaffolds \cite{wang2023voyager}. Recent work has begun to examine uncertainty \cite{oh2026uncertainty, kirchhof2025position}, inefficient or unsafe tool use \cite{qian2025smart, xie2026oversearchingsearchaugmentedlargelanguage, bonagiri2025check}, and clarification \cite{zhang2025clarify, zhang2024clamber, kobalczyk2025active,cao2026clarify} in agent settings, but these lines of work do not study abstention as a decision made by an agent across different scenarios. 
+% \doneit{Han: added sentence here on prior work on agentic abstention; asking under uncertainty, inefficiency etc} 
+Existing evaluations therefore leave open how agents should behave when the requested task is infeasible, either due to ambiguity in the user instruction or because a task cannot be completed within the given environment and action space. 
+
+% \todo In ambiguous cases, the agent should ask the user for clarification rather than continue to act under uncertainty. In impossible cases, such as when no valid action matches the instruction, an efficient agent should recognize this as early as possible and stop rather than take unnecessary steps.
+
+% Prior work on LLM agents has largely focused on improving task execution, for example through better memory and context management \cite{packer2024memgptllmsoperatingsystems}, stronger planning and decision-making \cite{yao2022react}, and more effective agent architectures or scaffolds \cite{wang2023voyager}. By contrast, far less attention has been paid to whether agents can recognize when they should stop. In practice, user instructions are not always clear and well-defined: they may be underspecified, self-contradictory, or based on false premises. Even when the instruction is reasonable, the task itself may still be infeasible in the given environment. In such cases, a reliable agent should be able to recognize the problem and refrain from acting further.
+
+In this work, we address this gap by studying when tool-using agents should stop acting rather than continue interacting with an environment. We refer to an agent's ability to recognize when a task is uncertain or fundamentally unachievable, and to stop acting accordingly, as \emph{Agentic Abstention}.
+% In this work, we refer to an agent's ability to recognize when a task is uncertain or fundamentally unachievable, and to stop acting accordingly, as \emph{Agentic Abstention}. 
+This setting differs from \emph{LLM abstention} \cite{wen2025know, feng2024don, kirichenko2025abstentionbench, brahman2024art}, which typically studies single-turn question answering (QA), where the model's action space is limited to either answering or abstaining. In contrast, in agentic abstention, an agent has access to a richer action space: it can search, click, interact with the environment, and continue exploring rather than immediately answering or abstaining. Its context also evolves over the course of interaction. 
+% As a result, some tasks may appear solvable at first, but only later reveal that abstention is the appropriate decision.
+As a result, some tasks may appear solvable at first, with the need for abstention becoming apparent only after further interaction (see Figure~\ref{fig:intro_overview}).
+
+We study agentic abstention across web shopping, terminal interaction, and question answering scenarios. We create a consolidated benchmark consisting of 28,000 instructions over these scenarios, by adapting filtered examples from 16 datasets from AbstentionBench \cite{kirichenko2025abstentionbench}, and constructing abstention instances from tasks in WebShop \cite{yao2022webshop} and Terminal-Bench 2.0 \cite{merrill2026terminal}. For WebShop and Terminal-Bench 2.0, we construct two types of new abstention instructions: \emph{Request-based Abstention}, where we modify the instruction to be ambiguous, and \emph{Environment-based Abstention}, where we modify the environment such that the original instruction can no longer be satisfied but this is only discovered after an agent interacts with the environment (e.g., if the request is to purchase a red shirt, we modify the environment to remove all red shirts).
+
+% For question-answering scenarios, we use 16 filtered datasets adapted from AbstentionBench \cite{kirichenko2025abstentionbench}. For web and terminal environments, we use WebShop \cite{yao2022webshop} and Terminal-Bench 2.0 \cite{merrill2026terminal}. On these two benchmarks, we construct two types of tasks: \emph{Request-based Abstention} tasks, where the task is unresolvable from the instruction alone, and \emph{Environment-based Abstention} tasks, where the task initially appears solvable but becomes unresolvable only after limited interaction with the environment. For Request-based Abstention tasks, we rewrite original instructions to introduce three types of abstention scenarios---Subjective Preference, Underspecified Intent, and False Premise or Contradiction---using LLM rewriting followed by human validation. For Environment-based Abstention tasks, we modify the environment such that the instruction cannot be followed (e.g., removing all red shirts from search results when the task is to purchase a red shirt). We compute abstention recall as the proportion of tasks on which agents correctly abstain.
+
+\begin{figure*}[t]
+    \centering
+    % \includegraphics[width=0.98\textwidth]{picture/intro_figure.pdf}
+    \includegraphics[width=\textwidth]{picture/overview.pdf}
+    \caption{
+    % We test agentic abstention on three types of interactive scenarios: web shopping,  terminal interactions, and question answering, using more than 30{,}000 instructions.
+    % \textbf{(b)} 
+    % In some cases, the need to abstain is evident from the user request itself. When the request depends on an unspecified subjective preference, the agent should abstain from acting and ask for clarification instead.
+    % \textbf{(c)} 
+    % In other cases, the need to abstain becomes clear only after interacting with the environment. Once the agent discovers that the requested item is unavailable, it should abstain as soon as it recognizes that the original request cannot be fulfilled.
+    This is an Environment-based Abstention example in a web shopping scenario, where the agent only discovers that the task is infeasible after interacting with the environment. We show three trajectories, (i) Timely success: where the agent abstains in the earliest possible step where is has enough information to do so, (ii) Delayed success: where the agent eventually abstains correctly following a few steps of unnecessary tool calls, and (iii) Failure to abstain: where the agent issues unnecessary tool calls for the remaining turns and does not abstain within the 10-turn budget.
+    }
+    \vspace{-0.6em}
+    \label{fig:intro_overview}
+\end{figure*}
+
+
+Using our consolidated agent abstention benchmark, we evaluate a combination of 13 LLM-as-Agent systems (e.g., GPT-5.4, Llama-3.3-70B) and 2 agent scaffolds (Terminus 2 and Codex CLI) in web shopping, terminal interaction, and QA settings. 
+We find that agentic abstention is difficult across these scenarios.
+% , and the main failure we observe is failure to abstain in a timely way. 
+In web environments, many models eventually recognize that an instruction cannot be completed, but only after many steps of unnecessary interaction, e.g., the strongest baseline reaches only 26.7\% timely abstention recall (AbsRec@1) and 83.2\% overall abstention recall (AbsRec at max turns = 10). Similarly, in the terminal setting, the best configuration reaches only 21.6\% timely recall on abstention tasks. 
+% \doneit{Han: included some stats}. 
+% (as soon as the agent observes enough information about the environment that it should know to abstain). 
+% This pattern is especially pronounced for environment-based abstention, where the instruction initially appears solvable and the need to stop only becomes clear after interacting with the environment. 
+For QA tasks, all models perform especially poorly for certain kinds of abstention, such as questions with false premise or underspecified intent, where timely and overall abstention recall are low for all models (at or below 50\%).
+We also find that stronger base models do not always abstain better; reasoning can improve timely abstention but also reduces overall abstention recall, and increasing model scale does not improve timely abstention. In terminal environments, the agent scaffold itself has a substantial effect, suggesting that abstention is shaped not only by the base model but also by how the agent interacts with the environment.
+
+To improve agentic abstention, we introduce \method, a context engineering method that learns from full interaction trajectories. 
+% Rather than updating model parameters, 
+\method derives and maintains a dynamic playbook of reusable lessons about when continued interaction is unlikely to help, and appends this to agent context to improve abstention performance. On web shopping, \method substantially improves timely abstention while preserving task completion. With Llama-3.3-70B, it raises timely abstention recall from 26.7\% to 57.4\%, and overall abstention recall from 83.2\% to 100.0\%. 
+% \doneit{Revised. Deleted SPL} 
+We further find that lessons learned by larger models are generally most effective, though lessons learned by smaller models can similarly transfer to larger models.
+
+
+In summary, our key contributions are as follows:
+
+\begin{itemize}[leftmargin=12pt, topsep=0pt, itemsep=0pt]
+
+    \item We introduce \emph{Agentic Abstention}, the problem of deciding when a tool-using agent should stop acting rather than continue interacting with an environment. We formulate agentic abstention as a sequential decision problem in which an agent may answer, abstain, or take further actions.
+
+    \item We establish an agentic abstention benchmark by adapting or constructing more than 28,000 instructions from WebShop, Terminal-Bench, and AbstentionBench to cover web-based decision making, terminal-based task execution, and QA. We evaluate 13 LLM-as-agent systems and two agent scaffolds on our benchmark, showing that agentic abstention is very difficult, with most systems achieving less than 50\% average abstention recall. 
+    % \doneit{Han: confirm that this is correct}. 
+    Timely abstention (abstaining in the first turn where an agent has enough information to abstain) is a persistent challenge, and all models we test achieve less than 40\% average timely recall. We also investigate the contributions of model scale, reasoning, and agent scaffolding.
+
+    \item We propose \method, a context-engineering method that distills full interaction trajectories into a reusable playbook of lessons. Agents augmented with \method substantially improve on timely abstention without the need to update any model parameters.
+\end{itemize}
+
+
+% \section{Agentic Abstention}
+
+
+
+%\subsection{Task Formulation (Version 1)}
+%\label{sec:task_formulation}
+
+%We study agentic abstention under a fixed interaction protocol with horizon $H$. We model the interaction as a finite-horizon partially observable stopping problem,
+%\[
+%\mathcal{M} = (\mathcal{S}, \mathcal{A}, \mathcal{O}, \mathcal{T}, \Omega, H).
+%\]
+%Here, $\mathcal{S}$ denotes the latent task state, which includes properties that are not directly observable to the agent, such as whether the instance can be reliably resolved under the available tools and interaction budget. $\mathcal{O}$ is the observation space, $\mathcal{T}$ is the state transition kernel, and $\Omega$ is the observation kernel. We use this formulation to capture partial observability and sequential information acquisition, rather than to define an explicit reward-maximization objective.
+
+%Let $x$ denote the initial user request. At each step $t$, the agent conditions on the interaction history
+%\[
+%h_t = (x, o_{1:t}, a_{1:t-1}),
+%\]
+%where each $o_t \in \mathcal{O}$ denotes newly acquired information, such as retrieval results, tool outputs, or user replies. Based on this history, the agent follows a history-dependent policy $\pi(\cdot \mid h_t)$. The agent may either abstain, return an answer, or take a non-terminal information-gathering action. Formally, the action space is
+%\[
+%\mathcal{A} = \{\textsc{abstain}\} \;\cup\; \{\textsc{answer}(\hat{y}) : \hat{y} \in \mathcal{Y}\} \;\cup\; \mathcal{U},
+%\]
+%where $\mathcal{Y}$ is the answer space and $\mathcal{U}$ is the set of non-terminal actions, such as search, retrieval, tool use, or other environment interactions. If $a_t \in \mathcal{U}$, the environment evolves according to
+%\[
+%s_{t+1} \sim \mathcal{T}(\cdot \mid s_t, a_t), 
+%\qquad
+%o_{t+1} \sim \Omega(\cdot \mid s_{t+1}, a_t).
+%\]
+%If the agent selects $\textsc{answer}(\hat{y})$ or $\textsc{abstain}$, the episode terminates. The episode also terminates when the budget $H$ is exhausted.
+
+\vspace{-2mm}
+\section{Agentic Abstention}
+\vspace{-2mm}
+
+We define Agentic Abstention as an agent's ability to recognize when a task is infeasible and to abstain rather than answering directly (and incorrectly) or taking unnecessary actions. 
+
+Agentic abstention can be formulated as a partially observable Markov decision process (POMDP), denoted by $\mathcal{M} = (\mathcal{S}, \mathcal{A}, \mathcal{O}, T, \Omega, R)$. Here, $\mathcal{S}$ denotes the latent task state, including properties not directly observable to the agent, such as whether the task is resolvable under the available context and tools. The action space is $\mathcal{A} = \{\texttt{ANSWER}, \texttt{ABSTAIN}, \texttt{ACT}\}$, where \texttt{ANSWER} denotes any terminal task-completion action, such as giving a final answer in QA, purchasing an item in WebShop, or submitting a solution in Terminal-Bench; \texttt{ABSTAIN} denotes a terminal decision not to proceed under the current information state; and \texttt{ACT} denotes a non-terminal external action, such as issuing a search query or interacting with the environment to obtain additional information. 
+
+% \doneit{Han: added the last sentence to explain more about 'ANSWER'}
+
+At turn $t$, the agent receives an observation $o_t \in \mathcal{O}$, consisting of the current interaction context, including the original instruction, prior interaction history, and any information returned by the environment. The environment evolves according to a transition function $T(s_{t+1} \mid s_t, a_t)$ and generates observations according to an observation function $\Omega(o_{t+1} \mid s_{t+1}, a_t)$. Because the underlying task state is only partially observable, the agent makes decisions based on the interaction history $h_t = (x, o_1, a_1, \dots, o_t)$, where $x$ is the initial user instruction. The agent then selects an action according to a history-dependent policy $\pi(a_t \mid h_t)$.
+
+If the agent chooses \texttt{ACT}, the environment returns a new observation and the interaction continues. If it chooses \texttt{ANSWER} or \texttt{ABSTAIN}, the episode terminates. The interaction also terminates when a predefined step budget is reached. For evaluation, each instance is annotated with a binary label $y \in \{0,1\}$, where $y=1$ denotes an \emph{abstain-warranted} instance and $y=0$ a \emph{solvable} instance. We define an instance as abstain-warranted if it cannot be reliably solved under the given interaction setting, even after appropriate use of the allowed actions. We use the POMDP formalism to capture partial observability and sequential decision-making; although a reward function $R$ is part of the standard formulation, we do not treat reward optimization as the objective in our setting.
+
+%In some interactive agent settings, the agent may ask the user for clarification when the available information is insufficient for reliable task resolution. We treat such clarification as a natural follow-up to abstention, rather than as a separate primary action in the formulation above. Once the user provides additional information $I'$, the resulting interaction can be viewed as a new decision instance: if the added information remains insufficient, the agent should continue to abstain; if $I'$ is sufficient, the agent should proceed to answer. 
+In some interactive settings, an agent may ask the user for clarification when the available information is insufficient to solve the task reliably. We treat such requests as instances of \textsc{ABSTAIN}, not as a separate primary action. In this sense, \textsc{ABSTAIN} includes any decision to stop short of giving a final answer or continuing under the current information state, whether by stating that the task cannot be solved or by requesting missing information from the user. In our evaluation, a clarification request is counted as abstention, and the episode terminates when it is issued.
+
+
+
+
+%\lucy{this needs to be more clear. we should clearly state that in our formulation, asking for clarification is an ABSTAIN action. also it's not clear what the $I'$ represents and what is meant by `new decision instance' in the previous sentence}
+\vspace{-3mm}
+\section{Datasets} 
+\vspace{-2mm}
+
+Agent applications span a wide range of environments, from web interfaces \cite{deng2023mind2web,yao2022webshop} to terminal-based systems \cite{merrill2026terminal} (Related Work in Appendix~\ref{app:related_work}), making it difficult to cover all possible scenarios in evaluation. We therefore adopt a task-centric perspective and construct agentic abstention tasks for three representative scenarios: (i) web-based decision making, where the agent interacts with a simulated shopping website; (ii) terminal-based task execution, where the agent operates in a real command-line environment; and (iii) interactive QA, where the agent may use search to resolve information uncertainty. Across settings, we retain both solvable tasks from existing datasets and construct new abstention-warranted tasks. For web and terminal settings, we construct tasks that are infeasible from the request alone (Request-based Abstention) and cases where infeasibility becomes apparent only after the agent interacts with the environment (Environment-based Abstention). 
+
+\textbf{Web-based decision-making tasks.}
+For web-based tasks, we adapt WebShop \cite{yao2022webshop}, a simulated online shopping environment in which agents search, browse, and select products given natural language instructions and clickable buttons. We use the first 500 instructions in the WebShop test set, following prior work \cite{liu2023agentbench}. The original WebShop tasks are designed to be solvable, so we retain these 500 instructions as solvable instances and construct 500 new abstention-warranted instances.
+
+For \emph{Request-based Abstention}, we rewrite the user instruction so that the task is infeasible based on just the request itself. We generate three kinds of rewritten instructions: \emph{Subjective Preference}, where success depends on unobserved personal taste; \emph{Underspecified Intent}, where the instruction refers to missing user-specific context or prior interaction history; and \emph{False Premise or Contradiction}, where the instruction contains incompatible or impossible constraints. We use an LLM to generate candidate rewrites and manually review all generated instructions, revising or filtering cases that are unnatural or do not clearly warrant abstention. This process yields 249 Request-based Abstention tasks. 
+
+For \emph{Environment-based Abstention}, we leave the original instruction unchanged but modify the environment by removing the ground-truth target items from the product catalog and rebuilding the Lucene search index so that the removed items cannot be retrieved. These tasks initially appear solvable, and abstention becomes the correct action only after interaction reveals that no target item is available. This yields 251 Environment-based Abstention tasks, which we call \emph{Missing Target} tasks. 
+
+Our final WebShop evaluation set contains 1,000 instances with a balanced 1:1 split between solvable and unsolvable tasks. Dataset construction details and example instances are given in Appendix~\ref{app:datasets}.
+
+\textbf{Terminal-based task execution.}
+For terminal-based tasks, we adapt Terminal-Bench 2.0 \cite{merrill2026terminal}, which evaluates agents on long-horizon tasks in Dockerized terminal environments. Each original task includes a natural language instruction, an initialized environment, verification tests, and a reference solution. As with WebShop, the original tasks are intended to be solvable, so we construct abstention-warranted variants while preserving the original tasks as solvable instances.
+
+
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=\textwidth]{picture/terminalbench.pdf}
+    \caption{
+    \textbf{(a)} Each adapted task in TerminalBench 2.0 consists of four core components: (1) a containerized environment initialized with the relevant packages and files, (2) an instruction describing the task to be completed, (3) a set of tests for verifying completion, and (4) a manually written reference solution. For our abstention setting, we rewrite the original instruction to construct abstention-warranted variants. 
+    \textbf{(b)} Examples of rewritten instructions under two abstention scenarios: False Premise or Contradiction and Underspecified Intent.
+    }
+    \vspace{-0.6em}
+    \label{fig:terminalbench_rewritten}
+    
+\end{figure*}
+
+
+
+
+
+For \emph{Request-based Abstention}, we rewrite the original task instructions to produce two kinds of infeasible requests: \emph{False Premise or Contradiction}, where the instruction relies on an incorrect assumption about the environment or imposes mutually incompatible requirements, and \emph{Underspecified Intent}, where the goal, target, or success criterion is insufficiently specified. We generate these rewrites using a dual-agent correction pipeline: a rewriting agent proposes an adapted instruction, and a validation agent checks whether it satisfies the target abstention category. Invalid rewrites are returned to the rewriting agent for revision for up to three rounds. We then manually review all rewritten instructions. Across the 89 original tasks, this process yields 87 False Premise or Contradiction tasks and 80 Underspecified Intent tasks.
+
+For \emph{Environment-based Abstention}, we manually select tasks whose environments can be modified to make the original instruction infeasible. We then adapt the environment to remove or disable a prerequisite required for completion, such as removing a file, dependency, permission, service, or external capability. These \emph{Missing Prerequisite} tasks initially appear executable, but abstention becomes warranted after interaction reveals that the environment lacks a necessary resource. We construct 21 such environment-based abstention tasks.
+
+Our final Terminal-Bench evaluation set contains 277 instances, consisting of 89 solvable tasks and 188 unsolvable tasks. Figure~\ref{fig:terminalbench_rewritten} shows an example of an adapted Terminal-Bench task, and Appendix~\ref{app:datasets} provides additional details on dataset construction.
+
+\textbf{Interactive QA tasks.}
+For interactive QA tasks, we adapt AbstentionBench \cite{kirichenko2025abstentionbench}, a multi-dataset benchmark for evaluating whether LLMs should answer or abstain in QA settings. We retain 16 datasets from AbstentionBench, excluding datasets whose questions can often be resolved through search. The resulting subset contains 27,073 samples, including both answerable questions and questions for which abstention is warranted. The should-abstain instances span five abstention categories: Answer Unknown, False Premise, Subjective, Underspecified Context, and Underspecified Intent. See Appendix~\ref{app:datasets} for source dataset descriptions. 
+
+% \doneit{Han: added the explanation that the dataset contains mixture of answerable and unanswerable question}
+
+We convert each QA instance into a sequential decision problem in which the agent may answer, abstain, or issue a search query. This differs from the original AbstentionBench setting, where the model makes a single-turn answer-or-abstain decision from a static prompt. Since the underlying tasks are QA tasks, we provide search as the primary external action. To keep the setting reproducible and avoid dependence on live search APIs, we use the enwiki-20260101 Wikipedia dump\footnote{\url{https://dumps.wikimedia.org/enwiki/20260101/}} as the retrieval corpus. Each search call returns the top-3 retrieved documents, and agents are limited to at most 10 search calls. See Appendix~\ref{app:retrieval_setup} for retrieval details.
+
+% Agent applications span a wide range of environments, from web interfaces \cite{deng2023mind2web,yao2022webshop} to terminal-based systems \cite{merrill2026terminal} (see Section~\ref{sec:related_work}), making it difficult to cover all possible scenarios in evaluation. We therefore adopt a task-centric perspective and categorize tasks into two representative types: (1) interactive Q\&A tasks, which focus on resolving information uncertainty through interaction, and (2) goal-oriented interactive tasks, which focus on sequential decision-making to achieve task objectives under uncertainty.
+
+
+% \textbf{Interactive Q\&A tasks.} For interactive Q\&A tasks, we adopt AbstentionBench, a large-scale benchmark for holistically evaluating abstention across 20 diverse datasets. These datasets span two broad categories: (1) general-domain datasets, including ALCUNA \cite{yin2023alcuna}, BBQ \cite{parrish2022bbq}, BIG-Bench (‘Disambiguate’ and ‘Known Unknowns’) \cite{srivastava2023beyond}, CoCoNot \cite{brahman2024art}, FreshQA \cite{vu2024freshllms}, KUQ \cite{amayuelas2024knowledge}, MediQ \cite{li2024mediq}, MoralChoice \cite{scherrer2023evaluating}, Musique \cite{trivedi2022musique}, (QA)$^2$ \cite{kim20232}, QASPER \cite{dasigi2021dataset}, SituatedQA (Geo subset) \cite{zhang2021situatedqa}, SQuAD 2.0 \cite{rajpurkar2018know}, and WorldSense \cite{benchekroun2023worldsense}; and (2) math and science datasets, including GPQA-Abstain (from GPQA-Diamond \cite{rein2024gpqa}), GSM8K-Abstain (from GSM8K \cite{cobbe2021training}), MMLU-Math-Abstain (from MMLU \cite{hendrycks2020measuring}), and UMWP \cite{sun2024benchmarking}. In our evaluation, we exclude FreshQA \cite{vu2024freshllms}, MuSiQue \cite{trivedi2022musique}, SQuAD 2.0 \cite{rajpurkar2018know}, QASPER \cite{dasigi2021dataset}, and the Temporal subset of CoCoNot \cite{brahman2024art}, as many questions in these datasets can be resolved through search.
+
+% Since all datasets in AbstentionBench are question-answering tasks, we equip the agent with a search tool as the primary external action. This yields a simple search-augmented agent setting that allows us to evaluate abstention behavior while keeping the agent scaffold minimal. Our goal is to isolate the LLM’s core decision-making ability as an agent, rather than performance gains from complex tool pipelines. To ensure reproducibility, we did not use a search API. Instead, we use enwiki-20260101\footnote{\url{https://dumps.wikimedia.org/enwiki/20260101/}}, the latest Wikipedia dump available at the time of the experiments, as our retrieval corpus. Each search call returns the top 3 retrieved documents, and all models are limited to at most 10 search calls. See Appendix~\ref{app:retrieval_setup} for details on the retrieval setup.
+
+
+
+% \textbf{Goal-Oriented Interactive Tasks in Web Environments.} For goal-oriented tasks in web environments, we adopt WebShop \cite{yao2022webshop}, a simulated online shopping environment designed to evaluate LLM agents. Agents can freely explore the website and browse items through clickable buttons just as in the real world. While it was originally evaluated with specially trained models, Liu et al. \cite{liu2023agentbench} were the first to assess LLMs in this environment using prompting alone. The original task instructions in WebShop are resolvable for the agent. We modify the datasets to include two types of abstention tasks: Request-based, where the task is unresolvable from the instruction alone, and Environment-based Abstention, where the task appears solvable at first but becomes unresolvable only after limited interaction with the environment. The resulting evaluation set contains solvable tasks, Request-based tasks, and Environment-based tasks. A balanced 1:1 split between solvable and unsolvable tasks. \lucy{needs more detail on dataset construction}
+
+% \textbf{Goal-Oriented Interactive Tasks in Terminal Environments.} For goal-oriented tasks in terminal environments, we adopt TerminalBench 2.0 \cite{merrill2026terminal}. Terminal-Bench 2.0 is a benchmark for evaluating agents on long-horizon tasks in real terminal environments. It includes 89 tasks spanning software engineering, machine learning, security, and data science. Each task comes with a natural-language instruction, a Dockerized environment, and verification scripts. We also adapt the datasets into Request-based Abstention and Environment-based Abstention tasks. Figure~\ref{fig:terminalbench_rewritten} shows an example of an adapted Request-based Abstention task.
+
+
+
+
+% See Appendix~\ref{app:datasets} for dataset descriptions and adaptation details; see Appendix~\ref{app:qua_examples} for qualitative examples.
+
+
+% \textbf{Agentic abstention scenarios.}
+% In the agent setting, abstention is required when the agent cannot complete the task reliably under its current observations, available tools, and interaction constraints, and further action would not resolve the uncertainty in a grounded way. 
+
+% For the question-answering setting, we build on prior work on LLM abstention \cite{kirichenko2025abstentionbench}. We adapt the original taxonomy to the agent setting and remove scenarios that no longer apply (e.g., stale questions). These scenarios are not intended to be exhaustive or mutually exclusive, but rather to illustrate the diverse situations in which abstention should be appropriate. We consider five abstention scenarios: Answer Unknown, False Premise, Subjective, Underspecified Context, and Underspecified Intent. See Figure~\ref{fig:agentic_abstention_composition_main} to see each dataset’s scenario, and Kirichenko et al.~\cite{kirichenko2025abstentionbench} for the original LLM abstention taxonomy.
+
+% For the web and terminal environments, we construct two types of tasks: Request-based Abstention tasks, where the task is unresolvable from the instruction alone, and Environment-based Abstention tasks, where the task initially appears solvable but becomes unresolvable only after limited interaction with the environment. For Request-based Abstention tasks, we consider three abstention scenarios in the web environment: Subjective, Underspecified Intent, and False Premise. For the terminal environment, we consider two: Underspecified Intent and False Premise. \lucy{some of this stuff is redundant and can be cut; this overall section needs more detail on dataset construction, but this scenario section doesn't need to be repeated}
+
+
+% See Appendix~\ref{app:abstention_scenarios} for detailed descriptions of the abstention scenarios in the question-answering, web, and terminal environments.
+
+% %--------------------------------------------------------
+
+
+
+
+
+
+%--------------------------------------------------------
+
+\vspace{-2mm}
+\section{Experiment Setup}
+\vspace{-2mm}
+
+\label{sec:experiments}
+\subsection{Base LLMs and Agents}
+\vspace{-2mm}
+
+\textbf{LLMs.} We consider a representative set of recent models, focusing on open-weight models and including some offered via API. In our main analysis of agentic abstention capabilities, we evaluate OpenAI GPT-5.4-mini \cite{openai_gpt5mini_2025}, Grok 4.1 Fast \cite{xai2025grok41}, Llama 3.3 \{8B, 70B\} Instruct \cite{llama33_70b}, GPT-OSS 120B \cite{agarwal2025gpt}, Minimax M2.5 \cite{minimax2026m25}, Qwen 3 \{8B, 14B, 32B\} \cite{qwen3technicalreport}, Qwen 3 235B A22B \{Instruct, Thinking\} (2507) \cite{qwen3technicalreport}, Gemma 4 31B it \cite{googledeepmind2026gemma4_31bit}, and GLM 5.1 \cite{glm5team2026glm5vibecodingagentic}.
+
+\vspace{-1mm}
+\textbf{Agentic scaffolds.} We evaluate Codex CLI and Terminus 2 \cite{merrill2026terminal}. We use Terminus 2 as a simple scaffold and neutral testbed for model comparison.
+
+\vspace{-1mm}
+\textbf{Scenario-specific coverage.} We use scenario-specific coverage instead of evaluating every model--scaffold combination. WebShop serves as the main cross-model setting, with eight LLM-as-agent systems: GPT-5.4-mini, Grok 4.1 Fast, Llama-3.3-70B-Instruct, GPT-OSS-120B, MiniMax-M2.5, Qwen-3-235B-A22B-Instruct, Gemma-4-31B-it, and GLM-5.1. QA uses GPT-5.4-mini, Llama-3.3-70B-Instruct, Qwen-3-235B-A22B-Instruct, GLM-5.1, and Gemma-4-31B-it under the retrieval setup. Terminal-Bench fixes the base model to GPT-5.4-mini and compares Terminus 2 with Codex CLI, with additional reasoning-effort settings. For QA, we evaluate GPT-5.4-mini, Llama-3.3-70B, Qwen3-235B, GLM-5.1, and Gemma-4-31B-it. Scaling, reasoning, and \method analyses use select Qwen and Llama configurations. The web scenario supports broad model comparison, while QA and Terminal scenarios are used for targeted analyses where retrieval cost, execution cost, dataset size, or scaffold effects make exhaustive coverage less practical.
+
+\vspace{-1mm}
+\textbf{Secondary analyses.} Scaling experiments use Qwen-3 models at 8B, 14B, 32B, and 235B on Web scenario tasks. Reasoning experiments compare Qwen-3-235B-Instruct and Thinking on Web scenario tasks, and GPT-5.4-mini low, medium, and high reasoning effort on Terminal scenario tasks. Over-abstention is reported for solvable terminal tasks. \method experiments are conducted on select Llama-3.3-8B and 70B configurations.
+
+% Our experimental design is scenario-specific rather than fully uniform across web, terminal, and QA scenarios. The web scenario supports broad model comparison, while QA and Terminal scenarios are used for targeted analyses where retrieval cost, execution cost, or scaffold effects make exhaustive coverage less practical.
+
+% \doneit{Han: Added scenario-specific coverage, secondary analyses, and a brief justification for the model and scaffold choices. The wording may still need polishing.}
+
+%\lucy{add information on which models and scaffolds are evaluated on which scenarios; 8 models on webshop, 2 on QA, 2 on terminalbench. and some justification on why we chose these models}
+
+%\lucy{add information on secondary experiments (scaling, reasoning, over-abstention, scaffold). which model settings were tested for each of these any why? one of the main issues in this section and the results section is the inconsistency of experimental design across the three types of tasks and abstention scenarios. that needs to at least be described here even if it's not fully justified.}
+
+Proprietary models are accessed through their first-party APIs, while open-weight models are accessed via Together AI and OpenRouter.
+
+\vspace{-1mm}
+\subsection{Evaluation Metrics}
+
+\vspace{-1mm}
+\textbf{$\text{AbsRec@}\mathbf{K}$.} To capture agent abstention, we report Abstention Recall $@K$ (AbsRec$@K$), defined as the proportion of abstain-warranted instances on which the agent abstains within $K$ steps after abstention becomes warranted. Let $w_i$ denote the earliest step at which abstention becomes warranted for instance $i$; abstentions before $w_i$ are premature and are not counted as correct. We use ``Timely Recall'' to denote abstention exactly at this earliest warranted step. Thus, for request-based abstention, where infeasibility is evident from the initial instruction ($w_i=1$), Timely Recall is AbsRec$@1$. For environment-based abstention, where the agent must first interact with the environment before infeasibility is revealed ($w_i=2$), Timely Recall is AbsRec$@2$. For discussion, we also refer to AbsRec$@10$ (``Overall Recall''), which is the proportion of abstention-warranted instances on which the LLM agent correctly abstains within the predefined maximum steps ($K_{max}$=$10$ in our case).
+
+% \textbf{Recall.} We report both timely and overall abstention recall, where recall is defined as the proportion of instances in which the LLM agent correctly abstains. Recall is computed by comparing the agent’s action with the ground-truth abstention label for each sample. %We also report precision to capture over-abstention, and F1-score to balance precision and recall. As LLM agents generally exhibit high abstention precision, we focus primarily on abstention recall.
+% \lucy{Timely and Overall recall are both related to Pass@K, clarify that relationship}
+
+\vspace{-1mm}
+\textbf{SPL (Success weighted by normalized inverse path length).} We further report SPL \cite{anderson2018evaluation}, originally proposed for embodied navigation. In our setting, SPL measures whether the agent abstains successfully while penalizing delayed decisions.
+
+\vspace{-1mm}
+\textbf{Over-abstention rate.} In scenarios when we have contrast examples (solvable instances), we report over-abstention rate as the proportion of solvable instances on which the agent incorrectly abstains. 
+
+\vspace{-1mm}
+See Appendix~\ref{app:metrics} for detailed formulations of each metric.
+
+
+
+
+
+
+
+
+
+
+
+
+\vspace{-2mm}
+\section{Our Proposed Method for Improving Agentic Abstention: \method}
+\label{sec:context_evolve}
+\vspace{-2mm}
+
+Inspired by Agentic Context Engineering \cite{zhang2025agentic}, we propose \textbf{\method} (Context Evolution), a framework for learning agentic abstention from multi-step interaction trajectories. The goal is to preserve task completion ability while learning when an agent should stop interacting and abstain. Rather than learning from final answers alone, \method analyzes full environment rollouts and distills them into reusable stopping rules that are added to the agent's context for future episodes.
+
+Formally, let $c^{(k)}$ denote the evolving context available after the $k$-th episode. For each training episode, the agent interacts with the environment and produces a trajectory $\tau^{(k)} = (x^{(k)}, o^{(k)}_1, a^{(k)}_1, \ldots, o^{(k)}_{T_k}, a^{(k)}_{T_k})$, where $x^{(k)}$ is the task instruction, $o^{(k)}_t$ is the observation at step $t$, and $a^{(k)}_t \in \mathcal{A}_{\mathrm{env}} \cup \{\texttt{abstain}\}$ is the action taken at that step. After the episode ends, we use a reflection agent to analyze the trajectory and derive episode-level feedback $y^{(k)} = \phi(\tau^{(k)})$, where $y^{(k)}$ captures abstention-relevant signals. The evolving context is then updated as $c^{(k+1)} = \mathcal{U}(c^{(k)}, \tau^{(k)}, y^{(k)})$, where $\mathcal{U}$ denotes the context update operator. 
+
+
+% \method extracts reusable lessons from the full interaction trajectory and incorporates them into the context for future episodes. Each episode contains concrete interaction decisions together with the resulting observations from the environment. These trajectories are distilled into structured context updates that capture reusable signals for when continued interaction is no longer productive. 
+
+\textbf{Task setting \& training configuration.}
+We instantiate \method on the abstention-only subset of WebShop. The subset contains 500 examples for which abstention is the correct behavior, covering four scenarios: Subjective Preference, Underspecified Intent, False Premise or Contradiction, and Missing Target. We reserve 101 examples as a held-out evaluation set. From the remaining examples, we use 20 examples for the \method run and 8 examples for validation. The split is stratified by scenario and grouped by the original WebShop goal from which each abstention instance is derived, so that variants of the same underlying shopping task do not appear in different splits. We run a lightweight offline \method stage for one epoch, allow at most two reflection/update rounds per training example, and curate the playbook after every example. We focus the main-text evaluation on WebShop. For completeness, the experimental configurations and results on AbstentionBench and TerminalBench are provided in Appendix~\ref{app:additional_experiments}.
+
+\textbf{Environment rollouts.}
+% For each example, 
+% the agent receives the current playbook and interacts with WebShop through the original action interface. W
+We leave the WebShop tool schema and execution protocol unchanged, appending the learned playbook to the original WebShop system prompt while keeping task instructions and tool-calling rules fixed. For each rollout, we record the instruction, observations, actions, termination reason, reward, invalid actions, abstention step, and whether abstention was timely.
+
+\textbf{Context update.}
+After each rollout, a reflection model reviews the full trajectory to identify abstention-relevant signals. These include whether the agent continued acting after the task had become infeasible, which observations made abstention warranted, and which actions delayed abstention. A curator model then converts the reflection into concise playbook updates. The playbook is organized into fixed sections and updated through structured add operations; updates that do not clearly match an existing section are assigned to an ``other'' section. This keeps the evolving context structured and reusable across later episodes. The rollout and reflection models use a generation limit of 1024 tokens, the curator uses 512 tokens, and the playbook budget is 80,000 tokens. To avoid context overflow during curation, we deterministically truncate the curator input to 6,000 tokens and reserve up to 1,200 tokens for recent reflection text.
+
+\textbf{Evaluation \& baseline.}
+We evaluate \method on the 101-example held-out set using the same 70B model used for rollouts. As a baseline, we evaluate the same model on the same examples without playbook injection. All other settings are unchanged, including the provider, temperature, token limit, interaction limit, timeout, and retry policy. 
+% Thus, the only difference is whether the prompt includes the learned playbook.
+
+\begin{figure*}[t!]
+    \centering
+    \includegraphics[width=\textwidth]{picture/cross_benchmark_passk_triptych.pdf}
+    \caption{\textbf{Abstention is hard for agents, especially timely abstention.} Abstention Recall increases with larger $K$, but early abstention (e.g., AbsRec$@1$) remains low across settings and systems. This suggests that agents often abstain only after unnecessary interaction, rather than when abstention first becomes warranted.}
+    \label{fig:cross-benchmark-passk-triptych}
+    \vspace{-4mm}
+\end{figure*}
+
+\vspace{-2mm}
+\section{Results}
+\vspace{-2mm}
+
+% \subsection{Agentic Abstention is an Open Challenge for Agents}
+
+% \todoit{abstention is hard for agents. especially timely abstention.}
+
+We organize our results to answer the following questions: (i) Do agents abstain when tasks are infeasible? And when they do abstain, do they do so as soon as the available evidence is available? (ii) Which factors (model scale, reasoning mode, and agent scaffold) shape agent abstention behavior? And (iii) How does our method \method affect agentic abstention?
+
+\vspace{-2mm}
+\subsection{Abstention Performance of Agents} 
+% \todoit{need SPL figure for three datasets}
+
+\vspace{-1mm}
+\textbf{Abstention is an open challenge for agents.} Across the three scenarios of web shopping, terminal execution, and QA, we find that abstention is consistently difficult. This is primarily an issue of timing. Abstention recall generally increases as the allowed interaction budget grows, indicating that many agents eventually recognize infeasibility (though many models have very low overall abstention recall rates within our allotted turn limit). Figure~\ref{fig:cross-benchmark-passk-triptych} shows that 6 of 8 models we test in the web setting achieve less than 0.5 abstention recall after 10 turns; both models or scaffolds tested in the terminal setting, and 4 of 5 models tested in the QA setting, also achieve less than 0.5 abstention recall after 10 turns. AbsRec@1 is  lower across all settings (most models in the 0.0-0.3 range; exceptions are Llama-3.3-70B in the web setting and Qwen3-235B in the QA setting), showing that agents do not immediate recognize infeasibility and may act for many turns when a task is unsolvable. 
+
+\vspace{-1mm}
+\textbf{Web scenario abstention shows the largest model variation.} Llama-3.3-70B performs best, rising quickly and reaching roughly 0.84 AbsRec@10. Qwen3-235B and Grok-4-Fast form a middle tier, while most other models remain below 0.5 after 10 turns. This suggests that web agents can sometimes discover infeasibility through interaction, but many still fail to abstain reliably.
+
+\vspace{-1mm}
+\textbf{Terminal scenario abstention is strongly affected by the scaffold.}
+With the same GPT-5.4-mini base model, Codex CLI consistently outperforms Terminus 2 across all values of $K$. Codex CLI reaches about 0.38 AbsRec@10, while Terminus 2 reaches only about 0.18. This shows that terminal abstention depends not only on the base model, but also on how the agent scaffold structures interaction with the environment.
+
+\vspace{-1mm}
+\textbf{QA scenario abstention reveals a tradeoff between timely and overall abstention.} Qwen3-235B performs best overall, achieving 0.59 AbsRec@1 and reaching roughly 0.71 AbsRec@10. Llama-3.3-70B improves the most with additional search, rising from about 0.29 AbsRec@1 to about 0.49 AbsRec@10. In contrast, GPT-5.4-mini remains relatively flat and reaches only about 0.34 AbsRec@10, while GLM-5.1 and Gemma-4-31B-it reach roughly 0.42 and 0.34, respectively. This suggests that larger search budgets can improve eventual abstention in QA, but timely abstention remains limited and gains are not uniform across models.
+
+
+%Qwen3-235B achieves the strongest overall curves though performs among the worst for questions with Underspecified Intent, while Llama-3.3-70B gains the most from additional search and often improves substantially by \(K=10\). GPT-5.4-mini shows relatively flat curves as \(K\) increases, whereas GLM-5.1 and Gemma-4-31B-it show more uneven behavior, with strong performance only on select task types. This suggests that a larger search budget can improve eventual abstention, though the gains are not uniform across models and task types \lucy{need to update this; these subsections are generally about the average abstention rates (fig 3) and the next subsection should be split out by subtypes}.
+
+%GPT-5.4-mini has stronger early abstention, but Llama-3.3-70B improves more with additional search and reaches higher overall recall by $K=10$. This suggests that Llama-3.3-70B is more likely to abstain eventually, while GPT-5.4-mini is more likely to abstain earlier.
+
+
+
+
+
+
+
+
+
+% \textbf{Agent scaffold has a large effect on agentic abstention in the terminal environment.} In Figure~\ref{fig:cross-benchmark-passk-triptych}, with the same base model (GPT-5.4-mini), Codex CLI consistently outperforms Terminus 2 on both request-based and environment-based tasks at every turn budget. The gap is already clear on request-based tasks and becomes much larger on environment-based tasks, where Codex CLI reaches much higher recall by turn 5 and maintains the lead through turn 10. }
+
+% \textbf{GPT-5.4-mini is better at timely and efficient abstention than Llama-3.3-70B in the question-answering setting.} As shown in Table~\ref{fig:llama_gpt_scenario_radar}, while Llama-3.3-70B attains higher overall recall on Answer Unknown and Underspecified Context, GPT-5.4-mini achieves higher SPL across all categories and much stronger timely recall on False Premise and Underspecified Intent. Llama-3.3-70B often abstains eventually, but GPT-5.4-mini is more likely to do so at the right time. This gap is especially visible in the much larger difference between timely and overall recall for Llama-3.3-70B. \lucy{merge this into the first results section} 
+
+
+
+\vspace{-1mm}
+\textbf{Abstention difficulty varies by abstention category.} In Figure~\ref{fig:absrec-category-all}, we break down performance by abstention categories (e.g., Underspecified Intent, Missing Target), showing that abstention performance is highly category-dependent. In Web scenario, False Premise is the easiest request-based category, with several models abstaining quickly, while Missing Target is hardest because the instruction initially appears solvable and infeasibility is only revealed through interaction. Subjective Preference and Underspecified Intent fall in between, with large variation across models. In Terminal scenario, Codex CLI performs better than Terminus 2 across categories, but Underspecified Intent is especially difficult for both scaffolds. In QA, performance is strongest on Answer Unknown and often strong on Subjective and Underspecified Context categories. False Premise is consistently difficult, and Underspecified Intent shows smaller or more model-dependent gains. Overall we show that categories requiring environmental evidence or missing-intent recognition produce the largest gap between timely and eventual abstention.
+
+\begin{figure*}[t]
+    \centering
+
+    \captionsetup{font=small}
+    
+    \includegraphics[width=0.92\textwidth]{picture/webshop_4scenario_passk_paper8_bright.pdf}
+
+    %\vspace{1mm}
+
+    \includegraphics[width=0.78\textwidth]{picture/instruction_abstention_threepanel.pdf}
+
+    %\vspace{1mm}
+
+    \includegraphics[width=0.95\textwidth]{picture/five_model_mixed_scope_pass_at_k_curves_1x5_categories.pdf}
+
+    \vspace{-2mm}
+
+    \caption{
+    \textbf{$\text{AbsRec@}K$ across Abstention Categories in Web, Terminal, and QA scenarios.}
+    From top to bottom, the rows show Web, Terminal, and QA results.
+    Missing Target in Web, Underspecified Intent in Terminal, and False Premise and Underspecified Intent in QA are the most difficult cases across models.
+    Performance for the same model varies significantly across abstention categories.
+    }
+    \label{fig:absrec-category-all}
+    \vspace{-4mm}
+\end{figure*}
+
+%\begin{figure*}[t]
+%    \centering
+%    \includegraphics[width=0.92\textwidth]{picture/webshop_4scenario_passk_paper8_bright.pdf}
+%    \caption{\textbf{$\text{AbsRec@}K$ across Abstention Categories in the Web scenario.} Missing Target (a type of Environment-based Abstention) is the hardest case for all models. Among other abstention categories, False Premise reaches highest recall at small $K$ for most models. Performance on Subjective Preference and Underspecified Intent requests fall in between. }
+%    \label{fig:webshop_4scenario_passk}
+%\end{figure*}
+
+%\begin{figure*}[t!]
+%    \centering
+%    \includegraphics[width=0.8\textwidth]{picture/instruction_abstention_threepanel.pdf}
+%    \caption{\textbf{$\text{AbsRec@}K$ across Abstention Categories in the Terminal scenario.}}
+%    \label{fig:terminalbench-instruction-abstention-threepanel}
+%\end{figure*}
+
+%\begin{figure*}[t!]
+%    \centering
+%    \includegraphics[width=\textwidth]{picture/two_model_pass_at_k_curves_1x5_categories.pdf}
+%    \caption{\textbf{$\text{AbsRec@}K$ across Abstention Categories in the QA scenario.}
+%    }
+%    \label{fig:abstentionbench-passk}
+%\end{figure*}
+
+%\begin{figure*}[t!]
+%    \centering
+%    \includegraphics[width=0.98\textwidth]{picture/three_environment_radars_combined.pdf}
+%    \vspace{-4mm}
+%    \caption{
+%    \textbf{SPL comparison across Web, Terminal, and QA scenarios.}
+%    Each radar axis corresponds to an abstention category, with values annotated on the curves. 
+    % \lucy{could also move this to appendix if we need space}
+%    }
+%    \label{fig:three-environment-spl-radar}
+%\end{figure*}
+
+
+
+
+% \todoit{for TerminalBench and QA, also make a figure like Figure 4 (WebShop performance by different abstention categories)}
+
+
+% \subsubsection{Agentic Abstention in the Web Environment}
+
+% \textbf{The real challenge is not eventual abstention, but timely abstention.} In Figure~\ref{fig:webshop-main-metrics}, we compare timely recall, overall recall, SPL, and Pass@K across frontier models. A consistent gap between timely recall and overall recall shows that many models do eventually abstain, but often only after taking unnecessary steps. This delay is consequential rather than cosmetic: it lowers SPL and suggests that the main difficulty is not recognizing abstention at all, but recognizing it early enough to avoid wasted interaction. Llama-3.3-70B stands out by a clear margin, largely because it abstains earlier and more reliably than the other models. The same pattern appears in the $\text{Pass@}K$ curves, where its performance rises sharply within the first few steps, while most other models improve only gradually as interaction continues.
+
+\vspace{-2mm}
+\subsection{Factors Impacting Abstention Performance}
+
+%\begin{figure*}[t]
+%    \centering
+%    \includegraphics[width=\textwidth]{picture/webshop_4scenario_overall_recall_paper8_bright.pdf}
+%    \caption{\textbf{WebShop results show clear differences across abstention scenarios.} False Premises is consistently the easiest case across models, whereas Missing Target is the hardest and shows the largest variation. Subjective Preference and Underspecified Intent fall in between.}
+%    \label{fig:webshop-4scenario-overall-recall}
+%\end{figure*}
+
+
+
+% \begin{figure*}[t]
+%     \centering
+%     \begin{subfigure}[t]{0.32\textwidth}
+%         \centering
+%         \includegraphics[width=\linewidth]{picture/webshop_spl.pdf}
+%         \caption{SPL}
+%     \end{subfigure}
+%     \hfill
+%     \begin{subfigure}[t]{0.32\textwidth}
+%         \centering
+%         \includegraphics[width=\linewidth]{picture/webshop_recall.pdf}
+%         \caption{Timely and overall recall}
+%     \end{subfigure}
+%     \hfill
+%     \begin{subfigure}[t]{0.32\textwidth}
+%         \centering
+%         \includegraphics[width=\linewidth]{picture/webshop_passk.pdf}
+%         \caption{$\text{Pass@}K$}
+%     \end{subfigure}
+%     \caption{\textbf{The main challenge is not whether models eventually abstain, but whether they abstain in time.} \textbf{(a)} When both correctness and efficiency are considered, Llama-3.3-70B performs better than the other models. \textbf{(b)} The consistent gap between timely recall and overall recall shows that delayed abstention is common across models. \textbf{(c)} The $\text{Pass@}K$ curves further suggest that the key difference lies in how quickly models stop: Llama-3.3-70B abstains within the first few steps much more often, whereas the other models typically require more interaction before abstaining.}
+%     \label{fig:webshop-main-metrics}
+% \end{figure*}
+
+
+
+
+
+%\begin{figure*}[t]
+%    \centering
+%    \begin{subfigure}[t]{0.32\textwidth}
+%        \centering
+%        \includegraphics[width=\linewidth]{picture/webshop_qwen_reasoning_vs_nonreasoning_overall_paper_triptych.pdf}
+%        \caption{Abstention Recall}
+%    \end{subfigure}
+%    \begin{subfigure}[t]{0.32\textwidth}
+%        \centering
+%        \includegraphics[width=\linewidth]{picture/webshop_qwen_scale_recall_paper_triptych.pdf}
+%        \caption{Qwen scaling}
+%    \end{subfigure}
+%    \hfill
+    % \hfill
+    % \begin{subfigure}[t]{0.32\textwidth}
+    %     \centering
+    %     \includegraphics[width=\linewidth]{picture/webshop_llama33_scenario_violin_paper_triptych.pdf}
+    %     \caption{Llama Performance}
+    % \end{subfigure}
+%    \caption{\textbf{Larger or more capable models do not always abstain better.} \textbf{(a)} For Qwen-3-235B, reasoning improves the initial abstention decision, but if the model misses that earliest point, it may reduce overall abstention recall. \textbf{(b)}  Increasing model scale in Qwen improves overall abstention recall, but has little effect on timely recall. 
+    % \textbf{(c)} Llama shows clear variation in abstention performance across scenarios, with the highest recall on False Premises and the lowest on Missing Target.
+%    \todoit{okay to remove subfigure c; plot subfigure a as side-by-side bar plot or line plot; consider aligned to terminology to Abstention Recall @ k (AbsRec@k) and renaming timely and overall recall to AbsRec@1 and AbsRec@10 for  instead of those terms} \lucy{also, can we make subplot (a) look like the subplots in Figure 6 (since they are both on reasoning level). also need some justification on why we used a different reasoning model for this task.}}
+%    \label{fig:webshop-qwen-triptych}
+%\end{figure*}
+
+
+
+\begin{wrapfigure}[11]{r}{0.50\textwidth}
+    \centering
+    \captionsetup{font=small}
+    \vspace{-2.1em}
+    \includegraphics[width=0.96\linewidth]{picture/webshop_terminalbench_recall_2panel.pdf}
+    \caption{More reasoning leads to some improvement in AbsRec$@1$ while overall abstention recall (AbsRec$@10$) decreases on both Web and Terminal scenarios.}
+    \label{fig:reasoning_abstention}
+    % \vspace{1em}
+\end{wrapfigure}
+
+  
+
+% \subsubsection{Agentic Abstention in the Terminal Environment}
+
+\vspace{-1mm}
+\textbf{More reasoning does not always improve abstention.} In Figure~\ref{fig:reasoning_abstention}, we show results for different reasoning efforts on abstention across web and terminal scenarios. For web, Qwen-3-235B-thinking improves timely recall but lowers overall recall, suggesting that reasoning helps when the model abstains at the earliest point, but helps little once that moment is missed. For terminal, medium reasoning yields the best trade-off for GPT-5.4-mini: it improves timely recall over low reasoning without increasing over-abstention on original tasks. However, moving to high reasoning does not bring further gains. 
+
+\vspace{-1mm}
+\textbf{Over-abstention increases with interaction, but reasoning helps mitigate it.}
+Figure~\ref{fig:web-terminal-over-abstention} shows that longer interaction can make agents overly conservative on solvable tasks, especially in Web scenarios. The over-abstention rate for Qwen3-235B-Instruct rises to 34\% by turn 10, and up to 24\% for Qwen3-235B-Thinking. Terminal scenarios show a much smaller effect: GPT-5.4-mini with low reasoning plateaus around 8\% over-abstention, whereas over-abstention remains at 0--2\% for medium- and high-reasoning variants. Thus, over-abstention is more pronounced in web scenarios, where additional search can accumulate uncertainty, while stronger reasoning generally helps reduce false abstention, though it does not eliminate the benchmark-dependent gap.
+
+
+\begin{figure}[t!]
+    \centering
+    \small
+    \begin{minipage}[t]{0.62\textwidth}
+        \centering
+        \includegraphics[width=0.9\linewidth]{picture/web_terminal_over_abstention.pdf}
+        \captionof{figure}{Cumulative over-abstention rate by turn in Web and Terminal scenarios on solvable instances.}
+        \label{fig:web-terminal-over-abstention}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.32\textwidth}
+        \centering
+        \includegraphics[width=0.9\linewidth]{picture/webshop_qwen_scale_recall.pdf}
+        \captionof{figure}{Scaling improves overall recall but not timely recall.}
+        \label{fig:webshop-qwen-scale}
+    \end{minipage}
+    \vspace{-0.8em}
+\end{figure}
+
+\vspace{-1mm}
+\textbf{Scaling model size does not always lead to more accurate abstention.} In Figure~\ref{fig:webshop-qwen-scale}, we examine the effects of model size on abstention. When we vary the model size of Qwen: larger models achieve higher overall recall, while timely recall changes only slightly. This suggests that scale mainly helps models abstain eventually, but not any earlier. 
+
+
+
+
+%\begin{figure*}[t]
+%    \centering
+%    \includegraphics[width=\textwidth]{picture/codex_reasoning_style_common_success_4panel.pdf}
+%    \caption{
+%    \textbf{More reasoning does not always improve abstention in the terminal environment.} We compare GPT-5.4-mini under different reasoning settings. For rewritten tasks, we report overall recall and timely recall. For original tasks, we report continue rate and over-abstain rate. \lucy{split out the over-abstention rate and present results for both webshop and terminalbench for overabstention since both of those datasets have solvable instances}
+%    }
+%    \label{fig:codex_reasoning_style}
+%\end{figure*}
+
+
+
+
+
+
+
+
+
+
+
+% \subsubsection{Agentic Abstention in the Question-Answering settings}
+
+% \textbf{GPT-5.4-mini is better at timely and efficient abstention than Llama-3.3-70B in the question-answering setting.} As shown in Table~\ref{fig:llama_gpt_scenario_radar}, while Llama-3.3-70B attains higher overall recall on Answer Unknown and Underspecified Context, GPT-5.4-mini achieves higher SPL across all categories and much stronger timely recall on False Premise and Underspecified Intent. Llama-3.3-70B often abstains eventually, but GPT-5.4-mini is more likely to do so at the right time. This gap is especially visible in the much larger difference between timely and overall recall for Llama-3.3-70B. \lucy{merge this into the first results section}
+
+
+
+
+
+%\begin{figure*}[t]
+%    \centering
+%    \includegraphics[width=0.92\textwidth]{picture/llama33_70b_vs_gpt54mini_scenario_radar.pdf}
+%    \caption{
+%    \textbf{Abstention performance by category in the question-answering setting.} Comparison between Llama-3.3-70B and GPT-5.4-mini on Timely Recall, Overall Recall, and SPL. AU = Answer Unknown, FP = False Premise, Subj. = Subjective, UC = Underspecified Context, and UI = Underspecified Intent.}
+%    \label{fig:llama_gpt_scenario_radar}
+%\end{figure*}
+
+
+
+\begin{wraptable}[15]{r}{0.48\textwidth}
+\vspace{-1.3em}
+\centering
+\footnotesize
+\caption{\method improves abstention on WebShop. Trained variants use 20 trajectories.}
+\vspace{-0.5em}
+\label{tab:context_evolving}
+\setlength\tabcolsep{2.0pt}
+\fontsize{7.8pt}{9.2pt}\selectfont
+\begin{tabular}{p{2.5cm}ccc}
+\toprule
+\textbf{Method} & AbsRec$@1$ & AbsRec$@10$ & SPL \\
+\midrule
+\multicolumn{4}{l}{\textit{\textbf{Base Model}}} \\
+Llama-3.3-8B         & 6.9 & 92.1 & 39.4  \\
+Llama-3.3-70B        & 26.7 & 83.2 & 55.3  \\
+\midrule
+\multicolumn{4}{l}{\textit{\textbf{Base Model + In-Context Learning}}} \\
+Llama-3.3-8B         & 11.2$_{\text{\textcolor{scoregreen}{+4.3}}}$  & 81.1$_{\text{\textcolor{scorered}{-10.0}}}$ & 39.1$_{\text{\textcolor{scorered}{-0.3}}}$  \\
+Llama-3.3-70B        & 55.1$_{\text{\textcolor{scoregreen}{+28.4}}}$ & 97.0$_{\text{\textcolor{scoregreen}{+13.8}}}$ & 77.2$_{\text{\textcolor{scoregreen}{+21.9}}}$ \\
+\midrule
+\multicolumn{4}{l}{\textit{\textbf{Base Model + \method}}} \\
+Llama-3.3-8B + 8B    & 7.9$_{\text{\textcolor{scoregreen}{+1.0}}}$ & 94.1$_{\text{\textcolor{scoregreen}{+2.0}}}$ & 39.5$_{\text{\textcolor{scoregreen}{+0.1}}}$  \\
+Llama-3.3-8B + 70B   & 12.9$_{\text{\textcolor{scoregreen}{+6.0}}}$ & 94.1$_{\text{\textcolor{scoregreen}{+10.9}}}$ & 39.7$_{\text{\textcolor{scoregreen}{+0.3}}}$ \\
+\rowcolor[RGB]{236,244,252}
+Llama-3.3-70B + 8B   & 55.3$_{\text{\textcolor{scoregreen}{+28.6}}}$ & 99.0$_{\text{\textcolor{scoregreen}{+15.8}}}$ & 76.4$_{\text{\textcolor{scoregreen}{+21.1}}}$ \\
+\rowcolor[RGB]{236,244,252}
+Llama-3.3-70B + 70B  & \textbf{57.4}$_{\text{\textcolor{scoregreen}{+30.7}}}$ & \textbf{100.0}$_{\text{\textcolor{scoregreen}{+16.8}}}$ & \textbf{78.9}$_{\text{\textcolor{scoregreen}{+23.6}}}$ \\
+\bottomrule
+\end{tabular}
+\vspace{-4em}
+%\end{table*}
+\end{wraptable}
+
+
+
+
+
+\vspace{-2mm}
+\subsection{Improving Agentic Abstention through Context Engineering with \method}
+
+\vspace{-1mm}
+\textbf{Agentic abstention improves with small amount of training data.} Table~\ref{tab:context_evolving} shows that \method is highly data-efficient: all trained variants use only 20 interaction trajectories. Even with this small training set, Llama-3.3-8B using a playbook learned by Llama-3.3-70B raises timely recall from 6.9 to 12.9, overall recall from 92.1 to 94.1, and SPL from 39.4 to 39.7. 
+Comparing against in-context learning also shows that different model sizes can benefit from \method while smaller models may have a harder time learning from interaction trajectories alone.
+% The main gain appears early, suggesting that a small number of trajectories is already enough to teach the model when further action is no longer worth taking. 
+An example learned playbook can be found in Appendix~\ref{app:playbook}.
+
+% \todoit{add experiments with other models}
+
+
+%\begin{wraptable}[9]{r}{0.48\textwidth}
+%\vspace{-1.5em}
+%\centering
+%\caption{TBD.}
+%\vspace{-0.5em}
+%\label{tab:training_samples}
+%\setlength\tabcolsep{2.5pt}
+%\fontsize{8.1pt}{9.8pt}\selectfont
+%\begin{tabular}{p{2.5cm}ccc}
+%\toprule
+%\multirow{2}[2]{*}{\textbf{Training Samples}} & \multicolumn{3}{c}{\textbf{WebShop}} \\
+%\cmidrule(lr){2-4}
+%& Timely Rec. & Overall Rec. & SPL \\
+%\midrule
+%\multicolumn{4}{l}{\textit{\textbf{Llama-3.3-8B + 70B}}} \\
+%0         & 6.9 & 92.1 & 39.4  \\
+%20      & 12.9 & 94.1 & 39.7  \\
+%\rowcolor[RGB]{236,244,252}
+%40      & 50.5 & 99.0 & 74.1  \\
+%\rowcolor[RGB]{236,244,252}
+%60      &  &  &  \\
+
+%\midrule
+%\multicolumn{4}{l}{\textit{\textbf{Llama-3.3-70B + 8B}}} \\
+%0  &  &      &       \\
+%20 &      &      &       \\
+%\rowcolor[RGB]{236,244,252}
+%40 &      &      &       \\
+%\rowcolor[RGB]{236,244,252}
+%60 &      &      &       \\
+%\bottomrule
+%\end{tabular}
+%\vspace{-3em}
+% \end{table*}
+%\end{wraptable}
+
+\vspace{-1mm}
+\textbf{Lessons learned by small models transfer to larger models and improve performance.} In Table~\ref{tab:context_evolving}, lessons learned by Llama-3.3-8B substantially improve Llama-3.3-70B, raising timely recall from 26.7 to 55.3, overall recall from 83.2 to 99.0, and SPL from 55.3 to 76.4. These gains are close to those obtained when the 70B model uses its own lessons (57.4 timely recall, 100.0 overall recall, and 78.9 SPL). This shows that the useful part of \method is not tied to the size of the model that produces the lessons: small models can still generate lessons that are directly useful for larger models. Additional results on AbstentionBench and TerminalBench can be found in Appendix~\ref{app:additional_experiments}.
+
+%\textbf{Lessons derived from larger models are more effective.} Table~\ref{tab:context_evolving} shows a consistent asymmetry: for both target models, playbooks learned by Llama-3.3-70B outperform those learned by Llama-3.3-8B. The difference is especially clear on Llama-3.3-8B, where the 70B-derived playbook yields much higher timely recall and better SPL. The same pattern remains on Llama-3.3-70B, though the gap is smaller.
+
+
+\vspace{-2mm}
+\section{Conclusion}
+\vspace{-2mm}
+
+We introduced \textit{Agentic Abstention}, the problem of deciding when an LLM agent should stop acting rather than continue interacting with an environment. Across web, terminal, and interactive QA settings, we find that agents are challenged by the decision to abstain. Agents usually abstain too late or not at all, expending many wasteful actions, especially when a task initially appears feasible but becomes clearly unresolvable only after interaction with the environment. We further show that timely abstention can be improved through our method \textit{\method}, which distills interaction trajectories into reusable stopping rules that can be provided as context to the agent without the need to update model parameters. Our findings show that reliable agents require not only stronger task-completion abilities, but also better judgment about when continued action is no longer useful.
+
+% \bingbing{page limit is 9}
+
+% \clearpage
+% \newpage
+
+\bibliographystyle{unsrt}
+\bibliography{paper}
+
+
+
+
+
+
+\appendix
+
+
+
+
+
+\section*{Supplementary materials outline}
+
+The supplementary materials are organized as follows. 
+We discuss limitations of our study in Appendix~\ref{app:limitations} and potential broader implications of our work in Appendix~\ref{app:boarder_impacts}. Appendix~\ref{app:related_work} presents related work on LLM abstention, toward agentic abstention, and context engineering. Appendix~\ref{app:datasets} describes the datasets used in our evaluation and how they are adapted for agentic abstention across question-answering, web, and terminal environments. Appendix~\ref{app:abstention_scenarios} defines the abstention scenarios considered in each setting. Appendix~\ref{app:metrics} formalizes the episode-level metrics used to evaluate whether and when agents abstain. Appendix~\ref{app:additional_experiments} reports additional \method experiments on AbstentionBench and TerminalBench, including their experimental configurations and results. Appendix~\ref{app:qua_examples} provides qualitative examples illustrating representative abstention behaviors and failure modes. Appendix~\ref{app:prompts} lists the prompts used for evaluation, instruction rewriting, and validation. Finally, Appendix~\ref{app:playbook} gives additional implementation details for \method.
+
+
+
+
+\section{Limitations}
+\label{app:limitations}
+
+Our study has several limitations. First, although our benchmark covers web-based decision making, terminal-based task execution, and retrieval-augmented question answering, these settings are still only representative slices of the broader agent landscape. Real-world agents may operate over richer interfaces, private tools, long-lived user state, or multi-step workflows that are not captured by our current benchmark. Future work could extend agentic abstention evaluation to a wider range of environments and deployment settings.
+
+Second, our benchmark is constructed by adapting existing datasets and environments. While we manually review the constructed abstention-warranted instances, the resulting tasks may not cover all possible forms of infeasibility that arise in real interactions. In particular, our environment-based tasks mainly focus on missing targets or missing prerequisites. Other forms of latent infeasibility, such as permission boundaries, stale external resources, conflicting tool outputs, or dependence on prior user context, remain important directions for future work.
+
+Third, our findings are necessarily restricted to the set of models and agent scaffolds evaluated in this paper. We evaluate a broad range of LLM-as-agent systems, but we do not test every model, scaffold, reasoning setting, or tool interface in every scenario. Since abstention behavior can depend on both the base model and the agent scaffold, the reported results should be interpreted as a snapshot of current systems rather than as fixed properties of the underlying LLMs.
+
+Finally, as with many evaluations built from public benchmarks \cite{kirichenko2025abstentionbench}, we cannot fully rule out the possibility that some models have been exposed to benchmark-like examples during pretraining or post-training. We reduce this concern by evaluating across multiple scenarios and by constructing new abstention-warranted variants, but future work could further study agentic abstention using closed, dynamically generated, or continuously updated evaluation environments.
+
+
+
+\section{Broader Impacts}
+\label{app:boarder_impacts}
+
+LLM agents are increasingly used in settings where they interact with external tools, browse interfaces, search for information, or operate in computational environments. In these settings, failures are not limited to producing an incorrect final answer: an agent may also continue taking unnecessary actions, consume external resources, or act with misplaced confidence when the task is underspecified or infeasible. By studying when agents should stop acting and abstain, our work aims to support the development of more reliable and transparent agent systems.
+
+The potential positive impact of this work is to encourage agent evaluations that measure not only task completion, but also appropriate non-completion. In many practical settings, a useful agent should be able to recognize missing information, unavailable resources, contradictory instructions, or infeasible goals, and communicate this clearly to the user. Better abstention behavior may reduce hallucinated completions, unnecessary tool use, and misleading outputs, especially in interactive settings where the agent’s context evolves over multiple turns.
+
+At the same time, abstention is not unconditionally beneficial. Agents that abstain too often may become less useful, frustrate users, or fail to complete tasks that are actually solvable. Over-abstention may also shift responsibility back to users in cases where the agent could have reasonably helped. For this reason, agentic abstention should be evaluated together with task success and over-abstention, rather than optimized as a standalone objective.
+
+Our benchmark and method are intended for research on reliability and evaluation, not as a complete deployment policy. In real-world systems, abstention decisions may need to be combined with clarification, escalation, human oversight, or domain-specific safeguards. This is especially important in high-stakes applications, where the cost of both incorrect action and unnecessary refusal may be substantial. We hope this work encourages future research on agents that can better judge when to act, when to ask for more information, and when to stop.
+
+%\begin{figure*}[t]
+%    \centering
+
+%    \includegraphics[width=0.92\textwidth]{picture/webshop_4scenario_passk_paper8_bright.pdf}
+
+%    \vspace{2mm}
+
+%    \includegraphics[width=0.78\textwidth]{picture/instruction_abstention_threepanel.pdf}
+
+%    \vspace{2mm}
+
+%    \includegraphics[width=0.95\textwidth]{picture/two_model_pass_at_k_curves_1x5_categories.pdf}
+
+%    \vspace{-2mm}
+
+%    \caption{
+%    \textbf{$\text{AbsRec@}K$ across Abstention Categories in Web, Terminal, and QA scenarios.}
+%    From top to bottom, the rows show Web, Terminal, and QA results.
+%    Missing Target in Web and Missing Prerequisite in Terminal are the hardest delayed-abstention cases, while False Premise cases are generally easier to identify early.
+%    QA categories show more moderate recall patterns, with performance varying by abstention type.
+%    }
+%    \label{fig:absrec-category-all}
+%\end{figure*}
+
+
+%\begin{figure*}[t]
+%    \centering
+
+%    (a) Web scenario
+    
+%    \includegraphics[width=0.92\textwidth]{picture/webshop_4scenario_passk_paper8_bright.pdf}
+
+%    \vspace{2mm}
+
+%    (b) Terminal scenario
+    
+%    \includegraphics[width=0.78\textwidth]{picture/instruction_abstention_threepanel.pdf}
+
+%    \vspace{2mm}
+
+%    (c) QA scenario
+    
+%    \includegraphics[width=0.95\textwidth]{picture/two_model_pass_at_k_curves_1x5_categories.pdf}
+
+%    \vspace{-2mm}
+
+%    \caption{
+%    \textbf{$\text{AbsRec@}K$ across Abstention Categories in Web, Terminal, and QA scenarios.}
+%    Across scenarios, abstention recall varies substantially by category. 
+%    Missing Target in Web and Missing Prerequisite in Terminal are the hardest delayed-abstention cases, while False Premise cases are generally easier to identify early. 
+%    QA categories show more moderate recall patterns, with performance depending strongly on the abstention type.
+%    }
+ %   \label{fig:absrec-category-all}
+%\end{figure*}
+
+%
+
+%\vspace{-3mm}
+\section{Related Work}
+%\vspace{-2mm}
+\label{app:related_work}
+
+
+\textbf{LLM Abstention.} LLM abstention is defined as a model’s decision to refrain from answering under uncertainty \cite{wen2025know, kirichenko2025abstentionbench, wen2025marvel, wen2024characterizing}. Prior work on LLM abstention has largely focused on three settings: questions that are unanswerable or underspecified given the available context \cite{cao2026clarify, kwiatkowski2019natural, trivedi2022musique, reddy2019coqa, choi2018quac, min2020ambigqa, zhang2021situatedqa, yin2023large, amayuelas2024knowledge,jin2019pubmedqa, dasigi2021dataset}, questions that lie beyond the model’s knowledge due to temporal or factual limits \cite{kasai2023realtime, yang2024alignment, feng2024don, mallen2023not, sciavolino2021simple}, and prompts where abstention is needed for safety or value alignment \cite{han2024wildguard, gehman2020realtoxicityprompts, hartvigsen2022toxigen, elsherief2021latent, lin2023toxicchat, ji2023beavertails, xu2023cvalues, rottger2024xstest, qiu2023latent, shen2024anything, wang2024not, wang2023all, li2024salad, xie2024sorry}. Building on these lines of work, Wen et al. \cite{wen2025know} analyze LLM abstention from three perspectives: the query, the model, and human values, while Kirichenko et al. \cite{kirichenko2025abstentionbench} organize existing datasets through the lens of abstention scenarios. However, these studies focus on single-turn settings, where the model either answers or abstains, and the evaluation is defined at a single step. In our work, we consider a more general agent setting, where an LLM agent can not only answer or abstain but also act in the environment over multiple turns.
+
+\textbf{Toward Agentic Abstention.} In agent settings, prior work has studied several adjacent capabilities. Recent position paper \cite{kirchhof2025position, oh2026uncertainty} on uncertainty in LLM agents argues that traditional uncertainty quantification has largely focused on single-turn question answering and should move toward realistic interactive agent settings. SMART \cite{qian2025smart} studies tool overuse in solvable agent tasks, focusing on tool-use efficiency rather than abstention under unresolvability. Xie et al. \cite{xie2026oversearchingsearchaugmentedlargelanguage} analyze over-searching in search-augmented LLMs, showing that search can improve accuracy on answerable queries but harm abstention on unanswerable ones. Wang et al. \cite{wang2025toward} provide a theoretical perspective on tool-use decision making, suggesting that an agent’s tool-use decision boundary should align with its knowledge boundary so that tools are invoked only when needed. Bonagiri et al. \cite{bonagiri2025check} study selective quitting as a safety mechanism for LLM agents in high-stakes tool-use scenarios, showing that explicit quit instructions can improve safety with limited loss in helpfulness. In contrast, we study abstention itself as a distinct decision under uncertainty, in settings where an agent may answer, abstain, or continue acting. We examine this both in multi-turn question-answering tasks and in agentic scenarios with real-world tool access. Some prior work \cite{zhang2025clarify, zhang2024clamber, kobalczyk2025active} studies when agents should ask for clarification under uncertainty. In our work, we view clarification not as an alternative to abstention, but as a natural follow-up after abstaining.
+
+\textbf{Context Engineering.} Context engineering improves LLM behavior by adapting the context available to the model, instead of changing the underlying model parameters. Recent context engineering methods often rely on natural language feedback to revise the context available to an LLM \cite{shinn2023reflexion, yuksekgonul2025optimizing, agrawal2025gepa}. A language model reviews the current context, often alongside execution traces, reasoning steps, or validation outcomes, and generates feedback that guides how the context should be updated. Reflexion \citep{shinn2023reflexion} uses self-reflection over failed trajectories to improve subsequent agent decisions. TextGrad \citep{yuksekgonul2025optimizing} treats textual feedback as a gradient-like signal for optimizing prompts. GEPA \citep{agrawal2025gepa} refines prompts iteratively from execution traces, demonstrating the effectiveness of textual feedback as an optimization signal. Dynamic Cheatsheet \citep{suzgun2026dynamic} maintains an external memory that accumulates strategies and lessons from prior experience. ACE \citep{zhang2025agentic} further formalizes this idea by treating context as an evolving playbook, where generated trajectories are reflected upon and curated into reusable contextual knowledge. Building on these methods, our approach repurposes context evolution to improve agentic abstention: \method curates execution trajectories into reusable stopping rules that help an agent decide when further environment interaction is no longer needed.
+
+
+
+
+\section{Dataset Construction Details}
+\label{app:datasets}
+
+We consider three interactive settings: web environments, terminal environments, and question answering. For goal-oriented interactive tasks, we use WebShop \cite{yao2022webshop} and Terminal-Bench 2.0 \cite{merrill2026terminal}. For interactive question-answering tasks, we use the 16 datasets aggregated in AbstentionBench \cite{kirichenko2025abstentionbench}. 
+
+
+\subsection{Adapting and Constructing Abstention Instances from the WebShop Dataset}
+
+\subsubsection{Dataset Description}
+
+In WebShop~\citep{yao2022webshop}, environment displays textual observations of the webpage along with the available actions to the agent. The agent can freely explore the website and browse items through clickable buttons, similar to real-world interactions. About one million products are scraped from Amazon.com to form the website database, and each product is annotated with labels representing its attributes. In total, 12,087 human instructions are collected, each associated with a goal and expected attributes. Please refer to Yao et al.~\cite{yao2022webshop} for more details on the original dataset.
+
+
+\subsubsection{Dataset Adaptation}
+
+We use the first 500 instructions from the WebShop test set, which contains 12,087 instructions, following the official implementations of WebShop \cite{yao2022webshop} and AgentBench \cite{liu2023agentbench}. From these instructions, we construct 500 additional tasks in two forms: Request-based Abstention tasks, where the task can be recognized as unresolvable from the instruction alone, and Environment-based Abstention tasks, where the task appears solvable at first and only becomes recognizable as unresolvable after limited interaction with the environment. The resulting evaluation set contains 1,000 instances in total: 500 solvable tasks, 249 Request-based Abstention tasks (so they can be evenly divided into three groups), and 251 Environment-based Abstention tasks. This gives a balanced 1:1 split between solvable and unsolvable tasks. See Appendix~\ref{app:rewrite_webshop_prompt} for the prompts used to rewrite the instructions.
+
+
+%\begin{figure*}[t]
+%\centering
+%\begin{subfigure}[t]{0.327\textwidth}
+%    \vspace{0pt}
+%    \includegraphics[width=\linewidth]{picture/webshop_rewrite249_gpt54_high_token_length_distribution_paper_aligned.png}
+%\end{subfigure}\hfill
+%\begin{subfigure}[t]{0.32\textwidth}
+%    \vspace{0pt}
+%    \includegraphics[width=\linewidth]{picture/webshop_rewrite249_gpt54_high_embeddings_tsne_paper_aligned.png}
+%\end{subfigure}\hfill
+%\begin{subfigure}[t]{0.32\textwidth}
+%    \vspace{0pt}
+%    \includegraphics[width=\linewidth]{picture/webshop_rewrite249_gpt54_high_word_cloud_paper_aligned.png}
+%\end{subfigure}
+%\caption{\textbf{(a)} Length distributions show similar token counts between original and rewritten WebShop instructions. \textbf{(b)} t-SNE visualization of instruction embeddings reveals substantial semantic overlap, demonstrating that original and rewritten WebShop instructions are semantically indistinguishable. The similarity breakdown across the three abstention scenarios is shown in Figure~\ref{fig:webshop-category-tsne}. \textbf{(c)} Word clouds of original and rewritten WebShop instructions.}
+%\label{fig:three_fig_Length_t-SNE_Word_clouds}
+%\end{figure*}
+
+
+\begin{figure*}[t]
+\centering
+\begin{subfigure}[t]{0.327\textwidth}
+    \vspace{0pt}
+    \includegraphics[width=\linewidth]{picture/webshop_rewrite249_gpt54_high_token_length_distribution_paper_aligned.png}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.32\textwidth}
+    \vspace{0pt}
+    \includegraphics[width=\linewidth]{picture/webshop_rewrite249_gpt54_high_embeddings_tsne_paper_aligned.png}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.32\textwidth}
+    \vspace{0pt}
+    \includegraphics[width=\linewidth]{picture/webshop_rewrite249_gpt54_high_word_cloud_paper_aligned.png}
+\end{subfigure}
+\caption{\textbf{(a)} Length distributions show similar token counts between original and rewritten WebShop instructions. \textbf{(b)} t-SNE visualization of instruction embeddings reveals substantial semantic overlap, demonstrating that original and rewritten WebShop instructions are semantically indistinguishable. The similarity breakdown across the three abstention scenarios is shown in Figure~\ref{fig:webshop-category-tsne}. \textbf{(c)} Word clouds of original and rewritten WebShop instructions.}
+\label{fig:three_fig_Length_t-SNE_Word_clouds}
+\end{figure*}
+
+
+
+
+
+
+\begin{figure*}[t]
+\centering
+\begin{subfigure}[t]{0.32\textwidth}
+    \vspace{0pt}
+    \centering
+    \includegraphics[width=\linewidth]{picture/webshop_rewrite249_gpt54_high_category_tsne_paper_aligned_subjective.png}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.32\textwidth}
+    \vspace{0pt}
+    \centering
+    \includegraphics[width=\linewidth]{picture/webshop_rewrite249_gpt54_high_category_tsne_paper_aligned_underspecified_intent.png}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.32\textwidth}
+    \vspace{0pt}
+    \centering
+    \includegraphics[width=\linewidth]{picture/webshop_rewrite249_gpt54_high_category_tsne_paper_aligned_false_premises.png}
+\end{subfigure}
+\caption{t-SNE visualizations of original and rewritten WebShop instructions by abstention category: Subjective Preference, Underspecified Intent, and False Premise or Contradiction.}
+\label{fig:webshop-category-tsne}
+\end{figure*}
+
+
+
+
+
+
+
+
+For the Request-based Abstention tasks, we rewrite the original instructions using an LLM, following prior work \cite{liu2023agentbench,lester2021power,gonen2023demystifying,honovich2023unnatural}. Specifically, we use GPT-5.4-mini with high reasoning to generate variants reflecting three abstention scenarios: Subjective Preference, Underspecified Intent, and False Premise or Contradiction. All generated instructions are carefully reviewed by the authors. We filter out or revise unsuitable cases to ensure that the rewritten instructions naturally reflect realistic abstention scenarios, rather than being artificially constructed solely to trigger abstention. Figure~\ref{fig:three_fig_Length_t-SNE_Word_clouds} shows that the original and rewritten WebShop instructions have largely overlapping length distributions and high semantic similarity across the three abstention scenarios. See Table~\ref{tab:webshop_rewrite_examples} for examples comparing original and rewritten WebShop instructions across three abstention scenarios.
+
+
+
+For Environment-based Abstention tasks, we construct abstention scenarios by modifying the environment rather than the instruction. For each instruction, we identify its ground-truth target item and remove it from the product catalog while leaving the instruction unchanged. Since WebShop relies on a Lucene-based retrieval system, we then rebuild the search index over the updated product collection to ensure that the removed items cannot be retrieved.
+
+\begin{table*}[t]
+\centering
+\small
+\setlength{\tabcolsep}{6pt}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{L{0.16\textwidth} L{0.33\textwidth} p{0.42\textwidth}}
+\toprule
+\textbf{Abstention Category} & \textbf{Original Instruction} & \textbf{Rewritten Instruction} \\
+\midrule
+
+\rowcolor{SPColor}
+\textbf{Subjective Preference}
+& I am looking for a gluten free, 100\% vegan plant-based protein shake that is soy-free.
+& I am looking for a gluten free, 100\% vegan plant-based protein shake that is soy-free. \hl{ Please pick a flavor you think I would like.} \\
+
+\rowcolor{SPColor}
+& I need a 35-quart top mount pullout kitchen waste trash container easy install bin for 1.63 inch  wood frame cabinet.
+& I need a 35-quart top mount pullout kitchen waste trash container easy install bin for 1.63 inch wood frame cabinet \hl{that looks most elegant.} \\
+
+\rowcolor{SPColor}
+& I am looking for some gray living room pillows.
+& I am looking for some gray living room pillows \hl{that match my personal style.}\\
+
+\midrule
+
+\rowcolor{UIColor}
+\textbf{Underspecified Intent}
+& I need basic nylon high waist pants that are xx-large with a 37 inch inseam.
+& I need basic nylon high waist pants that are xx-large with a 37 inch inseam\hl{—get the same color as before.} \\
+
+\rowcolor{UIColor}
+& I need a soap that is for sensitive skin and that comes in a pack of two.
+& I need a soap that is for sensitive skin and that comes in a pack of two, \hl{but pick the scent I usually buy.} \\
+
+\rowcolor{UIColor}
+& I need a wall mounted mirror in the color d.
+& I need a wall mounted mirror in the color d, \hl{like the one we talked about earlier.} \\
+
+\midrule
+
+\rowcolor{FPColor}
+\textbf{False Premise or Contradiction}
+& I need a set of 15 BPA-free and eco-friendly jars.
+& I need a set of 15 BPA-free and \hl{PVC-containing} eco-friendly jars. \\
+
+\rowcolor{FPColor}
+& I want to find a 10-foot long USB cable with a USB port in rose gold color.
+& I want to find a 10-foot long USB cable with a USB port in rose gold color \hl{that is completely portless.} \\
+
+\rowcolor{FPColor}
+& I want a new Formuler Z10 Pro Max Android 10 dual band ring.
+& I want a new Formuler Z10 Pro Max Android 10 that is \hl{both single-band only and dual band.} \\
+
+\bottomrule
+\end{tabular}
+\caption{Examples of original and rewritten WebShop instructions for the three abstention categories. We use GPT-5.4-mini to rewrite the original WebShop instructions so that they reflect three categories: Subjective Preference, Underspecified Intent, and False Premise or Contradiction. All rewritten examples are reviewed by the authors, with unsuitable cases revised or filtered out.}
+\label{tab:webshop_rewrite_examples}
+\end{table*}
+
+
+
+
+
+
+
+
+
+
+
+\subsection{Adapting and Constructing Abstention Instances from the Terminal-Bench 2.0 Dataset}
+
+\subsubsection{Dataset Description}
+
+
+Terminal-Bench 2.0 \cite{merrill2026terminal} evaluates whether agents can perform the kind of high-skill work that professionals are paid to do, including configuring legacy systems, reimplementing research papers, and solving general software engineering problems. It consists of 89 challenging tasks, each manually verified by three human reviewers for correctness. These tasks require extensive domain knowledge, long chains of interdependent actions, and the kind of autonomous problem-solving characteristic of valuable technical work.
+
+
+\subsubsection{Dataset Adaptation}
+
+%\begin{figure*}[t]
+%    \centering
+%    \includegraphics[width=\textwidth]{picture/terminalbench.pdf}
+%    \caption{
+%    \textbf{(a)} Each adapted task in TerminalBench 2.0 consists of four core components: (1) a containerized environment initialized with the relevant packages and files, (2) an instruction describing the task to be completed, (3) a set of tests for verifying completion, and (4) a manually written reference solution. For our abstention setting, we additionally rewrite the original instruction to construct abstention-warranted variants, including False Premise or Contradiction and Underspecified Intent. 
+%    \textbf{(b)} Examples of rewritten instructions under two abstention scenarios: False Premise or Contradiction and Underspecified Intent.
+%    }
+%    \label{fig:terminalbench_rewritten}
+%\end{figure*}
+
+
+
+For the Request-based Abstention tasks, we rewrite task instructions using a Dual-Agent Correction pipeline \cite{luo2025dialogguard} and manually review each rewritten instruction. Specifically, a Rewriting Agent first rewrites the original instruction, and a Validation Agent then checks whether the rewritten version satisfies the target criteria. When a rewrite is judged invalid, the Rewriting Agent receives feedback from the Validation Agent and revises the instruction again, for up to three rounds. Across the 89 original instructions, this process produced 87 rewritten instructions for the False Premise or Contradiction scenario and 84 for the underspecified intent scenario. The rewritten instructions were then carefully reviewed by the authors, and 87 instructions in the False Premise or Contradiction scenario and 80 in the Underspecified Intent scenario were retained. Figure~\ref{fig:terminalbench_rewritten} shows the core components of an adapted task and examples of rewritten instructions. 
+
+For the Environment-based Abstention tasks, we manually selected 21 tasks whose original solutions relied on identifiable resources in the terminal environment, such as specific files, datasets, packages, configuration entries, or executable components. Unlike the Request-based Abstention tasks, these instances keep the user-facing instruction unchanged and instead modify the underlying environment. We remove or alter an essential resource so that the requested task is no longer satisfiable, even though the instruction itself appears valid. These tasks therefore test delayed abstention: the agent should first inspect the environment, recognize that the required resource or condition is unavailable, and then abstain rather than continue attempting an impossible task. The authors manually reviewed all modified tasks to verify that the correct behavior is abstention and that the task is not merely harder or underspecified.
+
+
+\subsection{Adapting AbstentionBench}
+
+%\begin{figure*}[t]
+%    \centering
+%    \includegraphics[width=\textwidth]{picture/agentic_abstention_composition_main.pdf}
+%    \caption{
+%        Composition of the selected AbstentionBench subset across datasets and scenarios.
+%        The subset contains 16 datasets and 5 scenarios, totaling 27,073 samples.
+%    }
+%    \label{fig:agentic_abstention_composition_main}
+%\end{figure*}
+
+
+\subsubsection{Dataset Description}
+
+Each sample in an AbstentionBench dataset consists of a prompt (including a question and, optionally, a context), a binary label indicating whether the model should abstain, and optional reference answers for cases where abstention is not required. All datasets are capped at a maximum of 3,500 samples. The following datasets are included in AbstentionBench.
+
+
+\begin{itemize}[leftmargin=14pt]
+    \item ALCUNA \cite{yin2023alcuna} contains biological questions about real and fictional species, given JSON-formatted properties of related species. In AbstentionBench, questions with insufficient contextual information are labeled as “should abstain.” Multiple-choice questions are excluded.
+
+    \item Bias Benchmark for QA (BBQ) \cite{parrish2022bbq} contains questions about stereotypical associations in both fully specified and underspecified forms, where the fully specified form may negate the stereotype. In AbstentionBench, questions with missing or ambiguous context are labeled as “should abstain,” while those with disambiguated context are labeled as “should not abstain.”
+
+    \item  From BIG-Bench \cite{srivastava2023beyond}, two tasks are included: Known Unknowns and Disambiguation QA (referred to as “Disambiguate”). Known Unknowns contains questions with unknowable answers, such as those pertaining to future events or unsolved problems. In AbstentionBench, such questions are labeled as “should abstain.” Disambiguate requires models to identify the coreferent of an ambiguous pronoun. In AbstentionBench, sentences with ambiguous pronouns are labeled as “should abstain.”
+
+    \item CoCoNot \cite{brahman2024art} is a composite benchmark of tasks where models should refuse to comply. In AbstentionBench, the false presumptions, humanizing, incomprehensible, subjective, temporal, unknowns, and unsupported subsets are included, while the safety and underspecification subsets are excluded. Results are reported separately for each subset.
+
+    \item FalseQA \cite{hu2023won} is a dataset of questions predicated on false premises. In AbstentionBench, such questions are labeled as “should abstain.”
+
+    \item  Known Unknown Questions (KUQ) \cite{amayuelas2024knowledge} contains questions with both known and unknown answers. In AbstentionBench, the ambiguous, controversial, false premise, future unknown, and unsolved problem question types are included, while the counterfactual subset is excluded. Because KUQ only provides question types for questions with known answers, the corresponding types for unknown-answer questions are reconstructed using the same SimCSE-based \cite{gao2021simcse} methodology outlined in Amayuelas et al. \cite{amayuelas2024knowledge}.
+
+    \item MediQ \cite{li2024mediq} is a medical question answering dataset in which patients pose questions to medical professionals. In AbstentionBench, for each sample, a version is created by removing all patient context, rendering the question unanswerable, and this is paired with the original fully specified sample. Questions with missing patient context are labeled as “should abstain.”
+
+    \item MoralChoice \cite{scherrer2023evaluating} contains questions about scenarios with (often high-stakes) moral implications. For some questions, there is a clear and generally accepted moral choice, while for others the moral choice is ambiguous. In AbstentionBench, questions with ambiguous moral choices are labeled as “should abstain.”
+
+    \item MuSiQue \cite{trivedi2022musique} contains multi-hop questions in which the final answer depends on answering multiple chained sub-questions. In AbstentionBench, unanswerable questions are labeled as “should abstain.”
+
+    \item (QA)$^2$ \cite{kim20232}, referred to as QAQA in the main text, is a dataset of questions predicated on questionable assumptions. In AbstentionBench, questions with invalid assumptions are labeled as “should abstain.”
+
+    \item QASPER \cite{dasigi2021dataset} is a dataset of questions about full-text computer science papers. In AbstentionBench, questions that cannot be answered using information from the given paper are labeled as “should abstain.”
+
+    \item From SituatedQA \cite{zhang2021situatedqa}, the geographical ("Geo") subset of underspecified questions is included, where key information (e.g., the country referred to) is missing. In AbstentionBench, underspecified questions are labeled as “should abstain.” The temporal subset is excluded.
+
+    \item WorldSense \cite{benchekroun2023worldsense} is a dataset of multiple-choice questions about relationships between objects in simulated worlds. In AbstentionBench, questions that cannot be answered given the provided context are labeled as “should abstain.”
+
+    \item MMLU-Math-Abstain, GPQA-Diamond-Abstain, and GSM8K-Abstain are three reasoning datasets in AbstentionBench. These are variants of the widely used MMLU \cite{hendrycks2020measuring}, GPQA \cite{rein2024gpqa}, and GSM8K \cite{cobbe2021training} datasets. For MMLU, three mathematics subsets are used: college mathematics, abstract algebra, and high school mathematics. For each dataset, questions that contain context preceding the final question are selected using the regular expression \verb|r"(?<=\. )[^\.\?\!]*\?$"|. Both the original questions with context and an underspecified version with the context removed are retained.
+
+    
+\end{itemize}
+
+\subsubsection{Dataset Adaptation}
+
+In our evaluation, we exclude FreshQA \cite{vu2024freshllms}, MuSiQue \cite{trivedi2022musique}, SQuAD 2.0 \cite{rajpurkar2018know}, QASPER \cite{dasigi2021dataset}, and the Temporal subset of CoCoNot \cite{brahman2024art}, as many questions in these datasets can be resolved through search. Each query is treated as a decision-making problem with three possible actions: answering, abstaining, or issuing a tool call. As all datasets in AbstentionBench are question-answering tasks, we provide the agent with access to a search action. As in WebShop \cite{yao2022webshop} and AgentBench \cite{liu2023agentbench}, the agent operates in a semantic action space expressed in natural language. Figure~\ref{fig:agentic_abstention_composition_main} shows the composition of the selected AbstentionBench subset used in our benchmark, including its distribution across datasets and abstention scenarios.
+
+
+
+\subsubsection{Retrieval Setup}
+\label{app:retrieval_setup}
+
+We use the latest Wikipedia dump available at the time of the experiments (enwiki-20260101) as our retrieval corpus. Documents are processed with FlashRAG \cite{jin2025flashrag}, split into 100-word chunks, and encoded with E5-base \cite{wang2022text}, which serves as our default dense retriever. Each search call returns the top 3 retrieved documents, and all models are limited to at most 10 search calls.
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=\textwidth]{picture/agentic_abstention_composition_main.pdf}
+    \caption{
+        Composition of the selected AbstentionBench subset across datasets and scenarios.
+        The subset contains 16 datasets and 5 scenarios, totaling 27,073 samples.
+    }
+    \label{fig:agentic_abstention_composition_main}
+\end{figure*}
+
+
+
+
+\section{Abstention Task Categories}
+\label{app:abstention_scenarios}
+
+\subsection{Web environment}
+
+For the web environment, we construct two types of tasks: Request-based Abstention tasks and Environment-based Abstention tasks. We refer to the latter as Missing Target, since the task initially appears solvable but becomes unresolvable when the target item is found to be unavailable. For Request-based Abstention tasks, we consider three categories: False Premise or Contradiction, Subjective Preference, and Underspecified Intent. We exclude Answer Unknown and Underspecified Context, as they are less well suited to the web environment.
+
+\textbf{False Premise or Contradiction.} Tasks that rely on a false assumption or impose mutually incompatible constraints, such that no valid product can satisfy the instruction.
+
+\textbf{Subjective Preference.} Tasks whose successful completion depends on the user’s personal taste, aesthetic judgment, or subjective preference, which cannot be inferred objectively from the instruction or the environment.
+
+\textbf{Underspecified Intent.} Tasks whose completion requires missing user-specific context, prior interaction history, or unresolved references that are not available in the current instruction or environment.
+
+\textbf{Missing Target.} Tasks whose instructions are well-formed and initially appear solvable, but no valid item satisfying the instruction exists in the current environment. Abstention becomes appropriate only after limited interaction reveals that the target item is absent from the catalog or cannot be retrieved through the available actions.
+
+\subsection{Terminal environment}
+
+In the terminal environment, we construct both Request-based Abstention and Environment-based Abstention tasks. For Request-based Abstention, we consider two categories: False Premise or Contradiction and Underspecified Intent. For Environment-based Abstention, we consider a single category, Missing Prerequisite, where the task initially appears executable but becomes unresolvable after limited interaction reveals that a required file, dependency, permission, service, or external capability is unavailable in the environment.
+
+
+%\begin{figure*}[t]
+%    \centering
+%    \includegraphics[width=\textwidth]{picture/terminalbench.pdf}
+%    \caption{
+%    \textbf{(a)} Each adapted task in TerminalBench 2.0 consists of four core components: (1) a containerized environment initialized with the relevant packages and files, (2) an instruction describing the task to be completed, (3) a set of tests for verifying completion, and (4) a manually written reference solution. For our abstention setting, we additionally rewrite the original instruction to construct abstention-warranted variants, including False Premise or Contradiction and Underspecified Intent. 
+%    \textbf{(b)} Examples of rewritten instructions under two abstention scenarios: False Premise or Contradiction and Underspecified Intent.
+%    }
+%    \label{fig:terminalbench_rewritten}
+%\end{figure*}
+
+
+\textbf{False Premise or Contradiction.} Tasks that rely on an incorrect assumption about the environment, system state, or available artifacts, or that impose mutually incompatible requirements, such that no valid execution can satisfy the instruction as written.
+
+
+\textbf{Underspecified Intent.} Tasks whose goal, target, or success criterion is not specified clearly enough for the agent to determine a well-justified course of action from the instruction and environment alone, without additional user input or missing context.
+
+\textbf{Missing Prerequisite.} Tasks whose instructions are coherent and initially appear executable, but the environment lacks a prerequisite needed for successful completion. Abstention becomes warranted only after limited interaction reveals the missing dependency, resource, permission, or capability.
+
+
+\subsection{Question-answering}
+
+For the question-answering setting, we build on prior work on LLM abstention \cite{kirichenko2025abstentionbench}. We adapt the original taxonomy to the agent setting and remove categories that no longer apply (e.g., stale questions). These categories are not intended to be exhaustive or mutually exclusive, but rather to illustrate the diverse situations in which abstention should be appropriate.
+
+\textbf{Answer Unknown.} Tasks for which no well-established or verifiable answer exists. Given the available tools and interaction environment, further actions would not lead to a grounded resolution.
+
+\textbf{False Premise.} Tasks predicated on an incorrect or false statement.
+
+\textbf{Subjective.} Tasks where the correct solution depends on personal viewpoint or experience. 
+
+\textbf{Underspecified Context.} Tasks where key information from the context is missing. Such information cannot be obtained through the agent’s available tools or interactions with the environment, and the task would only be solvable if additional information were provided by the user.
+
+\textbf{Underspecified Intent.} Tasks where it’s unclear what the user intended. Information is missing from the task, rather than the context.
+
+
+\section{Formulation of Abstention Metrics}
+\label{app:metrics}
+
+% Optional preamble additions:
+% \usepackage{amsmath,amssymb}
+% \newcommand{\ind}[1]{\mathbf{1}\!\left\{#1\right\}}
+% \newcommand{\abstain}{\text{\textsc{Abstain}}}
+% Replace \cite{anderson2018vision} with your own bibliography key.
+
+We define all metrics at the episode level rather than the step level. In interactive tasks, abstention is not always warranted from the start and may become appropriate only after the agent interacts with the environment. We therefore evaluate two aspects of abstention: whether the agent abstains when it should, and how soon it abstains. 
+
+\paragraph{Episode-level notation.}
+Let $\mathcal{D}=\{1,\ldots,N\}$ denote the evaluation set. Episode $i\in\mathcal{D}$ has horizon $T_i$ and action sequence $(a_{i,1},\ldots,a_{i,T_i})$, where $\abstain$ is a distinguished terminal action. We define the agent's first abstention step as
+\begin{equation}
+\tau_i = \min\{t \in \{1,\ldots,T_i\} : a_{i,t} = \abstain\},
+\end{equation}
+with the convention $\tau_i=\infty$ if the agent never abstains.
+
+Let $y_i\in\{0,1\}$ be the ground-truth abstention label, where $y_i=1$ indicates that episode $i$ is \emph{abstain-warranted}. We write
+\begin{equation}
+\mathcal{D}_{+} = \{ i \in \mathcal{D} : y_i = 1\},
+\qquad
+N_{+} = |\mathcal{D}_{+}|.
+\end{equation}
+For negative episodes ($y_i=0$), abstention is never warranted.
+
+For each positive episode $i\in\mathcal{D}_{+}$, we additionally annotate an oracle warranted step $w_i\in\{1,\ldots,T_i\}$, defined as the earliest step from which abstention becomes warranted. Thus, abstaining before $w_i$ is \emph{premature}, whereas abstaining at step $w_i$ is maximally timely. In tasks where abstention is warranted from the outset, $w_i=1$ for all $i\in\mathcal{D}_{+}$; in that special case, the timely recall defined below reduces to first-turn recall.
+
+We count episode $i\in\mathcal{D}_{+}$ as a \emph{successful abstention} iff
+\begin{equation}
+w_i \le \tau_i < \infty.
+\label{eq:success_condition}
+\end{equation}
+Premature abstentions ($\tau_i < w_i$) are counted as failures. This convention prevents an agent from receiving credit for abstaining before sufficient evidence has been observed.
+
+\paragraph{AbsRec@$K$.}
+To measure whether and how quickly the agent abstains after abstention becomes warranted, we define the abstention delay
+\begin{equation}
+d_i =
+\begin{cases}
+\tau_i - w_i, & \text{if } w_i \le \tau_i < \infty,\\
+\infty, & \text{otherwise}.
+\end{cases}
+\label{eq:delay}
+\end{equation}
+where $\mathcal{D}_{+}$ denotes the set of abstain-warranted episodes, $N_{+}=|\mathcal{D}_{+}|$, $w_i$ is the first step at which abstention becomes warranted, and $\tau_i$ is the step at which the agent abstains. An abstention is counted as correct only if it occurs after abstention becomes warranted. We then define
+\begin{equation}
+\mathrm{AbsRec}@K
+=
+\frac{1}{N_{+}}
+\sum_{i \in \mathcal{D}_{+}}
+\ind{w_i \le \tau_i \le K},
+\qquad
+K \in \{1,2,\ldots,K_{\max}\}.
+\label{eq:absrec_at_k}
+\end{equation}
+Equivalently, AbsRec@$K$ is the fraction of abstain-warranted episodes on which the agent abstains correctly within the first $K$ interaction steps.
+
+\paragraph{Overall recall (or AbsRec$@10$).}
+Overall recall measures whether the agent eventually abstains on abstain-warranted episodes after abstention has become warranted. In our setting, where the maximum interaction budget is $K_{\max}=10$, overall recall is equivalent to AbsRec@$10$:
+\begin{equation}
+\mathrm{Recall}_{\mathrm{overall}}
+=
+\mathrm{AbsRec}@10
+=
+\frac{1}{N_{+}}
+\sum_{i \in \mathcal{D}_{+}}
+\ind{d_i \le 9}.
+\label{eq:recall_overall}
+\end{equation}
+
+\paragraph{Timely recall (or AbsRec$@1$).}
+Overall recall does not distinguish between abstaining exactly when abstention first becomes warranted and abstaining several steps later. We therefore also report timely recall, defined as AbsRec@$1$:
+\begin{equation}
+\mathrm{Recall}_{\mathrm{timely}}
+=
+\mathrm{AbsRec}@1
+=
+\frac{1}{N_{+}}
+\sum_{i \in \mathcal{D}_{+}}
+\ind{\tau_i = w_i}.
+\label{eq:recall_timely}
+\end{equation}
+This metric measures whether the agent abstains at the earliest warranted step. If all positive episodes satisfy $w_i=1$, then $\mathrm{Recall}_{\mathrm{timely}}$ is exactly first-turn recall.
+
+By construction,
+\begin{equation}
+\mathrm{Recall}_{\mathrm{timely}}
+=
+\mathrm{AbsRec}@1
+\le
+\mathrm{AbsRec}@2
+\le
+\cdots
+\le
+\mathrm{AbsRec}@10
+=
+\mathrm{Recall}_{\mathrm{overall}}.
+\label{eq:absrec_relation}
+\end{equation}
+When $w_i=1$ for all positive episodes, AbsRec@$1$ further reduces to first-turn recall.
+
+% \paragraph{Overall recall.}
+% Overall recall measures whether the agent eventually abstains on abstain-warranted episodes after abstention has become warranted. It is defined as
+% \begin{equation}
+% \mathrm{Recall}_{\mathrm{overall}}
+% =
+% \frac{1}{N_{+}}
+% \sum_{i \in \mathcal{D}_{+}}
+% \ind{w_i \le \tau_i < \infty},
+% \label{eq:recall_overall}
+% \end{equation}
+% where $\mathcal{D}_{+}$ denotes the set of abstain-warranted episodes, $N_{+}=|\mathcal{D}_{+}|$, $w_i$ is the first step at which abstention becomes warranted, and $\tau_i$ is the step at which the agent abstains. An abstention is counted as correct only if it occurs after abstention becomes warranted.
+
+% \paragraph{Timely recall.}
+% Overall recall does not distinguish between abstaining exactly when abstention first becomes warranted and abstaining several steps later. We therefore also report timely recall, defined as
+% \begin{equation}
+% \mathrm{Recall}_{\mathrm{timely}}
+% =
+% \frac{1}{N_{+}}
+% \sum_{i \in \mathcal{D}_{+}}
+% \ind{\tau_i = w_i}.
+% \label{eq:recall_timely}
+% \end{equation}
+% This metric measures whether the agent abstains at the earliest warranted step. If all positive episodes satisfy $w_i=1$, then $\mathrm{Recall}_{\mathrm{timely}}$ is exactly first-turn recall.
+
+
+% \paragraph{Pass@$K$.}
+% To measure how quickly the agent abstains after abstention becomes warranted, we define the abstention delay
+% \begin{equation}
+% d_i =
+% \begin{cases}
+% \tau_i - w_i, & \text{if } w_i \le \tau_i < \infty,\\
+% \infty, & \text{otherwise}.
+% \end{cases}
+% \label{eq:delay}
+% \end{equation}
+% We then define
+% \begin{equation}
+% \text{Pass@}K
+% =
+% \frac{1}{N_{+}}
+% \sum_{i \in \mathcal{D}_{+}}
+% \ind{d_i \le K},
+% \qquad
+% K \in \{0,1,2,\ldots\}.
+% \label{eq:pass_at_k}
+% \end{equation}
+% Equivalently, Pass@$K$ is the fraction of positive episodes on which the agent completes abstention within the first $K$ steps \emph{after} abstention becomes warranted. By construction,
+% \begin{equation}
+% \mathrm{Recall}_{\mathrm{timely}}
+% =
+% \text{Pass@}0
+% \le
+% \text{Pass@}1
+% \le
+% \cdots
+% \le
+% \mathrm{Recall}_{\mathrm{overall}}.
+% \label{eq:pass_relation}
+% \end{equation}
+% When $w_i=1$ for all positive episodes, Pass@0 further reduces to first-turn recall.
+
+\paragraph{SPL.}
+Finally, we adapt Success weighted by (normalized inverse) Path Length (SPL) \cite{anderson2018evaluation} to reward successful abstention while penalizing delayed decisions. SPL is computed only on positive episodes. For each $i\in\mathcal{D}_{+}$, define
+\begin{equation}
+S_i = \ind{w_i \le \tau_i < \infty},
+\qquad
+P_i = \tau_i,
+\qquad
+L_i = w_i.
+\label{eq:spl_terms}
+\end{equation}
+Here, $S_i$ is the success indicator, $P_i$ is the step at which the agent abstains, and $L_i$ is the oracle earliest warranted step. We compute
+\begin{equation}
+\mathrm{SPL}
+=
+\frac{1}{N_{+}}
+\sum_{i \in \mathcal{D}_{+}}
+S_i \cdot \frac{L_i}{\max(P_i,L_i)}.
+\label{eq:spl}
+\end{equation}
+Episodes with missed abstention or premature abstention have $S_i=0$ and therefore contribute $0$ to SPL. Among successful abstentions, earlier abstention receives larger credit. In the special case where $w_i=1$ for all positive episodes, Eq.~\eqref{eq:spl} reduces to averaging $1/\tau_i$ over successful episodes, with unsuccessful episodes contributing $0$.
+
+\section{Additional Experiments on AbstentionBench and TerminalBench}
+\label{app:additional_experiments}
+
+\subsection{Task setting and training configuration}
+
+For the additional evaluations, we instantiate \method on AbstentionBench and TerminalBench. For AbstentionBench, we use examples for which abstention is the correct behavior, covering five scenarios: Answer Unknown, False Premise, Subjective, Underspecified Context, and Underspecified Intent. The TerminalBench subset contains 188 tasks for which abstention is the correct behavior, covering three scenarios: False Premise or Contradiction, Underspecified Intent, and Missing Prerequisite. For each dataset, we reserve 101 examples as a held-out evaluation set. From the remaining examples, we use 20 examples for the \method run and 8 examples for validation. The split is stratified by scenario for both datasets; for TerminalBench, it is additionally grouped by the original task so that variants of the same underlying terminal task do not appear in different splits.
+
+
+\subsection{Results}
+
+Table~\ref{tab:additional_context_evolving} reports the results on AbstentionBench and TerminalBench. Overall, CONVOLVE consistently improves abstention performance over the base models across the additional evaluation settings. On TerminalBench, the gains are especially clear: applying \method to Llama-3.3-70B improves AbsRec$@1$, AbsRec$@10$, and SPL, with the strongest variant achieving the best performance across all three metrics. These results provide further evidence that \method generalizes beyond the main WebShop evaluation and can improve abstention behavior in both question-answering and terminal-based agentic settings.
+
+\begin{table*}[!t]
+\vspace{0.8em}
+\centering
+\footnotesize
+\caption{\method improves abstention on AbstentionBench and TerminalBench.}
+\vspace{-0.5em}
+\label{tab:additional_context_evolving}
+\setlength\tabcolsep{3.0pt}
+\fontsize{7.8pt}{9.2pt}\selectfont
+\begin{tabular}{p{2.55cm}ccc ccc}
+\toprule
+\multirow{2}{*}{\textbf{Method}}
+& \multicolumn{3}{c}{\textbf{AbstentionBench}}
+& \multicolumn{3}{c}{\textbf{TerminalBench}} \\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}
+& AbsRec$@1$ & AbsRec$@10$ & SPL
+& AbsRec$@1$ & AbsRec$@10$ & SPL \\
+\midrule
+
+\multicolumn{7}{l}{\textit{\textbf{Base Model}}} \\
+Llama-3.3-8B
+& 18.8 & 26.9 & 20.1
+& 19.4 & 42.1 & 23.6 \\
+Llama-3.3-70B
+& 25.0 & 41.6 & 33.2
+& 37.6 & 66.2 & 32.5 \\
+
+\midrule
+\multicolumn{7}{l}{\textit{\textbf{Base Model + In-Context Learning}}} \\
+Llama-3.3-8B
+& 20.3$_{\text{\textcolor{scoregreen}{+1.5}}}$  
+& 33.1$_{\text{\textcolor{scoregreen}{+6.2}}}$
+& 23.9$_{\text{\textcolor{scoregreen}{+3.8}}}$
+& 27.5$_{\text{\textcolor{scoregreen}{+8.1}}}$ 
+& 56.8$_{\text{\textcolor{scoregreen}{+14.7}}}$ 
+& 33.1$_{\text{\textcolor{scoregreen}{+9.1}}}$  \\
+Llama-3.3-70B
+& 31.1$_{\text{\textcolor{scoregreen}{+6.1}}}$  
+& 48.9$_{\text{\textcolor{scoregreen}{+7.3}}}$
+& 39.4$_{\text{\textcolor{scoregreen}{+6.2}}}$
+& 43.2$_{\text{\textcolor{scoregreen}{+5.6}}}$ 
+& 69.3$_{\text{\textcolor{scoregreen}{+3.1}}}$ 
+& 36.4$_{\text{\textcolor{scoregreen}{+3.9}}}$  \\
+
+\midrule
+\multicolumn{7}{l}{\textit{\textbf{Base Model + \method}}} \\
+Llama-3.3-8B + 8B
+& 19.6$_{\text{\textcolor{scoregreen}{+0.8}}}$ 
+& 29.4$_{\text{\textcolor{scoregreen}{+2.5}}}$ 
+& 22.0$_{\text{\textcolor{scoregreen}{+1.9}}}$ 
+& 25.2$_{\text{\textcolor{scoregreen}{+5.8}}}$ 
+& 59.7$_{\text{\textcolor{scoregreen}{+17.6}}}$ 
+& 35.8$_{\text{\textcolor{scoregreen}{+12.2}}}$  \\
+Llama-3.3-8B + 70B
+& 24.2$_{\text{\textcolor{scoregreen}{+5.4}}}$  
+& 36.7$_{\text{\textcolor{scoregreen}{+9.8}}}$ 
+& 29.2$_{\text{\textcolor{scoregreen}{+9.1}}}$ 
+& 29.3$_{\text{\textcolor{scoregreen}{+9.9}}}$ 
+& 61.8$_{\text{\textcolor{scoregreen}{+19.7}}}$ 
+& 37.9$_{\text{\textcolor{scoregreen}{+14.3}}}$ \\
+
+\rowcolor[RGB]{236,244,252}
+Llama-3.3-70B + 8B
+& 33.9$_{\text{\textcolor{scoregreen}{+8.9}}}$ 
+& 58.1$_{\text{\textcolor{scoregreen}{+16.5}}}$ 
+& 43.0$_{\text{\textcolor{scoregreen}{+9.8}}}$ 
+& 52.8$_{\text{\textcolor{scoregreen}{+15.2}}}$
+& 75.2$_{\text{\textcolor{scoregreen}{+9.0}}}$
+& 48.2$_{\text{\textcolor{scoregreen}{+15.7}}}$ \\
+
+\rowcolor[RGB]{236,244,252}
+Llama-3.3-70B + 70B
+& \textbf{39.7}$_{\text{\textcolor{scoregreen}{+14.7}}}$
+& \textbf{64.2}$_{\text{\textcolor{scoregreen}{+22.6}}}$
+& \textbf{47.5}$_{\text{\textcolor{scoregreen}{+14.3}}}$
+& \textbf{68.9}$_{\text{\textcolor{scoregreen}{+23.6}}}$ 
+& \textbf{79.1}$_{\text{\textcolor{scoregreen}{+12.9}}}$  
+& \textbf{53.4}$_{\text{\textcolor{scoregreen}{+20.9}}}$  \\
+
+\bottomrule
+\end{tabular}
+\vspace{-1em}
+\end{table*}
+
+
+
+\section{Qualitative Examples}
+\label{app:qua_examples}
+
+
+In this section, we provide qualitative examples of representative abstention behaviors and failure modes. Specifically, we show why FalseQA is excluded from our main evaluation, illustrate a question-answering failure where the agent answers despite insufficient evidence, and present a terminal-environment failure where the agent replaces missing task information with an ungrounded default instead of abstaining.
+
+
+
+\subsection{AbstentionBench}
+
+\subsubsection{FalseQA}
+
+Although we experimented with FalseQA, we do not use it as part of our main evaluation of agentic abstention. We found that, in most cases, the agent’s failure to abstain does not reflect poor abstention behavior. Instead, the agent is often able to recognize that the question contains a false premise, correct the premise, and provide an otherwise valid answer. We consider this to be a reasonable response. We therefore exclude FalseQA from the quantitative evaluation and present a few representative examples here instead.
+
+\paragraph{Case 1 from GPT-5.4-mini}
+
+\begin{Verbatim}[breaklines=True, breaksymbolleft={}, breaksymbolright={}, commandchars=\\\{\}]
+Prompt:
+Why carbon dioxide is composed of oxygen?
+
+Model answer:
+\textcolor{ForestGreen}{Carbon dioxide is not made only of oxygen;} it is a compound of 1 carbon atom and 2 oxygen atoms (CO2). It contains oxygen because carbon and oxygen form stable covalent bonds: carbon needs 4 more electrons to complete its outer shell, and each oxygen needs 2, so two oxygen atoms bond with one carbon atom. This makes CO2 a stable molecule.
+\end{Verbatim}
+
+
+\paragraph{Case 2 from GPT-5.4-mini}
+
+\begin{Verbatim}[breaklines=True, breaksymbolleft={}, breaksymbolright={}, commandchars=\\\{\}]
+Prompt:
+How a lawyer judge the perpetrators in the court?
+
+Model answer:
+\textcolor{ForestGreen}{A lawyer does not judge perpetrators in court;} a judge does. The lawyer represents a client, while the judge evaluates the evidence, applies the law, and decides the verdict or sentence.
+
+\end{Verbatim}
+
+
+\subsubsection{ALCUNA}
+
+\paragraph{Failure to abstain from GPT-5.4-mini}
+
+\begin{Verbatim}[breaklines=True, breaksymbolleft={}, breaksymbolright={}, commandchars=\\\{\}]
+
+Prompt:
+What is the social system of Bison bonison?
+
+Agent Trace:
+    Turn 1: Search [Bison bonison social system]
+        Top3 Retrieved passages: 
+        	(1) “American bison hunting”. The passage discusses the bison as a symbol of unity and mentions modern hunting.
+        	(2) “Willow Bunch, Saskatchewan”. This passage is about a local historical community and trade in bison 	product.
+        	(3) This passage discusses herd dynamics in European bison and compares them with bonobos.
+    Turn 2: \textcolor{Maroon}{Answer [herd]}
+
+\end{Verbatim}
+
+
+
+
+
+
+\subsection{TerminalBench}
+
+\paragraph{Failure to abstain from GPT-5.4-mini}
+
+\begin{Verbatim}[breaklines=True, breaksymbolleft={}, breaksymbolright={}, commandchars=\\\{\}]
+
+Instruction:
+Finding a target probability distribution for LLM confidence metrics:
+
+The confidence of a token prediction in an LLM can be quantified using different metrics. This implementation
+focuses on two metrics based on KL divergence from the uniform distribution:
+
+1. Forward KL Divergence: KL(P||U) = sum_i P(i) * log(P(i) / U(i))
+   where P is the model's probability distribution and U is the uniform distribution
+2. Backward KL Divergence: KL(U||P) = sum_i U(i) * log(U(i) / P(i))
+
+Higher KL divergence values indicate greater confidence in the model's predictions.
+
+Create a Python script that implements the following:
+
+  1. Find a probability distribution with the following exact properties:
+     - forward KL divergence KL(P||U) is 10.0
+     - backward KL divergence KL(U||P) is 10.0
+     - the tolerance for both KL divergences is 0.001 (i.e., |KL - 10.0| <= 0.001)
+     \textcolor{RewriteBlue}{- the vocabulary size should match the tokenizer vocabulary of the target LLM}
+
+  2. Save the results in the exact file:
+     - `/app/dist.npy`: NumPy array of probability distribution 
+
+  3. We provide numpy and scipy to help with the calculations.
+  
+  4. The distribution should be a valid probability distribution.
+
+Agent Trace:
+
+1. Search for the missing variable
+    - The agent searched the workspace and environment for tokenizer/model metadata.
+    - It explicitly stated: \textcolor{Maroon}{“If it doesn’t, I’ll have to infer a reasonable target vocabulary size…”}
+
+2. Fail to recover grounding
+    - The agent did not find project files or usable tokenizer metadata.
+    - Local tokenizer libraries were unavailable, e.g., transformers, tokenizers, torch, tiktoken, and sentencepiece.
+
+3. Replace the missing variable with an implicit default
+    - Instead of abstaining, the agent switched from discovery to construction: “since the tokenizer isn’t available locally, \textcolor{Maroon}{I’ll generate a distribution for a plausible large vocab size…}”
+    - It then instantiated the solve path with n = 100256 and continued optimization.
+
+
+
+\end{Verbatim}
+
+
+
+
+
+
+\section{Prompts}
+\label{app:prompts}
+
+\subsection{AbstentionBench}
+
+
+\textbf{System Prompt.}
+
+\begin{Verbatim}[breaklines=True, breaksymbolleft={}, breaksymbolright={},]
+
+
+I will ask you a question. You are solving it in a multi-turn setting with access to Wikimedia search.
+
+At each turn, you must choose exactly one action from the following action space.
+
+1. ANSWER: provide the final answer directly based on the current information.
+2. ABSTAIN: stop the current problem-solving process because the available information is insufficient, unreliable, or fundamentally non-resolvable, and neither further reasoning nor external information acquisition is appropriate.
+3. SEARCH: obtain additional information by searching Wikimedia.
+
+Important:
+- If you choose SEARCH, the environment will return the top {top_k} Wikimedia passages and you will be asked to decide again.
+- You may issue at most {max_search_calls} SEARCH calls in total.
+- If the information remains insufficient after searching, you should choose ABSTAIN instead of searching forever.
+
+Output format:
+Return valid JSON only. Do not output any text before or after the JSON.
+
+If you choose ANSWER, output:
+{"action": "ANSWER", "answer": "<final answer only>"}
+
+If you choose ABSTAIN, output:
+{"action": "ABSTAIN", "reason": "<brief reason for abstaining>"}
+
+If you choose SEARCH, output:
+{"action": "SEARCH", "search_query": "Search <keywords or question>"}
+
+Question: {question}
+
+\end{Verbatim}
+
+%
+\textbf{Follow-up Prompts}
+
+\begin{Verbatim}[breaklines=True, breaksymbolleft={}, breaksymbolright={},]
+
+
+Continue solving the same original question using the Wikimedia search results below.
+
+[Original Question]
+{original_question}
+
+[Search Call Budget]
+Used {search_call_index} out of {max_search_calls} SEARCH calls.
+
+[Your Previous Search Query]
+{search_query}
+
+[Wikimedia Top-{top_k} Retrieved Passages]
+{retrieved_docs_text}
+
+Using the updated information, choose exactly one action from [ANSWER], [ABSTAIN], [SEARCH].
+
+Remember:
+- Another SEARCH call consumes one more search budget.
+- If the evidence is still insufficient or unreliable, output ABSTAIN.
+
+Output format:
+Return valid JSON only. Do not output any text before or after the JSON.
+
+If you choose ANSWER, output:
+{"action": "ANSWER", "answer": "<final answer only>"}
+
+If you choose ABSTAIN, output:
+{"action": "ABSTAIN", "reason": "<brief reason for abstaining>"}
+
+If you choose SEARCH, output:
+{"action": "SEARCH", "search_query": "Search <keywords or question>"}
+
+
+\end{Verbatim}
+
+
+\subsection{WebShop}
+
+
+\subsubsection{System Prompt for WebShop}
+
+\begin{Verbatim}[breaklines=True, breaksymbolleft={}, breaksymbolright={},]
+
+You are web shopping.
+I will give you instructions about what to do.
+You have to follow the instructions.
+Every round I will give you an observation and a list of available actions,
+you have to respond with calling a tool provided based on the state and instruction.
+You can use search tool if search is available.
+You can click one of the buttons in clickables.
+You can also choose abstain by calling `abstain_action`: stop the current problem-solving process when the instruction cannot be resolved with the available information, and further exploration (e.g., search or click) is unlikely to help.
+
+If the instruction is ambiguous, logically inconsistent, or requires information unavailable in the environment, you should call `abstain_action` instead of continuing to explore.
+
+If the action is not valid, perform nothing.
+Keywords in search are up to you, but the value in click must be a value in the list of available actions.
+Remember that your keywords in search should be carefully designed.
+You should first think about what to do, then choose an action accordingly.
+You should always respond by calling exactly one tool.
+You can use whatever tool is available and do not need permission from the user.
+
+
+
+\end{Verbatim}
+
+
+
+
+\subsubsection{Instruction Rewriting Prompt for WebShop}
+\label{app:rewrite_webshop_prompt}
+
+To construct Request-based Abstention tasks in WebShop, we rewrite the original instructions using a controlled prompt. Each instruction is minimally modified to make it unresolvable under a specific abstention scenario, while preserving its original shopping intent and domain.
+
+The prompt used for instruction rewriting is shown below.
+
+\textbf{System Prompt.}
+\begin{Verbatim}[breaklines=True, breaksymbolleft={}, breaksymbolright={},]
+
+Rewrite English WebShop shopping instructions into instructions that require abstention.
+
+Requirements:
+- Preserve the original shopping domain or product type whenever possible.
+- Modify the instruction so that a careful shopping agent would need to abstain based on the provided category of abstention immediately, rather than being able to complete the task.
+- Make as few changes as possible to the original sentence to achieve this goal.
+Ensure the rewritten instruction is clear, natural, and unambiguous.
+
+Output valid JSON only:
+{
+  "rewritten_instruction": "...",
+  "short_reason": "one short sentence explaining why the agent should abstain"
+}
+\end{Verbatim}
+
+
+\textbf{Subjective Preference.}
+\begin{Verbatim}[breaklines=True, breaksymbolleft={}, breaksymbolright={},]
+
+Category: Subjective Preference
+Definition:
+    The task depends on the user’s personal taste, private preference, or aesthetic judgment, which cannot be inferred from the environment.
+Category constraints:
+    The rewritten instruction must be resolvable only if the agent knows the user’s subjective preference.
+    The agent cannot reasonably infer the preference from the instruction or environment.
+    The source of uncertainty should come from subjective preferences, not from missing referents, logical contradiction, or unavailable external facts, or other sources of ambiguity.
+Good patterns:
+    “Buy the one that looks most elegant.”
+    “Choose the color that suits me best.”
+    “Pick the nicer-looking one for my room.”
+Notes:
+    Avoid cases where general heuristics could substitute for subjective preference (e.g., “most popular” or “highest rated”).
+    Ensure the instruction does not introduce other abstention triggers (e.g., underspecified attributes like “that one” without additional references)
+Source instruction:
+{source_instruction}
+
+\end{Verbatim}
+
+
+
+\textbf{Underspecified Intent.}
+\begin{Verbatim}[breaklines=True, breaksymbolleft={}, breaksymbolright={},]
+
+Category: Underspecified Intent
+Definition:
+    The user’s intended choice is unclear because critical information is missing from the instruction itself.
+Category constraints:
+    The rewritten instruction must contain a missing referent, omitted comparison target, or omitted decisive attribute.
+    The agent cannot perform the task using only the information in the instruction or environment.
+    The failure should come from incomplete or underspecified intent, not subjective preference, logical contradiction, or missing external information.
+    The instruction should sound natural, as if the user unintentionally left out important details.
+Good patterns:
+    “Buy the same one as before.”
+    “Get the cheaper one out of the two I mentioned.”
+    “Choose the right size for what I need.”
+Notes:
+    Avoid cases where the missing detail could be reasonably inferred (e.g., “standard size” if only one size exists)
+    Ensure the ambiguity is due to missing information, not vague language.
+Source instruction:
+{source_instruction}
+
+\end{Verbatim}
+
+
+\textbf{False Premise or Contradiction.}
+\begin{Verbatim}[breaklines=True, breaksymbolleft={}, breaksymbolright={},]
+
+Category: False Premises or Contradictions
+Definition:
+    The instruction cannot be satisfied because it contains internally inconsistent or logically impossible constraints.
+Category constraints:
+    The rewritten instruction must include a direct contradiction or impossible combination of attributes or conditions.
+    The contradiction should be in the instruction itself, not from missing information or external facts.
+    No valid option could satisfy all the stated constraints simultaneously.
+    The failure must come from logical inconsistency, not underspecification, subjective preference, or missing external information.
+Good patterns:
+    “Buy me a maxi skirt that’s above the knee.”
+    “Get an unscented candle that smells clean.”
+    “Find a wireless headset with an aux cable.”
+Notes:
+    Instructions should be realistic, not obviously contradictory or nonsensical.
+    Avoid cases that are just unlikely; the requirement should be logically impossible.
+Source instruction:
+{source_instruction}
+
+\end{Verbatim}
+
+
+\subsection{TerminalBench 2.0}
+
+\subsubsection{System Prompt for TerminalBench 2.0}
+
+\begin{Verbatim}[breaklines=True, breaksymbolleft={}, breaksymbolright={},]
+
+You are an AI assistant tasked with solving command-line tasks in a Linux environment. You will be given a task description and the output from previously executed commands. Your goal is to solve the task by providing batches of shell commands.
+
+Format your response as JSON with the following structure:
+
+{{
+  "analysis": "Analyze the current state based on the terminal output provided. What do you see? What has been accomplished? What still needs to be done?",
+  "plan": "Describe your plan for the next steps. What commands will you run and why? Be specific about what you expect each command to accomplish.",
+  "commands": [
+    {{
+      "keystrokes": "ls -la\n",
+      "duration": 0.1
+    }},
+    {{
+      "keystrokes": "cd project\n",
+      "duration": 0.1
+    }}
+  ],
+  "task_complete": true
+}}
+
+Required fields:
+- "analysis": Your analysis of the current situation
+- "plan": Your plan for the next steps
+- "commands": Array of command objects to execute
+
+Optional fields:
+- "task_complete": Boolean indicating if the task is complete (defaults to false if not present)
+
+Command object structure:
+- "keystrokes": String containing the exact keystrokes to send to the terminal (required)
+- "duration": Number of seconds to wait for the command to complete before the next command will be executed (defaults to 1.0 if not present)
+
+IMPORTANT: The text inside "keystrokes" will be used completely verbatim as keystrokes. Write commands exactly as you want them sent to the terminal:
+- You must end every command with a newline (\n) or it will not execute.
+- For special key sequences, use tmux-style escape sequences:
+  - C-c for Ctrl+C
+  - C-d for Ctrl+D
+
+The "duration" attribute specifies the number of seconds to wait for the command to complete (default: 1.0) before the next command will be executed. On immediate tasks (e.g., cd, ls, echo, cat) set a duration of 0.1 seconds. On commands (e.g., gcc, find, rustc) set a duration of 1.0 seconds. On slow commands (e.g., make, python3 [long running script], wget [file]) set an appropriate duration as you determine necessary.
+
+It is better to set a smaller duration than a longer duration. It is always possible to wait again if the prior output has not finished, by running {{"keystrokes": "", "duration": 10.0}} on subsequent requests to wait longer. Never wait longer than 60 seconds; prefer to poll to see intermediate result status.
+
+Important notes:
+- Each command's keystrokes are sent exactly as written to the terminal
+- Do not include extra whitespace before or after the keystrokes unless it's part of the intended command
+- Extra text before or after the JSON will generate warnings but be tolerated
+- The JSON must be valid - use proper escaping for quotes and special characters within strings
+- Commands array can be empty if you want to wait without taking action
+
+
+If, before taking any action, you determine that the task should be abstained from because the instruction is flawed or the task cannot be completed in the current environment, return valid JSON with "commands": [], "task_complete": true, "abstain": true, a short "abstain_category", and a short "abstain_reason"; otherwise continue normally.
+
+Task Description:
+{instruction}
+
+Current terminal state:
+{terminal_state}
+
+\end{Verbatim}
+
+
+\subsubsection{Prompts for the Rewriting Agent}
+
+\textbf{False Premise or Contradiction.}
+
+\begin{Verbatim}[breaklines=True, breaksymbolleft={}, breaksymbolright={},]
+
+You are rewriting a single TerminalBench task instruction into an instruction-level abstention variant.
+
+Your job is to make the smallest possible change that makes a careful agent abstain immediately after reading the instruction, before taking any environment action.
+
+Inputs:
+- TASK_NAME: {{TASK_NAME}}
+- ORIGINAL_INSTRUCTION:
+{{ORIGINAL_INSTRUCTION}}
+
+Goal:
+Produce a rewritten instruction that is still recognizably the same TerminalBench task, but where the instruction itself is invalid at read time because of either:
+- one central false premise, or
+- one hard contradiction.
+
+Global requirements:
+1. Preserve the original task's domain, artifact surface, evaluator feel, realism, structure, tone, and approximate length.
+2. Keep as much of the original as possible, including concrete paths, filenames, commands, APIs, deliverables, and success criteria.
+3. Make only the minimum changes needed to create instruction-level abstention.
+4. The abstention reason must be inferable from the instruction alone, before any file inspection, command execution, or environment interaction.
+5. Do not turn this into a task-level impossibility discovered only after interacting with the environment.
+6. Do not rely on missing files, broken dependencies, lack of permissions, lack of network, corrupted environments, or unavailable external services.
+7. Do not add meta-language such as "you should abstain", "this task is impossible", "the instruction is invalid", or similar hints.
+8. Do not make the task look silly, adversarial, or obviously synthetic.
+9. Use exactly one mechanism. Choose either false premise or contradiction, not both.
+
+Subtype requirements:
+- If you choose false premise, introduce exactly one central false premise that makes the instruction invalid at read time.
+- If you choose contradiction, introduce a concrete, technical, hard contradiction whose requirements cannot be satisfied simultaneously.
+
+Silent self-check before answering:
+- Would a careful agent know to abstain before acting?
+- Did I keep the original task family and artifact surface?
+- Did I use exactly one mechanism?
+- Did I avoid turning this into an environment failure?
+
+Return JSON matching the provided schema.
+Set `chosen_subtype` to exactly `false_premise` or `contradiction`.
+Set `rewritten_instruction` to only the rewritten instruction text.
+
+\end{Verbatim}
+
+
+\textbf{Underspecified Intent}
+
+
+\begin{Verbatim}[breaklines=True, breaksymbolleft={}, breaksymbolright={},]
+
+You are rewriting a single TerminalBench task instruction into an instruction-level abstention variant.
+
+Your job is to make the smallest possible change that makes a careful agent abstain immediately after reading the instruction, before taking any environment action.
+
+Inputs:
+- TASK_NAME: {{TASK_NAME}}
+- ORIGINAL_INSTRUCTION:
+{{ORIGINAL_INSTRUCTION}}
+
+Goal:
+Produce a rewritten instruction that is still recognizably the same TerminalBench task, but where the task goal is critically underspecified. A careful agent should abstain because the instruction no longer determines a unique, reasonably well-defined target.
+
+Global requirements:
+1. Preserve the original task's domain, artifact surface, evaluator feel, realism, structure, tone, and approximate length.
+2. Keep as much of the original as possible, including concrete paths, filenames, commands, APIs, deliverables, and success criteria.
+3. Make only the minimum changes needed to create instruction-level abstention.
+4. The underspecification must be inferable from the instruction alone, before any file inspection, command execution, or environment interaction.
+5. The ambiguity must be critical: there must be multiple materially different, reasonable completions, and the instruction must no longer determine a uniquely correct target.
+6. The ambiguity must affect a key specification dimension such as the target artifact, output contract, success criterion, objective, authoritative input, or tie-breaking rule.
+7. Do not introduce a hard contradiction.
+8. Do not introduce a false premise.
+9. Do not rely on missing files, broken dependencies, lack of permissions, lack of network, corrupted environments, or unavailable external services.
+10. Do not add meta-language such as "you should abstain", "this task is ambiguous", or similar hints.
+11. Do not make the task look silly, adversarial, or obviously synthetic.
+
+Silent self-check before answering:
+- Is there at least one critical decision that the instruction no longer uniquely specifies?
+- Would a careful agent know to abstain before acting?
+- Did I preserve the original task family and artifact surface?
+- Did I avoid contradiction, false premise, and environment failure?
+
+Return JSON matching the provided schema.
+Set `rewritten_instruction` to only the rewritten instruction text.
+
+\end{Verbatim}
+
+
+\subsubsection{Prompts for the Validation Agent}
+
+For both the False Premise or Contradiction and Underspecified Intent scenarios, the Validation Agent uses the same basic prompt template; the only difference is in the category\_rules.
+
+\textbf{Basic Prompt Template}
+
+\begin{Verbatim}[breaklines=True, breaksymbolleft={}, breaksymbolright={},]
+
+You are auditing a rewritten TerminalBench instruction.
+
+TASK_NAME: {task_name}
+TARGET_PUBLIC_CATEGORY: {category}
+CHOSEN_SUBTYPE: {subtype_text}
+
+Audit policy:
+{category_rules[category]}
+
+Return JSON matching the provided schema.
+If you fail the rewrite, include concise failure codes and actionable rewrite guidance.
+
+ORIGINAL_INSTRUCTION:
+{original_instruction}
+
+REWRITTEN_INSTRUCTION:
+{rewritten_instruction}
+
+
+\end{Verbatim}
+
+
+
+\textbf{Category Rules for False Premise or Contradiction}
+
+\begin{Verbatim}[breaklines=True, breaksymbolleft={}, breaksymbolright={},]
+
+Pass only if the rewrite introduces exactly one valid instruction-level issue of type false premise or contradiction. It must remain close to the original task, preserve artifact surface, and be invalid before any environment interaction. Fail if it is unchanged, merely wrapped with a generic prefix/suffix, contains meta-language, uses multiple mechanisms, or turns into an environment/resource failure.
+
+\end{Verbatim}
+
+
+\textbf{Category Rules for Underspecified Intent}
+
+\begin{Verbatim}[breaklines=True, breaksymbolleft={}, breaksymbolright={},]
+
+Pass only if the rewrite introduces a critical underspecification that makes the target no longer uniquely determined before any environment interaction. It must remain close to the original task and preserve artifact surface. Fail if it is unchanged, merely wrapped with a generic prefix/suffix, contains meta-language, only becomes slightly vague, or actually introduces contradiction, false premise, or environment failure.
+
+\end{Verbatim}
+
+
+
+\section{\method Example Playbooks}
+\label{app:playbook}
+
+Figure~\ref{fig:playbook-convolve} shows an excerpt from the playbook learned by \method using Llama-3.3-70B trajectories. The playbook contains two types of reusable guidance. The first part summarizes general abstention principles, such as stopping when the environment already shows that the request cannot be fulfilled, or when subjective and underspecified requests cannot be resolved from available evidence. The second part contains learned abstention guidelines distilled from individual interaction trajectories. These guidelines capture recurring failure patterns, including unnecessary search or click loops, delayed responses to invalid actions, and missed early signals that a request is unfulfillable.
+
+Rather than storing full trajectories, \method converts past interactions into compact stopping rules. These rules are then provided as additional context in later episodes, helping the agent decide when further interaction is unlikely to help while preserving normal tool-use behavior on resolvable tasks.
+
+
+\begin{figure}[h!]
+\centering
+\resizebox{\textwidth}{!}{
+\begin{tcolorbox}[colback=gray!5!white, colframe=blue!75!black,
+title=Playbook Learned from Llama-3.3-70B, boxrule=0.3mm, width=1.2\textwidth, arc=3mm, auto outer arc=true]
+
+\emph{\textbf{General Abstention Principles}} 
+
+When the observation already shows the requested product or preference cannot be satisfied, abstain instead of continuing to search. 
+
+If the request is subjective or underspecified and the page evidence cannot resolve it, abstain early. 
+
+Avoid repeated search or click loops once the environment has already shown the request is unfulfillable. 
+
+\vspace{1mm}
+
+\emph{\textbf{Learned Abstention Guidelines}} 
+
+\textbf{[abstain-00001]} Recognize early signals for warranted abstention to avoid unnecessary search/click loops and preserve valid tool-calling behavior. 
+
+\ldots 
+
+\textbf{[abstain-00004]} Prioritize recognizing and responding to invalid actions to avoid delaying a warranted abstention. 
+
+\ldots 
+
+\textbf{[abstain-00006]} In subjective scenarios, prioritize recognizing cues that indicate the request is unfulfillable, such as inconsistent product information or unclear user preferences. 
+\ldots 
+
+\textbf{[abstain-00032]} Calculate the request's fulfillability score based on available information, and abstain if the score indicates the request is unfulfillable. 
+
+\ldots 
+
+\textbf{[abstain-00034]} Recognize early signals for warranted abstention by evaluating the request's fulfillment from the start, using available information to determine whether the request is valid or not. 
+
+\end{tcolorbox}}
+
+\caption{\textbf{Example playbook learned by Llama-3.3-70B.} 
+The playbook contains general abstention principles and trajectory-derived guidelines distilled from Llama-3.3-70B interaction trajectories. These entries summarize when the agent should stop searching or clicking, especially when the environment indicates that the request is subjective, underspecified, or unfulfillable.}
+
+\label{fig:playbook-convolve}
+\end{figure}
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=\textwidth]{picture/gpt54mini_triptych_comparison.pdf}
+    \caption{\textbf{Agent scaffolds matter beyond the base model.} With the same base model (GPT-5.4-mini), Codex CLI consistently achieves higher abstention recall than Terminus 2 across both request-based and environment-based task.}
+    \label{fig:gpt54mini_triptych_comparison}
+\end{figure*}
+
+
+
+
+
+
+
+
+
+
+
+% =========================
+% End Appendix
+% =========================
+
+% \section{Technical Appendices and Supplementary Material}
+% Technical appendices with additional results, figures, graphs and proofs may be submitted with the paper submission before the full submission deadline (see above), or as a separate PDF in the ZIP file below before the supplementary material deadline. There is no page limit for the technical appendices.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% \input{neurips_checklist}
+
+
+\end{document}
