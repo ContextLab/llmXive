@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2405.10988",
+  "judged_at": "2026-07-01T13:28:03Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "anyflow: any-step video diffusion model with on-policy flow map distillation computer science",
+  "rationale": "This paper belongs in the literature review because it addresses the same core mechanism (flow map/score distillation) and algorithmic property (diversity in generative models) as the user's question, satisfying criteria (a) and (d) for foundational methodology in flow-based distillation, even though it applies to 3D generation rather than video.",
+  "relevant": true
+}

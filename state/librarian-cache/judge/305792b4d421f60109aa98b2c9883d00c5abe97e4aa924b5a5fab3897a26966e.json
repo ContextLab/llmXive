@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2405.03150",
+  "judged_at": "2026-07-01T13:28:10Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "anyflow: any-step video diffusion model with on-policy flow map distillation computer science",
+  "rationale": "This paper satisfies criteria (d) and (f) as a foundational survey and canonical reference for the domain of video diffusion models, providing the essential architectural context, temporal dynamics, and state-of-the-art landscape that any literature review on a specific video diffusion variant (like AnyFlow) must cite. While it does not discuss the specific \"On-Policy Flow Map Distillation\" mechanism, it establishes the baseline domain knowledge and alternative vocabulary cluster required to pos",
+  "relevant": true
+}
