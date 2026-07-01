@@ -1,10 +1,5 @@
-'|alpha default statistical test threshold use':
-  quote: The p-value is the probability that a test statistic which is at least as
-    extreme as the one obtained would occur under the null hypothesis. At a significance
-    level of 0.05, a fair coin would be expected to (incorrectly) reject the null
-    hypothesis (that it is fair) in 1 out of 20 tests on average. The p-value does
-    not provide the probability that either the null hypothesis or its opposite is
-    correct (a common source of confusion).
-  source_id: Statistical hypothesis test
-  url: https://en.wikipedia.org/wiki/Statistical_hypothesis_test
-  value: '0.05'
+'|csv representation style text':
+  quote: Christian Social People's Party
+  source_id: Q1344670
+  url: https://www.wikidata.org/wiki/Q1344670
+  value: Christian Social People's Party

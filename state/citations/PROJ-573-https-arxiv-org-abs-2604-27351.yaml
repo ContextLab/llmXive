@@ -86,7 +86,7 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/MUST/datasets
   verified_at: '2026-06-30T22:03:33.335549Z'
-- artifact_hash: 16a36551a277af9206bdc09dc25c49c1274e2b5d95eddb72f2062ae2dab22cb7
+- artifact_hash: 1d8adcb2c2cb89bf8417d954fe587a83a940ae43a57b9a2c6a033268fdbc6a93
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/code/research.md
   cite_id: c-001
   cited_authors: []
@@ -96,10 +96,21 @@
   value: https://huggingface.co/datasets/UCI_HAR
   verification_status: mismatch
   verified_against_url: https://huggingface.co/UCI_HAR/datasets
-  verified_at: '2026-07-01T00:35:43.621285Z'
-- artifact_hash: 16a36551a277af9206bdc09dc25c49c1274e2b5d95eddb72f2062ae2dab22cb7
+  verified_at: '2026-07-01T01:29:00.780355Z'
+- artifact_hash: 1d8adcb2c2cb89bf8417d954fe587a83a940ae43a57b9a2c6a033268fdbc6a93
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/code/research.md
   cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: Uci (Ucibuci)
+  kind: url
+  value: https://huggingface.co/datasets/uci
+  verification_status: verified
+  verified_against_url: https://huggingface.co/Uci/datasets
+  verified_at: '2026-07-01T01:29:00.780355Z'
+- artifact_hash: 1d8adcb2c2cb89bf8417d954fe587a83a940ae43a57b9a2c6a033268fdbc6a93
+  artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/code/research.md
+  cite_id: c-003
   cited_authors: []
   cited_title: null
   fetched_title: drop (droppy)
@@ -107,8 +118,30 @@
   value: https://huggingface.co/datasets/drop
   verification_status: verified
   verified_against_url: https://huggingface.co/drop/datasets
-  verified_at: '2026-07-01T00:35:43.621285Z'
-- artifact_hash: faa49867925f140d6c69def183871f56689d2acba09220da1db13150d1aa54ae
+  verified_at: '2026-07-01T01:29:00.780355Z'
+- artifact_hash: 1d8adcb2c2cb89bf8417d954fe587a83a940ae43a57b9a2c6a033268fdbc6a93
+  artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/code/research.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: MUST (MACAU UNIVERSITY OF SCIENCE AND TECHNOLOGY)
+  kind: url
+  value: https://huggingface.co/datasets/must
+  verification_status: verified
+  verified_against_url: https://huggingface.co/MUST/datasets
+  verified_at: '2026-07-01T01:29:00.780355Z'
+- artifact_hash: 1d8adcb2c2cb89bf8417d954fe587a83a940ae43a57b9a2c6a033268fdbc6a93
+  artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/code/research.md
+  cite_id: c-005
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: arxiv
+  value: '1311.5354'
+  verification_status: unreachable
+  verified_against_url: null
+  verified_at: '2026-07-01T01:29:00.780355Z'
+- artifact_hash: 721b8a28437e64c96750ce2d21a495982a4957ab41e8990d5ad25628da482040
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -119,8 +152,8 @@
   value: https://arxiv.org/abs/1311.5354
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/1311.5354
-  verified_at: '2026-07-01T01:15:04.860821Z'
-- artifact_hash: faa49867925f140d6c69def183871f56689d2acba09220da1db13150d1aa54ae
+  verified_at: '2026-07-01T02:14:42.232065Z'
+- artifact_hash: 721b8a28437e64c96750ce2d21a495982a4957ab41e8990d5ad25628da482040
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -131,8 +164,8 @@
   value: https://arxiv.org/abs/1710.08708
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/1710.08708
-  verified_at: '2026-07-01T01:15:04.860821Z'
-- artifact_hash: faa49867925f140d6c69def183871f56689d2acba09220da1db13150d1aa54ae
+  verified_at: '2026-07-01T02:14:42.232065Z'
+- artifact_hash: 721b8a28437e64c96750ce2d21a495982a4957ab41e8990d5ad25628da482040
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -142,19 +175,19 @@
   value: https://en.wikipedia.org/wiki/Bootstrapping_
   verification_status: verified
   verified_against_url: https://en.wikipedia.org/wiki/Bootstrapping
-  verified_at: '2026-07-01T01:15:04.860821Z'
-- artifact_hash: faa49867925f140d6c69def183871f56689d2acba09220da1db13150d1aa54ae
+  verified_at: '2026-07-01T02:14:42.232065Z'
+- artifact_hash: 721b8a28437e64c96750ce2d21a495982a4957ab41e8990d5ad25628da482040
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-004
   cited_authors: []
   cited_title: null
-  fetched_title: Catalogue of suspected variable stars - Wikidata
+  fetched_title: Christian Social People's Party - Wikidata
   kind: url
-  value: https://www.wikidata.org/wiki/Q28914856
+  value: https://www.wikidata.org/wiki/Q1344670
   verification_status: verified
-  verified_against_url: https://www.wikidata.org/wiki/Q28914856
-  verified_at: '2026-07-01T01:15:04.860821Z'
-- artifact_hash: faa49867925f140d6c69def183871f56689d2acba09220da1db13150d1aa54ae
+  verified_against_url: https://www.wikidata.org/wiki/Q1344670
+  verified_at: '2026-07-01T02:14:42.232065Z'
+- artifact_hash: 721b8a28437e64c96750ce2d21a495982a4957ab41e8990d5ad25628da482040
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-005
   cited_authors: []
@@ -164,8 +197,8 @@
   value: https://en.wikipedia.org/wiki/SHA-2
   verification_status: verified
   verified_against_url: https://en.wikipedia.org/wiki/SHA-2
-  verified_at: '2026-07-01T01:15:04.860821Z'
-- artifact_hash: faa49867925f140d6c69def183871f56689d2acba09220da1db13150d1aa54ae
+  verified_at: '2026-07-01T02:14:42.232065Z'
+- artifact_hash: 721b8a28437e64c96750ce2d21a495982a4957ab41e8990d5ad25628da482040
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-006
   cited_authors: []
@@ -175,4 +208,4 @@
   value: https://en.wikipedia.org/wiki/Hutter_Prize
   verification_status: verified
   verified_against_url: https://en.wikipedia.org/wiki/Hutter_Prize
-  verified_at: '2026-07-01T01:15:04.860821Z'
+  verified_at: '2026-07-01T02:14:42.232065Z'
