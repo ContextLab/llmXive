@@ -1,0 +1,93 @@
+ \vspace{-2em}
+ \label{fig:citevqa_ability_radar}
+
+\end{figure}
+
+\paragraph{Question Type} Results show a significant performance gap between question types (See Figure~\ref{fig:citevqa_ability_radar}). Models excel in Quantitative Reasoning (e.g., Gemini-3.1-Pro-Preview at 82.6) because numerical computations rely on objective logic and offer clear alignment between evidence and answers. In contrast, the newly introduced Multimodal Parsing task remains a major bottleneck; this category requires models to locate specific document elements based on descriptive cues (such as identifying a particular table by its background color or section header) and subsequently parse the content, leading to substantial difficulties in both precise evidence attribution and final answer generation. See More Fine-grained Results in Appendix~\ref{Appendix: Fine-grained Results}
+
+\subsection{Further Analysis of Evidence Attribution}
+
+Beyond the initial identification of attribution fallacies, we seek to further explore the nuanced relationship between Attribution and Accuracy.
+
+% Here we further explore the nuanced relationship between Attribution and Accuracy.
+
+\begin{table}[htbp]
+ \centering
+ \scriptsize
+
+ \begin{minipage}[c]{0.48\textwidth}
+ \centering
+ \includegraphics[width=\textwidth]{figures/quality_vs_accuracy_100.pdf}
+ \captionof{figure}{The accuracy of MLLMs exhibits a fluctuating upward trend as evidence quality improves.
+ % Correlation between Evidence Quality and Answer Accuracy.
+ }
+ \label{fig:quality_vs_accuracy_100}
+ \end{minipage}
+ \hfill
+ \begin{minipage}[c]{0.48\textwidth}
+ \centering
+ \begin{tabular}{lcc}
+ \toprule
+ \textbf{Model} & \textbf{Base Setting} & \textbf{GT/Gold Setting} \\
+ \midrule
+ \rowcolor{gray!10} \multicolumn{3}{l}{\textit{Single-Doc vs. GT Pages}} \\
+ Qwen3.5-27B & 79.3 & 84.6 (+5.3) \\
+ Qwen3-VL-32B & 75.3 & 79.9 (+4.6) \\
+ Qwen3.5-9B & 73.2 & 75.2 (+2.0) \\
+ Qwen3-VL-8B & 67.0 & 71.1 (+4.1) \\
+ \midrule
+ \rowcolor{gray!10} \multicolumn{3}{l}{\textit{Multi (1-Gold) vs. 1 Gold Doc}} \\
+ Qwen3.5-27B & 73.1 & 81.6 (+8.5) \\
+ Qwen3-VL-32B & 67.6 & 72.6 (+5.0) \\
+ Qwen3.5-9B & 58.4 & 68.1 (+9.7) \\
+ Qwen3-VL-8B & 53.3 & 66.7 (+13.4) \\
+ \bottomrule
+ \end{tabular}
+ \end{minipage}
+\caption{Ablation studies on Ground Truth (GT) pages and Gold documents. Narrowing the search space consistently leads to performance gains.}
+\label{tab:Ablation_Studies}
+\end{table}
+
+\paragraph{Synergy between Attribution and Accuracy} Beyond serving as a metric for trustworthiness, faithful attribution appears to be positively correlated with the model's reasoning success. As illustrated in Figure~\ref{fig:quality_vs_accuracy_100}, after bypassing the "Attribution Hallucination" zone (0-30 points), the Answer Accuracy (Ans.) tends to scale with Evidence Quality ($\max(Rel., Rec.)$). This upward trend provides an empirical hint that precise evidence localization might be more than just a post-hoc justification; it potentially acts as a functional foundation that facilitates correct answering in complex document-based tasks.
+
+\begin{figure}[t]
+\centering
+ \vspace{-2em}
+ \includegraphics[width=0.35\textwidth]{figures/Simple_Case.pdf}
+ \captionof{figure}{A Typical Example.}
+ \label{fig:Simple_Case}
+ \vspace{-3em}
+
+\end{figure}
+
+\paragraph{Evidence Attribution as a Potential Performance Driver} To further explore whether enhanced attribution could actively boost performance, we conducted ablation studies by narrowing the candidate search space (Table~\ref{tab:Ablation_Studies}). Restricting the context to GT-Pages consistently yielded gains (up to $+5.3\%$), while providing a single Gold Document in multi-document settings led to substantial leaps, such as $+13.4\%$ for Qwen3-VL-8B. These results offer preliminary evidence that some bottleneck in CiteVQA may also lie in the initial "localization" phase. It suggests a promising direction: if models can achieve higher autonomous evidence attribution recall, it might not only enhance transparency but also potentially unlock higher upper bounds for their answering capabilities.
+
+\subsection{Case Study}
+To intuitively illustrate the disparity between linguistic performance and attribution accuracy---specifically why some powerful MLLMs achieve high Ans. but low SAA scores---we provide a case study in Figure~\ref{fig:Simple_Case} (see Appendix~\ref{Appendix: Case Study} for more). For better visualization, cited coordinates are replaced with image crops. While Qwen3-VL-235B-A22B answers correctly (Ans.=1), it yields SAA=0 because its evidence crops are either blank or incomplete. In contrast, Gemini-3.1-Pro-Preview demonstrates faithful grounding; despite a slight offset in the first crop, its second is nearly perfect, resulting in SAA=1. This underscores that a correct answer does not guarantee faithful evidence attribution.
+
+\section{Conclusion}
+We introduced CiteVQA, a benchmark designed to advance trustworthy document intelligence by requiring models to provide element-level visual citations alongside answers. Leveraging an automated annotation pipeline, we constructed a large-scale dataset comprising 1,897 questions derived from 711 diverse PDFs. Our systematic audit of top-tier models reveals a critical "Attribution Hallucination" phenomenon, where correct answers are frequently paired with incorrect evidence. By exposing these hidden hallucinations, CiteVQA establishes a rigorous standard for developing interpretable and reliable multimodal systems in high-stakes domains.
+
+
+
+{\small
+\bibliographystyle{plainnat}
+\setcitestyle{numbers}
+\bibliography{paper}
+}
+
+
+
+\beginappendix
+
+\section{Data Compliance \& Ethics Statement}
+\label{Appendix: Ethical Consideration}
+\paragraph{Data Acquisition from Common Crawl} The 707 PDF documents included in the CiteVQA benchmark are sourced from Common Crawl, a neutral, non-profit public web archive. Our data acquisition process strictly adheres to the Common Crawl Terms of Use\footnote{\url{https://commoncrawl.org/terms-of-use}} and ensures all operations are conducted within the scope permitted by the Robots Exclusion Protocol, demonstrating our utmost respect for the intentions of original content distributors.
+
+\paragraph{Adherence to Common Standards for Data Distribution}
+Regarding data derived from Common Crawl, CiteVQA strictly follows the common consensus and academic norms of the multimodal and document intelligence fields. Drawing on the distribution paradigms of landmark works---such as T5~\citep{raffel2020exploring}, MMC4~\citep{zhu2023multimodal}, OBELICS~\citep{laurencon2023obelics}, and CCpdf~\citep{turski2023ccpdf}, which focuses specifically on PDF parsing---we have implemented an academically recognized compliance workflow (i.e., distributing only public download links).
+
+We have open-sourced the structured metadata and spatial coordinates (Bounding Boxes) annotated by our automated data pipeline. We ensure that our PDF usage logic remains consistent with large-scale open-source datasets like LAION~\citep{schuhmann2021laion} to promote academic reproducibility while maintaining the compliance of the content distribution chain.
+
+\paragraph{Copyright Respect and Protection of Rights Holders} All PDF documents in this dataset sourced from Common Crawl are clearly attributed in the repository's metadata. We hold the legal rights of original copyright holders in the highest regard. If any owner of the relevant documents believes that the indexing or usage within this benchmark is inappropriate, please contact us. We commit to cooperating promptly with the removal or updating of the relevant content upon verification of the rights holder's identity.
+

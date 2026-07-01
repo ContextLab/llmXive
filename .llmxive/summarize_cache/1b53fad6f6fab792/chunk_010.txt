@@ -1,0 +1,150 @@
+2. template_en/template_cn must be abstract reusable templates, use placeholders like [Entity], [Date], [Metric], [Section], [Method].
+3. example_en/example_cn should be one short concrete question in that sample style.
+4. Keep semantic consistency within each sample.
+5. Must return one item for every sample_id provided.
+\end{promptbox}
+
+\begin{promptbox}[breakable]{Prompt for Annotation Evaluation}
+
+You are an expert evaluator for a VQA benchmark. Your task is to assess the quality of a given QA pair along three dimensions: **Question Difficulty**, **Answer Quality**, and **Crucial Evidence Quality**.
+
+Please follow the scoring criteria below. All scores range from **0 to 5**, where 0 indicates complete failure or unusable quality.
+
+---
+
+**1. Question Difficulty (0-5)**
+- **0**: Nonsensical, unanswerable, or no meaningful question.
+- **1 to 2 (Simple)**: Direct fact retrieval, minimal reasoning, no cross-document or cross-page synthesis.
+- **3 (Moderate)**: Requires basic inference or aggregation from a single document section.
+- **4 to 5 (Complex)**: Involves multi-step reasoning, cross-document comparison, contradiction resolution, or indirect evidence extraction.
+
+---
+
+**2. Answer Quality (0-5)**
+- **0**: No answer or completely irrelevant.
+- **1 to 2 (Poor)**: Largely incorrect, missing key information, or no citation.
+- **3 (Acceptable)**: Correct but overly brief, lacks sufficient justification or citation.
+- **4 to 5 (Good/Excellent)**: Accurate, well-structured, properly cited, and fully addresses the question.
+
+---
+
+**3. Crucial Evidence Quality (0-5)**
+- **0**: No evidence provided, or evidence completely unrelated.
+- **1 to 2 (Weak)**: Evidence is minimally relevant or insufficient to support the answer.
+- **3 (Moderate)**: Evidence is relevant but incomplete, not optimally cited, or overly redundant.
+- **4 to 5 (Strong)**: Evidence precisely supports the answer, comes from authoritative sections (e.g., tables, core arguments), and includes necessary span-level references.
+
+---
+
+**Output Format:**
+
+Please output in the following structured format:
+
+\begin{lstlisting}
+Question Difficulty: [0 to 5]
+Brief Justification: ...
+
+Answer Quality: [0 to 5]
+Brief Justification: ...
+
+Evidence Quality: [0 to 5]
+Brief Justification: ...
+\end{lstlisting}
+\end{promptbox}
+
+
+
+\subsection{Prompts for CiteVQA Evaluation}
+\label{Prompts for CiteVQA Evaluation}
+\begin{promptbox}[breakable]{Prompt for Inference in Single-Doc}
+# Document Analysis Assistant
+
+Answer the question based on the provided PDF page images, and cite the evidence regions in your answer.
+
+## Evidence Citation Rules
+
+1. Evidence must be at the **element level**: a complete paragraph, a complete table, a complete image, or a complete note. Do not select partial text from a paragraph or a single row from a table, and do not select an entire page or spanning multiple tables/paragraphs. Note: This is very important and will directly affect your score.
+2. For **tables and images**, if there are captions or footnotes, they need to be annotated as **separate evidence** with their own bbox, not merged into the table/image bbox.
+3. Each piece of cited evidence text should be followed by a `<bbox />` tag indicating the evidence location.
+4. When an inference step relies on multiple pieces of evidence, use multiple `<bbox />` tags separately.
+5. Pure reasoning/calculation steps do not need `<bbox />`.
+
+## Annotation Format
+
+\begin{lstlisting}
+<bbox page="page_number" x1="left" y1="top" x2="right" y2="bottom" />
+\end{lstlisting}
+
+Page numbers start from 1 (note: ignore original page numbers); coordinates are relative coordinates on the page image, range 0-1000.
+
+## Examples
+
+**Question:** What is the net change in the company's precision copper tube production capacity from 2021 to 2024?
+
+**Answer:**
+
+According to the main text, the company's precision copper tube production capacity increased from 798,000 tons in 2021 to 1.31 million tons in 2024:
+<bbox page="1" x1="536" y1="65" x2="642" y2="656" />
+
+Therefore, the net change = 1.31 - 0.798 = 0.512 million tons.
+
+Additionally, according to "Table 1: Production line renovation will reduce the company's costs", the per-ton comprehensive cost is expected to decrease by 700 yuan/ton after the production line renovation:
+<bbox page="8" x1="584" y1="65" x2="598" y2="371" />
+<bbox page="8" x1="598" y1="59" x2="712" y2="670" />
+
+## Final Reminder
+Evidence must be a complete paragraph, a complete table, a complete image, or a complete note. Do not select partial rows from a paragraph or a single row from a table, and do not select an entire page or spanning multiple tables/paragraphs. Note: This is very important and will directly affect your score.
+\end{promptbox}
+
+\begin{promptbox}[breakable]{Prompt for Inference in Multi-Doc}
+# Multi-Document Analysis Assistant
+
+Answer the question based on the provided PDF documents, and cite the evidence regions in your answer.
+
+## Document Numbering Rules
+
+- Document numbering starts from 1, corresponding to the order in the `PDF_Source` list
+- Must use the correct document numbers when citing evidence
+
+## Evidence Citation Rules
+
+1. Evidence must be at the **element level**: a complete paragraph, a complete table, a complete image, or a complete note. Do not select partial text from a paragraph or a single row from a table, and do not select an entire page or spanning multiple tables/paragraphs. Note: This is very important and will directly affect your score.
+2. For **tables and images**, if there are captions or footnotes, they need to be annotated as **separate evidence** with their own bbox, not merged into the table/image bbox.
+3. Each piece of cited evidence text should be followed by a `<bbox />` tag indicating the evidence location.
+4. When an inference step relies on multiple pieces of evidence, use multiple `<bbox />` tags separately.
+5. Pure reasoning/calculation steps do not need `<bbox />`.
+
+## Annotation Format
+\begin{lstlisting}
+<bbox doc="document_number" page="page_number" x1="left" y1="top" x2="right" y2="bottom" />
+\end{lstlisting}
+- `doc`: Document number, starting from 1 (corresponding to `PDF_Source` list order)
+- `page`: Page number starting from 1 (note: ignore original page numbers)
+- Coordinates are relative coordinates on the page image, range 0-1000
+
+## Examples
+**Question:** Compare the revenue data differences between Company in Document 1 and Document 2.
+
+**Answer:**
+According to the main text of Document 1, the company's 2023 revenue was 10 billion yuan:
+<bbox doc="1" page="1" x1="536" y1="65" x2="642" y2="656" />
+
+According to the financial report in Document 2, the company's 2023 revenue was 12 billion yuan:
+<bbox doc="2" page="3" x1="584" y1="65" x2="598" y2="371" />
+
+Therefore, the revenue difference reported in the two documents is 2 billion yuan.
+
+## Final Reminder
+Evidence must be a complete paragraph, a complete table, a complete image, or a complete note. Do not select partial rows from a paragraph or a single row from a table, and do not select an entire page or spanning multiple tables/paragraphs. Note: This is very important and will directly affect your score.
+\end{promptbox}
+
+
+\begin{promptbox}[breakable]{Prompt for Evaluating Relevance}
+## Task
+You are a professional DocVQA quality evaluation expert. Your task is to evaluate whether the PDF screenshots referenced in the answer can effectively support the corresponding answer content. You need to determine whether the visual information (text, charts, data) in the screenshots is consistent with the facts mentioned in the answer.
+
+You will receive a question, a standard answer (without images), and the model's generated answer with interleaved images.
+
+## Evaluation Dimensions
+- Truthfulness: Does the screenshot contain the key data or descriptions mentioned in the answer?
+- Sufficiency: Does the screenshot provide sufficient evidence for the conclusion, or is it taken out of context?

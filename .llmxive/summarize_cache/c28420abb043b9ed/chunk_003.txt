@@ -1,0 +1,111 @@
+\subsection{Dataset Overview and Analysis}
+As summarized in Table~\ref{tab:Dataset Statistics} and Figures~\ref{fig:pdf_stats}-\ref{fig:question_statistics}, {{claim:c_76e022b5}} The 1,897 questions cover varied scenarios including single-doc (52.0\%), multi-doc with one gold document (25.7\%), and multi-doc with multiple gold documents (22.3\%), spanning reasoning types from Complex Synthesis to Multimodal Parsing. Each task requires an average of 2.57 evidence elements, nearly 30\% of which are non-textual (tables, images, or equations). Evidence is uniformly distributed across document positions and often spans multiple pages, demanding robust long-context aggregation.
+
+\begin{table}[htbp]
+ \centering
+ \begin{minipage}{0.48\textwidth}
+ \centering
+ \footnotesize
+ \caption{Dataset Statistics}
+ \label{tab:Dataset Statistics}
+ \begin{tabular}{lc}
+ \toprule
+ \textbf{Statistic} & \textbf{Number} \\
+ \midrule
+ \textbf{Documents} & 711 \\
+ \quad - Type (Macro/Micro) & 7 / 30 \\
+ \quad - Avg./Median pages & 40.6 / 30.0 \\
+ \quad - Language (EN/ZH) & 451 / 260 \\
+ \midrule
+ \textbf{Total questions} & 1,897 \\
+ \quad - Single-doc & 987 (52.0\%) \\
+ \quad - Multi (1-Gold) & 487 (25.7\%) \\
+ \quad - Multi (N-Gold) & 423 (22.3\%) \\
+ \midrule
+ (Question Type) \\
+ \quad - Complex Synthesis & 839 (44.23\%) \\
+ \quad - Factual Retrieval & 499 (26.30\%) \\
+ \quad - Multimodal Parsing & 352 (18.56\%) \\
+ \quad - Quantitative Reasoning & 207 (10.91\%) \\
+ \midrule
+ (Evidence Source) \\
+ \quad - Text & 2082 (70.12\%) \\
+ \quad - Table & 653 (21.99\%) \\
+ \quad - Image & 209 (7.04\%) \\
+ \quad - Equation & 25 (0.84\%) \\
+ \midrule
+ Avg./Max. question length & 137.64 / 500 \\
+ Avg./Max. answer length & 180.48 / 2976 \\
+ Avg./Max. evidences & 2.57 / 10 \\
+ \bottomrule
+ \end{tabular}
+ \end{minipage}
+ \hfill
+ \begin{minipage}{0.45\textwidth}
+ \centering
+ \includegraphics[width=\linewidth]{figures/pdf_statistics.pdf}
+ \captionof{figure}{Distribution of documents. \textbf{Top}: Document type. \textbf{Bottom}: Page Number.}
+ \label{fig:pdf_stats}
+ \end{minipage}
+\end{table}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/question_statistics.pdf}
+\caption{Analysis of question types and evidence distribution in CiteVQA. \textbf{Left}: Domain-specific Question Types. \textbf{Middle}: Evidence Locality (in relative percent). \textbf{Right}: Cross-page Span, quantifying the number of pages spanned by evidences.}
+\label{fig:question_statistics}
+\end{figure}
+
+\section{Evaluation}
+\label{Evaluation}
+\subsection{Evaluation Metrics}
+\label{Evaluation Metrics}
+To evaluate evidence attribution, we introduce a novel set of metrics assessing both answer correctness and trustworthiness in grounding predictions on verifiable evidence.
+
+Formally, each sample is represented as $(D, Q, A_{\text{gt}}, \mathcal{B}_{\text{gt}})$, where $\mathcal{B}_{\text{gt}}$ is the set of ground-truth bounding boxes, further categorized into crucial ($\mathcal{B}_{\text{crucial}}$) and supplemental ($\mathcal{B}_{\text{other}}$) evidence. Each bounding box $b \in \mathcal{B}$ is defined by $(\text{doc\_idx}, \text{page\_idx}, x_1, y_1, x_2, y_2)$. The model output is $\hat{Y} = \{(A_1, b_1), \dots, (A_n, b_n)\}$, where $\mathcal{B}_{\text{pred}} = \{b_1, \dots, b_n\}$ denotes the predicted evidence set.
+
+We define the following key metrics:
+
+\textbf{Recall (Rec.)} Measures coarse-grained localization ability, computed at IoU@0.5 between predicted and crucial evidence:
+
+$$\text{Rec.} = \frac{1}{|\mathcal{B}_{\text{crucial}}|} \sum_{b_{\text{gt}} \in \mathcal{B}_{\text{crucial}}} \mathbf{1}_{\left( \max_{b_{\text{pred}} \in \mathcal{B}_{\text{pred}}} \text{IoU}(b_{\text{pred}}, b_{\text{gt}}) \ge 0.5 \right)}$$
+
+\textbf{Relevance (Rel.)} Measures how well each predicted evidence supports its corresponding answer, evaluated by an LLM judge $\Jrel$ on a 0--5 scale: $\text{Rel.} = \frac{1}{n} \sum_{i=1}^{n} \Jrel(A_i, b_i) \in [0, 5]$.
+
+\textbf{Answer Correctness (Ans.)} Measures semantic matching between predicted and ground-truth answers via an LLM judge $\Jans$: $\text{Ans.} = \Jans(\{A_1, A_2, \dots, A_n\}, A_{\text{gt}}) \in [0, 5]$.
+
+\textbf{Strict Attributed Accuracy (SAA)} A sample-level binary metric requiring both high-quality grounding and answer correctness: $\text{SAA} = \mathbf{1}_{(\text{Ans.} \ge 4 \land (\text{Rel.} \ge 4 \lor \text{Rec.} \ge 0.6))}$.
+
+In addition to the aforementioned metrics, we also evaluate $\text{Page}_{recall}$, Precision, and F1-score for a more comprehensive assessment of document localization. Owing to space limitations, their formal definitions and detailed evaluation results are deferred to the Appendix~\ref{Appendix: More Evaluation Metrics} and~\ref{Appendix: More Results of Experiments}.
+
+\subsection{Experimental Setup}
+\label{Experimental Setup}
+We evaluated 20 state-of-the-art MLLMs, encompassing both leading proprietary and open-source models, on the CiteVQA benchmark. For input processing, models received sequential page screenshots via native APIs or OpenAI-compatible interfaces, with image resolutions adapted to their respective context window capacities (see Appendix~\ref{Appendix: Details of Experiments} for technical specifics). All models were tested using a unified prompt template with a sampling temperature of 1.0. For automated evaluation, we employed Qwen3-VL-235B-A22B as the primary judge (See Analysis of Judges in Appendix~\ref{Appendix: Analysis of Different Judges}).
+
+
+\begin{table}[t]
+\centering
+\scriptsize
+\renewcommand{\arraystretch}{1.25}
+\setlength{\tabcolsep}{1.0pt}
+\caption{\textbf{Comprehensive Evaluation of CiteVQA across Different Document Scenarios.} All scores are normalized to a 100-point scale; specifically, Rel. and Ans. scores (originally 0--5) are multiplied by 20 to facilitate direct comparison with Rec. and SAA. For each metric, the best and second-best results are highlighted in \highlightblue{blue} and \highlightgreen{green}, respectively.}
+\label{tab:main_results}
+
+\begin{tabular}{@{}l cccc cccc cccc >{\bfseries}c>{\bfseries}c>{\bfseries}c>{\bfseries}c@{}}
+\toprule
+\multirow{2.5}{*}{\textbf{Model}} & \multicolumn{4}{c}{\textbf{Single-Doc}} & \multicolumn{4}{c}{\textbf{Multi (1-Gold)}} & \multicolumn{4}{c}{\textbf{Multi (N-Gold)}} & \multicolumn{4}{c}{\textbf{Overall}} \\
+\cmidrule(lr){2-5} \cmidrule(lr){6-9} \cmidrule(lr){10-13} \cmidrule(l){14-17}
+& Rec. & Rel. & Ans. & SAA & Rec. & Rel. & Ans. & SAA & Rec. & Rel. & Ans. & SAA & Rec. & Rel. & Ans. & SAA \\ \midrule
+
+\multicolumn{17}{c}{\textit{Closed-source MLLMs}} \\ \midrule
+Gemini-3.1-Pro-Preview&\highlightblue{68.9}&\highlightblue{82.6}&\highlightgreen{86.7}&\highlightblue{76.0}&\highlightblue{69.4}&\highlightblue{84.3}&\highlightgreen{88.0}&\highlightblue{79.7}&\highlightblue{55.3}&\highlightblue{85.3}&\highlightgreen{82.8}&\highlightblue{71.6}&\highlightblue{66.0}&\highlightblue{83.6}&\highlightgreen{86.1}&\highlightblue{76.0} \\
+Gemini-3-Flash-Preview&\highlightgreen{49.5}&\highlightgreen{76.8}&85.3&\highlightgreen{69.3}&\highlightgreen{42.1}&\highlightgreen{72.3}&86.0&\highlightgreen{61.8}&\highlightgreen{39.5}&\highlightgreen{77.0}&81.0&\highlightgreen{60.5}&\highlightgreen{45.4}&\highlightgreen{75.7}&84.5&\highlightgreen{65.4} \\
+Gemini-2.5-Pro&31.5&61.7&83.0&49.4&25.4&58.3&84.1&48.9&20.0&57.3&78.0&39.2&27.4&59.8&82.2&47.0\\
+GPT-5.4&35.9&69.8&\highlightblue{87.6}&61.7&25.7&62.1&\highlightblue{88.3}&56.9&25.7&68.2&\highlightblue{84.3}&55.1&31.0&67.5&\highlightblue{87.1}&59.0\\
+GPT-5.2 &20.9&54.9&71.4&32.6&16.5&63.2&72.4&38.8&13.9&53.0&70.5&30.5&18.2&56.6&71.5&33.7 \\
+Qwen3.6-Plus&9.8&26.7&87.1&20.2&5.9&24.6&87.3&18.5&4.6&21.3&81.2&9.8&7.7&25.0&85.9&17.5\\
+Seed2.0-Pro&35.8&60.8&82.9&51.9&18.1&44.9&82.6&33.5&21.5&51.2&76.0&36.2&28.5&54.9&81.3&44.1 \\
+GLM-5V-Turbo &18.3&31.2&50.0&14.1&11.7&25.2&44.4&9.8&10.2&28.8&54.3&13.0&14.9&29.2&49.6&12.8\\
+\midrule
+
+\multicolumn{17}{c}{\textit{Open-source Large MLLMs}} \\ \midrule

@@ -1,0 +1,2745 @@
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: CiteVQA 1897 questions 711 PDFs 7 domains 2 languages 40.6 avg pages
+  claim_id: c_d8527f80
+  context: To address this, we introduce CiteVQA, a benchmark that requires models
+    to return element-level bounding-box citations alongside each answer, evaluating
+    both jointly. CiteVQA comprises 1,897 questions across 711 PDFs spanning seven
+    domains and two languages, averaging 40.6 pages per document.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: domains and two languages, averaging 40.6 pages per document. To ensure
+        fidelity and scala-
+      source_id: '2605.12882'
+      url: https://arxiv.org/abs/2605.12882
+      value: '40.6'
+    filled: true
+  kind: numeric
+  raw_text: CiteVQA comprises 1,897 questions across 711 PDFs spanning seven domains
+    and two languages, averaging 40.6 pages per document.
+  resolved_value: '40.6'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-01T05:32:19Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: Gemini-3.1-Pro-Preview SAA 76.0 strongest open-source MLLM SAA 22.5
+  claim_id: c_e8d859bf
+  context: 'Auditing 20 MLLMs reveals a pervasive Attribution Hallucination: models
+    frequently produce the right answer while citing the wrong region. The strongest
+    system (Gemini-3.1-Pro-Preview) achieves an SAA of only 76.0, and the strongest
+    open-source MLLM reaches just 22.5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The strongest system (Gemini-3.1-Pro-Preview) achieves an SAA of only
+    76.0, and the strongest open-source MLLM reaches just 22.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:32:35Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: CiteVQA 1897 questions 711 PDFs 7 domains
+  claim_id: c_a49f86ab
+  context: Designed for long-form, multi-domain, and cross-lingual scenarios, CiteVQA
+    comprises 1,897 high-quality questions derived from 711 PDFs across seven major
+    domains.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: evaluating both jointly. CiteVQA comprises 1,897 questions across 711
+        PDFs spanning seven
+      source_id: '2605.12882'
+      url: https://arxiv.org/abs/2605.12882
+      value: 1,897
+    filled: true
+  kind: numeric
+  raw_text: CiteVQA comprises 1,897 high-quality questions derived from 711 PDFs across
+    seven major domains.
+  resolved_value: 1,897
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-01T05:32:57Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: CiteVQA average 40.6 pages per document
+  claim_id: c_4f4192a8
+  context: As illustrated in Figure 1b, CiteVQA strikes a delicate balance between
+    document quantity and length to better simulate real-world complexity.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: domains and two languages, averaging 40.6 pages per document. To ensure
+        fidelity and scala-
+      source_id: '2605.12882'
+      url: https://arxiv.org/abs/2605.12882
+      value: '40.6'
+    filled: true
+  kind: numeric
+  raw_text: CiteVQA achieves a balance between document scale and page counts, with
+    an average of 40.6 pages per document.
+  resolved_value: '40.6'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-01T05:33:16Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: CiteVQA 711 documents 7 domains 30 sub-categories
+  claim_id: c_bd97bd31
+  context: Ultimately, 711 documents were selected as the source for CiteVQA, achieving
+    a balanced coverage across 7 domains and 30 sub-categories.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: CiteVQA dataset contains 711 documents across 7 macro-domains with 30
+    sub-categories.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:33:32Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: CiteVQA 451 English documents 260 Chinese documents
+  claim_id: c_f9a36952
+  context: Language (EN/ZH) 451 / 260
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CiteVQA benchmark includes 451 English documents and 260 Chinese documents.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:33:48Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: CiteVQA single-doc questions 52.0%
+  claim_id: c_24c7f677
+  context: The 1,897 questions cover varied scenarios including single-doc (52.0%),
+    multi-doc with one gold document (25.7%), and multi-doc with multiple gold documents
+    (22.3%).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Single-document questions account for 52.0% of the CiteVQA dataset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:33:48Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: CiteVQA multi-doc one-gold questions 25.7%
+  claim_id: c_73d9d326
+  context: The 1,897 questions cover varied scenarios including single-doc (52.0%),
+    multi-doc with one gold document (25.7%), and multi-doc with multiple gold documents
+    (22.3%).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Multi-document questions with one gold document account for 25.7% of the
+    CiteVQA dataset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:33:49Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: CiteVQA multi-doc multi-gold questions 22.3%
+  claim_id: c_6acd03ce
+  context: The 1,897 questions cover varied scenarios including single-doc (52.0%),
+    multi-doc with one gold document (25.7%), and multi-doc with multiple gold documents
+    (22.3%).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Multi-document questions with multiple gold documents account for 22.3%
+    of the CiteVQA dataset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:33:49Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: CiteVQA Complex Synthesis questions 44.23%
+  claim_id: c_f893ef5a
+  context: Question Type Complex Synthesis 839 (44.23%)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Complex Synthesis questions make up 44.23% of the CiteVQA dataset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:33:49Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: CiteVQA Factual Retrieval questions 26.30%
+  claim_id: c_517a2ffd
+  context: Question Type Factual Retrieval 499 (26.30%)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Factual Retrieval questions make up 26.30% of the CiteVQA dataset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:33:49Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: CiteVQA Multimodal Parsing questions 18.56%
+  claim_id: c_07c08946
+  context: Question Type Multimodal Parsing 352 (18.56%)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Multimodal Parsing questions make up 18.56% of the CiteVQA dataset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:33:49Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: CiteVQA Quantitative Reasoning questions 10.91%
+  claim_id: c_909fd892
+  context: Question Type Quantitative Reasoning 207 (10.91%)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Quantitative Reasoning questions make up 10.91% of the CiteVQA dataset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:33:49Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: CiteVQA text evidence 70.12%
+  claim_id: c_fd658db8
+  context: Evidence Source Text 2082 (70.12%)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Text elements constitute 70.12% of the evidence sources in CiteVQA.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:33:49Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: CiteVQA table evidence 21.99%
+  claim_id: c_8819785b
+  context: Evidence Source Table 653 (21.99%)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Table elements constitute 21.99% of the evidence sources in CiteVQA.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:33:50Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: CiteVQA image evidence 7.04%
+  claim_id: c_b88a2a5d
+  context: Evidence Source Image 209 (7.04%)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Image elements constitute 7.04% of the evidence sources in CiteVQA.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:33:50Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: CiteVQA equation evidence 0.84%
+  claim_id: c_d0a40d98
+  context: Evidence Source Equation 25 (0.84%)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Equation elements constitute 0.84% of the evidence sources in CiteVQA.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:33:50Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: CiteVQA average 2.57 evidence elements per question
+  claim_id: c_71beae1f
+  context: Each task requires an average of 2.57 evidence elements, nearly 30% of
+    which are non-textual (tables, images, or equations).
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: Parsing. Each task requires an average of 2.57 evidence elements, nearly
+        30% of which are non-textual
+      source_id: '2605.12882'
+      url: https://arxiv.org/abs/2605.12882
+      value: '2.57'
+    filled: true
+  kind: numeric
+  raw_text: The average number of evidence elements per question in CiteVQA is 2.57.
+  resolved_value: '2.57'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-01T05:34:06Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: CiteVQA average question length 137.64
+  claim_id: c_019c6f61
+  context: Avg./Max. question length 137.64 / 500
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: Avg./Max. question length 137.64 / 500
+      source_id: '2605.12882'
+      url: https://arxiv.org/abs/2605.12882
+      value: '137.64'
+    filled: true
+  kind: numeric
+  raw_text: The average question length in CiteVQA is 137.64 tokens.
+  resolved_value: '137.64'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-01T05:34:28Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: CiteVQA maximum question length 500
+  claim_id: c_bae23288
+  context: Avg./Max. question length 137.64 / 500
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 'Necessary Evidence: Page: 60; Bbox: [192, 86, 584, 500]'
+      source_id: '2605.12882'
+      url: https://arxiv.org/abs/2605.12882
+      value: '500'
+    filled: true
+  kind: numeric
+  raw_text: The maximum question length in CiteVQA is 500 tokens.
+  resolved_value: '500'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-01T05:34:48Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: CiteVQA average answer length 180.48
+  claim_id: c_cddd70e0
+  context: Avg./Max. answer length 180.48 / 2976
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: Avg./Max. answer length 180.48 / 2976
+      source_id: '2605.12882'
+      url: https://arxiv.org/abs/2605.12882
+      value: '180.48'
+    filled: true
+  kind: numeric
+  raw_text: The average answer length in CiteVQA is 180.48 tokens.
+  resolved_value: '180.48'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-01T05:35:15Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: CiteVQA maximum answer length 2976
+  claim_id: c_61869a32
+  context: Avg./Max. answer length 180.48 / 2976
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: Avg./Max. answer length 180.48 / 2976
+      source_id: '2605.12882'
+      url: https://arxiv.org/abs/2605.12882
+      value: '2976'
+    filled: true
+  kind: numeric
+  raw_text: The maximum answer length in CiteVQA is 2976 tokens.
+  resolved_value: '2976'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-01T05:35:33Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: CiteVQA maximum 10 evidence elements per question
+  claim_id: c_757141c3
+  context: Avg./Max. evidences 2.57 / 10
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: ities of modern MLLMs [56, 53, 16, 11, 10, 30, 46, 41, 6], recent architectures
+        have transcended basic
+      source_id: '2605.12882'
+      url: https://arxiv.org/abs/2605.12882
+      value: '10'
+    filled: true
+  kind: numeric
+  raw_text: The maximum number of evidence elements per question in CiteVQA is 10.
+  resolved_value: '10'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-01T05:35:50Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: Gemini-3.1-Pro-Preview Overall SAA 76.0
+  claim_id: c_c9ec4ece
+  context: Closed-source MLLMs Gemini-3.1-Pro-Preview Overall SAA 76.0
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: 76.0, and the strongest open-source MLLM reaches just 22.5. Ultimately,
+        towards trustwor-
+      source_id: '2605.12882'
+      url: https://arxiv.org/abs/2605.12882
+      value: '76.0'
+    filled: true
+  kind: numeric
+  raw_text: Gemini-3.1-Pro-Preview achieved an Overall SAA score of 76.0 on CiteVQA.
+  resolved_value: '76.0'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-01T05:36:11Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: Qwen3-VL-235B-A22B Overall SAA 22.5
+  claim_id: c_91e2b6ee
+  context: Open-source Large MLLMs Qwen3-VL-235B-A22B Overall SAA 22.5
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Qwen3-VL-235B-A22B achieved an Overall SAA score of 22.5 on CiteVQA.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:36:33Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: GPT-5.4 Overall Ans 87.1
+  claim_id: c_612cb500
+  context: Closed-source MLLMs GPT-5.4 Overall Ans 87.1
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: GPT-5.4 35.9 69.8 87.661.7 25.7 62.1 88.356.9 25.7 68.2 84.355.131.0
+        67.5 87.1 59.0
+      source_id: '2605.12882'
+      url: https://arxiv.org/abs/2605.12882
+      value: '87.1'
+    filled: true
+  kind: numeric
+  raw_text: GPT-5.4 achieved an Overall Answer Correctness score of 87.1 on CiteVQA.
+  resolved_value: '87.1'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-01T05:36:49Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: GPT-5.4 Overall SAA 59.0
+  claim_id: c_fb1f3a06
+  context: Closed-source MLLMs GPT-5.4 Overall SAA 59.0
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: GPT-5.4 35.9 69.8 87.661.7 25.7 62.1 88.356.9 25.7 68.2 84.355.131.0
+        67.5 87.1 59.0
+      source_id: '2605.12882'
+      url: https://arxiv.org/abs/2605.12882
+      value: '59.0'
+    filled: true
+  kind: numeric
+  raw_text: GPT-5.4 achieved an Overall SAA score of 59.0 on CiteVQA.
+  resolved_value: '59.0'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-01T05:37:05Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: Gemini-3-Flash-Preview Overall SAA 65.4
+  claim_id: c_361d5f73
+  context: Closed-source MLLMs Gemini-3-Flash-Preview Overall SAA 65.4
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Gemini-3-Flash-Preview achieved an Overall SAA score of 65.4 on CiteVQA.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:37:22Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: Qwen3-VL-8B Overall SAA 7.5
+  claim_id: c_a974fdeb
+  context: Open-source Small MLLMs Qwen3-VL-8B Overall SAA 7.5
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Qwen3-VL-8B achieved an Overall SAA score of 7.5 on CiteVQA.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:37:59Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: GT-Pages restriction gain +5.3% Qwen3.5-27B
+  claim_id: c_7fc01e30
+  context: Restricting the context to GT-Pages consistently yielded gains (up to +5.3%),
+    while providing a single Gold Document in multi-document settings led to substantial
+    leaps, such as +13.4% for Qwen3-VL-8B.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Restricting the context to GT-Pages yielded performance gains up to +5.3%
+    for Qwen3.5-27B.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:37:59Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: Single Gold Document gain +13.4% Qwen3-VL-8B
+  claim_id: c_229b5fe0
+  context: Restricting the context to GT-Pages consistently yielded gains (up to +5.3%),
+    while providing a single Gold Document in multi-document settings led to substantial
+    leaps, such as +13.4% for Qwen3-VL-8B.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Providing a single Gold Document in multi-document settings led to a +13.4%
+    performance gain for Qwen3-VL-8B.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:37:59Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: CiteVQA 7 macro-domains 30 sub-categories
+  claim_id: c_47319e97
+  context: CiteVQA is a diverse benchmark comprising 711 documents across 7 macro-domains,
+    with a realistic average length of 40.6 pages.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: CiteVQA spans 7 macro-domains and 30 sub-categories.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:38:32Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: CiteVQA 451 EN 260 ZH
+  claim_id: c_01630d0e
+  context: Language (EN/ZH) 451 / 260
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CiteVQA dataset includes 451 English documents and 260 Chinese documents.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:38:50Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: CiteVQA median pages 30.0
+  claim_id: c_f1a2ec1c
+  context: Avg./Median pages 40.6 / 30.0
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: '- Avg./Median pages 40.6 / 30.0'
+      source_id: '2605.12882'
+      url: https://arxiv.org/abs/2605.12882
+      value: '30.0'
+    filled: true
+  kind: numeric
+  raw_text: The median number of pages per document in CiteVQA is 30.0.
+  resolved_value: '30.0'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-01T05:39:08Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: 95% CI bootstrap 1897 samples Table 2 metrics
+  claim_id: c_1a8e7e32
+  context: 'NOTE: 95% confidence intervals computed via bootstrap resampling (N=1897
+    samples) for all Table 2 metrics (SAA, Recall, Precision, F1); pairwise bootstrap
+    t-tests performed for top model comparisons to substantiate ''best'' claims per
+    action item [591006ab0b4d].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 95% confidence intervals were computed via bootstrap resampling with 1897
+    samples for all Table 2 metrics.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:39:08Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR q<0.05 20 models
+  claim_id: c_85e4f9bf
+  context: 'NOTE: Multiple-comparisons correction (Benjamini-Hochberg FDR, q<0.05)
+    applied when highlighting ''best'' and ''second-best'' results across 20 models
+    to control false discovery rate in ranking per action item [aa5450bd8869].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Multiple-comparisons correction using Benjamini-Hochberg FDR with q<0.05
+    was applied across 20 models.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:39:08Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: CiteVQA evaluates 20 MLLMs
+  claim_id: c_f87b5c54
+  context: 'Extensive experiments on 20 mainstream MLLMs reveal a pervasive and concerning
+    phenomenon: Attribution Hallucination.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: only when the answer and the cited region are both correct. Auditing
+        20 MLLMs reveals a
+      source_id: '2605.12882'
+      url: https://arxiv.org/abs/2605.12882
+      value: '20'
+    filled: true
+  kind: numeric
+  raw_text: The CiteVQA benchmark evaluates 20 mainstream MLLMs.
+  resolved_value: '20'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-01T05:39:29Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: CiteVQA 711 documents
+  claim_id: c_99bcbd45
+  context: CiteVQA comprises 1,897 high-quality questions derived from 711 PDFs across
+    seven major domains.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: evaluating both jointly. CiteVQA comprises 1,897 questions across 711
+        PDFs spanning seven
+      source_id: '2605.12882'
+      url: https://arxiv.org/abs/2605.12882
+      value: '711'
+    filled: true
+  kind: numeric
+  raw_text: The CiteVQA benchmark consists of 711 documents.
+  resolved_value: '711'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-01T05:39:51Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: Gemini-3.1-Pro-Preview Quantitative Reasoning SAA 82.6
+  claim_id: c_e9b253ad
+  context: Models excel in Quantitative Reasoning (e.g., Gemini-3.1-Pro-Preview at
+    82.6) because numerical computations rely on objective logic and offer clear alignment
+    between evidence and answers.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Gemini-3.1-Pro-Preview achieved an SAA of 82.6 on Quantitative Reasoning
+    questions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:40:10Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: Publishing & Media domain max SAA 63.3
+  claim_id: c_64873254
+  context: Conversely, the Publishing & Media domain presents the greatest challenge,
+    with the highest SAA reaching only 63.3, as the complex typographic designs, non-linear
+    content distribution, and intricate image-text interleaving inherent in newspapers
+    and magazines severely hinder models' spatial perception and cross-page reasoning
+    capabilities.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Publishing_&_Media_domain_max_SAA_63.3
+  kind: magnitude
+  raw_text: The highest SAA in the Publishing & Media domain is 63.3.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:41:15Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: Gemini-3.1-Pro-Preview Academic Tech SAA 85.0
+  claim_id: c_60e0dd23
+  context: 'Our cross-domain evaluation reveals that performance varies significantly
+    depending on document structure (See Figure 4): models achieve peak performance
+    in the Academic Tech domain (e.g., Gemini-3.1-Pro-Preview at 85.0) due to the
+    highly standardized layouts and logical rigor of academic papers, which facilitate
+    precise evidence attribution.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Gemini-3.1-Pro-Preview achieved an SAA of 85.0 in the Academic Tech domain.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:41:38Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: GPT-5.4 Page-level Recall 88.5% Single-Doc 75.4% N-Gold
+  claim_id: c_945ffffd
+  context: For instance, GPT-5.4 sees its Page-level Recall drop from 88.5% in Single-Doc
+    to 75.4% in N-Gold, while its F1-score falls from 29.6% to 20.6%.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: GPT-5.4 Page-level Recall dropped from 88.5% in Single-Doc to 75.4% in
+    N-Gold scenarios.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:42:01Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: Qwen3-VL-235B-A22B Page-level Recall 64.4% 50.5% Multi-Doc
+  claim_id: c_b9db0448
+  context: For many open-source models, the Multi-Doc setting acts as a performance
+    ceiling; for example, Qwen3-VL-235B-A22B experiences a significant decline in
+    Page-level Recall, dropping from 64.4% to 50.5%.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Qwen3-VL-235B-A22B Page-level Recall dropped from 64.4% to 50.5% in Multi-Doc
+    settings.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:42:18Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: Human experts evaluated 200 CiteVQA outputs
+  claim_id: c_80930930
+  context: Despite the automated production, we invited several PhD-level experts
+    to conduct sampling audits of 200 randomly selected CiteVQA outputs, focusing
+    on question difficulty, answer quality, and the quality of crucial evidence.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Human experts evaluated 200 randomly selected CiteVQA outputs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:42:33Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: CiteVQA Pipeline 3k samples alignment
+  claim_id: c_e3bcc15d
+  context: Following the same PDFs, we generated 3k samples via CiteVQA and compared
+    their performance against the original 5k human-annotated samples in AgenticOCR
+    SFT training.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: CiteVQA Pipeline generated 3k samples for alignment experiment.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:43:07Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: AgenticOCR 5k human-annotated samples
+  claim_id: c_5f983167
+  context: Following the same PDFs, we generated 3k samples via CiteVQA and compared
+    their performance against the original 5k human-annotated samples in AgenticOCR
+    SFT training.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: AgenticOCR original dataset contains 5k human-annotated samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:43:20Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: FinRAGBench-V subset 200 samples
+  claim_id: c_dc8e015b
+  context: The first is the FinRAGBench-V subset with bounding box annotations (approximately
+    200 samples).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: FinRAGBench-V subset contains approximately 200 samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:43:51Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: ViDoRe V3 test set 400 samples
+  claim_id: c_61de5099
+  context: The second is the held-out, manually annotated test set from ViDoRe V3
+    that is completely disjoint from the training set (approximately 400 samples).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ViDoRe V3 held-out test set contains approximately 400 samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:44:35Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: Training 8 H200 GPUs
+  claim_id: c_f60f4534
+  context: "The hyperparameters are set as follows: a learning rate of 1 \xD7 10^\u2212\
+    5, training for 6 epochs on 8 H200 GPUs."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Training setup used 8 H200 GPUs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:44:50Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: Training 6 epochs
+  claim_id: c_f2a6b201
+  context: "The hyperparameters are set as follows: a learning rate of 1 \xD7 10^\u2212\
+    5, training for 6 epochs on 8 H200 GPUs."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Training was conducted for 6 epochs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:45:15Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: CiteVQA Pipeline 40.6% Recall_EM FinRAGBench-V
+  claim_id: c_03baf947
+  context: On FinRAGBench-V, CiteVQA Pipeline (3k) achieves comparable or slightly
+    better performance than Vidore Original (5k).
+  evidence:
+    asserted: '40.6'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: CiteVQA Pipeline achieved 40.6% Recall_EM on FinRAGBench-V.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-01T05:45:15Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: Vidore Original 35.4% Recall_EM FinRAGBench-V
+  claim_id: c_f7ad94ad
+  context: Vidore Original (5k) ... Recall_EM 35.4
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Vidore Original achieved 35.4% Recall_EM on FinRAGBench-V.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:45:15Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: CiteVQA Pipeline 45.3% Recall_EM ViDoRe V3
+  claim_id: c_71e9adf0
+  context: On ViDoRe V3, Vidore Original shows a slight advantage.
+  evidence:
+    asserted: '45.3'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: CiteVQA Pipeline achieved 45.3% Recall_EM on ViDoRe V3 test set.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-01T05:45:15Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: Vidore Original 48.3% Recall_EM ViDoRe V3
+  claim_id: c_96abafa2
+  context: Vidore Original (5k) ... Recall_EM 48.3
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Vidore Original achieved 48.3% Recall_EM on ViDoRe V3 test set.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:45:16Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: Qwen3-VL-235B-A22B Overall Page-level Recall 57.8%
+  claim_id: c_07634e09
+  context: Open-source Large MLLMs Qwen3-VL-235B-A22B Overall Page. 57.8
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Qwen3-VL-235B-A22B Overall Page-level Recall is 57.8%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:45:16Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: GPT-5.2 Overall Page-level Recall 69.3%
+  claim_id: c_f1177227
+  context: Closed-source MLLMs GPT-5.2 Overall Page. 69.3
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: GPT-5.2 Overall Page-level Recall is 69.3%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:45:16Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: Gemini-3.1-Pro-Preview Overall Page-level Recall 87.9%
+  claim_id: c_69fbfdcf
+  context: Closed-source MLLMs Gemini-3.1-Pro-Preview Overall Page. 87.9
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Gemini-3.1-Pro-Preview Overall Page-level Recall is 87.9%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:45:16Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: Gemini-3-Flash-Preview Overall Page-level Recall 91.8%
+  claim_id: c_a4093747
+  context: Closed-source MLLMs Gemini-3-Flash-Preview Overall Page. 91.8
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Gemini-3-Flash-Preview Overall Page-level Recall is 91.8%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:45:16Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: GPT-5.4 Overall Page-level Recall 83.4%
+  claim_id: c_64a801d1
+  context: Closed-source MLLMs GPT-5.4 Overall Page. 83.4
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: GPT-5.4 Overall Page-level Recall is 83.4%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:45:16Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: Halving pixels 1024^2 to 724^2 SAA 22.5% to 11.8%
+  claim_id: c_13850544
+  context: "For instance, halving the total pixels (from 1024^2 to \u2248 724^2) leads\
+    \ to a near-50% reduction in SAA (from 22.5% to 11.8%), indicating that precise\
+    \ localization is highly sensitive to visual fidelity."
+  evidence:
+    asserted: '1024.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Halving total pixels from 1024^2 to ~724^2 reduces SAA from 22.5% to 11.8%.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-01T05:45:17Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: Maximum output length 4096 tokens
+  claim_id: c_5bc30e99
+  context: The maximum output length was capped at 4,096 tokens to allow for extensive
+    reasoning.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum output length was capped at 4,096 tokens.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:45:37Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: Qwen3.5-27B Ans 79.3 to 84.6 GT Pages
+  claim_id: c_e45466db
+  context: Single-Doc vs. GT Pages Qwen3.5-27B Base 79.3 GT 84.6 (+5.3)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Qwen3.5-27B answer accuracy increased from 79.3 to 84.6 with GT Pages.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:45:54Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: Qwen3-VL-32B Ans 75.3 to 79.9 GT Pages
+  claim_id: c_cb749b40
+  context: Single-Doc vs. GT Pages Qwen3-VL-32B Base 75.3 GT 79.9 (+4.6)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Qwen3-VL-32B answer accuracy increased from 75.3 to 79.9 with GT Pages.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:46:16Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: Qwen3.5-9B Ans 73.2 to 75.2 GT Pages
+  claim_id: c_4e0699ab
+  context: Single-Doc vs. GT Pages Qwen3.5-9B Base 73.2 GT 75.2 (+2.0)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Qwen3.5-9B answer accuracy increased from 73.2 to 75.2 with GT Pages.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:46:35Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: Qwen3-VL-8B Ans 67.0 to 71.1 GT Pages
+  claim_id: c_5c69e2a2
+  context: Single-Doc vs. GT Pages Qwen3-VL-8B Base 67.0 GT 71.1 (+4.1)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Qwen3-VL-8B answer accuracy increased from 67.0 to 71.1 with GT Pages.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:46:51Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: Qwen3.5-27B Ans 73.1 to 81.6 1 Gold Doc
+  claim_id: c_aaafc343
+  context: Multi (1-Gold) vs. 1 Gold Doc Qwen3.5-27B Base 73.1 Gold 81.6 (+8.5)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Qwen3.5-27B answer accuracy increased from 73.1 to 81.6 with 1 Gold Doc.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:47:06Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: Qwen3-VL-32B Ans 67.6 to 72.6 1 Gold Doc
+  claim_id: c_ffdf79a9
+  context: Multi (1-Gold) vs. 1 Gold Doc Qwen3-VL-32B Base 67.6 Gold 72.6 (+5.0)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Qwen3-VL-32B answer accuracy increased from 67.6 to 72.6 with 1 Gold Doc.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:47:21Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: Qwen3.5-9B Ans 58.4 to 68.1 1 Gold Doc
+  claim_id: c_f0f7398a
+  context: Multi (1-Gold) vs. 1 Gold Doc Qwen3.5-9B Base 58.4 Gold 68.1 (+9.7)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Qwen3.5-9B answer accuracy increased from 58.4 to 68.1 with 1 Gold Doc.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:47:35Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: Qwen3-VL-8B Ans 53.3 to 66.7 1 Gold Doc
+  claim_id: c_1fe5431e
+  context: Multi (1-Gold) vs. 1 Gold Doc Qwen3-VL-8B Base 53.3 Gold 66.7 (+13.4)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Qwen3-VL-8B answer accuracy increased from 53.3 to 66.7 with 1 Gold Doc.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:47:50Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 1
+  canonical: 'CiteVQA dataset statistics: 1897 questions, 711 PDFs, 7 domains, 2 languages,
+    40.6 avg pages'
+  claim_id: c_126821ed
+  context: To address this, we introduce CiteVQA, a benchmark that requires models
+    to return element-level bounding-box citations alongside each answer, evaluating
+    both jointly. CiteVQA comprises 1,897 questions across 711 PDFs spanning seven
+    domains and two languages, averaging 40.6 pages per document.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: domains and two languages, averaging 40.6 pages per document. To ensure
+        fidelity and scala-
+      source_id: '2605.12882'
+      url: https://arxiv.org/abs/2605.12882
+      value: '40.6'
+    filled: true
+  kind: numeric
+  raw_text: CiteVQA comprises 1,897 questions across 711 PDFs spanning seven domains
+    and two languages, averaging 40.6 pages per document.
+  resolved_value: '40.6'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-01T05:53:31Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 1
+  canonical: Gemini-3.1-Pro-Preview SAA score 76.0
+  claim_id: c_5b462f8a
+  context: 'Auditing 20 MLLMs reveals a pervasive Attribution Hallucination: models
+    frequently produce the right answer while citing the wrong region. The strongest
+    system (Gemini-3.1-Pro-Preview) achieves an SAA of only 76.0, and the strongest
+    open-source MLLM reaches just 22.5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The strongest system (Gemini-3.1-Pro-Preview) achieves an SAA of only
+    76.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:53:47Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 1
+  canonical: Strongest open-source MLLM SAA score 22.5
+  claim_id: c_72d787eb
+  context: 'Auditing 20 MLLMs reveals a pervasive Attribution Hallucination: models
+    frequently produce the right answer while citing the wrong region. The strongest
+    system (Gemini-3.1-Pro-Preview) achieves an SAA of only 76.0, and the strongest
+    open-source MLLM reaches just 22.5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The strongest open-source MLLM reaches just 22.5 SAA.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:54:00Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 1
+  canonical: 'CiteVQA dataset: 711 documents, 7 domains, 40.6 average pages'
+  claim_id: c_76e022b5
+  context: As summarized in Table 4 and Figures 3-4, CiteVQA is a diverse benchmark
+    comprising 711 documents across 7 macro-domains, with a realistic average length
+    of 40.6 pages.
+  evidence:
+    entailment_evidence: 'CiteVQA dataset: 711 documents, 7 domains, 40.6 average
+      page'
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/CiteVQA_dataset:_711_documents,_7_domains,_40.6_average_page
+  kind: entity_fact
+  raw_text: CiteVQA is a diverse benchmark comprising 711 documents across 7 macro-domains,
+    with a realistic average length of 40.6 pages.
+  resolved_value: 'CiteVQA dataset: 711 documents, 7 domains, 40.6 average pages'
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-01T05:54:03Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 1
+  canonical: 'CiteVQA question distribution: 52.0% single-doc, 25.7% multi 1-gold,
+    22.3% multi N-gold'
+  claim_id: c_60520f48
+  context: The 1,897 questions cover varied scenarios including single-doc (52.0%),
+    multi-doc with one gold document (25.7%), and multi-doc with multiple gold documents
+    (22.3%), spanning reasoning types from Complex Synthesis to Multimodal Parsing.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The 1,897 questions cover varied scenarios including single-doc (52.0%),
+    multi-doc with one gold document (25.7%), and multi-doc with multiple gold documents
+    (22.3%).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:54:38Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 1
+  canonical: CiteVQA tasks average 2.57 evidence elements, 30% non-textual
+  claim_id: c_55f6d2a0
+  context: Each task requires an average of 2.57 evidence elements, nearly 30% of
+    which are non-textual (tables, images, or equations). Evidence is uniformly distributed
+    across document positions and often spans multiple pages, demanding robust long-context
+    aggregation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Each task requires an average of 2.57 evidence elements, nearly 30% of
+    which are non-textual (tables, images, or equations).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:54:54Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 1
+  canonical: 'CiteVQA language distribution: 451 English, 260 Chinese'
+  claim_id: c_91c35661
+  context: Table 4 shows the dataset statistics including Language (EN/ZH) distribution
+    of 451 / 260.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset contains 451 English documents and 260 Chinese documents.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:55:14Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 1
+  canonical: 'CiteVQA evidence source distribution: 70.12% text, 21.99% table, 7.04%
+    image, 0.84% equation'
+  claim_id: c_6fa7b942
+  context: 'Table 4 details the evidence source distribution: Text 2082 (70.12%),
+    Table 653 (21.99%), Image 209 (7.04%), Equation 25 (0.84%).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset contains 2082 text evidence elements (70.12%), 653 table elements
+    (21.99%), 209 image elements (7.04%), and 25 equation elements (0.84%).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:55:56Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 1
+  canonical: Qwen3-VL-235B-A22B SAA score 22.5
+  claim_id: c_7428f38d
+  context: In contrast, a significant 'cliff' exists for Open-source Models, where
+    the strongest (Qwen3-VL-235B) achieves an SAA of only 22.5.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The strongest open-source MLLM (Qwen3-VL-235B-A22B) achieves an SAA of
+    22.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:56:13Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 1
+  canonical: GPT-5.4 Ans 87.1 SAA 59.0
+  claim_id: c_f6a83a1c
+  context: Notably, while GPT-5.4 and Gemini-3-Flash achieve high answer scores (87.1
+    and 84.5), their SAA scores drop significantly to 59.0 and 65.4, respectively.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: GPT-5.4 achieves an Answer Correctness (Ans.) of 87.1 and an SAA of 59.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:56:57Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 1
+  canonical: Gemini-3-Flash-Preview Ans 84.5 SAA 65.4
+  claim_id: c_b2d0223d
+  context: Notably, while GPT-5.4 and Gemini-3-Flash achieve high answer scores (87.1
+    and 84.5), their SAA scores drop significantly to 59.0 and 65.4, respectively.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Gemini-3-Flash-Preview achieves an Answer Correctness (Ans.) of 84.5 and
+    an SAA of 65.4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:57:17Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 1
+  canonical: CiteVQA 707 PDFs sourced from Common Crawl
+  claim_id: c_40a27700
+  context: The 707 PDF documents included in the CiteVQA benchmark are sourced from
+    Common Crawl, a neutral, non-profit public web archive.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: sourced from Common Crawl1; see Appendix A for compliance and ethical
+        standards), we first pre-
+      source_id: '2605.12882'
+      url: https://arxiv.org/abs/2605.12882
+      value: Common Crawl
+    filled: true
+  kind: numeric
+  raw_text: The 707 PDF documents included in the CiteVQA benchmark are sourced from
+    Common Crawl.
+  resolved_value: Common Crawl
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-01T05:57:34Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 1
+  canonical: Human expert Evidence Quality score 4.91 on 200 samples
+  claim_id: c_8874a2d6
+  context: The audit results (Table 10) confirm the high quality of the automated
+    pipeline, demonstrating appropriate question difficulty and high-quality annotation.
+    Human Expert Evidence Quality score is 4.91.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: Human Expert 2.97 4.43 4.91
+      source_id: '2605.12882'
+      url: https://arxiv.org/abs/2605.12882
+      value: '4.91'
+    filled: true
+  kind: numeric
+  raw_text: Human expert evaluation on 200 randomly selected CiteVQA outputs confirmed
+    high quality with an average Evidence Quality score of 4.91.
+  resolved_value: '4.91'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-01T05:57:55Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 1
+  canonical: Qwen3-VL-235B-A22B Overall Page-level Recall 57.8
+  claim_id: c_ff355f4f
+  context: While the Gemini-3 series demonstrates strong navigation (above 87% Overall
+    Page.), many advanced models like GPT-5.2 (69.3% Overall Page.) and Qwen3-VL-235B-A22B
+    (57.8% Overall Page.) frequently fail to even locate the relevant page.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Qwen3-VL-235B-A22B achieves a Page-level Recall of 57.8% Overall.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:58:18Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 1
+  canonical: Gemini-3.1-Pro-Preview Academic Tech SAA 85.0
+  claim_id: c_0c2e1dde
+  context: 'Our cross-domain evaluation reveals that performance varies significantly
+    depending on document structure (See Figure 7): models achieve peak performance
+    in the Academic Tech domain (e.g., Gemini-3.1-Pro-Preview at 85.0) due to the
+    highly standardized layouts and logical rigor of academic papers.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: In the Academic Tech domain, Gemini-3.1-Pro-Preview achieves an SAA of
+    85.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:58:47Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 1
+  canonical: Publishing & Media domain highest SAA 63.3
+  claim_id: c_a341069e
+  context: Conversely, the Publishing & Media domain presents the greatest challenge,
+    with the highest SAA reaching only 63.3, as the complex typographic designs, non-linear
+    content distribution, and intricate image-text interleaving inherent in newspapers
+    and magazines severely hinder models' spatial perception and cross-page reasoning
+    capabilities.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Publishing_&_Media_domain_highest_SAA_63.3
+  kind: magnitude
+  raw_text: In the Publishing & Media domain, the highest SAA reaches only 63.3.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T05:59:17Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: current Doc-VQA evaluations score only final answer
+  claim_id: c_0c99216d
+  context: Multimodal Large Language Models (MLLMs) have significantly advanced document
+    understanding, yet current Doc-VQA evaluations score only the final answer and
+    leave the supporting evidence unchecked.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Current_Doc-VQA_evaluations_score_only_final_answer
+  kind: entity_fact
+  raw_text: current Doc-VQA evaluations score only the final answer and leave the
+    supporting evidence unchecked
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:08:01Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: CiteVQA requires element-level bounding boxes
+  claim_id: c_83ea3abd
+  context: To address this, we introduce CiteVQA, a benchmark that requires models
+    to return element-level bounding [... full chunk preserved on disk; desummarize()
+    to retrieve.]
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CiteVQA_requires_element-level_bounding_boxes
+  kind: entity_fact
+  raw_text: CiteVQA is a benchmark that requires models to return element-level bounding
+    boxes
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:10:15Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: MP-DocVQA contains 6000 samples
+  claim_id: c_4ab9828e
+  context: MP-DocVQA~\citep{tito2023hierarchical} & 6{,}000 & 8.3 & P & $\times$ \\
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MP-DocVQA contains 6,000 samples
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:11:58Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: MP-DocVQA median document length 8.3
+  claim_id: c_13179129
+  context: MP-DocVQA~\citep{tito2023hierarchical} & 6{,}000 & 8.3 & P & $\times$ \\
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MP-DocVQA has a median document length of 8.3
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:12:01Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: MMLongBench-Doc contains 135 samples
+  claim_id: c_62fd772b
+  context: MMLongBench-Doc~\citep{ma2024mmlongbench} & 135 & 47.5 & P & $\times$ \\
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MMLongBench-Doc contains 135 samples
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:12:03Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: MMLongBench-Doc median document length 47.5
+  claim_id: c_a61a688d
+  context: MMLongBench-Doc~\citep{ma2024mmlongbench} & 135 & 47.5 & P & $\times$ \\
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MMLongBench-Doc has a median document length of 47.5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:12:06Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: SlideVQA contains 2619 samples
+  claim_id: c_8b7d8993
+  context: SlideVQA~\citep{tanaka2023slidevqa} & 2{,}619 & 20.0 & B & $\times$ \\
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: SlideVQA contains 2,619 samples
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:12:09Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: SlideVQA median document length 20.0
+  claim_id: c_ff0c4a85
+  context: SlideVQA~\citep{tanaka2023slidevqa} & 2{,}619 & 20.0 & B & $\times$ \\
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: SlideVQA has a median document length of 20.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:12:11Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: ViDoRe V3 contains 190 samples
+  claim_id: c_17ffa24e
+  context: ViDoRe\V3~\citep{loison2026vidore} & 190 & 137.0 & B & $\times$ \\
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ViDoRe V3 contains 190 samples
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:12:18Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: ViDoRe V3 median document length 137.0
+  claim_id: c_ce375cdc
+  context: ViDoRe\V3~\citep{loison2026vidore} & 190 & 137.0 & B & $\times$ \\
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ViDoRe V3 has a median document length of 137.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:12:24Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: CiteVQA contains 711 samples
+  claim_id: c_069f18bd
+  context: \textbf{CiteVQA (ours)} & \textbf{711} & \textbf{40.6} & \textbf{E} & \checkmark
+    \\
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: CiteVQA contains 711 samples
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:12:28Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: CiteVQA median document length 40.6
+  claim_id: c_2032005d
+  context: \textbf{CiteVQA (ours)} & \textbf{711} & \textbf{40.6} & \textbf{E} & \checkmark
+    \\
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: CiteVQA has a median document length of 40.6
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:12:30Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: CiteVQA requires element-level evidence
+  claim_id: c_6d970567
+  context: \textbf{CiteVQA (ours)} & \textbf{711} & \textbf{40.6} & \textbf{E} & \checkmark
+    \\
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CiteVQA_requires_element-level_evidence
+  kind: entity_fact
+  raw_text: CiteVQA requires element-level evidence granularity
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:12:35Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: CiteVQA supports joint evaluation
+  claim_id: c_37792bb0
+  context: \textbf{CiteVQA (ours)} & \textbf{711} & \textbf{40.6} & \textbf{E} & \checkmark
+    \\
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CiteVQA_supports_joint_evaluation
+  kind: entity_fact
+  raw_text: CiteVQA supports joint evaluation
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:12:39Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: Gemini-3.1-Pro-Preview score 82.6 on Quantitative Reasoning
+  claim_id: c_0823ccad
+  context: Models excel in Quantitative Reasoning (e.g., Gemini-3.1-Pro-Preview at
+    82.6) because numerical computations rely on objective logic and offer clear alignment
+    between evidence and answers.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Gemini-3.1-Pro-Preview scored 82.6 on Quantitative Reasoning
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:12:45Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: CiteVQA generated 3000 samples
+  claim_id: c_057a1f74
+  context: Following the same PDFs, we generated 3k samples via CiteVQA and compared
+    their performance against the original 5k human-annotated samples in AgenticOCR~\citep{wang2026agenticocr}
+    SFT training.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: CiteVQA generated 3k samples via CiteVQA
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:12:48Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: AgenticOCR SFT training used 5000 human-annotated samples
+  claim_id: c_20c9aeae
+  context: Following the same PDFs, we generated 3k samples via CiteVQA and compared
+    their performance against the original 5k human-annotated samples in AgenticOCR~\citep{wang2026agenticocr}
+    SFT training.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: AgenticOCR SFT training used 5k human-annotated samples
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:12:50Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: CiteVQA Pipeline performance matches human-annotated data
+  claim_id: c_07be60b6
+  context: Overall, CiteVQA Pipeline nearly reaches the performance level of human-annotated
+    data.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/CiteVQA_Pipeline_performance_matches_human-annotated_data
+  kind: entity_fact
+  raw_text: CiteVQA Pipeline nearly reaches the performance level of human-annotated
+    data
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:12:55Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: maximum output length capped at 4096 tokens
+  claim_id: c_a367d74c
+  context: The maximum output length was capped at 4,096 tokens to allow for extensive
+    reasoning.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum output length was capped at 4,096 tokens
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:12:55Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: Answer Correctness scale 0 to 5
+  claim_id: c_6d3ccbf0
+  context: '\textbf{Answer Correctness (Ans.)} Measures semantic matching between
+    predicted and ground-truth answers via an LLM judge $\Jans$: $\text{Ans.} = \Jans(\{A_1,
+    A_2, \dots, A_n\}, A_{\text{gt}}) \in [0, 5]$.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Answer Correctness is measured on a scale of 0 to 5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:14:39Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: Strict Attributed Accuracy requires Ans >= 4
+  claim_id: c_acc8a752
+  context: '\textbf{Strict Attributed Accuracy (SAA)} A sample-level binary metric
+    requiring both high-quality grounding and answer correctness: $\text{SAA} = \mathbf{1}_{(\text{Ans.}
+    \ge 4 \land (\text{Rel.} \ge 4 \lor \text{Rec.} \ge 0.6))}$.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Strict Attributed Accuracy requires Answer Correctness >= 4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:15:56Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: Strict Attributed Accuracy requires Rel >= 4 or Rec >= 0.6
+  claim_id: c_1ccf304c
+  context: '\textbf{Strict Attributed Accuracy (SAA)} A sample-level binary metric
+    requiring both high-quality grounding and answer correctness: $\text{SAA} = \mathbf{1}_{(\text{Ans.}
+    \ge 4 \land (\text{Rel.} \ge 4 \lor \text{Rec.} \ge 0.6))}$.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Strict Attributed Accuracy requires Relevance >= 4 or Recall >= 0.6
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:16:04Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: Score 5 requires pixel-perfect bounding box and exact match
+  claim_id: c_286db304
+  context: '5: **PERFECT support (extremely rare)**. The screenshot must be **flawless**:
+    precise bounding box that exactly covers the cited text, no extra content, no
+    skewing, no misalignment, and the evidence perfectly matches what is claimed.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Score 5 for Crucial Evidence Quality requires pixel-perfect bounding box
+    and exact evidence match
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:16:17Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 0
+  canonical: CiteVQA comprises 1897 questions from 711 PDFs across 7 domains
+  claim_id: c_0468f7b1
+  context: Designed for long-form, multi-domain, and cross-lingual scenarios, CiteVQA
+    comprises 1,897 high-quality questions derived from 711 PDFs across seven major
+    domains.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: evaluating both jointly. CiteVQA comprises 1,897 questions across 711
+        PDFs spanning seven
+      source_id: '2605.12882'
+      url: https://arxiv.org/abs/2605.12882
+      value: 1,897
+    filled: true
+  kind: numeric
+  raw_text: CiteVQA comprises 1,897 high-quality questions derived from 711 PDFs across
+    seven major domains.
+  resolved_value: 1,897
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-01T06:16:38Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 1
+  canonical: 'CiteVQA question distribution: 52.0% single-doc, 25.7% multi-doc one
+    gold, 22.3% multi-doc multiple gold'
+  claim_id: c_e596b7e3
+  context: The 1,897 questions cover varied scenarios including single-doc (52.0%),
+    multi-doc with one gold document (25.7%), and multi-doc with multiple gold documents
+    (22.3%), spanning reasoning types from Complex Synthesis to Multimodal Parsing.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The 1,897 questions cover varied scenarios including single-doc (52.0%),
+    multi-doc with one gold document (25.7%), and multi-doc with multiple gold documents
+    (22.3%).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:16:41Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 1
+  canonical: CiteVQA tasks require average 2.57 evidence elements, nearly 30% non-textual
+  claim_id: c_091eb792
+  context: Each task requires an average of 2.57 evidence elements, nearly 30% of
+    which are non-textual (tables, images, or equations).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Each task requires an average of 2.57 evidence elements, nearly 30% of
+    which are non-textual.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:16:41Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 1
+  canonical: Restricting context to GT-Pages yielded up to 5.3% gains
+  claim_id: c_655ea34d
+  context: Restricting the context to GT-Pages consistently yielded gains (up to $+5.3\%$),
+    while providing a single Gold Document in multi-document settings led to substantial
+    leaps, such as $+13.4\%$ for Qwen3-VL-8B.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Restricting the context to GT-Pages consistently yielded gains (up to
+    +5.3%).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:16:42Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 1
+  canonical: Single Gold Document in multi-doc settings led to 13.4% gain for Qwen3-VL-8B
+  claim_id: c_37214b9b
+  context: Restricting the context to GT-Pages consistently yielded gains (up to $+5.3\%$),
+    while providing a single Gold Document in multi-document settings led to substantial
+    leaps, such as $+13.4\%$ for Qwen3-VL-8B.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Providing a single Gold Document in multi-document settings led to substantial
+    leaps, such as +13.4% for Qwen3-VL-8B.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:16:42Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 1
+  canonical: Framework covers 5 key domains
+  claim_id: c_fe92ab4c
+  context: Table~\\ref{tab:domain_datasets} details the distribution of the datasets
+    used in our framework, covering 5 key domains to ensure broad representation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The framework covers 5 key domains to ensure broad representation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:16:48Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 1
+  canonical: FinRAGBench-V subset contains approximately 200 samples
+  claim_id: c_806739ba
+  context: The first is the FinRAGBench-V\\citep{zhao-etal-2025-finragbench} subset
+    with bounding box annotations (approximately 200 samples).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The FinRAGBench-V subset contains approximately 200 samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:16:48Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 1
+  canonical: ViDoRe V3 held-out test set contains approximately 400 samples
+  claim_id: c_902c690b
+  context: The second is the held-out, manually annotated test set from ViDoRe V3
+    that is completely disjoint from the training set (approximately 400 samples).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The held-out, manually annotated test set from ViDoRe V3 contains approximately
+    400 samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:16:55Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: CiteVQA dataset size and characteristics
+  claim_id: c_f970970a
+  context: "To ensure fidelity and scalability, the ground-truth citations are generated\
+    \ by an automated pipeline\u2014which identifies crucial evidence via masking\
+    \ ablation\u2014and are subsequently validated through expert review. At the core\
+    \ of our evaluation is Strict Attributed Accuracy (SAA), which credits a prediction\
+    \ only when the answer and the cited region are both correct."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset comprises 1,897 questions across 711 PDFs spanning seven domains
+    and two languages, averaging 40.6 pages per document.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:26:14Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: SAA performance of leading models
+  claim_id: c_433ebbae
+  context: 'Extensive experiments on 20 MLLMs reveal a pervasive Attribution Hallucination:
+    models frequently produce the right answer while citing the wrong region. The
+    strongest system (Gemini-3.1-Pro-Preview) achieves an SAA of only 76.0, and the
+    strongest open-source MLLM reaches just 22.5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The strongest system (Gemini-3.1-Pro-Preview) achieves an SAA of only
+    76.0, and the strongest open-source MLLM reaches just 22.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:26:15Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: Statistical method for confidence intervals
+  claim_id: c_30f9c9e8
+  context: 'NOTE: 95% confidence intervals computed via bootstrap resampling (N=1897
+    samples) for all Table 2 metrics (SAA, Recall, Precision, F1); pairwise bootstrap
+    t-tests performed for top model comparisons to substantiate ''best'' claims per
+    action item [591006ab0b4d].'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Statistical_method_for_confidence_intervals
+  kind: magnitude
+  raw_text: 95% confidence intervals computed via bootstrap resampling (N=1897 samples)
+    for all Table 2 metrics (SAA, Recall, Precision, F1); pairwise bootstrap t-tests
+    performed for top model comparisons to substantiate 'best' claims per action item
+    [591006ab0b4d].
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:28:59Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: CiteVQA document count and distribution
+  claim_id: c_aa9463b7
+  context: 'To construct a highly representative and diverse evaluation benchmark,
+    we designed a multi-stage automated filtering pipeline to systematically extract
+    high-quality documents from a vast pool of heterogeneous data. Starting from a
+    corpus of over 100 million raw PDF documents (primarily sourced from Common Crawl\footnote{\url{;
+    see Appendix~\ref{Appendix: Ethical Consideration} for compliance and ethical
+    standards), we first pre-selected approximately 250k candidate documents through
+    stratified sampling. These candidates then underwent a two-stage MLLM annotation
+    scheme: (1) Coarse-grained stage, identifying the primary domain and language;
+    and (2) Fine-grained stage, performing sub-category classification within each
+    domain. 711 documents were selected as the source for CiteVQA, achieving a balanced
+    coverage across 7 domains and 30 sub-categories.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 711 documents were selected as the source for CiteVQA, achieving a balanced
+    coverage across 7 domains and 30 sub-categories.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:29:30Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  attempts: 1
+  canonical: Average document length in CiteVQA
+  claim_id: c_c6bda0a8
+  context: 'To construct a highly representative and diverse evaluation benchmark,
+    we designed a multi-stage automated filtering pipeline to systematically extract
+    high-quality documents from a vast pool of heterogeneous data. Starting from a
+    corpus of over 100 million raw PDF documents (primarily sourced from Common Crawl\footnote{\url{;
+    see Appendix~\ref{Appendix: Ethical Consideration} for compliance and ethical
+    standards), we first pre-selected approximately 250k candidate documents through
+    stratified sampling. These candidates then underwent a two-stage MLLM annotation
+    scheme: (1) Coarse-grained stage, identifying the primary domain and language;
+    and (2) Fine-grained stage, performing sub-category classification within each
+    domain. 711 documents were selected as the source for CiteVQA, achieving a balanced
+    coverage across 7 domains and 30 sub-categories. As summarized in Table~\ref{tab:Dataset
+    Statistics} and Figures~\ref{fig:pdf_stats}-\ref{fig:question_statistics}, CiteVQA
+    is a diverse benchmark comprising 711 documents across 7 macro-domains, with a
+    realistic average length of 40.6 pages.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The average document length is 40.6 pages.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:29:48Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 0
+  canonical: 707 PDF documents in CiteVQA sourced from Common Crawl
+  claim_id: c_cf2526d3
+  context: The 707 PDF documents included in the CiteVQA benchmark are sourced from
+    Common Crawl, a neutral, non-profit public web archive.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: sourced from Common Crawl1; see Appendix A for compliance and ethical
+        standards), we first pre-
+      source_id: '2605.12882'
+      url: https://arxiv.org/abs/2605.12882
+      value: Common Crawl
+    filled: true
+  kind: numeric
+  raw_text: The 707 PDF documents included in the CiteVQA benchmark are sourced from
+    Common Crawl.
+  resolved_value: Common Crawl
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-01T06:35:19Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 1
+  canonical: 'CiteVQA dataset statistics: 1,897 questions, 711 PDFs, 7 domains, 2
+    languages, 40.6 avg pages'
+  claim_id: c_82690091
+  context: To address this, we introduce CiteVQA, a benchmark that requires models
+    to return element-level bounding-box citations alongside each answer, evaluating
+    both jointly. CiteVQA comprises 1,897 questions across 711 PDFs spanning seven
+    domains and two languages, averaging 40.6 pages per document.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: domains and two languages, averaging 40.6 pages per document. To ensure
+        fidelity and scala-
+      source_id: '2605.12882'
+      url: https://arxiv.org/abs/2605.12882
+      value: '40.6'
+    filled: true
+  kind: numeric
+  raw_text: CiteVQA comprises 1,897 questions across 711 PDFs spanning seven domains
+    and two languages, averaging 40.6 pages per document.
+  resolved_value: '40.6'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-01T06:35:24Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 1
+  canonical: Gemini-3.1-Pro-Preview SAA score 76.0; strongest open-source MLLM SAA
+    score 22.5
+  claim_id: c_10e39cd2
+  context: 'Auditing 20 MLLMs reveals a pervasive Attribution Hallucination: models
+    frequently produce the right answer while citing the wrong region. The strongest
+    system (Gemini-3.1-Pro-Preview) achieves an SAA of only 76.0, and the strongest
+    open-source MLLM reaches just 22.5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The strongest system (Gemini-3.1-Pro-Preview) achieves an SAA of only
+    76.0, and the strongest open-source MLLM reaches just 22.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:35:25Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 1
+  canonical: 'CiteVQA benchmark: 711 documents, 7 macro-domains, 40.6 average pages'
+  claim_id: c_a5e1ffcd
+  context: As summarized in Table 1 and Figures 2-3, CiteVQA is a diverse benchmark
+    comprising 711 documents across 7 macro-domains, with a realistic average length
+    of 40.6 pages.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: domains and two languages, averaging 40.6 pages per document. To ensure
+        fidelity and scala-
+      source_id: '2605.12882'
+      url: https://arxiv.org/abs/2605.12882
+      value: '40.6'
+    filled: true
+  kind: numeric
+  raw_text: The CiteVQA benchmark contains 711 documents across 7 macro-domains, with
+    a realistic average length of 40.6 pages.
+  resolved_value: '40.6'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-01T06:35:43Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 1
+  canonical: 'CiteVQA question distribution: 52.0% single-doc, 25.7% multi-doc 1-gold,
+    22.3% multi-doc N-gold'
+  claim_id: c_eb3ef7de
+  context: The 1,897 questions cover varied scenarios including single-doc (52.0%),
+    multi-doc with one gold document (25.7%), and multi-doc with multiple gold documents
+    (22.3%), spanning reasoning types from Complex Synthesis to Multimodal Parsing.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The 1,897 questions cover varied scenarios including single-doc (52.0%),
+    multi-doc with one gold document (25.7%), and multi-doc with multiple gold documents
+    (22.3%).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:35:44Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 1
+  canonical: CiteVQA average evidence elements 2.57; 30% non-textual
+  claim_id: c_84085451
+  context: Each task requires an average of 2.57 evidence elements, nearly 30% of
+    which are non-textual (tables, images, or equations). Evidence is uniformly distributed
+    across document positions and often spans multiple pages, demanding robust long-context
+    aggregation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Each task requires an average of 2.57 evidence elements, nearly 30% of
+    which are non-textual (tables, images, or equations).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:35:44Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 1
+  canonical: Auditing 20 MLLMs reveals pervasive Attribution Hallucination
+  claim_id: c_7da65487
+  context: 'Auditing 20 MLLMs reveals a pervasive Attribution Hallucination: models
+    frequently produce the right answer while citing the wrong region.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Auditing 20 MLLMs reveals a pervasive Attribution Hallucination: models
+    frequently produce the right answer while citing the wrong region.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:36:03Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 1
+  canonical: Qwen3-VL-235B-A22B SAA score 22.5
+  claim_id: c_897dfd18
+  context: The SAA of state-of-the-art models like Gemini-3.1-Pro-Preview caps at
+    76.0, while leading open-source MLLMs fail to surpass the 25.0 threshold. This
+    uncovers a severe logical fracture in current systems... Table 2 shows Qwen3-VL-235B-A22B
+    achieves an SAA of 22.5.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The strongest open-source MLLM (Qwen3-VL-235B-A22B) achieves an SAA of
+    22.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:36:04Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 2
+  canonical: Gemini-3.1-Pro-Preview Overall SAA 76.0
+  claim_id: c_15066d52
+  context: Closed-source MLLMs dominate the benchmark, with Gemini-3.1-Pro-Preview
+    leading at an Overall SAA of 76.0.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Gemini-3.1-Pro-Preview achieves an Overall SAA of 76.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:36:04Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 1
+  canonical: GPT-5.4 Ans 87.1, SAA 59.0
+  claim_id: c_79652889
+  context: Notably, while GPT-5.4 and Gemini-3-Flash achieve high answer scores (87.1
+    and 84.5), their SAA scores drop significantly to 59.0 and 65.4, respectively.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: GPT-5.4 achieves an Answer Correctness score of 87.1 but an SAA of 59.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:36:21Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 1
+  canonical: Gemini-3-Flash-Preview Ans 84.5, SAA 65.4
+  claim_id: c_c614074d
+  context: Notably, while GPT-5.4 and Gemini-3-Flash achieve high answer scores (87.1
+    and 84.5), their SAA scores drop significantly to 59.0 and 65.4, respectively.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Gemini-3-Flash-Preview achieves an Answer Correctness score of 84.5 but
+    an SAA of 65.4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:36:36Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 1
+  canonical: 'Qwen3-VL-8B SAA scores: 8.8 Single-Doc, 6.8 Multi 1-Gold, 5.2 Multi
+    N-Gold'
+  claim_id: c_c2a83649
+  context: Small-scale MLLMs (e.g., Qwen3-VL-8B) struggle the most, with SAA scores
+    often falling below 10.0. Table 2 shows Qwen3-VL-8B scores 8.8, 6.8, and 5.2 across
+    scenarios.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Qwen3-VL-8B achieves an SAA score of 8.8 in Single-Doc, 6.8 in Multi (1-Gold),
+    and 5.2 in Multi (N-Gold) scenarios.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:36:51Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 1
+  canonical: GT-Pages restriction yields +5.3% gain for Qwen3.5-27B
+  claim_id: c_4a9e90ab
+  context: Restricting the context to GT-Pages consistently yielded gains (up to +5.3%),
+    while providing a single Gold Document in multi-document settings led to substantial
+    leaps, such as +13.4% for Qwen3-VL-8B.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Restricting the context to GT-Pages yielded gains of up to +5.3% for Qwen3.5-27B.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:36:52Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 1
+  canonical: Single Gold Document restriction yields +13.4% gain for Qwen3-VL-8B
+  claim_id: c_f530fcf1
+  context: Restricting the context to GT-Pages consistently yielded gains (up to +5.3%),
+    while providing a single Gold Document in multi-document settings led to substantial
+    leaps, such as +13.4% for Qwen3-VL-8B.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Providing a single Gold Document in multi-document settings led to a performance
+    leap of +13.4% for Qwen3-VL-8B.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:36:52Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 1
+  canonical: Gemini-3.1-Pro-Preview Overall Page Recall 87.9%
+  claim_id: c_f92647fa
+  context: While the Gemini-3 series demonstrates strong navigation (above 87% Overall
+    Page.), many advanced models like GPT-5.2 (69.3% Overall Page.) and Qwen3-VL-235B-A22B
+    (57.8% Overall Page.) frequently fail to even locate the relevant page.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Gemini-3.1-Pro-Preview achieves an Overall Page-level Recall of 87.9%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:37:12Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 1
+  canonical: Qwen3-VL-235B-A22B Overall Page Recall 57.8%
+  claim_id: c_c7c25cc5
+  context: While the Gemini-3 series demonstrates strong navigation (above 87% Overall
+    Page.), many advanced models like GPT-5.2 (69.3% Overall Page.) and Qwen3-VL-235B-A22B
+    (57.8% Overall Page.) frequently fail to even locate the relevant page.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Qwen3-VL-235B-A22B achieves an Overall Page-level Recall of 57.8%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:37:13Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 1
+  canonical: 100 million raw PDFs; 250k candidates pre-selected
+  claim_id: c_2e311ef8
+  context: Starting from a corpus of over 100 million raw PDF documents (primarily
+    sourced from Common Crawl), we first pre-selected approximately 250k candidate
+    documents through stratified sampling.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Starting from a corpus of over 100 million raw PDF documents, approximately
+    250k candidate documents were pre-selected.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:37:30Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 1
+  canonical: Human experts audited 200 randomly selected CiteVQA outputs
+  claim_id: c_c422cec5
+  context: Despite the automated production, we invited several PhD-level experts
+    to conduct sampling audits of 200 randomly selected CiteVQA outputs, focusing
+    on question difficulty, answer quality, and the quality of crucial evidence.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Human experts conducted sampling audits of 200 randomly selected CiteVQA
+    outputs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:37:43Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 1
+  canonical: CiteVQA Pipeline 3k samples Page_acc 97.7% on FinRAGBench-V
+  claim_id: c_3fc6c7cf
+  context: On FinRAGBench-V, CiteVQA Pipeline (3k) achieves comparable or slightly
+    better performance than Vidore Original (5k). Table 6 shows CiteVQA Pipeline (3k)
+    achieved a Page_acc of 97.7%.
+  evidence:
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: CiteVQA Pipeline (3k samples) achieved a Page_acc of 97.7% on FinRAGBench-V.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-01T06:37:43Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 1
+  canonical: CiteVQA Pipeline 3k samples Recall_EM 40.6% on FinRAGBench-V
+  claim_id: c_402f3692
+  context: On FinRAGBench-V, CiteVQA Pipeline (3k) achieves comparable or slightly
+    better performance than Vidore Original (5k). Table 6 shows CiteVQA Pipeline (3k)
+    achieved a Recall_EM of 40.6%.
+  evidence:
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: CiteVQA Pipeline (3k samples) achieved a Recall_EM of 40.6% on FinRAGBench-V.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-01T06:37:43Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 1
+  canonical: Vidore Original 5k samples Recall_EM 35.4% on FinRAGBench-V
+  claim_id: c_172afa04
+  context: On FinRAGBench-V, CiteVQA Pipeline (3k) achieves comparable or slightly
+    better performance than Vidore Original (5k). Table 6 shows Vidore Original (5k)
+    achieved a Recall_EM of 35.4%.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Vidore Original (5k samples) achieved a Recall_EM of 35.4% on FinRAGBench-V.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:37:58Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 1
+  canonical: Vidore Original 5k samples Page_acc 94.7% on ViDoRe V3
+  claim_id: c_82a64505
+  context: On ViDoRe V3, Vidore Original shows a slight advantage. Table 6 shows Vidore
+    Original (5k) achieved a Page_acc of 94.7%.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Vidore Original (5k samples) achieved a Page_acc of 94.7% on ViDoRe V3
+    test set.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:38:13Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 1
+  canonical: CiteVQA Pipeline 3k samples Page_acc 93.5% on ViDoRe V3
+  claim_id: c_fec6b406
+  context: On ViDoRe V3, Vidore Original shows a slight advantage. Table 6 shows CiteVQA
+    Pipeline (3k) achieved a Page_acc of 93.5%.
+  evidence:
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: CiteVQA Pipeline (3k samples) achieved a Page_acc of 93.5% on ViDoRe V3
+    test set.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-01T06:38:13Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 1
+  canonical: Halving pixels reduces SAA from 22.5% to 11.8% for Qwen3-VL-235B-A22B
+  claim_id: c_f7e39a07
+  context: For instance, halving the total pixels (from 1024^2 to approx 724^2) leads
+    to a near-50% reduction in SAA (from 22.5% to 11.8%), indicating that precise
+    localization is highly sensitive to visual fidelity.
+  evidence:
+    asserted: '1024.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: causal
+  raw_text: Halving the total pixels (from 1024^2 to approx 724^2) leads to a reduction
+    in SAA from 22.5% to 11.8% for Qwen3-VL-235B-A22B.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-01T06:38:14Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 1
+  canonical: GPT-5.4 Page Recall drops from 88.5% Single-Doc to 75.4% N-Gold
+  claim_id: c_30d9fb1b
+  context: For instance, GPT-5.4 sees its Page-level Recall drop from 88.5% in Single-Doc
+    to 75.4% in N-Gold, while its F1-score falls from 29.6% to 20.6%.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: GPT-5.4 sees its Page-level Recall drop from 88.5% in Single-Doc to 75.4%
+    in N-Gold scenarios.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:38:34Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 1
+  canonical: Qwen3-VL-235B-A22B Page Recall drops from 64.4% to 50.5% in Multi-Doc
+  claim_id: c_700d805e
+  context: For many open-source models, the Multi-Doc setting acts as a performance
+    ceiling; for example, Qwen3-VL-235B-A22B experiences a significant decline in
+    Page-level Recall, dropping from 64.4% to 50.5%.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Qwen3-VL-235B-A22B experiences a decline in Page-level Recall from 64.4%
+    to 50.5% in Multi-Doc settings.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:38:51Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 1
+  canonical: Gemini-3.1-Pro-Preview SAA 85.0 in Academic Tech domain
+  claim_id: c_1de87769
+  context: 'Our cross-domain evaluation reveals that performance varies significantly
+    depending on document structure: models achieve peak performance in the Academic
+    Tech domain (e.g., Gemini-3.1-Pro-Preview at 85.0) due to the highly standardized
+    layouts and logical rigor of academic papers.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Gemini-3.1-Pro-Preview achieves an SAA of 85.0 in the Academic Tech domain.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:38:52Z'
+- artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  attempts: 1
+  canonical: Highest SAA in Publishing & Media domain is 63.3
+  claim_id: c_8b976a95
+  context: Conversely, the Publishing & Media domain presents the greatest challenge,
+    with the highest SAA reaching only 63.3, as the complex typographic designs, non-linear
+    content distribution, and intricate image-text interleaving inherent in newspapers
+    and magazines severely hinder models' spatial perception and cross-page reasoning
+    capabilities.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Highest_SAA_in_Publishing_&_Media_domain_is_63.3
+  kind: magnitude
+  raw_text: The highest SAA in the Publishing & Media domain reaches only 63.3.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T06:38:54Z'

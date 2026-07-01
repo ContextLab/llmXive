@@ -1,0 +1,68 @@
+$$\text{Rec.} = \frac{1}{|\mathcal{B}_{\text{crucial}}|} \sum_{b_{\text{gt}} \in \mathcal{B}_{\text{crucial}}} \mathbf{1}_{\left( \max_{b_{\text{pred}} \in \mathcal{B}_{\text{pred}}} \text{IoU}(b_{\text{pred}}, b_{\text{gt}}) \ge 0.5 \right)}$$
+
+\textbf{Relevance (Rel.)} Measures how well each predicted evidence supports its corresponding answer, evaluated by an LLM judge $\Jrel$ on a 0--5 scale: $\text{Rel.} = \frac{1}{n} \sum_{i=1}^{n} \Jrel(A_i, b_i) \in [0, 5]$.
+
+\textbf{Answer Correctness (Ans.)} Measures semantic matching between predicted and ground-truth answers via an LLM judge $\Jans$: $\text{Ans.} = \Jans(\{A_1, A_2, \dots, A_n\}, A_{\text{gt}}) \in [0, 5]$.
+
+\textbf{Strict Attributed Accuracy (SAA)} A sample-level binary metric requiring both high-quality grounding and answer correctness: $\text{SAA} = \mathbf{1}_{(\text{Ans.} \ge 4 \land (\text{Rel.} \ge 4 \lor \text{Rec.} \ge 0.6))}$.
+
+In addition to the aforementioned metrics, we also evaluate $\text{Page}_{recall}$, Precision, and F1-score for a more comprehensive assessment of document localization. Owing to space limitations, their formal definitions and detailed evaluation results are deferred to the Appendix~\ref{Appendix: More Evaluation Metrics} and~\ref{Appendix: More Results of Experiments} .
+
+\subsection{Experimental Setup}
+\label{Experimental Setup}
+We evaluated 20 state-of-the-art MLLMs, encompassing both leading proprietary and open-source models, on the CiteVQA benchmark. For input processing, models received sequential page screenshots via native APIs or OpenAI-compatible interfaces, with image resolutions adapted to their respective context window capacities (see Appendix~\ref{Appendix: Details of Experiments} for technical specifics). All models were tested using a unified prompt template with a sampling temperature of 1.0. For automated evaluation, we employed Qwen3-VL-235B-A22B as the primary judge (See Analysis of Judges in Appendix~\ref{Appendix: Analysis of Different Judges}).
+
+
+\begin{table}[t]
+\centering
+\scriptsize
+\renewcommand{\arraystretch}{1.25}
+\setlength{\tabcolsep}{1.0pt}
+\begin{tabular}{@{}l cccc cccc cccc >{\bfseries}c>{\bfseries}c>{\bfseries}c>{\bfseries}c@{}}
+\toprule
+\multirow{2.5}{*}{\textbf{Model}} & \multicolumn{4}{c}{\textbf{Single-Doc}} & \multicolumn{4}{c}{\textbf{Multi (1-Gold)}} & \multicolumn{4}{c}{\textbf{Multi (N-Gold)}} & \multicolumn{4}{c}{\textbf{Overall}} \\
+\cmidrule(lr){2-5} \cmidrule(lr){6-9} \cmidrule(lr){10-13} \cmidrule(l){14-17}
+& Rec. & Rel. & Ans. & SAA & Rec. & Rel. & Ans. & SAA & Rec. & Rel. & Ans. & SAA & Rec. & Rel. & Ans. & SAA \\ \midrule
+
+\multicolumn{17}{c}{\textit{Closed-source MLLMs}} \\ \midrule
+Gemini-3.1-Pro-Preview&\highlightblue{68.9}&\highlightblue{82.6}&\highlightgreen{86.7}&\highlightblue{76.0}&\highlightblue{69.4}&\highlightblue{84.3}&\highlightgreen{88.0}&\highlightblue{79.7}&\highlightblue{55.3}&\highlightblue{85.3}&\highlightgreen{82.8}&\highlightblue{71.6}&\highlightblue{66.0}&\highlightblue{83.6}&\highlightgreen{86.1}&\highlightblue{76.0} \\
+Gemini-3-Flash-Preview&\highlightgreen{49.5}&\highlightgreen{76.8}&85.3&\highlightgreen{69.3}&\highlightgreen{42.1}&\highlightgreen{72.3}&86.0&\highlightgreen{61.8}&\highlightgreen{39.5}&\highlightgreen{77.0}&81.0&\highlightgreen{60.5}&\highlightgreen{45.4}&\highlightgreen{75.7}&84.5&\highlightgreen{65.4} \\
+Gemini-2.5-Pro&31.5&61.7&83.0&49.4&25.4&58.3&84.1&48.9&20.0&57.3&78.0&39.2&27.4&59.8&82.2&47.0\\
+GPT-5.4&35.9&69.8&\highlightblue{87.6}&61.7&25.7&62.1&\highlightblue{88.3}&56.9&25.7&68.2&\highlightblue{84.3}&55.1&31.0&67.5&\highlightblue{87.1}&59.0\\
+GPT-5.2 &20.9&54.9&71.4&32.6&16.5&63.2&72.4&38.8&13.9&53.0&70.5&30.5&18.2&56.6&71.5&33.7 \\
+Qwen3.6-Plus&9.8&26.7&87.1&20.2&5.9&24.6&87.3&18.5&4.6&21.3&81.2&9.8&7.7&25.0&85.9&17.5\\
+Seed2.0-Pro&35.8&60.8&82.9&51.9&18.1&44.9&82.6&33.5&21.5&51.2&76.0&36.2&28.5&54.9&81.3&44.1 \\
+GLM-5V-Turbo &18.3&31.2&50.0&14.1&11.7&25.2&44.4&9.8&10.2&28.8&54.3&13.0&14.9&29.2&49.6&12.8\\
+\midrule
+
+\multicolumn{17}{c}{\textit{Open-source Large MLLMs}} \\ \midrule
+Kimi-K2.5&8.2&27.7&74.6&21.3&3.5&25.2&74.7&18.9&4.8&26.6&72.9&14.2&6.2&26.8&74.3&19.1 \\
+Gemma-4-31B &10.9&31.0&65.7&16.4&14.0&41.0&80.6&29.8&10.4&37.7&67.2&17.8&11.6&35.0&69.8&20.2\\
+Qwen3.5-397B-A17B&6.8&23.6&80.0&17.7&4.0&27.3&71.9&22.2&3.8&23.8&73.5&15.2&5.4&24.6&76.5&18.3\\
+Qwen3.5-122B-A10B&5.9&19.4&78.3&16.0&1.7&20.9&69.0&17.0&1.9&15.6&68.1&9.2&3.9&19.0&73.6&14.8 \\
+Qwen3.5-27B &7.0&25.0&79.3&17.1&3.1&28.3&73.1&22.6&3.9&22.6&69.9&11.6&5.3&25.3&75.6&17.3\\
+Qwen3-VL-235B-A22B&15.2&37.8&75.0&25.0&6.2&33.8&68.2&21.6&8.1&31.4&70.9&17.8&11.3&35.3&72.3&22.5 \\
+Qwen3-VL-32B&8.0&31.3&75.3&19.3&2.8&29.5&67.6&16.2&7.9&29.8&70.7&14.0&6.6&30.5&72.3&17.3 \\
+\midrule
+
+\multicolumn{17}{c}{\textit{Open-source Small MLLMs}} \\ \midrule
+Gemma-4-26B-A4B &2.2&15.4&45.6&4.8&4.2&21.4&53.7&9.7&3.5&19.8&48.9&5.5&3.0&17.9&48.4&6.2 \\
+Qwen3.5-35B-A3B  &2.7&12.6&82.3&9.2&0.5&17.3&73.9&15.6&0.6&12.1&65.5&8.3&1.7&13.7&76.4&10.7 \\
+Qwen3.5-9B&2.5&11.7&73.2&8.1&0.3&20.7&58.4&17.7&0.8&14.6&53.5&10.7&1.6&14.7&65.0&11.1 \\
+Qwen3-VL-30B-A3B  &5.6&15.4&65.4&8.9&0.9&15.9&54.4&8.2&1.7&11.0&63.5&6.4&3.5&14.6&62.2&8.2\\
+Qwen3-VL-8B &1.8&17.6&67.0&8.8&0.0&13.6&53.3&6.8&0.3&9.3&56.4&5.2&1.0&14.7&61.2&7.5   \\
+
+\bottomrule
+\end{tabular}
+\caption{\textbf{Comprehensive Evaluation of CiteVQA across Different Document Scenarios.} All scores are normalized to a 100-point scale; specifically, Rel. and Ans. scores (originally 0--5) are multiplied by 20 to facilitate direct comparison with Rec. and SAA. For each metric, the best and second-best results are highlighted in \highlightblue{blue} and \highlightgreen{green}, respectively.}
+\label{tab:main_results}
+\end{table}
+
+
+\subsection{Main Results}
+Table~\ref{tab:main_results} presents a comprehensive evaluation of state-of-the-art MLLMs on CiteVQA. Our analysis reveals several critical insights into the current state of faithful evidence attribution.
+
+\paragraph{The "Attribution Hallucination" Phenomenon} A pervasive gap exists between answer accuracy (Ans.) and Strict Attributed Accuracy (SAA) across all tested models. Notably, while GPT-5.4 and Gemini-3-Flash achieve high answer scores (87.1 and 84.5), their SAA scores drop significantly to 59.0 and 65.4, respectively. This discrepancy confirms an "Attribution Hallucination" effect: while models possess the perceptual capacity to extract information for a correct answer, they lack the ability to precisely link that information to its specific spatial source within the document. This is further evidenced by low Recall scores; even with a lenient IoU $\ge$ 0.5 threshold, models frequently fail to localize the crucial evidence or even identify the correct page (See $\text{Page}_{recall}$ in Table~\ref{tab:multi_scenario_results}).
+
+\paragraph{Performance Disparity across Model Tiers} There is a stark performance hierarchy among different model categories. Closed-source MLLMs dominate the benchmark, with Gemini-3.1-Pro-Preview leading at an Overall SAA of 76.0. While GPT-5.4 excels in semantic answer correctness (87.1), it is surpassed by Gemini models in SAA, suggesting Gemini may have more robust native citation-alignment. In contrast, a significant "cliff" exists for Open-source Models, where the strongest (Qwen3-VL-235B) achieves an SAA of only 22.5. Small-scale MLLMs (e.g., Qwen3-VL-8B) struggle the most, with SAA scores often falling below 10.0. This underscores that deploying such small models in high-stakes domains---such as finance, law, or medicine---remains extremely risky, as they lack the fundamental grounding reliability required for professional auditing.
+

@@ -1,0 +1,87 @@
+To overcome single-document limitations, we propose a linking strategy that aggregates cross-document evidence via semantic alignment. The system identifies candidates through vector similarity and utilizes an LLM to align section-level metadata, integrating isolated documents into logically connected groups $D$ (retaining single-document form if no associations exist). This provides a robust foundation for complex reasoning across multiple sources; see Appendix~\ref{Appendix: Details of Multi-Document Linking} for implementation.
+\paragraph{Evidence Package Extraction}
+We utilize MinerU2.5~\citep{niu2025mineru2, wang2026mineru2} for deep document parsing to obtain fine-grained results containing document IDs, page numbers, bounding box (BBox) coordinates, and OCR content. Drawing inspiration from DocDancer~\citep{zhang2026docdancer} and WebSailor~\citep{li2025websailor}, we employ high-performance MLLMs (e.g., Gemini-3.0-Flash-Preview~\citep{team2023gemini}) as intelligent agents. These agents navigate the parsed BBox space to identify and concatenate supporting facts scattered across different pages or documents, ultimately aggregating them into a comprehensive Evidence Package.
+\paragraph{QA Construction}
+To simulate real-world business scenarios effectively, we collect authentic questions from open-source datasets across various domains (see Appendix~\ref{Appendix: Details of QA Construction}) and distill them into a series of templates. During construction, high-performance MLLMs first select the most appropriate logical template based on the characteristics of the Evidence Package, subsequently synthesizing QA pairs automatically based on template constraints and core information within the evidence. This template-guided approach ensures both logical rigor and broad domain coverage.
+
+\subsection{Quality Control and Assessment}
+We implement a fully automated verification process to ensure dataset reliability. This includes Answerability Verification to confirm evidence sufficiency, Relevance Filtering to exclude common-knowledge questions, and an ablation-based procedure to identify "Crucial Evidence" for metric validity.
+\paragraph{Answerability Verification and Paraphrasing}
+To eliminate invalid QA pairs potentially generated during automation, we submit candidate questions along with their dependent evidence screenshots to a powerful MLLM for secondary confirmation. A QA pair is retained only if the model can accurately answer given only the evidence screenshots. Subsequently, the model paraphrases the original template-generated questions to enhance linguistic richness and stylistic diversity while strictly maintaining the original intent.
+\paragraph{Relevance Filtering and Crucial Evidence Identification}
+To ensure the challenging nature of the dataset, we execute a "zero-document self-test" using Qwen3-VL-235B-A22B-Instruct~\citep{bai2025qwen3}: questions that the model can answer without any document context (classified as common-knowledge-based) are discarded.
+
+For the core evidence chain determination, we designed an ablation-based crucial evidence identification procedure: each BBox element in the Evidence Package is masked individually before being presented to a powerful MLLM. If the model fails to derive the correct answer after a mask is applied, that element is labeled as \textbf{"Crucial Evidence."} This process ensures the scientific validity of subsequent Recall evaluation metrics.
+
+\paragraph{Remark} While our pipeline is fully automated to ensure scalability, we conducted human expert evaluation and auxiliary training validation to further guarantee the rigorous quality of the CiteVQA benchmark. Detailed procedures and results of these reliability assessments are provided in Appendix~\ref{Appendix: Details of Expert Evaluation} and~\ref{Appendix: Auxiliary Training Validation}.
+
+\subsection{Dataset Overview and Analysis}
+As summarized in Table~\ref{tab:Dataset Statistics} and Figures~\ref{fig:pdf_stats}-\ref{fig:question_statistics}, CiteVQA is a diverse benchmark comprising 711 documents across 7 macro-domains, with a realistic average length of 40.6 pages. The 1,897 questions cover varied scenarios including single-doc (52.0\%), multi-doc with one gold document (25.7\%), and multi-doc with multiple gold documents (22.3\%), spanning reasoning types from Complex Synthesis to Multimodal Parsing. Each task requires an average of 2.57 evidence elements, nearly 30\% of which are non-textual (tables, images, or equations). Evidence is uniformly distributed across document positions and often spans multiple pages, demanding robust long-context aggregation.
+
+\begin{table}[htbp]
+    \centering
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \footnotesize
+        \begin{tabular}{lc}
+            \toprule
+            \textbf{Statistic} & \textbf{Number} \\
+            \midrule
+            \textbf{Documents} & 711 \\
+            \quad - Type (Macro/Micro) & 7 / 30 \\
+            \quad - Avg./Median pages & 40.6 / 30.0 \\
+            \quad - Language (EN/ZH) & 451 / 260 \\
+            \midrule
+            \textbf{Total questions} & 1,897 \\
+            \quad - Single-doc & 987 (52.0\%) \\
+            \quad - Multi (1-Gold) & 487 (25.7\%) \\
+            \quad - Multi (N-Gold) & 423 (22.3\%) \\
+            \midrule
+            (Question Type) \\
+            \quad - Complex Synthesis & 839 (44.23\%) \\
+            \quad - Factual Retrieval & 499 (26.30\%) \\
+            \quad - Multimodal Parsing & 352 (18.56\%) \\
+            \quad - Quantitative Reasoning & 207 (10.91\%) \\
+            \midrule
+            (Evidence Source) \\
+            \quad - Text & 2082 (70.12\%) \\
+            \quad - Table & 653 (21.99\%) \\
+            \quad - Image & 209 (7.04\%) \\
+            \quad - Equation & 25 (0.84\%) \\
+            \midrule
+            Avg./Max. question length & 137.64 / 500 \\
+            Avg./Max. answer length & 180.48 / 2976 \\
+            Avg./Max. evidences & 2.57 / 10 \\
+            \bottomrule
+        \end{tabular}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/pdf_statistics.pdf}
+        \captionof{figure}{Distribution of documents. \textbf{Top}: Document type. \textbf{Bottom}: Page Number.}
+        \label{fig:pdf_stats}
+    \end{minipage}
+\caption{Dataset Statistics}
+\label{tab:Dataset Statistics}
+\end{table}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/question_statistics.pdf}
+\caption{Analysis of question types and evidence distribution in CiteVQA. \textbf{Left}: Domain-specific Question Types. \textbf{Middle}: Evidence Locality (in relative percent). \textbf{Right}: Cross-page Span, quantifying the number of pages spanned by evidences.}
+\label{fig:question_statistics}
+\end{figure}
+
+\section{Evaluation}
+\label{Evaluation}
+\subsection{Evaluation Metrics}
+\label{Evaluation Metrics}
+To evaluate evidence attribution, we introduce a novel set of metrics assessing both answer correctness and trustworthiness in grounding predictions on verifiable evidence.
+
+Formally, each sample is represented as $(D, Q, A_{\text{gt}}, \mathcal{B}_{\text{gt}})$, where $\mathcal{B}_{\text{gt}}$ is the set of ground-truth bounding boxes, further categorized into crucial ($\mathcal{B}_{\text{crucial}}$) and supplemental ($\mathcal{B}_{\text{other}}$) evidence. Each bounding box $b \in \mathcal{B}$ is defined by $(\text{doc\_idx}, \text{page\_idx}, x_1, y_1, x_2, y_2)$. The model output is $\hat{Y} = \{(A_1, b_1), \dots, (A_n, b_n)\}$, where $\mathcal{B}_{\text{pred}} = \{b_1, \dots, b_n\}$ denotes the predicted evidence set.
+
+We define the following key metrics:
+
+\textbf{Recall (Rec.)} Measures coarse-grained localization ability, computed at IoU@0.5 between predicted and crucial evidence:
+

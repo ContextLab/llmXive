@@ -9,3 +9,37 @@
   verification_status: verified
   verified_against_url: https://download.pytorch.org/whl/cpu
   verified_at: '2026-06-30T07:49:46.378297Z'
+- artifact_hash: 671a683b5cdc441ff9c4b7af93fe3a0ed7b23d1539989bea30f88ca8276c95fe
+  artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub - opendatalab/CiteVQA \xB7 GitHub"
+  kind: url
+  value: https://github.com/opendatalab/CiteVQA
+  verification_status: verified
+  verified_against_url: https://github.com/opendatalab/CiteVQA
+  verified_at: '2026-07-01T06:29:48.698157Z'
+- artifact_hash: 671a683b5cdc441ff9c4b7af93fe3a0ed7b23d1539989bea30f88ca8276c95fe
+  artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/main-llmxive.tex
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: arxiv
+  value: '2605.12882'
+  verification_status: unreachable
+  verified_against_url: null
+  verified_at: '2026-07-01T06:29:48.698157Z'
+- artifact_hash: 4b5de211e6725befcc54498498e55e14e371b9359d064942c3761c7a3a4cd241
+  artifact_path: projects/PROJ-601-https-arxiv-org-abs-2605-12882/paper/source/paper.tex
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2605.12882] CiteVQA: Benchmarking Evidence Attribution for Trustworthy
+    Document Intelligence'
+  kind: url
+  value: https://arxiv.org/abs/2605.12882
+  verification_status: verified
+  verified_against_url: https://arxiv.org/abs/2605.12882
+  verified_at: '2026-07-01T06:38:54.868499Z'

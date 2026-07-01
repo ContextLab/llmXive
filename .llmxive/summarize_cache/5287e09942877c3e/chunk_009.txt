@@ -1,0 +1,157 @@
+GPT-5.2 &67.4&20.9&20.4&18.6&75.9&16.5&15.4&14.8&66.1&13.9&13.4&12.0&69.3&18.2&17.6&16.2\\
+
+Qwen3.6-Plus&50.0&9.8&9.7&8.7&51.7&5.9&6.0&5.5&47.5&4.6&4.9&4.3&49.9&7.7&7.7&6.9\\
+
+Seed2.0-Pro&69.7&35.8&31.8&31.2&59.5&18.1&16.9&15.5&56.4&21.5&18.7&17.2&64.4&28.5&25.4&24.4\\
+
+GLM-5V-Turbo&48.9&18.3&18.5&16.4&43.3&11.7&12.4&10.8&44.0&10.2&9.3&9.0&46.5&14.9&15.0&13.4 \\
+\midrule
+
+\multicolumn{17}{c}{\textit{Open-source Large MLLMs}} \\ \midrule
+Kimi-K2.5 &44.8&8.2&8.0&7.4&42.4&3.5&3.2&3.0&46.0&4.8&5.7&4.4&44.4&6.2&6.3&5.6 \\
+Gemma-4-31B &44.8&10.9&9.8&9.0&56.0&14.0&12.4&11.0&51.1&10.4&11.0&9.0&49.1&11.6&10.7&9.5\\
+Qwen3.5-397B-A17B&48.8&6.8&6.9&6.1&41.6&4.0&3.3&3.4&41.7&3.8&4.5&3.6&45.3&5.4&5.4&4.9\\
+Qwen3.5-122B-A10B&41.5&5.9&5.4&5.2&28.6&1.7&1.7&1.6&30.1&1.9&2.1&1.6&35.6&3.9&3.7&3.5 \\
+Qwen3.5-27B &50.2&7.0&6.9&6.0&43.4&3.1&2.4&2.3&45.1&3.9&3.7&3.5&47.3&5.3&5.0&4.5 \\
+Qwen3-VL-235B-A22B &64.4&15.2&14.9&13.5&50.7&6.2&5.7&5.4&50.5&8.1&7.5&7.0&57.8&11.3&10.9&10.0\\
+Qwen3-VL-32B&69.0&8.0&7.5&6.8&50.7&2.8&2.7&2.4&52.9&7.9&7.5&7.0&60.7&6.6&6.3&5.7\\
+\midrule
+
+\multicolumn{17}{c}{\textit{Open-source Small MLLMs}} \\ \midrule
+Gemma-4-26B-A4B &20.8&2.2&2.7&1.9&22.0&4.2&5.2&3.7&27.5&3.5&3.9&3.2&22.6&3.0&3.6&2.7 \\
+Qwen3.5-35B-A3B &35.1&2.7&2.4&2.3&12.4&0.5&0.5&0.5&18.5&0.6&1.0&0.6&25.5&1.7&1.6&1.5 \\
+Qwen3.5-9B &33.6&2.5&2.4&2.3&6.2&0.3&0.3&0.3&12.2&0.8&1.3&0.9&21.8&1.6&1.6&1.5 \\
+Qwen3-VL-30B-A3B &23.0&5.6&6.1&5.0&7.1&0.9&0.9&0.9&14.1&1.7&2.4&1.6&16.9&3.5&4.0&3.2\\
+Qwen3-VL-8B &43.2&1.8&1.5&1.4&18.9&0.0&0.0&0.0&16.9&0.3&0.2&0.3&31.1&1.0&0.9&0.8 \\
+\bottomrule
+\end{tabular}
+\caption{Detailed attribution performance of MLLMs across different document scenarios. Page. denotes Page-level Recall; Rec., Prec., and F1 represent bounding-box-level Recall, Precision, and F1-score respectively. For each metric, the best and second-best results are highlighted in \highlightblue{blue} and \highlightgreen{green}, respectively.}
+\label{tab:multi_scenario_results}
+\end{table}
+
+\subsection{More Fine-grained Results}
+\label{Appendix: Fine-grained Results}
+\paragraph{Document Type} Our cross-domain evaluation reveals that performance varies significantly depending on document structure (See Figure~\ref{fig:citevqa_domain_radar}): models achieve peak performance in the Academic Tech domain (e.g., Gemini-3.1-Pro-Preview at 85.0) due to the highly standardized layouts and logical rigor of academic papers, which facilitate precise evidence attribution. Conversely, the Publishing \& Media domain presents the greatest challenge, with the highest SAA reaching only 63.3, as the complex typographic designs, non-linear content distribution, and intricate image-text interleaving inherent in newspapers and magazines severely hinder models' spatial perception and cross-page reasoning capabilities.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.5\textwidth]{figures/citevqa_domain_radar.pdf}
+\caption{Fine-grained results on various document types (SAA Score).}
+\label{fig:citevqa_domain_radar}
+\end{figure}
+
+
+
+\section{Case Study}
+\label{Appendix: Case Study}
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.6\textwidth]{figures/Case_Study1.pdf}
+\caption{Case Study 1. While both models generate correct answers (Ans.=5), Gemini-3.1-Pro-Preview accurately cites the "Contract Optional Years" table (SAA=1). Conversely, GPT-5.4 exhibits "Attribution Hallucination" by providing the correct text but citing an incorrect pricing table (e.g., \$145 vs. \$170 for Year 1), resulting in Rec.=0 and SAA=0.}
+\label{fig:Case_study1}
+\end{figure}
+
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.6\textwidth]{figures/Case_Study2.pdf}
+\caption{Case Study 2. While Gemini-2.5-Pro correctly calculates the widening gap ($0.40 - 0.14 = 0.26$ eV) and cites the corresponding evidence segments (SAA=1), Qwen3-VL-8B fails both semantically and visually. It extracts incorrect values ($0.34$ and $0.54$ eV) from the text and provides irrelevant citations, resulting in Ans.=1 and SAA=0. This case demonstrates that even when evidence is explicitly stated in the text, weaker models struggle with both the retrieval and the logic required for multi-step attribution. }
+\label{fig:Case_study2}
+\end{figure}
+
+
+
+\section{Prompt Templates}
+\label{Prompt Templates}
+\subsection{Prompts for CiteVQA Pipeline}
+\label{Prompts for CiteVQA Pipeline}
+
+\begin{promptbox}[breakable]{Prompt for Extracting Evidence Package from PDFs}
+**Role**: Parse a PDF document containing outline, OCR text blocks, bounding boxes, and page screenshots.
+
+**Goal**: Collect high-quality, verifiable evidence bundles to support Q&A, analysis, calculation, and visual extraction.
+
+**Each evidence bundle MUST satisfy**:
+
+1. **Multi-page**: At least 2 different pages.
+2. **Multi-element**: At least 2 element types (e.g., text, table, figure, layout).
+3. **Complete context**:
+ - If including a table/figure, MUST also extract its title, caption, legend, axis labels, footnotes, etc.
+ - If an element spans multiple pages (e.g., continued table), MUST extract the complete structure from ALL involved pages (e.g., headers from previous page).
+
+**What to capture**:
+- **Text**: Key phrases, definitions, scope notes.
+- **Figures**: Captions, axis/legend text, panel labels.
+- **Tables**: Full headers, target cells, footnotes.
+- **Layout**: Relative position, grouping, visual prominence (e.g., full-width table, top large figure).
+
+**Exploration steps**:
+1. Search keywords: "Figure", "Table", "Note", "unit", etc.
+2. Extract the hit AND all surrounding relevant elements (enforce complete context for tables/figures).
+3. Cross-page link: Connect same metric/entity across different pages.
+4. Use screenshots and bounding boxes to confirm type and layout.
+
+**Avoid**:
+- Single-element bundles, ID/page-number dependencies, fragmented tables/figures, broad summaries without clear Q&A target.
+
+**Output format**: Return a list of evidence bundles. Generate at least **10** bundles.
+
+\begin{lstlisting}
+[{
+ "Evidence_package_description": "Brief description of purpose and reasoning value",
+ "Evidence_list": [
+ {
+ "type": "element_type",
+ "content": "OCR text content",
+ "bbox": [y1, x1, y2, x2],
+ "angle": 0,
+ "page_id": page_number,
+ "element_idx": "element_index"
+ }
+ // At least 5 relevant elements
+ ]
+}]
+\end{lstlisting}
+\end{promptbox}
+
+\begin{promptbox}[breakable]{Prompt for Getting Templates from Open-source Datasets}
+Given question samples, generate one reusable template for each sample.
+
+Return strict JSON only:
+{{
+ "samples": [
+ {{
+ "sample_id": 0,
+ "category": "...",
+ "template_en": "...",
+ "template_cn": "...",
+ "example_en": "...",
+ "example_cn": "..."
+ }}
+ ]
+}}
+
+Requirements:
+1. category: "Complex Synthesis", "Factual Retrieval", "Multimodal Parsing", "Quantitative Reasoning",.
+2. template_en/template_cn must be abstract reusable templates, use placeholders like [Entity], [Date], [Metric], [Section], [Method].
+3. example_en/example_cn should be one short concrete question in that sample style.
+4. Keep semantic consistency within each sample.
+5. Must return one item for every sample_id provided.
+\end{promptbox}
+
+\begin{promptbox}[breakable]{Prompt for Annotation Evaluation}
+
+You are an expert evaluator for a VQA benchmark. Your task is to assess the quality of a given QA pair along three dimensions: **Question Difficulty**, **Answer Quality**, and **Crucial Evidence Quality**.
+
+Please follow the scoring criteria below. All scores range from **0 to 5**, where 0 indicates complete failure or unusable quality.
+
+---
+
+**1. Question Difficulty (0-5)**
+- **0**: Nonsensical, unanswerable, or no meaningful question.
+- **1 to 2 (Simple)**: Direct fact retrieval, minimal reasoning, no cross-document or cross-page synthesis.
+- **3 (Moderate)**: Requires basic inference or aggregation from a single document section.
+- **4 to 5 (Complex)**: Involves multi-step reasoning, cross-document comparison, contradiction resolution, or indirect evidence extraction.
+
+---
+
