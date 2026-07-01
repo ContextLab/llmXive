@@ -25,6 +25,8 @@ addresses panel concerns that the deterministic guards couldn't catch
 
 from __future__ import annotations
 
+import logging
+import re
 from pathlib import Path
 from typing import Any
 
@@ -86,6 +88,43 @@ def _feature_dirs_of(valid_paths: set[str]) -> set[str]:
         elif "/" in p:
             dirs.add(p.rsplit("/", 1)[0])
     return dirs
+
+
+# The path tail INSIDE a feature dir: everything after ``.../specs/NNN-slug/``.
+# For ``projects/P/specs/001-foo/contracts/x.schema.yaml`` this is
+# ``contracts/x.schema.yaml``; for ``.../specs/001-foo/plan.md`` it is ``plan.md``.
+_FEATURE_TAIL_RE = re.compile(r"/specs/[^/]+/(?P<tail>.+)$")
+
+
+def _feature_relative_tail(path: str) -> str | None:
+    """The artifact's path relative to its ``specs/NNN-slug`` feature dir.
+
+    Returns ``None`` for a path that is not inside a ``specs/NNN-slug/`` dir
+    (e.g. ``paper/specs/...`` uses a ``paper/specs`` prefix; that still matches
+    the ``/specs/`` segment, which is what we want for re-keying).
+    """
+    m = _FEATURE_TAIL_RE.search(path)
+    return m.group("tail") if m else None
+
+
+def _rekey_to_canonical(path: str, valid_set: set[str]) -> str | None:
+    """Map an emitted path to its canonical valid path when the model
+    paraphrased only the project / feature-dir SLUG (spec 023 defect #20c —
+    the multi-doc analogue of :func:`pick_expected_artifact`).
+
+    Observed live (engine-failure issues #385/#386): the plan reviser emitted
+    ``.../specs/001-predict-plant-disease.../plan.md`` while the canonical dir
+    was ``.../specs/001-predicting-plant-disease.../plan.md`` — same file, a
+    truncated/reworded slug — and the exact ``path in valid_set`` check crashed
+    the whole engine. Match by the path tail INSIDE the feature dir (``plan.md``,
+    ``contracts/x.schema.yaml``): if exactly ONE valid path shares that tail,
+    re-key to it. Ambiguous (0 or 2+ candidates) → ``None`` (rejected honestly).
+    """
+    tail = _feature_relative_tail(path)
+    if tail is None:
+        return None
+    candidates = [v for v in valid_set if _feature_relative_tail(v) == tail]
+    return candidates[0] if len(candidates) == 1 else None
 
 
 def _is_source_spec(key: str, *, paper: bool) -> bool:
@@ -348,15 +387,37 @@ class _AbstractPlanReviser:
                 path.startswith(d + "/") for d in feature_dirs
             ):
                 updates[path] = text  # NEW plan artifact within the feature dir
+            elif (canonical := _rekey_to_canonical(path, valid_set)) is not None:
+                # Spec 023 defect #20c (engine-failure #385/#386): the model
+                # paraphrased only the project/feature-dir SLUG. Re-key the body
+                # to the canonical path instead of crashing the engine.
+                logging.getLogger(__name__).warning(
+                    "%s: reviser emitted %r; re-keying to canonical %r "
+                    "(same feature-relative path, paraphrased slug)",
+                    type(self).__name__, path, canonical,
+                )
+                updates[canonical] = text
             else:
                 rejected.append(str(path))
         if rejected:
-            # Honest reporting — don't silently drop attempts to write
-            # outside the declared plan-artifact set / feature dir.
-            raise RuntimeError(
-                f"{type(self).__name__}: response tried to write artifacts "
-                f"outside the plan set: {rejected!r}. Valid: {sorted(valid_set)!r}"
+            # A path that is neither a valid plan artifact nor a slug-paraphrase
+            # of one (e.g. the SOURCE spec.md — engine-failure #384) is dropped.
+            # If the reviser ALSO produced valid edits, keep them and log the
+            # drop (honest — we never fabricate an artifact). If it produced NO
+            # usable plan edit at all, raise the RECOGNIZED malformed-reply shape
+            # ("no usable ...") so the engine degrades to "no artifact change
+            # this round" (is_malformed_reply_error) and the bounded loop /
+            # kickback handles it — NOT a spurious engine-failure crash.
+            logging.getLogger(__name__).warning(
+                "%s: dropping reviser writes outside the plan set: %r. Valid: %r",
+                type(self).__name__, rejected, sorted(valid_set),
             )
+            if not updates:
+                raise RuntimeError(
+                    f"{type(self).__name__}: response JSON has no usable "
+                    "plan-artifact edits; every emitted path was outside the "
+                    f"plan set: {rejected!r}. Valid: {sorted(valid_set)!r}"
+                )
 
         responses = build_concern_responses(responses_raw, concerns)
         return updates, responses
