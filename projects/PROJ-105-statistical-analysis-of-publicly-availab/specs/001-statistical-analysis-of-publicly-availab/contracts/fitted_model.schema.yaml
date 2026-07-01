@@ -29,7 +29,7 @@ properties:
         description: "KS statistic calculated only on the tail region (x > x_min)."
       tail_ks_p_value:
         type: "number"
-        description: "P-value for the tail KS test. Used as a validity gate."
+        description: "P-value for the tail KS test (bootstrapped). Used as a validity gate."
       x_min:
         type: "number"
         description: "Threshold used for Pareto fitting and tail analysis."
@@ -48,10 +48,27 @@ properties:
     description: "Whether MLE optimization succeeded."
   is_valid_tail:
     type: "boolean"
-    description: "True if the model passed the Tail KS test (p > 0.05) and Hill stability."
+    description: "True if the model passed the Bootstrap GoF test (p >= 0.1)."
+  causality_disclaimer:
+    type: "string"
+    description: "Mandatory disclaimer: 'Associational only'."
+  retention_rate:
+    type: "number"
+    description: "Retention rate of the dataset (valid_records / total_downloaded)."
+  runtime_seconds:
+    type: "number"
+    description: "Total runtime of the analysis in seconds."
+  sc_005_result:
+    type: "string"
+    description: "Result of SC-005 check (Pass/Fail)."
+    enum: ["PASS", "FAIL"]
 required:
   - name
   - parameters
   - metrics
   - converged
   - is_valid_tail
+  - causality_disclaimer
+  - retention_rate
+  - runtime_seconds
+  - sc_005_result

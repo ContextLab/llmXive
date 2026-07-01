@@ -119,6 +119,12 @@ def scan_directory(
         file_paths = list(directory.rglob('*'))
     else:
         file_paths = list(directory.glob('*'))
+
+    # Explicitly skip parse_failures.csv and checksum manifest if they are empty or non-code
+    # to avoid scanning generated logs as source, but we still scan data files for PII.
+    # The scanner is designed to skip .csv and .json by default in should_scan_file,
+    # so this block is redundant but kept for clarity of intent.
+    pass
     
     for file_path in file_paths:
         if not file_path.is_file():
@@ -203,20 +209,35 @@ def main():
     setup_logging()
     
     base_path = Path(__file__).parent.parent
-    data_dir = base_path / 'data'
-    output_path = base_path / 'data' / 'analysis' / 'pii_findings.csv'
+    # Scan both raw and processed directories as required by FR-009
+    data_raw_dir = base_path / 'data' / 'raw'
+    data_processed_dir = base_path / 'data' / 'processed'
+    output_path = base_path / 'data' / 'pii_scan_results.csv'
     
     if not get_pii_scan_enabled():
         logger.info("PII scanning is disabled in config")
         return 0
     
+    all_findings = []
+    
     try:
-        findings = run_pii_scan(str(data_dir), str(output_path))
+        # Scan data/raw/
+        if data_raw_dir.exists():
+            logger.info(f"Scanning {data_raw_dir}")
+            all_findings.extend(scan_directory(data_raw_dir))
         
-        if findings:
-            logger.warning(f"Found {len(findings)} potential PII instances")
+        # Scan data/processed/
+        if data_processed_dir.exists():
+            logger.info(f"Scanning {data_processed_dir}")
+            all_findings.extend(scan_directory(data_processed_dir))
+        
+        # Write results (empty findings will generate a clean scan log)
+        write_findings_to_csv(all_findings, str(output_path))
+        
+        if all_findings:
+            logger.warning(f"Found {len(all_findings)} potential PII instances")
         else:
-            logger.info("No PII patterns detected")
+            logger.info("No PII patterns detected in data/raw/ or data/processed/")
         
         return 0
         

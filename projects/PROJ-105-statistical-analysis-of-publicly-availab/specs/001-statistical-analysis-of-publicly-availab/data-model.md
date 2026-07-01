@@ -1,50 +1,66 @@
-# Data Model: Flight Delay Analysis
+# Data Model: Statistical Analysis of Flight Delay Distributions
 
-## 1. Entity Definitions
+## Entity Definitions
 
-### 1.1 DelayRecord
-Represents a single flight event after pre-processing.
-- **Attributes**:
-  - `flight_id` (str): Unique identifier (e.g., `Carrier + FlightNum + Date`).
-  - `total_delay_minutes` (float): Sum of arrival and departure delays. Must be $\ge 0$.
-  - `carrier` (str): Airline carrier code.
-  - `origin` (str): Origin airport code.
-  - `destination` (str): Destination airport code.
-  - `is_anomaly` (bool): True if `total_delay_minutes > 1440`.
+### DelayRecord
+Represents a single flight event after cleaning.
+-   `flight_id`: string (unique identifier, e.g., "2022-1010-12345")
+-   `carrier`: string (airline code)
+-   `origin`: string (airport code)
+-   `destination`: string (airport code)
+-   `arr_delay`: float (minutes, may be 0 or NaN treated as 0)
+-   `dep_delay`: float (minutes, may be 0 or NaN treated as 0)
+-   `total_delay_minutes`: float (computed: `arr_delay + dep_delay`)
+-   `is_anomaly`: boolean (true if `1440 < total_delay <= 10000`)
+-   `is_data_error`: boolean (true if `total_delay > 10000`)
+-   `is_zero`: boolean (true if `total_delay == 0`)
 
-### 1.2 DistributionModel
+### DistributionModel
 Represents a fitted parametric distribution.
-- **Attributes**:
-  - `name` (str): Name of the distribution (e.g., "Log-Normal").
-  - `parameters` (dict): MLE estimates (e.g., `{"s": 1.2, "loc": 0.5}`).
-  - `metrics` (dict): Goodness-of-fit scores (`{"aic": 1234.5, "bic": 1240.0, "ks_stat": 0.05, "ad_stat": 2.1, "tail_ks_stat": 0.02, "tail_ks_p_value": 0.15, "x_min": 60.0}`).
-  - `converged` (bool): Whether the MLE optimization succeeded.
-  - `is_valid_tail` (bool): Whether the model passed the Tail Validity Gate (Tail KS p > 0.05 and Hill stable).
+-   `name`: string (e.g., "Log-Normal", "Pareto")
+-   `parameters`: object (key-value pairs of MLE estimates, e.g., `{"loc": 0, "scale": 15.2, "shape": 0.5}`)
+-   `metrics`: object
+    -   `aic`: float (calculated on tail subset for Vuong comparison)
+    -   `bic`: float
+    -   `ks_statistic`: float
+    -   `ks_pvalue`: float
+    -   `ad_statistic`: float
+-   `tail_fit`: object (only for Pareto)
+    -   `x_min`: float
+    -   `alpha`: float
+-   `converged`: boolean
+-   `is_valid_tail`: boolean (True if Bootstrap GoF p-value >= 0.1)
+-   `causality_disclaimer`: string ("Associational only")
 
-### 1.3 TailIndexEstimate
+### TailIndexEstimate
 Represents the heavy-tail diagnostic result.
-- **Attributes**:
-  - `method` (str): "Hill".
-  - `threshold_k` (int): Number of records used for estimation.
-  - `estimated_alpha` (float): Tail index (shape parameter).
-  - `confidence_interval` (list): [lower, upper] bounds.
-  - `stability_range` (str): Description of the k-range where the estimate was stable.
-  - `x_min_used` (float): The threshold above which the Hill estimator was applied.
-  - `loglog_r_squared` (float): R² of the log-log survival plot.
-  - `is_power_law` (bool): True if R² >= 0.95 and stable.
+-   `method`: string ("Hill")
+-   `threshold_k`: integer (number of records used)
+-   `estimated_alpha`: float (tail index)
+-   `confidence_interval`: object (`{"lower": float, "upper": float}`)
+-   `stability_range`: object (`{"min_k": int, "max_k": int, "variance_min": float}`)
+-   `log_log_r_squared`: float (visualization only)
+-   `tail_ks_pvalue`: float (bootstrapped)
+-   `log_normal_discrimination`: object (`{"curvature_stat": float, "p_value": float}`)
 
-## 2. Data Flow
+### ComponentComparison
+Represents the comparison between total delay and component delays.
+-   `sum_vs_arr_ks_stat`: float
+-   `sum_vs_arr_ks_pvalue`: float
+-   `sum_vs_dep_ks_stat`: float
+-   `sum_vs_dep_ks_pvalue`: float
+-   `histogram_file`: string (path to saved plot)
 
-1. **Input**: Raw BTS CSV/Parquet (External).
-2. **Process**: `cleaning.py` -> **Intermediate**: `cleaned_delays.parquet` (DelayRecord set).
-   - **Split**: `dataset_all` (includes 0s) and `dataset_positive` (delay > 0).
-3. **Process**: `fitting.py` -> **Intermediate**: `model_results.json` (DistributionModel list).
-4. **Process**: `diagnostics.py` -> **Output**: `tail_analysis.json` (TailIndexEstimate) + Plot images.
-5. **Process**: `state_manager.py` -> **Output**: Updated `state/` file.
+## Data Flow
 
-## 3. Storage Schema
+1.  **Raw Input**: BTS CSV/Parquet (columns: `ArrDelay`, `DepDelay`, `Carrier`, etc.).
+2.  **Cleaned Dataset**: `DelayRecord` list (filtered, flags added).
+    -   *Primary Subset*: `is_data_error == False`.
+    -   *Tail Subset*: `total_delay_minutes >= x_min` AND `is_zero == False`.
+3.  **Model Outputs**: `DistributionModel` list.
+4.  **Diagnostic Outputs**: `TailIndexEstimate` object, `ComponentComparison` object.
 
-- **Raw Data**: `data/raw/bts_2022.parquet` (Immutable, checksummed).
-- **Processed Data**: `data/processed/delays_cleaned.parquet` (Derived).
-- **Results**: `output/results.json` (Aggregated model metrics and tail estimates).
-- **Artifacts**: `output/plots/` (Log-log survival, QQ-plots, Hill stability).
+## Constraints
+-   `total_delay_minutes` >= 0.
+-   `estimated_alpha` > 0 (for heavy tail).
+-   `log_log_r_squared` >= 0 (visualization only, not a gate).

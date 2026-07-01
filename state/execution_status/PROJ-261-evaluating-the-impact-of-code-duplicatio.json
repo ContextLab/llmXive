@@ -1,12 +1,12 @@
 {
   "project_id": "PROJ-261-evaluating-the-impact-of-code-duplicatio",
   "ok": false,
-  "reason": "263 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/.venv/lib/python3.11/site-packages/PIL/ImageCms.py: self-declared fabricated metric \u2014 \u201c\u2026outputProfile``, but tries to simulate the result that would be     obtained on\u2026\u201d; code/.venv/lib/python3.11/site-packages/PIL/ImageCms.py: self-declared fabricated metric \u2014 \u201c\u2026outputProfile``, but tries to simulate the result that would be     obtained on\u2026\u201d; code/.venv/lib/python3.11/site-packages/anyio/_backends/_asyncio.py: self-declared fabricated metric \u2014 \u201c\u2026_queue = deque(maxlen=100)  # arbitrary value         self.read_event = asy\u2026\u201d; 1 declared deliverable(s) absent: data/raw/github-code-sample.csv",
+  "reason": "2 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/bug_detection.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026# Fallback: create synthetic dataset for testing         # In\u2026\u201d; code/bug_detection.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026logger.info(f\"Created synthetic dataset with {len(problems)} pro\u2026\u201d; 2 declared deliverable(s) absent: data/analysis/correlation_results.csv; data/raw/github-code-sample.csv",
   "artifacts": [
     "data/processed/clone_metrics.csv"
   ],
   "failures": [],
-  "fix_rounds": 1,
+  "fix_rounds": 2,
   "model_tier": 1,
-  "updated_at": "2026-06-30T16:45:41Z"
+  "updated_at": "2026-07-01T16:27:31Z"
 }

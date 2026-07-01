@@ -1,57 +1,52 @@
 # Implementation Plan: Statistical Analysis of Flight Delay Distributions
 
-**Branch**: `001-flight-delay-distributions` | **Date**: 2026-06-24 | **Spec**: `specs/001-flight-delay-distributions/spec.md`
-**Input**: Feature specification from `/specs/001-flight-delay-distributions/spec.md`
+**Branch**: `001-flight-delay-distributions` | **Date**: 2024-05-22 | **Spec**: `specs/001-flight-delay-distributions/spec.md`
+**Input**: Feature specification from `specs/001-flight-delay-distributions/spec.md`
 
 ## Summary
 
-This project implements a statistical analysis pipeline to determine if flight delay times follow heavy-tailed distributions. The approach involves downloading Bureau of Transportation Statistics (BTS) data, cleaning it to produce a `total_delay_minutes` variable, fitting five parametric models (Exponential, Gamma, Log-Normal, Weibull, Pareto) via Maximum Likelihood Estimation (MLE), and performing heavy-tail diagnostics (Hill estimator, log-log survival plots) to validate the hypothesis. The implementation is constrained to CPU-only execution on GitHub Actions free-tier runners.
-
-**Key Methodological Update**: The pipeline strictly separates bulk fit (AIC/BIC on `all_data`) from tail fit (Pareto/Hill on `positive_data` where x > x_min). Model selection requires passing a "Tail Validity Gate" (Tail KS test, Hill stability) before ranking by Bulk AIC. Zero-delay records are explicitly excluded from tail analysis to prevent bias. AIC comparisons are performed only on models fitted to the same dataset (`all_data`) to ensure N is consistent. If Pareto passes the Tail Validity Gate, it is compared against the best non-Pareto model using the Vuong Test to resolve the ranking gap.
+This feature implements a statistical analysis pipeline to determine if flight delay times follow heavy-tailed distributions. The system downloads Bureau of Transportation Statistics (BTS) On-Time Performance data, preprocesses it to handle zero-inflation and anomalies, fits five parametric distributions (Exponential, Gamma, Log-Normal, Weibull, Pareto), and performs rigorous heavy-tail diagnostics (Hill estimator, log-log survival plots, Vuong tests). The output includes a comparative ranking of models, tail index estimates, and visual diagnostics, all constrained to run on a CPU-only CI environment with ≤7 GB RAM. The methodology strictly adheres to Clauset et al. standards for power-law testing, utilizing bootstrap-based Goodness-of-Fit (GoF) tests rather than arbitrary R² thresholds.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `scipy`, `numpy`, `matplotlib`, `requests`, `pyyaml`, `statsmodels` (for Vuong test)  
-**Storage**: Local filesystem (`data/` for raw/processed CSVs, `output/` for plots/reports)  
-**Testing**: `pytest` (unit tests for data cleaning, integration tests for fitting pipeline). **Mapping**:
-  - `tests/test_cleaning.py`: Validates US-1 (Download, Parse, Filter, Zero Handling, Retention Rate).
-  - `tests/test_fitting.py`: Validates US-2 (MLE, AIC/BIC, Vuong Test, Tail KS Test, x_min estimation).
-  - `tests/test_diagnostics.py`: Validates US-3 (Hill Estimator, Stability, Log-Log R²).
-**Target Platform**: Linux (GitHub Actions `ubuntu-latest` free tier)  
-**Project Type**: Data Analysis Script / CLI  
-**Performance Goals**: Complete full analysis (download to plots) within 3600 seconds; Peak RAM ≤ 6.5 GB.  
-**Constraints**: No GPU; no external API calls beyond dataset retrieval; strict adherence to BTS schema.  
-**Scale/Scope**: Single year of US commercial flight data (approx. M+ records, filtered to ~5-7M valid records).
+**Primary Dependencies**: `pandas`, `numpy`, `scipy`, `matplotlib`, `seaborn`, `pyyaml`, `statsmodels`  
+**Storage**: Local filesystem (CSV/Parquet input, JSON/CSV/Plots output)  
+**Testing**: `pytest`  
+**Target Platform**: Linux (GitHub Actions Free Tier)  
+**Project Type**: Computational Research Pipeline  
+**Performance Goals**: Complete full analysis within 6 hours; peak memory ≤ 6.5 GB.  
+**Constraints**: No GPU usage; no external API calls beyond verified dataset sources; strict handling of memory limits (fail gracefully if exceeded).  
+**Scale/Scope**: Single year of US commercial flight data (large-scale records, requiring chunked processing or memory-mapping).
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research.*
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Notes |
+| Principle | Compliance Strategy | Status |
 | :--- | :--- | :--- |
-| **I. Reproducibility** | PASS | Plan mandates pinned `requirements.txt`, fixed random seeds, and deterministic data retrieval from verified URLs. |
-| **II. Verified Accuracy** | PASS | Citations for datasets restricted to the `# Verified datasets` block. **No fallback to unverified data**; pipeline fails if full-year verified source is missing. Override arguments removed from CLI. |
-| **III. Data Hygiene** | PASS | Plan includes checksumming of raw data (`data/raw/`) and immutable derivations (`data/processed/`). |
-| **IV. Single Source of Truth** | PASS | All statistics in the final report will be generated directly from the `code/` execution, not hand-typed. |
-| **V. Versioning Discipline** | PASS | Pipeline includes an explicit step (Task 3.4) to update `state/` files with artifact hashes upon successful run via `state_manager.py`. |
-| **VI. Statistical Model Transparency** | PASS | Plan explicitly requires storing parameter estimates, AIC/BIC/KS/AD/Vuong metrics, and diagnostic plots for every fitted model. |
-| **VII. Source Authenticity** | PASS | Data source is restricted to verified BTS HuggingFace mirrors for the full year as per the `# Verified datasets` block. |
+| **I. Reproducibility** | All random seeds pinned in `code/`. Data fetched from canonical BTS endpoint (verified in research.md). Environment pinned in `requirements.txt`. | **Compliant** |
+| **II. Verified Accuracy** | Citations in `research.md` restricted to the "Verified datasets" block. The BTS endpoint is explicitly designated as the verified source for the full year. | **Compliant** |
+| **III. Data Hygiene** | Raw data checksums recorded in `state/`. Transformations produce new files (e.g., `cleaned_delays.csv`). No in-place edits. | **Compliant** |
+| **IV. Single Source of Truth** | All figures/stats trace to `data/` rows and `code/` blocks. No hand-typed numbers in paper. | **Compliant** |
+| **V. Versioning Discipline** | Artifacts hashed; `updated_at` timestamps managed by agent. | **Compliant** |
+| **VI. Statistical Model Transparency** | Full parameter estimates, GOF stats (AIC, BIC, KS, AD), and diagnostics (QQ-plots, tail overlays, Bootstrap GoF p-values) stored in `code/` and referenced. | **Compliant** |
+| **VII. Source Authenticity** | BTS data sourced from the official BTS endpoint (verified). Checksums recorded. | **Compliant** |
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/001-statistical-analysis-of-publicly-availab/
+specs/001-flight-delay-distributions/
 ├── plan.md              # This file
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-│   ├── delay_record.schema.yaml
+│   ├── tail-index-estimate.schema.yaml
 │   ├── fitted_model.schema.yaml
-│   └── tail_index.schema.yaml
+│   └── delay_record.schema.yaml
 └── tasks.md             # Phase 2 output
 ```
 
@@ -59,76 +54,98 @@ specs/001-statistical-analysis-of-publicly-availab/
 
 ```text
 code/
-├── data/
-│   ├── raw/             # Downloaded raw BTS CSV/Parquet (checksummed)
-│   └── processed/       # Cleaned delay data (total_delay_minutes)
-├── src/
-│   ├── __init__.py
-│   ├── download.py      # Data retrieval and verification
-│   ├── cleaning.py      # Pre-processing (US-1, Zero handling, Retention check)
-│   ├── fitting.py       # MLE fitting, x_min estimation, Vuong/Tail KS tests (US-2)
-│   ├── diagnostics.py   # Hill estimator, Log-Log R², Plots (US-3)
-│   ├── main.py          # Orchestration script
-│   └── state_manager.py # Updates state/ files (Principle V)
-├── tests/
-│   ├── test_cleaning.py
-│   ├── test_fitting.py
-│   └── test_diagnostics.py
-├── output/              # Generated plots and JSON reports
-└── requirements.txt     # Pinned dependencies
+├── __init__.py
+├── config.py            # Paths, seeds, thresholds
+├── data_loader.py       # BTS download, chunking, filtering
+├── preprocessing.py     # Zero-inflation, anomaly flags, memory checks
+├── models.py            # Distribution fitting (MLE), GOF metrics
+├── diagnostics.py       # Hill estimator, x_min selection, tail plots, Bootstrap GoF
+├── visualization.py     # Log-log, QQ-plots, histograms
+├── utils.py             # Memory monitoring, error handling
+└── main.py              # Orchestration script
+
+tests/
+├── contract/
+│   └── test_schemas.py
+├── integration/
+│   └── test_pipeline.py
+└── unit/
+    ├── test_preprocessing.py
+    └── test_models.py
+
+data/
+├── raw/                 # Downloaded BTS files (checksummed)
+├── processed/           # Cleaned CSVs, subsets (zeros excluded)
+└── results/             # JSON reports, plots, stability curves
 ```
 
-**Structure Decision**: Single project structure under `code/` with clear separation of concerns (download, cleaning, fitting, diagnostics). This minimizes overhead and ensures the entire pipeline runs in a single Python process to manage memory efficiently on the 7GB RAM limit.
+**Structure Decision**: Single project structure selected to maintain tight coupling between data loading, processing, and analysis. The `code/` directory contains modular scripts for each stage of the pipeline, ensuring testability and reproducibility.
 
-## Complexity Tracking
+## Phase Breakdown
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-| :--- | :--- | :--- |
-| **Hill Estimator Stability Analysis** | Required by FR-005 to select `k` based on stability, not a fixed heuristic. | A fixed threshold is insufficient for rigorous heavy-tail confirmation and violates the spec's methodological requirement. |
-| **Multiple Distribution Fitting** | Required by FR-003 to compare heavy vs. short-tailed models. | Fitting only one model (e.g., Pareto) would fail to provide the comparative evidence needed to answer the research question. |
-| **In-memory Processing** | Required by Assumption about computational limits to ensure speed. | Chunked processing adds complexity and overhead; the spec assumes the dataset fits in RAM after filtering, allowing for faster vectorized operations in `pandas`/`numpy`. |
-| **Tail vs. Bulk Decoupling** | Required by Scientific Soundness concerns to avoid false positives. | Using only AIC/BIC on the full dataset is dominated by the bulk and fails to detect tail behavior; decoupling is necessary for validity. |
-| **Vuong Test** | Required by Methodology concerns to compare non-nested models. | AIC alone cannot statistically validate if one non-nested model is significantly better than another. |
+### Phase 0: Data Acquisition & Pre-processing (FR-001, FR-002, US-1)
+1.  **Download**: Fetch BTS data for the specified year from the **official BTS endpoint** (designated as the verified source). Handle network errors gracefully (retry with backoff). If the full-year data is not available or the download fails permanently, **fail immediately** with exit code 1 and message "Data Availability Error: Full year data not found." No silent fallback to test samples.
+2.  **Memory Check**: Estimate memory usage; if > 6.5 GB, abort with clear error.
+3.  **Clean**: Filter for US commercial flights. Compute `total_delay = ArrDelay + DepDelay`. Treat missing as 0. Remove negatives.
+4.  **Flagging**: Mark `is_anomaly` (>1440 min) and `is_data_error` (>10,000 min). Exclude errors from primary analysis but keep for sensitivity.
+5.  **Sensitivity**: Create subset excluding zeros for tail fitting.
+6.  **Output**: `cleaned_delays.csv`, `summary_report.json` (initial).
+7.  **Retention Rate Calculation**: Calculate `retention_rate = valid_records / total_downloaded`. Report in `summary_report.json`.
+8.  **Retention Gate**: **Hard Check**: If `retention_rate < 0.95`, halt pipeline with exit code 1 and message "Retention Rate Failure: < 95%". This is a pre-condition for Phase 1.
 
-## Implementation Phases
+### Phase 1: Model Fitting & Evaluation (FR-003, FR-004, FR-009, US-2)
+1.  **Fit (Full Data)**: Apply MLE for Exponential, Gamma, Log-Normal, Weibull, Pareto on the full cleaned dataset (excluding data errors) to get initial rankings.
+2.  **Fit (Tail Subset)**: For the **Vuong Test**, refit **ALL** candidate distributions **exclusively** on the tail subset (x >= x_min).
+    *   *Note*: Pareto fitting is restricted to `delay >= x_min`.
+    *   *Note*: Short-tail models (Exponential, Gamma) are refitted on the tail subset to ensure likelihood comparability.
+3.  **Metrics**: Compute AIC, BIC, KS, AD for all models on the tail subset.
+4.  **Select Best**: Identify the best heavy-tail and best short-tail model based on **tail-AIC** (lowest AIC on the tail subset).
+5.  **Vuong Test**: Perform Vuong test comparing the best heavy-tail candidate vs. best short-tail candidate using the **tail subset likelihoods**. Report p-value.
+6.  **Component Comparison**: KS test and histograms for sum vs. components. Explicitly report the **p-value** in the output JSON.
+7.  **Output**: `model_comparison.json`, `vuong_test_results.json`, `component_comparison.json`.
 
-### Phase 0: Data Acquisition & Validation
-- **Task 0.1**: Download BTS 2022 full-year data from verified HuggingFace URL.
-- **Task 0.2**: Verify checksum and format.
-- **Task 0.3**: **Retention Check**: Calculate `valid_records / total_records`. If < 95%, fail pipeline (SC-001).
+### Phase 2: Heavy-Tail Diagnostics (FR-005, FR-006, FR-010, FR-011, FR-014, FR-015, US-3)
+1.  **Threshold (x_min)**: Estimate `x_min` via KS minimization on the tail subset.
+    *   **Bootstrap Uncertainty**: Perform 1000 bootstrap iterations to estimate the uncertainty of `x_min`. Report confidence intervals (2.5th/97.5th percentiles).
+2.  **Hill Estimator**: Compute tail index on top `k` records.
+    *   *Constraint*: **Explicitly enforce** `k/n <= 0.1` during the stability analysis.
+    *   *Method*: Minimize variance of alpha estimates over sliding window `w=10`.
+    *   *Output*: Save full stability curve (variance vs k) as CSV; report summary stats (min_k, max_k, variance_min) in JSON.
+3.  **Visuals**: Generate log-log survival plot (with R² calculation for visualization only) and QQ-plots.
+4.  **Bootstrap GoF Test (Validation Gate)**:
+    *   Perform a formal Goodness-of-Fit test using the **Bootstrap Method** (Clauset et al.).
+    *   Generate a set of synthetic datasets from the fitted model.
+    *   Compute KS statistic for each synthetic dataset.
+    *   Compare the empirical KS to the synthetic distribution to derive a **p-value**.
+    *   **Rejection Rule**: Reject the model if `p < 0.1`. **Do not use R² as a pass/fail gate.**
+5.  **Tail KS Test**: Perform KS test on the tail subset using the **bootstrapped p-value correction** for the data-driven threshold (generate a representative set of synthetic datasets, estimate x_min for each, fit model, compute KS, compare empirical KS to this distribution).
+6.  **Log-Normal Discrimination**:
+    *   Calculate the **curvature statistic** of the Hill plot.
+    *   Simulate multiple Log-Normal datasets with similar parameters.
+    *   Calculate curvature for each simulated dataset.
+    *   Compare empirical curvature to the null distribution.
+    *   **Rejection Rule**: If the empirical curvature is not significantly different from the Log-Normal null (p > 0.05), the hypothesis of a pure Power-Law is rejected in favor of a Log-Normal heavy tail.
+7.  **Validation**: If the best model fails the Bootstrap GoF test or Log-Normal Discrimination, flag the next best candidate and report the failure reason.
+8.  **Output**: `tail_diagnostics.json`, `plots/` directory, `stability_curve.csv`.
 
-### Phase 1: Pre-processing
-- **Task 1.1**: Filter for commercial flights, handle missing values (treat as 0).
-- **Task 1.2**: Compute `total_delay_minutes`.
-- **Task 1.3**: **Zero Separation**: Create two datasets: `dataset_all` (includes 0s) and `dataset_positive` (filters `delay > 0`). `dataset_all` is used for Bulk AIC/BIC; `dataset_positive` is used for Tail Analysis (Hill, Pareto, Tail KS).
-- **Task 1.4**: **Component vs. Sum Analysis**: Generate side-by-side plots and stats for `ArrDelay`, `DepDelay`, and `Sum` (FR-002). **Explicitly compare tail indices (Hill estimates) and tail shapes between the Sum and individual components** to distinguish shape from magnitude effects.
+### Phase 3: Reporting & Schema Generation (FR-016, SC-001..SC-011)
+1.  **Schema**: Generate `TailIndexEstimate` JSON schema (saved as a YAML file).
+2.  **Report**: Compile final summary with all metrics, p-values, and visual references.
+3.  **Causal Framing**:
+    *   Add `causality_disclaimer` field to the summary JSON: "Findings are associational only; data is observational."
+    *   Add `causality_flag: true` to all model comparison tables.
+    *   Ensure plot captions include "Associational Analysis" text.
+4.  **Validation Checks**:
+    *   **SC-001**: Verify `retention_rate >= 0.95` (already enforced in Phase 0).
+    *   **SC-005**: Measure `total_runtime_seconds`. If > 3600, set `sc_005_result: "FAIL"`, else `"PASS"`. Include this in the summary JSON.
+    *   **SC-009**: Ensure `stability_range` (min_k, max_k, variance_min) is reported.
+    *   **SC-011**: Ensure `tail_ks_pvalue` is reported.
+5.  **Output**: `summary_report.json` (final), `contracts/` updated.
 
-### Phase 2: Parametric Fitting & Model Selection
-- **Task 2.1**: Fit Exponential, Gamma, Log-Normal, Weibull to `dataset_all`.
-- **Task 2.2**: **Pareto Fitting**: Estimate `x_min` via KS minimization on `dataset_positive`, then fit Pareto to `x > x_min`. **This `x_min` is stored for use in the Tail Validity Gate for ALL models.**
-- **Task 2.3**: Calculate Bulk AIC/BIC for all models (Exponential, Gamma, Log-Normal, Weibull) on `dataset_all`. **Pareto is excluded from this specific ranking** as it is fitted to a different subset.
-- **Task 2.4**: **Tail Validity Gate**:
-  - Perform Tail KS test on `x > x_min` (using the `x_min` from Task 2.2) for ALL models (including Exponential, Gamma, Log-Normal, Weibull, and Pareto).
-  - Perform Hill stability analysis on `x > x_min`.
-  - Discard models failing Tail KS (p < 0.05) or Hill stability.
-- **Task 2.5**: **Vuong Test**: Compare top candidates (e.g., Log-Normal vs. Pareto) for statistical significance.
-- **Task 2.6**: **Select final model**:
-  1. Filter: Discard any model that fails the Tail Validity Gate.
-  2. If Pareto passes the gate: Compare Pareto vs. the best non-Pareto model (lowest Bulk AIC) using the Vuong Test. If Vuong favors Pareto, select Pareto. Otherwise, select the best non-Pareto model.
-  3. If Pareto fails the gate: Select the model with the lowest Bulk AIC among the remaining valid non-Pareto models.
-
-### Phase 3: Diagnostics & Reporting
-- **Task 3.1**: Generate Log-Log Survival Plot for best model.
-- **Task 3.2**: **Calculate R²** of the log-log linear fit. **Explicitly report R² and check against 0.95 threshold (SC-004).**
-- **Task 3.3**: Generate QQ-plots.
-- **Task 3.4**: **State Update**: Update `state/` file with artifact hashes (Constitution Principle V) via `state_manager.py`.
-
-## Risk Management
-
-| Risk | Mitigation |
-| :--- | :--- |
-| **Dataset URL Change** | Pipeline fails gracefully with "Source Unavailable" error rather than using unverified fallback. |
-| **Pareto Convergence Failure** | `x_min` estimation ensures valid fitting region; if still fails, model is excluded from selection. |
-| **Memory Overflow** | Use `dtype` optimization in pandas; drop columns immediately after use. |
-| **Zero-Spike Bias** | Explicit separation of `dataset_all` (for bulk fit) and `dataset_positive` (for tail fit). |
-| **AIC Incomparability** | Bulk AIC comparison restricted to models fitted on `dataset_all`. Pareto is compared via Vuong Test if it passes the Tail Validity Gate. |
+## Compute Feasibility Strategy
+-   **Memory**: Use `pandas` with `dtype` optimization (e.g., `float32`, `category` for carriers). Implement **Streaming Analysis**:
+    -   Data is processed in chunks for histogram generation and initial filtering.
+    -   For the final fitted dataset, use **memory-mapped arrays (memmap)** to avoid loading the entire ~M row dataset into RAM at once.
+    -   If the filtered dataset still exceeds 6.5 GB, the pipeline will process the tail estimation in chunks or use a subsample for the Hill estimator (with a note on reduced power), but will not crash.
+-   **CPU**: All `scipy` and `numpy` operations are CPU-bound. No GPU libraries used.
+-   **Time**: MLE fitting for 5 distributions on ~10M rows is computationally intensive. We will limit the Hill estimator stability search to a small window and use vectorized operations. A hard timeout of 3500 seconds is implemented in `main.py`. If exceeded, the pipeline logs a warning and exits with `sc_005_result: "FAIL"`.

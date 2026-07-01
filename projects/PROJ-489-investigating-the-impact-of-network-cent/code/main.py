@@ -1,53 +1,43 @@
 """
-Main entry point for the Network Centrality and Neural Synchrony pipeline.
+Main entry point for the llmXive automated science pipeline.
 
-This script initializes the logging infrastructure and sets up the environment
-for the research pipeline. It serves as the primary execution point for
-orchestrating the various stages of the analysis.
-
-Usage:
-    python code/main.py
+This module orchestrates the full research workflow:
+1. Setup logging and environment configuration.
+2. Validate dependencies.
+3. Execute the pipeline stages (Download, Preprocess, Metrics, Analysis, Report).
+4. Profile memory usage and verify runtime targets (< 4 hours).
 """
-
 import logging
 import sys
 import os
+import time
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timedelta
+from typing import Optional, Dict, Any
 
-# Ensure the code directory is in the path for imports if running as script
-if __name__ == "__main__":
-    code_dir = Path(__file__).parent
-    if str(code_dir) not in sys.path:
-        sys.path.insert(0, str(code_dir))
+# Import local modules using the defined API surface
+from config_utils import load_config, set_random_seed, setup_environment
+from download import main as run_download
+from preprocess import main as run_preprocess
+from metrics import main as run_metrics
+from analysis import main as run_analysis
+from report import main as run_report
+from quickstart_validator import verify_outputs
 
-from loaders import load_raw_edf, load_annotations
-import yaml
-
-# Constants
-LOG_DIR = Path(__file__).parent.parent / "logs"
-LOG_FILE = LOG_DIR / f"pipeline_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
-CONFIG_PATH = Path(__file__).parent / "config.yaml"
-
-def setup_logging(log_file: Path) -> logging.Logger:
+# Setup logging configuration
+def setup_logging(log_level: str = "INFO", log_file: Optional[str] = None) -> logging.Logger:
     """
-    Configure the logging infrastructure for the pipeline.
-    
-    Sets up both file and console handlers with specific formats and levels.
-    Ensures the log directory exists before creating the log file.
+    Configure logging for the pipeline.
     
     Args:
-        log_file: Path to the log file.
-        
-    Returns:
-        The root logger configured for the pipeline.
-    """
-    # Create log directory if it doesn't exist
-    log_file.parent.mkdir(parents=True, exist_ok=True)
+        log_level: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL).
+        log_file: Optional path to a log file. If None, logs to stderr only.
     
-    # Configure root logger
+    Returns:
+        The root logger instance.
+    """
     logger = logging.getLogger()
-    logger.setLevel(logging.INFO)
+    logger.setLevel(getattr(logging, log_level.upper(), logging.INFO))
     
     # Clear existing handlers to avoid duplicates
     logger.handlers.clear()
@@ -58,125 +48,176 @@ def setup_logging(log_file: Path) -> logging.Logger:
         datefmt='%Y-%m-%d %H:%M:%S'
     )
     
-    # File handler
-    try:
-        fh = logging.FileHandler(log_file)
-        fh.setLevel(logging.DEBUG)
-        fh.setFormatter(formatter)
-        logger.addHandler(fh)
-    except IOError as e:
-        print(f"Warning: Could not create log file {log_file}: {e}")
-    
     # Console handler
-    ch = logging.StreamHandler(sys.stdout)
-    ch.setLevel(logging.INFO)
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
+    console_handler = logging.StreamHandler(sys.stderr)
+    console_handler.setFormatter(formatter)
+    logger.addHandler(console_handler)
+    
+    # File handler if specified
+    if log_file:
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
     
     return logger
 
-def load_config() -> dict:
+def validate_dependencies() -> bool:
     """
-    Load configuration from config.yaml.
+    Validate that all required third-party libraries are installed.
     
     Returns:
-        Dictionary containing configuration parameters.
-        
-    Raises:
-        FileNotFoundError: If config.yaml is not found.
-        yaml.YAMLError: If config.yaml contains invalid YAML.
+        True if all dependencies are available, False otherwise.
     """
-    if not CONFIG_PATH.exists():
-        raise FileNotFoundError(f"Configuration file not found: {CONFIG_PATH}")
+    required_modules = [
+        'mne', 'statsmodels', 'networkx', 'scipy', 'pandas', 'numpy', 'pyedflib'
+    ]
+    missing = []
     
-    with open(CONFIG_PATH, 'r') as f:
-        config = yaml.safe_load(f)
-        
-    return config
+    for module in required_modules:
+        try:
+            __import__(module)
+        except ImportError:
+            missing.append(module)
+    
+    if missing:
+        logging.error(f"Missing required dependencies: {', '.join(missing)}")
+        logging.error("Please install them via: pip install -r code/requirements.txt")
+        return False
+    
+    logging.info("All required dependencies are installed.")
+    return True
 
-def validate_dependencies(config: dict) -> bool:
+def get_memory_usage_bytes() -> int:
     """
-    Validate that required dependencies and configurations are present.
+    Get current memory usage in bytes.
     
-    Checks for the existence of required directories and configuration keys.
+    Returns:
+        Memory usage in bytes, or 0 if unavailable.
+    """
+    try:
+        import resource
+        # Get RSS (Resident Set Size) in bytes
+        return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss * 1024
+    except (ImportError, AttributeError):
+        logging.warning("Could not determine memory usage (resource module not available).")
+        return 0
+
+def profile_memory_usage(threshold_gb: float = 4.0) -> bool:
+    """
+    Profile memory usage against a threshold.
     
     Args:
-        config: Loaded configuration dictionary.
-        
+        threshold_gb: Maximum allowed memory usage in GB.
+    
     Returns:
-        True if all dependencies are valid, False otherwise.
+        True if memory usage is within limits, False otherwise.
     """
-    logger = logging.getLogger(__name__)
-    valid = True
+    usage_bytes = get_memory_usage_bytes()
+    usage_gb = usage_bytes / (1024 ** 3)
     
-    # Check required directories
-    required_dirs = [
-        "data/raw",
-        "data/processed",
-        "data/metrics",
-        "data/results"
-    ]
+    if usage_gb > threshold_gb:
+        logging.error(f"Memory usage ({usage_gb:.2f} GB) exceeds threshold ({threshold_gb} GB).")
+        return False
     
-    for dir_path in required_dirs:
-        full_path = Path(dir_path)
-        if not full_path.exists():
-            logger.warning(f"Required directory missing: {full_path}")
-            valid = False
+    logging.info(f"Memory usage within limits: {usage_gb:.2f} GB / {threshold_gb} GB")
+    return True
+
+def verify_runtime_target(start_time: datetime, target_hours: float = 4.0) -> bool:
+    """
+    Verify that the runtime is within the target limit.
     
-    # Check required config keys
-    required_keys = [
-        "signal_processing",
-        "filter_cutoffs",
-        "band_definitions"
-    ]
+    Args:
+        start_time: The start time of the pipeline execution.
+        target_hours: Target maximum runtime in hours.
     
-    for key in required_keys:
-        if key not in config:
-            logger.warning(f"Missing configuration key: {key}")
-            valid = False
+    Returns:
+        True if within target, False if exceeded.
+    """
+    elapsed = datetime.now() - start_time
+    elapsed_hours = elapsed.total_seconds() / 3600
     
-    return valid
+    if elapsed_hours > target_hours:
+        logging.warning(
+            f"Runtime target exceeded: {elapsed_hours:.2f} hours / {target_hours} hours"
+        )
+        return False
+    
+    logging.info(
+        f"Runtime target met: {elapsed_hours:.2f} hours / {target_hours} hours"
+    )
+    return True
 
 def main():
     """
     Main entry point for the pipeline.
     
-    Initializes logging, loads configuration, validates dependencies,
-    and sets up the environment for subsequent pipeline stages.
+    Orchestrates the full research workflow:
+    1. Setup logging and environment.
+    2. Validate dependencies.
+    3. Execute pipeline stages (Download, Preprocess, Metrics, Analysis, Report).
+    4. Profile memory and verify runtime targets (< 4 hours).
     """
+    start_time = datetime.now()
+    logging.info(f"Pipeline started at {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+    
+    # Load configuration
+    config = load_config()
+    if not config:
+        logging.error("Failed to load configuration.")
+        sys.exit(1)
+    
+    # Setup environment and random seeds
+    setup_environment(config)
+    set_random_seed(config.get('random_seed', 42))
+    
     # Setup logging
-    logger = setup_logging(LOG_FILE)
-    logger.info("Starting llmXive Network Centrality Pipeline")
-    logger.info(f"Log file: {LOG_FILE}")
+    log_file = config.get('log_file')
+    log_level = config.get('log_level', 'INFO')
+    setup_logging(log_level=log_level, log_file=log_file)
     
+    # Validate dependencies
+    if not validate_dependencies():
+        sys.exit(1)
+    
+    # Execute pipeline stages
+    stages = [
+        ("Download", run_download),
+        ("Preprocess", run_preprocess),
+        ("Metrics", run_metrics),
+        ("Analysis", run_analysis),
+        ("Report", run_report),
+    ]
+    
+    for stage_name, stage_func in stages:
+        try:
+            logging.info(f"Starting stage: {stage_name}")
+            stage_func()
+            logging.info(f"Completed stage: {stage_name}")
+        except Exception as e:
+            logging.error(f"Stage {stage_name} failed: {str(e)}")
+            sys.exit(1)
+    
+    # Verify outputs
     try:
-        # Load configuration
-        logger.info("Loading configuration...")
-        config = load_config()
-        logger.info("Configuration loaded successfully")
-        
-        # Validate dependencies
-        logger.info("Validating dependencies...")
-        if validate_dependencies(config):
-            logger.info("All dependencies validated successfully")
-        else:
-            logger.warning("Some dependencies are missing or invalid")
-        
-        logger.info("Pipeline initialization complete")
-        
-        # Placeholder for future pipeline execution
-        # In a full implementation, this would call the download, preprocess,
-        # and analysis modules in sequence
-        logger.info("Ready to execute pipeline stages")
-        
-    except FileNotFoundError as e:
-        logger.error(f"Configuration error: {e}")
-        sys.exit(1)
+        verify_outputs()
+        logging.info("Output verification passed.")
     except Exception as e:
-        logger.error(f"Unexpected error during initialization: {e}")
+        logging.error(f"Output verification failed: {str(e)}")
         sys.exit(1)
     
-    logger.info("Pipeline initialization finished successfully")
+    # Check memory usage
+    if not profile_memory_usage(threshold_gb=4.0):
+        logging.warning("Memory usage exceeded recommended limits.")
+    
+    # Verify runtime target
+    if not verify_runtime_target(start_time, target_hours=4.0):
+        logging.warning("Runtime target exceeded.")
+    
+    end_time = datetime.now()
+    total_duration = end_time - start_time
+    logging.info(
+        f"Pipeline completed successfully in {total_duration.total_seconds()/3600:.2f} hours."
+    )
 
 if __name__ == "__main__":
     main()

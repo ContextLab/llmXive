@@ -52,6 +52,13 @@ As a researcher, I want to evaluate bug detection accuracy on a held-out human-e
 
 As a researcher, I want to perform sensitivity analysis across multiple clone-detection thresholds and generate a structural heat map (or confusion matrix) that visualizes which parts of the code (e.g., function headers vs. bodies) contribute most to the perplexity spike in duplicated segments, so that I can verify result robustness and document findings for publication.
 
+#### Data Joining Strategy
+
+To merge segment-level metrics with problem-level accuracy scores, the system uses `problem_id` as the unique join key. The aggregation logic proceeds as follows:
+1. **Segment-Level Aggregation**: For each `problem_id`, all associated `CodeSegment` records (function bodies) are aggregated to compute mean and variance of `CloneDensityMetric` and `ModelMetric` (perplexity) values.
+2. **Join Operation**: The aggregated segment statistics are joined with the `human-eval` problem-level results on `problem_id`.
+3. **Final Metric**: The resulting dataset pairs the problem-level `pass@1` accuracy with the aggregated duplication density and perplexity statistics for that problem, enabling the calculation of Spearman's rank correlation at the problem level.
+
 **Why this priority**: This enhances research validity and produces publication-ready outputs but is not required for initial correlation discovery. It supports reproducibility requirements and documentation needs.
 
 **Independent Test**: Can be fully tested by running the sensitivity analysis with different threshold values and verifying that structural heat map or confusion matrix outputs are generated correctly. **Test tasks are MANDATORY and must be included in tasks.md**.
@@ -81,11 +88,11 @@ As a researcher, I want to perform sensitivity analysis across multiple clone-de
 
 - **FR-001**: System MUST download a 500MB subset of the codeparrot/github-code dataset using the datasets library with streaming mode enabled
 - **FR-002**: System MUST parse Python files using the built-in ast module to extract function bodies for AST subtree matching
-- **FR-003**: System MUST compute syntactic clone density without external dependencies beyond Python standard library. Additionally, the system MUST perform a secondary analysis to measure 'semantic distance' (e.g., using embedding similarity of AST nodes or token sequences) to distinguish between 'exact syntactic clones' and 'semantic/structural clones'.
+- **FR-003**: System MUST compute syntactic clone density without external dependencies beyond Python standard library. Additionally, the system MUST perform a secondary analysis to measure 'semantic distance' using CodeBERT to generate embeddings for the tokenized text of each AST node, then compute cosine similarity, to distinguish between 'exact syntactic clones' and 'semantic/structural clones'.
 - **FR-004**: System MUST load the Salesforce/codegen-350M-mono model in 8-bit quantization using bitsandbytes
 - **FR-005**: System MUST compute token-level perplexity using the model's log-probability outputs for each code segment
 - **FR-006**: System MUST evaluate bug detection accuracy on a held-out 50-problem subset from human-eval using pass@1 accuracy
-- **FR-007**: System MUST calculate Spearman's rank correlation between duplication density and both perplexity and bug detection accuracy at the **segment level**. For this analysis, a 'segment' is defined strictly as a function body. Clone density is calculated per segment as the ratio of duplicated AST subtrees within that segment to the total AST subtrees in that segment. The correlation aggregates these per-segment metrics; file-level aggregation is explicitly excluded.
+- **FR-007**: System MUST calculate Spearman's rank correlation between duplication density and both perplexity and bug detection accuracy at the **segment level**. For this analysis, a 'segment' is defined strictly as a **function body** (a contiguous block of code enclosed by a function definition header and its corresponding indentation scope). Clone density is calculated per segment as the ratio of duplicated AST subtrees within that segment to the total AST subtrees in that segment. The correlation aggregates these per-segment metrics; file-level aggregation is explicitly excluded.
 - **FR-008**: System MUST store all intermediate metrics in CSV format for auditability and reproducibility
 - **FR-009**: System MUST scan all files under `data/` for PII patterns and log findings per Constitution Principle III (Data Hygiene)
 - **FR-010**: System MUST compute checksums for all output files and record them in `artifact_hashes` state manifest
