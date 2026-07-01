@@ -59,6 +59,12 @@ analysis_script:    # the runtime runs this in the sandbox
   statistic per claim.
 - The analysis script MUST be deterministic given the data file
   (random seeds pinned).
+- **NEVER fabricate a statistic.** Every reported number MUST be computed by the
+  script from the REAL `data_source_path` file. Never hard-code a value, invent a
+  p-value / effect size / CI, or run the analysis on synthetic/placeholder data in
+  place of the real outputs — the deterministic fabrication guard rejects it and the
+  paper cannot advance. If the real data file is missing or unusable, return
+  `verdict: failed` with the reason rather than faking a result.
 - LaTeX prose quotes the analysis script's printed values; no hand-
   typed numbers in the LaTeX (Constitution Principle I — every
   number traces to a single source).

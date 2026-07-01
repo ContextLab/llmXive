@@ -73,6 +73,16 @@ The research review certifies the work is SCIENTIFICALLY SOUND: the question is
 well-posed, the method appropriate, the implementation correct and complete *per
 its own spec*, and the results real and reproducible. It does NOT gate on
 publication packaging or polish — those belong to the PAPER stage or are optional.
+
+**Fabrication IS a blocking scientific defect in your lens — flag it.** If the
+code/data show synthetic or fake INPUT data standing in for the real dataset the
+spec requires, a hard-coded / placeholder / mocked metric, or a result drawn from
+`random.*` / "simulated" values in place of a real measurement, cast
+`major_revision` (science): an honest result computed on real data is the entire
+point of this gate. (A legitimate Monte-Carlo *method*, or a synthetic benchmark
+the spec explicitly authorizes, is fine — the defect is FAKING a real measurement
+or substituting fake data for a real dataset the spec calls for.)
+
 The following are therefore **non-blocking at research stage** — note them as
 optional suggestions in your feedback, but DO NOT cast `minor_revision` for them:
 

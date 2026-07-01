@@ -95,6 +95,14 @@ for the cap-hit path and signals `human_input_needed`.
   and `ucimlrepo`/`datasets.load_dataset(...)` are good defaults.
   Do NOT write tasks like "download from UCI" without specifying
   HOW.
+- **Real data + real results only — NEVER task fabrication.** Do NOT write a task
+  that generates/synthesizes fake INPUT data, hard-codes a "sample"/placeholder
+  dataset, or produces a metric from `random.*`/simulated values standing in for a
+  real measurement — the execution gate's deterministic fabrication guard rejects
+  such results, so the project can NEVER advance. Every analysis task must consume
+  the REAL dataset (from the download/fetch task above) and compute a REAL measured
+  result. If the plan names no real source for a needed input, task obtaining one
+  from a real source (or state the gap) — never task faking it.
 - When adding tasks during Mode B (revision pass): each new task
   MUST address a SPECIFIC reviewer concern from `# Prior research-stage
   reviews` and reference the FR-ID, file path, or task ID the
