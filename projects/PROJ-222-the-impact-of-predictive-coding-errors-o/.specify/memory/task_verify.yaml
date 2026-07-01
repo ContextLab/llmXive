@@ -1,0 +1,6 @@
+T001 Create project structure per implementation plan (`mkdir -p data/raw data/processed code figures analysis contracts`): 1
+T003 [P] Configure linting (ruff) and formatting (black) tools: 1
+? T005 [P] Create `contracts/dataset.schema.yaml` defining required columns (duration_estimate,
+  stimulus_sequence, participant_id)
+: 1
+T006 [P] Create `contracts/output.schema.yaml` defining analysis results structure: 1

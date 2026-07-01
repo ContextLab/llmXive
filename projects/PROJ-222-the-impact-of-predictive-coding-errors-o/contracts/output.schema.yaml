@@ -1,0 +1,230 @@
+# Output Schema for Predictive Coding Time Perception Analysis
+# Defines the structure of analysis results produced by code/analysis.py
+# Used for validation and reproducibility checks
+
+$schema: http://json-schema.org/draft-07/schema#
+title: Analysis Results
+description: >-
+  Structured output containing statistical model results, effect sizes,
+  convergence diagnostics, and sensitivity analysis metrics for the
+  predictive coding time perception study.
+
+type: object
+required:
+  - metadata
+  - model_summary
+  - effect_sizes
+  - sensitivity_analysis
+  - diagnostics
+
+properties:
+  metadata:
+    type: object
+    description: Run metadata and environment information
+    required:
+      - timestamp
+      - dataset_id
+      - script_version
+    properties:
+      timestamp:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of analysis execution
+      dataset_id:
+        type: string
+        description: Identifier of the processed dataset used
+      script_version:
+        type: string
+        description: Version hash or tag of the analysis script
+      random_seed:
+        type: integer
+        description: Random seed used for reproducibility
+
+  model_summary:
+    type: object
+    description: Linear Mixed-Effects Model (LMM) results
+    required:
+      - formula
+      - convergence_status
+      - coefficients
+    properties:
+      formula:
+        type: string
+        description: R-style formula used for the model
+      convergence_status:
+        type: object
+        required:
+          - converged
+          - message
+        properties:
+          converged:
+            type: boolean
+            description: Whether the model converged successfully
+          message:
+            type: string
+            description: Convergence diagnostic message
+          iterations:
+            type: integer
+            description: Number of iterations until convergence
+      coefficients:
+        type: array
+        description: List of coefficient estimates with statistics
+        items:
+          type: object
+          required:
+            - term
+            - estimate
+            - std_error
+            - p_value
+            - ci_lower
+            - ci_upper
+          properties:
+            term:
+              type: string
+              description: Name of the predictor variable
+            estimate:
+              type: number
+              description: Estimated coefficient value
+            std_error:
+              type: number
+              description: Standard error of the estimate
+            p_value:
+              type: number
+              description: P-value for the coefficient
+            ci_lower:
+              type: number
+              description: Lower bound of 95% confidence interval
+            ci_upper:
+              type: number
+              description: Upper bound of 95% confidence interval
+            significance:
+              type: string
+              enum: [significant, not_significant]
+              description: Significance classification based on alpha=0.05
+
+  effect_sizes:
+    type: object
+    description: Effect size calculations (Cohen's d) with confidence intervals
+    required:
+      - primary_effect
+    properties:
+      primary_effect:
+        type: object
+        description: Effect size for the main hypothesis (Surprisal effect)
+        required:
+          - cohen_d
+          - ci_lower
+          - ci_upper
+          - interpretation
+        properties:
+          cohen_d:
+            type: number
+            description: Cohen's d effect size value
+          ci_lower:
+            type: number
+            description: Lower bound of 95% CI
+          ci_upper:
+            type: number
+            description: Upper bound of 95% CI
+          interpretation:
+            type: string
+            description: Qualitative interpretation (e.g., "small", "medium", "large")
+
+  sensitivity_analysis:
+    type: object
+    description: Minimum Detectable Effect (MDE) and power analysis results
+    required:
+      - mde
+      - power
+      - sample_size
+    properties:
+      mde:
+        type: object
+        description: Minimum Detectable Effect for power=0.80
+        required:
+          - value
+          - interpretation
+        properties:
+          value:
+            type: number
+            description: MDE value (Cohen's d units)
+          interpretation:
+            type: string
+            description: Whether observed effect exceeds MDE
+      power:
+        type: number
+        description: Achieved statistical power (target: 0.80)
+      sample_size:
+        type: integer
+        description: Effective sample size used in calculation
+      fwer_control_status:
+        type: string
+        description: Status of Family-Wise Error Rate control (e.g., "controlled", "not_applicable")
+      correction_method:
+        type: string
+        description: Multiple comparison correction method used (e.g., "bonferroni", "bh", "none")
+
+  diagnostics:
+    type: object
+    description: Model diagnostics and validation metrics
+    required:
+      - normality_test
+      - residual_stats
+    properties:
+      normality_test:
+        type: object
+        description: Shapiro-Wilk normality test results
+        required:
+          - statistic
+          - p_value
+          - is_normal
+        properties:
+          statistic:
+            type: number
+            description: Shapiro-Wilk test statistic
+          p_value:
+            type: number
+            description: P-value from Shapiro-Wilk test
+          is_normal:
+            type: boolean
+            description: Whether residuals pass normality test (alpha=0.05)
+      residual_stats:
+        type: object
+        description: Summary statistics of model residuals
+        required:
+          - mean
+          - std
+          - skewness
+          - kurtosis
+        properties:
+          mean:
+            type: number
+            description: Mean of residuals
+          std:
+            type: number
+            description: Standard deviation of residuals
+          skewness:
+            type: number
+            description: Skewness of residuals
+          kurtosis:
+            type: number
+            description: Kurtosis of residuals
+      bootstrap_ci:
+        type: object
+        description: Bootstrap confidence interval results
+        required:
+          - n_bootstrap
+          - ci_lower
+          - ci_upper
+        properties:
+          n_bootstrap:
+            type: integer
+            description: Number of bootstrap samples
+          ci_lower:
+            type: number
+            description: Bootstrap CI lower bound
+          ci_upper:
+            type: number
+            description: Bootstrap CI upper bound
+
+additionalProperties: false

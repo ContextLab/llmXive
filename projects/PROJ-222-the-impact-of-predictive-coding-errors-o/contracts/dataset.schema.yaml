@@ -1,0 +1,78 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Time Perception Dataset Schema
+description: |
+  Schema defining the required structure for time perception datasets
+  used in the predictive coding error analysis pipeline.
+type: object
+required:
+  - columns
+properties:
+  columns:
+    type: array
+    description: List of required column definitions
+    minItems: 3
+    items:
+      type: object
+      required:
+        - name
+        - type
+        - description
+      properties:
+        name:
+          type: string
+          description: The exact column name as it appears in the CSV
+        type:
+          type: string
+          enum:
+            - integer
+            - float
+            - string
+            - category
+          description: The expected data type
+        description:
+          type: string
+          description: Brief description of the data contained in the column
+        required:
+          type: boolean
+          default: true
+          description: Whether this column is mandatory for analysis
+
+  required_columns:
+    type: array
+    description: Explicit list of mandatory column names for validation
+    items:
+      type: string
+    minItems: 3
+    contains:
+      const: duration_estimate
+    contains:
+      const: stimulus_sequence
+    contains:
+      const: participant_id
+
+examples:
+  - columns:
+      - name: duration_estimate
+        type: float
+        description: Participant's estimated duration of the stimulus in milliseconds
+        required: true
+      - name: stimulus_sequence
+        type: string
+        description: The sequence of stimuli presented (e.g., 'A-B-C' or encoded string)
+        required: true
+      - name: participant_id
+        type: integer
+        description: Unique identifier for the participant
+        required: true
+      - name: condition
+        type: category
+        description: Experimental condition label (e.g., 'predictable', 'random')
+        required: false
+      - name: actual_duration
+        type: float
+        description: Ground truth duration of the stimulus in milliseconds
+        required: false
+      - name: trial_id
+        type: integer
+        description: Unique identifier for the trial
+        required: false

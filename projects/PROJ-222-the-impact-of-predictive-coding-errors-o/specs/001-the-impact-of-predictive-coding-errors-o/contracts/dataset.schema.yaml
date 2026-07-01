@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Schema"
+description: "Schema for validated dataset metadata and variable availability"
+type: object
+required:
+  - source_url
+  - dataset_id
+  - variable_availability
+  - status
+properties:
+  source_url:
+    type: string
+    description: "Verified URL of the dataset source"
+  dataset_id:
+    type: string
+    description: "Unique identifier (OpenML ID or HuggingFace path)"
+  variable_availability:
+    type: object
+    required:
+      - duration_estimate
+      - stimulus_sequence
+      - surprisal
+    properties:
+      duration_estimate:
+        type: boolean
+        description: "Whether the dataset contains duration estimates"
+      stimulus_sequence:
+        type: boolean
+        description: "Whether the dataset contains raw stimulus sequences"
+      surprisal:
+        type: boolean
+        description: "Whether surprisal is explicitly provided or computed"
+  status:
+    type: string
+    enum:
+      - "included"
+      - "excluded"
+    description: "Inclusion status based on variable fit"
+  exclusion_reason:
+    type: string
+    description: "Reason for exclusion if status is 'excluded'"
+  checksum:
+    type: string
+    description: "SHA256 checksum of the raw file"
+  experimental_design_type:
+    type: string
+    description: "Type of experimental design (e.g., 'oddball', 'random'). Required for valid surprisal computation."

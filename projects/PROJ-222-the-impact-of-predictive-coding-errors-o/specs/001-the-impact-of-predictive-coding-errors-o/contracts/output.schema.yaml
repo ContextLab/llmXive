@@ -1,0 +1,96 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Output Schema"
+description: "Schema for statistical analysis results and model outputs"
+type: object
+required:
+  - model_results
+  - sensitivity_analysis
+  - diagnostics
+properties:
+  model_results:
+    type: object
+    required:
+      - fixed_effects
+      - random_effects
+      - p_values
+      - adjusted_p_values
+      - effect_sizes
+    properties:
+      fixed_effects:
+        type: object
+        description: "Fixed effect coefficients and standard errors"
+        additionalProperties:
+          type: object
+          required:
+            - estimate
+            - std_error
+          properties:
+            estimate:
+              type: number
+            std_error:
+              type: number
+      random_effects:
+        type: object
+        description: "Random intercept variance components"
+        additionalProperties:
+          type: number
+      p_values:
+        type: object
+        description: "Raw P-values for fixed effects"
+        additionalProperties:
+          type: number
+      adjusted_p_values:
+        type: object
+        description: "P-values after Bonferroni/BH correction (FR-005)"
+        additionalProperties:
+          type: number
+      effect_sizes:
+        type: object
+        description: "Standardized effect sizes (Cohen's d or beta) (FR-006)"
+        additionalProperties:
+          type: object
+          required:
+            - cohen_d
+            - ci_95
+          properties:
+            cohen_d:
+              type: number
+            ci_95:
+              type: array
+              items:
+                type: number
+              description: "95% Confidence Interval [lower, upper]"
+  sensitivity_analysis:
+    type: object
+    required:
+      - mde
+      - power
+    properties:
+      mde:
+        type: number
+        description: "Minimum Detectable Effect for power=0.80"
+      power:
+        type: number
+        description: "Target power (e.g., 0.80)"
+  diagnostics:
+    type: object
+    required:
+      - convergence_status
+      - convergence_rate
+      - collinearity_vif
+      - fwer_control_status
+    properties:
+      convergence_status:
+        type: boolean
+        description: "Whether the model converged without simplification"
+      convergence_rate:
+        type: number
+        description: "Percentage of models that converged (SC-002)"
+      collinearity_vif:
+        type: object
+        description: "Variance Inflation Factors for predictors"
+        additionalProperties:
+          type: number
+      fwer_control_status:
+        type: boolean
+        description: "Whether family-wise error rate is controlled at α≤0.05 (SC-003)"

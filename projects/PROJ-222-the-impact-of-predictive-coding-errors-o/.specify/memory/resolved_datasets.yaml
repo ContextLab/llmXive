@@ -1,0 +1,189 @@
+resolved_at: '2026-07-01T18:25:04.206731+00:00'
+datasets:
+- intent: MDE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Sleoruiz/dataset-tokenized-mdeberta/resolve/main/data/test-00000-of-00002-2a6bdc48f6e79516.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/mderuiter/cryptoTwitterData/resolve/main/tweets.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Sleoruiz/dataset-tokenized-mdeberta/resolve/main/data/test-00000-of-00002-2a6bdc48f6e79516.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/mderuiter/cryptoTwitterData/resolve/main/tweets.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/api/resolve-cache/datasets/mHossain/social_mdedia_comment_v2/6ca670f26033636625ce7d50cfdaa3d9033b2782/test.csv?%2Fdatasets%2FmHossain%2Fsocial_mdedia_comment_v2%2Fresolve%2Fmain%2Ftest.csv=&etag=%22d9dfaa2be755fd539a2fe964021110195d456a88%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Underlying_data_for_the_article_Novel_Haptic_Electronic_Yarn_for_Wearable_Textiles_Vibrotactile_Feedback_via_Knitted_Channels_for_Skin-Based_Communication_/30961862
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Assessment_of_Peer_influence_on_Predisposition_to_Examination_Misconduct_Among_Tertiary_Institution_Students_in_Cross_River_State_Nigeria/32866142
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/RESEARCH_DATA_MANAGEMENT_AND_DIGITAL_REPOSITORIES_BUILDING_RESILIENT_INFRASTRUCTURES_FOR_OPEN_SCIENCE_AND_KNOWLEDGE_SUSTAINABILITY/32866136
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Impact_of_HIV_Aids_on_the_labour_force_exploring_vulnerabilities/32865950
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Confronting_the_region_a_profile_of_southern_Africa/32866019
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15090125
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16075587
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19011151
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6038043
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5790875
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://toubkal.imist.ma/handle/123456789/12062
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://toubkal.imist.ma/handle/123456789/33357
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21105431
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21105431
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21104899
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: EVERY
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/lang-uk/every_prompt/resolve/main/every_prompt_stats.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 4217
+      parsed: true
+  - url: https://huggingface.co/datasets/USC-PSI-Lab/humanoid-everyday/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/tarteel-ai/everyayah/resolve/main/data/test-00000-of-00013-18d88ded65aa7b53.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/USC-PSI-Lab/humanoid-everyday/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/tarteel-ai/everyayah/resolve/main/data/test-00000-of-00013-18d88ded65aa7b53.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/lang-uk/every_prompt/resolve/main/every_prompt_stats.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/dataset/Underlying_data_for_the_article_Novel_Haptic_Electronic_Yarn_for_Wearable_Textiles_Vibrotactile_Feedback_via_Knitted_Channels_for_Skin-Based_Communication_/30961862
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Assessment_of_Peer_influence_on_Predisposition_to_Examination_Misconduct_Among_Tertiary_Institution_Students_in_Cross_River_State_Nigeria/32866142
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/RESEARCH_DATA_MANAGEMENT_AND_DIGITAL_REPOSITORIES_BUILDING_RESILIENT_INFRASTRUCTURES_FOR_OPEN_SCIENCE_AND_KNOWLEDGE_SUSTAINABILITY/32866136
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Impact_of_HIV_Aids_on_the_labour_force_exploring_vulnerabilities/32865950
+    source: figshare
+    status: wrong_format
+    reason: HTTP 404
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Confronting_the_region_a_profile_of_southern_Africa/32866019
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16326807
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14629406
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15491893
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5465507
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.ijam.latticescipub.com/portfolio-item/B120305021025/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21110123
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21110123
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21111134
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21111134
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21111121
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
