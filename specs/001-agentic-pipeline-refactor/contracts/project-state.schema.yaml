@@ -50,9 +50,12 @@ properties:
       - research_accepted
       - research_full_revision
       - research_rejected
-      # External-paper intake triage (spec 024): submitted/HF-ingested papers
-      # land here for code-vs-no-code reprocessing, not at paper_review.
+      # External-paper intake (spec 024 + Reviewed-Preprints 2026-07-01): a
+      # submitted/HF-ingested paper lands here, then is parked review-only at the
+      # terminal reviewed_preprint (never modified) while a separate follow-up
+      # brainstorm project is spawned.
       - paper_ingested
+      - reviewed_preprint
       # Paper drafting Spec Kit pipeline
       - paper_drafting_init
       - paper_specified

@@ -354,3 +354,89 @@ def to_followup_idea(project: Project, *, repo_root: Path | None = None) -> Proj
         metadata=metadata,
         pdir=pdir,
     )
+
+
+def spawn_followup_project(
+    preprint_project: Project,
+    *,
+    repo_root: Path | None = None,
+    _extension_fn=None,
+) -> str:
+    """Create a SEPARATE llmXive brainstorm project that extends a Reviewed Preprint.
+
+    Reviewed-Preprints ethics change (2026-07-01): the ingested paper stays a
+    review-only preprint (original byline intact); THIS spawns our own follow-up
+    study as a FRESH project (new PROJ id at BRAINSTORMED) whose idea proposes a
+    concrete extension and CITES the source (we credit the original authors only via
+    the citation, never as authors of our study). The preprint project is left
+    untouched. Returns the new project's id. ``_extension_fn`` overrides the real
+    LLM extension call in tests.
+    """
+    from llmxive.state import project as project_store
+    from llmxive.state.project_id_lock import (
+        next_available_proj_num,
+        project_id_lock,
+    )
+
+    repo = repo_root or _repo_root()
+    ppdir = project_dir(preprint_project, repo)
+    metadata = _load_metadata(ppdir)
+    paper_text = assemble_paper_text(ppdir, metadata)
+    propose = _extension_fn or _propose_extension
+    extension_body = (propose(paper_text) or "").strip()
+
+    orig_title = str(metadata.get("title") or preprint_project.title or "preprint").strip()
+    title = f'llmXive follow-up: extending "{orig_title[:70]}"'
+    slug = _slugify(title)
+    now = datetime.now(UTC)
+    with project_id_lock(repo):
+        n = next_available_proj_num(repo_root=repo)
+        pid = f"PROJ-{n:03d}-{slug}"
+        proj = Project(
+            id=pid,
+            title=title,
+            field=preprint_project.field,
+            current_stage=Stage.BRAINSTORMED,
+            points_research={},
+            points_paper={},
+            created_at=now,
+            updated_at=now,
+            artifact_hashes={},
+        )
+        project_store.save(proj, repo_root=repo)
+        idea_dir = repo / "projects" / pid / "idea"
+        idea_dir.mkdir(parents=True, exist_ok=True)
+
+    # The follow-up is OURS — NO `paper_authors:` (the original byline stays on the
+    # preprint). Cite the source in the body + a bibtex block.
+    src_url = str(metadata.get("arxiv_url") or metadata.get("source_url") or "").strip()
+    src_authors = ", ".join(
+        str(a).strip() for a in (metadata.get("authors") or []) if str(a).strip()
+    )
+    cite = f"- **{orig_title}**"
+    if src_authors:
+        cite += f" — {src_authors}"
+    if src_url:
+        cite += f". {src_url}"
+    cite += "."
+    body = "\n".join([
+        "---",
+        f"field: {preprint_project.field}",
+        "submitter: llmxive-preprint-followup",
+        "---",
+        "",
+        f"# {title}",
+        "",
+        extension_body,
+        "",
+        "## Motivated by (source preprint — reviewed, not authored, by llmXive)",
+        "",
+        cite,
+        "",
+        "```bibtex",
+        build_bibtex_entry(metadata).strip(),
+        "```",
+        "",
+    ])
+    (idea_dir / f"{slug}.md").write_text(body, encoding="utf-8")
+    return pid
