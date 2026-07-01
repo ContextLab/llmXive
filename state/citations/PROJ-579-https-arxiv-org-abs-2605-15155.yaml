@@ -42,3 +42,14 @@
   verification_status: unreachable
   verified_against_url: null
   verified_at: '2026-06-30T18:08:46.616582Z'
+- artifact_hash: 85e7bf39b6adf01b0c2dadd869d7341d4e417bf5b3c5bbafcc09fb8d3e5ae6c0
+  artifact_path: projects/PROJ-579-https-arxiv-org-abs-2605-15155/docs/reproducibility/reproducibility_report.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: arxiv
+  value: '2605.15155'
+  verification_status: unreachable
+  verified_against_url: null
+  verified_at: '2026-07-01T07:57:59.424075Z'

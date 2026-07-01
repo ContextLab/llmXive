@@ -1,0 +1,16 @@
+T004a [P] Create virtual environment at `.venv` using `python -m venv.venv`.: 1
+'T004a [P] Create virtual environment at `.venv` using `python -m venv.venv`. <!-- FAILED: unspecified -->': 1
+T009 [US1] Contract test for Ray CPU initialization in `tests/unit/test_ray_cpu_init.py`. **Depends:** T009a.: 2
+? "T009a [US1] **Create Ray Health\u2011Check Stub**: Write `scripts/stub_ray_check.py`\
+  \ that imports the Ray health\u2011check module (if present) and exits with code\
+  \ 1. This stub allows the contract test to exist before the real implementation."
+: 2
+? 'T010 [US1] **Execute Vendored Entry Point**: Execute `external/SDAR/tests/ray_cpu/check_worker_alive/main.py`
+  in the active virtual environment. Verify the script logs "2 CPUs detected" (or
+  >= 2) and "Ray cluster healthy" without raising `ImportError` for `torch.cuda`.
+  Generate `outputs/health/ray_health.json` with the exit code and detected CPU count.'
+: 2
+? T011 [US1] Add logic to detect and report available CPU count (expecting >= 2) without
+  raising `ImportError` for `torch.cuda`.
+: 2
+T012 [US1] Ensure script exits with code 0 and generates `outputs/health/ray_health.json` on success.: 2

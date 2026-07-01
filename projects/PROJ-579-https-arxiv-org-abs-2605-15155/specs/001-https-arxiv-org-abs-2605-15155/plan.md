@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project reproduces the core *mechanism* of the "Self-Distilled Agentic Reinforcement Learning" (SDAR) paper (arXiv:2605.15155) within the strict constraints of a CPU-only GitHub Actions runner (CPU, 7GB RAM, 6h limit). The primary objective is **mechanism execution validation**, not statistical superiority. We verify:
+This project reproduces the core *mechanism* of the "Self-Distilled Agentic Reinforcement Learning" (SDAR) paper (arXiv:2605.15155) within the strict constraints of a CPU-only GitHub Actions runner (CPU, sufficient RAM, 6h limit). The primary objective is **mechanism execution validation**, not statistical superiority. We verify:
 1.  The SDAR training loop (gating + RL) executes without CUDA errors on a small-scale proxy model (`distilbert-base-uncased`).
 2.  The SDAR gate loss term is generated and logged as specified in the paper.
 3.  A comparative baseline run (SDAR vs. PPO) is executed to verify *implementation parity* (i.e., both run without crashing).
@@ -42,7 +42,9 @@ This project reproduces the core *mechanism* of the "Self-Distilled Agentic Rein
 | **IV. Single Source of Truth** | **PASS** | All metrics in `paper/` will trace to specific rows in `data/sdar_results.csv` generated from actual log parsing. |
 | **V. Versioning Discipline** | **PASS** | Artifacts will be checksummed. `state/projects/...yaml` updated on change via `parse_logs.py`. |
 | **VI. Self-Distillation Stability** | **PASS** | Plan explicitly logs "SDAR Gate Loss", `gate_activation` boolean, and teacher update frequency. |
-| **VII. Computational Constraint** | **PASS** | Plan enforces CPU-only, `distilbert` model, downsampling (1000 steps/seed), and 60s task timeouts. |
+| **VII. Computational Constraint** | **PASS** | Plan enforces CPU-only, `distilbert` model, downsampling (A fixed number of steps per seed), and Task timeouts
+
+The research question remains: How do task timeouts affect system reliability? The method involves simulating variable timeout durations to measure failure rates, as described in [Author et al., Year; DOI].. |
 
 ## Project Structure
 
@@ -98,7 +100,7 @@ projects/PROJ-579-https-arxiv-org-abs-2605-15155/
 
 ### Phase 0: Environment & Sanity Check
 1.  **Setup**: Clone repo, init submodules, create virtualenv, install `requirements.txt`.
-2.  **Health Check**: Execute `tests/ray_cpu/check_worker_alive/main.py`. Verify "2 CPUs detected", no CUDA errors.
+2.  **Health Check**: Execute `tests/ray_cpu/check_worker_alive/main.py`. Verify "CPUs detected", no CUDA errors.
 3.  **Model Verification**: Verify `distilbert-base-uncased` loads on CPU within 7GB RAM.
 
 ### Phase 1: Mechanism Execution (Sanity Run)
