@@ -1,14 +1,7 @@
-last_used: richard-feynman
-last_used_at: '2026-07-01T05:41:39.555187+00:00'
-last_outcome: target_missing
+last_used: rosalind-franklin
+last_used_at: '2026-07-01T07:41:28.572483+00:00'
+last_outcome: committed
 history:
-- slug: alan-turing
-  started_at: '2026-06-21T05:14:04.074372+00:00'
-  ended_at: '2026-06-21T07:09:48.992918+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-747-s-agent-spatial-tool-use-elicits-reasoni/reviews/research/alan-turing-simulated__2026-06-21__research.md
 - slug: albert-einstein
   started_at: '2026-06-21T07:09:48.992918+00:00'
   ended_at: '2026-06-21T08:52:02.438144+00:00'
@@ -1206,3 +1199,10 @@ history:
   ended_at: '2026-07-01T05:41:39.555187+00:00'
   outcome: target_missing
   action: comment
+- slug: rosalind-franklin
+  started_at: '2026-07-01T05:41:39.555187+00:00'
+  ended_at: '2026-07-01T07:41:28.572483+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-413-predicting-molecular-interactions-in-pol/reviews/research/rosalind-franklin-simulated__2026-07-01__research.md
