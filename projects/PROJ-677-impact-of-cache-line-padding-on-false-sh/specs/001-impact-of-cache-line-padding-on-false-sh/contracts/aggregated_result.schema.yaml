@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AggregatedResult"
+description: "Schema for aggregated benchmark results (mean, std, CI)."
+type: "object"
+properties:
+  thread_count:
+    type: "integer"
+    description: "Number of worker threads."
+    minimum: 1
+    maximum: 8
+  configuration:
+    type: "string"
+    description: "Counter variant."
+    enum:
+      - "packed"
+      - "padded"
+  mean_throughput:
+    type: "number"
+    description: "Mean operations per second."
+    minimum: 0
+  std_throughput:
+    type: "number"
+    description: "Standard deviation of throughput."
+    minimum: 0
+  n_runs:
+    type: "integer"
+    description: "Number of runs averaged."
+    minimum: 5
+  ci_lower:
+    type: "number"
+    description: "Lower bound of 95% CI."
+    minimum: 0
+  ci_upper:
+    type: "number"
+    description: "Upper bound of 95% CI."
+    minimum: 0
+required:
+  - thread_count
+  - configuration
+  - mean_throughput
+  - std_throughput
+  - n_runs
+  - ci_lower
+  - ci_upper
+additionalProperties: false
