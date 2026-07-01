@@ -1,6 +1,4 @@
-T008 [P] Create `pytest.ini` and basic test harness: 1
-T013 [P] [US1] Unit test for unit conversion logic in `code/tests/test_data_cleaning.py`: 1
-T014 [P] [US1] Unit test for missing value exclusion logic in `code/tests/test_data_cleaning.py`: 1
-'T015 [US1] Implement data acquisition in `code/data/acquisition.py`:': 1
-'T016 [US1] Implement Materials Project descriptor fetch in `code/data/acquisition.py`:': 1
-'T017 [US1] Implement data cleaning in `code/data/cleaning.py`:': 1
+'T016 [US1] Implement Materials Project descriptor fetch in `code/data/acquisition.py`:': 2
+'T016 [US1] Implement Materials Project descriptor fetch in `code/data/acquisition.py`: <!-- FAILED: unspecified -->': 1
+'T019 [US1] Add validation check in `code/data/cleaning.py`:': 2
+'T020 [US1] Version the `data/curated_builds.csv` artifact:': 1

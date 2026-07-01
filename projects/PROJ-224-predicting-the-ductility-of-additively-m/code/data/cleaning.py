@@ -1,9 +1,9 @@
 import os
+import sys
 import logging
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from typing import Tuple, List
 
 # Configure logging
 logging.basicConfig(
@@ -12,239 +12,244 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Required columns for the curated dataset
+REQUIRED_COLUMNS = [
+    'laser_power', 'scan_speed', 'hatch_spacing', 'layer_thickness',
+    'ductility', 'alloy_family', 'energy_density'
+]
+
+# Elements to map as binary flags
+ELEMENT_FLAGS = ['Cr', 'Al', 'Ti', 'Co', 'Mo', 'W']
+
 def convert_units(df: pd.DataFrame) -> pd.DataFrame:
     """
     Convert all raw units to SI (W, mm/s, µm, %).
     
-    Assumptions based on common literature:
-    - laser_power: W (already SI) or kW -> convert kW to W
-    - scan_speed: mm/s (already SI) or m/s -> convert m/s to mm/s
-    - hatch_spacing: µm (already SI) or mm -> convert mm to µm
-    - layer_thickness: µm (already SI) or mm -> convert mm to µm
-    - ductility: % (already SI) or fraction -> convert fraction to %
-    
+    Args:
+        df: Input DataFrame with process parameters
+        
     Returns:
-        DataFrame with converted units.
+        DataFrame with converted units
     """
+    logger.info("Converting units to SI standards...")
     df = df.copy()
-    logger.info("Starting unit conversion...")
-
-    # Laser Power: kW -> W
+    
+    # Laser Power: Convert to Watts (W)
     if 'laser_power' in df.columns:
-        # Check if values look like kW (e.g., very small numbers for typical W ranges)
-        # Heuristic: if mean < 500, assume kW, else W. Or check for a unit column.
-        # For robustness, we assume raw data might have mixed units or be in kW.
-        # Let's assume if the max value is < 1000, it might be kW.
-        # A safer approach for a research pipeline: assume standard units are W, 
-        # but if a column 'power_unit' exists, use it. 
-        # Since we don't have that, we apply a heuristic or assume input is W.
-        # If the task implies conversion is needed, we assume some are kW.
-        # Let's assume the input is in W for now, but add a check for kW.
-        # If we find a column 'laser_power_kW', we'd convert. 
-        # Given the task "Convert all raw units", we assume the input might be mixed.
-        # We will implement a conversion if a 'unit' column exists or if we detect outliers.
-        # For this implementation, we assume the input is mostly W, but we handle a potential 'kW' flag.
-        # If no unit column, we assume W.
-        pass 
-
-    # Scan Speed: m/s -> mm/s
+        if 'laser_power_unit' in df.columns:
+            mask_w = df['laser_power_unit'].str.lower() == 'w'
+            mask_kw = df['laser_power_unit'].str.lower() == 'kw'
+            df.loc[mask_kw, 'laser_power'] = df.loc[mask_kw, 'laser_power'] * 1000
+            df.loc[mask_w, 'laser_power'] = df.loc[mask_w, 'laser_power']
+        # Ensure numeric
+        df['laser_power'] = pd.to_numeric(df['laser_power'], errors='coerce')
+    
+    # Scan Speed: Convert to mm/s
     if 'scan_speed' in df.columns:
-        # Heuristic: if max value < 10, assume m/s (typical AM speeds are 100-1000 mm/s = 0.1-1 m/s)
-        # If max > 1000, assume mm/s.
-        if df['scan_speed'].max() < 10.0:
-            logger.info("Detected scan_speed in m/s, converting to mm/s.")
-            df['scan_speed'] = df['scan_speed'] * 1000.0
-        else:
-            logger.info("Assuming scan_speed is already in mm/s.")
-
-    # Hatch Spacing: mm -> µm
+        if 'scan_speed_unit' in df.columns:
+            mask_mm_s = df['scan_speed_unit'].str.lower() == 'mm/s'
+            mask_m_s = df['scan_speed_unit'].str.lower() == 'm/s'
+            mask_mm_min = df['scan_speed_unit'].str.lower() == 'mm/min'
+            
+            df.loc[mask_m_s, 'scan_speed'] = df.loc[mask_m_s, 'scan_speed'] * 1000
+            df.loc[mask_mm_min, 'scan_speed'] = df.loc[mask_mm_min, 'scan_speed'] / 60.0
+            df.loc[mask_mm_s, 'scan_speed'] = df.loc[mask_mm_s, 'scan_speed']
+        df['scan_speed'] = pd.to_numeric(df['scan_speed'], errors='coerce')
+    
+    # Hatch Spacing: Convert to µm
     if 'hatch_spacing' in df.columns:
-        # Heuristic: if max value < 1.0, assume mm (typical 0.05-0.2 mm)
-        # If max > 50, assume µm.
-        if df['hatch_spacing'].max() < 1.0:
-            logger.info("Detected hatch_spacing in mm, converting to µm.")
-            df['hatch_spacing'] = df['hatch_spacing'] * 1000.0
-        else:
-            logger.info("Assuming hatch_spacing is already in µm.")
-
-    # Layer Thickness: mm -> µm
+        if 'hatch_spacing_unit' in df.columns:
+            mask_um = df['hatch_spacing_unit'].str.lower() == 'µm'
+            mask_mm = df['hatch_spacing_unit'].str.lower() == 'mm'
+            mask_m = df['hatch_spacing_unit'].str.lower() == 'm'
+            
+            df.loc[mask_mm, 'hatch_spacing'] = df.loc[mask_mm, 'hatch_spacing'] * 1000
+            df.loc[mask_m, 'hatch_spacing'] = df.loc[mask_m, 'hatch_spacing'] * 1e6
+            df.loc[mask_um, 'hatch_spacing'] = df.loc[mask_um, 'hatch_spacing']
+        df['hatch_spacing'] = pd.to_numeric(df['hatch_spacing'], errors='coerce')
+    
+    # Layer Thickness: Convert to µm
     if 'layer_thickness' in df.columns:
-        # Heuristic: if max value < 1.0, assume mm (typical 0.02-0.05 mm)
-        if df['layer_thickness'].max() < 1.0:
-            logger.info("Detected layer_thickness in mm, converting to µm.")
-            df['layer_thickness'] = df['layer_thickness'] * 1000.0
-        else:
-            logger.info("Assuming layer_thickness is already in µm.")
-
-    # Ductility: fraction -> %
+        if 'layer_thickness_unit' in df.columns:
+            mask_um = df['layer_thickness_unit'].str.lower() == 'µm'
+            mask_mm = df['layer_thickness_unit'].str.lower() == 'mm'
+            mask_m = df['layer_thickness_unit'].str.lower() == 'm'
+            
+            df.loc[mask_mm, 'layer_thickness'] = df.loc[mask_mm, 'layer_thickness'] * 1000
+            df.loc[mask_m, 'layer_thickness'] = df.loc[mask_m, 'layer_thickness'] * 1e6
+            df.loc[mask_um, 'layer_thickness'] = df.loc[mask_um, 'layer_thickness']
+        df['layer_thickness'] = pd.to_numeric(df['layer_thickness'], errors='coerce')
+    
+    # Ductility: Ensure % (if not already)
     if 'ductility' in df.columns:
-        # Heuristic: if max value < 1.0, assume fraction.
-        if df['ductility'].max() < 1.0:
-            logger.info("Detected ductility as fraction, converting to %.")
-            df['ductility'] = df['ductility'] * 100.0
-        else:
-            logger.info("Assuming ductility is already in %.")
-
+        if 'ductility_unit' in df.columns:
+            mask_pct = df['ductility_unit'].str.lower() == '%'
+            mask_decimal = df['ductility_unit'].str.lower() == 'decimal'
+            df.loc[mask_decimal, 'ductility'] = df.loc[mask_decimal, 'ductility'] * 100
+            df.loc[mask_pct, 'ductility'] = df.loc[mask_pct, 'ductility']
+        df['ductility'] = pd.to_numeric(df['ductility'], errors='coerce')
+    
     logger.info("Unit conversion complete.")
     return df
 
-def filter_missing_values(df: pd.DataFrame) -> Tuple[pd.DataFrame, List[str]]:
+def filter_missing_values(df: pd.DataFrame) -> pd.DataFrame:
     """
     Filter out records with missing ductility or incomplete process specs.
-    
-    Required columns: laser_power, scan_speed, hatch_spacing, layer_thickness, ductility, alloy_family
-    
-    Returns:
-        Tuple of (cleaned DataFrame, list of exclusion reasons).
-    """
-    df = df.copy()
-    required_cols = ['laser_power', 'scan_speed', 'hatch_spacing', 'layer_thickness', 'ductility', 'alloy_family']
-    exclusion_reasons = []
-    
-    logger.info(f"Filtering missing values. Required columns: {required_cols}")
-    
-    # Check for required columns
-    missing_cols = [col for col in required_cols if col not in df.columns]
-    if missing_cols:
-        logger.warning(f"Missing required columns in input data: {missing_cols}")
-        # If critical columns are missing, we might need to handle this differently,
-        # but for now, we assume they exist as per the task description.
-    
-    # Drop rows where any required column is NaN
-    initial_count = len(df)
-    df_clean = df.dropna(subset=required_cols)
-    dropped_count = initial_count - len(df_clean)
-    
-    if dropped_count > 0:
-        exclusion_reasons.append(f"Removed {dropped_count} rows due to missing values in required columns.")
-        logger.warning(f"Removed {dropped_count} rows due to missing values.")
-    
-    # Additional validation: check for zero or negative values in process parameters
-    # (Physical impossibility)
-    params = ['laser_power', 'scan_speed', 'hatch_spacing', 'layer_thickness']
-    for col in params:
-        if col in df_clean.columns:
-            bad_rows = df_clean[df_clean[col] <= 0]
-            if len(bad_rows) > 0:
-                exclusion_reasons.append(f"Removed {len(bad_rows)} rows with non-positive {col}.")
-                logger.warning(f"Removed {len(bad_rows)} rows with non-positive {col}.")
-                df_clean = df_clean[df_clean[col] > 0]
-
-    return df_clean, exclusion_reasons
-
-def map_alloy_composition(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Map alloy composition to binary flags for specific elements: Cr, Al, Ti, Co, Mo, W.
-    
-    Assumes 'alloy_family' or 'composition' column exists. 
-    If 'composition' is a string (e.g., "Inconel 718"), we map based on family.
-    If 'alloy_family' is present, we map based on that.
-    
-    This is a simplified mapping. In a real scenario, we would parse the composition string.
-    For this task, we assume 'alloy_family' provides enough info or we create dummy flags.
-    
-    Returns:
-        DataFrame with new binary columns: has_Cr, has_Al, has_Ti, has_Co, has_Mo, has_W.
-    """
-    df = df.copy()
-    elements = ['Cr', 'Al', 'Ti', 'Co', 'Mo', 'W']
-    
-    logger.info("Mapping alloy composition to binary flags.")
-    
-    # Initialize columns to 0
-    for elem in elements:
-        df[f'has_{elem}'] = 0
-    
-    # Simple heuristic mapping based on common alloy families
-    # This is a placeholder logic. In reality, we'd parse the composition.
-    # If 'alloy_family' is 'Inconel 718', it has Ni, Cr, Mo, Nb, Ti, Al.
-    # If 'alloy_family' is 'Hastelloy X', it has Ni, Cr, Mo, W, Fe.
-    
-    # Let's assume 'alloy_family' column contains strings like "Inconel 718", "Hastelloy X", etc.
-    if 'alloy_family' in df.columns:
-        for idx, row in df.iterrows():
-            family = str(row['alloy_family']).lower()
-            if 'inconel' in family or '718' in family:
-                df.at[idx, 'has_Cr'] = 1
-                df.at[idx, 'has_Mo'] = 1
-                df.at[idx, 'has_Ti'] = 1
-                df.at[idx, 'has_Al'] = 1
-            elif 'hastelloy' in family or 'x' in family:
-                df.at[idx, 'has_Cr'] = 1
-                df.at[idx, 'has_Mo'] = 1
-                df.at[idx, 'has_W'] = 1
-            elif 'mar' in family or 'm-247' in family:
-                df.at[idx, 'has_Co'] = 1
-                df.at[idx, 'has_Al'] = 1
-                df.at[idx, 'has_Ti'] = 1
-            # Add more mappings as needed
-    
-    logger.info("Alloy composition mapping complete.")
-    return df
-
-def clean_and_save(df: pd.DataFrame, output_path: Path) -> None:
-    """
-    Main cleaning pipeline: convert units, filter missing values, map composition, and save.
+    Log reasons for exclusion.
     
     Args:
-        df: Input DataFrame.
-        output_path: Path to save the cleaned CSV.
+        df: Input DataFrame
+        
+    Returns:
+        Filtered DataFrame
     """
-    logger.info(f"Starting cleaning pipeline for {len(df)} rows.")
+    logger.info("Filtering records with missing values...")
+    original_count = len(df)
+    df = df.copy()
     
-    # 1. Convert units
-    df_clean = convert_units(df)
+    # Identify missing values in required columns
+    missing_mask = pd.DataFrame(False, index=df.index, columns=REQUIRED_COLUMNS)
     
-    # 2. Filter missing values
-    df_clean, exclusion_reasons = filter_missing_values(df_clean)
+    for col in REQUIRED_COLUMNS:
+        if col in df.columns:
+            missing_mask[col] = df[col].isna()
+        else:
+            missing_mask[col] = True  # Column missing entirely
     
-    # 3. Map alloy composition
-    df_clean = map_alloy_composition(df_clean)
+    # Combine all missing flags
+    any_missing = missing_mask.any(axis=1)
     
-    # 4. Validation Check (T019): If row count < 50, log critical warning but proceed.
-    # Also log total excluded records and reasons.
-    if len(df_clean) < 50:
-        logger.critical(f"CRITICAL: Final dataset has only {len(df_clean)} rows, which is less than the minimum recommended 50 rows.")
-        logger.critical("Proceeding with the available data, but model reliability may be compromised.")
+    # Log reasons for exclusion
+    if any_missing.any():
+        excluded_indices = df[any_missing].index.tolist()
+        logger.warning(f"Excluding {len(excluded_indices)} records due to missing values.")
+        
+        # Log specific reasons
+        for col in REQUIRED_COLUMNS:
+            if col in df.columns:
+                count_missing = df[col].isna().sum()
+                if count_missing > 0:
+                    logger.warning(f"  - Missing '{col}': {count_missing} records")
+            else:
+                logger.warning(f"  - Column '{col}' is missing entirely")
+        
+        # Drop rows with any missing required values
+        df = df.dropna(subset=REQUIRED_COLUMNS)
+    
+    final_count = len(df)
+    logger.info(f"Filter complete. {original_count - final_count} records excluded. {final_count} records remaining.")
+    
+    return df
+
+def map_alloy_flags(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Map alloy composition to binary flags for specific elements.
+    
+    Args:
+        df: Input DataFrame with composition data
+        
+    Returns:
+        DataFrame with added binary flag columns
+    """
+    logger.info("Mapping alloy composition to binary flags...")
+    df = df.copy()
+    
+    # Expected composition columns (could be 'Cr', 'Al', etc. or 'Cr_wt', 'Al_wt')
+    # We assume the DataFrame has columns named after the elements or with a standard suffix
+    
+    for element in ELEMENT_FLAGS:
+        # Try standard column name first
+        col_name = element
+        if col_name not in df.columns:
+            # Try with '_wt' suffix
+            col_name = f"{element}_wt"
+        
+        if col_name in df.columns:
+            # Create binary flag: 1 if present (>0), 0 otherwise
+            df[element] = (df[col_name] > 0).astype(int)
+            logger.info(f"  - Created flag for {element} from {col_name}")
+        else:
+            logger.warning(f"  - Column for {element} not found, skipping flag creation")
+    
+    logger.info("Alloy flag mapping complete.")
+    return df
+
+def add_validation_checks(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Add validation checks for the curated dataset.
+    
+    - If row count < 50, log critical warning but proceed.
+    - Log total excluded records and reasons.
+    
+    Args:
+        df: Input DataFrame
+        
+    Returns:
+        Validated DataFrame
+    """
+    logger.info("Running validation checks...")
+    row_count = len(df)
+    
+    # Check row count threshold
+    if row_count < 50:
+        logger.critical(f"Dataset row count ({row_count}) is below the minimum threshold of 50.")
+        logger.critical("Proceeding with caution - model performance may be unreliable.")
     else:
-        logger.info(f"Dataset has {len(df_clean)} rows, meeting the minimum threshold.")
+        logger.info(f"Dataset row count ({row_count}) meets the minimum threshold of 50.")
     
-    if exclusion_reasons:
-        logger.info("Exclusion summary:")
-        for reason in exclusion_reasons:
-            logger.info(f"  - {reason}")
+    # Log summary of excluded records (if any were tracked in previous steps)
+    # Note: In a real pipeline, we might track excluded indices across steps
+    # For now, we log the current state
+    logger.info(f"Validation complete. Final dataset contains {row_count} records.")
+    
+    # Verify all required columns are present
+    missing_cols = [col for col in REQUIRED_COLUMNS if col not in df.columns]
+    if missing_cols:
+        logger.error(f"Missing required columns: {missing_cols}")
+        raise ValueError(f"Missing required columns: {missing_cols}")
+    
+    return df
+
+def main():
+    """
+    Main entry point for data cleaning pipeline.
+    """
+    logger.info("Starting data cleaning pipeline...")
+    
+    # Define paths
+    project_root = Path(__file__).parent.parent.parent
+    input_path = project_root / "data" / "raw_builds.csv"  # Assumed input from acquisition
+    output_path = project_root / "data" / "curated_builds.csv"
     
     # Ensure output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    # Save to CSV
-    df_clean.to_csv(output_path, index=False)
-    logger.info(f"Cleaned data saved to {output_path}")
-
-def main():
-    """
-    Entry point for the cleaning script.
-    Expects input from a previous step or a default location.
-    For this task, we assume the input is passed or loaded from a standard location.
-    """
-    # Define paths
-    input_path = Path("data/raw_combined.csv") # Assumed input from acquisition
-    output_path = Path("data/curated_builds.csv")
-    
+    # Load data
     if not input_path.exists():
         logger.error(f"Input file not found: {input_path}")
-        # If we are running in a pipeline, this might be a hard failure.
-        # But for this task, we assume the file exists or we create a dummy one for testing?
-        # No, we must use real data. If the file doesn't exist, we can't proceed.
-        # However, the task says "If row count < 50...". This implies we have data.
-        # Let's assume the acquisition step created it.
-        # If not, we log error and exit.
+        logger.error("Please run data acquisition first.")
         return
     
     logger.info(f"Loading data from {input_path}")
     df = pd.read_csv(input_path)
+    logger.info(f"Loaded {len(df)} records.")
     
-    clean_and_save(df, output_path)
+    # Step 1: Convert units
+    df = convert_units(df)
+    
+    # Step 2: Filter missing values
+    df = filter_missing_values(df)
+    
+    # Step 3: Map alloy flags
+    df = map_alloy_flags(df)
+    
+    # Step 4: Add validation checks (T019 requirement)
+    df = add_validation_checks(df)
+    
+    # Save output
+    logger.info(f"Saving curated dataset to {output_path}")
+    df.to_csv(output_path, index=False)
+    logger.info("Data cleaning pipeline complete.")
 
 if __name__ == "__main__":
     main()

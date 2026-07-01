@@ -1,2 +1,3 @@
-# This file makes 'code' a Python package
+# llmXive Research Pipeline - Code Package
+# This package contains the implementation of the research pipeline.
 pass

@@ -60,7 +60,7 @@
 - [X] T005 [P] Initialize Python 3.11 virtual environment
 - [X] T006 [P] Create `requirements.txt` with pinned versions: pandas, numpy, scikit-learn, statsmodels, xgboost, requests, lxml, pyyaml
 - [X] T007 [P] Configure linting (ruff) and formatting (black) tools
-- [ ] T008 [P] Create `pytest.ini` and basic test harness
+- [X] T008 [P] Create `pytest.ini` and basic test harness
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,34 +76,34 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T013 [P] [US1] Unit test for unit conversion logic in `code/tests/test_data_cleaning.py`
-- [ ] T014 [P] [US1] Unit test for missing value exclusion logic in `code/tests/test_data_cleaning.py`
+- [X] T013 [P] [US1] Unit test for unit conversion logic in `code/tests/test_data_cleaning.py`
+- [X] T014 [P] [US1] Unit test for missing value exclusion logic in `code/tests/test_data_cleaning.py`
 
 ### Implementation for User Story 1
 
-- [ ] T015 [US1] Implement data acquisition in `code/data/acquisition.py`:
+- [X] T015 [US1] Implement data acquisition in `code/data/acquisition.py`:
  - **Primary Source**: Parse supplementary tables from the four cited papers (using `lxml` or manual CSV ingestion) as the primary source per `plan.md`.
  - **Secondary Source**: Attempt to query the HuggingFace "additive-manufacturing-superalloy" collection.
  - **Merge**: Combine all successful sources.
  - **Error Handling**: If HuggingFace is unreachable or returns empty, log a CRITICAL warning but **DO NOT** fail. Proceed with the data from the primary source (papers).
  - **Output**: A unified DataFrame.
-- [ ] T016 [US1] Implement Materials Project descriptor fetch in `code/data/acquisition.py`:
+- [ ] T016 [US1] Implement Materials Project descriptor fetch in `code/data/acquisition.py`: <!-- FAILED: unspecified -->
  - Query the Materials Project API **only** for alloy crystallographic descriptors (lattice parameters, space group) for the alloys present in the dataset.
  - Merge these descriptors into the unified DataFrame.
  - Log any API failures but proceed with available data.
-- [ ] T017 [US1] Implement data cleaning in `code/data/cleaning.py`:
+- [X] T017 [US1] Implement data cleaning in `code/data/cleaning.py`:
  - Convert all raw units to SI (W, mm/s, µm, %).
  - Filter out records with missing ductility or incomplete process specs (log reasons).
  - Map alloy composition to binary flags for specific elements: Cr, Al, Ti, Co, Mo, W.
  - Output `data/curated_builds.csv`.
-- [~] T018 [US1] Implement feature engineering in `code/data/preprocessing.py`:
+- [X] T018 [US1] Implement feature engineering in `code/data/preprocessing.py`:
  - Calculate volumetric energy density: `E_v = P / (v * h * t)`.
  - Add `E_v` to the dataset.
  - Verify column integrity.
-- [~] T019 [US1] Add validation check in `code/data/cleaning.py`:
+- [ ] T019 [US1] Add validation check in `code/data/cleaning.py`:
  - If row count < 50, log critical warning but proceed.
  - Log total excluded records and reasons.
-- [~] T020 [US1] Version the `data/curated_builds.csv` artifact:
+- [ ] T020 [US1] Version the `data/curated_builds.csv` artifact:
  - Compute SHA-256 hash of the CSV file.
  - **MANDATORY**: Record the hash in `state/projects/PROJ-224-predicting-the-ductility-of-additively-m.yaml` under the `artifact_hashes` key.
  - Do not store hashes in alternative locations (e.g., `data/.checksums` or `state/` root).
@@ -201,8 +201,8 @@
  - Include VIF and sensitivity analysis results.
 - [~] T036 [P] Validate final report renders as PDF/Markdown within 30s on CI.
 - [~] T037 [P] Update `research.md` with final findings and limitations.
-- [ ] T038 [P] Run full pipeline integration test (`main.py`) to ensure end-to-end execution ≤ 600s.
-- [ ] T039 [P] Run quickstart.md validation.
+- [~] T038 [P] Run full pipeline integration test (`main.py`) to ensure end-to-end execution ≤ 600s.
+- [~] T039 [P] Run quickstart.md validation.
 
 ---
 

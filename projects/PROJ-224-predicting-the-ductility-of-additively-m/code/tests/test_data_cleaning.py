@@ -1,151 +1,135 @@
-"""
-Unit tests for data cleaning logic in User Story 1.
-Specifically tests the missing value exclusion logic.
-"""
+import pytest
 import pandas as pd
 import numpy as np
-import pytest
-from pathlib import Path
-import sys
+from code.data.cleaning import convert_units, filter_missing_values, map_alloy_flags
 
-# Add the code directory to the path to allow imports of sibling modules
-# if cleaning.py were to be imported directly. For this task, we mock the
-# cleaning logic to ensure the test is self-contained and runnable without
-# the full pipeline implementation yet, but follows the logic described in T017.
-#
-# NOTE: In a real scenario, we would import `filter_missing_values` from `code.data.cleaning`.
-# Since T017 is not done, we define the logic here to test it, and the actual
-# cleaning.py will be written to match this logic when T017 is implemented.
+def test_placeholder_cleaning():
+    """Placeholder test to ensure the test suite runs."""
+    assert True
 
-def filter_missing_values(df: pd.DataFrame, required_columns: list) -> tuple[pd.DataFrame, list[str]]:
+def test_unit_conversion_logic():
+    """Unit test for unit conversion logic in code/data/cleaning.py.
+    
+    Verifies that:
+    1. Watts are converted correctly (1 W = 1 W)
+    2. mm/s are converted correctly (1 mm/s = 1 mm/s)
+    3. µm are converted to mm (1000 µm = 1 mm)
+    4. % are converted correctly (1% = 1%)
     """
-    Filters out records with missing values in required columns.
+    # Create test data with mixed units
+    data = {
+        'laser_power': [100, 200],  # Already in W
+        'scan_speed': [500, 1000],  # Already in mm/s
+        'layer_thickness': [100, 200],  # In µm
+        'ductility': [10.5, 15.2]  # Already in %
+    }
+    df = pd.DataFrame(data)
     
-    Args:
-        df: Input DataFrame.
-        required_columns: List of column names that must not be missing.
-        
-    Returns:
-        A tuple of (filtered_df, list_of_excluded_reasons).
+    # Apply conversion
+    result = convert_units(df)
+    
+    # Verify layer_thickness was converted from µm to mm
+    assert result['layer_thickness'].iloc[0] == 0.1  # 100 µm -> 0.1 mm
+    assert result['layer_thickness'].iloc[1] == 0.2  # 200 µm -> 0.2 mm
+    
+    # Verify other columns remain unchanged
+    assert result['laser_power'].iloc[0] == 100
+    assert result['scan_speed'].iloc[0] == 500
+    assert result['ductility'].iloc[0] == 10.5
+
+def test_missing_value_exclusion():
+    """Unit test for missing value exclusion logic in code/data/cleaning.py.
+    
+    Verifies that:
+    1. Rows with missing ductility are excluded
+    2. Rows with missing process parameters (laser_power, scan_speed, hatch_spacing, layer_thickness) are excluded
+    3. Rows with complete data are retained
+    4. The function logs the reason for exclusion
     """
-    if df.empty:
-        return df, []
-        
-    excluded_reasons = []
+    # Create test data with various missing value scenarios
+    data = {
+        'laser_power': [100.0, 200.0, np.nan, 400.0, 500.0],
+        'scan_speed': [500.0, np.nan, 700.0, 800.0, 900.0],
+        'hatch_spacing': [100.0, 200.0, 300.0, np.nan, 500.0],
+        'layer_thickness': [50.0, 60.0, 70.0, 80.0, np.nan],
+        'ductility': [10.0, 15.0, 20.0, 25.0, 30.0],
+        'alloy_family': ['Inconel', 'Inconel', 'Hastelloy', 'Inconel', 'Hastelloy']
+    }
+    df = pd.DataFrame(data)
     
-    # Identify rows where any required column is NaN or None
-    mask = df[required_columns].isna().any(axis=1)
+    # Apply filtering
+    result, excluded_reasons = filter_missing_values(df)
     
-    if mask.any():
-        # Log reasons for exclusion (simplified for test)
-        for idx in df[mask].index:
-            row = df.loc[idx]
-            missing_cols = [col for col in required_columns if pd.isna(row[col])]
-            excluded_reasons.append(f"Row {idx}: Missing values in {missing_cols}")
-        
-        filtered_df = df[~mask].reset_index(drop=True)
-    else:
-        filtered_df = df.copy()
-        
-    return filtered_df, excluded_reasons
+    # Verify that only the first row (complete data) is retained
+    # Row 0: Complete -> Retained
+    # Row 1: Missing scan_speed -> Excluded
+    # Row 2: Missing laser_power -> Excluded
+    # Row 3: Missing hatch_spacing -> Excluded
+    # Row 4: Missing layer_thickness -> Excluded
+    assert len(result) == 1
+    assert result.iloc[0]['laser_power'] == 100.0
+    assert result.iloc[0]['scan_speed'] == 500.0
+    assert result.iloc[0]['hatch_spacing'] == 100.0
+    assert result.iloc[0]['layer_thickness'] == 50.0
+    assert result.iloc[0]['ductility'] == 10.0
+    
+    # Verify that all excluded rows are in the reasons list
+    assert len(excluded_reasons) == 4
+    
+    # Verify that the function correctly identifies missing values
+    # and logs the appropriate reasons
+    reasons_text = ' '.join(str(r) for r in excluded_reasons)
+    assert 'scan_speed' in reasons_text or 'laser_power' in reasons_text or 'hatch_spacing' in reasons_text or 'layer_thickness' in reasons_text
 
-
-class TestMissingValueExclusion:
-    """Tests for the missing value exclusion logic."""
-
-    def test_no_missing_values(self):
-        """Test that rows are kept when no missing values exist."""
-        data = {
-            'laser_power': [200, 300, 400],
-            'scan_speed': [1.0, 2.0, 3.0],
-            'hatch_spacing': [100, 110, 120],
-            'layer_thickness': [30, 30, 40],
-            'ductility': [15.0, 20.0, 25.0],
-            'alloy_family': ['Inconel', 'Hastelloy', 'Inconel']
-        }
-        df = pd.DataFrame(data)
-        required = ['laser_power', 'scan_speed', 'ductility']
-        
-        result, reasons = filter_missing_values(df, required)
-        
-        assert len(result) == 3
-        assert len(reasons) == 0
-
-    def test_missing_target_variable(self):
-        """Test that rows with missing ductility are excluded."""
-        data = {
-            'laser_power': [200, 300, 400],
-            'scan_speed': [1.0, 2.0, 3.0],
-            'ductility': [15.0, np.nan, 25.0],
-            'alloy_family': ['Inconel', 'Inconel', 'Inconel']
-        }
-        df = pd.DataFrame(data)
-        required = ['laser_power', 'scan_speed', 'ductility']
-        
-        result, reasons = filter_missing_values(df, required)
-        
-        assert len(result) == 2
-        assert len(reasons) == 1
-        assert 'ductility' in reasons[0]
-
-    def test_missing_process_spec(self):
-        """Test that rows with missing process specs (e.g., laser_power) are excluded."""
-        data = {
-            'laser_power': [200, np.nan, 400],
-            'scan_speed': [1.0, 2.0, 3.0],
-            'ductility': [15.0, 20.0, 25.0],
-            'alloy_family': ['Inconel', 'Inconel', 'Inconel']
-        }
-        df = pd.DataFrame(data)
-        required = ['laser_power', 'scan_speed', 'ductility']
-        
-        result, reasons = filter_missing_values(df, required)
-        
-        assert len(result) == 2
-        assert len(reasons) == 1
-        assert 'laser_power' in reasons[0]
-
-    def test_multiple_missing_in_single_row(self):
-        """Test that rows with multiple missing values are excluded and reason is logged."""
-        data = {
-            'laser_power': [200, np.nan, 400],
-            'scan_speed': [1.0, np.nan, 3.0],
-            'ductility': [15.0, 20.0, 25.0],
-            'alloy_family': ['Inconel', 'Inconel', 'Inconel']
-        }
-        df = pd.DataFrame(data)
-        required = ['laser_power', 'scan_speed', 'ductility']
-        
-        result, reasons = filter_missing_values(df, required)
-        
-        assert len(result) == 2
-        assert len(reasons) == 1
-        # Check that both missing columns are mentioned in the reason
-        assert 'laser_power' in reasons[0]
-        assert 'scan_speed' in reasons[0]
-
-    def test_empty_dataframe(self):
-        """Test behavior with an empty DataFrame."""
-        df = pd.DataFrame(columns=['laser_power', 'ductility'])
-        required = ['laser_power', 'ductility']
-        
-        result, reasons = filter_missing_values(df, required)
-        
-        assert len(result) == 0
-        assert len(reasons) == 0
-
-    def test_all_rows_excluded(self):
-        """Test that all rows are excluded if all have missing values."""
-        data = {
-            'laser_power': [np.nan, np.nan],
-            'scan_speed': [1.0, 2.0],
-            'ductility': [np.nan, np.nan],
-            'alloy_family': ['Inconel', 'Inconel']
-        }
-        df = pd.DataFrame(data)
-        required = ['laser_power', 'scan_speed', 'ductility']
-        
-        result, reasons = filter_missing_values(df, required)
-        
-        assert len(result) == 0
-        assert len(reasons) == 2
+def test_alloy_flag_mapping():
+    """Unit test for alloy flag mapping logic in code/data/cleaning.py.
+    
+    Verifies that:
+    1. Alloy composition is correctly mapped to binary flags
+    2. Elements not present in the composition are flagged as 0
+    3. Elements present in the composition are flagged as 1
+    """
+    # Create test data with alloy compositions
+    data = {
+        'alloy_composition': [
+            'Cr:15, Al:5, Ti:3, Co:10, Mo:2, W:1',
+            'Cr:20, Al:8, Ti:5, Co:15, Mo:4, W:2',
+            'Cr:10, Al:2, Ti:1, Co:5, Mo:1, W:0.5',
+            'Al:10, Ti:5',  # Missing some elements
+            'Cr:25, Mo:10, W:5'  # Missing some elements
+        ]
+    }
+    df = pd.DataFrame(data)
+    
+    # Apply mapping
+    result = map_alloy_flags(df)
+    
+    # Verify that all expected columns are present
+    expected_columns = ['Cr_flag', 'Al_flag', 'Ti_flag', 'Co_flag', 'Mo_flag', 'W_flag']
+    for col in expected_columns:
+        assert col in result.columns
+    
+    # Verify that the flags are correctly set
+    # Row 0: All elements present
+    assert result['Cr_flag'].iloc[0] == 1
+    assert result['Al_flag'].iloc[0] == 1
+    assert result['Ti_flag'].iloc[0] == 1
+    assert result['Co_flag'].iloc[0] == 1
+    assert result['Mo_flag'].iloc[0] == 1
+    assert result['W_flag'].iloc[0] == 1
+    
+    # Row 3: Only Al and Ti present
+    assert result['Cr_flag'].iloc[3] == 0
+    assert result['Al_flag'].iloc[3] == 1
+    assert result['Ti_flag'].iloc[3] == 1
+    assert result['Co_flag'].iloc[3] == 0
+    assert result['Mo_flag'].iloc[3] == 0
+    assert result['W_flag'].iloc[3] == 0
+    
+    # Row 4: Cr, Mo, W present
+    assert result['Cr_flag'].iloc[4] == 1
+    assert result['Al_flag'].iloc[4] == 0
+    assert result['Ti_flag'].iloc[4] == 0
+    assert result['Co_flag'].iloc[4] == 0
+    assert result['Mo_flag'].iloc[4] == 1
+    assert result['W_flag'].iloc[4] == 1

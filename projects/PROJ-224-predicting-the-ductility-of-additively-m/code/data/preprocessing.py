@@ -1,358 +1,399 @@
-"""
-Preprocessing module for ductility prediction pipeline.
-
-Handles energy density calculation, VIF analysis, feature filtering,
-and dataset splitting strategies (LOAFO vs Stratified).
-"""
 import os
+import sys
 import logging
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from typing import Tuple, Optional, List, Dict, Any
-from sklearn.model_selection import train_test_split, GroupKFold, cross_val_score
-from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
 from statsmodels.stats.outliers_influence import variance_inflation_factor
+import warnings
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('logs/preprocessing.log'),
+        logging.StreamHandler(sys.stdout)
+    ]
 )
 logger = logging.getLogger(__name__)
-
-# Constants
-DATA_DIR = Path("data")
-PREPROCESSED_DIR = DATA_DIR / "preprocessed"
-PREPROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-
-CURATED_FILE = DATA_DIR / "curated_builds.csv"
-ENERGY_DENSITY_FILE = PREPROCESSED_DIR / "curated_builds_with_energy.csv"
-VIF_FILTERED_FILE = PREPROCESSED_DIR / "vif_filtered_builds.csv"
-SPLIT_TRAIN_FILE = PREPROCESSED_DIR / "train_set.csv"
-SPLIT_TEST_FILE = PREPROCESSED_DIR / "test_set.csv"
-SPLIT_VAL_FILE = PREPROCESSED_DIR / "val_set.csv"
 
 def calculate_energy_density(df: pd.DataFrame) -> pd.DataFrame:
     """
     Calculate volumetric energy density: E_v = P / (v * h * t)
+    P: Laser Power (W)
+    v: Scan Speed (mm/s)
+    h: Hatch Spacing (mm)
+    t: Layer Thickness (mm)
     
-    Args:
-        df: DataFrame with columns laser_power (W), scan_speed (mm/s), 
-            hatch_spacing (µm), layer_thickness (µm)
-    
-    Returns:
-        DataFrame with added 'energy_density' column (J/mm^3)
+    Returns DataFrame with 'energy_density' column added.
     """
     logger.info("Calculating volumetric energy density...")
     
-    # Ensure columns exist
-    required_cols = ['laser_power', 'scan_speed', 'hatch_spacing', 'layer_thickness']
-    for col in required_cols:
-        if col not in df.columns:
-            raise ValueError(f"Missing required column: {col}")
-    
-    # Convert units to consistent SI for calculation:
-    # P: W (already SI)
-    # v: mm/s (already SI for this context)
-    # h: µm -> mm (divide by 1000)
-    # t: µm -> mm (divide by 1000)
-    # E_v = P / (v * (h/1000) * (t/1000)) = P / (v * h * t / 1e6) = (P * 1e6) / (v * h * t)
+    # Ensure units are SI (W, mm/s, mm, mm) - assuming cleaning.py handled unit conversion
+    # If units are in different scales, conversion is needed here
+    # Assuming inputs are: P (W), v (mm/s), h (mm), t (mm)
     
     df = df.copy()
-    df['energy_density'] = (df['laser_power'] * 1e6) / (
+    
+    # Avoid division by zero
+    df['energy_density'] = df['laser_power'] / (
         df['scan_speed'] * df['hatch_spacing'] * df['layer_thickness']
     )
     
-    logger.info(f"Energy density calculated. Range: [{df['energy_density'].min():.2f}, {df['energy_density'].max():.2f}] J/mm^3")
+    logger.info(f"Energy density calculated. Range: {df['energy_density'].min():.2f} to {df['energy_density'].max():.2f} J/mm³")
     return df
 
-def verify_column_integrity(df: pd.DataFrame, required_cols: List[str]) -> Tuple[bool, List[str]]:
+def verify_column_integrity(df: pd.DataFrame, required_columns: list) -> bool:
     """
-    Verify that all required columns exist and have no NaN values in key predictors.
+    Verify that all required columns exist in the DataFrame.
     
     Args:
         df: Input DataFrame
-        required_cols: List of column names to check
-    
+        required_columns: List of column names that must exist
+        
     Returns:
-        Tuple of (is_valid, list_of_missing_or_nan_columns)
+        True if all columns exist, False otherwise.
     """
-    missing = []
-    for col in required_cols:
-        if col not in df.columns:
-            missing.append(col)
-        elif df[col].isna().any():
-            missing.append(f"{col} (has NaN)")
-    
-    return len(missing) == 0, missing
+    missing = [col for col in required_columns if col not in df.columns]
+    if missing:
+        logger.error(f"Missing required columns: {missing}")
+        return False
+    return True
 
-def calculate_vif(df: pd.DataFrame, feature_cols: List[str]) -> pd.DataFrame:
+def calculate_vif(df: pd.DataFrame, features: list) -> pd.Series:
     """
-    Calculate Variance Inflation Factor for each feature.
+    Calculate Variance Inflation Factor (VIF) for a set of features.
     
     Args:
-        df: DataFrame containing features
-        feature_cols: List of feature column names
-    
+        df: DataFrame containing the features
+        features: List of column names to calculate VIF for
+        
     Returns:
-        DataFrame with VIF values
+        Series of VIF values indexed by feature name
     """
     logger.info("Calculating VIF for features...")
     
-    # Handle constant columns
-    X = df[feature_cols].dropna()
-    if X.shape[0] < 2:
-        logger.warning("Not enough samples to calculate VIF")
-        return pd.DataFrame(index=feature_cols, columns=['VIF'], data=np.nan)
-    
     # Add constant for intercept
-    X_with_const = sm.add_constant(X)
+    X = df[features].dropna()
+    if X.empty:
+        logger.warning("No valid data for VIF calculation after dropping NaNs.")
+        return pd.Series(dtype=float)
+        
+    vif_data = pd.Series(
+        [variance_inflation_factor(X.values, i) for i in range(len(features))],
+        index=features
+    )
     
-    vif_data = []
-    for col in feature_cols:
-        if col in X_with_const.columns:
-            try:
-                vif = variance_inflation_factor(X_with_const.values, X_with_const.columns.get_loc(col))
-                vif_data.append({'feature': col, 'VIF': vif})
-            except Exception as e:
-                logger.warning(f"Could not calculate VIF for {col}: {e}")
-                vif_data.append({'feature': col, 'VIF': np.nan})
-    
-    return pd.DataFrame(vif_data)
+    logger.info(f"VIF values: {vif_data.to_dict()}")
+    return vif_data
 
-def apply_vif_filtering(df: pd.DataFrame, threshold: float = 5.0) -> pd.DataFrame:
+def perform_vif_analysis(df: pd.DataFrame, predictors: list, threshold: float = 5.0) -> pd.DataFrame:
     """
-    Apply VIF-based feature filtering per FR-005.
+    Perform VIF analysis and filter features based on multicollinearity.
+    FR-005: If Energy Density VIF > 5, drop individual constituents (Power, Speed, Hatch, Thickness).
+    
+    Args:
+        df: Input DataFrame
+        predictors: List of potential predictor columns
+        threshold: VIF threshold for multicollinearity (default 5.0)
+        
+    Returns:
+        DataFrame with filtered features
+    """
+    logger.info(f"Performing VIF analysis with threshold {threshold}...")
+    
+    # Check for NaNs in predictors
+    if df[predictors].isnull().any().any():
+        logger.warning("NaN values found in predictors. Dropping rows with NaNs for VIF calculation.")
+        df_clean = df.dropna(subset=predictors)
+    else:
+        df_clean = df
+        
+    if df_clean.empty:
+        logger.error("No valid data remaining for VIF analysis.")
+        return df.copy()
+    
+    vif_results = calculate_vif(df_clean, predictors)
+    
+    # Check if Energy Density is in predictors and if its VIF > threshold
+    if 'energy_density' in vif_results.index and vif_results['energy_density'] > threshold:
+        logger.warning(f"Energy Density VIF ({vif_results['energy_density']:.2f}) > {threshold}. Dropping constituent predictors.")
+        
+        # Define constituent predictors
+        constituents = ['laser_power', 'scan_speed', 'hatch_spacing', 'layer_thickness']
+        # Filter to only those present in the dataframe
+        constituents_to_drop = [c for c in constituents if c in df.columns]
+        
+        # Drop constituents, keep energy_density
+        final_predictors = [p for p in predictors if p not in constituents_to_drop]
+        logger.info(f"Dropping constituents: {constituents_to_drop}. Keeping: {final_predictors}")
+        
+        # Re-calculate VIF on reduced set to verify
+        if len(final_predictors) > 1:
+            reduced_vif = calculate_vif(df_clean, final_predictors)
+            max_vif = reduced_vif.max()
+            logger.info(f"Re-calculated max VIF on reduced set: {max_vif:.2f}")
+            if max_vif > threshold:
+                logger.warning(f"Max VIF ({max_vif:.2f}) still exceeds threshold. Proceeding with caution.")
+        else:
+            logger.info("Only one predictor remaining after filtering. Skipping re-calculation.")
+        
+        # Return DataFrame with only the final predictors (and target/other columns)
+        # We return the full df but the caller should know which columns to use
+        # For this function, we just log the decision. The actual filtering happens in the caller or downstream.
+        # However, to be consistent with "Output the filtered dataset", we might return a subset.
+        # Let's assume the task wants us to prepare the data for modeling, so we return the df with only the kept predictors.
+        # But we need to keep target and random effect columns.
+        # Let's return the original df and log the columns to use.
+        # Actually, the task says "Output the filtered dataset". Let's return a df with only the selected predictors + target + alloy_family.
+        # We need to know the target column. Let's assume it's 'ductility' based on context.
+        target_col = 'ductility'
+        random_col = 'alloy_family'
+        
+        cols_to_keep = [c for c in df.columns if c in final_predictors or c == target_col or c == random_col]
+        return df[cols_to_keep].copy()
+    
+    logger.info("VIF analysis complete. No features dropped.")
+    return df.copy()
+
+def perform_loafo_split(df: pd.DataFrame, target_col: str, random_col: str = 'alloy_family') -> dict:
+    """
+    Perform Leave-One-Alloy-Family-Out (LOAFO) split for small datasets (N < 100).
+    
+    In each fold, the left-out alloy family serves as the "held-out test set".
+    Returns a dict of fold results to allow aggregation.
+    
+    Args:
+        df: Input DataFrame
+        target_col: Name of the target column
+        random_col: Name of the random effect column (alloy_family)
+        
+    Returns:
+        Dict containing:
+            - 'folds': List of dicts with 'train', 'val', 'test' indices for each fold
+            - 'alloy_families': List of alloy families
+            - 'method': 'LOAFO'
+    """
+    logger.info("Performing LOAFO split...")
+    
+    alloy_families = df[random_col].unique().tolist()
+    n_families = len(alloy_families)
+    
+    if n_families < 2:
+        logger.error("Not enough alloy families for LOAFO split.")
+        return {'folds': [], 'alloy_families': alloy_families, 'method': 'LOAFO'}
+    
+    folds = []
+    
+    # If we have more families than needed for 5-fold, we might group them, 
+    # but LOAFO typically means one family out per fold.
+    # The task says "5-fold cross-validation loop" with "left-out alloy family".
+    # If N_families > 5, we can't do 5-fold LOAFO in the strict sense without grouping.
+    # We will iterate through all families if <= 5, or sample 5 if > 5?
+    # The task says "5-fold cross-validation loop". Let's assume we do 5 folds if possible.
+    # If N_families < 5, we do N_families folds.
+    # If N_families >= 5, we do 5 folds by grouping families? Or just pick 5 families to leave out?
+    # The task says "In each fold, the left-out alloy family serves as the 'held-out test set'".
+    # This implies one family per fold. So we can have at most N_families folds.
+    # Let's do min(5, N_families) folds by selecting families to leave out.
+    
+    num_folds = min(5, n_families)
+    
+    # Select families to leave out for the folds
+    # If N_families > 5, we select 5 families to leave out.
+    # If N_families <= 5, we leave out each one in a fold.
+    if n_families > 5:
+        # Randomly select 5 families to be the test sets for the 5 folds
+        np.random.seed(42)  # For reproducibility
+        test_families = np.random.choice(alloy_families, size=num_folds, replace=False).tolist()
+    else:
+        test_families = alloy_families
+    
+    for i, test_family in enumerate(test_families):
+        # Test set: rows where alloy_family == test_family
+        test_mask = df[random_col] == test_family
+        # Train/Val set: rows where alloy_family != test_family
+        train_val_mask = ~test_mask
+        
+        train_val_df = df[train_val_mask]
+        test_df = df[test_mask]
+        
+        # Split train_val into train and val (e.g., 80/20)
+        # We need to split by index to keep indices
+        train_indices, val_indices = train_test_split(
+            train_val_df.index,
+            test_size=0.2,
+            random_state=42
+        )
+        
+        folds.append({
+            'fold': i,
+            'test_family': test_family,
+            'train_indices': train_indices.tolist(),
+            'val_indices': val_indices.tolist(),
+            'test_indices': test_df.index.tolist()
+        })
+        
+    logger.info(f"LOAFO split complete. {len(folds)} folds generated.")
+    return {
+        'folds': folds,
+        'alloy_families': alloy_families,
+        'method': 'LOAFO'
+    }
+
+def perform_stratified_split(df: pd.DataFrame, target_col: str, random_col: str = 'alloy_family') -> dict:
+    """
+    Perform standard stratified train/val/test split by alloy_family for larger datasets (N >= 100).
+    
+    Args:
+        df: Input DataFrame
+        target_col: Name of the target column
+        random_col: Name of the random effect column (alloy_family)
+        
+    Returns:
+        Dict containing:
+            - 'train_indices': List of train indices
+            - 'val_indices': List of val indices
+            - 'test_indices': List of test indices
+            - 'method': 'Stratified'
+    """
+    logger.info("Performing stratified train/val/test split...")
+    
+    # First, split off test set (20%)
+    # Stratify by alloy_family
+    train_val_df, test_df = train_test_split(
+        df,
+        test_size=0.2,
+        random_state=42,
+        stratify=df[random_col]
+    )
+    
+    # Then split train_val into train (80% of train_val = 64% total) and val (20% of train_val = 16% total)
+    train_df, val_df = train_test_split(
+        train_val_df,
+        test_size=0.2,
+        random_state=42,
+        stratify=train_val_df[random_col]
+    )
+    
+    logger.info(f"Stratified split complete. Train: {len(train_df)}, Val: {len(val_df)}, Test: {len(test_df)}")
+    
+    return {
+        'train_indices': train_df.index.tolist(),
+        'val_indices': val_df.index.tolist(),
+        'test_indices': test_df.index.tolist(),
+        'method': 'Stratified'
+    }
+
+def split_data(df: pd.DataFrame, target_col: str = 'ductility', random_col: str = 'alloy_family') -> dict:
+    """
+    Main function to split data based on dataset size.
     
     Logic:
-    - Calculate VIF for Energy Density and its components (Power, Speed, Hatch, Thickness).
-    - If Energy Density VIF > threshold, drop components and keep only Energy Density.
-    - Otherwise, keep all.
+    - If N < 100: Use LOAFO (5-fold or N_folds if < 5)
+    - If N >= 100: Use standard stratified train/val/test split
     
     Args:
         df: Input DataFrame
-        threshold: VIF threshold (default 5.0)
-    
+        target_col: Name of the target column
+        random_col: Name of the random effect column
+        
     Returns:
-        Filtered DataFrame
+        Dict with split results
     """
-    logger.info("Applying VIF filtering...")
+    n_samples = len(df)
+    logger.info(f"Splitting data. Total samples: {n_samples}")
     
-    # Define candidate features
-    component_features = ['laser_power', 'scan_speed', 'hatch_spacing', 'layer_thickness']
-    energy_feature = 'energy_density'
-    
-    # Check if all required columns exist
-    all_features = [f for f in component_features + [energy_feature] if f in df.columns]
-    if len(all_features) < len(component_features) + 1:
-        logger.warning("Missing required features for VIF analysis. Skipping filtering.")
-        return df
-    
-    # Calculate VIF
-    vif_df = calculate_vif(df, all_features)
-    logger.info("VIF Results:\n%s", vif_df.to_string(index=False))
-    
-    # Check Energy Density VIF
-    ed_vif = vif_df[vif_df['feature'] == energy_feature]['VIF'].values
-    if len(ed_vif) == 0 or np.isnan(ed_vif[0]):
-        logger.warning("Could not determine Energy Density VIF. Keeping all features.")
-        return df
-    
-    ed_vif_val = ed_vif[0]
-    logger.info(f"Energy Density VIF: {ed_vif_val:.2f}")
-    
-    if ed_vif_val > threshold:
-        logger.info(f"Energy Density VIF ({ed_vif_val:.2f}) > {threshold}. Dropping component features.")
-        # Drop component features
-        filtered_df = df.drop(columns=component_features)
-        # Verify Energy Density is still there
-        if energy_feature not in filtered_df.columns:
-            raise RuntimeError("Energy density was accidentally dropped.")
-        return filtered_df
+    if n_samples < 100:
+        logger.info("Dataset size < 100. Using LOAFO strategy.")
+        return perform_loafo_split(df, target_col, random_col)
     else:
-        logger.info(f"Energy Density VIF ({ed_vif_val:.2f}) <= {threshold}. Keeping all features.")
-        return df
+        logger.info("Dataset size >= 100. Using stratified split strategy.")
+        return perform_stratified_split(df, target_col, random_col)
 
-def split_dataset_loafo(df: pd.DataFrame, test_fraction: float = 0.2) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+def save_split_artifacts(split_result: dict, output_dir: Path):
     """
-    Implement Leave-One-Alloy-Family-Out (LOAFO) split for small datasets (N < 100).
-    
-    Strategy:
-    - Iterate through unique alloy families.
-    - In each iteration, hold out one family as test, rest as train.
-    - Aggregate metrics or return the split that best represents the distribution.
-    - For this implementation, we perform a 5-fold LOAFO-like split where we
-      select 5 distinct families to serve as test sets in a cross-validation loop,
-      but for the single "final" split artifact, we choose the family that
-      represents the median size or the first unique family if < 5 families exist.
-    
-    To satisfy the requirement of producing a single train/test/val split artifact:
-    - We will identify the unique alloy families.
-    - If N_families >= 5, we will reserve 1 family for test, split the rest into 80% train / 20% val.
-    - If N_families < 5, we use the smallest family as test, split rest into train/val.
+    Save split results to CSV/JSON files.
     
     Args:
-        df: Input DataFrame
-        test_fraction: Fraction of data to hold out (used for logic selection)
-    
-    Returns:
-        Tuple of (train_df, val_df, test_df)
+        split_result: Dict from split_data
+        output_dir: Directory to save artifacts
     """
-    logger.info("Performing LOAFO-style split...")
+    output_dir.mkdir(parents=True, exist_ok=True)
     
-    if 'alloy_family' not in df.columns:
-        raise ValueError("Column 'alloy_family' not found for LOAFO split.")
-    
-    families = df['alloy_family'].unique()
-    n_families = len(families)
-    n_rows = len(df)
-    
-    logger.info(f"Dataset size: {n_rows}, Unique families: {n_families}")
-    
-    if n_families == 1:
-        logger.warning("Only one alloy family found. Cannot perform LOAFO. Using random split.")
-        return _random_split(df)
-    
-    # Strategy: Select one family for Test.
-    # Prefer a family with median size to avoid extreme test sets, or the first if few.
-    family_sizes = df.groupby('alloy_family').size()
-    if n_families >= 3:
-        # Pick a family that is not the largest or smallest to be representative
-        sorted_families = family_sizes.sort_values()
-        mid_idx = len(sorted_families) // 2
-        test_family = sorted_families.index[mid_idx]
+    if split_result['method'] == 'LOAFO':
+        # Save each fold's indices
+        for fold in split_result['folds']:
+            fold_file = output_dir / f"fold_{fold['fold']}_indices.csv"
+            data = {
+                'train': fold['train_indices'],
+                'val': fold['val_indices'],
+                'test': fold['test_indices'],
+                'test_family': fold['test_family']
+            }
+            # Convert to DataFrame for saving
+            # We'll save as a JSON file for simplicity with lists
+            import json
+            with open(fold_file.with_suffix('.json'), 'w') as f:
+                json.dump(data, f, indent=2)
+        logger.info(f"Saved LOAFO fold indices to {output_dir}")
     else:
-        # Just pick the first one if very few families
-        test_family = families[0]
-    
-    logger.info(f"Selected test family for LOAFO: {test_family}")
-    
-    test_df = df[df['alloy_family'] == test_family]
-    train_val_df = df[df['alloy_family'] != test_family]
-    
-    # Split train_val into train and val (80/20)
-    if len(train_val_df) > 0:
-        train_df, val_df = train_test_split(
-            train_val_df, 
-            test_size=0.2, 
-            random_state=42,
-            shuffle=True
-        )
-    else:
-        train_df = pd.DataFrame()
-        val_df = pd.DataFrame()
-    
-    logger.info(f"Split sizes - Train: {len(train_df)}, Val: {len(val_df)}, Test: {len(test_df)}")
-    return train_df, val_df, test_df
+        # Save train, val, test indices
+        import json
+        indices_file = output_dir / "split_indices.json"
+        with open(indices_file, 'w') as f:
+            json.dump(split_result, f, indent=2)
+        logger.info(f"Saved stratified split indices to {output_dir}")
 
-def _random_split(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    """Fallback random split if LOAFO is not feasible."""
-    logger.warning("Falling back to random split.")
-    train, temp = train_test_split(df, test_size=0.4, random_state=42, shuffle=True)
-    val, test = train_test_split(temp, test_size=0.5, random_state=42, shuffle=True)
-    return train, val, test
-
-def split_dataset_stratified(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+def main():
     """
-    Standard stratified train/val/test split by alloy_family for N >= 100.
-    
-    Args:
-        df: Input DataFrame
-    
-    Returns:
-        Tuple of (train_df, val_df, test_df)
-    """
-    logger.info("Performing stratified split...")
-    
-    if 'alloy_family' not in df.columns:
-        raise ValueError("Column 'alloy_family' not found for stratified split.")
-    
-    # Split 60% train, 20% val, 20% test
-    train_df, temp_df = train_test_split(
-        df, 
-        test_size=0.4, 
-        random_state=42, 
-        shuffle=True,
-        stratify=df['alloy_family']
-    )
-    
-    val_df, test_df = train_test_split(
-        temp_df, 
-        test_size=0.5, 
-        random_state=42, 
-        shuffle=True,
-        stratify=temp_df['alloy_family']
-    )
-    
-    logger.info(f"Split sizes - Train: {len(train_df)}, Val: {len(val_df)}, Test: {len(test_df)}")
-    return train_df, val_df, test_df
-
-def preprocess_and_save(df: pd.DataFrame, strategy: str = 'auto') -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    """
-    Main entry point for preprocessing: Energy Density -> VIF -> Split.
-    
-    Args:
-        df: Input DataFrame
-        strategy: 'auto', 'loafo', or 'stratified'
-    
-    Returns:
-        Tuple of (train_df, val_df, test_df)
+    Main entry point for preprocessing script.
+    Loads curated data, performs VIF analysis if needed, and splits data.
     """
     logger.info("Starting preprocessing pipeline...")
     
-    # 1. Energy Density
+    # Define paths
+    project_root = Path(__file__).resolve().parents[2]
+    data_dir = project_root / 'data'
+    output_dir = project_root / 'data'
+    
+    input_file = data_dir / 'curated_builds.csv'
+    
+    if not input_file.exists():
+        logger.error(f"Input file not found: {input_file}")
+        sys.exit(1)
+    
+    # Load data
+    df = pd.read_csv(input_file)
+    logger.info(f"Loaded {len(df)} rows from {input_file}")
+    
+    # Required columns for energy density calculation
+    required_cols = ['laser_power', 'scan_speed', 'hatch_spacing', 'layer_thickness', 'ductility', 'alloy_family']
+    if not verify_column_integrity(df, required_cols):
+        logger.error("Missing required columns for preprocessing.")
+        sys.exit(1)
+    
+    # Calculate energy density
     df = calculate_energy_density(df)
-    df.to_csv(ENERGY_DENSITY_FILE, index=False)
-    logger.info(f"Saved energy density file: {ENERGY_DENSITY_FILE}")
     
-    # 2. VIF Filtering
-    df = apply_vif_filtering(df)
-    df.to_csv(VIF_FILTERED_FILE, index=False)
-    logger.info(f"Saved VIF filtered file: {VIF_FILTERED_FILE}")
+    # Perform VIF analysis and feature filtering
+    # Define predictors for VIF
+    predictors = ['laser_power', 'scan_speed', 'hatch_spacing', 'layer_thickness', 'energy_density']
+    # Filter to only those present
+    predictors = [p for p in predictors if p in df.columns]
     
-    # 3. Splitting
-    n_rows = len(df)
-    if strategy == 'auto':
-        if n_rows < 100:
-            logger.info(f"Dataset size {n_rows} < 100. Using LOAFO strategy.")
-            train, val, test = split_dataset_loafo(df)
-        else:
-            logger.info(f"Dataset size {n_rows} >= 100. Using Stratified strategy.")
-            train, val, test = split_dataset_stratified(df)
-    elif strategy == 'loafo':
-        train, val, test = split_dataset_loafo(df)
-    elif strategy == 'stratified':
-        train, val, test = split_dataset_stratified(df)
-    else:
-        raise ValueError(f"Unknown strategy: {strategy}")
+    df_filtered = perform_vif_analysis(df, predictors, threshold=5.0)
     
-    # Save splits
-    train.to_csv(SPLIT_TRAIN_FILE, index=False)
-    val.to_csv(SPLIT_VAL_FILE, index=False)
-    test.to_csv(SPLIT_TEST_FILE, index=False)
+    # Split data
+    split_result = split_data(df_filtered, target_col='ductility', random_col='alloy_family')
     
-    logger.info(f"Saved splits to: {SPLIT_TRAIN_FILE}, {SPLIT_VAL_FILE}, {SPLIT_TEST_FILE}")
-    return train, val, test
-
-def main():
-    """Main execution function."""
-    logger.info("Running preprocessing main...")
+    # Save artifacts
+    save_split_artifacts(split_result, output_dir)
     
-    if not CURATED_FILE.exists():
-        logger.error(f"Curated file not found: {CURATED_FILE}")
-        logger.error("Please run acquisition and cleaning first.")
-        return
-    
-    df = pd.read_csv(CURATED_FILE)
-    logger.info(f"Loaded {len(df)} rows from {CURATED_FILE}")
-    
-    try:
-        train, val, test = preprocess_and_save(df)
-        logger.info("Preprocessing completed successfully.")
-    except Exception as e:
-        logger.error(f"Preprocessing failed: {e}", exc_info=True)
-        raise
+    logger.info("Preprocessing pipeline completed successfully.")
+    return split_result
 
 if __name__ == "__main__":
     main()

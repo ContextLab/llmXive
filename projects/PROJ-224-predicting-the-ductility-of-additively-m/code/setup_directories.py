@@ -1,64 +1,47 @@
 import os
 import sys
 from pathlib import Path
-import logging
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
 
 def create_directories():
     """
     Create the required subdirectories for the project structure.
-    
-    Creates:
+    Specifically creates:
     - code/data/
     - code/models/
     - code/analysis/
     
-    Returns:
-        bool: True if all directories were created successfully, False otherwise.
+    Also ensures parent directories exist.
     """
-    project_root = Path(__file__).resolve().parent.parent
-    code_dir = project_root / "code"
+    base_path = Path(__file__).resolve().parent.parent
     
-    # Define the subdirectories to create
-    subdirectories = [
-        "data",
-        "models",
-        "analysis"
+    # Define the directories to create relative to the project root
+    directories = [
+        "code/data",
+        "code/models",
+        "code/analysis"
     ]
     
-    success = True
+    created = []
+    for dir_path in directories:
+        full_path = base_path / dir_path
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            created.append(str(full_path))
+            print(f"Created directory: {full_path}")
+        else:
+            print(f"Directory already exists: {full_path}")
     
-    for subdir_name in subdirectories:
-        subdir_path = code_dir / subdir_name
-        
-        try:
-            if not subdir_path.exists():
-                subdir_path.mkdir(parents=True, exist_ok=True)
-                logger.info(f"Created directory: {subdir_path}")
-            else:
-                logger.info(f"Directory already exists: {subdir_path}")
-        except Exception as e:
-            logger.error(f"Failed to create directory {subdir_path}: {e}")
-            success = False
-    
-    return success
+    return created
 
 def main():
     """Main entry point for directory creation."""
-    logger.info("Starting directory creation for PROJ-224...")
-    
-    if create_directories():
-        logger.info("All required directories created successfully.")
-        return 0
+    print("Starting directory creation for PROJ-224...")
+    created_dirs = create_directories()
+    if created_dirs:
+        print(f"Successfully created {len(created_dirs)} directories.")
     else:
-        logger.error("Some directories failed to create.")
-        return 1
+        print("No new directories were created (all already exist).")
+    return 0
 
 if __name__ == "__main__":
     sys.exit(main())
