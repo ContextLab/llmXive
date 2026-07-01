@@ -412,3 +412,44 @@ def test_poll_reports_real_kernel_error_and_complete(monkeypatch) -> None:
     assert offload.poll("u/k") == "complete"
     monkeypatch.setattr(offload, "_run_kaggle", lambda *a, **k: _mk("complete"))
     assert offload.poll("u/k") == "complete"
+
+
+def test_derive_username_parses_owner_from_kernels_list(monkeypatch) -> None:
+    """_derive_kaggle_username parses <owner> from the caller's own kernels list, so
+    a bare kgat_ Bearer token (which carries no username) still yields the kernel-ref
+    owner without a second secret."""
+    offload._DERIVED_USERNAME = None
+
+    class _P:
+        returncode = 0
+        stdout = "ref,title,author\njeremy9/llmxive-proj-657,llmxive proj 657,Jeremy\n"
+        stderr = ""
+    monkeypatch.setattr(offload, "_run_kaggle", lambda *a, **k: _P())
+    assert offload._derive_kaggle_username() == "jeremy9"
+    offload._DERIVED_USERNAME = None
+
+
+def test_bare_kgat_token_derives_username_needs_no_second_secret(monkeypatch, tmp_path) -> None:
+    """With ONLY a bare kgat_ KAGGLE_API_TOKEN (the single CI secret) and no username
+    anywhere on disk/env, _ensure_kaggle_auth derives the username via the API and
+    returns creds — so the offload works with just that one secret."""
+    for v in ("KAGGLE_USERNAME", "KAGGLE_KEY"):
+        monkeypatch.delenv(v, raising=False)
+    monkeypatch.setenv("HOME", str(tmp_path))          # no ~/.kaggle/kaggle.json
+    monkeypatch.setenv("KAGGLE_API_TOKEN", "KGAT_abc123def456")
+    from llmxive import credentials as C
+    monkeypatch.setattr(
+        C, "check_permissions",
+        lambda: C.CredentialsCheck(ok=True, reason=None, path=tmp_path / "none.toml", exists=False),
+    )
+    offload._DERIVED_USERNAME = None
+
+    class _P:
+        returncode = 0
+        stdout = "ref\njeremy9/k1\n"
+        stderr = ""
+    monkeypatch.setattr(offload, "_run_kaggle", lambda *a, **k: _P())
+    creds = offload._ensure_kaggle_auth()
+    assert creds == ("jeremy9", "KGAT_abc123def456")
+    assert os.environ["KAGGLE_API_TOKEN"] == "KGAT_abc123def456"
+    offload._DERIVED_USERNAME = None

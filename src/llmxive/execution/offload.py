@@ -93,34 +93,74 @@ def _ensure_kaggle_auth() -> tuple[str, str] | None:
     from llmxive.credentials import load_kaggle_creds
 
     pair = load_kaggle_creds()
-    if pair is None:
+    if pair is not None:
+        user, key = pair
+        # NEW Kaggle personal-access tokens (``kgat_`` prefix — the current default
+        # "Create New API Token" issues these, NOT the legacy 32-hex key) are BEARER
+        # tokens consumed via ``KAGGLE_API_TOKEN`` by the kaggle>=1.7 client; the old
+        # Basic username:key path 401s with them. Export it so the CLI authenticates.
+        # (Pin kaggle==2.2.3 + kagglesdk==0.1.31 — the latest kagglesdk 0.1.32 wheel is
+        # missing ``competitions.legacy`` and breaks ``import kaggle`` outright.)
+        if key.lower().startswith("kgat_"):
+            os.environ["KAGGLE_API_TOKEN"] = key
+        # Export the env pair (``dispatch`` reads KAGGLE_USERNAME for the kernel ref)
+        # AND ensure ~/.kaggle/kaggle.json exists (chmod 600) so the CLI authenticates
+        # (legacy key path).
+        os.environ.setdefault("KAGGLE_USERNAME", user)
+        os.environ.setdefault("KAGGLE_KEY", key)
+        try:
+            kdir = Path.home() / ".kaggle"
+            kdir.mkdir(parents=True, exist_ok=True)
+            kj = kdir / "kaggle.json"
+            if not kj.is_file():
+                kj.write_text(json.dumps({"username": user, "key": key}), encoding="utf-8")
+                kj.chmod(0o600)
+        except OSError as exc:
+            logger.warning("could not write ~/.kaggle/kaggle.json: %s", exc)
+        return (user, key)
+
+    # No (username, key) pair — but a bare ``kgat_`` Bearer token (the single CI
+    # secret ``KAGGLE_API_TOKEN``) carries NO username of its own, and the kernel ref
+    # needs ``<username>/<slug>``. Export the token and DERIVE the authenticated
+    # account's username from the Kaggle API (or take an explicit KAGGLE_USERNAME).
+    # This makes the offload work with JUST ``KAGGLE_API_TOKEN`` — no second secret.
+    token = os.environ.get("KAGGLE_API_TOKEN", "").strip()
+    if token.lower().startswith("kgat_"):
+        os.environ["KAGGLE_API_TOKEN"] = token
+        user = os.environ.get("KAGGLE_USERNAME") or _derive_kaggle_username()
+        if user:
+            os.environ.setdefault("KAGGLE_USERNAME", user)
+            return (user, token)
+    return None
+
+
+_DERIVED_USERNAME: str | None = None
+
+
+def _derive_kaggle_username() -> str | None:
+    """Resolve the authenticated account's Kaggle username from the API.
+
+    A bare ``kgat_`` Bearer token (the CI ``KAGGLE_API_TOKEN`` secret) authenticates
+    as a specific user but carries no username, yet the kernel ref needs
+    ``<username>/<slug>``. List the caller's OWN kernels and parse the owner from the
+    first ref. Cached process-wide (one API call). Returns None if it can't be
+    determined (e.g. a brand-new account with zero kernels — then set an explicit
+    ``KAGGLE_USERNAME``). Never raises.
+    """
+    global _DERIVED_USERNAME
+    if _DERIVED_USERNAME:
+        return _DERIVED_USERNAME
+    proc = _run_kaggle(["kernels", "list", "-m", "--page-size", "1", "--csv"], timeout_s=60)
+    if proc is None or proc.returncode != 0:
         return None
-    user, key = pair
-    # NEW Kaggle personal-access tokens (``kgat_`` prefix — the current default
-    # "Create New API Token" issues these, NOT the legacy 32-hex key) are BEARER
-    # tokens consumed via ``KAGGLE_API_TOKEN`` by the kaggle>=1.7 client; the old
-    # Basic username:key path 401s with them. Export it so the CLI authenticates.
-    # The username is still needed for the kernel ref (``<username>/<slug>``), so we
-    # keep resolving + exporting it too. (Pin kaggle==2.2.3 + kagglesdk==0.1.31 in
-    # pyproject — the latest kagglesdk 0.1.32 wheel is missing
-    # ``competitions.legacy`` and breaks ``import kaggle`` outright.)
-    if key.lower().startswith("kgat_"):
-        os.environ["KAGGLE_API_TOKEN"] = key
-    # Export the env pair (``dispatch`` reads KAGGLE_USERNAME for the kernel ref)
-    # AND ensure ~/.kaggle/kaggle.json exists (chmod 600) so the kaggle CLI itself
-    # authenticates (legacy key path).
-    os.environ.setdefault("KAGGLE_USERNAME", user)
-    os.environ.setdefault("KAGGLE_KEY", key)
-    try:
-        kdir = Path.home() / ".kaggle"
-        kdir.mkdir(parents=True, exist_ok=True)
-        kj = kdir / "kaggle.json"
-        if not kj.is_file():
-            kj.write_text(json.dumps({"username": user, "key": key}), encoding="utf-8")
-            kj.chmod(0o600)
-    except OSError as exc:
-        logger.warning("could not write ~/.kaggle/kaggle.json: %s", exc)
-    return (user, key)
+    for line in (proc.stdout or "").splitlines():
+        line = line.strip()
+        if "/" in line and not line.lower().startswith("ref"):
+            owner = line.split("/", 1)[0].strip()
+            if owner:
+                _DERIVED_USERNAME = owner
+                return owner
+    return None
 
 
 def is_available() -> bool:
