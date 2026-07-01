@@ -1,0 +1,255 @@
+resolved_at: '2026-07-01T02:08:43.443553+00:00'
+datasets:
+- intent: MUST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 190547
+      parsed: true
+  - url: https://huggingface.co/datasets/enimai/MuST-C-fr/resolve/main/test.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/enimai/MuST-C-fr/resolve/main/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/Developing_a_Southern_Ocean_Marine_Ecosystem_Model_Ensemble_to_Assess_Climate_Risks_and_Uncertainties/32766813
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.mq.edu.au/articles/thesis/Functional_Precision_Oncology_-_Establishing_a_Workflow_for_Advanced_3D_Cancer_Modelling/31825207
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Spatio-temporal_patterns_in_the_biomass_species_composition_and_nitrogen_content_of_drift_macroalgae_in_an_urbanised_coastal_embayment/32842166
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/SCARFISH_A_new_SCAR_action_group_to_co-ordinate_Antarctic_fish_research/32766849
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Data_for_Oxygen_reshapes_microbial_VOC_dynamics_in_coastal_drainage_systems_/32842136
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5746416
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16954306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15420758
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8056637
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7847500
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.30745
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://infoscience.epfl.ch/entities/publication/924b7692-76f4-4f11-8f44-db730003aa5e
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.30693
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://infoscience.epfl.ch/entities/publication/c5ecf186-885d-40fe-8624-9e44c9301779
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://infoscience.epfl.ch/entities/publication/a4b7172b-5a6d-42a8-a138-38fb1d3a96c4
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-002
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/Developing_a_Southern_Ocean_Marine_Ecosystem_Model_Ensemble_to_Assess_Climate_Risks_and_Uncertainties/32766813
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.mq.edu.au/articles/thesis/Functional_Precision_Oncology_-_Establishing_a_Workflow_for_Advanced_3D_Cancer_Modelling/31825207
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Spatio-temporal_patterns_in_the_biomass_species_composition_and_nitrogen_content_of_drift_macroalgae_in_an_urbanised_coastal_embayment/32842166
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/SCARFISH_A_new_SCAR_action_group_to_co-ordinate_Antarctic_fish_research/32766849
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Data_for_Oxygen_reshapes_microbial_VOC_dynamics_in_coastal_drainage_systems_/32842136
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10358914
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604171
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604159
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604137
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604165
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564541
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564417
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.20470525
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://doi.org/10.5281/zenodo.20469943
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+- intent: US-2
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/gimarchetti/winnie-us2/resolve/main/data/chunk-000/file-000.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/gimarchetti/eval_so101_winnie_us2_act/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 103062
+      parsed: true
+  - url: https://huggingface.co/datasets/gimarchetti/eval_so101_winnie_us2_diffusion/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 11221
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/gimarchetti/winnie-us2/resolve/main/data/chunk-000/file-000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/gimarchetti/eval_so101_winnie_us2_act/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/gimarchetti/eval_so101_winnie_us2_diffusion/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/gimarchetti/eval_so101_winnie_us2_smolvla/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Predicting_resilience_of_migratory_birds_to_environmental_change/32842172
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/Developing_a_Southern_Ocean_Marine_Ecosystem_Model_Ensemble_to_Assess_Climate_Risks_and_Uncertainties/32766813
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.mq.edu.au/articles/thesis/Functional_Precision_Oncology_-_Establishing_a_Workflow_for_Advanced_3D_Cancer_Modelling/31825207
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Spatio-temporal_patterns_in_the_biomass_species_composition_and_nitrogen_content_of_drift_macroalgae_in_an_urbanised_coastal_embayment/32842166
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.utas.edu.au/articles/journal_contribution/SCARFISH_A_new_SCAR_action_group_to_co-ordinate_Antarctic_fish_research/32766849
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3559755
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5216923
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7372808
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5245315
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17102351
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.caltech.edu/records/p37h4-t6q84
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.caltech.edu/records/rc248-x5b04
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.caltech.edu/records/jygmh-4k657
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.caltech.edu/records/hhdmv-qgd89
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.caltech.edu/records/k8s6k-1rc51
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
