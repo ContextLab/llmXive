@@ -65,6 +65,8 @@
 
 - [ ] T007 Create `data/datasets.csv` with headers `[dataset_id, source_url, sample_size, continuous_vars, group_labels, shapiro_p_value, excluded_reason]` and `data/checksums.csv` with headers `[dataset_id, sha256_hash]`
 
+- [ ] T007b [P] Define the schema for `state/projects/PROJ-533-evaluating-the-impact-of-data-transforma.yaml` including the `artifact_hashes` map structure required by Constitution Principle V to ensure deterministic updates by T014a/T014b (Addressing executability-39c6ad98)
+
 - [ ] T008 Create `results/simulation_seeds.txt` to log seeds per run ID (format: `RUN_ID=<id> SEED=42`) ensuring the file is located in `results/` alongside specific simulation outputs to satisfy Constitution VII "alongside results" requirement
 
 - [ ] T009 Create `code/utils/logging_config.py` that configures a logger writing to `results/pipeline.log` with specific format to record exclusions, imputation rates, and transformation interventions
@@ -75,7 +77,7 @@
 
 ## Phase 3: User Story 1 - Download and Filter Real-World Datasets (Priority: P1) 🎯 MVP
 
-**Goal**: Download at least 50 public datasets from UCI/OpenML, filter for non-normality (Shapiro-Wilk p < 0.05) and sample size (N ≥ 30), and preserve metadata.
+**Goal**: Download at least 50 public datasets from UCI/OpenML [UNRESOLVED-CLAIM: c_a80b79fe — status=not_enough_info], filter for non-normality (Shapiro-Wilk p < 0.05) and sample size (N ≥ 30), and preserve metadata.
 
 **Independent Test**: Execute `code/download_datasets.py` and `code/filter_datasets.py` and verify `data/datasets.csv` contains ≥50 valid entries with SHA-256 checksums in `data/checksums.csv`.
 
@@ -83,27 +85,23 @@
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation. These are atomic tasks, one per test function.
 
-- [ ] T010a [US1] Unit test for valid URL validation: Implement `tests/unit/test_download.py::test_valid_url_returns_true_for_valid_url` asserting `is_valid_url("...")` returns True
-
-- [ ] T010b [US1] Unit test for invalid URL validation: Implement `tests/unit/test_download.py::test_invalid_url_returns_false` asserting `is_valid_url("not_a_url")` returns False
-
-- [ ] T011a [US1] Unit test for Shapiro-Wilk p-value calculation: Implement `tests/unit/test_filter.py::test_shapiro_wilk_p_value_calculation` asserting `shapiro_test([1,2,3,4,5])` returns a p-value object
-
-- [ ] T011b [US1] Unit test for Shapiro-Wilk filtering logic (p < 0.05): Implement `tests/unit/test_filter.py::test_filter_keeps_non_normal` asserting a dataset with p=0.01 is kept and p=0.10 is excluded
-
-- [ ] T012a [US1] Integration test for full download-and-filter pipeline: Implement `tests/integration/test_pipeline.py::test_full_download_filter_pipeline` asserting that running both scripts produces a valid `data/datasets.csv` with ≥1 entry
+- [ ] T010 [US1] Consolidated unit tests for URL validation and Shapiro-Wilk filtering logic: Implement `tests/unit/test_download.py` and `tests/unit/test_filter.py` covering URL validation and Shapiro-Wilk filtering logic (consolidating T010a/b per executability-e63dc66e). Must explicitly verify Shapiro-Wilk filtering (p < 0.05) and sample size (N ≥ 30) logic per US-1 Acceptance Scenarios 2 & 3 (Addressing constraint_preservation-00936661)
 
 ### Implementation for User Story 1
 
 - [ ] T013 [US1] Implement `code/download_datasets.py` to fetch datasets from UCI/OpenML with explicit URL logging
 
-- [ ] T015 [P] [US1] Implement missing value imputation (mean/median) and exclusion logic (>10% missing) in `code/filter_datasets.py`
+- [ ] T014a [US1] Implement checksumming of ALL raw downloaded datasets immediately after T013 (before filtering) to `data/checksums.csv` and update `state/projects/...yaml` artifact_hashes map (FR-010, Constitution III/V). **Dependency**: Must run AFTER T013 and BEFORE T015/T016. **Note**: This ensures raw data integrity is verified per FR-010 before any filtering occurs (Addressing coverage-ceeb2259, ordering-f55279dd, constraint_preservation-2b0203e9)
 
-- [ ] T016 [P] [US1] Implement Shapiro-Wilk normality test and sample size filtering (N ≥ 30) in `code/filter_datasets.py` (FR-002)
+- [ ] T015 [US1] Implement missing value imputation (mean/median) and exclusion logic (>10% missing) in `code/filter_datasets.py`. **Dependency**: Must run AFTER T014a. **Note**: Removed [P] tag to prevent race condition with T016 (Addressing ordering-15b20a13)
 
-- [ ] T017 [US1] Implement metadata extraction (sample size, continuous variables, group labels) and write to `data/datasets.csv` (FR-001)
+- [ ] T015b [US1] Implement persistent exclusion log file (`results/exclusion_log.csv`) to record datasets excluded for N < 30 or other reasons, referencing FR-002 and Edge Cases section (Addressing coverage-4b80972b)
 
-- [ ] T014 [US1] Append SHA-256 checksum computation to `code/download_datasets.py`, write to `data/checksums.csv`, AND update `state/projects/PROJ-533-evaluating-the-impact-of-data-transforma.yaml` artifact_hashes map (FR-010, Constitution III/V). **Dependency**: Must run AFTER T016 (Filtering) to checksum the final usable dataset.
+- [ ] T016 [US1] Implement Shapiro-Wilk normality test and sample size filtering (N ≥ 30) in `code/filter_datasets.py` (FR-002). **Dependency**: Must run AFTER T015. **Note**: Removed [P] tag to ensure sequential execution (Addressing ordering-15b20a13)
+
+- [ ] T017 [US1] Implement metadata extraction (sample size, continuous variables, group labels, shapiro_p_value) and write to `data/datasets.csv` (FR-001)
+
+- [ ] T014b [US1] Append SHA-256 checksum computation for the filtered dataset subset to `data/checksums.csv` (FR-010). **Dependency**: Must run AFTER T016 (Filtering) and T017 (Metadata write) (Addressing coverage-4fc9fa21)
 
 - [ ] T018 [US1] Add checkpointing logic to `code/download_datasets.py` to allow resumption after each dataset
 
@@ -115,7 +113,7 @@
 
 **Goal**: Apply Box-Cox, Yeo-Johnson, and rank-based transformations to filtered datasets and estimate Type I error via label shuffling.
 
-**Independent Test**: Run `code/apply_transformations.py` and `code/simulate_null.py` on a single dataset and verify Type I error is estimated via a sufficient number of shuffles with a fixed seed.
+**Independent Test**: Run `code/apply_transformations.py` and `code/simulate_null.py` on a single dataset and verify Type I error is estimated via a sufficient number of shuffles with a fixed seed [UNRESOLVED-CLAIM: c_5e7466bc — status=not_enough_info].
 
 ### Tests for User Story 2 (TDD First - Write these BEFORE implementation)
 
@@ -131,11 +129,11 @@
 
 ### Implementation for User Story 2
 
-- [ ] T022 [US2] Implement `code/apply_transformations.py` to apply Box-Cox (log-shift if needed), Yeo-Johnson, and rank-based inverse normal (FR-003) after metadata (T017) is available. **Dependency**: T017 (metadata write) must be complete.
+- [ ] T022 [US2] Implement `code/apply_transformations.py` to apply Box-Cox (log-shift if needed), Yeo-Johnson, and rank-based inverse normal (FR-003) after metadata (T017) is available. **Dependency**: T016 (filtered data) AND T017 (metadata) must be complete. **Note**: Explicit dependency on T016 ensures transformations apply only to valid, non-normal datasets (Addressing ordering-64ea7a2f)
 
 - [ ] T023 [P] [US2] Implement `code/apply_transformations.py` to log interventions (e.g., log-shift applied) and skip failures with reasons
 
-- [ ] T024 [US2] Implement `code/simulate_null.py` to shuffle group labels multiple times with fixed seed (hardcoded constant 42 in script AND appended to `results/simulation_seeds.txt`), compute t-test/ANOVA p-values (FR-004), and record seed in `results/simulation_seeds.txt` (Constitution VII)
+- [ ] T024 [US2] Implement `code/simulate_null.py` to shuffle group labels multiple times with a fixed seed (a hardcoded constant in the script AND appended to `results/simulation_seeds.txt`), compute t-test/ANOVA p-values (FR-004), and record seed in `results/simulation_seeds.txt` (Constitution VII)
 
 - [ ] T025 [P] [US2] Implement `code/simulate_null.py` to record proportion of p < 0.05 as Type I error estimate
 
@@ -151,7 +149,7 @@
 
 **Goal**: Generate simulated datasets with known effect sizes (Cohen's d) and measure statistical power.
 
-**Independent Test**: Run `code/simulate_power.py` with fixed effect sizes and verify power estimates match expected values within 95% CI half-width ±0.02.
+**Independent Test**: Run `code/simulate_power.py` with fixed effect sizes and verify power estimates match expected values within 95% CI half-width ±0.02 [UNRESOLVED-CLAIM: c_32c6e1ea — status=not_enough_info].
 
 ### Tests for User Story 4 (TDD First - Write these BEFORE implementation)
 
@@ -165,9 +163,9 @@
 
 ### Implementation for User Story 4
 
-- [ ] T031 [US4] Implement `code/simulate_power.py` to generate a [deferred: research decision] number of simulated datasets per effect size (small, medium, large) with ground truth labels (FR-005)
+- [ ] T031 [US4] Implement `code/simulate_power.py` to generate exactly 1000 simulated datasets per effect size (small, medium, large) [UNRESOLVED-CLAIM: c_319f27bd — status=not_enough_info] with ground truth labels (FR-005). **Note**: Explicit count of 1000 ensures SC-004 (CI half-width ±0.02) is testable and satisfies US-4 Acceptance Scenario 1 (Addressing coverage-4fc9fa21, executability-b1696cf0, constraint_preservation-d7edc0bc)
 
-- [ ] T032 [US4] Implement `code/simulate_power.py` to apply the three transformations to simulated data after T031 writes batch to disk. **Dependency**: T031 write complete.
+- [ ] T032 [US4] Implement `code/apply_transformations.py` to apply the three transformations to simulated data after T031 writes batch to disk. **Dependency**: T031 (batch complete signal) must be complete. **Note**: Strict sequential ordering required to ensure T032 waits for entire batch write (Addressing ordering-3b06abaf)
 
 - [ ] T033 [US4] Implement `code/simulate_power.py` to run t-test/ANOVA on transformed simulated data and record proportion of p < 0.05 as power (FR-006)
 
@@ -205,7 +203,7 @@
 
 - [ ] T042 [P] [US3] Implement `code/aggregate_results.py` to perform post-hoc pairwise comparisons with Bonferroni correction (FR-008)
 
-- [ ] T043 [P] [US3] Implement `code/aggregate_results.py` to perform sensitivity analysis sweeping α across a range of low-magnitude values (FR-008)
+- [ ] T043 [P] [US3] Implement `code/aggregate_results.py` to perform sensitivity analysis sweeping α across a range of small positive values as defined in FR-008 and Spec Assumptions (Addressing coverage-0dee7d2b, executability-1966a3f6, constraint_preservation-4b8be8c2)
 
 - [ ] T044 [US3] Implement `code/aggregate_results.py` to generate summary tables (CSV/JSON) in `results/aggregated/` (FR-009)
 
@@ -317,4 +315,6 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Feasibility Check**: All tasks are CPU-only, no GPU/CUDA required, memory usage < 6GB, runtime < 6h. No 8-bit/4-bit quantization or large model training.
+- **Feasibility Check**: All tasks are CPU-only, no GPU/CUDA required, memory usage < 6GB [UNRESOLVED-CLAIM: c_e8973f29 — status=not_enough_info], runtime < 6h [UNRESOLVED-CLAIM: c_d3a71228 — status=not_enough_info]. No 8-bit/4-bit quantization or large model training.
+- **Plan Note**: The plan summary mentions GLMM, but tasks strictly follow FR-007/FR-008 (bootstrap/Friedman). Plan summary requires correction.
+- **Constitution Note**: Plan claims Verified Accuracy without Reference-Validator Agent; Constitution requires it. Plan requires correction.
