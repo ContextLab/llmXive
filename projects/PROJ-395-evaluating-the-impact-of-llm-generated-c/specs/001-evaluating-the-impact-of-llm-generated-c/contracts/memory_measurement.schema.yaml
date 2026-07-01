@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MemoryMeasurement"
+description: "Schema for a single memory measurement record in results.csv"
+type: "object"
+properties:
+  problem_id:
+    type: "string"
+    description: "Unique identifier for the benchmark problem"
+  source_type:
+    type: "string"
+    enum:
+      - "LLM"
+      - "Human"
+    description: "Origin of the code solution"
+  solution_status:
+    type: "string"
+    enum:
+      - "Success"
+      - "SyntaxError"
+      - "Timeout"
+      - "OOM"
+    description: "Execution outcome"
+  peak_memory_bytes:
+    type: "number"
+    description: "Peak memory usage in bytes"
+  steady_state_memory_bytes:
+    type: "number"
+    description: "Steady-state memory usage in bytes"
+  execution_time_seconds:
+    type: "number"
+    description: "Time taken to execute in seconds"
+  total_resource_cost:
+    type: "number"
+    description: "Descriptive metric: Memory * Time + Failure_Penalty"
+  efficiency_score:
+    type: "number"
+    description: "Metric for paired test: Memory * Time (only for Success)"
+  is_failure:
+    type: "boolean"
+    description: "True if solution_status is not 'Success'"
+required:
+  - problem_id
+  - source_type
+  - solution_status
+  - peak_memory_bytes
+  - steady_state_memory_bytes
+  - execution_time_seconds
+  - total_resource_cost
+  - efficiency_score
+  - is_failure
+additionalProperties: false

@@ -1,0 +1,553 @@
+resolved_at: '2026-06-30T23:45:03.671932+00:00'
+datasets:
+- intent: LLM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/OpenOneRec/Explorer_LLM_Rec_Competition/resolve/main/data/OneReason_General/part-00000.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Exgentic/agent-llm-traces/resolve/main/data/train-00000-of-00039.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/gorilla-llm/APIBench/resolve/main/huggingface_api.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/OpenOneRec/Explorer_LLM_Rec_Competition/resolve/main/data/OneReason_General/part-00000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/llm-jp/AnswerCarefully/resolve/main/borderline-v1.0/dev-00000-of-00001.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/Necent/llm-jailbreak-prompt-injection-dataset/resolve/main/data/train-00000-of-00004.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/Exgentic/agent-llm-traces/resolve/main/data/train-00000-of-00039.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/gorilla-llm/APIBench/resolve/main/huggingface_api.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/A_perspective_on_supporting_STEM_academics_with_blended_learning_at_an_Australian_university/20892583
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Kings_University_Ode_Omu_0704_096_4654_officially_release_the_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Transfer_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_an/32841671
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/Self-compassion_as_a_mediator_of_the_relationship_between_social_support_and_identity_affirmation_in_sexual_minority_adults/31960890
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Micheal_Cecilia_Ibru_University_0704_096_4654_officially_release_the_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Transfer_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_/32841662
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/O9164691706_School_of_Nursing_St_Margaret_s_Hospital_Calabar_Undergraduate_screening_2026-_2027_FORM_Is_Open_Now_O_9164691706_MRS_GRACE_09164691706_Admission_form_Office_Applicants_are_advised_to_ensure_that_all_information_provided_during_/32841659
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6447108
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10899290
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14912851
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18981672
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13959137
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21082647
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21082647
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21087236
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21087236
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21003282
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MBPP
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AlignmentResearch/mbpp-honeypot-impossible-oneoff/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 238227
+      parsed: true
+  - url: https://huggingface.co/datasets/google-research-datasets/mbpp/resolve/main/full/prompt-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 7878
+      parsed: true
+  - url: https://huggingface.co/datasets/Muennighoff/mbpp/resolve/main/data/mbpp.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AlignmentResearch/mbpp-honeypot-impossible-oneoff/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/google-research-datasets/mbpp/resolve/main/full/prompt-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Muennighoff/mbpp/resolve/main/data/mbpp.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/reshinthadith/dfg_augmented_mbpp/resolve/main/data/train-00000-of-00001-4ebb86d98288602f.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/OllieStanley/humaneval-mbpp-codegen-qa/resolve/main/data/train-00000-of-00001-ac785dce89a6b31a.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/A_perspective_on_supporting_STEM_academics_with_blended_learning_at_an_Australian_university/20892583
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Kings_University_Ode_Omu_0704_096_4654_officially_release_the_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Transfer_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_an/32841671
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/Self-compassion_as_a_mediator_of_the_relationship_between_social_support_and_identity_affirmation_in_sexual_minority_adults/31960890
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Micheal_Cecilia_Ibru_University_0704_096_4654_officially_release_the_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Transfer_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_/32841662
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/O9164691706_School_of_Nursing_St_Margaret_s_Hospital_Calabar_Undergraduate_screening_2026-_2027_FORM_Is_Open_Now_O_9164691706_MRS_GRACE_09164691706_Admission_form_Office_Applicants_are_advised_to_ensure_that_all_information_provided_during_/32841659
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12658269
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11649373
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17197937
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17198015
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15448879
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20823175
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20823175
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21058658
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21058658
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.28998
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: LLM-generated
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/hon9kon9ize/38k-zh-yue-translation-llm-generated/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/badrex/royal_society_corpus_LLM_generated_metadata/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/artnitolog/llm-generated-texts/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/dshihk/llm-generated-essay/76ee958b32e22d4596e14e526b4208e4b1b8a523/test.csv?%2Fdatasets%2Fdshihk%2Fllm-generated-essay%2Fresolve%2Fmain%2Ftest.csv=&etag=%22a9b10b7b1b5def378359183c2058a1cb29563c9c%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/hon9kon9ize/38k-zh-yue-translation-llm-generated/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/beimnet777/LLM_generated_Amharic_QA_for_Family_Code_of_Ethiopia/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/badrex/royal_society_corpus_LLM_generated_metadata/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/artnitolog/llm-generated-texts/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Yeast_EMAP_Screen/32782446
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/A_perspective_on_supporting_STEM_academics_with_blended_learning_at_an_Australian_university/20892583
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Kings_University_Ode_Omu_0704_096_4654_officially_release_the_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Transfer_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_an/32841671
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/Self-compassion_as_a_mediator_of_the_relationship_between_social_support_and_identity_affirmation_in_sexual_minority_adults/31960890
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Micheal_Cecilia_Ibru_University_0704_096_4654_officially_release_the_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Transfer_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_/32841662
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18657875
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18169626
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20683800
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17738426
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18022086
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21082647
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21082647
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21072505
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21072505
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20370169
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-001
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Yeast_EMAP_Screen/32782446
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/A_perspective_on_supporting_STEM_academics_with_blended_learning_at_an_Australian_university/20892583
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Kings_University_Ode_Omu_0704_096_4654_officially_release_the_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Transfer_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_an/32841671
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/Self-compassion_as_a_mediator_of_the_relationship_between_social_support_and_identity_affirmation_in_sexual_minority_adults/31960890
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Micheal_Cecilia_Ibru_University_0704_096_4654_officially_release_the_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Transfer_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_/32841662
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17936025
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19059431
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10337909
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5604131
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10173526
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15485834
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16828200
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20358997
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20358997
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MUST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 190547
+      parsed: true
+  - url: https://huggingface.co/datasets/enimai/MuST-C-fr/resolve/main/test.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/enimai/MuST-C-fr/resolve/main/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://acs.figshare.com/articles/journal_contribution/Active_Learning_for_Generalizable_Detonation_Performance_Prediction_of_Energetic_Materials/32841675
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Yeast_EMAP_Screen/32782446
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/A_perspective_on_supporting_STEM_academics_with_blended_learning_at_an_Australian_university/20892583
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Kings_University_Ode_Omu_0704_096_4654_officially_release_the_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Transfer_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_an/32841671
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opal.latrobe.edu.au/articles/journal_contribution/Self-compassion_as_a_mediator_of_the_relationship_between_social_support_and_identity_affirmation_in_sexual_minority_adults/31960890
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5746416
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16954306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15420758
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8056637
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7847500
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21006241
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21006241
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21069910
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21069910
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21083426
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: US-1
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_difficult/resolve/main/tx_log.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_easy/resolve/main/tx_log.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_difficult/resolve/main/tx_log.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/AMLGentex/us_100K_easy/resolve/main/tx_log.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://acs.figshare.com/articles/media/Alternating-Luminophore_Electrochemiluminescence_Microscopy_Reveals_Developmental_Stages_of_Brine_Shrimp/32841696
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Alternating-Luminophore_Electrochemiluminescence_Microscopy_Reveals_Developmental_Stages_of_Brine_Shrimp/32841693
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Alternating-Luminophore_Electrochemiluminescence_Microscopy_Reveals_Developmental_Stages_of_Brine_Shrimp/32841690
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Alternating-Luminophore_Electrochemiluminescence_Microscopy_Reveals_Developmental_Stages_of_Brine_Shrimp/32841687
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Regulation_of_embryonic_hematopoiesis_by_a_cytokine-inducible_SH2_domain_homolog_in_zebrafish/20930341
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18190973
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7325859
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5216923
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3558197
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: http://reproduct-endo.com/article/view/290227
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.caltech.edu/records/b610w-ge456
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.caltech.edu/records/xfzh8-mfg04
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.caltech.edu/records/v455w-n8c70
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.caltech.edu/records/y994p-1gw70
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.caltech.edu/records/52xxh-qd608
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

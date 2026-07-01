@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StatisticalResult"
+description: "Schema for statistical analysis output"
+type: "object"
+properties:
+  test_name:
+    type: "string"
+    description: "Name of the statistical test performed"
+  p_value_raw:
+    type: "number"
+    description: "Raw p-value before correction"
+  p_value_corrected:
+    type: "number"
+    description: "P-value after multiple-comparison correction"
+  effect_size:
+    type: "number"
+    description: "Effect size (e.g., Cohen's d)"
+  confidence_interval:
+    type: "array"
+    items:
+      type: "number"
+    description: "95% Confidence Interval [lower, upper]"
+  sample_size:
+    type: "integer"
+    description: "Number of paired observations"
+  method:
+    type: "string"
+    enum:
+      - "Permutation"
+      - "ChiSquare"
+      - "Regression"
+    description: "Statistical method used"
+  metric_type:
+    type: "string"
+    enum:
+      - "Efficiency"
+      - "Reliability"
+    description: "Whether this result pertains to Efficiency or Reliability"
+required:
+  - test_name
+  - p_value_raw
+  - p_value_corrected
+  - effect_size
+  - confidence_interval
+  - sample_size
+  - method
+  - metric_type
+additionalProperties: false
