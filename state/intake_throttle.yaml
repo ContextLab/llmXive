@@ -83,7 +83,9 @@ samples:
   backlog: 211
 - at: '2026-07-01T18:54:08.027715+00:00'
   backlog: 211
-- at: '2026-07-01T19:35:51.303629+00:00'
+- at: '2026-07-01T19:42:51.794494+00:00'
+  backlog: 211
+- at: '2026-07-01T19:42:55.094309+00:00'
   backlog: 211
 last_decision:
   requested: 4
@@ -93,4 +95,4 @@ last_decision:
   window_hours: 24.0
   kind: human
   reason: backlog grew by 7 over 24h (drain < intake); allowance damped to 65%
-  decided_at: '2026-07-01T19:35:51.303629+00:00'
+  decided_at: '2026-07-01T19:42:55.094309+00:00'
