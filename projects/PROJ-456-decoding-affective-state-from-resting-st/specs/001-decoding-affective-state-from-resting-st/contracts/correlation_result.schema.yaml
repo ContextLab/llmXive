@@ -1,0 +1,128 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: CorrelationResult
+description: "Schema for the final correlation analysis output between microstate features and affective scores."
+type: object
+properties:
+  microstate_class:
+    type: integer
+    description: "The microstate class ID (0-3)."
+    minimum: 0
+    maximum: 3
+  feature_type:
+    type: string
+    description: "The temporal feature type."
+    enum:
+      - "mean_duration_ms"
+      - "occurrence_rate_per_s"
+      - "coverage_percent"
+      - "transition_probabilities"
+  affective_dimension:
+    type: string
+    description: "The affective dimension being correlated."
+    enum:
+      - "valence"
+      - "arousal"
+  correlation_coefficient:
+    type: number
+    description: "Pearson or Spearman correlation coefficient (r)."
+  p_value:
+    type: number
+    description: "Uncorrected p-value."
+    minimum: 0
+    maximum: 1
+  p_corrected:
+    type: number
+    description: "Corrected p-value (Holm-Bonferroni or FDR)."
+    minimum: 0
+    maximum: 1
+  effect_size:
+    type: number
+    description: "Cohen's d effect size."
+  confidence_interval:
+    type: object
+    description: "95% confidence interval for the correlation coefficient."
+    properties:
+      lower:
+        type: number
+      upper:
+        type: number
+    required:
+      - lower
+      - upper
+  analysis_type:
+    type: string
+    description: "Must be 'associational' to indicate non-causal nature."
+    const: "associational"
+  bootstrap_stability:
+    type: object
+    description: "Stability metrics from bootstrap resampling (if N >= 10)."
+    properties:
+      mean:
+        type: number
+      std:
+        type: number
+      ci_95:
+        type: array
+        items:
+          type: number
+        minItems: 2
+        maxItems: 2
+      n_subjects:
+        type: integer
+        description: "Number of subjects used for bootstrap."
+      stability_flag:
+        type: string
+        description: "Flag indicating stability (e.g., 'Stable', 'Unstable (N < 20)')."
+        enum:
+          - "Stable"
+          - "Unstable (N < 20)"
+          - "Skipped (N < 10)"
+    required:
+      - mean
+      - std
+      - ci_95
+      - n_subjects
+      - stability_flag
+  subject_count:
+    type: integer
+    description: "Number of subjects included in this specific correlation calculation."
+    minimum: 1
+  sensitivity_sweep:
+    type: object
+    description: "Results from sensitivity analysis (threshold sweep)."
+    properties:
+      thresholds:
+        type: array
+        items:
+          type: number
+        description: "Thresholds swept (e.g., [0.01, 0.05, 0.1])."
+      stability_metrics:
+        type: object
+        description: "Stability metrics across the sweep."
+        properties:
+          mean:
+            type: number
+          std:
+            type: number
+          range:
+            type: number
+        required:
+          - mean
+          - std
+          - range
+    required:
+      - thresholds
+      - stability_metrics
+required:
+  - microstate_class
+  - feature_type
+  - affective_dimension
+  - correlation_coefficient
+  - p_value
+  - p_corrected
+  - effect_size
+  - confidence_interval
+  - analysis_type
+  - subject_count
+  - bootstrap_stability
+additionalProperties: false
