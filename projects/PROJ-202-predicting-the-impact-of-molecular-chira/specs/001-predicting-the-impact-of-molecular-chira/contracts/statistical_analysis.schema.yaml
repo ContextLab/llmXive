@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Analysis Schema"
+description: "Schema for validating statistical analysis output CSV"
+type: "object"
+properties:
+  test_type:
+    type: "string"
+    enum: ["t_test", "wilcoxon", "spearman", "fdr", "bootstrap", "point_biserial"]
+    description: "Type of statistical test performed"
+  p_value:
+    type: "number"
+    description: "Raw p-value from the test"
+  adjusted_p_value:
+    type: "number"
+    description: "FDR‑adjusted p‑value"
+  effect_size:
+    type: "number"
+    description: "Effect size (e.g., Cohen's d, Spearman's rho, point‑biserial r)"
+  threshold_kcal_mol:
+    type: "number"
+    description: "Binding affinity threshold used (if applicable)"
+  significant_count:
+    type: "integer"
+    description: "Number of significant pairs at the given threshold (for FR‑007 sensitivity analysis)"
+  bootstrap_iterations:
+    type: "integer"
+    description: "Number of bootstrap iterations performed (e.g., 10000)"
+  bootstrap_ci_lower:
+    type: "number"
+    description: "Lower bound of 95% bootstrap confidence interval"
+  bootstrap_ci_upper:
+    type: "number"
+    description: "Upper bound of 95% bootstrap confidence interval"
+required:
+  - test_type
+  - p_value
+  - adjusted_p_value
+  - effect_size
+  - significant_count
+  - bootstrap_iterations
+  - bootstrap_ci_lower
+  - bootstrap_ci_upper
+additionalProperties: false

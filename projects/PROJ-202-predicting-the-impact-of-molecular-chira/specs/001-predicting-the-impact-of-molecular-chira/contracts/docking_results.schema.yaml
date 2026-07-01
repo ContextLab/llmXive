@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Docking Results Schema"
+description: "Schema for validating docking output CSV"
+type: "object"
+properties:
+  receptor_id:
+    type: "string"
+    description: "Unique identifier for the receptor model"
+  ligand_id:
+    type: "string"
+    description: "Unique identifier for the ligand compound"
+  enantiomer_type:
+    type: "string"
+    enum: ["R", "L"]
+    description: "Chirality of the enantiomer"
+  binding_affinity_vina:
+    type: "number"
+    description: "Binding affinity from AutoDock Vina (kcal/mol)"
+  binding_affinity_smina:
+    type: "number"
+    description: "Binding affinity from SMINA (kcal/mol)"
+    nullable: true
+  binding_affinity_plants:
+    type: "number"
+    description: "Binding affinity from PLANTS (kcal/mol)"
+    nullable: true
+  rmsd:
+    type: "number"
+    description: "Root Mean Square Deviation in Ångströms"
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of the docking run"
+required:
+  - receptor_id
+  - ligand_id
+  - enantiomer_type
+  - binding_affinity_vina
+  - rmsd
+  - timestamp
+additionalProperties: false

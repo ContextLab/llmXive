@@ -1,0 +1,470 @@
+resolved_at: '2026-07-01T21:27:55.261484+00:00'
+datasets:
+- intent: SMILES
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/maykcaldas/smiles-transformers/resolve/main/data/test-00000-of-00015-27ed436361d9186e.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/HUBioDataLab/SELFormer-smiles/resolve/main/data.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/maykcaldas/smiles-transformers/resolve/main/data/test-00000-of-00015-27ed436361d9186e.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/644260f772b4ca7eeee6a0a2/ee5e0945c5893ba9e9d61a5a44e33ed2c6c53949715c546f42243abbcb858121?user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27smiles40m.txt%3B+filename%3D%22smiles40m.txt%22%3B&X-Xet-Cas-Uid=public&response-content-type=text%2Fplain&Expires=1782944736&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0MjYwZjc3MmI0Y2E3ZWVlZTZhMGEyL2VlNWUwOTQ1YzU4OTNiYTllOWQ2MWE1YTQ0ZTMzZWQyYzZjNTM5NDk3MTVjNTQ2ZjQyMjQzYWJiY2I4NTgxMjFcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3c21pbGVzNDBtLnR4dCUzQitmaWxlbmFtZSUzRCUyMnNtaWxlczQwbS50eHQlMjIlM0ImWC1YZXQtQ2FzLVVpZD1wdWJsaWMmcmVzcG9uc2UtY29udGVudC10eXBlPXRleHQlMkZwbGFpbiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyOTQ0NzM2fX19XX0_&Signature=MEUCICYdMm4L33Yvnqf~EGXSBHlSpnDYrAeGa7lVgdttiA2~AiEAziQa9yav5IED~11E6dyvp92jgHTmbIq933fArStJhjo_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/6442697272b4ca7eeee79576/fb2d3ed18b9a6500524ccf2ebae2a495d4e8c931ce3f999cd436852984f0e424?X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27smiles4m.txt%3B+filename%3D%22smiles4m.txt%22%3B&response-content-type=text%2Fplain&Expires=1782944738&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ0MjY5NzI3MmI0Y2E3ZWVlZTc5NTc2L2ZiMmQzZWQxOGI5YTY1MDA1MjRjY2YyZWJhZTJhNDk1ZDRlOGM5MzFjZTNmOTk5Y2Q0MzY4NTI5ODRmMGU0MjRcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3c21pbGVzNG0udHh0JTNCK2ZpbGVuYW1lJTNEJTIyc21pbGVzNG0udHh0JTIyJTNCJnJlc3BvbnNlLWNvbnRlbnQtdHlwZT10ZXh0JTJGcGxhaW4iLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4Mjk0NDczOH19fV19&Signature=MEYCIQChgXEFSxmE~bl5t23CbUTcOzwCSAbvvCGCa8wVLsSAyQIhAPQ--QzLLvfska8G4dE2t2WMAxWjGYUhA~sAtFa27qaJ&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/HUBioDataLab/SELFormer-smiles/resolve/main/data.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Preliminary_evaluation_of_the_open_democracy_bill_and_interim_policy_guidelines_for_spatial_information/32867606
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/HSRC_research_for_the_Professional_Provident_Society_second_addendum_to_phase_2_remuneration_of_university_graduates_ninety-fifth_percentile_full-time_only/32867657
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Core_datasets_for_the_state_of_the_environment_reporting_in_SARDC/32867603
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/HSRC_research_for_the_Professional_Provident_Society_second_addendum_to_phase_6_technikon_graduates/32867654
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/1998_crime_statistics_with_1996_census_data/32867600
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://pubs.rsc.org/ct/article/120735
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://pubs.rsc.org/90/article-lookup/doi/10.1039/CT9007701174
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://onlinelibrary.wiley.com/doi/10.1002/jctb.5000412311
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/18002214
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.scientificamerican.com/article/john-harrison-the-chronometer-maker/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21112435
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21112435
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21112353
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21112244
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21111650
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: PDB
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/jglaser/pdb_protein_ligand_complexes/resolve/main/data/pdb.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ronig/pdb_sequences/resolve/main/sequences.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/jglaser/pdbbind_complexes/resolve/main/data/pdbbind.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/jglaser/pdbbind_complexes/resolve/main/data/pdbbind.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/jglaser/pdb_protein_ligand_complexes/resolve/main/data/pdb.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ronig/pdb_sequences/resolve/main/sequences.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Adding_value_the_functioning_of_the_provincial_safety_and_security_secretariats/32867618
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Visit_to_Scotland_and_England_as_part_of_the_ETQA_task_team_on_the_invitation_of_the_National_Department_of_Education/32867669
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Removing_the_stigma_of_mental_disorder/32867612
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Pilot_project_45_adult_learning_centres/32867666
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/The_role_of_local_authorities_in_supporting_the_facilitation_of_formal_education_services/32867663
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.kprr4xh5t
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15619521
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18682210
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10995163
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.69p8cz957
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://thestacks.org/publications/sampleworks-release
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.fdr.uni-hamburg.de/record/18828
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.fdr.uni-hamburg.de/record/18828
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.fdr.uni-hamburg.de/record/18827
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Novel_coumarin-1_2_3-triazole-isatin_hybrids_design_synthesis_i_in-vitro_i_i_in-silico_i_and_SAR_study_for_antimicrobial_activity_and_-glucosidase_inhibition/32509134/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: AlphaFold
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/nferruz/dataset_alphafold/resolve/main/natural_alphafold.tar.gz
+    source: huggingface
+    format: gzip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/tux/alphafold_issues/resolve/main/data/train-00000-of-00001-4e011c05339dc3a0.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 195220
+      parsed: true
+  - url: https://huggingface.co/datasets/HUBioDataLab/AlphafoldStructures/resolve/main/AF-A0A024R1R8-F1-model_v4.pdb.gz
+    source: huggingface
+    format: gzip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 10675
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/nferruz/dataset_alphafold/resolve/main/natural_alphafold.tar.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/tux/alphafold_issues/resolve/main/data/train-00000-of-00001-4e011c05339dc3a0.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/HUBioDataLab/AlphafoldStructures/resolve/main/AF-A0A024R1R8-F1-model_v4.pdb.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/HUBioDataLab/AlphafoldStructures2/resolve/main/AF-Q16798-F1-model_v4.pdb.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/HUBioDataLab/AlphafoldStructures3/resolve/main/AF-Q9BSU1-F1-model_v4.pdb.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Linking_universities_and_marginalised_communities_South_African_case_studies_of_innovation_focused_on_livelihoods_in_informal_settings/32867684
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Safe_water_access_to_health_care_and_other_factors_affecting_infant_and_child_survival_under_African_and_coloured_populations_in_South_Africa/32867633
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/African_sociology_towards_a_critical_perspective_the_collected_essays_of_Bernard_Makhosezwe_Magubane/32867681
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Perceptions_about_economic_issues/32867630
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Toward_a_sustainable_transport_and_communication_sector_in_Southern_Africa/32867678
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14911267
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17463950
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7595739
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20323917
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19160208
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/CaE_AF-Cluster_example_dataset_for_DNA_origami-enhanced_single-molecule_force_spectroscopy_analysis/32861552
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/CaE_AF-Cluster_example_dataset_for_DNA_origami-enhanced_single-molecule_force_spectroscopy_analysis/32861552/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://researchdata.durham.ac.uk/files/r1jq085k049
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/sjnxm/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21098730
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-only
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Small_market_areas_SMAs_for_South_Africa/32867609
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Recovering_the_basis_for_effective_transformation_and_development_of_South_Africa/32867642
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Service_delivery_perceptions_during_Mandela_rule_1994-1999/32867696
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Monitoring_learning_achievement_pilot_grade_4_results_for_the_numeracy_tests/32867639
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Development_funding_and_service_provision_for_efficient_planning/32867693
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.11591/eei.v9i2.1972
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 415'
+  - url: https://zenodo.org/records/3810211
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5951740
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6127654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21107296
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21106521
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21106521
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unige.iris.cineca.it/handle/11567/929442
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21104198
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CUDA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/SakanaAI/AI-CUDA-Engineer-Archive/resolve/main/level_1.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/deepreinforce-ai/CUDA-L1/resolve/main/more_baselines/cuda_graph.json
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/deepreinforce-ai/CUDA-L2/resolve/main/eval_results/cuda_l2_a100_F16F16F16F16_speedup_offline.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 74288
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/SakanaAI/AI-CUDA-Engineer-Archive/resolve/main/level_1.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/deepreinforce-ai/CUDA-L1/resolve/main/more_baselines/cuda_graph.json
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/deepreinforce-ai/CUDA-L2/resolve/main/eval_results/cuda_l2_a100_F16F16F16F16_speedup_offline.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/HSRC_research_for_the_Professional_Provident_Society_second_addendum_to_phase_6_technikon_graduates/32867654
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Small_market_areas_SMAs_for_South_Africa/32867609
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Race_discontent_/32867624
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Economic_policies/32867708
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Visit_to_the_University_of_Minnesota_International_Counseling_Institute_MICI_to_attend_conference/32867651
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5550909
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16299984
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.1653/024.099.0440
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://zenodo.org/records/7683127
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19228158
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21113747
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21113747
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21112663
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21112663
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21111797
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
