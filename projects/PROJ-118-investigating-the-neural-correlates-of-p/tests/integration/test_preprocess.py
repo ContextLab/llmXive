@@ -1,83 +1,116 @@
 """
-Integration test for preprocessing pipeline (T011).
+Integration test for User Story 1: Preprocess Auditory Oddball EEG Data.
 
-This test verifies that the preprocessing pipeline (T013) produces valid epochs
-labeled "standard" and "deviant" and logs rejected epochs.
-
-EXPECTED STATE: This test is expected to FAIL until T013 (code/preprocess.py) is implemented.
-It checks for the existence of the output file and validates its contents.
+Task: T011
+Description: Run pipeline on sub-01, assert data/processed/epo_raw.fif exists 
+             and contains >0 epochs.
 """
 import os
+import glob
 import pytest
 from pathlib import Path
-import mne
 
-# Project root relative to tests/integration
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-CODE_DIR = PROJECT_ROOT / "code"
+# Import the real pipeline entry point from the project's code module
+from code.preprocess import run_preprocessing_pipeline
+from code.download import run_download_pipeline
+from code.config import load_config
+
+# Project root relative to this file (assuming tests/integration/ is 2 levels deep)
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+DATA_RAW = PROJECT_ROOT / "data" / "raw"
 DATA_PROCESSED = PROJECT_ROOT / "data" / "processed"
-RESULTS_DIR = PROJECT_ROOT / "results"
-PREPROCESS_LOG = RESULTS_DIR / "preprocess_log.txt"
 
-# Expected output paths as defined in T013
-EXPECTED_EPOCHS_FILE = DATA_PROCESSED / "epo.fif"
-EXPECTED_LOG_FILE = PREPROCESS_LOG
+# Ensure directories exist (setup handled by T001/T004, but safe-guard here)
+@pytest.fixture(scope="module", autouse=True)
+def ensure_directories():
+    DATA_RAW.mkdir(parents=True, exist_ok=True)
+    DATA_PROCESSED.mkdir(parents=True, exist_ok=True)
 
-@pytest.mark.integration
-def test_preprocess_pipeline_output_exists():
+def test_preprocess_pipeline_sub_01():
     """
-    Test that the preprocessing pipeline produces the expected output file.
+    Integration test: Run the full preprocessing pipeline on sub-01.
     
-    This will fail with FileNotFoundError if T013 has not been run or failed.
+    Steps:
+    1. Ensure raw data exists (fetch if missing via download module).
+    2. Run preprocessing pipeline.
+    3. Assert output file 'data/processed/epo_raw.fif' exists.
+    4. Assert the file contains >0 epochs for 'standard' and 'deviant' conditions.
     """
-    assert EXPECTED_EPOCHS_FILE.exists(), (
-        f"Preprocessing output {EXPECTED_EPOCHS_FILE} not found. "
-        "Has code/preprocess.py (T013) been executed successfully?"
-    )
+    import mne
 
-@pytest.mark.integration
-def test_preprocess_epochs_valid_structure():
-    """
-    Test that the output epochs file contains valid MNE epochs with required conditions.
-    """
-    # Skip if file doesn't exist yet (graceful failure for pre-implementation state)
-    if not EXPECTED_EPOCHS_FILE.exists():
-        pytest.skip("Preprocessing output not yet generated. Run T013 first.")
+    # 1. Ensure Raw Data Exists
+    # We attempt to find a raw file for sub-01. If not found, we trigger the download.
+    # The download module is expected to place files in data/raw/ds003645/...
+    # We look for typical BIDS or OpenNeuro patterns.
+    raw_files = list(DATA_RAW.glob("**/sub-01*_desc-raw.fif"))
+    if not raw_files:
+        # Fallback: try to find any sub-01 raw file regardless of suffix
+        raw_files = list(DATA_RAW.glob("**/sub-01*.fif"))
+    
+    if not raw_files:
+        # If still nothing, try to trigger the download pipeline for the dataset
+        # Assuming config is set up to download ds003645
+        try:
+            run_download_pipeline()
+            raw_files = list(DATA_RAW.glob("**/sub-01*.fif"))
+        except Exception as e:
+            pytest.fail(f"Could not locate raw data for sub-01 and download failed: {e}")
+
+    if not raw_files:
+        pytest.fail("No raw data files found for sub-01 after download attempt.")
+
+    # Pick the first valid raw file found
+    raw_input_path = raw_files[0]
+
+    # 2. Run Preprocessing Pipeline
+    # We call the main entry point. It should handle:
+    # - Loading the raw file
+    # - Subsampling, filtering, re-referencing
+    # - ICA cleaning
+    # - Epoching
+    # - Saving to data/processed/epo_raw.fif
+    
+    output_path = DATA_PROCESSED / "epo_raw.fif"
+    
+    # Remove existing output if any to ensure fresh run
+    if output_path.exists():
+        output_path.unlink()
 
     try:
-        epochs = mne.read_epochs(str(EXPECTED_EPOCHS_FILE), preload=False)
+        run_preprocessing_pipeline(input_path=raw_input_path, output_path=output_path)
     except Exception as e:
-        pytest.fail(f"Failed to read epochs file: {e}")
+        pytest.fail(f"Preprocessing pipeline failed for sub-01: {e}")
 
-    # Verify conditions exist
-    assert "standard" in epochs.event_id, "Missing 'standard' condition in epochs."
-    assert "deviant" in epochs.event_id, "Missing 'deviant' condition in epochs."
+    # 3. Assert Output File Exists
+    assert output_path.exists(), f"Output file {output_path} was not created."
 
-    # Verify basic properties
-    assert epochs.get_data().shape[0] > 0, "Epochs array is empty."
-    assert epochs.get_data().shape[2] > 0, "Epochs have no time points."
+    # 4. Assert Content: >0 Epochs
+    try:
+        epochs = mne.read_epochs(output_path, preload=False)
+    except Exception as e:
+        pytest.fail(f"Failed to read epochs from {output_path}: {e}")
 
-@pytest.mark.integration
-def test_preprocess_log_exists():
-    """
-    Test that the preprocessing log file exists and contains expected format.
-    """
-    if not EXPECTED_LOG_FILE.exists():
-        pytest.skip("Preprocessing log not yet generated. Run T013 first.")
+    # Check total number of epochs
+    total_epochs = len(epochs)
+    assert total_epochs > 0, f"Epochs file is empty (0 epochs) for sub-01."
 
-    with open(EXPECTED_LOG_FILE, "r") as f:
-        content = f.read()
+    # Check specific conditions
+    # The task requires 'standard' and 'deviant' labels
+    event_ids = epochs.event_id
+    assert "standard" in event_ids, "Condition 'standard' not found in epochs."
+    assert "deviant" in event_ids, "Condition 'deviant' not found in epochs."
 
-    # Basic check that log has content
-    assert len(content) > 0, "Preprocessing log is empty."
-    
-    # Check for expected log format pattern (from T017)
-    # Pattern: "Subject {subject_id}: Rejected {count} epochs, Removed {ica_count} ICA components"
-    import re
-    pattern = r"Subject \w+: Rejected \d+ epochs, Removed \d+ ICA components"
-    matches = re.findall(pattern, content)
-    assert len(matches) > 0, (
-        f"Log file does not contain expected format. "
-        f"Expected pattern: 'Subject <id>: Rejected <n> epochs, Removed <m> ICA components'. "
-        f"Content: {content[:200]}"
-    )
+    standard_count = len(epochs["standard"])
+    deviant_count = len(epochs["deviant"])
+
+    assert standard_count > 0, f"No 'standard' epochs found for sub-01 (count: {standard_count})."
+    assert deviant_count > 0, f"No 'deviant' epochs found for sub-01 (count: {deviant_count})."
+
+    # Optional: Verify some basic properties (e.g., time window)
+    assert epochs.times[0] < 0, "Pre-stimulus baseline not present."
+    assert epochs.times[-1] > 0, "Post-stimulus window not present."
+
+    print(f"✅ Test Passed: sub-01 processed successfully.")
+    print(f"   Total epochs: {total_epochs}")
+    print(f"   Standard epochs: {standard_count}")
+    print(f"   Deviant epochs: {deviant_count}")

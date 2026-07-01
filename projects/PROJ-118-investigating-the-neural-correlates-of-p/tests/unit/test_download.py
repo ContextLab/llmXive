@@ -1,99 +1,93 @@
 """
-Unit tests for the download module.
+Unit tests for code/download.py
 """
-import pytest
-from unittest.mock import patch, MagicMock
-from pathlib import Path
 import os
 import tempfile
+import time
+from pathlib import Path
+from unittest.mock import patch, MagicMock
+import pytest
+import requests
 
-# Import the module under test
-from code.download import fetch_ds003645, retry
+# Import the module functions
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+from download import (
+    download_file,
+    verify_checksum,
+    calculate_sha256,
+    INITIAL_BACKOFF,
+    MAX_RETRIES
+)
 
-
-class TestRetryDecorator:
-    """Tests for the retry decorator logic."""
-
-    def test_retry_success_on_first_try(self):
-        """Test that a successful function is called once."""
-        @retry(max_attempts=3, backoff=0.1)
-        def success_func():
-            return "success"
-
-        result = success_func()
-        assert result == "success"
-
-    def test_retry_success_after_failure(self):
-        """Test that a function succeeds after a transient failure."""
-        call_count = 0
-
-        @retry(max_attempts=3, backoff=0.1)
-        def flaky_func():
-            nonlocal call_count
-            call_count += 1
-            if call_count == 1:
-                raise ConnectionError("Network error")
-            return "success"
-
-        result = flaky_func()
-        assert result == "success"
-        assert call_count == 2
-
-    def test_retry_exhausts_attempts(self):
-        """Test that the decorator raises after max attempts."""
-        @retry(max_attempts=2, backoff=0.1)
-        def always_fail():
-            raise ConnectionError("Persistent error")
-
-        with pytest.raises(ConnectionError):
-            always_fail()
-
-
-class TestFetchDs003645:
-    """Tests for the fetch_ds003645 function."""
-
-    def test_fetch_creates_directory(self):
-        """Test that the function creates the output directory if missing."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            target_dir = os.path.join(tmpdir, "new_subdir")
-            assert not os.path.exists(target_dir)
+def test_download_retry_on_failure():
+    """
+    Test that download_file retries 3 times on failure and raises error on 4th.
+    This satisfies the requirement for retry logic with exponential backoff.
+    """
+    with tempfile.TemporaryDirectory() as tmpdir:
+        dest_path = Path(tmpdir) / "test_file.txt"
+        
+        # Mock requests.get to raise an exception every time
+        with patch('download.requests.get') as mock_get:
+            mock_get.side_effect = requests.ConnectionError("Network error")
             
-            # Mock the download_dataset to avoid actual network call but verify logic
-            with patch('code.download.download_dataset') as mock_download:
-                mock_download.return_value = target_dir
-                result = fetch_ds003645(target_dir)
-                
-                # Verify directory was created (by the function logic)
-                assert os.path.exists(target_dir)
-                assert result == target_dir
-                mock_download.assert_called_once()
-
-    def test_fetch_returns_valid_path(self):
-        """Test that the function returns the path to the downloaded data."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            mock_path = os.path.join(tmpdir, "ds003645")
+            # Call the function - it should retry 3 times then raise
+            with pytest.raises(requests.RequestException):
+                download_file("http://example.com/fake", dest_path, retries=3)
             
-            with patch('code.download.download_dataset') as mock_download:
-                mock_download.return_value = mock_path
-                result = fetch_ds003645(tmpdir)
-                
-                assert result == mock_path
-                assert os.path.exists(result)
+            # Assert it was called 3 times (3 retries)
+            assert mock_get.call_count == 3
 
-    def test_fetch_handles_missing_dataset_error(self):
-        """Test handling of ValueError when download returns invalid path."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            with patch('code.download.download_dataset') as mock_download:
-                mock_download.return_value = None
-                
-                with pytest.raises(ValueError, match="Download reported success"):
-                    fetch_ds003645(tmpdir)
+def test_download_success():
+    """Test successful download."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        dest_path = Path(tmpdir) / "test_file.txt"
+        test_content = b"Hello, World!"
+        
+        mock_response = MagicMock()
+        mock_response.iter_content.return_value = [test_content]
+        mock_response.headers = {'content-length': str(len(test_content))}
+        mock_response.raise_for_status = MagicMock()
+        
+        with patch('download.requests.get', return_value=mock_response):
+            result = download_file("http://example.com/fake", dest_path)
+            
+            assert result is True
+            assert dest_path.exists()
+            with open(dest_path, 'rb') as f:
+                assert f.read() == test_content
 
-    def test_fetch_handles_download_exception(self):
-        """Test handling of exceptions raised during download."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            with patch('code.download.download_dataset') as mock_download:
-                mock_download.side_effect = TimeoutError("Network timeout")
-                
-                with pytest.raises(TimeoutError):
-                    fetch_ds003645(tmpdir)
+def test_verify_checksum_valid():
+    """Test checksum verification with a known hash."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        file_path = Path(tmpdir) / "test.txt"
+        content = b"test data"
+        file_path.write_bytes(content)
+        
+        # Calculate actual hash
+        actual_hash = calculate_sha256(file_path)
+        
+        # Verify with correct hash
+        assert verify_checksum(file_path, actual_hash) is True
+        
+        # Verify with wrong hash
+        assert verify_checksum(file_path, "wronghash123") is False
+
+def test_verify_checksum_empty_file():
+    """Test verification of an empty file."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        file_path = Path(tmpdir) / "empty.txt"
+        file_path.write_bytes(b"")
+        
+        # Without expected hash, it should fail on empty check
+        assert verify_checksum(file_path, None) is False
+
+def test_verify_checksum_no_hash_non_empty():
+    """Test verification without expected hash on non-empty file."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        file_path = Path(tmpdir) / "non_empty.txt"
+        file_path.write_bytes(b"data")
+        
+        # Should pass because file is not empty
+        assert verify_checksum(file_path, None) is True

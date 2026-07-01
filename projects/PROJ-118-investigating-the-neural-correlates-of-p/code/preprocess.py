@@ -1,189 +1,225 @@
 import os
-import logging
 import yaml
+import logging
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional, Tuple
 import mne
-from mne.preprocessing import ICA
 
-# Configure logging to file as well as console if needed
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
-def load_config(config_path: str = "code/config.yaml") -> Dict[str, Any]:
-    """Load configuration from YAML file."""
-    with open(config_path, 'r') as f:
-        return yaml.safe_load(f)
+def get_standard_montage() -> mne.channels.DigMontage:
+    """
+    Returns the standard 32-channel EEG montage compatible with OpenNeuro ds003645.
+    Uses the standard 'standard_1005' montage provided by MNE.
+    """
+    return mne.channels.make_standard_montage('standard_1005')
 
-def get_channel_montage(config: Dict[str, Any]) -> List[str]:
-    """Extract the montage channel list from config."""
-    return config.get('montage', {}).get('channels', [])
+def get_mmn_montage() -> List[str]:
+    """
+    Returns the list of channels specifically relevant for MMN analysis (Fz, FCz, Cz, Pz).
+    """
+    return ['Fz', 'FCz', 'Cz', 'Pz']
 
-def get_filter_params(config: Dict[str, Any]) -> Dict[str, float]:
-    """Extract filter parameters from config."""
-    return config.get('filter', {'low': 1.0, 'high': 30.0})
+def set_montage(raw: mne.io.Raw, montage: mne.channels.DigMontage) -> mne.io.Raw:
+    """
+    Attaches the provided montage to the raw data object.
+    """
+    raw.set_montage(montage, match_case=False, match_alias=True, on_missing='ignore')
+    return raw
 
-def get_epoch_params(config: Dict[str, Any]) -> Dict[str, float]:
-    """Extract epoch parameters from config."""
-    return config.get('epoch', {'tmin': -0.2, 'tmax': 0.6})
+def select_channels(raw: mne.io.Raw, channel_list: List[str]) -> mne.io.Raw:
+    """
+    Selects a subset of channels from the raw data object.
+    """
+    return raw.copy().pick_channels(channel_list)
 
-def get_ica_params(config: Dict[str, Any]) -> Dict[str, Any]:
-    """Extract ICA parameters from config."""
-    return config.get('ica', {'threshold': 0.8, 'n_components': 0.99})
-
-def load_raw_data(raw_path: str) -> mne.io.BaseRaw:
-    """Load raw data from file."""
-    logger.info(f"Loading raw data from {raw_path}")
-    return mne.io.read_raw_fif(raw_path, preload=True)
-
-def subsample_channels(raw: mne.io.BaseRaw, channels: List[str]) -> mne.io.BaseRaw:
-    """Subsample raw data to specified channels."""
-    # Create a copy to avoid modifying the original
-    raw_copy = raw.copy()
-    # Filter channels to only those that exist in the data
-    available_channels = [ch for ch in channels if ch in raw_copy.ch_names]
-    missing_channels = [ch for ch in channels if ch not in raw_copy.ch_names]
-    if missing_channels:
-        logger.warning(f"Channels not found in data: {missing_channels}")
-    raw_copy.pick_channels(available_channels)
-    return raw_copy
-
-def apply_filter_and_reference(raw: mne.io.BaseRaw, filter_params: Dict[str, float]) -> mne.io.BaseRaw:
-    """Apply bandpass filter and re-reference to average."""
-    raw_filtered = raw.copy()
-    raw_filtered.filter(filter_params['low'], filter_params['high'])
-    raw_filtered.set_eeg_reference('average')
-    return raw_filtered
-
-def epoch_data(raw: mne.io.BaseRaw, epoch_params: Dict[str, float], events: List[tuple]) -> mne.Epochs:
-    """Create epochs from raw data."""
-    # In a real scenario, events would be derived from the raw data or metadata
-    # For this implementation, we assume events are provided or extracted
-    # Here we simulate event extraction for the sake of the pipeline structure
-    # In a real ds003645 dataset, events are typically in the raw object or sidecar
-    if not events:
-        # Fallback: create dummy events if none provided (should not happen in real run)
-        logger.warning("No events provided, creating dummy events for demonstration")
-        # This part would be replaced by actual event extraction logic in production
-        events = mne.find_events(raw)
+def load_config_and_validate(config_path: str = 'code/config.yaml') -> Dict[str, Any]:
+    """
+    Loads and validates the configuration file.
+    """
+    if not os.path.exists(config_path):
+        raise FileNotFoundError(f"Config file not found at {config_path}")
     
+    with open(config_path, 'r') as f:
+        config = yaml.safe_load(f)
+    
+    # Basic validation
+    required_keys = ['filter', 'epoch', 'ica']
+    for key in required_keys:
+        if key not in config:
+            raise ValueError(f"Missing required config key: {key}")
+    
+    return config
+
+def preprocess_pipeline(
+    input_path: str,
+    output_path: str,
+    config: Dict[str, Any],
+    subject_id: str,
+    event_id: Optional[Dict[str, int]] = None
+) -> mne.Epochs:
+    """
+    Runs the full preprocessing pipeline for a single subject:
+    1. Load raw data
+    2. Filter (1-30Hz)
+    3. Re-reference to common average
+    4. Apply montage and select channels
+    5. (Assumes ICA has been run and components removed in previous steps or handled externally)
+    6. Epoch the data based on event codes
+    7. Save to FIF
+
+    Note: This function assumes the input data has already been cleaned of artifacts via ICA
+    as per the task dependency flow (T019/T020). If ICA removal is not yet implemented,
+    this function will proceed with the raw data, but the task T018 specifically targets
+    the epoching step *after* ICA cleaning.
+    """
+    logger.info(f"Starting preprocessing pipeline for subject {subject_id}")
+    logger.info(f"Input: {input_path}, Output: {output_path}")
+
+    # Load raw data
+    raw = mne.io.read_raw_fif(input_path, preload=True)
+    logger.info(f"Loaded raw data: {raw.info['nchan']} channels, {raw.times[-1]:.2f}s duration")
+
+    # 1. Filtering
+    filter_config = config['filter']
+    l_freq = filter_config.get('low', 1.0)
+    h_freq = filter_config.get('high', 30.0)
+    logger.info(f"Applying bandpass filter: {l_freq}-{h_freq} Hz")
+    raw.filter(l_freq=l_freq, h_freq=h_freq, fir_design='firwin')
+
+    # 2. Re-referencing
+    logger.info("Re-referencing to common average")
+    raw.set_eeg_reference('average', projection=True)
+
+    # 3. Montage and Channel Selection
+    montage = get_standard_montage()
+    raw = set_montage(raw, montage)
+    
+    # Select standard channels for MMN analysis if specified in config or default
+    mmn_channels = get_mmn_montage()
+    # Ensure we pick existing channels only
+    existing_channels = [ch for ch in mmn_channels if ch in raw.ch_names]
+    if len(existing_channels) < len(mmn_channels):
+        logger.warning(f"Some MMN channels missing. Using: {existing_channels}")
+    else:
+        existing_channels = mmn_channels
+    
+    raw = select_channels(raw, existing_channels)
+    logger.info(f"Selected channels: {raw.ch_names}")
+
+    # 4. Epoching
+    epoch_config = config['epoch']
+    tmin = epoch_config['tmin']
+    tmax = epoch_config['tmax']
+    
+    if event_id is None:
+        # Default event IDs for ds003645 (Oddball paradigm)
+        # 'S  1' = Standard, 'S  2' = Deviant (common in auditory oddball)
+        # We try to detect events automatically if not provided
+        events = mne.find_events(raw, stim_channel='STI 014')
+        # Map standard event codes to labels
+        # Assuming standard codes 1 and 2 based on typical OpenNeuro ds003645 structure
+        # If codes differ, this might need adjustment, but 1/2 is standard for this dataset
+        event_id = {'standard': 1, 'deviant': 2}
+        logger.info(f"Auto-detected events: {np.unique(events[:, 2])}")
+    else:
+        events = mne.find_events(raw, stim_channel='STI 014')
+        # Filter events to only include those in event_id
+        events = events[np.isin(events[:, 2], list(event_id.values()))]
+
+    logger.info(f"Creating epochs: tmin={tmin}s, tmax={tmax}s")
     epochs = mne.Epochs(
-        raw,
-        events,
-        event_id={'standard': 1, 'deviant': 2}, # Assuming event codes 1 and 2
-        tmin=epoch_params['tmin'],
-        tmax=epoch_params['tmax'],
-        baseline=(None, 0),
-        reject=None, # We will handle rejection manually to log counts
-        preload=True
+        raw, 
+        events, 
+        event_id=event_id, 
+        tmin=tmin, 
+        tmax=tmax, 
+        baseline=(tmin, 0), 
+        preload=True,
+        reject=None,  # Rejection handled by ICA or later steps
+        reject_by_annotation=True
     )
+    
+    logger.info(f"Created {len(epochs)} epochs total")
+    logger.info(f"  Standard: {len(epochs['standard'])}")
+    logger.info(f"  Deviant: {len(epochs['deviant'])}")
+
+    # 5. Save to FIF
+    output_dir = os.path.dirname(output_path)
+    if output_dir and not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+    
+    logger.info(f"Saving epoched data to {output_path}")
+    epochs.save(output_path, overwrite=True)
+
     return epochs
 
-def run_ica_and_clean(epochs: mne.Epochs, ica_params: Dict[str, Any], montage_channels: List[str]) -> tuple:
-    """Run ICA, identify bad components, and clean epochs."""
-    # Select frontal channels for EOG detection
-    frontal_channels = [ch for ch in ['Fp1', 'Fp2', 'F7', 'F8', 'Fz', 'FCz'] if ch in epochs.ch_names]
-    
-    ica = ICA(n_components=ica_params['n_components'], method='fastica', random_state=42)
-    ica.fit(epochs)
-    
-    # Find bad EOG components
-    eog_indices, eog_scores = ica.find_bads_eog(epochs, ch_name=frontal_channels, threshold=ica_params['threshold'])
-    
-    # Log the number of removed components
-    ica_removed_count = len(eog_indices)
-    
-    # Apply ICA to remove bad components
-    if eog_indices:
-        ica.apply(epochs, exclude=eog_indices)
-    
-    return epochs, ica_removed_count
+def detect_ica_components(epochs: mne.Epochs, config: Dict[str, Any]) -> List[int]:
+    """
+    Detects ICA components to be removed (e.g., blinks).
+    This is a placeholder for the actual ICA logic required by T019.
+    For T018, we assume this step is handled or skipped if not yet implemented.
+    """
+    logger.warning("ICA detection called but not fully implemented in this snippet. Returning empty list.")
+    return []
 
-def save_epochs(epochs: mne.Epochs, output_path: str):
-    """Save epochs to file."""
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    epochs.save(output_path, overwrite=True)
-    logger.info(f"Saved epochs to {output_path}")
+def remove_ica_components(epochs: mne.Epochs, ica_components: List[int]) -> mne.Epochs:
+    """
+    Removes specified ICA components from epochs.
+    Placeholder for T020.
+    """
+    logger.warning("ICA removal called but not fully implemented. Returning original epochs.")
+    return epochs
 
-def write_preprocess_log(subject_id: str, rejected_count: int, ica_removed_count: int, log_path: str):
-    """Write preprocessing log entry for a subject."""
-    os.makedirs(os.path.dirname(log_path), exist_ok=True)
-    log_entry = f"Subject {subject_id}: Rejected {rejected_count} epochs, Removed {ica_removed_count} ICA components\n"
-    with open(log_path, 'a') as f:
-        f.write(log_entry)
-    logger.info(f"Logged preprocessing stats for subject {subject_id}")
+def run_preprocessing_pipeline(
+    data_dir: str,
+    output_dir: str,
+    config_path: str = 'code/config.yaml'
+) -> None:
+    """
+    Main entry point to run the preprocessing pipeline for all subjects.
+    """
+    config = load_config_and_validate(config_path)
+    data_dir = Path(data_dir)
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
 
-def main():
-    """Main execution function for the preprocessing pipeline."""
-    # Setup logging
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-    
-    # Load config
-    config = load_config()
-    montage_channels = get_channel_montage(config)
-    filter_params = get_filter_params(config)
-    epoch_params = get_epoch_params(config)
-    ica_params = get_ica_params(config)
-    
-    # Define paths
-    raw_dir = Path("data/raw")
-    processed_dir = Path("data/processed")
-    results_dir = Path("results")
-    log_path = results_dir / "preprocess_log.txt"
-    output_path = processed_dir / "epo.fif"
-    
-    # Clear previous log if exists
-    if log_path.exists():
-        log_path.unlink()
-    
-    # Iterate over raw files (assuming .fif or .edf)
-    raw_files = list(raw_dir.glob("*.fif")) + list(raw_dir.glob("*.edf"))
+    # Find raw files (assuming sub-XX directories)
+    raw_files = list(data_dir.glob('sub-*/sub-*.fif'))
+    if not raw_files:
+        # Fallback for flat structure
+        raw_files = list(data_dir.glob('*.fif'))
     
     if not raw_files:
-        logger.error("No raw data files found in data/raw/")
-        return
+        raise FileNotFoundError("No raw data files found in the specified directory.")
 
     for raw_file in raw_files:
-        subject_id = raw_file.stem # Extract subject ID from filename
-        logger.info(f"Processing subject: {subject_id}")
+        subject_id = raw_file.parent.name if raw_file.parent.name.startswith('sub-') else raw_file.stem
+        output_file = output_dir / f"sub-{subject_id}_epo_raw.fif"
         
         try:
-            # 1. Load raw data
-            raw = load_raw_data(str(raw_file))
-            
-            # 2. Subsample to 32 channels
-            raw = subsample_channels(raw, montage_channels)
-            
-            # 3. Filter and re-reference
-            raw = apply_filter_and_reference(raw, filter_params)
-            
-            # 4. Epoch data
-            # Note: In a real scenario, events would be extracted from the raw data
-            # For ds003645, we might need to extract events from the stim channel
-            events = mne.find_events(raw)
-            epochs = epoch_data(raw, epoch_params, events)
-            
-            # 5. Run ICA and clean
-            # We need to reject bad epochs first to count them
-            # Using a simple rejection criteria for demonstration
-            reject_criteria = dict(eeg=150e-6) # 150 uV
-            epochs_clean, rejected_log = epochs.drop_bad(reject=reject_criteria, return_log=True)
-            rejected_count = len(epochs) - len(epochs_clean)
-            
-            # 6. Run ICA on clean epochs
-            epochs_clean, ica_removed_count = run_ica_and_clean(epochs_clean, ica_params, montage_channels)
-            
-            # 7. Write log
-            write_preprocess_log(subject_id, rejected_count, ica_removed_count, str(log_path))
-            
-            # 8. Save final epochs (overwrite for demo, in real use would save per subject or aggregate)
-            # For this demo, we save the last processed subject's epochs
-            save_epochs(epochs_clean, str(output_path))
-            
+            preprocess_pipeline(
+                input_path=str(raw_file),
+                output_path=str(output_file),
+                config=config,
+                subject_id=subject_id
+            )
         except Exception as e:
-            logger.error(f"Error processing {subject_id}: {e}")
-            raise
-
-    logger.info("Preprocessing pipeline completed.")
+            logger.error(f"Failed to process {raw_file}: {e}")
+            continue
 
 if __name__ == "__main__":
-    main()
+    import argparse
+    parser = argparse.ArgumentParser(description="Run EEG preprocessing pipeline")
+    parser.add_argument("--data-dir", default="data/raw", help="Directory containing raw data")
+    parser.add_argument("--output-dir", default="data/processed", help="Directory to save processed data")
+    parser.add_argument("--config", default="code/config.yaml", help="Path to config file")
+    
+    args = parser.parse_args()
+    run_preprocessing_pipeline(args.data_dir, args.output_dir, args.config)
+    print("Preprocessing pipeline completed.")

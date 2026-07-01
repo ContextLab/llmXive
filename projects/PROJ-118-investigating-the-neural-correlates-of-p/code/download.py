@@ -1,177 +1,187 @@
 """
-Data download module for the llmXive pipeline.
-Fetches the OpenNeuro ds003645 dataset using mne-bids.
+Download module for fetching datasets from OpenNeuro.
+Implements retry logic with exponential backoff and checksum verification.
 """
 import os
+import subprocess
 import time
+import hashlib
+import json
+import shutil
 import logging
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Dict, Any
 
-try:
-    from mne_bids import get_bids_path_from_ds
-    from mne_bids import download_dataset
-    from mne_bids import BIDSPath
-    from mne_bids import read_raw_bids
-    from mne_bids import write_raw_bids
-except ImportError:
-    raise ImportError(
-        "The 'mne-bids' package is required for this module. "
-        "Install it via: pip install mne-bids"
-    )
+import requests
 
-# Configure logging for this module
+# Configuration constants
+INITIAL_BACKOFF = 10  # seconds
+MAX_RETRIES = 3
+
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-if not logger.handlers:
-    handler = logging.StreamHandler()
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
-    logger.setLevel(logging.INFO)
 
 
-def retry(max_attempts: int = 3, backoff: int = 10):
+def load_config(config_path: str = "code/config.yaml") -> Dict[str, Any]:
+    """Load configuration from YAML file."""
+    with open(config_path, 'r') as f:
+        return yaml.safe_load(f)
+
+
+def calculate_sha256(file_path: Path) -> str:
+    """Calculate SHA256 hash of a file."""
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
+
+
+def get_manifest_hash(manifest_path: Path, filename: str) -> Optional[str]:
+    """Extract hash for a specific file from the OpenNeuro manifest."""
+    if not manifest_path.exists():
+        return None
+    
+    with open(manifest_path, 'r') as f:
+        manifest = json.load(f)
+    
+    for entry in manifest:
+        if entry['filename'] == filename:
+            return entry['sha256']
+    return None
+
+
+def download_file(url: str, dest_path: Path, retries: int = MAX_RETRIES) -> bool:
     """
-    Decorator to retry a function on specific exceptions.
+    Download a file from URL with retry logic and exponential backoff.
     
     Args:
-        max_attempts: Maximum number of attempts.
-        backoff: Seconds to wait between attempts.
-    """
-    def decorator(func):
-        def wrapper(*args, **kwargs):
-            attempt = 0
-            last_exception = None
-            
-            while attempt < max_attempts:
-                try:
-                    return func(*args, **kwargs)
-                except (ValueError, TimeoutError) as e:
-                    last_exception = e
-                    attempt += 1
-                    logger.warning(
-                        f"Attempt {attempt}/{max_attempts} failed for {func.__name__}: {e}"
-                    )
-                    if attempt < max_attempts:
-                        time.sleep(backoff * attempt)  # Exponential backoff
-                    else:
-                        logger.error(
-                            f"Function {func.__name__} failed after {max_attempts} attempts."
-                        )
-                        raise
-                except Exception as e:
-                    # Re-raise unexpected exceptions immediately
-                    raise e
-            
-            # Should not reach here, but just in case
-            raise last_exception
-        return wrapper
-    return decorator
-
-
-@retry(max_attempts=3, backoff=10)
-def fetch_ds003645(output_dir: str) -> str:
-    """
-    Fetches the OpenNeuro ds003645 dataset to the specified output directory.
-    
-    This function uses mne-bids to download the dataset. It handles network
-    failures and validation errors with retry logic.
-    
-    Args:
-        output_dir: Path to the directory where the dataset will be saved.
-                   If the directory doesn't exist, it will be created.
+        url: The URL to download from
+        dest_path: Local path to save the file
+        retries: Number of retry attempts (default: MAX_RETRIES)
     
     Returns:
-        str: The absolute path to the downloaded dataset directory.
+        True if download successful, False otherwise
     
     Raises:
-        ValueError: If the dataset ID is invalid or download fails validation.
-        TimeoutError: If the download times out.
-        RuntimeError: If the download fails after all retry attempts.
+        Exception if all retries fail
     """
-    output_path = Path(output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
+    dest_path.parent.mkdir(parents=True, exist_ok=True)
     
-    dataset_id = "ds003645"
-    version = "1.0.0"  # Specify a version if needed, or leave as latest
+    backoff_time = INITIAL_BACKOFF
     
-    logger.info(f"Starting download of {dataset_id} to {output_path}")
-    
-    try:
-        # Use mne-bids download functionality
-        # Note: mne-bids doesn't have a direct 'download_dataset' in all versions,
-        # so we use the standard approach via datalad or direct URL if available.
-        # For this implementation, we assume mne-bids provides the necessary tools
-        # or we fall back to a standard download method if mne-bids is configured.
-        
-        # Attempt to download using mne_bids utilities
-        # In a real scenario, this might involve datalad or direct HTTP requests
-        # depending on the mne-bids version and configuration.
-        
-        # Construct the BIDS path for the dataset
-        bids_root = str(output_path / dataset_id)
-        
-        # Check if already downloaded
-        if os.path.exists(bids_root):
-            logger.info(f"Dataset {dataset_id} already exists at {bids_root}")
-            return bids_root
-        
-        # Try to download using mne-bids if available, otherwise use a fallback
-        # Since mne-bids often relies on datalad, we'll attempt a direct approach
-        # or use the mne_bids.download function if available in the environment.
-        
-        # Fallback: Use a direct download approach if mne-bids download is not straightforward
-        # OpenNeuro datasets can be downloaded via:
-        # https://openneuro.org/datasets/ds003645/versions/1.0.0
-        # We'll use the standard mne_bids approach which may invoke datalad internally
-        
-        from mne_bids import get_bids_path_from_ds
-        
-        # Attempt to get the BIDS path (this might trigger download or validation)
-        # If this doesn't trigger download, we need to explicitly download
-        # For now, we'll simulate the download process or use a direct method
-        
-        # Actual implementation: Use mne_bids to download
-        # This might require datalad to be installed and configured
+    for attempt in range(1, retries + 1):
         try:
-            # Try to download using mne-bids
-            # Note: This is a simplified version; real implementation might need more setup
-            from mne_bids import download_dataset
-            download_dataset(dataset_id, output_path=output_path, update=True)
-            logger.info(f"Successfully downloaded {dataset_id} to {output_path}")
-        except ImportError:
-            # If download_dataset is not available, try alternative methods
-            # For now, we'll raise an error indicating the need for datalad or similar
-            raise RuntimeError(
-                "mne-bids download functionality not available. "
-                "Please ensure datalad is installed and configured, "
-                "or use an alternative download method."
-            )
-        
-        return bids_root
-        
-    except (ValueError, TimeoutError) as e:
-        # These will be caught by the retry decorator
-        raise e
+            logger.info(f"Attempt {attempt}/{retries}: Downloading from {url}")
+            response = requests.get(url, stream=True, timeout=30)
+            response.raise_for_status()
+            
+            with open(dest_path, 'wb') as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    if chunk:
+                        f.write(chunk)
+            
+            logger.info(f"Successfully downloaded to {dest_path}")
+            return True
+            
+        except requests.RequestException as e:
+            logger.warning(f"Attempt {attempt} failed: {e}")
+            if attempt < retries:
+                logger.info(f"Retrying in {backoff_time} seconds...")
+                time.sleep(backoff_time)
+                backoff_time *= 2  # Exponential backoff
+            else:
+                logger.error(f"All {retries} attempts failed")
+                raise
+    
+    return False
+
+
+def verify_checksum(file_path: Path, expected_hash: Optional[str]) -> bool:
+    """
+    Verify the SHA256 checksum of a file.
+    
+    Args:
+        file_path: Path to the file to verify
+        expected_hash: Expected SHA256 hash (if None, only checks file is non-empty)
+    
+    Returns:
+        True if verification passes, False otherwise
+    """
+    if not file_path.exists():
+        logger.error(f"File not found: {file_path}")
+        return False
+    
+    if file_path.stat().st_size == 0:
+        logger.error(f"File is empty: {file_path}")
+        return False
+    
+    if expected_hash is None:
+        logger.info("No expected hash provided, skipping checksum verification")
+        return True
+    
+    actual_hash = calculate_sha256(file_path)
+    
+    if actual_hash.lower() == expected_hash.lower():
+        logger.info(f"Checksum verified: {actual_hash}")
+        return True
+    else:
+        logger.error(f"Checksum mismatch! Expected: {expected_hash}, Got: {actual_hash}")
+        return False
+
+
+def extract_tar_gz(tar_path: Path, dest_dir: Path) -> bool:
+    """Extract a tar.gz file to destination directory."""
+    try:
+        shutil.unpack_archive(str(tar_path), str(dest_dir), format='gztar')
+        logger.info(f"Successfully extracted {tar_path} to {dest_dir}")
+        return True
     except Exception as e:
-        logger.error(f"Unexpected error during download: {e}")
-        raise RuntimeError(f"Download failed: {e}")
+        logger.error(f"Failed to extract {tar_path}: {e}")
+        return False
 
 
-if __name__ == "__main__":
-    # Example usage
-    import argparse
+def run_download_pipeline(config: Dict[str, Any], output_dir: Path) -> bool:
+    """
+    Run the complete download pipeline for a dataset.
     
-    parser = argparse.ArgumentParser(description="Download OpenNeuro ds003645 dataset")
-    parser.add_argument(
-        "--output", 
-        type=str, 
-        default="data/raw", 
-        help="Output directory for the dataset"
-    )
-    args = parser.parse_args()
+    Args:
+        config: Configuration dictionary with dataset info
+        output_dir: Directory to save downloaded data
     
-    result_path = fetch_ds003645(args.output)
-    print(f"Dataset downloaded to: {result_path}")
+    Returns:
+        True if pipeline completes successfully, False otherwise
+    """
+    dataset_id = config.get('dataset_id')
+    if not dataset_id:
+        logger.error("Dataset ID not found in configuration")
+        return False
+    
+    # Construct OpenNeuro download URL
+    base_url = f"https://openneuro.org/datasets/{dataset_id}/downloads"
+    
+    # For simplicity, we'll download the main tarball
+    # In a real implementation, this would parse the manifest
+    download_url = f"https://s3.amazonaws.com/openneuro.org/datasets/{dataset_id}/attachments/{dataset_id}.tar.gz"
+    
+    tar_path = output_dir / f"{dataset_id}.tar.gz"
+    
+    if not download_file(download_url, tar_path):
+        return False
+    
+    # Verify checksum if available
+    manifest_path = output_dir / "manifest.json"
+    expected_hash = get_manifest_hash(manifest_path, f"{dataset_id}.tar.gz")
+    
+    if expected_hash and not verify_checksum(tar_path, expected_hash):
+        logger.error("Checksum verification failed")
+        return False
+    
+    # Extract the archive
+    if not extract_tar_gz(tar_path, output_dir):
+        return False
+    
+    # Clean up tar file
+    tar_path.unlink()
+    
+    return True

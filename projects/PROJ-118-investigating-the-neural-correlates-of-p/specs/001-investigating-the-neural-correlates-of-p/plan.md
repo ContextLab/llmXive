@@ -17,7 +17,7 @@ This project implements a CPU-tractable, reproducible pipeline to investigate th
 **Project Type**: Computational Neuroscience / Data Analysis Pipeline  
 **Performance Goals**: Complete full pipeline (download to report) in ≤6 hours; RAM usage <7 GB during peak ICA processing.  
 **Constraints**: No GPU; no large-LLM inference; strict memory limits requiring channel subsampling; CPU-only statistical methods.  
-**Scale/Scope**: Single dataset (ds), ~ participants (pilot scale), -channel montage.
+**Scale/Scope**: Single dataset (ds003645), A small-scale pilot cohort of participants, -channel montage.
 
 > **Dataset Fit Note**: The spec requires the OpenNeuro dataset.. The "Verified datasets" block in the user prompt **does not** contain a verified URL for `ds003645` (it lists `FR-001: NO verified source found`). Per the output contract, we must not invent a URL. The plan explicitly addresses this by using the official OpenNeuro programmatic interface (`mne-bids` or `bidskit` which fetches from the canonical OpenNeuro source) rather than a static HuggingFace parquet link. If the OpenNeuro API is unreachable, the retry logic in `FR-001` applies.
 
@@ -85,16 +85,16 @@ projects/PROJ-118-investigating-the-neural-correlates-of-p/
     *   **Constraint**: Must complete before Phase 1.
 
 2.  **Phase 1: Preprocessing (FR-001 to FR-003)**
-    *   **Task**: Load raw data, subsample to a reduced number of channels (Fz, FCz, Cz, Pz, etc.).
+    *   **Task**: Load raw data, subsample to a reduced set of channels (Fz, FCz, Cz, Pz, etc.).
     *   **Task**: Apply a low-frequency bandpass filter to isolate neural oscillations in the relevant physiological range..
     *   **Task**: Re-reference to common average.
-    *   **Task**: Epoch (ms to ms).
+    *   **Task**: Epoch (ms to several hundred milliseconds).
     *   **Task**: Run ICA, identify blink components (corr > 0.8), remove.
     *   **Output**: Cleaned epochs (`data/processed/epo.fif`).
 
 3.  **Phase 2: Feature Extraction (FR-004)**
     *   **Task**: Compute **Difference Wave** (Deviant ERP - Standard ERP) for each participant.
-    *   **Task**: Identify peak negative amplitude and latency of the **Difference Wave** in the early post-stimulus window at Fz and FCz.
+    *   **Task**: Identify peak negative amplitude and latency of the **Difference Wave** in the -250 ms window at Fz and FCz.
     *   **Task**: Calculate Signal-to-Noise Ratio (SNR) for each peak.
     *   **Task**: **Exclusion Logic**: Exclude participants with >50% rejected trials (artifact contamination). **Retention Logic**: Participants with no clear peak (SNR < threshold or no peak in window) are **retained** with a `peak_detected=false` flag to allow prevalence analysis. They are excluded from the mean calculation of the t-test but counted in `N_total`.
     *   **Output**: `results/metrics.csv` (with `peak_detected`, `amplitude`, `latency`, `snr` fields).
@@ -117,6 +117,6 @@ projects/PROJ-118-investigating-the-neural-correlates-of-p/
 ## Compute Feasibility Plan
 
 *   **Memory**: Subsampling to 32 channels reduces data size significantly. ICA will be run on the subsampled data.
-*   **Runtime**: A large number of permutations on a small sample (N~15) is CPU-tractable. Cluster-based permutation is computationally intensive but feasible on a standard multi-core processing setup. for this sample size and time window.
+*   **Runtime**: A large number of permutations on a small sample (N~small) is CPU-tractable. Cluster-based permutation is computationally intensive but feasible on a limited number of CPU cores for this sample size and time window.
 *   **Libraries**: `mne`, `numpy`, `scipy`, `matplotlib`, `pingouin` are all CPU-native. No GPU code.
-*   **Data Size**: The dataset is of substantial raw size. Fits within 14 GB disk limit.
+*   **Data Size**: The dataset is approximately a few gigabytes in raw size. Fits within 14 GB disk limit.

@@ -9,7 +9,7 @@
 
 ### User Story 1 - Preprocess Auditory Oddball EEG Data (Priority: P1)
 
-The research pipeline MUST automatically download the OpenNeuro dataset, subsample the EEG channels to a standard montage (Fz, FCz, Cz, Pz, etc.) to fit memory constraints, filter the raw EEG signals (low-frequency range to a moderate upper cutoff), re-reference, and epoch the data into "standard" and "deviant" conditions time-locked to stimulus onset (-200 ms to 600 ms), while removing eye-blink artifacts via ICA.
+The research pipeline MUST automatically download the OpenNeuro dataset, subsample the EEG channels to a standard montage (Fz, FCz, Cz, Pz, etc.) to fit memory constraints, filter the raw EEG signals (low-frequency range to a defined upper cutoff), re-reference, and epoch the data into "standard" and "deviant" conditions time-locked to stimulus onset (-200 ms to 600 ms), while removing eye-blink artifacts via ICA.
 
 **Why this priority**: Without clean, correctly labeled epochs, no statistical analysis of MMN components is possible. This is the foundational data preparation step required for all subsequent research.
 
@@ -32,7 +32,7 @@ The system MUST calculate the peak MMN amplitude (minimum voltage) and peak late
 
 **Acceptance Scenarios**:
 
-1. **Given** preprocessed epochs for a single participant, **When** the extraction algorithm runs, **Then** it identifies the most negative voltage peak within the early post-stimulus window at Fz and records its value and time.
+1. **Given** preprocessed epochs for a single participant, **When** the extraction algorithm runs, **Then** it identifies the most negative voltage peak between the early and late phases of the N200 component at Fz and records its value and time.
 2. **Given** a participant with no clear MMN peak in the target window (amplitude < 2.0 µV), **When** the extraction runs, **Then** the system flags this participant as an outlier or records a null value rather than extrapolating a value from outside the window.
 
 ---
@@ -48,7 +48,7 @@ The pipeline MUST execute paired-sample t-tests (or Wilcoxon signed-rank tests i
 **Acceptance Scenarios**:
 
 1. **Given** a dataset of extracted MMN metrics from ≥10 participants, **When** the statistical test runs, **Then** it outputs a p-value corrected for multiple comparisons and a Cohen's d effect size for the amplitude difference.
-2. **Given** the statistical results, **When** the visualization module runs, **Then** it produces a figure showing the grand-average ERP with shaded 95% confidence intervals and a topographic map highlighting the Fz/FCz region.
+2. **Given** the statistical results, **When** the visualization module runs, **Then** it produces a figure showing the grand-average ERP with shaded % confidence intervals and a topographic map highlighting the Fz/FCz region.
 
 ---
 
@@ -63,13 +63,13 @@ The pipeline MUST execute paired-sample t-tests (or Wilcoxon signed-rank tests i
 ### Functional Requirements
 
 - **FR-001**: The system MUST download and extract the OpenNeuro ds003645 dataset using `wget` or `curl`, ensuring the processing pipeline handles data efficiently (See US-1).
-- **FR-001b**: The system MUST subsample the EEG data from a high-density channel configuration to a standard 32-channel montage (including Fz, FCz, Cz, Pz) prior to ICA decomposition to ensure the memory footprint fits within the available RAM limit (See US-1).
-- **FR-002**: The system MUST apply a bandpass filter of 1–30 Hz and re-reference the EEG data to a common average before epoching (See US-1).
+- **FR-001b**: The system MUST subsample the EEG data from a high-density channel configuration to a standard montage. (including Fz, FCz, Cz, Pz) prior to ICA decomposition to ensure the memory footprint fits within the available RAM limit (See US-1).
+- **FR-002**: The system MUST apply a bandpass filter of a low-frequency range. and re-reference the EEG data to a common average before epoching (See US-1).
 - **FR-003**: The system MUST automatically detect and reject eye-blink artifacts using Independent Component Analysis (ICA), removing components that correlate with frontal channels (correlation > 0.8) or exhibit frontal topography (See US-1).
-- **FR-004**: The system MUST calculate the peak negative amplitude and corresponding latency within the 150–250 ms window for each participant at Fz and FCz electrodes (See US-2).
-- **FR-005**: The system MUST perform a paired-sample t-test (or Wilcoxon signed-rank test) between deviant and standard conditions, applying False Discovery Rate (FDR) correction for the multiple comparisons (Amplitude Fz, Amplitude FCz, Latency Fz, Latency FCz) (See US-3).
-- **FR-006**: The system MUST perform a non-parametric permutation test to verify the robustness of the MMN effect against the null hypothesis, as a substitute for linear scaling analysis (See US-3).
-- **FR-007**: The system MUST output grand-average ERP plots with 95% confidence intervals and topographic maps of the MMN difference (deviant minus standard) (See US-3).
+- **FR-004**: The system MUST calculate the peak negative amplitude and corresponding latency within the early post-stimulus window. for each participant at Fz and FCz electrodes (See US-2).
+- **FR-005**: The system MUST perform a paired-sample t-test (or Wilcoxon signed-rank test) between deviant and standard conditions, applying False Discovery Rate (FDR) correction for the 4 comparisons (Amplitude Fz, Amplitude FCz, Latency Fz, Latency FCz) (See US-3).
+- **FR-006**: The system MUST perform a non-parametric permutation test (sufficient permutations) to verify the robustness of the MMN effect against the null hypothesis, as a substitute for linear scaling analysis (See US-3).
+- **FR-007**: The system MUST output grand-average ERP plots with % confidence intervals and topographic maps of the MMN difference (deviant minus standard) (See US-3).
 
 ### Key Entities
 

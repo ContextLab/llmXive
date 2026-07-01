@@ -43,7 +43,11 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per `plan.md` by executing: `mkdir -p projects/PROJ-118-investigating-the-neural-correlates-of-p/data/raw projects/PROJ-118-investigating-the-neural-correlates-of-p/data/processed projects/PROJ-118-investigating-the-neural-correlates-of-p/results projects/PROJ-118-investigating-the-neural-correlates-of-p/results/plots projects/PROJ-118-investigating-the-neural-correlates-of-p/code projects/PROJ-118-investigating-the-neural-correlates-of-p/tests/unit projects/PROJ-118-investigating-the-neural-correlates-of-p/tests/integration projects/PROJ-118-investigating-the-neural-correlates-of-p/specs/contracts`. This task explicitly creates the directories listed in `plan.md` under `Project Structure`.
+- [ ] T001 Create project structure per implementation plan: `data/raw`, `data/processed`, `code`, `tests`, `results` directories in `projects/PROJ-118-investigating-the-neural-correlates-of-p/`
+- [ ] T002 Initialize Python 3.11 project with pinned dependencies in `requirements.txt`: `mne>=1.6.0`, `numpy`, `scipy`, `pandas`, `matplotlib`, `scikit-learn`, `pingouin>=0.5.0`, `pytest`
+- [ ] T003 [P] Configure linting (flake8/black) and formatting tools in `.pre-commit-config.yaml`
+
+---
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
@@ -51,26 +55,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-Examples of foundational tasks (adjust based on your project):
-
-- [ ] T002 Initialize Python 3.11 project: Run `python3 -m venv venv` in the project root. Create `requirements.txt` with a header comment `# Python 3.11` and pinned dependencies: `mne==1.6.0`, `numpy==1.26.0`, `scipy==1.11.4`, `pandas==2.1.4`, `matplotlib==3.8.2`, `scikit-learn==1.3.2`, `pingouin==0.5.3`, `statsmodels==0.14.0`.
-- [ ] T003 [P] Configure linting and formatting: Install tools via `pip install black flake8 isort`. Create `.flake8` with `[flake8] max-line-length = 88` and `pyproject.toml` with `[tool.black] line-length = 88`.
-- [X] T004 Create `code/config.yaml` with pipeline parameters using this schema:
- ```yaml
- filter: {low: 1, high: 30}
- ica: {threshold: 0.8, n_components: 0.99}
- epoch: {tmin: -0.2, tmax: 0.6}
- montage: {channels: ['Fp', 'Fp', 'F7', 'F8', 'F3', 'F4', 'Fz', 'FC3', 'FC4', 'FCz', 'C3', 'C4', 'Cz', 'CP3', 'CP4', 'CPz', 'P3', 'P4', 'Pz', 'PO7', 'PO8', 'O1', 'O2', 'Oz', 'AF7', 'AF8', 'FT7', 'FT8', 'TP7', 'TP8', 'PO3', 'PO4']} # 32 total
- ```
-- [X] T005 [P] Implement `code/download.py`: Create `fetch_ds003645(output_dir: str) -> str` function that fetches the dataset using `mne-bids` with a `@retry(max_attempts=3, backoff=10)` decorator to handle network failures.
-- [ ] T006 [P] Setup directory structure: Ensure `data/raw`, `data/processed`, `results`, `results/plots` exist.
-- [~] T007 Create data schema definitions in `specs/contracts/`:
- - `specs/contracts/dataset.schema.yaml`: `subject_id: string (required)`, `session: string`, `run: string`, `checksum: string`.
- - `specs/contracts/mmn_metrics.schema.yaml`: `subject_id: string (required)`, `amplitude: float`, `latency: float`, `peak_detected: boolean`, `snr: float`, `condition: string`.
- - `specs/contracts/results.schema.yaml`: `metric_name: string (required)`, `value: float`, `unit: string`.
- - `specs/contracts/stats_report.schema.yaml`: `comparison: string (required)`, `p_value: float`, `effect_size: float`, `ci_lower: float`, `ci_upper: float`.
-- [~] T008 Configure environment variable handling and logging infrastructure in `code/__init__.py`.
-- [~] T009 Setup `pytest` configuration for unit and integration tests (`pytest.ini`).
+- [ ] T004 Setup `data/raw` and `data/processed` directory structure with `.gitkeep` files
+- [X] T005 [P] Create `code/config.yaml` defining pipeline parameters (filter: 1-30Hz, epoch: -200 to 600ms, ICA threshold: 0.8)
+- [X] T006 [P] Implement `code/__init__.py` and helper utility functions for logging and path resolution
+- [X] T007 Create base data loading schema and validation logic in `code/data_utils.py`
+- [ ] T008 Configure `pytest` environment in `tests/` with `conftest.py` for fixtures
+- [~] T009 Setup environment variable management for `OPENNEURO_API_KEY` (if needed) and local paths
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -78,30 +68,27 @@ Examples of foundational tasks (adjust based on your project):
 
 ## Phase 3: User Story 1 - Preprocess Auditory Oddball EEG Data (Priority: P1) 🎯 MVP
 
-**Goal**: Automatically download OpenNeuro ds003645, subsample to 32 channels, filter, re-reference, epoch, and remove artifacts via ICA.
+**Goal**: Download an OpenNeuro dataset, subsample to 32 channels, filter, re-reference, epoch, and remove artifacts via ICA.
 
-**Independent Test**: The pipeline can be run in isolation; upon completion, the output directory must contain `.fif` or `.edf` files with epochs labeled "standard" and "deviant", and the number of rejected epochs due to artifacts must be logged.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE: Write these test skeletons FIRST, ensure they FAIL before implementation. Execution depends on implementation.**
-
-- [~] T010 [US1] Write test skeleton for download retry logic in `tests/unit/test_download.py` (expect failure until T005 is done). <!-- FAILED: unspecified -->
-- [~] T011 [US1] Write test skeleton for preprocessing pipeline producing valid epochs in `tests/integration/test_preprocess.py` (expect failure until T013 is done).
+**Independent Test**: Upon completion, `data/processed` contains `.fif` files with epochs labeled "standard" and "deviant", and a log file confirms the number of rejected epochs/components.
 
 ### Implementation for User Story 1
 
-- [~] T012 [US1] Implement `code/download.py`: Fetch ds003645 from OpenNeuro using `mne-bids`. Function signature: `def fetch_ds003645(output_dir: str) -> str`. Handles `ValueError` and `TimeoutError` with retry logic.
-- [~] T013 [US1] Implement `code/preprocess.py`: A single cohesive script that performs the following steps in order:
- 1. Load raw data from `data/raw` using `mne.io.read_raw_fif` into a copy.
- 2. Subsample the COPY to the 32-channel montage defined in `code/config.yaml` (channels: Fp1, Fp2, F7, F8, F3, F4, Fz, FC3, FC4, FCz, C3, C4, Cz, CP3, CP4, CPz, P3, P4, Pz, PO7, PO8, O1, O2, Oz, AF7, AF8, FT7, FT8, TP7, TP8, PO3, PO4) using `raw.pick_channels()`.
- 3. Apply bandpass filter (low-frequency cutoff) using `raw.filter()` and re-reference to common average using `raw.set_eeg_reference('average')`.
- 4. Epoch data (-200 ms to 600 ms) into "standard" and "deviant" conditions using `mne.Epochs()` based on event codes.
- 5. Run ICA using `mne.preprocessing.ICA()`, identify eye-blink components using `ica.find_bads_eog()` with correlation threshold > 0.8 on frontal channels (Fp1, Fp2, F7, F8, Fz, FCz), and remove them via `ica.apply()`.
- 6. Save cleaned epochs to `data/processed/epo.fif`.
-- [~] T017 [US1] Add logging for rejected epochs and removed ICA components to `results/preprocess_log.txt` (FR-003). Format per subject: "Subject {subject_id}: Rejected {count} epochs, Removed {ica_count} ICA components".
-- [~] T014 [US1] [P] Unit test for preprocessing logic (mock data) in `tests/unit/test_preprocess.py`.
-- [ ] T015 [US1] [P] Integration test for preprocessing pipeline in `tests/integration/test_preprocess.py` (now runnable after T013).
+- [~] T012 [US1] Implement `code/download.py` to fetch a designated dataset from OpenNeuro. using `wget` or `curl` (via subprocess) to satisfy FR-001, with retry logic (3 attempts, 10s exponential backoff) and checksum verification against OpenNeuro manifest hashes before writing to `data/raw`. **Note**: Raw data in `data/raw` remains unaltered (full density) per Constitution VI.
+- [~] T015 [US1] Implement channel montage selection in `code/preprocess.py` to define the standard channel montage list (Fz, FCz, Cz, Pz, etc.) required by FR-001b for T016.
+- [~] T016 [US1] Implement subsampling in `code/preprocess.py` to reduce raw data to the selected montage. to fit memory constraints, preserving original raw data in `data/raw`.
+- [~] T017 [US1] Implement filtering in `code/preprocess.py` to apply a bandpass filter (lower cutoff frequency) and re-reference to common average.
+- [~] T019 [US1] Implement ICA component detection in `code/preprocess.py` to identify components correlating >0.8 with frontal channels or showing frontal topography (run on continuous or early epoched data).
+- [~] T020 [US1] Implement ICA component removal in `code/preprocess.py` to remove detected blink components and log the count of removed components.
+- [~] T018 [US1] Implement epoching in `code/preprocess.py` to create epochs covering a pre-stimulus baseline to a post-stimulus window for "standard" and "deviant" conditions (after ICA cleaning), outputting to `data/processed/epo_raw.fif`.
+- [~] T021 [US1] Implement logic to calculate rejection rates from ICA logs, exclude participants with >50% rejected trials (per SC-001) from subsequent statistical analysis, and log their IDs to `data/processed/rejected_participants.log`.
+
+### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+
+> **NOTE: Write these tests AFTER implementation**
+
+- [~] T010 [P] [US1] Unit test `test_download_retry_on_failure` in `tests/unit/test_download.py`: assert that `download.py` retries 3 times on failure and raises error on 4th.
+- [~] T011 [P] [US1] Integration test `test_preprocess_pipeline_sub_01` in `tests/integration/test_preprocess.py`: run pipeline on `sub-01`, assert `data/processed/epo_raw.fif` exists and contains >0 epochs.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -109,25 +96,25 @@ Examples of foundational tasks (adjust based on your project):
 
 ## Phase 4: User Story 2 - Extract MMN Amplitude and Latency Metrics (Priority: P2)
 
-**Goal**: Calculate peak MMN amplitude and latency for each participant from raw conditions (Deviant vs Standard) at Fz and FCz, AND extract difference wave metrics for visualization.
+**Goal**: Calculate peak MMN amplitude and latency for each participant from difference waves (Deviant - Standard) at Fz/FCz.
 
-**Independent Test**: Running the extraction script on a sample of participants must produce a CSV or JSON file where each row represents a participant, containing columns for "deviant_amplitude", "deviant_latency", "standard_amplitude", and "standard_latency", plus flags for outliers.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T018 [US2] Unit test for peak detection logic within 150-250ms window in `tests/unit/test_extract.py`.
-- [ ] T019 [US2] Integration test for metric extraction producing valid CSV in `tests/integration/test_extract.py`.
+**Independent Test**: Running the extraction script produces `results/metrics.csv` with columns for `standard_amplitude`, `standard_latency`, `deviant_amplitude`, `deviant_latency`, `peak_detected`, and `snr`.
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Implement `code/extract.py`: Extract **Raw Condition Peaks** for Deviant and Standard conditions separately at Fz and FCz. Identify the most negative peak in the early post-stimulus window for each condition. **Dependency**: Requires output of T013 (cleaned epochs).
-- [ ] T020b [US2] Implement `code/extract.py`: Compute **Difference Wave** (Deviant ERP - Standard ERP) for each participant using `epochs['deviant'].get_data() - epochs['standard'].get_data()` solely for visualization purposes (not primary statistics).
-- [ ] T021 [US2] Implement `code/extract.py`: Identify peak negative amplitude and corresponding latency in an early-to-mid post-stimulus window at Fz and FCz electrodes from the **Raw Conditions** (FR-004).
-- [ ] T022 [US2] Implement `code/extract.py`: If no clear peak is found (amplitude < 2.0 µV or no peak in window), record `NaN` for amplitude/latency and set `peak_detected=false`. **Do NOT exclude the row**; retain the participant record for N_total counting.
-- [ ] T023 [US2] Implement `code/extract.py`: Read `results/preprocess_log.txt` (generated by T017). Parse lines matching regex `r'Subject (\w+): Rejected (\d+) epochs'`. Exclude participants with >50% rejected trials from statistical analysis (T027), but log their IDs to `results/excluded_subjects.txt`.
-- [ ] T024a [US2] Implement `code/extract.py`: Save raw condition peaks to `results/raw_peaks.csv` with columns: `subject_id`, `condition` (Deviant/Standard), `electrode` (Fz/FCz), `amplitude`, `latency`. This file is required for T027.
-- [ ] T024b [US2] Implement `code/extract.py`: Reshape metrics into a **long-format** dataset `results/metrics_long.csv` with columns: `subject_id`, `condition` (Deviant/Standard), `electrode`, `amplitude`, `latency`. This file is required for T030.
-- [ ] T024c [US2] Implement `code/extract.py`: Output `results/metrics.csv` (wide format) with columns: `subject_id` (string), `deviant_amplitude` (float), `deviant_latency` (float), `standard_amplitude` (float), `standard_latency` (float), `peak_detected` (boolean), `snr` (float). **SNR Formula**: `abs(peak_amplitude) / std_dev(baseline_window)` where baseline is -200ms to 0ms. **Requirement**: This output satisfies US-2 Independent Test.
+- [~] T022 [US2] Implement `code/extract.py` to load `data/processed/epo_raw.fif` and compute average ERPs for "standard" and "deviant" conditions separately for each participant.
+- [~] T025 [US2] Implement difference wave computation in `code/extract.py` to calculate Deviant ERP - Standard ERP for each participant. **Must precede peak search.**
+- [~] T023 [US2] Implement peak search logic in `code/extract.py` to find the most negative voltage in the **150–250 ms** window at Fz and FCz electrodes on the **difference wave** (per FR-004).
+- [ ] T024 [US2] Implement secondary window fallback in `code/extract.py` to search **100–300 ms** if no peak ≥ 2.0 µV is found in the primary window (per SC-005), flagging `peak_detected=false` if still not found.
+- [ ] T026 [US2] Implement SNR calculation in `code/extract.py` for each detected peak and difference wave.
+- [ ] T027 [US2] Implement `results/metrics.csv` generation in `code/extract.py` with columns: `participant_id`, `standard_amplitude`, `standard_latency`, `deviant_amplitude`, `deviant_latency`, `peak_detected` (boolean), `snr`. **Includes logic to retain participants with `peak_detected=false` for prevalence analysis but flag them for exclusion from mean t-test calculations.**
+
+### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
+
+> **NOTE: Write these tests AFTER implementation**
+
+- [ ] T049 [P] [US2] Unit test `test_peak_detection_150_250ms_window` in `tests/unit/test_extract.py`: assert peak detection logic finds minimum in 150-250ms range.
+- [ ] T050 [P] [US2] Integration test `test_metric_extraction_sub_01` in `tests/integration/test_extract.py`: run extraction on `sub-01`, assert `results/metrics.csv` exists with columns `standard_amplitude`, `deviant_amplitude`, `peak_detected`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -135,41 +122,43 @@ Examples of foundational tasks (adjust based on your project):
 
 ## Phase 5: User Story 3 - Perform Statistical Comparison and Visualization (Priority: P3)
 
-**Goal**: Execute paired t-tests with FDR correction on raw conditions (4 comparisons), permutation tests, and generate visualization reports.
+**Goal**: Execute paired t-tests with FDR correction, permutation tests, and generate visualizations (ERP plots, topomaps).
 
-**Independent Test**: The script must generate a final report containing a p-value, a Cohen's d value, and PNG images of the ERP waveforms and topographic maps.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T025 [US3] Unit test for FDR correction logic in `tests/unit/test_stats.py`.
-- [ ] T026 [US3] Unit test for permutation test logic in `tests/unit/test_stats.py`.
-- [ ] T026b [US3] Integration test for visualization generation in `tests/integration/test_viz.py`.
+**Independent Test**: Script generates `results/statistics.json` with p-values, Cohen's d, and `results/plots/` containing PNGs of ERP waveforms and topographic maps.
 
 ### Implementation for User Story 3
 
-- [ ] T027 [US3] Implement `code/stats.py`: Perform paired-sample t-tests on **Raw Condition Vectors** (Deviant vs Standard) for Amplitude and Latency at Fz and FCz using `scipy.stats.ttest_rel`. This results in multiple comparisons: Amplitude Fz, Amplitude FCz, Latency Fz, Latency FCz. **Input**: Use `results/raw_peaks.csv` (T024a).
-- [ ] T028 [US3] Implement `code/stats.py`: Apply False Discovery Rate (FDR) correction for the 4 comparisons using `statsmodels.stats.multitest.multipletests(method='fdr_bh')`.
-- [ ] T029 [US3] Implement `code/stats.py`: Perform non-parametric cluster-based permutation test with a sufficient number of permutations to ensure robust statistical inference. using `mne.stats.permutation_cluster_test` on the time x electrode data matrix. **Adjacency**: Generate adjacency matrix using `mne.channels.make_standard_montage` and `get_adjacency_matrix` for the full 32-channel montage.
-- [ ] T030 [US3] Implement `code/stats.py`: Fit mixed-effects model with `condition` as fixed effect and `subject` as random effect using `statsmodels` with formula `amplitude ~ condition + (1|subject)`. **Input**: Use `results/metrics_long.csv` (T024b). Output model summary to `results/statistics.json`.
-- [ ] T031 [US3] Implement `code/stats.py`: Calculate Cohen's d and confidence intervals for all significant findings using `pingouin.compute_effsize`.
-- [ ] T032 [US3] Implement `code/viz.py`: Generate grand-average ERP plots with confidence intervals using `matplotlib`.
-- [ ] T033 [US3] Implement `code/viz.py`: Generate topographic maps of the MMN difference (Deviant - Standard) at peak latency using `mne.viz.plot_topomap`.
-- [ ] T034 [US3] Output `results/statistics.json` with p-values, effect sizes, permutation results, model summaries, and **prevalence** (count of participants where `peak_detected=true` / total N).
-- [ ] T035 [US3] Output `results/plots/*.png` for ERPs and topomaps.
+- [ ] T029 [US3] Implement logic in `code/stats.py` to filter `results/metrics.csv` based on `peak_detected` flag and exclusion lists from US1/US2 before statistical testing.
+- [ ] T030 [US3] Implement paired-sample t-test in `code/stats.py` on difference scores for Amplitude and Latency at Fz/FCz (Wilcoxon if normality violated).
+- [ ] T031 [US3] Implement FDR correction in `code/stats.py` for the 4 comparisons (Amplitude Fz, Amplitude FCz, Latency Fz, Latency FCz) as per FR-005.
+- [ ] T032 [US3] Implement mixed-effects model in `code/stats.py` with `condition` as fixed effect and `subject` as random effect, explicitly referencing **Plan Phase 3** and Constitution Principle VII.
+- [ ] T033 [US3] Implement non-parametric cluster-based permutation test (10,000 permutations or fewer if runtime > 4h) in `code/stats.py` to validate spatiotemporal extent of MMN as a **substitute for linear scaling analysis** (per FR-006), using clustering threshold p < 0.05 (uncorrected) and channel adjacency based on standard 32-channel montage.
+- [ ] T034 [US3] Calculate Cohen's d effect sizes and confidence intervals for all significant findings in `code/stats.py`.
+- [ ] T035 [US3] Generate `results/statistics.json` in `code/stats.py` containing p-values, effect sizes, cluster results, and mixed-effects summary.
+- [ ] T036 [US3] Implement ERP plot generation in `code/viz.py` to create grand-average ERP plots (Standard, Deviant, Difference) with 95% CI shaded regions.
+- [ ] T037 [US3] Implement topographic map generation in `code/viz.py` of the MMN difference (Deviant - Standard) at peak latency.
+- [ ] T038 [US3] Save all visualizations to `results/plots/` as PNG files (`erp_plot.png`, `topomap.png`).
+- [ ] T039 [US3] Calculate and log the prevalence (proportion of participants with `peak_detected=true`) in `results/statistics.json`.
 
-**Checkpoint**: All user stories should now be independently functional
+### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
+
+> **NOTE: Write these tests AFTER implementation**
+
+- [ ] T051 [P] [US3] Unit test `test_fdr_correction_4_comparisons` in `tests/unit/test_stats.py`: assert FDR correction logic on 4 input p-values.
+- [ ] T052 [P] [US3] Integration test `test_viz_generation` in `tests/integration/test_viz.py`: run viz module, assert `results/plots/erp_plot.png` and `results/plots/topomap.png` exist.
 
 ---
 
-## Phase 6: Polish & Cross-Cutting Concerns
+## Phase N: Polish & Cross-Cutting Concerns
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T036 [P] Documentation updates in `README.md` and `quickstart.md`.
-- [ ] T037 Code cleanup and refactoring for memory efficiency in `code/preprocess.py`.
-- [ ] T038 Performance optimization: Ensure total runtime ≤6 hours on GitHub Actions free-tier (SC-004).
-- [ ] T039 [P] Additional unit tests for edge cases (missing peaks, download failures) in `tests/unit/`.
-- [ ] T040 Run `quickstart.md` validation to ensure end-to-end reproducibility.
+- [ ] T040 [P] Documentation updates in `README.md` and `docs/`
+- [ ] T041 Code cleanup and refactoring in `code/`
+- [ ] T042 Performance optimization: verify ICA and permutation tests run within 6 hours on 2 CPU / 7 GB RAM
+- [ ] T043 [P] Additional unit tests for edge cases (e.g., empty datasets, missing peaks) in `tests/unit/`
+- [ ] T044 Run `quickstart.md` validation to ensure end-to-end reproducibility
+- [ ] T045 Verify all artifacts are hashed and `state.yaml` is updated
 
 ---
 
@@ -187,13 +176,14 @@ Examples of foundational tasks (adjust based on your project):
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Depends on US1 completion (requires preprocessed epochs)
-- **User Story 3 (P3)**: Depends on US2 completion (requires metrics.csv and raw_peaks.csv)
+- **User Story 2 (P2)**: Depends on User Story 1 (requires `data/processed/epo.fif` to extract metrics)
+- **User Story 3 (P3)**: Depends on User Story 2 (requires `results/metrics.csv` for statistical analysis)
 
 ### Within Each User Story
 
-- Tests (if included) MUST be written and FAIL before implementation
-- Models/Config before services/scripts
+- Implementation tasks MUST be completed before Test tasks (Tests depend on artifacts).
+- Models before services
+- Services before endpoints
 - Core implementation before integration
 - Story complete before moving to next priority
 
@@ -202,23 +192,7 @@ Examples of foundational tasks (adjust based on your project):
 - All Setup tasks marked [P] can run in parallel
 - All Foundational tasks marked [P] can run in parallel (within Phase 2)
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Write test skeleton for download retry logic in tests/unit/test_download.py"
-Task: "Write test skeleton for preprocessing pipeline producing valid epochs in tests/integration/test_preprocess.py"
-
-# Launch all models for User Story 1 together:
-Task: "Implement code/download.py"
-Task: "Implement code/preprocess.py (full pipeline)"
-```
 
 ---
 
@@ -229,15 +203,15 @@ Task: "Implement code/preprocess.py (full pipeline)"
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
 3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently (verify epochs and logs)
+4. **STOP and VALIDATE**: Test User Story 1 independently (verify epochs and ICA logs)
 5. Deploy/demo if ready
 
 ### Incremental Delivery
 
 1. Complete Setup + Foundational → Foundation ready
 2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
+3. Add User Story 2 → Test independently → Deploy/Demo (Metrics ready)
+4. Add User Story 3 → Test independently → Deploy/Demo (Full analysis)
 5. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
@@ -246,9 +220,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
- - Developer A: User Story 1 (Preprocessing)
- - Developer B: User Story 2 (Extraction) - *Note: Requires US1 data, so sequential in practice unless mock data used for dev*
- - Developer C: User Story 3 (Stats/Viz) - *Note: Requires US2 data*
+ - Developer A: User Story 1 (Data Pipeline)
+ - Developer B: User Story 2 (Extraction Logic) - *Can start once T021 is done*
+ - Developer C: User Story 3 (Stats/Viz) - *Can start once T027 is done*
 3. Stories complete and integrate independently
 
 ---
@@ -262,6 +236,5 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All processing must run on CPU-only hardware (GitHub Actions free-tier). No GPU, no quantized models, no large LLMs.
-- **Data Integrity**: All results must be derived from real OpenNeuro ds003645 data. No fabrication.
-- **Constitution VI Compliance**: Raw data in `data/raw` is NEVER modified. Subsampling (T013) is performed on a COPY.
+- **Critical Constraint**: All tasks must be CPU-tractable on a standard dual-core configuration with sufficient memory. No GPU, no 8-bit quantization, no large LLMs.
+- **Data Integrity**: Never fabricate data. All metrics must come from real `ds003645` data fetched via `code/download.py`.
