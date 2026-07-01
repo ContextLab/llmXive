@@ -1,0 +1,6 @@
+T008 [P] Create `pytest.ini` and basic test harness: 1
+T013 [P] [US1] Unit test for unit conversion logic in `code/tests/test_data_cleaning.py`: 1
+T014 [P] [US1] Unit test for missing value exclusion logic in `code/tests/test_data_cleaning.py`: 1
+'T015 [US1] Implement data acquisition in `code/data/acquisition.py`:': 1
+'T016 [US1] Implement Materials Project descriptor fetch in `code/data/acquisition.py`:': 1
+'T017 [US1] Implement data cleaning in `code/data/cleaning.py`:': 1
