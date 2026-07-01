@@ -1,7 +1,8 @@
 # Reviewed Preprints — design spec
 
 **Date:** 2026-07-01
-**Status:** DRAFT — awaiting user confirmation on the two ⚑ decisions (§4, §7)
+**Status:** APPROVED (2026-07-01) — user confirmed §4 (prepend title page) + §5
+(credit underlying model) + §7 (dry-run migration); proceeding to implementation.
 **Author:** llmXive maintainer + Claude
 
 ## Problem / motivation
@@ -67,23 +68,29 @@ yields exactly two things:
   fabrication/marker/spec-quality backstops that normally gate advancement are
   NOT applied (nothing advances).
 
-### 4. Theming ⚑ (recommendation — confirm)
-- Reuse `pipeline/pdf_pipeline/restyle.py` + `papers/.style/llmxive.cls`.
-- **Original paper → `original-llmxive.pdf`:** llmXive title page + a provenance
-  banner (source, ingestion, "reviewed not modified"), **body preserved
-  byte-for-byte** (wrapper only). ⚑ RECOMMENDED: wrapper + unchanged body (safest
-  for "never modify"). Alternative if you prefer: re-render the body in llmXive
-  fonts (changes rendering, not text). *Awaiting confirmation.*
+### 4. Theming (CONFIRMED — prepend a title page, never re-theme the body)
+- **Original paper → `original-llmxive.pdf`:** PREPEND a single llmXive-themed
+  title/info page to the ORIGINAL PDF (render the cover with `llmxive.cls`, then
+  concatenate cover + original PDF pages via `pypdf`). The original PDF pages are
+  untouched — no re-theme, no re-render, byte-preserved. The cover page lists:
+  title, authors, abstract; a source/ingestion note (e.g. "Scraped from HuggingFace
+  papers / submitted by <submitter> on <date>"); a brief llmXive explanation + link
+  (https://github.com/ContextLab/llmXive); a link to the peer-review report; a link
+  to the spawned follow-up llmXive project. (We currently re-theme the WHOLE PDF —
+  that path is retired for intake papers; we only prepend.)
 - **Review report → `peer-review-llmxive.pdf`:** the reviewer verdicts + feedback
   + action items laid out as a second `llmxive.cls`-themed PDF ("llmXive Peer
   Review of <title>").
+- Reuse `pipeline/pdf_pipeline/restyle.py` + `papers/.style/llmxive.cls` to render
+  the themed pages; `pypdf` to prepend the cover to the untouched original.
 
 ### 5. Attribution (the credit rule)
 - `web_data._project_authors` gets a preprint-aware branch keyed on
   `preprint.json::is_reviewed_preprint`:
   - credit **only** (1) original authors (`metadata.json::authors`, role
-    `paper_author`), (2) the submitter, (3) **review-generating models**
-    (run-log roles matching `*_reviewer_*`);
+    `paper_author`), (2) the submitter, (3) the **underlying model** that ran the
+    review prompts — the run-log `model_name` (e.g. `claude-sonnet-4.7`), NOT the
+    prompt/agent name — for runs whose agent role matches `*_reviewer_*`;
   - **exclude** implementer / reviser / backfill / planner roles (there are none,
     since we never modify — but the filter makes the invariant explicit and
     protects against regressions).
@@ -108,7 +115,7 @@ yields exactly two things:
 - The follow-up projects appear normally in In Progress → Published, each citing
   its source preprint.
 
-### 7. Migration of the 177 ⚑ (recommendation — confirm)
+### 7. Migration of the 177 (CONFIRMED — dry-run first, spawn all follow-ups)
 - One-time, auditable batch script (`scripts/migrate_reviewed_preprints.py`):
   - **Dry-run first** — emits a report: each intake PROJ, its current stage, what
     modifications would be discarded (backfilled specs/plan/tasks, in_progress
@@ -149,6 +156,11 @@ yields exactly two things:
 - Changing how brainstorm-origin (non-intake) projects are handled.
 - Re-litigating the review panel internals.
 
-## Open decisions (⚑ — need user)
-1. §4: wrapper + byte-identical body (rec) vs full body re-render in llmXive fonts.
-2. §7: spawn all ~177 follow-ups at once (rec, after dry-run approval) vs gate/stage.
+## Resolved decisions (2026-07-01)
+1. §4: PREPEND a single llmXive title/info page; original PDF body untouched (no
+   re-theme). Cover lists title/authors/abstract + source note + llmXive blurb+link
+   + link to reviews + link to follow-up.
+2. §5: review credit → the UNDERLYING model (run-log `model_name`, e.g.
+   `claude-sonnet-4.7`), not the prompt/agent name.
+3. §7: dry-run report first (maintainer eyeballs), then execute all 177 + spawn all
+   follow-ups.
