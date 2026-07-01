@@ -1,0 +1,6 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T012 [P] [US1] Create `load_data.py` in `code/ingestion/` to load CSV/EDF files without GPU (FR-001). **Deliverable**: Script loads data, returns DataFrame. **Exit**: 0 on success, 1 on file not found.** — No `load_data.py` script is present in `code/ingestion/`; the claim provides only a textual description without the required file, so the deliverable (a script that loads CSV/EDF files, returns a DataFrame, and exits with the correct status codes) is missing.
+- **T013 [US1] Implement `validate_data.py` in `code/ingestion/` to check for fixation duration, saccade amplitude, **gaze distribution**, **recall accuracy**, valence label (FR-002). **Deliverable**: Validates column existence, logs missing columns.** — No `code/ingestion/validate_data.py` file or its contents were provided; thus there is no evidence that column‑existence checks and missing‑column logging have been implemented. The required script is missing, so the task is not satisfied.

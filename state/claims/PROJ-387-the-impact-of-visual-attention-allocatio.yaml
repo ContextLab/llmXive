@@ -1,0 +1,95 @@
+- artifact_path: projects/PROJ-387-the-impact-of-visual-attention-allocatio/specs/001-the-impact-of-visual-attention-allocatio/tasks.md
+  attempts: 1
+  canonical: valence annotation validation
+  claim_id: c_e4bdcda4
+  context: 'Add logic to halt processing and log error if dataset is incompatible
+    (missing variables). Deliverable: Exit code 1, log `DATA_BLOCKER: Missing required
+    variables`.
+
+    Implement valence annotation validation for standardized rating scale and storage
+    in `data/valence/` in `code/ingestion/validate_data.py` (Constitution VII).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Valence_annotation_validation
+  kind: entity_fact
+  raw_text: Implement valence annotation validation for standardized rating scale
+    and storage in `data/valence/` in `code/ingestion/validate_data.py` (Constitution
+    VII).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T04:08:50Z'
+- artifact_path: projects/PROJ-387-the-impact-of-visual-attention-allocatio/specs/001-the-impact-of-visual-attention-allocatio/tasks.md
+  attempts: 1
+  canonical: "track loss \u2264 5%"
+  claim_id: c_42c17133
+  context: "Add data quality checks for \u22645% track loss and calibrated eye-tracker\
+    \ status in `code/ingestion/validate_data.py` (Constitution VI). Deliverable:\
+    \ Writes `data/eye-tracking/quality_report.md`. Action: **HALT** (exit 1) if track\
+    \ loss > 5% or uncalibrated."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Add data quality checks for \u22645% track loss and calibrated eye-tracker\
+    \ status in `code/ingestion/validate_data.py` (Constitution VI)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T04:08:50Z'
+- artifact_path: projects/PROJ-387-the-impact-of-visual-attention-allocatio/specs/001-the-impact-of-visual-attention-allocatio/tasks.md
+  attempts: 1
+  canonical: zero available datasets
+  claim_id: c_a85d1adb
+  context: 'Add logging for data ingestion success rate and quality metrics (SC-001).
+    Deliverable: If count of available public datasets == 0, log `DATA_BLOCKER: No
+    verified datasets found` and exit 1. Do NOT calculate percentage. If count > 0,
+    log `Ingestion Success Rate: X%`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If count of available public datasets == 0, log `DATA_BLOCKER: No verified
+    datasets found` and exit 1.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T04:08:57Z'
+- artifact_path: projects/PROJ-387-the-impact-of-visual-attention-allocatio/specs/001-the-impact-of-visual-attention-allocatio/tasks.md
+  attempts: 1
+  canonical: random seed = 42
+  claim_id: c_87a90130
+  context: 'Setup random seed configuration and global logging in `code/utils/config.py`
+    and `code/utils/logger.py`. Deliverable: `config.py` exports `RANDOM_SEED=42`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: config.py exports RANDOM_SEED=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T04:08:59Z'
+- artifact_path: projects/PROJ-387-the-impact-of-visual-attention-allocatio/specs/001-the-impact-of-visual-attention-allocatio/tasks.md
+  attempts: 1
+  canonical: requirements.txt install returns 0
+  claim_id: c_b6510b2e
+  context: 'Initialize Python 3.11 project with `pandas`, `statsmodels`, `scikit-learn`,
+    `matplotlib`, `seaborn`, `pyyaml` dependencies in `requirements.txt`. Verification:
+    `pip install -r requirements.txt` returns 0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pip install -r requirements.txt returns 0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T04:09:05Z'
