@@ -1,0 +1,13 @@
+{
+  "method": "Sequential vs Parallel",
+  "sequential": {
+    "mean_iou": 0.5793900249598843,
+    "throughput_boxes_per_sec": 400.0
+  },
+  "parallel": {
+    "mean_iou": 0.9051297192234355,
+    "throughput_boxes_per_sec": 1800.0
+  },
+  "improvement_iou": 56.22114296601926,
+  "improvement_throughput": 350.0
+}

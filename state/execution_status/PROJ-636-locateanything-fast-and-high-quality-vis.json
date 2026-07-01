@@ -1,0 +1,16 @@
+{
+  "project_id": "PROJ-636-locateanything-fast-and-high-quality-vis",
+  "ok": false,
+  "reason": "5 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/README.md: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026ng in lower error. 2.  **Synthetic Data**: Instead of the 138M s\u2026\u201d; code/README.md: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026138M sample dataset, we generate 200 synthetic images with random bound\u2026\u201d; code/parallel_box_demo.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026is by: # 1. Generating a synthetic dataset of \"ground truth\" boxes.\u2026\u201d",
+  "artifacts": [
+    "data/parallel_results.json",
+    "data/sequential_results.json",
+    "data/summary.json",
+    "figures/iou_comparison.png",
+    "figures/throughput_comparison.png"
+  ],
+  "failures": [],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "updated_at": "2026-07-01T21:36:18Z"
+}

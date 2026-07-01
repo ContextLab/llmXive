@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2305.08378",
+  "judged_at": "2026-07-01T21:37:13Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of processing temperature on the grain size of rolled aluminum alloys materials science",
+  "rationale": "This paper addresses the fundamental mechanism of grain formation (recrystallization nucleation) in aluminum, which is the primary physical process determining final grain size during thermal processing, satisfying criteria (a) for same-mechanism evidence and (e) for studying the canonical empirical population (aluminum alloys). Although it focuses on the nucleation stage rather than the full temperature-grain size correlation, it provides the essential mechanistic baseline required for a litera",
+  "relevant": true
+}

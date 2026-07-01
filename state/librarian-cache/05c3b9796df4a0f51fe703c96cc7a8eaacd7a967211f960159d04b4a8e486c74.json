@@ -1,0 +1,510 @@
+{
+  "fetched_at": "2026-07-01T21:37:14Z",
+  "field": "materials science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "materials science",
+      "idea_body_excerpt": "Predicting the Impact of Processing Temperature on the Grain Size of Rolled Aluminum Alloys",
+      "target_n": 5
+    },
+    "duration_seconds": 54.526,
+    "ended_at": "2026-07-01T21:37:14Z",
+    "expansion": null,
+    "extracted_queries": [
+      "recrystallization kinetics grain growth thermomechanical",
+      "rolling temperature annealing heat treatment aluminum alloy",
+      "Zener-Hollomon parameter hot deformation microstructure",
+      "grain size distribution characterization EBSD microscopy",
+      "dynamic recovery static recrystallization nucleation mechanisms"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2301.02805"
+      ]
+    },
+    "per_query_hit_count": {
+      "Predicting the Impact of Processing Temperature on the Grain Size of Rolled Aluminum Alloys materials science": 3,
+      "Zener-Hollomon parameter hot deformation microstructure": 3,
+      "dynamic recovery static recrystallization nucleation mechanisms": 3,
+      "grain size distribution characterization EBSD microscopy": 3,
+      "recrystallization kinetics grain growth thermomechanical": 3,
+      "rolling temperature annealing heat treatment aluminum alloy": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "1908.05886",
+          "rationale": "The paper investigates the relationship between annealing temperature and grain size in Zinc Oxide (ZnO) thin films, which is a distinct material system and processing method (sol-gel) from the user's specific question regarding rolled Aluminum Alloys. While it shares the general mechanism of temperature affecting grain size, it fails the \"off-domain entirely\" rejection rule because the material class (ceramic oxide vs. metal alloy) and the specific processing context (thin film deposition vs. r",
+          "title": "Influence of annealing temperature on the structural, topographical and optical properties of sol gel derived ZnO thin films"
+        },
+        {
+          "primary_pointer": "2306.17011",
+          "rationale": "The paper focuses on a methodological comparison of characterization techniques (DCT vs. EBSD) for measuring grain size in steel, rather than investigating the causal mechanism or empirical relationship between processing temperature and grain size in aluminum alloys. It fails to satisfy any inclusion criteria as it does not study the user's specific independent variable (temperature), dependent variable (temperature impact), or material domain (aluminum), and is not a foundational method for th",
+          "title": "Registration between DCT and EBSD datasets for multiphase microstructures"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-01T21:36:19Z",
+    "term_input": {
+      "normalized": "predicting the impact of processing temperature on the grain size of rolled aluminum alloys materials science",
+      "raw": "Predicting the Impact of Processing Temperature on the Grain Size of Rolled Aluminum Alloys materials science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the rapidly expanding field of two-dimensional materials, magnetic monolayers show great promise for the future applications in nanoelectronics, data storage, and sensing. The research in intrinsically magnetic two-dimensional materials mainly focuses on synthetic iodide and telluride based compounds, which inherently suffer from the lack of ambient stability. So far, naturally occurring layered magnetic materials have been vastly overlooked. These minerals offer a unique opportunity to explore air-stable complex layered systems with high concentration of local moment bearing ions. We demonstrate magnetic ordering in iron-rich two-dimensional phyllosilicates, focusing on mineral species of minnesotaite, annite, and biotite. These are naturally occurring van der Waals magnetic materials which integrate local moment baring ions of iron via magnesium/aluminium substitution in their octahedral sites. Due to self-inherent capping by silicate/aluminate tetrahedral groups, ultra-thin layers are air-stable. Chemical characterization, quantitative elemental analysis, and iron oxidation states were determined via Raman spectroscopy, wavelength disperse X-ray spectroscopy, X-ray absorption spectroscopy, and X-ray photoelectron spectroscopy. Superconducting quantum interference device magnetometry measurements were performed to examine the magnetic ordering. These layered materials exhibit paramagnetic or superparamagnetic characteristics at room temperature. At low temperature ferrimagnetic or antiferromagnetic ordering occurs, with the critical ordering temperature of 38.7 K for minnesotaite, 36.1 K for annite, and 4.9 K for biotite. In-field magnetic force microscopy on iron bearing phyllosilicates confirmed the paramagnetic response at room temperature, present down to monolayers.",
+          "claimed_authors": [
+            "Muhammad Zubair Khan",
+            "Oleg E. Peil",
+            "Apoorva Sharma",
+            "Oleksandr Selyshchev",
+            "Sergio Valencia",
+            "Florian Kronast",
+            "Maik Zimmermann",
+            "Muhammad Awais Aslam",
+            "Johann G. Raith",
+            "Christian Teichert",
+            "Dietrich R. T. Zahn",
+            "Georgeta Salvan",
+            "Aleksandar Matković",
+            "Chair of Physics",
+            "Department Physics",
+            " Mechanics",
+            "Electrical engineering",
+            "Montanuniversität Leoben",
+            " 8700",
+            " Leoben",
+            " Austria.",
+            "Materials Center Leoben Forschung GmbH",
+            " 8700",
+            " Leoben",
+            " Austria.",
+            "Semiconductor Physics",
+            "Chemnitz University of Technology",
+            " D-09107",
+            " Chemnitz",
+            " Germany.",
+            "Department of Spin",
+            "Topology in Quantum Materials",
+            "Helmholtz-Zentrum Berlin",
+            "Albert-Einstein-Str. 15",
+            " D-12489",
+            " Berlin",
+            " Germany.",
+            "Chair of Resource Mineralogy",
+            "Montanuniversität Leoben",
+            " 8700",
+            " Leoben",
+            " Austria.",
+            "Centre for Materials",
+            " Architecture",
+            "Integration of Nanomembranes",
+            "Chemnitz University of Technology",
+            " 09126",
+            " Chemnitz",
+            " Germany"
+          ],
+          "claimed_title": "Probing magnetic ordering in air stable iron-rich van der Waals minerals",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.06533"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting the Impact of Processing Temperature on the Grain Size of Rolled Alum', candidate_title='Probing magnetic ordering in air stable iron-rich van der Waals minerals')",
+        "failed_at": "2026-07-01T21:36:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Phosphorus (P) is considered to be one of the key elements for life, making it an important element to look for in the abundance analysis of spectra of stellar systems. Yet, there exists only a handful of spectroscopic studies to estimate the P abundances and investigate its trend across a range of metallicities. We have observed full HK band spectra at a spectral resolving power of R=45,000 with IGRINS instrument. Abundances are determined using SME in combination with 1D MARCS stellar atmosphere models. The investigated sample of stars have reliable stellar parameters estimated using optical FIES spectra (GILD; Jönsson et al. in prep.). In order to determine the P abundances from the 16482.92 Angstrom P line, we take special care of the CO($ν=7-4$) blend. We determine the C, N, O abundances from atomic carbon and a range of non-blended molecular lines (CO, CN, OH) which are aplenty in the H band region of K giant stars, assuring an appropriate modelling of the blending CO($ν=7-4$) line. We present [P/Fe] vs [Fe/H] trend for 38 K giant stars in the metallicity range of -1.2 dex $<$ [Fe/H] $<$ 0.4 dex. We find that our trend matches well with the compiled literature sample of prominently dwarf stars and limited number of giant stars. Our trend is found to be higher by $\\sim$ 0.05 - 0.1 dex compared to the theoretical chemical evolution trend in Cescutti et al. 2012 resulting from core collapse supernova (type II) of massive stars with the P yields from Kobayashi et al. (2006) arbitrarily increased by a factor of 2.75. Thus the enhancement factor might need to be $\\sim$ 0.05 - 0.1 dex higher to match our trend. We also find an empirically determined primary behaviour for phosphorus. Furthermore, the phosphorus abundance is found to be elevated by $\\sim$ 0.6 - 0.9 dex in two metal poor s-enriched stars compared to the theoretical chemical evolution trend.",
+          "claimed_authors": [
+            "G. Nandakumar",
+            "N. Ryde",
+            "M. Montelius",
+            "B. Thorsbro",
+            "H. Jönsson",
+            "G. Mace",
+            "Lund Observatory",
+            "Department of Astronomy",
+            "Theoretical Physics",
+            "Lund University",
+            "Box 43",
+            "SE-221 00 Lund",
+            " Sweden",
+            "Kapteyn Astronomical Institute",
+            "University of Groningen",
+            "Landleven 12",
+            "NL-9747 AD Groningen",
+            "the Netherlands",
+            "Department of Astronomy",
+            "School of Science",
+            "The University of Tokyo",
+            "7-3-1 Hongo",
+            " Bunkyo-ku",
+            "Tokyo 113-0033",
+            " Japan",
+            "Materials Science",
+            "Applied Mathematics",
+            "Malmö University",
+            "SE-205 06 Malmö",
+            " Sweden",
+            "Department of Astronomy",
+            "McDonald Observatory",
+            "The University of Texas",
+            " Austin",
+            "TX 78712",
+            " USA"
+          ],
+          "claimed_title": "The Galactic Chemical Evolution of phosphorus observed with IGRINS",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.04940"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Processing Temperature on the Grain Size of Rolled Alum', candidate_title='The Galactic Chemical Evolution of phosphorus observed with IGRINS')",
+        "failed_at": "2026-07-01T21:36:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Proposed as blanket structural materials for fusion power reactors, reduced activation ferritic/martensitic (RAFM) steel undergoes volume expanding and contracting in a cyclic mode under service environment. Particularly, being subjected to significant fluxes of fusion neutrons RAFM steel suffers considerable local volume variations in the radiation damage involved regions. It is necessary to study the structure properties of the alloying elements in contraction and expansion states. In this paper we studied local substitution structures of thirteen alloying elements Al, Co, Cr, Cu, Mn, Mo, Nb, Ni, Si, Ta, Ti, V, and W in bcc Fe and calculated their substitutional energies in the volume variation range from -1.0% to 1.0%. From the structure relaxation results of the first five neighbor shells around the substitutional atom we find the relaxation in each neighbor shell keeps approximately uniform within the volume variation from -1.0% to 1.0% except those of Mn and the relaxation of the fifth neighbor shell is stronger than that of the third and forth, indicating that the lattice distortion due to the substitution atom is easier to spread in <111> direction than in other direction. The relaxation pattern and intensity are related to the size and electron structure of the substitutional atom. For some alloying elements, such as Mo, Nb, Ni, Ta, Ti and W, the substitutional energy decreases noticeably when the volume increases. Further analysis show that the substitutional energy comprises the energy variation originated from local structure relaxation and the chemical potential difference of the substitutional atom between its elemental crystalline state and the solid solution phase in bcc Fe. We think the approximately uniform relaxation of each neighbor shell around a substitutional atom give rise to a linear decrease in the substitutional energy with the increasing volume.",
+          "claimed_authors": [
+            "Wei Liu",
+            "Wei-Lu Wang",
+            "C. S. Liu",
+            "Q. F. Fang",
+            "Qun-Ying Huang",
+            "Yi-Can Wu",
+            "Key Laboratory of Materials Physics",
+            "Institute of Solid State Physics",
+            "Chinese Academy of Sciences",
+            "P. O. Box 1129",
+            "Hefei 230031",
+            "P. R. China",
+            "Institute of Plasma Physics",
+            "Chinese Academy of Sciences",
+            "Hefei 230031",
+            "P. R. China"
+          ],
+          "claimed_title": "Contraction and expansion effects on the substitution-defect properties of thirteen alloying elements in bcc Fe",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1008.3001"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting the Impact of Processing Temperature on the Grain Size of Rolled Alum', candidate_title='Contraction and expansion effects on the substitution-defect properties of thirteen alloying elements in bcc Fe')",
+        "failed_at": "2026-07-01T21:36:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Elevated pressures are encountered in many metal forming processes that can alter microstructural evolution rates. Here we measure rate changes with pressure in recrystallization and grain growth in Fe through adaptation of synchrotron-compatible multi-anvil presses, originally designed for study of the mantle. Recrystallization and grain growth are monitored in situ using high-energy X-ray diffraction. Principal component analysis applied to the diffraction images is used to quantify evolution rates, with increasing pressure significantly slowing the process.",
+          "claimed_authors": [
+            "Darren C. Pagan",
+            "Lukas A. Kissell",
+            "Matthew L. Whitaker"
+          ],
+          "claimed_title": "An In Situ Study of the Role of Pressure on Fe Recrystallization and Grain Growth during Thermomechanical Processing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2307.14478"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting the Impact of Processing Temperature on the Grain Size of Rolled Alum', candidate_title='An In Situ Study of the Role of Pressure on Fe Recrystallization and Grain Growth during Thermomechanical Processing')",
+        "failed_at": "2026-07-01T21:36:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We studied the effect of recrystallization and grain growth on grain boundary self-diffusion in ultrafine grained Ni prepared by high pressure torsion. Two Ni materials of low (99.6 wt. %) and high (99.99 wt. %) purity levels were compared and the kinetic properties of stationary and mobile grain boundaries were examined in detail. Unusual concentration profiles with characteristic 'kinks' were measured for Ni self-diffusion in 99.99 wt. % pure Ni, which is undergoing recrystallization and grain growth during diffusion annealing treatment. This behavior is found to be related to specific kinetic properties of grain boundaries which encompass the recrystallized areas and consume numerous defects of the ultrafine grained matrix during their motion. We proposed a model of self-diffusion in recrystallizing material which takes into account a hierarchy of stationary and moving fast diffusion paths, and satisfactory explains the observed diffusion behavior.",
+          "claimed_authors": [
+            "Daria Prokoshkina",
+            "Leonid Klinger",
+            "Anna Moros",
+            "Gerhard Wilde",
+            "Eugen Rabkin",
+            "Sergiy V. Divinski"
+          ],
+          "claimed_title": "Effect of recrystallization on diffusion in ultrafine grained Ni",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1312.3074"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting the Impact of Processing Temperature on the Grain Size of Rolled Alum', candidate_title='Effect of recrystallization on diffusion in ultrafine grained Ni')",
+        "failed_at": "2026-07-01T21:36:55Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Annealing treatment is an important step of rolling deformation that contributes to microstructural evolution and leads to the significant changes in damping capacity. Damping capacities were analyzed in the parallel to rolling direction at 1 and 10 Hz respectively. It was found that severe plastic deformation at 40 percent reduction has lower damping capacity compared to that of 30 percent and 20 percent reductions respectively. The microstructural results show that the grains of as rolled alloys were changed to almost equiaxed structures after a rolling reduction at 40 percent reduction.",
+          "claimed_authors": [
+            "M. N. Mazlee"
+          ],
+          "claimed_title": "The Effects of Rolling Deformation and Annealing Treatment on Damping Capacity of 1200 Aluminium Alloy",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1704.07362"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting the Impact of Processing Temperature on the Grain Size of Rolled Alum', candidate_title='The Effects of Rolling Deformation and Annealing Treatment on Damping Capacity of 1200 Aluminium Alloy')",
+        "failed_at": "2026-07-01T21:36:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The aim of this paper is to briefly recall heat transfer modes and explain their integration within a software dedicated to building simulation (CODYRUN). Detailed elements of the validation of this software are presented and two applications are finally discussed. One concerns the modeling of a flat plate air collector and the second focuses on the modeling of Trombe solar walls. In each case, detailed modeling of heat transfer allows precise understanding of thermal and energetic behavior of the studied structures. Recent decades have seen a proliferation of tools for building thermal simulation. These applications cover a wide spectrum from very simplified steady state models to dynamic simulation ones, including computational fluid dynamics modules (Clarke, 2001). These tools are widely available in design offices and engineering firms. They are often used for the design of HVAC systems and still subject to detailed research, particularly with respect to the integration of new fields (specific insulation materials, lighting, pollutants transport, etc.). Available from: http://www.intechopen.com/books/evaporation-condensation-and-heat-transfer/heat-transfer-in-buildings-application-to-solar-air-collector-and-trombe-wall-design",
+          "claimed_authors": [
+            "Harry Boyer",
+            "Frédéric Miranville",
+            "Dimitri Bigot",
+            "Stéphane Guichard",
+            "Ingar Idriss",
+            "Aurélien Jean",
+            "Ali Hamada Fakra",
+            "Ted Soubdhan"
+          ],
+          "claimed_title": "Heat transfer in buildings : application to air solar heating and Trombe wall design",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1212.5260"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting the Impact of Processing Temperature on the Grain Size of Rolled Alum', candidate_title='Heat transfer in buildings : application to air solar heating and Trombe wall design')",
+        "failed_at": "2026-07-01T21:36:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Conventional models of matching markets assume that monetary transfers can clear markets by compensating for utility differentials. However, empirical patterns show that such transfers often fail to close structural preference gaps. This paper introduces a market microstructure framework that models matching decisions as a limit order book system with rigid bid ask spreads. Individual preferences are represented by a latent preference state matrix, where the spread between an agent's internal ask price (the unconditional maximum) and the market's best bid (the reachable maximum) creates a structural liquidity constraint. We establish a Threshold Impossibility Theorem showing that linear compensation cannot close these spreads unless it induces a categorical identity shift. A dynamic discrete choice execution model further demonstrates that matches occur only when the market to book ratio crosses a time decaying liquidity threshold, analogous to order execution under inventory pressure. Numerical experiments validate persistent slippage, regional invariance of preference orderings, and high tier zero spread executions. The model provides a unified microstructure explanation for matching failures, compensation inefficiency, and post match regret in illiquid order driven environments.",
+          "claimed_authors": [
+            "Yao Wu"
+          ],
+          "claimed_title": "Limit Order Book Dynamics in Matching Markets: Microstructure, Spread, and Execution Slippage",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.20606"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Processing Temperature on the Grain Size of Rolled Alum', candidate_title='Limit Order Book Dynamics in Matching Markets: Microstructure, Spread, and Execution Slippage')",
+        "failed_at": "2026-07-01T21:36:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Many of the known extrasolar planets are ``hot Jupiters,'' giant planets with orbital periods of just a few days. We use the observed distribution of hot Jupiters to constrain the location of the ``inner edge'' and planet migration theory. If we assume the location of the inner edge is proportional to the Roche limit, then we find that this edge is located near twice the Roche limit, as expected if the planets were circularized from a highly eccentric orbit. If confirmed, this result would place significant limits on migration via slow inspiral. However, if we relax our assumption for the slope of the inner edge, then the current sample of hot Jupiters is not sufficient to provide a precise constraint on both the location and power law index of the inner edge.",
+          "claimed_authors": [
+            "Eric B. Ford",
+            "Frederic A. Rasio"
+          ],
+          "claimed_title": "On the relation between Hot-Jupiters and the Roche Limit",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "astro-ph/0510198"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Processing Temperature on the Grain Size of Rolled Alum', candidate_title='On the relation between Hot-Jupiters and the Roche Limit')",
+        "failed_at": "2026-07-01T21:36:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The use of highly sensitive pixelated direct detectors has dramatically improved the performance of high energy instrumentation such as transmission electron microscopy. Here, we describe a recently developed monolithic active pixel sensor designed for low energy scanning electron microscopy applications. This detector enables electron backscatter diffraction (EBSD) at lower energies and dose than are accessible with existing scintillator-coupled detectors, expanding grain orientation mapping capabilities to materials such as ceramics that are poor electron conductors. The high detector sensitivity allows collection of rich diffraction information - providing dislocation defect contrast that is otherwise not accessible via EBSD. Indeed, even the energy of single electron interaction events can be measured with this detector, which we demonstrate to energy filter diffraction patterns revealing details of how diffraction occurs at low energy.",
+          "claimed_authors": [
+            "Barnaby D. A. Levin",
+            "Kalani Moore",
+            "Nicolò M. Della Ventura",
+            "McLean P. Echlin",
+            "Tresa M. Pollock",
+            "Daniel S. Gianola"
+          ],
+          "claimed_title": "A MAPS Detector for High Resolution Low Dose EBSD",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16839"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting the Impact of Processing Temperature on the Grain Size of Rolled Alum', candidate_title='A MAPS Detector for High Resolution Low Dose EBSD')",
+        "failed_at": "2026-07-01T21:36:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The advent of modern, high-speed electron detectors has made the collection of multidimensional hyperspectral transmission electron microscopy datasets, such as 4D-STEM, a routine. However, many microscopists find such experiments daunting since such datasets' analysis, collection, long-term storage, and networking remain challenging. Some common issues are the large and unwieldy size of the said datasets, often running into several gigabytes, non-standardized data analysis routines, and a lack of clarity about the computing and network resources needed to utilize the electron microscope fully. However, the existing computing and networking bottlenecks introduce significant penalties in each step of these experiments, and thus, real-time analysis-driven automated experimentation for multidimensional TEM is exceptionally challenging. One solution is integrating microscopy with edge computing, where moderately powerful computational hardware performs the preliminary analysis before handing off the heavier computation to HPC systems. In this perspective, we trace the roots of computation in modern electron microscopy, demonstrate deep learning experiments running on an edge system, and discuss the networking requirements for tying together microscopes, edge computers, and HPC systems.",
+          "claimed_authors": [
+            "Debangshu Mukherjee",
+            "Kevin M. Roccapriore",
+            "Anees Al-Najjar",
+            "Ayana Ghosh",
+            "Jacob D. Hinkle",
+            "Andrew R. Lupini",
+            "Rama K. Vasudevan",
+            "Sergei V. Kalinin",
+            "Olga S. Ovchinnikova",
+            "Maxim A. Ziatdinov",
+            "Nageswara S. Rao"
+          ],
+          "claimed_title": "A roadmap for edge computing enabled automated multidimensional transmission electron microscopy",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.02538"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting the Impact of Processing Temperature on the Grain Size of Rolled Alum', candidate_title='A roadmap for edge computing enabled automated multidimensional transmission electron microscopy')",
+        "failed_at": "2026-07-01T21:36:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "One of the main material properties altered by rare earth additions in magnesium alloys is texture, which can be specifically adjusted to enhance ductility and formability. The current study aims at illuminating the texture selection process in a Mg-0.073at%Gd-0.165at%Zn alloy by investigating recrystallization nucleation and early nucleus growth during static recrystallization. An as-cast sample of the investigated alloy was deformed in uniaxial compression at 200°C till 40% strain and was then cut into two halves for subsequent microstructure characterization via ex-situ and quasi in-situ EBSD investigations. In order to gain insights into the evolution of texture during recrystallization, the contributions from dynamic and static recrystallization were initially separated and the origin of the non-basal orientation of recrystallization nuclei was traced back to several potential nucleation sites within the deformed matrix. Considering the significant role of double-twin band recrystallization in determining the recrystallization texture, this type of recrystallization nucleation was further investigated via quasi-in-situ EBSD on a deformed sample, annealed at 400° for different annealing times. With progressive annealing a noticeable trend was observed, in which the basal nuclei gradually diminished and eventually vanished from the annealed microstructure. In contrast, the off-basal nuclei exhibited continuous growth, ultimately becoming the dominant contributors to the recrystallization texture. The study therefore emphasizes the importance of particular nucleation sites that generate favorably oriented off-basal nuclei, which over the course of recrystallization outcompete the neighboring basal-oriented nuclei in terms of growth, and thereby dominate the recrystallization texture.",
+          "claimed_authors": [
+            "F. Mouhib",
+            "B. Gao",
+            "T. Al-Samman"
+          ],
+          "claimed_title": "On the role of selective nucleation and growth to recrystallization texture development in a Mg-Gd-Zn alloy",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2308.08916"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting the Impact of Processing Temperature on the Grain Size of Rolled Alum', candidate_title='On the role of selective nucleation and growth to recrystallization texture development in a Mg-Gd-Zn alloy')",
+        "failed_at": "2026-07-01T21:36:58Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Data contamination has received increasing attention in the era of large language models (LLMs) due to their reliance on vast Internet-derived training corpora. To mitigate the risk of potential data contamination, LLM benchmarking has undergone a transformation from static to dynamic benchmarking. In this work, we conduct an in-depth analysis of existing static to dynamic benchmarking methods aimed at reducing data contamination risks. We first examine methods that enhance static benchmarks and identify their inherent limitations. We then highlight a critical gap-the lack of standardized criteria for evaluating dynamic benchmarks. Based on this observation, we propose a series of optimal design principles for dynamic benchmarking and analyze the limitations of existing dynamic benchmarks. This survey provides a concise yet comprehensive overview of recent advancements in data contamination research, offering valuable insights and a clear guide for future research efforts. We maintain a GitHub repository to continuously collect both static and dynamic benchmarking methods for LLMs. The repository can be found at this link.",
+          "claimed_authors": [
+            "Simin Chen",
+            "Yiming Chen",
+            "Zexin Li",
+            "Yifan Jiang",
+            "Zhongwei Wan",
+            "Yixin He",
+            "Dezhi Ran",
+            "Tianle Gu",
+            "Haizhou Li",
+            "Tao Xie",
+            "Baishakhi Ray"
+          ],
+          "claimed_title": "Recent Advances in Large Langauge Model Benchmarks against Data Contamination: From Static to Dynamic Evaluation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.17521"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting the Impact of Processing Temperature on the Grain Size of Rolled Alum', candidate_title='Recent Advances in Large Langauge Model Benchmarks against Data Contamination: From Static to Dynamic Evaluation')",
+        "failed_at": "2026-07-01T21:36:58Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jian Han",
+            "Spencer L. Thomas",
+            "David J. Srolovitz"
+          ],
+          "title": "Grain-Boundary Kinetics: A Unified Approach",
+          "venue": "arXiv",
+          "year": 2018
+        },
+        "primary_pointer": "1803.03214",
+        "summary": "Grain boundaries (GBs) are central defects for describing polycrystalline materials, and playing major role in a wide-range of physical properties of polycrystals. Control over GB kinetics provides effective means to tailor polycrystal properties through material processing. While many approaches describe different GB kinetic phenomena, this review provides a unifying concept for a wide range of GB kinetic behavior. Our approach rests on a disconnection description of GB kinetics. Disconnections are topological line defects constrained to crystalline interfaces with both step and dislocation character. These characteristics can be completely specified by GB bicrystallography and the macroscopic degrees of freedom of GBs. GB thermal fluctuations, GB migration and the ability of GBs to absorb/emit other defects from/into the delimiting grains can be modeled via the nucleation, propagation and reaction of disconnections in the GB. We review the fundamentals of bicrystallography and its relationship to disconnections and ultimately to the kinetic behavior of GBs. We then relate disconnection dynamics and GB kinetics to microstructural evolution. While this review of the GB kinetics literature is not exhaustive, we review much of the foundational literature and draw comparisons from a wide swath of the extant experimental, simulation, and theoretical GB kinetics literature.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1803.03214",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-01T21:36:55Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Kaveh Edalati",
+            "Qing Wang",
+            "Nariman A. Enikeev",
+            "Laura-Jean Peters",
+            "Michael J. Zehetbauer",
+            "Erhard Schafler"
+          ],
+          "title": "Significance of Strain Rate in Severe Plastic Deformation on Steady-State Microstructure and Strength",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2301.02805",
+        "summary": "The microstructure and mechanical properties of materials saturate to steady states after severe plastic deformation (SPD). Despite the well-known effect of temperature on the steady-state microstructure, there is no general agreement on the significance of strain rate and the applicability of the Zener-Hollomon parameter in this regard. In this study, several pure metals (aluminum, copper, titanium, and iron) and a Cu-30Zn (wt%) brass alloy have been processed by a high-speed high-pressure torsion (HPT) equipment with controllable rotation speeds in the range of 0.06 to 60 rpm. It is found that crystallite/grain size, dislocation density, microhardness and shear stress at the steady state are reasonably rate-independent for the von Mises strain rates in the range of 0.004 to 20 s-1. Because both rates of grain refinement and of dynamic recrystallization are proportional to the strain rate, it is suggested that their balance, which determines the steady state, is rate-independent.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2301.02805",
+          "http_status": 200,
+          "pdf_sample_score": 0.2428,
+          "query_relevance_score": 0.5556,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-01T21:36:56Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Adam Morawiec"
+          ],
+          "title": "On recrystallization nucleation in pure aluminum",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2305.08378",
+        "summary": "Static recrystallization is an important aspect of metal processing. The initial stage of recrystallization - nucleation of new grains - determines its later stages. The accepted mechanisms of recrystallization nucleation are based on the assumption that embryos with orientations of the nuclei preexist in the deformed matrix. However, this standard picture seems to be incomplete. There are indications that, in some cases, the deformed matrix has no orientations observed in recrystallized material. Therefore a mechanism of early stage recrystallization without preexisting embryos is considered. Since the recrystallization growth shows strong orientation selection, and the recrystallization front is believed to migrate through collective shuffling of atoms, it is postulated that the shuffling mechanism responsible for oriented growth of a recrystallizing grain extends to the very beginning of the grain's existence, i.e., that a new orientation can be created via rearrangement of atoms in a strained region. The postulate explains the formation of new orientations, and it has the potential to significantly change the understanding of the early phase of recrystallization.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2305.08378",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-01T21:36:57Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting the impact of processing temperature on the grain size of rolled aluminum alloys materials science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}
