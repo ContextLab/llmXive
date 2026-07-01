@@ -1,5 +1,8 @@
-6|0929bcb6 claim en http hutter org prize wiki wikipedia:
-  quote: 'P910: Q2944534'
-  source_id: Q4167836
-  url: https://www.wikidata.org/wiki/Q4167836
-  value: Q2944534
+'|checksum format sha tracking':
+  quote: A checksum of a portion of the compressed file is computed (SHA-1 of the
+    file contents, or SHA-1 of the first 1024 bytes of the file, or SHA-256 of the
+    first 1024 bytes of the file) and stored, so password correctness can be verified
+    when decrypting.
+  source_id: OpenDocument technical specification
+  url: https://en.wikipedia.org/wiki/OpenDocument_technical_specification
+  value: '1024'

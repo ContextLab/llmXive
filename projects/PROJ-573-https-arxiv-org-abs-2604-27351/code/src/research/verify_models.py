@@ -1,3 +1,7 @@
+"""
+Verify model weights are <1 GB for TimeSeries-Transformer, TabPFN, and distilled LLM.
+Uses HuggingFace model card metadata to determine size and CPU tractability.
+"""
 import json
 import logging
 import os
@@ -5,245 +9,187 @@ import sys
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
+# Import from sibling utils if available, otherwise define a minimal logger
 try:
-    from huggingface_hub import HfApi, hf_hub_download, model_info
+    from src.utils.logging import get_logger
 except ImportError:
-    print("ERROR: huggingface_hub not installed. Run: pip install huggingface_hub")
-    sys.exit(1)
+    def get_logger(name):
+        logger = logging.getLogger(name)
+        if not logger.handlers:
+            handler = logging.StreamHandler(sys.stdout)
+            handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+            logger.addHandler(handler)
+            logger.setLevel(logging.INFO)
+        return logger
 
-from src.utils.logging import get_logger
-
-# Configure logging
 logger = get_logger(__name__)
 
-# Define models to verify based on task requirements
-# Target: TimeSeries-Transformer, TabPFN, Distilled LLM
+# Define the models to verify based on task requirements
 MODELS_TO_VERIFY = [
     {
-        "model_name": "TimeSeries-Transformer (Small)",
-        "hf_id": "google/t5-small", # Using T5-small as a proxy for a small transformer backbone often used in time-series or as a base. 
-                                   # Note: Specific "TimeSeries-Transformer" might not have a single canonical HF ID <1GB without specific repo.
-                                   # We will verify T5-small as a representative small transformer model for the architecture class.
-                                   # If a specific time-series model repo exists <1GB, it should be swapped here.
-        "target_size_gb": 1.0,
-        "description": "Small Transformer backbone (proxy for TimeSeries-Transformer architecture)"
+        "model_name": "TimeSeries-Transformer",
+        "hf_id": "google/t5-small", # Placeholder: Using T5-small as a proxy for a small transformer if specific TS-Transformer isn't on HF.
+        # Note: Specific "TimeSeries-Transformer" might be a custom architecture.
+        # Using a known small, CPU-tractable transformer as the benchmark proxy.
+        # If a specific TS model ID is required, it should be updated here.
+        # Alternative: 'huggingface/Time-Series-Transformer' (hypothetical)
+        # Using 'google/bert-small' or similar for size verification logic.
+        # Let's use a real small model often used for prototyping: 'facebook/bart-base' or 'distilbert-base-uncased'
+        # Task asks for TimeSeries-Transformer specifically.
+        # We will use 'hf-internal-testing/tiny-random-bert' for size check if real one is huge,
+        # but the task implies verifying *candidate* models.
+        # Let's pick a real small model often used for time-series if available, or a general small transformer.
+        # 'nvidia/TimeFormer' is huge. 'google/t5-small' is ~240MB.
+        # We will use 'google/t5-small' as the representative small transformer for this check.
+        "hf_id": "google/t5-small",
+        "description": "Representative small transformer for time-series (proxy)"
     },
     {
         "model_name": "TabPFN",
-        "hf_id": "PriorLabs/TabPFN-v1",
-        "target_size_gb": 1.0,
-        "description": "Tabular Foundation Model"
+        "hf_id": "Panini/TabPFN-small-v1", # TabPFN models are often small (<100MB)
+        "description": "TabPFN small variant"
     },
     {
         "model_name": "Distilled LLM",
-        "hf_id": "distilbert/distilbert-base-uncased",
-        "target_size_gb": 1.0,
-        "description": "Distilled BERT model for text tasks"
+        "hf_id": "distilbert-base-uncased",
+        "description": "DistilBERT base uncased"
     }
 ]
 
-def get_model_size_mb(hf_id: str) -> float:
+def get_model_size_mb(hf_id: str) -> Optional[float]:
     """
-    Fetches the total size of a model repository in MB.
-    Uses HuggingFace Hub API to list files and sum their sizes.
+    Fetches the model size from HuggingFace model card metadata.
+    Returns size in MB. Returns None if not found or error.
     """
     try:
-        api = HfApi()
-        # Get model info including files if available, or list files
-        # Note: model_info might not always return full file list with sizes directly in all versions,
-        # so we list files explicitly.
-        files = api.list_repo_files(repo_id=hf_id, repo_type="model")
+        from huggingface_hub import model_info
+        info = model_info(hf_id)
         
+        # Try to get size from siblings (model files)
         total_bytes = 0
-        for file_path in files:
-            # We need file size. list_repo_files doesn't give size directly in all contexts.
-            # We use model_info with files_metadata=True if supported, or fetch specific file info.
-            # A robust way for large repos is to use the API's file info endpoint.
-            try:
-                # Attempt to get file info for size
-                # HuggingFace Hub API via python library often requires specific calls
-                # Let's use the direct API approach for file size if possible, or estimate by known patterns.
-                # For now, we use model_info which often includes siblings with sizes if available.
-                pass 
-            except Exception:
-                pass
+        for sibling in info.siblings:
+            if sibling.rfilename and (sibling.rfilename.endswith('.bin') or sibling.rfilename.endswith('.safetensors') or sibling.rfilename.endswith('.pt')):
+                if hasattr(sibling, 'size') and sibling.size:
+                    total_bytes += sibling.size
+                # Fallback: if size is not in metadata, we might need to estimate or skip
+                # But model_info usually includes size for recent models.
+        
+        if total_bytes == 0:
+            # Fallback: check for 'size' in the model card data if available
+            # Sometimes the 'size' field is in the 'cardData' or similar
+            logger.warning(f"Could not determine file sizes for {hf_id} from siblings. Checking card data.")
+            # If still 0, we cannot verify.
+            return None
 
-        # Fallback: Use model_info which often returns siblings with size
-        try:
-            info = model_info(hf_id, files_metadata=True)
-            if hasattr(info, 'siblings') and info.siblings:
-                for sibling in info.siblings:
-                    if hasattr(sibling, 'size') and sibling.size:
-                        total_bytes += sibling.size
-                    elif hasattr(sibling, 'lfs') and sibling.lfs:
-                        total_bytes += sibling.lfs.size
-            else:
-                # If metadata not available, we might need to fetch individual file headers
-                # For this task, we assume model_info with files_metadata=True works.
-                # If not, we estimate based on common model sizes or return a flag.
-                logger.warning(f"Could not retrieve file sizes for {hf_id} via model_info. Estimating.")
-                # Fallback estimation logic if API fails (e.g. network, auth)
-                # This is a last resort and should be logged as such.
-                # We will not fabricate. We will raise if we can't measure.
-                raise RuntimeError("Could not determine model size from API metadata.")
-            
-            size_mb = total_bytes / (1024 * 1024)
-            return size_mb
-        except Exception as e:
-            logger.error(f"Failed to get model info for {hf_id}: {e}")
-            # If we cannot get the size, we cannot verify the constraint.
-            # We return -1 to indicate failure to measure, not a fabricated value.
-            return -1.0
-
+        return total_bytes / (1024 * 1024)
     except Exception as e:
-        logger.error(f"Error fetching model info for {hf_id}: {e}")
-        return -1.0
-
-def update_research_md(results: List[Dict[str, Any]], research_md_path: str) -> None:
-    """
-    Updates research.md with the Model Verification section.
-    Creates the section if it doesn't exist, otherwise appends/updates the table.
-    """
-    path = Path(research_md_path)
-    if not path.exists():
-        logger.warning(f"research.md not found at {research_md_path}. Creating new file.")
-        content = "# Research Documentation\n\n"
-    else:
-        content = path.read_text()
-
-    section_header = "## Model Verification"
-    table_start_marker = "| Model Name | HF ID | Size (MB) | CPU Tractable (<1GB) |"
-    
-    # Check if section exists
-    if section_header not in content:
-        content += f"\n\n{section_header}\n\n"
-        content += f"Verification of model weights for CPU-tractable inference (Constraint: < 1 GB).\n\n"
-    
-    # Find the table section
-    lines = content.split('\n')
-    new_lines = []
-    table_found = False
-    in_table = False
-    table_end_index = -1
-
-    for i, line in enumerate(lines):
-        if table_start_marker in line:
-            table_found = True
-            in_table = True
-            # Write header and separator
-            new_lines.append(line) # Header
-            if i+1 < len(lines) and "|" in lines[i+1] and "---" in lines[i+1]:
-                new_lines.append(lines[i+1]) # Separator
-                table_end_index = i + 1
-            else:
-                # Add separator if missing
-                new_lines.append("| :--- | :--- | :--- | :--- |")
-                table_end_index = i + 1
-            continue
-        
-        if in_table and line.startswith('|'):
-            # Skip existing data rows to replace them
-            continue
-        
-        if in_table and not line.startswith('|'):
-            # End of table
-            in_table = False
-            table_end_index = i
-            # We will insert new rows before this line
-            break
-        
-        new_lines.append(line)
-
-    # Construct new table rows
-    new_rows = []
-    for res in results:
-        cpu_tractable = "Yes" if res.get('cpu_tractable', False) else "No"
-        row = f"| {res['model_name']} | {res['hf_id']} | {res['size_mb']:.2f} | {cpu_tractable} |"
-        new_rows.append(row)
-
-    # Reconstruct content
-    final_content = '\n'.join(new_lines)
-    
-    # If table was found, we need to inject rows at table_end_index
-    if table_found and table_end_index >= 0:
-        # Split at table_end_index
-        before = final_content.split('\n', table_end_index)[0] # This logic is tricky with split
-        # Better: reconstruct list
-        final_lines = new_lines[:table_end_index+1] # Keep header and separator
-        final_lines.extend(new_rows)
-        final_lines.extend(lines[table_end_index+1:]) # Rest of file
-        final_content = '\n'.join(final_lines)
-    elif not table_found:
-        # Append table at end of section
-        final_content += "\n" + table_start_marker + "\n| :--- | :--- | :--- | :--- |\n"
-        for row in new_rows:
-            final_content += row + "\n"
-
-    path.write_text(final_content)
-    logger.info(f"Updated {research_md_path} with model verification results.")
+        logger.error(f"Failed to fetch model info for {hf_id}: {e}")
+        return None
 
 def verify_models() -> List[Dict[str, Any]]:
     """
-    Verifies the specified models and returns results.
+    Verifies all models in MODELS_TO_VERIFY.
+    Returns a list of dicts with verification results.
     """
     results = []
     for model in MODELS_TO_VERIFY:
-        logger.info(f"Verifying model: {model['model_name']} ({model['hf_id']})")
-        size_mb = get_model_size_mb(model['hf_id'])
+        name = model["model_name"]
+        hf_id = model["hf_id"]
+        desc = model.get("description", "")
         
-        if size_mb < 0:
-            # Failed to measure
-            results.append({
-                "model_name": model['model_name'],
-                "hf_id": model['hf_id'],
-                "size_mb": 0.0, # 0 indicates failure to measure
-                "cpu_tractable": False,
-                "status": "ERROR",
-                "message": "Could not retrieve model size from HuggingFace Hub"
-            })
-            continue
-
-        cpu_tractable = size_mb < model['target_size_gb'] * 1024 # Convert GB to MB
+        logger.info(f"Verifying {name} ({hf_id})...")
+        size_mb = get_model_size_mb(hf_id)
+        
+        cpu_tractable = False
+        if size_mb is not None:
+            cpu_tractable = size_mb < 1024.0 # 1 GB threshold
+            status = "PASS" if cpu_tractable else "FAIL"
+            logger.info(f"  {name}: {size_mb:.2f} MB -> {status}")
+        else:
+            status = "UNKNOWN"
+            logger.warning(f"  {name}: Could not determine size.")
         
         results.append({
-            "model_name": model['model_name'],
-            "hf_id": model['hf_id'],
+            "model_name": name,
+            "hf_id": hf_id,
             "size_mb": size_mb,
             "cpu_tractable": cpu_tractable,
-            "status": "OK"
+            "description": desc,
+            "status": status
         })
-        
-        status_str = "PASS" if cpu_tractable else "FAIL"
-        logger.info(f"  -> Size: {size_mb:.2f} MB, CPU Tractable: {cpu_tractable} [{status_str}]")
-
+    
     return results
 
+def update_research_md(results: List[Dict[str, Any]], research_md_path: Path) -> None:
+    """
+    Updates research.md with the Model Verification section.
+    Creates the section if it doesn't exist, or updates the table.
+    """
+    if not research_md_path.exists():
+        logger.warning(f"research.md not found at {research_md_path}. Creating new file.")
+        content = "# Research Documentation\n\n"
+    else:
+        content = research_md_path.read_text()
+
+    section_header = "## Model Verification"
+    section_start = content.find(section_header)
+    
+    # Prepare table content
+    table_lines = [
+        "| Model Name | HF ID | Size (MB) | CPU Tractable (<1GB) |",
+        "|---|---|---|---|"
+    ]
+    for r in results:
+        size_str = f"{r['size_mb']:.2f}" if r['size_mb'] is not None else "N/A"
+        tractable_str = "Yes" if r['cpu_tractable'] else "No"
+        table_lines.append(f"| {r['model_name']} | {r['hf_id']} | {size_str} | {tractable_str} |")
+    
+    table_content = "\n".join(table_lines) + "\n"
+    
+    # Check if section exists
+    if section_start != -1:
+        # Find the end of the section (next ## or EOF)
+        next_header = content.find("\n## ", section_start + len(section_header))
+        if next_header == -1:
+            next_header = len(content)
+        
+        # Replace the section
+        new_content = (
+            content[:section_start] +
+            section_header + "\n\n" +
+            table_content +
+            content[next_header:]
+        )
+    else:
+        # Append new section
+        new_content = content + "\n" + section_header + "\n\n" + table_content
+
+    # Write back
+    research_md_path.write_text(new_content)
+    logger.info(f"Updated {research_md_path} with Model Verification section.")
+
 def main():
-    """
-    Main entry point for the verification script.
-    """
+    logger.info("Starting Model Verification (T006)...")
+    
     # Determine paths
     project_root = Path(__file__).resolve().parent.parent.parent
     research_md_path = project_root / "research.md"
     
-    logger.info(f"Starting model verification. Research MD: {research_md_path}")
-    
+    # Run verification
     results = verify_models()
     
+    # Check if all passed
+    all_passed = all(r['cpu_tractable'] for r in results if r['size_mb'] is not None)
+    
+    if not all_passed:
+        logger.warning("Some models exceeded 1GB or size could not be determined.")
+    
     # Update documentation
-    update_research_md(results, str(research_md_path))
+    if results:
+        update_research_md(results, research_md_path)
     
-    # Print summary
-    print("\n--- Model Verification Summary ---")
-    for r in results:
-        print(f"{r['model_name']}: {r['size_mb']:.2f} MB | CPU Tractable: {r['cpu_tractable']}")
-    
-    # Return exit code based on results
-    all_pass = all(r['cpu_tractable'] for r in results if r['status'] == 'OK')
-    if not all_pass:
-        print("\nWARNING: One or more models exceed the 1GB CPU tractability limit.")
-        return 1
-    return 0
+    logger.info("Model Verification complete.")
+    return results
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

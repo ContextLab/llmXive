@@ -1,6 +1,6 @@
 """
 Project initialization script for Python 3.11 environment setup.
-Implements T008: Initialize Python 3.11 project.
+Implements T008: Initialize Python 3.11 project with virtual environment and dependencies.
 """
 import os
 import sys
@@ -8,82 +8,119 @@ import subprocess
 import venv
 from pathlib import Path
 
+# Ensure we are running on Python 3.11
+REQUIRED_PYTHON_VERSION = (3, 11)
 
 def check_python_version():
-    """Verify Python 3.11+ is available."""
-    if sys.version_info < (3, 11):
-        print(f"ERROR: Python 3.11+ required. Found {sys.version}")
+    """Check if the current Python version meets requirements."""
+    current_version = sys.version_info[:2]
+    if current_version < REQUIRED_PYTHON_VERSION:
+        print(f"ERROR: Python {REQUIRED_PYTHON_VERSION[0]}.{REQUIRED_PYTHON_VERSION[1]}+ is required.")
+        print(f"       Current version: {sys.version}")
         sys.exit(1)
-    print(f"✓ Python version: {sys.version}")
-
+    print(f"✓ Python version check passed: {sys.version}")
+    return True
 
 def create_venv(venv_path="code/.venv"):
-    """Create virtual environment if it doesn't exist."""
-    venv_dir = Path(venv_path)
-    if venv_dir.exists():
-        print(f"✓ Virtual environment already exists at {venv_path}")
-        return venv_dir
+    """Create a virtual environment at the specified path."""
+    venv_path = Path(venv_path)
+    if venv_path.exists():
+        print(f"⚠ Virtual environment already exists at {venv_path}. Skipping creation.")
+        return venv_path
 
     print(f"Creating virtual environment at {venv_path}...")
-    venv.create(venv_dir, with_pip=True)
-    print(f"✓ Virtual environment created")
-    return venv_dir
+    venv.create(venv_path, with_pip=True)
+    print("✓ Virtual environment created successfully.")
+    return venv_path
 
+def install_requirements(venv_path="code/.venv", requirements_file="requirements.txt"):
+    """Install dependencies from requirements.txt into the virtual environment."""
+    venv_path = Path(venv_path)
+    requirements_file = Path(requirements_file)
 
-def install_requirements(venv_path="code/.venv"):
-    """Install dependencies from requirements.txt."""
-    venv_dir = Path(venv_path)
-    pip_path = venv_dir / "bin" / "pip" if os.name != "nt" else venv_dir / "Scripts" / "pip.exe"
+    if not requirements_file.exists():
+        print(f"⚠ requirements.txt not found at {requirements_file}. Skipping installation.")
+        return True
+
+    # Determine the pip path based on OS
+    if sys.platform == "win32":
+        pip_path = venv_path / "Scripts" / "pip.exe"
+    else:
+        pip_path = venv_path / "bin" / "pip"
 
     if not pip_path.exists():
-        print(f"ERROR: pip not found at {pip_path}")
-        sys.exit(1)
+        print(f"ERROR: pip not found at {pip_path}. Virtual environment may be corrupted.")
+        return False
 
-    requirements_file = Path("code/requirements.txt")
-    if not requirements_file.exists():
-        print(f"WARNING: requirements.txt not found at {requirements_file}")
-        return
+    print(f"Installing dependencies from {requirements_file}...")
+    try:
+        subprocess.check_call([str(pip_path), "install", "--upgrade", "pip"])
+        subprocess.check_call([str(pip_path), "install", "-r", str(requirements_file)])
+        print("✓ Dependencies installed successfully.")
+        return True
+    except subprocess.CalledProcessError as e:
+        print(f"ERROR: Failed to install dependencies: {e}")
+        return False
 
-    print("Installing dependencies...")
-    subprocess.run([str(pip_path), "install", "-r", str(requirements_file)], check=True)
-    print("✓ Dependencies installed")
+def verify_installation(venv_path="code/.venv"):
+    """Verify that the virtual environment is active and pip is available."""
+    venv_path = Path(venv_path)
+    
+    # Check if the venv structure exists
+    if not (venv_path / "pyvenv.cfg").exists():
+        print(f"ERROR: {venv_path} does not appear to be a valid virtual environment.")
+        return False
 
+    # Check pip
+    if sys.platform == "win32":
+        pip_path = venv_path / "Scripts" / "pip.exe"
+    else:
+        pip_path = venv_path / "bin" / "pip"
 
-def verify_installation():
-    """Verify critical packages are importable."""
-    critical_packages = ["numpy", "pandas", "yaml", "scipy"]
+    if not pip_path.exists():
+        print(f"ERROR: pip executable not found at {pip_path}")
+        return False
 
-    for pkg in critical_packages:
-        try:
-            __import__(pkg)
-            print(f"✓ {pkg} available")
-        except ImportError as e:
-            print(f"✗ {pkg} import failed: {e}")
-            sys.exit(1)
-
+    # Run pip list to verify it works
+    try:
+        result = subprocess.run([str(pip_path), "list"], capture_output=True, text=True, timeout=30)
+        if result.returncode == 0:
+            print("✓ Virtual environment verification passed.")
+            return True
+        else:
+            print(f"ERROR: pip list failed: {result.stderr}")
+            return False
+    except subprocess.TimeoutExpired:
+        print("ERROR: pip list timed out.")
+        return False
 
 def main():
     """Main entry point for project setup."""
-    print("=" * 60)
-    print("Heterogeneous Benchmark - Project Initialization")
-    print("=" * 60)
+    print("=== llmXive Project Initialization (T008) ===")
+    
+    # 1. Check Python version
+    if not check_python_version():
+        sys.exit(1)
 
-    check_python_version()
+    # 2. Create virtual environment
+    venv_path = create_venv()
 
-    # Create virtual environment
-    venv_dir = create_venv()
+    # 3. Install requirements
+    if not install_requirements(venv_path):
+        print("ERROR: Dependency installation failed. Please check requirements.txt.")
+        sys.exit(1)
 
-    # Install requirements
-    install_requirements()
+    # 4. Verify installation
+    if not verify_installation(venv_path):
+        print("ERROR: Virtual environment verification failed.")
+        sys.exit(1)
 
-    # Verify installation
-    verify_installation()
-
-    print("\n" + "=" * 60)
-    print("✓ Project initialization complete!")
-    print(f"Activate environment: source {venv_dir}/bin/activate")
-    print("=" * 60)
-
+    print("\n=== Setup Complete ===")
+    print(f"Activate the environment with:")
+    if sys.platform == "win32":
+        print(f"  {venv_path}\\Scripts\\activate")
+    else:
+        print(f"  source {venv_path}/bin/activate")
 
 if __name__ == "__main__":
     main()
