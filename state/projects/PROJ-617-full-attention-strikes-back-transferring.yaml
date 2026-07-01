@@ -1,7 +1,7 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-23T08:43:38.623279Z'
-current_stage: brainstormed
+current_stage: paper_ingested
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
@@ -11,9 +11,9 @@ last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: specs/auto-revisions/PROJ-617-full-attention-strikes-back-transferring/round-1
+revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'Full Attention Strikes Back: Transferring Full Attention into Sparse within
   Hundred Training Steps'
-updated_at: '2026-06-29T20:25:45.662193Z'
+updated_at: '2026-07-01T19:23:55.054763Z'

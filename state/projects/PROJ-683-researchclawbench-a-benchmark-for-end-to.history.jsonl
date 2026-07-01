@@ -1,3 +1,4 @@
 {"at": "2026-06-09T09:10:29.475045+00:00", "from_stage": "brainstormed", "last_run_id": null, "to_stage": "paper_review"}
 {"at": "2026-06-30T15:54:03.369763+00:00", "from_stage": "paper_review", "last_run_id": "3ed0c637-900d-41f5-899e-97bd12e866be", "to_stage": "paper_ingested"}
 {"at": "2026-06-30T22:19:47.764960+00:00", "from_stage": "paper_ingested", "last_run_id": "3ed0c637-900d-41f5-899e-97bd12e866be", "to_stage": "in_progress"}
+{"at": "2026-07-01T19:23:55.220119+00:00", "from_stage": "in_progress", "last_run_id": "b1f44766-509b-483e-b551-4828521f7723", "to_stage": "paper_ingested"}

@@ -1,7 +1,7 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-04T09:22:38.079964Z'
-current_stage: brainstormed
+current_stage: paper_ingested
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'OCC-RAG: Optimal Cognitive Core for Faithful Question Answering'
-updated_at: '2026-06-29T20:26:08.032828Z'
+updated_at: '2026-07-01T19:23:55.177849Z'

@@ -1,7 +1,7 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-17T09:40:31.382935Z'
-current_stage: clarified
+current_stage: paper_ingested
 failed_stage: null
 field: computer science
 human_escalation_reason: null
@@ -13,6 +13,6 @@ points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: projects/PROJ-717-dreamx-world-1-0-a-general-purpose-inter/specs/001-dreamx-world-1-0-a-general-purpose-inter
+speckit_research_dir: null
 title: 'DreamX-World 1.0: A General-Purpose Interactive World Model'
-updated_at: '2026-06-30T05:28:20.668308Z'
+updated_at: '2026-07-01T19:23:55.301660Z'

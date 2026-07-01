@@ -1,7 +1,7 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-19T11:34:45.917845Z'
-current_stage: specified
+current_stage: paper_ingested
 failed_stage: null
 field: computer science
 human_escalation_reason: null
@@ -13,6 +13,6 @@ points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: projects/PROJ-740-kairos-a-native-world-model-stack-for-ph/specs/001-kairos-a-native-world-model-stack-for-ph
+speckit_research_dir: null
 title: 'Kairos: A Native World Model Stack for Physical AI'
-updated_at: '2026-06-30T12:35:32.951971Z'
+updated_at: '2026-07-01T19:23:55.328090Z'

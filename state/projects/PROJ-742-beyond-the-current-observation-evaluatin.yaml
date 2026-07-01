@@ -1,7 +1,7 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-19T11:34:51.609213Z'
-current_stage: brainstormed
+current_stage: paper_ingested
 failed_stage: null
 field: computer science
 human_escalation_reason: null
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'Beyond the Current Observation: Evaluating Multimodal Large Language Models
   in Controllable Non-Markov Games'
-updated_at: '2026-06-29T20:21:35.138177Z'
+updated_at: '2026-07-01T19:23:55.332077Z'

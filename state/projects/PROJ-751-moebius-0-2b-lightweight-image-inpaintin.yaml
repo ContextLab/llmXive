@@ -1,7 +1,7 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-20T09:06:20.950563Z'
-current_stage: brainstormed
+current_stage: paper_ingested
 failed_stage: null
 field: computer science
 human_escalation_reason: null
@@ -11,8 +11,8 @@ last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: specs/auto-revisions/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/round-2
+revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'Moebius: 0.2B Lightweight Image Inpainting Framework with 10B-Level Performance'
-updated_at: '2026-06-29T20:23:41.287585Z'
+updated_at: '2026-07-01T19:23:55.345137Z'

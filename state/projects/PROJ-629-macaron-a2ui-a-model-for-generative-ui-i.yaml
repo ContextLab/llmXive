@@ -1,7 +1,7 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-27T09:10:35.243445Z'
-current_stage: in_progress
+current_stage: paper_ingested
 failed_stage: null
 field: computer science
 human_escalation_reason: null
@@ -11,8 +11,8 @@ last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: specs/auto-revisions/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i/round-2
+revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: projects/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i/specs/001-macaron-a2ui-a-model-for-generative-ui-i
+speckit_research_dir: null
 title: 'Macaron-A2UI: A Model for Generative UI in Personal Agents'
-updated_at: '2026-07-01T08:22:34.348572Z'
+updated_at: '2026-07-01T19:23:55.090055Z'

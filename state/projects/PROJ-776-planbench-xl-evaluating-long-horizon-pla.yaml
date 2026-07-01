@@ -1,7 +1,7 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-24T11:04:08.352304Z'
-current_stage: in_progress
+current_stage: paper_ingested
 failed_stage: null
 field: computer science
 human_escalation_reason: null
@@ -11,9 +11,9 @@ last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: specs/auto-revisions/PROJ-776-planbench-xl-evaluating-long-horizon-pla/round-1
+revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: projects/PROJ-776-planbench-xl-evaluating-long-horizon-pla/specs/001-planbench-xl-evaluating-long-horizon-pla
+speckit_research_dir: null
 title: 'PlanBench-XL: Evaluating Long-Horizon Planning of LLM Tool-Use Agents in Large-Scale
   Tool Ecosystems'
-updated_at: '2026-07-01T11:42:26.544416Z'
+updated_at: '2026-07-01T19:23:55.366722Z'

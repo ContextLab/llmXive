@@ -1,7 +1,7 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-03T09:39:51.159679Z'
-current_stage: in_progress
+current_stage: paper_ingested
 failed_stage: null
 field: computer science
 human_escalation_reason: null
@@ -13,7 +13,7 @@ points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: projects/PROJ-656-crafter-a-multi-agent-harness-for-editab/specs/001-crafter-a-multi-agent-harness-for-editab
+speckit_research_dir: null
 title: 'Crafter: A Multi-Agent Harness for Editable Scientific Figure Generation from
   Diverse Inputs'
-updated_at: '2026-06-30T20:02:15.259572Z'
+updated_at: '2026-07-01T19:23:55.165161Z'

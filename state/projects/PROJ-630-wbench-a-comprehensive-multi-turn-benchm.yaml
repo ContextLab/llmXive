@@ -1,7 +1,7 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-27T09:10:37.839831Z'
-current_stage: in_progress
+current_stage: paper_ingested
 failed_stage: null
 field: computer science
 human_escalation_reason: null
@@ -11,9 +11,9 @@ last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: specs/auto-revisions/PROJ-630-wbench-a-comprehensive-multi-turn-benchm/round-1
+revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm/specs/001-wbench-a-comprehensive-multi-turn-benchm
+speckit_research_dir: null
 title: 'WBench: A Comprehensive Multi-turn Benchmark for Interactive Video World Model
   Evaluation'
-updated_at: '2026-06-30T09:37:55.795545Z'
+updated_at: '2026-07-01T19:23:55.093445Z'

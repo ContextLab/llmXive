@@ -1,7 +1,7 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-26T11:03:27.642343Z'
-current_stage: in_progress
+current_stage: paper_ingested
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
@@ -13,6 +13,6 @@ points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: projects/PROJ-792-are-we-ready-for-an-agent-native-memory/specs/001-are-we-ready-for-an-agent-native-memory
+speckit_research_dir: null
 title: Are We Ready For An Agent-Native Memory System?
-updated_at: '2026-07-01T19:10:03.385726Z'
+updated_at: '2026-07-01T19:23:55.391217Z'

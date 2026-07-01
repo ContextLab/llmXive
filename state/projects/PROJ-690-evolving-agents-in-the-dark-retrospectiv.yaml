@@ -1,7 +1,7 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-11T11:33:54.954509Z'
-current_stage: brainstormed
+current_stage: paper_ingested
 failed_stage: null
 field: computer science
 human_escalation_reason: null
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'Evolving Agents in the Dark: Retrospective Harness Optimization via Self-Preference'
-updated_at: '2026-06-29T19:04:47.006997Z'
+updated_at: '2026-07-01T19:23:55.237590Z'

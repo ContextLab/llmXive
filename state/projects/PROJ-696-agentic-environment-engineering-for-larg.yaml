@@ -1,7 +1,7 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-12T09:26:34.177713Z'
-current_stage: specified
+current_stage: paper_ingested
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
@@ -13,7 +13,7 @@ points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: projects/PROJ-696-agentic-environment-engineering-for-larg/specs/001-agentic-environment-engineering-for-larg
+speckit_research_dir: null
 title: 'Agentic Environment Engineering for Large Language Models: A Survey of Environment
   Modeling, Synthesis, Evaluation, and Application'
-updated_at: '2026-06-29T00:50:52.967734Z'
+updated_at: '2026-07-01T19:23:55.265455Z'

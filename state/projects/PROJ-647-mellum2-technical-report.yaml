@@ -1,7 +1,7 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-02T09:29:04.755488Z'
-current_stage: validated
+current_stage: paper_ingested
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Mellum2 Technical Report
-updated_at: '2026-06-18T15:58:50.571965Z'
+updated_at: '2026-07-01T19:23:55.139850Z'

@@ -1,7 +1,7 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-24T09:08:45.050882Z'
-current_stage: flesh_out_complete
+current_stage: paper_ingested
 failed_stage: null
 field: computer science
 human_escalation_reason: null
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'DataClaw0: Agentic Tailoring Multimodal Data from Raw Streams'
-updated_at: '2026-06-30T04:48:22.095708Z'
+updated_at: '2026-07-01T19:23:55.362447Z'

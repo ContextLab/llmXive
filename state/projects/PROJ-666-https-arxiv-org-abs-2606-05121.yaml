@@ -1,7 +1,7 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-05T09:11:25.231264Z'
-current_stage: validated
+current_stage: paper_ingested
 failed_stage: null
 field: computer science
 human_escalation_reason: null
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: Audio Interaction Model
-updated_at: '2026-06-16T20:42:56.183958Z'
+updated_at: '2026-07-01T19:23:55.190941Z'

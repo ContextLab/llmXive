@@ -11,9 +11,9 @@ last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: specs/auto-revisions/PROJ-615-mega-asr-towards-in-the-wild-2-speech-re/round-1
+revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'Mega-ASR: Towards In-the-wild^2 Speech Recognition via Scaling up Real-world
   Acoustic Simulation'
-updated_at: '2026-06-30T07:38:45.428112Z'
+updated_at: '2026-07-01T19:23:55.049365Z'

@@ -1,7 +1,7 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-13T09:06:29.907913Z'
-current_stage: in_progress
+current_stage: paper_ingested
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
@@ -13,6 +13,6 @@ points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: projects/PROJ-703-evoarena-tracking-memory-evolution-for-r/specs/001-evoarena-tracking-memory-evolution-for-r
+speckit_research_dir: null
 title: 'EvoArena: Tracking Memory Evolution for Robust LLM Agents in Dynamic Environments'
-updated_at: '2026-07-01T07:17:13.049887Z'
+updated_at: '2026-07-01T19:23:55.284773Z'

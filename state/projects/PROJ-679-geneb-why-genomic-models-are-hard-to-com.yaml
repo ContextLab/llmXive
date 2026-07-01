@@ -1,7 +1,7 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-09T09:10:18.781634Z'
-current_stage: brainstormed
+current_stage: paper_ingested
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'GENEB: Why Genomic Models Are Hard to Compare'
-updated_at: '2026-06-29T20:20:52.131203Z'
+updated_at: '2026-07-01T19:23:55.208152Z'

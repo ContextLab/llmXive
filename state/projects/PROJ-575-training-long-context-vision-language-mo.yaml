@@ -1,7 +1,7 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-15T15:15:28.662024Z'
-current_stage: paper_analyzed
+current_stage: paper_ingested
 failed_stage: null
 field: computer science
 human_escalation_reason: null
@@ -12,8 +12,8 @@ points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
-speckit_paper_dir: projects/PROJ-575-training-long-context-vision-language-mo/paper/specs/001-paper
-speckit_research_dir: projects/PROJ-575-training-long-context-vision-language-mo/specs/001-training-long-context-vision-language-mo
+speckit_paper_dir: null
+speckit_research_dir: null
 title: Training Long-Context Vision-Language Models Effectively with Generalization
   Beyond 128K Context
-updated_at: '2026-06-30T20:55:01.146367Z'
+updated_at: '2026-07-01T19:23:54.967199Z'

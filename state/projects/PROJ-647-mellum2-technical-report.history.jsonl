@@ -2,3 +2,4 @@
 {"at": "2026-06-18T10:37:22.074144+00:00", "from_stage": "paper_review", "last_run_id": "0f23c7cb-c3bc-4e99-a1a9-6c5088b4e256", "to_stage": "brainstormed"}
 {"at": "2026-06-18T13:28:42.115475+00:00", "from_stage": "brainstormed", "last_run_id": "e6845eae-7a43-4774-8f17-592c261bf211", "to_stage": "flesh_out_complete"}
 {"at": "2026-06-18T15:58:50.573393+00:00", "from_stage": "flesh_out_complete", "last_run_id": "a40fc1eb-a963-4288-961b-329f868fdf46", "to_stage": "validated"}
+{"at": "2026-07-01T19:23:55.140586+00:00", "from_stage": "validated", "last_run_id": "a40fc1eb-a963-4288-961b-329f868fdf46", "to_stage": "paper_ingested"}

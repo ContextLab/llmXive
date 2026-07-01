@@ -1,7 +1,7 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-18T11:25:22.174222Z'
-current_stage: clarified
+current_stage: paper_ingested
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
@@ -13,6 +13,6 @@ points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: projects/PROJ-731-zone-of-proximal-policy-optimization-tea/specs/001-zone-of-proximal-policy-optimization-tea
+speckit_research_dir: null
 title: 'Zone of Proximal Policy Optimization: Teacher in Prompts, Not Gradients'
-updated_at: '2026-07-01T04:38:04.829036Z'
+updated_at: '2026-07-01T19:23:55.315339Z'

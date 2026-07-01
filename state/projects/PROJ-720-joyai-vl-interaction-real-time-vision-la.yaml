@@ -1,7 +1,7 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-17T09:40:45.181254Z'
-current_stage: in_progress
+current_stage: paper_ingested
 failed_stage: null
 field: computer science
 human_escalation_reason: null
@@ -11,8 +11,8 @@ last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: specs/auto-revisions/PROJ-720-joyai-vl-interaction-real-time-vision-la/round-1
+revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: projects/PROJ-720-joyai-vl-interaction-real-time-vision-la/specs/001-joyai-vl-interaction-real-time-vision-la
+speckit_research_dir: null
 title: 'JoyAI-VL-Interaction: Real-Time Vision-Language Interaction Intelligence'
-updated_at: '2026-07-01T17:09:24.487026Z'
+updated_at: '2026-07-01T19:23:55.310078Z'

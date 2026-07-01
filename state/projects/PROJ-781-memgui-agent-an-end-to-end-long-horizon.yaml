@@ -11,9 +11,9 @@ last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: specs/auto-revisions/PROJ-781-memgui-agent-an-end-to-end-long-horizon/round-1
+revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'MemGUI-Agent: An End-to-End Long-Horizon Mobile GUI Agent with Proactive Context
   Management'
-updated_at: '2026-06-30T19:33:55.534384Z'
+updated_at: '2026-07-01T19:23:55.372004Z'
