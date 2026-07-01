@@ -217,7 +217,13 @@ def probe_candidate(c: DatasetCandidate, *, relevance: float = 0.0) -> VerifyRes
 
 _DOI_RE = re.compile(r"\b(10\.\d{4,9}/[^\s)\]\"'>}]+)", re.IGNORECASE)
 # Capitalized/alnum dataset-name tokens, e.g. QM9, ImageNet, CIFAR-10, MD17.
-_NAME_RE = re.compile(r"\b([A-Z][A-Za-z]*\d[\w-]*|[A-Z]{2,}[A-Za-z0-9-]*)\b")
+# Matches acronym/cap+digit dataset names (MNIST, QM9, CIFAR10, HCP, S1200) AND
+# multi-hump CamelCase names (ImageNet, WikiText, OpenWebText) — the latter are
+# common ML/NLP datasets the old regex silently missed, so those specs resolved to
+# nothing and the project fabricated.
+_NAME_RE = re.compile(
+    r"\b([A-Z][A-Za-z]*\d[\w-]*|[A-Z]{2,}[A-Za-z0-9-]*|[A-Z][a-z]+(?:[A-Z][a-z0-9]+)+)\b"
+)
 
 # Tokens ``_NAME_RE`` matches but that are NEVER dataset names — requirement/task
 # IDs, RFC-2119 keywords, file formats, and generic tech acronyms. Without this
@@ -241,6 +247,10 @@ _INTENT_STOPWORDS = frozenset({
     "api", "url", "uri", "cli", "cpu", "gpu", "ram", "id", "ids", "http", "https",
     "readme", "license", "doi", "arxiv", "sha", "md5", "uuid", "rng", "llm", "ai",
     "ml", "nlp", "ci", "cd", "ok", "pr", "os", "io", "fr", "sc", "us", "uc",
+    # CamelCase tools / libraries / orgs / classes that are NOT datasets
+    "github", "gitlab", "huggingface", "pytorch", "tensorflow", "openml",
+    "scikitlearn", "jupyterlab", "deepmind", "openai", "wandb", "dataframe",
+    "dataloader", "dataframes", "dataloaders", "numpy", "pandas", "matplotlib",
 })
 
 

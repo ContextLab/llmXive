@@ -97,3 +97,24 @@ def test_extract_dataset_intents_filters_noise_keeps_real_names():
     assert "HCP" in intents and "S1200" in intents
     for noise in ("FR-001", "MUST", "CSV", "PNG"):
         assert noise not in intents
+
+
+def test_extract_dataset_intents_catches_camelcase_dataset_names():
+    # CamelCase ML/NLP dataset names (ImageNet, WikiText, OpenWebText) were silently
+    # missed by the acronym-only regex, so those specs resolved to nothing and the
+    # project fabricated. They must now be extracted — but CamelCase tools / libs /
+    # classes (PyTorch, GitHub, DataFrame) must NOT be surfaced as datasets.
+    from llmxive.librarian.dataset_resolver import (
+        _is_dataset_intent,
+        extract_dataset_intents,
+    )
+    for real in ["ImageNet", "WikiText", "OpenWebText"]:
+        assert _is_dataset_intent(real), f"{real} must be kept"
+    for tool in ["PyTorch", "TensorFlow", "GitHub", "HuggingFace", "DataFrame",
+                 "DataLoader"]:
+        assert not _is_dataset_intent(tool), f"{tool} must be filtered"
+    line = "The dataset loads ImageNet and WikiText via PyTorch DataLoader from GitHub."
+    intents = extract_dataset_intents(line)
+    assert "ImageNet" in intents and "WikiText" in intents
+    for tool in ("PyTorch", "GitHub", "DataLoader"):
+        assert tool not in intents
