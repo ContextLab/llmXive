@@ -1,4 +1,4 @@
-- artifact_hash: ad6f9675abd385b3fa91005ad9d01beb0983c9e5243f3bc8176d4bed9f909013
+- artifact_hash: 3d6e4d951c90c9d02c3768229fece5e9a133e9146906704e02a924d8c1d06cb2
   artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/spec.md
   cite_id: c-001
   cited_authors: []
@@ -9,4 +9,4 @@
   value: 10.1126/sciadv.aaq1566
   verification_status: verified
   verified_against_url: https://doi.org/10.1126/sciadv.aaq1566
-  verified_at: '2026-06-28T23:42:41.430061Z'
+  verified_at: '2026-07-01T13:07:36.488397Z'
