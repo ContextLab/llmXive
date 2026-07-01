@@ -161,6 +161,25 @@ class ImplementerAgent(SlashCommandAgent):
         comments_block = render_recent_comments_block(ctx.project_dir)
         if comments_block:
             user_parts.append(comments_block)
+        # Anti-fabrication guidance (parity with implementer_research.md): the
+        # in_progress implement batch is where most fabrication ORIGINATES — the
+        # model generates synthetic/fake INPUT data, so the execution gate's
+        # fabrication guard rejects the run and the project can never advance
+        # (the dominant paper-init blocker: e.g. PROJ-611's "synthetic/fake INPUT
+        # data not authorized by the spec"). Tell the implementer up-front.
+        user_parts.append(
+            "# Real data only — NEVER fabricate results\n\n"
+            "This code must run on REAL data and produce REAL measured results. "
+            "NEVER generate synthetic/fake INPUT data, hard-code fake 'sample' "
+            "rows, ship a placeholder dataset, or compute a result from "
+            "random/simulated values standing in for a real measurement — the "
+            "execution gate's fabrication guard will reject the run and the "
+            "project cannot advance. When a task needs external data, load it from "
+            "the REAL source named in the spec/plan (or data the project already "
+            "downloaded under `data/`). If no real source is reachable, do NOT "
+            "fake it — implement the loader against the real source and let it "
+            "fail loudly (a clear error the fix loop can act on)."
+        )
         user_parts.append(
             "# Task\n\nReturn the YAML implementation report. "
             "If your script imports from sibling modules, the imported "

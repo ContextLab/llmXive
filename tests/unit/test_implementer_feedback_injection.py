@@ -77,3 +77,19 @@ def test_no_feedback_banner_when_no_failure(tmp_path: Path) -> None:
     proj = _project(tmp_path)  # no execution_feedback.md written
     msgs = ImplementerAgent().build_prompt(_ctx(proj.parent.parent, proj), _MECH)
     assert "EXECUTION FAILED" not in msgs[-1].content
+
+
+def test_anti_fabrication_guidance_in_implement_prompt(tmp_path: Path) -> None:
+    """The in_progress implement batch is where fabrication ORIGINATES — it must
+    carry the same 'real data only, never fabricate' guardrail as the research
+    implementer (implementer_research.md). Without it, the model generates
+    synthetic INPUT data, the execution gate's fabrication guard blocks the run,
+    and the project can never reach paper-init (the dominant blocker: PROJ-611's
+    'synthetic/fake INPUT data not authorized by the spec')."""
+    proj = _project(tmp_path)
+    msgs = ImplementerAgent().build_prompt(_ctx(proj.parent.parent, proj), _MECH)
+    user = msgs[-1].content
+    assert "NEVER fabricate" in user
+    assert "synthetic" in user.lower() and "INPUT data" in user
+    assert "fabrication guard" in user
+    assert "fail loudly" in user
