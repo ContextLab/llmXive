@@ -1,0 +1,23 @@
+Package: predicting-species-niche-shifts
+Title: Predicting Species-Specific Responses to Climate Change
+Version: 0.1.0
+Authors@R: person("Research", "Team", email = "research@example.com", role = c("aut", "cre"))
+Description: An automated pipeline to analyze museum collection data for niche shifts.
+License: MIT
+Encoding: UTF-8
+LazyData: true
+Imports:
+    rgbif,
+    raster,
+    sf,
+    ggplot2,
+    dplyr,
+    tidyr,
+    caper,
+    phylolm,
+    pwr,
+    tibble,
+    lubridate,
+    here,
+    testthat
+RoxygenNote: 7.2.3

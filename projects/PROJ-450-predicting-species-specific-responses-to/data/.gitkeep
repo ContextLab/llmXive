@@ -1,0 +1,4 @@
+# Directory for project data artifacts.
+# Subdirectories:
+# - raw/ : Downloaded raw data (GBIF, WorldClim)
+# - processed/ : Cleaned and aggregated data

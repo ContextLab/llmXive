@@ -1,0 +1,51 @@
+# data/metadata.yaml
+# Schema definition for dataset metadata, query parameters, and file checksums.
+
+schema_version: "1.0"
+project: "PROJ-450-predicting-species-specific-responses-to"
+
+# Query Metadata (Populated by fetch_gbif.R)
+query_metadata:
+  timestamp: null  # ISO 8601 timestamp of the query
+  api_parameters:
+    source: "GBIF"
+    occurrence_status: "PRESERVED_SPECIMEN"
+    date_range:
+      start: null
+      end: null
+    taxonomic_key: null
+  file_checksums:
+    occurrences_raw: null  # MD5 checksum of data/raw/occurrences.csv
+
+# Climate Data Metadata (Populated by download_worldclim.R)
+climate_metadata:
+  source: "WorldClim v2.1"
+  periods:
+    - name: "1970-2000"
+      files:
+        - "bio1_1970.tif"
+        - "bio12_1970.tif"
+      checksums:
+        bio1_1970: null
+        bio12_1970: null
+    - name: "1991-2020"
+      files:
+        - "bio1_1991.tif"
+        - "bio12_1991.tif"
+      checksums:
+        bio1_1991: null
+        bio12_1991: null
+
+# Processed Data Metadata (Populated by extract_climate.R, compute_centroids.R)
+processed_metadata:
+  points_with_climate:
+    file: "data/processed/points_with_climate.csv"
+    checksum: null
+    row_count: null
+  centroids:
+    file: "data/processed/centroids.csv"
+    checksum: null
+    row_count: null
+
+# General Files Section
+files: []

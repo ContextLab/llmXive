@@ -1,0 +1,36 @@
+# R
+.Rhistory
+.RData
+.Rproj.user
+.Rbuildignore
+.Renviron
+
+# renv
+renv/activate.R
+renv/settings.json
+renv/library/
+renv/lock/
+
+# Data (raw and processed)
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+data/interim/*
+!data/interim/.gitkeep
+
+# Results
+results/*
+!results/.gitkeep
+
+# Logs
+logs/*
+!logs/.gitkeep
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
