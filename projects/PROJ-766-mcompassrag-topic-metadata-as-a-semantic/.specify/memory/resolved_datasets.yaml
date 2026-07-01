@@ -1,0 +1,123 @@
+resolved_at: '2026-07-01T10:02:44.689304+00:00'
+datasets:
+- intent: OOM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/quocanh34/test_result_large_data_oom/resolve/main/data/train-00000-of-00001-fc17ec437033d174.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 108838
+      parsed: true
+  - url: https://huggingface.co/datasets/rtreacy/dv_keywords_desc_full-oom/resolve/main/test.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ejschwartz/oo-method-test/resolve/main/data/combined-00000-of-00001-03155245a07e9f83.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ejschwartz/oo-method-test/resolve/main/data/combined-00000-of-00001-03155245a07e9f83.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/quocanh34/test_result_large_data_oom/resolve/main/data/train-00000-of-00001-fc17ec437033d174.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/rtreacy/dv_keywords_desc_full-oom/resolve/main/test.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://geolsoc.figshare.com/articles/journal_contribution/The_El_Soplao_Konservat_Lagerst_tte_a_key_Cretaceous_amber_deposit_from_Spain/32852400
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Coding_rules_for_evaluating_the_OLRS_results/32852210
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://karger.figshare.com/articles/dataset/Supplementary_Material_for_Evidence_of_efficacy_for_neoadjuvant_immunochemotherapy_in_a_rare_subgroup_two_cases_of_pathological_complete_response_in_locally_advanced_HER2-mutant_NSCLC/32852261
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://karger.figshare.com/articles/dataset/Supplementary_Material_for_Neonatal_Intra-abdominal_Mixed_Germ_Cell_Tumour_with_Retroperitoneal_Extension_Mimicking_Hepatoblastoma_A_Diagnostic_Challenge_A_Case_Report/32852258
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://karger.figshare.com/articles/dataset/Supplementary_Material_for_Passive_Smoking_and_Thyroid_Diseases_Association_by_Mendelian_Randomization_Study/32852255
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://onlinelibrary.wiley.com/doi/10.1002/asna.19041651302
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://onlinelibrary.wiley.com/doi/10.1002/asna.18740832002
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://onlinelibrary.wiley.com/doi/10.1002/asna.19141981601
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://onlinelibrary.wiley.com/doi/10.1002/asna.19212142518
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://onlinelibrary.wiley.com/doi/10.1002/asna.18610551604
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/21095036
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21095036
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21085491
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21082739
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21082739
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: BenchmarkSubset
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Efficacy_Data_of_0_5_Fipronil_Dust_for_Controlling_Coptotermes_formosanus_in_Residential_Buildings_A_Retrospective_Analysis/32848286
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://geolsoc.figshare.com/articles/journal_contribution/The_El_Soplao_Konservat_Lagerst_tte_a_key_Cretaceous_amber_deposit_from_Spain/32852400
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Coding_rules_for_evaluating_the_OLRS_results/32852210
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://karger.figshare.com/articles/dataset/Supplementary_Material_for_Evidence_of_efficacy_for_neoadjuvant_immunochemotherapy_in_a_rare_subgroup_two_cases_of_pathological_complete_response_in_locally_advanced_HER2-mutant_NSCLC/32852261
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://karger.figshare.com/articles/dataset/Supplementary_Material_for_Neonatal_Intra-abdominal_Mixed_Germ_Cell_Tumour_with_Retroperitoneal_Extension_Mimicking_Hepatoblastoma_A_Diagnostic_Challenge_A_Case_Report/32852258
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content

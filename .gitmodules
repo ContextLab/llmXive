@@ -160,3 +160,12 @@
 [submodule "projects/PROJ-805-tua-bench-a-benchmark-for-general-purpos/external/TUA-Bench"]
 	path = projects/PROJ-805-tua-bench-a-benchmark-for-general-purpos/external/TUA-Bench
 	url = https://github.com/facebookresearch/TUA-Bench
+[submodule "projects/PROJ-795-opid-on-policy-skill-distillation-for-ag/external/OPID"]
+	path = projects/PROJ-795-opid-on-policy-skill-distillation-for-ag/external/OPID
+	url = https://github.com/jinyangwu/OPID
+[submodule "projects/PROJ-766-mcompassrag-topic-metadata-as-a-semantic/external/MCompassRAG"]
+	path = projects/PROJ-766-mcompassrag-topic-metadata-as-a-semantic/external/MCompassRAG
+	url = https://github.com/AmirAbaskohi/MCompassRAG
+[submodule "projects/PROJ-788-improved-large-language-diffusion-models/external/LLaDA"]
+	path = projects/PROJ-788-improved-large-language-diffusion-models/external/LLaDA
+	url = https://github.com/ML-GSAI/LLaDA

@@ -1,0 +1,67 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Evaluation Result Schema
+description: Schema for the output of the iLLaDA evaluation pipeline.
+type: object
+required:
+  - benchmark_name
+  - model_id
+  - subset_size
+  - metrics
+  - metadata
+properties:
+  benchmark_name:
+    type: string
+    description: "Name of the benchmark (e.g., 'gsm8k', 'bbh')"
+  model_id:
+    type: string
+    description: "Identifier of the iLLaDA model used"
+  subset_size:
+    type: integer
+    minimum: 1
+    description: "Number of samples evaluated"
+  metrics:
+    type: object
+    description: "Key metrics (accuracy, exact_match, etc.)"
+    additionalProperties:
+      type: number
+  metadata:
+    type: object
+    required:
+      - hardware
+      - seed
+      - execution_time_seconds
+      - status
+      - subset_id
+    properties:
+      hardware:
+        type: string
+        description: "Hardware config (e.g., 'CPU: 2 cores, 7GB RAM')"
+      seed:
+        type: integer
+        description: "Random seed used for reproducibility"
+      execution_time_seconds:
+        type: number
+        description: "Total runtime in seconds"
+      status:
+        type: string
+        enum:
+          - success
+          - partial_success
+          - memory_fallback
+        description: "Execution status"
+      subset_id:
+        type: string
+        description: "Traceable ID: 'N={size}_S={seed}_F={fallback_flag}'"
+examples:
+  - benchmark_name: "gsm8k"
+    model_id: "iLLaDA-8B"
+    subset_size: 5
+    metrics:
+      accuracy: 0.40
+      exact_match: 0.35
+    metadata:
+      hardware: "CPU: 2 cores, 7GB RAM"
+      seed: 42
+      execution_time_seconds: 1200.5
+      status: "partial_success"
+      subset_id: "N=5_S=42_F=None"

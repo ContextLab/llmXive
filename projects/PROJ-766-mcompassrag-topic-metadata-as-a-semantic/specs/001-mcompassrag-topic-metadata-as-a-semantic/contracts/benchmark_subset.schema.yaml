@@ -1,0 +1,35 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: BenchmarkSubset
+description: A sampled portion of the benchmark dataset used for validation.
+type: object
+properties:
+  source_dataset:
+    type: string
+    description: Name or URL of the source dataset.
+  sample_size:
+    type: integer
+    minimum: 1
+    description: Number of rows (queries/documents) in the subset.
+  sampling_method:
+    type: string
+    description: Method used for sampling (e.g., "stratified_by_topic_density", "stratified_by_length").
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of the sampling.
+  variables:
+    type: array
+    items:
+      type: string
+    description: List of variables included in the subset.
+  topic_generation_method:
+    type: string
+    description: Description of how topic metadata was derived (e.g., "synthesized_LDA", "pre_existing").
+required:
+  - source_dataset
+  - sample_size
+  - sampling_method
+  - timestamp
+  - variables
+  - topic_generation_method
+additionalProperties: false

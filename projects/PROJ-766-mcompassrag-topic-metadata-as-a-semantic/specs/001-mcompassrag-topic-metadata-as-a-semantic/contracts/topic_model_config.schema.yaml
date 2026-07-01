@@ -1,0 +1,34 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: TopicModelConfig
+description: Configuration object for the topic modeling step.
+type: object
+properties:
+  model_type:
+    type: string
+    description: Type of topic model (e.g., "LDA", "CWTM").
+  num_topics:
+    type: integer
+    minimum: 1
+    description: Number of topics to generate.
+  max_iter:
+    type: integer
+    minimum: 1
+    description: Maximum number of iterations for convergence.
+  random_state:
+    type: integer
+    description: Seed for reproducibility.
+  device:
+    type: string
+    enum:
+      - cpu
+    description: Target device.
+  synthetic:
+    type: boolean
+    description: Flag indicating if topics were synthesized (true) or pre-existing (false).
+required:
+  - model_type
+  - num_topics
+  - max_iter
+  - device
+  - synthetic
+additionalProperties: false
