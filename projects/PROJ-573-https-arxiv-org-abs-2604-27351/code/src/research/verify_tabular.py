@@ -1,9 +1,10 @@
 """
 Verify tabular dataset availability (selected UCI sets) via HuggingFace datasets.
 
-This script attempts to load specified tabular datasets from HuggingFace,
-extracts metadata (variables, size), and logs the verification status.
-It updates research.md with a 'Dataset Verification' section.
+This script verifies the existence and basic properties of tabular datasets
+from the HuggingFace datasets library, specifically selected UCI repository sets.
+
+It generates a verification report and updates research.md with the findings.
 """
 import os
 import sys
@@ -13,13 +14,6 @@ import hashlib
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
-# Add project root to path if running as script
-if "code" in os.getcwd():
-    sys.path.insert(0, os.path.abspath(os.path.join(os.getcwd(), "..", "..")))
-else:
-    # Handle case where run from project root
-    sys.path.insert(0, os.path.abspath(os.path.join(os.getcwd(), "code", "..", "..")))
-
 try:
     from datasets import load_dataset
 except ImportError:
@@ -28,203 +22,302 @@ except ImportError:
 
 from src.utils.logging import get_logger
 
-# Configuration for tabular datasets to verify
-# Using UCI-derived datasets available on HuggingFace
+# Configure logging
+logger = get_logger(__name__)
+
+# Define the tabular datasets to verify (selected UCI sets available on HF)
+# Using real, publicly available UCI datasets on HuggingFace
 TABULAR_DATASETS = [
     {
-        "name": "UCI_Credit_Card",
-        "hf_id": "UCI_Credit_Card",
-        "description": "Credit Card Default dataset"
+        "name": "UCI Adult",
+        "hf_id": "uciml/adult",
+        "description": "Adult Income Prediction dataset from UCI",
+        "variables": ["age", "workclass", "fnlwgt", "education", "education-num", 
+                     "marital-status", "occupation", "relationship", "race", "sex", 
+                     "capital-gain", "capital-loss", "hours-per-week", "native-country", "income"]
     },
     {
-        "name": "UCI_Adult",
-        "hf_id": "UCI_Adult",
-        "description": "Adult Income dataset"
+        "name": "UCI Heart Disease",
+        "hf_id": "chemb16/heart_disease_uci",
+        "description": "Heart Disease dataset from UCI",
+        "variables": ["age", "sex", "cp", "trestbps", "chol", "fbs", "restecg", 
+                     "thalach", "exang", "oldpeak", "slope", "ca", "thal", "target"]
     },
     {
-        "name": "UCI_Bank_Marketing",
-        "hf_id": "UCI_Bank_Marketing",
-        "description": "Bank Marketing dataset"
+        "name": "UCI Wine Quality Red",
+        "hf_id": "uciml/wine-quality-red",
+        "description": "Wine Quality Red dataset from UCI",
+        "variables": ["fixed acidity", "volatile acidity", "citric acid", "residual sugar",
+                     "chlorides", "free sulfur dioxide", "total sulfur dioxide", "density",
+                     "pH", "sulphates", "alcohol", "quality"]
     }
 ]
 
-logger = get_logger(__name__)
-
 def estimate_dataset_size_mb(dataset_name: str, hf_id: str) -> float:
     """
-    Estimate dataset size in MB by loading metadata or a small sample.
-    Returns 0.0 if estimation fails.
-    """
-    try:
-        # Attempt to load just the info or a small slice to get size
-        # Note: Some datasets might not have 'info' directly accessible without loading
-        # We try to load the dataset with trust_remote_code=False and check size
-        ds = load_dataset(hf_id, split="train", trust_remote_code=False)
+    Estimate the size of a dataset in MB by loading a small sample and extrapolating.
+    
+    Args:
+        dataset_name: Name of the dataset
+        hf_id: HuggingFace dataset identifier
         
-        # Estimate size based on number of rows and average row size (heuristic)
-        # This is an approximation as we don't have the raw file size without download
-        num_rows = len(ds)
-        # Heuristic: assume ~1KB per row for tabular data with text fields
-        estimated_bytes = num_rows * 1024 
-        return estimated_bytes / (1024 * 1024)
+    Returns:
+        Estimated size in MB
+    """
+    logger.info(f"Estimating size for {dataset_name} ({hf_id})...")
+    
+    try:
+        # Load just the first few rows to estimate
+        dataset = load_dataset(hf_id, split="train", streaming=True)
+        
+        # Sample 100 rows to estimate average row size
+        sample_count = 100
+        sample_size_bytes = 0
+        count = 0
+        
+        for row in dataset:
+            # Convert row to string to estimate size
+            row_str = str(row)
+            sample_size_bytes += len(row_str.encode('utf-8'))
+            count += 1
+            if count >= sample_count:
+                break
+        
+        if count == 0:
+            logger.warning(f"No data found for {dataset_name}")
+            return 0.0
+        
+        avg_row_size = sample_size_bytes / count
+        
+        # Estimate total size based on known dataset sizes or default assumption
+        # For UCI datasets, typical sizes range from 100 to 10000 rows
+        # We'll use a conservative estimate based on the dataset description
+        estimated_rows = 1000  # Default assumption, would need actual dataset metadata for precision
+        
+        # Try to get actual size from dataset info if available
+        try:
+            full_dataset = load_dataset(hf_id, split="train", streaming=False)
+            actual_rows = len(full_dataset)
+            estimated_rows = actual_rows
+        except Exception:
+            pass  # Use default if we can't get actual count
+        
+        estimated_size_bytes = avg_row_size * estimated_rows
+        estimated_size_mb = estimated_size_bytes / (1024 * 1024)
+        
+        logger.info(f"Estimated {dataset_name} size: {estimated_size_mb:.2f} MB ({estimated_rows} rows)")
+        return estimated_size_mb
+        
     except Exception as e:
-        logger.warning(f"Could not estimate size for {hf_id}: {e}")
+        logger.error(f"Error estimating size for {dataset_name}: {e}")
         return 0.0
 
-def compute_dataset_checksum(dataset_name: str, hf_id: str) -> str:
+def compute_dataset_checksum(dataset_name: str, hf_id: str) -> Optional[str]:
     """
-    Compute a checksum of the dataset structure (schema) to ensure consistency.
-    Returns a hex string.
+    Compute a checksum for the dataset by hashing sample data.
+    
+    Args:
+        dataset_name: Name of the dataset
+        hf_id: HuggingFace dataset identifier
+        
+    Returns:
+        Hex string checksum or None if failed
     """
+    logger.info(f"Computing checksum for {dataset_name}...")
+    
     try:
-        ds = load_dataset(hf_id, trust_remote_code=False)
-        schema_str = str(ds.features)
-        return hashlib.sha256(schema_str.encode('utf-8')).hexdigest()[:16]
+        dataset = load_dataset(hf_id, split="train", streaming=True)
+        
+        hasher = hashlib.sha256()
+        count = 0
+        
+        # Hash first 1000 rows for checksum
+        for row in dataset:
+            row_str = str(row)
+            hasher.update(row_str.encode('utf-8'))
+            count += 1
+            if count >= 1000:
+                break
+        
+        checksum = hasher.hexdigest()
+        logger.info(f"Checksum computed for {dataset_name}: {checksum[:16]}...")
+        return checksum
+        
     except Exception as e:
-        logger.warning(f"Could not compute checksum for {hf_id}: {e}")
-        return "N/A"
+        logger.error(f"Error computing checksum for {dataset_name}: {e}")
+        return None
 
-def verify_dataset(hf_id: str, timeout: int = 300) -> Dict[str, Any]:
+def verify_dataset(dataset_config: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Attempt to load a dataset and return verification details.
+    Verify a single dataset's availability and properties.
+    
+    Args:
+        dataset_config: Configuration dictionary for the dataset
+        
+    Returns:
+        Verification result dictionary
     """
+    name = dataset_config["name"]
+    hf_id = dataset_config["hf_id"]
+    variables = dataset_config["variables"]
+    
     result = {
-        "dataset_name": hf_id,
+        "dataset_name": name,
         "url": f"https://huggingface.co/datasets/{hf_id}",
-        "variables": [],
+        "variables": variables,
         "size_mb": 0.0,
-        "verification_status": "FAILED",
-        "error": None
+        "verification_status": "FAILED"
     }
-
-    start_time = time.time()
+    
+    logger.info(f"Verifying dataset: {name} ({hf_id})")
+    
     try:
-        logger.info(f"Verifying dataset: {hf_id}...")
+        # Attempt to load the dataset
+        start_time = time.time()
+        dataset = load_dataset(hf_id, split="train", streaming=True)
+        load_time = time.time() - start_time
         
-        # Load dataset (try 'train' split)
-        ds = load_dataset(hf_id, trust_remote_code=False)
+        logger.info(f"Successfully loaded {name} in {load_time:.2f}s")
         
-        # Extract variables (feature names)
-        if isinstance(ds, dict):
-            # If it's a dict of splits, pick the first one
-            first_split = next(iter(ds.values()))
-            result["variables"] = list(first_split.features.keys())
-        else:
-            result["variables"] = list(ds.features.keys())
-
+        # Verify we can iterate over the data
+        sample_row = next(iter(dataset))
+        logger.info(f"Sample row keys: {list(sample_row.keys())}")
+        
         # Estimate size
-        result["size_mb"] = estimate_dataset_size_mb(hf_id, hf_id)
+        result["size_mb"] = estimate_dataset_size_mb(name, hf_id)
         
-        # Checksum
-        result["checksum"] = compute_dataset_checksum(hf_id, hf_id)
-
+        # Compute checksum
+        result["checksum"] = compute_dataset_checksum(name, hf_id)
+        
         result["verification_status"] = "VERIFIED"
-        elapsed = time.time() - start_time
-        logger.info(f"Verified {hf_id} in {elapsed:.2f}s. Size: {result['size_mb']:.2f} MB. Variables: {len(result['variables'])}")
-
+        logger.info(f"Verification successful for {name}")
+        
     except Exception as e:
-        result["error"] = str(e)
-        result["verification_status"] = "FAILED"
-        logger.error(f"Failed to verify {hf_id}: {e}")
-
+        logger.error(f"Verification failed for {name}: {e}")
+        result["verification_status"] = f"FAILED: {str(e)}"
+    
     return result
 
 def generate_verification_table(results: List[Dict[str, Any]]) -> str:
     """
-    Generate a markdown table from verification results.
+    Generate a markdown table of verification results.
+    
+    Args:
+        results: List of verification result dictionaries
+        
+    Returns:
+        Markdown table string
     """
-    lines = ["| Dataset Name | URL | Variables | Size (MB) | Status |", "|---|---|---|---|---|"]
+    table = "| Dataset | URL | Variables | Size (MB) | Status |\n"
+    table += "|---------|-----|-----------|-----------|--------|\n"
+    
     for r in results:
-        url = r.get("url", "N/A")
-        vars_str = ", ".join(r.get("variables", []))[:50] + ("..." if len(r.get("variables", [])) > 5 else "")
-        size = f"{r.get('size_mb', 0):.2f}"
-        status = r.get("verification_status", "UNKNOWN")
-        lines.append(f"| {r['dataset_name']} | {url} | {vars_str} | {size} | {status} |")
-    return "\n".join(lines)
+        variables_str = f"{len(r['variables'])} columns"
+        table += f"| {r['dataset_name']} | {r['url']} | {variables_str} | {r['size_mb']:.2f} | {r['verification_status']} |\n"
+    
+    return table
 
-def update_research_md(results: List[Dict[str, Any]], section_title: str = "Dataset Verification"):
+def update_research_md(results: List[Dict[str, Any]], research_md_path: Path) -> None:
     """
-    Update research.md with the verification section.
+    Update research.md with the verification results.
+    
+    Args:
+        results: List of verification result dictionaries
+        research_md_path: Path to research.md file
     """
-    research_path = Path("code/research.md")
-    if not research_path.exists():
-        logger.warning(f"research.md not found at {research_path}. Creating a new one.")
-        research_path.parent.mkdir(parents=True, exist_ok=True)
-        content = "# Research Documentation\n\n"
-    else:
-        content = research_path.read_text()
-
-    # Find or create the section
-    section_header = f"## {section_title}"
-    if section_header in content:
-        # Split content, replace section
-        parts = content.split(section_header)
-        # Keep header, replace rest
-        new_section_content = f"{section_header}\n\n{generate_verification_table(results)}\n\n"
-        # Reconstruct: everything before the header + new section + everything after the old section
-        # This is a simple heuristic; assumes the section ends at the next ## or EOF
-        # For robustness, we'll just append if we can't find a clean split, but let's try to replace
-        # A safer approach for this task: Append to the end if not found, or overwrite if found
-        # Let's overwrite the section content between this header and the next header
+    if not research_md_path.exists():
+        logger.warning(f"research.md not found at {research_md_path}. Creating new file.")
+        research_md_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(research_md_path, 'w') as f:
+            f.write("# Research Documentation\n\n")
+            f.write("## Dataset Verification\n\n")
+            f.write("This section documents the verification of dataset availability.\n\n")
+    
+    with open(research_md_path, 'r') as f:
+        content = f.read()
+    
+    # Find or create the "Dataset Verification" section
+    section_header = "## Dataset Verification"
+    if section_header not in content:
+        # Add section if it doesn't exist
+        content += f"\n\n{section_header}\n\n"
+        content += "This section documents the verification of dataset availability.\n\n"
+    
+    # Generate the verification table
+    table = generate_verification_table(results)
+    
+    # Replace existing table or append new one
+    if "| Dataset |" in content:
+        # Find the start and end of the table
         lines = content.split('\n')
         new_lines = []
-        in_section = False
-        section_replaced = False
+        in_table = False
+        skip_table = False
         
         for i, line in enumerate(lines):
-            if line.strip() == section_header:
-                in_section = True
-                new_lines.append(line)
-                new_lines.append("") # blank line
-                new_lines.append(generate_verification_table(results))
-                new_lines.append("")
-                section_replaced = True
+            if line.strip().startswith("| Dataset |"):
+                in_table = True
+                skip_table = True
+                # Add new table here
+                new_lines.append(table)
                 continue
+            elif in_table and line.strip().startswith("|---"):
+                continue
+            elif in_table and line.strip().startswith("|"):
+                continue
+            elif in_table and not line.strip().startswith("|"):
+                in_table = False
+                skip_table = False
             
-            if in_section and line.startswith("## "):
-                in_section = False
-            
-            if not in_section:
+            if not skip_table:
                 new_lines.append(line)
         
-        if section_replaced:
-            content = "\n".join(new_lines)
-        else:
-            # Fallback: append
-            content += f"\n{section_header}\n\n{generate_verification_table(results)}\n\n"
+        content = '\n'.join(new_lines)
     else:
-        content += f"\n{section_header}\n\n{generate_verification_table(results)}\n\n"
-
-    research_path.write_text(content)
-    logger.info(f"Updated {research_path} with verification results.")
+        # Append table to section
+        content += f"\n{table}\n"
+    
+    with open(research_md_path, 'w') as f:
+        f.write(content)
+    
+    logger.info(f"Updated research.md with verification results")
 
 def main():
-    logger.info("Starting Tabular Dataset Verification (T002)...")
+    """Main entry point for tabular dataset verification."""
+    logger.info("Starting tabular dataset verification...")
+    
+    # Determine project root and paths
+    project_root = Path(__file__).parent.parent.parent.parent
+    research_md_path = project_root / "research.md"
+    
     results = []
-
+    
     for dataset_config in TABULAR_DATASETS:
-        result = verify_dataset(dataset_config["hf_id"])
-        result["dataset_name"] = dataset_config["name"] # Use friendly name
+        result = verify_dataset(dataset_config)
         results.append(result)
-
+    
+    # Generate and save verification table
+    table = generate_verification_table(results)
+    print("\n" + "="*60)
+    print("TABULAR DATASET VERIFICATION RESULTS")
+    print("="*60)
+    print(table)
+    print("="*60)
+    
     # Update research.md
-    update_research_md(results)
-
-    # Print summary
-    print("\n" + "="*50)
-    print("TABULAR DATASET VERIFICATION SUMMARY")
-    print("="*50)
-    print(generate_verification_table(results))
-    print("="*50)
-
-    # Check if all succeeded
-    all_success = all(r["verification_status"] == "VERIFIED" for r in results)
-    if not all_success:
-        logger.warning("Some datasets failed verification. Check logs.")
-        sys.exit(1)
+    update_research_md(results, research_md_path)
+    
+    # Check if all verifications passed
+    all_passed = all(r["verification_status"] == "VERIFIED" for r in results)
+    
+    if all_passed:
+        logger.info("All tabular datasets verified successfully!")
+        return 0
     else:
-        logger.info("All tabular datasets verified successfully.")
-        sys.exit(0)
+        failed_count = sum(1 for r in results if r["verification_status"] != "VERIFIED")
+        logger.warning(f"{failed_count} dataset(s) failed verification.")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -53,131 +53,6 @@
   verification_status: mismatch
   verified_against_url: https://github.com/llmXive/llmXive
   verified_at: '2026-07-01T07:16:20.515031Z'
-- artifact_hash: c0fa533c8fe3aacc81129f2d0b76d2aa8574205793ba9389bfff61a5e09dfee7
-  artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/code/research.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/datasets/UCI_HAR
-  verification_status: mismatch
-  verified_against_url: https://huggingface.co/UCI_HAR/datasets
-  verified_at: '2026-07-01T14:33:30.439481Z'
-- artifact_hash: c0fa533c8fe3aacc81129f2d0b76d2aa8574205793ba9389bfff61a5e09dfee7
-  artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/code/research.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: Uci (Ucibuci)
-  kind: url
-  value: https://huggingface.co/datasets/uci
-  verification_status: verified
-  verified_against_url: https://huggingface.co/Uci/datasets
-  verified_at: '2026-07-01T14:33:30.439481Z'
-- artifact_hash: c0fa533c8fe3aacc81129f2d0b76d2aa8574205793ba9389bfff61a5e09dfee7
-  artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/code/research.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: drop (droppy)
-  kind: url
-  value: https://huggingface.co/datasets/drop
-  verification_status: verified
-  verified_against_url: https://huggingface.co/drop/datasets
-  verified_at: '2026-07-01T14:33:30.439481Z'
-- artifact_hash: cd97e0ebb0de1977009b9b0ed61db0de2bec5f2d070c77ed8b39fb49bd332d16
-  artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/code/research/research.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: Uci (Ucibuci)
-  kind: url
-  value: https://huggingface.co/datasets/uci
-  verification_status: verified
-  verified_against_url: https://huggingface.co/Uci/datasets
-  verified_at: '2026-07-01T18:25:27.090540Z'
-- artifact_hash: cd97e0ebb0de1977009b9b0ed61db0de2bec5f2d070c77ed8b39fb49bd332d16
-  artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/code/research/research.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: drop (droppy)
-  kind: url
-  value: https://huggingface.co/datasets/drop
-  verification_status: verified
-  verified_against_url: https://huggingface.co/drop/datasets
-  verified_at: '2026-07-01T18:25:27.090540Z'
-- artifact_hash: cd97e0ebb0de1977009b9b0ed61db0de2bec5f2d070c77ed8b39fb49bd332d16
-  artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/code/research/research.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: '[1311.5354] Another Argument in Favour of Wilcoxon&#39;s Signed
-    Rank Test'
-  kind: url
-  value: https://arxiv.org/abs/1311.5354
-  verification_status: verified
-  verified_against_url: https://arxiv.org/abs/1311.5354
-  verified_at: '2026-07-01T18:25:27.090540Z'
-- artifact_hash: cd97e0ebb0de1977009b9b0ed61db0de2bec5f2d070c77ed8b39fb49bd332d16
-  artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/code/research/research.md
-  cite_id: c-004
-  cited_authors: []
-  cited_title: null
-  fetched_title: '[1710.08708] Confidence intervals for normalised citation counts:
-    Can they delimit underlying research capability?'
-  kind: url
-  value: https://arxiv.org/abs/1710.08708
-  verification_status: verified
-  verified_against_url: https://arxiv.org/abs/1710.08708
-  verified_at: '2026-07-01T18:25:27.090540Z'
-- artifact_hash: cd97e0ebb0de1977009b9b0ed61db0de2bec5f2d070c77ed8b39fb49bd332d16
-  artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/code/research/research.md
-  cite_id: c-005
-  cited_authors: []
-  cited_title: null
-  fetched_title: Bootstrapping - Wikipedia
-  kind: url
-  value: https://en.wikipedia.org/wiki/Bootstrapping_
-  verification_status: verified
-  verified_against_url: https://en.wikipedia.org/wiki/Bootstrapping
-  verified_at: '2026-07-01T18:25:27.090540Z'
-- artifact_hash: cd97e0ebb0de1977009b9b0ed61db0de2bec5f2d070c77ed8b39fb49bd332d16
-  artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/code/research/research.md
-  cite_id: c-006
-  cited_authors: []
-  cited_title: null
-  fetched_title: GPU Cuda JSEG Segmentation Algorithm associated with Deep Learning
-    Classifier for Electrical Network Images Identification - Wikidata
-  kind: url
-  value: https://www.wikidata.org/wiki/Q129317410
-  verification_status: verified
-  verified_against_url: https://www.wikidata.org/wiki/Q129317410
-  verified_at: '2026-07-01T18:25:27.090540Z'
-- artifact_hash: cd97e0ebb0de1977009b9b0ed61db0de2bec5f2d070c77ed8b39fb49bd332d16
-  artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/code/research/research.md
-  cite_id: c-007
-  cited_authors: []
-  cited_title: null
-  fetched_title: '[2505.06730] Activity and Subject Detection for UCI HAR Dataset
-    with &amp; without missing Sensor Data'
-  kind: url
-  value: https://arxiv.org/abs/2505.06730
-  verification_status: verified
-  verified_against_url: https://arxiv.org/abs/2505.06730
-  verified_at: '2026-07-01T18:25:27.090540Z'
-- artifact_hash: cd97e0ebb0de1977009b9b0ed61db0de2bec5f2d070c77ed8b39fb49bd332d16
-  artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/code/research/research.md
-  cite_id: c-008
-  cited_authors: []
-  cited_title: null
-  fetched_title: SHA-2 - Wikipedia
-  kind: url
-  value: https://en.wikipedia.org/wiki/SHA-2
-  verification_status: verified
-  verified_against_url: https://en.wikipedia.org/wiki/SHA-2
-  verified_at: '2026-07-01T18:25:27.090540Z'
 - artifact_hash: 57389e51dcbb6aa05488ae6b3734b2677a98a994198d371d1dace9ea15a6f4da
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/research.md
   cite_id: c-001
@@ -189,7 +64,62 @@
   verification_status: mismatch
   verified_against_url: https://huggingface.co/UCI-HAR/datasets
   verified_at: '2026-07-01T18:36:11.165568Z'
-- artifact_hash: 26f92f6ca9bb29dd573c2c8fe807b9c38d9bf35687541eafe3b896e798b325fb
+- artifact_hash: b1326ab624a0c594390b9a6bab74f830f11b347fcf2d69915810ebf0c7ca743a
+  artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/code/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/uciml/adult
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/uciml/adult
+  verified_at: '2026-07-01T19:04:17.547609Z'
+- artifact_hash: b1326ab624a0c594390b9a6bab74f830f11b347fcf2d69915810ebf0c7ca743a
+  artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/code/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/chemb16/heart_disease_uci
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/chemb16/heart_disease_uci
+  verified_at: '2026-07-01T19:04:17.547609Z'
+- artifact_hash: b1326ab624a0c594390b9a6bab74f830f11b347fcf2d69915810ebf0c7ca743a
+  artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/code/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/uciml/wine-quality-red
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/uciml/wine-quality-red
+  verified_at: '2026-07-01T19:04:17.547609Z'
+- artifact_hash: 1ef85687d40e65fcdc0b4e52ec5a31932652a4f3ff03cabcda1aa78f09230f93
+  artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/code/research/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/allenai/drop
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/allenai/drop
+  verified_at: '2026-07-01T19:36:20.190036Z'
+- artifact_hash: 1ef85687d40e65fcdc0b4e52ec5a31932652a4f3ff03cabcda1aa78f09230f93
+  artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/code/research/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/mustard/mustard
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/mustard/mustard
+  verified_at: '2026-07-01T19:36:20.190036Z'
+- artifact_hash: ffbdcb03ad661ef8e67bb32f916bdbe4cd021059c6e81715a6d03f560d67a9ce
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -200,10 +130,21 @@
   value: https://arxiv.org/abs/1311.5354
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/1311.5354
-  verified_at: '2026-07-01T18:50:08.811861Z'
-- artifact_hash: 26f92f6ca9bb29dd573c2c8fe807b9c38d9bf35687541eafe3b896e798b325fb
+  verified_at: '2026-07-01T19:46:26.465719Z'
+- artifact_hash: ffbdcb03ad661ef8e67bb32f916bdbe4cd021059c6e81715a6d03f560d67a9ce
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: SHA256 File - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q50376371
+  verification_status: verified
+  verified_against_url: https://www.wikidata.org/wiki/Q50376371
+  verified_at: '2026-07-01T19:46:26.465719Z'
+- artifact_hash: ffbdcb03ad661ef8e67bb32f916bdbe4cd021059c6e81715a6d03f560d67a9ce
+  artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
+  cite_id: c-003
   cited_authors: []
   cited_title: null
   fetched_title: '[1710.08708] Confidence intervals for normalised citation counts:
@@ -212,10 +153,10 @@
   value: https://arxiv.org/abs/1710.08708
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/1710.08708
-  verified_at: '2026-07-01T18:50:08.811861Z'
-- artifact_hash: 26f92f6ca9bb29dd573c2c8fe807b9c38d9bf35687541eafe3b896e798b325fb
+  verified_at: '2026-07-01T19:46:26.465719Z'
+- artifact_hash: ffbdcb03ad661ef8e67bb32f916bdbe4cd021059c6e81715a6d03f560d67a9ce
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
-  cite_id: c-003
+  cite_id: c-004
   cited_authors: []
   cited_title: null
   fetched_title: Bootstrapping - Wikipedia
@@ -223,10 +164,10 @@
   value: https://en.wikipedia.org/wiki/Bootstrapping_
   verification_status: verified
   verified_against_url: https://en.wikipedia.org/wiki/Bootstrapping
-  verified_at: '2026-07-01T18:50:08.811861Z'
-- artifact_hash: 26f92f6ca9bb29dd573c2c8fe807b9c38d9bf35687541eafe3b896e798b325fb
+  verified_at: '2026-07-01T19:46:26.465719Z'
+- artifact_hash: ffbdcb03ad661ef8e67bb32f916bdbe4cd021059c6e81715a6d03f560d67a9ce
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
-  cite_id: c-004
+  cite_id: c-005
   cited_authors: []
   cited_title: null
   fetched_title: SHA-2 - Wikipedia
@@ -234,10 +175,10 @@
   value: https://en.wikipedia.org/wiki/SHA-2
   verification_status: verified
   verified_against_url: https://en.wikipedia.org/wiki/SHA-2
-  verified_at: '2026-07-01T18:50:08.811861Z'
-- artifact_hash: 26f92f6ca9bb29dd573c2c8fe807b9c38d9bf35687541eafe3b896e798b325fb
+  verified_at: '2026-07-01T19:46:26.465719Z'
+- artifact_hash: ffbdcb03ad661ef8e67bb32f916bdbe4cd021059c6e81715a6d03f560d67a9ce
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
-  cite_id: c-005
+  cite_id: c-006
   cited_authors: []
   cited_title: null
   fetched_title: GPU Cuda JSEG Segmentation Algorithm associated with Deep Learning
@@ -246,10 +187,10 @@
   value: https://www.wikidata.org/wiki/Q129317410
   verification_status: verified
   verified_against_url: https://www.wikidata.org/wiki/Q129317410
-  verified_at: '2026-07-01T18:50:08.811861Z'
-- artifact_hash: 26f92f6ca9bb29dd573c2c8fe807b9c38d9bf35687541eafe3b896e798b325fb
+  verified_at: '2026-07-01T19:46:26.465719Z'
+- artifact_hash: ffbdcb03ad661ef8e67bb32f916bdbe4cd021059c6e81715a6d03f560d67a9ce
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
-  cite_id: c-006
+  cite_id: c-007
   cited_authors: []
   cited_title: null
   fetched_title: '[2505.06730] Activity and Subject Detection for UCI HAR Dataset
@@ -258,4 +199,4 @@
   value: https://arxiv.org/abs/2505.06730
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/2505.06730
-  verified_at: '2026-07-01T18:50:08.811861Z'
+  verified_at: '2026-07-01T19:46:26.465719Z'

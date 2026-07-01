@@ -1,8 +1,5 @@
-'|checksum format sha tracking':
-  quote: A checksum of a portion of the compressed file is computed (SHA-1 of the
-    file contents, or SHA-1 of the first 1024 bytes of the file, or SHA-256 of the
-    first 1024 bytes of the file) and stored, so password correctness can be verified
-    when decrypting.
-  source_id: OpenDocument technical specification
-  url: https://en.wikipedia.org/wiki/OpenDocument_technical_specification
-  value: '1024'
+'|format sha256':
+  quote: 'P2748: fmt/991'
+  source_id: Q50376371
+  url: https://www.wikidata.org/wiki/Q50376371
+  value: fmt/991
