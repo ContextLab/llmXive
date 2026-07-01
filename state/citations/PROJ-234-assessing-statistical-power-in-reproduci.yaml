@@ -1,0 +1,11 @@
+- artifact_hash: 161eb7e6e9d4a641a9c159e15d233e9f89c1108f34162e6b699ac4efbd8df99a
+  artifact_path: projects/PROJ-234-assessing-statistical-power-in-reproduci/specs/001-assessing-statistical-power-in-reproduci/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://www.openml.org/api/v1
+  verification_status: unreachable
+  verified_against_url: https://www.openml.org/api/v1
+  verified_at: '2026-07-01T15:39:57.041393Z'
