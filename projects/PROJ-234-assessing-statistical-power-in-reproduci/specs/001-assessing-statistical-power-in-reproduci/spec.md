@@ -50,7 +50,7 @@ The system must calculate observed statistical power for each extractable datase
 **Acceptance Scenarios**:
 
 1. **Given** a dataset with N=100 and effect_size=0.2 (small), **When** the power calculation runs, **Then** the output power value is approximately consistent with the theoretical prediction (or within a 5% tolerance of the theoretical value).
-2. **Given** a list of calculated power values, **When** the system generates the report, **Then** the report includes a histogram showing the distribution of power values, a count of studies with power < 0.8, and a disclaimer stating "Observed power is a monotone function of the p-value and should not be used for post-hoc validation (Hoenig & Heisey, 2001)."
+2. **Given** a list of calculated power values, **When** the system generates the report, **Then** the report includes a histogram showing the distribution of power values, a count of studies with power < 0.8, and a disclaimer stating "Observed power is a monotone function of the p-value and should not be used for post-hoc validation (Hoenig & Heisey).."
 3. **Given** a dataset where the effect size is missing, **When** the calculation runs, **Then** the system skips the power calculation for that entry and logs a warning without crashing.
 
 ### Edge Cases
@@ -101,7 +101,7 @@ The system must calculate observed statistical power for each extractable datase
 - The full-text content of associated publications contains sufficient text to allow regex-based extraction of sample sizes and effect sizes; abstracts are used only as a fallback and are not expected to contain the required effect size statistics.
 - The analysis will run on a CPU-only environment; no GPU acceleration is required or available for the `statsmodels` calculations.
 - The dataset of top publications and their associated text data will fit within the standard disk limit of the CI runner (GitHub Actions free-tier standard).
-- The `statsmodels` library is pre-installed or can be installed within the 6-hour time limit of the CI job.
+- The `statsmodels` library is pre-installed or can be installed within the standard time limit of the CI job..
 - Effect sizes reported as F-statistics will be treated as direct inputs for power calculation approximations or converted using standard formulas if degrees of freedom are available in the metadata.
 - The free-tier GitHub Actions runner provides a limited RAM allocation (GitHub Actions free-tier standard).
 - The selection of "most-downloaded" datasets introduces a sampling bias toward high-impact studies; the audit results reflect this specific subset and are not generalizable to all scientific literature without further weighting.
