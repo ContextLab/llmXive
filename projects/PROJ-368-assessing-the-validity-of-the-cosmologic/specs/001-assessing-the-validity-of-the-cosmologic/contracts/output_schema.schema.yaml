@@ -1,0 +1,66 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Output Schema"
+description: "Schema for the statistical test results using the Maximum Statistic approach."
+type: object
+properties:
+  multipole_range:
+    type: object
+    properties:
+      l_min:
+        type: integer
+        description: "Minimum multipole."
+      l_max:
+        type: integer
+        description: "Maximum multipole."
+    required:
+      - l_min
+      - l_max
+  observed_statistics:
+    type: object
+    properties:
+      north_south_asymmetry:
+        type: number
+        description: "Normalized difference of power in North vs South hemisphere (A = (P_N - P_S)/(P_N + P_S))."
+      east_west_asymmetry:
+        type: number
+        description: "Normalized difference of power in East vs West hemisphere (A = (P_E - P_W)/(P_E + P_W))."
+      max_statistic:
+        type: number
+        description: "Maximum of the absolute asymmetry amplitudes (|A_NS|, |A_EW|)."
+    required:
+      - north_south_asymmetry
+      - east_west_asymmetry
+      - max_statistic
+  null_distribution:
+    type: object
+    properties:
+      n_simulations:
+        type: integer
+        description: "Number of Monte Carlo simulations."
+      mean_max:
+        type: number
+        description: "Mean of the Maximum Statistic in null distribution."
+      std_max:
+        type: number
+        description: "Std dev of the Maximum Statistic in null distribution."
+    required:
+      - n_simulations
+      - mean_max
+      - std_max
+  hypothesis_test:
+    type: object
+    properties:
+      p_value_max:
+        type: number
+        description: "P-value derived from the Maximum Statistic approach."
+      rejection:
+        type: boolean
+        description: "Whether the null hypothesis is rejected at p < 0.05."
+    required:
+      - p_value_max
+      - rejection
+required:
+  - multipole_range
+  - observed_statistics
+  - null_distribution
+  - hypothesis_test

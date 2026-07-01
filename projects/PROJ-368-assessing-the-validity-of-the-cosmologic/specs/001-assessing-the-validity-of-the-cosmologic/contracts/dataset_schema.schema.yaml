@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CMB Dataset Schema"
+description: "Schema for the processed CMB temperature map and masks."
+type: object
+properties:
+  filename:
+    type: string
+    description: "Name of the FITS file."
+  format:
+    type: string
+    enum: ["FITS"]
+    description: "File format."
+  nside:
+    type: integer
+    description: "HEALPix resolution parameter."
+  n_pix:
+    type: integer
+    description: "Total number of pixels (12 * nside^2)."
+  unit:
+    type: string
+    description: "Physical unit of pixel values."
+  source:
+    type: string
+    description: "Original data source (e.g., Planck 2018 SMICA)."
+  mask_applied:
+    type: boolean
+    description: "Whether a Galactic mask has been applied."
+  downgraded:
+    type: boolean
+    description: "Whether the map has been downgraded from original resolution."
+required:
+  - filename
+  - format
+  - nside
+  - n_pix
+  - unit
+  - source
+  - mask_applied
+  - downgraded

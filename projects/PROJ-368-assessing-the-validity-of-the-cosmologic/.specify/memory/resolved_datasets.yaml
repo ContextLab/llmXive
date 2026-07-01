@@ -1,0 +1,66 @@
+resolved_at: '2026-07-01T15:36:30.517319+00:00'
+datasets:
+- intent: SMICA
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/The_branding_game_the_role_of_sport_in_South_African_foreign_policy/32861252
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/3D-Printed_ZnO_SiOC_Gyroid_Monoliths_as_Efficient_Photocatalysts_for_Continuous-Flow_Operation/32861317
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Book_review_Mathabatha_N_J_S_2005_The_struggle_over_education_in_the_Northern_Transvaal_the_case_of_catholic_mission_schools_1948_to_1994_Amsterdam_Rosenberg_Publishers_105_p_ISBN_9051701986/32861243
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Socio-economic_transformation_in_South_Africa_black_economic_empowerment_and_small_medium_and_micro_enterprises/32861240
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/It_s_time_for_some_tough_action_on_Zimbabwe/32861237
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2651377
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16283859
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11489180
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18962391
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.researchgate.net/doi/10.13140/RG.2.2.34822.74565
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/21007249
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21007249
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20956968
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20952057
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20949291
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

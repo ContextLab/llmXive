@@ -1,1 +1,11 @@
-[]
+- artifact_hash: cfe2bd6d24d4734cacd7daeffe9e017243df8c374dbf7714d4e622eea820a18a
+  artifact_path: projects/PROJ-368-assessing-the-validity-of-the-cosmologic/specs/001-assessing-the-validity-of-the-cosmologic/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://pla.esac.esa.int/pla/aio/product-action?MAP.MAP_ID=COM_CMB_MRL_SMICA_Nside2048_R2.01.fits**
+  verification_status: unreachable
+  verified_against_url: https://pla.esac.esa.int/pla/aio/product-action?MAP.MAP_ID=COM_CMB_MRL_SMICA_Nside2048_R2.01.fits**
+  verified_at: '2026-07-01T16:12:01.418877Z'
