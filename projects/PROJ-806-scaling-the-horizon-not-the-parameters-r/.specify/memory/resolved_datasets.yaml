@@ -1,0 +1,252 @@
+resolved_at: '2026-07-01T05:04:20.432239+00:00'
+datasets:
+- intent: SEAL-0
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Empirical_curvelet_transform_based_deep_DenseNet_model_to_predict_NDVI_using_RGB_drone_imagery_data/32843696
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Gregory_University_2026_2027_Admission_forms_for_all_programs_0704_096_4654_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Transfer_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diploma_Form_For_more_infor/32843693
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/FAPROTAX2-db_A_database_of_experimentally_validated_bacterial_and_archaeal_metabolic_functions/32799582
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Mcpherson_University_2026_2027_Admission_forms_for_all_programs_0704_096_4654_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Transfer_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diploma_Form_For_more_inf/32843690
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Enhanced_removal_of_trace_thallium_by_photo-promoted_adsorption_using_Prussian_blue_filter_papers_Performance_and_mechanistic_insights/32843687
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.cambridge.org/core/journals/antarctic-science/article/leucistic-weddell-seal-leptonychotes-weddellii-observations-in-erebus-bay-antarctica/FC16832474D11C30E2B3721480644E82
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12545042
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://chooser.crossref.org/?doi=10.1144%2Fpygs.7.2.162
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.scientificamerican.com/article/fishes-and-the-mosquito-problem/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17168185
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21091681
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21091681
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21086552
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21086552
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21070209
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: IFBench
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/HennersBro98/reasoning-ifbench-binary/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/HennersBro98/reasoning-ifbench-binary-system1/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/HennersBro98/reasoning-ifbench-binary-noxml/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/THU-KEG/IFBench/6fa6f03960d0e5eab9e5c8549a355a1ade70291e/IFBench.json?%2Fdatasets%2FTHU-KEG%2FIFBench%2Fresolve%2Fmain%2FIFBench.json=&etag=%221fe8ae0b5969c08ce36e2c9417f6c308f9197abf%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/HennersBro98/reasoning-ifbench-binary/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/HennersBro98/reasoning-ifbench-binary-system1/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/HennersBro98/reasoning-ifbench-binary-noxml/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/HennersBro98/atla-selene-1-v2-ifbench_binary/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Empirical_curvelet_transform_based_deep_DenseNet_model_to_predict_NDVI_using_RGB_drone_imagery_data/32843696
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Gregory_University_2026_2027_Admission_forms_for_all_programs_0704_096_4654_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Transfer_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diploma_Form_For_more_infor/32843693
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/FAPROTAX2-db_A_database_of_experimentally_validated_bacterial_and_archaeal_metabolic_functions/32799582
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Mcpherson_University_2026_2027_Admission_forms_for_all_programs_0704_096_4654_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Transfer_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diploma_Form_For_more_inf/32843690
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Enhanced_removal_of_trace_thallium_by_photo-promoted_adsorption_using_Prussian_blue_filter_papers_Performance_and_mechanistic_insights/32843687
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19774032
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.30616
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.27226
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.19605
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.13982
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.11459
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SciCode
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Zilinghan/scicode/resolve/main/problems_dev.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/SciCode1/SciCode/resolve/main/problems_dev.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Srimadh/Scicode-test-data-h5/resolve/main/test_data.h5
+    source: huggingface
+    format: hdf5
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Zilinghan/scicode/resolve/main/problems_dev.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/SciCode1/SciCode/resolve/main/problems_dev.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/Srimadh/Scicode-test-data-h5/resolve/main/test_data.h5
+    source: huggingface
+    status: verified
+    format: hdf5
+  - url: https://huggingface.co/datasets/mikasenghaas/scicode_gpt-4.1-mini_n64_r1/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/mikasenghaas/scicode_gpt-4.1-mini_n15_r1/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/The_Potential_of_Solar_Integration_for_Meeting_the_Electrical_Demands_of_Water_Treatment_and_Delivery_in_Rural_Alaska/32843705
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Empirical_curvelet_transform_based_deep_DenseNet_model_to_predict_NDVI_using_RGB_drone_imagery_data/32843696
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Gregory_University_2026_2027_Admission_forms_for_all_programs_0704_096_4654_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Transfer_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diploma_Form_For_more_infor/32843693
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/FAPROTAX2-db_A_database_of_experimentally_validated_bacterial_and_archaeal_metabolic_functions/32799582
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Mcpherson_University_2026_2027_Admission_forms_for_all_programs_0704_096_4654_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Transfer_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diploma_Form_For_more_inf/32843690
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15783535
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19101706
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21014733
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.30616
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2603.17893
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.01286
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2605.28282
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2604.23106
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

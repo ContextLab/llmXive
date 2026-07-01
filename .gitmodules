@@ -142,3 +142,9 @@
 [submodule "projects/PROJ-773-enterpriseclawbench-benchmarking-agents/external/EnterpriseClawBench"]
 	path = projects/PROJ-773-enterpriseclawbench-benchmarking-agents/external/EnterpriseClawBench
 	url = https://github.com/FrontisAI/EnterpriseClawBench
+[submodule "projects/PROJ-807-liveedit-towards-real-time-diffusion-bas/external/author-kit"]
+	path = projects/PROJ-807-liveedit-towards-real-time-diffusion-bas/external/author-kit
+	url = https://github.com/cvpr-org/author-kit
+[submodule "projects/PROJ-806-scaling-the-horizon-not-the-parameters-r/external/Agents-A1"]
+	path = projects/PROJ-806-scaling-the-horizon-not-the-parameters-r/external/Agents-A1
+	url = https://github.com/InternScience/Agents-A1

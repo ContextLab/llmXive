@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-18T11:25:19.725520Z'
-current_stage: paper_ingested
+current_stage: brainstormed
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-730-ace-ego-0-unifying-egocentric-human-and
-last_run_id: 7baeebde-0553-4fd5-b44a-73473a0fdb8d
+last_run_id: a50f570f-d942-47cd-9a61-b83ec8f54e6f
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: specs/auto-revisions/PROJ-730-ace-ego-0-unifying-egocentric-
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'ACE-Ego-0: Unifying Egocentric Human and Robotic Data for VLA Pretraining'
-updated_at: '2026-06-30T17:20:36.871323Z'
+updated_at: '2026-07-01T05:02:35.598546Z'

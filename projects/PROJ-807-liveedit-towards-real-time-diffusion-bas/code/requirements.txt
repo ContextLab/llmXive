@@ -1,0 +1,5 @@
+opencv-python  # auto-added: imported by run-book but missing from venv
+numpy  # auto-added: imported by run-book but missing from venv
+requests  # auto-added: imported by run-book but missing from venv
+scikit-image  # auto-added: imported by run-book but missing from venv
+torch  # auto-added: imported by run-book but missing from venv

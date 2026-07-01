@@ -1,0 +1,151 @@
+artifact_links:
+- projects/PROJ-807-liveedit-towards-real-time-diffusion-bas/specs/001-liveedit-towards-real-time-diffusion-bas/plan.md
+- specs/*/contracts/*
+- specs/*/data-model.md
+- specs/*/plan.md
+- specs/*/quickstart.md
+- specs/*/research.md
+reason: 10 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst
+  unresolved severity = 'science'. Routing to 'specified' with full provenance so
+  the next worker can address the root cause.
+stage: plan
+to_stage: specified
+unresolved_concerns:
+- artifact: projects/PROJ-807-liveedit-towards-real-time-diffusion-bas/specs/001-liveedit-towards-real-time-diffusion-bas/plan.md
+  id: methodology-71bb61a3
+  location: research.md:Methodology & Statistical Rigor
+  reviewer: methodology
+  round: 1
+  severity: methodology
+  text: "The plan proposes comparing CPU FPS against a paper claim likely derived\
+    \ from GPU hardware using a '\xB120% variance' tolerance. This is a causal validity\
+    \ failure: comparing raw FPS across different hardware architectures (CPU vs GPU)\
+    \ does not validate the 'Real-Time' claim or the efficiency of the distillation\
+    \ method. The methodology must isolate the algorithmic speedup (e.g., comparing\
+    \ distilled vs. non-distilled on the *same* CPU) rather than comparing absolute\
+    \ throughput across hardware."
+- artifact: projects/PROJ-807-liveedit-towards-real-time-diffusion-bas/specs/001-liveedit-towards-real-time-diffusion-bas/plan.md
+  id: methodology-7769fb78
+  location: research.md:Background Stability (PSNR/SSIM)
+  reviewer: methodology
+  round: 1
+  severity: methodology
+  text: "The plan sets a fixed success threshold of PSNR \u2265 30 dB without establishing\
+    \ a baseline or control group. Without a comparison to a 'no-distillation' baseline\
+    \ or a standard diffusion run on the same hardware, a PSNR of 30 dB is an arbitrary\
+    \ number that cannot validate the 'stable background' claim. The methodology needs\
+    \ a relative metric (e.g., 'Distillation PSNR must be within X% of the Baseline\
+    \ PSNR') to prove the method preserves background stability."
+- artifact: projects/PROJ-807-liveedit-towards-real-time-diffusion-bas/specs/001-liveedit-towards-real-time-diffusion-bas/plan.md
+  id: methodology-9db57887
+  location: research.md:Flicker Detection (Temporal Stability)
+  reviewer: methodology
+  round: 1
+  severity: methodology
+  text: The flicker detection method relies on a 'defined threshold' derived from
+    SC-004 but does not specify how this threshold is determined. Setting a static
+    threshold for frame-difference (L2 norm) without empirical calibration or a control
+    sequence (e.g., a static video processed by the model) risks false positives/negatives.
+    The methodology must define a calibration step to establish the noise floor of
+    the pipeline before setting the flicker threshold.
+- artifact: projects/PROJ-807-liveedit-towards-real-time-diffusion-bas/specs/001-liveedit-towards-real-time-diffusion-bas/plan.md
+  id: methodology-c70e42c9
+  location: 'plan.md:Phase 0: Research & Feasibility Verification'
+  reviewer: methodology
+  round: 1
+  severity: methodology
+  text: Phase 0 aims to 'identify memory bottlenecks' but does not include a plan
+    to measure the *impact* of chunking on temporal consistency. Chunked processing
+    in diffusion models often introduces boundary artifacts (flickering at chunk seams).
+    The methodology fails to account for this specific confound; if chunking introduces
+    flicker, the 'background stability' metric will fail regardless of the model's
+    quality. The plan must include a specific test for chunk-boundary artifacts.
+- artifact: projects/PROJ-807-liveedit-towards-real-time-diffusion-bas/specs/001-liveedit-towards-real-time-diffusion-bas/plan.md
+  id: plan_consistency-0f3a3e67
+  location: projects/PROJ-807-liveedit-towards-real-time-diffusion-bas/specs/001-liveedit-towards-real-time-diffusion-bas/plan.md:Constitution
+    Check
+  reviewer: plan_consistency
+  round: 1
+  severity: requirement
+  text: 'Constitution Check section references ''Principle 1 (Reproducibility)'',
+    ''Principle 2 (Feasibility)'', etc., but the per-project constitution (FR-030)
+    defines specific principles (I: SSoT, II: No Silent Fallbacks, III: Real-Call
+    Testing, etc.). The plan''s ''Constitution Check'' does not map to the actual
+    constitutional principles defined in the project''s constitution.md, violating
+    Principle I (SSoT) and failing to demonstrate compliance with the actual governing
+    rules.'
+- artifact: projects/PROJ-807-liveedit-towards-real-time-diffusion-bas/specs/001-liveedit-towards-real-time-diffusion-bas/plan.md
+  id: plan_consistency-81ded2bd
+  location: projects/PROJ-807-liveedit-towards-real-time-diffusion-bas/specs/001-liveedit-towards-real-time-diffusion-bas/plan.md:Phase
+    1
+  reviewer: plan_consistency
+  round: 1
+  severity: writing
+  text: Phase 1 Step 4 mentions creating 'contracts/benchmark_result.schema.yaml'
+    and 'contracts/output_manifest.schema.yaml', but the data-model.md and contracts/
+    directory already define these schemas. The plan should reference the existing
+    contracts rather than implying they need to be created from scratch, or clarify
+    if the plan is to *validate* them. This creates ambiguity about the source of
+    truth for the schema definitions.
+- artifact: projects/PROJ-807-liveedit-towards-real-time-diffusion-bas/specs/001-liveedit-towards-real-time-diffusion-bas/plan.md
+  id: plan_consistency-96a09326
+  location: projects/PROJ-807-liveedit-towards-real-time-diffusion-bas/specs/001-liveedit-towards-real-time-diffusion-bas/plan.md:Phase
+    2
+  reviewer: plan_consistency
+  round: 1
+  severity: writing
+  text: Phase 2 Step 2 mentions implementing 'src/liveedit/validators.py' to check
+    for missing masks and corrupted weights. The data-model.md and spec.md define
+    these as edge cases, but the plan does not explicitly link this implementation
+    to the specific Success Criteria (SC-005 for OOM, or the edge case handling in
+    spec.md). This weakens the traceability between the plan's implementation steps
+    and the validation requirements.
+- artifact: projects/PROJ-807-liveedit-towards-real-time-diffusion-bas/specs/001-liveedit-towards-real-time-diffusion-bas/plan.md
+  id: scientific_soundness-cb7e433f
+  location: research.md:Methodology & Statistical Rigor -> 2. Background Stability
+  reviewer: scientific_soundness
+  round: 1
+  severity: science
+  text: 'The plan validates ''background stability'' by computing PSNR/SSIM between
+    the input video''s non-masked regions and the output video''s non-masked regions.
+    In a diffusion-based editing pipeline, the model is explicitly trained to preserve
+    the background. Therefore, the output background is a deterministic function of
+    the input background (plus minor noise). Comparing Input-Background to Output-Background
+    is a tautological validation: it measures ''how well the model copied the input''
+    rather than ''how well the model preserved the background during editing''. If
+    the model fails to edit the foreground, the background PSNR will be perfect, falsely
+    validating the claim. The validation target must be independent of the input (e.g.,
+    comparing against a ground-truth ''clean'' background sequence or a baseline method)
+    to be scientifically sound.'
+- artifact: projects/PROJ-807-liveedit-towards-real-time-diffusion-bas/specs/001-liveedit-towards-real-time-diffusion-bas/plan.md
+  id: scientific_soundness-d9924ee8
+  location: research.md:Methodology & Statistical Rigor -> 3. Flicker Detection
+  reviewer: scientific_soundness
+  round: 1
+  severity: science
+  text: The plan defines flicker detection as computing the frame-to-frame difference
+    of the *background* pixels. This is circular if the 'background' is defined as
+    the non-masked region of the *input* video. If the input video has a static background,
+    the difference will be zero regardless of whether the model introduces flicker
+    in the *output*. The metric must measure the temporal variance of the *output*
+    background pixels against a reference of 'static' (e.g., variance of the mean
+    background frame), not against the input frames. Comparing Output-Frame(t) to
+    Input-Frame(t) for background regions conflates 'editing accuracy' with 'temporal
+    stability'.
+- artifact: projects/PROJ-807-liveedit-towards-real-time-diffusion-bas/specs/001-liveedit-towards-real-time-diffusion-bas/plan.md
+  id: scientific_soundness-945664e6
+  location: research.md:Methodology & Statistical Rigor -> 1. Inference Speed Measurement
+  reviewer: scientific_soundness
+  round: 1
+  severity: methodology
+  text: "The plan compares CPU FPS to a paper claim of 12.66 FPS (likely GPU) using\
+    \ a \xB120% tolerance. This is methodologically unsound. CPU and GPU inference\
+    \ have fundamentally different computational characteristics (latency vs. throughput,\
+    \ memory bandwidth bottlenecks). A 20% variance is arbitrary and scientifically\
+    \ meaningless when comparing across hardware architectures. The validation should\
+    \ either: (a) compare the CPU result against a *CPU baseline* (e.g., standard\
+    \ diffusion without distillation) to prove the *relative* speedup, or (b) explicitly\
+    \ state that the 'Real-Time' claim is untestable on this hardware and only the\
+    \ *method's feasibility* is being validated. Claiming to validate a specific FPS\
+    \ number across hardware is a category error."
+worst_severity: science

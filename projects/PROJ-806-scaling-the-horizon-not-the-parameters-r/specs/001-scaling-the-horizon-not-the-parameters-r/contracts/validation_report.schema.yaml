@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ValidationReport"
+description: "Schema for the aggregate validation report comparing results to paper claims."
+type: "object"
+properties:
+  benchmark_name:
+    type: "string"
+    description: "Name of the benchmark (e.g., IFBench)."
+  paper_claim:
+    type: "number"
+    description: "The score claimed in the paper (e.g., 80.6)."
+  reproduced_score:
+    type: "number"
+    nullable: true
+    description: "The average score of the reproduced sample. Null if no samples completed or benchmark excluded."
+  difference:
+    type: "number"
+    nullable: true
+    description: "Calculated difference (reproduced_score - paper_claim). Null if score is null."
+  pass_status:
+    type: "string"
+    enum:
+      - "PASS"
+      - "FAIL"
+      - "INCONCLUSIVE"
+      - "N/A"
+    description: "Overall status. 'INCONCLUSIVE' for small sample sizes, 'N/A' if benchmark was skipped or failed to load."
+  sample_size:
+    type: "integer"
+    description: "Number of samples used in the reproduction."
+  resource_log_path:
+    type: "string"
+    description: "Relative path to the resource telemetry file."
+  feasibility_status:
+    type: "string"
+    enum:
+      - "FEASIBLE"
+      - "INFEASIBLE"
+      - "ABORTED"
+    description: "Whether the pipeline completed successfully or aborted due to resource limits."
+required:
+  - benchmark_name
+  - paper_claim
+  - pass_status
+  - sample_size
+  - resource_log_path
+  - feasibility_status
+additionalProperties: false
