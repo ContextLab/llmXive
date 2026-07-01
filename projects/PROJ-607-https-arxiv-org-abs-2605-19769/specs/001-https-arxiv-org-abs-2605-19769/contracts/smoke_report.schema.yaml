@@ -1,16 +1,29 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: OpenComputer Smoke Report
-type: object
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Smoke Test Report"
+description: "Schema for the single-task smoke test report."
+type: "object"
 properties:
-  status:
-    type: string
-    enum: ["success", "partial_success", "build_failed", "disk_quota_exceeded"]
   task_id:
-    type: string
+    type: "string"
+    description: "ID of the task run in the smoke test."
+  status:
+    type: "string"
+    enum:
+      - "success"
+      - "partial_success"
+      - "failed"
+      - "build_failed"
+    description: "Overall status of the smoke test."
   error_log:
-    type: string
-    nullable: true
-    description: "Full error output if status is not success"
+    type: "string"
+    description: "Error log if status is 'failed' or 'build_failed'."
+  execution_time_seconds:
+    type: "number"
+    description: "Time taken to execute the task."
+  container_id:
+    type: "string"
+    description: "ID of the Docker container used."
 required:
-  - status
   - task_id
+  - status
+additionalProperties: false

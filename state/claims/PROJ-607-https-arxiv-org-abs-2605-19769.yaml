@@ -50,3 +50,95 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-06-30T21:25:47Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/paper/specs/001-paper/spec.md
+  attempts: 1
+  canonical: 4 out of 5 tasks showed alignment between verifier and manual adjudication
+  claim_id: c_3525de04
+  context: 'The Abstract must include a ''Key Findings'' sentence explicitly stating:
+    ''4/5 tasks showed alignment between verifier and manual adjudication; no systematic
+    divergence observed.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 4/5 tasks showed alignment between verifier and manual adjudication; no
+    systematic divergence observed.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:52:01Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/paper/specs/001-paper/spec.md
+  attempts: 1
+  canonical: Pipeline reproducible on GitHub Actions free tier with 2-core, 7GB RAM,
+    and 14GB disk
+  claim_id: c_f8c6eff4
+  context: 'Claim 1: The pipeline is reproducible on GitHub Actions free tier: 2-core,
+    7GB RAM, 14GB disk. Verification Target: Success of run_smoke_test.sh and smoke_report.json
+    status.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The pipeline is reproducible on GitHub Actions free tier: 2-core, 7GB
+    RAM, 14GB disk.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:53:19Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/paper/specs/001-paper/spec.md
+  attempts: 1
+  canonical: 10% margin of error requirement inapplicable to N=5 sample size
+  claim_id: c_cf8fc03a
+  context: 'Claim 4: The original ''10% margin of error'' requirement was inapplicable
+    to the N=5 sample size, necessitating a qualitative narrative approach.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The original '10% margin of error' requirement was inapplicable to the
+    N=5 sample size, necessitating a qualitative narrative approach.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:54:27Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/paper/specs/001-paper/spec.md
+  attempts: 1
+  canonical: Study pivots to qualitative narrative due to N=5 sample size constraint
+  claim_id: c_5b6d4235
+  context: The study explicitly pivots from statistical margins to a qualitative narrative
+    due to sample size constraints (N=5), ensuring scientific integrity.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The study explicitly pivots from statistical margins to a qualitative
+    narrative due to sample size constraints (N=5).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:55:12Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/paper/specs/001-paper/spec.md
+  attempts: 1
+  canonical: Recommendation for larger-scale study with N greater than or equal to
+    30
+  claim_id: c_94ff232c
+  context: "Consequently, the section will explicitly recommend a larger-scale study\
+    \ (N \u2265 30) to establish a statistical margin of error and validate the '10%\
+    \ margin' claim originally proposed in the abstract."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Recommendation_for_larger-scale_study_with_N_greater_than_or
+  kind: magnitude
+  raw_text: "The limitations section will explicitly recommend a larger-scale study\
+    \ (N \u2265 30) to establish a statistical margin of error."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-06-30T23:57:22Z'
