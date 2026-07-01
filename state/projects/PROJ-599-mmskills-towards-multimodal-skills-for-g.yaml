@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-19T09:11:18.281578Z'
-current_stage: paper_ingested
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-599-mmskills-towards-multimodal-skills-for-g
-last_run_id: 8e350f8a-c336-4208-bb97-ef6136af3005
+last_run_id: 0a965085-727b-4fc6-8c02-e3ee978ad474
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: specs/auto-revisions/PROJ-599-mmskills-towards-multimodal-sk
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-599-mmskills-towards-multimodal-skills-for-g/specs/001-mmskills-towards-multimodal-skills-for-g
 title: 'MMSkills: Towards Multimodal Skills for General Visual Agents'
-updated_at: '2026-06-30T04:20:06.180514Z'
+updated_at: '2026-07-01T23:08:53.862624Z'

@@ -8,4 +8,26 @@
   value: '2605.13527'
   verification_status: unreachable
   verified_against_url: null
-  verified_at: '2026-07-01T12:26:48.317388Z'
+  verified_at: '2026-07-01T22:00:06.783098Z'
+- artifact_hash: 00e508fddbd01b39d2c84a993830b92d07cfe9fd241e0b433c9cf33e68857613
+  artifact_path: projects/PROJ-599-mmskills-towards-multimodal-skills-for-g/specs/001-mmskills-towards-multimodal-skills-for-g/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/osworld/osworld`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/osworld/osworld
+  verified_at: '2026-07-01T22:24:18.777237Z'
+- artifact_hash: a2a7858b8bb2cc6bc15e89dc1ce58db189743e7d32d8e87e0d67ffd2a0543cb2
+  artifact_path: projects/PROJ-599-mmskills-towards-multimodal-skills-for-g/specs/001-mmskills-towards-multimodal-skills-for-g/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: cpu
+  kind: url
+  value: https://download.pytorch.org/whl/cpu
+  verification_status: pending
+  verified_against_url: https://download.pytorch.org/whl/cpu
+  verified_at: '2026-07-01T22:24:38.730331Z'

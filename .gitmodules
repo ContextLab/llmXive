@@ -166,9 +166,6 @@
 [submodule "projects/PROJ-576-sana-wm-efficient-minute-scale-world-mod/external/Sana"]
 	path = projects/PROJ-576-sana-wm-efficient-minute-scale-world-mod/external/Sana
 	url = https://github.com/NVlabs/Sana
-[submodule "projects/PROJ-599-mmskills-towards-multimodal-skills-for-g/external/MMSkills"]
-	path = projects/PROJ-599-mmskills-towards-multimodal-skills-for-g/external/MMSkills
-	url = https://github.com/DeepExperience/MMSkills
 [submodule "projects/PROJ-782-mobileforge-annotation-free-adaptation-f/external/MobileForge"]
 	path = projects/PROJ-782-mobileforge-annotation-free-adaptation-f/external/MobileForge
 	url = https://github.com/kwai/MobileForge
@@ -202,3 +199,9 @@
 [submodule "projects/PROJ-654-https-arxiv-org-abs-2605-29707/external/Domino"]
 	path = projects/PROJ-654-https-arxiv-org-abs-2605-29707/external/Domino
 	url = https://github.com/jianuo-huang/Domino
+[submodule "projects/PROJ-638-https-arxiv-org-abs-2605-28820/external/NEO"]
+	path = projects/PROJ-638-https-arxiv-org-abs-2605-28820/external/NEO
+	url = https://github.com/EvolvingLMMs-Lab/NEO
+[submodule "projects/PROJ-599-mmskills-towards-multimodal-skills-for-g/external/MMSkills"]
+	path = projects/PROJ-599-mmskills-towards-multimodal-skills-for-g/external/MMSkills
+	url = https://github.com/DeepExperience/MMSkills

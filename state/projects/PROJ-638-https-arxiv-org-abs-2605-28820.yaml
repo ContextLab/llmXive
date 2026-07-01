@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-29T09:12:13.004794Z'
-current_stage: paper_ingested
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-638-https-arxiv-org-abs-2605-28820
-last_run_id: e8521fe8-0ae2-497b-ac13-d6113063fc9a
+last_run_id: 13401fdd-85b6-45ae-888b-377d403a0dd4
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-638-https-arxiv-org-abs-2605-28820/specs/001-https-arxiv-org-abs-2605-28820
 title: From Pixels to Words -- Towards Native One-Vision Models at Scale
-updated_at: '2026-06-30T10:23:13.051929Z'
+updated_at: '2026-07-01T21:58:49.571560Z'

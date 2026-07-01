@@ -81,7 +81,7 @@ As a researcher, I want to run the agent on a small, fixed subset of tasks (e.g.
 - **SC-001**: The percentage of tasks in the subset that complete without runtime errors (exit code 0) is measured against the total number of tasks attempted in the `metrics_summary.csv` (See US-1).
 - **SC-002**: The success rate of the MMSkills agent on the subset is measured against the baseline success rate reported in the MMSkills paper (arXiv:2605.13527) for the same benchmark (See US-3).
 - **SC-003**: The time-to-completion for a single skill step is measured against the 30-minute per-task timeout threshold to ensure CI feasibility (See US-3).
-- **SC-004**: The peak memory usage during agent execution is measured against the 7 GB RAM limit of the CI runner to verify resource constraints (See US-1).
+- **SC-004**: The peak memory usage during agent execution is measured against the available RAM limit of the CI runner. to verify resource constraints (See US-1).
 - **SC-005**: The number of missing or corrupted image files in the `skills_library` is measured against zero to ensure data integrity (See US-2).
 - **SC-006**: The reproducibility of the execution flow is measured by the successful generation of a valid `metrics_summary.csv` for [deferred] of the requested subset tasks (See US-3).
 
@@ -93,4 +93,4 @@ As a researcher, I want to run the agent on a small, fixed subset of tasks (e.g.
 - The Python version in the CI environment is compatible with the `pyproject.toml` or `requirements.txt` specifications (Python 3.10+).
 - The multimodal model weights required for inference are either included in the submodule or can be downloaded via Hugging Face without requiring a paid API key or GPU.
 - The "OSWorld" or "Gaming" benchmarks referenced in the code can be simulated or run in a headless environment without requiring a full desktop GUI session.
-- The execution of the agent on CPU will not exceed the 6-hour job limit for a subset of 5 tasks, assuming a hard timeout of 30 minutes per task is enforced.
+- The execution of the agent on CPU will not exceed the job limit for a subset of tasks.., assuming a hard timeout of 30 minutes per task is enforced.

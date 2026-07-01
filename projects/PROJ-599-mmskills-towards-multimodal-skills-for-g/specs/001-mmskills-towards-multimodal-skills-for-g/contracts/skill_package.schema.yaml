@@ -1,0 +1,65 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MMSkills Skill Package Schema"
+description: "Schema for validating MMSkills skill packages (plan.json, state_cards.json)"
+type: "object"
+properties:
+  plan:
+    type: "object"
+    description: "The main plan definition"
+    required:
+      - "skill_id"
+      - "description"
+      - "steps"
+    properties:
+      skill_id:
+        type: "string"
+        description: "Unique identifier for the skill"
+      description:
+        type: "string"
+        description: "Natural language description of the task"
+      steps:
+        type: "array"
+        description: "List of steps to execute"
+        items:
+          type: "object"
+          required:
+            - "step_id"
+            - "action_type"
+            - "parameters"
+          properties:
+            step_id:
+              type: "integer"
+              description: "Index of the step"
+            action_type:
+              type: "string"
+              description: "Type of action (e.g., 'click', 'type')"
+            parameters:
+              type: "object"
+              description: "Parameters for the action"
+              additionalProperties: true
+  state_cards:
+    type: "object"
+    description: "State definitions"
+    required:
+      - "initial_state"
+      - "expected_states"
+    properties:
+      initial_state:
+        type: "string"
+        description: "Description of the initial environment state"
+      expected_states:
+        type: "array"
+        description: "List of expected states after each step"
+        items:
+          type: "string"
+  image_references:
+    type: "object"
+    description: "Mapping of step IDs to image filenames"
+    additionalProperties:
+      type: "string"
+      description: "Filename of the image file"
+required:
+  - "plan"
+  - "state_cards"
+  - "image_references"
+additionalProperties: false

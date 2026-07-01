@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MMSkills Evaluation Metrics Schema"
+description: "Schema for the metrics_summary.csv output"
+type: "object"
+properties:
+  task_id:
+    type: "string"
+    description: "Unique identifier for the task"
+  status:
+    type: "string"
+    enum:
+      - "success"
+      - "fail"
+      - "timeout"
+      - "error"
+      - "partial_success"
+    description: "Status of the task execution"
+  duration_seconds:
+    type: "number"
+    description: "Time taken to complete the task in seconds"
+    minimum: 0
+  peak_memory_mb:
+    type: "number"
+    description: "Peak RSS memory usage in MB (measured via psutil)"
+    minimum: 0
+  asset_error_count:
+    type: "integer"
+    description: "Number of missing or corrupted image files detected for this task"
+    minimum: 0
+  error_message:
+    type: "string"
+    description: "Error message if the task failed or timed out"
+  skill_id:
+    type: "string"
+    description: "The skill package used for the task"
+required:
+  - "task_id"
+  - "status"
+  - "duration_seconds"
+  - "peak_memory_mb"
+  - "asset_error_count"
+  - "skill_id"
+additionalProperties: false
