@@ -1,73 +1,90 @@
-# Quickstart: Running the Evolutionary Splicing Pipeline
-
-The quickstart demonstrates a minimal end‑to‑end run on a **single sample per species** (four samples total). Adjust `config.yaml` to point to your own SRA accession list.
+# Quickstart: Evolutionary Pressure on Alternative Splicing in Primates
 
 ## Prerequisites
-1. **GitHub Actions runner** (or local Linux env) with **Python 3.11**, **R 4.3**, **conda** installed.
-2. Clone the repository and navigate to the project root.
 
-```bash
-git clone https://github.com/your-org/evolutionary-splicing.git
-cd evolutionary-splicing
-```
+-   **Python**: 3.11+
+-   **R**: 4.3+ (with packages `caper`, `ape`, `ggplot2`, `phylolm`)
+-   **External Tools**: `STAR`, `SUPPA2`, `bedtools` (installed in PATH)
+-   **Git**: For repository cloning
 
-## Step 1: Set up the environment
-```bash
-conda env create -f environment.yml   # pins all CPU‑only packages
-conda activate evo-splice
-```
+## Installation
 
-## Step 2: Prepare `config.yaml`
-```yaml
-samples:
-  - accession_id: SRR1234567
-    species: human
-  - accession_id: SRR2345678
-    species: chimpanzee
-  - accession_id: SRR3456789
-    species: macaque
-  - accession_id: SRR4567890
-    species: marmoset
-output_dir: data/
-seed: 42
-max_replicates: 3
-```
-> **Important**: Replace the placeholder accession IDs with real SRA runs that contain cortex RNA‑seq. The pipeline will abort (error 101) if fewer than three replicates per species are supplied.
+1.  **Clone the repository**:
+    ```bash
+    git clone https://github.com/your-org/PROJ-002-evolutionary-pressure.git
+    cd PROJ-002-evolutionary-pressure-on-alternative-spl
+    ```
 
-## Step 3: Run the full pipeline
-```bash
-python -m src.pipeline.run --config config.yaml
-```
-The command executes the following sub‑steps (see `plan.md` for mapping to FR IDs):
-1. Download FASTQ (`FR-001`).
-2. Align with STAR (`FR-002`).
-3. Quantify PSI via SUPPA2 (`FR-003`).
-4. Filter lineage‑specific events (`FR-004`).
-5. Extract flanking sequences and annotate phyloP (`FR-005`, `FR-006`).
-6. Enrichment testing with Fisher, BH & Bonferroni corrections (`FR-007`, `FR-012`).
-7. Phylogenetic correction with PGLS (`FR-013`).
-8. Plot Manhattan figure (`FR-008`).
-9. Archive raw FASTQ after 90 days (`FR-010`).
+2.  **Set up Python environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate
+    pip install -r code/requirements.txt
+    ```
 
-All major steps log to `pipeline.log` (timestamped, exit codes) satisfying `FR-009`.
+3.  **Set up R packages**:
+    ```bash
+    R -e "install.packages(c('caper', 'ape', 'ggplot2', 'dplyr', 'phylolm'), repos='https://cloud.r-project.org')"
+    ```
 
-## Step 4: Verify outputs
-```bash
-python src/validation/validate_psi.py data/psi/combined_psi.tsv
-python src/validation/validate_plot.py data/results/manhattan.png
-```
-Both scripts exit with code 0 if `SC-001` and `SC-004` are met.
+4.  **Verify External Tools**:
+    Ensure `star`, `suppa`, and `bedtools` are in your PATH.
+    ```bash
+    star --version
+    suppa.py --version
+    bedtools --version
+    ```
 
-## Step 5: Inspect results
-- `data/events/lineage_specific_events.tsv` – list of significant splicing events.  
-- `data/results/enrichment.tsv` – enrichment statistics per lineage.  
-- `data/results/manhattan.png` – publication‑ready plot.  
+## Running the Pipeline
 
-## Cleanup (optional)
-To free space after verification:
-```bash
-rm -rf data/raw/
-```
-Raw FASTQ will be automatically compressed and uploaded to Zenodo after 90 days (handled by the scheduled `archiver` script).
+### Option A: Full Run (Requires Real Data)
+*Note: Requires valid SRA accessions and sufficient disk space.*
 
----
+1.  **Prepare Configuration**: Edit `config/species.yaml` with real SRA IDs and genome paths.
+2.  **Execute**:
+    ```bash
+    python code/download.py --config config/species.yaml
+    python code/align.py --config config/species.yaml
+    python code/quantify.py --config config/species.yaml
+    python code/annotate.py --config config/species.yaml
+    python code/stats.py --config config/species.yaml
+    python code/plot.py --config config/species.yaml
+    ```
+
+### Option B: CI/Synthetic Run (Recommended for Validation)
+*Uses synthetic data to validate logic without downloading large files.*
+
+1.  **Generate Synthetic Data**:
+    ```bash
+    python code/download.py --synthetic --config config/species.yaml
+    ```
+    *This creates `data/raw/synthetic/` with mock FASTQs.*
+
+2.  **Run Full Pipeline**:
+    ```bash
+    python code/align.py --synthetic --config config/species.yaml
+    python code/quantify.py --synthetic --config config/species.yaml
+    python code/annotate.py --synthetic --config config/species.yaml
+    python code/stats.py --synthetic --config config/species.yaml
+    python code/plot.py --synthetic --config config/species.yaml
+    ```
+
+3.  **Validate Output**:
+    ```bash
+    python code/validate_plot.py --input data/processed/manhattan.png
+    ```
+    *Expected: "Validation Passed: Dimensions >= 1200x800, axes labeled, threshold line present."*
+
+## Expected Outputs
+
+-   `data/processed/lineage_specific_events.tsv`: Filtered splicing events.
+-   `data/processed/annotation_table.csv`: Flanking regions and phyloP scores.
+-   `data/processed/enrichment_results.csv`: Statistical tests and PGLS adjustments.
+-   `data/processed/manhattan.png`: Visualization of results.
+-   `pipeline.log`: Timestamped log of all steps.
+
+## Troubleshooting
+
+-   **STAR Memory Error**: Reduce `--max-mem` in `config/species.yaml` or sample fewer reads.
+-   **Missing phyloP**: If using real data, ensure UCSC Table Browser access. For synthetic, check `annotate.py` simulation logic.
+-   **PGLS Failure**: Ensure `primate_tree.nwk` is valid Newick format and matches species names exactly.
