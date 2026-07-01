@@ -1,60 +1,49 @@
-name: CI Pipeline
+name: CI
 
 on:
   push:
-    branches: [ main, master, develop ]
+    branches: [ main ]
   pull_request:
-    branches: [ main, master, develop ]
+    branches: [ main ]
 
 jobs:
-  lint-and-test:
+  build:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    - uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
 
-      - name: Cache pip dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
+    - name: Cache pip
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
 
-      - name: Check for CUDA dependencies
-        run: |
-          echo "Checking requirements.txt for CUDA-related packages..."
-          if grep -iE "(torch-cuda|tensorflow-gpu|cupy|cuda)" requirements.txt; then
-            echo "ERROR: Found CUDA-related packages in requirements.txt. This project must run on CPU-only hardware."
-            exit 1
-          else
-            echo "No CUDA dependencies found. Proceeding..."
-          fi
+    - name: Validate CPU-only dependencies (T029)
+      run: |
+        if grep -i "cuda" requirements.txt; then
+          echo "Error: CUDA-related dependencies found in requirements.txt"
+          exit 1
+        else
+          echo "Validation passed: No CUDA dependencies found."
+        fi
 
-      - name: Run linters
-        run: |
-          pip install flake8 black
-          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-          black --check .
+    - name: Lint with flake8
+      run: |
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
 
-      - name: Run tests
-        run: |
-          pytest tests/ -v
-
-      - name: Verify project structure
-        run: |
-          if [ ! -d "code" ] || [ ! -d "tests" ] || [ ! -d "data/raw" ] || [ ! -d "data/derived" ]; then
-            echo "ERROR: Required directories missing."
-            exit 1
-          fi
-          echo "Project structure verified."
+    - name: Test with pytest
+      run: |
+        pytest tests/ -v

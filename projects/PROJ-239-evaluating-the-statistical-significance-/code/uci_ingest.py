@@ -6,160 +6,144 @@ saves it to the project's raw data directory, computes a SHA-256 checksum,
 and performs a basic PII scan for email patterns.
 
 Dependencies:
-    requests (for downloading)
-    pandas (for CSV handling)
-    hashlib (for checksum)
-    re (for PII scanning)
+    - requests (if not in standard library environment, though usually installed)
+    - pandas
+    - hashlib
+    - re
+    - os
+    - sys
 """
 import os
-import hashlib
-import re
 import sys
+import re
+import hashlib
+import warnings
 from pathlib import Path
 
-import pandas as pd
-import requests
+# Ensure we can import from the project root if run as a script
+# but rely on the project structure for imports if run as a module.
+try:
+    import pandas as pd
+except ImportError:
+    print("Error: pandas is required. Install via 'pip install pandas'.")
+    sys.exit(1)
 
-# Canonical URL for UCI Online Retail dataset (Excel file)
-# Note: UCI often hosts as .xlsx. We will download and convert to CSV.
-# If the direct link changes, this URL should be updated.
-# Using the raw data link from the UCI repository or a reliable mirror.
-# The dataset is "Online Retail II" (two sheets), but we will fetch the main one.
-# Official URL: https://archive.ics.uci.edu/ml/machine-learning-databases/005022/Online%20Retail.xlsx
-# However, to ensure stability, we use the raw GitHub mirror if available or the direct UCI link.
-# Let's use the direct UCI archive link.
-DATA_URL = "https://archive.ics.uci.edu/static/public/5022/online+retail+ii.zip"
+# Constants
+CANONICAL_URL = "https://archive.ics.uci.edu/ml/machine-learning-databases/00352/Online%20Retail.xlsx"
+# Alternative CSV source if XLSX is problematic for direct download without xlrd/openpyxl
+# The UCI repository often hosts a CSV version or we can fetch the XLSX and convert.
+# Given the requirement for "real, runnable code" and minimizing heavy dependencies,
+# we will attempt to fetch the CSV if available, or XLSX with pandas engine.
+# UCI often provides a direct CSV for this dataset in some mirrors, but the official is XLSX.
+# We will use the XLSX URL and rely on pandas' default engine (openpyxl) which is likely
+# already present if pandas is installed, or we fall back to a CSV mirror if available.
+# Let's use a reliable direct CSV mirror often used for this dataset to avoid engine issues:
+CSV_URL = "https://raw.githubusercontent.com/eamonn/UCI-Online-Retail/master/Online%20Retail.csv"
 
-# Fallback or alternative: The dataset is often available as a zip containing the Excel file.
-# We will download the zip, extract the Excel, and save as CSV.
+OUTPUT_DIR = Path("data/raw")
+OUTPUT_FILE = OUTPUT_DIR / "uci_online_retail.csv"
+CHECKSUM_FILE = Path("data/checksums.txt")
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
-CHECKSUMS_FILE = PROJECT_ROOT / "data" / "checksums.txt"
+# PII Regex for email
+EMAIL_PATTERN = re.compile(r'[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+')
 
-# Output file names
-OUTPUT_CSV = DATA_RAW_DIR / "uci_online_retail.csv"
-ZIP_FILE = DATA_RAW_DIR / "uci_online_retail_raw.zip"
-EXCEL_FILE = DATA_RAW_DIR / "Online Retail II.xlsx"
+def ensure_dirs():
+    """Create output directories if they do not exist."""
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-PII_REGEX_EMAIL = re.compile(r'[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+')
-
-def download_file(url, dest_path):
-    """Downloads a file from the given URL to the destination path."""
+def download_data(url: str, output_path: Path) -> None:
+    """Download the dataset from the given URL."""
     print(f"Downloading data from {url}...")
     try:
-        response = requests.get(url, stream=True)
-        response.raise_for_status()
-        with open(dest_path, 'wb') as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                f.write(chunk)
-        print(f"Downloaded to {dest_path}")
-    except requests.exceptions.RequestException as e:
-        print(f"Error downloading file: {e}")
+        import urllib.request
+        # Use urllib to avoid adding 'requests' dependency if not strictly necessary
+        # though requests is standard. urllib is built-in.
+        urllib.request.urlretrieve(url, str(output_path))
+        print(f"Data downloaded successfully to {output_path}")
+    except Exception as e:
+        print(f"Error downloading data: {e}")
         raise
 
-def extract_zip(zip_path, extract_to):
-    """Extracts a zip file to the specified directory."""
-    import zipfile
-    print(f"Extracting {zip_path}...")
-    with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-        zip_ref.extractall(extract_to)
-    print(f"Extracted to {extract_to}")
-
-def compute_sha256(file_path):
-    """Computes the SHA-256 checksum of a file."""
+def compute_sha256(file_path: Path) -> str:
+    """Compute SHA-256 checksum of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
+        # Read in chunks to handle large files
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def scan_pii(file_path):
-    """Scans a CSV file for potential PII (emails) and returns counts."""
+def save_checksum(file_path: Path, checksum: str) -> None:
+    """Save the checksum to a text file."""
+    with open(CHECKSUM_FILE, "w") as f:
+        f.write(f"{checksum}  {file_path.name}\n")
+    print(f"Checksum saved to {CHECKSUM_FILE}")
+
+def scan_pii(file_path: Path) -> int:
+    """
+    Scan the file for potential PII (email addresses).
+    Returns the count of matches found.
+    """
     print(f"Scanning {file_path} for PII (email patterns)...")
-    found_emails = []
+    count = 0
     try:
-        # Read in chunks to handle large files if necessary
-        for chunk in pd.read_csv(file_path, chunksize=10000):
-            # Convert all columns to string and search
-            chunk_str = chunk.astype(str)
-            for col in chunk_str.columns:
-                matches = chunk_str[col].str.contains(PII_REGEX_EMAIL, regex=True, na=False)
-                if matches.any():
-                    # Extract actual matches for logging (limit to first 5)
-                    sample_matches = chunk_str[col][matches].unique()[:5]
-                    found_emails.extend([f"{col}: {m}" for m in sample_matches])
+        # Read as text. The dataset might be large, so we read line by line or in chunks.
+        # Assuming CSV format.
+        with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+            for line in f:
+                matches = EMAIL_PATTERN.findall(line)
+                count += len(matches)
     except Exception as e:
-        print(f"Error during PII scan: {e}")
-        return []
+        print(f"Error scanning file: {e}")
+        return -1
+
+    if count > 0:
+        print(f"Warning: Found {count} potential email addresses in the dataset.")
+        print("This dataset may contain PII. Ensure compliance with data privacy regulations.")
+    else:
+        print("No email patterns found.")
     
-    # Deduplicate and limit output
-    unique_emails = list(set(found_emails))
-    return unique_emails
+    return count
 
 def main():
-    """Main execution flow."""
-    # Ensure directories exist
-    DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
+    """Main execution function."""
+    print("--- UCI Online Retail Data Ingestion ---")
     
-    # 1. Download
-    try:
-        download_file(DATA_URL, ZIP_FILE)
-    except Exception as e:
-        print(f"Failed to download data. Aborting.")
-        sys.exit(1)
+    # 1. Ensure directories
+    ensure_dirs()
 
-    # 2. Extract
-    try:
-        extract_zip(ZIP_FILE, DATA_RAW_DIR)
-    except Exception as e:
-        print(f"Failed to extract zip. Aborting.")
-        sys.exit(1)
-
-    # Locate the Excel file (it might be named slightly differently)
-    excel_files = list(DATA_RAW_DIR.glob("*.xlsx"))
-    if not excel_files:
-        print("No Excel file found after extraction.")
-        sys.exit(1)
-    
-    source_excel = excel_files[0]
-    print(f"Found Excel file: {source_excel.name}")
-
-    # 3. Convert to CSV
-    try:
-        # The UCI dataset has multiple sheets. We'll read the first one or 'Online Retail II'
-        # If the sheet name is unknown, we try the first sheet.
-        df = pd.read_excel(source_excel, sheet_name=0) 
-        df.to_csv(OUTPUT_CSV, index=False)
-        print(f"Saved CSV to {OUTPUT_CSV}")
-    except Exception as e:
-        print(f"Failed to convert to CSV: {e}")
-        sys.exit(1)
-
-    # 4. Compute Checksum
-    checksum = compute_sha256(OUTPUT_CSV)
-    print(f"SHA-256 Checksum: {checksum}")
-
-    # Save checksum
-    with open(CHECKSUMS_FILE, 'a') as f:
-        f.write(f"{OUTPUT_CSV.name}:{checksum}\n")
-    print(f"Checksum saved to {CHECKSUMS_FILE}")
-
-    # 5. PII Scan
-    pii_results = scan_pii(OUTPUT_CSV)
-    if pii_results:
-        print(f"WARNING: Potential PII (emails) detected. Samples found:")
-        for item in pii_results:
-            print(f"  - {item}")
+    # 2. Download data
+    # We use the CSV URL to avoid dependency on openpyxl/xlrd if possible,
+    # as it's a direct text download.
+    if not OUTPUT_FILE.exists():
+        try:
+            download_data(CSV_URL, OUTPUT_FILE)
+        except Exception as e:
+            # Fallback to XLSX if CSV fails, but that requires pandas engine
+            print("CSV download failed, attempting XLSX (requires openpyxl)...")
+            try:
+                download_data(CANONICAL_URL, OUTPUT_FILE.with_suffix('.xlsx'))
+                # Convert XLSX to CSV
+                print("Converting XLSX to CSV...")
+                df = pd.read_excel(OUTPUT_FILE.with_suffix('.xlsx'))
+                df.to_csv(OUTPUT_FILE, index=False)
+                OUTPUT_FILE.with_suffix('.xlsx').unlink() # Remove temp XLSX
+                print("Conversion complete.")
+            except Exception as e2:
+                print(f"Both download attempts failed: {e2}")
+                sys.exit(1)
     else:
-        print("No email patterns detected in the dataset.")
+        print(f"Data file {OUTPUT_FILE} already exists. Skipping download.")
 
-    # Cleanup intermediate files (optional but good practice)
-    # os.remove(ZIP_FILE)
-    # os.remove(source_excel)
-    # print("Cleaned up intermediate files.")
+    # 3. Compute Checksum
+    checksum = compute_sha256(OUTPUT_FILE)
+    save_checksum(OUTPUT_FILE, checksum)
 
-    print("Ingestion complete.")
+    # 4. PII Scan
+    pii_count = scan_pii(OUTPUT_FILE)
+    
+    print("--- Ingestion Complete ---")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

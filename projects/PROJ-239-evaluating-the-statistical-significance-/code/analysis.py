@@ -1,86 +1,141 @@
 """
-Analysis module for computing Type I error rates and confidence intervals.
+Analysis module for aggregating simulation results and computing error rates.
+
+This module provides functions to compute empirical Type I error rates and
+their confidence intervals using the Clopper-Pearson (Exact) method.
 """
-
-import numpy as np
 import pandas as pd
-from scipy import stats
-from typing import List, Dict, Any
+import numpy as np
+from typing import List, Dict, Union
+from scipy.stats import beta
 
-def select_ci_method(error_rate, n):
+
+def _clopper_pearson_interval(successes: int, n: int, alpha: float = 0.05) -> tuple:
     """
-    Select the confidence interval method for binomial proportions.
+    Compute the Clopper-Pearson (Exact) confidence interval for a binomial proportion.
 
-    For this project, we always use the Clopper-Pearson (Exact) method
-    to ensure statistical rigor and consistency.
+    Parameters
+    ----------
+    successes : int
+        Number of successes (e.g., rejections of null hypothesis).
+    n : int
+        Total number of trials (e.g., total simulations).
+    alpha : float
+        Significance level for the confidence interval (default 0.05 for 95% CI).
 
-    Args:
-        error_rate: Observed error rate (unused, but kept for API consistency)
-        n: Number of trials (unused, but kept for API consistency)
-
-    Returns:
-        str: 'clopper_pearson'
+    Returns
+    -------
+    tuple
+        (lower_bound, upper_bound) of the confidence interval.
     """
-    return 'clopper_pearson'
+    if n == 0:
+        return 0.0, 0.0
 
-def aggregate_errors(results_list: List[Dict[str, Any]], alpha_levels: List[float]) -> pd.DataFrame:
+    if successes == 0:
+        lower = 0.0
+    else:
+        lower = beta.ppf(alpha / 2, successes, n - successes + 1)
+
+    if successes == n:
+        upper = 1.0
+    else:
+        upper = beta.ppf(1 - alpha / 2, successes + 1, n - successes)
+
+    return lower, upper
+
+
+def aggregate_errors(results_list: List[Dict], alpha_levels: List[float]) -> pd.DataFrame:
     """
-    Aggregate simulation results to compute empirical Type I error rates
-    and 95% confidence intervals using the Clopper-Pearson (Exact) method.
+    Aggregate simulation results to compute empirical Type I error rates and 95% CIs.
 
-    Args:
-        results_list: List of dictionaries containing simulation results.
-                    Each dict should have keys: 'icc', 'p_value', 'iteration'
-        alpha_levels: List of alpha levels to evaluate (e.g., [0.01, 0.05, 0.10])
+    This function processes a list of simulation result dictionaries (typically from
+    `run_baseline_simulation` or `run_robust_simulation`) and calculates the proportion
+    of times the null hypothesis was rejected at each specified alpha level for each
+    method and ICC level. It uses the Clopper-Pearson exact method to compute
+    confidence intervals for these rates.
 
-    Returns:
-        pd.DataFrame: DataFrame with columns:
-                    - icc: Intra-cluster correlation value
-                    - alpha: Significance level
-                    - error_rate: Empirical Type I error rate
-                    - ci_lower: Lower bound of 95% CI
-                    - ci_upper: Upper bound of 95% CI
+    Parameters
+    ----------
+    results_list : List[Dict]
+        List of dictionaries containing simulation results. Each dict should have
+        at least 'p_value', 'icc', and 'method' keys.
+    alpha_levels : List[float]
+        List of significance levels (e.g., [0.01, 0.05, 0.10]) to evaluate.
+
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame with columns:
+        - 'method': The statistical method used (e.g., 'naive', 'cluster_robust', 'block_permutation')
+        - 'icc': The ICC value used in the simulation
+        - 'alpha': The significance level
+        - 'error_rate': Empirical Type I error rate (rejections / total_trials)
+        - 'ci_lower': Lower bound of 95% CI (Clopper-Pearson)
+        - 'ci_upper': Upper bound of 95% CI (Clopper-Pearson)
     """
     if not results_list:
-        return pd.DataFrame(columns=['icc', 'alpha', 'error_rate', 'ci_lower', 'ci_upper'])
+        raise ValueError("results_list cannot be empty")
 
-    # Extract unique ICC values
-    icc_values = sorted(list(set(r['icc'] for r in results_list)))
+    # Verify required keys exist
+    required_keys = {'p_value', 'icc', 'method'}
+    if not required_keys.issubset(results_list[0].keys()):
+        missing = required_keys - results_list[0].keys()
+        raise ValueError(f"Results dictionaries must contain keys: {missing}")
 
-    results = []
+    # Group by method and ICC
+    methods = sorted(set(r['method'] for r in results_list))
+    icc_values = sorted(set(r['icc'] for r in results_list))
 
-    for icc in icc_values:
-        # Filter results for this ICC
-        icc_results = [r for r in results_list if r['icc'] == icc]
-        n_iterations = len(icc_results)
+    records = []
 
-        for alpha in alpha_levels:
-            # Count how many p-values are <= alpha (Type I errors under H0)
-            # Note: Under H0 (no treatment effect), p-values should be uniformly distributed
-            # so the proportion of p <= alpha should be approximately alpha
-            errors = sum(1 for r in icc_results if r['p_value'] <= alpha)
+    for method in methods:
+        for icc in icc_values:
+            # Filter results for this method and ICC
+            subset = [r for r in results_list if r['method'] == method and r['icc'] == icc]
+            n_total = len(subset)
 
-            # Compute empirical error rate
-            error_rate = errors / n_iterations
+            if n_total == 0:
+                continue
 
-            # Compute 95% confidence interval using Clopper-Pearson (Exact) method
-            # This is appropriate for binomial proportions
-            if errors == 0:
-                ci_lower = 0.0
-            else:
-                ci_lower = stats.beta.ppf(0.025, errors, n_iterations - errors + 1)
+            for alpha in alpha_levels:
+                # Count rejections (p-value < alpha)
+                rejections = sum(1 for r in subset if r['p_value'] < alpha)
 
-            if errors == n_iterations:
-                ci_upper = 1.0
-            else:
-                ci_upper = stats.beta.ppf(0.975, errors + 1, n_iterations - errors)
+                # Compute error rate
+                error_rate = rejections / n_total
 
-            results.append({
-                'icc': icc,
-                'alpha': alpha,
-                'error_rate': error_rate,
-                'ci_lower': ci_lower,
-                'ci_upper': ci_upper
-            })
+                # Compute Clopper-Pearson confidence interval
+                ci_lower, ci_upper = _clopper_pearson_interval(rejections, n_total, alpha=0.05)
 
-    return pd.DataFrame(results)
+                records.append({
+                    'method': method,
+                    'icc': icc,
+                    'alpha': alpha,
+                    'error_rate': error_rate,
+                    'ci_lower': ci_lower,
+                    'ci_upper': ci_upper
+                })
+
+    return pd.DataFrame(records)
+
+
+def select_ci_method(error_rate: float, n: int) -> str:
+    """
+    Select the confidence interval method for the given parameters.
+
+    This function always returns 'clopper_pearson' for this project to ensure
+    statistical rigor and consistency with the Single Source of Truth principle.
+
+    Parameters
+    ----------
+    error_rate : float
+        The empirical error rate (not used in selection, but required for interface).
+    n : int
+        The number of trials (not used in selection, but required for interface).
+
+    Returns
+    -------
+    str
+        The string 'clopper_pearson'.
+    """
+    return 'clopper_pearson'

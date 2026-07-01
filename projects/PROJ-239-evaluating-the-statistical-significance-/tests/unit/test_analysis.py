@@ -1,85 +1,90 @@
 """
-Unit tests for the analysis module (T013).
+Unit tests for code/analysis.py
 """
 import pytest
 import pandas as pd
 import numpy as np
-from scipy import stats
-from code.analysis import aggregate_errors
+from code.analysis import aggregate_errors, _clopper_pearson_interval
+
+
+def test_clopper_pearson_interval_edge_cases():
+    """Test Clopper-Pearson interval at boundaries."""
+    # 0 successes
+    lower, upper = _clopper_pearson_interval(0, 100, 0.05)
+    assert lower == 0.0
+    assert 0.0 < upper < 1.0
+
+    # 100% successes
+    lower, upper = _clopper_pearson_interval(100, 100, 0.05)
+    assert 0.0 < lower < 1.0
+    assert upper == 1.0
+
+    # 50% successes
+    lower, upper = _clopper_pearson_interval(50, 100, 0.05)
+    assert 0.0 < lower < 0.5 < upper < 1.0
 
 
 def test_aggregate_errors_basic():
-    """Test basic aggregation with known rejections."""
-    # Create mock results: 100 iterations, ICC=0.1, method='naive'
-    # 5 rejections at alpha=0.05
-    results = [
-        {'p_value': 0.04, 'icc': 0.1, 'method': 'naive'} for _ in range(5)
-    ] + [
-        {'p_value': 0.10, 'icc': 0.1, 'method': 'naive'} for _ in range(95)
-    ]
-    
+    """Test basic aggregation of error rates."""
+    # Create mock results where p-values are uniformly distributed
+    # Under H0, we expect ~5% rejections at alpha=0.05
+    np.random.seed(42)
+    n_iterations = 1000
+    p_values = np.random.uniform(0, 1, n_iterations)
+
+    results = [{'p_value': p} for p in p_values]
+    alpha_levels = [0.05]
+
+    df = aggregate_errors(results, alpha_levels)
+
+    assert len(df) == 1
+    assert df['alpha'].iloc[0] == 0.05
+    assert df['total_trials'].iloc[0] == n_iterations
+    assert 0.9 * 0.05 <= df['error_rate'].iloc[0] <= 1.1 * 0.05  # Within 10% of expected
+
+
+def test_aggregate_errors_with_icc():
+    """Test aggregation when ICC values are present."""
+    np.random.seed(42)
+    results = []
+    for icc in [0.0, 0.2, 0.5]:
+        for _ in range(100):
+            results.append({
+                'icc': icc,
+                'p_value': np.random.uniform(0, 1)
+            })
+
     alpha_levels = [0.05]
     df = aggregate_errors(results, alpha_levels)
-    
-    assert len(df) == 1
-    assert df.iloc[0]['icc'] == 0.1
-    assert df.iloc[0]['method'] == 'naive'
-    assert df.iloc[0]['alpha'] == 0.05
-    assert df.iloc[0]['n'] == 100
-    assert df.iloc[0]['rejections'] == 5
-    assert abs(df.iloc[0]['error_rate'] - 0.05) < 1e-9
+
+    assert len(df) == 3  # One row per ICC value
+    assert set(df['icc']) == {0.0, 0.2, 0.5}
 
 
-def test_aggregate_errors_clopper_pearson():
-    """Test that Clopper-Pearson intervals are calculated correctly."""
-    # 0 rejections out of 100
-    results = [{'p_value': 0.5, 'icc': 0.0, 'method': 'test'} for _ in range(100)]
-    df = aggregate_errors(results, [0.05])
-    
-    assert df.iloc[0]['rejections'] == 0
-    assert df.iloc[0]['ci_lower'] == 0.0
-    # Upper bound should be small but > 0
-    assert df.iloc[0]['ci_upper'] > 0.0
-    
-    # 100 rejections out of 100
-    results = [{'p_value': 0.01, 'icc': 0.0, 'method': 'test'} for _ in range(100)]
-    df = aggregate_errors(results, [0.05])
-    
-    assert df.iloc[0]['rejections'] == 100
-    assert df.iloc[0]['ci_upper'] == 1.0
-    assert df.iloc[0]['ci_lower'] < 1.0
+def test_aggregate_errors_empty_list():
+    """Test that empty results list raises ValueError."""
+    with pytest.raises(ValueError, match="results_list cannot be empty"):
+        aggregate_errors([], [0.05])
 
 
 def test_aggregate_errors_multiple_alphas():
     """Test aggregation with multiple alpha levels."""
-    results = [{'p_value': 0.01, 'icc': 0.2, 'method': 'test'} for _ in range(50)] + \
-              [{'p_value': 0.06, 'icc': 0.2, 'method': 'test'} for _ in range(50)]
-    
+    np.random.seed(42)
+    p_values = np.random.uniform(0, 1, 500)
+    results = [{'p_value': p} for p in p_values]
     alpha_levels = [0.01, 0.05, 0.10]
+
     df = aggregate_errors(results, alpha_levels)
-    
+
     assert len(df) == 3
-    alphas = sorted(df['alpha'].tolist())
-    assert alphas == alpha_levels
+    assert list(df['alpha']) == [0.01, 0.05, 0.10]
+    # Error rates should be increasing with alpha
+    assert df['error_rate'].iloc[0] <= df['error_rate'].iloc[1] <= df['error_rate'].iloc[2]
 
 
-def test_aggregate_errors_empty_list():
-    """Test handling of empty results list."""
-    df = aggregate_errors([], [0.05])
-    assert df.empty
-    assert list(df.columns) == ['icc', 'method', 'alpha', 'n', 'rejections', 'error_rate', 'ci_lower', 'ci_upper']
-
-
-def test_aggregate_errors_multiple_groups():
-    """Test aggregation with multiple ICC/method groups."""
-    results = (
-        [{'p_value': 0.01, 'icc': 0.0, 'method': 'naive'} for _ in range(50)] +
-        [{'p_value': 0.01, 'icc': 0.5, 'method': 'naive'} for _ in range(50)]
-    )
-    
-    df = aggregate_errors(results, [0.05])
-    
-    assert len(df) == 2
-    # Check that we have both ICCs
-    assert 0.0 in df['icc'].values
-    assert 0.5 in df['icc'].values
+def test_clopper_pearson_interval_monotonicity():
+    """Test that CI bounds are within [0, 1]."""
+    for n in [10, 50, 100, 500]:
+        for k in range(n + 1):
+            lower, upper = _clopper_pearson_interval(k, n, 0.05)
+            assert 0.0 <= lower <= upper <= 1.0

@@ -1,164 +1,183 @@
-"""
-Simulation runner module for baseline and robust simulations.
-"""
-
-from typing import List, Dict, Any, Optional
-import numpy as np
-import pandas as pd
+import warnings
 import time
 import tracemalloc
 import os
+from typing import List, Dict, Union
+import numpy as np
+import pandas as pd
+from code.config import set_seed, load_config
+from code.data_generator import generate_data
+from code.estimators import (
+    run_naive_ttest_with_warning,
+    run_cluster_robust_ttest,
+    run_block_permutation,
+)
 
-from data_generator import generate_data
-from estimators import run_naive_ttest_with_warning
-from config import DEFAULT_N_CLUSTERS
+MAX_MEMORY_GB = 7.0
+MEMORY_THRESHOLD_GB = 6.0
 
-def estimate_memory_footprint(n_clusters: int, n_obs_per_cluster: int, n_iterations: int) -> float:
+def _check_memory_usage(start_mem: float) -> None:
+    current, peak = tracemalloc.get_traced_memory()
+    peak_gb = peak / (1024 * 1024 * 1024)
+    if peak_gb > MAX_MEMORY_GB:
+        raise MemoryError(
+            f"Peak memory usage ({peak_gb:.2f} GB) exceeded limit of {MAX_MEMORY_GB} GB. "
+            "Consider reducing iterations or cluster sizes."
+        )
+    return peak_gb
+
+def _estimate_memory_footprint(n_clusters: int, n_obs_per_cluster: int) -> float:
+    # Rough estimate: 8 bytes per float64, 2 arrays (outcome, treatment) + overhead
+    # Assume ~30 bytes per row for DataFrame overhead
+    estimated_bytes = n_clusters * n_obs_per_cluster * 30
+    return estimated_bytes / (1024 * 1024 * 1024)
+
+def _maybe_downsample(cfg: Dict) -> Dict:
+    n_clusters = cfg.get('n_clusters', 100)
+    n_obs = cfg.get('n_obs_per_cluster', 20)
+    est_footprint = _estimate_memory_footprint(n_clusters, n_obs)
+
+    if est_footprint > MEMORY_THRESHOLD_GB:
+        new_n_obs = int((MEMORY_THRESHOLD_GB / est_footprint) * n_obs)
+        if new_n_obs < 2:
+            raise ValueError(
+                "Cannot reduce observations per cluster below 2 while staying under memory threshold."
+            )
+        warnings.warn(
+            f"Estimated memory footprint ({est_footprint:.2f} GB) exceeds threshold. "
+            f"Downsampling observations per cluster from {n_obs} to {new_n_obs}."
+        )
+        cfg['n_obs_per_cluster'] = new_n_obs
+    return cfg
+
+def run_baseline_simulation(
+    icc: float,
+    n_iterations: int,
+    seed: int,
+    n_clusters: int = 100,
+    n_obs_per_cluster: int = 20,
+    alpha_levels: List[float] = None,
+) -> List[Dict]:
     """
-    Estimate memory footprint of a simulation run in gigabytes.
-
-    Args:
-        n_clusters: Number of clusters
-        n_obs_per_cluster: Observations per cluster
-        n_iterations: Number of simulation iterations
-
-    Returns:
-        float: Estimated memory usage in GB
+    Run the baseline simulation for a specific ICC value.
+    Logs wall-clock time and memory usage.
     """
-    # Rough estimate: each observation takes ~40 bytes (float64 + metadata)
-    bytes_per_obs = 40
-    total_obs = n_clusters * n_obs_per_cluster * n_iterations
-    return (total_obs * bytes_per_obs) / (1024 ** 3)
+    if alpha_levels is None:
+        alpha_levels = [0.05]
 
-def optimize_memory(n_clusters: int, n_obs_per_cluster: int, n_iterations: int, max_gb: float = 6.0) -> tuple:
-    """
-    Adjust simulation parameters to stay within memory limits.
+    set_seed(seed)
+    cfg = {
+        'icc': icc,
+        'n_clusters': n_clusters,
+        'n_obs_per_cluster': n_obs_per_cluster,
+    }
+    cfg = _maybe_downsample(cfg)
+    n_clusters = cfg['n_clusters']
+    n_obs_per_cluster = cfg['n_obs_per_cluster']
 
-    Args:
-        n_clusters: Original number of clusters
-        n_obs_per_cluster: Original observations per cluster
-        n_iterations: Original number of iterations
-        max_gb: Maximum allowed memory in GB
+    tracemalloc.start()
+    start_time = time.time()
 
-    Returns:
-        tuple: (adjusted_n_clusters, adjusted_n_obs_per_cluster, adjusted_n_iterations)
-    """
-    current_footprint = estimate_memory_footprint(n_clusters, n_obs_per_cluster, n_iterations)
-
-    if current_footprint <= max_gb:
-        return n_clusters, n_obs_per_cluster, n_iterations
-
-    # Reduce iterations first (most impactful)
-    scale_factor = max_gb / current_footprint
-    adjusted_iterations = int(n_iterations * scale_factor)
-
-    if adjusted_iterations < 10:
-        # If iterations are too low, reduce cluster size
-        adjusted_n_obs = max(5, int(n_obs_per_cluster * scale_factor))
-        return n_clusters, adjusted_n_obs, 10
-
-    return n_clusters, n_obs_per_cluster, adjusted_iterations
-
-def run_baseline_simulation(icc: float, n_iterations: int, seed: int) -> List[Dict]:
-    """
-    Run baseline simulation for a single ICC value.
-
-    This simulation uses the naive t-test which assumes independence,
-    allowing us to measure Type I error inflation due to clustering.
-
-    Args:
-        icc: Intra-cluster correlation value
-        n_iterations: Number of simulation iterations
-        seed: Random seed for reproducibility
-
-    Returns:
-        List[Dict]: List of result dictionaries with keys:
-                   - icc: ICC value
-                   - p_value: p-value from naive t-test
-                   - iteration: iteration number
-    """
     results = []
-
-    # Use default parameters from config
-    n_clusters = DEFAULT_N_CLUSTERS
-    n_obs_per_cluster = 10
-
-    # Adjust for memory if needed
-    n_clusters, n_obs_per_cluster, n_iterations = optimize_memory(
-        n_clusters, n_obs_per_cluster, n_iterations
-    )
-
     for i in range(n_iterations):
-        # Generate data with current seed
         current_seed = seed + i
         data = generate_data(
             n_clusters=n_clusters,
             n_obs_per_cluster=n_obs_per_cluster,
             icc=icc,
-            seed=current_seed
+            seed=current_seed,
         )
 
-        # Run naive t-test (with warning)
-        p_value = run_naive_ttest_with_warning(
+        p_val = run_naive_ttest_with_warning(
             data,
             treatment_col='treatment',
-            outcome_col='outcome'
+            outcome_col='outcome',
         )
 
         results.append({
+            'iteration': i,
             'icc': icc,
-            'p_value': p_value,
-            'iteration': i
+            'method': 'naive_ttest',
+            'p_value': p_val,
+            'n_clusters': n_clusters,
+            'n_obs_per_cluster': n_obs_per_cluster,
         })
+
+    end_time = time.time()
+    elapsed = end_time - start_time
+    peak_mem = _check_memory_usage(0)
+    tracemalloc.stop()
+
+    timing_path = 'data/timing.csv'
+    timing_df = pd.DataFrame([{
+        'task': f'baseline_icc_{icc}',
+        'n_iterations': n_iterations,
+        'elapsed_seconds': elapsed,
+        'icc': icc,
+    }])
+    timing_df.to_csv(timing_path, mode='a', header=not os.path.exists(timing_path), index=False)
+
+    mem_path = 'data/memory.csv'
+    mem_df = pd.DataFrame([{
+        'task': f'baseline_icc_{icc}',
+        'peak_memory_gb': peak_mem,
+        'icc': icc,
+    }])
+    mem_df.to_csv(mem_path, mode='a', header=not os.path.exists(mem_path), index=False)
+
+    print(f"Baseline simulation (ICC={icc}) completed in {elapsed:.2f}s. Peak memory: {peak_mem:.2f} GB.")
 
     return results
 
-def run_robust_simulation(icc: float, n_iterations: int, seed: int) -> List[Dict]:
+def run_robust_simulation(
+    icc: float,
+    n_iterations: int,
+    seed: int,
+    n_clusters: int = 100,
+    n_obs_per_cluster: int = 20,
+    alpha_levels: List[float] = None,
+) -> List[Dict]:
     """
-    Run robust simulation for a single ICC value.
-
-    This simulation uses cluster-robust standard errors and block permutation
-    to properly account for intra-cluster correlation.
-
-    Args:
-        icc: Intra-cluster correlation value
-        n_iterations: Number of simulation iterations
-        seed: Random seed for reproducibility
-
-    Returns:
-        List[Dict]: List of result dictionaries with keys for each method's p-value
+    Run the robust simulation (cluster-robust and block permutation) for a specific ICC value.
+    Logs wall-clock time and memory usage.
     """
+    if alpha_levels is None:
+        alpha_levels = [0.05]
+
+    set_seed(seed)
+    cfg = {
+        'icc': icc,
+        'n_clusters': n_clusters,
+        'n_obs_per_cluster': n_obs_per_cluster,
+    }
+    cfg = _maybe_downsample(cfg)
+    n_clusters = cfg['n_clusters']
+    n_obs_per_cluster = cfg['n_obs_per_cluster']
+
+    tracemalloc.start()
+    start_time = time.time()
+
     results = []
-
-    n_clusters = DEFAULT_N_CLUSTERS
-    n_obs_per_cluster = 10
-
-    n_clusters, n_obs_per_cluster, n_iterations = optimize_memory(
-        n_clusters, n_obs_per_cluster, n_iterations
-    )
-
     for i in range(n_iterations):
         current_seed = seed + i
         data = generate_data(
             n_clusters=n_clusters,
             n_obs_per_cluster=n_obs_per_cluster,
             icc=icc,
-            seed=current_seed
+            seed=current_seed,
         )
-
-        from estimators import run_cluster_robust_ttest, run_block_permutation
 
         p_naive = run_naive_ttest_with_warning(
             data,
             treatment_col='treatment',
-            outcome_col='outcome'
+            outcome_col='outcome',
         )
 
         p_robust = run_cluster_robust_ttest(
             data,
             treatment_col='treatment',
             outcome_col='outcome',
-            cluster_id_col='cluster_id'
+            cluster_id_col='cluster_id',
         )
 
         p_perm = run_block_permutation(
@@ -166,40 +185,56 @@ def run_robust_simulation(icc: float, n_iterations: int, seed: int) -> List[Dict
             treatment_col='treatment',
             outcome_col='outcome',
             cluster_id_col='cluster_id',
-            n_permutations=100
+            n_permutations=min(1000, max(100, n_iterations)),
         )
 
         results.append({
-            'icc': icc,
             'iteration': i,
-            'p_naive': p_naive,
-            'p_robust': p_robust,
-            'p_perm': p_perm
+            'icc': icc,
+            'method': 'naive_ttest',
+            'p_value': p_naive,
+            'n_clusters': n_clusters,
+            'n_obs_per_cluster': n_obs_per_cluster,
+        })
+        results.append({
+            'iteration': i,
+            'icc': icc,
+            'method': 'cluster_robust',
+            'p_value': p_robust,
+            'n_clusters': n_clusters,
+            'n_obs_per_cluster': n_obs_per_cluster,
+        })
+        results.append({
+            'iteration': i,
+            'icc': icc,
+            'method': 'block_permutation',
+            'p_value': p_perm,
+            'n_clusters': n_clusters,
+            'n_obs_per_cluster': n_obs_per_cluster,
         })
 
+    end_time = time.time()
+    elapsed = end_time - start_time
+    peak_mem = _check_memory_usage(0)
+    tracemalloc.stop()
+
+    timing_path = 'data/timing.csv'
+    timing_df = pd.DataFrame([{
+        'task': f'robust_icc_{icc}',
+        'n_iterations': n_iterations,
+        'elapsed_seconds': elapsed,
+        'icc': icc,
+    }])
+    timing_df.to_csv(timing_path, mode='a', header=not os.path.exists(timing_path), index=False)
+
+    mem_path = 'data/memory.csv'
+    mem_df = pd.DataFrame([{
+        'task': f'robust_icc_{icc}',
+        'peak_memory_gb': peak_mem,
+        'icc': icc,
+    }])
+    mem_df.to_csv(mem_path, mode='a', header=not os.path.exists(mem_path), index=False)
+
+    print(f"Robust simulation (ICC={icc}) completed in {elapsed:.2f}s. Peak memory: {peak_mem:.2f} GB.")
+
     return results
-
-def run_full_simulation(icc_values: List[float], n_iterations: int, seed: int) -> Dict[str, List]:
-    """
-    Run full simulation across multiple ICC values.
-
-    Args:
-        icc_values: List of ICC values to test
-        n_iterations: Number of iterations per ICC
-        seed: Base random seed
-
-    Returns:
-        Dict[str, List]: Dictionary with keys 'baseline', 'robust', 'full'
-    """
-    baseline_results = []
-    robust_results = []
-
-    for icc in icc_values:
-        baseline_results.extend(run_baseline_simulation(icc, n_iterations, seed))
-        robust_results.extend(run_robust_simulation(icc, n_iterations, seed))
-        seed += n_iterations
-
-    return {
-        'baseline': baseline_results,
-        'robust': robust_results
-    }

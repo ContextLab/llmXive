@@ -1,95 +1,124 @@
 """
-Data generator module for simulating clustered data with intra-cluster correlation.
-"""
+Data generator module for simulating A/B test results with intra-cluster correlation.
 
+Implements a random intercept model: Y_ij = mu + u_i + e_ij
+where u_i ~ N(0, sigma_b^2) and e_ij ~ N(0, sigma_w^2).
+ICC = sigma_b^2 / (sigma_b^2 + sigma_w^2)
+
+NOTE: This baseline method intentionally violates Principle VI (Cluster-Aware Inference)
+to measure Type I error inflation. It must be clearly documented as a "violation baseline"
+for comparison only.
+"""
+import warnings
 import numpy as np
 import pandas as pd
-from typing import List, Union, Optional
-import warnings
-from config import set_seed, validate_config
+from typing import List, Optional, Union
+from code.config import set_seed
 
 def generate_data(
     n_clusters: int,
     n_obs_per_cluster: Union[int, List[int]],
     icc: float,
-    seed: int
+    seed: int,
+    treatment_effect: float = 0.0
 ) -> pd.DataFrame:
     """
-    Generate simulated clustered data with intra-cluster correlation.
+    Generate synthetic A/B test data with cluster-level correlation.
 
-    Uses a random intercept model: Y_ij = mu + u_i + e_ij
-    where u_i ~ N(0, sigma_u^2) and e_ij ~ N(0, sigma_e^2)
+    Parameters
+    ----------
+    n_clusters : int
+        Number of clusters to generate.
+    n_obs_per_cluster : int or list of int
+        Number of observations per cluster. If int, all clusters have this size.
+        If list, must have length `n_clusters`.
+    icc : float
+        Intraclass Correlation Coefficient (0.0 to 1.0).
+        If 0.0, no random intercept is added (independent data).
+    seed : int
+        Random seed for reproducibility.
+    treatment_effect : float, default 0.0
+        The effect size of the treatment (difference in means).
+        Set to 0.0 for Null Hypothesis (H0) testing.
 
-    The ICC is defined as: ICC = sigma_u^2 / (sigma_u^2 + sigma_e^2)
+    Returns
+    -------
+    pd.DataFrame
+        DataFrame with columns: 'cluster_id', 'treatment', 'outcome'
 
-    Args:
-        n_clusters: Number of clusters
-        n_obs_per_cluster: Number of observations per cluster (can be a list for unbalanced)
-        icc: Intra-cluster correlation coefficient (0.0 to 1.0)
-        seed: Random seed for reproducibility
-
-    Returns:
-        pd.DataFrame: DataFrame with columns:
-                    - cluster_id: Cluster identifier
-                    - treatment: Treatment assignment (0 or 1)
-                    - outcome: Outcome variable
+    Raises
+    ------
+    ValueError
+        If icc is outside [0, 1] or if n_obs_per_cluster list length mismatch.
     """
     set_seed(seed)
 
-    # Validate configuration
-    cfg = {
-        'n_clusters': n_clusters,
-        'icc': icc
-    }
-    validate_config(cfg)
+    if not 0.0 <= icc <= 1.0:
+        raise ValueError(f"ICC must be between 0.0 and 1.0, got {icc}")
 
-    # Handle unbalanced cluster sizes
+    # Handle n_obs_per_cluster
     if isinstance(n_obs_per_cluster, int):
-        n_obs_per_cluster = [n_obs_per_cluster] * n_clusters
-    elif len(n_obs_per_cluster) != n_clusters:
-        raise ValueError(f"n_obs_per_cluster must have length {n_clusters} or be an integer")
+        cluster_sizes = [n_obs_per_cluster] * n_clusters
+    else:
+        if len(n_obs_per_cluster) != n_clusters:
+            raise ValueError(f"n_obs_per_cluster list length ({len(n_obs_per_cluster)}) "
+                             f"must match n_clusters ({n_clusters})")
+        cluster_sizes = n_obs_per_cluster
 
-    # Check for highly unbalanced clusters
-    if max(n_obs_per_cluster) > 3 * min(n_obs_per_cluster):
-        warnings.warn(f"Highly unbalanced cluster sizes detected: min={min(n_obs_per_cluster)}, max={max(n_obs_per_cluster)}")
+    # Check for highly unbalanced clusters and warn
+    if len(cluster_sizes) > 1:
+        min_size = min(cluster_sizes)
+        max_size = max(cluster_sizes)
+        if max_size > 5 * min_size:
+            warnings.warn(
+                f"Highly unbalanced cluster sizes detected: min={min_size}, max={max_size}. "
+                "This may affect the stability of variance estimates."
+            )
 
-    # Set variance components based on ICC
-    # Total variance = 1, so:
-    # sigma_u^2 = ICC
-    # sigma_e^2 = 1 - ICC
-    sigma_u = np.sqrt(icc) if icc > 0 else 0
-    sigma_e = np.sqrt(1 - icc)
+    # Calculate variance components
+    # Total variance = 1.0 for simplicity
+    # ICC = sigma_b^2 / (sigma_b^2 + sigma_w^2)
+    # Let sigma_b^2 + sigma_w^2 = 1
+    sigma_b_sq = icc
+    sigma_w_sq = 1.0 - icc
+
+    sigma_b = np.sqrt(sigma_b_sq)
+    sigma_w = np.sqrt(sigma_w_sq)
 
     # Generate random intercepts (cluster effects)
+    # If icc == 0.0, u_i is exactly 0 (independent data case)
     if icc == 0.0:
-        # For ICC=0, random intercepts are zero (independent data)
         u = np.zeros(n_clusters)
     else:
-        u = np.random.normal(0, sigma_u, n_clusters)
+        u = np.random.normal(0, sigma_b, n_clusters)
 
-    # Generate data
+    # Generate treatment assignment (cluster level)
+    # Randomly assign 50% of clusters to treatment
+    treatment_assignments = np.random.choice([0, 1], size=n_clusters, p=[0.5, 0.5])
+
     data_rows = []
     cluster_id = 0
 
-    for i, n_obs in enumerate(n_obs_per_cluster):
-        # Generate cluster-specific intercept
-        cluster_intercept = u[i]
+    for i in range(n_clusters):
+        size = cluster_sizes[i]
+        cluster_u = u[i]
+        cluster_treatment = treatment_assignments[i]
 
-        # Generate observations for this cluster
-        e = np.random.normal(0, sigma_e, n_obs)
-        outcomes = 0 + cluster_intercept + e  # mu = 0 under H0
+        # Generate individual errors
+        e = np.random.normal(0, sigma_w, size)
 
-        # Assign treatment at cluster level (randomly)
-        treatment = np.random.choice([0, 1], size=n_obs)
+        # Generate outcome
+        # Y_ij = mu + u_i + (treatment_effect * cluster_treatment) + e_ij
+        # Assume mu = 0
+        y = cluster_u + (treatment_effect * cluster_treatment) + e
 
-        for j in range(n_obs):
+        for j in range(size):
             data_rows.append({
                 'cluster_id': cluster_id,
-                'treatment': treatment[j],
-                'outcome': outcomes[j]
+                'treatment': cluster_treatment,
+                'outcome': y[j]
             })
 
         cluster_id += 1
 
-    df = pd.DataFrame(data_rows)
-    return df
+    return pd.DataFrame(data_rows)

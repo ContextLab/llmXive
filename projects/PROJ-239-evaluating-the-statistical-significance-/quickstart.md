@@ -1,70 +1,48 @@
-# Quickstart Guide: Evaluating Statistical Significance with Non-Independent Observations
-
-This guide validates the setup and core functionality of the A/B test significance project.
+# Quickstart Guide
 
 ## Prerequisites
-
 - Python 3.11+
-- pip (package manager)
+- pip
 
-## 1. Environment Setup
+## Installation
+1. Clone the repository
+2. Install dependencies:
+ ```bash
+ pip install -r requirements.txt
+ ```
 
-Clone the repository and create a virtual environment:
-
+## Running Tests
+Run the full test suite:
 ```bash
-python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
+pytest tests/
 ```
 
-Install dependencies:
+Expected output: All tests pass (exit code 0).
 
+## Running Simulations
+
+### Baseline Simulation (Naive T-Test)
 ```bash
-pip install -r requirements.txt
+python code/run_simulation_baseline.py --icc 0.1 --iterations 100 --seed 42
 ```
+Output: `data/derived/baseline_results.csv`
 
-## 2. Project Structure Verification
-
-Ensure the following directory structure exists:
-
+### Robust Simulation (Cluster-Robust & Permutation)
 ```bash
-ls code tests data/raw data/derived
+python code/run_simulation_robust.py --icc 0.1 --iterations 100 --seed 42
 ```
+Output: `data/derived/robust_results.csv`
 
-## 3. Linting Validation
-
-Run the linters to ensure code style compliance:
-
+## Generating Final Report
 ```bash
-black --check.
-flake8.
+python code/generate_final_report.py
 ```
+Output: `specs/001-evaluating-the-statistical-significance/research.md`
 
-## 4. Unit Test Execution
+## Validation
+The project passes validation when:
+- `pytest tests/` exits with code 0
+- All simulation scripts produce valid CSV outputs
+- Final report is generated with all required sections
 
-Run the full test suite to verify core logic:
-
-```bash
-pytest tests/ -v
-```
-
-**Expected Result**: All tests should pass (exit code 0).
-
-## 5. Simulation Validation (Quick Run)
-
-Run a reduced simulation to verify the pipeline end-to-end:
-
-```bash
-python code/run_simulation_robust.py --icc 0.1 --iterations 10 --seed 42
-```
-
-This should generate `data/derived/robustResults.csv`.
-
-## 6. Report Generation
-
-Once full simulations are complete, generate the research report:
-
-```bash
-python scripts/generate_report.py
-```
-
-This produces `specs/001-evaluating-the-statistical-significance/research.md`.
+Note: This guide has been updated to reflect the completed test suite and simulation workflows.

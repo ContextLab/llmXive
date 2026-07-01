@@ -1,3 +1,2 @@
-# llmXive research-implementer agent system prompt
-# Project: PROJ-239-evaluating-the-statistical-significance-
-# Package: code
+# llmXive Project: Evaluating Statistical Significance with Non-Independent Observations
+# Package initialization for code module.

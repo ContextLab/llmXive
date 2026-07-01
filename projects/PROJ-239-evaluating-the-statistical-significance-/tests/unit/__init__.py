@@ -1,1 +1,1 @@
-"""Unit test package for the statistical significance evaluation project."""
+# Unit tests package for PROJ-239
