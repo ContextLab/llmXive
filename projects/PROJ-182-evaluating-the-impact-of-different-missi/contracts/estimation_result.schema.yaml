@@ -1,0 +1,46 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: EstimationResult
+description: Result of a single RD estimation run.
+type: object
+required:
+  - estimate
+  - se
+  - ci_lower
+  - ci_upper
+  - mechanism
+  - rate
+  - estimator_name
+properties:
+  estimate:
+    type: number
+    description: Point estimate of the treatment effect.
+  se:
+    type: number
+    description: Standard error of the estimate.
+  ci_lower:
+    type: number
+    description: Lower bound of the confidence interval.
+  ci_upper:
+    type: number
+    description: Upper bound of the confidence interval.
+  mechanism:
+    type: string
+    description: Missingness mechanism used (MCAR, MAR, MNAR).
+    enum:
+      - MCAR
+      - MAR
+      - MNAR
+  rate:
+    type: number
+    description: Missingness rate applied.
+  estimator_name:
+    type: string
+    description: Name of the estimator used (e.g., Naive, MICE, IPW, Heckman).
+  converged:
+    type: boolean
+    description: Whether the estimation algorithm converged.
+    default: true
+  n_obs:
+    type: integer
+    description: Number of observations used in estimation.
+additionalProperties: false

@@ -1,0 +1,8 @@
+# Simulation configuration for RD missing data study
+sample_size: 1000
+true_effect: 0.5
+seed: 42
+beta0: 0.0
+beta1: 1.0
+beta2: 0.5
+sigma: 1.0
