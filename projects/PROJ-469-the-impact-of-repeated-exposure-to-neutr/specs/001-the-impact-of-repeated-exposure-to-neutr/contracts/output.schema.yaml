@@ -1,0 +1,66 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: "Analysis Output Schema"
+type: "object"
+properties:
+  model_summary:
+    type: "object"
+    properties:
+      interaction_coefficient:
+        type: "number"
+        description: "Coefficient for the interaction term"
+      interaction_se:
+        type: "number"
+        description: "Standard error of the interaction term"
+      interaction_pvalue:
+        type: "number"
+        description: "P-value for the interaction term"
+      interaction_ci_lower:
+        type: "number"
+        description: "Lower bound of 95% CI"
+      interaction_ci_upper:
+        type: "number"
+        description: "Upper bound of 95% CI"
+    required:
+      - "interaction_coefficient"
+      - "interaction_se"
+      - "interaction_pvalue"
+      - "interaction_ci_lower"
+      - "interaction_ci_upper"
+  diagnostics:
+    type: "object"
+    properties:
+      retention_rate:
+        type: "number"
+        description: "Ratio of rows after imputation to rows before"
+      missingness_rate:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            variable:
+              type: "string"
+            rate:
+              type: "number"
+      bootstrap_convergence:
+        type: "number"
+        description: "Percentage of bootstrap resamples that converged"
+    required:
+      - "retention_rate"
+      - "bootstrap_convergence"
+  power_analysis:
+    type: "object"
+    properties:
+      achieved_power:
+        type: "number"
+        description: "Power achieved for the interaction effect"
+      target_power:
+        type: "number"
+        description: "Target power (0.80)"
+    required:
+      - "achieved_power"
+      - "target_power"
+required:
+  - "model_summary"
+  - "diagnostics"
+  - "power_analysis"
+description: "Schema for the analysis output CSV and report data"
