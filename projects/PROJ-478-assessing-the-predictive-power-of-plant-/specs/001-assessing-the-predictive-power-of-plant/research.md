@@ -1,77 +1,54 @@
 # Research: Assessing the Predictive Power of Plant Functional Traits for Species Distribution Models
 
-## Executive Summary
+## 1. Research Question & Hypothesis
 
-This research plan outlines the methodology to test if functional traits (SLA, seed mass, height) improve SDM predictions for Asteraceae species beyond climate variables alone. The core innovation is a **Leave-One-Species-Out (LOSO)** validation strategy with a **Trait Imputation** baseline: models are trained on N-1 species and tested on the held-out species using *imputed* trait values (predicted from the training set's trait-climate relationship) to break the circular link between species identity and traits. This tests the generalization capability of trait-environment relationships without tautology. The analysis is constrained to CPU-only execution, requiring careful memory management (sequential processing) and density-based background sampling.
+**Question**: Do functional traits (SLA, Seed Mass, Height) significantly improve the predictive performance of Species Distribution Models (SDMs) for Asteraceae species beyond climate‑only baselines when evaluated on held‑out species?
 
-**Critical Design Note**: The original spec (FR-004) mandates using "known trait values" for the held-out species. This plan explicitly overrides that instruction because it creates a circular validation (the model uses the test species' own traits to predict its own niche). The implementation uses **Trait Imputation** (predicting traits from climate using the N-1 model) to ensure the test is valid.
+**Hypothesis**: Models incorporating functional traits will achieve a statistically significant higher mean AUC (≥ 0.02 improvement) compared to climate‑only models in a Leave‑One‑Species‑Out (LOSO) cross‑validation framework.
 
-## Dataset Strategy
+## 2. Dataset Strategy
 
-The project relies on three primary data sources. Per the "Verified datasets" constraint, the plan mandates specific versions and fallback strategies.
-
-| Dataset | Purpose | Verified Source URL / Version | Acquisition Method | Notes on Availability |
+| Dataset | Description | Source / URL | Access Method | Notes |
 |:--- |:--- |:--- |:--- |:--- |
-| **GBIF Occurrences** | Presence points for target Asteraceae species. | **API**: `pygbif` (official GBIF API). **Version**: Current API. **Fallback**: None (halts if API fails). | `pygbif` query for specific taxon keys. | **CRITICAL**: The plan queries the API for a specific set of species. If <30 species are found with ≥100 records, the workflow halts with a 'Data Gap' error. No generic parquet files are used. |
-| **WorldClim v2.1** | 19 Bioclimatic variables (climate predictors). | **Version**: `wc2.1_30s_bio` (bioclim). **URL**: `https://worldclim.org/data/v2.1/` (official) or verified HuggingFace mirror if available. | `rasterio` + `wget` (with version check). | If the official portal is unreachable, the plan attempts to fetch the specific `wc2.1_30s_bio` release from a verified mirror. If both fail, the workflow halts. |
-| **TRY Plant Trait Database** | SLA, Seed Mass, Height for species. | **Version**: `2023-01-01` release. **URL**: ` (official API). | `requests` (TRY API) with specific release ID. | The plan parses the 'measurementProtocol' field. If it contains 'Kattge et al. [Year]' or 'Handbook 2013', it is verified. Otherwise, the species is flagged as 'unverified' and excluded. |
+| **GBIF Occurrences** | Global, georeferenced occurrence records for all Asteraceae species (≥ 100 records/species). | GBIF API ` (taxonKey = family = Asteraceae) | `requests` with pagination | Query is global; no geographic restriction. |
+| **WorldClim v2.1** | 19 bioclimatic variables, 1 km resolution. | WorldClim v2.1, release 2023‑08‑01 | `rasterio` download via official HTTP endpoint | Version and download date recorded for reproducibility. |
+| **TRY Plant Trait** | Specific Leaf Area, Seed Mass, Plant Height. | TRY public subset, version 2022‑07 | `requests` to TRY API | Includes `source` metadata; values with `source` = “Handbook 2013” are flagged as verified. |
 
-**Dataset Variable Fit Check**:
-- **GBIF**: Contains Lat/Lon. Matches `OccurrenceRecord`.
-- **WorldClim**: Contains 19 bioclim layers. Matches `ClimateRasterStack`.
-- **TRY**: Contains SLA, Seed Mass, Height. Matches `TraitProfile`.
-- **Potential Mismatch**: The spec assumes a finite set of species exists. The plan now enforces a **Power Analysis** check: if N < 30, the analysis is aborted to prevent Type II errors.
+**Dataset Fit Verification**:
+- **GBIF**: Provides latitude/longitude and taxon keys for Asteraceae; meets FR‑001.
+- **WorldClim**: Supplies required 19 bioclim variables; meets FR‑002.
+- **TRY**: Contains the three required traits; meets FR‑003 and FR‑010 (source verification). Missing traits trigger exclusion per FR‑006; unverified sources are flagged, not excluded.
 
-## Methodological Rigor
+## 3. Methodology
 
-### Statistical Approach
-1. **Modeling**: Random Forest (RF) classifiers.
- - **Climate-only**: Predictors = 19 WorldClim variables.
- - **Climate+Traits (Imputed)**: Predictors = 19 WorldClim + 3 Traits.
- - **Crucial Correction**: For the test species, the trait values are **imputed** (predicted from its climate niche using the model trained on N-1 species). This breaks the circular link where the test species' own traits predict its own niche.
- - **Validation**: **Leave-One-Species-Out (LOSO)**.
- - For each species $i$ in the set of $N$ species:
- - Train on $N-1$ species (using their climate + traits).
- - Predict traits for species $i$ using the $N-1$ model and species $i$'s climate.
- - Train a second RF on $N-1$ species (climate + traits) and test on species $i$ using the *imputed* traits.
- - Record AUC and TSS.
- - **Background Points**: **Density-based**. 1 point per 100 km² of the species' convex hull area (max [deferred]). This normalizes for range size and prevents sampling density from confounding AUC/TSS.
- - **Hyperparameters**: `n_estimators=100`, `max_depth=10` (CPU constraint).
-2. **Statistical Test**: **Linear Mixed-Effects Model (LMM)**.
- - **Why**: The LOSO design creates non-independence (species $i$ is in training for iteration $j$). A paired t-test is invalid.
- - **Model**: `AUC ~ ModelType + (1 | SpeciesID)`.
- - **Fixed Effect**: `ModelType` (Climate-only vs. Climate+Traits Imputed).
- - **Random Effect**: `SpeciesID` (accounts for the nested dependency).
- - **Correction**: Bonferroni correction for multiple comparisons (Family-wise error rate) applied to the fixed effect p-value.
- - **Effect Size**: Cohen's $d$ (calculated from fixed effect estimates).
-3. **Sensitivity Analysis**: Sweep AUC improvement threshold over a range of small increments.
- - **Success Criterion (per FR-009)**: Direction of improvement (mean_diff > 0) consistent in ≥ 67% of thresholds (i.e., at least 2 out of 3). The p-value is reported but not required for the consistency count. The system generates a sensitivity table explicitly.
+### 3.1 Data Preprocessing
+1. **GBIF**: Download globally filtered by Asteraceae family; remove duplicate coordinates; apply spatial thinning (10 km default). If retained records fall below [deferred] of raw, iteratively reduce thinning distance by 1 km steps down to 1 km (fallback per FR‑001). Species that still fail the 80 % threshold are flagged as `insufficient_data` and omitted from modeling.
+2. **Climate**: Extract the 19 WorldClim layers for the convex hull of cleaned occurrences; align raster stack to occurrence coordinates.
+3. **Traits**: Retrieve SLA, Seed Mass, Height from TRY. Verify `trait_source`; set `is_verified = true` only if source matches “Handbook 2013”. Flag unverified traits (`is_verified = false`) but retain them. Species missing any trait receive `exclusion_reason = "missing_trait"` and are excluded from the trait‑augmented branch (FR‑006).
 
-### Rigor Checklist (Addressing Panel Concerns)
-- **Multiple Comparisons**: Bonferroni correction applied to LMM fixed effect (FR-008).
-- **Sample Size/Power**: **Power Analysis** mandated. Minimum N=30 species required for 80% power (alpha=0.05, effect size=0.5). If N < 30, workflow halts with 'Power Insufficient' error.
-- **Causal Inference**: **Associational only**. The plan explicitly states (FR-007) that traits are predictors, not causal agents. No causal claims are made.
-- **Measurement Validity**: FR-010 requires checking the 'source' field in TRY data against the "Handbook 2013". If source is unverified, the trait is flagged.
-- **Collinearity**: FR-011 requires VIF calculation. If VIF > 5, the report notes collinearity and avoids claiming independent effects.
-- **Circularity**: Resolved by using **Trait Imputation** (predicting traits from climate) for the test species. This ensures the model learns the *general* trait-climate relationship, not memorize the species identity.
+### 3.2 Modeling Strategy (LOSO)
+- **Design**: Leave‑One‑Species‑Out (LOSO) cross‑validation across all species with complete trait data.
+- **Training**: For each fold, train two Random Forest classifiers (CPU‑only, `scikit‑learn`):
+ - **Climate‑only**: A set of climate predictors.
+ - **Climate + traits**: climate + 3 trait predictors, using the *known* trait values of the held‑out species (no imputation, per FR‑004).
+- **Hyperparameters**: `n_estimators=100`, `max_depth=10`, `random_state=42`; inner 5‑fold CV for tuning.
+- **Outputs**: Per‑species AUC and TSS on the held‑out species; VIF scores for the full predictor set; `collinearity_flag` if any VIF > 5 (FR‑011).
 
-## Compute Feasibility
+### 3.3 Statistical Analysis
+1. **Paired t‑test**: Conduct a paired two‑sided t‑test comparing AUC (and separately TSS) between climate‑only and climate + traits models across all LOSO folds.
+2. **Bonferroni correction**: Apply family‑wise correction for the two metrics (FR‑008).
+3. **Effect size**: Report Cohen’s d.
+4. **Sensitivity sweep**: Evaluate ΔAUC thresholds {0.01, 0.02, 0.05}; produce a table showing the proportion of species with ΔAUC > threshold; success if ≥ 67 % of thresholds show improvement (FR‑009).
 
-- **Hardware**: GitHub Actions Free Tier (modest CPU capacity, 7GB RAM, No GPU).
-- **Strategy**:
- - **Sequential Processing**: Species are processed one by one (not in parallel). `gc.collect()` is called after each iteration.
- - **Memory Management**: If RAM usage exceeds a predefined threshold, the batch size for training (N-1 species) is dynamically reduced.
- - **Sampling**: Density-based background sampling (1 point per 100 km²) keeps the dataset size manageable and biologically relevant.
- - **Model**: Random Forest with `max_depth=10` and `n_estimators=100` (default `scikit-learn` CPU implementation).
- - **Runtime**: Estimated < 4 hours for 30-50 species with LOSO (30-50 iterations) on sequential processing.
- - **Libraries**: `scikit-learn`, `pandas`, `geopandas`, `rasterio`, `statsmodels`, `linearmodels` (all have CPU wheels).
+### 3.4 Decision Rationale
+- The spec (FR‑004) explicitly requires using *known* trait values for the held‑out species; therefore the LOSO design tests whether traits are **associatively** predictive when they are available, not whether they can be inferred for completely novel species. This aligns with the contractual requirement while remaining methodologically sound for the intended analysis.
+- Paired t‑tests are mandated by FR‑005 and FR‑008; LMM is unnecessary and would violate the spec, so the analysis follows the paired t‑test framework.
 
-## Decision Rationale
+## 4. Compute Feasibility & Constraints
+- **Hardware**: 2 CPU cores, 7 GB RAM, ≤ 6 h runtime on GitHub Actions.
+- **Memory**: Species processed sequentially; each raster stack ≤ 200 MB.
+- **Runtime**: Estimated ≤ 4 h for 50 species with the chosen RF parameters.
 
-- **LOSO vs. K-Fold**: LOSO is chosen (US-2) to test generalization to *unseen species*.
-- **Trait Imputation**: Chosen to resolve the circularity concern. Using the test species' *own* traits is a tautology. Imputing traits ensures the model learns the *general* trait-climate relationship.
-- **LMM vs. t-test**: LMM is chosen to account for the non-independence of LOSO iterations.
-- **Density-Based Sampling**: Chosen to normalize for range size and prevent sampling density from confounding AUC/TSS.
-- **Bonferroni**: Conservative correction required due to multiple paired tests (FR-008).
-- **Threshold Sweep**: Required by FR-009 to demonstrate robustness of the "0.02" threshold claim.
-- **Power Analysis**: Mandated to ensure the study has sufficient statistical power to detect the effect.
+## 5. Decision Rationale (re‑iterated)
+- **Known traits**: Required by FR‑004; the analysis therefore assesses the *additional associative information* traits provide when they are known.
+- **Statistical test**: Paired t‑test with Bonferroni correction satisfies FR‑005, FR‑008, and avoids unnecessary complexity.

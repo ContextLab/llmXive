@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CleanedOccurrenceRecord"
+description: "Schema for spatially thinned and cleaned GBIF occurrence records."
+type: "object"
+properties:
+  record_id:
+    type: "string"
+    description: "Unique identifier for the cleaned record."
+  taxon_key:
+    type: "integer"
+    description: "GBIF taxon key for the species."
+  latitude:
+    type: "number"
+    description: "Latitude of the occurrence."
+    minimum: -90
+    maximum: 90
+  longitude:
+    type: "number"
+    description: "Longitude of the occurrence."
+    minimum: -180
+    maximum: 180
+  is_background:
+    type: "boolean"
+    description: "True if this is a generated background point, False if a presence."
+  thinning_distance_km:
+    type: "number"
+    description: "The thinning distance used to retain this record."
+required:
+  - record_id
+  - taxon_key
+  - latitude
+  - longitude
+  - is_background
+  - thinning_distance_km
+additionalProperties: false

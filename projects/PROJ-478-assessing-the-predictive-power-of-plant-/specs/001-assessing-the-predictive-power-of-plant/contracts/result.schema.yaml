@@ -1,0 +1,44 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelResult"
+description: "Schema for model performance metrics per fold and species."
+type: "object"
+properties:
+  species_id:
+    type: "integer"
+    description: "GBIF taxon key of the test species."
+  fold_id:
+    type: "integer"
+    description: "Index of the LOSO fold (0 to N-1)."
+  model_type:
+    type: "string"
+    enum:
+      - "climate_only"
+      - "climate_trait"
+    description: "Type of model configuration used."
+  auc:
+    type: "number"
+    description: "Area Under the ROC Curve."
+    minimum: 0
+    maximum: 1
+  tss:
+    type: "number"
+    description: "True Skill Statistic."
+    minimum: -1
+    maximum: 1
+  vif_scores:
+    type: "object"
+    description: "Variance Inflation Factors for each predictor."
+    additionalProperties:
+      type: "number"
+  collinearity_flag:
+    type: "boolean"
+    description: "True if any VIF > 5."
+required:
+  - species_id
+  - fold_id
+  - model_type
+  - auc
+  - tss
+  - vif_scores
+  - collinearity_flag
+additionalProperties: false

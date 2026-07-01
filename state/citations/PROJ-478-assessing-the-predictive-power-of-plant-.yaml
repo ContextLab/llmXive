@@ -1,22 +1,22 @@
-- artifact_hash: d0849b7489f8725048d44c01e01e429243f8c78d7de083f76e285576ab70c019
+- artifact_hash: 317b4f2060aed9ab801a494b9a313bc0283748aea8d1a39d0a0a21c03fa2e0ce
+  artifact_path: projects/PROJ-478-assessing-the-predictive-power-of-plant-/specs/001-assessing-the-predictive-power-of-plant/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: search
+  kind: url
+  value: https://api.gbif.org/v1/occurrence/search`
+  verification_status: verified
+  verified_against_url: https://api.gbif.org/v1/occurrence/search
+  verified_at: '2026-07-01T18:14:38.996677Z'
+- artifact_hash: 74d3b3d4390ae3fa04f067b20e88fc92981f7129d438ff42d575e0988e248185
   artifact_path: projects/PROJ-478-assessing-the-predictive-power-of-plant-/specs/001-assessing-the-predictive-power-of-plant/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: search
   kind: url
-  value: https://worldclim.org/data/v2.1/`
-  verification_status: pending
-  verified_against_url: https://worldclim.org/data/v2.1/%60
-  verified_at: '2026-06-30T17:42:53.187200Z'
-- artifact_hash: d0849b7489f8725048d44c01e01e429243f8c78d7de083f76e285576ab70c019
-  artifact_path: projects/PROJ-478-assessing-the-predictive-power-of-plant-/specs/001-assessing-the-predictive-power-of-plant/research.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://www.try-db.org/`
-  verification_status: mismatch
-  verified_against_url: https://www.try-db.org/%60
-  verified_at: '2026-06-30T17:42:53.187200Z'
+  value: https://api.gbif.org/v1/occurrence/search`
+  verification_status: verified
+  verified_against_url: https://api.gbif.org/v1/occurrence/search
+  verified_at: '2026-07-01T18:15:23.880101Z'

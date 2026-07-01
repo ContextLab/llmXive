@@ -1,0 +1,87 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ClimateRasterStack"
+description: "Schema for the extracted 19 bioclimatic variables."
+type: "object"
+properties:
+  record_id:
+    type: "string"
+    description: "Reference to the occurrence record."
+  bio1:
+    type: "number"
+    description: "Annual Mean Temperature."
+  bio2:
+    type: "number"
+    description: "Mean Diurnal Range."
+  bio3:
+    type: "number"
+    description: "Isothermality."
+  bio4:
+    type: "number"
+    description: "Temperature Seasonality."
+  bio5:
+    type: "number"
+    description: "Max Temperature of Warmest Month."
+  bio6:
+    type: "number"
+    description: "Min Temperature of Coldest Month."
+  bio7:
+    type: "number"
+    description: "Temperature Annual Range."
+  bio8:
+    type: "number"
+    description: "Mean Temperature of Wettest Quarter."
+  bio9:
+    type: "number"
+    description: "Mean Temperature of Driest Quarter."
+  bio10:
+    type: "number"
+    description: "Mean Temperature of Warmest Quarter."
+  bio11:
+    type: "number"
+    description: "Mean Temperature of Coldest Quarter."
+  bio12:
+    type: "number"
+    description: "Annual Precipitation."
+  bio13:
+    type: "number"
+    description: "Precipitation of Wettest Month."
+  bio14:
+    type: "number"
+    description: "Precipitation of Driest Month."
+  bio15:
+    type: "number"
+    description: "Precipitation Seasonality."
+  bio16:
+    type: "number"
+    description: "Precipitation of Wettest Quarter."
+  bio17:
+    type: "number"
+    description: "Precipitation of Driest Quarter."
+  bio18:
+    type: "number"
+    description: "Precipitation of Warmest Quarter."
+  bio19:
+    type: "number"
+    description: "Precipitation of Coldest Quarter."
+required:
+  - record_id
+  - bio1
+  - bio2
+  - bio3
+  - bio4
+  - bio5
+  - bio6
+  - bio7
+  - bio8
+  - bio9
+  - bio10
+  - bio11
+  - bio12
+  - bio13
+  - bio14
+  - bio15
+  - bio16
+  - bio17
+  - bio18
+  - bio19
+additionalProperties: false

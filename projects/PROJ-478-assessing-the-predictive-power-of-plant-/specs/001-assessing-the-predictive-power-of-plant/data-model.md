@@ -1,53 +1,37 @@
 # Data Model: Assessing the Predictive Power of Plant Functional Traits for Species Distribution Models
 
-## Overview
+## 1. Entity-Relationship Overview
 
-This document defines the data structures, schemas, and relationships for the project. It ensures that the implementation adheres to the "Data Hygiene" and "Single Source of Truth" principles.
+The data model consists of four primary entities: `Species`, `OccurrenceRecord`, `ClimateRasterStack`, and `TraitProfile`. These are linked to form `ModelResult` entities for the LOSO cycle.
 
-## Key Entities
+### 1.1 Species
+- **Attributes**: `taxon_key` (GBIF ID), `scientific_name`, `genus`, `species`.
 
-### 1. Species
-Represents a taxon (Genus + Species) in the study.
--   **Attributes**: `species_id` (unique), `scientific_name`, `genus`, `species`, `trait_source` (e.g., "Handbook 2013"), `exclusion_reason` (if any).
+### 1.2 OccurrenceRecord
+- **Attributes**: `record_id`, `taxon_key`, `latitude`, `longitude`, `event_date`, `source`.
+- **Derived**: `cleaned_record_id` (after thinning), `background_flag` (presence/absence), `thinning_distance_km`.
 
-### 2. OccurrenceRecord
-A single observation from GBIF.
--   **Attributes**: `record_id`, `species_id`, `latitude`, `longitude`, `timestamp`, `source` (GBIF), `cleaned` (boolean).
+### 1.3 ClimateRasterStack
+- **Attributes**: `raster_id`, `variable_name` (e.g., "bio1"), `resolution`, `crs`.
+- **Derived**: `extracted_values` (list of 19 floats per occurrence).
 
-### 3. ClimateRasterStack
-A set of 19 bioclimatic layers for a specific species extent.
--   **Attributes**: `species_id`, `raster_path` (list of 19 paths), `resolution`, `crs`, `extent` (min_lon, max_lon, min_lat, max_lat), `background_density` (points per km²).
+### 1.4 TraitProfile
+- **Attributes**: `taxon_key`, `sla`, `seed_mass`, `height`, `trait_source`, `is_verified` (bool), `exclusion_reason` (null or string).
+- **Derived**: `flag_unverified` (true when `is_verified` = false).
 
-### 4. TraitProfile
-Species-level functional traits.
--   **Attributes**: `species_id`, `sla` (Specific Leaf Area), `seed_mass`, `plant_height`, `sla_unit`, `seed_mass_unit`, `height_unit`, `source_verified` (boolean), `trait_imputed` (boolean, for test set).
+### 1.5 ModelResult
+- **Attributes**: `species_id`, `fold_id`, `model_type` (`climate-only` | `climate+traits`), `auc`, `tss`, `vif_scores` (dict), `collinearity_flag` (bool).
 
-### 5. ModelResult
-Performance metrics for a specific model configuration on a specific species.
--   **Attributes**: `species_id`, `model_type` (climate-only, climate+traits-imputed), `auc`, `tss`, `cv_folds`, `hyperparams` (JSON), `test_species_id` (for LOSO), `trait_imputed` (boolean), `imputed_traits` (JSON, optional).
+## 2. Data Flow
 
-### 6. StatisticalSummary
-Aggregate results of the LMM.
--   **Attributes**: `metric` (AUC or TSS), `mean_climate_only`, `mean_climate_traits`, `mean_diff`, `p_value_raw`, `p_value_corrected`, `cohens_d`, `n_species`, `vif_warning`, `vif_details`, `random_effect_variance`, `fixed_effect_estimate`.
+1. **Ingestion**: Raw GBIF/WorldClim/TRY → `data/raw/`.
+2. **Cleaning**: Duplicate removal, spatial thinning with fallback, trait validation → `data/processed/`.
+3. **Feature Extraction**: Join occurrences with climate rasters → `data/processed/features.parquet`.
+4. **Modeling**: LOSO loop → `results/metrics_per_fold.json`.
+5. **Aggregation**: Statistical tests → `results/final_report.json`.
 
-### 7. SensitivityAnalysis
-Results of the threshold sweep.
--   **Attributes**: `threshold`, `direction_consistent` (boolean), `count_consistent` (integer).
-
-## Data Flow
-
-1.  **Raw Data**: GBIF (API), WorldClim (GeoTIFF), TRY (CSV/JSON) -> `data/raw/`.
-2.  **Processed Data**: Cleaned Occurrences, Extracted Climate Values, Merged Traits -> `data/processed/`.
-3.  **Model Output**: Per-species AUC/TSS -> `results/model_results.json`.
-4.  **Final Report**: Statistical summaries -> `results/stats_report.json`.
-5.  **Sensitivity Output**: Threshold sweep results -> `results/sensitivity_analysis.json`.
-
-## Constraints
-
--   **Spatial Thinning**: Max 10km, min 1km. If <50 points remain, reduce thinning or flag.
-- **Background Points**: **Density-based** (1 point per 100 km² of convex hull area). Max [deferred].
--   **Missing Data**: Species with missing traits are excluded from the "Climate+Traits" branch but included in "Climate-only".
--   **VIF**: If VIF > 5, flag in `ModelResult` or `StatisticalSummary`.
--   **Power**: Minimum N=30 species required. If N < 30, halt with 'Power Insufficient' error.
--   **Circularity**: Test species traits MUST be **imputed** (predicted from climate) for the 'climate+traits' model to ensure valid generalization testing.
-- **SC-001 Scope**: The [deferred] retention metric applies to the **included species set** (N >= 30), not the target 50. If species are excluded due to data gaps, SC-001 is evaluated on the remaining set.
+## 3. Validation Rules
+- **Spatial Thinning**: Must retain ≥ 80 % of raw records; fallback reduces distance by 1 km steps to a minimum of 1 km (FR‑001).
+- **Trait Completeness**: Missing any of SLA, Seed Mass, Height → `exclusion_reason = "missing_trait"` and species excluded from trait‑augmented branch (FR‑006). Unverified protocol → `is_verified = false`; flagged but retained (FR‑010).
+- **VIF**: If any VIF > 5, set `collinearity_flag = true`; report values (FR‑011).
+- **Random Seed**: All stochastic processes use seed 42.

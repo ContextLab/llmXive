@@ -1,0 +1,34 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "TraitProfile"
+description: "Schema for species‑level functional trait data with verification flag."
+type: "object"
+properties:
+  taxon_key:
+    type: "integer"
+    description: "GBIF taxon key."
+  sla:
+    type: ["number", "null"]
+    description: "Specific Leaf Area (mm2/mg)."
+  seed_mass:
+    type: ["number", "null"]
+    description: "Seed Mass (mg)."
+  height:
+    type: ["number", "null"]
+    description: "Plant Height (m)."
+  trait_source:
+    type: ["string", "null"]
+    description: "Source of the trait measurement (e.g., 'Handbook 2013')."
+  is_verified:
+    type: "boolean"
+    description: "True if source matches 'Handbook 2013', False otherwise."
+  exclusion_reason:
+    type: ["string", "null"]
+    description: "Reason for exclusion from trait‑augmented analysis (e.g., 'missing_trait')."
+required:
+  - taxon_key
+  - sla
+  - seed_mass
+  - height
+  - trait_source
+  - is_verified
+additionalProperties: false
