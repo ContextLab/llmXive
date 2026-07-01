@@ -1,0 +1,10 @@
+{
+  "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-805-tua-bench-a-benchmark-for-general-purpos/paper/pdf/main-llmxive.pdf",
+  "audit": null,
+  "repair_rounds": 0,
+  "llmxive_compile_attempts": 0,
+  "status": "restyled_unaudited",
+  "failure": null,
+  "paper_id": "PROJ-805-tua-bench-a-benchmark-for-general-purpos",
+  "updated_at": "2026-07-01T03:13:53.673333+00:00"
+}
