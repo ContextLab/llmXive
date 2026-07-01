@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "VR Social Comparison Dataset Schema"
+description: "Schema for the synthetic or real dataset containing RSES, INCOM, and longitudinal self-esteem data."
+type: "object"
+properties:
+  participant_id:
+    type: "string"
+    description: "Unique identifier for the participant."
+  avatar_condition:
+    type: "number"
+    description: "Continuous exposure intensity to idealized avatars (0.0 to 1.0)."
+    minimum: 0.0
+    maximum: 1.0
+  comparison_tendency:
+    type: "number"
+    description: "Iowa-Netherlands Comparison Orientation Measure (INCOM) score."
+    minimum: 0.0
+  selfesteem_pre:
+    type: "number"
+    description: "Rosenberg Self-Esteem Scale score before exposure."
+    minimum: 10.0
+    maximum: 40.0
+  selfesteem_post:
+    type: "number"
+    description: "Rosenberg Self-Esteem Scale score after exposure."
+    minimum: 10.0
+    maximum: 40.0
+  selfesteem_change:
+    type: "number"
+    description: "Calculated difference: selfesteem_post - selfesteem_pre."
+  missingness_flag:
+    type: "boolean"
+    description: "True if the record required imputation."
+  missingness_mechanism:
+    type: "string"
+    description: "Mechanism of missingness for synthetic data (MCAR, MAR, MNAR)."
+    enum:
+      - "MCAR"
+      - "MAR"
+      - "MNAR"
+      - "None"
+required:
+  - participant_id
+  - avatar_condition
+  - comparison_tendency
+  - selfesteem_pre
+  - selfesteem_post
+  - selfesteem_change
+additionalProperties: false
