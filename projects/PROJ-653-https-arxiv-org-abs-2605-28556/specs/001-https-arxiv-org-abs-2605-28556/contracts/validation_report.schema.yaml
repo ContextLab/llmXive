@@ -1,0 +1,69 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "TASTE Validation Report Schema"
+description: "Schema for the aggregated validation and metrics report."
+type: "object"
+required:
+  - "total_tasks"
+  - "valid_count"
+  - "validity_rate"
+  - "tool_coverage"
+  - "unique_combinations"
+  - "entropy_avg"
+  - "heuristic_complexity_gap"
+  - "p_value"
+  - "effect_size_cohen_d"
+  - "baseline_type"
+properties:
+  total_tasks:
+    type: "integer"
+    description: "Total number of tasks generated."
+    minimum: 0
+  valid_count:
+    type: "integer"
+    description: "Number of tasks passing validation."
+    minimum: 0
+  validity_rate:
+    type: "number"
+    description: "Percentage of valid tasks (0.0 to 1.0)."
+    minimum: 0
+    maximum: 1
+  tool_coverage:
+    type: "object"
+    description: "Count of usage for each tool."
+    additionalProperties:
+      type: "integer"
+  unique_combinations:
+    type: "integer"
+    description: "Number of unique tool sequences observed."
+    minimum: 0
+  entropy_avg:
+    type: "number"
+    description: "Average entropy of the N-gram model output."
+    minimum: 0
+  heuristic_complexity_gap:
+    type: "number"
+    description: "Difference in consensus failure rates between TASTE and Baseline."
+  p_value:
+    type: "number"
+    description: "P-value from the Permutation Test."
+    minimum: 0
+    maximum: 1
+  effect_size_cohen_d:
+    type: "number"
+    description: "Cohen's d effect size for the difficulty drop."
+  proxy_correlation:
+    type: "number"
+    description: "Correlation coefficient with known LLM failures (if calibrated)."
+    minimum: -1
+    maximum: 1
+  baseline_type:
+    type: "string"
+    enum:
+      - "real"
+      - "synthetic"
+    description: "Type of baseline used for comparison."
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "Time of report generation."
+additionalProperties: false

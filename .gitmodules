@@ -190,3 +190,9 @@
 [submodule "projects/PROJ-698-toward-generalist-autonomous-research-vi/external/Arbor"]
 	path = projects/PROJ-698-toward-generalist-autonomous-research-vi/external/Arbor
 	url = https://github.com/RUC-NLPIR/Arbor
+[submodule "projects/PROJ-653-https-arxiv-org-abs-2605-28556/external/TASTE-task-synthesis-from-tool-sequence-evolution"]
+	path = projects/PROJ-653-https-arxiv-org-abs-2605-28556/external/TASTE-task-synthesis-from-tool-sequence-evolution
+	url = https://github.com/tomerkeren42/TASTE-task-synthesis-from-tool-sequence-evolution
+[submodule "projects/PROJ-720-joyai-vl-interaction-real-time-vision-la/external/JoyAI-VL-Interaction"]
+	path = projects/PROJ-720-joyai-vl-interaction-real-time-vision-la/external/JoyAI-VL-Interaction
+	url = https://github.com/jd-opensource/JoyAI-VL-Interaction
