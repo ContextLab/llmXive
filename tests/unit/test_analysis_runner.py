@@ -257,3 +257,31 @@ def test_code_referenced_declared_deliverable_still_gates_when_absent(tmp_path, 
     res = ar.run_analysis(proj)
     assert res.ok is False
     assert "data/wanted.csv" in (res.reason or "")
+
+
+def test_snapshot_artifacts_detects_code_output_and_results_dirs(tmp_path: Path) -> None:
+    """The artifact detector must see real outputs written to results/ or
+    code/output/ — not only data/ and figures/. PROJ-492 (a CPU-tractable
+    crossing candidate) writes code/output/summary_report.csv; when only
+    data/figures were scanned it was falsely gated 'produced no artifacts' and
+    stalled at in_progress despite a real computed result."""
+    from llmxive.execution.analysis_runner import _snapshot_artifacts
+
+    proj = tmp_path / "projects" / "PROJ-492-x"
+    (proj / "code" / "output").mkdir(parents=True)
+    (proj / "results").mkdir(parents=True)
+    (proj / "data").mkdir(parents=True)
+    (proj / "figures").mkdir(parents=True)
+    (proj / "code" / "output" / "summary_report.csv").write_text("a,b\n1,2\n")
+    (proj / "results" / "metrics.json").write_text('{"r2": 0.78}')
+    (proj / "data" / "clean.parquet").write_bytes(b"PARQ\x00data")
+    # excluded: empty file + .gitkeep must NOT count as produced artifacts
+    (proj / "code" / "output" / "empty.csv").write_text("")
+    (proj / "figures" / ".gitkeep").write_text("")
+
+    snap = _snapshot_artifacts(proj)
+    assert "code/output/summary_report.csv" in snap
+    assert "results/metrics.json" in snap
+    assert "data/clean.parquet" in snap
+    assert "code/output/empty.csv" not in snap        # empty -> excluded
+    assert not any(k.endswith(".gitkeep") for k in snap)  # .gitkeep -> excluded

@@ -22,9 +22,14 @@ from pathlib import Path
 
 from llmxive import sandbox
 
-# Directories whose (non-.gitkeep, non-empty) contents count as real produced
-# research artifacts. Figures may land in any of these depending on the plan.
-_ARTIFACT_DIRS = ("data", "figures")
+# Directory NAMES whose (non-.gitkeep, non-empty) contents count as real produced
+# research artifacts. Scanned at the project root AND under code/, because plans
+# vary: most write to data/ or figures/, but some write to results/ or
+# code/output/ (e.g. PROJ-492's code/output/summary_report.csv) — those are real
+# computed outputs and must NOT be missed, else a genuine run is falsely gated
+# "produced no data/figure artifacts" and the project stalls at in_progress.
+# (offload.py keeps a parallel list for the Kaggle-kernel retrieval path.)
+_ARTIFACT_DIRS = ("data", "figures", "results", "output", "outputs")
 _FIGURE_SUFFIXES = (".png", ".pdf", ".jpg", ".jpeg", ".svg")
 _DATA_SUFFIXES = (".csv", ".json", ".parquet", ".npy", ".npz", ".tsv", ".h5", ".feather")
 
@@ -125,8 +130,11 @@ def _snapshot_artifacts(project_dir: Path) -> dict[str, float]:
     """Map of project-relative artifact path -> mtime for non-empty data/figure
     files (excluding .gitkeep and venv)."""
     snap: dict[str, float] = {}
+    roots: list[Path] = []
     for sub in _ARTIFACT_DIRS:
-        root = project_dir / sub
+        roots.append(project_dir / sub)           # <proj>/data, <proj>/results, …
+        roots.append(project_dir / "code" / sub)  # <proj>/code/output, …
+    for root in roots:
         if not root.is_dir():
             continue
         for p in root.rglob("*"):
