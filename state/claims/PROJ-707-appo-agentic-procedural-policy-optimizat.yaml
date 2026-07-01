@@ -1,0 +1,412 @@
+- artifact_path: projects/PROJ-707-appo-agentic-procedural-policy-optimizat/specs/001-appo-agentic-procedural-policy-optimizat/tasks.md
+  attempts: 1
+  canonical: Datasets used are Mustafaege/qwen3.5-toolcalling-v2 and math
+  claim_id: c_a9da2ab8
+  context: Implement dataset downloader in `code/data/download.py` fetching `Mustafaege/qwen3.5-toolcalling-v2`
+    and `math` via `datasets.load_dataset`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses the 'Mustafaege/qwen3.5-toolcalling-v2' and 'math' datasets.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T02:05:29Z'
+- artifact_path: projects/PROJ-707-appo-agentic-procedural-policy-optimizat/specs/001-appo-agentic-procedural-policy-optimizat/tasks.md
+  attempts: 1
+  canonical: TinyLlama used as executable proxy model
+  claim_id: c_3a8c3f0a
+  context: Implement CPU-safe model loader in `code/models/loader.py` using `llama-cpp-python`
+    (low-bit GGUF quantization) for TinyLlama.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/TinyLlama_used_as_executable_proxy_model
+  kind: entity_fact
+  raw_text: The project uses TinyLlama as the executable proxy model.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T02:07:35Z'
+- artifact_path: projects/PROJ-707-appo-agentic-procedural-policy-optimizat/specs/001-appo-agentic-procedural-policy-optimizat/tasks.md
+  attempts: 1
+  canonical: FVN proxy model trained for 3 epochs at lr 1e-4
+  claim_id: c_0893ec16
+  context: 'Train the FVN proxy model defined in T008a using a synthetic dataset.
+    **Output**: Saved model weights in `code/models/fvn_weights/`. **Requirement**:
+    3 epochs, lr=1e-4, early stopping on val loss.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The FVN proxy model is trained for 3 epochs with a learning rate of 1e-4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T02:09:05Z'
+- artifact_path: projects/PROJ-707-appo-agentic-procedural-policy-optimizat/specs/001-appo-agentic-procedural-policy-optimizat/tasks.md
+  attempts: 1
+  canonical: 'Base config: lr 3e-4, batch 4, clip 0.2, seq 256, steps 2M'
+  claim_id: c_66971326
+  context: '`base.yaml` MUST define specific hyperparameters: `learning_rate: 3e-4`,
+    `batch_size: 4`, `ppo_clip: 0.2`, `sequence_length: 256`, `max_steps: 2000000`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The base configuration defines a learning rate of 3e-4, batch size of
+    4, ppo_clip of 0.2, sequence length of 256, and max steps of 2,000,000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T02:10:09Z'
+- artifact_path: projects/PROJ-707-appo-agentic-procedural-policy-optimizat/specs/001-appo-agentic-procedural-policy-optimizat/tasks.md
+  attempts: 1
+  canonical: Pilot execution runs 3 seeds of No-Score baseline
+  claim_id: c_ff4f15fc
+  context: 'Execute Pilot Runs: Run 3 seeds of the `No-Score` baseline. **Depends
+    on**: T003, T004, T005, T006, T007, T010, T011.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pilot execution runs 3 seeds of the 'No-Score' baseline.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T02:11:34Z'
+- artifact_path: projects/PROJ-707-appo-agentic-procedural-policy-optimizat/specs/001-appo-agentic-procedural-policy-optimizat/tasks.md
+  attempts: 1
+  canonical: Threshold computed as 80% of max pilot score
+  claim_id: c_7dc41623
+  context: 'Aggregate & Verify Threshold. **Logic**: Read pilot logs, calculate max
+    pilot score, compute 80% threshold.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The performance threshold is computed as 80% of the maximum pilot score.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T02:11:35Z'
+- artifact_path: projects/PROJ-707-appo-agentic-procedural-policy-optimizat/specs/001-appo-agentic-procedural-policy-optimizat/tasks.md
+  attempts: 1
+  canonical: Stability verification fails if 3-seed CI width > 10% of mean
+  claim_id: c_411d0a42
+  context: Run a 'Stability Verification' (bootstrap check). If the 3-seed CI width
+    > 10% of mean, FAIL and halt.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Stability_verification_fails_if_3-seed_CI_width_%3E_10%25_of_mea
+  kind: magnitude
+  raw_text: The stability verification fails if the 3-seed confidence interval width
+    is greater than 10% of the mean.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T02:13:03Z'
+- artifact_path: projects/PROJ-707-appo-agentic-procedural-policy-optimizat/specs/001-appo-agentic-procedural-policy-optimizat/tasks.md
+  attempts: 1
+  canonical: Score-Default uses epsilon 0.1, epsilon' 0.05, b 0.5
+  claim_id: c_b9db0339
+  context: "Implement `Score-Default` training loop (with Branching Score heuristic)\
+    \ in `code/training/loop.py`. **Depends on**: T003, T004, T005, T007, T008a, T008b,\
+    \ T009, T010, T012c. **Config**: \u03B5=0.1, \u03B5\u2032=0.05, b=0.5."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The 'Score-Default' training loop uses epsilon=0.1, epsilon'=0.05, and
+    b=0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T02:14:26Z'
+- artifact_path: projects/PROJ-707-appo-agentic-procedural-policy-optimizat/specs/001-appo-agentic-procedural-policy-optimizat/tasks.md
+  attempts: 1
+  canonical: Ablation grid includes 12 runs with 1 seed per variant
+  claim_id: c_40ceb610
+  context: 'Implement `AblationRunner` in `code/training/ablation_runner.py` to iterate
+    `ablation_grid.yaml`. **Depends on**: T013, T014, T020. **Seed Count**: 1 seed
+    per variant (12 runs total).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The ablation grid includes 12 runs with 1 seed per variant.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T02:15:47Z'
+- artifact_path: projects/PROJ-707-appo-agentic-procedural-policy-optimizat/specs/001-appo-agentic-procedural-policy-optimizat/tasks.md
+  attempts: 1
+  canonical: Ablation grid varies epsilon {0.05, 0.2}, epsilon' {0.02, 0.1}, b {0.3,
+    0.5, 0.7}
+  claim_id: c_6cc9d551
+  context: "Define `ablation_grid.yaml` with the SPECIFIC hyperparameter grid: \u03B5\
+    \ \u2208 {0.05, 0.2}, \u03B5\u2032 \u2208 {0.02, 0.1}, b \u2208 {0.3, 0.5, 0.7}."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The ablation grid varies epsilon in {0.05, 0.2}, epsilon' in {0.02, 0.1},
+    and b in {0.3, 0.5, 0.7}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T02:18:32Z'
+- artifact_path: projects/PROJ-707-appo-agentic-procedural-policy-optimizat/specs/001-appo-agentic-procedural-policy-optimizat/tasks.md
+  attempts: 1
+  canonical: Wilcoxon test performed on No-Score vs Score-Default with n=3
+  claim_id: c_6f7da3fb
+  context: 'Implement `WilcoxonTest` wrapper in `code/analysis/stats.py`. **Logic**:
+    Perform Wilcoxon for No-Score vs Score-Default (n=3).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Wilcoxon signed-rank test is performed on No-Score vs Score-Default
+    with n=3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T02:19:19Z'
+- artifact_path: projects/PROJ-707-appo-agentic-procedural-policy-optimizat/specs/001-appo-agentic-procedural-policy-optimizat/tasks.md
+  attempts: 1
+  canonical: Bootstrap CI uses 1000 iterations with percentile method
+  claim_id: c_a63e4bab
+  context: 'Implement Bootstrap CI calculation in `code/analysis/stats.py`. **Requirement**:
+    1000 iterations, percentile method. Used for n<2 cases.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "\u03B8 (blue), for a sample of size n = 1000 and f0(x) = x2 + x/5 (red,\
+        \ dashed)."
+      source_id: '2307.16168'
+      url: https://arxiv.org/abs/2307.16168
+      value: '1000'
+    filled: true
+  kind: numeric
+  raw_text: The Bootstrap CI calculation uses 1000 iterations with the percentile
+    method.
+  resolved_value: '1000'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-01T02:19:55Z'
+- artifact_path: projects/PROJ-707-appo-agentic-procedural-policy-optimizat/specs/001-appo-agentic-procedural-policy-optimizat/tasks.md
+  attempts: 1
+  canonical: Null steps_to_threshold replaced with MAX_STEPS_LIMIT + 1 for stats
+  claim_id: c_4c04d8cc
+  context: 'Sanitize Log Data for Statistics. **Logic**: Read all log files. If `steps_to_threshold`
+    is `null`, replace with `MAX_STEPS_LIMIT + 1` for statistical analysis.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The 'threshold-not-reached' flagging logic replaces null steps_to_threshold
+    with MAX_STEPS_LIMIT + 1 for statistical analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T02:20:56Z'
+- artifact_path: projects/PROJ-707-appo-agentic-procedural-policy-optimizat/specs/001-appo-agentic-procedural-policy-optimizat/tasks.md
+  attempts: 1
+  canonical: Dataset downloader fetches Mustafaege/qwen3.5-toolcalling-v2 and math
+    datasets
+  claim_id: c_c609e156
+  context: 'T004 [P] Implement dataset downloader in code/data/download.py fetching
+    Mustafaege/qwen3.5-toolcalling-v2 and math via datasets.load_dataset. **Requirement**:
+    Explicitly document exclusion of HotpotQA/WebShop due to URL constraints in code
+    comments AND in README.md with rationale mapping to Spec requirements.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement dataset downloader in code/data/download.py fetching Mustafaege/qwen3.5-toolcalling-v2
+    and math via datasets.load_dataset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T02:22:41Z'
+- artifact_path: projects/PROJ-707-appo-agentic-procedural-policy-optimizat/specs/001-appo-agentic-procedural-policy-optimizat/tasks.md
+  attempts: 1
+  canonical: FVN proxy model trained for 3 epochs with learning rate 1e-4
+  claim_id: c_0159a45d
+  context: 'T009 [P] Train the FVN proxy model defined in T008a using a synthetic
+    dataset. **Depends on**: T003, T004, T005, T006, T008a. **Output**: Saved model
+    weights in code/models/fvn_weights/. **Requirement**: 3 epochs, lr=1e-4, early
+    stopping on val loss.'
+  evidence:
+    asserted: '0.0001'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Train the FVN proxy model defined in T008a using a synthetic dataset.
+    **Output**: Saved model weights in code/models/fvn_weights/. **Requirement**:
+    3 epochs, lr=1e-4, early stopping on val loss.'
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-01T02:22:42Z'
+- artifact_path: projects/PROJ-707-appo-agentic-procedural-policy-optimizat/specs/001-appo-agentic-procedural-policy-optimizat/tasks.md
+  attempts: 1
+  canonical: Pilot runs execute 3 seeds of No-Score baseline
+  claim_id: c_c10b5307
+  context: 'T012b [US1] Execute Pilot Runs: Run 3 seeds of the No-Score baseline.
+    **Depends on**: T003, T004, T005, T006, T007, T010, T011. **Output**: results/logs/pilot_seed_0.json,
+    results/logs/pilot_seed_1.json, results/logs/pilot_seed_2.json. **Requirement**:
+    Use hyperparameters from config/base.yaml.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Execute Pilot Runs: Run 3 seeds of the No-Score baseline.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T02:23:21Z'
+- artifact_path: projects/PROJ-707-appo-agentic-procedural-policy-optimizat/specs/001-appo-agentic-procedural-policy-optimizat/tasks.md
+  attempts: 1
+  canonical: Pilot run fails if 3-seed confidence interval width exceeds 10% of mean
+  claim_id: c_06d34550
+  context: 'T012c [US1] Aggregate & Verify Threshold. **Depends on**: T012b. **Logic**:
+    Read pilot logs, calculate max pilot score, compute 80% threshold. **Requirement**:
+    Run a ''Stability Verification'' (bootstrap check). If the 3-seed CI width > 10%
+    of mean, FAIL and halt. Output results/threshold.json with threshold_value, seed_count,
+    stability_status.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the 3-seed CI width > 10% of mean, FAIL and halt.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T02:25:14Z'
+- artifact_path: projects/PROJ-707-appo-agentic-procedural-policy-optimizat/specs/001-appo-agentic-procedural-policy-optimizat/tasks.md
+  attempts: 1
+  canonical: Training runner executes 3 seeds for No-Score and 3 seeds for Score-Default
+  claim_id: c_69dbc660
+  context: 'T018 [US1] Create runner script code/run_training.py to execute multiple
+    seeds for No-Score (3 seeds) and Score-Default (3 seeds). **Note**: Acknowledge
+    Plan deviation from Spec seed count; implement logic to report effect sizes (Cohen''s
+    d) for reduced power. **Requirement**: Include a ''Statistical Power Check'' step;
+    if power < 0.8, force ''Effect Size Only'' reporting.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Create runner script code/run_training.py to execute multiple seeds for
+    No-Score (3 seeds) and Score-Default (3 seeds).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T02:25:56Z'
+- artifact_path: projects/PROJ-707-appo-agentic-procedural-policy-optimizat/specs/001-appo-agentic-procedural-policy-optimizat/tasks.md
+  attempts: 1
+  canonical: Ablation grid defines epsilon in 0.05 and 0.2, epsilon prime in 0.02
+    and 0.1, b in 0.3, 0.5, and 0.7
+  claim_id: c_9a1a5b5a
+  context: "T020 [US2] Define ablation_grid.yaml with the SPECIFIC hyperparameter\
+    \ grid: \u03B5 \u2208 {0.05, 0.2}, \u03B5\u2032 \u2208 {0.02, 0.1}, b \u2208 {0.3,\
+    \ 0.5, 0.7}. **Depends on**: T006."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Define ablation_grid.yaml with the SPECIFIC hyperparameter grid: \u03B5\
+    \ \u2208 {0.05, 0.2}, \u03B5\u2032 \u2208 {0.02, 0.1}, b \u2208 {0.3, 0.5, 0.7}."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T02:28:31Z'
+- artifact_path: projects/PROJ-707-appo-agentic-procedural-policy-optimizat/specs/001-appo-agentic-procedural-policy-optimizat/tasks.md
+  attempts: 1
+  canonical: Bootstrap CI calculation uses 1000 iterations
+  claim_id: c_c9d5fafd
+  context: 'T026 [US3] Implement Bootstrap CI calculation in code/analysis/stats.py.
+    **Requirement**: 1000 (2307.16168, https://arxiv.org/abs/2307.16168) iterations,
+    percentile method. Used for n<2 cases.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: 'Implement Bootstrap CI calculation in code/analysis/stats.py. **Requirement**:
+    1000 (2307.16168, https://arxiv.org/abs/2307.16168) iterations, percentile method.
+    Used for n<2 cases.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T02:28:46Z'
+- artifact_path: projects/PROJ-707-appo-agentic-procedural-policy-optimizat/specs/001-appo-agentic-procedural-policy-optimizat/tasks.md
+  attempts: 1
+  canonical: Wilcoxon test performed on 3 seeds for No-Score vs Score-Default
+  claim_id: c_453a2231
+  context: 'T025 [US3] Implement WilcoxonTest wrapper in code/analysis/stats.py. **Logic**:
+    Perform Wilcoxon for No-Score vs Score-Default (n=3). **Critical**: If n < 2 (e.g.,
+    for Ablation variants), skip Wilcoxon and use Bootstrap CI/effect size calculation
+    only to prevent runtime errors. **Comparison Pairs**: Explicitly code No-Score
+    vs Score-Default and No-Score vs each Ablation variant. **Requirement**: Use scipy.stats.wilcoxon(...,
+    zero_method=''pratt'', alternative=''two-sided'').'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform Wilcoxon for No-Score vs Score-Default (n=3).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T02:29:54Z'
+- artifact_path: projects/PROJ-707-appo-agentic-procedural-policy-optimizat/specs/001-appo-agentic-procedural-policy-optimizat/tasks.md
+  attempts: 1
+  canonical: Null steps_to_threshold replaced with MAX_STEPS_LIMIT plus 1 for analysis
+  claim_id: c_27d2e7a1
+  context: 'T031 [US3] Sanitize Log Data for Statistics. **Depends on**: T017, T019,
+    T024. **Logic**: Read all log files. If steps_to_threshold is null, replace with
+    MAX_STEPS_LIMIT + 1 for statistical analysis. **Requirement**: Document this sentinel
+    value in results/stats/sanitizer_log.md.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If steps_to_threshold is null, replace with MAX_STEPS_LIMIT + 1 for statistical
+    analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T02:31:20Z'

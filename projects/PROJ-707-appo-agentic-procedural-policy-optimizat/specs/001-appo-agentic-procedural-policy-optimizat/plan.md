@@ -18,8 +18,8 @@ This project implements and evaluates the **Agentic Procedural Policy Optimizati
 **Target Platform**: Linux (GitHub Actions `ubuntu-latest` runner).  
 **Project Type**: Research/Algorithmic Benchmarking.  
 **Performance Goals**: Complete 3 seeds (No-Score) + 3 seeds (Score-Default) + 12 seeds (Ablation, 1 each) within 6 hours of wall-clock time on a 2-core/7GB RAM runner.  
-**Constraints**: No GPU; Max 7GB RAM; Max 14GB disk; No 8-bit/4-bit quantization requiring CUDA kernels; Max 2M steps per run.  
-**Scale/Scope**: ~1B parameters (TinyLlama 1.1B quantized) × 18 training runs; ~50k episodes total.
+**Constraints**: No GPU; Max moderate RAM; Max 14GB disk; No 8-bit/4-bit quantization requiring CUDA kernels; Max 2M steps per run.  
+**Scale/Scope**: ~B parameters (TinyLlama 1.1B quantized) × 18 training runs; ~50k episodes total.
 
 > **Model Feasibility Note**: The spec's target of a "Llama large-parameter 4-bit" model is infeasible on a 7GB RAM runner with context and overhead.. The plan **explicitly targets TinyLlama 1.1B (4-bit)** as the primary executable model. This is a documented deviation from the spec's model choice to ensure CI feasibility.
 
@@ -142,7 +142,7 @@ results/
 
 ## Assumptions
 
-- The TinyLlama 1.1B model (quantized to 4-bit, ggml-compatible) is available on the HuggingFace Hub and can be loaded and run on a 2-core CPU environment with 7GB RAM.
+- The TinyLlama model (quantized to 4-bit, ggml-compatible) is available on the HuggingFace Hub and can be loaded and run on a 2-core CPU environment with 7GB RAM.
 - The MATH (`math`) and Tool-Calling (`Mustafaege/qwen3.5-toolcalling-v2`) benchmarks are accessible via the HuggingFace `datasets` library and fit within the 14 GB disk limit.
 - The "maximum pilot score" is defined as the highest success rate achieved by the `No-Score` baseline across its **3 seeds** in a preliminary run.
 - The total runtime for the full experimental suite (multiple runs) is estimated at [deferred] on the specified hardware.

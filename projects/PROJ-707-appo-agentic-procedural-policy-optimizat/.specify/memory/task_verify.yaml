@@ -1,0 +1,11 @@
+? 'T001a [P] Create project directories: `code/`, `config/`, `data/raw/`, `data/processed/`,
+  `results/logs/`, `results/stats/`. **Requirement**: Create a `.gitkeep` file in
+  every empty directory to ensure version control tracking. Paths are relative to
+  repository root.'
+: 2
+? T001b [P] Initialize Python 3.11 project with `requirements.txt` (torch-cpu, transformers,
+  datasets, trl, scipy, pandas, llama-cpp-python, pyyaml)
+: 1
+? 'T002 [P] Configure linting (ruff) and formatting (black) tools. **Requirement**:
+  Explicitly define rules for unused imports and loop optimization in `ruff.toml`.'
+: 1
