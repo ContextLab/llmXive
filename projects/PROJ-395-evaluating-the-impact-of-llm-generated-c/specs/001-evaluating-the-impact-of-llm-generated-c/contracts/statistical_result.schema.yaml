@@ -1,48 +1,53 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "StatisticalResult"
-description: "Schema for statistical analysis output"
+title: "Statistical Result Schema"
+description: "Schema for the statistical_report.json file."
 type: "object"
 properties:
+  analysis_id:
+    type: "string"
+    description: "Unique UUID for the analysis run."
   test_name:
     type: "string"
-    description: "Name of the statistical test performed"
+    description: "Name of the statistical test performed (e.g., KaplanMeier, Wilcoxon)."
   p_value_raw:
     type: "number"
-    description: "Raw p-value before correction"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Raw p-value."
   p_value_corrected:
     type: "number"
-    description: "P-value after multiple-comparison correction"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Holm-Bonferroni corrected p-value."
   effect_size:
     type: "number"
-    description: "Effect size (e.g., Cohen's d)"
+    description: "Effect size (Rank-Biserial or Log-Rank)."
+  effect_size_category:
+    type: "string"
+    enum:
+      - "Small"
+      - "Medium"
+      - "Large"
+      - "Negligible"
+    description: "Interpretation of effect size against Cohen's benchmarks (0.2, 0.5, 0.8)."
   confidence_interval:
-    type: "array"
-    items:
-      type: "number"
-    description: "95% Confidence Interval [lower, upper]"
+    type: "string"
+    description: "Confidence interval string (e.g., '[0.05, 0.15]')."
   sample_size:
     type: "integer"
-    description: "Number of paired observations"
-  method:
-    type: "string"
-    enum:
-      - "Permutation"
-      - "ChiSquare"
-      - "Regression"
-    description: "Statistical method used"
-  metric_type:
-    type: "string"
-    enum:
-      - "Efficiency"
-      - "Reliability"
-    description: "Whether this result pertains to Efficiency or Reliability"
+    minimum: 1
+    description: "Number of samples used."
+  vif_flags:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of predictor names with VIF > 5."
 required:
+  - analysis_id
   - test_name
   - p_value_raw
   - p_value_corrected
   - effect_size
-  - confidence_interval
+  - effect_size_category
   - sample_size
-  - method
-  - metric_type
 additionalProperties: false

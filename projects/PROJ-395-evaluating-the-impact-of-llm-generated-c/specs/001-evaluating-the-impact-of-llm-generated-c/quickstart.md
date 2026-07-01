@@ -2,83 +2,73 @@
 
 ## Prerequisites
 
-- Python 3.11+
-- ≤ 7 GB RAM available
-- Git
-- Internet access (for HuggingFace dataset download)
+-   Python 3.11+
+-   Sufficient RAM (Required for CPU-only LLM inference)
+-   Internet access (for dataset download)
 
 ## Installation
 
-1. **Clone the repository**:
+1.  **Clone the repository** and navigate to the project directory:
     ```bash
     git clone <repo-url>
     cd projects/PROJ-395-evaluating-the-impact-of-llm-generated-c
     ```
 
-2. **Create a virtual environment**:
+2.  **Create a virtual environment**:
     ```bash
     python -m venv venv
-    source venv/bin/activate  # Windows: venv\Scripts\activate
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
     ```
 
-3. **Install dependencies**:
+3.  **Install dependencies**:
     ```bash
     pip install -r requirements.txt
     ```
-    *`torch` is pinned to the CPU‑only build.*
-
-## Configuration
-
-Edit `code/config.yaml` to set:
-
-- `dataset_choice`: `"humaneval"` (exclusive)
-- `random_seed`: `42`
-- `num_problems`: `30`  # Target sample size for paired analysis
-- `model_name`: `"microsoft/Phi-3-mini-4k-instruct"` (or fallback TinyLlama‑1.1B)
+    *Note: `requirements.txt` pins versions to ensure reproducibility on CPU-only runners. Includes `lifelines` for Kaplan-Meier.*
 
 ## Running the Pipeline
 
-### 1. Download Data
+The pipeline is executed sequentially via CLI scripts.
+
+### Step 1: Download Benchmark Data
 ```bash
-python code/download_data.py
+python code/download.py --dataset humaneval --output data/raw/
 ```
-*Downloads HumanEval to `data/raw/` and records checksums.*
+*Verifies checksums and saves to `data/raw/humaneval.parquet`. If <50 pairs found, it will automatically attempt MBPP.*
 
-### 2. Generate LLM Solutions
+### Step 2: Generate LLM Solutions
 ```bash
-python code/generate_llm.py
+python code/generate.py --model tinyllama-1.1b --n-50 --output data/processed/llm_solutions.csv
 ```
-*Generates solutions for the selected 30 problems ([deferred] per problem on a 2‑core runner).*
+*Generates solutions for a set of problems using TinyLlama-1.1B. Attempts 8-bit quantization first, falls back to float16 if unavailable.*
 
-### 3. Profile Memory
+### Step 3: Profile Memory Usage
 ```bash
-python code/profile_memory.py
+python code/profile.py --input data/processed/ --runs 3 --output data/processed/memory_measurements.csv
 ```
-*Executes both LLM and human solutions, records memory/time, handles failures.*
+*Executes each solution multiple times, records peak/steady memory (steady-state = median of final portion of steps), and calculates IQR for stability.*
 
-### 4. Extract Features
+### Step 4: Extract Code Features
 ```bash
-python code/extract_features.py
+python code/features.py --input data/processed/ --output data/processed/code_features.csv
 ```
-*Computes LOC, cyclomatic complexity, and import count.*
+*Calculates LOC, Complexity, and Imports. `memory_per_loc` is calculated but excluded from modeling.*
 
-### 5. Statistical Analysis
+### Step 5: Statistical Analysis
 ```bash
-python code/analyze_stats.py
+python code/analyze.py --measurements data/processed/memory_measurements.csv --features data/processed/code_features.csv --output data/processed/statistical_report.json
 ```
-*Runs permutation test on Efficiency Score, chi‑square on failure rates, and regression on raw peak memory.*
+*Runs Kaplan-Meier (primary) and Wilcoxon (secondary), applies corrections, calculates VIF, and interprets effect sizes.*
 
-## Verification
+## Viewing Results
 
-1. Verify `data/processed/results.csv` contains a dataset of LLM‑human pairs (each with a status column).
-2. Check `data/processed/statistical_results.json` for entries `p_value_corrected` for both Efficiency and Reliability tests.
-3. Run the test suite:
-    ```bash
-    pytest tests/
-    ```
+-   **Raw Measurements**: `data/processed/memory_measurements.csv`
+-   **Feature Data**: `data/processed/code_features.csv`
+-   **Statistical Report**: `data/processed/statistical_report.json` (includes effect size magnitude)
 
 ## Troubleshooting
 
-- **OOM**: If the model exceeds RAM, edit `config.yaml` to use the smaller fallback model.
-- **Timeout**: Generation or execution exceeding their limits are logged and counted as failures.
-- **Missing Human Reference**: HumanEval always provides executable human solutions; if a problem is skipped, it is reported in the log.
+-   **OOM (Out of Memory)**: If the process crashes with OOM, ensure you are using the `tinyllama-1.1b` model. Reduce `n` in `generate.py` if necessary.
+-   **Timeout**: If generation takes too long, the script will automatically fall back to a smaller model or skip the sample. Check `data/processed/llm_solutions.csv` for `error_type: Timeout`.
+-   **Syntax Errors**: The profiler automatically handles these and records `N/A`. Review `data/processed/memory_measurements.csv` for `status: SYNTAX_ERROR`.
+-   **Instability**: If IQR > 15% of median, samples are re-run. If still unstable, they are excluded from analysis.

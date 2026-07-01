@@ -1,0 +1,30 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Code Features Schema"
+description: "Schema for the code_features.csv file containing static analysis metrics."
+type: "object"
+properties:
+  solution_id:
+    type: "string"
+    description: "Composite key: problem_id + source_type."
+  lines_of_code:
+    type: "integer"
+    minimum: 1
+    description: "Total lines of code."
+  cyclomatic_complexity:
+    type: "integer"
+    minimum: 1
+    description: "McCabe complexity score."
+  library_import_count:
+    type: "integer"
+    minimum: 0
+    description: "Number of import statements."
+  memory_per_loc:
+    type: "number"
+    description: "Normalized efficiency metric (Peak Memory / LOC). Descriptive only, excluded from modeling."
+required:
+  - solution_id
+  - lines_of_code
+  - cyclomatic_complexity
+  - library_import_count
+  - memory_per_loc
+additionalProperties: false

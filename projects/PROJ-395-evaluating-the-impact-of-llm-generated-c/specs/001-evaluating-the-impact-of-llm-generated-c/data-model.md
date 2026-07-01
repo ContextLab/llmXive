@@ -1,109 +1,70 @@
 # Data Model: Evaluating the Impact of LLM-Generated Code on Memory Usage
 
-## Overview
+## Entity Relationship Overview
 
-This document defines the data structures, schemas, and relationships for the project. All data artifacts are stored in `data/processed/` and `data/raw/`.
+The data model consists of four core entities: `CodeSolution`, `CodeFeature`, `MemoryMeasurement`, and `StatisticalResult`. These entities flow through the pipeline from raw dataset download to final statistical reporting.
 
-## Entity Relationship Diagram (Conceptual)
+## Entity Definitions
 
-```mermaid
-erDiagram
-    PROBLEM ||--|{ SOLUTION : "has"
-    SOLUTION ||--|{ MEASUREMENT : "produces"
-    SOLUTION ||--|{ FEATURE : "has"
-    MEASUREMENT ||--|| STATISTICAL_RESULT : "contributes to"
-    FEATURE ||--|| STATISTICAL_RESULT : "contributes to"
+### 1. CodeSolution
+Represents a single code artifact (either LLM-generated or Human-written) for a specific benchmark problem.
 
-    PROBLEM {
-        string problem_id PK
-        string source_dataset
-        string problem_text
-        string test_inputs
-    }
-    SOLUTION {
-        string solution_id PK
-        string problem_id FK
-        string source_type "LLM|Human"
-        string code_text
-        string execution_status "Success|SyntaxError|Timeout|OOM"
-    }
-    MEASUREMENT {
-        string measurement_id PK
-        string solution_id FK
-        float peak_memory_bytes
-        float steady_state_memory_bytes
-        float execution_time_seconds
-        bool is_failure
-        float efficiency_score "Memory * Time"
-        float total_resource_cost "Memory * Time + Failure_Penalty"
-    }
-    FEATURE {
-        string feature_id PK
-        string solution_id FK
-        int lines_of_code
-        int cyclomatic_complexity
-        int library_import_count
-        float residual_memory "Derived: peak_memory / lines_of_code (reporting only)"
-    }
-```
+| Attribute | Type | Description | Constraints |
+| :--- | :--- | :--- | :--- |
+| `problem_id` | String | Unique identifier from the benchmark (e.g., `HumanEval/0`). | Primary Key |
+| `source_type` | Enum | `LLM` or `Human`. | Not Null |
+| `code_text` | Text | The full source code string. | Not Null |
+| `generation_model` | String | Name of the LLM used (e.g., `tinyllama-1.1b`). | Nullable (for Human) |
+| `generation_params` | JSON | Parameters used for generation (temp, tokens). | Nullable |
+| `syntax_valid` | Boolean | Whether the code parses correctly. | Not Null |
+| `error_type` | String | Type of error if invalid (e.g., `SyntaxError`, `Timeout`). | Nullable |
 
-## Data Schemas
+### 2. CodeFeature
+Static analysis attributes extracted from a `CodeSolution`.
 
-### 1. Raw Dataset Manifest (`data/dataset_manifest.yaml`)
-Records the exact source of the benchmark data.
+| Attribute | Type | Description | Constraints |
+| :--- | :--- | :--- | :--- |
+| `solution_id` | String | Foreign Key to `CodeSolution.problem_id` + `source_type`. | Primary Key |
+| `lines_of_code` | Integer | Total lines of code (excluding comments/blanks). | ≥ 1 |
+| `cyclomatic_complexity` | Integer | McCabe complexity score. | ≥ 1 |
+| `library_import_count` | Integer | Number of `import` or `from` statements. | ≥ 0 |
+| `memory_per_loc` | Float | Normalized efficiency metric (Peak Memory / LOC). **Descriptive only, excluded from modeling.** | > 0 |
 
-```yaml
-dataset_id: "openai/humaneval"
-revision: "main"
-split: "test"
-url: "https://huggingface.co/datasets/openai/humaneval"
-checksum: "[computed_sha256]"
-downloaded_at: "ISO8601"
-join_logic: "None (HumanEval only)"
-```
+### 3. MemoryMeasurement
+The result of profiling a `CodeSolution`.
 
-### 2. Processed Results (`data/processed/results.csv`)
-The primary analysis table.
+| Attribute | Type | Description | Constraints |
+| :--- | :--- | :--- | :--- |
+| `measurement_id` | UUID | Unique run identifier. | Primary Key |
+| `solution_id` | String | FK to `CodeSolution`. | Not Null |
+| `run_number` | Integer | Which of the 3 runs this is (1, 2, or 3). | 1-3 |
+| `peak_memory_bytes` | Integer | Peak memory usage in bytes. | 0 to [deferred] (7GB) |
+| `steady_state_bytes` | Integer | **Median memory of the final [deferred] of execution steps.** | ≥ 0 |
+| `execution_time_ms` | Integer | Duration of execution. | > 0 |
+| `status` | Enum | `SUCCESS`, `TIMEOUT`, `OOM`, `SYNTAX_ERROR`. | Not Null |
+| `iqr_peak` | Float | Interquartile Range of peak memory across runs. | ≥ 0 |
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `problem_id` | string | Unique identifier for the benchmark problem. |
-| `source_type` | string | "LLM" or "Human". |
-| `solution_status` | string | "Success", "SyntaxError", "Timeout", "OOM". |
-| `peak_memory_bytes` | float | Peak memory usage (bytes). |
-| `steady_state_memory_bytes` | float | Steady‑state memory (bytes). |
-| `execution_time_seconds` | float | Execution duration (seconds). |
-| `total_resource_cost` | float | Descriptive metric: `Memory * Time + Failure_Penalty`. |
-| `efficiency_score` | float | Primary metric for paired test: `Memory * Time` (only for Success). |
-| `is_failure` | boolean | True if `solution_status` != "Success". |
+### 4. StatisticalResult
+Aggregated analysis outputs.
 
-### 3. Features Table (`data/processed/features.csv`)
-Static code features.
-
-| Column | Type | Description |
-|--------|------|-------------|
-| `solution_id` | string | Foreign key to solution. |
-| `lines_of_code` | int | Total lines of code. |
-| `cyclomatic_complexity` | int | McCabe complexity. |
-| `library_import_count` | int | Number of import statements. |
-| `residual_memory` | float | **Optional**: `peak_memory_bytes / lines_of_code` (derived for reporting only). |
-
-### 4. Statistical Results (`data/processed/statistical_results.json`)
-Output of the analysis script.
-
-- `test_name`: String (e.g., "Permutation_Efficiency", "ChiSquare_Reliability").
-- `p_value_raw`: Float.
-- `p_value_corrected`: Float (if applicable).
-- `effect_size`: Float.
-- `confidence_interval`: List of two floats.
-- `n_sample`: Integer.
-- `method`: String (`Permutation`, `ChiSquare`, `Regression`).
-- `metric_type`: String (`Efficiency`, `Reliability`).
+| Attribute | Type | Description | Constraints |
+| :--- | :--- | :--- | :--- |
+| `analysis_id` | UUID | Unique analysis run. | Primary Key |
+| `test_name` | String | Name of the test (e.g., `KaplanMeier_Peak`). | Not Null |
+| `p_value_raw` | Float | Raw p-value. | 0.0 - 1.0 |
+| `p_value_corrected` | Float | Holm-Bonferroni corrected p-value. | 0.0 - 1.0 |
+| `effect_size` | Float | Rank-Biserial or Log-Rank statistic. | -1.0 to 1.0 |
+| `effect_size_category` | String | "Small", "Medium", "Large" based on Cohen's benchmarks. | Nullable |
+| `confidence_interval` | String | e.g., "[0.05, 0.15]". | Nullable |
+| `sample_size` | Integer | N used for this test. | > 0 |
+| `vif_flags` | JSON | List of predictors with VIF > 5. | Nullable |
 
 ## Data Flow
 
-1. **Download**: `download_data.py` → `data/raw/`.
-2. **Generate**: `generate_llm.py` → `data/processed/solutions_llm.jsonl`.
-3. **Profile**: `profile_memory.py` → `data/processed/results.csv`.
-4. **Extract**: `extract_features.py` → `data/processed/features.csv`.
-5. **Analyze**: `analyze_stats.py` → `data/processed/statistical_results.json`.
+1.  **Ingestion**: `HumanEval` dataset → `CodeSolution` (Human).
+2.  **Generation**: `CodeSolution` (LLM) created via `generate.py`.
+3.  **Profiling**: `CodeSolution` → `MemoryMeasurement` (3 runs).
+4.  **Feature Extraction**: `CodeSolution` → `CodeFeature`.
+5.  **Aggregation**: `MemoryMeasurement` (median) + `CodeFeature` → `StatisticalResult`.
+    -   *Note*: `memory_per_loc` is calculated but **not** passed to regression models.
+    -   *Note*: Residualization is applied before comparing groups to control for code size.
