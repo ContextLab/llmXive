@@ -20,23 +20,23 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
@@ -45,8 +45,8 @@
 
 - [ ] T001a [P] Create project directory structure: `projects/PROJ-395-evaluating-the-impact-of-llm-generated-c/` with `data/`, `code/`, `tests/`, `state/` subdirectories
 - [ ] T001b [P] Create `requirements.txt` with pinned versions for: transformers, datasets, memory-profiler, scikit-learn, statsmodels, lifelines, networkx, pandas, numpy
-- [ ] T002 Initialize Python 3.11 virtual environment and install dependencies
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+- [ ] T002 Initialize Python 3.11 virtual environment and install dependencies <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T003 [P] Configure linting (ruff/flake) and formatting (black) tools
 
 ---
 
@@ -57,11 +57,11 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T004 Setup `data/raw/`, `data/processed/`, `state/`, and `code/` directories
-- [ ] T005 [P] Create `code/config.py` with random seeds, model parameters, timeouts (60s per exec), and CI memory limits (7GB)
+- [X] T005 [P] Create `code/config.py` with random seeds, model parameters, timeouts (60s per exec), and CI memory limits (GB)
 - [ ] T006 [P] Create `code/utils.py` with error handling (SyntaxError, Timeout, OOM), retry logic, and CSV I/O helpers
-- [ ] T007 Create `code/profiling_env.yaml` to record runner OS, CPU model, and Python version
-- [ ] T008 Implement `code/download.py` to fetch HumanEval/MBPP from HuggingFace with version pinning and checksum verification
-- [ ] T009 Implement `state/` versioning logic to compute and record SHA-256 hashes for artifacts
+- [~] T007 Create `code/profiling_env.yaml` to record runner OS, CPU model, and Python version
+- [~] T008 Implement `code/download.py` to fetch HumanEval/MBPP from HuggingFace with version pinning and checksum verification
+- [~] T009 Implement `state/` versioning logic to compute and record SHA-256 hashes for artifacts
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -77,17 +77,17 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Unit test for `code/download.py` ensuring dataset loads without auth
-- [ ] T011 [P] [US1] Contract test for memory measurement schema in `tests/contract/test_memory_schema.py`
+- [~] T010 [P] [US1] Unit test for `code/download.py` ensuring dataset loads without auth
+- [~] T011 [P] [US1] Contract test for memory measurement schema in `tests/contract/test_memory_schema.py`
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `code/generate.py` with CPU-tractable model logic: Primary 'TinyLlama' (per Plan decision, Spec deviation noted), fallback to 'Phi-2' if load fails; Attempt `load_in_8bit=True` first, fallback to float16 if bitsandbytes unavailable; Requires: T008
-- [ ] T013 [US1] Implement `code/profile.py` harness using `tracemalloc` (steady-state) and `memory_profiler` (peak) with 3-run median logic
-- [ ] T014 [US1] Implement stability check in `code/profile.py`: Calculate Coefficient of Variation (CV) of 3 runs; re-run if CV > 0.1 (max 2 retries); [Note: Plan uses IQR, Spec requires CV > 0.1]
-- [ ] T015 [US1] Implement timeout handling in `code/profile.py`: Terminate execution >60s, record status='timeout' and value=7.001 GB for censored data handling; Distinguish from s measurement limit
-- [ ] T016 [US1] Implement error handling in `code/profile.py`: catch `SyntaxError`, record status='N/A', and continue to next problem
-- [ ] T017 [US1] Implement `code/utils.py` logic to write `data/processed/memory_measurements.csv` with schema: problem_id, source_type, peak_memory, steady_state, status
+- [~] T012 [US1] Implement `code/generate.py` with CPU-tractable model logic: Use 'TinyLlama' as primary model based on Plan.md CPU feasibility constraints (fits available RAM); Attempt `load_in_8bit=True` first, fallback to float16 if bitsandbytes unavailable; Do NOT fallback to Phi-2 as Plan explicitly deems it too large; Requires: T008
+- [~] T013 [US1] Implement `code/profile.py` harness using `tracemalloc` (steady-state) and `memory_profiler` (peak) with -run median logic
+- [~] T014 [US1] Implement stability check in `code/profile.py`: Calculate Interquartile Range (IQR) of 3 runs; re-run if IQR > 15% of median (max 2 retries); Use IQR per Plan.md override of Spec A; Requires: T013
+- [~] T015 [US1] Implement timeout handling in `code/profile.py`: Terminate execution >60s, record status='timeout', and calculate 'Total Resource Cost' as composite penalty (7GB * 60s) for censored data handling; Requires: T013
+- [~] T016 [US1] Implement error handling in `code/profile.py`: catch `SyntaxError`, record status='N/A', and continue to next problem
+- [~] T017 [US1] Implement `code/utils.py` logic to write `data/processed/memory_measurements.csv` with schema: problem_id, source_type, peak_memory, steady_state, status, total_resource_cost
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -101,15 +101,15 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Unit test for Wilcoxon signed-rank test implementation in `tests/unit/test_stats.py`
-- [ ] T019 [P] [US2] Integration test for full analysis pipeline in `tests/integration/test_analysis.py`
+- [~] T018 [P] [US2] Unit test for Wilcoxon signed-rank test implementation in `tests/unit/test_stats.py`
+- [~] T019 [P] [US2] Integration test for full analysis pipeline in `tests/integration/test_analysis.py`
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Create `code/analyze.py` skeleton with data loading for `data/processed/memory_measurements.csv`; Requires: T017
-- [ ] T021 [US2] Implement Tobit regression logic as PRIMARY method for censored data (timeouts/OOMs) per Spec FR-004; Fallback to Kaplan-Meier only if Tobit unavailable
-- [ ] T022 [US2] Implement Wilcoxon signed-rank test on uncensored subset (excluding zero-differences) in `code/analyze.py`
-- [ ] T023 [US2] Implement multiple-comparison correction (Holm-Bonferroni) for ≥3 tests in `code/analyze.py`
+- [~] T020 [US2] Create `code/analyze.py` skeleton with data loading for `data/processed/memory_measurements.csv`; Requires: T017
+- [~] T021 [US2] Implement statistical analysis in `code/analyze.py`: PRIMARY method is Kaplan-Meier estimator for censored data (timeouts/OOMs) per Plan.md; Fallback to Tobit regression if KM unavailable; Fallback to Wilcoxon signed-rank test if both KM and Tobit unavailable; Exclude zero-differences; Handle ties by average ranks; Requires: T020
+- [~] T022 [US2] Implement Wilcoxon signed-rank test on uncensored subset (excluding zero-differences) in `code/analyze.py`
+- [~] T023 [US2] Implement multiple-comparison correction (Holm-Bonferroni) for ≥3 tests in `code/analyze.py`
 - [ ] T024 [US2] Implement effect size calculation (Cohen's d or rank-biserial correlation) in `code/analyze.py`
 - [ ] T025 [US2] Generate statistical report JSON/CSV with raw/corrected p-values, effect sizes, and confidence intervals
 
@@ -131,9 +131,9 @@
 
 - [ ] T027 [US3] Create `code/features.py` to extract Lines of Code (LOC) from code text; Requires: T012
 - [ ] T028 [US3] Create `code/features.py` to calculate Cyclomatic Complexity using `networkx`; Requires: T012
-- [ ] T029 [US3] Create `code/features.py` to count library imports; Requires: T012
-- [ ] T030 [US3] Implement `memory_per_loc` calculation (peak_memory_bytes / LOC) as a metric for regression analysis (Spec FR-006); [Note: Plan restricts to descriptive, Spec allows regression]
-- [ ] T031 [US3] Implement regression analysis in `code/analyze.py` using extracted features as predictors; Requires: T027, T028, T029, T017
+- [ ] T029 [US3] Create `code/features.py` to count library imports and reference `data/dataset_manifest.yaml` for versioning traceability per Constitution Principle VII; Requires: T012
+- [ ] T030 [US3] Implement `memory_per_loc` calculation (peak_memory_bytes / LOC) as a DESCRIPTIVE metric ONLY; explicitly exclude from regression analysis per Plan.md to prevent spurious correlations; Requires: T027, T017
+- [ ] T031 [US3] Implement regression analysis in `code/analyze.py` using extracted features (LOC, Complexity, Imports) as predictors against residual memory; Requires: T027, T028, T029, T017
 - [ ] T032 [US3] Implement Variance Inflation Factor (VIF) calculation in `code/analyze.py` and flag predictors with VIF > 5
 - [ ] T033 [US3] Generate feature correlation report with coefficients, standard errors, and VIF flags
 
@@ -161,8 +161,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -226,9 +226,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Generation + Profiling)
-   - Developer B: User Story 2 (Statistical Analysis)
-   - Developer C: User Story 3 (Feature Extraction)
+ - Developer A: User Story 1 (Generation + Profiling)
+ - Developer B: User Story 2 (Statistical Analysis)
+ - Developer C: User Story 3 (Feature Extraction)
 3. Stories complete and integrate independently
 
 ---

@@ -1,0 +1,13 @@
+? 'T001a [P] Create project directory structure: `projects/PROJ-395-evaluating-the-impact-of-llm-generated-c/`
+  with `data/`, `code/`, `tests/`, `state/` subdirectories'
+: 2
+? 'T001b [P] Create `requirements.txt` with pinned versions for: transformers, datasets,
+  memory-profiler, scikit-learn, statsmodels, lifelines, networkx, pandas, numpy'
+: 2
+'T002 Initialize Python 3.11 virtual environment and install dependencies <!-- ATOMIZE: requested -->': 1
+? 'T002 Initialize Python 3.11 virtual environment and install dependencies <!-- ATOMIZE:
+  requested --> <!-- ATOMIZE: requested -->'
+: 1
+T003 [P] Configure linting (ruff/flake) and formatting (black) tools: 2
+T004 Setup `data/raw/`, `data/processed/`, `state/`, and `code/` directories: 2
+T006 [P] Create `code/utils.py` with error handling (SyntaxError, Timeout, OOM), retry logic, and CSV I/O helpers: 1
