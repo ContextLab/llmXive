@@ -1,0 +1,96 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Training and Validation Output"
+description: "Schema for the results of the GAT training and statistical validation."
+type: "object"
+properties:
+  training_stats:
+    type: "object"
+    properties:
+      final_loss:
+        type: "number"
+        description: "Final MSE loss."
+      epochs:
+        type: "integer"
+        description: "Number of epochs trained."
+      runtime_seconds:
+        type: "number"
+        description: "Total runtime in seconds."
+      peak_memory_mb:
+        type: "number"
+        description: "Peak memory usage in MB."
+    required:
+      - final_loss
+      - epochs
+      - runtime_seconds
+      - peak_memory_mb
+  permutation_test:
+    type: "object"
+    properties:
+      iterations:
+        type: "integer"
+        description: "Number of permutation iterations (reduced to 100 for feasibility)."
+      observed_mse:
+        type: "number"
+        description: "MSE of the trained model on the original test set."
+      permuted_mse_95th:
+        type: "number"
+        description: "95th percentile of permuted MSEs."
+      p_value:
+        type: "number"
+        description: "Calculated p-value."
+    required:
+      - iterations
+      - observed_mse
+      - permuted_mse_95th
+      - p_value
+  attribution:
+    type: "object"
+    properties:
+      top_features:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            feature_name:
+              type: "string"
+            importance_score:
+              type: "number"
+          required:
+            - feature_name
+            - importance_score
+    required:
+      - top_features
+  collinearity:
+    type: "object"
+    properties:
+      vif_scores:
+        type: "object"
+        additionalProperties:
+          type: "number"
+        description: "Variance Inflation Factor for each handcrafted topological descriptor (not GNN embeddings)."
+    required:
+      - vif_scores
+  p_values:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        metric:
+          type: "string"
+          description: "The metric name (e.g., 'MSE', 'MAE')."
+        raw_p_value:
+          type: "number"
+        corrected_p_value:
+          type: "number"
+          description: "Bonferroni or Holm corrected p-value (if count > 1)."
+      required:
+        - metric
+        - raw_p_value
+        - corrected_p_value
+required:
+  - training_stats
+  - permutation_test
+  - attribution
+  - collinearity
+  - p_values
+additionalProperties: false

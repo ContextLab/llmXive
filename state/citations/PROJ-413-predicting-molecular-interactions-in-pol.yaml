@@ -1,1 +1,11 @@
-[]
+- artifact_hash: a5245c0006e0520257650b49cb96346c4925134bc72a517c56b6da933cb6286c
+  artifact_path: projects/PROJ-413-predicting-molecular-interactions-in-pol/specs/001-predicting-molecular-interactions-in-pol/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: NIST Chemistry WebBook
+  kind: url
+  value: https://webbook.nist.gov/chemistry/...`
+  verification_status: verified
+  verified_against_url: https://webbook.nist.gov/chemistry/
+  verified_at: '2026-07-01T06:29:38.414341Z'
