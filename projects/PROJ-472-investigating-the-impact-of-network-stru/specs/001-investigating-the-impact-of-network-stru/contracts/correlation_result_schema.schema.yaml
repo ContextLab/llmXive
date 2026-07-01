@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Correlation Result Schema"
+description: "Schema for the statistical association results between structural and avalanche metrics."
+type: "object"
+properties:
+  metric_pair:
+    type: "string"
+    description: "Name of the metric pair (e.g., 'degree_vs_size_exponent')."
+  threshold_used:
+    type: "number"
+    description: "The avalanche threshold used for this specific correlation result."
+  spearman_rho:
+    type: "number"
+    description: "Spearman rank correlation coefficient."
+  p_value:
+    type: "number"
+    description: "Raw p-value from the correlation test."
+  corrected_p_value:
+    type: "number"
+    description: "Permutation-corrected p-value (family-wise error rate)."
+  vif_value:
+    type: "number"
+    nullable: true
+    description: "Variance Inflation Factor if collinearity diagnostics were run."
+  sample_size:
+    type: "integer"
+    description: "Number of participants included in this specific correlation."
+  ci_lower:
+    type: "number"
+    description: "Lower bound of bootstrap confidence interval."
+  ci_upper:
+    type: "number"
+    description: "Upper bound of bootstrap confidence interval."
+required:
+  - metric_pair
+  - threshold_used
+  - spearman_rho
+  - p_value
+  - corrected_p_value
+  - sample_size
+  - ci_lower
+  - ci_upper
+additionalProperties: false

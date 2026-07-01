@@ -1,0 +1,62 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Participant Dataset Schema"
+description: "Schema for the unified participant-level dataset containing structural and avalanche metrics."
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique identifier for the participant (e.g., HCP_100103)."
+  age:
+    type: "integer"
+    description: "Age of the participant at the time of scan."
+  sex:
+    type: "string"
+    enum: ["Male", "Female"]
+    description: "Biological sex of the participant."
+  status:
+    type: "string"
+    enum: ["included", "excluded_artifact", "excluded_disconnected"]
+    description: "Inclusion status in the final analysis."
+  exclusion_reason:
+    type: "string"
+    nullable: true
+    description: "Reason for exclusion if status is not 'included'."
+  mean_degree:
+    type: "number"
+    description: "Mean node degree of the structural connectome (normalized)."
+  clustering_coefficient:
+    type: "number"
+    description: "Global clustering coefficient of the structural connectome."
+  rich_club_auc:
+    type: "number"
+    description: "Area Under the Curve of normalized rich-club coefficient."
+  graph_connected:
+    type: "boolean"
+    description: "True if the structural graph is a single connected component."
+  size_exponent:
+    type: "number"
+    description: "Power-law scaling exponent for avalanche size."
+  duration_exponent:
+    type: "number"
+    description: "Power-law scaling exponent for avalanche duration."
+  fit_quality:
+    type: "string"
+    enum: ["good", "poor"]
+    description: "Quality of the power-law fit based on KS-test."
+  threshold_value:
+    type: "number"
+    description: "The amplitude threshold used for avalanche detection (e.g., 0.75)."
+required:
+  - subject_id
+  - age
+  - sex
+  - status
+  - mean_degree
+  - clustering_coefficient
+  - rich_club_auc
+  - graph_connected
+  - size_exponent
+  - duration_exponent
+  - fit_quality
+  - threshold_value
+additionalProperties: false

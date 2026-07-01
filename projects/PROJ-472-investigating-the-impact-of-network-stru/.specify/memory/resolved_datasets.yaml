@@ -1,0 +1,492 @@
+resolved_at: '2026-07-01T12:36:56.165068+00:00'
+datasets:
+- intent: MRI
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AiDoc/CT-MRI_metrics_validation_dataset/resolve/main/CT-MRI_metrics_validation_dataset.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/nitishpandey04/MRI-Unpaired-T1-and-T2-Images/resolve/main/MRI_Dataset-20230122T105937Z-001.zip
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/arjundd/mridata-stanford-knee-3d-fse/386707653616d0f84850b6d8f09efcfa5433e964/metadata.csv?%2Fdatasets%2Farjundd%2Fmridata-stanford-knee-3d-fse%2Fresolve%2Fmain%2Fmetadata.csv=&etag=%225ad19715d7b1b1d0422cc932384b6c216526bfed%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/AiDoc/CT-MRI_metrics_validation_dataset/resolve/main/CT-MRI_metrics_validation_dataset.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/nitishpandey04/MRI-Unpaired-T1-and-T2-Images/resolve/main/MRI_Dataset-20230122T105937Z-001.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Recycling_behavior_among_urban_South_Africans_the_role_of_race_and_social_status/32856881
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Electric_capitalism_recolonising_Africa_on_the_power_grid/32857076
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/The_Mveledzandivho_knowledge_creation_summative_evaluation_technical_report/32856938
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Needle_prick_injuries_as_a_risk_factor_for_hospital-acquired_infection_among_nurses_in_a_Gauteng_hospital/32857085
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Dynamics_of_income_inequality_and_poverty_in_post-independence_Namibia/32857169
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16199032
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16198518
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16307763
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7717571
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16202753
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.3929/ethz-c-000801968
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://zenodo.org/records/21104316
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21104316
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/nk9sz/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.repository.cam.ac.uk/handle/1810/405704
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: EEG
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/neurofusion/eeg-restingstate/resolve/main/events.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 2963
+      parsed: true
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_train/resolve/main/data/train-00000-of-00048-3d720ad254981f90.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_eval/resolve/main/data/train-00000-of-00007-78d1928c4e4c8738.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/neurofusion/eeg-restingstate/resolve/main/events.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_train/resolve/main/data/train-00000-of-00048-3d720ad254981f90.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_eval/resolve/main/data/train-00000-of-00007-78d1928c4e4c8738.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_dev/resolve/main/data/train-00000-of-00007-78d1928c4e4c8738.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Knowledge_and_experiences_of_Needle_Prick_Injuries_NPI_among_nursing_students_at_a_university_in_Gauteng_South_Africa/32857058
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Assessment_of_and_for_learning_supporting_teachers_to_improve_education_quality/32857187
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/_There_s_got_to_be_a_man_in_there_reading_intersections_between_gender_race_and_sexuality_in_South_African_magazines/32857205
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Fluid_rights_water_allocation_reform_in_South_Africa/32857292
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/HIV_AIDS_risk_reduction_and_domestic_violence_prevention_intervention_for_South_African_men/32857280
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3236138
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10909103
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16906198
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://open-research-europe.ec.europa.eu/articles/2-5/v2
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://open-research-europe.ec.europa.eu/articles/2-5/v1
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/zr4qk/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/a6ydp/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://toubkal.imist.ma/handle/123456789/4169
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.3929/ethz-c-000801968
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://osf.io/ne2c3/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: OpenNeuro
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/clane9/openneuro-fslr64k.arrow/resolve/main/dataset_dict.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 29
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/clane9/openneuro-fslr64k.arrow/resolve/main/dataset_dict.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/A_baseline_assessment_of_Department_of_Health_partnerships_with_non-profit_organisations/32857262
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Strengthening_international_health_co-operation_in_Africa_through_the_regional_economic_communities/32857115
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Developing_an_integrated_effective_national_assessment_system_in_South_Africa/32857238
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Setting_the_tone_-_biomedical_advances/32857055
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Unpacking_issues_of_adherence_moving_beyond_access/32856959
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18476336
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17150815
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2847832
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21032699
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19435085
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openneuro.org/datasets/ds008034/versions/1.0.0
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/g49jv/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openneuro.org/datasets/ds006948/versions/1.0.1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openneuro.org/datasets/ds007907/versions/1.0.0
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ww2.nemar.org/dataset/on007667?v=v1.0.0
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: HCP-Aging
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/South_African_Indians_and_HIV_AIDS_towards_an_understanding_of_HIV_transmission_dynamics_in_the_Chatsworth_community/32857022
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Development_of_a_computerised_classroom_assessment_system/32857232
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Principles_of_Carbon_Scaffold_Selection_for_Silicon_Carbon_Composite_Battery_Anodes/32857511
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/A_comparison_of_HIV_prevalence_and_incidence_estimates_between_the_private_security_sector_and_the_general_public_of_South_Africa/32857043
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Screening_and_brief_advice_for_risky_substance_users_among_churches_in_South_Africa/32857013
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5607652
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/61348
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S1053811922006656
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15581959
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4643074
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20817630
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20817630
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19477679
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19477679
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19254502
+    source: datacite
+    status: wrong_format
+    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
+      timeout=20)'
+- intent: NOT
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/notune/fable5-repos/resolve/main/manifest.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/nothingiisreal/Human_Stories/resolve/main/reddit_vs_synth_writing_prompts.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/nothingiisreal/Reddit-Dirty-And-WritingPrompts/resolve/main/reddit_dirty_writing_prompts.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/notune/fable5-repos/resolve/main/manifest.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/nothingiisreal/Human_Stories/resolve/main/reddit_vs_synth_writing_prompts.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/nothingiisreal/Reddit-Dirty-And-WritingPrompts/resolve/main/reddit_dirty_writing_prompts.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Dynamics_of_income_inequality_and_poverty_in_post-independence_Namibia/32857169
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Electric_capitalism_recolonising_Africa_on_the_power_grid/32857076
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Crime_community_and_the_governance_of_violence_in_post-apartheid_South_Africa/32857046
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Sugar_daddies_and_HIV_is_it_really_about_money_money_money_/32857157
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Practical_application_of_HIV_incidence_testing_South_Africa_2005_and_2008/32857067
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15525595
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16413212
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16413231
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16039952
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5105584
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: COBRE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Chiranjeevi2001/cobrex_cbl/resolve/main/dataset_cbl.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Chiranjeevi2001/cobrex_cbl/resolve/main/dataset_cbl.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Changing_gender_profile_of_medical_schools_in_South_Africa/32857094
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Positive_prevention_targeting_PLWHA_for_HIV_prevention/32857202
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Attitudes_of_preinitiates_towards_traditional_male_circumcision_in_the_context_of_HIV_in_the_Eastern_Cape_South_Africa/32857112
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Is_the_National_Qualifications_Framework_NQF_now_ready_to_deliver_on_its_objectives_/32857079
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Demystifying_participatory_research_and_its_role_in_development/32857196
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20160719
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: http://www.deboni.he.com.br/arquivos_jornal/2007/AGOSTO/1.pdf
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.61347/ei.v4i2.227
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 415'
+  - url: https://zenodo.org/records/4689578
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1312650
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://parc.ipp.pt/index.php/PRPAEH/article/view/7205
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21036341
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21036341
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ADNI
+  status: unresolved
+  candidates: []
+  candidates_tried: []
