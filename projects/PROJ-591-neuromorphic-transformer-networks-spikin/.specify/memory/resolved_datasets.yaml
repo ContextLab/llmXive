@@ -1,91 +1,103 @@
-resolved_at: '2026-06-29T13:37:45.874847+00:00'
+resolved_at: '2026-07-01T19:08:44.525128+00:00'
 datasets:
-- intent: MUST
+- intent: WikiText
   status: verified
   candidates:
-  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+  - url: https://huggingface.co/datasets/Salesforce/wikitext/resolve/main/wikitext-103-raw-v1/test-00000-of-00001.parquet
     source: huggingface
     format: parquet
-    relevance: 0.0
+    relevance: 1.0
     sample_check:
       downloaded_bytes: 262144
       parsed: true
-  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+  - url: https://huggingface.co/datasets/asi/wikitext_fr/resolve/main/wikitext_35/wiki.zip
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/gfigueroa/wikitext_processed/resolve/main/data/train-00000-of-00001.parquet
     source: huggingface
     format: parquet
-    relevance: 0.0
+    relevance: 1.0
     sample_check:
-      downloaded_bytes: 190547
+      downloaded_bytes: 262144
       parsed: true
   candidates_tried:
-  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
+  - url: https://huggingface.co/datasets/Salesforce/wikitext/resolve/main/wikitext-103-raw-v1/test-00000-of-00001.parquet
     source: huggingface
     status: verified
     format: parquet
-  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+  - url: https://huggingface.co/datasets/asi/wikitext_fr/resolve/main/wikitext_35/wiki.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/gfigueroa/wikitext_processed/resolve/main/data/train-00000-of-00001.parquet
     source: huggingface
     status: verified
     format: parquet
-  - url: https://repository.rcsi.com/articles/journal_contribution/A_thermoresponsive_electrically_conductive_bioink_optimized_for_electroactive_tissue_engineering_and_bioelectronics/32790270
-    source: figshare
-    status: unreachable
-    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''repository.rcsi.com'',
-      port=443): Max retries exceeded with url: /articles/journal_contribution/A_thermoresponsive_electrically_conductive_bioink_optimized_for_electroactive_tissue_engineering_and_bioelectronics/32790270
-      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
-      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
-  - url: https://figshare.com/articles/dataset/Chromosome-scale_genome_of_Handeliodendron_bodinieri/32825177
+  - url: https://huggingface.co/datasets/yzhou992/tokenize_wikitext103/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Dataset_for_Enhancing_Probiotic_Stability_Incorporating_Starch_Nanoparticles_for_Encapsulation_of_Probiotics_/32866442
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Simulated_Biosorption_of_Cr_sup_6_sup_Using_Peels_of_Litchi_chinensis_sonn_by_Aspen_Adsorption_V8_4/26885395
+  - url: https://figshare.com/articles/dataset/Protocols_of_in-situ_acoustic_measurements_of_door_sound_insulation/32866445
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/TROPOMI_CO_and_NO_sub_2_sub_as_Observational_Constraints_on_the_Sources_of_Air_Pollution_Inequalities_in_US_Cities/32825255
+  - url: https://figshare.com/articles/figure/Data_and_subfigures_for_Figure_1_-_Summer_ET_persists_despite_shallow_soil_moisture_depletion/31160518
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://aura.american.edu/articles/thesis/ASSOCIATIONS_OF_DAILY_CORTISOL_LEVELS_AND_PSYCHOLOGICAL_STRESS_WITH_HOT_FLASHES_AMONG_WOMEN_OF_MENOPAUSAL_AGE/32825219
+  - url: https://tandf.figshare.com/articles/journal_contribution/Adolescent_Romantic_Breakup_and_Substance_Use_Among_Emerging_Adults_in_Delhi-NCR_India/32866458
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5746416
+  - url: https://figshare.com/articles/journal_contribution/Towards_Corruption_Elimination_in_Nigerian_Educational_System/32866454
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18715840
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/16954306
+  - url: https://zenodo.org/records/4053572
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/8056637
+  - url: https://zenodo.org/records/5792475
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15420758
+  - url: https://zenodo.org/records/3605388
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19980220
+  - url: https://zenodo.org/records/5807400
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://aisberg.unibg.it//handle/10446/108456
+  - url: https://zenodo.org/records/21104757
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://aisberg.unibg.it//handle/10446/28635
+  - url: https://zenodo.org/records/21104757
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://iris.uniupo.it//handle/11579/102466
+  - url: https://arxiv.org/abs/2606.29180
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://iris.unimore.it/handle/11380/1197621
+  - url: https://zenodo.org/records/21082377
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://aisberg.unibg.it//handle/10446/86196
+  - url: https://zenodo.org/records/21082377
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

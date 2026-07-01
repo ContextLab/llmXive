@@ -9,3 +9,36 @@
   verification_status: verified
   verified_against_url: https://s3.amazonaws.com/research.metamind.io/wikitext/wikitext-2-v1.zip
   verified_at: '2026-06-29T13:36:49.661808Z'
+- artifact_hash: 42c10db953db5e226bea236fc6afb1cd77281c18433682521e55c47ed0235baf
+  artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/specs/001-neuromorphic-transformer-networks-spikin/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/Salesforce/wikitext/resolve/main/wikitext-2-raw-v1/train-00000-of-00000.parquet`
+  verification_status: mismatch
+  verified_against_url: https://huggingface.co/datasets/Salesforce/wikitext/resolve/main/wikitext-2-raw-v1/train-00000-of-00000.parquet
+  verified_at: '2026-07-01T19:25:36.037625Z'
+- artifact_hash: 42c10db953db5e226bea236fc6afb1cd77281c18433682521e55c47ed0235baf
+  artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/specs/001-neuromorphic-transformer-networks-spikin/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/Salesforce/wikitext/resolve/main/wikitext-2-raw-v1/validation-00000-of-00000.parquet`
+  verification_status: mismatch
+  verified_against_url: https://huggingface.co/datasets/Salesforce/wikitext/resolve/main/wikitext-2-raw-v1/validation-00000-of-00000.parquet
+  verified_at: '2026-07-01T19:25:36.037625Z'
+- artifact_hash: 34ece804dda0d55fa0d5bb89992aaeff60a59cd5cce2f336ee19eecab48e1145
+  artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/specs/001-neuromorphic-transformer-networks-spikin/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: wikitext-2-v1.zip
+  kind: url
+  value: https://s3.amazonaws.com/research.metamind.io/wikitext/wikitext-2-v1.zip`
+  verification_status: verified
+  verified_against_url: https://s3.amazonaws.com/research.metamind.io/wikitext/wikitext-2-v1.zip
+  verified_at: '2026-07-01T19:56:29.572002Z'

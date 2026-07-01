@@ -1,0 +1,80 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Comparison Schema"
+description: "Schema for the statistical analysis results including threshold stability."
+type: object
+properties:
+  comparison_id:
+    type: string
+    pattern: "^[a-z0-9_]+$"
+    description: "Unique identifier for the comparison."
+  metric_name:
+    type: string
+    enum:
+      - perplexity
+      - energy_per_token
+    description: "Metric being compared."
+  baseline_mean:
+    type: number
+    description: "Mean value for the baseline model."
+  spiking_mean:
+    type: number
+    description: "Mean value for the spiking model."
+  t_statistic:
+    type: number
+    description: "T-statistic from unpaired Welch's t-test."
+  p_value_raw:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Raw p-value."
+  p_value_corrected:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "P-value after multiple-comparison correction."
+  confidence_interval_lower:
+    type: number
+    description: "Lower bound of 95% confidence interval."
+  confidence_interval_upper:
+    type: number
+    description: "Upper bound of 95% confidence interval."
+  threshold_stability:
+    type: object
+    description: "Results of the threshold stability sweep."
+    properties:
+      thresholds:
+        type: array
+        items:
+          type: number
+        description: "List of thresholds tested (e.g., 0.20, 0.25, 0.30, 0.35)."
+      results:
+        type: array
+        items:
+          type: object
+          properties:
+            threshold:
+              type: number
+            is_significant:
+              type: boolean
+              description: "True if the observed reduction exceeds the threshold with statistical significance."
+            p_value:
+              type: number
+          required:
+            - threshold
+            - is_significant
+            - p_value
+    required:
+      - thresholds
+      - results
+required:
+  - comparison_id
+  - metric_name
+  - baseline_mean
+  - spiking_mean
+  - t_statistic
+  - p_value_raw
+  - p_value_corrected
+  - confidence_interval_lower
+  - confidence_interval_upper
+  - threshold_stability
+additionalProperties: false

@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-17T00:35:00.653136Z'
-current_stage: clarified
+current_stage: analyzed
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-591-neuromorphic-transformer-networks-spikin
-last_run_id: c5564b85-f9fe-4bb2-9544-924ce7e74b5e
+last_run_id: fdd19cc5-bf7e-4ad4-82ca-8fcf3710b330
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-591-neuromorphic-transformer-networks-spikin/specs/001-neuromorphic-transformer-networks-spikin
 title: 'Neuromorphic Transformer Networks: Spiking Neural Dynamics in Language Models'
-updated_at: '2026-06-29T13:37:09.984359Z'
+updated_at: '2026-07-01T19:56:55.325517Z'

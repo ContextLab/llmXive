@@ -1,0 +1,61 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Training Metrics Schema"
+description: "Schema for the training metrics CSV (data/energy_logs/training_metrics.csv)."
+type: object
+properties:
+  run_id:
+    type: string
+    pattern: "^(baseline|spiking)_seed_\\d+$"
+    description: "Unique identifier for the training run."
+  model_type:
+    type: string
+    enum:
+      - baseline
+      - spiking
+    description: "Type of model trained."
+  seed:
+    type: integer
+    minimum: 1
+    description: "Random seed used."
+  epoch:
+    type: integer
+    minimum: 1
+    description: "Epoch number."
+  val_perplexity:
+    type: number
+    minimum: 1.0
+    description: "Validation perplexity."
+  energy_per_token_kWh:
+    type: number
+    minimum: 0.0
+    description: "Energy consumption per token in kWh."
+  wall_clock_time_seconds:
+    type: number
+    minimum: 0.0
+    description: "Wall-clock time in seconds."
+  is_estimated_energy:
+    type: boolean
+    description: "True if energy was estimated via wall-clock time fallback."
+  isi_variance:
+    type: number
+    minimum: 0.0
+    description: "Inter-spike interval variance (spiking models only)."
+  bits_per_spike:
+    type: number
+    minimum: 0.0
+    description: "Temporal information capacity in bits/spike."
+  synchrony_score:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Spike train synchrony score."
+required:
+  - run_id
+  - model_type
+  - seed
+  - epoch
+  - val_perplexity
+  - energy_per_token_kWh
+  - wall_clock_time_seconds
+  - is_estimated_energy
+additionalProperties: false

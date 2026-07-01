@@ -9,7 +9,7 @@
 
 ### User Story 1 - Baseline Transformer Training and Evaluation (Priority: P1)
 
-Train a conventional 2-layer, 4-head transformer on WikiText-2 and measure validation perplexity as the performance baseline.
+Train a conventional -layer, 4-head transformer on WikiText-2 and measure validation perplexity as the performance baseline.
 
 **Why this priority**: Without a validated baseline model, no comparison with the spiking architecture is possible. This is the foundational experiment that all subsequent analysis depends on.
 
@@ -73,7 +73,7 @@ Perform paired t-tests comparing perplexity and energy-per-token across seeds fo
 - **FR-005**: System MUST apply surrogate-gradient learning with piecewise-linear surrogate function for spiking transformer training (See US-2)
 - **FR-006**: System MUST instrument all training and evaluation runs with codecarbon to log CPU energy (kWh) per token, calculated as total_energy_kWh / total_tokens_processed, with wall-clock time fallback when codecarbon fails (See US-2)
 - **FR-007**: System MUST compute validation perplexity after each epoch for both baseline and spiking models (See US-1, US-2)
-- **FR-008**: System MUST execute 5 independent training runs with different random seeds for each model variant, or 10 if power analysis indicates 5 seeds insufficient for [deferred] power at effect size δ≥0.8 (See US-1, US-2, US-3)
+- **FR-008**: System MUST execute multiple independent training runs with different random seeds for each model variant, with the number of runs determined by power analysis to ensure statistical robustness. for [deferred] power at effect size δ≥0.8 (See US-1, US-2, US-3)
 - **FR-009**: System MUST perform paired t-tests comparing perplexity and energy-per-token across the seeds with α=0.05 (See US-3)
 - **FR-010**: System MUST apply multiple-comparison correction (e.g., Bonferroni or Holm-Bonferroni) when reporting statistical significance for ≥2 hypothesis tests (See US-3)
 - **FR-011**: System MUST sweep energy-reduction threshold over {0.20, 0.25, 0.30, 0.35} and report false-positive/false-negative rates where ground truth positive = ≥30% reduction and negative = <30% (required for reproducibility robustness per community standards) (See US-3)
@@ -111,5 +111,5 @@ Perform paired t-tests comparing perplexity and energy-per-token across seeds fo
 - The research design is observational (no random assignment of model architectures); all claims about performance-computational cost trade-offs will be framed as associational, not causal.
 - The 5-seed replication provides sufficient statistical power for paired t-tests at α=0.05 for medium-to-large effect sizes (δ≥0.8); if power analysis indicates insufficiency, seed count increases to minimum 10 per FR-008.
 - No GPU, CUDA, bitsandbytes, or mixed-precision training will be used; all models run in default precision on CPU to ensure compatibility with GitHub Actions free-tier runners.
-- The 30% energy-reduction threshold is based on community standards for energy-efficient neural architectures; sensitivity analysis will sweep ±10% to test robustness per FR-011.
+- A significant energy-reduction threshold is based on community standards for energy-efficient neural architectures; sensitivity analysis will sweep ±10% to test robustness per FR-011.
 - Temporal coding metrics (inter-spike interval variance, bits/spike, spike train synchrony) directly address research question component (a) and are primary outcomes; computational cost measurements address component (b) with explicit hardware limitations acknowledged.

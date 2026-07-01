@@ -1,0 +1,20 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "WikiText-2 Dataset Schema"
+description: "Schema for the WikiText-2 dataset used in the project. Verified sources are listed in research.md."
+type: object
+properties:
+  text:
+    type: string
+    description: "Raw text sequence from the dataset."
+    minLength: 1
+  split:
+    type: string
+    enum:
+      - train
+      - validation
+      - test
+    description: "Dataset split."
+required:
+  - text
+  - split
+additionalProperties: false
