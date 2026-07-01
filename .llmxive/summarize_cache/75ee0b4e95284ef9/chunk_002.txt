@@ -1,0 +1,85 @@
+As LVLMs operate on images rather than PDF files, each PDF page is rendered to an image at $DPI=144$ using PyMuPDF~\footnote{https://github.com/pymupdf/pymupdf}.
+This resolution provides a practical trade-off between visual fidelity and storage cost.
+In addition, we use an OCR expert model fine-tuned from Seed~2.0~\citep{seed2_0} to parse each rendered page into layout-aware blocks.
+These parsed blocks are further used in both task categories: title and section labels provide the section structure to guide the sampling of coherent page segments for long-document VQA, while recognized text blocks serve as transcription targets for the OCR transcription training tasks.
+
+\subsection{Long-Document VQA Data Synthesis}
+\label{sec:curation:long_doc_vqa_method}
+
+\noindent\textbf{Segment-level synthesis pipeline.}
+We construct the long-document VQA training data using a short-to-long synthesis pipeline.
+The key idea is to generate a QA pair from a short, semantically coherent page segment, and then place it back into the full-document context to form a long-context training instance.
+
+Specifically, we first parse each document with our OCR expert model and identify its section structure using two element labels, namely \texttt{title} and \texttt{section}.
+Based on the parsed structure, we randomly sample one or more consecutive sections whose total length spans 8--15 pages.
+This produces a coherent page segment at the section level for QA generation.
+
+Next, we feed the page images of the sampled segment into Seed~2.0~\citep{seed2_0}, which serves as the QA-generator.
+We prompt the model to generate a QA pair, along with evidence descriptions and evidence pages, using the detailed prompt provided in \cref{app:long_document_vqa_details:prompt}.
+
+Finally, we recover the original full document corresponding to the sampled segment and combine it with the generated QA pair.
+This yields a single long-context VQA training instance, where the answer can be inferred from a localized short segment while the model must process the full long-document context.
+
+\begin{figure}[t]
+\vspace{-13pt}
+    \centering
+    \includegraphics[width=0.47\textwidth]{figures/method_pipeline_cropped.pdf}
+    \caption{\textbf{Long-document VQA synthesis pipeline.} We first parse the full document with an OCR expert and sample a coherent segment. An LVLM used as a QA generator (e.g., Seed 2.0) then produces a QA pair from the segment, which is inserted back into the original document to form a long-context training instance.}
+    \label{fig:long_vqa_synthesis_method}
+    \vspace{-15pt}
+
+\end{figure}
+
+\noindent\textbf{Data quality and efficiency.}
+Since we provide the QA-generation model with only 8--15 pages, the pipeline relies on strong short-context understanding, without requiring full-document processing.
+In this way, we find that the generated QA pairs are of high quality, and further verify them through a manual check described in \cref{app:long_document_vqa_details:verification}.
+By sampling short segments, this pipeline is also efficient, substantially reducing the cost of generating large-scale data.
+
+A key challenge in segment-level QA synthesis is ensuring that locally valid questions remain unambiguous when evaluated in the full-document context.
+Specifically, because QA pairs are generated from a short segment, the same question may have a different answer when placed back into the full document.
+For example, a question such as \textit{``What is the reported revenue?''} may be answerable within the sampled section, but ambiguous in a full financial report where different sections report revenue for different departments or years.
+To avoid such global-context false positives, we require the QA-generation model to add explicit segment anchors to the question, such as \textit{``in the Introduction section''} or \textit{``on pages~20--25''}.
+
+\noindent\textbf{Data types.}
+With this segment-level QA synthesis pipeline, we synthesize three training tasks of long-document VQA data, each targeting a distinct capability defined by the type and number of evidence pieces required to answer the question.
+They cover increasing evidence complexity:
+\begin{inparaenum}[(i)]
+\item \textbf{single-page extraction} (\extractsingle) asks the model to retrieve factual information from a single page, e.g., ``According to the Homemade Bitters recipe on Page 39, how long should the herbs soak in vodka?'';
+\item \textbf{multi-page extraction} (\extractmulti) requires the model to aggregate factual information from multiple pages, e.g., ``Based on Pages 6, 13, and 19, list all risk factors mentioned in the report.''; and
+\item \textbf{reasoning} (\reasoningtask) further requires numerical or logical operations over extracted information, such as summation, comparison, or counting across pages, e.g., ``What is the difference between total consumption and total imports for rice production in 2020?''.
+\end{inparaenum}
+
+Together, the first two training tasks focus on locating and extracting relevant evidence from long documents, while the reasoning task further evaluates whether the model can operate on the extracted evidence.
+
+\subsection{OCR Transcription Data Synthesis}
+\label{sec:curation:ocr_transcription_method}
+In addition to long-document VQA, another category of long-context training tasks we build is OCR transcription.
+This task category encourages LVLMs to capture long-distance image-text dependencies by requiring them to transcribe text elements across all pages of a long document.
+
+\noindent\textbf{Synthesis pipeline.}
+For each document, we first parse every page with our OCR expert and retain text elements such as section titles, paragraphs, tables, and captions.
+We then construct an OCR transcription sequence by using the rendered page images as visual input and the parsed text elements as the target output.
+With this formulation, LVLMs must repeatedly attend back to the dense textual content in the rendered images and transcribe it over long distances, thereby modeling long-distance image-text dependencies.
+
+\noindent\textbf{Data types.}
+Using this pipeline, we generate two training tasks of OCR transcription data.
+These types are defined by the scope of pages to be transcribed:  \begin{inparaenum}[(i)]
+\item \textbf{full-document OCR} (\ocrfull) requires the model to transcribe text elements from all pages of the document, encouraging dense image-text dependency modeling across the full context; and
+\item \textbf{needle-page OCR} (\ocrneedle) selects only a small subset of pages (1--3 pages) for transcription and keeps the remaining pages as distractors, turning OCR transcription into a retrieval-style long-context training task.
+\end{inparaenum}
+Collectively, these two tasks encourage LVLMs to model long-distance image-text dependencies under both dense transcription and retrieval-style settings.
+
+\subsection{Comparing Long-Document VQA and OCR Transcription}
+\label{sec:curation:data_method_compare}
+We compare the five candidate tasks under a controlled 5B-token budget. For each task, we build a separate training set and train Qwen2.5-VL-7B~\cite{bai2025qwen2} using the hyperparameters in \cref{sec:setup}. Dataset statistics, such as token counts and sequence-length distributions, are provided in \cref{app:long_document_vqa_details:data_stats,app:ocr_transcription_details:data_stats}.
+
+\noindent\textbf{SFT after LongPT on OCR Transcription.}
+OCR transcription encourages long-distance image-text dependency modeling but is not naturally aligned with instruction-following evaluations.
+To favor OCR-based LongPT, we further apply a 5B-token SFT stage to the OCR-trained checkpoints using LLaVA-OneVision instruction data~\citep{li2024llava}; data details are in \cref{app:short_context_data_details}.
+
+\begin{table*}[t]
+    \centering
+    \setlength{\tabcolsep}{4pt}
+    \resizebox{0.9\textwidth}{!}{%
+    \begin{tabular}{l*{4}{C{1.2cm}}|*{4}{C{1.2cm}}|C{1.8cm}}
+    \toprule

@@ -1,0 +1,52 @@
+* **Template**: "The relationship between performance and context length exhibited a **Z** trend (Slope: **S**, R²: **R**)."
+* **Requirement**: **Z** must be one of: "sublinear", "superlinear", "linear", or "inconclusive".
+* **Condition**: If R² < 0.1, **Z** MUST be "inconclusive" or "highly variable". The paper MUST NOT claim a specific trend if the data is inconclusive.
+
+### Claim 4: Resource Feasibility
+* **Template**: "We evaluated the feasibility of long-context VLM evaluation on standard CPU hardware with limited RAM using 4-bit quantization."
+* **Requirement**: The paper must state the *outcome*:
+ * **Success**: "The evaluation completed successfully within the memory constraints."
+ * **Failure**: "The evaluation failed due to [Specific Error: e.g., OOM during model loading]."
+* **Condition**: If the evaluation failed, the paper MUST report the specific error and cannot claim feasibility.
+
+### Claim 5: Negative Results & Failure Modes (First-Class Claim)
+* **Template**: "We encountered a [Data Unavailability / OOM / Inconclusive Scaling] failure mode."
+* **Requirement**: If the research plan encounters any of the defined edge cases (Data Unavailable, OOM, Inconclusive Trend), this claim MUST be the primary finding.
+* **Condition**: This claim takes precedence over Claims 1-4 if the experiment could not be completed as intended.
+
+## Edge Cases (Specific to Paper Drafting)
+
+- **Discrepant Results**: If the reproduced scores deviate by > 2.0% from the paper's claims, the Discussion section MUST explicitly analyze potential causes (e.g., quantization noise, dataset version drift) rather than silently ignoring the discrepancy.
+- **Missing Data**: If the `yubo2333/MMLongBench-Doc` dataset is unavailable or corrupted, the paper MUST state "Evaluation could not be completed due to data unavailability" and not fabricate results. This triggers Claim 5.
+- **Ambiguous Trend**: If the regression R² is < 0.1, the paper MUST avoid claiming a specific scaling law and instead describe the data as "highly variable" or "inconclusive" (Claim 3).
+
+## Requirements
+
+### Functional Requirements
+
+- **FR-001**: The paper MUST explicitly state the use of low-bit quantization for the Qwen-VLB model to satisfy the GB RAM constraint.
+- **FR-002**: The paper MUST include a "Limitations" subsection in the Discussion explicitly acknowledging the small sample size (n=10) and the lack of statistical power for hypothesis testing.
+- **FR-003**: The paper MUST present the performance retention rate at 256K and 512K contexts as a percentage of the 128K baseline.
+- **FR-004**: The paper MUST include a scaling analysis section with a regression slope and trend classification derived from `results/scaling_report.json`.
+- **FR-005**: The paper MUST cite the specific dataset source (`yubo2333/MMLongBench-Doc`) and the split used (`test`) in the Methods section.
+- **FR-006**: The paper MUST explicitly state the *measured deviation* from the original paper's claims. The ±1.0% tolerance is a threshold for analysis, not a pass/fail condition for the claim itself.
+- **FR-007**: The paper MUST include a "Data Provenance" statement referencing the `manifest.json` checksums or dataset version.
+- **FR-008**: The paper MUST NOT claim statistical significance (p < 0.05) for the scaling trends due to the sample size constraints.
+- **FR-009**: The paper MUST include a "Reproducibility Surface" section listing code commit hashes, data seeds, and environment versions (populated from execution artifacts).
+- **FR-010**: The paper MUST define a single "Primary Citation Claim" in the Abstract that summarizes the measured scientific result, selected per the **Primary Claim Selection Logic**.
+
+## Key Entities
+
+- **EvaluationRun**: Represents a single execution of the evaluation pipeline, containing metadata (run_id, timestamp, sample_size, context_lengths) and the resulting metrics.
+- **BenchmarkResult**: Represents the score of a model on a specific task at a specific context length, containing `task_id`, `context_length`, `score`, and `baseline_score`.
+- **ScalingAnalysis**: Represents the aggregated analysis of performance across context lengths, containing `slope_coefficient`, `r_squared`, and `trend_classification`.
+
+## Success Criteria
+
+### Measurable Outcomes
+
+- **SC-001**: The reproduction of the long-document VQA score is measured against the paper's claimed value. The paper MUST report the *exact measured deviation* (X%). The ±1.0% tolerance is used to determine if a "Discrepancy Analysis" is required, not to determine if the claim is valid.
+- **SC-002**: The generalization retention rate at 256K/512K is measured against the 128K baseline. The paper MUST report the *exact measured percentage* (Y%).
+- **SC-003**: The scaling trend classification is measured against the regression slope of performance vs. log(context_length). The paper MUST report the *measured classification* (including "inconclusive").
+- **SC-004**: The paper's "Limitations" section is measured against the requirement to explicitly state the lack of multiple-comparison correction and small sample size.
+- **SC-005**: The data provenance is measured against the presence of a valid dataset checksum in the `manifest.json` referenced in the paper.

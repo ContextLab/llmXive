@@ -1,0 +1,100 @@
+Compared with the default \emph{pool-native} distribution, this data is sampled from longer documents with 50--100 rendered PDF pages and concentrates more training mass near the upper end of the target context window.
+As shown in \cref{tab:over_100k_ratio}, 83.9\% of the samples in the \emph{long-biased} distribution contain at least 100K tokens across all three VQA tasks.
+In contrast, only about 23.5\%--23.6\% of the samples in the \emph{pool-native} distribution exceed this threshold.
+
+\subsection{Prompt Template for QA Pair Generation}
+\label{app:long_document_vqa_details:prompt}
+For each source document, we first use OCR block labels to identify title and section boundaries, then sample a semantically coherent span of 8--15 consecutive pages.
+The sampled page images are sent to the teacher LVLM together with a prompt that asks it to synthesize one document-grounded QA pair.
+
+By default, we include two in-context exemplars sampled from a small manually curated exemplar pool.
+We instantiate the same core prompt with different task descriptions and page constraints for three data types: single-page extraction, multi-page extraction, and reasoning.
+
+More concretely, \cref{tab:qa_generation_prompt} shows the prompt template used in our data sourcing process, and \cref{tab:qa_generation_task_fields} summarizes the task description and extra restriction inserted for each task type.
+
+\clearpage
+\begin{table}[H]
+    \centering
+    \caption{The prompt template used for long-document QA pair generation. Gray highlighted spans denote placeholders filled dynamically for each sampled document span.}
+    \label{tab:qa_generation_prompt}
+    \begin{adjustbox}{max width=\textwidth, max totalheight=0.95\textheight}
+    \begin{tabular}{p{0.96\linewidth}}
+    \toprule
+    \begin{minipage}{0.96\linewidth}
+    \raggedright\ttfamily\footnotesize
+    {[}System{]}\\
+    You are an expert in synthesizing document question-answering dialogue. In this task, I will provide you the images of one or more sections from a document and you need to generate a question-answering pair based on the given sections.
+    You need to notice the following key points:\\[2pt]
+    \quad \\
+    {[}Task Definition \& Requirements{]}\\
+    The current document QA task is \promptplaceholder{task description}.\\[2pt]
+    \quad \\
+    {[}General Restrictions{]}\\
+    - Questions must be confidently answerable and document-dependent, relying solely on the provided visual content without external knowledge.\\
+    - If the question asks about missing information, the absence of such content must be definitively verifiable from the provided image.\\
+    - Scope Constraint: Frame questions specifically within the scope of the provided section/pages, strictly avoiding broad references like "across the document" or "the whole file."\\
+    - Page Indexing Rule: When writing the evidence description or the "evidence\_pages" field in JSON, strictly use the index provided in the prompt (e.g., use `10' for "Page 10"), regardless of the page number inside images.\\[2pt]
+    \promptplaceholder{extra\_restriction} \\
+    \quad \\
+    {[}Response Format{]}\\
+    Please generate the response in two parts: \\
+    \quad \\
+    Part 1: Evidence Description \\
+    Provide a detailed description first, citing specific text or visual elements (using the four evidence types defined below) to support your reasoning. You may use multiple paragraphs if necessary.\\
+    \quad \\
+    When describing evidence, explicitly categorize the text and visual elements into one of the following four types: \\
+    - Text: pure texts, such as paragraphs. \\
+    - Layout: text elements with special layout meaning (generalized text), such as titles, headers, footers, table names, and figure names. \\
+    - Figure: including charts and general images. \\
+    - Table: structured data in rows and columns. \\
+    \quad \\
+    Part 2: JSON Output \\
+    Provide the final question, answer, and metadata in a strict JSON format.\\[2pt]
+    \quad \\
+    Your answer must strictly fall into one of the following four categories. You must also indicate the type in the JSON output: \\
+    1. String: General text, names, short sentences, or short phrases found in the document. \\
+        - Example: "John Doe", "Financial Report", "The project was completed on time." \\
+   2. Integer: Whole numbers representing counts, years, page numbers, etc. \\
+   - Example: "42", "2023", "100". \\
+    3. Float: Numbers with decimal points, including currency, percentages, or scientific measurements. \\
+   - Example: "12.5", "\$45.20", "98.5\%". \\
+    4. List: A collection of multiple items, names, or values. \\
+   - Example: ["Apple", "Banana", "Orange"], ["Item A", "Item B"]. \\
+   \quad \\
+   Your output format is:\\
+    {[}Evidence Description{]}:\\
+    {[}JSON{]}:\\
+    \{"question": \textless question\textgreater, "answer": \textless answer\textgreater, "answer\_format": \textless answer\_format\textgreater, "evidence\_pages": [\textless page\_index\textgreater], "evidence\_sources": [\textless evidence\_sources\textgreater]\}\\[2pt]
+    \textless \textgreater\\[2pt]
+    \quad \\
+    \promptplaceholder{<in-context exemplars\_1>} \\
+    \quad \\
+    \promptplaceholder{<in-context exemplars\_2>} \\
+    \quad \\
+    {[}Current Case{]}\\
+    The following images represent pages \promptplaceholder{start\_page} to \promptplaceholder{end\_page} of the document. Generate the question-answering pair strictly based on the visual content below, ensuring the question scope is limited to phrases like "the Introduction section", "Pages 20, 21, and 25", or "Page 10." \\
+    \promptplaceholder{current\_case\_image\_sequence}
+    \end{minipage} \\
+    \bottomrule
+    \end{tabular}
+    \end{adjustbox}
+\end{table}
+\clearpage
+
+\begin{table}[H]
+    \centering
+    \caption{The task descriptions and extra restriction for the three long-document VQA tasks. We insert these parts into the prompt template to synthesize data.}
+    \label{tab:qa_generation_task_fields}
+    \small
+    \setlength{\tabcolsep}{4pt}
+    \begin{tabular}{L{2.3cm}L{5.6cm}L{6.4cm}}
+    \toprule
+    \textbf{Task} & \textbf{Task Description} & \textbf{Extra Restriction} \\
+    \midrule
+    \extractsingle
+    & information extraction. You need to generate questions that focus on extracting specific, explicit information directly from the provided document images. Your objective is to create questions that ask for precise facts, entities (such as names, dates, locations, or authors), numerical values, lists of items, or specific steps in a procedure. The answers must be visually present and directly retrievable from the text, tables, or layout elements.
+    & Single-Page Focus: Although multiple pages are provided for context, you must generate a question that is **strictly self-contained within a single page**. Select one specific page from the provided sequence and generate a question based solely on its content. The answer must be fully derivable from that single page without requiring cross-referencing or synthesizing information from other pages. \\
+    \addlinespace
+    \midrule
+    \extractmulti
+    & information extraction. You need to generate questions that focus on extracting specific, explicit information directly from the provided document images. Your objective is to create questions that ask for precise facts, entities (such as names, dates, locations, or authors), numerical values, lists of items, or specific steps in a procedure. The answers must be visually present and directly retrievable from the text, tables, or layout elements.

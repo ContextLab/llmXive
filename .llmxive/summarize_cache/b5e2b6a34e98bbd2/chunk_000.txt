@@ -1,0 +1,49 @@
+# Feature Specification: Reproduce & Validate Long-Context VLM Training with MMLongBench
+
+**Feature Branch**: `575-reproduce-long-context-vlm`
+**Created**: 2026-07-01
+**Status**: Draft
+**Input**: Research-stage artifacts (spec.md, plan.md, tasks.md) and code/data summaries.
+
+## User Scenarios & Testing
+
+### User Story 1 - Reproduce Core Evaluation Results (Priority: P1)
+
+The reader (peer reviewer or researcher) MUST be able to follow the paper's "Methods" section and execute the provided evaluation pipeline to reproduce the primary quantitative results (long-document VQA scores) without requiring specialized hardware (GPU).
+
+**Why this priority**: This is the fundamental test of scientific reproducibility. If a reader cannot regenerate the core numbers claimed in the abstract using the provided code and standard compute (CPU), the paper's validity is immediately compromised. This story covers the "Results" section's primary claims.
+
+**Independent Test**: Execute the `src/eval/run_cpu_eval.py` script with a minimal sample size (`--sample-size=10`) on a CPU-only environment. Verify that the output file `results/sample_results.json` is generated and contains the expected columns (`context_length`, `task_type`, `model_baseline_score`, `model_target_score`) matching the schema defined in `contracts/`.
+
+**Acceptance Scenarios**:
+1. **Given** a standard CPU environment with < 8 GB RAM, **When** the user runs the evaluation script with the `yubo2333/MMLongBench-Doc` dataset, **Then** the system completes the run within 60 minutes and outputs a valid JSON file containing at least 10 rows of evaluation data.
+2. **Given** the generated `sample_results.json`, **When** a reader inspects the `model_target_score` for the "long-document VQA" task, **Then** the value is present and numerically comparable to the baseline score, allowing for a direct calculation of the reported improvement.
+
+### User Story 2 - Verify Generalization Claims (Priority: P2)
+
+The reader MUST be able to locate the evidence supporting the paper's claim of "generalization beyond 128K context" by examining performance retention rates at 256K and 512K context lengths relative to the 128K baseline.
+
+**Why this priority**: The paper's novel contribution is the claim of scaling beyond the training window. A reader needs to verify that the model does not degrade catastrophically at these lengths. This story addresses the specific "Generalization" findings in the Results section.
+
+**Independent Test**: Run the validation script `src/eval/validate_results.py` against the generated results. The script must calculate the retention rate (Performance@256K / Performance@128K) and compare it against the paper's implicit or explicit threshold (≥ 80%).
+
+**Acceptance Scenarios**:
+1. **Given** the evaluation results covering context lengths up to 512K, **When** the validation logic computes the retention rate for the 256K and 512K contexts, **Then** the output report explicitly states whether the retention rate meets the ≥ 80% threshold and highlights any significant drop-offs.
+2. **Given** the `results/validation_report.md`, **When** a reviewer reads the "Generalization" section, **Then** they can clearly see the delta between the 128K baseline and the extended context performance, confirming the "beyond 128K" claim.
+
+### User Story 3 - Analyze Scaling Trends (Priority: P3)
+
+The reader (specifically a methodologist or statistician) MUST be able to access the scaling analysis to determine if the performance relationship with context length is linear, sublinear, or superlinear, acknowledging the statistical limitations of the sample size.
+
+**Why this priority**: This addresses the specific reviewer concern (Geoffrey West) regarding the lack of scaling law analysis. While statistical significance is limited by the small sample size (n=10), the descriptive trend provides necessary context for interpreting the model's behavior at scale.
+
+**Independent Test**: Execute `src/eval/scaling_analysis.py` to fit a regression model of `score` vs. `log(context_length)`. Verify that `results/scaling_report.json` contains the slope coefficient, R², and a trend classification.
+
+**Acceptance Scenarios**:
+1. **Given** results from at least 5 distinct context lengths (32K to 512K), **When** the analysis script fits the regression model, **Then** the output includes a clear classification (e.g., "sublinear", "inconclusive") and a disclaimer stating that multiple-comparison corrections were not applied due to insufficient statistical power.
+2. **Given** the final `results/final_report.md`, **When** a reader reviews the "Scaling Analysis" section, **Then** they find a plot or table data mapping performance against context length, along with the calculated slope and an explicit statement of limitations regarding the small sample size.
+
+### Reader Scenarios (Paths)
+
+1. **Skim Path (Primary Contribution)**: A motivated outsider must grasp the single, unambiguous scientific finding without running code.
+ * **Requirement**: The Abstract must contain a **Primary Citation Claim** that is a single sentence reporting the *measured result* (e.g., "We observed a deviation of X%...", "Retention was Y%...", or "Evaluation failed due to Z").

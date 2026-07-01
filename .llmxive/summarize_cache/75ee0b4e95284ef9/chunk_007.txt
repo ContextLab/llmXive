@@ -1,0 +1,104 @@
+For the main long-document evaluation, we use the document category of MMLongBench~\citep{wang2025mmlongbench}, which contains MMLongBench-Doc~\citep{ma2024mmlongbenchdoc}, LongDocURL~\citep{deng2025longdocurl}, and SlideVQA~\citep{tanaka2023slidevqa}.
+All examples in this category are instantiated at five standardized context lengths: 8K, 16K, 32K, 64K, and 128K tokens.
+Unless otherwise specified, we evaluate each model at 64K and 128K context lengths.
+
+For grading, we follow the MMLongBench v1.1 evaluation protocol and report the official LLM-judged document QA score for each dataset.
+Specifically, this v1.1 protocol introduces LLM-based judging for the long-document VQA tasks, which handles different answer formats separately.
+For simple answer formats, such as string, integer, float answers, and ``not answerable,'' the judge assigns a binary score indicating whether the predicted answer matches the reference answer as shown in \cref{tab:binary_judge_prompt}.
+For list-style answers, the evaluator first extracts the predicted list and then computes an F1 score based on the overlap between the predicted list and the reference list. We show this prompt in \cref{tab:list_judge_prompt}.
+For each context length, the AVG. column is the macro average over the three datasets, and the overall AVG. is the macro average over the 64K and 128K results.
+
+\begin{table}[!htbp]
+    \centering
+    \begin{tabular}{p{0.96\linewidth}}
+    \toprule
+    \begin{minipage}{0.96\linewidth}
+    \ttfamily\footnotesize
+
+
+    Now your role is a grading teacher. Your task is to review and score student answers based on reference standard answers. You need to notice the following key points:\\[2pt]
+    - First, extract the final answer from the student's solution, then analyze and judge whether the answer is correct.\\
+    - Scoring should only refer to the final answer obtained by the student; there is no need to examine whether the intermediate problem-solving steps are correct.\\
+    - When analyzing and judging whether the answer is correct, you need to write down the scoring rationale, organize it into clear statements that follow the logical flow. The summary of the scoring rationale should be placed at the end, using the following format: "In summary, the student's answer deserves x points" (where x represents the student's specific score). \\
+    - Keep the whole process concise, within 150 words.\\
+    - Provide the score based on your analysis and display it in a code block in "JSON" format.\\
+    - An item is covered if it is strictly mentioned or unambiguously implied by a semantic equivalence. This includes numerical equivalence (e.g., 10\% and 0.1), synonyms (e.g., UK and United Kingdom), and plural/singular forms (e.g., "apple" and "apples"). However, do not accept loosely related concepts.\\[2pt]
+    Your output format is:\\
+    {[}Scoring Rationale{]}:\\
+    {[}Score{]}: x points\\
+    {[}JSON{]}:\\
+    \{"answer\_score": \textless integer\_value\textgreater\}\\[2pt]
+    \quad \\
+    Below is the grading rubric:\\
+    {[}Scores{]}: \\
+    The scoring scale consists of 2 levels in total, from highest to lowest: 1 point, 0 points (the minimum is 0 points; if a situation arises where points need to be deducted beyond 0, simply assign 0 points).\\
+    {[}Tier Details{]}: \\
+    1 point: Assign 1 point if the student's final answer matches the standard answer. If the question has multiple sub-questions, all sub-questions must be answered to assign 1 point.\\
+    0 points: Assign 0 points if the student's final answer does not match the standard answer.
+    \quad \\
+    \quad \\
+    \promptplaceholder{<in-context exemplars\_1>} \\
+    \quad \\
+    \promptplaceholder{<in-context exemplars\_2>} \\
+    \quad \\
+    \promptplaceholder{<in-context exemplars\_3>} \\
+    \quad \\
+    \promptplaceholder{<test\_case\_1>} \\
+    \end{minipage} \\
+    \bottomrule
+    \end{tabular}
+\caption{Prompt for the binary answer judge in the long-document VQA category of MMLongBench. Gray highlighted spans denote placeholders filled at evaluation time.}
+\label{tab:binary_judge_prompt}
+\end{table}
+
+\begin{table}[!htbp]
+    \centering
+    \begin{tabular}{p{0.96\linewidth}}
+    \toprule
+    \begin{minipage}{0.96\linewidth}
+    \ttfamily\footnotesize
+    Now your role is a grading teacher. Your task is to review and score student answers for LIST-style questions, where the standard answer is a list of required items.\\
+    - First, extract the specific list of items from the \textless Student Answer\textgreater. Ignore conversational filler (e.g., "The answer is...").\\
+    - Then, compare the {[}Extracted List{]} against the \textless Standard Answer\textgreater\ (Ground Truth).\\[2pt]
+    Here are some extra key points:\\
+    - The standard answer is a JSON-like list of items with each item as one required element. Determine whether each item is covered by the student's answer list.\\
+    - An item is covered if it is strictly mentioned or unambiguously implied by a semantic equivalence. This includes numerical equivalence (e.g., 10\% and 0.1), synonyms (e.g., UK and United Kingdom), and plural/singular forms (e.g., "apple" and "apples"). However, do not accept loosely related concepts.\\
+    - You need to write down the extraction and comparing rationale, organize it into clear statements that follow the logical flow. The summary of the rationale should be placed at the end, using the following format: "In summary, the student's answer list has X items, covering Y items from the reference list."\\
+    - Keep the whole process concise, within 200 words.\\
+    - Provide the student's answer item count and covered item count in a code block in "JSON" format.\\[2pt]
+    Your output format is:\\
+    {[}Rationale{]}:\\
+    {[}JSON{]}:\\
+    \{\\
+    \hspace*{1em}"student\_answer\_count": \textless integer\_value\textgreater,\\
+    \hspace*{1em}"covered\_count": \textless integer\_value\textgreater\\
+    \}
+    \quad \\
+    \quad \\
+    \promptplaceholder{<in-context exemplars\_1>} \\
+    \quad \\
+    \promptplaceholder{<in-context exemplars\_2>} \\
+    \quad \\
+    \promptplaceholder{<in-context exemplars\_3>} \\
+    \quad \\
+    \promptplaceholder{<test\_case\_1>} \\
+    \end{minipage} \\
+    \bottomrule
+    \end{tabular}
+\caption{Prompt for the list-style answer judge in the long-document VQA category of MMLongBench.}
+\label{tab:list_judge_prompt}
+\end{table}
+
+\subsection{Details of Long-Document VQA Evaluation with the Final Recipe}
+\label{app:evaluation_details:final_recipe}
+In evaluating \modelname trained with the final recipe, we compare it with a wide range of open- and closed-source LVLMs.
+For open-source models, we evaluate Qwen2.5-VL (7B, 32B, 72B)~\citep{bai2025qwen2}, InternVL3 (8B, 14B, 38B)~\citep{zhu2025internvl3}, InternVL3.5 (8B, 14B, 38B)~\citep{wang2025internvl35}, Gemma3 (4B, 12B, 27B)~\citep{team2025gemma3}, and Gemma4 (E2B, E4B, 26B-A4B, 31B)~\citep{google2026gemma4}.
+For closed-source models, we include GPT-5.4~\citep{openai2026introducing_gpt5_4}, GPT-5.5~\citep{openai2026introducing_gpt5_5}, Gemini-2.5-Pro~\citep{google2025gemini2_5}, Gemini-3.1-Flash~\citep{gemini_3_1_pro_2026}, and Gemini-3.1-Pro~\citep{gemini_3_1_pro_2026} with a high reasoning budget.
+
+\subsection{Longer-Context Evaluation up to 512K}
+\label{app:evaluation_details:longer_context}
+To test whether the 128K recipe extrapolates to longer contexts, we further evaluate the same three long-document VQA datasets at 256K and 512K.
+The examples at 256K and 512K context lengths are obtained following MMLongBench~\citep{wang2025mmlongbench}: we alternately pad the left and right sides with randomly sampled negative documents until the required length is reached.
+No additional training or inference-time adaptation is applied to tested models when evaluating at these longer lengths.
+We use the same official LLM-judged score and macro-average computation as in the main long-document evaluation.
+

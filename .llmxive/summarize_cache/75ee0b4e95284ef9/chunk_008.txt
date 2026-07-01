@@ -1,0 +1,127 @@
+\subsection{MM-NIAH: Evaluation on Webpage Haystacks}
+\label{app:evaluation_details:mm_niah}
+MM-NIAH~\citep{wang2024needle} is a multimodal needle-in-a-haystack benchmark that builds on the webpages from OBELICS~\citep{laurenccon2023obelics}.
+In particular, the benchmark contains three task families: retrieval, counting, and reasoning, each with two variants: text-needle and image-needle.
+In our evaluation, we use the standardized version provided by MMLongBench~\citep{wang2025mmlongbench}, where each example is instantiated at five context lengths: 8K, 16K, 32K, 64K, and 128K tokens.
+In our study, we report results at 64K and 128K context lengths as we extend the context window from 32K to 128K.
+For reporting, we first average the text and image variants within each task family.
+Then, the average (AVG.) score is the macro average over the three task-family scores.
+We use the metrics provided by MMLongBench~\citep{wang2025mmlongbench} for each task variant, including exact match, soft accuracy, and multiple-choice accuracy, depending on the specific subtask definition.
+
+\subsection{VTCBench: Evaluation on Long-Context Vision-Text Compression}
+\label{app:evaluation_details:vtcbench}
+VTCBench~\citep{zhao2025vtcbench} is another multimodal long-context benchmark that evaluates whether a model can preserve visual-text information under compressed visual context.
+We follow the VTCBench-Wild setting reported in the original paper and report all three task scores: Retrieval, Reasoning, and Memory.
+We follow the same grading rules as the original paper.
+Retrieval and Reasoning are measured by the official \texttt{containsAll} accuracy, which checks whether all ground-truth answers are contained in the model prediction.
+Memory is measured by the official LLM accuracy, where \texttt{gpt-4o-mini} judges answer correctness.
+The AVG. score follows the Overall column of VTCBench-Wild and is the sample-count weighted average over the three splits, with 800 retrieval examples, 800 reasoning examples, and 600 memory examples.
+
+\subsection{Long-Video Understanding Evaluation}
+\label{app:evaluation_details:video}
+For long-video understanding, we report the performance on Video-MME~\citep{fu2025video}, MLVU~\citep{zhou2025mlvu}, and LongVideoBench~\citep{wu2024longvideobench}.
+We evaluate these benchmarks using the 1fps variants and cap the maximum number of sampled frames per video at 768, with the total number of video tokens not exceeding 24,576.
+This configuration is fully aligned with Qwen2.5-VL technical report~\citep{bai2025qwen2}.
+For Video-MME and LongVideoBench, we report overall multiple-choice accuracy.
+For MLVU, we evaluate the multiple-choice subset and report its average accuracy.
+
+\subsection{Short-Context Evaluation}
+\label{app:evaluation_details:short_context}
+To monitor whether \modelname suffers degradation in general VLM ability, we evaluate short-context performance across three capabilities and six benchmarks.
+These include general VQA (MMBench-V1.1~\citep{liu2024mmbench} and RealWorldQA~\citep{grok15}), multimodal reasoning (MMMU~\citep{yue2024mmmu}, MMMU-Pro~\citep{yue2025mmmupro}, and MathVista~\citep{lu2023mathvista}), and text recognition (OCRBench~\citep{liu2024ocrbench}).
+
+For MMMU, we use \texttt{MMMU\_DEV\_VAL} in VLMEvalKit, which combines the official MMMU development and validation splits.
+For MMMU-Pro, we use \texttt{MMMU\_Pro\_10c}, the standard 10-choice variant.
+For MathVista, we use the testmini subset.
+We report the official score of each benchmark and compute the short-context AVG. as the macro average over the six benchmark scores.
+
+\section{Preliminary Details}
+\subsection{Document Pool Statistics}
+\label{app:document_pool_stats}
+We show the corpus scale, average page length, and language distribution of our document pool in \cref{tab:doc_pool_statistics}. 
+Meanwhile, the distribution of the document domain is shown in \cref{fig:doc_pool_domain_distribution}.
+
+\subsection{OCR Expert}
+We use an OCR expert model fine-tuned from Seed~2.0~\citep{seed2_0} to preprocess the rendered PDF pages.
+For each page image, the OCR expert parses layout-aware text blocks and assigns structural labels such as title, section heading, paragraph, table, figure caption, header, and footer.
+
+These parsed blocks serve two purposes in our pipeline:
+\begin{inparaenum}[(i)]
+\item the title and section labels provide lightweight document-structure signals for sampling semantically coherent page spans when generating long-document VQA data;
+\item the recognized text blocks provide the target text for constructing OCR transcription baselines.
+\end{inparaenum}
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=0.7\linewidth]{figures/app_1_doc_pool_topic_distribution_cropped.pdf}
+    \caption{
+        The document domain distribution of the document pool used for data synthesis.
+    }
+    \label{fig:doc_pool_domain_distribution}
+\end{figure}
+
+\begin{table}[!htbp]
+    \centering
+    \small
+    \setlength{\tabcolsep}{6pt}
+    \begin{tabular}{lll}
+    \toprule
+    \textbf{Category} & \textbf{Statistic} & \textbf{Value} \\
+    \midrule
+    \multirow{4}{*}{\textbf{Corpus Scale}} 
+        & Number of documents & 1,537,504 \\
+        & Page-count range & $[20, 200]$ \\
+        & Average Pages & 23.80 \\
+        & Total pages & 36,592,809 \\
+    \midrule
+    \multirow{3}{*}{\textbf{Lang.}}
+        & English documents & 1,479,370 (96.22\%) \\
+        & Chinese documents & 55,202 (3.59\%) \\
+        & Other languages & 2,932 (0.19\%) \\
+    \bottomrule
+    \end{tabular}
+\caption{Statistics of the document pool used for data synthesis.}
+\label{tab:doc_pool_statistics}
+\end{table}
+
+\section{Long-Document VQA Training Data Details}
+\label{app:long_document_vqa_details}
+
+\subsection{Data Statistics for \emph{Pool-Native} Distribution (Default)}
+\label{app:long_document_vqa_details:data_stats}
+We summarize the statistics of the long-document VQA training data in \cref{tab:longvqa_uniform_data_stats}, with the corresponding token-length distribution shown in \cref{fig:longvqa_uniform_token_distribution}.
+This data corresponds to the \emph{pool-native} length distribution used by our final LongPT recipe, covering samples from 32 to 50 rendered PDF pages and approximately 32K--128K multimodal tokens.
+
+\begin{table}[!htbp]
+    \centering
+    \setlength{\tabcolsep}{2.5pt}
+    \small
+    \begin{subtable}{\linewidth}
+        \centering
+        \setlength{\tabcolsep}{2pt}
+        \caption{Long-document VQA data in the \emph{pool-native} Distribution (default).}
+        \label{tab:longvqa_uniform_data_stats}
+        \begin{tabular}{lcccccc}
+        \toprule
+        \textbf{Task} & \textbf{\# Samples} & \textbf{\# Pages} & \textbf{\# Tokens (K)} & \textbf{Total Tokens (B)} & \textbf{Page Range} & \textbf{Token Range (K)} \\
+        \midrule
+        \extractsingle & 59{,}055 & 38.4 & 85.3 & 5.04 & $[32, 50]$ & $[32.8, 126.8]$ \\
+        \extractmulti & 59{,}316 & 38.4 & 85.3 & 5.06 & $[32, 50]$ & $[32.8, 126.8]$ \\
+        \reasoningtask & 59{,}403 & 38.4 & 85.3 & 5.06 & $[32, 50]$ & $[32.8, 126.7]$ \\
+        \midrule
+        \textbf{Total} & \textbf{177{,}774} & 38.4 & 85.3 & \textbf{15.16} & $[32, 50]$ & $[32.8, 126.8]$ \\
+        \bottomrule
+        \end{tabular}
+    \end{subtable}
+
+    \begin{subtable}{\linewidth}
+        \centering
+        \setlength{\tabcolsep}{2pt}
+        \caption{Long-document VQA data in the \emph{long-biased} distribution.}
+        \label{tab:longvqa_non_even_data_stats}
+        \begin{tabular}{lcccccc}
+        \toprule
+        \textbf{Task} & \textbf{\# Samples} & \textbf{\# Pages} & \textbf{\# Tokens (K)} & \textbf{Total Tokens (B)} & \textbf{Page Range} & \textbf{Token Range (K)} \\
+        \midrule
+        \extractsingle & 59{,}736 & 66.8 & 114.3 & 6.83 & $[50, 100]$ & $[32, 125.3]$ \\
+        \extractmulti & 59{,}624 & 66.8 & 114.3 & 6.81 & $[50, 100]$ & $[32, 124.0]$ \\

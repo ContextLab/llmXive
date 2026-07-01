@@ -9,3 +9,50 @@
   verification_status: verified
   verified_against_url: https://download.pytorch.org/whl/cpu
   verified_at: '2026-06-30T01:59:13.528612Z'
+- artifact_hash: 9116e2992829eee0849a6438244b0cea68c5d7db489386ea9ad625f883103e91
+  artifact_path: projects/PROJ-575-training-long-context-vision-language-mo/paper/source/paper.tex
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2605.13831] Training Long-Context Vision-Language Models Effectively
+    with Generalization Beyond 128K Context'
+  kind: url
+  value: https://arxiv.org/abs/2605.13831
+  verification_status: verified
+  verified_against_url: https://arxiv.org/abs/2605.13831
+  verified_at: '2026-07-01T07:19:17.043707Z'
+- artifact_hash: b0a588dd961f6b58326a3de0dc12ac87427d38c7ba8abb9ec33b6b23b562804f
+  artifact_path: projects/PROJ-575-training-long-context-vision-language-mo/paper/source/sections/6_final_results_and_generalization.tex
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2605.13831] Training Long-Context Vision-Language Models Effectively
+    with Generalization Beyond 128K Context'
+  kind: url
+  value: https://arxiv.org/abs/2605.13831
+  verification_status: verified
+  verified_against_url: https://arxiv.org/abs/2605.13831
+  verified_at: '2026-07-01T07:39:43.652298Z'
+- artifact_hash: 1b3f247428a0b63bc1bd8e21f40527014038db50ea9c2d8064dfa002e5a8eaee
+  artifact_path: projects/PROJ-575-training-long-context-vision-language-mo/paper/source/main-llmxive.tex
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2605.13831] Training Long-Context Vision-Language Models Effectively
+    with Generalization Beyond 128K Context'
+  kind: url
+  value: https://arxiv.org/abs/2605.13831
+  verification_status: verified
+  verified_against_url: https://arxiv.org/abs/2605.13831
+  verified_at: '2026-07-01T07:47:49.694605Z'
+- artifact_hash: 1b3f247428a0b63bc1bd8e21f40527014038db50ea9c2d8064dfa002e5a8eaee
+  artifact_path: projects/PROJ-575-training-long-context-vision-language-mo/paper/source/main-llmxive.tex
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: arxiv
+  value: '2605.13831'
+  verification_status: unreachable
+  verified_against_url: null
+  verified_at: '2026-07-01T07:47:49.694605Z'
