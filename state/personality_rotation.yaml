@@ -1,14 +1,7 @@
-last_used: alan-turing
-last_used_at: '2026-07-01T13:07:04.905091+00:00'
+last_used: albert-einstein
+last_used_at: '2026-07-01T15:07:18.976497+00:00'
 last_outcome: committed
 history:
-- slug: daniel-kahneman
-  started_at: '2026-06-21T11:32:12.156148+00:00'
-  ended_at: '2026-06-21T12:20:43.767782+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-743-ambient-temperature-influence-on-moral-d/reviews/research/daniel-kahneman-simulated__2026-06-21__research.md
 - slug: david-krakauer
   started_at: '2026-06-21T12:20:43.767782+00:00'
   ended_at: '2026-06-21T14:16:56.852724+00:00'
@@ -1208,3 +1201,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-688-agents-last-exam/reviews/research/alan-turing-simulated__2026-07-01__research.md
+- slug: albert-einstein
+  started_at: '2026-07-01T13:07:04.905091+00:00'
+  ended_at: '2026-07-01T15:07:18.976497+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-576-sana-wm-efficient-minute-scale-world-mod/reviews/research/albert-einstein-simulated__2026-07-01__research.md
