@@ -1,0 +1,79 @@
+To provide a multi-dimensional perspective on document localization and evidence attribution, we introduce several supplementary metrics. These indicators offer a more granular analysis of the model's performance in identifying relevant document components.
+
+\textbf{Page-level Recall (Page. / $\text{Page}_{recall}$)} This metric assesses the model's coarse-grained ability to locate the correct pages containing the necessary evidence. A predicted evidence is considered a "page hit" if its page index matches any page index in the set of crucial evidence.
+\[
+\text{Page.} = \frac{|\{p \in \mathcal{P}_{\text{crucial}} \mid \exists \hat{p} \in \mathcal{P}_{\text{pred}}, \hat{p} = p\}|}{|\mathcal{P}_{\text{crucial}}|}
+\]
+where $\mathcal{P}_{\text{pred}}$ and $\mathcal{P}_{\text{crucial}}$ denote the sets of page indices from the predicted and ground-truth crucial evidence, respectively.
+
+\textbf{Precision (Prec.)} While Recall focuses on coverage, Precision measures the spatial accuracy of the predicted bounding boxes relative to the entire evidence set $E$ (including both crucial and auxiliary evidence). It penalizes the model for generating redundant or irrelevant boxes:
+\[
+\text{Prec} = \frac{1}{|\mathcal{B}_{\text{pred}}|} \sum_{b_{\text{pred}} \in \mathcal{B}_{\text{pred}}} \mathbf{1}_{\left( \max_{b_{\text{gt}} \in \mathcal{B}_{\text{gt}}} \text{IoU}(b_{\text{pred}}, b_{\text{gt}}) \ge 0.5 \right)}
+\]
+where $\mathcal{B}_{\text{all}}$ represents the set of all ground-truth bounding boxes associated with the evidence package.
+
+\textbf{F1-Score (F1)} To balance the trade-off between localization recall and precision, we report the $F_1$ score, which is the harmonic mean of the standard Recall ($\text{Rec.}$) defined in the main text and the Precision ($\text{Prec.}$) defined above:
+\[
+F_1 = 2 \cdot \frac{\text{Prec.} \cdot \text{Rec.}}{\text{Prec.} + \text{Rec.}}
+\]
+This metric provides a single scalar value to evaluate the overall efficiency of the evidence extraction process, ensuring the model is both thorough and concise in its attribution.
+
+\subsection{More Results of Experiments}
+\label{Appendix: More Results of Experiments}
+\paragraph{Widespread Deficiency in Coarse-grained Attribution} A striking observation from Table~\ref{tab:multi_scenario_results} is that Page-level Recall (Page.) remains remarkably low for the vast majority of models. This indicates that the failure in evidence attribution is not merely a consequence of weak fine-grained grounding (i.e., missing the exact box), but a more fundamental inability to navigate to the correct document page. While the Gemini-3 series demonstrates strong navigation (above 87\% Overall Page.), many advanced models like GPT-5.2 (69.3\% Overall Page.) and Qwen3-VL-235B-A22B (57.8\% Overall Page.) frequently fail to even locate the relevant page. This "coarse-level blindness" suggests that before addressing spatial precision, models must first overcome significant hurdles in document-level retrieval and page indexing.
+
+\paragraph{Impact of Multi-document Complexity} The challenge of attribution is significantly exacerbated as the environment shifts from Single-Doc to Multi-Doc (N-Gold) settings. In these high-density scenarios, even top-tier models exhibit a sharp performance collapse. For instance, GPT-5.4 sees its Page-level Recall drop from 88.5\% in Single-Doc to 75.4\% in N-Gold, while its F1-score falls from 29.6\% to 20.6\%. For many open-source models, the Multi-Doc setting acts as a performance ceiling; for example, Qwen3-VL-235B-A22B experiences a significant decline in Page-level Recall, dropping from 64.4\% to 50.5\%. This trend underscores that current MLLMs lack the robustness required for multi-document reasoning, a deficit that directly fuels the observed "Attribution Hallucination."
+
+\begin{table}[htbp]
+\centering
+\scriptsize
+\renewcommand{\arraystretch}{1.25}
+\setlength{\tabcolsep}{1.0pt}
+\caption{Detailed attribution performance of MLLMs across different document scenarios. Page. denotes Page-level Recall; Rec., Prec., and F1 represent bounding-box-level Recall, Precision, and F1-score respectively. For each metric, the best and second-best results are highlighted in \highlightblue{blue} and \highlightgreen{green}, respectively.}
+\label{tab:multi_scenario_results}
+
+\begin{tabular}{@{}l cccc cccc cccc >{\bfseries}c>{\bfseries}c>{\bfseries}c>{\bfseries}c@{}}
+\toprule
+\multirow{2.5}{*}{\textbf{Model}} & \multicolumn{4}{c}{\textbf{Single-Doc}} & \multicolumn{4}{c}{\textbf{Multi (1-Gold)}} & \multicolumn{4}{c}{\textbf{Multi (N-Gold)}} & \multicolumn{4}{c}{\textbf{Overall}} \\
+\cmidrule(lr){2-5} \cmidrule(lr){6-9} \cmidrule(lr){10-13} \cmidrule(l){14-17}
+& Page. & Rec. & Prec. & F1 & Page. & Rec. & Prec. & F1 & Page. & Rec. & Prec. & F1 & Page. & Rec. & Prec. & F1 \\ \midrule
+\multicolumn{17}{c}{\textit{Closed-source MLLMs}} \\ \midrule
+Gemini-3.1-Pro-Preview &88.8&\highlightblue{68.9}&\highlightblue{63.1}&\highlightblue{62.0}&91.5&\highlightblue{69.4}&\highlightblue{62.8}&\highlightblue{61.6}&81.4&\highlightblue{55.3}&\highlightblue{49.4}&\highlightblue{48.6}&87.9&\highlightblue{66.0}&\highlightblue{59.9}&\highlightblue{58.9} \\
+
+Gemini-3-Flash-Preview &\highlightblue{92.8}&\highlightgreen{49.5}&\highlightgreen{37.0}&\highlightgreen{37.9}&\highlightblue{94.3}&\highlightgreen{42.1}&\highlightgreen{30.1}&\highlightgreen{31.3}&\highlightblue{86.5}&\highlightgreen{39.5}&\highlightgreen{29.9}&\highlightgreen{30.3}&\highlightblue{91.8}&\highlightgreen{45.4}&\highlightgreen{33.7}&\highlightgreen{34.5} \\
+
+Gemini-2.5-Pro &\highlightgreen{92.3}&31.5&24.8&24.6&\highlightgreen{93.5}&25.4&18.3&18.6&\highlightgreen{81.7}&20.0&17.4&16.2&\highlightgreen{90.3}&27.4&21.5&21.2\\
+
+GPT-5.4&88.5&35.9&29.6&29.6&79.9&25.7&22.4&20.9&75.4&25.7&21.2&20.6&83.4&31.0&25.9&25.4\\
+
+GPT-5.2 &67.4&20.9&20.4&18.6&75.9&16.5&15.4&14.8&66.1&13.9&13.4&12.0&69.3&18.2&17.6&16.2\\
+
+Qwen3.6-Plus&50.0&9.8&9.7&8.7&51.7&5.9&6.0&5.5&47.5&4.6&4.9&4.3&49.9&7.7&7.7&6.9\\
+
+Seed2.0-Pro&69.7&35.8&31.8&31.2&59.5&18.1&16.9&15.5&56.4&21.5&18.7&17.2&64.4&28.5&25.4&24.4\\
+
+GLM-5V-Turbo&48.9&18.3&18.5&16.4&43.3&11.7&12.4&10.8&44.0&10.2&9.3&9.0&46.5&14.9&15.0&13.4 \\
+\midrule
+
+\multicolumn{17}{c}{\textit{Open-source Large MLLMs}} \\ \midrule
+Kimi-K2.5 &44.8&8.2&8.0&7.4&42.4&3.5&3.2&3.0&46.0&4.8&5.7&4.4&44.4&6.2&6.3&5.6  \\
+Gemma-4-31B &44.8&10.9&9.8&9.0&56.0&14.0&12.4&11.0&51.1&10.4&11.0&9.0&49.1&11.6&10.7&9.5\\
+Qwen3.5-397B-A17B&48.8&6.8&6.9&6.1&41.6&4.0&3.3&3.4&41.7&3.8&4.5&3.6&45.3&5.4&5.4&4.9\\
+Qwen3.5-122B-A10B&41.5&5.9&5.4&5.2&28.6&1.7&1.7&1.6&30.1&1.9&2.1&1.6&35.6&3.9&3.7&3.5 \\
+Qwen3.5-27B &50.2&7.0&6.9&6.0&43.4&3.1&2.4&2.3&45.1&3.9&3.7&3.5&47.3&5.3&5.0&4.5  \\
+Qwen3-VL-235B-A22B &64.4&15.2&14.9&13.5&50.7&6.2&5.7&5.4&50.5&8.1&7.5&7.0&57.8&11.3&10.9&10.0\\
+Qwen3-VL-32B&69.0&8.0&7.5&6.8&50.7&2.8&2.7&2.4&52.9&7.9&7.5&7.0&60.7&6.6&6.3&5.7\\
+\midrule
+
+\multicolumn{17}{c}{\textit{Open-source Small MLLMs}} \\ \midrule
+Gemma-4-26B-A4B &20.8&2.2&2.7&1.9&22.0&4.2&5.2&3.7&27.5&3.5&3.9&3.2&22.6&3.0&3.6&2.7 \\
+Qwen3.5-35B-A3B &35.1&2.7&2.4&2.3&12.4&0.5&0.5&0.5&18.5&0.6&1.0&0.6&25.5&1.7&1.6&1.5 \\
+Qwen3.5-9B &33.6&2.5&2.4&2.3&6.2&0.3&0.3&0.3&12.2&0.8&1.3&0.9&21.8&1.6&1.6&1.5 \\
+Qwen3-VL-30B-A3B  &23.0&5.6&6.1&5.0&7.1&0.9&0.9&0.9&14.1&1.7&2.4&1.6&16.9&3.5&4.0&3.2\\
+Qwen3-VL-8B   &43.2&1.8&1.5&1.4&18.9&0.0&0.0&0.0&16.9&0.3&0.2&0.3&31.1&1.0&0.9&0.8 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{More Fine-grained Results}
+\label{Appendix: Fine-grained Results}

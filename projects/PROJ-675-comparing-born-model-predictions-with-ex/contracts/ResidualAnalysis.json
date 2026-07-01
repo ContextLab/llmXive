@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "ResidualAnalysis.json",
+  "title": "ResidualAnalysis",
+  "description": "Schema for statistical analysis of residuals between experiment and theory.",
+  "type": "object",
+  "properties": {
+    "residual": {
+      "type": "number",
+      "description": "Difference between experimental and predicted values (exp - pred)."
+    },
+    "ion_size_class": {
+      "type": "string",
+      "description": "Classification of ion size (e.g., 'small', 'medium', 'large')."
+    },
+    "solvent_class": {
+      "type": "string",
+      "description": "Classification of solvent (e.g., 'water', 'alcohol', 'aprotic')."
+    },
+    "statistical_significance": {
+      "type": "boolean",
+      "description": "Whether the residual is statistically significant."
+    },
+    "p_value": {
+      "type": "number",
+      "description": "P-value from statistical test."
+    },
+    "confidence_interval": {
+      "type": "array",
+      "items": { "type": "number" },
+      "minItems": 2,
+      "maxItems": 2,
+      "description": "Confidence interval [lower, upper]."
+    }
+  },
+  "required": [
+    "residual",
+    "ion_size_class",
+    "solvent_class",
+    "statistical_significance",
+    "p_value",
+    "confidence_interval"
+  ],
+  "additionalProperties": false
+}

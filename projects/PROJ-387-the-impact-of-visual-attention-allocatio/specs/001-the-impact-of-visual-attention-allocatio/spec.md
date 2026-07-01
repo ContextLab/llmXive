@@ -58,7 +58,7 @@ The system MUST generate visualizations of attentional metric distributions by v
 
 ### Edge Cases
 
-- What happens when the dataset exceeds available RAM (7 GB) on the CI runner?
+- What happens when the dataset exceeds available RAM (GB) on the CI runner?
 - How does the system handle participants with missing recall scores for specific passages?
 - What happens if the p-value sensitivity analysis shows no stable threshold across the sweep?
 

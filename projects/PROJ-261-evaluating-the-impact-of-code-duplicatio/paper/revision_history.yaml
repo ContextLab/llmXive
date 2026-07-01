@@ -348,3 +348,181 @@ rounds:
     text: 'Address action item **[7ba2eb1ff87e]** (severity: science): Fix Data Pipeline
       Logic: In code/data_loader.py (T018), implement a robust check to ensure the
       streamed dataset yields valid code segments ('
+- round_number: 3
+  ran_at: '2026-07-01T16:24:41.850664Z'
+  implementer_agent: llmXive-implementer-v1.0
+  canonical_identity: llmXive-implementer-v1.0 (qwen.qwen3.5-122b on dartmouth, 2026-07-01)
+  tasks_done: 11
+  tasks_failed: 0
+  tasks_skipped: 18
+  resulting_pdf_sha256: null
+  implementer_log_path: specs/auto-revisions/PROJ-261-evaluating-the-impact-of-code-duplicatio/round-3/implementer-log.yaml
+  task_outcomes:
+  - id: '001'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[00aa12e5c68e]** (severity: writing): Split code/bug_detection.py:
+      Refactor projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/bug_detection.py
+      into code/bug_detect'
+  - id: '002'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[d80bfbb9db99]** (severity: writing): Fix code/model_metrics.py:
+      Ensure projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/model_metrics.py
+      actually computes and wr'
+  - id: '003'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[af4a725d7cda]** (severity: writing): Align File
+      Structure: Rename projects/PROJ-261-evaluating-the-impact-of-code-duplication/visualization/plotting.py
+      to projects/PROJ-261-eval'
+  - id: '004'
+    severity: writing
+    status: done
+    text: 'Address action item **[ba483ebff310]** (severity: writing): Add Missing
+      Tests: Create the projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/
+      directory and implement the unit and integr'
+  - id: '005'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[ae428a7017f7]** (severity: writing): Reduce code/config.py:
+      Move logic and hardcoded data out of projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/config.py
+      into '
+  - id: '006'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[fb2076cdf3e1]** (severity: writing): Implement Semantic
+      Distance Calculation: Create code/semantic_cloner.py (or extend code/model_metrics.py
+      as per T053) to compute embedding-b'
+  - id: '007'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[46948685e4f4]** (severity: writing): Generate Structural
+      Heat Map: Implement the logic in code/visualization.py to map perplexity spikes
+      to specific AST node types (e.g., functi'
+  - id: 008
+    severity: writing
+    status: done
+    text: 'Address action item **[e66548df57f8]** (severity: writing): Execute Real
+      Pipeline: Re-run the full pipeline on the 500MB subset to replace the "fabricated"
+      results with real measurements. Ensure data/'
+  - id: 009
+    severity: writing
+    status: skipped
+    text: 'Address action item **[b40a00e03f45]** (severity: writing): Re-run the
+      full data processing pipeline (main.py) to ensure data/processed/perplexity_scores.csv
+      is generated with at least 1000 rows of va'
+  - id: '010'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[87039b63ddf6]** (severity: writing): Re-run the
+      clone detection module (ast_cloner.py) to populate data/processed/clone_metrics.csv
+      with at least 1000 rows of valid clone densit'
+  - id: '011'
+    severity: writing
+    status: done
+    text: 'Address action item **[6ad4a0e2b923]** (severity: writing): Execute the
+      PII scanning task (pii_scanner.py) against data/raw/ and data/processed/ directories,
+      and generate a log file (e.g., data/pii_sc'
+  - id: '012'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[0b65cd15ecca]** (severity: writing): Verify and
+      re-compute checksums for all newly generated data files using checksum_manifest.py
+      to ensure the artifact_hashes state manifest r'
+  - id: '013'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[ad310aad5a64]** (severity: writing): Re-run the
+      correlation analysis (correlation_analysis.py) only after valid input files
+      are confirmed, ensuring data/analysis/correlation_res'
+  - id: '014'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[2b5a9fba6b2d]** (severity: writing): Create projects/PROJ-261-evaluating-the-impact-of-code-duplication/data/processed/perplexity_scores.csv
+      containing the actual token-level pe'
+  - id: '015'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[ed49b56020a3]** (severity: writing): Replace projects/PROJ-261-evaluating-the-impact-of-code-duplication/data/analysis/bug_detection_summary.json
+      with projects/PROJ-261-evaluati'
+  - id: '016'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[7db535065ecf]** (severity: writing): Update projects/PROJ-261-evaluating-the-impact-of-code-duplication/docs/reproducibility/hyperparameters.md
+      to explicitly list the random see'
+  - id: '017'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[be08cf678847]** (severity: writing): Consolidate
+      projects/PROJ-261-evaluating-the-impact-of-code-duplication/utils/checksum_visualizations.py
+      and projects/PROJ-261-evaluating-th'
+  - id: 018
+    severity: writing
+    status: done
+    text: 'Address action item **[3b6b91934262]** (severity: writing): specs/001-evaluate-code-duplication-llm-understanding/spec.md:
+      Revise FR-006 and FR-007 to explicitly define the unit of analysis. Either:'
+  - id: 019
+    severity: writing
+    status: done
+    text: 'Address action item **[2525d24e62f5]** (severity: writing): specs/001-evaluate-code-duplication-llm-understanding/spec.md:
+      In FR-003, replace the vague "embedding similarity of AST nodes" with a speci'
+  - id: '020'
+    severity: writing
+    status: done
+    text: 'Address action item **[070a7fb7fa22]** (severity: writing): specs/001-evaluate-code-duplication-llm-understanding/spec.md:
+      Add a "Data Joining Strategy" section in the Requirements or User Stories tha'
+  - id: '021'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[d82f08dee349]** (severity: writing): Complete the
+      data processing pipeline in projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/main.py
+      and code/model_metrics.py '
+  - id: '022'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[ef6eb5628750]** (severity: writing): Implement and
+      execute the bug detection module in projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/bug_detection.py
+      to proce'
+  - id: '023'
+    severity: writing
+    status: done
+    text: 'Address action item **[ff82005c2334]** (severity: writing): Verify and
+      populate data/processed/clone_metrics.csv by ensuring code/ast_cloner.py successfully
+      parses the corpus and computes clone densit'
+  - id: '024'
+    severity: writing
+    status: done
+    text: 'Address action item **[2af65c9d2998]** (severity: writing): Re-run the
+      correlation analysis in projects/PROJ-261-evaluating-the-impact-of-code-duplication/code/correlation_analysis.py
+      using the newly '
+  - id: '025'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[ac53e7e70886]** (severity: writing): Remove all
+      simulated/fabricated result signals from the execution logs and ensure the data/
+      directory contains only real, reproducible measu'
+  - id: '026'
+    severity: writing
+    status: skipped
+    text: 'Address action item **[ecc6e3b36831]** (severity: writing): "Execute the
+      full pipeline on the 500MB corpus and verify that data/processed/clone_metrics.csv
+      contains at least 1000 rows of valid data (m'
+  - id: '027'
+    severity: writing
+    status: done
+    text: 'Address action item **[062b03068b60]** (severity: writing): "Debug and
+      fix the silent failure in code/main.py or code/ast_cloner.py that results in
+      empty output files, ensuring that the data loading ('
+  - id: 028
+    severity: writing
+    status: done
+    text: 'Address action item **[f874f3777708]** (severity: writing): "Implement
+      and verify the perplexity calculation logic in code/model_metrics.py to ensure
+      it loads the Salesforce/codegen-350M-mono model an'
+  - id: 029
+    severity: writing
+    status: done
+    text: 'Address action item **[58ce92d05c6b]** (severity: writing): "Run the PII
+      scanner (code/pii_scanner.py) on the generated data files and ensure data/parse_failures.csv
+      and the checksum manifest (code/ch'

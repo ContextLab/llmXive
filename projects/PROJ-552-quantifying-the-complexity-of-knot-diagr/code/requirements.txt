@@ -7,3 +7,8 @@ seaborn>=0.12.0
 requests>=2.31.0
 pyyaml>=6.0.0
 database-knotinfo
+gudhi  # auto-added: imported by run-book but missing from venv
+plotly  # auto-added: imported by run-book but missing from venv
+scikit-learn  # auto-added: imported by run-book but missing from venv
+torch  # auto-added: imported by run-book but missing from venv
+torch_geometric  # auto-added: imported by run-book but missing from venv

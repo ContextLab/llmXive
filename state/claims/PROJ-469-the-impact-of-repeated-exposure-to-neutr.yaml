@@ -1,0 +1,154 @@
+- artifact_path: projects/PROJ-469-the-impact-of-repeated-exposure-to-neutr/code/iat_protocol.md
+  attempts: 1
+  canonical: Project Implicit Political IAT protocol based on Greenwald et al. 1998
+    and Nosek et al. 2005
+  claim_id: c_fff90b82
+  context: Stimulus Set Details section describing the basis of the protocol.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Based on the canonical Project Implicit Political IAT protocol (Greenwald
+    et al., 1998; Nosek et al., 2005)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T12:06:35Z'
+- artifact_path: projects/PROJ-469-the-impact-of-repeated-exposure-to-neutr/code/iat_protocol.md
+  attempts: 1
+  canonical: D-score algorithm by Greenwald et al. 2003 applied to response latencies
+  claim_id: c_3953f3f8
+  context: Constitution Principle VI Compliance section describing the algorithm used.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The D-score algorithm (Greenwald et al., 2003) is applied to the response
+    latencies recorded in the dataset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T12:06:56Z'
+- artifact_path: projects/PROJ-469-the-impact-of-repeated-exposure-to-neutr/code/iat_protocol.md
+  attempts: 1
+  canonical: Dataset name is Political IAT (Standard Protocol)
+  claim_id: c_3e853626
+  context: Dataset Source section listing the name and source of the data.
+  evidence:
+    entailment_evidence: Dataset name is Political IAT (Standard Protocol)
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Dataset_name_is_Political_IAT_(Standard_Protocol)
+  kind: entity_fact
+  raw_text: The dataset name is Political IAT (Standard Protocol).
+  resolved_value: Dataset name is Political IAT (Standard Protocol)
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-01T12:08:26Z'
+- artifact_path: projects/PROJ-469-the-impact-of-repeated-exposure-to-neutr/code/iat_protocol.md
+  attempts: 1
+  canonical: Data collection period 2000 to Present
+  claim_id: c_0289f281
+  context: Dataset Source section specifying the time range of data collection.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Data collection period is 2000\u2013Present."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T12:08:53Z'
+- artifact_path: projects/PROJ-469-the-impact-of-repeated-exposure-to-neutr/code/iat_protocol.md
+  attempts: 1
+  canonical: Liberal category stimuli list
+  claim_id: c_b127c457
+  context: Stimulus List table defining the words associated with the Liberal category.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Liberal_category_stimuli_list
+  kind: entity_fact
+  raw_text: 'The Liberal category includes the stimuli: Democrat, Liberal, Progressive,
+    Left, Democratic, Freedom, Openness, Tolerance.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T12:09:23Z'
+- artifact_path: projects/PROJ-469-the-impact-of-repeated-exposure-to-neutr/code/iat_protocol.md
+  attempts: 1
+  canonical: Conservative category stimuli list
+  claim_id: c_ea6c4db1
+  context: Stimulus List table defining the words associated with the Conservative
+    category.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Conservative_category_stimuli_list
+  kind: entity_fact
+  raw_text: 'The Conservative category includes the stimuli: Republican, Conservative,
+    Right, Traditional, GOP, Order, Tradition, Stability.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T12:09:55Z'
+- artifact_path: projects/PROJ-469-the-impact-of-repeated-exposure-to-neutr/code/iat_protocol.md
+  attempts: 1
+  canonical: Good category stimuli list
+  claim_id: c_7ca736e3
+  context: Stimulus List table defining the words associated with the Good category.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Good_category_stimuli_list
+  kind: entity_fact
+  raw_text: 'The Good category includes the stimuli: Joy, Love, Peace, Wonderful,
+    Pleasant, Friend, Happy, Excellent, Success, Angel.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T12:10:20Z'
+- artifact_path: projects/PROJ-469-the-impact-of-repeated-exposure-to-neutr/code/iat_protocol.md
+  attempts: 1
+  canonical: Bad category stimuli list
+  claim_id: c_53b2ecf7
+  context: Stimulus List table defining the words associated with the Bad category.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bad_category_stimuli_list
+  kind: entity_fact
+  raw_text: 'The Bad category includes the stimuli: Agony, Terrible, Horrible, Nasty,
+    Evil, War, Failure, Disaster, Hurt, Enemy.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T12:10:44Z'
+- artifact_path: projects/PROJ-469-the-impact-of-repeated-exposure-to-neutr/code/iat_protocol.md
+  attempts: 1
+  canonical: D-Score Algorithm developed by Greenwald Nosek and Banaji 2003
+  claim_id: c_66603e89
+  context: Software Version & Implementation section citing the algorithm source.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The D-Score Algorithm was developed by Greenwald, Nosek, and Banaji in
+    2003.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T12:11:05Z'

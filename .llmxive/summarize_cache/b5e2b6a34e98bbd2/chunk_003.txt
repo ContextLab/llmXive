@@ -1,0 +1,17 @@
+- **SC-006**: The "Primary Citation Claim" is measured against the requirement to be a single, unambiguous sentence about the measured result, selected per the **Primary Claim Selection Logic**.
+
+## Assumptions
+
+- **Assumption about Data Availability**: The `yubo2333/MMLongBench-Doc` dataset is accessible via the Hugging Face Hub and remains unchanged during the evaluation period.
+- **Assumption about Model Weights**: The `Qwen2.5-VL-7B` model weights are available in a format compatible with 4-bit quantization on CPU.
+- **Assumption about Scope**: The paper focuses on the *evaluation* and *validation* of the existing code, not on re-training the model from scratch.
+- **Assumption about Statistical Interpretation**: The term "generalization beyond 128K" is interpreted as maintaining performance retention (≥ 80%) rather than achieving perfect parity with the 128K baseline.
+- **Assumption about Reviewer Expectations**: Reviewers will accept descriptive trend analysis in lieu of rigorous hypothesis testing due to the resource constraints of the reproduction environment.
+
+## Primary Claim Selection Logic
+
+To ensure a single, unambiguous Primary Citation Claim for the Abstract:
+
+1. **Check for Failure**: If the execution results in a failure mode defined in Claim 5 (Data Unavailable, OOM, or Inconclusive Scaling where R² < 0.1 and no trend can be described), then **Claim 5** is the Primary Citation Claim.
+2. **Default to Reproduction**: If no failure mode is triggered, **Claim 1** (Reproduction Validity) is the Primary Citation Claim.
+3. **Secondary Claims**: Claims 2, 3, and 4 are reported in the Results and Discussion but do not serve as the Primary Citation Claim in the Abstract.

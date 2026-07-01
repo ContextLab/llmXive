@@ -1,0 +1,120 @@
+3. Each piece of cited evidence text should be followed by a `<bbox />` tag indicating the evidence location.
+4. When an inference step relies on multiple pieces of evidence, use multiple `<bbox />` tags separately.
+5. Pure reasoning/calculation steps do not need `<bbox />`.
+
+## Annotation Format
+
+```
+<bbox page="page_number" x1="left" y1="top" x2="right" y2="bottom" />
+```
+
+Page numbers start from 1 (note: ignore original page numbers); coordinates are relative coordinates on the page image, range 0-1000.
+
+## Examples
+
+**Question:** What is the net change in the company's precision copper tube production capacity from 2021 to 2024?
+
+**Answer:**
+
+According to the main text, the company's precision copper tube production capacity increased from 798,000 tons in 2021 to 1.31 million tons in 2024:
+<bbox page="1" x1="536" y1="65" x2="642" y2="656" />
+
+Therefore, the net change = 1.31 - 0.798 = 0.512 million tons.
+
+Additionally, according to "Table 1: Production line renovation will reduce the company's costs", the per-ton comprehensive cost is expected to decrease by 700 yuan/ton after the production line renovation:
+<bbox page="8" x1="584" y1="65" x2="598" y2="371" />
+<bbox page="8" x1="598" y1="59" x2="712" y2="670" />
+
+## Final Reminder
+Evidence must be a complete paragraph, a complete table, a complete image, or a complete note. Do not select partial rows from a paragraph or a single row from a table, and do not select an entire page or spanning multiple tables/paragraphs. Note: This is very important and will directly affect your score.
+\end{promptbox}
+
+\begin{promptbox}[breakable]{Prompt for Inference in Multi-Doc}
+# Multi-Document Analysis Assistant
+
+Answer the question based on the provided PDF documents, and cite the evidence regions in your answer.
+
+## Document Numbering Rules
+
+- Document numbering starts from 1, corresponding to the order in the `PDF_Source` list
+- Must use the correct document numbers when citing evidence
+
+## Evidence Citation Rules
+
+1. Evidence must be at the **element level**: a complete paragraph, a complete table, a complete image, or a complete note. Do not select partial text from a paragraph or a single row from a table, and do not select an entire page or spanning multiple tables/paragraphs. Note: This is very important and will directly affect your score.
+2. For **tables and images**, if there are captions or footnotes, they need to be annotated as **separate evidence** with their own bbox, not merged into the table/image bbox.
+3. Each piece of cited evidence text should be followed by a `<bbox />` tag indicating the evidence location.
+4. When an inference step relies on multiple pieces of evidence, use multiple `<bbox />` tags separately.
+5. Pure reasoning/calculation steps do not need `<bbox />`.
+
+## Annotation Format
+```
+<bbox doc="document_number" page="page_number" x1="left" y1="top" x2="right" y2="bottom" />
+```
+- `doc`: Document number, starting from 1 (corresponding to `PDF_Source` list order)
+- `page`: Page number starting from 1 (note: ignore original page numbers)
+- Coordinates are relative coordinates on the page image, range 0-1000
+
+## Examples
+**Question:** Compare the revenue data differences between Company in Document 1 and Document 2.
+
+**Answer:**
+According to the main text of Document 1, the company's 2023 revenue was 10 billion yuan:
+<bbox doc="1" page="1" x1="536" y1="65" x2="642" y2="656" />
+
+According to the financial report in Document 2, the company's 2023 revenue was 12 billion yuan:
+<bbox doc="2" page="3" x1="584" y1="65" x2="598" y2="371" />
+
+Therefore, the revenue difference reported in the two documents is 2 billion yuan.
+
+## Final Reminder
+Evidence must be a complete paragraph, a complete table, a complete image, or a complete note. Do not select partial rows from a paragraph or a single row from a table, and do not select an entire page or spanning multiple tables/paragraphs. Note: This is very important and will directly affect your score.
+\end{promptbox}
+
+
+\begin{promptbox}[breakable]{Prompt for Evaluating Relevance}
+## Task
+You are a professional DocVQA quality evaluation expert. Your task is to evaluate whether the PDF screenshots referenced in the answer can effectively support the corresponding answer content. You need to determine whether the visual information (text, charts, data) in the screenshots is consistent with the facts mentioned in the answer.
+
+You will receive a question, a standard answer (without images), and the model's generated answer with interleaved images.
+
+## Evaluation Dimensions
+- Truthfulness: Does the screenshot contain the key data or descriptions mentioned in the answer?
+- Sufficiency: Does the screenshot provide sufficient evidence for the conclusion, or is it taken out of context?
+- Localization Accuracy: Does the screenshot precisely cover the answer source, or does it contain irrelevant information?
+- Alignment: Does the screenshot exactly match the text being cited? Any misalignment is a flaw.
+
+## Scoring Criteria
+**BE STRICT. A score of 5 is extremely rare and requires perfection. Most good answers should score 3-4.**
+- 0: No support at all. The screenshot content is completely irrelevant to the answer.
+- 1: Extremely weak support. The screenshot only mentions vague related concepts without specific data.
+- 2: Weak support. The screenshot contains partial key data, or has significant quality issues.
+- 3: Moderate support. The screenshot covers most of the evidence but has flaws (e.g., includes irrelevant content, slight misalignment with cited text, or captures too much/too little).
+- 4: Good support. The screenshot contains the core evidence with minor flaws. This is where most correct answers should score.
+- 5: **PERFECT support (extremely rare)**. The screenshot must be **flawless**: precise bounding box that exactly covers the cited text, no extra content, no skewing, no misalignment, and the evidence perfectly matches what is claimed. **Only give 5 when every single detail is perfect.**
+
+## Important Notes
+- Be conservative with scores. If you hesitate between two scores, choose the lower one.
+- A slightly off-center crop, a small amount of extra content, or minor misalignment = score 3-4, NOT 5.
+- Score 5 should only be given when the bounding box is pixel-perfect and the evidence is exactly what was cited.
+
+## Output Format    
+Please output two lines for the results: the first line is your reasoning for the score, and the second line is the score. Strictly follow this format without any additional content.
+
+# Output Example  
+A reason why you choose this score (from 0 to 5).
+```<relevance_score>X</relevance_score>```
+\end{promptbox}
+
+\begin{promptbox}[breakable]{Prompt for Evaluating Answer Correctness}
+## Task
+You are a multimodal QA evaluation expert. Your task is to evaluate the overall quality of the answer. Provide your evaluation in the form of "reasoning" and "score". Evaluation should be based solely on the standard answer, without introducing your own external knowledge.
+You will receive a question, a standard answer, and the model's generated answer.
+
+## Evaluation Criteria
+**BE STRICT. Most answers are not as good as they appear. When in doubt, choose the lower score.**
+- 0 (Completely Unsolved): The answer is completely off-topic or directly contradicts the standard answer.
+- 1 (Mostly Unsolved): The answer has extremely low relevance, providing almost no valuable information.
+- 2 (Partially Solved): The answer covers some aspects but misses key information or has obvious factual errors. **Many "okay" answers fall here - do not over-rate.**
+- 3 (Acceptable): The answer covers the core facts but is incomplete, lacks necessary details, or has minor errors. **Only give this when the answer is genuinely useful despite clear gaps.**
+- 4 (Good): The answer clearly covers all key points with rigorous logic. Near-complete and accurate. **Reserve for strong answers. Do not hand out freely.**

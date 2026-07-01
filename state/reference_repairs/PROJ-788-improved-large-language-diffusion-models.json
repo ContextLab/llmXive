@@ -1,0 +1,14 @@
+[
+  {
+    "repaired_at": "2026-07-01T10:29:51.161721+00:00",
+    "project": "PROJ-788-improved-large-language-diffusion-models",
+    "repairs": [
+      {
+        "dead_url": "https://huggingface.co/datasets/google-research-datasets/big-bench",
+        "reason": "HTTP 401",
+        "replacement_url": "https://huggingface.co/datasets/lukaemon/bbh/resolve/main/boolean_expressions/test-00000-of-00001.parquet",
+        "intent": "google research big bench BBH Hard opencompass / datasets Used for reasoning tasks. Will be subsetted to \u226410 samples."
+      }
+    ]
+  }
+]

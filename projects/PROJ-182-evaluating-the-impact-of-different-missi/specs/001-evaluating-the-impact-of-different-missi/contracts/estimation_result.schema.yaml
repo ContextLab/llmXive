@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EstimationResult"
+description: "Output of a single Monte-Carlo replication."
+type: "object"
+properties:
+  replication_id:
+    type: "integer"
+    description: "Unique ID for the replication."
+  config_hash:
+    type: "string"
+    description: "SHA256 hash of the configuration used."
+  mechanism:
+    type: "string"
+    enum: ["MCAR", "MAR", "MNAR"]
+    description: "Missingness mechanism applied."
+  missing_rate:
+    type: "number"
+    description: "Actual missingness rate achieved."
+  estimator:
+    type: "string"
+    enum: ["Naive", "MI", "IPW", "Selection"]
+    description: "Estimation method used."
+  estimate:
+    type: "number"
+    description: "Point estimate of the treatment effect."
+  se:
+    type: "number"
+    description: "Standard error of the estimate."
+  ci_lower:
+    type: "number"
+    description: "Lower bound of 95% CI."
+  ci_upper:
+    type: "number"
+    description: "Upper bound of 95% CI."
+  converged:
+    type: "boolean"
+    description: "Whether the estimator converged (relevant for Selection)."
+  error_code:
+    type: ["string", "null"]
+    description: "Error code if estimation failed (e.g., 'CONVERGENCE_FAIL')."
+required:
+  - replication_id
+  - config_hash
+  - mechanism
+  - missing_rate
+  - estimator
+  - estimate
+  - se
+  - ci_lower
+  - ci_upper
+  - converged

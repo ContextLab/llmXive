@@ -1,0 +1,5 @@
+# Estimation configuration
+bandwidth_rule: ik
+imputation_count: 5
+nominal_confidence: 0.95
+bandwidth_floor: 0.05

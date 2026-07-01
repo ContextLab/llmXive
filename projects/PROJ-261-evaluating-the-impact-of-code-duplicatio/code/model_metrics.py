@@ -99,13 +99,33 @@ def load_input_data():
     """
     Load input data for perplexity computation.
 
+    Reads code samples from ``data/processed/code_samples.csv`` (expected format:
+    ``text`` column). Returns a list of strings.
+
     Returns
     -------
     list
         A list of strings representing the input texts.
     """
-    # In the full pipeline this would read from ``data/processed``.
-    return []
+    import csv
+    from pathlib import Path
+
+    input_path = Path("data/processed/code_samples.csv")
+    if not input_path.exists():
+        logging.warning(f"Input file not found: {input_path}. Returning empty list.")
+        return []
+
+    texts = []
+    with input_path.open("r", newline="", encoding="utf-8") as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            if "text" in row and row["text"]:
+                texts.append(row["text"])
+
+    if not texts:
+        logging.warning(f"No text data found in {input_path}.")
+
+    return texts
 
 def compute_perplexity(model, tokenizer, text: str) -> float:
     """

@@ -11,8 +11,8 @@ last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: specs/auto-revisions/PROJ-261-evaluating-the-impact-of-code-duplicatio/round-3
+revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio
 title: Evaluating the Impact of Code Duplication on LLM Code Understanding
-updated_at: '2026-06-30T16:49:25.834584Z'
+updated_at: '2026-07-01T16:24:41.850664Z'

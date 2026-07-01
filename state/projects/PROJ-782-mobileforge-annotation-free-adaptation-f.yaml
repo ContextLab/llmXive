@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-25T09:08:57.303995Z'
-current_stage: paper_ingested
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-782-mobileforge-annotation-free-adaptation-f
-last_run_id: 2db3e647-5b3b-4cd5-9d76-459da84d5d57
+last_run_id: 6a668285-eefc-4081-a157-8516786d5025
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: specs/auto-revisions/PROJ-782-mobileforge-annotation-free-adaptation-f/round-1
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-782-mobileforge-annotation-free-adaptation-f/specs/001-mobileforge-annotation-free-adaptation-f
 title: 'MobileForge: Annotation-Free Adaptation for Mobile GUI Agents with Hierarchical
   Feedback-Guided Policy Optimization'
-updated_at: '2026-06-30T19:33:55.536818Z'
+updated_at: '2026-07-01T13:51:50.683080Z'

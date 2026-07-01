@@ -1,0 +1,56 @@
+# Implementation Plan: Reproduce & Validate Long-Context VLM Training with MMLongBench
+
+**Branch**: `575-reproduce-long-context-vlm` | **Date**: 2026-07-01 | **Spec**: `specs/575-reproduce-long-context-vlm/spec.md`
+**Input**: Feature specification from `specs/575-reproduce-long-context-vlm/spec.md`
+
+## Summary
+
+This project executes a rigorous scientific reproduction of the "generalization beyond 128K" claims made in the target paper. The primary requirement is to validate long-document VQA scores and performance retention rates at extended context lengths using a CPU-only environment with constrained RAM resources. The technical approach involves low-bit quantization of the `Qwen2.5-VL-7B` model, execution of the `yubo2333/MMLongBench-Doc` dataset evaluation pipeline, and descriptive statistical analysis of scaling trends where formal hypothesis testing is underpowered.
+
+## Technical Context
+
+**Language/Version**: Python 3.11
+**Primary Dependencies**: `transformers>=4.42.0`, `torch>=2.3.0`, `bitsandbytes>=0.43.0` (for 4-bit quantization), `matplotlib>=3.9.0`, `seaborn>=0.13.0`, `pandas>=2.2.0`, `scipy>=1.14.0`.
+**Storage**: Local file system (`results/`, `data/`) for JSON/CSV artifacts; Hugging Face Hub for dataset/model caching.
+**Testing**: `pytest` for unit tests; `assert`-based validation in evaluation scripts for contract enforcement.
+**Target Platform**: Linux (CPU-only), constrained to < 8GB RAM.
+**Project Type**: Scientific Evaluation Pipeline / Reproduction Script.
+**Performance Goals**: Complete evaluation of 10 samples within 60 minutes on CPU; memory usage < 7GB peak.
+**Constraints**: No GPU access; strict adherence to 4-bit quantization; explicit failure reporting if OOM occurs.
+**Scale/Scope**: Single dataset split (`test` from `yubo2333/MMLongBench-Doc`); sample size `n=10` for scaling analysis.
+
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+
+### Sample Size Strategy & Variance Handling
+
+**Current Constraint**: The evaluation pipeline targets `n=10` total samples to meet the 60-minute CPU time limit. Distributed across 5 context lengths (32K, 64K, 128K, 256K, 512K), this yields `n=2` per data point.
+**Implication**: This sample size is insufficient for statistical hypothesis testing (p-values) and will result in high variance for the "Generalization Retention Rate" (Claim 2) and "Scaling Trend" (Claim 3).
+**Mitigation Plan**:
+1. **Descriptive Only**: The paper will explicitly frame all scaling and retention results as "descriptive trends" rather than statistically significant findings.
+2. **Variance Threshold**: If the standard deviation across the `n=2` points at any context length exceeds 15%, the trend will be classified as "highly variable" or "inconclusive" per Claim 3.
+3. **Discussion Framing**: The Discussion section will explicitly state that the small sample size limits the power to detect subtle degradation, and that the primary goal is to detect *catastrophic* failure (OOM or >50% score drop).
+
+### Discussion Plan
+
+The paper's Discussion section will follow this explicit logic tree based on execution results:
+1. **Discrepancy Analysis**: If the measured deviation (Claim 1) > 1.0%, the Discussion will include a dedicated subsection analyzing potential causes:
+ * **Quantization Noise**: Impact of 4-bit quantization on precision.
+ * **Dataset Drift**: Potential differences between the original paper's dataset version and the current `yubo2333/MMLongBench-Doc` version.
+ * **Hardware Variance**: Differences in CPU instruction sets or memory bandwidth.
+2. **Limitations**: A mandatory subsection will explicitly state:
+ * The sample size (n=10) is too small for multiple-comparison corrections.
+ * No p-values are reported; only effect sizes (slope, retention rate) and descriptive statistics (R²) are presented.
+ * The "generalization" claim is interpreted as "retention of >80% performance" rather than "perfect parity."
+
+## Constitution Check
+
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+
+- [x] **Writing Quality**: Plan uses active voice, concrete numbers, and avoids jargon without definition.
+- [x] **Figure Quality**: All figures will be generated from `results/` JSON artifacts by the Figure-Generation-Agent; no static images.
+- [x] **Citation Verification**: Bibliography will strictly use URLs validated in the research stage; no new citations introduced.
+- [x] **Statistical Interpretation**: Scaling analysis will explicitly report slope, R², and "inconclusive" status if R² < 0.1, acknowledging lack of multiple-comparison correction.
+- [x] **Reproducibility**: Plan mandates logging of commit hashes, data seeds, and environment versions in `results/evaluation_run.json`.
+- [x] **Jargon Discipline**: Terms like "4-bit quantization" and "context length" are defined or used consistently.
+- [x] **Computational Efficiency**: Hardware constraints (CPU, 7GB RAM) are explicitly stated as a core design parameter.
+- [x] **Scaling Law Rigor**: Regression models will be fitted; trend classification (sublinear/superlinear/inconclusive) will be derived from data, not assumed.

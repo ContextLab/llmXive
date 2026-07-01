@@ -103,9 +103,9 @@ tests/
 | **FR-001** | Load eye-tracking data (CSV/EDF) | `code/ingestion/load_data.py` | CPU-only, no GPU. |
 | **FR-002** | Validate variables & quality | `code/ingestion/validate_data.py` | Checks columns + track loss. **Halt if missing (See Research.md).** |
 | **FR-003** | Compute LMM (Attention vs Recall) | `code/analysis/lmm_model.py` | `statsmodels` mixedlm. |
-| **FR-004** | Bonferroni correction | `code/analysis/correction.py` | 9 tests (3 metrics × 3 valence). |
+| **FR-004** | Bonferroni correction | `code/analysis/correction.py` | tests (multiple metrics × multiple valence). |
 | **FR-005** | Associational disclaimer | `code/reporting/generate_report.py` | Hardcoded text block. |
-| **FR-006** | Sensitivity analysis (p-sweep) | `code/analysis/sensitivity.py` | Sweep {0.01, 0.05, 0.1}. |
+| **FR-006** | Sensitivity analysis (p-sweep) | `code/analysis/sensitivity.py` | Sweep a range of low learning rates.. |
 | **FR-007** | Generate plots (Scatter/Hist) | `code/reporting/visualize.py` | `matplotlib`/`seaborn`. |
 | **FR-008** | Runtime ≤6h, 2 CPU | Pipeline design | CPU-tractable methods only. |
 | **SC-001** | Ingestion success ≥95% | `code/ingestion/validate_data.py` | Metric logged. **Blocked by data availability.** |

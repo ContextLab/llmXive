@@ -1,0 +1,31 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: "Project Implicit Dataset Schema"
+type: "object"
+properties:
+  participant_id:
+    type: "string"
+    description: "Unique identifier for the participant"
+  IAT_D_score:
+    type: "number"
+    description: "Implicit Association Test D-score"
+  political_ideology:
+    type: "number"
+    description: "Self-reported political ideology (continuous scale)"
+  news_exposure_freq:
+    type: "number"
+    description: "Frequency of political news exposure"
+  age:
+    type: "integer"
+    description: "Participant age"
+  gender:
+    type: "string"
+    description: "Participant gender"
+  education:
+    type: "string"
+    description: "Education level"
+required:
+  - "IAT_D_score"
+  - "political_ideology"
+  - "news_exposure_freq"
+additionalProperties: true
+description: "Schema for the raw Project Implicit Political IAT dataset"

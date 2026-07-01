@@ -1,0 +1,94 @@
+resolved_at: '2026-07-01T11:54:35.220935+00:00'
+datasets:
+- intent: SANA-WM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Efficient-Large-Model/SANA-WM-example-training-dataset/resolve/main/data/sekai_game_train_961frames_16fps_ovl640/sekai_game_train_00000000_LongSceneStaticCaption-Qwen3-VL-30B-A3B-Instruct.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Efficient-Large-Model/SANA-WM-Bench/resolve/main/benchmark_v2_hard_60s/sanawm_export_v2/run_manifest.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 90543
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Efficient-Large-Model/SANA-WM-example-training-dataset/resolve/main/data/sekai_game_train_961frames_16fps_ovl640/sekai_game_train_00000000_LongSceneStaticCaption-Qwen3-VL-30B-A3B-Instruct.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/Efficient-Large-Model/SANA-WM-Bench/resolve/main/benchmark_v2_hard_60s/sanawm_export_v2/run_manifest.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_The_moderating_effect_of_mental_toughness_on_the_relationship_between_stress_and_mental_health_docx/32855768
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/ARTIGO_Ensaio_sobre_a_repeti_o/32855432
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/SAIL/32855531
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/ARTIGO_A_r_mar_ou_Guerra_uma_leitura_psicanal_tica_sobre_Sir_t/32855561
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/First_Version_of_a_Dictionary_of_Interactor_Emotions_for_Interactive_Digital_Narrativesntitled_Item/32855600
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7424492
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12563360
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1225344
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8267343
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18839357
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2605.15178
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.60692/tvdw1-5kw43
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ConnectionError: HTTPSConnectionPool(host=''gresis.osc.int'',
+      port=443): Max retries exceeded with url: /doi/10.60692/tvdw1-5kw43 (Caused
+      by NewConnectionError("HTTPSConnection(host=''gresis.osc.int'', port=443): Failed
+      to establish a new connection: [Errno 111] Connection refused"))'
+  - url: https://doi.org/10.60692/e56km-vw858
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ConnectionError: HTTPSConnectionPool(host=''gresis.osc.int'',
+      port=443): Max retries exceeded with url: /doi/10.60692/e56km-vw858 (Caused
+      by NewConnectionError("HTTPSConnection(host=''gresis.osc.int'', port=443): Failed
+      to establish a new connection: [Errno 111] Connection refused"))'
+  - url: https://zenodo.org/records/8365319
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8365319
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

@@ -1,0 +1,87 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Evaluation Report Schema"
+description: "Schema for the JSON output of evaluate_api_model.py"
+type: "object"
+required:
+  - "overall_score"
+  - "dataset_scores"
+  - "execution_time"
+  - "task_results"
+  - "artifacts"
+  - "metadata"
+  - "status"
+  - "model_name"
+properties:
+  overall_score:
+    type: number
+    description: "The calculated Overall accuracy score. (N/A if status is not success)"
+  dataset_scores:
+    type: object
+    description: "Scores per dataset (annomi, esconv, multiwoz, sgd)."
+    additionalProperties:
+      type: number
+  execution_time:
+    type: number
+    description: "Total runtime in seconds."
+  task_results:
+    type: array
+    description: "List of results for each evaluated task."
+    items:
+      type: object
+      required:
+        - "task_id"
+        - "status"
+        - "ui_generated"
+        - "score"
+      properties:
+        task_id:
+          type: string
+        status:
+          type: string
+          enum:
+            - "success"
+            - "timeout"
+            - "error"
+        ui_generated:
+          type: boolean
+        score:
+          type: number
+  artifacts:
+    type: array
+    description: "Paths to generated PNG images."
+    items:
+      type: string
+  metadata:
+    type: object
+    description: "Model and environment metadata."
+    required:
+      - "model_name"
+      - "device"
+      - "batch_size"
+      - "quantization"
+    properties:
+      model_name:
+        type: string
+      device:
+        type: string
+        enum:
+          - "cpu"
+      batch_size:
+        type: integer
+      quantization:
+        type: string
+        enum:
+          - "q4_k_m"
+          - "q5_k_m"
+          - "fp16"
+  status:
+    type: string
+    description: "Execution status: success, timeout, uncomputable, incompatible."
+    enum:
+      - "success"
+      - "timeout"
+      - "uncomputable"
+      - "incompatible"
+  model_name:
+    type: string
+    description: "The exact model name used for this run."

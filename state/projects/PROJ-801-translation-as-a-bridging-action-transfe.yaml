@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-30T20:40:57.488551Z'
-current_stage: paper_ingested
+current_stage: brainstormed
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-801-translation-as-a-bridging-action-transfe
-last_run_id: null
+last_run_id: ff08627e-c276-422e-bead-fe1940e55230
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'Translation as a Bridging Action: Transferring Manipulation Skills from Humans
   to Robots'
-updated_at: '2026-06-30T20:40:58.499494Z'
+updated_at: '2026-07-01T15:55:47.716301Z'

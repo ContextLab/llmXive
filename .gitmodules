@@ -82,9 +82,6 @@
 [submodule "projects/PROJ-667-https-arxiv-org-abs-2606-05259/external/VideoKR"]
 	path = projects/PROJ-667-https-arxiv-org-abs-2606-05259/external/VideoKR
 	url = https://github.com/Fu-Fu-Fu-Fu/VideoKR
-[submodule "projects/PROJ-688-agents-last-exam/external/agents-last-exam"]
-	path = projects/PROJ-688-agents-last-exam/external/agents-last-exam
-	url = https://github.com/rdi-berkeley/agents-last-exam
 [submodule "projects/PROJ-700-spatialclaw-rethinking-action-interface/external/SpatialClaw"]
 	path = projects/PROJ-700-spatialclaw-rethinking-action-interface/external/SpatialClaw
 	url = https://github.com/NVlabs/SpatialClaw
@@ -97,9 +94,6 @@
 [submodule "projects/PROJ-750-dragmesh-2-physically-plausible-dexterou/external/DragMesh-2"]
 	path = projects/PROJ-750-dragmesh-2-physically-plausible-dexterou/external/DragMesh-2
 	url = https://github.com/AIGeeksGroup/DragMesh-2
-[submodule "projects/PROJ-599-mmskills-towards-multimodal-skills-for-g/external/MMSkills"]
-	path = projects/PROJ-599-mmskills-towards-multimodal-skills-for-g/external/MMSkills
-	url = https://github.com/DeepExperience/MMSkills
 [submodule "projects/PROJ-656-crafter-a-multi-agent-harness-for-editab/external/Crafter"]
 	path = projects/PROJ-656-crafter-a-multi-agent-harness-for-editab/external/Crafter
 	url = https://github.com/HaozheZhao/Crafter
@@ -136,3 +130,69 @@
 [submodule "projects/PROJ-650-colleague-skill-automated-ai-skill-gener/external/colleague-skill"]
 	path = projects/PROJ-650-colleague-skill-automated-ai-skill-gener/external/colleague-skill
 	url = https://github.com/titanwings/colleague-skill
+[submodule "projects/PROJ-784-qwen-agentworld-language-world-models-fo/external/express"]
+	path = projects/PROJ-784-qwen-agentworld-language-world-models-fo/external/express
+	url = https://github.com/expressjs/express
+[submodule "projects/PROJ-773-enterpriseclawbench-benchmarking-agents/external/EnterpriseClawBench"]
+	path = projects/PROJ-773-enterpriseclawbench-benchmarking-agents/external/EnterpriseClawBench
+	url = https://github.com/FrontisAI/EnterpriseClawBench
+[submodule "projects/PROJ-807-liveedit-towards-real-time-diffusion-bas/external/author-kit"]
+	path = projects/PROJ-807-liveedit-towards-real-time-diffusion-bas/external/author-kit
+	url = https://github.com/cvpr-org/author-kit
+[submodule "projects/PROJ-806-scaling-the-horizon-not-the-parameters-r/external/Agents-A1"]
+	path = projects/PROJ-806-scaling-the-horizon-not-the-parameters-r/external/Agents-A1
+	url = https://github.com/InternScience/Agents-A1
+[submodule "projects/PROJ-688-agents-last-exam/external/agents-last-exam"]
+	path = projects/PROJ-688-agents-last-exam/external/agents-last-exam
+	url = https://github.com/rdi-berkeley/agents-last-exam
+[submodule "projects/PROJ-719-data-journalist-agent-transforming-data/external/data2story-skill"]
+	path = projects/PROJ-719-data-journalist-agent-transforming-data/external/data2story-skill
+	url = https://github.com/QinghongLin/data2story-skill
+[submodule "projects/PROJ-703-evoarena-tracking-memory-evolution-for-r/external/EvoArena"]
+	path = projects/PROJ-703-evoarena-tracking-memory-evolution-for-r/external/EvoArena
+	url = https://github.com/Aiden0526/EvoArena
+[submodule "projects/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i/external/Macaron-A2UI-Bench"]
+	path = projects/PROJ-629-macaron-a2ui-a-model-for-generative-ui-i/external/Macaron-A2UI-Bench
+	url = https://github.com/MindLab-Research/Macaron-A2UI-Bench
+[submodule "projects/PROJ-805-tua-bench-a-benchmark-for-general-purpos/external/TUA-Bench"]
+	path = projects/PROJ-805-tua-bench-a-benchmark-for-general-purpos/external/TUA-Bench
+	url = https://github.com/facebookresearch/TUA-Bench
+[submodule "projects/PROJ-795-opid-on-policy-skill-distillation-for-ag/external/OPID"]
+	path = projects/PROJ-795-opid-on-policy-skill-distillation-for-ag/external/OPID
+	url = https://github.com/jinyangwu/OPID
+[submodule "projects/PROJ-766-mcompassrag-topic-metadata-as-a-semantic/external/MCompassRAG"]
+	path = projects/PROJ-766-mcompassrag-topic-metadata-as-a-semantic/external/MCompassRAG
+	url = https://github.com/AmirAbaskohi/MCompassRAG
+[submodule "projects/PROJ-788-improved-large-language-diffusion-models/external/LLaDA"]
+	path = projects/PROJ-788-improved-large-language-diffusion-models/external/LLaDA
+	url = https://github.com/ML-GSAI/LLaDA
+[submodule "projects/PROJ-776-planbench-xl-evaluating-long-horizon-pla/external/PlanBench-XL"]
+	path = projects/PROJ-776-planbench-xl-evaluating-long-horizon-pla/external/PlanBench-XL
+	url = https://github.com/JiayuJeff/PlanBench-XL
+[submodule "projects/PROJ-576-sana-wm-efficient-minute-scale-world-mod/external/Sana"]
+	path = projects/PROJ-576-sana-wm-efficient-minute-scale-world-mod/external/Sana
+	url = https://github.com/NVlabs/Sana
+[submodule "projects/PROJ-599-mmskills-towards-multimodal-skills-for-g/external/MMSkills"]
+	path = projects/PROJ-599-mmskills-towards-multimodal-skills-for-g/external/MMSkills
+	url = https://github.com/DeepExperience/MMSkills
+[submodule "projects/PROJ-782-mobileforge-annotation-free-adaptation-f/external/MobileForge"]
+	path = projects/PROJ-782-mobileforge-annotation-free-adaptation-f/external/MobileForge
+	url = https://github.com/kwai/MobileForge
+[submodule "projects/PROJ-793-viq-text-aligned-visual-quantized-repres/external/ViQ"]
+	path = projects/PROJ-793-viq-text-aligned-visual-quantized-repres/external/ViQ
+	url = https://github.com/yuxumin/ViQ
+[submodule "projects/PROJ-663-https-arxiv-org-abs-2606-04923/external/CHERRL"]
+	path = projects/PROJ-663-https-arxiv-org-abs-2606-04923/external/CHERRL
+	url = https://github.com/THUAIS-Lab/CHERRL
+[submodule "projects/PROJ-691-role-agent-bootstrapping-llm-agents-via/external/roleagent"]
+	path = projects/PROJ-691-role-agent-bootstrapping-llm-agents-via/external/roleagent
+	url = https://github.com/AMAP-ML/roleagent
+[submodule "projects/PROJ-698-toward-generalist-autonomous-research-vi/external/Arbor"]
+	path = projects/PROJ-698-toward-generalist-autonomous-research-vi/external/Arbor
+	url = https://github.com/RUC-NLPIR/Arbor
+[submodule "projects/PROJ-653-https-arxiv-org-abs-2605-28556/external/TASTE-task-synthesis-from-tool-sequence-evolution"]
+	path = projects/PROJ-653-https-arxiv-org-abs-2605-28556/external/TASTE-task-synthesis-from-tool-sequence-evolution
+	url = https://github.com/tomerkeren42/TASTE-task-synthesis-from-tool-sequence-evolution
+[submodule "projects/PROJ-720-joyai-vl-interaction-real-time-vision-la/external/JoyAI-VL-Interaction"]
+	path = projects/PROJ-720-joyai-vl-interaction-real-time-vision-la/external/JoyAI-VL-Interaction
+	url = https://github.com/jd-opensource/JoyAI-VL-Interaction

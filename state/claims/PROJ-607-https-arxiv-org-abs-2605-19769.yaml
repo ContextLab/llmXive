@@ -142,3 +142,805 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-06-30T23:57:22Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/specs/001-https-arxiv-org-abs-2605-19769/tasks.md
+  attempts: 1
+  canonical: Python 3.11 project with docker-py, pytest, pandas, jinja2 dependencies
+  claim_id: c_295ce7b1
+  context: T002 Initialize Python 3.11 project with docker-py, pytest, pandas, jinja2
+    dependencies in projects/607-reproduce-opencomputer/requirements.txt
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize Python 3.11 project with docker-py, pytest, pandas, jinja2
+    dependencies
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:31:51Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/specs/001-https-arxiv-org-abs-2605-19769/tasks.md
+  attempts: 1
+  canonical: disk quota less than 14GB for container runtime
+  claim_id: c_da34aa07
+  context: T004 Setup Docker daemon check script in projects/607-reproduce-opencomputer/scripts/setup_plan.sh
+    to validate container runtime availability and disk quota (<14GB)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Disk_quota_less_than_14GB_for_container_runtime
+  kind: magnitude
+  raw_text: validate container runtime availability and disk quota (<14GB)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:32:08Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/specs/001-https-arxiv-org-abs-2605-19769/tasks.md
+  attempts: 1
+  canonical: batch of 5 or more tasks
+  claim_id: c_3264d385
+  context: "Goal: Execute a batch of \u22655 tasks, compare hardcode verifier results\
+    \ against blinded manual inspection"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Execute a batch of \u22655 tasks"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:32:09Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/specs/001-https-arxiv-org-abs-2605-19769/tasks.md
+  attempts: 1
+  canonical: run 5 distinct tasks
+  claim_id: c_6cad68a5
+  context: 'Independent Test: Run 5 distinct tasks via run_eval.py, manually inspect
+    artifacts'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: run 5 distinct tasks via run_eval.py
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:32:40Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/specs/001-https-arxiv-org-abs-2605-19769/tasks.md
+  attempts: 1
+  canonical: 'sample tasks: audacity_export_wav, gimp_resize_01, libre_calc_sum, vlc_play,
+    notepad_save'
+  claim_id: c_80903b0f
+  context: 'T020 Create batch task list sample_tasks.json containing a set of distinct
+    tasks with known mixed outcomes: audacity_export_wav, gimp_resize_01, libre_calc_sum,
+    vlc_play, notepad_save.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sample_tasks:_audacity_export_wav,_gimp_resize_01,_libre_cal
+  kind: entity_fact
+  raw_text: 'sample set of distinct tasks: audacity_export_wav, gimp_resize_01, libre_calc_sum,
+    vlc_play, notepad_save'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:33:11Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/specs/001-https-arxiv-org-abs-2605-19769/tasks.md
+  attempts: 1
+  canonical: execution time under 6 hour limit
+  claim_id: c_44f3d6fa
+  context: T015c Extend run_smoke_test.sh to log the total execution time and verify
+    it is under a feasible time threshold. Write the boolean within_6h_limit to data/summary.json
+    to satisfy SC-005.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: verify it is under a feasible time threshold... within_6h_limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:33:39Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/specs/001-https-arxiv-org-abs-2605-19769/tasks.md
+  attempts: 1
+  canonical: 'free-tier CI constraints: 6 hours, 7GB RAM, 14GB disk'
+  claim_id: c_7ce3ea6c
+  context: "Feasibility: All tasks are scoped to run on CPU-only free-tier CI (\u2264\
+    6h, \u22647GB RAM, \u226414GB disk)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "feasible time threshold (\u22646h, \u22647GB RAM, \u226414GB disk)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:33:39Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/specs/001-https-arxiv-org-abs-2605-19769/tasks.md
+  attempts: 1
+  canonical: sample size N equals 5
+  claim_id: c_669f8072
+  context: The report MUST explicitly state that verifier_alignment_rate is a descriptive
+    sample metric and not a statistically significant result, adhering to the Plan's
+    constraints on N=5.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: sample size constraints (N=5)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:34:29Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/specs/001-https-arxiv-org-abs-2605-19769/tasks.md
+  attempts: 1
+  canonical: Claims Partially Reproduced conclusion due to sample size constraints
+  claim_id: c_6aa919f0
+  context: T032 Add logic to compare results against paper abstract claims and explicitly
+    state Claims Partially Reproduced in the conclusion due to sample size constraints.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Claims_Partially_Reproduced_conclusion_due_to_sample_size_co
+  kind: entity_fact
+  raw_text: explicitly state Claims Partially Reproduced in the conclusion due to
+    sample size constraints
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:35:12Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/specs/001-https-arxiv-org-abs-2605-19769/tasks.md
+  attempts: 1
+  canonical: verifier_alignment_rate calculation formula
+  claim_id: c_cc90a07c
+  context: 'T024c Extend compare_verdicts.py to calculate verifier_alignment_rate
+    as a simple descriptive percentage: (matches / total_tasks) * 100.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: calculate verifier_alignment_rate as (matches / total_tasks) * 100
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:35:37Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/specs/001-https-arxiv-org-abs-2605-19769/tasks.md
+  attempts: 1
+  canonical: pipeline_reliability calculation formula
+  claim_id: c_48acd22e
+  context: T025c Extend compare_verdicts.py to calculate pipeline_reliability as (tasks_completed_without_crash
+    / total_tasks_attempted) * 100.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: calculate pipeline_reliability as (tasks_completed_without_crash / total_tasks_attempted)
+    * 100
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:36:02Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/specs/001-https-arxiv-org-abs-2605-19769/tasks.md
+  attempts: 1
+  canonical: Python 3.11 project with docker-py, pytest, pandas, jinja2 dependencies
+  claim_id: c_70f34999
+  context: Initialize Python 3.11 project with docker-py, pytest, pandas, jinja2 dependencies
+    in projects/607-reproduce-opencomputer/requirements.txt
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Python 3.11 project with docker-py, pytest, pandas, jinja2 dependencies
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:38:20Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/specs/001-https-arxiv-org-abs-2605-19769/tasks.md
+  attempts: 1
+  canonical: Disk quota less than 14GB
+  claim_id: c_155a35e1
+  context: Setup Docker daemon check script to validate container runtime availability
+    and disk quota (<14GB)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Disk_quota_less_than_14GB
+  kind: magnitude
+  raw_text: Disk quota <14GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:38:42Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/specs/001-https-arxiv-org-abs-2605-19769/tasks.md
+  attempts: 1
+  canonical: Sample tasks set includes audacity_export_wav, gimp_resize_01, libre_calc_sum,
+    vlc_play, notepad_save
+  claim_id: c_c4ca2c2b
+  context: 'Create batch task list sample_tasks.json containing a set of distinct
+    tasks with known mixed outcomes: audacity_export_wav, gimp_resize_01, libre_calc_sum,
+    vlc_play, notepad_save'
+  evidence:
+    entailment_evidence: Sample tasks set includes audacity export wav, gimp resize
+      0
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Sample_tasks_set_includes_audacity_export_wav,_gimp_resize_0
+  kind: entity_fact
+  raw_text: 'Set of distinct tasks: audacity_export_wav, gimp_resize_01, libre_calc_sum,
+    vlc_play, notepad_save'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-01T10:39:24Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/specs/001-https-arxiv-org-abs-2605-19769/tasks.md
+  attempts: 1
+  canonical: Batch execution of at least 5 tasks
+  claim_id: c_c5b33460
+  context: "Execute a batch of \u22655 tasks, compare hardcode verifier results against\
+    \ blinded manual inspection"
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikipedia
+        source_id: 'Pinoy Big Brother: Otso'
+        url: https://en.wikipedia.org/wiki/Pinoy_Big_Brother:_Otso
+        value: '4'
+      quote: 'P3879: 18457'
+      source_id: Q4868723
+      url: https://www.wikidata.org/wiki/Q4868723
+      value: '18457'
+    filled: true
+  kind: magnitude
+  raw_text: "Batch of \u22655 tasks"
+  resolved_value: '18457'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-01T10:39:41Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/specs/001-https-arxiv-org-abs-2605-19769/tasks.md
+  attempts: 1
+  canonical: Execution time threshold of 6 hours
+  claim_id: c_fd98a901
+  context: Verify it is under a feasible time threshold. Write the boolean within_6h_limit
+    to data/summary.json
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Feasible time threshold of 6 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:40:06Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/specs/001-https-arxiv-org-abs-2605-19769/tasks.md
+  attempts: 1
+  canonical: Sample size constraint of 5
+  claim_id: c_05a72893
+  context: Explicitly stating limitations (N=5, CPU-only)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=5 constraint
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:41:48Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/specs/001-https-arxiv-org-abs-2605-19769/tasks.md
+  attempts: 1
+  canonical: 'Constraints: CPU-only, 6 hours, 7GB RAM, 14GB disk'
+  claim_id: c_dc97fb47
+  context: "All tasks are scoped to run on CPU-only free-tier CI (\u22646h, \u2264\
+    7GB RAM, \u226414GB disk)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "CPU-only, \u22646h, \u22647GB RAM, \u226414GB disk"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:41:48Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/specs/001-https-arxiv-org-abs-2605-19769/tasks.md
+  attempts: 1
+  canonical: Docker dependency version 7.1.0
+  claim_id: c_6fafbe9f
+  context: Update requirements.txt to include specific version constraints for all
+    dependencies (e.g., docker==7.1.0)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: docker==7.1.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:42:04Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/specs/001-https-arxiv-org-abs-2605-19769/tasks.md
+  attempts: 1
+  canonical: Pandas dependency version 2.2.0
+  claim_id: c_e8bb13c6
+  context: Update requirements.txt to include specific version constraints for all
+    dependencies (e.g., pandas==2.2.0)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pandas==2.2.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:42:22Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/specs/001-https-arxiv-org-abs-2605-19769/tasks.md
+  attempts: 1
+  canonical: PyYAML dependency version 6.0.1
+  claim_id: c_598db157
+  context: Update requirements.txt to include specific version constraints for all
+    dependencies (e.g., pyyaml==6.0.1)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pyyaml==6.0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:42:41Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/specs/001-https-arxiv-org-abs-2605-19769/tasks.md
+  attempts: 1
+  canonical: Jinja2 dependency version 3.1.4
+  claim_id: c_7a40e89a
+  context: Update requirements.txt to include specific version constraints for all
+    dependencies (e.g., jinja2==3.1.4)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: jinja2==3.1.4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:43:03Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/specs/001-https-arxiv-org-abs-2605-19769/tasks.md
+  attempts: 1
+  canonical: Refactored scripts under 200 lines
+  claim_id: c_61890112
+  context: Create run_smoke_test.sh as a standalone script. Ensure file is < 200 lines
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Scripts < 200 lines
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:43:03Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/specs/001-https-arxiv-org-abs-2605-19769/tasks.md
+  attempts: 1
+  canonical: validate disk quota less than 14GB
+  claim_id: c_259e00f2
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - Purpose: Core infrastructure
+    that MUST be complete before ANY user story can be implemented'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validate_disk_quota_less_than_14GB
+  kind: magnitude
+  raw_text: Setup Docker daemon check script in projects/607-reproduce-opencomputer/scripts/setup_plan.sh
+    to validate container runtime availability and disk quota (<14GB)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:44:39Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/specs/001-https-arxiv-org-abs-2605-19769/tasks.md
+  attempts: 1
+  canonical: execute batch of 5 tasks for manual inspection
+  claim_id: c_d57fbb3d
+  context: "Phase 4: User Story 2 - Goal: Execute a batch of \u22655 tasks, compare\
+    \ hardcode verifier results against blinded manual inspection"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run 5 distinct tasks via run_eval.py, manually inspect artifacts, and
+    verify verification_report.json contains manual_ground_truth and alignment_observation
+    fields
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:45:00Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/specs/001-https-arxiv-org-abs-2605-19769/tasks.md
+  attempts: 1
+  canonical: sample tasks list contains 5 specific tasks
+  claim_id: c_94fd9ebf
+  context: Implementation for User Story 2 - T020
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Create batch task list sample_tasks.json containing a set of distinct
+    tasks with known mixed outcomes: audacity_export_wav, gimp_resize_01, libre_calc_sum,
+    vlc_play, notepad_save'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:45:31Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/specs/001-https-arxiv-org-abs-2605-19769/tasks.md
+  attempts: 1
+  canonical: calculate verifier alignment rate as matches divided by total tasks times
+    100
+  claim_id: c_06d42e45
+  context: 'T024c Metric Calculation: Extend compare_verdicts.py to calculate verifier_alignment_rate'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Calculate verifier_alignment_rate as a simple descriptive percentage:
+    (matches / total_tasks) * 100'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:46:01Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/specs/001-https-arxiv-org-abs-2605-19769/tasks.md
+  attempts: 1
+  canonical: calculate pipeline reliability as tasks completed without crash divided
+    by total tasks attempted times 100
+  claim_id: c_3618975a
+  context: 'T025c Metric Calculation: Extend compare_verdicts.py to calculate pipeline_reliability'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate pipeline_reliability as (tasks_completed_without_crash / total_tasks_attempted)
+    * 100
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:46:01Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/specs/001-https-arxiv-org-abs-2605-19769/tasks.md
+  attempts: 3
+  canonical: free-tier ci constraints are 6 hours 7gb ram 14gb disk
+  claim_id: c_84d63629
+  context: 'Notes - Feasibility: All tasks are scoped to run on CPU-only free-tier
+    CI'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "All tasks are scoped to run on CPU-only free-tier CI (\u22646h, \u2264\
+    7GB RAM, \u226414GB disk)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:46:02Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/specs/001-https-arxiv-org-abs-2605-19769/tasks.md
+  attempts: 1
+  canonical: pin docker to 7.1.0 pandas to 2.2.0 pyyaml to 6.0.1 jinja2 to 3.1.4
+  claim_id: c_a352a78c
+  context: 'T041 Dependency Pinning: Update requirements.txt to include specific version
+    constraints'
+  evidence:
+    asserted: '7.1'
+    authority: math.e (IEEE-754 double, Python stdlib)
+    constant: e
+    corrected: true
+    mode: approximate
+    true_value: 2.718281828459045
+    url: https://en.wikipedia.org/wiki/E_(mathematical_constant)
+  kind: numeric
+  raw_text: Update requirements.txt to include specific version constraints for all
+    dependencies (e.g., docker==7.1.0 , pandas==2.2.0 , pyyaml==6.0.1 , jinja2==3.1.4
+    )
+  resolved_value: '2.7'
+  resolver: approximate
+  source_hash: a9ca6a5760937360ff7089e18ec199bd13bfdabbc3e1d7e4c21fb58e03340b79
+  source_type: external
+  status: verified
+  updated_at: '2026-07-01T10:46:02Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/specs/001-https-arxiv-org-abs-2605-19769/tasks.md
+  attempts: 1
+  canonical: refactor scripts to be less than 200 lines
+  claim_id: c_9a0051f8
+  context: 'T039a Refactor Smoke: Create run_smoke_test.sh as a standalone script...
+    Ensure file is < 200 lines'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Refactor_scripts_to_be_less_than_200_lines
+  kind: magnitude
+  raw_text: Ensure file is < 200 lines
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:46:33Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/specs/001-https-arxiv-org-abs-2605-19769/tasks.md
+  attempts: 1
+  canonical: refactor scripts to be less than 200 lines
+  claim_id: c_a71f0f2c
+  context: 'T039b Refactor Collect: Create collect_artifacts.py as a standalone script...
+    Ensure file is < 200 lines'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Refactor_scripts_to_be_less_than_200_lines
+  kind: magnitude
+  raw_text: Ensure file is < 200 lines
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:46:35Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/specs/001-https-arxiv-org-abs-2605-19769/tasks.md
+  attempts: 1
+  canonical: refactor scripts to be less than 200 lines
+  claim_id: c_6827a54e
+  context: 'T039c Refactor Compare: Create compare_verdicts.py as a standalone script...
+    Ensure file is < 200 lines'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Refactor_scripts_to_be_less_than_200_lines
+  kind: magnitude
+  raw_text: Ensure file is < 200 lines
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:46:37Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/specs/001-https-arxiv-org-abs-2605-19769/tasks.md
+  attempts: 1
+  canonical: refactor scripts to be less than 200 lines
+  claim_id: c_fe8981bb
+  context: 'T039d Refactor Report: Create generate_report.py as a standalone script...
+    Ensure file is < 200 lines'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Refactor_scripts_to_be_less_than_200_lines
+  kind: magnitude
+  raw_text: Ensure file is < 200 lines
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:46:40Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/specs/001-https-arxiv-org-abs-2605-19769/tasks.md
+  attempts: 1
+  canonical: disk quota limit is less than 14GB
+  claim_id: c_c57dca9f
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T004'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Disk_quota_limit_is_less_than_14GB
+  kind: magnitude
+  raw_text: Setup Docker daemon check script in projects/607-reproduce-opencomputer/scripts/setup_plan.sh
+    to validate container runtime availability and disk quota (<14GB)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:47:47Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/specs/001-https-arxiv-org-abs-2605-19769/tasks.md
+  attempts: 1
+  canonical: project initialized with Python 3.11
+  claim_id: c_84512f3b
+  context: 'Phase 1: Setup (Shared Infrastructure) - T002'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize Python 3.11 project with docker-py, pytest, pandas, jinja2
+    dependencies
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:47:47Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/specs/001-https-arxiv-org-abs-2605-19769/tasks.md
+  attempts: 1
+  canonical: batch evaluation runs 5 distinct tasks
+  claim_id: c_779f635d
+  context: 'Phase 4: User Story 2 - Goal description'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run 5 distinct tasks via run_eval.py
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:47:48Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/specs/001-https-arxiv-org-abs-2605-19769/tasks.md
+  attempts: 1
+  canonical: sample tasks list includes 5 specific applications
+  claim_id: c_ffa17935
+  context: 'Phase 4: User Story 2 - Implementation T020'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sample tasks include audacity_export_wav, gimp_resize_01, libre_calc_sum,
+    vlc_play, notepad_save
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:47:51Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/specs/001-https-arxiv-org-abs-2605-19769/tasks.md
+  attempts: 1
+  canonical: smoke test timeout is 300 seconds
+  claim_id: c_e8537aff
+  context: 'Phase 3: User Story 1 - Implementation T012'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute the actual smoke_loop.py script as the primary driver with timeout
+    300
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:48:47Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/specs/001-https-arxiv-org-abs-2605-19769/tasks.md
+  attempts: 1
+  canonical: execution time limit is 6 hours
+  claim_id: c_aefad78c
+  context: 'Phase 3: User Story 1 - Implementation T015c'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Feasible time threshold is under 6h
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:49:05Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/specs/001-https-arxiv-org-abs-2605-19769/tasks.md
+  attempts: 1
+  canonical: resource constraints are 6 hours, 7GB RAM, 14GB disk
+  claim_id: c_b3b17717
+  context: Notes section - Feasibility
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Feasible resource constraints are <=6h, <=7GB RAM, <=14GB disk
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:49:34Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/specs/001-https-arxiv-org-abs-2605-19769/tasks.md
+  attempts: 1
+  canonical: tasks run on CPU-only free-tier CI
+  claim_id: c_dd5d59de
+  context: Notes section - Feasibility
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tasks_run_on_CPU-only_free-tier_CI
+  kind: entity_fact
+  raw_text: All tasks are scoped to run on CPU-only free-tier CI
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:50:04Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/specs/001-https-arxiv-org-abs-2605-19769/tasks.md
+  attempts: 1
+  canonical: refactored scripts are less than 200 lines
+  claim_id: c_2af8f55d
+  context: 'Phase 7: Code Quality & Modularity - T039a, T039b, T039c, T039d'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Refactored_scripts_are_less_than_200_lines
+  kind: magnitude
+  raw_text: Refactored scripts must be less than 200 lines
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:50:47Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/specs/001-https-arxiv-org-abs-2605-19769/tasks.md
+  attempts: 1
+  canonical: dependency versions are docker 7.1.0, pandas 2.2.0, pyyaml 6.0.1, jinja2
+    3.1.4
+  claim_id: c_42d5ed6d
+  context: 'Phase 7: Code Quality & Modularity - T041'
+  evidence:
+    asserted: '7.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Dependency pinning includes docker==7.1.0, pandas==2.2.0, pyyaml==6.0.1,
+    jinja2==3.1.4
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-01T10:50:47Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/specs/001-https-arxiv-org-abs-2605-19769/tasks.md
+  attempts: 1
+  canonical: verification results include skipped status distinct from failed
+  claim_id: c_17d75018
+  context: 'Phase 7: Data Quality & Schema - T048'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verification_results_include_skipped_status_distinct_from_fa
+  kind: entity_fact
+  raw_text: Verify and update data/verification_results.csv generation logic to include
+    a distinct status for skipped tasks
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:51:18Z'
+- artifact_path: projects/PROJ-607-https-arxiv-org-abs-2605-19769/specs/001-https-arxiv-org-abs-2605-19769/tasks.md
+  attempts: 1
+  canonical: statistical significance testing excluded due to sample size of 5
+  claim_id: c_bca2bde2
+  context: 'Phase 7: Missing Pipeline Scripts - T056a'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Document the decision to exclude statistical significance testing due
+    to N=5 constraint
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:51:43Z'

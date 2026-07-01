@@ -1,34 +1,67 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "EnrichmentResult"
+$schema: http://json-schema.org/draft-07/schema#
+title: EnrichmentResult Schema
+description: Schema for statistical enrichment analysis results.
 type: object
-required:
-  - lineage
-  - odds_ratio
-  - p_raw
-  - p_bonferroni
-  - p_fdr_lineage
-  - p_phylo_adjusted
-  - significant
 properties:
   lineage:
     type: string
-    enum: ["human", "chimpanzee", "macaque", "marmoset"]
-    description: "Lineage tested for enrichment."
+    enum:
+      - human
+      - chimpanzee
+      - macaque
+      - marmoset
+    description: "Lineage being tested"
+  n_lse_accelerated:
+    type: integer
+    minimum: 0
+    description: "Count of lineage-specific events with accelerated flag"
+  n_lse_total:
+    type: integer
+    minimum: 0
+    description: "Total lineage-specific events"
+  n_non_lse_accelerated:
+    type: integer
+    minimum: 0
+    description: "Count of non-LSEs with accelerated flag"
+  n_non_lse_total:
+    type: integer
+    minimum: 0
+    description: "Total non-LSEs"
   odds_ratio:
     type: number
-    description: "Odds ratio from Fisher's exact test."
+    description: "Fisher's exact test odds ratio"
   p_raw:
     type: number
-    description: "Unadjusted Fisher p‑value."
+    minimum: 0.0
+    maximum: 1.0
+    description: "Raw p-value from Fisher's test"
   p_bonferroni:
     type: number
-    description: "Bonferroni‑corrected p‑value within the lineage."
-  p_fdr_lineage:
+    minimum: 0.0
+    maximum: 1.0
+    description: "Bonferroni corrected p-value (within lineage)"
+  p_phylolm:
     type: number
-    description: "Benjamini‑Hochberg FDR across lineages."
-  p_phylo_adjusted:
+    minimum: 0.0
+    maximum: 1.0
+    description: "PGLS adjusted p-value (PGLR in practice)"
+  p_final:
     type: number
-    description: "P‑value after phylogenetic PGLS correction."
-  significant:
+    minimum: 0.0
+    maximum: 1.0
+    description: "Final FDR corrected p-value (across lineages)"
+  is_significant:
     type: boolean
-    description: "TRUE if final corrected p < 0.05."
+    description: "TRUE if p_final < 0.05"
+required:
+  - lineage
+  - n_lse_accelerated
+  - n_lse_total
+  - n_non_lse_accelerated
+  - n_non_lse_total
+  - odds_ratio
+  - p_raw
+  - p_bonferroni
+  - p_phylolm
+  - p_final
+  - is_significant

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2210.02303",
+  "judged_at": "2026-07-01T13:28:13Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "anyflow: any-step video diffusion model with on-policy flow map distillation computer science",
+  "rationale": "This paper belongs in the literature review as a foundational reference for the domain of video diffusion models and specifically addresses the \"distillation\" mechanism (progressive distillation) mentioned in the user's question, satisfying criteria (d) for foundational methodology and (a) for same-mechanism evidence regarding flow/distillation techniques in video generation.",
+  "relevant": true
+}

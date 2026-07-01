@@ -1,0 +1,13 @@
+project_id: PROJ-573-https-arxiv-org-abs-2604-27351
+name: Heterogeneous Scientific Foundation Model Collaboration Benchmark
+created_at: "2024-01-15T00:00:00Z"
+updated_at: "2024-01-15T12:00:00Z"
+status: active
+artifact_hashes: {}
+checksum_algorithm: sha256
+constitution_compliance:
+  version: 3
+  last_verified: "2024-01-15T12:00:00Z"
+metadata:
+  description: "Tracking infrastructure for artifact integrity and checksums"
+  source: "Constitution III requirement"

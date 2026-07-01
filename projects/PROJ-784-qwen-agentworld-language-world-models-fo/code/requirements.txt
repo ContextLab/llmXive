@@ -1,0 +1,4 @@
+gymnasium  # auto-added: imported by run-book but missing from venv
+matplotlib  # auto-added: imported by run-book but missing from venv
+numpy  # auto-added: imported by run-book but missing from venv
+torch  # auto-added: imported by run-book but missing from venv

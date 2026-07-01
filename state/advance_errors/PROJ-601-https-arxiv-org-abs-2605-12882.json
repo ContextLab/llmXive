@@ -1,0 +1,7 @@
+{
+  "project_id": "PROJ-601-https-arxiv-org-abs-2605-12882",
+  "stage": "paper_analyzed",
+  "last_error": "invalid transition paper_analyzed -> paper_planned",
+  "last_seen": "2026-07-01T13:15:48.835947+00:00",
+  "count": 2
+}

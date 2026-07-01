@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-25T09:09:02.836861Z'
-current_stage: paper_ingested
+current_stage: in_progress
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-784-qwen-agentworld-language-world-models-fo
-last_run_id: null
+last_run_id: ddd86e75-9796-4a5c-ae40-0c6aa9ef6351
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-784-qwen-agentworld-language-world-models-fo/specs/001-qwen-agentworld-language-world-models-fo
 title: 'Qwen-AgentWorld: Language World Models for General Agents'
-updated_at: '2026-06-30T19:33:55.541497Z'
+updated_at: '2026-07-01T03:59:29.720505Z'

@@ -1,0 +1,3 @@
+| Separate `scaling_analysis.py` module | Required to isolate regression logic and generate `scaling_report.json` independently of the main evaluation loop. | Inline logic in `run_cpu_eval.py` would violate the separation of concerns and make the "Descriptive Trend Analysis" difficult to validate or update. |
+| Strict 4-bit Quantization Constraint | Mandatory to fit `Qwen2.5-VL-7B` into 7GB RAM on CPU. | Full precision or 8-bit quantization would exceed memory limits, causing immediate OOM failure (Claim 5). |
+| Descriptive Trend Analysis | Required by Constitution Principle VIII due to small sample size (n=10). | Formal hypothesis testing (p-values) is statistically invalid with n=10; claiming significance would violate the "Statistical Interpretation Discipline". |

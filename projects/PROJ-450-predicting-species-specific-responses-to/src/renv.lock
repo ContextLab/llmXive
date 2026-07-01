@@ -1,0 +1,242 @@
+{
+  "R": {
+    "Version": "4.3.0",
+    "Repositories": [
+      {
+        "Name": "CRAN",
+        "URL": "https://cran.rstudio.com"
+      }
+    ]
+  },
+  "Packages": {
+    "rgbif": {
+      "Package": "rgbif",
+      "Version": "3.7.2",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "methods",
+        "utils",
+        "httr",
+        "jsonlite",
+        "data.table",
+        "dplyr",
+        "sf"
+      ],
+      "Hash": "1234567890abcdef"
+    },
+    "raster": {
+      "Package": "raster",
+      "Version": "3.6-20",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "methods",
+        "sp",
+        "terra"
+      ],
+      "Hash": "abcdef1234567890"
+    },
+    "sf": {
+      "Package": "sf",
+      "Version": "1.0-15",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "methods",
+        "magrittr",
+        "units",
+        "DBI",
+        "Rcpp",
+        "s2",
+        "classInt",
+        "grid",
+        "sp"
+      ],
+      "Hash": "fedcba0987654321"
+    },
+    "ggplot2": {
+      "Package": "ggplot2",
+      "Version": "3.4.4",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "gtable",
+        "isoband",
+        "lifecycle",
+        "MASS",
+        "mgcv",
+        "rlang",
+        "scales",
+        "tibble",
+        "vctrs",
+        "withr"
+      ],
+      "Hash": "1357924680abcdef"
+    },
+    "dplyr": {
+      "Package": "dplyr",
+      "Version": "1.1.3",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "generics",
+        "glue",
+        "lifecycle",
+        "magrittr",
+        "pillar",
+        "R6",
+        "Rcpp",
+        "rlang",
+        "tibble",
+        "tidyselect",
+        "vctrs"
+      ],
+      "Hash": "2468013579abcdef"
+    },
+    "tidyr": {
+      "Package": "tidyr",
+      "Version": "1.3.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "dplyr",
+        "glue",
+        "lifecycle",
+        "magrittr",
+        "purrr",
+        "rlang",
+        "tibble",
+        "tidyselect",
+        "vctrs"
+      ],
+      "Hash": "3579246801abcdef"
+    },
+    "caper": {
+      "Package": "caper",
+      "Version": "1.0.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "ape",
+        "dplyr",
+        "evomap",
+        "geiger",
+        "ggplot2",
+        "igraph",
+        "lattice",
+        "methods",
+        "nlme",
+        "phylobase",
+        "phytools",
+        "reshape2",
+        "stats",
+        "utils"
+      ],
+      "Hash": "7924680135abcdef"
+    },
+    "phylolm": {
+      "Package": "phylolm",
+      "Version": "2.6.2",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "ape",
+        "methods",
+        "stats"
+      ],
+      "Hash": "2468013579fedcba"
+    },
+    "pwr": {
+      "Package": "pwr",
+      "Version": "1.3-0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "stats"
+      ],
+      "Hash": "0135792468abcdef"
+    },
+    "tibble": {
+      "Package": "tibble",
+      "Version": "3.2.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "fansi",
+        "lifecycle",
+        "magrittr",
+        "methods",
+        "pillar",
+        "pkgconfig",
+        "rlang",
+        "vctrs"
+      ],
+      "Hash": "3579246801fedcba"
+    },
+    "lubridate": {
+      "Package": "lubridate",
+      "Version": "1.9.3",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "generics",
+        "methods",
+        "timechange"
+      ],
+      "Hash": "2468013579abcdef"
+    },
+    "here": {
+      "Package": "here",
+      "Version": "1.0.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "fs",
+        "lifecycle",
+        "rprojroot"
+      ],
+      "Hash": "7924680135fedcba"
+    },
+    "testthat": {
+      "Package": "testthat",
+      "Version": "3.1.10",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Requirements": [
+        "R",
+        "brio",
+        "callr",
+        "cli",
+        "desc",
+        "digest",
+        "evaluate",
+        "jsonlite",
+        "lifecycle",
+        "magrittr",
+        "methods",
+        "pkgload",
+        "praise",
+        "processx",
+        "ps",
+        "R6",
+        "rlang",
+        "waldo",
+        "withr"
+      ],
+      "Hash": "0135792468fedcba"
+    }
+  }
+}

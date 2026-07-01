@@ -1,47 +1,76 @@
 # Data Model: Evolutionary Pressure on Alternative Splicing in Primates
 
 ## Overview
-The pipeline operates on a small set of structured files. The following entities are defined with JSON‑compatible schemas (also provided as YAML contracts).
+
+This document defines the data structures, schemas, and relationships used throughout the pipeline. It ensures data hygiene (Constitution Principle III) and serves as the contract for the `contracts/` schemas.
+
+## Entity Definitions
 
 ### 1. RNASeqSample
-| Field | Type | Description |
-|-------|------|-------------|
-| `accession_id` | string | SRA Run accession (e.g., `SRR1234567`). |
-| `species` | enum[`human`,`chimpanzee`,`macaque`,`marmoset`] | Species label. |
-| `fastq_path` | string (path) | Location of the downloaded FASTQ (paired‑end). |
-| `checksum` | string | SHA‑256 of the raw FASTQ archive. |
-| `download_date` | string (ISO‑8601) | Timestamp of download. |
+Represents a single biological sample (SRA run).
+
+| Attribute | Type | Description | Source |
+| :--- | :--- | :--- | :--- |
+| `accession_id` | string | SRA Accession (e.g., SRR123456) | Input |
+| `species` | string | One of: `human`, `chimpanzee`, `macaque`, `marmoset` | Input |
+| `fastq_path` | string | Local path to raw FASTQ | Pipeline |
+| `checksum` | string | SHA256 hash of FASTQ | Pipeline |
+| `replicate_id` | int | Biological replicate index (1..N) | Input |
 
 ### 2. SplicingEvent
-| Field | Type | Description |
-|-------|------|-------------|
-| `event_id` | string | SUPPA2 event identifier. |
-| `gene_id` | string | Ensembl gene identifier (canonical across species). |
-| `species` | enum[`human`,`chimpanzee`,`macaque`,`marmoset`] |
-| `delta_psi` | number | ΔPSI between lineage and outgroup (absolute). |
-| `fdr` | number | Benjamini‑Hochberg adjusted FDR for the event. |
-| `flank_seq` | string | FASTA‑encoded ±500 bp intronic sequence. |
-| `phyloP_score` | number | Average phyloP score (may be `null`). |
-| `accelerated_flag` | boolean | TRUE if `phyloP_score ≤ -2.0`. |
-| `origin_lineage` | enum[`human`,`chimpanzee`,`macaque`,`marmoset`] | Lineage where event is specific. |
+Represents an alternatively spliced exon/isoform event.
 
-### 3. EnrichmentResult
-| Field | Type | Description |
-|-------|------|-------------|
-| `lineage` | enum[`human`,`chimpanzee`,`macaque`,`marmoset`] |
-| `odds_ratio` | number |
-| `p_raw` | number |
-| `p_bonferroni` | number |
-| `p_fdr_lineage` | number |
-| `p_phylo_adjusted` | number |
-| `significant` | boolean | TRUE if final corrected p < 0.05. |
+| Attribute | Type | Description | Source |
+| :--- | :--- | :--- | :--- |
+| `event_id` | string | Unique identifier (e.g., ENSG001:exon12) | SUPPA2 |
+| `gene_id` | string | Ensembl Gene ID | SUPPA2 |
+| `species` | string | Species of origin | Input |
+| `psi_mean` | float | Mean PSI across replicates | Calculated |
+| `psi_std` | float | Standard deviation of PSI | Calculated |
+| `delta_psi` | float | Difference in PSI vs. reference lineage | Calculated |
+| `fdr` | float | Benjamini-Hochberg corrected p-value | Calculated |
+| `is_lineage_specific` | boolean | TRUE if ΔPSI > 0.1 and FDR < 0.05 | Filtered |
 
-## Relationships
-- Each **RNASeqSample** yields one BAM → contributes to many **SplicingEvent** PSI entries (one per sample).  
-- **SplicingEvent** rows are filtered to produce `lineage_specific_events.tsv`.  
-- **EnrichmentResult** aggregates counts of accelerated vs. non‑accelerated events per lineage.
+### 3. RegulatoryAnnotation
+Annotations for the flanking regions of a splicing event.
 
-## Contract Schemas
-The YAML files in `contracts/` (see below) encode the above structures and are used by the CI validation suite.
+| Attribute | Type | Description | Source |
+| :--- | :--- | :--- | :--- |
+| `event_id` | string | Link to SplicingEvent | Join |
+| `flank_seq` | string | ±500bp intronic sequence | bedtools |
+| `avg_phylop` | float | Mean phyloP score in flanking region | UCSC/Sim |
+| `is_accelerated` | boolean | TRUE if avg_phylop ≤ -2.0 | Calculated |
+| `chrom` | string | Chromosome | Input |
+| `start` | int | Start coordinate | Input |
+| `end` | int | End coordinate | Input |
 
----
+### 4. EnrichmentResult
+Statistical outcome per lineage.
+
+| Attribute | Type | Description | Source |
+| :--- | :--- | :--- | :--- |
+| `lineage` | string | Species name | Input |
+| `n_lse_accelerated` | int | Count of LSEs with accelerated flag | Count |
+| `n_lse_total` | int | Total LSEs | Count |
+| `n_non_lse_accelerated` | int | Count of non-LSEs with accelerated flag | Count |
+| `n_non_lse_total` | int | Total non-LSEs | Count |
+| `odds_ratio` | float | Fisher's OR | Calculated |
+| `p_raw` | float | Raw Fisher p-value | Calculated |
+| `p_bonferroni` | float | Bonferroni corrected (within lineage) | Calculated |
+| `p_phylolm` | float | PGLS adjusted p-value (PGLR in practice) | R/phylolm |
+| `p_final` | float | Final FDR corrected (across lineages) | Calculated |
+| `is_significant` | boolean | TRUE if p_final < 0.05 | Filtered |
+
+## Data Flow
+
+1.  **Ingestion**: `RNASeqSample` (FASTQ) → `align.py` → `SplicingEvent` (BAM/PSI).
+2.  **Annotation**: `SplicingEvent` + `ReferenceGenome` → `annotate.py` → `RegulatoryAnnotation`.
+3.  **Analysis**: `RegulatoryAnnotation` + `SpeciesTree` → `stats.py` → `EnrichmentResult`.
+4.  **Visualization**: `EnrichmentResult` → `plot.py` → `Manhattan_Plot.png`.
+
+## Constraints & Validation
+
+-   **Species**: Must be one of the 4 allowed values.
+-   **PSI**: Must be between 0.0 and 1.0.
+-   **PhyloP**: No strict bounds, but `is_accelerated` logic relies on the -2.0 threshold.
+-   **Missing Data**: If `avg_phylop` is NA, the event is excluded from enrichment tests (Edge Case handling).

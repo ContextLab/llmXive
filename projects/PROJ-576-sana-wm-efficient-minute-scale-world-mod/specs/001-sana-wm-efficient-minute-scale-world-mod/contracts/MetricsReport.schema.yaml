@@ -1,0 +1,54 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MetricsReport"
+description: "Schema for runtime performance metrics of the SANA-WM inference."
+type: "object"
+properties:
+  run_id:
+    type: "string"
+    description: "Unique identifier for the run."
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of completion."
+  status:
+    type: "string"
+    enum:
+      - "success"
+      - "oom"
+      - "timeout"
+      - "error"
+    description: "Final status of the run."
+  total_time_seconds:
+    type: "number"
+    description: "Total wall-clock time in seconds."
+    minimum: 0
+  peak_memory_gb:
+    type: "number"
+    description: "Peak RAM usage in GB."
+    minimum: 0
+    maximum: 7.0
+  frames_generated:
+    type: "integer"
+    description: "Total number of video frames generated."
+    minimum: 0
+  fps:
+    type: "number"
+    description: "Effective frames per second."
+    minimum: 0
+  error_message:
+    type: "string"
+    description: "Error details if status is not success."
+    minLength: 1
+  pose_drift_error:
+    type: "number"
+    description: "Calculated pose drift error (reprojection error) for SC-002 validation."
+    minimum: 0
+required:
+  - run_id
+  - timestamp
+  - status
+  - total_time_seconds
+  - peak_memory_gb
+  - frames_generated
+  - fps
+additionalProperties: false

@@ -1,106 +1,5 @@
-resolved_at: '2026-06-30T05:11:40.140452+00:00'
+resolved_at: '2026-07-01T13:41:09.182922+00:00'
 datasets:
-- intent: RAM
-  status: verified
-  candidates:
-  - url: https://huggingface.co/datasets/RamAnanth1/lex-fridman-podcasts/resolve/main/lex-fridman-podcast-dataset.jsonl
-    source: huggingface
-    format: jsonl
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  - url: https://huggingface.co/datasets/huggingartists/ramil/resolve/main/datasets.json
-    source: huggingface
-    format: json
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 130991
-      parsed: true
-  - url: https://huggingface.co/datasets/ramitsurana/sanskrit/resolve/main/train.csv
-    source: huggingface
-    format: csv
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 91560
-      parsed: true
-  candidates_tried:
-  - url: https://huggingface.co/datasets/RamAnanth1/lex-fridman-podcasts/resolve/main/lex-fridman-podcast-dataset.jsonl
-    source: huggingface
-    status: verified
-    format: jsonl
-  - url: https://huggingface.co/datasets/huggingartists/ramil/resolve/main/datasets.json
-    source: huggingface
-    status: verified
-    format: json
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f18358b/f6b3240580548bf9e5ffa880b18cc34773c2f1b69b262e8efb62b55f5894cbf5?response-content-type=application%2Fjson&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27datasets.json%3B+filename%3D%22datasets.json%22%3B&X-Xet-Cas-Uid=public&user_id=public&Expires=1782799786&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgzNThiL2Y2YjMyNDA1ODA1NDhiZjllNWZmYTg4MGIxOGNjMzQ3NzNjMmYxYjY5YjI2MmU4ZWZiNjJiNTVmNTg5NGNiZjVcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdkYXRhc2V0cy5qc29uJTNCK2ZpbGVuYW1lJTNEJTIyZGF0YXNldHMuanNvbiUyMiUzQiZYLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyNzk5Nzg2fX19XX0_&Signature=MEQCIE~4W7iDFywrdhDG7Xdii4SrYz1iiPtuMMzSSIDyrTBwAiBfVEJwVOvVYulHY2mDZTyUHnFZyxJAU6EoXRkEnB5MKw__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-    source: huggingface
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://huggingface.co/datasets/ramitsurana/sanskrit/resolve/main/train.csv
-    source: huggingface
-    status: verified
-    format: csv
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/Can_exercise-induced_benefits_in_bone_strength_be_further_improved_after_menarche_if_training_is_maintained_/32833046
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Ice_Nucleation_Activity_by_i_Fusarium_tricinctum_i_Can_Enhance_Cold_Stress_A_Potential_Contributor_to_Cold_Injury_in_Apple_Trees/32833079
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Multidimensional_Motion_and_Manipulation_of_Optothermal_Bubble_Microrobots_in_Dimethyl_Silicone_Oil_via_Remote_Laser_Control/32833076
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/media/Multidimensional_Motion_and_Manipulation_of_Optothermal_Bubble_Microrobots_in_Dimethyl_Silicone_Oil_via_Remote_Laser_Control/32833073
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/media/Multidimensional_Motion_and_Manipulation_of_Optothermal_Bubble_Microrobots_in_Dimethyl_Silicone_Oil_via_Remote_Laser_Control/32833070
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10272639
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20065754
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10353767
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7951034
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5365769
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21056057
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21056057
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2602.13875
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2601.12282
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2511.05934
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
 - intent: OOM
   status: verified
   candidates:
@@ -138,31 +37,31 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/Can_exercise-induced_benefits_in_bone_strength_be_further_improved_after_menarche_if_training_is_maintained_/32833046
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Including_gender_in_integrated_development_plans_past_experiences_and_future_possibilities/32859575
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Ice_Nucleation_Activity_by_i_Fusarium_tricinctum_i_Can_Enhance_Cold_Stress_A_Potential_Contributor_to_Cold_Injury_in_Apple_Trees/32833079
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Putting_research_into_policy_and_practice_through_partnership_building_networking_and_information_dissemination_the_role_of_the_SAHARA_network/32859692
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Multidimensional_Motion_and_Manipulation_of_Optothermal_Bubble_Microrobots_in_Dimethyl_Silicone_Oil_via_Remote_Laser_Control/32833076
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Moblility_of_human_resources_and_systems_of_innovation_a_review_of_literature/32859635
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/media/Multidimensional_Motion_and_Manipulation_of_Optothermal_Bubble_Microrobots_in_Dimethyl_Silicone_Oil_via_Remote_Laser_Control/32833073
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Literature_review_of_the_role_of_economic_powerhouses_in_regional_development_lessons_for_South_Africa_in_Africa_executive_summary/32859572
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/media/Multidimensional_Motion_and_Manipulation_of_Optothermal_Bubble_Microrobots_in_Dimethyl_Silicone_Oil_via_Remote_Laser_Control/32833070
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Overview/32859689
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://onlinelibrary.wiley.com/doi/10.1002/asna.18740832002
+  - url: https://onlinelibrary.wiley.com/doi/10.1002/asna.19041651302
     source: zenodo
     status: wrong_format
     reason: HTTP 403
-  - url: https://onlinelibrary.wiley.com/doi/10.1002/asna.19041651302
+  - url: https://onlinelibrary.wiley.com/doi/10.1002/asna.18740832002
     source: zenodo
     status: wrong_format
     reason: HTTP 403
@@ -178,206 +77,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: HTTP 403
-  - url: https://zenodo.org/records/21048847
+  - url: https://zenodo.org/records/21095036
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21048847
+  - url: https://zenodo.org/records/21095036
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21042952
+  - url: https://zenodo.org/records/21085491
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21042952
+  - url: https://zenodo.org/records/21082739
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2605.20224
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-- intent: MUST
-  status: verified
-  candidates:
-  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
-    source: huggingface
-    format: parquet
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
-    source: huggingface
-    format: parquet
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 190547
-      parsed: true
-  candidates_tried:
-  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/Changes_in_bone_structure_strength_and_bone_mass_distribution_following_an_18_month_targeted_bone_loading_program_in_older_men/32833082
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/Can_exercise-induced_benefits_in_bone_strength_be_further_improved_after_menarche_if_training_is_maintained_/32833046
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Ice_Nucleation_Activity_by_i_Fusarium_tricinctum_i_Can_Enhance_Cold_Stress_A_Potential_Contributor_to_Cold_Injury_in_Apple_Trees/32833079
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Multidimensional_Motion_and_Manipulation_of_Optothermal_Bubble_Microrobots_in_Dimethyl_Silicone_Oil_via_Remote_Laser_Control/32833076
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/media/Multidimensional_Motion_and_Manipulation_of_Optothermal_Bubble_Microrobots_in_Dimethyl_Silicone_Oil_via_Remote_Laser_Control/32833073
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5746416
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/16954306
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/8056637
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15420758
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19980220
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://osf.io/2vnyf/
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://osf.io/ayujt/
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://osf.io/akmhg/
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21050067
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21050067
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-- intent: VBench
-  status: verified
-  candidates:
-  - url: https://huggingface.co/datasets/kmhh/vbench/resolve/main/videocrafter-1.tar.gz
-    source: huggingface
-    format: gzip
-    relevance: 1.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  - url: https://huggingface.co/datasets/tianweiy/CausVid-VBench/resolve/main/causvid_24fps.zip
-    source: huggingface
-    format: zip
-    relevance: 1.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  - url: https://huggingface.co/datasets/JokerJan/MMR-VBench/resolve/main/data/test-00000-of-00001.parquet
-    source: huggingface
-    format: parquet
-    relevance: 1.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  candidates_tried:
-  - url: https://huggingface.co/datasets/Vchitect/VBench_human_annotation/resolve/main/arena_feedback.csv
-    source: huggingface
-    status: unreachable
-    reason: 'reachability failed: HTTP 401'
-  - url: https://huggingface.co/datasets/kmhh/vbench/resolve/main/videocrafter-1.tar.gz
-    source: huggingface
-    status: verified
-    format: gzip
-  - url: https://huggingface.co/datasets/tianweiy/CausVid-VBench/resolve/main/causvid_24fps.zip
-    source: huggingface
-    status: verified
-    format: zip
-  - url: https://huggingface.co/datasets/JokerJan/MMR-VBench/resolve/main/data/test-00000-of-00001.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/Changes_in_bone_structure_strength_and_bone_mass_distribution_following_an_18_month_targeted_bone_loading_program_in_older_men/32833082
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/Can_exercise-induced_benefits_in_bone_strength_be_further_improved_after_menarche_if_training_is_maintained_/32833046
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Ice_Nucleation_Activity_by_i_Fusarium_tricinctum_i_Can_Enhance_Cold_Stress_A_Potential_Contributor_to_Cold_Injury_in_Apple_Trees/32833079
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Multidimensional_Motion_and_Manipulation_of_Optothermal_Bubble_Microrobots_in_Dimethyl_Silicone_Oil_via_Remote_Laser_Control/32833076
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/media/Multidimensional_Motion_and_Manipulation_of_Optothermal_Bubble_Microrobots_in_Dimethyl_Silicone_Oil_via_Remote_Laser_Control/32833073
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19712494
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19712475
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20097948
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19828424
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2605.31603
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2603.14526
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2606.29337
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2606.26916
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2606.26778
+  - url: https://zenodo.org/records/21082739
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

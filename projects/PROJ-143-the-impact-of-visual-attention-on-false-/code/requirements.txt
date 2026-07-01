@@ -1,0 +1,9 @@
+torch-cpu
+scikit-learn
+pandas
+numpy
+statsmodels
+datasets
+opencv-python-headless
+pillow
+torchvision

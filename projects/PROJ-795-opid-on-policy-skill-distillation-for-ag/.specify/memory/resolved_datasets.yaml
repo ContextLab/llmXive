@@ -1,0 +1,155 @@
+resolved_at: '2026-07-01T09:29:58.483581+00:00'
+datasets:
+- intent: ALFWorld
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/yijunyang/alfworld-sft-dataset/resolve/main/train.tar.gz
+    source: huggingface
+    format: gzip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Heaplax/ARMAP-RM-ALFWorld/resolve/main/alfworld_factual.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 51
+      parsed: true
+  - url: https://huggingface.co/datasets/crislmfroes/alfworld/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 6235
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/yijunyang/alfworld-sft-dataset/resolve/main/train.tar.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/Heaplax/ARMAP-RM-ALFWorld/resolve/main/alfworld_factual.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/crislmfroes/alfworld/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/dslighfdsl/alfworld_train_all/resolve/main/train_all_alfworld.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/HIV_risk_reduction_intervention_among_medically_circumcised_young_men_in_South_Africa_a_randomized_controlled_trial/32850878
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Diabetes_in_melanoma_patients_-_survival_and_costs_dataset/32240979
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/What_is_the_nutritional_status_of_children_of_obese_mothers_in_South_Africa_/32851034
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Fatherhood_and_families/32850824
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Promoting_male_involvement_to_improve_PMTCT_uptake_and_reduce_antenatal_HIV_infection_a_cluster_randomized_controlled_trial_protocol/32850875
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20470799
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20483157
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19908177
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20219105
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.32017
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.30639
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.29961
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.29502
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.29178
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: OPID
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/preprint/Autophagy-Related_Transcriptional_Programs_in_OCD_Genetic_Architecture_A_Hypothesis-Generating_Bridge_from_NAD_-Associated_Cellular_Maintenance_Biology/32850989
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Seed_funding_for_Gender_and_Energy_Network_South_Africa_GENSA_2nd_progress_report/32851010
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Reshaping_cities_transforming_life_chances/32851136
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Exploring_equity_and_quality_education_in_South_Africa_using_multilevel_models/32850776
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Differences_between_tight_and_loose_cultures_a_33-nation_study/32850689
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4011199
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20425098
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://journals.uran.ua/eejet/article/view/268436
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.26790
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20425098
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20425098
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/rfn52/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/qg4en/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

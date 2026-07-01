@@ -160,9 +160,9 @@ expected alphabetic or numeric character, but found '*'
 - [ ] T043 [P] Documentation updates in `docs/` and `README.md`: add installation instructions, usage examples, and data model diagram; create `docs/quickstart.md`.
 - [ ] T044 [P] Refactor `code/metrics.py` to reduce cyclomatic complexity to a lower, manageable level and ensure every public function has a comprehensive docstring.
 - [ ] T045 [P] Refactor `code/analysis.py` to enforce function length < 50 lines and add type hints throughout.
-- [ ] T045 [P] Performance optimization: add memory profiling in `code/main.py` to ensure peak RAM < 4 GB (SC‑003).
-- [ ] T046 [P] Run quickstart validation script to ensure end‑to‑end execution from a fresh clone.
-- [ ] T047 [P] Verify runtime logging in `code/main.py` targets < 4 hours on a 2 vCPU runner (SC‑002).
+- [~] T045 [P] Performance optimization: add memory profiling in `code/main.py` to ensure peak RAM < 4 GB (SC‑003).
+- [~] T046 [P] Run quickstart validation script to ensure end‑to‑end execution from a fresh clone.
+- [~] T047 [P] Verify runtime logging in `code/main.py` targets < 4 hours on a 2 vCPU runner (SC‑002).
 
 ---
 

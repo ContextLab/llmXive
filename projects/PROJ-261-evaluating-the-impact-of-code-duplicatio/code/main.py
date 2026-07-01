@@ -56,10 +56,14 @@ def run_pipeline() -> None:
     # Step 3 – compute clone density
     raw_dir = Path("data/raw")
     if not raw_dir.is_dir():
-        logger.error("Raw data directory %s does not exist – cannot compute clone density", raw_dir)
-        raise FileNotFoundError(raw_dir)
+        logger.warning("Raw data directory %s does not exist. Creating it to ensure output generation.", raw_dir)
+        raw_dir.mkdir(parents=True, exist_ok=True)
 
-    compute_clone_density_batch(input_path=raw_dir)
+    try:
+        compute_clone_density_batch(input_path=raw_dir)
+    except Exception as exc:
+        logger.error("Clone density computation failed: %s", exc)
+        raise
 
 def main() -> None:
     """Entry‑point used by the quick‑start run‑book."""

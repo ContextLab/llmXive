@@ -2,13 +2,13 @@
   "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-806-scaling-the-horizon-not-the-parameters-r/paper/pdf/2606.30616.pdf",
   "audit": null,
   "repair_rounds": 0,
-  "llmxive_compile_attempts": 1,
+  "llmxive_compile_attempts": 3,
   "status": "fallback_original",
   "failure": {
-    "stage": "compile",
-    "reason": "lualatex failed:\n! Argument of \\@fileswith@ptions has an extra }.\n<inserted text> \n\\par \nl.34 \\usepackage\n              {makecell}\nRunaway argument?\n\\@pkgextension \n! Paragraph ended before \\@fileswith@ptions was complete.\n<to be read again> \n\\par \nl.34 \\usepackage\n              {makecell}\n! Argument of \\@fileswith@ptions has an extra }.\n<inserted text> \n\\par \nl.34 \\usepackage\n              {makecell}\nRunaway argument?\n! Paragraph ended before \\@fileswith@ptions was complete.\n<to be read again> \n\\par \nl.34 \\usepackage\n              {makecell}\n(That makes 100 errors; please try again.)\n 633 words of node memory still in use:\n   5 hlist, 1 vlist, 2 rule, 1 dir, 4 kern, 1 glyph, 8 attribute, 83 glue_spec,\n 8 attribute_list, 1 if_stack, 2 write, 2 pdf_colorstack nodes\n   avail lists: 1:1,2:23,3:1,5:5,7:5,8:2\n!  ==> Fatal error occurred, no output PDF file produced!\nTranscript written on main-llmxive.log.",
-    "log_excerpt": "lualatex failed:\n! Argument of \\@fileswith@ptions has an extra }.\n<inserted text> \n\\par \nl.34 \\usepackage\n              {makecell}\nRunaway argument?\n\\@pkgextension \n! Paragraph ended before \\@fileswith@ptions was complete.\n<to be read again> \n\\par \nl.34 \\usepackage\n              {makecell}\n! Argument of \\@fileswith@ptions has an extra }.\n<inserted text> \n\\par \nl.34 \\usepackage\n              {makecell}\nRunaway argument?\n! Paragraph ended before \\@fileswith@ptions was complete.\n<to be read again> \n\\par \nl.34 \\usepackage\n              {makecell}\n(That makes 100 errors; please try again.)\n 633 words of node memory still in use:\n   5 hlist, 1 vlist, 2 rule, 1 dir, 4 kern, 1 glyph, 8 attribute, 83 glue_spec,\n 8 attribute_list, 1 if_stack, 2 write, 2 pdf_colorstack nodes\n   avail lists: 1:1,2:23,3:1,5:5,7:5,8:2\n!  ==> Fatal error occurred, no output PDF file produced!\nTranscript written on main-llmxive.log."
+    "stage": "restyle",
+    "reason": "llmxive restyle failed 3x \u2014 serving the arXiv fallback; reset llmxive_compile_attempts in state/paper_status/ after fixing the source",
+    "log_excerpt": "llmxive restyle failed 3x \u2014 serving the arXiv fallback; reset llmxive_compile_attempts in state/paper_status/ after fixing the source"
   },
   "paper_id": "PROJ-806-scaling-the-horizon-not-the-parameters-r",
-  "updated_at": "2026-07-01T03:14:00.414255+00:00"
+  "updated_at": "2026-07-01T13:29:07.790083+00:00"
 }

@@ -1,4 +1,4 @@
-resolved_at: '2026-06-29T01:43:41.653361+00:00'
+resolved_at: '2026-07-01T10:40:14.998473+00:00'
 datasets:
 - intent: RMSE
   status: verified
@@ -26,27 +26,27 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/68edd46259f14f21c698aa28/f44f703ecd57d1ddffab68ea166dffcb818f02a0274566ab4651239ed85fffff?response-content-type=application%2Fjson&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27dataset_list.json%3B+filename%3D%22dataset_list.json%22%3B&user_id=public&Expires=1782701002&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjhlZGQ0NjI1OWYxNGYyMWM2OThhYTI4L2Y0NGY3MDNlY2Q1N2QxZGRmZmFiNjhlYTE2NmRmZmNiODE4ZjAyYTAyNzQ1NjZhYjQ2NTEyMzllZDg1ZmZmZmZcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJlgtWGV0LUNhcy1VaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdkYXRhc2V0X2xpc3QuanNvbiUzQitmaWxlbmFtZSUzRCUyMmRhdGFzZXRfbGlzdC5qc29uJTIyJTNCJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODI3MDEwMDJ9fX1dfQ__&Signature=MEUCIGwfmZbDx1aFo~mO~Zq8TjyWjHTUTEHBwW2MN2~VeRXdAiEA1ZJNWn20Bdglkdphzboo7bLYOb4kJqDz2T8UfaykW-8_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/68edd46259f14f21c698aa28/f44f703ecd57d1ddffab68ea166dffcb818f02a0274566ab4651239ed85fffff?user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27dataset_list.json%3B+filename%3D%22dataset_list.json%22%3B&X-Xet-Cas-Uid=public&response-content-type=application%2Fjson&Expires=1782905895&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjhlZGQ0NjI1OWYxNGYyMWM2OThhYTI4L2Y0NGY3MDNlY2Q1N2QxZGRmZmFiNjhlYTE2NmRmZmNiODE4ZjAyYTAyNzQ1NjZhYjQ2NTEyMzllZDg1ZmZmZmZcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGF0YXNldF9saXN0Lmpzb24lM0IrZmlsZW5hbWUlM0QlMjJkYXRhc2V0X2xpc3QuanNvbiUyMiUzQiZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODI5MDU4OTV9fX1dfQ__&Signature=MEYCIQDdYvmnRrK6eCAlYYLki8ynFeYdQzFb-41izvJItKMrQQIhAMN~zPPzBFlmekYCpzAbUNFAhbTY-6TH07eOyaxHiZsR&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/Optimized_Covariate_Estimation_in_a_Linear_Mixed_Model_Improves_GWAS_Reliability_in_Rice/32767677
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/_Think_for_yourself_-_Think_for_tomorrow_Exploring_the_impact_of_peer-led_HIV_intervention_and_psychosocial_support_groups_for_vulnerable_youth_in_South_Africa/32853416
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/conference_contribution/Risk_of_fracture_in_women_is_associated_with_their_childhood_fracture_history_independent_of_bone_mineral_density_The_Geelong_Osteoporosis_Study/32817791
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/The_citizen_voice_project_an_intervention_in_water_services_in_rural_South_Africa/32853497
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://curate.curtin.edu.au/articles/journal_contribution/Navigating_work_integrated_learning_WIL_pathways_for_learners_through_creative_media_production_the_Yagan_Square_digital_tower_WIL_project/31741432
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Why_transport_is_not_the_only_way_to_get_our_cities_moving/32853644
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/chapter/Digital_Heritage_after_Platformisation_Double_Binds_at_Two_Legal_Deposit_Libraries/32796873
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Growing_up_in_the_new_South_Africa_childhood_and_adolescence_in_post-apartheid_Cape_Town/32853491
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Geometric_Mirror_Model_GEMM_v1_0_Main_Paper_and_Popular_Science_Supplements__/32778645
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Early_sexual_debut_and_associated_factors_among_in-school_adolescents_in_eight_African_countries/32853641
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -66,27 +66,30 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10867253
+  - url: https://zenodo.org/records/17167994
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2606.27515
+  - url: https://fair.unifg.it//handle/11369/382362
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2606.27492
+  - url: https://doi.org/10.14749/32852957
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+  - url: https://zenodo.org/records/20823164
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2606.27416
+  - url: https://zenodo.org/records/20823164
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2606.27394
+  - url: https://doi.org/10.13016/vptd-ufwx
     source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://sanad.iau.ir/Journal/impcs/Article/1228514
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''drum.lib.umd.edu'',
+      port=443): Max retries exceeded with url: /handle/1903/35566 (Caused by ConnectTimeoutError(<HTTPSConnection(host=''drum.lib.umd.edu'',
+      port=443) at 0x7f9a3a945690>, ''Connection to drum.lib.umd.edu timed out. (connect
+      timeout=20.0)''))'

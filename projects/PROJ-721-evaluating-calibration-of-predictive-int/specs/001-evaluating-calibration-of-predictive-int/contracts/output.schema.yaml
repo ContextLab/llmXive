@@ -1,0 +1,92 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Calibration Metric Output Schema"
+description: "Schema for the aggregated calibration metrics output (coverage.csv)."
+type: "object"
+properties:
+  model_name:
+    type: "string"
+    description: "Name of the forecasting model (ARIMA, ETS, Prophet, LightGBM)."
+  horizon:
+    type: "integer"
+    minimum: 1
+    maximum: 12
+    description: "Forecast horizon (h=1 to 12)."
+  group_type:
+    type: "string"
+    enum:
+      - "seasonality"
+      - "trend"
+      - "overall"
+    description: "Type of stratification group."
+  group_value:
+    type: "string"
+    description: "Value of the group (e.g., 'Yes', 'High', 'All')."
+  nominal_coverage_80:
+    type: "number"
+ description: "Nominal [deferred] coverage target (0.80)."
+  empirical_coverage_80:
+    type: "number"
+    minimum: 0
+    maximum: 1
+ description: "Observed coverage rate for [deferred] intervals."
+  deviation_80:
+    type: "number"
+ description: "Absolute deviation from nominal [deferred]."
+  nominal_coverage_95:
+    type: "number"
+ description: "Nominal [deferred] coverage target (0.95)."
+  empirical_coverage_95:
+    type: "number"
+    minimum: 0
+    maximum: 1
+ description: "Observed coverage rate for [deferred] intervals."
+  deviation_95:
+    type: "number"
+ description: "Absolute deviation from nominal [deferred]."
+  interval_score_80:
+    type: "number"
+ description: "Interval score for [deferred] intervals (lower is better)."
+  interval_score_95:
+    type: "number"
+ description: "Interval score for [deferred] intervals (lower is better)."
+  p_value_raw:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Raw p-value from statistical test."
+  p_value_adj:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Benjamini-Yekutieli adjusted p-value."
+  is_significant:
+    type: "boolean"
+    description: "Whether the result is significant after FDR correction."
+  bootstrap_p_value_diff:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "P-value from paired bootstrap test of the difference in coverage."
+  bootstrap_ci_lower_diff:
+    type: "number"
+    description: "Lower bound of 95% confidence interval for coverage difference."
+  bootstrap_ci_upper_diff:
+    type: "number"
+    description: "Upper bound of 95% confidence interval for coverage difference."
+required:
+  - "model_name"
+  - "horizon"
+  - "group_type"
+  - "group_value"
+  - "nominal_coverage_80"
+  - "empirical_coverage_80"
+  - "deviation_80"
+  - "nominal_coverage_95"
+  - "empirical_coverage_95"
+  - "deviation_95"
+  - "p_value_adj"
+  - "is_significant"
+  - "bootstrap_p_value_diff"
+  - "bootstrap_ci_lower_diff"
+  - "bootstrap_ci_upper_diff"
+additionalProperties: false

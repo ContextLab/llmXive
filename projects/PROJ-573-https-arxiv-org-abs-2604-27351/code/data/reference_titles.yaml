@@ -1,0 +1,16 @@
+# Reference Titles Database for Constitution II Compliance
+# This file is used by the ReferenceValidatorAgent to check for title overlap.
+# Add existing reference titles here to block duplicate submissions.
+references:
+  - title: "Heterogeneous Scientific Foundation Model Collaboration Benchmark"
+    source: "Project Specification"
+    date_added: "2024-01-01"
+  - title: "Time-Series Transformer for Human Activity Recognition"
+    source: "UCI-HAR Baseline"
+    date_added: "2024-01-02"
+  - title: "TabPFN: Tabular Prior Data Fitted Network"
+    source: "HuggingFace Model Card"
+    date_added: "2024-01-03"
+  - title: "Distilled LLM for Text Classification"
+    source: "Research Paper"
+    date_added: "2024-01-04"

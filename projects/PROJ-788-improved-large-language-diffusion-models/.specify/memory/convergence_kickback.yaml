@@ -1,0 +1,163 @@
+artifact_links:
+- projects/PROJ-788-improved-large-language-diffusion-models/specs/001-improved-large-language-diffusion-models/tasks.md
+- specs/*/tasks.md
+reason: 14 concern(s) remained unresolved after 3 round(s) at stage 'tasked'; worst
+  unresolved severity = 'requirement'. Routing to 'clarified' with full provenance
+  so the next worker can address the root cause.
+stage: tasks
+to_stage: clarified
+unresolved_concerns:
+- artifact: projects/PROJ-788-improved-large-language-diffusion-models/specs/001-improved-large-language-diffusion-models/tasks.md
+  id: coverage-4b83c2b5
+  location: tasks.md:Phase 4
+  reviewer: coverage
+  round: 1
+  severity: requirement
+  text: Tasks T018, T019, T020, and T021 implement 'Validate Benchmark Output Against
+    Paper Claims' (US2). However, the Plan explicitly declares quantitative validation
+    'infeasible' and 'NOT APPLICABLE' (SC-006) due to hardware constraints. The tasks
+    attempt to implement a feature the plan rejects, creating a coverage gap where
+    the spec's FR-004/US-2 requirements are unmet by the plan's scope, and the tasks
+    are misaligned with the plan's 'Smoke Test' objective.
+- artifact: projects/PROJ-788-improved-large-language-diffusion-models/specs/001-improved-large-language-diffusion-models/tasks.md
+  id: coverage-c6bb5e6c
+  location: tasks.md:Phase 3
+  reviewer: coverage
+  round: 1
+  severity: requirement
+  text: Task T013 references 'real NAB/UCI URLs' for dataset loading. The Spec (US-2)
+    and Plan (Constraints) specifically require 'bbh', 'arc', or 'gsm8k' datasets.
+    This mismatch means the task does not correctly cover the Spec's requirement to
+    evaluate against the paper's specific benchmarks (BBH, ARC-Challenge).
+- artifact: projects/PROJ-788-improved-large-language-diffusion-models/specs/001-improved-large-language-diffusion-models/tasks.md
+  id: coverage-8e0da6da
+  location: tasks.md:Phase 2
+  reviewer: coverage
+  round: 1
+  severity: writing
+  text: Task T008 mentions 'environment configuration management' for '--device cpu'.
+    While it covers the FR-001 requirement, the description is vague compared to the
+    Plan's strict constraint 'No CUDA/GPU; No bitsandbytes'. A more specific task
+    description would better ensure coverage of the 'no GPU device selection' constraint.
+- artifact: projects/PROJ-788-improved-large-language-diffusion-models/specs/001-improved-large-language-diffusion-models/tasks.md
+  id: ordering-5bc96a73
+  location: tasks.md:Phase 4
+  reviewer: ordering
+  round: 1
+  severity: requirement
+  text: 'Tasks T018-T021 (User Story 2) implement ''Validate Benchmark Output Against
+    Paper Claims'' and ''comparison logic''. However, the Plan (Summary & Success
+    Criteria) explicitly declares quantitative validation ''infeasible'' and ''NOT
+    APPLICABLE'' (SC-006). Implementing a consumer task (comparison) for a producer
+    (paper-claim validation) that the plan has rejected creates a semantic ordering
+    violation: the tasks attempt to consume a non-existent artifact (valid quantitative
+    comparison) or implement a feature the plan forbids.'
+- artifact: projects/PROJ-788-improved-large-language-diffusion-models/specs/001-improved-large-language-diffusion-models/tasks.md
+  id: ordering-91cbf395
+  location: tasks.md:Phase 3
+  reviewer: ordering
+  round: 1
+  severity: requirement
+  text: Task T013 specifies loading 'real NAB/UCI URLs'. The Spec (US-2) and Plan
+    (Constraints) explicitly require 'bbh', 'arc', or 'gsm8k' datasets for the reproduction.
+    T013 attempts to consume a data source (NAB/UCI) that contradicts the defined
+    data-flow requirements for the benchmark validation, creating a dependency mismatch
+    where the task produces data for a different benchmark than the one specified
+    for validation.
+- artifact: projects/PROJ-788-improved-large-language-diffusion-models/specs/001-improved-large-language-diffusion-models/tasks.md
+  id: ordering-bfd3c50e
+  location: tasks.md:Phase 2
+  reviewer: ordering
+  round: 1
+  severity: writing
+  text: Task T008 mentions 'environment configuration management for --device cpu'.
+    While not a hard ordering violation, the description is vague regarding the 'no
+    GPU' constraint. It should explicitly state 'ensure no GPU device selection' to
+    prevent implicit ordering failures where a developer might configure a GPU device
+    before the hardware check in T006 runs.
+- artifact: projects/PROJ-788-improved-large-language-diffusion-models/specs/001-improved-large-language-diffusion-models/tasks.md
+  id: executability-a3dcd345
+  location: tasks.md:Phase 4
+  reviewer: executability
+  round: 1
+  severity: requirement
+  text: Task T019 'Implement comparison logic... to log paper vs. run scores' and
+    T020 'Integrate comparator' are unexecutable because the Plan explicitly declares
+    quantitative validation 'NOT APPLICABLE' and 'infeasible'. The task description
+    assumes a deliverable (score comparison) that the plan rejects, leaving the implementer
+    with no concrete logic to write or verify.
+- artifact: projects/PROJ-788-improved-large-language-diffusion-models/specs/001-improved-large-language-diffusion-models/tasks.md
+  id: executability-6bca1f77
+  location: tasks.md:Phase 3
+  reviewer: executability
+  round: 1
+  severity: requirement
+  text: Task T013 'Implement dataset loading... using real NAB/UCI URLs' is unexecutable.
+    The Spec (US-2) and Plan (Constraints) mandate 'bbh', 'arc', or 'gsm8k' datasets.
+    NAB/UCI are not mentioned in the requirements, creating a conflict where the task
+    points to a data source not defined in the spec, making the deliverable ambiguous.
+- artifact: projects/PROJ-788-improved-large-language-diffusion-models/specs/001-improved-large-language-diffusion-models/tasks.md
+  id: executability-620ab4bd
+  location: tasks.md:Phase 6
+  reviewer: executability
+  round: 1
+  severity: writing
+  text: Task T027 'Documentation updates in docs/ and README.md' is too coarse. It
+    lacks a concrete deliverable (e.g., 'Update README.md with --device and --subset_size
+    flags') and a verification method (e.g., 'Verify CLI help text matches spec').
+    The atomizer will need to split this.
+- artifact: projects/PROJ-788-improved-large-language-diffusion-models/specs/001-improved-large-language-diffusion-models/tasks.md
+  id: executability-d6941243
+  location: tasks.md:Phase 6
+  reviewer: executability
+  round: 1
+  severity: writing
+  text: Task T028 'Code cleanup and refactoring in src/llada/' is too coarse and non-deterministic.
+    It names no specific artifact, metric, or refactoring target (e.g., 'Reduce cyclomatic
+    complexity of eval_llada.py to <10'). Without a concrete goal, an implementer
+    cannot execute this deterministically.
+- artifact: projects/PROJ-788-improved-large-language-diffusion-models/specs/001-improved-large-language-diffusion-models/tasks.md
+  id: executability-3e47b52c
+  location: tasks.md:Phase 3
+  reviewer: executability
+  round: 1
+  severity: requirement
+  text: 'Task T016 ''Ensure results.json is written... even if partial'' lacks a concrete
+    verification step. ''Partial'' is undefined. The task should specify the exact
+    schema keys required for a ''partial'' success (e.g., ''Verify results.json contains
+    at least {"status": "partial", "subset_id": "..."}'') to be verifiable.'
+- artifact: projects/PROJ-788-improved-large-language-diffusion-models/specs/001-improved-large-language-diffusion-models/tasks.md
+  id: constraint_preservation-43eeb2ef
+  location: tasks.md:Phase 4
+  reviewer: constraint_preservation
+  round: 1
+  severity: requirement
+  text: Tasks T018, T019, T020, and T021 implement 'Validate Benchmark Output Against
+    Paper Claims' (US2) and 'comparison logic' to check scores against paper claims.
+    The Plan explicitly declares quantitative validation 'infeasible' and 'NOT APPLICABLE'
+    (SC-006) due to hardware constraints. These tasks silently relax the Plan's scope
+    decision by attempting to implement a feature the Plan rejected, creating a direct
+    contradiction between the task deliverable and the approved implementation strategy.
+- artifact: projects/PROJ-788-improved-large-language-diffusion-models/specs/001-improved-large-language-diffusion-models/tasks.md
+  id: constraint_preservation-09b5a23d
+  location: tasks.md:Phase 3
+  reviewer: constraint_preservation
+  round: 1
+  severity: requirement
+  text: Task T013 specifies loading 'real NAB/UCI URLs' for dataset loading. The Spec
+    (US2) and Plan (Constraints) explicitly require 'bbh', 'arc', or 'gsm8k' datasets
+    for the reproduction pipeline. This task introduces a silent drift in the data
+    source, violating the specific benchmark requirements defined in the Spec and
+    Plan.
+- artifact: projects/PROJ-788-improved-large-language-diffusion-models/specs/001-improved-large-language-diffusion-models/tasks.md
+  id: constraint_preservation-5686a055
+  location: tasks.md:Phase 3
+  reviewer: constraint_preservation
+  round: 1
+  severity: requirement
+  text: Task T012 specifies using 'torch_dtype=torch.float16 (no bitsandbytes)'. The
+    Spec (FR-002) and Plan (Constraints) allow for 'float32 with CPU offloading' or
+    fallback to lower precision if OOM occurs. Hardcoding float16 without a fallback
+    mechanism in the task description risks violating the 'graceful fallback to N=1'
+    requirement defined in the Plan's Success Criteria (SC-002) and Edge Cases.
+worst_severity: requirement

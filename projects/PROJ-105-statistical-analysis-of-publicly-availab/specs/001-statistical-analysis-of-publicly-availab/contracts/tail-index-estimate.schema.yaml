@@ -1,0 +1,89 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: TailIndexEstimate
+description: Schema for heavy-tail diagnostic results (Hill estimator).
+type: object
+properties:
+  method:
+    type: string
+    description: "Method used for estimation (e.g., 'Hill')."
+    const: "Hill"
+  threshold_k:
+    type: integer
+    description: "Number of top records (k) used for the estimator."
+    minimum: 1
+  estimated_alpha:
+    type: number
+    description: "Estimated tail index (alpha)."
+    exclusiveMinimum: 0
+  confidence_interval:
+    type: object
+    description: "95% Confidence Interval derived from bootstrap (2.5th/97.5th percentiles)."
+    properties:
+      lower:
+        type: number
+      upper:
+        type: number
+    required:
+      - lower
+      - upper
+  stability_range:
+    type: object
+    description: "Summary statistics of the stability analysis (variance vs k)."
+    properties:
+      min_k:
+        type: integer
+        description: "The k value where variance was minimized."
+      max_k:
+        type: integer
+        description: "The upper bound of the stable region."
+      variance_min:
+        type: number
+        description: "The minimum variance found in the stability analysis."
+    required:
+      - min_k
+      - max_k
+      - variance_min
+  log_log_r_squared:
+    type: number
+    description: "R-squared value from OLS on log-log tail plot (visualization only)."
+    minimum: 0
+    maximum: 1
+  tail_ks_pvalue:
+    type: number
+    description: "P-value from Kolmogorov-Smirnov test on the tail subset (bootstrapped)."
+    minimum: 0
+    maximum: 1
+  log_normal_discrimination:
+    type: object
+    description: "Results of the Log-Normal discrimination test."
+    properties:
+      curvature_stat:
+        type: number
+        description: "Curvature statistic of the Hill plot."
+      p_value:
+        type: number
+        description: "P-value comparing empirical curvature to Log-Normal null."
+    required:
+      - curvature_stat
+      - p_value
+  x_min_confidence_interval:
+    type: object
+    description: "95% Confidence Interval for x_min derived from bootstrap."
+    properties:
+      lower:
+        type: number
+      upper:
+        type: number
+    required:
+      - lower
+      - upper
+required:
+  - method
+  - threshold_k
+  - estimated_alpha
+  - confidence_interval
+  - stability_range
+  - log_log_r_squared
+  - tail_ks_pvalue
+  - log_normal_discrimination
+  - x_min_confidence_interval

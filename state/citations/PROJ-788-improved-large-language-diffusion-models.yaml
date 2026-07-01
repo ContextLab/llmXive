@@ -1,0 +1,11 @@
+- artifact_hash: 1b7f3d47bcfca121d288f2f1153156853f98e79560819eb404fda65b2811efe7
+  artifact_path: projects/PROJ-788-improved-large-language-diffusion-models/specs/001-improved-large-language-diffusion-models/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: cpu
+  kind: url
+  value: https://download.pytorch.org/whl/cpu
+  verification_status: pending
+  verified_against_url: https://download.pytorch.org/whl/cpu
+  verified_at: '2026-07-01T10:44:02.156661Z'

@@ -1,0 +1,167 @@
+resolved_at: '2026-07-01T11:30:21.683771+00:00'
+datasets:
+- intent: IAT
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/davanstrien/ia_test_embeddings/resolve/main/data/train-00000-of-00001-82feb90c086b8e08.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 2874
+      parsed: true
+  - url: https://huggingface.co/datasets/siemvaessen/iati/resolve/main/IATIcloud-2023-03-06T16_09_02.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/devinitorg/iati-policy-markers/resolve/main/data/train-00000-of-00002.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/davanstrien/ia_test_embeddings/resolve/main/data/train-00000-of-00001-82feb90c086b8e08.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/siemvaessen/iati/resolve/main/IATIcloud-2023-03-06T16_09_02.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/devinitorg/iati-policy-markers/resolve/main/data/train-00000-of-00002.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/iatop65/Voice_Training_Data/resolve/main/Brian_Griffin.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://figshare.com/articles/dataset/_b_Polar_Breeze_Air_Cooler_Erfahrungen_2026_Lohnt_sich_der_mobile_Luftk_hler_wirklich_b_/32854805
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://orda.shef.ac.uk/articles/workflow/Workflow_for_Cost-effectiveness_of_strategies_to_prevent_or_manage_Candidozyma_auris_Candida_auris_outbreaks_in_acute_and_non-acute_settings_systematic_review_/32802467
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Teenage_pregnancy_in_South_Africa_with_a_specific_focus_on_school-going_learners/32854562
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Future_directions_in_urban_policy/32854625
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Barriers_to_implementation_of_PMTCT_program_in_the_Eastern_Cape_of_South_Africa/32854508
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20477290
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14288909
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14289423
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14289348
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14289599
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/znhc7/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://yareta.unige.ch/archives/279772e0-eb7c-45fd-80f4-865705f569b0
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://world.physio/congress-proceeding/physiotherapists-have-implicit-bias-bending-and-lifting-round-back-dangerous
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://world.physio/congress-proceeding/bending-and-lifting-round-back-perceived-dangerous-implicit-attitudes-people
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/6zjm9/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ValueError
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Nursing_in_a_new_era_the_profession_and_education_of_nurses_in_South_Africa/32854496
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Survey_module_social_research_and_ethical_issues/32854550
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Measuring_science_and_technology_indicators_in_South_Africa_role_of_the_Centre_for_Science_Technology_and_Innovation_Indicators_CeSTII_/32854553
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Evaluation_study_of_the_psycho-social_needs_of_volunteer_community_home-based_carers/32854670
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/HIV_and_AIDS_strategy_2008-2012/32854745
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7973180
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18717969
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15988567
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17401758
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19610761
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21098367
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21098367
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20781320
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20781320
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21075373
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

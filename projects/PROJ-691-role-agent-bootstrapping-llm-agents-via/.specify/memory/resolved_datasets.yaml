@@ -1,0 +1,384 @@
+resolved_at: '2026-07-01T15:01:48.015022+00:00'
+datasets:
+- intent: AIW
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/SuHao0/AiWebConfig/resolve/main/styles.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 711
+      parsed: true
+  - url: https://huggingface.co/datasets/prabhjyot/aiwozoQA/resolve/main/aiwozo.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/prabhjyot/AIWOZO_Final/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 45674
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/SuHao0/AiWebConfig/resolve/main/styles.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/api/resolve-cache/datasets/Nintw923/CNN-AIWriter-set/8c6ecfcf35ce405874828e705a731f885b9f2c9e/dataset_eval.csv?%2Fdatasets%2FNintw923%2FCNN-AIWriter-set%2Fresolve%2Fmain%2Fdataset_eval.csv=&etag=%22055a15b0ccf8785f7d16b9bed2e87622fc3c2b26%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/65412d06aa727b1a959c3426/a6bff41621700cce064a4f3edd0a0c44722276aee62a7562c7d3bdc1f7a2aecf?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27aiwingman-c-programming-v2-mistral.json%3B+filename%3D%22aiwingman-c-programming-v2-mistral.json%22%3B&response-content-type=application%2Fjson&Expires=1782921604&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjU0MTJkMDZhYTcyN2IxYTk1OWMzNDI2L2E2YmZmNDE2MjE3MDBjY2UwNjRhNGYzZWRkMGEwYzQ0NzIyMjc2YWVlNjJhNzU2MmM3ZDNiZGMxZjdhMmFlY2ZcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3YWl3aW5nbWFuLWMtcHJvZ3JhbW1pbmctdjItbWlzdHJhbC5qc29uJTNCK2ZpbGVuYW1lJTNEJTIyYWl3aW5nbWFuLWMtcHJvZ3JhbW1pbmctdjItbWlzdHJhbC5qc29uJTIyJTNCJnJlc3BvbnNlLWNvbnRlbnQtdHlwZT1hcHBsaWNhdGlvbiUyRmpzb24iLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MjkyMTYwNH19fV19&Signature=MEMCHxbw3w5RSM6tAuEapvl9x939mT3Llwybj~uMrBigkAMCIAQMoEjJr5EF2aQ70R6gVXedWAJTt6EooZ2iaR13qq3t&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/prabhjyot/aiwozoQA/resolve/main/aiwozo.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/prabhjyot/AIWOZO_Final/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://ore.exeter.ac.uk/articles/journal_contribution/When_you_make_and_buy_understanding_service_delivery_portfolios_in_concurrent_sourcing/32744649
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Atrial_volume_reduction_correlates_with_early_improvement_in_hemorrhage-associated_normal_pressure_hydrocephalus_a_3D_computed_tomography_volumetric_study_docx/32860838
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ices-library.figshare.com/articles/report/Whiting_i_Merlangius_merlangus_i_in_Subarea_8_and_Division_9_a_Bay_of_Biscay_and_Atlantic_Iberian_waters_/27202953
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_The_effects_of_12-weeks_resveratrol_supplementation_on_cognition_gastrointestinal_microbiota_and_systemic_inflammation_in_an_overweight_and_obese_human_population_a_randomized_double-blind_placebo_controlled_parallel_groups_trial_do/32860835
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Polanga_oil_as_a_novel_non-edible_hydrophobic_substrate_for_sophorolipid_biosynthesis_by_Candida_bombicola_ATCC_22214/32860799
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15387696
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14168603
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8116200
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8042571
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://riojournal.com/article/54284/element/2/5794519/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/119597-does-using-llms-in-daily-life-help-or-hinder-learning-a-second-languagequestion
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/123883-the-role-of-deductive-and-inductive-reasoning-in-large-language-models
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.10917
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Meat_supply_in_mitigating_food_insecurity_undernourishment_and_anemia_among_women_a_study_of_selected_countries_in_Asia_Europe_and_Africa/30651575/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Meat_supply_in_mitigating_food_insecurity_undernourishment_and_anemia_among_women_a_study_of_selected_countries_in_Asia_Europe_and_Africa/30651575
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: WIA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/reinhardh/wia_dcft_fasttext_stage_1_2/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 4350
+      parsed: true
+  - url: https://huggingface.co/datasets/reinhardh/wia_dcft_stage_2/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/reinhardh/wia_random_sample/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/reinhardh/wia_dcft_fasttext_stage_1_2/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/reinhardh/wia_dcft_stage_2/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/reinhardh/wia_random_sample/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/reinhardh/wia_random_sample_stage_3/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/reinhardh/wia_dcft_stage_2_v2/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://ore.exeter.ac.uk/articles/journal_contribution/When_you_make_and_buy_understanding_service_delivery_portfolios_in_concurrent_sourcing/32744649
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Atrial_volume_reduction_correlates_with_early_improvement_in_hemorrhage-associated_normal_pressure_hydrocephalus_a_3D_computed_tomography_volumetric_study_docx/32860838
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ices-library.figshare.com/articles/report/Whiting_i_Merlangius_merlangus_i_in_Subarea_8_and_Division_9_a_Bay_of_Biscay_and_Atlantic_Iberian_waters_/27202953
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_The_effects_of_12-weeks_resveratrol_supplementation_on_cognition_gastrointestinal_microbiota_and_systemic_inflammation_in_an_overweight_and_obese_human_population_a_randomized_double-blind_placebo_controlled_parallel_groups_trial_do/32860835
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Polanga_oil_as_a_novel_non-edible_hydrophobic_substrate_for_sophorolipid_biosynthesis_by_Candida_bombicola_ATCC_22214/32860799
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10606947
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3908625
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7759349
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7524551
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18632197
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.gbif.org/dataset/f38b3f41-cd27-4e8e-92b9-7f1ecb47e05a
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/20826533
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20826533
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.10917
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://pubdata.leuphana.de/handle/20.500.14123/15157
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-only
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/media/Mchale/32860844
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ore.exeter.ac.uk/articles/journal_contribution/When_you_make_and_buy_understanding_service_delivery_portfolios_in_concurrent_sourcing/32744649
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Atrial_volume_reduction_correlates_with_early_improvement_in_hemorrhage-associated_normal_pressure_hydrocephalus_a_3D_computed_tomography_volumetric_study_docx/32860838
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ices-library.figshare.com/articles/report/Whiting_i_Merlangius_merlangus_i_in_Subarea_8_and_Division_9_a_Bay_of_Biscay_and_Atlantic_Iberian_waters_/27202953
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_The_effects_of_12-weeks_resveratrol_supplementation_on_cognition_gastrointestinal_microbiota_and_systemic_inflammation_in_an_overweight_and_obese_human_population_a_randomized_double-blind_placebo_controlled_parallel_groups_trial_do/32860835
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://beei.org/index.php/EEI/article/view/1972
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6127654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21107296
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21106521
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21106521
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unige.iris.cineca.it/handle/11567/929442
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21104198
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ALFWorld
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/yijunyang/alfworld-sft-dataset/resolve/main/train.tar.gz
+    source: huggingface
+    format: gzip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Heaplax/ARMAP-RM-ALFWorld/resolve/main/alfworld_factual.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 51
+      parsed: true
+  - url: https://huggingface.co/datasets/crislmfroes/alfworld/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 6235
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/yijunyang/alfworld-sft-dataset/resolve/main/train.tar.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/Heaplax/ARMAP-RM-ALFWorld/resolve/main/alfworld_factual.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/crislmfroes/alfworld/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/dslighfdsl/alfworld_train_all/resolve/main/train_all_alfworld.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://figshare.com/articles/journal_contribution/An_Empirical_Analysis_of_Fractional-Order_Gradient_Descent_in_Deep_Non-Convex_Optimization_Landscapes/32860823
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Mchale/32860844
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ore.exeter.ac.uk/articles/journal_contribution/When_you_make_and_buy_understanding_service_delivery_portfolios_in_concurrent_sourcing/32744649
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Atrial_volume_reduction_correlates_with_early_improvement_in_hemorrhage-associated_normal_pressure_hydrocephalus_a_3D_computed_tomography_volumetric_study_docx/32860838
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ices-library.figshare.com/articles/report/Whiting_i_Merlangius_merlangus_i_in_Subarea_8_and_Division_9_a_Bay_of_Biscay_and_Atlantic_Iberian_waters_/27202953
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20470799
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20483157
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19908177
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20219105
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.32017
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.30639
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.29961
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.29502
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.29178
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

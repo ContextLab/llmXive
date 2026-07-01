@@ -8,3 +8,5 @@
 {"at": "2026-06-30T23:57:44.547623+00:00", "from_stage": "paper_specified", "last_run_id": "f64c9861-67d1-4fc3-9f94-8a93ab2ab906", "to_stage": "clarified"}
 {"at": "2026-07-01T00:22:56.068176+00:00", "from_stage": "clarified", "last_run_id": "d974fc92-8de7-4e3f-85a1-648cf0332075", "to_stage": "planned"}
 {"at": "2026-07-01T00:48:50.062290+00:00", "from_stage": "planned", "last_run_id": "930a31aa-53e0-4bd9-8d81-ea1cd87b94b3", "to_stage": "tasked"}
+{"at": "2026-07-01T10:23:11.066986+00:00", "from_stage": "tasked", "last_run_id": "4e1c55c0-b20a-4baf-9d74-de8557336b14", "to_stage": "analyzed"}
+{"at": "2026-07-01T10:36:11.656293+00:00", "from_stage": "analyzed", "last_run_id": "9b0d93c6-9c24-4962-9d3f-94cd94e8ab0a", "to_stage": "in_progress"}

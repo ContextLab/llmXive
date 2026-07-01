@@ -1,0 +1,11 @@
+- artifact_hash: 52da723201cdffaebb3903f146998d51419dde7a5cc92a7627bc72b3004c5689
+  artifact_path: projects/PROJ-720-joyai-vl-interaction-real-time-vision-la/specs/001-joyai-vl-interaction-real-time-vision-la/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/your-org/joyai-vl-reproduction.git
+  verification_status: mismatch
+  verified_against_url: https://github.com/your-org/joyai-vl-reproduction
+  verified_at: '2026-07-01T16:58:57.821610Z'

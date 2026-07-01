@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "born-model-solvation-comparison"
+version = "0.1.0"
+description = "Comparing Born Model Predictions with Experimental Solvation Energies of Small Ions"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas",
+    "numpy",
+    "scipy",
+    "matplotlib",
+    "scikit-learn",
+    "pyyaml",
+    "jsonschema",
+    "pydantic",
+    "pytest",
+    "flake8",
+    "black",
+    "pip-audit",
+    "pytest-cov",
+    "pydocstyle",
+]
+
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''

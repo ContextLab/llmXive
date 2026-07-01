@@ -1,0 +1,501 @@
+resolved_at: '2026-07-01T10:22:34.272079+00:00'
+datasets:
+- intent: AND
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/sdsr/erp-and-erotica/resolve/main/blackdahlia--group-roleplays.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Bektemir96az96/Uzbek_and_Russian_Phishing_dataset/resolve/main/phishing_legitimate_dataset.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/active-vision-lab/oxford-day-and-night/resolve/main/aria/scene_durations.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 310
+      parsed: true
+  candidates_tried:
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/64f72b773e89b329daa77f8e/904abf519aa6303bcf0d260cebe69b8ec649a61c8b45baacd18aa6179fe46d03?X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27eclipse_clear.csv%3B+filename%3D%22eclipse_clear.csv%22%3B&response-content-type=text%2Fcsv&Expires=1782904654&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjRmNzJiNzczZTg5YjMyOWRhYTc3ZjhlLzkwNGFiZjUxOWFhNjMwM2JjZjBkMjYwY2ViZTY5YjhlYzY0OWE2MWM4YjQ1YmFhY2QxOGFhNjE3OWZlNDZkMDNcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZWNsaXBzZV9jbGVhci5jc3YlM0IrZmlsZW5hbWUlM0QlMjJlY2xpcHNlX2NsZWFyLmNzdiUyMiUzQiZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyOTA0NjU0fX19XX0_&Signature=MEQCIHwfyO~nWPVQMQDpn5y9OckKAsBeUixAYTLet2IrYCb9AiAZwquJLeLfPdzJHWS0rwuGJMORT6EVq4uTd5W-bwJ-9g__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/sdsr/erp-and-erotica/resolve/main/blackdahlia--group-roleplays.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/Bektemir96az96/Uzbek_and_Russian_Phishing_dataset/resolve/main/phishing_legitimate_dataset.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/active-vision-lab/oxford-day-and-night/resolve/main/aria/scene_durations.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/smolagents/android-control/resolve/main/data/test-00000-of-00067.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Enantiopurity-Controlled_Magnetism_in_a_Two-Dimensional_Organic_Inorganic_Material/32853058
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/070_4_913_8563_School_of_Nursing_LUTHHave_Publish_School_i_2026_2027_Application_Form_i_Is_Out_070_4_913_8563The_Management_of_the_school_/32853053
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Tuning_Br_nsted_Lewis_Acid_Site_Ratios_via_Ammonia_Modulation_for_Selective_Conversion_of_Glycerol_to_1_3-Propanediol_or_Solketal/32853055
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/Code_and_processed_data/32853038
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Dynamic_Proton_Sharing_and_Second-Sphere_Gating_Control_Catalytic_States_in_NiFe_Hydrogenase/32853049
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://link.springer.com/article/10.1007/BF01977446
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7714657
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17432343
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5464613
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5464560
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: RSES
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Rsesystem2/Avneet_Mockups/resolve/main/all_mockups.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Rsesystem2/Avneet_Mockups_2/resolve/main/all_mockups.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Rsesystem2/Avneet_Mockups_3/resolve/main/all_mockups.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 69805
+      parsed: true
+  candidates_tried:
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/63ec4beb94d31c12e4139d70/dcb5be5afad69dcc568251d2e42883730287464e7653df234338e2d2b731702f?user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27flicker_full.json%3B+filename%3D%22flicker_full.json%22%3B&response-content-type=application%2Fjson&X-Xet-Cas-Uid=public&Expires=1782904689&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjNlYzRiZWI5NGQzMWMxMmU0MTM5ZDcwL2RjYjViZTVhZmFkNjlkY2M1NjgyNTFkMmU0Mjg4MzczMDI4NzQ2NGU3NjUzZGYyMzQzMzhlMmQyYjczMTcwMmZcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZmxpY2tlcl9mdWxsLmpzb24lM0IrZmlsZW5hbWUlM0QlMjJmbGlja2VyX2Z1bGwuanNvbiUyMiUzQiZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODI5MDQ2ODl9fX1dfQ__&Signature=MEUCICRzUO3RNoeRkWPTIQdWdgimNg~ZIVLgMK4NGhbuM1nGAiEA6ajaxTrlP9tLNyEu96mp2Xzl8jG~8ckliLH02OJw-Ag_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/Rsesystem2/Avneet_Mockups/resolve/main/all_mockups.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/Rsesystem2/Avneet_Mockups_2/resolve/main/all_mockups.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/Rsesystem2/Avneet_Mockups_3/resolve/main/all_mockups.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://figshare.com/articles/dataset/070_4_913_8563_Nigerian_Army_College_of_Nursing_Yaba_Have_Publish_School_i_2026_2027_Application_Form_i_Is_Out_070_4_913_8563The_Management_of_the_school_/32853062
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Enantiopurity-Controlled_Magnetism_in_a_Two-Dimensional_Organic_Inorganic_Material/32853058
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/070_4_913_8563_School_of_Nursing_LUTHHave_Publish_School_i_2026_2027_Application_Form_i_Is_Out_070_4_913_8563The_Management_of_the_school_/32853053
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Tuning_Br_nsted_Lewis_Acid_Site_Ratios_via_Ammonia_Modulation_for_Selective_Conversion_of_Glycerol_to_1_3-Propanediol_or_Solketal/32853055
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/Code_and_processed_data/32853038
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5531839
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14041977
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7265787
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7265798
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4270655
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21023379
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21023379
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://world.physio/congress-proceeding/new-approach-humanitarian-aid-using-tele-physiotherapy
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ese-journals.unisalento.it/index.php/cpgp/article/download/22262/19174
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21020860
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: INCOM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/scikit-learn/adult-census-income/resolve/main/adult.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/meghana/adult_income_dataset/resolve/main/adult.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/income/nfcorpus-top-20-gen-queries/resolve/main/train.jsonl.gz
+    source: huggingface
+    format: gzip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Karmane/one-million-passive-income-opportunities/resolve/main/data/data.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/scikit-learn/adult-census-income/resolve/main/adult.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/meghana/adult_income_dataset/resolve/main/adult.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/income/nfcorpus-top-20-gen-queries/resolve/main/train.jsonl.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/income/fiqa-top-20-gen-queries/resolve/main/train.jsonl.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://figshare.com/articles/dataset/070_4_913_8563_Lagos_State_College_of_Nursing_and_Midwifery_Igando_Have_Publish_School_i_2026_2027_Application_Form_i_Is_Out_070_4_913_8563The_Management_of_the_school_/32853071
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://geolsoc.figshare.com/articles/journal_contribution/Evidence_of_extremely_low_uplift_rates_since_the_Late_Wolstonian_Substage_MIS_6_from_investigations_for_a_new_nuclear_power_station_at_Bradwell_Essex_England/32853079
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/NKTg_AI/32852651
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/070_4_913_8563_Nigerian_Army_College_of_Nursing_Yaba_Have_Publish_School_i_2026_2027_Application_Form_i_Is_Out_070_4_913_8563The_Management_of_the_school_/32853062
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Enantiopurity-Controlled_Magnetism_in_a_Two-Dimensional_Organic_Inorganic_Material/32853058
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4620322
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16283562
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18064420
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20599092
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12706806
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://kalligeneia.aua.gr/items/3db4edac-adfe-4c6e-a346-ecaf43bce88e
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/mv439/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20587416
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20587416
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20578489
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: VR-specific
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/070_4_913_8563_Lagos_State_College_of_Nursing_and_Midwifery_Igando_Have_Publish_School_i_2026_2027_Application_Form_i_Is_Out_070_4_913_8563The_Management_of_the_school_/32853071
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://geolsoc.figshare.com/articles/journal_contribution/Evidence_of_extremely_low_uplift_rates_since_the_Late_Wolstonian_Substage_MIS_6_from_investigations_for_a_new_nuclear_power_station_at_Bradwell_Essex_England/32853079
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/NKTg_AI/32852651
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/070_4_913_8563_Nigerian_Army_College_of_Nursing_Yaba_Have_Publish_School_i_2026_2027_Application_Form_i_Is_Out_070_4_913_8563The_Management_of_the_school_/32853062
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Enantiopurity-Controlled_Magnetism_in_a_Two-Dimensional_Organic_Inorganic_Material/32853058
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14788374
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3497068
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3492140
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5773102
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3489793
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/jfdwn/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21093446
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21093446
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://static.prod.raid.org.au/raids/10.26259/76da8180/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://world.physio/congress-proceeding/virtual-reality-oculus-platform-measure-sensory-integration-postural-control
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-only
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/AI_Bill_of_Materials_Completeness_in_Hugging_Face_ML_Models/32830067
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/Artifact_for_The_Cure_for_Incompleteness_in_Static_Analysis_/32852291
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/070_4_913_8563_University_of_Ilorin_Teaching_Hospital_UITH_School_of_Nursing_Have_Publish_School_i_2026_2027_Application_Form_i_Is_Out_070_4_913_8563The_Management_of_the_school_/32853080
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/070_4_913_8563_Lagos_State_College_of_Nursing_and_Midwifery_Igando_Have_Publish_School_i_2026_2027_Application_Form_i_Is_Out_070_4_913_8563The_Management_of_the_school_/32853071
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://geolsoc.figshare.com/articles/journal_contribution/Evidence_of_extremely_low_uplift_rates_since_the_Late_Wolstonian_Substage_MIS_6_from_investigations_for_a_new_nuclear_power_station_at_Bradwell_Essex_England/32853079
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://beei.org/index.php/EEI/article/view/1972
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5951740
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21101148
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21101148
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unige.iris.cineca.it/handle/11567/929442
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20690105
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20690105
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MICE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/pankajrajdeo/gp2protein_mice_JAX/resolve/main/gp2protein.mgi.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/pankajrajdeo/mgi_mice_JAX/resolve/main/mgi.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/sykimhere/mayday_mice_dataset1/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 52723
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/pankajrajdeo/gp2protein_mice_JAX/resolve/main/gp2protein.mgi.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/pankajrajdeo/mgi_mice_JAX/resolve/main/mgi.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sykimhere/mayday_mice_dataset1/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Maydaypartners/mayday_mice_dataset1/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Maydaypartners/mayday_mice_dataset2/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/More_work_for_women_a_rights-based_analysis_of_women_s_access_to_basic_services_in_South_Africa/32853101
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/A_technology_gap_analysis_of_leading_firms_in_Cape_Town/32853029
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/070_4_913_8563_College_of_Nursing_Sciences_Oke-Ode_Have_Publish_School_i_2026_2027_Application_Form_i_Is_Out_070_4_913_8563The_Management_of_the_school_/32853086
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/AI_Bill_of_Materials_Completeness_in_Hugging_Face_ML_Models/32830067
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/Artifact_for_The_Cure_for_Incompleteness_in_Static_Analysis_/32852291
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ALL
+  status: unresolved
+  candidates: []
+  candidates_tried: []

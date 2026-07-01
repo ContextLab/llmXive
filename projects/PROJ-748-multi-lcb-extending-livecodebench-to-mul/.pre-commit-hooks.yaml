@@ -1,0 +1,20 @@
+- id: ruff
+  name: ruff
+  entry: ruff check
+  language: python
+  types: [python]
+  require_serial: true
+  args: [--fix, --exit-non-zero-on-fix]
+- id: black
+  name: black
+  entry: black
+  language: python
+  types: [python]
+  require_serial: true
+  args: [--line-length=100]
+- id: pre-commit-check
+  name: pre-commit check
+  entry: python -m code.setup_hooks
+  language: python
+  pass_filenames: false
+  always_run: true

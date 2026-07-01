@@ -153,3 +153,233 @@
   source_type: external
   status: verified
   updated_at: '2026-06-29T14:19:05Z'
+- artifact_path: projects/PROJ-675-comparing-born-model-predictions-with-ex/specs/001-comparing-born-model-predictions-with-ex/tasks.md
+  attempts: 1
+  canonical: dataset contains 30 or more ion-solvent pairs with complete fields
+  claim_id: c_5f5f4c89
+  context: "Independent Test: Can be fully tested by verifying the dataset contains\
+    \ \u226530 ion-solvent pairs with complete fields (experimental \u0394G, \u03B5\
+    , r, charge) and that each value includes an uncertainty estimate or documented\
+    \ source precision."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The dataset contains \u226530 ion-solvent pairs with complete fields\
+    \ (experimental \u0394G, \u03B5, r, charge)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:26:16Z'
+- artifact_path: projects/PROJ-675-comparing-born-model-predictions-with-ex/specs/001-comparing-born-model-predictions-with-ex/tasks.md
+  attempts: 1
+  canonical: ionic radii extracted to 0.01 Angstrom precision
+  claim_id: c_4e6b9e2a
+  context: "T013 [US1] Implement Shannon radii extractor in code/data_compiler.py\
+    \ (source: {{claim:c_baa24643}} (Wikidata Q2277031, https://www.wikidata.org/wiki/Q2277031))\
+    \ with crystal radius values to \u22650.01 \xC5 precision"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ionic radii values are extracted to \u22650.01 \xC5 precision."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:26:16Z'
+- artifact_path: projects/PROJ-675-comparing-born-model-predictions-with-ex/specs/001-comparing-born-model-predictions-with-ex/tasks.md
+  attempts: 1
+  canonical: measurement temperature recorded with 0.5 degree Celsius precision
+  claim_id: c_9bc92daf
+  context: "T017 [US1] [FR-008] Record measurement temperature (\xB10.5\xB0C) and\
+    \ instrument/source metadata for every entry in data/experimental_solvation.csv\
+    \ AND document in data/metadata.json; verify metadata present"
+  evidence:
+    asserted: '0.5'
+    authority: scipy.constants.c (CODATA 2018, exact by SI definition)
+    constant: speed_of_light
+    corrected: true
+    mode: approximate
+    true_value: 299792458.0
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?c
+  kind: numeric
+  raw_text: "Measurement temperature is recorded with \xB10.5\xB0C precision."
+  resolved_value: '299792458'
+  resolver: approximate
+  source_hash: ed6beba62768b545595a642e36f33757964b4e3db2d209e7dd6059f9670b6f46
+  source_type: external
+  status: verified
+  updated_at: '2026-07-01T10:26:16Z'
+- artifact_path: projects/PROJ-675-comparing-born-model-predictions-with-ex/specs/001-comparing-born-model-predictions-with-ex/tasks.md
+  attempts: 1
+  canonical: Born predictions match published values within 1 percent relative error
+  claim_id: c_b1c46c51
+  context: 'Independent Test: Can be fully tested by computing Born predictions for
+    a small reference set and verifying outputs match published analytical values
+    within 1% tolerance (for formula implementation).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Born predictions for reference ion-water pairs match published analytical
+    values within 1% relative error tolerance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:26:16Z'
+- artifact_path: projects/PROJ-675-comparing-born-model-predictions-with-ex/specs/001-comparing-born-model-predictions-with-ex/tasks.md
+  attempts: 1
+  canonical: calculator validated against 5 reference ion-water pairs with 1 percent
+    relative error
+  claim_id: c_24fae596
+  context: "T026 [US2] Validate calculator against \u22655 reference ion-water pairs\
+    \ from independent data with \u22641% relative error tolerance in code/validate_born.py;\
+    \ assert tolerance and log failures; verify \u22641% tolerance met"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The calculator is validated against \u22655 reference ion-water pairs\
+    \ from independent data with \u22641% relative error tolerance."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:26:16Z'
+- artifact_path: projects/PROJ-675-comparing-born-model-predictions-with-ex/specs/001-comparing-born-model-predictions-with-ex/tasks.md
+  attempts: 1
+  canonical: computation time less than 10 minutes on 2 CPU cores
+  claim_id: c_9e299be6
+  context: 'T028b [US2] Performance benchmark: create code/benchmark.py that measures
+    total computation time and asserts <10 minutes on 2 CPU cores without GPU dependencies;
+    verify benchmark passes'
+  evidence:
+    candidates:
+    - - Log in Computation time less than
+      - 10.0
+    - - Computation time less than 10 minutes on
+      - 2.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Computation_time_less_than_10_minutes_on_2_CPU_cores
+  kind: magnitude
+  raw_text: Total computation time is less than 10 minutes on 2 CPU cores without
+    GPU dependencies.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-01T10:26:46Z'
+- artifact_path: projects/PROJ-675-comparing-born-model-predictions-with-ex/specs/001-comparing-born-model-predictions-with-ex/tasks.md
+  attempts: 1
+  canonical: RMSE less than 5 kcal per mol and correlation greater than 0.8 per solvent
+    class
+  claim_id: c_9c7209fb
+  context: T034b [US3] [SC-003] Calculate and validate RMSE < 5 kcal/mol and correlation
+    > 0.8 metrics per solvent class (water, alcohols, aprotic) with pass/fail reporting
+    in code/regression_analysis.py; verify metrics computed per class
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/RMSE_less_than_5_kcal_per_mol_and_correlation_greater_than_0
+  kind: magnitude
+  raw_text: RMSE is less than 5 kcal/mol and correlation is greater than 0.8 per solvent
+    class.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:27:03Z'
+- artifact_path: projects/PROJ-675-comparing-born-model-predictions-with-ex/specs/001-comparing-born-model-predictions-with-ex/tasks.md
+  attempts: 1
+  canonical: correlation coefficient per solvent class greater than 0.8
+  claim_id: c_371fe65f
+  context: T036a [US3] [SC-003] Calculate correlation coefficient per solvent class
+    and validate > 0.8 cutoff; report pass/fail to data/metrics_summary.csv; verify
+    correlation validated per class
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Correlation_coefficient_per_solvent_class_greater_than_0.8
+  kind: magnitude
+  raw_text: Correlation coefficient per solvent class is validated to be greater than
+    0.8.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:27:30Z'
+- artifact_path: projects/PROJ-675-comparing-born-model-predictions-with-ex/specs/001-comparing-born-model-predictions-with-ex/tasks.md
+  attempts: 1
+  canonical: outliers flagged where RMSE exceeds 20 kcal per mol
+  claim_id: c_6b117127
+  context: T037 [US3] Flag outliers (RMSE > 20 kcal/mol) for manual review in data/residual_analysis.csv
+    with review_required flag; verify outliers flagged
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Outliers are flagged where RMSE exceeds 20 kcal/mol.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:27:55Z'
+- artifact_path: projects/PROJ-675-comparing-born-model-predictions-with-ex/specs/001-comparing-born-model-predictions-with-ex/tasks.md
+  attempts: 1
+  canonical: docstring coverage greater than 80 percent across codebase
+  claim_id: c_868ea836
+  context: T039c [P] Achieve docstring coverage > 80% across code/; verify via pydocstyle
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Docstring_coverage_greater_than_80_percent_across_codebase
+  kind: magnitude
+  raw_text: Docstring coverage is greater than 80% across the codebase.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:28:20Z'
+- artifact_path: projects/PROJ-675-comparing-born-model-predictions-with-ex/specs/001-comparing-born-model-predictions-with-ex/tasks.md
+  attempts: 1
+  canonical: unit test coverage greater than 80 percent across codebase
+  claim_id: c_a6e5fe77
+  context: T041a [P] Achieve unit test coverage > 80% across code/; verify via pytest
+    --cov
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Unit_test_coverage_greater_than_80_percent_across_codebase
+  kind: magnitude
+  raw_text: Unit test coverage is greater than 80% across the codebase.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:28:45Z'
+- artifact_path: projects/PROJ-675-comparing-born-model-predictions-with-ex/specs/001-comparing-born-model-predictions-with-ex/tasks.md
+  attempts: 1
+  canonical: project runs on GitHub Actions free tier with 7 GB RAM
+  claim_id: c_8cc4c46d
+  context: 'CPU-Only Feasibility: All tasks verified to run on GitHub Actions free
+    tier (standard CPU cores, ~7 GB RAM, no GPU). No CUDA, bitsandbytes, or GPU-specific
+    libraries used.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project runs on GitHub Actions free tier with standard CPU cores and
+    approximately 7 GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T10:29:06Z'

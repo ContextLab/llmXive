@@ -1,0 +1,15 @@
+T006 [P] Setup `code/__init__.py` and module structure for data, preprocessing, modeling, and visualization: 1
+T007 [P] Configure environment variable management for API keys (if needed) and data paths: 1
+T008 Create base logging infrastructure to record data provenance and processing steps: 1
+? 'T009 [US1] Unit test for data downloader: verify URL reachability and checksum
+  validation in `tests/unit/test_download_data.py`. **Depends on**: T012 completion.
+  <!-- FAILED: unspecified -->'
+: 1
+? 'T010 [US1] Unit test for synthetic generator: verify ground-truth correlation injection
+  and instrument validation logic in `tests/unit/test_synthetic_generator.py`. **Depends
+  on**: T013 completion.'
+: 1
+? 'T011 [US1] Integration test for preprocessing pipeline: verify VIF calculation
+  and missing value handling in `tests/integration/test_preprocess.py`. **Depends
+  on**: T014 completion.'
+: 1

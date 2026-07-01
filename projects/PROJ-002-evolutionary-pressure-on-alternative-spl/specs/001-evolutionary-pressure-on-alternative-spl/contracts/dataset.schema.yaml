@@ -1,0 +1,44 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: RNASeqSample Schema
+description: Schema for raw RNA-seq sample metadata and file paths.
+type: object
+properties:
+  accession_id:
+    type: string
+    description: "SRA Accession ID (e.g. SRR123456)"
+  species:
+    type: string
+    enum:
+      - human
+      - chimpanzee
+      - macaque
+      - marmoset
+    description: "Species of origin"
+  fastq_path:
+    type: string
+    description: "Local path to raw FASTQ file"
+  checksum:
+    type: string
+    pattern: "^[a-f0-9]{64}$"
+    description: "SHA256 checksum of the file"
+  replicate_id:
+    type: integer
+    minimum: 1
+    description: "Biological replicate index"
+  retention_until:
+    type: string
+    format: date-time
+    description: "Date when raw data should be deleted (90 days after ingestion)"
+  metadata_retention_until:
+    type: string
+    format: date-time
+    description: "Date when metadata should be archived (5 years after ingestion)"
+  zenodo_doi:
+    type: string
+    description: "DOI of the Zenodo archive after 90 days"
+required:
+  - accession_id
+  - species
+  - fastq_path
+  - checksum
+  - replicate_id

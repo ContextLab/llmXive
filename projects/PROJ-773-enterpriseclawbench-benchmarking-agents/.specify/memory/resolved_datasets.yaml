@@ -1,0 +1,232 @@
+resolved_at: '2026-07-01T04:04:19.838476+00:00'
+datasets:
+- intent: SC-005
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Dataset_for_Systematic_Review_and_Meta-analysis_on_Tell-Play-Do_Technique_comprising_1_Full_list_of_512_screened_titles_and_abstracts2_Full_list_of_full_texts_sought_for_retrieval3_Raw_data_extracted_from_the_included_articles_and_formatted/32842541
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/How_community_sport_and_recreation_affect_the_health_and_wellbeing_of_Indigenous_people_A_qualitative_systematic_review_and_meta-aggregation/32842568
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Coupled_Run/32842202
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Template_Absorption_of_Prompt_Conditions_An_Observational_Figure_of_Core-Condition_Drift_in_AI_Image_Generation/32720805
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Experimental_investigation_on_shape_segregation_of_3D_printed_particles_using_an_Freeman_FT4_rheometer/32842565
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15137135
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6963486
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10123143
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6962126
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11145041
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20813212
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20813212
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635092
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20512108
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20470525
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FR-007
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Dataset_for_Systematic_Review_and_Meta-analysis_on_Tell-Play-Do_Technique_comprising_1_Full_list_of_512_screened_titles_and_abstracts2_Full_list_of_full_texts_sought_for_retrieval3_Raw_data_extracted_from_the_included_articles_and_formatted/32842541
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/How_community_sport_and_recreation_affect_the_health_and_wellbeing_of_Indigenous_people_A_qualitative_systematic_review_and_meta-aggregation/32842568
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Coupled_Run/32842202
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Template_Absorption_of_Prompt_Conditions_An_Observational_Figure_of_Core-Condition_Drift_in_AI_Image_Generation/32720805
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Experimental_investigation_on_shape_segregation_of_3D_printed_particles_using_an_Freeman_FT4_rheometer/32842565
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10289138
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7992821
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6963535
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10363304
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10122369
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635248
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564541
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20564417
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.20470525
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://zenodo.org/records/20469943
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: US-2
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/gimarchetti/winnie-us2/resolve/main/data/chunk-000/file-000.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/gimarchetti/eval_so101_winnie_us2_act/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 103062
+      parsed: true
+  - url: https://huggingface.co/datasets/gimarchetti/eval_so101_winnie_us2_diffusion/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 11221
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/gimarchetti/winnie-us2/resolve/main/data/chunk-000/file-000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/gimarchetti/eval_so101_winnie_us2_act/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/gimarchetti/eval_so101_winnie_us2_diffusion/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/gimarchetti/eval_so101_winnie_us2_smolvla/resolve/main/data/chunk-000/episode_000000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Dataset_for_Systematic_Review_and_Meta-analysis_on_Tell-Play-Do_Technique_comprising_1_Full_list_of_512_screened_titles_and_abstracts2_Full_list_of_full_texts_sought_for_retrieval3_Raw_data_extracted_from_the_included_articles_and_formatted/32842541
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/How_community_sport_and_recreation_affect_the_health_and_wellbeing_of_Indigenous_people_A_qualitative_systematic_review_and_meta-aggregation/32842568
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Coupled_Run/32842202
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Template_Absorption_of_Prompt_Conditions_An_Observational_Figure_of_Core-Condition_Drift_in_AI_Image_Generation/32720805
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Experimental_investigation_on_shape_segregation_of_3D_printed_particles_using_an_Freeman_FT4_rheometer/32842565
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3559755
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5216923
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7372808
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5245315
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17102351
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://redivis.com/workflows/x7kh-5pvd4mbf1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2605.20804
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.caltech.edu/records/5h494-sm642
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.caltech.edu/records/gfzyb-kew16
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.caltech.edu/records/931p5-pt417
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

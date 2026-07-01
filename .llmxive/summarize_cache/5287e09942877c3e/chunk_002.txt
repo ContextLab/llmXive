@@ -1,0 +1,41 @@
+MP-DocVQA~\citep{tito2023hierarchical} & 6{,}000 & 8.3 & P & $\times$ \\
+MMLongBench-Doc~\citep{ma2024mmlongbench} & 135 & 47.5 & P & $\times$ \\
+SlideVQA~\citep{tanaka2023slidevqa} & 2{,}619 & 20.0 & B & $\times$ \\
+ViDoRe~V3~\citep{loison2026vidore} & 190 & 137.0 & B & $\times$ \\
+\midrule
+\textbf{CiteVQA (ours)} & \textbf{711} & \textbf{40.6} & \textbf{E} & \checkmark \\
+\bottomrule
+\end{tabular}
+\vspace{-1.0em}
+
+\caption{CiteVQA vs.\ representative Doc-VQA benchmarks. \textit{Gran.}: evidence granularity (\textbf{P} page, \textbf{B} bounding box, \textbf{E} element-level). \textit{Joint}: answer and citation scored by a single sample-level metric.}
+\label{tab:benchmark_compare}
+\end{table}
+
+\paragraph{Document Visual Question Answering}
+Document Visual Question Answering (Doc-VQA) has rapidly evolved from basic visual perception to complex, multi-step reasoning. Early benchmarks (e.g., DocVQA~\citep{mathew2021docvqa}, InfoVQA~\citep{mathew2022infographicvqa}, OCR-VQA~\citep{mishra2019ocr}) primarily targeted single-page comprehension, relying heavily on exact textual answer matching for evaluation. While recent efforts have expanded to handling multi-page and full-document contexts (e.g., MP-DocVQA~\citep{tito2023hierarchical}, MMLongBench-Doc~\citep{ma2024mmlongbench}, SlideVQA~\citep{tanaka2023slidevqa}), they remain fundamentally answer-centric, with evidence annotations largely restricted to the page level. Emerging datasets integrating bounding box (BBox) annotations~\citep{loison2026vidore, yu2026sciegqadatasetscientificevidencegrounded} struggle with inconsistent granularity and a lack of standardized metrics, precluding rigorous audits of reasoning faithfulness. Furthermore, while domain-specific tasks like ChartQA~\citep{masry2022chartqa} and Charxiv~\citep{wang2024charxiv} evaluate targeted elements, they do not reflect the diverse, multi-domain, and layout-heavy challenges of real-world documents. In contrast, CiteVQA introduces a comprehensive cross-page, multi-domain framework grounded in element-level BBox citations. By standardizing evidence granularity and introducing joint evaluation metrics, CiteVQA uniquely measures both answer accuracy and structural traceability in complex real-world scenarios.
+
+\paragraph{Evidence-based Reasoning in LLMs}
+As the issue of hallucination in Large Language Models (LLMs) remain a persistent threat~\citep{wang2025rare, zhao2026retrieval, nakano2021webgpt, gao2023enabling, min2023factscore}, evidence-based reasoning has become paramount, particularly in high-stakes domains such as healthcare and law. Recent works like Med-$R^2$~\citep{lu2025med} and GAPS~\citep{chen2025gaps} enforce clinical guideline alignment in medicine, while CitaLaw~\citep{zhang2025citalaw} demands explicit source tracing for legal statutes to bolster judicial authority. Meanwhile, MRAMG-bench~\citep{yu2025mramg} focuses on multimodal reasoning by proposing evaluation metrics for interleaved image-text responses to measure a model's information extraction capabilities in complex contexts. However, these prior works primarily concentrate on text-only reasoning or generic multimodal interactions, leaving evidence-grounded reasoning in visually rich documents largely unexplored. Consequently, evaluating a model's ability to seamlessly link textual answers to precise visual evidence within long-form documents remains a critical open challenge and largely unexplored.
+
+\paragraph{Document Intelligence Systems}
+Early document understanding (or document intelligence) systems predominantly adopted a coarse "page-level retrieval" paradigm. Systems like Colpali~\citep{faysse2024colpali}, VisRAG~\citep{yu2024visrag}, VDocRAG~\citep{tanaka2025vdocrag}, and M3DocRAG~\citep{cho2024m3docrag} segment documents into page-wise chunks, utilizing multimodal vector search for matching or localization. This macroscopic approach, however, falters on complex queries that demand precise, element-level grounding. Bolstered by the advanced reasoning capabilities of modern MLLMs~\citep{zheng2025deepeyes, zhang2025thyme, kim2022ocr, huang2022layoutlmv3, hu2024mplug, peng2023kosmos, you2023ferret, van2023document,deng2024longdocurl}, recent architectures have transcended basic vector matching. SimpleDoc~\citep{jain2025simpledoc} refines precision through an iterative, summary-driven retrieval workflow, while agentic frameworks like DocLens~\citep{zhu2025doclens}, DocDancer~\citep{zhang2026docdancer}, and AgenticOCR~\citep{wang2026agenticocr} leverage tool-use to navigate from global pages down to localized visual elements. Yet, despite this systemic evolution toward fine-grained evidence extraction, evaluation paradigms have lagged. Existing benchmarks still primarily focus on end-answer accuracy, completely lacking the rigorous instrumentation needed to verify reasoning paths and visual traceability.
+
+\section{CiteVQA: A Benchmark for Faithful Evidence Attribution}
+\label{CiteVQA}
+To construct a high-quality benchmark with fine-grained evidence grounding, we develop an Automated Annotation Pipeline that streamlines the process from raw document parsing to complex question-citation generation. The overall workflow of this pipeline is illustrated in Figure~\ref{fig:citevqa_pipeline}. In the following subsections, we first provide a detailed introduction to each stage of the pipeline. Finally, we present a comprehensive analysis of the Data Statistics to highlight the diversity and complexity of the CiteVQA benchmark.
+\begin{figure}[tb]
+\centering
+\includegraphics[width=\textwidth]{figures/citevqa_pipeline.pdf}
+\caption{The automated pipeline for CiteVQA. The workflow begins with Multi-doc Linking for semantic document aggregation, followed by Evidence Package Extraction, where intelligent agents navigate and link scattered MinerU parsing results into a cohesive evidence chain. To ensure authenticity, real-world QA pairs are distilled into templates to guide the automated synthesis of rigorous tasks. Finally, the pipeline implements MLLM-based verification and an evidence ablation procedure to precisely identify Crucial Evidence.}
+\label{fig:citevqa_pipeline}
+\end{figure}
+
+\subsection{Document Collection}
+To construct a highly representative and diverse evaluation benchmark, we designed a multi-stage automated filtering pipeline to systematically extract high-quality documents from a vast pool of heterogeneous data. Starting from a corpus of over 100 million raw PDF documents (primarily sourced from Common Crawl\footnote{\url{https://commoncrawl.org/}}; see Appendix~\ref{Appendix: Ethical Consideration} for compliance and ethical standards), we first pre-selected approximately 250k candidate documents through stratified sampling. These candidates then underwent a two-stage MLLM annotation scheme: (1) Coarse-grained stage, identifying the primary domain and language; and (2) Fine-grained stage, performing sub-category classification within each domain.
+
+Ultimately, 711 documents were selected as the source for CiteVQA, achieving a balanced coverage across 7 domains and 30 sub-categories. This fully automated pipeline ensures both reproducibility and scalability.
+
+\subsection{Question, Answer and Evidence Collection}
+CiteVQA employs an end-to-end automated construction pipeline. The process first aggregates evidence through multi-document linking, then utilizes high-performance agents to extract complete evidence chains within fine-grained spatial contexts, and finally generates simulated real-world QA pairs through template-driven distillation.
+\paragraph{Multi-Document Linking}

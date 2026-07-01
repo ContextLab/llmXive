@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Regression Results Schema"
+description: "Schema for the linear regression results (global and per-region)."
+type: object
+properties:
+  region:
+    type: string
+    description: "Region identifier (e.g., 'Global', 'Band-30')."
+  model_type:
+    type: string
+    description: "Type of model used (PGLS or WLS)."
+  slope:
+    type: number
+    description: "Slope of the regression line."
+  slope_ci_lower:
+    type: number
+    description: "Lower bound of the 95% confidence interval for the slope."
+  slope_ci_upper:
+    type: number
+    description: "Upper bound of the 95% confidence interval for the slope."
+  intercept:
+    type: number
+    description: "Intercept of the regression line."
+  r_squared:
+    type: number
+    description: "Coefficient of determination."
+  p_value:
+    type: number
+    description: "Two-tailed p-value."
+  n_species:
+    type: integer
+    description: "Number of species included in the regression."
+required:
+  - region
+  - model_type
+  - slope
+  - slope_ci_lower
+  - slope_ci_upper
+  - intercept
+  - r_squared
+  - p_value
+  - n_species
+additionalProperties: false

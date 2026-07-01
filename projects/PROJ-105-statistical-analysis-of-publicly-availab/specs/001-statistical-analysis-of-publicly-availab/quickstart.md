@@ -1,52 +1,58 @@
-# Quickstart: Flight Delay Distribution Analysis
+# Quickstart: Statistical Analysis of Flight Delay Distributions
 
 ## Prerequisites
-- Python 3.11+
-- `pip`
-- Access to the verified dataset URL (internet connection required for download).
+-   Python 3.11+
+-   `pip`
+-   ~7 GB RAM available
 
 ## Installation
 
-1. **Clone the repository** (or navigate to the project root).
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-3. **Install dependencies**:
-   ```bash
-   pip install -r code/requirements.txt
-   ```
+1.  **Clone and Setup**:
+    ```bash
+    cd projects/PROJ-105-statistical-analysis-of-publicly-availab
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    pip install -r requirements.txt
+    ```
 
-## Running the Pipeline
+2.  **Verify Dependencies**:
+    Ensure `pandas`, `scipy`, `numpy`, `matplotlib`, `seaborn` are installed.
 
-The entire analysis is orchestrated by `code/src/main.py`.
+## Running the Analysis
 
+### Full Pipeline
+Run the main orchestration script:
 ```bash
-cd code
-python src/main.py --year 2022
+python code/main.py --year 2022 --output data/results/
 ```
+*Note: If the full 2022 dataset is not available via the verified sources, the script will attempt to load the verified sample and report the limitation.*
 
-### Arguments
-- `--year`: Target year for BTS data (default: 2022).
+### Specific Steps
 
-### Expected Output
-1. **Console**: Progress logs, summary statistics (mean delay, N records), retention rate, model ranking, and tail validity status.
-2. **Files**:
-   - `data/processed/delays_cleaned.parquet`
-   - `output/results.json`
-   - `output/plots/loglog_survival.png`
-   - `output/plots/qq_plot_best_model.png`
-   - `output/plots/hill_stability.png`
-   - `state/artifact_hashes.json` (Updated with new hashes)
+1.  **Data Download & Preprocessing**:
+    ```bash
+    python code/data_loader.py --year 2022 --save data/raw/
+    python code/preprocessing.py --input data/raw/bts_2022.csv --output data/processed/cleaned_delays.csv
+    ```
 
-## Verification
-To verify the pipeline without re-downloading (if data is cached):
-```bash
-python -m pytest tests/
-```
+2.  **Model Fitting**:
+    ```bash
+    python code/models.py --input data/processed/cleaned_delays.csv --output data/results/models.json
+    ```
+
+3.  **Diagnostics & Visualization**:
+    ```bash
+    python code/diagnostics.py --input data/processed/cleaned_delays.csv --models data/results/models.json --output data/results/diagnostics.json
+    python code/visualization.py --input data/results/diagnostics.json --output data/results/plots/
+    ```
+
+## Expected Outputs
+-   `data/results/models.json`: Comparison of AIC/BIC for all 5 distributions.
+-   `data/results/diagnostics.json`: Hill estimator results, x_min, R², Vuong test p-value.
+-   `data/results/plots/`: Log-log survival plot, QQ-plots, histograms.
+-   `data/results/summary_report.json`: Final summary with pass/fail status.
 
 ## Troubleshooting
-- **Memory Error**: If RAM usage exceeds 7GB, ensure no other heavy processes are running. The pipeline is optimized for 7GB; if the dataset is larger than expected (e.g., full 2022+2023 combined), reduce the year scope.
-- **Download Failed**: Check internet connection. The dataset is hosted on HuggingFace; ensure your network allows access to `huggingface.co`. **Note**: If the full-year verified URL is unavailable, the pipeline will exit with an error to comply with data integrity rules. No override arguments are available.
-- **Tail Validity Failed**: If no models pass the Tail Validity Gate, the report will indicate "No Heavy-Tail Model Found" rather than forcing a fit.
+-   **Memory Error**: If `Memory limit exceeded` is raised, ensure no other heavy processes are running. The pipeline is designed to fail gracefully rather than crash.
+-   **Convergence Failure**: If fewer than 3 models converge, check `data/results/models.json` for specific failure reasons. This is expected if the data is heavily zero-inflated or has a very light tail.
+-   **No Data**: If the dataset is empty, verify the `--year` argument and network connectivity to the BTS endpoint.

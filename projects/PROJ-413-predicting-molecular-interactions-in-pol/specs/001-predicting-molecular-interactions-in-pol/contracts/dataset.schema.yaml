@@ -1,0 +1,32 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Curated Polymer-Filler Interface Dataset"
+description: "Schema for the curated dataset containing molecular graphs and adhesion energy measurements."
+type: "object"
+properties:
+  pair_id:
+    type: "string"
+    description: "Unique identifier for the interface pair."
+  polymer_smiles:
+    type: "string"
+    description: "SMILES string for the polymer."
+  filler_smiles:
+    type: "string"
+    description: "SMILES string for the filler."
+  adhesion_energy:
+    type: "number"
+    description: "Adhesion energy value (eV or kcal/mol)."
+  source:
+    type: "string"
+    description: "Source of the data (e.g., 'MolNet', 'Literature')."
+  missing_flags:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of columns with missing values > 5%."
+required:
+  - pair_id
+  - polymer_smiles
+  - filler_smiles
+  - adhesion_energy
+  - source
+additionalProperties: false

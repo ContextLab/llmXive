@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PowerAuditResult"
+description: "Schema for the final calculated MDES audit results."
+type: "object"
+properties:
+  dataset_id:
+    type: "integer"
+    description: "FK to DatasetMetadata."
+  calculated_mdes:
+    type: "number"
+    minimum: 0.0
+    description: "Minimum Detectable Effect Size (e.g., Cohen's d)."
+  target_power:
+    type: "number"
+    description: "Target power used (default 0.8)."
+  threshold_met:
+    type: "boolean"
+    description: "True if MDES <= threshold (e.g., 0.5)."
+  status:
+    type: "string"
+    enum:
+      - "success"
+      - "paywalled"
+      - "unparseable"
+      - "skipped"
+    description: "Status of the calculation."
+  alpha:
+    type: "number"
+    description: "Significance level used (default 0.05)."
+  test_type:
+    type: "string"
+    enum:
+      - "t-test"
+      - "anova"
+      - "z-test"
+    description: "Type of statistical test performed."
+required:
+  - "dataset_id"
+  - "calculated_mdes"
+  - "target_power"
+  - "threshold_met"
+  - "status"
+  - "alpha"
+  - "test_type"
+additionalProperties: false

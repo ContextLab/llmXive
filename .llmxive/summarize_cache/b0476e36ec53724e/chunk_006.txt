@@ -1,0 +1,100 @@
+    \modelname & \textbf{91.75} & \textbf{22.88} & \textbf{40.50} & \textbf{52.73} \\
+    Qwen2.5-VL-7B & 91.63 & 15.63 & 33.83 & 48.23 \\
+    \midrule
+    Qwen3-VL-8B & 89.00 & 11.50 & 33.67 & 45.73 \\
+    InternVL3.5-8B & 51.38 & 7.63 & 17.33 & 26.18 \\
+    InternVL3.5-38B & 45.81 & 8.75 & 22.33 & 25.93 \\
+    Gemma3-27B & 49.38 & 3.75 & 17.33 & 24.05 \\
+    \bottomrule
+    \end{tabular*}
+\end{table}
+
+\subsection{Long-Video Generalization}
+\label{app:complementary_experiment_results:generalization_video}
+We provide the numeric long-video generalization results in \cref{tab:generalization_video}, complementing the main-text summary in \cref{fig:generalization_video}.
+
+\begin{table}[H]
+\centering
+\caption{\textbf{Long-video generalization.} We report aggregate scores on Video-MME, MLVU, and LongVideoBench.}
+\label{tab:generalization_video}
+\scriptsize
+\begin{tabular*}{0.7\linewidth}{@{\extracolsep{\fill}}lccc@{}}
+\toprule
+\textbf{Model} & Video-MME & MLVU & LongVideoBench \\
+\midrule
+Qwen2.5-VL-7B & 65.1 & 70.2 & 60.43 \\
+\modelname & \textbf{67.78} & \textbf{73.55} & \textbf{62.08} \\
+\bottomrule
+\end{tabular*}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \caption{Long-document VQA transfer across backbone models. We apply LongPT variants to Qwen3-VL-8B and report results on LongDocURL and SlideVQA. Since Qwen3-VL is already a 256K-context model trained with large-scale long-context pre-training, SFT, and RL, we focus on these two held-out document benchmarks.}
+    \label{tab:qwen3_backbone_generalization}
+    \setlength{\tabcolsep}{4pt}
+    \resizebox{0.9\textwidth}{!}{%
+    \begin{tabular}{l*{3}{C{1.2cm}}|*{3}{C{1.2cm}}|C{1.4cm}}
+    \toprule
+    & \multicolumn{3}{c|}{\textbf{64K MMLongBench}} & \multicolumn{3}{c|}{\textbf{128K MMLongBench}} & \multirow{2}{*}{\textbf{AVG.}} \\
+    \cmidrule(lr){2-4} \cmidrule(lr){5-7}
+    \textbf{Model} & \multicolumn{1}{c}{\footnotesize LD-URL} & \multicolumn{1}{c}{\footnotesize SLIDE} & \multicolumn{1}{c|}{\footnotesize AVG.} & \multicolumn{1}{c}{\footnotesize LD-URL} & \multicolumn{1}{c}{\footnotesize SLIDE} & \multicolumn{1}{c|}{\footnotesize AVG.} & \\
+    \midrule
+    Qwen3-VL-8B & 56.36 & 74.00 & 65.18 & 60.11 & 72.00 & 66.05 & 65.62\,{\scriptsize\makebox[2em][l]{}} \\
+    + \modelname Recipe & 62.22 & 73.00 & 67.61 & 62.81 & 72.00 & 67.41 & 67.51\,{\scriptsize\makebox[2em][l]{\posdiff{1.9}}} \\
+    \bottomrule
+    \end{tabular}
+    }
+\end{table}
+
+\subsection{Generalization across Backbones}
+\label{app:complementary_experiment_results:backbone}
+
+We further apply our LongPT recipe to Qwen3-VL-8B~\citep{bai2025qwen3} to test whether the training recipe transfers beyond Qwen2.5-VL. 
+However, the Qwen3-VL series already includes 256K-context models trained with 100B tokens in long-context continued pre-training, and Qwen3-VL has undergone additional SFT and RL optimization for long-document tasks~\citep{bai2025qwen3}. 
+Therefore, this experiment is not intended as a strict study on context window extension. 
+Instead, we use it as a diagnostic to examine whether the observed behavior transfers across backbones. 
+We report the performance on long-document VQA tasks and MM-NIAH in \cref{tab:qwen3_backbone_generalization,tab:qwen3_backbone_mmniah}, respectively.
+
+The results show that the final \modelname recipe remains effective even on this stronger long-context backbone.
+On long-document VQA, \modelname improves the average score from 65.62 to 67.51.
+The gains are more pronounced on MM-NIAH, where the average score increases from 50.03 to 61.75, with consistent improvements across retrieval, counting, and reasoning at both context lengths.
+Together with the diagnostic nature of this experiment, these results suggest that the proposed training recipe is not specific to Qwen2.5-VL-7B, but may also improve the long-context behavior of a newer backbone that already incorporates native long-context training.
+
+\begin{table}[t]
+    \centering
+    \caption{MM-NIAH transfer across backbone models. We report Retrieval, Counting, Reasoning, and average scores at 64K and 128K context lengths. Our recipe achieves better overall MM-NIAH score on Qwen3-VL-8B.}
+    \label{tab:qwen3_backbone_mmniah}
+    \setlength{\tabcolsep}{3.5pt}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{l*{4}{C{1.05cm}}|*{4}{C{1.05cm}}|C{1.25cm}}
+    \toprule
+    & \multicolumn{4}{c|}{\textbf{64K MM-NIAH}} & \multicolumn{4}{c|}{\textbf{128K MM-NIAH}} & \multirow{2}{*}{\textbf{AVG.}} \\
+    \cmidrule(lr){2-5} \cmidrule(lr){6-9}
+    \textbf{Model} & \multicolumn{1}{c}{\footnotesize Ret.} & \multicolumn{1}{c}{\footnotesize Count} & \multicolumn{1}{c}{\footnotesize Reas.} & \multicolumn{1}{c|}{\footnotesize AVG.} & \multicolumn{1}{c}{\footnotesize Ret.} & \multicolumn{1}{c}{\footnotesize Count} & \multicolumn{1}{c}{\footnotesize Reas.} & \multicolumn{1}{c|}{\footnotesize AVG.} & \\
+    \midrule
+    Qwen3-VL-8B & 77.83 & 25.33 & 62.33 & 55.17 & 61.67 & 17.00 & 56.00 & 44.89 & 50.03\,{\scriptsize\makebox[2em][l]{}} \\
+    + \modelname Recipe & \textbf{83.00} & \textbf{45.67} & \textbf{70.83} & \textbf{66.50} & \textbf{74.17} & \textbf{35.00} & \textbf{61.83} & \textbf{57.00} & \textbf{61.75}\,{\scriptsize\makebox[2em][l]{\posdiff{11.7}}} \\
+    \bottomrule
+    \end{tabular}
+    }
+\end{table}
+
+\section{Limitations}
+\label{app:limitations}
+For the training scale, our systematic study is primarily conducted on 7B/8B-scale LVLMs. 
+This choice enables controlled comparisons across data recipes, context lengths, and training budgets, but it also leaves open how the observed trends scale to substantially larger models.
+Extending the same study to 30B or 70B-scale LVLMs, or to even longer context windows, like 512K or 1M, would require significantly higher computational cost, since long-context continued pre-training is expensive both in model size and sequence length.
+Although our transfer experiment on Qwen3-VL-8B provides initial evidence that the proposed recipe is not tied to a single backbone, a more comprehensive scaling study across larger model families remains an important direction for future work.
+
+For evaluation, our long-document VQA experiments rely on model-based judging to assess answer correctness.
+Compared with lexical-overlap metrics, such judges can better handle semantically equivalent answers and free-form generation, but they also introduce additional API cost.
+This cost becomes substantial when evaluating many checkpoints, context lengths, and model variants, which limits the frequency and scale of evaluation during long-context training.
+Developing more efficient, reliable, and low-cost evaluation protocols for multimodal long-context models is, therefore, an important direction for future research.
+
+\section{Broader Impact}
+\label{app:broader_impact}
+Reliable long-context capability is important for deploying LVLMs in real-world scenarios that require understanding and reasoning over large multimodal inputs, such as long documents, webpages, videos, and agentic workflows.
+This work studies how to build such capability through long-context continued pre-training, with a particular focus on constructing effective multimodal long-context data under a modest training budget.
+Our findings suggest that carefully designed long-document VQA data can provide useful supervision for evidence retrieval and reasoning over long visual-textual contexts, and can transfer beyond documents to broader multimodal long-context tasks.
+We hope these results can help the community develop more data-efficient training recipes for LVLMs, reducing the need for excessive token budgets while improving models' ability to use long multimodal context.

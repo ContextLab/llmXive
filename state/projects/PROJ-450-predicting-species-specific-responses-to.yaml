@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-08T17:38:17.281015Z'
-current_stage: clarified
+current_stage: in_progress
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-450-predicting-species-specific-responses-to
-last_run_id: 6edfabf7-f95e-4d0c-9c28-15eb3b01e5cc
+last_run_id: 22cd81ff-dcf0-45a5-b134-e5627ca9ec39
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-450-predicting-species-specific-responses-to/specs/001-predicting-species-specific-responses-to
 title: Predicting Species-Specific Responses to Climate Change from Museum Collection
   Data
-updated_at: '2026-06-29T07:13:05.816830Z'
+updated_at: '2026-07-01T11:36:30.171081Z'

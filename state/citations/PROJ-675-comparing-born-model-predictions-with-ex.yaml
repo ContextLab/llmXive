@@ -9,7 +9,7 @@
   verification_status: verified
   verified_against_url: https://webbook.nist.gov/chemistry/
   verified_at: '2026-06-29T13:30:32.569651Z'
-- artifact_hash: 23f32198456f3312d2d2348c9fd11c503e7b4c7cdec07ddacc6c924a2ccb5507
+- artifact_hash: 6bd16408cb6d22a1890d3a04caaf4e6467c010d6e1d590a794e75037de01912b
   artifact_path: projects/PROJ-675-comparing-born-model-predictions-with-ex/specs/001-comparing-born-model-predictions-with-ex/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -19,8 +19,8 @@
   value: https://www.wikidata.org/wiki/Q11927173
   verification_status: verified
   verified_against_url: https://www.wikidata.org/wiki/Q11927173
-  verified_at: '2026-06-29T14:19:05.205186Z'
-- artifact_hash: 23f32198456f3312d2d2348c9fd11c503e7b4c7cdec07ddacc6c924a2ccb5507
+  verified_at: '2026-07-01T10:34:32.328715Z'
+- artifact_hash: 6bd16408cb6d22a1890d3a04caaf4e6467c010d6e1d590a794e75037de01912b
   artifact_path: projects/PROJ-675-comparing-born-model-predictions-with-ex/specs/001-comparing-born-model-predictions-with-ex/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -30,4 +30,4 @@
   value: https://www.wikidata.org/wiki/Q2277031
   verification_status: verified
   verified_against_url: https://www.wikidata.org/wiki/Q2277031
-  verified_at: '2026-06-29T14:19:05.205186Z'
+  verified_at: '2026-07-01T10:34:32.328715Z'

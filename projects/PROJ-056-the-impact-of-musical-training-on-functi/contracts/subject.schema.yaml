@@ -1,0 +1,50 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Subject Data Contract
+description: |
+  Schema for subject metadata including demographics and training history.
+  Validates against the project's data model for Subject entities.
+type: object
+required:
+  - subject_id
+  - group
+  - years_of_training
+  - age
+  - sex
+  - motion_score
+  - ses_score
+properties:
+  subject_id:
+    type: string
+    description: Unique identifier for the subject (e.g., "SUBJ_001")
+    pattern: "^SUBJ_\\d+$"
+  group:
+    type: string
+    description: Group classification based on musical training
+    enum:
+      - musician
+      - non_musician
+  years_of_training:
+    type: number
+    description: Total years of formal musical training
+    minimum: 0
+  age:
+    type: number
+    description: Age of the subject in years
+    minimum: 10
+    maximum: 25
+  sex:
+    type: string
+    description: Biological sex of the subject
+    enum:
+      - M
+      - F
+  motion_score:
+    type: number
+    description: Head motion score (framewise displacement)
+    minimum: 0
+  ses_score:
+    type: number
+    description: Socioeconomic status score (composite index)
+    minimum: 0
+    maximum: 100
+additionalProperties: false

@@ -1,0 +1,85 @@
+resolved_at: '2026-07-01T15:41:07.790287+00:00'
+datasets:
+- intent: DatasetMetadata
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/BeardedMonster/dataset-metadata/resolve/main/allenai_soda/allenai_soda_batch_8dc27952.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 35241
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/BeardedMonster/dataset-metadata/resolve/main/allenai_soda/allenai_soda_batch_8dc27952.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/dataset/Kinetic_and_Mechanistic_Insights_into_H_Abstraction_and_Subsequent_Isomerization_and_Decomposition_of_Monoglyme_and_Key_Combustion_Intermediates/32861477
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Spontaneous_Phase_Separation_Enables_Rapid_Polymerization-Free_Fabrication_of_Gels/32861474
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Spontaneous_Phase_Separation_Enables_Rapid_Polymerization-Free_Fabrication_of_Gels/32861471
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Spontaneous_Phase_Separation_Enables_Rapid_Polymerization-Free_Fabrication_of_Gels/32861468
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Spontaneous_Phase_Separation_Enables_Rapid_Polymerization-Free_Fabrication_of_Gels/32861465
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6578038
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20121655
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.nk98sf831
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://fairsharing.org/10.25504/FAIRsharing.5suBHK/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10514956
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12637755
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: PowerAuditResult
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://acs.figshare.com/articles/journal_contribution/Aqueous_Esterification_of_Cellulose_with_Amino_Acids_Enables_Biomass-Based_Pickering_Emulsion_Coatings_for_Fruit_Preservation/32861483
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Kinetic_and_Mechanistic_Insights_into_H_Abstraction_and_Subsequent_Isomerization_and_Decomposition_of_Monoglyme_and_Key_Combustion_Intermediates/32861477
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Spontaneous_Phase_Separation_Enables_Rapid_Polymerization-Free_Fabrication_of_Gels/32861474
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Spontaneous_Phase_Separation_Enables_Rapid_Polymerization-Free_Fabrication_of_Gels/32861471
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/media/Spontaneous_Phase_Separation_Enables_Rapid_Polymerization-Free_Fabrication_of_Gels/32861468
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content

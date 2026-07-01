@@ -1,0 +1,101 @@
+    The scoring scale consists of 2 levels in total, from highest to lowest: 1 point, 0 points (the minimum is 0 points; if a situation arises where points need to be deducted beyond 0, simply assign 0 points).\\
+    {[}Tier Details{]}: \\
+    1 point: Assign 1 point if the student's final answer matches the standard answer. If the question has multiple sub-questions, all sub-questions must be answered to assign 1 point.\\
+    0 points: Assign 0 points if the student's final answer does not match the standard answer.
+    \quad \\
+    \quad \\
+    \promptplaceholder{<in-context exemplars\_1>} \\
+    \quad \\
+    \promptplaceholder{<in-context exemplars\_2>} \\
+    \quad \\
+    \promptplaceholder{<in-context exemplars\_3>} \\
+    \quad \\
+    \promptplaceholder{<test\_case\_1>} \\
+    \end{minipage} \\
+    \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{table}[h]
+    \centering
+    \caption{Prompt for the list-style answer judge in the long-document VQA category of MMLongBench.}
+    \label{tab:list_judge_prompt}
+    \begin{tabular}{p{0.96\linewidth}}
+    \toprule
+    \begin{minipage}{0.96\linewidth}
+    \raggedright\ttfamily\footnotesize
+    Now your role is a grading teacher. Your task is to review and score student answers for LIST-style questions, where the standard answer is a list of required items.\\
+    - First, extract the specific list of items from the \textless Student Answer\textgreater. Ignore conversational filler (e.g., "The answer is...").\\
+    - Then, compare the {[}Extracted List{]} against the \textless Standard Answer\textgreater\ (Ground Truth).\\[2pt]
+    Here are some extra key points:\\
+    - The standard answer is a JSON-like list of items with each item as one required element. Determine whether each item is covered by the student's answer list.\\
+    - An item is covered if it is strictly mentioned or unambiguously implied by a semantic equivalence. This includes numerical equivalence (e.g., 10\% and 0.1), synonyms (e.g., UK and United Kingdom), and plural/singular forms (e.g., "apple" and "apples"). However, do not accept loosely related concepts.\\
+    - You need to write down the extraction and comparing rationale, organize it into clear statements that follow the logical flow. The summary of the rationale should be placed at the end, using the following format: "In summary, the student's answer list has X items, covering Y items from the reference list."\\
+    - Keep the whole process concise, within 200 words.\\
+    - Provide the student's answer item count and covered item count in a code block in "JSON" format.\\[2pt]
+    Your output format is:\\
+    {[}Rationale{]}:\\
+    {[}JSON{]}:\\
+    \{\\
+    \hspace*{1em}"student\_answer\_count": \textless integer\_value\textgreater,\\
+    \hspace*{1em}"covered\_count": \textless integer\_value\textgreater\\
+    \}
+    \quad \\
+    \quad \\
+    \promptplaceholder{<in-context exemplars\_1>} \\
+    \quad \\
+    \promptplaceholder{<in-context exemplars\_2>} \\
+    \quad \\
+    \promptplaceholder{<in-context exemplars\_3>} \\
+    \quad \\
+    \promptplaceholder{<test\_case\_1>} \\
+    \end{minipage} \\
+    \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection{Details of Long-Document VQA Evaluation with the Final Recipe}
+\label{app:evaluation_details:final_recipe}
+In evaluating \modelname trained with the final recipe, we compare it with a wide range of open- and closed-source LVLMs.
+For open-source models, we evaluate Qwen2.5-VL (7B, 32B, 72B)~\citep{bai2025qwen2}, InternVL3 (8B, 14B, 38B)~\citep{zhu2025internvl3}, InternVL3.5 (8B, 14B, 38B)~\citep{wang2025internvl35}, Gemma3 (4B, 12B, 27B)~\citep{team2025gemma3}, and Gemma4 (E2B, E4B, 26B-A4B, 31B)~\citep{google2026gemma4}.
+For closed-source models, we include GPT-5.4~\citep{openai2026introducing_gpt5_4}, GPT-5.5~\citep{openai2026introducing_gpt5_5}, Gemini-2.5-Pro~\citep{google2025gemini2_5}, Gemini-3.1-Flash~\citep{gemini_3_1_pro_2026}, and Gemini-3.1-Pro~\citep{gemini_3_1_pro_2026} with a high reasoning budget.
+
+\subsection{Longer-Context Evaluation up to 512K}
+\label{app:evaluation_details:longer_context}
+To test whether the 128K recipe extrapolates to longer contexts, we further evaluate the same three long-document VQA datasets at 256K and 512K.
+The examples at 256K and 512K context lengths are obtained following MMLongBench~\citep{wang2025mmlongbench}: we alternately pad the left and right sides with randomly sampled negative documents until the required length is reached.
+No additional training or inference-time adaptation is applied to tested models when evaluating at these longer lengths.
+We use the same official LLM-judged score and macro-average computation as in the main long-document evaluation.
+
+\subsection{MM-NIAH: Evaluation on Webpage Haystacks}
+\label{app:evaluation_details:mm_niah}
+MM-NIAH~\citep{wang2024needle} is a multimodal needle-in-a-haystack benchmark that builds on the webpages from OBELICS~\citep{laurenccon2023obelics}.
+In particular, the benchmark contains three task families: retrieval, counting, and reasoning, each with two variants: text-needle and image-needle.
+In our evaluation, we use the standardized version provided by MMLongBench~\citep{wang2025mmlongbench}, where each example is instantiated at five context lengths: 8K, 16K, 32K, 64K, and 128K tokens.
+In our study, we report results at 64K and 128K context lengths as we extend the context window from 32K to 128K.
+For reporting, we first average the text and image variants within each task family.
+Then, the average (AVG.) score is the macro average over the three task-family scores.
+We use the metrics provided by MMLongBench~\citep{wang2025mmlongbench} for each task variant, including exact match, soft accuracy, and multiple-choice accuracy, depending on the specific subtask definition.
+
+\subsection{VTCBench: Evaluation on Long-Context Vision-Text Compression}
+\label{app:evaluation_details:vtcbench}
+VTCBench~\citep{zhao2025vtcbench} is another multimodal long-context benchmark that evaluates whether a model can preserve visual-text information under compressed visual context.
+We follow the VTCBench-Wild setting reported in the original paper and report all three task scores: Retrieval, Reasoning, and Memory.
+We follow the same grading rules as the original paper.
+Retrieval and Reasoning are measured by the official \texttt{containsAll} accuracy, which checks whether all ground-truth answers are contained in the model prediction.
+Memory is measured by the official LLM accuracy, where \texttt{gpt-4o-mini} judges answer correctness.
+The AVG. score follows the Overall column of VTCBench-Wild and is the sample-count weighted average over the three splits, with 800 retrieval examples, 800 reasoning examples, and 600 memory examples.
+
+\subsection{Long-Video Understanding Evaluation}
+\label{app:evaluation_details:video}
+For long-video understanding, we report the performance on Video-MME~\citep{fu2025video}, MLVU~\citep{zhou2025mlvu}, and LongVideoBench~\citep{wu2024longvideobench}.
+We evaluate these benchmarks using the 1fps variants and cap the maximum number of sampled frames per video at 768, with the total number of video tokens not exceeding 24,576.
+This configuration is fully aligned with Qwen2.5-VL technical report~\citep{bai2025qwen2}.
+For Video-MME and LongVideoBench, we report overall multiple-choice accuracy.
+For MLVU, we evaluate the multiple-choice subset and report its average accuracy.
+
+\subsection{Short-Context Evaluation}
+\label{app:evaluation_details:short_context}
+To monitor whether \modelname suffers degradation in general VLM ability, we evaluate short-context performance across three capabilities and six benchmarks.
+These include general VQA (MMBench-V1.1~\citep{liu2024mmbench} and RealWorldQA~\citep{grok15}), multimodal reasoning (MMMU~\citep{yue2024mmmu}, MMMU-Pro~\citep{yue2025mmmupro}, and MathVista~\citep{lu2023mathvista}), and text recognition (OCRBench~\citep{liu2024ocrbench}).
+

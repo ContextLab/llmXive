@@ -1,0 +1,16 @@
+# Pipeline configuration for PROJ-118
+filter:
+  low: 1.0
+  high: 30.0
+epoch:
+  tmin: -0.2
+  tmax: 0.6
+ica:
+  threshold: 0.8
+  method: 'fastica'
+channels:
+  mmn:
+    - Fz
+    - FCz
+    - Cz
+    - Pz

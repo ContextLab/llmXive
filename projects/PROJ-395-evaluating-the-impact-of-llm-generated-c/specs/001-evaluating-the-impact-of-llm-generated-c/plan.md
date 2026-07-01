@@ -4,7 +4,7 @@
 
 ## Summary
 
-This feature implements a computational pipeline to evaluate whether LLM-generated code exhibits systematically different memory consumption patterns compared to human-written equivalents. The approach involves downloading the HumanEval or MBPP benchmark, generating LLM solutions using CPU-tractable models (TinyLlama-1.1B as primary, with 8-bit quantization attempted if available), profiling memory usage via `memory_profiler` and `tracemalloc`, and performing statistical analysis (Kaplan-Meier estimator for censored data, Wilcoxon for uncensored) with multiple-comparison corrections. The entire pipeline is constrained to run on a GitHub Actions free-tier runner (2 CPU, 7 GB RAM, no GPU) within 6 hours.
+This feature implements a computational pipeline to evaluate whether LLM-generated code exhibits systematically different memory consumption patterns compared to human-written equivalents. The approach involves downloading the HumanEval or MBPP benchmark, generating LLM solutions using CPU-tractable models (TinyLlama as primary, with 8-bit quantization attempted if available), profiling memory usage via `memory_profiler` and `tracemalloc`, and performing statistical analysis (Kaplan-Meier estimator for censored data, Wilcoxon for uncensored) with multiple-comparison corrections. The entire pipeline is constrained to run on a GitHub Actions free-tier runner (2 CPU, 7 GB RAM, no GPU) within 6 hours.
 
 ## Technical Context
 

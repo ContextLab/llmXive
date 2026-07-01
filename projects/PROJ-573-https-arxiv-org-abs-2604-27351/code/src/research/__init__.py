@@ -1,1 +1,3 @@
-# Research Package
+"""
+Research modules
+"""

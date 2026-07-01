@@ -1,0 +1,24 @@
+subject_id:
+  type: string
+  required: true
+  description: Unique identifier for the participant
+amplitude:
+  type: float
+  required: false
+  description: Peak amplitude in microvolts (µV)
+latency:
+  type: float
+  required: false
+  description: Peak latency in milliseconds (ms)
+peak_detected:
+  type: boolean
+  required: false
+  description: Whether a valid peak was detected within the analysis window
+snr:
+  type: float
+  required: false
+  description: Signal-to-noise ratio calculated as |amplitude| / baseline_std
+condition:
+  type: string
+  required: false
+  description: Condition label (e.g., 'deviant', 'standard')

@@ -1,0 +1,25 @@
+- 5 (Excellent): Complete, accurate, and perfectly structured and the answer must not be significantly more verbose than the standard answer.  **Extremely Difficult to reach. Do not give 5 unless truly prefect in every dimension.**
+
+## Important Notes
+- Ignore phrases like "cited from" or "from" that may appear in the model's generated answer - they are irrelevant.
+- **DO NOT penalize the answer based on the language it is written in.** Chinese, English, or mixed - score the content only.
+- Only the exact facts in the standard answer count. Extra details beyond the standard answer do NOT improve the score.
+
+## Output Format    
+Please output two lines for the results: the first line is your reasoning for the score, and the second line is the score. Strictly follow this format without any additional content.
+
+# Output Example  
+A reason why you choose this score (from 0 to 5).
+```<qa_acc>X</qa_acc>```
+
+\end{promptbox}
+
+\clearpage
+\newpage
+\section{Limitations \& Potential Negative Impacts}
+\label{appenidx: Limitations}
+\paragraph{Limitations} While CiteVQA introduces a rigorous framework for traceable document intelligence, it entails certain inherent trade-offs. First, although the benchmark spans seven major domains, the definition of authoritative evidence may involve domain-specific nuances in highly specialized vertical fields that warrant further exploration. Second, our automated curation pipeline prioritizes data fidelity by leveraging state-of-the-art Multimodal Large Language Models (MLLMs), which, while ensuring high-quality reasoning and attribution, introduces a significant computational resource barrier for large-scale replication. Finally, the multi-dimensional evaluation protocol—incorporating coordinate verification and fine-grained textual alignment—requires higher computational overhead compared to standard VQA tasks, representing a deliberate choice to prioritize evaluative depth and traceability over raw scoring efficiency.  
+
+\paragraph{Potential  Negative Impacts} A potential negative impact is the risk of models overfitting to the specific metrics and document distributions of CiteVQA. While our benchmark aim to improve document intelligence, excessive optimization for these specific tasks may lead to reduced generalizability when models encounter diverse real-world document structures not represented in our dataset.  
+
+\end{document}

@@ -34,7 +34,7 @@ As a researcher, I want to apply Box-Cox, Yeo-Johnson, and rank-based transforma
 **Acceptance Scenarios**:
 
 1. **Given** a filtered dataset with continuous variables, **When** the three transformations (Box-Cox with λ optimized per dataset, Yeo-Johnson with λ optimized per dataset, rank-based inverse normal) are applied, **Then** transformed data is produced for each method without errors.
-2. **Given** transformed data, **When** group labels are shuffled multiple times for null simulation with fixed random seed (e.g., 42), **Then** t-test/ANOVA p-values are computed and the proportion of p < 0.05 is recorded as the Type I error estimate.
+2. **Given** transformed data, **When** group labels are shuffled multiple times for null simulation with a fixed random seed, **Then** t-test/ANOVA p-values are computed and the proportion of p < 0.05 is recorded as the Type I error estimate.
 
 ---
 
@@ -48,7 +48,7 @@ As a researcher, I want to aggregate results across all datasets and generate su
 
 **Acceptance Scenarios**:
 
-1. **Given** per-dataset transformation-test results, **When** the aggregation script runs, **Then** mean Type I error and power are computed for each transformation-test combination across all 50+ datasets.
+1. **Given** per-dataset transformation-test results, **When** the aggregation script runs, **Then** mean Type I error and power are computed for each transformation-test combination across all datasets.
 2. **Given** aggregated metrics, **When** bootstrap confidence intervals are computed, **Then** the intervals are included in the summary tables alongside point estimates.
 3. **Given** summary tables, **When** visualization scripts execute, **Then** bar plots (matplotlib/seaborn) are produced showing error rates and power by transformation and test type.
 
@@ -75,7 +75,7 @@ As a researcher, I want to generate simulated datasets with known effect sizes a
 - What happens when a dataset contains missing values? → System MUST impute missing values using mean/median per variable and log the imputation rate; verify that imputation rate is logged correctly; datasets with >10% missing are excluded.
 - What happens when a transformation fails (e.g., Box-Cox requires positive values)? → System MUST skip the failing transformation for that variable, apply log-shift to make values positive, and log the intervention; verify that intervention is logged with variable name and reason.
 - What happens when a dataset has insufficient samples for the Shapiro-Wilk test (N < 30)? → System MUST exclude the dataset and log the reason; verify that exclusion is recorded in exclusion log with dataset ID.
-- What happens when the null simulation produces all non-significant results? → System MUST record Type I error as 0.000 and include the bootstrap CI (which may be [0.000, 0.000]); verify that CI bounds are recorded.
+- What happens when the null simulation produces all non-significant results? → System MUST record Type I error and include the bootstrap CI.; verify that CI bounds are recorded.
 - What happens when computational time exceeds extended periods? → System MUST checkpoint progress after each dataset and allow resumption from the last checkpoint; verify that checkpoint file is created and contains valid state.
 
 ## Requirements *(mandatory)*
@@ -85,10 +85,10 @@ As a researcher, I want to generate simulated datasets with known effect sizes a
 - **FR-001**: System MUST download at least 50 public datasets from UCI Machine Learning Repository and OpenML with explicit dataset URLs recorded in data/datasets.csv and store them locally with metadata preservation (See US-1)
 - **FR-002**: System MUST filter datasets using Shapiro-Wilk normality test (p < 0.05) and sample size (N ≥ 30) criteria, excluding non-conforming datasets with logging (See US-1)
 - **FR-003**: System MUST apply three transformations (Box-Cox with λ optimized per dataset, Yeo-Johnson with λ optimized per dataset, rank-based inverse normal) to each continuous variable (See US-2)
-- **FR-004**: System MUST estimate Type I error rate by shuffling group labels 1000 times with a fixed random seed (e.g., 42) recorded in the script and computing the proportion of t-test/ANOVA p-values < 0.05 (See US-2)
-- **FR-005**: System MUST generate simulated datasets with known effect sizes (Cohen's d ∈ {0.2, 0.5, 0.8}) and ground truth labels for power analysis (See US-4)
+- **FR-004**: System MUST estimate Type I error rate by shuffling group labels multiple times with a fixed random seed (e.g., 42) recorded in the script and computing the proportion of t-test/ANOVA p-values < 0.05 (See US-2)
+- **FR-005**: System MUST generate simulated datasets with known effect sizes (Cohen's d ∈ {small, medium, large}) and ground truth labels for power analysis (See US-4)
 - **FR-006**: System MUST compute statistical power by testing simulated data with known ground truth and recording the proportion of significant results (p < 0.05) for each transformation-test-effect combination (See US-4)
-- **FR-007**: System MUST aggregate results across all 50+ datasets and compute mean Type I error and power for each transformation-test combination with 95% bootstrap confidence intervals (See US-3)
+- **FR-007**: System MUST aggregate results across all available datasets and compute mean Type I error and power for each transformation-test combination with 95% bootstrap confidence intervals (See US-3)
 - **FR-008**: System MUST perform Friedman test (non-parametric repeated measures ANOVA) with p < 0.05 significance threshold to assess whether transformation type significantly affects error rates, followed by post-hoc pairwise comparisons with Bonferroni correction for multiplicity, and perform sensitivity analysis sweeping α across a range of small values (See US-3)
 - **FR-009**: System MUST produce summary tables and bar plots (matplotlib/seaborn) showing error rates and power by transformation and test type (See US-3)
 - **FR-010**: System MUST compute SHA-256 checksums for all downloaded datasets and record them under data/checksums.csv (See US-1)

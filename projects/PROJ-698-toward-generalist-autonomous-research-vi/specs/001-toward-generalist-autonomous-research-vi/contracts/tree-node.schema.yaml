@@ -1,0 +1,52 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Arbor Tree Node"
+type: "object"
+properties:
+  id:
+    type: "string"
+    description: "Unique identifier for the node (UUID)."
+  type:
+    type: "string"
+    enum:
+      - "Root"
+      - "Hypothesis"
+      - "Evidence"
+      - "Artifact"
+      - "Distillation"
+    description: "The type of node."
+  status:
+    type: "string"
+    enum:
+      - "Pending"
+      - "Running"
+      - "Success"
+      - "Failed"
+      - "Timeout"
+    description: "Current execution status."
+  content:
+    type: "object"
+    description: "Payload specific to the node type."
+    additionalProperties: true
+  parent_id:
+    type: "string"
+    nullable: true
+    description: "ID of the parent node. Null for Root."
+  created_at:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of creation."
+  metrics:
+    type: "object"
+    nullable: true
+    description: "Optional metrics (e.g., accuracy) if applicable."
+    additionalProperties: true
+  log_file_path:
+    type: "string"
+    nullable: true
+    description: "Relative path to the log file for this node (e.g., 'logs/<id>.log'). Required for Evidence nodes to satisfy FR-004."
+required:
+  - "id"
+  - "type"
+  - "status"
+  - "created_at"
+additionalProperties: false

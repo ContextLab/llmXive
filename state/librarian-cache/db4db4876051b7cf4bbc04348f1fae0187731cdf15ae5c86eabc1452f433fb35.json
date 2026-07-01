@@ -1,0 +1,641 @@
+{
+  "fetched_at": "2026-07-01T13:28:20Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distillation",
+      "target_n": 5
+    },
+    "duration_seconds": 70.937,
+    "ended_at": "2026-07-01T13:28:20Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Video diffusion models with arbitrary sampling steps"
+        ],
+        [
+          2,
+          "On-policy flow map distillation for generative video"
+        ],
+        [
+          3,
+          "Continuous-time video diffusion models"
+        ],
+        [
+          4,
+          "Any-step generation in diffusion probabilistic models"
+        ],
+        [
+          5,
+          "Flow matching for video synthesis"
+        ],
+        [
+          6,
+          "Distillation techniques for video diffusion acceleration"
+        ],
+        [
+          7,
+          "Flexible inference scheduling in video generative models"
+        ],
+        [
+          8,
+          "Trajectory consistency in video diffusion"
+        ],
+        [
+          9,
+          "On-policy reinforcement learning for diffusion distillation"
+        ],
+        [
+          10,
+          "Multi-step video generation without fixed schedules"
+        ],
+        [
+          11,
+          "Adaptive step sampling for video diffusion"
+        ],
+        [
+          12,
+          "Flow-based video generation models"
+        ],
+        [
+          13,
+          "Knowledge distillation in video diffusion transformers"
+        ],
+        [
+          14,
+          "Arbitrary resolution and step video synthesis"
+        ],
+        [
+          15,
+          "Policy-based distillation for generative models"
+        ],
+        [
+          16,
+          "Video generation with dynamic time stepping"
+        ],
+        [
+          17,
+          "Consistency distillation for video diffusion"
+        ],
+        [
+          18,
+          "Efficient video sampling via flow map learning"
+        ],
+        [
+          19,
+          "Step-agnostic video diffusion architectures"
+        ],
+        [
+          20,
+          "Reinforcement learning guided diffusion distillation"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distillation computer science": 0,
+        "Video diffusion models with arbitrary sampling steps": 4
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "flow matching score distillation",
+      "DDPM DDIM ODE solver trajectory",
+      "on-policy reinforcement learning diffusion",
+      "video generation frame interpolation consistency",
+      "trajectory consistency distillation learning"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2511.09180"
+      ]
+    },
+    "per_query_hit_count": {
+      "AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distillation computer science": 3,
+      "DDPM DDIM ODE solver trajectory": 3,
+      "flow matching score distillation": 3,
+      "on-policy reinforcement learning diffusion": 3,
+      "trajectory consistency distillation learning": 3,
+      "video generation frame interpolation consistency": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "2410.09380",
+          "rationale": "The candidate paper focuses on Video Question Answering (VideoQA) using prompt engineering and heuristics for video-language models, which is a distinct task and methodology from the user's question about \"Any-Step Video Diffusion Model\" generation and \"Flow Map Distillation.\" There is no overlap in the core mechanism (diffusion vs. QA inference), the specific variables (flow map distillation vs. entity-action prompting), or the empirical domain (generative video synthesis vs. video understandin",
+          "title": "Prompting Video-Language Foundation Models with Domain-specific Fine-grained Heuristics for Video Question Answering"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-01T13:27:09Z",
+    "term_input": {
+      "normalized": "anyflow: any-step video diffusion model with on-policy flow map distillation computer science",
+      "raw": "AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distillation computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Diffusion generative models have recently become a powerful technique for creating and modifying high-quality, coherent video content. This survey provides a comprehensive overview of the critical components of diffusion models for video generation, including their applications, architectural design, and temporal dynamics modeling. The paper begins by discussing the core principles and mathematical formulations, then explores various architectural choices and methods for maintaining temporal consistency. A taxonomy of applications is presented, categorizing models based on input modalities such as text prompts, images, videos, and audio signals. Advancements in text-to-video generation are discussed to illustrate the state-of-the-art capabilities and limitations of current approaches. Additionally, the survey summarizes recent developments in training and evaluation practices, including the use of diverse video and image datasets and the adoption of various evaluation metrics to assess model performance. The survey concludes with an examination of ongoing challenges, such as generating longer videos and managing computational costs, and offers insights into potential future directions for the field. By consolidating the latest research and developments, this survey aims to serve as a valuable resource for researchers and practitioners working with video diffusion models. Website: https://github.com/ndrwmlnk/Awesome-Video-Diffusion-Models",
+          "claimed_authors": [
+            "Andrew Melnik",
+            "Michal Ljubljanac",
+            "Cong Lu",
+            "Qi Yan",
+            "Weiming Ren",
+            "Helge Ritter"
+          ],
+          "claimed_title": "Video Diffusion Models: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.03150"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distillation com', candidate_title='Video Diffusion Models: A Survey')",
+        "failed_at": "2026-07-01T13:27:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Score distillation of 2D diffusion models has proven to be a powerful mechanism to guide 3D optimization, for example enabling text-based 3D generation or single-view reconstruction. A common limitation of existing score distillation formulations, however, is that the outputs of the (mode-seeking) optimization are limited in diversity despite the underlying diffusion model being capable of generating diverse samples. In this work, inspired by the sampling process in denoising diffusion, we propose a score formulation that guides the optimization to follow generation paths defined by random initial seeds, thus ensuring diversity. We then present an approximation to adopt this formulation for scenarios where the optimization may not precisely follow the generation paths (\\eg a 3D representation whose renderings evolve in a co-dependent manner). We showcase the applications of our `Diverse Score Distillation' (DSD) formulation across tasks such as 2D optimization, text-based 3D inference, and single-view reconstruction. We also empirically validate DSD against prior score distillation formulations and show that it significantly improves sample diversity while preserving fidelity.",
+          "claimed_authors": [
+            "Yanbo Xu",
+            "Jayanth Srinivasa",
+            "Gaowen Liu",
+            "Shubham Tulsiani"
+          ],
+          "claimed_title": "Diverse Score Distillation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.06780"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distillation com', candidate_title='Diverse Score Distillation')",
+        "failed_at": "2026-07-01T13:27:42Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Dataset distillation aims to synthesize small datasets with little information loss from original large-scale ones for reducing storage and training costs. Recent state-of-the-art methods mainly constrain the sample synthesis process by matching synthetic images and the original ones regarding gradients, embedding distributions, or training trajectories. Although there are various matching objectives, currently the strategy for selecting original images is limited to naive random sampling.\n  We argue that random sampling overlooks the evenness of the selected sample distribution, which may result in noisy or biased matching targets.\n  Besides, the sample diversity is also not constrained by random sampling. These factors together lead to optimization instability in the distilling process and degrade the training efficiency. Accordingly, we propose a novel matching strategy named as \\textbf{D}ataset distillation by \\textbf{RE}present\\textbf{A}tive \\textbf{M}atching (DREAM), where only representative original images are selected for matching. DREAM is able to be easily plugged into popular dataset distillation frameworks and reduce the distilling iterations by more than 8 times without performance drop. Given sufficient training time, DREAM further provides significant improvements and achieves state-of-the-art performances.",
+          "claimed_authors": [
+            "Yanqing Liu",
+            "Jianyang Gu",
+            "Kai Wang",
+            "Zheng Zhu",
+            "Wei Jiang",
+            "Yang You"
+          ],
+          "claimed_title": "DREAM: Efficient Dataset Distillation by Representative Matching",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2302.14416"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distillation com', candidate_title='DREAM: Efficient Dataset Distillation by Representative Matching')",
+        "failed_at": "2026-07-01T13:27:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We theoretically study the hallucination phenomena in two canonical diffusion samplers: the stochastic Denoising Diffusion Probabilistic Model (DDPM) and the deterministic Denoising Diffusion Implicit Model (DDIM). We analyze the reverse ODE (DDIM) and SDE (DDPM) for a Gaussian mixture target, proving that after a critical time $τ$, (a) DDIM can become stuck on the segment connecting the two nearest modes and (b) DDPM *stochasticity* helps it become unstuck from this region, thus avoiding hallucination. Our empirical validation verifies that DDPM has a significantly lower hallucination rate than DDIM when this region is entered. Building on our observations, we exhibit how using additional stochastic steps can help DDIM avoid hallucinations and offer new insights on how to design improved samplers.",
+          "claimed_authors": [
+            "Muhammad H. Ashiq",
+            "Samanyu Arora",
+            "Abhinav N. Harish",
+            "Ishaan Kharbanda",
+            "Hung Yun Tseng",
+            "Grigorios G. Chrysos"
+          ],
+          "claimed_title": "Why DDIM Hallucinates More Than DDPM: A Theoretical Analysis of Reverse Dynamics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.06831"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distillation com', candidate_title='Why DDIM Hallucinates More Than DDPM: A Theoretical Analysis of Reverse Dynamics')",
+        "failed_at": "2026-07-01T13:27:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Remote sensing change detection is crucial for understanding the dynamics of our planet's surface, facilitating the monitoring of environmental changes, evaluating human impact, predicting future trends, and supporting decision-making. In this work, we introduce a novel approach for change detection that can leverage off-the-shelf, unlabeled remote sensing images in the training process by pre-training a Denoising Diffusion Probabilistic Model (DDPM) - a class of generative models used in image synthesis. DDPMs learn the training data distribution by gradually converting training images into a Gaussian distribution using a Markov chain. During inference (i.e., sampling), they can generate a diverse set of samples closer to the training distribution, starting from Gaussian noise, achieving state-of-the-art image synthesis results. However, in this work, our focus is not on image synthesis but on utilizing it as a pre-trained feature extractor for the downstream application of change detection. Specifically, we fine-tune a lightweight change classifier utilizing the feature representations produced by the pre-trained DDPM alongside change labels. Experiments conducted on the LEVIR-CD, WHU-CD, DSIFN-CD, and CDD datasets demonstrate that the proposed DDPM-CD method significantly outperforms the existing state-of-the-art change detection methods in terms of F1 score, IoU, and overall accuracy, highlighting the pivotal role of pre-trained DDPM as a feature extractor for downstream applications. We have made both the code and pre-trained models available at https://github.com/wgcban/ddpm-cd",
+          "claimed_authors": [
+            "Wele Gedara Chaminda Bandara",
+            "Nithin Gopalakrishnan Nair",
+            "Vishal M. Patel"
+          ],
+          "claimed_title": "DDPM-CD: Denoising Diffusion Probabilistic Models as Feature Extractors for Change Detection",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2206.11892"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distillation com', candidate_title='DDPM-CD: Denoising Diffusion Probabilistic Models as Feature Extractors for Change Detection')",
+        "failed_at": "2026-07-01T13:27:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Sampling from Flow Matching generative models requires solving an ordinary differential equation (ODE) whose computational cost is dominated by neural network forward passes. We derive four classical ODE solvers -- Euler, Explicit Midpoint, Classical Runge-Kutta (RK4), and Dormand-Prince 5(4) -- from first principles via Taylor expansion, implement them from scratch in PyTorch, and systematically benchmark their efficiency on Conditional Flow Matching tasks ranging from 2D toy distributions to MNIST digits. On the quantitative side, we use sliced Wasserstein distance to construct NFE-quality Pareto frontiers,finding that RK4 at 80 function evaluations achieves sample quality comparable to Euler at 200. Beyond reproducing known convergence rates, we report two empirical observations: (1) the Jacobian eigenvalue spectrum of the learned velocity field stiffens sharply near t=1, explaining why the adaptive Dormand-Prince solver automatically concentrates its step budget at the end of the trajectory; (2) the quality gap between low-order and high-order solvers widens for undertrained and smaller models, indicating that solver choice matters most when the model is imperfect. Code and all experiment scripts are publicly available.",
+          "claimed_authors": [
+            "Hao Xiao"
+          ],
+          "claimed_title": "From Euler to Dormand-Prince: ODE Solvers for Flow Matching Generative Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.00836"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distillation com', candidate_title='From Euler to Dormand-Prince: ODE Solvers for Flow Matching Generative Models')",
+        "failed_at": "2026-07-01T13:27:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Optimistic value estimates provide one mechanism for directed exploration in reinforcement learning (RL). The agent acts greedily with respect to an estimate of the value plus what can be seen as a value bonus. The value bonus can be learned by estimating a value function on reward bonuses, propagating local uncertainties around rewards. However, this approach only increases the value bonus for an action retroactively, after seeing a higher reward bonus from that state and action. Such an approach does not encourage the agent to visit a state and action for the first time. In this work, we introduce an algorithm for exploration called Value Bonuses with Ensemble errors (VBE), that maintains an ensemble of random action-value functions (RQFs). VBE uses the errors in the estimation of these RQFs to design value bonuses that provide first-visit optimism and deep exploration. The key idea is to design the rewards for these RQFs in such a way that the value bonus can decrease to zero. We show that VBE outperforms Bootstrap DQN and two reward bonus approaches (RND and ACB) on several classic environments used to test exploration and provide demonstrative experiments that it can scale easily to more complex environments like Atari.",
+          "claimed_authors": [
+            "Abdul Wahab",
+            "Raksha Kumaraswamy",
+            "Martha White"
+          ],
+          "claimed_title": "Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.12375"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distillation com', candidate_title='Value Bonuses using Ensemble Errors for Exploration in Reinforcement Learning')",
+        "failed_at": "2026-07-01T13:27:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Many currently deployed Reinforcement Learning agents work in an environment shared with humans, be them co-workers, users or clients. It is desirable that these agents adjust to people's preferences, learn faster thanks to their help, and act safely around them. We argue that most current approaches that learn from human feedback are unsafe: rewarding or punishing the agent a-posteriori cannot immediately prevent it from wrong-doing. In this paper, we extend Policy Gradient to make it robust to external directives, that would otherwise break the fundamentally on-policy nature of Policy Gradient. Our technique, Directed Policy Gradient (DPG), allows a teacher or backup policy to override the agent before it acts undesirably, while allowing the agent to leverage human advice or directives to learn faster. Our experiments demonstrate that DPG makes the agent learn much faster than reward-based approaches, while requiring an order of magnitude less advice.",
+          "claimed_authors": [
+            "Hélène Plisnier",
+            "Denis Steckelmacher",
+            "Tim Brys",
+            "Diederik M. Roijers",
+            "Ann Nowé"
+          ],
+          "claimed_title": "Directed Policy Gradient for Safe Reinforcement Learning with Human Advice",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1808.04096"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distillation com', candidate_title='Directed Policy Gradient for Safe Reinforcement Learning with Human Advice')",
+        "failed_at": "2026-07-01T13:27:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reinforcement Learning (RL) models have continually evolved to navigate the exploration - exploitation trade-off in uncertain Markov Decision Processes (MDPs). In this study, I leverage the principles of stochastic thermodynamics and system dynamics to explore reward shaping via diffusion processes. This provides an elegant framework as a way to think about exploration-exploitation trade-off. This article sheds light on relationships between information entropy, stochastic system dynamics, and their influences on entropy production. This exploration allows us to construct a dual-pronged framework that can be interpreted as either a maximum entropy program for deriving efficient policies or a modified cost optimization program accounting for informational costs and benefits. This work presents a novel perspective on the physical nature of information and its implications for online learning in MDPs, consequently providing a better understanding of information-oriented formulations in RL.",
+          "claimed_authors": [
+            "Peeyush Kumar"
+          ],
+          "claimed_title": "Reward Shaping via Diffusion Process in Reinforcement Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.11885"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distillation com', candidate_title='Reward Shaping via Diffusion Process in Reinforcement Learning')",
+        "failed_at": "2026-07-01T13:27:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Video Frame Interpolation (VFI) is a core low-level vision task that synthesizes intermediate frames between existing ones while ensuring spatial and temporal coherence. Over the past decades, VFI methodologies have evolved from classical motion compensation-based approach to a wide spectrum of deep learning-based approaches, including kernel-, flow-, hybrid-, phase-, GAN-, Transformer-, Mamba-, and most recently, diffusion-based models. We introduce AceVFI, a comprehensive and up-to-date review of the VFI field, covering over 250 representative papers. We systematically categorize VFI methods based on their core design principles and architectural characteristics. Further, we classify them into two major learning paradigms: Center-Time Frame Interpolation (CTFI) and Arbitrary-Time Frame Interpolation (ATFI). We analyze key challenges in VFI, including large motion, occlusion, lighting variation, and non-linear motion. In addition, we review standard datasets, loss functions, evaluation metrics. We also explore VFI applications in other domains and highlight future research directions. This survey aims to serve as a valuable reference for researchers and practitioners seeking a thorough understanding of the modern VFI landscape.",
+          "claimed_authors": [
+            "Dahyeon Kye",
+            "Changhyun Roh",
+            "Sukhun Ko",
+            "Chanho Eom",
+            "Jihyong Oh"
+          ],
+          "claimed_title": "AceVFI: A Comprehensive Survey of Advances in Video Frame Interpolation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.01061"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distillation com', candidate_title='AceVFI: A Comprehensive Survey of Advances in Video Frame Interpolation')",
+        "failed_at": "2026-07-01T13:27:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Generating intermediate video content of varying lengths based on given first and last frames, along with text prompt information, offers significant research and application potential. However, traditional frame interpolation tasks primarily focus on scenarios with a small number of frames, no text control, and minimal differences between the first and last frames. Recent community developers have utilized large video models represented by Wan to endow frame-to-frame capabilities. However, these models can only generate a fixed number of frames and often fail to produce satisfactory results for certain frame lengths, while this setting lacks a clear official definition and a well-established benchmark. In this paper, we first propose a new practical Semantic Frame Interpolation (SFI) task from the perspective of academic definition, which covers the above two settings and supports inference at multiple frame rates. To achieve this goal, we propose a novel SemFi model building upon Wan2.1, which incorporates a Mixture-of-LoRA module to ensure the generation of high-consistency content that aligns with control conditions across various frame length limitations. Furthermore, we propose SFI-300K, the first general-purpose dataset and benchmark specifically designed for SFI. To support this, we collect and process data from the perspective of SFI, carefully designing evaluation metrics and methods to assess the model's performance across multiple dimensions, encompassing image and video, and various aspects, including consistency and diversity. Through extensive experiments on SFI-300K, we demonstrate that our method is particularly well-suited to meet the requirements of the SFI task.",
+          "claimed_authors": [
+            "Yijia Hong",
+            "Jiangning Zhang",
+            "Ran Yi",
+            "Yuji Wang",
+            "Weijian Cao",
+            "Xiaobin Hu",
+            "Zhucun Xue",
+            "Yabiao Wang",
+            "Chengjie Wang",
+            "Lizhuang Ma"
+          ],
+          "claimed_title": "Semantic Frame Interpolation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.05173"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distillation com', candidate_title='Semantic Frame Interpolation')",
+        "failed_at": "2026-07-01T13:27:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we propose a novel motion-compensated frame rate up-conversion (MC-FRUC) algorithm. The proposed algorithm creates interpolated frames by first estimating motion vectors using unilateral (jointing forward and backward) and bilateral motion estimation. Then motion vectors are combined based on adaptive threshold, in order to creates high-quality interpolated frames and reduce block artifacts. Since motion-compensated frame interpolation along unilateral motion trajectories yields holes, a new algorithm is introduced to resolve this problem. The experimental results show that the quality of the interpolated frames using the proposed algorithm is much higher than the existing algorithms.",
+          "claimed_authors": [
+            "Hanieh Naderi",
+            "Mohammad Rahmati"
+          ],
+          "claimed_title": "Triple Motion Estimation and Frame Interpolation based on Adaptive Threshold for Frame Rate Up-Conversion",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.03621"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distillation com', candidate_title='Triple Motion Estimation and Frame Interpolation based on Adaptive Threshold for Frame Rate Up-Conversion')",
+        "failed_at": "2026-07-01T13:27:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Continual learning, involving sequential training on diverse tasks, often faces catastrophic forgetting. While knowledge distillation-based approaches exhibit notable success in preventing forgetting, we pinpoint a limitation in their ability to distill the cumulative knowledge of all the previous tasks. To remedy this, we propose Dense Knowledge Distillation (DKD). DKD uses a task pool to track the model's capabilities. It partitions the output logits of the model into dense groups, each corresponding to a task in the task pool. It then distills all tasks' knowledge using all groups. However, using all the groups can be computationally expensive, we also suggest random group selection in each optimization step. Moreover, we propose an adaptive weighting scheme, which balances the learning of new classes and the retention of old classes, based on the count and similarity of the classes. Our DKD outperforms recent state-of-the-art baselines across diverse benchmarks and scenarios. Empirical analysis underscores DKD's ability to enhance model stability, promote flatter minima for improved generalization, and remains robust across various memory budgets and task orders. Moreover, it seamlessly integrates with other CL methods to boost performance and proves versatile in offline scenarios like model compression.",
+          "claimed_authors": [
+            "Zenglin Shi",
+            "Pei Liu",
+            "Tong Su",
+            "Yunpeng Wu",
+            "Kuien Liu",
+            "Yu Song",
+            "Meng Wang"
+          ],
+          "claimed_title": "Densely Distilling Cumulative Knowledge for Continual Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.09820"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distillation com', candidate_title='Densely Distilling Cumulative Knowledge for Continual Learning')",
+        "failed_at": "2026-07-01T13:27:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The convergence rate and final performance of common deep learning models have significantly benefited from heuristics such as learning rate schedules, knowledge distillation, skip connections, and normalization layers. In the absence of theoretical underpinnings, controlled experiments aimed at explaining these strategies can aid our understanding of deep learning landscapes and the training dynamics. Existing approaches for empirical analysis rely on tools of linear interpolation and visualizations with dimensionality reduction, each with their limitations. Instead, we revisit such analysis of heuristics through the lens of recently proposed methods for loss surface and representation analysis, viz., mode connectivity and canonical correlation analysis (CCA), and hypothesize reasons for the success of the heuristics. In particular, we explore knowledge distillation and learning rate heuristics of (cosine) restarts and warmup using mode connectivity and CCA. Our empirical analysis suggests that: (a) the reasons often quoted for the success of cosine annealing are not evidenced in practice; (b) that the effect of learning rate warmup is to prevent the deeper layers from creating training instability; and (c) that the latent knowledge shared by the teacher is primarily disbursed to the deeper layers.",
+          "claimed_authors": [
+            "Akhilesh Gotmare",
+            "Nitish Shirish Keskar",
+            "Caiming Xiong",
+            "Richard Socher"
+          ],
+          "claimed_title": "A Closer Look at Deep Learning Heuristics: Learning rate restarts, Warmup and Distillation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1810.13243"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distillation com', candidate_title='A Closer Look at Deep Learning Heuristics: Learning rate restarts, Warmup and Distillation')",
+        "failed_at": "2026-07-01T13:27:43Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The ultimate goal of Dataset Distillation is to synthesize a small synthetic dataset such that a model trained on this synthetic set will perform equally well as a model trained on the full, real dataset. Until now, no method of Dataset Distillation has reached this completely lossless goal, in part due to the fact that previous methods only remain effective when the total number of synthetic samples is extremely small. Since only so much information can be contained in such a small number of samples, it seems that to achieve truly loss dataset distillation, we must develop a distillation method that remains effective as the size of the synthetic dataset grows. In this work, we present such an algorithm and elucidate why existing methods fail to generate larger, high-quality synthetic sets. Current state-of-the-art methods rely on trajectory-matching, or optimizing the synthetic data to induce similar long-term training dynamics as the real data. We empirically find that the training stage of the trajectories we choose to match (i.e., early or late) greatly affects the effectiveness of the distilled dataset. Specifically, early trajectories (where the teacher network learns easy patterns) work well for a low-cardinality synthetic set since there are fewer examples wherein to distribute the necessary information. Conversely, late trajectories (where the teacher network learns hard patterns) provide better signals for larger synthetic sets since there are now enough samples to represent the necessary complex patterns. Based on our findings, we propose to align the difficulty of the generated patterns with the size of the synthetic dataset. In doing so, we successfully scale trajectory matching-based methods to larger synthetic datasets, achieving lossless dataset distillation for the very first time. Code and distilled datasets are available at https://gzyaftermath.github.io/DATM.",
+          "claimed_authors": [
+            "Ziyao Guo",
+            "Kai Wang",
+            "George Cazenavette",
+            "Hui Li",
+            "Kaipeng Zhang",
+            "Yang You"
+          ],
+          "claimed_title": "Towards Lossless Dataset Distillation via Difficulty-Aligned Trajectory Matching",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2310.05773"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distillation com', candidate_title='Towards Lossless Dataset Distillation via Difficulty-Aligned Trajectory Matching')",
+        "failed_at": "2026-07-01T13:27:43Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yuchao Gu",
+            "Guian Fang",
+            "Yuxin Jiang",
+            "Weijia Mao",
+            "Song Han",
+            "Han Cai",
+            "Mike Zheng Shou"
+          ],
+          "title": "AnyFlow: Any-Step Video Diffusion Model with On-Policy Flow Map Distillation",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.13724",
+        "summary": "Few-step video generation has been significantly advanced by consistency distillation. However, the performance of consistency-distilled models often degrades as more sampling steps are allocated at test time, limiting their effectiveness for any-step video diffusion. This limitation arises because consistency distillation replaces the original probability-flow ODE trajectory with a consistency-sampling trajectory, weakening the desirable test-time scaling behavior of ODE sampling. To address this limitation, we introduce AnyFlow, the first any-step video diffusion distillation framework based on flow maps. Instead of distilling a model for only a few fixed sampling steps, AnyFlow optimizes the full ODE sampling trajectory. To this end, we shift the distillation target from endpoint consistency mapping $(z_{t}\\rightarrow z_{0})$ to flow-map transition learning $(z_{t}\\rightarrow z_{r})$ over arbitrary time intervals. We further propose Flow Map Backward Simulation, which decomposes a full Euler rollout into shortcut flow-map transitions, enabling efficient on-policy distillation that reduces test-time errors (i.e., discretization error in few-step sampling and exposure bias in causal generation). Extensive experiments across both bidirectional and causal architectures, at scales ranging from 1.3B to 14B parameters, demonstrate that AnyFlow achieves performance matches or surpasses consistency-based counterparts in the few-step regime, while scaling with sampling step budgets.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.13724",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8182,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-01T13:27:42Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zhen Fang",
+            "Wenxuan Huang",
+            "Yu Zeng",
+            "Yiming Zhao",
+            "Shuang Chen",
+            "Kaituo Feng",
+            "Yunlong Lin",
+            "Lin Chen",
+            "Zehui Chen",
+            "Shaosheng Cao",
+            "Feng Zhao"
+          ],
+          "title": "Flow-OPD: On-Policy Distillation for Flow Matching Models",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.08063",
+        "summary": "Existing Flow Matching (FM) text-to-image models suffer from two critical bottlenecks under multi-task alignment: the reward sparsity induced by scalar-valued rewards, and the gradient interference arising from jointly optimizing heterogeneous objectives, which together give rise to a 'seesaw effect' of competing metrics and pervasive reward hacking. Inspired by the success of On-Policy Distillation (OPD) in the large language model community, we propose Flow-OPD, the first unified post-training framework that integrates on-policy distillation into Flow Matching models. Flow-OPD adopts a two-stage alignment strategy: it first cultivates domain-specialized teacher models via single-reward GRPO fine-tuning, allowing each expert to reach its performance ceiling in isolation; it then establishes a robust initial policy through a Flow-based Cold-Start scheme and seamlessly consolidates heterogeneous expertise into a single student via a three-step orchestration of on-policy sampling, task-routing labeling, and dense trajectory-level supervision. We further introduce Manifold Anchor Regularization (MAR), which leverages a task-agnostic teacher to provide full-data supervision that anchors generation to a high-quality manifold, effectively mitigating the aesthetic degradation commonly observed in purely RL-driven alignment. Built upon Stable Diffusion 3.5 Medium, Flow-OPD raises the GenEval score from 63 to 92 and the OCR accuracy from 59 to 94, yielding an overall improvement of roughly 10 points over vanilla GRPO, while preserving image fidelity and human-preference alignment and exhibiting an emergent 'teacher-surpassing' effect. These results establish Flow-OPD as a scalable alignment paradigm for building generalist text-to-image models. The codes and weights will be released in: https://github.com/CostaliyA/Flow-OPD .",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.08063",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5455,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-01T13:27:42Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Runjie Yan",
+            "Kailu Wu",
+            "Kaisheng Ma"
+          ],
+          "title": "Flow Score Distillation for Diverse Text-to-3D Generation",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2405.10988",
+        "summary": "Recent advancements in Text-to-3D generation have yielded remarkable progress, particularly through methods that rely on Score Distillation Sampling (SDS). While SDS exhibits the capability to create impressive 3D assets, it is hindered by its inherent maximum-likelihood-seeking essence, resulting in limited diversity in generation outcomes. In this paper, we discover that the Denoise Diffusion Implicit Models (DDIM) generation process (\\ie PF-ODE) can be succinctly expressed using an analogue of SDS loss. One step further, one can see SDS as a generalized DDIM generation process. Following this insight, we show that the noise sampling strategy in the noise addition stage significantly restricts the diversity of generation results. To address this limitation, we present an innovative noise sampling approach and introduce a novel text-to-3D method called Flow Score Distillation (FSD). Our validation experiments across various text-to-image Diffusion Models demonstrate that FSD substantially enhances generation diversity without compromising quality.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2405.10988",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3636,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-01T13:27:42Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Andrew Melnik",
+            "Michal Ljubljanac",
+            "Cong Lu",
+            "Qi Yan",
+            "Weiming Ren",
+            "Helge Ritter"
+          ],
+          "title": "Video Diffusion Models: A Survey",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2405.03150",
+        "summary": "Diffusion generative models have recently become a powerful technique for creating and modifying high-quality, coherent video content. This survey provides a comprehensive overview of the critical components of diffusion models for video generation, including their applications, architectural design, and temporal dynamics modeling. The paper begins by discussing the core principles and mathematical formulations, then explores various architectural choices and methods for maintaining temporal consistency. A taxonomy of applications is presented, categorizing models based on input modalities such as text prompts, images, videos, and audio signals. Advancements in text-to-video generation are discussed to illustrate the state-of-the-art capabilities and limitations of current approaches. Additionally, the survey summarizes recent developments in training and evaluation practices, including the use of diverse video and image datasets and the adoption of various evaluation metrics to assess model performance. The survey concludes with an examination of ongoing challenges, such as generating longer videos and managing computational costs, and offers insights into potential future directions for the field. By consolidating the latest research and developments, this survey aims to serve as a valuable resource for researchers and practitioners working with video diffusion models. Website: https://github.com/ndrwmlnk/Awesome-Video-Diffusion-Models",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2405.03150",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-01T13:27:50Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jonathan Ho",
+            "William Chan",
+            "Chitwan Saharia",
+            "Jay Whang",
+            "Ruiqi Gao",
+            "Alexey Gritsenko",
+            "Diederik P. Kingma",
+            "Ben Poole",
+            "Mohammad Norouzi",
+            "David J. Fleet",
+            "Tim Salimans"
+          ],
+          "title": "Imagen Video: High Definition Video Generation with Diffusion Models",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2210.02303",
+        "summary": "We present Imagen Video, a text-conditional video generation system based on a cascade of video diffusion models. Given a text prompt, Imagen Video generates high definition videos using a base video generation model and a sequence of interleaved spatial and temporal video super-resolution models. We describe how we scale up the system as a high definition text-to-video model including design decisions such as the choice of fully-convolutional temporal and spatial super-resolution models at certain resolutions, and the choice of the v-parameterization of diffusion models. In addition, we confirm and transfer findings from previous work on diffusion-based image generation to the video generation setting. Finally, we apply progressive distillation to our video models with classifier-free guidance for fast, high quality sampling. We find Imagen Video not only capable of generating videos of high fidelity, but also having a high degree of controllability and world knowledge, including the ability to generate diverse videos and text animations in various artistic styles and with 3D object understanding. See https://imagen.research.google/video/ for samples.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2210.02303",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-01T13:27:50Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Michael A. Vladimir"
+          ],
+          "title": "FSampler: Training Free Acceleration of Diffusion Sampling via Epsilon Extrapolation",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2511.09180",
+        "summary": "FSampler is a training free, sampler agnostic execution layer that accelerates diffusion sampling by reducing the number of function evaluations (NFE). FSampler maintains a short history of denoising signals (epsilon) from recent real model calls and extrapolates the next epsilon using finite difference predictors at second order, third order, or fourth order, falling back to lower order when history is insufficient. On selected steps the predicted epsilon substitutes the model call while keeping each sampler's update rule unchanged. Predicted epsilons are validated for finiteness and magnitude; a learning stabilizer rescales predictions on skipped steps to correct drift, and an optional gradient estimation stabilizer compensates local curvature. Protected windows, periodic anchors, and a cap on consecutive skips bound deviation over the trajectory. Operating at the sampler level, FSampler integrates with Euler/DDIM, DPM++ 2M/2S, LMS/AB2, and RES family exponential multistep methods and drops into standard workflows. FLUX.1 dev, Qwen Image, and Wan 2.2, FSampler reduces time by 8 to 22% and model calls by 15 to 25% at high fidelity (Structural Similarity Index (SSIM) 0.95 to 0.99), without altering sampler formulas. With an aggressive adaptive gate, reductions can reach 45 to 50% fewer model calls at lower fidelity (SSIM 0.73 to 0.74).",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2511.09180",
+          "http_status": 200,
+          "pdf_sample_score": 0.3098,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-01T13:27:51Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "anyflow: any-step video diffusion model with on-policy flow map distillation computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

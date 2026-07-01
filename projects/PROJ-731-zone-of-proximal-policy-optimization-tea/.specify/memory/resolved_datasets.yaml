@@ -1,0 +1,178 @@
+resolved_at: '2026-07-01T03:52:49.319097+00:00'
+datasets:
+- intent: MUST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 190547
+      parsed: true
+  - url: https://huggingface.co/datasets/enimai/MuST-C-fr/resolve/main/test.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/enimai/MuST-C-fr/resolve/main/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/dataset/Myrmecochory_and_environmental_factors_in_different_landscapes/30494867
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Investigation_of_the_RSV_FCGRII2A_and_the_RSV_hospitalization_in_infants/32842520
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/The_Perceived_Functions_and_Phenomenological_Characteristics_of_Future_Thinking_and_Clinically_Significant_Generalized_Anxiety_Disorder_Symptoms/32842535
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Heat-Induced_Gelation_of_Legume_Protein_Starch_Systems_Mechanisms_Structure_Function_Relationships_and_Food_Application/32842505
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Biologically_synthesised_urea-based_nanomaterial_shows_enhanced_agronomic_benefits_in_maize_and_rice_crops_during_Kharif_season/32842526
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5746416
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16954306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15420758
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8056637
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18961168
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/62t7m/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20952123
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20952123
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21092643
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21092643
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: API
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/justinqbui/covid_fact_checked_google_api/resolve/main/google_fact_checked.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/gorilla-llm/APIBench/resolve/main/huggingface_api.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/gorilla-llm/APIBench/resolve/main/huggingface_api.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/6810479d5d6920a73b0b2261/4ca6b913c555026585074899460ca61e46de595f74948c069dd8d58ca1232f31?user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27apigen-mt_5k.json%3B+filename%3D%22apigen-mt_5k.json%22%3B&X-Xet-Cas-Uid=public&response-content-type=application%2Fjson&Expires=1782881548&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjgxMDQ3OWQ1ZDY5MjBhNzNiMGIyMjYxLzRjYTZiOTEzYzU1NTAyNjU4NTA3NDg5OTQ2MGNhNjFlNDZkZTU5NWY3NDk0OGMwNjlkZDhkNThjYTEyMzJmMzFcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3YXBpZ2VuLW10XzVrLmpzb24lM0IrZmlsZW5hbWUlM0QlMjJhcGlnZW4tbXRfNWsuanNvbiUyMiUzQiZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODI4ODE1NDh9fX1dfQ__&Signature=MEYCIQD39QAflyCzcEQsrRRNPpucTtB7O4JwK9F59WNahEX5tQIhAKR-Oac26SR8esjO3UrvB561xRkzqPkkhRK6UTgGSMKR&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/justinqbui/covid_fact_checked_google_api/resolve/main/google_fact_checked.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/dataset/Cardiovascular_and_Psychoemotional_Changes_among_Completers_of_a_Medical_Student_Cohort_with_High_Loss_to_Follow-up_during_COVID-19/32804294
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Myrmecochory_and_environmental_factors_in_different_landscapes/30494867
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Investigation_of_the_RSV_FCGRII2A_and_the_RSV_hospitalization_in_infants/32842520
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/The_Perceived_Functions_and_Phenomenological_Characteristics_of_Future_Thinking_and_Clinically_Significant_Generalized_Anxiety_Disorder_Symptoms/32842535
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Heat-Induced_Gelation_of_Legume_Protein_Starch_Systems_Mechanisms_Structure_Function_Relationships_and_Food_Application/32842505
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6998062
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7324045
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4746168
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15253810
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13283241
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://usherbrooke.scholaris.ca/handle/11143/23076
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://usherbrooke.scholaris.ca/handle/11143/22775
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19250883
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19250883
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21091807
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

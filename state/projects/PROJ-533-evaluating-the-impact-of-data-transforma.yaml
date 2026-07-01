@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-10T14:32:01.734959Z'
-current_stage: planned
+current_stage: tasked
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-533-evaluating-the-impact-of-data-transforma
-last_run_id: 6647ef89-a08c-460c-90e1-1f5ed2f1e925
+last_run_id: 5970ef66-7085-4328-9eb6-7ba094f433fc
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-533-evaluating-the-impact-of-data-transforma/specs/001-evaluating-the-impact-of-data-transforma
 title: Evaluating the Impact of Data Transformation on Statistical Test Sensitivity
-updated_at: '2026-06-30T12:58:37.260502Z'
+updated_at: '2026-07-01T13:07:30.296769Z'

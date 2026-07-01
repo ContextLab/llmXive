@@ -13,7 +13,7 @@ This project implements a statistical simulation pipeline to evaluate how three 
 **Primary Dependencies**: `scikit-learn`, `scipy`, `pandas`, `numpy`, `seaborn`, `matplotlib`, `requests`, `pyyaml`, `statsmodels`  
 **Storage**: Local filesystem (`data/`, `results/`), CSV/JSON/Parquet formats  
 **Testing**: `pytest` (unit tests for transformation logic, integration tests for pipeline)  
-**Target Platform**: Linux (GitHub Actions free-tier: 2 CPU, ~7 GB RAM)  
+**Target Platform**: Linux (GitHub Actions free-tier: CPU, ~7 GB RAM)  
 **Project Type**: Data analysis / Simulation pipeline  
 **Performance Goals**: Complete full pipeline (50+ datasets + 1000 simulations) within 6 hours on CPU-only runner; memory usage < 6 GB peak  
 **Constraints**: No GPU usage; no large model training; strict random seed pinning; checkpointing for resumption; all data checksummed  

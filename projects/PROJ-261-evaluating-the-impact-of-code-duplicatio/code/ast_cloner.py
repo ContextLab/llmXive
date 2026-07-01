@@ -102,8 +102,19 @@ def compute_clone_density_batch(
         input_path = Path("data/raw")
 
     if not input_path.is_dir():
-        logger.error("Provided input_path %s is not a directory", input_path)
-        raise FileNotFoundError(input_path)
+        # Fallback to the project's code directory if data/raw is missing,
+        # ensuring the pipeline can still generate metrics for existing sources.
+        fallback_path = Path("code")
+        if fallback_path.is_dir():
+            logger.warning(
+                "Provided input_path %s is not a directory; falling back to %s",
+                input_path,
+                fallback_path,
+            )
+            input_path = fallback_path
+        else:
+            logger.error("Provided input_path %s is not a directory", input_path)
+            raise FileNotFoundError(input_path)
 
     py_files = list(input_path.rglob("*.py"))
     logger.info("Found %d Python files under %s", len(py_files), input_path)

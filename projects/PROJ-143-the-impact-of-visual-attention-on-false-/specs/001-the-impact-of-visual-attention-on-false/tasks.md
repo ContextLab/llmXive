@@ -26,9 +26,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`src/`, `tests/`, `data/raw`, `data/processed`)
-- [ ] T002 Initialize a Python project with `requirements.txt` (torch-cpu, scikit-learn, pandas, numpy, statsmodels, datasets, opencv-python-headless, pillow)
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [X] T001 Create project structure per implementation plan (`src/`, `tests/`, `data/raw`, `data/processed`)
+- [X] T002 Initialize a Python project with `requirements.txt` (torch-cpu, scikit-learn, pandas, numpy, statsmodels, datasets, opencv-python-headless, pillow)
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
 
@@ -38,9 +38,9 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Implement `src/utils/logging.py` for exclusion logging per FR-011 (log exclusion reasons for ID mismatches)
-- [ ] T006 Create base data models (Image, Object, ParticipantRecall) in `src/data/models.py`
-- [ ] T007 Setup configuration management in `src/config.py` (paths, thresholds, model selection)
+- [X] T004 Implement `src/utils/logging.py` for exclusion logging per FR-011 (log exclusion reasons for ID mismatches)
+- [X] T006 Create base data models (Image, Object, ParticipantRecall) in `src/data/models.py`
+- [X] T007 Setup configuration management in `src/config.py` (paths, thresholds, model selection)
 - [ ] T008a [P] Research task: Identify and verify URL for Visual Genome (subset). Document in `data/verified_sources.md`. BLOCKS T009 if invalid.
 - [ ] T008b [P] Research task: Identify and verify URL for SALICON. Document in `data/verified_sources.md`. BLOCKS T021 if invalid.
 - [ ] T008c Update `plan.md` and `spec.md` Constitution Check sections to change status from 'FAIL/Blocked' to 'PASS' once T008a/b are complete and verified.
@@ -60,18 +60,18 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T012 [P] [US1] Unit test for data linking logic in `tests/unit/test_linking.py` (verify exclusion on mismatch)
-- [ ] T013 [P] [US1] Integration test for end-to-end pipeline on single image in `tests/integration/test_us1_pipeline.py`
+- [~] T012 [P] [US1] Unit test for data linking logic in `tests/unit/test_linking.py` (verify exclusion on mismatch)
+- [~] T013 [P] [US1] Integration test for end-to-end pipeline on single image in `tests/integration/test_us1_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [ ] T014 [P] [US1] Implement `src/analysis/saliency.py` with CPU-compatible model loading (no CUDA, no 8-bit) and 224x224 downsampling
-- [ ] T015 [US1] Implement false-memory pre-filtering logic in `src/data/preprocessing.py` (FR-005: transcript presence, VG absence). **Input**: Output of T010 (linked data). **Output**: `data/processed/candidate_false_memories.json`.
-- [ ] T015a [US1] Implement **Human Consensus Workflow** in `src/utils/consensus.py`. **Input**: `data/processed/candidate_false_memories.json` (from T015). **Logic**: CLI interface to collect ratings from Multiple independent raters (simulated via JSON input for automation). **Output**: `data/processed/human_verification_results.json` with consensus flags.
-- [ ] T005 [US1] Implement validation logic in `src/utils/validation.py` to calculate 'inconclusive' flag (SC-006) if failure rate > 10%. **Input**: `data/processed/human_verification_results.json` (from T015a). **Output**: `data/processed/validation_status.json`.
-- [ ] T016 [US1] Implement `src/analysis/metrics.py` for Pearson correlation (r, p, CI) and mixed-effects logistic regression (FR-006, FR-007). **Input**: `data/processed/human_verification_results.json` (from T015a) and `data/processed/saliency_scores.json` (from T014). Output to `data/processed/correlation_results.json`.
-- [ ] T017 [US1] Add Benjamini-Hochberg FDR correction logic in `src/analysis/metrics.py` (FR-008)
-- [ ] T019 [US1] Implement `src/main.py` orchestration to run saliency -> flagging -> correlation on the sampled dataset.
+- [~] T014 [P] [US1] Implement `src/analysis/saliency.py` with CPU-compatible model loading (no CUDA, no 8-bit) and 224x224 downsampling
+- [~] T015 [US1] Implement false-memory pre-filtering logic in `src/data/preprocessing.py` (FR-005: transcript presence, VG absence). **Input**: Output of T010 (linked data). **Output**: `data/processed/candidate_false_memories.json`.
+- [~] T015a [US1] Implement **Human Consensus Workflow** in `src/utils/consensus.py`. **Input**: `data/processed/candidate_false_memories.json` (from T015). **Logic**: CLI interface to collect ratings from Multiple independent raters (simulated via JSON input for automation). **Output**: `data/processed/human_verification_results.json` with consensus flags.
+- [~] T005 [US1] Implement validation logic in `src/utils/validation.py` to calculate 'inconclusive' flag (SC-006) if failure rate > 10%. **Input**: `data/processed/human_verification_results.json` (from T015a). **Output**: `data/processed/validation_status.json`.
+- [~] T016 [US1] Implement `src/analysis/metrics.py` for Pearson correlation (r, p, CI) and mixed-effects logistic regression (FR-006, FR-007). **Input**: `data/processed/human_verification_results.json` (from T015a) and `data/processed/saliency_scores.json` (from T014). Output to `data/processed/correlation_results.json`.
+- [~] T017 [US1] Add Benjamini-Hochberg FDR correction logic in `src/analysis/metrics.py` (FR-008)
+- [~] T019 [US1] Implement `src/main.py` orchestration to run saliency -> flagging -> correlation on the sampled dataset.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -85,13 +85,13 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T020 [P] [US2] Unit test for AUC calculation logic in `tests/unit/test_metrics.py`
+- [~] T020 [P] [US2] Unit test for AUC calculation logic in `tests/unit/test_metrics.py`
 
 ### Implementation for User Story 2
 
-- [ ] T021 [P] [US2] Implement `src/analysis/validate.py` to load SALICON test set and compute fixation map predictions
-- [ ] T022 [US2] Implement AUC calculation and threshold check (AUC >= 0.70) in `src/analysis/validate.py` (FR-003)
-- [ ] T023 [US2] Log validation results to `data/processed/saliency_validation.json`
+- [~] T021 [P] [US2] Implement `src/analysis/validate.py` to load SALICON test set and compute fixation map predictions
+- [~] T022 [US2] Implement AUC calculation and threshold check (AUC >= 0.70) in `src/analysis/validate.py` (FR-003)
+- [~] T023 [US2] Log validation results to `data/processed/saliency_validation.json`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -105,11 +105,11 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T024 [P] [US3] Unit test for sensitivity analysis logic in `tests/unit/test_robustness.py`
+- [~] T024 [P] [US3] Unit test for sensitivity analysis logic in `tests/unit/test_robustness.py`
 
 ### Implementation for User Story 3
 
-- [ ] T025 [P] [US3] Implement alternative saliency model wrapper (ViT-B/CAM) in `src/analysis/saliency.py` (CPU only, fallback if unavailable)
+- [~] T025 [P] [US3] Implement alternative saliency model wrapper (ViT-B/CAM) in `src/analysis/saliency.py` (CPU only, fallback if unavailable)
 - [ ] T026 [US3] Implement `src/analysis/robustness.py` to iterate over a range of thresholds and re-run correlation (FR-009). **Input**: Output of T025 and correlation logic from T016.
 - [ ] T027 [US3] Implement comparison logic to verify correlation sign stability and magnitude change <= 0.05 (SC-003). **Baseline**: Compare against result from `data/processed/correlation_results.json` (T016).
 - [ ] T028 [US3] Generate robustness report in `data/processed/robustness_report.md` (Must include columns: threshold, correlation_r, p_value, sign_stable)
@@ -153,18 +153,18 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Validity (Phase 6)**: Depends on User Story 1 completion
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-  - T015 depends on T010
-  - T015a depends on T015
-  - T005 depends on T015a
-  - T016 depends on T014 and T015a
+ - T015 depends on T010
+ - T015a depends on T015
+ - T005 depends on T015a
+ - T016 depends on T014 and T015a
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
 
@@ -225,9 +225,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---

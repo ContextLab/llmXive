@@ -1,135 +1,71 @@
-# Quickstart: Predicting Plant Defense Compound Production from Publicly Available Genomic and Transcriptomic Data
+# Quickstart: Predicting Plant Defense Compound Production
 
 ## Prerequisites
 
-- Python 3.11 or higher
-- 2+ CPU cores
-- 7+ GB available RAM
-- 14+ GB available disk space
-- Internet connectivity for dataset downloads
-
-## ⚠️ CRITICAL: Dataset Verification Required
-
-**Before proceeding**: This project requires verified plant omics datasets (GEO series and Metabolomics Workbench experiments for herbivore-stress annotated Arabidopsis and Solanum). The current verified datasets block contains ONLY medical data.
-
-**⚠️ IF NO VERIFIED PLANT DATASETS EXIST**: The pipeline will halt with error code **E-DATASET**. This is a research question blocker that cannot proceed without:
-1. Verified plant transcriptomic/metabolomic datasets added to verified datasets block
-2. Spec modification to use available medical datasets (changes research question)
-3. Project pause until plant-specific omics datasets are verified
+- Python 3.11+
+- `pip`
+- Internet access (for data download)
+- A GitHub Actions runner or a local machine with ≥ 7 GB RAM
 
 ## Installation
 
+1. **Clone the repository** (or navigate to the project directory):
+   ```bash
+   cd projects/PROJ-503-predicting-plant-defense-compound-produc
+   ```
+
+2. **Create a virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate   # Windows: venv\Scripts\activate
+   ```
+
+3. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+## Running the Pipeline
+
+The pipeline is executed via the main entry point. It will automatically:
+
+1. Check for existing data.  
+2. Download new data if missing (or abort with `E‑DATA`).  
+3. Perform preprocessing, pairing, and feature selection.  
+4. Run modeling, nested CV, permutation testing, and diagnostics.  
+5. Abort if any runtime, pairing, power, or checksum constraint is violated (`E‑TIMEOUT`, `E‑PAIRING`, `E‑POWER`, `E‑CHECKSUM`).  
+
+**Command**:
 ```bash
-# Clone repository
-git clone <repository-url>
-cd projects/PROJ-503-predicting-plant-defense-compound-produc
-
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r code/requirements.txt
+python code/main.py
 ```
 
-## Quick Start Commands
+### Expected Output
 
-### Step 0: Verify Dataset Availability (MANDATORY - BLOCKER)
+- **Logs**: `logs/runtime.log`, `logs/data_pairing.json`, `logs/feature_filtering.csv`, `logs/vif_diagnostics.csv`  
+- **Data**: `data/processed/` (CSV files)  
+- **Models**: `outputs/models/` (pickle files)  
+- **Metrics**: `outputs/metrics/model_results.json`  
 
-```bash
-# Check if required GEO and Metabolomics Workbench datasets are accessible
-python code/main.py --check-datasets
-```
+## Validation
 
-**Expected Output**: 
-- **If verified plant datasets found**: Pairing feasibility report with match rate percentage, sample count, and power analysis
-- **If no verified plant datasets**: **ABORT with error code E-DATASET**
+To verify that the quickstart works on a fresh environment:
 
-**⚠️ If E-DATASET error occurs**: Project cannot proceed without verified plant omics datasets. Options:
-1. Add verified plant datasets to verified datasets block
-2. Modify spec to use available medical datasets (changes research question)
-3. Pause project until plant-specific omics datasets are verified
-
-**⚠️ If E-PAIRING error occurs**: <95% sample-level pairing. Review logs/data_pairing.json and verify GEO/Metabolomics Workbench experiment compatibility.
-
-**⚠️ If E-POWER error occurs**: Sample size <28. Project cannot proceed with adequate statistical power.
-
-### Step 1: Verify Power Requirements (Phase 0)
-
-```bash
-# Check sample size meets power requirements (n≥28-30 for r≥0.5)
-python code/main.py --check-power
-```
-
-**Expected Output**: Power analysis report with required sample size, available sample count, and power calculation. If sample size <28, **ABORT with error code E-POWER**.
-
-**Power Analysis Output**: outputs/power_analysis.json containing:
-- Required n for r≥0.5, power=0.80, α=0.05
-- Available sample count
-- Achieved power with available samples
-- PASS/FAIL status
-
-### Step 2: Download and Pair Data (ONLY if Step 0 and Step 1 PASS)
-
-```bash
-# Download expression and metabolite data (only after Step 0 passes)
-python code/main.py --download
-```
-
-**Expected Output**: CSV files in data/paired/ with matched sample IDs; pairing logs in logs/data_pairing.json
-
-**⚠️ Abort if**: Pairing rate <95% (E-PAIRING error)
-
-### Step 3: Preprocess and Select Features
-
-```bash
-# Normalize, batch-correct, and select defense pathway + regulatory genes
-python code/main.py --preprocess
-```
-
-**Expected Output**: data/processed/features.csv with defense pathway genes; logs in logs/feature_filtering.csv
-
-### Step 4: Train and Evaluate Models
-
-```bash
-# Train species-specific Ridge Regression models with cross-validation and permutation testing
-python code/main.py --train --evaluate
-```
-
-**Expected Output**: Model artifacts in outputs/models/; evaluation metrics (RMSE, Pearson r, p-values)
-
-### Step 5: View Results
-
-```bash
-# Display summary of model performance
-python code/main.py --summary
-```
-
-**Expected Output**: Table of metabolites with RMSE, Pearson r, and Bonferroni-corrected p-values
-
-## Expected Runtime
-
-- Total pipeline: ≤4 hours on GitHub Actions free-tier runner
-- Data download: [deferred - depends on dataset sizes]
-- Preprocessing: [deferred - depends on sample count]
-- Modeling: [deferred - depends on feature count and CV folds]
+1. Run the quickstart script on a clean checkout (no `data/` or `outputs/` present).  
+2. After completion, check that `outputs/metrics/model_results.json` exists and contains non‑empty results.  
+3. Ensure `logs/runtime.log` does **not** contain an error code.  
+4. Execute the validation script:
+   ```bash
+   pytest tests/integration/test_quickstart_validation.py
+   ```
+   This test logs success to `docs/quickstart_validation.md`.
 
 ## Troubleshooting
 
-| Error | Cause | Resolution |
-|-------|-------|------------|
-| E-DATASET | No verified plant omics datasets found | Add verified plant datasets to verified datasets block or modify spec |
-| E-PAIRING | <95% sample-level pairing rate | Review logs/data_pairing.json; verify GEO and Metabolomics Workbench experiment compatibility |
-| E-POWER | Sample size <28 (insufficient power) | Cannot proceed; project halts. Requires additional data sources |
-| MemoryError | Dataset exceeds 7 GB RAM | Reduce sample size or stream data in batches |
-| Timeout | Runtime exceeds 4 hours | Optimize I/O operations; reduce permutation iterations |
-| KEGG API Error | Pathway annotation unavailable | Use ortholog mapping fallback; check docs/edge_cases.md |
+- **Error `E‑PAIRING`**: < 95 % of samples could not be paired. Review `logs/data_pairing.json`.  
+- **Error `E‑POWER`**: Sample size < 28 or power < 0.8. Review `logs/power_analysis.log`.  
+- **Error `E‑TIMEOUT`**: Total CPU time exceeded 4 h. Consider reducing permutation iterations or using a more powerful runner.  
+- **Error `E‑CHECKSUM`**: < 99 % of downloaded files failed checksum verification. Review `logs/checksum_report.log`.  
+- **Error `E‑DATA`**: No suitable paired GEO/Metabolomics Workbench study found. The pipeline cannot proceed.
 
-## Data Integrity Notes
-
-- All downloaded files are checksummed (SHA-256) and recorded in data/sources.yaml
-- Raw data is preserved unchanged in data/raw/
-- All transformations produce new files in data/processed/ or data/paired/
-- No data modification in place; all derivations documented
-
-**⚠️ SPEC VS PLAN INCONSISTENCY NOTE**: The spec.md FR-010 still references cross-species model as primary, but this quickstart correctly documents species-specific models as PRIMARY. This requires spec.md revision (flagged for kickback).
+--- End of Quickstart ---

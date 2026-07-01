@@ -1,0 +1,77 @@
+version: "1.0"
+description: >
+  Schema for the Project Implicit Political IAT dataset after loading and initial mapping.
+  Defines required columns, data types, and validation rules for the core analysis variables.
+required_columns:
+  - name: IAT_D_score
+    type: numeric
+    description: "The D-score measure of implicit bias from the IAT."
+    constraints:
+      min: -1.0
+      max: 1.0
+      allow_nan: true
+      validation_logic: |
+        Check that all non-null values fall within [-1.0, 1.0].
+        Values outside this range indicate data corruption or incorrect scoring.
+  
+  - name: political_ideology
+    type: numeric
+    description: "Self-reported political ideology on a continuous scale (e.g., 1-7)."
+    constraints:
+      min: 1.0
+      max: 7.0
+      allow_nan: true
+      validation_logic: |
+        Check that all non-null values fall within [1.0, 7.0].
+        This variable is used as a continuous predictor in the primary model.
+  
+  - name: news_exposure_freq
+    type: numeric
+    description: "Frequency of exposure to political news."
+    constraints:
+      min: 1.0
+      max: 7.0
+      allow_nan: true
+      validation_logic: |
+        Check that all non-null values fall within [1.0, 7.0].
+        This variable is used as a continuous predictor in the primary model.
+
+optional_columns:
+  - name: age
+    type: numeric
+    description: "Participant age in years."
+  - name: gender
+    type: string
+    description: "Participant gender."
+  - name: education
+    type: string
+    description: "Participant education level."
+
+validation_rules:
+  - name: check_required_columns_present
+    description: "Ensure all required columns exist in the dataset."
+    logic: |
+      Verify that `IAT_D_score`, `political_ideology`, and `news_exposure_freq` 
+      are present in the dataframe columns. Raise ValueError if missing.
+  
+  - name: check_numeric_ranges
+    description: "Ensure numeric variables are within expected physical bounds."
+    logic: |
+      For each required column with min/max constraints:
+      1. Filter out NaN values.
+      2. Verify all remaining values satisfy min <= value <= max.
+      3. If any value violates this, raise ValueError with details.
+  
+  - name: check_missingness_rate
+    description: "Ensure missingness does not exceed critical threshold."
+    logic: |
+      Calculate the proportion of NaN values for each required column.
+      If any column has > 50% missingness, raise a Warning (or ValueError 
+      depending on strict mode). This aligns with the MICE imputation 
+      constraint in the project spec.
+
+metadata:
+  source: "Project Implicit Political IAT"
+  derived_from: "T005b IAT Protocol Documentation"
+  created_by: "T007 Implementation"
+  schema_type: "analysis_ready"

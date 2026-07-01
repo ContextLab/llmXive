@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-09T03:17:23.183322Z'
-current_stage: specified
+current_stage: in_progress
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-469-the-impact-of-repeated-exposure-to-neutr
-last_run_id: 8c18e145-4175-440c-bb05-a42cf8287e10
+last_run_id: e670dcf1-3a01-4ff9-a9d5-b8dbc7093538
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-469-the-impact-of-repeated-exposure-to-neutr/specs/001-the-impact-of-repeated-exposure-to-neutr
 title: The Impact of Repeated Exposure to Neutral Faces on Implicit Bias
-updated_at: '2026-06-25T21:25:39.662288Z'
+updated_at: '2026-07-01T12:05:16.103780Z'

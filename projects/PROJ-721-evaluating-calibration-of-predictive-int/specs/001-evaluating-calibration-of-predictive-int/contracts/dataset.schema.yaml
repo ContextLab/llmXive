@@ -1,0 +1,52 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "M4 Time Series Dataset Schema"
+description: "Schema for the processed M4 time series dataset used in the evaluation pipeline."
+type: "object"
+properties:
+  series_id:
+    type: "string"
+    description: "Unique identifier for the time series (e.g., 'M1001')."
+  frequency:
+    type: "string"
+    enum:
+      - "Yearly"
+      - "Quarterly"
+      - "Monthly"
+      - "Weekly"
+      - "Daily"
+      - "Hourly"
+    description: "Frequency of the time series."
+  seasonality:
+    type: "boolean"
+    description: "Whether the series exhibits seasonality."
+  values:
+    type: "array"
+    items:
+      type: "number"
+    description: "Historical observations (training data)."
+  test_values:
+    type: "array"
+    items:
+      type: "number"
+    description: "Held-out test observations."
+  trend_strength:
+    type:
+      - "number"
+      - "null"
+    description: "Derived variance ratio of trend component (0.0 to 1.0), or null if not computable."
+  trend_group:
+    type:
+      - "string"
+      - "null"
+    enum:
+      - "high"
+      - "low"
+      - "null"
+    description: "Classification of trend strength based on threshold > 0.5."
+required:
+  - "series_id"
+  - "frequency"
+  - "seasonality"
+  - "values"
+  - "test_values"
+additionalProperties: false

@@ -1,0 +1,166 @@
+artifact_links:
+- projects/PROJ-719-data-journalist-agent-transforming-data/specs/001-data-journalist-agent-transforming-data/plan.md
+- specs/*/contracts/*
+- specs/*/data-model.md
+- specs/*/plan.md
+- specs/*/quickstart.md
+- specs/*/research.md
+reason: 12 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst
+  unresolved severity = 'science'. Routing to 'specified' with full provenance so
+  the next worker can address the root cause.
+stage: plan
+to_stage: specified
+unresolved_concerns:
+- artifact: projects/PROJ-719-data-journalist-agent-transforming-data/specs/001-data-journalist-agent-transforming-data/plan.md
+  id: methodology-eb03f9e6
+  location: plan.md:Statistical & Methodological Rigor
+  reviewer: methodology
+  round: 1
+  severity: methodology
+  text: 'The plan states: ''The plan treats all generated claims as associational
+    unless the source data explicitly supports causal inference.'' However, the Spec
+    (US-2) and Research Question aim to validate ''evidence-grounded claims'' and
+    the ''Inspector'' agent''s ability to flag hallucinations. The methodology lacks
+    a mechanism to distinguish between a *hallucinated* claim (no data support) and
+    a *valid* associational claim. Without a ground-truth validation step (e.g., comparing
+    the Agent''s extracted claims against a human-annotated gold standard for the
+    meteorite scenario), the ''Inspector'' cannot objectively measure ''traceability''
+    or ''hallucination rates,'' rendering the validation of FR-002 and FR-003 circular.'
+- artifact: projects/PROJ-719-data-journalist-agent-transforming-data/specs/001-data-journalist-agent-transforming-data/plan.md
+  id: methodology-1d534bf1
+  location: 'plan.md:Phase 4: Validation & Testing'
+  reviewer: methodology
+  round: 1
+  severity: methodology
+  text: Test 2 ('Parse cell_registry.json and cross-reference 5 random claims') relies
+    on manual or heuristic cross-referencing without a defined ground truth. If the
+    'Analyst' agent incorrectly maps a claim to a data cell, the test will likely
+    pass if the mapping is syntactically valid, failing to detect semantic hallucination.
+    The methodology needs a 'Gold Standard' dataset or a specific validation script
+    that programmatically verifies the `source_id` in the registry actually contains
+    the data supporting the `claim_text`.
+- artifact: projects/PROJ-719-data-journalist-agent-transforming-data/specs/001-data-journalist-agent-transforming-data/plan.md
+  id: methodology-a94f2cd5
+  location: research.md:5. Success Metrics (Deferred Values)
+  reviewer: methodology
+  round: 1
+  severity: methodology
+  text: Success metrics are defined as '[deferred]' for 'Registry Completeness' and
+    'Asset Success Rate'. While deferring specific numbers is allowed, the *methodology*
+    for calculating these rates is missing. How is 'completeness' defined? Is it 100%
+    of claims in the story, or 100% of claims the agent *attempted* to map? Without
+    a clear denominator definition in the methodology, the resulting metric is not
+    comparable or reproducible.
+- artifact: projects/PROJ-719-data-journalist-agent-transforming-data/specs/001-data-journalist-agent-transforming-data/plan.md
+  id: data_resources-6ee4321d
+  location: plan.md:Phase 0, Step 2
+  reviewer: data_resources
+  round: 1
+  severity: methodology
+  text: The plan assumes the dataset for '01_meteorite_flagship.md' is 'vendored'
+    in a submodule without citing a specific source, accession ID, or URL. While the
+    spec assumes availability, the plan fails to identify the actual data resource
+    (e.g., NASA GISS Meteorite Landings, specific CSV path, or repository URL) required
+    to verify 'Variable Fit' (mass, year, lat/long). Without a concrete citation to
+    a real, accessible dataset, the 'Dataset Check' step cannot be executed or validated,
+    rendering the feasibility of the reproduction unproven.
+- artifact: projects/PROJ-719-data-journalist-agent-transforming-data/specs/001-data-journalist-agent-transforming-data/plan.md
+  id: data_resources-82461fd4
+  location: research.md:2. Dataset Strategy
+  reviewer: data_resources
+  round: 1
+  severity: methodology
+  text: 'The research section explicitly states: ''The reproduction relies on the
+    vendored dataset... No external URL is used.'' This is a critical gap. If the
+    ''vendored'' dataset is missing or the submodule is not initialized, the pipeline
+    has no fallback or alternative source. The plan must cite the specific external
+    dataset (e.g., ''NASA Meteorite Landings from Kaggle/DOI:10.xxxx'') that the ''vendored''
+    file is supposed to represent, ensuring the data resource is real and appropriate
+    for the ''meteorite'' scenario before relying on a local copy that may not exist
+    in the CI environment.'
+- artifact: projects/PROJ-719-data-journalist-agent-transforming-data/specs/001-data-journalist-agent-transforming-data/plan.md
+  id: plan_consistency-719b38ff
+  location: plan.md:Constitution Check
+  reviewer: plan_consistency
+  round: 1
+  severity: requirement
+  text: 'The ''Constitution Check'' section states: ''Gates determined based on the
+    project''s constitution (assumed standard research integrity principles as specific
+    file content was not provided...)'' This violates Constitution Principle I (SSoT).
+    The plan must explicitly reference and validate against the actual `constitution.md`
+    file (FR-030), not assume principles. A plan that does not read the constitution
+    cannot verify compliance.'
+- artifact: projects/PROJ-719-data-journalist-agent-transforming-data/specs/001-data-journalist-agent-transforming-data/plan.md
+  id: plan_consistency-d6490fcb
+  location: plan.md:Constitution Check
+  reviewer: plan_consistency
+  round: 1
+  severity: requirement
+  text: The plan claims to address 'Reproducibility', 'Transparency', etc., but does
+    not map these to specific Constitutional Principle IDs (e.g., Principle I, II,
+    V) or cite the `constitution.md` file. Without explicit mapping, the 'Constitution
+    Check' is a hallucination of compliance rather than a verification step.
+- artifact: projects/PROJ-719-data-journalist-agent-transforming-data/specs/001-data-journalist-agent-transforming-data/plan.md
+  id: plan_consistency-0abec7ca
+  location: 'plan.md:Phase 0: Environment & Dataset Verification'
+  reviewer: plan_consistency
+  round: 1
+  severity: writing
+  text: Step 2 mentions flagging 'NEEDS CLARIFICATION' if a dataset is missing. The
+    `data-model.md` defines 'Scenario' as an input entity but does not define a 'NEEDS
+    CLARIFICATION' status or error entity. The plan introduces a state/flow not defined
+    in the data model or contracts.
+- artifact: projects/PROJ-719-data-journalist-agent-transforming-data/specs/001-data-journalist-agent-transforming-data/plan.md
+  id: plan_consistency-8ca2ff9f
+  location: 'plan.md:Phase 2: Multimodal Generation & Designer'
+  reviewer: plan_consistency
+  round: 1
+  severity: writing
+  text: 'Step 2 mentions generating a placeholder with metadata `generated_by: "Designer
+    (Fallback)"`. The `contracts/asset_metadata.schema.yaml` defines `generated_by`
+    as a string but does not explicitly define the ''Fallback'' value or the specific
+    string format. While not a hard violation, the plan should reference the schema''s
+    `enum` or `description` to ensure the fallback string matches the contract''s
+    expectations.'
+- artifact: projects/PROJ-719-data-journalist-agent-transforming-data/specs/001-data-journalist-agent-transforming-data/plan.md
+  id: scientific_soundness-92576f61
+  location: 'plan.md: Statistical & Methodological Rigor'
+  reviewer: scientific_soundness
+  round: 1
+  severity: science
+  text: The plan defines the 'sample' as a single scenario (01_meteorite_flagship.md)
+    and the success metric as binary (Pass/Fail). This renders the 'validation' of
+    the paper's claims (e.g., 'evidence-grounded claims') tautological and non-empirical.
+    A single execution cannot statistically validate a system's general capability
+    or robustness; it only confirms the pipeline runs on that specific input. The
+    analysis claims to 'validate the paper's claims' but the methodology (n=1, binary
+    outcome) is incapable of distinguishing between a robust system and a lucky run,
+    making the scientific result trivial by definition.
+- artifact: projects/PROJ-719-data-journalist-agent-transforming-data/specs/001-data-journalist-agent-transforming-data/plan.md
+  id: scientific_soundness-bcdc5220
+  location: 'plan.md: Phase 2: Multimodal Generation & Designer'
+  reviewer: scientific_soundness
+  round: 1
+  severity: science
+  text: 'The plan validates ''Multimodal Asset Generation'' (FR-004) by accepting
+    a ''placeholder file'' generated on API failure as a successful outcome. This
+    creates a circular validation: the metric ''Asset Success Rate'' is measured against
+    a target that includes the fallback mechanism itself. If the API fails (which
+    is expected in CI), the system ''succeeds'' by generating a placeholder, thereby
+    validating the ''robustness'' claim but failing to validate the ''multimodal generation''
+    claim. The validation target (presence of a file) is definitionally satisfied
+    by the error-handling logic, not the generative capability.'
+- artifact: projects/PROJ-719-data-journalist-agent-transforming-data/specs/001-data-journalist-agent-transforming-data/plan.md
+  id: scientific_soundness-bba876a3
+  location: 'plan.md: Phase 4: Validation & Testing'
+  reviewer: scientific_soundness
+  round: 1
+  severity: methodology
+  text: Test 2 ('cross-reference 5 random claims') is methodologically unsound for
+    a sample size of a single scenario with an unknown total claim count. If the scenario
+    contains <5 claims, the test is impossible; if it contains exactly 5, it is a
+    census, not a sample. Furthermore, 'random sampling' from a single deterministic
+    run provides no statistical power to estimate error rates or generalizability,
+    rendering the 'verification' of evidence traceability (US-2) a qualitative check
+    rather than a quantitative validation.
+worst_severity: science

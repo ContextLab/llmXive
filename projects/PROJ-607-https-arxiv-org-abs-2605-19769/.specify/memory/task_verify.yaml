@@ -1,0 +1,44 @@
+? T004 Setup Docker daemon check script in `projects/607-reproduce-opencomputer/scripts/setup_plan.sh`
+  to validate container runtime availability and disk quota (<14GB)
+: 2
+? "T004 Setup Docker daemon check script in `projects/607-reproduce-opencomputer/scripts/setup_plan.sh`\
+  \ to validate container runtime availability and disk quota (<14GB) [UNRESOLVED-CLAIM:\
+  \ c_da34aa07 \u2014 status=not_enough_info]"
+: 1
+? "T039a [P] **Refactor Smoke**: Create `run_smoke_test.sh` as a standalone script\
+  \ in `projects/607-reproduce-opencomputer/scripts/`. Extract Docker provisioning\
+  \ logic into `docker_utils.py`. Ensure file is < 200 lines [UNRESOLVED-CLAIM: c_9a0051f8\
+  \ \u2014 status=not_enough_info]."
+: 1
+? 'T039a [P] **Refactor Smoke**: Create `run_smoke_test.sh` as a standalone script
+  in `projects/607-reproduce-opencomputer/scripts/`. Extract Docker provisioning logic
+  into `docker_utils.py`. Ensure file is < 200 lines.'
+: 2
+? "T039b [P] **Refactor Collect**: Create `collect_artifacts.py` as a standalone script\
+  \ in `projects/607-reproduce-opencomputer/scripts/`. Extract file copy logic. Ensure\
+  \ file is < 200 lines [UNRESOLVED-CLAIM: c_9a0051f8 \u2014 status=not_enough_info]."
+: 1
+? 'T039b [P] **Refactor Collect**: Create `collect_artifacts.py` as a standalone script
+  in `projects/607-reproduce-opencomputer/scripts/`. Extract file copy logic. Ensure
+  file is < 200 lines.'
+: 2
+? 'T039c [P] **Refactor Compare**: Create `compare_verdicts.py` as a standalone script
+  in `projects/607-reproduce-opencomputer/scripts/`. Extract merge logic. Ensure file
+  is < 200 lines.'
+: 2
+? 'T039d [P] **Refactor Report**: Create `generate_report.py` as a standalone script
+  in `projects/607-reproduce-opencomputer/scripts/`. Extract Jinja2 template logic.
+  Ensure file is < 200 lines.'
+: 2
+? 'T040a [P] **Type Safety**: Add Python type hints to all function signatures in
+  `projects/607-reproduce-opencomputer/scripts/docker_utils.py`. Use `contracts/task.schema.yaml`
+  for `Task` type definitions.'
+: 1
+? 'T040b [P] **Type Safety**: Add Python type hints to all function signatures in
+  `projects/607-reproduce-opencomputer/scripts/compare_verdicts.py`. Use `contracts/verification_results.schema.yaml`
+  for `Verdict` types.'
+: 1
+? 'T040c [P] **Type Safety**: Add Python type hints to all function signatures in
+  `projects/607-reproduce-opencomputer/scripts/generate_report.py`. Use `contracts/verification_report.schema.yaml`
+  for `Report` types.'
+: 1

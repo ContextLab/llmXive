@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.13724",
+  "judged_at": "2026-07-01T13:27:54Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "anyflow: any-step video diffusion model with on-policy flow map distillation computer science",
+  "rationale": "The candidate paper is the exact source of the user's research question, as the title and abstract describe the \"AnyFlow\" framework and its specific mechanism of \"On-Policy Flow Map Distillation\" for video diffusion models. This satisfies the inclusion criteria as the foundational methodology (d) and the primary empirical study (c) for the specific technique the user is investigating.",
+  "relevant": true
+}

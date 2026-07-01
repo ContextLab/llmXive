@@ -1,0 +1,66 @@
+ * **Requirement**: The Introduction must explicitly state the hypothesis and the primary measured outcome.
+ * **Abstract Construction Logic**: The claim in the Abstract must be dynamically selected based on the execution outcome:
+ - **If** Claim 5 (Negative Result/Failure) is triggered, the Primary Citation Claim MUST be the specific failure statement (e.g., "Evaluation failed due to OOM").
+ - **Otherwise**, the Primary Citation Claim MUST be the measured reproduction deviation (Claim 1).
+
+2. **Deep-Read Path (Reproducibility Surface)**: A researcher must be able to reproduce the exact numbers and fail the experiment if conditions are not met.
+ * **Requirement**: The Methods section must explicitly enumerate the "Reproducibility Surface":
+ * Exact code commit hash used (populated from `results/evaluation_run.json`).
+ * Data seed and specific dataset version (manifest.json checksum, populated from `data/manifest.json`).
+ * Environment versions (Python, PyTorch, Transformers, populated from `requirements.txt` or runtime logs).
+ * Hardware constraints (7GB RAM, CPU).
+ * **Dynamic Insertion**: The spec requires that these values are not hardcoded in the draft but are inserted by the generation process from the actual execution artifacts.
+
+3. **Citation Path**: A citing scientist needs one unambiguous sentence to attribute.
+ * **Requirement**: The "Required Claims" section must define a single "Primary Citation Claim" that is the measured scientific result, distinct from the process of attempting the reproduction.
+ * **Selection Logic**: The paper must adhere to the **Primary Claim Selection Logic** defined in the Skim Path: Claim 5 takes precedence if triggered; otherwise, Claim 1 is the primary claim.
+
+## Required Sections
+
+The paper text generated from this specification must include the following sections, mapped to the validation tasks:
+
+1. **Abstract**: Must summarize the reproduction attempt, the *measured* primary finding on long-document VQA improvement (exact deviation %), and the *measured* generalization retention rate. Must contain the **Primary Citation Claim** selected per the logic above.
+2. **Introduction**: Must state the problem of long-context generalization, the specific hypothesis being tested, and the *measured* outcome of the test.
+3. **Methods**: Must explicitly detail:
+ * The CPU-only execution environment.
+ * The low-bit quantization strategy (Qwen2.5-VL-7B).
+ * The specific dataset split (`test` from `yubo2333/MMLongBench-Doc`).
+ * **Reproducibility Surface**: Code commit hash (from execution log), data seed, environment versions, and manifest checksum (from `data/manifest.json`).
+4. **Results**: Must present:
+ * The *measured* reproduction metrics (exact deviation %).
+ * The *measured* retention rates at 256K/512K.
+ * The *measured* scaling trend analysis (slope/R²/classification).
+ * **Negative Results**: Explicit reporting of any failures (OOM, Data Unavailable) if they occurred.
+5. **Discussion**: Must interpret the *measured* scaling trends, explicitly discuss the limitations of the small sample size (n=10) and the lack of multiple-comparison correction, and compare findings to the original paper. Must include a "Discrepancy Analysis" if deviation > 1.0%.
+6. **References**: Must cite the original paper, the MMLongBench dataset, and the specific model weights used.
+
+## Required Figures
+
+1. **Figure 1: Performance vs. Context Length Scaling Curve**
+ * **Purpose**: Visualize the relationship between model score and log(context_length) to demonstrate the *measured* trend.
+ * **Data Source**: `results/scaling_report.json` (aggregated scores from `results/sample_results.json`).
+
+2. **Figure 2: Generalization Retention Rate Bar Chart**
+ * **Purpose**: Compare *measured* performance at 128K (baseline) against 256K and 512K.
+ * **Data Source**: `results/validation_report.md` (calculated retention rates).
+
+3. **Figure 3: Reproduction Delta Plot**
+ * **Purpose**: Show the *measured* difference between reproduced scores and the original paper's claimed scores.
+ * **Data Source**: `results/sample_results.json` vs. the paper's abstract values.
+
+## Required Claims
+
+The paper MUST explicitly state the following findings based on the *measured* results. If a result is negative or inconclusive, the corresponding claim template MUST be used.
+
+### Claim 1: Reproduction Validity (Primary Citation Claim if no failure)
+* **Template**: "We evaluated the long-document VQA scores and observed a deviation of **X%** from the original paper's claims."
+* **Requirement**: The value X must be the exact measured deviation.
+* **Condition**: If X > 1.0%, the Discussion MUST include a "Discrepancy Analysis" subsection detailing potential causes (quantization noise, dataset drift).
+* **Note**: This claim is the *measured result*, not a statement of success or failure.
+
+### Claim 2: Generalization Capability
+* **Template**: "We measured the performance retention rate at 256K and 512K context lengths to be **Y%** of the 128K baseline."
+* **Requirement**: The value Y must be the exact measured retention rate.
+* **Condition**: If Y < 80%, the paper must explicitly state that the "generalization beyond 128K" hypothesis was not supported by this specific evaluation.
+
+### Claim 3: Scaling Behavior

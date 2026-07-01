@@ -1,0 +1,115 @@
+The matched pages from diverse sources are assembled into a synthetic document, which serves as the workspace for generating complex QA pairs spanning $\ge 2$ source documents. A critical component of this process is the element-level bijective function $f_{map}$, which maintains a persistent link between the synthetic layout and the original files. This function maps the synthetic evidence bounding boxes back to their original spatial coordinates in the source PDF. By ensuring that every byte of synthesized evidence is traceable to its original page, the system fundamentally eliminates visual hallucinations and ensures the absolute fidelity of the citation annotations.
+
+\subsection{Details of Template Distillation}
+\label{Appendix: Details of QA Construction}
+
+To simulate real-world business scenarios effectively, we collected diverse problems from multi-domain open-source datasets and distilled them into a series of templates.
+
+Table~\ref{tab:domain_datasets} details the distribution of the datasets used in our framework, covering 5 key domains to ensure broad representation. We would like to express our sincere gratitude to the contributors of these open-source projects for their invaluable support to the research community.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Distribution of Multi-domain Open-source Datasets}
+\label{tab:domain_datasets}
+\begin{tabular}{lll}
+\toprule
+\textbf{Domain} & \textbf{Dataset} & \textbf{License} \\
+\midrule
+Academic Tech & SPIQA \citep{pramanick2024spiqa} & CC BY 4.0 \\
+\multirow{2}{*}{Medical \& Health} & MedQA \citep{jin2020disease} & MIT \\
+ & PubMedQA \citep{jin2019pubmedqa} & MIT \\
+Business Finance & ViDoRe V3 \citep{loison2026vidore} & CC BY 4.0 \\
+\multirow{2}{*}{Industrial \& Construction} & MaintNorm \citep{bikaun2024maintnorm} & MIT \\
+ & ViDoRe V3 \citep{loison2026vidore} & CC BY 4.0 \\
+Gov \& Legal & PolicyBench \citep{foo2025know} & OpenRail \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+We employed Gemini-3.1-Pro-Preview to extract four core categories of templates from the aforementioned datasets (see Table~\ref{tab:template_examples}). These templates guide the MLLM to synthesize logically rigorous QA pairs based on specific evidence packages.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Classification and Examples of Templates}
+\label{tab:template_examples}
+\begin{tabularx}{\textwidth}{l|X}
+\toprule
+\textbf{Category} & \textbf{Template and Representative Example} \\
+\midrule
+\textbf{Factual Retrieval} & \textbf{Template:} What is the [Metric] for [Entity]'s [Segment] in [Time Period]? \\
+ & \textbf{Example:} What is the net interest margin for Citigroup's banking segment in 2024? \\
+\midrule
+\textbf{Complex Synthesis} & \textbf{Template:} Synthesize the [Entity] management's outlook for [Metric] in [Time Period]. \\
+ & \textbf{Example:} Synthesize the Bank of America management's outlook for credit loss provisions in 2025. \\
+\midrule
+\textbf{Quantitative Reasoning} & \textbf{Template:} Determine the [Metric] for [Entity] by subtracting [Value A] from [Value B]. \\
+ & \textbf{Example:} Determine the tangible common equity for Citigroup by subtracting goodwill from total equity. \\
+\midrule
+\textbf{Multimodal Parsing} & \textbf{Template:} On which page and in which paragraph is [Visual Style] located? \\
+ & \textbf{Example:} On which page and in which paragraph are the green italic numbers located? \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection{Details of Expert Evaluation}
+\label{Appendix: Details of Expert Evaluation}
+Despite the automated production, we invited several PhD-level experts to conduct sampling audits of 200 randomly selected CiteVQA outputs, focusing on question difficulty, answer quality, and the quality of crucial evidence. To ensure consistency in the evaluation standard, the experts followed the same prompt templates as the models, the details of which are provided in Appendix~\ref{Prompts for CiteVQA Pipeline}. The audit results (Table~\ref{tab:Expert Evaluation}) confirm the high quality of the automated pipeline, demonstrating appropriate question difficulty and high-quality annotation.
+
+\paragraph{Remark on Compensation} All human experts involved in data annotation and evaluation (including Appendix~\ref{Appendix: Details of Expert Evaluation} and~\ref{Appendix: Analysis of Different Judges})  were compensated with a task-based honorarium that exceeds the local minimum hourly wage, ensuring fair labor practices.
+
+\begin{table}[htbp]
+    \centering
+    \footnotesize
+    \caption{Annotation evaluation results on 200 sampled CiteVQA instances (5-point Likert scale, averaged across human experts).}
+    \label{tab:Expert Evaluation}
+    \begin{tabular}{lccc}
+        \toprule
+        \textbf{Judge / Metric} &
+        \makecell{\textbf{Question}\\ \textbf{Difficulty}} &
+        \makecell{\textbf{Answer}\\ \textbf{Quality}} &
+        \makecell{\textbf{Evidence}\\ \textbf{Quality}} \\
+        \midrule
+        Gemini-3-Flash   & 2.81 & 4.57 & 4.93 \\
+        Qwen3-VL-235B       & 2.73 & 4.62 & 4.89 \\
+        Human Expert            & 2.97 & 4.43 & 4.91 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection{Details of Auxiliary Training Validation}
+\label{Appendix: Auxiliary Training Validation}
+To assist in validating the effectiveness of the automated pipeline in real-world training, we conducted an alignment experiment based on the ViDoRe V3~\citep{loison2026vidore} corpus in Table~\ref{tab:retrieval_results}. Following the same PDFs, we generated 3k samples via CiteVQA and compared their performance against the original 5k human-annotated samples in AgenticOCR~\citep{wang2026agenticocr}  SFT training. Overall, CiteVQA Pipeline nearly reaches the performance level of human-annotated data.
+
+\begin{table*}[htbp]
+\centering
+\footnotesize
+\setstretch{1.2}
+\caption{Performance comparison on FinRAGBench-V~\citep{zhao-etal-2025-finragbench} (subset with bounding boxes) and the held-out test set of ViDoRe V3.
+$\mathbf{Page_{acc}}$ measures page-level judgment ability; $\mathbf{Recall_{min}}$ indicates coarse-grained localization;
+$\mathbf{Recall_{EM}}$ reflects exact-grained localization. On FinRAGBench-V, CiteVQA Pipeline (3k) achieves comparable or
+slightly better performance than Vidore Original (5k). On ViDoRe V3, Vidore Original shows a slight advantage.
+}
+\resizebox{\textwidth}{!}{
+\begin{tabular}{lccccc|ccccc}
+\toprule
+\multirow{2}{*}{\textbf{Training Data}}
+& \multicolumn{5}{c|}{\textbf{FinRAGBench-V (subset w. bbox)}}
+& \multicolumn{5}{c}{\textbf{ViDoRe V3 (test set)}} \\
+\cmidrule(lr){2-6} \cmidrule(lr){7-11}
+& $\mathbf{Page_{acc}}$ & $\mathbf{Recall_{min}}$ & $\mathbf{Prec_{min}}$ & $\mathbf{F1_{min}}$ & $\mathbf{Recall_{EM}}$
+& $\mathbf{Page_{acc}}$ & $\mathbf{Recall_{min}}$ & $\mathbf{Prec_{min}}$ & $\mathbf{F1_{min}}$ & $\mathbf{Recall_{EM}}$ \\
+\midrule
+Vidore Original (5k) & 97.7 & 83.0 & 85.2 & 82.7 & 35.4 & 94.7 & 83.4 & 82.2 & 81.0 & 48.3  \\
+CiteVQA Pipeline (3k) & 97.7 & 82.8 & 86.0 & 81.3 & 40.6 & 93.5 & 79.5 & 82.4 & 78.8 & 45.3  \\
+\bottomrule
+\end{tabular}
+}
+\label{tab:retrieval_results}
+\end{table*}
+
+In the following, we describe the technical implementation of our distillation strategy, the specific tools provided to the model during training, and the rejection sampling criteria used to ensure the high quality of the resulting trajectories.
+
+\paragraph{Trajectory Distillation via Rejection Sampling} We follow the same SFT training data distillation pipeline as AgenticOCR~\citep{wang2026agenticocr}. Specifically, we use the CiteVQA pipeline to generate a set of synthetic data from the original PDF files of ViDoRe V3. The data format is similar to that of the original ViDoRe dataset, namely (I, Q, A, E), representing Image, Question, Answer, and Evidence Bbox, respectively.
+

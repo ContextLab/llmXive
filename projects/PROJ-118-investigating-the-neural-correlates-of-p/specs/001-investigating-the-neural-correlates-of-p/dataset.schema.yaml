@@ -1,0 +1,16 @@
+subject_id:
+  type: string
+  required: true
+  description: Unique identifier for the participant
+session:
+  type: string
+  required: false
+  description: Session identifier (e.g., '1', '2')
+run:
+  type: string
+  required: false
+  description: Run identifier (e.g., '1', '2')
+checksum:
+  type: string
+  required: true
+  description: SHA-256 checksum of the raw data file for integrity verification

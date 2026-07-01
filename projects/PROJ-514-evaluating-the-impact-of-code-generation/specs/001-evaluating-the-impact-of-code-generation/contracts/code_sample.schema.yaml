@@ -1,0 +1,50 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CodeSample"
+description: "Schema for a single code sample (human or LLM)"
+type: "object"
+properties:
+  sample_id:
+    type: "string"
+    description: "UUID of the sample"
+  source_type:
+    type: "string"
+    enum:
+      - "human"
+      - "llm"
+    description: "Source of the code"
+  repository_id:
+    type: "string"
+    description: "GitHub repository identifier"
+  issue_id:
+    type: "string"
+    description: "Linked Issue or PR ID"
+  task_id:
+    type: "string"
+    description: "Task identifier for LLM generation"
+  language:
+    type: "string"
+    enum:
+      - "python"
+      - "java"
+    description: "Programming language"
+  file_path:
+    type: "string"
+    description: "Relative path in data/raw"
+  function_name:
+    type: "string"
+    description: "Name of the function"
+  is_fresh_commit:
+    type: "boolean"
+    description: "Whether the sample is from a fresh commit"
+  metadata_json:
+    type: "string"
+    description: "JSON string containing model, prompt, seed, or commit SHA"
+required:
+  - sample_id
+  - source_type
+  - repository_id
+  - language
+  - file_path
+  - function_name
+  - is_fresh_commit
+  - metadata_json

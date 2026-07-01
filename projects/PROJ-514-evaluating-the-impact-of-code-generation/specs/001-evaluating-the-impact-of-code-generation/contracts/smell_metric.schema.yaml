@@ -1,0 +1,44 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SmellMetric"
+description: "Schema for static analysis results"
+type: "object"
+properties:
+  metric_id:
+    type: "string"
+    description: "UUID of the metric record"
+  sample_id:
+    type: "string"
+    description: "Foreign key to CodeSample"
+  smell_type:
+    type: "string"
+    enum:
+      - "long_method"
+      - "duplicated_code"
+      - "feature_envy"
+      - "long_parameter_list"
+    description: "Type of code smell detected"
+  count:
+    type: "integer"
+    minimum: 0
+    description: "Number of occurrences"
+  threshold_used:
+    type: "integer"
+    description: "Threshold value used for detection"
+  continuous_metric_value:
+    type: "number"
+    description: "Continuous metric (e.g., Cyclomatic Complexity)"
+  tool_version:
+    type: "string"
+    description: "Version of the static analysis tool"
+  validity_flag:
+    type: "boolean"
+    description: "True if tool ran successfully"
+required:
+  - metric_id
+  - sample_id
+  - smell_type
+  - count
+  - threshold_used
+  - continuous_metric_value
+  - tool_version
+  - validity_flag

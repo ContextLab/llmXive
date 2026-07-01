@@ -1,0 +1,101 @@
+- artifact_path: projects/PROJ-579-https-arxiv-org-abs-2605-15155/docs/reproducibility/reproducibility_report.md
+  attempts: 1
+  canonical: SDAR pipeline executed 10-step training on ALFWorld using distilbert-base-uncased
+  claim_id: c_232b2eea
+  context: Key Findings section listing successful execution details and constraints.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The SDAR pipeline successfully executed a minimal 10-step training run
+    on the ALFWorld environment using the distilbert-base-uncased proxy model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T07:56:32Z'
+- artifact_path: projects/PROJ-579-https-arxiv-org-abs-2605-15155/docs/reproducibility/reproducibility_report.md
+  attempts: 1
+  canonical: Real execution logs captured SDAR Gate Loss, RL Loss, kl_divergence,
+    and teacher_update_count
+  claim_id: c_8e6375b1
+  context: Key Findings section describing generated logs and metrics.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Real_execution_logs_captured_SDAR_Gate_Loss,_RL_Loss,_kl_div
+  kind: entity_fact
+  raw_text: Real execution logs were generated, capturing SDAR Gate Loss, RL Loss,
+    kl_divergence, and teacher_update_count.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T07:56:54Z'
+- artifact_path: projects/PROJ-579-https-arxiv-org-abs-2605-15155/docs/reproducibility/reproducibility_report.md
+  attempts: 1
+  canonical: Checkpoint saved at step 5
+  claim_id: c_e500d0c0
+  context: Key Findings section noting checkpoint creation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A checkpoint was saved at step 5, confirming the training loop's state
+    persistence.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T07:57:10Z'
+- artifact_path: projects/PROJ-579-https-arxiv-org-abs-2605-15155/docs/reproducibility/reproducibility_report.md
+  attempts: 1
+  canonical: "Reproduction executed on CPU-only with \u22647GB RAM and \u22646h wall-clock\
+    \ time"
+  claim_id: c_469c8626
+  context: Executive Summary describing execution environment and constraints.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Reproduction_executed_on_CPU-only_with_%E2%89%A47GB_RAM_and_%E2%89%A46h_wall
+  kind: entity_fact
+  raw_text: "The reproduction pipeline was executed on a CPU-only environment with\
+    \ strict resource constraints of \u22647GB RAM and \u22646h wall-clock time."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T07:57:39Z'
+- artifact_path: projects/PROJ-579-https-arxiv-org-abs-2605-15155/docs/reproducibility/reproducibility_report.md
+  attempts: 1
+  canonical: ALFWorld environment run with 5 tasks for evaluation
+  claim_id: c_23ba0118
+  context: Gap Analysis section detailing known constraints on the environment interaction.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The ALFWorld environment was run with num_tasks=5 for evaluation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T07:57:55Z'
+- artifact_path: projects/PROJ-579-https-arxiv-org-abs-2605-15155/docs/reproducibility/reproducibility_report.md
+  attempts: 1
+  canonical: Target paper Self-Distilled Agentic Reinforcement Learning arXiv:2605.15155
+  claim_id: c_ac5c1c56
+  context: References section listing the target paper and its identifier.
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: The target paper is 'Self-Distilled Agentic Reinforcement Learning' (arXiv:2605.15155).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-01T07:57:59Z'

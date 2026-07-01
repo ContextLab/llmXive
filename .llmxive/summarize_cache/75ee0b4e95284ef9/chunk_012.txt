@@ -1,0 +1,147 @@
+\caption{Ablation on the mRoPE frequency base for 128K LongPT.
+    We grid search the mRoPE base in $\{2\times 10^6, 4\times 10^6, 8\times 10^6\}$, starting from the original base of $1\times 10^6$ used for the 32K context.
+    The Dynamic-NTK heuristic~\citep{dynamicntk} suggests $4\times 10^6$ as the default base when extending the context window from 32K to 128K.
+    Overall, $2\times 10^6$ and $4\times 10^6$ achieve comparable performance, while further increasing the base to $8\times 10^6$ does not yield consistent gains across tasks.
+    }
+\label{tab:rope_base_vqa}
+\end{table}
+
+
+
+\subsection{MM-NIAH Generalization}
+\label{app:complementary_experiment_results:generalization_niah}
+We provide the full 64K and 128K MM-NIAH results in \cref{tab:generalization_niah}, complementing the averaged main-text summary in \cref{fig:generalization_niah}.
+
+\begin{table}[!htbp]
+\centering
+\scriptsize
+\captionsetup[subtable]{font=footnotesize,labelformat=parens,justification=centering,skip=1pt}
+
+\begin{subtable}{0.48\textwidth}
+    \centering
+    \caption{\textbf{64K MM-NIAH}}
+
+    \begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lcccc@{}}
+    \toprule
+    \textbf{Model} & Ret. & Count & Reas. & AVG. \\
+    \midrule
+    \modelname & \textbf{74.83} & \textbf{27.67} & \textbf{67.33} & \textbf{56.61} \\
+    Qwen2.5-VL-7B & 50.00 & 6.00 & 27.50 & 27.83 \\
+    \midrule
+    InternVL3-8B & 67.67 & 14.33 & 59.33 & 47.11 \\
+    InternVL3.5-8B & 56.12 & 4.45 & 57.23 & 39.26 \\
+    Gemma3-4B & 43.25 & 4.33 & 31.50 & 26.36 \\
+    Gemma3-12B & 65.58 & 27.00 & 42.25 & 44.94 \\
+    \bottomrule
+    \end{tabular*}
+\end{subtable}
+\hfill
+\begin{subtable}{0.48\textwidth}
+    \centering
+    \caption{\textbf{128K MM-NIAH}}
+
+    \begin{tabular*}{\linewidth}{@{\extracolsep{\fill}}lcccc@{}}
+    \toprule
+    \textbf{Model} & Ret. & Count & Reas. & AVG. \\
+    \midrule
+    \modelname & \textbf{57.83} & 8.67 & \textbf{60.33} & \textbf{42.28} \\
+    Qwen2.5-VL-7B & 11.33 & 16.33 & 8.83 & 12.17 \\
+    \midrule
+    InternVL3-8B & 52.33 & 7.33 & 50.00 & 36.56 \\
+    InternVL3.5-8B & 3.45 & 0.00 & 2.27 & 1.91 \\
+    Gemma3-4B & 29.83 & 1.83 & 28.75 & 20.14 \\
+    Gemma3-12B & 48.83 & \textbf{19.67} & 33.75 & 34.08 \\
+    \bottomrule
+    \end{tabular*}
+\end{subtable}
+\caption{\textbf{MM-NIAH generalization.} Ret., Count, and Reas. average text and image needles.}
+\label{tab:generalization_niah}
+\end{table}
+
+\subsection{VTCBench Generalization}
+\label{app:complementary_experiment_results:generalization_vtc}
+We provide the full VTCBench-Wild results in \cref{tab:generalization_vtc}. We report retrieval, reasoning, memory, and the sample-count weighted overall score following VTCBench-Wild.
+
+\begin{table}[!htbp]
+    \centering
+    \scriptsize
+    \begin{tabular*}{0.7\linewidth}{@{\extracolsep{\fill}}lcccc@{}}
+    \toprule
+    \textbf{Model} & Ret. & Reas. & Mem. & AVG. \\
+    \midrule
+    \modelname & \textbf{91.75} & \textbf{22.88} & \textbf{40.50} & \textbf{52.73} \\
+    Qwen2.5-VL-7B & 91.63 & 15.63 & 33.83 & 48.23 \\
+    \midrule
+    Qwen3-VL-8B & 89.00 & 11.50 & 33.67 & 45.73 \\
+    InternVL3.5-8B & 51.38 & 7.63 & 17.33 & 26.18 \\
+    InternVL3.5-38B & 45.81 & 8.75 & 22.33 & 25.93 \\
+    Gemma3-27B & 49.38 & 3.75 & 17.33 & 24.05 \\
+    \bottomrule
+    \end{tabular*}
+\caption{VTCBench generalization. We report retrieval, reasoning, memory, and the sample-count weighted overall score following VTCBench-Wild.}
+\label{tab:generalization_vtc}
+\end{table}
+
+\subsection{Long-Video Generalization}
+\label{app:complementary_experiment_results:generalization_video}
+We provide the numeric long-video generalization results in \cref{tab:generalization_video}, complementing the main-text summary in \cref{fig:generalization_video}.
+
+\begin{table}[!htbp]
+\centering
+\scriptsize
+\begin{tabular*}{0.7\linewidth}{@{\extracolsep{\fill}}lccc@{}}
+\toprule
+\textbf{Model} & Video-MME & MLVU & LongVideoBench \\
+\midrule
+Qwen2.5-VL-7B & 65.1 & 70.2 & 60.43 \\
+\modelname & \textbf{67.78} & \textbf{73.55} & \textbf{62.08} \\
+\bottomrule
+\end{tabular*}
+\caption{\textbf{Long-video generalization.} We report aggregate scores on Video-MME, MLVU, and LongVideoBench.}
+\label{tab:generalization_video}
+\end{table}
+
+\begin{table}[!htbp]
+    \centering
+    \setlength{\tabcolsep}{4pt}
+    \resizebox{0.9\textwidth}{!}{%
+    \begin{tabular}{l*{3}{C{1.2cm}}|*{3}{C{1.2cm}}|C{1.4cm}}
+    \toprule
+    & \multicolumn{3}{c|}{\textbf{64K MMLongBench}} & \multicolumn{3}{c|}{\textbf{128K MMLongBench}} & \multirow{2}{*}{\textbf{AVG.}} \\
+    \cmidrule(lr){2-4} \cmidrule(lr){5-7}
+    \textbf{Model} & \multicolumn{1}{c}{\footnotesize LD-URL} & \multicolumn{1}{c}{\footnotesize SLIDE} & \multicolumn{1}{c|}{\footnotesize AVG.} & \multicolumn{1}{c}{\footnotesize LD-URL} & \multicolumn{1}{c}{\footnotesize SLIDE} & \multicolumn{1}{c|}{\footnotesize AVG.} & \\
+    \midrule
+    Qwen3-VL-8B & 56.36 & 74.00 & 65.18 & 60.11 & 72.00 & 66.05 & 65.62\,{\scriptsize\makebox[2em][l]{}} \\
+    + \modelname Recipe & 62.22 & 73.00 & 67.61 & 62.81 & 72.00 & 67.41 & 67.51\,{\scriptsize\makebox[2em][l]{\posdiff{1.9}}} \\
+    \bottomrule
+    \end{tabular}
+    }
+\caption{Long-document VQA transfer across backbone models. We apply LongPT variants to Qwen3-VL-8B and report results on LongDocURL and SlideVQA. Since Qwen3-VL is already a 256K-context model trained with large-scale long-context pre-training, SFT, and RL, we focus on these two held-out document benchmarks.}
+\label{tab:qwen3_backbone_generalization}
+\end{table}
+
+\subsection{Generalization across Backbones}
+\label{app:complementary_experiment_results:backbone}
+
+We further apply our LongPT recipe to Qwen3-VL-8B~\citep{bai2025qwen3} to test whether the training recipe transfers beyond Qwen2.5-VL. 
+However, the Qwen3-VL series already includes 256K-context models trained with 100B tokens in long-context continued pre-training, and Qwen3-VL has undergone additional SFT and RL optimization for long-document tasks~\citep{bai2025qwen3}. 
+Therefore, this experiment is not intended as a strict study on context window extension. 
+Instead, we use it as a diagnostic to examine whether the observed behavior transfers across backbones. 
+We report the performance on long-document VQA tasks and MM-NIAH in \cref{tab:qwen3_backbone_generalization,tab:qwen3_backbone_mmniah}, respectively.
+
+The results show that the final \modelname recipe remains effective even on this stronger long-context backbone.
+On long-document VQA, \modelname improves the average score from 65.62 to 67.51.
+The gains are more pronounced on MM-NIAH, where the average score increases from 50.03 to 61.75, with consistent improvements across retrieval, counting, and reasoning at both context lengths.
+Together with the diagnostic nature of this experiment, these results suggest that the proposed training recipe is not specific to Qwen2.5-VL-7B, but may also improve the long-context behavior of a newer backbone that already incorporates native long-context training.
+
+\begin{table}[t]
+    \centering
+    \setlength{\tabcolsep}{3.5pt}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{l*{4}{C{1.05cm}}|*{4}{C{1.05cm}}|C{1.25cm}}
+    \toprule
+    & \multicolumn{4}{c|}{\textbf{64K MM-NIAH}} & \multicolumn{4}{c|}{\textbf{128K MM-NIAH}} & \multirow{2}{*}{\textbf{AVG.}} \\
+    \cmidrule(lr){2-5} \cmidrule(lr){6-9}
+    \textbf{Model} & \multicolumn{1}{c}{\footnotesize Ret.} & \multicolumn{1}{c}{\footnotesize Count} & \multicolumn{1}{c}{\footnotesize Reas.} & \multicolumn{1}{c|}{\footnotesize AVG.} & \multicolumn{1}{c}{\footnotesize Ret.} & \multicolumn{1}{c}{\footnotesize Count} & \multicolumn{1}{c}{\footnotesize Reas.} & \multicolumn{1}{c|}{\footnotesize AVG.} & \\
+    \midrule
+    Qwen3-VL-8B & 77.83 & 25.33 & 62.33 & 55.17 & 61.67 & 17.00 & 56.00 & 44.89 & 50.03\,{\scriptsize\makebox[2em][l]{}} \\

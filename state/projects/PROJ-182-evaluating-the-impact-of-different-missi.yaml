@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-03T03:17:33.982360Z'
-current_stage: project_initialized
+current_stage: in_progress
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-182-evaluating-the-impact-of-different-missi
-last_run_id: cd760755-f958-4c8b-958a-c0fd41c8d156
+last_run_id: 8820b64c-87e7-4d1a-bb0e-676a316568f5
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-182-evaluating-the-impact-of-different-missi/specs/001-evaluating-the-impact-of-different-missi
 title: Evaluating the Impact of Different Missing Data Mechanisms on Regression Discontinuity
   Designs
-updated_at: '2026-06-24T18:57:36.431331Z'
+updated_at: '2026-07-01T13:15:25.298825Z'

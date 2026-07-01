@@ -9,23 +9,24 @@
 
 ### User Story 1 - Data Acquisition & Filtering (Priority: P1)
 
-The system MUST retrieve the Gerrit Chromium code-review dataset via GHTorrent, filter for Java and Python PRs, and extract human-written code snippets alongside review metadata (timestamps, comment counts, perceived difficulty ratings from existing review comments).
+The system MUST retrieve the Gerrit Chromium proxy dataset via HuggingFace, filter for Java and Python PRs, and extract human-written code snippets alongside review metadata (timestamps, comment counts). The system MUST explicitly NOT attempt to extract 'review_time' or 'perceived_difficulty' from the historical dataset as these fields are unavailable; 'comment_count' is used as the primary proxy for effort in historical analysis.
 
 **Why this priority**: This is the foundational data layer; without valid, filtered data containing both code and review effort metrics, no subsequent generation or analysis can occur.
 
-**Independent Test**: Can be fully tested by running the data ingestion script and verifying the output CSV contains ≥ 1,000 rows with non-null `review_time`, `comment_count`, `code_snippet`, and `perceived_difficulty` columns.
+**Independent Test**: Can be fully tested by running the data ingestion script and verifying the output CSV contains ≥ 1,000 rows with non-null `review_comment_count`, `code_snippet`, and `project_id` columns. A data availability check MUST pass before proceeding.
 
 **Acceptance Scenarios**:
 
-1. **Given** the GHTorrent dump is accessible, **When** the ingestion script runs, **Then** a CSV file is generated containing PR metadata and code changes.
+1. **Given** the HuggingFace proxy dataset is accessible, **When** the ingestion script runs, **Then** a CSV file is generated containing PR metadata and code changes.
 2. **Given** a PR with > 30 lines of code, **When** the filter step runs, **Then** that PR is excluded from the dataset.
-3. **Given** a PR with missing review timestamps, **When** the validation step runs, **Then** that PR is flagged or excluded to ensure effort metrics are calculable.
+3. **Given** a PR with missing review comment counts, **When** the validation step runs, **Then** that PR is flagged or excluded to ensure effort metrics are calculable.
+4. **Given** a dataset check, **When** the system verifies column existence, **Then** the system proceeds only if `code_snippet` and `comment_count` are present.
 
 ---
 
 ### User Story 2 - Code Generation & Metric Computation (Priority: P2)
 
-The system MUST use the StarCoder 1B model and CodeGen-350M model to generate alternative implementations for the extracted problem statements on CPU, compute static code metrics (cyclomatic complexity, maintainability, LOC, pylint scores, Checkstyle scores, token count), and track API calls for each generation attempt.
+The system MUST use the StarCoder model and CodeGen model to generate alternative implementations for the extracted problem statements on CPU, compute static code metrics (cyclomatic complexity, maintainability, LOC, pylint scores, Checkstyle scores, token count), and track API calls for each generation attempt.
 
 **Why this priority**: This creates the experimental variable (LLM vs Human) and the predictor variables (complexity metrics) required for the statistical model.
 
@@ -36,12 +37,13 @@ The system MUST use the StarCoder 1B model and CodeGen-350M model to generate al
 1. **Given** a problem statement extracted from a PR title, **When** the generation prompt is executed, **Then** a code snippet is produced within 300 seconds per snippet.
 2. **Given** a generated snippet with syntax errors, **When** the metric computation step runs, **Then** the snippet is marked as "failed" and excluded from the final analysis set.
 3. **Given** a valid code snippet, **When** the radon tool runs, **Then** cyclomatic complexity and maintainability index are recorded for that snippet.
+4. **Given** a data availability check, **When** the system verifies metric columns, **Then** the system proceeds only if `cyclomatic_complexity` and `loc` are present.
 
 ---
 
 ### User Story 3 - Statistical Analysis & Reporting (Priority: P3)
 
-The system MUST fit a linear mixed-effects model to predict review effort from code metrics, apply multiple-comparison correction, perform sensitivity analysis on the LOC threshold, conduct Wilcoxon signed-rank paired tests, and validate the prediction model against reviewed generated snippets.
+The system MUST fit a linear mixed-effects model to predict review effort from code metrics, including an interaction term between code origin and key metrics to test for structural breaks. The system MUST perform multiple-comparison correction, conduct sensitivity analysis on the LOC threshold, and validate the prediction model's transferability against reviewed generated snippets.
 
 **Why this priority**: This delivers the research answer (impact estimation) and ensures methodological rigor (validity, power, sensitivity, assumption testing).
 
@@ -49,10 +51,10 @@ The system MUST fit a linear mixed-effects model to predict review effort from c
 
 **Acceptance Scenarios**:
 
-1. **Given** the processed dataset, **When** the mixed-effects model runs, **Then** coefficients for `cyclomatic_complexity` and `code_origin` are output with p-values.
+1. **Given** the processed dataset, **When** the mixed-effects model runs, **Then** coefficients for `cyclomatic_complexity`, `code_origin`, and the interaction term `code_origin × cyclomatic_complexity` are output with p-values.
 2. **Given** multiple hypothesis tests (e.g., time vs comments), **When** the correction step runs, **Then** adjusted p-values are reported using Bonferroni or FDR correction.
 3. **Given** the primary LOC threshold (≤ 30), **When** the sensitivity analysis runs, **Then** results are also computed for ≤ 15 and ≤ 50 LOC to verify robustness.
-4. **Given** the validation study data, **When** the paired Wilcoxon test runs, **Then** predicted vs actual effort differences are tested for significance.
+4. **Given** the validation study data, **When** the interaction test runs, **Then** the system reports whether the metric-effort relationship differs significantly between human and LLM code.
 
 ---
 
@@ -60,32 +62,33 @@ The system MUST fit a linear mixed-effects model to predict review effort from c
 
 - What happens when the StarCoder model fails to generate valid syntax for a specific problem statement? (System logs failure and excludes the pair from analysis).
 - How does system handle PRs where review timestamps are missing but comments exist? (System excludes these rows from `review_time` analysis but retains them for `comment_count` if metadata allows).
-- What happens if the 7 GB RAM limit is exceeded during model loading? (System enforces CPU device and float16 precision to ensure fit; fails gracefully if OOM).
+- What happens if the system's available RAM limit is exceeded during model loading? (System enforces CPU device and float16 precision to ensure fit; fails gracefully if OOM).
 - What happens when generated code is reviewed by human raters for validation? (System records actual review time, comment count, and difficulty rating in validation_provenance.csv).
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download the Gerrit Chromium dataset via GHTorrent and parse PRs containing Java or Python changes `(See US-1)`.
+- **FR-001**: System MUST download the Gerrit Chromium proxy dataset via HuggingFace and parse PRs containing Java or Python changes `(See US-1)`. The system MUST explicitly NOT attempt to extract 'review_time' or 'perceived_difficulty' from this historical dataset.
 - **FR-002**: System MUST filter the dataset to include only PRs with ≤ 30 lines of code changed `(See US-1)`.
-- **FR-003**: System MUST execute the StarCoder 1B model and CodeGen-350M model on CPU only, without CUDA or GPU dependencies, to enable robustness comparison between models `(See US-2)`.
+- **FR-003**: System MUST execute the StarCoder 1B model on CPU only to enable robustness comparison. If an Out-of-Memory (OOM) error is detected, the system MUST automatically fall back to the CodeGen-350M model. In the event of such a fallback, the target sample size MUST be reduced to N=200 pairs, and statistical power MUST be recalculated to ensure ≥0.70. Robustness is defined as a generation success rate of ≥90% valid syntax output `(See US-2)`.
 - **FR-004**: System MUST compute cyclomatic complexity, maintainability index (using radon ≥0.7.0), pylint scores, Checkstyle scores, token count, and API call tracking for both human and generated code snippets `(See US-2)`.
 - **FR-005**: System MUST frame all statistical findings as associational (not causal) in the final report; the report MUST contain an explicit disclaimer paragraph stating: "These findings describe correlational relationships observed in the data and do not establish causal effects of code origin on review effort" `(See US-3)`.
 - **FR-006**: System MUST perform a sensitivity analysis on the LOC filter threshold, sweeping values at 15, 30, and 50 LOC to verify robustness `(See US-3)`.
 - **FR-007**: System MUST apply multiple-comparison correction (e.g., Bonferroni or FDR) when reporting significance for >1 hypothesis test, using statsmodels ≥0.14.0 for statistical procedures `(See US-3)`.
-- **FR-008**: System MUST record and store provenance metadata for every generated code snippet including model identifier, full prompt string, random seed, and generation timestamp in data/generated_provenance.csv per Constitution Principle VI `(See US-2)`.
+- **FR-008**: System MUST record and store provenance metadata for every generated code snippet including model identifier, full prompt string, random seed, and generation timestamp in data/generated_provenance.csv per Constitution Principle VI `(See US-2)`. This provenance record MUST explicitly document that 'effort' metrics derived from the historical dataset are proxies (comment_count) and not ground-truth time/difficulty.
 - **FR-009**: System MUST pin random seeds to fixed values (e.g., seed=42) for all random operations including model inference, train/test splits, and sampling to ensure reproducibility per Constitution Principle I `(See US-2)`.
 - **FR-010**: System MUST perform Wilcoxon signed-rank paired tests to compare predicted effort for generated vs. human code on matched problem statements per Idea Methodology step 7 `(See US-3)`.
-- **FR-011**: System MUST measure perceived difficulty for both human and generated code via a 5-point Likert survey (1=Very Easy, 5=Very Difficult) administered to ≥2 independent reviewers for the validation study subset per research question `(See US-3)`.
-- **FR-012**: System MUST conduct a validation study where ≥50 generated code snippets are reviewed by ≥2 independent human reviewers to measure actual review effort and validate the prediction model per scientific soundness requirements `(See US-3)`.
-- **FR-013**: System MUST document the assumption that metric-effort relationships learned from human code apply to generated code, and perform sensitivity analysis varying the transfer assumption by ±10% to assess robustness per scientific soundness requirements `(See US-3)`.
+- **FR-011**: System MUST measure perceived difficulty for both human and generated code via a 5-point Likert survey (1=Very Easy, 5=Very Difficult) administered to ≥3 independent reviewers for the validation study subset per research question `(See US-3)`. The system MUST implement a blinding protocol where reviewers are unaware of code origin and MUST calculate inter-rater reliability (Cohen's kappa ≥ 0.6) for the survey data.
+- **FR-012**: System MUST conduct a validation study where ≥50 generated code snippets are reviewed by ≥2 independent human reviewers to measure actual review effort and validate the prediction model's transferability per scientific soundness requirements `(See US-3)`. Actual review effort MUST be measured using a browser-based stopwatch tool with millisecond precision, recording the time from code display to 'submit review' action.
+- **FR-013**: System MUST test the assumption that metric-effort relationships learned from human code apply to generated code by fitting a linear mixed-effects model with an interaction term (code_origin × metric). If the interaction term is statistically significant (p < 0.05), the system MUST report stratified results for human and generated code separately rather than a single pooled estimate `(See US-3)`.
+- **FR-014**: System MUST explicitly link the historical 'metric-effort' relationship to the generated code analysis by computing the difference in predicted effort (based on the historical model) versus the actual effort measured in the validation study, and report the mean absolute error (MAE) of this transfer `(See US-3)`.
 
-### Key Entities *(include if feature involves data)*
+### Key Entities *(include if data)*
 
 - **Code Snippet**: Represents a single function or change block, attributes include `origin` (human/generated), `loc`, `complexity`, `pylint_score`, `checkstyle_score`, `token_count`.
 - **Review Record**: Represents a PR review event, attributes include `review_time` (duration), `comment_count`, `project_id`, `perceived_difficulty`.
-- **Experiment Pair**: Links a human snippet to its LLM-generated counterpart for the same problem statement.
+- **ExperimentPair**: Links a human snippet to its LLM-generated counterpart for the same problem statement.
 - **Provenance Record**: Links generated code to generation parameters, attributes include `model_id`, `prompt`, `seed`, `timestamp`, `generation_file_path`.
 
 ## Success Criteria *(mandatory)*
@@ -96,7 +99,7 @@ The system MUST fit a linear mixed-effects model to predict review effort from c
 > measured against; defer specific empirical values (counts, dataset sizes,
 > measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: Data retrieval success rate is measured against the total available PRs in the GHTorrent dump, with a minimum acceptable threshold of ≥95% `(See US-1)`.
+- **SC-001**: Data retrieval success rate is measured against the total available PRs in the HuggingFace Gerrit Chromium proxy dataset, with a minimum acceptable threshold of ≥95% `(See US-1)`.
 - **SC-002**: Code generation success rate is measured against the total problem statements extracted, requiring ≥90% valid syntax output as a pipeline quality target `(See US-2)`.
 - **SC-003**: Model predictive power (R²) is measured against a held-out [deferred] validation subset of the human data `(See US-3)`.
 - **SC-004**: Statistical significance is measured against the corrected p-value threshold (α ≤ 0.05) after multiplicity adjustment `(See US-3)`.
@@ -104,11 +107,12 @@ The system MUST fit a linear mixed-effects model to predict review effort from c
 
 ## Assumptions
 
-- The GHTorrent MySQL dump provides accessible, public access to the Gerrit Chromium dataset without requiring institutional credentials.
-- The StarCoder small-scale and CodeGen-350M models fit within the 7 GB RAM limit of the GitHub Actions free runner when loaded in float16 precision on CPU.
-- The Gerrit dataset contains sufficient metadata (timestamps, comment counts) for at least 1,000 valid PRs after applying the ≤ 30 LOC filter.
-- The `radon` library accurately computes cyclomatic complexity for both human and LLM-generated Python/Java code.
-- The entire pipeline (download, generate, analyze) completes within the 6-hour GitHub Actions job timeout.
+- The HuggingFace Gerrit Chromium proxy dataset provides accessible, public access to the Gerrit Chromium dataset without requiring institutional credentials.
+- The HuggingFace proxy dataset contains sufficient metadata (timestamps, comment counts) for at least 1,000 valid PRs after applying the ≤ 30 LOC filter, but explicitly lacks 'review_time' and 'perceived_difficulty' fields.
+- The 'comment_count' field is an acceptable proxy for review effort in the historical analysis, despite known limitations (weak correlation with actual time), provided the validation study (FR-012) grounds the final conclusions.
+- The StarCoder small-scale and CodeGen models fit within the RAM limit of the GitHub Actions free runner when loaded in float16 precision on CPU, OR the fallback to CodeGen-350M is triggered with reduced sample size.
+- The entire pipeline (download, generate, analyze) completes within the GitHub Actions job timeout.
 - Random seed pinning (FR-009) ensures reproducible results across runs.
-- The metric-effort relationship transfer from human to generated code (FR-013) is approximately valid, with sensitivity analysis quantifying any deviation.
+- The metric-effort relationship transfer from human to generated code (FR-013) is approximately valid, with interaction tests quantifying any deviation.
 - Model/prompt provenance records (FR-008) stored in data/generated_provenance.csv enable full reproducibility per Constitution Principle VI.
+- The 'Verified Accuracy' gap for the historical dataset is mitigated by the explicit validation study (FR-012) which measures ground-truth effort on generated code.

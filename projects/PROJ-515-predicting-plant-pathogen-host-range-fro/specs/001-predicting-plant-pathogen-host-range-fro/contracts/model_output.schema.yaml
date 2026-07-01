@@ -1,34 +1,125 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Model Prediction Output"
-description: "Schema for the prediction output for a novel pathogen"
+title: "Model Output Schema"
+description: "Schema for model artifacts and prediction outputs"
 type: object
 properties:
-  pathogen_id:
-    type: string
-    description: "Input pathogen ID"
-  predictions:
+  model_artifact:
+    type: object
+    description: "Serialized logistic regression model and metadata"
+    properties:
+      model_path:
+        type: string
+        pattern: "^results/model\\.pkl$"
+        description: "Path to serialized model file"
+      scaler_params:
+        type: object
+        description: "Scaler parameters (mean, std)"
+        properties:
+          mean:
+            type: array
+            items:
+              type: number
+          std:
+            type: array
+            items:
+              type: number
+        required:
+          - mean
+          - std
+      hyperparams:
+        type: object
+        description: "Model hyperparameters"
+        properties:
+          C:
+            type: number
+            minimum: 0
+          penalty:
+            type: string
+            enum: ["l1", "l2"]
+        required:
+          - C
+          - penalty
+      training_metrics:
+        type: object
+        description: "Cross-validation metrics"
+        properties:
+          AUPRC:
+            type: number
+            minimum: 0
+            maximum: 1
+          precision_at_05_recall:
+            type: number
+            minimum: 0
+            maximum: 1
+        required:
+          - AUPRC
+          - precision_at_05_recall
+    required:
+      - model_path
+      - scaler_params
+      - hyperparams
+      - training_metrics
+  feature_importance:
     type: array
-    description: "List of predictions for each host"
+    description: "SHAP values for all features"
     items:
       type: object
       properties:
-        host_id:
+        feature_name:
           type: string
-        probability:
+          description: "Name of the genomic feature"
+        shap_value:
+          type: number
+          description: "SHAP importance value"
+        category:
+          type: string
+          enum: ["effector", "pfam", "gc", "kmer", "sm_cluster"]
+          description: "Feature category"
+      required:
+        - feature_name
+        - shap_value
+        - category
+  significant_features:
+    type: array
+    description: "Statistically significant feature categories"
+    items:
+      type: object
+      properties:
+        feature_name:
+          type: string
+          description: "Name of the genomic feature"
+        effect_size:
+          type: number
+          description: "Cohen's d effect size"
+        adjusted_p_value:
           type: number
           minimum: 0
           maximum: 1
-          description: "Predicted probability of infection"
+          description: "Benjamini-Hochberg adjusted p-value"
       required:
-        - host_id
-        - probability
-  host_range_breadth:
-    type: number
-    minimum: 0
-    maximum: 1
-    description: "Mean predicted infection probability across all hosts"
+        - feature_name
+        - effect_size
+        - adjusted_p_value
+  predictions:
+    type: array
+    description: "Prediction probabilities for novel pathogen"
+    items:
+      type: object
+      properties:
+        host_species:
+          type: string
+          description: "Plant species name"
+        prediction_probability:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: "Predicted infection probability"
+      required:
+        - host_species
+        - prediction_probability
 required:
-  - pathogen_id
+  - model_artifact
+  - feature_importance
+  - significant_features
   - predictions
-  - host_range_breadth
 additionalProperties: false

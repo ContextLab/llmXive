@@ -40,12 +40,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T007a [P] Create IonSolventPair Pydantic model in code/data_models.py with fields: ion_identifier, solvent_identifier, experimental_deltaG, uncertainty, temperature, charge, radius, radius_type, instrument_metadata
+- [X] T007a [P] Create IonSolventPair Pydantic model in code/data_models.py with fields: ion_identifier, solvent_identifier, experimental_deltaG, uncertainty, temperature, charge, radius, radius_type, instrument_metadata
 - [ ] T007b [P] Create BornPrediction Pydantic model in code/data_models.py with fields: ion_identifier, solvent_identifier, predicted_deltaG, ionic_radius, dielectric_constant, calculation_timestamp
 - [ ] T007c [P] Create ResidualAnalysis Pydantic model in code/data_models.py with fields: residual, ion_size_class, solvent_class, statistical_significance, p_value, confidence_interval
 - [ ] T004 [P] Setup data schema contracts in contracts/ as JSON Schema files (IonSolventPair.json, BornPrediction.json, ResidualAnalysis.json); validate via jsonschema library; verify schema matches Pydantic models (T007a-c must complete first)
 - [ ] T005 [P] Implement physical constants module in code/physical_constants.py (fundamental physical constants and units) with NIST/CRC citations to appropriate precision
-- [ ] T005c [P] Create data/parameters.csv with physical parameters (e, ε0, ionic radii, dielectric constants) including source citations AND temperature conditions per Constitution Principle VI
+- [~] T005c [P] Create data/parameters.csv with physical parameters (e, ε0, ionic radii, dielectric constants) including source citations AND temperature conditions per Constitution Principle VI
 - [ ] T006 [P] Setup environment configuration management in code/config.py with fields: data_path, code_path, random_seed, log_level in YAML format; verify via config loading test
 - [ ] T008 Configure error handling and logging infrastructure in code/utils/logging.py with JSON log format (timestamp, level, module, message) and error handling patterns (try/except with logging); verify via log output test
 - [ ] T050 [P] Implement Reference-Validator Agent in code/validators/reference_validator.py to validate external citations and enforce title-token-overlap threshold ≥0.7 per Constitution Principle II; verify via test run on sample citations
@@ -111,7 +111,7 @@
 - [ ] T027 [US2] Compute Born predictions for all dataset pairs and save to data/born_predictions.csv; verify file created
 - [ ] T028a [US2] [P] CPU-only execution verification test: create tests/unit/test_cpu_only.py that verifies no CUDA imports and completes timing benchmark on CPU cores; verify no GPU dependencies
 - [ ] T028b [US2] Performance benchmark: create code/benchmark.py that measures total computation time and asserts <10 minutes on 2 CPU cores without GPU dependencies; verify benchmark passes
-- [ ] T028c [US2] [FR-002] Document continuum dielectric limitation (ε=78.5 bulk [UNRESOLVED-CLAIM: c_61db7278 — status=not_enough_info] vs saturated near-ion) in code/README.md with explicit acknowledgment; verify documentation created
+- [ ] T028c [US2] [FR-002] Document continuum dielectric limitation (ε=78.5 bulk vs saturated near-ion) in code/README.md with explicit acknowledgment; verify documentation created
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 

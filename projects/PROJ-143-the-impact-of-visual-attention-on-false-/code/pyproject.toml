@@ -1,0 +1,75 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-visual-attention-false-memory"
+version = "0.1.0"
+description = "Automated science pipeline: The impact of visual attention on false memory formation"
+requires-python = ">=3.9"
+dependencies = [
+    "torch-cpu",
+    "scikit-learn",
+    "pandas",
+    "numpy",
+    "statsmodels",
+    "datasets",
+    "opencv-python-headless",
+    "pillow",
+    "ruff",
+    "black",
+    "pytest",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff",
+    "black",
+    "pytest",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py39', 'py310', 'py311']
+include = '\.pyi?$'
+extend-exclude = '''
+(
+  __pycache__
+  | \.git
+  | \.mypy_cache
+  | \.venv
+  | venv
+  | build
+  | dist
+)
+'''
+
+[tool.ruff]
+line-length = 88
+target-version = "py39"
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+]
+ignore = [
+    "E501", # line too long (black handles this)
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
+]
+
+[tool.ruff.per-file-ignores]
+"tests/*" = ["S101", "E731"]
+"code/src/analysis/saliency.py" = ["B027"]
+
+[tool.pytest.ini_options]
+testpaths = ["code/tests"]
+pythonpath = ["code"]
+addopts = "-v --strict-markers"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+]

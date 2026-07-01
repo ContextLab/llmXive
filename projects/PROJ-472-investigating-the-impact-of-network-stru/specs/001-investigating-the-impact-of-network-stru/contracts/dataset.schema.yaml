@@ -1,0 +1,62 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: "Participant Dataset Schema"
+description: "Schema for the unified participant dataset containing structural and simulated avalanche metrics."
+type: object
+properties:
+  subject_id:
+    type: string
+    description: "Unique identifier for the participant."
+  data_source:
+    type: string
+    description: "Source dataset for dMRI (e.g., 'OpenNeuro-ds003813')."
+  is_valid:
+    type: boolean
+    description: "True if the participant passed quality control."
+  structural_metrics:
+    type: object
+    properties:
+      mean_degree:
+        type: number
+        description: "Mean node degree of the structural connectome."
+      clustering_coefficient:
+        type: number
+        description: "Mean clustering coefficient."
+      rich_club_coefficient:
+        type: number
+        description: "Rich-club coefficient."
+    required:
+      - mean_degree
+      - clustering_coefficient
+      - rich_club_coefficient
+  avalanche_metrics:
+    type: object
+    properties:
+      size_exponent:
+        type: number
+        description: "Power-law scaling exponent for avalanche size."
+      duration_exponent:
+        type: number
+        description: "Power-law scaling exponent for avalanche duration."
+      threshold_percentile:
+        type: number
+        description: "Threshold used for avalanche detection (e.g., 0.75)."
+      power_law_preferred:
+        type: boolean
+        description: "True if power-law model was statistically preferred."
+      likelihood_ratio_p_value:
+        type: number
+        description: "P-value from likelihood ratio test."
+      preferred_model:
+        type: string
+        description: "Name of the preferred model."
+    required:
+      - size_exponent
+      - duration_exponent
+      - threshold_percentile
+      - power_law_preferred
+      - likelihood_ratio_p_value
+      - preferred_model
+required:
+  - subject_id
+  - is_valid
+additionalProperties: false

@@ -1,0 +1,91 @@
+    \{"question": \textless question\textgreater, "answer": \textless answer\textgreater, "answer\_format": \textless answer\_format\textgreater, "evidence\_pages": [\textless page\_index\textgreater], "evidence\_sources": [\textless evidence\_sources\textgreater]\}\\[2pt]
+    \textless \textgreater\\[2pt]
+    \quad \\
+    \promptplaceholder{<in-context exemplars\_1>} \\
+    \quad \\
+    \promptplaceholder{<in-context exemplars\_2>} \\
+    \quad \\
+    {[}Current Case{]}\\
+    The following images represent pages \promptplaceholder{start\_page} to \promptplaceholder{end\_page} of the document. Generate the question-answering pair strictly based on the visual content below, ensuring the question scope is limited to phrases like "the Introduction section", "Pages 20, 21, and 25", or "Page 10." \\
+    \promptplaceholder{current\_case\_image\_sequence}
+    \end{minipage} \\
+    \bottomrule
+    \end{tabular}
+    \end{adjustbox}
+\caption{The prompt template used for long-document QA pair generation. Gray highlighted spans denote placeholders filled dynamically for each sampled document span.}
+\label{tab:qa_generation_prompt}
+\end{table}
+
+
+\begin{table}[!htbp]
+    \centering
+    \small
+    \setlength{\tabcolsep}{4pt}
+    \begin{tabular}{L{2.3cm}L{5.6cm}L{6.4cm}}
+    \toprule
+    \textbf{Task} & \textbf{Task Description} & \textbf{Extra Restriction} \\
+    \midrule
+    \extractsingle
+    & information extraction. You need to generate questions that focus on extracting specific, explicit information directly from the provided document images. Your objective is to create questions that ask for precise facts, entities (such as names, dates, locations, or authors), numerical values, lists of items, or specific steps in a procedure. The answers must be visually present and directly retrievable from the text, tables, or layout elements.
+    & Single-Page Focus: Although multiple pages are provided for context, you must generate a question that is **strictly self-contained within a single page**. Select one specific page from the provided sequence and generate a question based solely on its content. The answer must be fully derivable from that single page without requiring cross-referencing or synthesizing information from other pages. \\
+    \addlinespace
+    \midrule
+    \extractmulti
+    & information extraction. You need to generate questions that focus on extracting specific, explicit information directly from the provided document images. Your objective is to create questions that ask for precise facts, entities (such as names, dates, locations, or authors), numerical values, lists of items, or specific steps in a procedure. The answers must be visually present and directly retrievable from the text, tables, or layout elements.
+    & Multi-Page Priority: When multiple pages are provided, **prioritize** generating questions that require synthesizing information across different pages (>= 2 pages). For example, link a table header from one page to a row on the next, or aggregate data points scattered across multiple pages. You can also come up with other formats of multi-page questions. **Only fall back to single-page questions if no meaningful cross-page connections exist.** \\
+    \addlinespace
+    \midrule
+    \reasoningtask
+    & quantitative reasoning. You need to generate questions that require performing calculation, comparison, or counting. Your objective is to create questions involving one of the following: 1. Calculate: Performing arithmetic operations on data found in the document. 2. Compare: Comparing values to identify trends, maximums, minimums, or relative sizes. 3. Count: Counting the frequency of specific items, keywords, or visual elements that satisfy a condition. The answer must require the aforementioned processing step rather than being directly visible as a single contiguous string.
+    & - Non-Trivial Synthesis: The question must require **aggregating multiple data points**. For example, ask ``What is the difference in revenue between Q1 and Q2?'' or ``Calculate the total sum of items listed in Table 3.'' The key is that the user must find at least two pieces of information and combine them to get the answer. \\
+    \bottomrule
+    \end{tabular}
+\caption{The task descriptions and extra restriction for the three long-document VQA tasks. We insert these parts into the prompt template to synthesize data.}
+\label{tab:qa_generation_task_fields}
+\end{table}
+
+\subsection{Human Verification of QA Pairs}
+\label{app:long_document_vqa_details:verification}
+We randomly sample 100 generated QA pairs from the three task types and manually verify their answer correctness and evidence consistency.
+Among these inspected examples, 97 are fully correct: two contain incorrect answers, and one has an inaccurate evidence annotation.
+This suggests that the synthesis pipeline produces high-quality document-grounded supervision overall, while also indicating that the generated data may still contain a small amount of noise.
+
+\section{OCR Transcription Details}
+\label{app:ocr_transcription_details}
+In addition to VQA-based synthesis, we construct OCR transcription data as a contrasting family of long-context supervision.
+Each training example places rendered document pages as visual input and asks the model to generate the corresponding OCR text parsed from those pages.
+We consider two variants.
+Full-document OCR requires transcribing text elements from all pages of the document, creating dense image-text alignment across the full context.
+Needle-page OCR keeps the long visual context but only asks the model to transcribe text from a small subset of selected pages, making the task closer to retrieval over many distractor pages.
+
+\subsection{Data Statistics}
+\label{app:ocr_transcription_details:data_stats}
+We summarize the statistics of the OCR transcription data in \cref{tab:ocr_data_stats}.
+The corresponding token-length distribution is shown in \cref{fig:ocr_token_distribution}.
+
+\section{Short-Context Data Details}
+\label{app:short_context_data_details}
+We use short-context data in two sets of experiments.
+First, in the comparison between long-document VQA and OCR transcription data (\cref{sec:curation:data_method_compare}), we additionally apply supervised fine-tuning (SFT) with short-context instruction data after training the model on OCR transcription data.
+Second, in the short-data mixture experiment (\cref{sec:mixing:short}), we mix short-context data with long-context data to study how much short-context supervision should be included in LongPT.
+
+For both settings, we use publicly released short-context instruction data from LLaVA-OneVision~\citep{li2024llava}.
+We use the full short-context instruction data in the short-data mixture experiment, while only the SFT portion is used in the additional SFT stage after OCR transcription training.
+We download the single-image and multi-image subsets from the LLaVA-OneVision Hugging Face repositories\footnote{\url{https://huggingface.co/datasets/lmms-lab/LLaVA-OneVision-Data}}\footnote{\url{https://huggingface.co/datasets/lmms-lab/M4-Instruct-Data}}.
+
+
+\section{Complementary Experimental Results}
+\label{app:complementary_experiment_results}
+
+\subsection{Sequence-Length Distribution of the Training Data}
+\label{app:complementary_experiment_results:length_distribution}
+We provide the full dataset-level results for the sequence-length distribution ablation in \cref{tab:length_distribution}.
+
+\begin{table}[!htbp]
+    \centering
+    \setlength{\tabcolsep}{4pt}
+    \resizebox{0.95\textwidth}{!}{%
+    \begin{tabular}{ll*{4}{C{1.2cm}}|*{4}{C{1.2cm}}|C{1.8cm}}
+    \toprule
+    & & \multicolumn{4}{c|}{\textbf{64K MMLongBench}} & \multicolumn{4}{c|}{\textbf{128K MMLongBench}} & \multirow{2}{*}{\textbf{AVG.}} \\
+     \cmidrule(lr){3-6} \cmidrule(lr){7-10}

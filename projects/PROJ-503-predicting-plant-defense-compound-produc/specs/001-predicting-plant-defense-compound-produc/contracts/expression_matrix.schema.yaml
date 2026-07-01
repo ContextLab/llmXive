@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ExpressionMatrix"
+description: "Schema for the gene expression matrix containing defense-pathway genes."
+type: "object"
+properties:
+  metadata:
+    type: "object"
+    properties:
+      source:
+        type: "string"
+        description: "Source of the data (e.g., GEO, Metabolomics Workbench)"
+      created_at:
+        type: "string"
+        format: "date-time"
+      species:
+        type: "array"
+        items:
+          type: "string"
+        enum:
+          - "Arabidopsis"
+          - "Solanum"
+    required:
+      - source
+      - created_at
+      - species
+  columns:
+    type: "array"
+    description: "List of column names (Sample IDs)"
+    items:
+      type: "string"
+      pattern: "^sample_\\d+$"
+  data:
+    type: "object"
+    description: "Key-value pairs where key is gene_id and value is a list of expression values"
+    additionalProperties:
+      type: "array"
+      items:
+        type: "number"
+        minimum: 0.0
+        description: "TPM/FPKM values"
+required:
+  - metadata
+  - columns
+  - data
+additionalProperties: false

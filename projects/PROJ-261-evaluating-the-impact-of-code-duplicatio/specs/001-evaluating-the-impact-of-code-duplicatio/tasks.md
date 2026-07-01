@@ -54,7 +54,7 @@
 
 ### Test Tasks (must appear **before** any implementation tasks)
 
-- [X] T012 [US1] Unit test for syntax‑error handling in Python files (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/unit/test_ast_cloner.py`) using pytest
+- [X] T012 [US1] Unit test for syntax‑error handling in Python files (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/unit/test_ast_cloner.py`) using pytest - **COMPLETED** (file exists and contains tests)
 - [X] T013 [US1] Unit test for NaN/infinite perplexity value detection (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/unit/test_model_metrics.py`) using pytest
 - [X] T014 [US1] Unit test for PII scan detection (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/unit/test_pii_scanner.py`) using pytest
 - [X] T015a [US1] Integration test for HuggingFace rate‑limiting and network‑interruption handling during 500 MB download (`projects/PROJ-261-evaluating-the-impact-of-code-duplication/tests/integration/test_data_loader.py`) using pytest

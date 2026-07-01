@@ -1,0 +1,34 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Asset Metadata Schema
+description: Schema for multimodal asset metadata.
+type: object
+properties:
+  asset_id:
+    type: string
+    description: "Unique identifier for the asset."
+  modality:
+    type: string
+    enum: ["image", "audio", "video", "interactive_chart"]
+  file_path:
+    type: string
+    description: "Relative path to the generated file."
+  generated_by:
+    type: string
+    description: "Agent or fallback mechanism that generated the asset. If fallback, use 'Designer (Fallback)'."
+  generation_mode:
+    type: string
+    enum: ["native", "fallback"]
+    description: "Indicates if the asset was generated natively or as a placeholder due to API failure."
+  status:
+    type: string
+    enum: ["generated", "placeholder", "failed"]
+  source_claim_id:
+    type: string
+    description: "Reference to the claim that triggered this asset."
+required:
+  - asset_id
+  - modality
+  - file_path
+  - generated_by
+  - generation_mode
+  - status

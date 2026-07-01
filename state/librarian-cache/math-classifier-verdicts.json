@@ -319,6 +319,10 @@
     "classified_at": "2026-06-02T03:34:47Z",
     "verdict": false
   },
+  "PROJ-567-anyflow-any-step-video-diffusion-model-w::1.6.0": {
+    "classified_at": "2026-07-01T13:27:42Z",
+    "verdict": false
+  },
   "PROJ-569-intern-atlas-a-methodological-evolution::1.6.0": {
     "classified_at": "2026-06-04T03:26:42Z",
     "verdict": false

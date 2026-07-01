@@ -1,0 +1,59 @@
+\paragraph{Synergy between Attribution and Accuracy} Beyond serving as a metric for trustworthiness, faithful attribution appears to be positively correlated with the model's reasoning success. As illustrated in Figure~\ref{fig:quality_vs_accuracy_100}, after bypassing the "Attribution Hallucination" zone (0-30 points), the Answer Accuracy (Ans.) tends to scale with Evidence Quality ($\max(Rel., Rec.)$). This upward trend provides an empirical hint that precise evidence localization might be more than just a post-hoc justification; it potentially acts as a functional foundation that facilitates correct answering in complex document-based tasks.
+
+\begin{wrapfigure}{r}{0.35\textwidth}
+    \centering
+    \vspace{-2em}
+    \includegraphics[width=0.35\textwidth]{figures/Simple_Case.pdf}
+    \captionof{figure}{A Typical Example.}
+    \label{fig:Simple_Case}
+    \vspace{-3em}
+\end{wrapfigure}
+
+\paragraph{Evidence Attribution as a Potential Performance Driver} To further explore whether enhanced attribution could actively boost performance, we conducted ablation studies by narrowing the candidate search space (Table~\ref{tab:Ablation_Studies}). Restricting the context to GT-Pages consistently yielded gains (up to $+5.3\%$), while providing a single Gold Document in multi-document settings led to substantial leaps, such as $+13.4\%$ for Qwen3-VL-8B. These results offer preliminary evidence that some bottleneck in CiteVQA may also lie in the initial "localization" phase. It suggests a promising direction: if models can achieve higher autonomous evidence attribution recall, it might not only enhance transparency but also potentially unlock higher upper bounds for their answering capabilities.
+
+\subsection{Case Study}
+To intuitively illustrate the disparity between linguistic performance and attribution accuracy---specifically why some powerful MLLMs achieve high Ans. but low SAA scores---we provide a case study in Figure~\ref{fig:Simple_Case} (see Appendix~\ref{Appendix: Case Study} for more). For better visualization, cited coordinates are replaced with image crops. While Qwen3-VL-235B-A22B answers correctly (Ans.=1), it yields SAA=0 because its evidence crops are either blank or incomplete. In contrast, Gemini-3.1-Pro-Preview demonstrates faithful grounding; despite a slight offset in the first crop, its second is nearly perfect, resulting in SAA=1. This underscores that a correct answer does not guarantee faithful evidence attribution.
+
+\section{Conclusion}
+We introduced CiteVQA, a benchmark designed to advance trustworthy document intelligence by requiring models to provide element-level visual citations alongside answers. Leveraging an automated annotation pipeline, we constructed a large-scale dataset comprising 1,897 questions derived from 711 diverse PDFs. Our systematic audit of top-tier models reveals a critical "Attribution Hallucination" phenomenon, where correct answers are frequently paired with incorrect evidence. By exposing these hidden hallucinations, CiteVQA establishes a rigorous standard for developing interpretable and reliable multimodal systems in high-stakes domains.
+
+\clearpage
+\newpage
+{\small
+\bibliographystyle{plainnat}
+\setcitestyle{numbers}
+\bibliography{paper}
+}
+
+\clearpage
+\newpage
+\beginappendix
+
+\section{Data Compliance \& Ethics Statement}
+\label{Appendix: Ethical Consideration}
+\paragraph{Data Acquisition from Common Crawl} The 707 PDF documents included in the CiteVQA benchmark are sourced from Common Crawl, a neutral, non-profit public web archive. Our data acquisition process strictly adheres to the Common Crawl Terms of Use\footnote{\url{https://commoncrawl.org/terms-of-use}} and ensures all operations are conducted within the scope permitted by the Robots Exclusion Protocol, demonstrating our utmost respect for the intentions of original content distributors.
+
+\paragraph{Adherence to Common Standards for Data Distribution}
+Regarding data derived from Common Crawl, CiteVQA strictly follows the common consensus and academic norms of the multimodal and document intelligence fields. Drawing on the distribution paradigms of landmark works---such as T5~\citep{raffel2020exploring}, MMC4~\citep{zhu2023multimodal}, OBELICS~\citep{laurencon2023obelics}, and CCpdf~\citep{turski2023ccpdf}, which focuses specifically on PDF parsing---we have implemented an academically recognized compliance workflow (i.e., distributing only public download links).
+
+We have open-sourced the structured metadata and spatial coordinates (Bounding Boxes) annotated by our automated data pipeline. We ensure that our PDF usage logic remains consistent with large-scale open-source datasets like LAION~\citep{schuhmann2021laion} to promote academic reproducibility while maintaining the compliance of the content distribution chain.
+
+\paragraph{Copyright Respect and Protection of Rights Holders} All PDF documents in this dataset sourced from Common Crawl are clearly attributed in the repository's metadata. We hold the legal rights of original copyright holders in the highest regard. If any owner of the relevant documents believes that the indexing or usage within this benchmark is inappropriate, please contact us. We commit to cooperating promptly with the removal or updating of the relevant content upon verification of the rights holder's identity.
+
+\paragraph{Vision: Advancing Transparent and Trustworthy AI Auditing} The core vision of CiteVQA is to address the issue of "evidence Attribution Hallucination" in MLLMs when processing complex documents. Inspired by the ethical guidelines of OBELICS~\citep{laurencon2023obelics}, we firmly believe that establishing transparent, traceable, and open-source benchmarks is key to building a responsible AI ecosystem. By constructing this evidence-chain benchmark, we aim to provide the community with an auditable and reproducible research tool, pushing global document intelligence research toward a more faithful and transparent future.
+
+
+\newpage
+\section{Details of CiteVQA Pipeline}
+\label{Appendix: Details of CiteVQA Pipeline}
+
+\subsection{Details of Multi-Document Linking}
+\label{Appendix: Details of Multi-Document Linking}
+
+\paragraph{Semantic Profiling and Dense Retrieval}
+To mitigate semantic truncation caused by directly embedding long documents, we first use MLLM to construct a semantic profile for each document $d_i$, extracting metadata such as document type, core thesis, and section units. These profiles serve as high-level descriptors that capture the global context of the document beyond simple text snippets. The extracted metadata is then mapped to normalized vectors via an encoder. For an anchor document $d_a$, the top-$K_{doc}$ (default 5) candidate documents are selected based on cosine similarity to form the candidate pool $C_a$, ensuring that only the most contextually relevant documents are considered for expensive fine-grained analysis.
+
+\paragraph{Fine-Grained Alignment via LLM}
+While coarse retrieval identifies document-level relevance, cross-document QA requires precise segment-level evidence chains. We input all section units from both the anchor and candidate documents into an LLM to perform chain-of-thought (CoT) cross-document matching. The model is prompted to reason through the structural hierarchy of each document to find logical bridges between them. The model outputs structured association groups, including the anchor section, candidate section, a similarity score $s \in [0,1]$, and a brief rationale for the connection. We limit the output to a maximum of 5 matching groups with 1--3 related segments per group to maintain high information density. The system retains the best matches in descending order of scores and returns an empty list when no reliable match is found, thereby filtering out noisy or coincidental associations.
+
+\paragraph{Spatial Mapping and Evidence Synthesis}

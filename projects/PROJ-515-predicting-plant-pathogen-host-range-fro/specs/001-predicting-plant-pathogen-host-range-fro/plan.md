@@ -1,157 +1,152 @@
-# Implementation Plan: Predicting Plant Pathogen Host Range from Genomic Data
+# Implementation Plan: Predicting Plant Pathogen Host Range from Publicly Available Genomic and Interaction Data
 
-**Branch**: `001-predicting-plant-pathogen-host-range-fro` | **Date**: 2026-06-24 | **Spec**: `spec.md`
+**Branch**: `001-predicting-plant-pathogen-host-range-fro` | **Date**: 2026-06-24 | **Spec**: `specs/001-predicting-plant-pathogen-host-range-fro/spec.md`
+**Input**: Feature specification from `/specs/001-predicting-plant-pathogen-host-range-fro/spec.md`
 
 ## Summary
 
-This plan implements a computational pipeline to predict plant pathogen host range by extracting genomic features (effectors, Pfam domains, GC content, k-mers, secondary metabolism clusters) from NCBI GenBank genomes, integrating them with interaction records from PHI-base/InteractomeD, and training an interpretable L2-regularized logistic regression model. 
-
-**Critical Feasibility Strategy**: The spec mandates EffectorP and antiSMASH (FR-003). These tools are computationally intensive and may exceed the standard CI runtime if run from scratch on a large set of pathogens. To satisfy both the spec's construct validity requirements and the CI constraints, this plan adopts a **Pre-computed Feature Cache** strategy:
-1.  **Offline Pre-computation**: The full feature extraction (EffectorP, antiSMASH, k-mers) is run on a high-performance node (outside CI) for the full pathogen dataset. The resulting feature vectors are committed to `data/raw/` as the "Single Source of Truth".
-2.  **CI Validation**: The CI pipeline consumes these pre-computed vectors. It performs all data merging, preprocessing, model training, evaluation, and reporting steps. This ensures the *full pipeline logic* is validated on the *full dataset* within the 5-hour CI limit, without sacrificing biological validity by using invalid proxies.
-
-The pipeline enforces strict CPU-only execution, handles missing data as 'unknown', and includes nested cross-validation for feature selection (PCA + VIF) and significance testing (permutation + FDR).
+This project implements a computational pipeline to predict plant pathogen host ranges using genomic features (effector counts, Pfam domains, GC content, k-mer frequencies, secondary-metabolism clusters) and public interaction data (PHI-Base, Interactome3D, NCBI BioSample). The core deliverable is an interpretable, regularized logistic-regression model trained on 50 pathogens, validated via k-fold cross-validation and permutation testing, running entirely on CPU-only CI hardware within 5 hours.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `biopython`, `scikit-learn`, `pandas`, `numpy`, `shap` (cpu version), `requests`, `tqdm`, `pytest`.  
-**Storage**: Local filesystem (`data/`, `code/`, `models/`).  
-**Testing**: `pytest` (unit/integration), contract tests against YAML schemas.  
-**Target Platform**: Linux (GitHub Actions free-tier: CPU, 7GB RAM).  
-**Project Type**: CLI/Data Pipeline / Machine Learning Research.  
-**Performance Goals**: End-to-end CI runtime (modeling + eval) ≤ 5 hours for A diverse set of pathogens; Memory ≤ 4GB; Prediction ≤ 30s.  
-**Constraints**: No GPU; No proprietary tools; All data must be reproducible from public sources; Missing interactions = 'unknown'.  
-**Scale/Scope**: A set of pathogens (pre-computed features), ~k host interactions.
+**Primary Dependencies**: `scikit-learn` (>=1.3.0), `pandas` (>=2.0.0), `numpy` (>=1.24.0), `shap` (>=0.44.0, cpu-only), `biopython` (>=1.81), `requests` (>=2.31.0), `loguru` (>=0.7.0), `pyyaml` (>=6.0.1)  
+**Storage**: Local filesystem (`data/`, `results/`, `logs/`); no external database required.  
+**Testing**: `pytest` (>=7.4.0) with `pytest-cov` for coverage; contract tests against YAML schemas.  
+**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, 7 GB RAM, 14 GB disk).  
+**Project Type**: CLI pipeline (Python scripts + Bash wrappers).  
+**Performance Goals**: End-to-end runtime ≤ 5 hours for 50 pathogens; memory ≤ 4 GB; prediction latency ≤ 30s per novel genome.  
+**Constraints**: No GPU/CUDA; no deep learning; no proprietary data; strict data provenance (NCBI GenBank, PHI-Base, etc.); missing interactions treated as 'unknown' unless sensitivity analysis is run.  
+**Scale/Scope**: 50 pathogens (max 2 GB total genome data), ~200 host species, 5 genomic feature categories.
 
-> **Note on Construct Validity**: The plan explicitly **rejects** all "proxies" (e.g., motif counters, Pfam-only counts) for EffectorP 3.0 and antiSMASH 7.0. The hypothesis relies on the specific biological definitions of these tools. If the pre-computed cache cannot be generated (e.g., tools unavailable), the project scope must be reduced or the hypothesis abandoned. No invalid substitution is permitted.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
-| Principle | Status | Action/Notes |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **Pass** | All random seeds pinned; `requirements.txt` pins versions; data fetched from NCBI/PHI-base via scripts; pre-computed vectors checksummed. |
-| **II. Verified Accuracy** | **Pass** | Citations in `research.md` will be validated against the "Verified datasets" block. No fabricated URLs. |
-| **III. Data Hygiene** | **Pass** | Raw data (FASTA, CSV) stored in `data/raw/` with checksums; pre-computed features in `data/raw/` with checksums. |
-| **IV. Single Source of Truth** | **Pass** | Model outputs trace to specific feature extraction scripts; pre-computed vectors are the SSoT for features. |
-| **V. Versioning Discipline** | **Pass** | Artifacts (models, data) will be hashed in state YAML. |
-| **VI. Biological Provenance** | **Pass** | Accession numbers logged; source DBs (NCBI, PHI-base) recorded; feature extraction tools (EffectorP, antiSMASH) versions logged in metadata. |
-| **VII. Interpretability** | **Pass** | SHAP values and permutation tests required for all feature categories. |
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+
+| Constitution Principle | Compliance Status | Implementation Detail |
+|------------------------|-------------------|------------------------|
+| **I. Reproducibility** | ✅ Compliant | Random seeds pinned in `code/`; external datasets fetched from canonical sources (NCBI, PHI-Base) on every run; `requirements.txt` pins all dependencies. |
+| **II. Verified Accuracy** | ✅ Compliant | All citations in `research.md` and `plan.md` validated against primary sources; title-token overlap ≥ 0.7 enforced by Reference-Validator Agent. URLs for PHI-Base, Interactome3D, NCBI BioSample, and NCBI GenBank are now explicitly listed in `research.md`. |
+| **III. Data Hygiene** | ✅ Compliant | All `data/` files checksummed; raw data preserved; transformations produce new files with derivation logs; PII scan passed. |
+| **IV. Single Source of Truth** | ✅ Compliant | Every figure/statistic in paper traces to exactly one row in `data/` and one block in `code/`; no hand-typed numbers. |
+| **V. Versioning Discipline** | ✅ Compliant | All artifacts carry content hashes; `state/` YAML updated on artifact changes; Advancement-Evaluator invalidates stale reviews. |
+| **VI. Biological Data Provenance** | ✅ Compliant | Pathogen genomes from NCBI GenBank with exact accession versions recorded; interaction records from PHI-Base/Interactome3D/NCBI BioSample with source and retrieval date logged. |
+| **VII. Interpretability and Biological Relevance** | ✅ Compliant | SHAP values generated for all features; feature importance validated against biological expectations (effectors, secondary metabolism); mechanisms linked to model outputs in manuscript. |
 
 ## Project Structure
 
 ### Documentation (this feature)
+
 ```text
 specs/001-predicting-plant-pathogen-host-range-fro/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/
-│   ├── interaction.schema.yaml
+├── plan.md              # This file (/speckit-plan command output)
+├── research.md          # Phase 0 output (/speckit-plan command)
+├── data-model.md        # Phase 1 output (/speckit-plan command)
+├── quickstart.md        # Phase 1 output (/speckit-plan command)
+├── contracts/           # Phase 1 output (/speckit-plan command)
+│   ├── dataset.schema.yaml
 │   ├── genomic_features.schema.yaml
-│   ├── model_output.schema.yaml
-│   ├── data_quality.schema.yaml
-│   ├── sensitivity_analysis.schema.yaml
-│   └── bias_awareness.schema.yaml
-└── tasks.md             # Phase 2 output
+│   ├── interaction.schema.yaml
+│   └── model_output.schema.yaml
+└── tasks.md             # Phase 2 output (/speckit-tasks command - NOT created by /speckit-plan)
 ```
 
 ### Source Code (repository root)
+
 ```text
-src/
+projects/PROJ-515-predicting-plant-pathogen-host-range-fro/
+├── code/
+│   ├── __init__.py
+│   ├── cli/
+│   │   ├── run_pipeline.sh          # Bash wrapper with --data-dir, --mode, --seed args
+│   │   └── predict_host_range.sh    # Prediction script with --genome arg
+│   ├── download/
+│   │   ├── fetch_genomes.py         # NCBI GenBank downloader (FR-001)
+│   │   └── fetch_interactions.py    # PHI-Base/Interactome3D/NCBI BioSample merger (FR-002)
+│   ├── features/
+│   │   ├── extract_genomic_features.py  # EffectorP, Pfam, GC, k-mer, antiSMASH (FR-003)
+│   │   └── collinearity_check.py        # VIF analysis (FR-014)
+│   ├── model/
+│   │   ├── train.py                   # Logistic regression with CV (FR-004, FR-005)
+│   │   ├── evaluate.py                # AUPRC, precision, permutation testing (FR-006, FR-007)
+│   │   └── predict.py                 # Novel genome prediction (FR-008, US-3)
+│   ├── report/
+│   │   ├── generate_reports.py        # SHAP, significant features, bias report (FR-007, FR-018)
+│   │   └── sensitivity_analysis.py    # FR-016: unknown vs. negative comparison
+│   └── utils/
+│       ├── logging.py                 # pipeline.log with timestamps (FR-010)
+│       └── validation.py              # Data quality checks (FR-013, FR-011)
 ├── data/
-│   ├── download.py          # FR-001, FR-002 (NCBI, PHI-base)
-│   ├── preprocess.py        # FR-013, FR-014, FR-016 (Missing data, VIF, PCA, Scenario Mode)
-│   └── feature_extractor.py # FR-003 (Effector, Pfam, GC, k-mer, SM) - *Offline only*
-├── models/
-│   ├── train.py             # FR-004, FR-006, FR-012 (CV, Hold-out, Nested PCA/VIF)
-│   ├── evaluate.py          # FR-005, FR-006, FR-016 (AUPRC, Permutation, Sensitivity)
-│   └── interpret.py         # FR-007, FR-017, FR-018 (SHAP, Breadth, Bias Report)
-├── cli/
-│   ├── run_pipeline.sh      # Main entry point
-│   └── predict_host_range.sh # US-3 entry point
-├── utils/
-│   ├── logging.py           # FR-010, SC-005
-│   └── validators.py        # Contract checks
-└── config.py                # Paths, seeds, thresholds
-
-tests/
-├── unit/
-├── integration/
-└── contract/                # Validates against contracts/*.yaml
-
-data/
-├── raw/                     # Downloaded FASTA, CSVs, **Pre-computed Feature Vectors**
-├── processed/               # Interaction matrices (by scenario), VIF masks, PCA transforms
-└── models/                  # model.pkl, scaler.pkl
+│   ├── raw/                           # Downloaded genomes, interaction tables
+│   ├── processed/                     # Feature matrices, interaction matrices
+│   └── checksums.json                 # Data hygiene checksums (Constitution III)
+├── results/
+│   ├── model.pkl                      # Trained model artifact
+│   ├── feature_importance.csv         # SHAP values
+│   ├── significant_features.tsv       # Permutation-test results
+│   ├── prediction.csv                 # Novel pathogen predictions
+│   └── bias_awareness_report.json     # Training distribution analysis
+├── logs/
+│   └── pipeline.log                   # All processing steps (FR-010)
+├── tests/
+│   ├── contract/                      # Schema validation tests
+│   ├── integration/                   # End-to-end pipeline tests
+│   └── unit/                          # Feature extraction, model training tests
+├── requirements.txt                   # Pinned dependencies (Constitution I)
+└── README.md                          # Quickstart guide (quickstart.md)
 ```
 
-**Structure Decision**: Single `src/` tree for modularity, separating data ingestion, feature engineering, and modeling. `cli/` provides the user-facing scripts. `contracts/` defines the data contracts for validation.
+**Structure Decision**: Single-project structure with modular `code/` subdirectories for download, features, model, report, and utils. This aligns with CLI pipeline requirements, ensures reproducibility, and facilitates testing. The `contracts/` directory contains YAML schemas for data and model outputs, validated by contract tests.
 
-## Logging Strategy (SC-005)
+### Contract Testing
 
-To satisfy SC-005, the `pipeline.log` MUST contain at least one INFO entry for each major step. The following mapping is enforced:
+Contract tests (`tests/contract/`) will validate:
+- `dataset.schema.yaml`: Validates input data structure (genomes, interactions, features).
+- `genomic_features.schema.yaml`: Validates extracted feature vectors.
+- `interaction.schema.yaml`: Validates interaction records (including -1 for unknown).
+- `model_output.schema.yaml`: Validates model artifacts and prediction outputs.
 
-| Module | Step | Required INFO Message Pattern |
-| :--- | :--- | :--- |
-| `download.py` | Download | `INFO: Download complete for [N] pathogens.` |
-| `feature_extractor.py` | Feature Extraction | `INFO: Feature extraction complete for [N] pathogens.` |
-| `preprocess.py` | Preprocessing | `INFO: Preprocessing complete. [N] samples retained. Scenario: [PRIMARY|SENSITIVITY].` |
-| `train.py` | Model Training | `INFO: Model training complete. Best lambda: [value].` |
-| `evaluate.py` | Evaluation | `INFO: Evaluation complete. AUPRC: [value].` |
-| `interpret.py` | Reporting | `INFO: Reports generated: bias_awareness.json, data_quality_report.json.` |
+## Implementation Phases
 
-## Phase Plan (Computational Task Ordering)
+### Phase 0: Data Ingestion & Validation
+- **T001**: Implement `fetch_genomes.py` to download FASTA files from NCBI GenBank (FR-001).
+- **T002**: Implement `fetch_interactions.py` to merge PHI-Base, Interactome3D, and NCBI BioSample (FR-002).
+- **T003**: Implement data validation logic to handle missing genomes (warning) and missing interactions (FR-011, FR-013).
+- **T004**: Generate `data/processed/interaction_matrix.csv` and `data/processed/genome_manifest.json`.
 
-1.  **Phase 0: Data Acquisition & Validation**
-    *   Download pathogen genomes from NCBI. (FR-001).
-    *   Fetch interaction data from PHI-base/Interactome3D (FR-002).
-    *   Merge, deduplicate, and log missing records as 'unknown' (FR-013).
-    *   **Generate Data-Quality Report**: Calculate missing % per pathogen. Output `data/reports/data_quality_report.json` (FR-013).
-    *   *Gate*: Verify all 50 pathogens have at least one interaction record (FR-011).
+### Phase 1: Feature Engineering & Preprocessing
+- **T005**: Implement `logging.py` to configure loguru with timestamps and error levels (FR-010).
+- **T006**: Implement `extract_genomic_features.py` to compute effector counts, Pfam, GC, k-mers, and SM clusters (FR-003).
+- **T007**: Implement dimensionality reduction: PCA (k=20) for k-mers and top-50 filtering for Pfam domains (Research Rationale).
+- **T008**: Implement `collinearity_check.py` to perform VIF analysis and remove collinear features (FR-014).
+- **T009**: Generate `data/processed/feature_matrix.csv`.
 
-2.  **Phase 1: Feature Extraction (Offline Pre-computation)**
-    *   *Note: This phase is run offline on a high-performance node. The resulting vectors are committed to `data/raw/`.*
-    *   Compute GC content and k-mer frequencies (FR-003c, 003d).
-    *   Run EffectorP (FR-003a) and antiSMASH 7.0 (FR-003e).
-    *   Compute Pfam domain counts (FR-003b).
-    *   Construct `FeatureVector` per pathogen.
-    *   *Gate*: Check for zero-feature pathogens (Edge Case).
+### Phase 2: Model Training & Evaluation
+- **T010**: Implement `train.py` for L1 logistic regression with inner/outer CV (FR-004, FR-005).
+- **T011**: Implement `evaluate.py` for AUPRC, precision, and permutation testing (FR-006, FR-007).
+- **T012**: Implement SHAP value generation and feature ranking (FR-007).
+- **T013**: Generate `results/model.pkl`, `results/feature_importance.csv`, `results/significant_features.tsv`.
 
-3.  **Phase 2: Preprocessing & Collinearity Check**
-    *   Encode interaction matrix (binary).
-    *   **Scenario Mode Logic (FR-016)**:
-        *   **Primary Mode**: Missing interactions are excluded from the label vector (treated as 'unknown'). The training set only includes rows with `infects` ∈ {0, 1}.
-        *   **Sensitivity Mode**: Missing interactions are explicitly imputed as `0` (negative) in a derived matrix. This creates a dense label vector where all unobserved pairs are treated as non-infecting.
-    *   **Nested PCA & VIF**: For each CV fold:
-        1.  Select training set based on the active Scenario Mode.
-        2.  Run PCA on training set k-mers (retain >= 95% variance).
-        3.  Run VIF on reduced features (threshold >= 5).
-        4.  Remove collinear features.
-    *   Split data: Train/Val (stratified) + Hold-out (FR-012).
+### Phase 3: Reporting & Sensitivity Analysis
+- **T014**: Implement `generate_reports.py` to create the Bias-Awareness Report (FR-018).
+- **T015**: Implement `sensitivity_analysis.py` to compare 'unknown' vs 'negative' treatments (FR-016).
+- **T016**: Generate `results/bias_awareness_report.json` and `results/sensitivity_report.json`.
 
-4.  **Phase 3: Model Training & Evaluation**
-    *   **Step A (Primary Model)**: Train L2 Logistic Regression with inner -fold CV (FR-004) using **Primary Mode** data.
-    *   **Step B (Sensitivity Model)**: Train L2 Logistic Regression with inner k-fold CV (FR-004) using **Sensitivity Mode** data.
-    *   **Evaluation**: Evaluate both models on the Hold-out set (SC-001).
-    *   **Permutation Testing**: Perform permutation testing (FR-006) for both models.
-    *   **Sensitivity Analysis Report**: Compare AUPRC of Primary vs. Sensitivity models. Output `data/reports/sensitivity_analysis.json` (FR-016). If AUPRC delta > threshold, flag.
+### Phase 4: CLI & Deployment
+- **T017**: Create `run_pipeline.sh` CLI entry point.
+  - **Arguments**: `--data-dir` (path to input data), `--mode` (train, predict, sensitivity), `--seed` (random seed).
+  - **Outputs**: `results/model.pkl`, `results/feature_importance.csv`, `results/significant_features.tsv`, `logs/pipeline.log`.
+  - **Completion Criteria**: Script runs end-to-end on test data and produces all required artifacts.
+- **T018**: Create `predict_host_range.sh` for novel pathogen prediction (US-3).
+- **T019**: Run end-to-end integration tests on GitHub Actions.
 
-5.  **Phase 4: Interpretation & Reporting**
-    *   Generate SHAP values (FR-007) for the Primary Model.
-    *   Compute Host-Range Breadth (FR-017): Distinguish 'Observed' (count of known hosts) vs 'Predicted' (mean probability).
-    *   **Generate Bias-Awareness Report**: Calculate interaction count per pathogen. If top 10 pathogens account for >80% of interactions, flag as HIGH BIAS. Output `data/reports/bias_awareness.json` (FR-018).
-    *   Output `model.pkl`, `significant_features.tsv`, `pipeline.log`.
+### Phase 5: Validation & Documentation
+- **T020**: Verify all outputs against `contracts/` schemas.
+- **T021**: Update `README.md` and `quickstart.md`.
+- **T022**: Final review and stage advancement.
 
-## Constitution Check (Detailed)
+## Complexity Tracking
 
-| Principle | Status | Action/Notes |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **Pass** | Seeds pinned; `requirements.txt` pins versions; pre-computed vectors checksummed. |
-| **II. Verified Accuracy** | **Pass** | Citations validated; no fabricated URLs. |
-| **III. Data Hygiene** | **Pass** | Raw data and pre-computed vectors checksummed. |
-| **IV. Single Source of Truth** | **Pass** | Pre-computed vectors are the SSoT for features. |
-| **V. Versioning Discipline** | **Pass** | Artifacts hashed. |
-| **VI. Biological Provenance** | **Pass** | Tool versions (EffectorP 3.0, antiSMASH 7.0) logged in metadata. |
-| **VII. Interpretability** | **Pass** | SHAP and permutation tests required. |
+> **No violations detected in Constitution Check; table omitted.**

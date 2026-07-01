@@ -1,0 +1,53 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SimulationConfig"
+description: "Configuration for the RD simulation study."
+type: "object"
+properties:
+  seed:
+    type: "integer"
+    description: "Random seed for reproducibility."
+  n_samples:
+    type: "integer"
+    description: "Number of observations per replication."
+    minimum: 100
+  true_effect:
+    type: "number"
+    description: "Ground truth discontinuity effect (tau)."
+  missing_rates:
+    type: "array"
+    items:
+      type: "number"
+      minimum: 0.0
+      maximum: 1.0
+    description: "List of missingness rates to test (e.g., [0.1, 0.3, 0.5])."
+  mechanisms:
+    type: "array"
+    items:
+      type: "string"
+      enum: ["MCAR", "MAR", "MNAR"]
+    description: "List of missingness mechanisms to simulate."
+  estimators:
+    type: "array"
+    items:
+      type: "string"
+      enum: ["Naive", "MI", "IPW", "Selection"]
+    description: "List of estimators to run."
+  ik_bandwidth_fallback:
+    type: "number"
+    description: "Fallback bandwidth as fraction of running variable range if IK < 5%."
+    default: 0.05
+  imputation_count:
+    type: "integer"
+    description: "Number of imputations for Multiple Imputation."
+    default: 5
+  selection_max_iter:
+    type: "integer"
+    description: "Maximum iterations for Heckman selection model."
+    default: 50
+required:
+  - seed
+  - n_samples
+  - true_effect
+  - missing_rates
+  - mechanisms
+  - estimators

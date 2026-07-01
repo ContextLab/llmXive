@@ -1,0 +1,55 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Code Metrics Schema"
+description: "Schema for static code metrics (cyclomatic complexity, maintainability, etc.)."
+type: "object"
+properties:
+  snippet_id:
+    type: "string"
+    description: "Unique identifier for the code snippet."
+  origin:
+    type: "string"
+    enum: ["human", "generated"]
+    description: "Source of the code."
+  language:
+    type: "string"
+    enum: ["python", "java"]
+    description: "Programming language of the snippet."
+  loc:
+    type: "integer"
+    description: "Lines of code."
+    minimum: 0
+  cyclomatic_complexity:
+    type: "number"
+    description: "Cyclomatic complexity score."
+    minimum: 0
+  maintainability_index:
+    type: "number"
+    description: "Maintainability Index score."
+    minimum: 0
+  pylint_score:
+    type: ["number", "null"]
+    description: "Pylint score (0-10). Null if language is not Python."
+    minimum: 0
+    maximum: 10
+  checkstyle_score:
+    type: ["number", "null"]
+    description: "Checkstyle score. Null if language is not Java."
+    minimum: 0
+  token_count:
+    type: "integer"
+    description: "Number of tokens in the code snippet."
+    minimum: 0
+  status:
+    type: "string"
+    enum: ["valid", "invalid_syntax", "trivial", "semantic_failure", "failed"]
+    description: "Result of metric computation and semantic validity filter."
+required:
+  - snippet_id
+  - origin
+  - language
+  - loc
+  - cyclomatic_complexity
+  - maintainability_index
+  - token_count
+  - status
+additionalProperties: false

@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PR Data Schema"
+description: "Schema for filtered PR dataset containing code and review metrics."
+type: "object"
+properties:
+  pr_id:
+    type: "string"
+    description: "Unique identifier for the PR."
+  project_id:
+    type: "string"
+    description: "Project identifier for random effects grouping."
+  language:
+    type: "string"
+    enum: ["python", "java"]
+    description: "Programming language of the snippet."
+  code_snippet:
+    type: "string"
+    description: "The actual code change (diff or patch)."
+  loc:
+    type: "integer"
+    description: "Lines of code changed."
+    minimum: 1
+  review_time_seconds:
+    type: ["number", "null"]
+    description: "Duration of the review in seconds. May be null if timestamps missing."
+    minimum: 0
+  comment_count:
+    type: "integer"
+    description: "Number of comments on the PR."
+    minimum: 0
+  perceived_difficulty:
+    type: ["integer", "null"]
+    description: "Difficulty rating 1-5, or null if not derivable from comments."
+    minimum: 1
+    maximum: 5
+required:
+  - pr_id
+  - project_id
+  - language
+  - code_snippet
+  - loc
+  - comment_count
+additionalProperties: false

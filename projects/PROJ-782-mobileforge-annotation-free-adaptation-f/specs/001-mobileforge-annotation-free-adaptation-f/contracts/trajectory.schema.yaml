@@ -1,0 +1,71 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Trajectory Schema"
+description: "Schema for agent interaction trajectories in MobileForge reproduction"
+type: "object"
+properties:
+  task_id:
+    type: "string"
+    description: "Unique identifier for the task from AndroidWorld registry"
+  final_status:
+    type: "string"
+    enum:
+      - "success"
+      - "failure"
+      - "timeout"
+      - "error"
+    description: "Final outcome of the trajectory"
+  start_time:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of trajectory start"
+  end_time:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of trajectory end"
+  total_steps:
+    type: "integer"
+    minimum: 0
+    description: "Total number of steps in the trajectory"
+  steps:
+    type: "array"
+    description: "List of steps in the trajectory"
+    items:
+      type: "object"
+      properties:
+        step_id:
+          type: "integer"
+          description: "0-indexed step ID"
+        action_type:
+          type: "string"
+          description: "Type of action (e.g., tap, swipe)"
+        action_params:
+          type: "object"
+          description: "Parameters for the action"
+        observation:
+          type: "object"
+          properties:
+            screen_state:
+              type: "string"
+              description: "Description of the screen state or base64 placeholder"
+            error_message:
+              type: "string"
+              nullable: true
+              description: "Error message if any occurred"
+        outcome:
+          type: "string"
+          enum:
+            - "success"
+            - "failure"
+            - "partial"
+          description: "Outcome of this specific step"
+      required:
+        - step_id
+        - action_type
+        - observation
+        - outcome
+required:
+  - task_id
+  - final_status
+  - steps
+  - total_steps
+additionalProperties: false

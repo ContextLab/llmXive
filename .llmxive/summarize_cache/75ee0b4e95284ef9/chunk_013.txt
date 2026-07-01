@@ -1,0 +1,27 @@
+    + \modelname Recipe & \textbf{83.00} & \textbf{45.67} & \textbf{70.83} & \textbf{66.50} & \textbf{74.17} & \textbf{35.00} & \textbf{61.83} & \textbf{57.00} & \textbf{61.75}\,{\scriptsize\makebox[2em][l]{\posdiff{11.7}}} \\
+    \bottomrule
+    \end{tabular}
+    }
+\caption{MM-NIAH transfer across backbone models. We report Retrieval, Counting, Reasoning, and average scores at 64K and 128K context lengths. Our recipe achieves better overall MM-NIAH score on Qwen3-VL-8B.}
+\label{tab:qwen3_backbone_mmniah}
+\end{table}
+
+\section{Limitations}
+\label{app:limitations}
+For the training scale, our systematic study is primarily conducted on 7B/8B-scale LVLMs. 
+This choice enables controlled comparisons across data recipes, context lengths, and training budgets, but it also leaves open how the observed trends scale to substantially larger models.
+Extending the same study to 30B or 70B-scale LVLMs, or to even longer context windows, like 512K or 1M, would require significantly higher computational cost, since long-context continued pre-training is expensive both in model size and sequence length.
+Although our transfer experiment on Qwen3-VL-8B provides initial evidence that the proposed recipe is not tied to a single backbone, a more comprehensive scaling study across larger model families remains an important direction for future work.
+
+For evaluation, our long-document VQA experiments rely on model-based judging to assess answer correctness.
+Compared with lexical-overlap metrics, such judges can better handle semantically equivalent answers and free-form generation, but they also introduce additional API cost.
+This cost becomes substantial when evaluating many checkpoints, context lengths, and model variants, which limits the frequency and scale of evaluation during long-context training.
+Developing more efficient, reliable, and low-cost evaluation protocols for multimodal long-context models is, therefore, an important direction for future research.
+
+\section{Broader Impact}
+\label{app:broader_impact}
+Reliable long-context capability is important for deploying LVLMs in real-world scenarios that require understanding and reasoning over large multimodal inputs, such as long documents, webpages, videos, and agentic workflows.
+This work studies how to build such capability through long-context continued pre-training, with a particular focus on constructing effective multimodal long-context data under a modest training budget.
+Our findings suggest that carefully designed long-document VQA data can provide useful supervision for evidence retrieval and reasoning over long visual-textual contexts, and can transfer beyond documents to broader multimodal long-context tasks.
+We hope these results can help the community develop more data-efficient training recipes for LVLMs, reducing the need for excessive token budgets while improving models' ability to use long multimodal context.
+\end{document}

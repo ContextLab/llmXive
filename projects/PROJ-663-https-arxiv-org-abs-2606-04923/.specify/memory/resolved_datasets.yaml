@@ -1,0 +1,128 @@
+resolved_at: '2026-07-01T14:21:59.267753+00:00'
+datasets:
+- intent: Qwen3-4B
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/gauishou233/qwen3_4B_config/resolve/main/merge_qwen3.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 272
+      parsed: true
+  - url: https://huggingface.co/datasets/Asap7772/omnimath-hint-generator-deepscaler-qwen3-4b-base-2k/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Asap7772/omnimath-hint-generator-deepscaler-qwen3-4b-filtered-base-1k/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/gauishou233/qwen3_4B_config/resolve/main/merge_qwen3.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/Asap7772/omnimath-hint-generator-deepscaler-qwen3-4b-base-2k/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Asap7772/omnimath-hint-generator-deepscaler-qwen3-4b-filtered-base-1k/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Asap7772/omnimath-hint-generator-qwen3-4b-filtered-lr1e6/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Asap7772/omnimath-hint-generator-qwen3-4b-filtered-lr5e6/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/South_Africa_in_Africa_introduction/32860262
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Alcohol_use_and_sexual_risks_for_HIV_AIDS_in_sub-Saharan_Africa_systematic_review_of_empirical_findings/32860238
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Dedication_to_Ronald_Louw/32860259
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Breaking_the_spirit_of_fear_the_nature_and_extent_of_HIV_and_AIDS-related_stigma_in_the_Anglican_Church_of_Southern_Africa_a_quantitative_study/32860235
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/What_distinct_opportunities_could_relational_wellbeing_as_framework_offer_to_advance_wellbeing_research_a_purposive_review_of_evidence/32860298
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.31315
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.31207
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.21001885
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://doi.org/10.5281/zenodo.21001886
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://arxiv.org/abs/2606.00616
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CHERRL
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/jake-mercor/cherrl-runs/resolve/main/clean_control_nothink/rollout_log/1.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/jake-mercor/cherrl-runs/resolve/main/clean_control_nothink/rollout_log/1.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/What_distinct_opportunities_could_relational_wellbeing_as_framework_offer_to_advance_wellbeing_research_a_purposive_review_of_evidence/32860298
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/HIV_AIDS_information_credibility_and_seeking_among_South_African_youth/32860274
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Coital_bleeding_and_HIV_risks_among_men_and_women_in_Cape_Town_South_Africa/32860244
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Workers_and_policy-making/32860301
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Community_appraisal_Madadana_village_ward_20_Mbizana/32860271
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.04923
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

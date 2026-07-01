@@ -1,0 +1,52 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Occurrence Record Schema"
+description: "Schema for processed occurrence records used in SDM training."
+type: object
+properties:
+  species_name:
+    type: string
+    description: "Scientific name of the species."
+  latitude:
+    type: number
+    description: "Latitude in decimal degrees."
+    minimum: -90
+    maximum: 90
+  longitude:
+    type: number
+    description: "Longitude in decimal degrees."
+    minimum: -180
+    maximum: 180
+  event_date:
+    type: string
+    format: date
+    description: "Date of occurrence in ISO 8601 format."
+  source:
+    type: string
+    enum:
+      - "GBIF"
+      - "eBird"
+    description: "Source of the occurrence record."
+  dataset_id:
+    type: string
+    description: "Original dataset identifier from source."
+  breeding_season:
+    type: boolean
+    description: "True if the record falls within the breeding season."
+  thinned:
+    type: boolean
+    description: "True if the record passed spatial thinning."
+  climate_bio1:
+    type: number
+    description: "Annual Mean Temperature (scaled)."
+  climate_bio12:
+    type: number
+    description: "Annual Precipitation (scaled)."
+required:
+  - species_name
+  - latitude
+  - longitude
+  - event_date
+  - source
+  - breeding_season
+  - thinned
+additionalProperties: false

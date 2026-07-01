@@ -1,0 +1,39 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Connectivity Data Contract
+description: |
+  Schema for functional connectivity matrix data and derived metrics.
+  Validates against the project's data model for ConnectivityMatrix entities.
+type: object
+required:
+  - subject_id
+  - connection_id
+  - r_value
+  - z_value
+  - roi_1
+  - roi_2
+properties:
+  subject_id:
+    type: string
+    description: Unique identifier for the subject
+    pattern: "^SUBJ_\\d+$"
+  connection_id:
+    type: string
+    description: Unique identifier for the connection pair (e.g., "roi1_roi2")
+    pattern: "^[a-zA-Z0-9_]+_[a-zA-Z0-9_]+$"
+  r_value:
+    type: number
+    description: Pearson correlation coefficient between ROIs
+  z_value:
+    type: number
+    description: Fisher Z-transformed correlation value
+  roi_1:
+    type: string
+    description: Name/ID of the first ROI
+  roi_2:
+    type: string
+    description: Name/ID of the second ROI
+  atlas:
+    type: string
+    description: Atlas used for ROI definition (e.g., "AAL", "Schaefer")
+    default: "AAL"
+additionalProperties: false

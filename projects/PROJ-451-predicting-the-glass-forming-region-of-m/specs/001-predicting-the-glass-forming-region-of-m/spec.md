@@ -24,17 +24,18 @@ The research pipeline MUST load alloy composition data from the designated sourc
 
 ### User Story 2 - Model Training and Performance Validation (Priority: P2)
 
-The research pipeline MUST train Random Forest and XGBoost classifiers on the engineered dataset using 5-fold cross-validation, stratified by alloy system, and report balanced accuracy scores on a held-out [deferred] test set.
+The research pipeline MUST train Random Forest and XGBoost classifiers on the engineered dataset using 5-fold cross-validation, stratified by alloy system, and compare their performance against a baseline logistic regression classifier (representing traditional atomic size rules) and against each other.
 
-**Why this priority**: This is the core analytical capability that directly addresses the research question. Performance metrics determine whether compositional descriptors encode sufficient physics to distinguish amorphous from crystalline phases.
+**Why this priority**: This is the core analytical capability that directly addresses the research question. Performance metrics determine whether compositional descriptors encode sufficient physics to distinguish amorphous from crystalline phases, and whether non-linear models outperform linear baselines.
 
-**Independent Test**: Can be fully tested by executing the training pipeline on a subset of compositions and verifying that both models produce balanced accuracy scores >50% (better than random) and that cross-validation standard deviation <10%.
+**Independent Test**: Can be fully tested by executing the training pipeline on a subset of compositions and verifying that the system calculates balanced accuracy, precision, recall, and F1-score for all models, and executes the statistical comparison test (paired t-test) to report p-values.
 
 **Acceptance Scenarios**:
 
-1. **Given** a stratified train-test split (80/20 by alloy system), **When** the Random Forest model trains with 5-fold cross-validation, **Then** the mean balanced accuracy across folds is ≥85% on the test set.
-2. **Given** the same stratified split, **When** the XGBoost model trains with 5-fold cross-validation, **Then** the mean balanced accuracy across folds is ≥85% on the test set.
-3. **Given** both trained models, **When** performance is compared via Wilcoxon signed-rank test, **Then** the p-value indicates whether one model significantly outperforms the other (α = 0.05).
+1. **Given** a stratified train-test split (80/20 by alloy system), **When** the Random Forest model trains with 5-fold cross-validation, **Then** the system reports the mean balanced accuracy across folds.
+2. **Given** the same stratified split, **When** the XGBoost model trains with 5-fold cross-validation, **Then** the system reports the mean balanced accuracy across folds.
+3. **Given** the baseline logistic regression model, **When** it trains with 5-fold cross-validation, **Then** the system reports its balanced accuracy to establish the performance of traditional linear rules.
+4. **Given** the trained models, **When** performance is compared via paired t-test on fold-level scores, **Then** the system reports the p-value indicating whether non-linear models significantly outperform the linear baseline (α = 0.05).
 
 ---
 
@@ -48,7 +49,7 @@ The research pipeline MUST extract permutation importance scores for all descrip
 
 **Acceptance Scenarios**:
 
-1. **Given** a trained Random Forest model on ≥500 compositions, **When** permutation importance is computed, **Then** the top 3 descriptors account for ≥60% of total feature importance.
+1. **Given** a trained Random Forest model on ≥500 compositions, **When** permutation importance is computed, **Then** the system reports the top 3 descriptors and their contribution percentages.
 2. **Given** the trained model, **When** SHAP values are computed for a held-out test composition, **Then** the SHAP summary plot displays at least 10 compositions with non-overlapping feature value distributions.
 
 ---
@@ -57,7 +58,7 @@ The research pipeline MUST extract permutation importance scores for all descrip
 
 - What happens when the Materials Project API returns fewer than 100 alloy compositions (insufficient for stratified splitting)?
 - How does the system handle compositions with missing elemental property values (e.g., unknown electronegativity for rare earths)?
-- What is the behavior when the Wilcoxon test returns p = 0.05 exactly (boundary condition for significance)?
+- What is the behavior when the paired t-test returns p = 0.05 exactly (boundary condition for significance)?
 - How does the pipeline handle alloy systems with only 5–10 samples (insufficient for meaningful stratification)?
 
 ## Requirements *(mandatory)*
@@ -68,10 +69,12 @@ The research pipeline MUST extract permutation importance scores for all descrip
 - **FR-002**: System MUST compute atomic-scale interaction descriptors including atomic size mismatch (δ), electronegativity difference (Δχ), and mixing enthalpy (ΔHmix) for each alloy composition using standard thermodynamic formulas (See US-1)
 - **FR-003**: System MUST partition the dataset into [deferred] training and [deferred] test sets, stratified by alloy system (e.g., Zr-Cu-Al vs. Mg-Cu-Y) to ensure generalization testing across chemistries (See US-2)
 - **FR-004**: System MUST train both Random Forest and XGBoost classifiers using scikit-learn and xgboost libraries, optimizing hyperparameters via 5-fold cross-validation with balanced accuracy as the primary metric (See US-2)
-- **FR-005**: System MUST apply Wilcoxon signed-rank test to compare model performance against a baseline logistic regression classifier, reporting p-value at α = 0.05 significance threshold (See US-2)
+- **FR-005**: System MUST apply a paired t-test to compare model performance against a baseline logistic regression classifier (representing traditional atomic size rules), reporting p-value at α = 0.05 significance threshold (See US-2)
 - **FR-006**: System MUST extract permutation importance scores for all descriptors and generate SHAP summary plots for the top 5 most influential features (See US-3)
 - **FR-007**: System MUST enforce a dataset size cap of ≤10,000 compositions to ensure all analysis runs within 7 GB RAM and 6 hours on a 2-core CPU runner (See US-2)
 - **FR-008**: System MUST apply Bonferroni correction for multiple hypothesis testing when comparing more than 2 model configurations (family-wise error rate ≤ 0.05) (See US-2)
+- **FR-009**: System MUST exclude any alloy composition lacking a definitive phase label (amorphous/crystalline) from training and testing. Compositions with ambiguous or missing labels (expected proportion < 2%) MUST be dropped to ensure ≥98% label completeness in the final dataset (See US-1)
+- **FR-010**: System MUST deduplicate compositions across sources by unique chemical formula (normalized atomic fractions). If duplicate compositions exist across Science Advances and Materials Project, the system MUST retain the record from the primary source (Science Advances) and discard the secondary record. This ensures a unique dataset of ≥1000 compositions (See US-1)
 
 ### Key Entities
 
@@ -87,10 +90,12 @@ The research pipeline MUST extract permutation importance scores for all descrip
 > measured against; defer specific empirical values (counts, dataset sizes,
 > measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: Balanced accuracy of Random Forest and XGBoost models is measured against a baseline logistic regression classifier using the Wilcoxon signed-rank test (See US-2)
-- **SC-002**: Feature importance rankings from permutation analysis are measured against domain-knowledge expectations from atomic size mismatch and mixing enthalpy criteria (See US-3)
-- **SC-003**: Dataset size (number of alloy compositions) is measured against the [deferred] composition feasibility limit to ensure CPU-only execution (See US-2)
+- **SC-001**: Balanced accuracy of Random Forest and XGBoost models is measured against a baseline logistic regression classifier (representing traditional atomic size rules) using a paired t-test (See US-2)
+- **SC-002**: Feature importance rankings from permutation analysis are measured against novel descriptor contributions and non-linear interactions to validate scientific insight (See US-3)
+- **SC-003**: Dataset size (number of alloy compositions) is measured against the [deferred] composition cap defined in FR-007 to ensure CPU-only execution (See US-2)
 - **SC-004**: Cross-validation standard deviation of balanced accuracy is measured against the 10% threshold to verify model stability across alloy systems (See US-2)
+- **SC-005**: Mean balanced accuracy on the held-out test set is measured against a target of ≥75% to validate the research hypothesis regarding predictive capability (See US-2)
+- **SC-006**: Concentration of feature importance (top 3 descriptors) is measured against a target of ≥60% to assess model interpretability and dominant physics (See US-3)
 
 ## Assumptions
 
@@ -100,6 +105,4 @@ The research pipeline MUST extract permutation importance scores for all descrip
 - The dataset is sufficiently balanced (≥40% amorphous, ≥40% crystalline) to enable stratified splitting without severe class imbalance
 - All analysis will use single-precision floating-point arithmetic (no GPU/CUDA requirements) to maintain CPU-only feasibility
 - The 5-fold cross-validation stratification by alloy system will result in ≥50 samples per fold for each major alloy family (Zr-based, Mg-based, etc.)
-- [NEEDS CLARIFICATION: Does the Science Advances supplementary dataset include the mixing enthalpy values, or must these be computed from elemental properties using standard thermodynamic formulas?]
-- [NEEDS CLARIFICATION: Are there any alloy compositions in the dataset that lack phase labels (amorphous/crystalline), and if so, what is the expected proportion?]
-- [NEEDS CLARIFICATION: Does the dataset contain duplicate compositions across multiple sources, and if so, what deduplication strategy should be applied?]
+- Mixing enthalpy (ΔHmix) values are NOT included in the source datasets; the system MUST compute them from elemental properties using standard thermodynamic formulas (See US-1).

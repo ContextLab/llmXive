@@ -1,0 +1,67 @@
+$schema: http://json-schema.org/draft-07/schema#
+type: object
+properties:
+  run_id:
+    type: string
+    description: "Unique identifier for the benchmark run"
+  input_video:
+    type: string
+    description: "Path to the input video file"
+  total_frames:
+    type: integer
+    description: "Total number of frames processed"
+  total_time_seconds:
+    type: number
+    description: "Total execution time in seconds"
+  fps:
+    type: number
+    description: "Frames per second achieved by the Distilled model"
+  baseline_fps:
+    type: number
+    description: "Frames per second achieved by the Baseline model"
+  relative_speedup:
+    type: number
+    description: "Ratio of Baseline FPS to Distilled FPS (target: >= 1.0)"
+  background_psnr:
+    type: number
+    description: "PSNR between Distilled Output Background and Baseline Output Background"
+  baseline_psnr:
+    type: number
+    description: "PSNR between Baseline Output Background and Baseline Output Background (reference)"
+  background_ssim:
+    type: number
+    description: "SSIM between Distilled Output Background and Baseline Output Background"
+  noise_floor_std:
+    type: number
+    description: "Standard deviation of frame differences in the static calibration video"
+  flicker_score:
+    type: number
+    description: "Ratio of Output background variance to noise_floor_std (target: < 3.0)"
+  chunk_boundary_score:
+    type: number
+    description: "Difference at chunk seams normalized by global variance"
+  status:
+    type: string
+    enum:
+      - PASS
+      - FAIL
+    description: "Overall validation status"
+  error_message:
+    type: string
+    description: "Error details if status is FAIL"
+required:
+  - run_id
+  - input_video
+  - total_frames
+  - total_time_seconds
+  - fps
+  - baseline_fps
+  - relative_speedup
+  - background_psnr
+  - baseline_psnr
+  - background_ssim
+  - noise_floor_std
+  - flicker_score
+  - chunk_boundary_score
+  - status
+additionalProperties: false

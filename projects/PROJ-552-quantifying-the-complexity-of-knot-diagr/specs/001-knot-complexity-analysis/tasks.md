@@ -11,3 +11,6 @@ outlined in `spec.md` and the implementation plan in `plan.md`.
 - [ ] Generate visualizations for complexity distributions.
 
 Each task should be tracked in the project state file for reproducibility.
+
+<!-- auto-added by the execution fix loop: run-book / implementation path mismatch (a quickstart command names a script no task created) -->
+- [ ] T001 Reconcile run-book vs implementation for `code/reproducibility/checksum_generator.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/reproducibility/checksum_generator.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.

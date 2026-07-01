@@ -1,27 +1,10 @@
-# Ruff configuration for PROJ-573-https-arxiv-org-abs-2604-27351
+# Ruff configuration for llmXive project
 # Targeting Python 3.11 as per project requirements
-
-# Line length configuration
+target-version = "py311"
 line-length = 88
 
-# Target Python version
-target-version = "py311"
-
-# Exclude common directories
-exclude = [
-    ".git",
-    ".venv",
-    "venv",
-    "__pycache__",
-    "build",
-    "dist",
-    ".eggs",
-    "*.egg-info",
-]
-
-# Linting rules
 [lint]
-# Enable common rule sets
+# Enable a comprehensive set of rules
 select = [
     "E",  # pycodestyle errors
     "W",  # pycodestyle warnings
@@ -33,20 +16,9 @@ select = [
 ]
 ignore = [
     "E501", # Line too long (handled by formatter)
-    "B008", # Do not perform function calls in argument defaults
+    "B008", # Do not perform function call in argument defaults (common in FastAPI/CLI)
 ]
 
-# Per-file ignores if needed
-[lint.per-file-ignores]
-"tests/*" = ["S101"] # Allow assert in tests
-
-# Formatting configuration
-[format]
-# Use double quotes for strings
-quote-style = "double"
-# Indent with spaces
-indent-style = "space"
-# Respect magic trailing commas
-skip-magic-trailing-comma = false
-# Line ending
-line-ending = "auto"
+[lint.isort]
+known-first-party = ["src", "tests", "research"]
+force-sort-within-sections = true

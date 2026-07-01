@@ -1,0 +1,10 @@
+[flake8]
+# Maximum line length
+max-line-length = 88
+# Exclude standard directories and generated files
+exclude = .git,__pycache__,build,dist,venv,.venv
+# Ignore specific warnings:
+# E203: Whitespace before ':' (conflicts with Black)
+# E501: Line too long (handled by Black)
+# W503: Line break occurred before a binary operator (conflicts with Black)
+ignore = E203, E501, W503

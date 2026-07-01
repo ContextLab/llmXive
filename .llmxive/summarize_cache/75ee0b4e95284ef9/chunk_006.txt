@@ -1,0 +1,113 @@
+We also evaluate long-context vision-text compression on VTCBench~\citep{zhao2025vtcbench}, with full results provided in \cref{app:complementary_experiment_results:generalization_vtc}.
+
+MM-NIAH~\citep{wang2024multimodal} is a multimodal needle-in-a-haystack benchmark that evaluates retrieval, counting, and reasoning tasks over webpage-based haystacks. As shown in \cref{fig:generalization_niah}, \modelname substantially improves over Qwen2.5-VL-7B, increasing the average score from 20.0 to 49.4.
+The gains are especially pronounced on retrieval and reasoning tasks, suggesting that long-document VQA training improves the model's ability to locate sparse evidence and use it for reasoning in long multimodal contexts.
+
+\begin{figure}[t]
+\vspace{-13pt}
+    \centering
+    \includegraphics[width=0.42\textwidth]{figures/8_table10_generalization_video.pdf}
+    \vspace{-4pt}
+    \caption{\textbf{Long-video generalization.} We report scores on Video-MME, MLVU, and LongVideoBench. Full results are provided in \cref{app:complementary_experiment_results:generalization_video}.}
+    \label{fig:generalization_video}
+    \vspace{-17pt}
+
+\end{figure}
+
+We observe similar transfer on long-video understanding benchmarks and VTCBench.
+On long-video benchmarks in \cref{fig:generalization_video}, \modelname consistently improves over Qwen2.5-VL-7B on Video-MME, MLVU, and LongVideoBench, despite not using video-specific training data; detailed scores are provided in \cref{app:complementary_experiment_results:generalization_video}.
+Meanwhile, VTCBench evaluates LVLMs' ability to perform long-context vision-text compression across three tasks: retrieval, reasoning, and memory.
+As shown in \cref{tab:generalization_vtc} in \cref{app:complementary_experiment_results:generalization_vtc}, \modelname improves the overall score on VTCBench from 48.23 to 52.73, with gains on both reasoning and memory tasks while maintaining strong retrieval performance.
+Together, these results indicate that our proposed LongPT recipe learns a general long-context multimodal capability rather than overfitting to the document VQA format.
+
+
+
+\section{Conclusion}
+In this work, we presented a systematic study of long-context continued pre-training for LVLMs, focusing on how to construct and mix effective multimodal long-context data.
+Our experiments show that long-document VQA is a strong and practical training task, as it provides diverse retrieval and reasoning supervision signals, preserves short-context capability, and supports context extension from 32K to 128K under a modest token budget.
+Instantiated as \modelname, our recipe improves long-document VQA performance and generalizes beyond the training context window to 256K and 512K context lengths, as well as broader multimodal long-context tasks, such as long-video understanding.
+We hope our study provides a practical foundation for building future LVLMs with reliable long-context capability.
+
+
+
+
+\bibliographystyle{unsrtnat}
+\bibliography{reference}
+
+
+\beginappendix
+\crefname{appendix}{Appendix}{Appendices}
+\Crefname{appendix}{Appendix}{Appendices}
+\crefalias{section}{appendix}
+\crefalias{subsection}{appendix}
+\crefalias{subsubsection}{appendix}
+\section{Final Recipe and Implementation}
+\label{app:final_recipe_and_implem}
+\subsection{Final LongPT Recipe}
+\label{app:final_recipe}
+We summarize the final LongPT recipe used for the main results.
+The recipe is derived from the design choices studied in \cref{sec:curation,sec:mixing}: we use long-document VQA as the primary source of synthesizing data, naturally sample training sequences over the target length range of 32K--128K, and use an $8:2$ extraction-to-reasoning mixture. We list the full configuration of the final LongPT recipe in \cref{tab:final_recipe}.
+
+\begin{table}[!htbp]
+    \centering
+    \small
+    \setlength{\tabcolsep}{5pt}
+    \resizebox{0.9\textwidth}{!}{%
+    \begin{tabular}{lll}
+        \toprule
+        \multicolumn{3}{c}{\textbf{Long-Context Continued Pre-Training (LongPT)}} \\
+        \midrule
+        \textbf{Long Data}
+            & Data Synthesis & \extractsingle, \extractmulti, and \reasoningtask \\
+            \addlinespace
+            & Distribution & \emph{Pool-native}: natural sampling from the document pool \\
+            & & over the target length range $[32\mathrm{K},128\mathrm{K}]$ \\
+            \addlinespace
+& Mixture & 8:2 extraction-to-reasoning ratio. The three task ratio is \\
+            & & 40\%\extractsingle, 40\%\extractmulti, 20\%\reasoningtask \\
+        \addlinespace
+        \textbf{Short Data}
+            & Default & None (pure long-context data) \\
+            \addlinespace
+            & Alternative & $60\%$ long-context data, $40\%$ LLaVA-OneVision data \\
+            & & for better short-context preservation \\
+        \addlinespace
+        \textbf{Model} & Initialization & Qwen2.5-VL-7B-Instruct (original mRoPE base freq. $1\times10^6$) \\
+        & mRoPE for 128K & $4\times 10^6$ \\
+        & Maximum length & 131,072 (128K tokens) \\
+        \addlinespace
+        \textbf{Optim.}
+            & Token Budget & 5B tokens (2.9K H20 hours) \\
+            & Optimizer & AdamW (weight decay = 0.1, $\beta_1$ = 0.9, $\beta_2$ = 0.95) \\
+            & LR schedule & $1\times10^{-5}$ with 10\% warmup and cosine decay to $1\times10^{-6}$ \\
+            & Batch size & 4M tokens (32 sequences) \\
+            & Framework & VeOmni with FlashAttention \\
+            & Parallelism & Sequence parallelism size 2 and FSDP size 4 \\
+        \bottomrule
+    \end{tabular}
+    }
+\caption{\textbf{Final training recipe for \modelname}, which is selected from the ablation studies in \cref{sec:curation,sec:mixing}.}
+\label{tab:final_recipe}
+\end{table}
+
+\subsection{Training Implementation Details}
+\label{app:final_recipe:implementation_details}
+We conduct our LongPT experiments based on Qwen2.5-VL-7B~\citep{bai2025qwen2}, whose original context window is 32K, and extend it to 128K. 
+For RoPE base frequency, we follow Dynamic-NTK~\citep{dynamicntk} and set the mRoPE base frequency from the original value of $1\times 10^6$ to $4\times 10^6$ by default.
+We present the ablation study of the base frequency in \cref{app:complementary_experiment_results:mrope_base}.
+Then, we further apply the final training recipe to Qwen3-VL-8B~\citep{bai2025qwen3} to test whether the recipe transfers across backbone models in \cref{app:complementary_experiment_results:backbone}.
+We train both models with VeOmni~\citep{ma2025veomni}, a scalable framework for multimodal pre-training.
+The optimizer used is AdamW, using a peak learning rate of $1\times10^{-5}$, cosine decay to $1\times10^{-6}$, and $10\%$ linear warmup.
+Each LongPT run is trained for a fixed budget of $5B$ tokens, with a maximum sequence length of $131{,}072$ tokens (128K) and a global batch size of 4M tokens, which contains 32 sequences per update. 
+Throughout the paper, we use binary prefixes: $K=2^{10}$, $M=2^{20}$, and $B=2^{30}$.
+
+To speed up, we use FlashAttention~\citep{daoflashattention} for efficient attention computation in long-context data. In addition, Ulysses sequence parallelism size $2$ and FSDP size $4$ are used to fit the 128K training configuration on a single 8-GPU NVIDIA H20 node; in practice, we train with 8 H20 nodes (64 GPUs in total) to improve throughput.
+
+\section{Full Evaluation Details}
+\label{app:evaluation_details}
+We describe the details of our evaluation. Here, for tasks from MMLongBench~\citep{wang2025mmlongbench}, including long-document VQA and MM-NIAH tasks, we follow their evaluation and use their released code v1.1~\footnote{\url{https://github.com/EdinburghNLP/MMLongBench}}.
+Meanwhile, we use the VLMEvalKit~\citep{duan2024vlmevalkit} to evaluate LVLMs on other tasks, including VTCBench, long video benchmarks, and short-context benchmarks.
+
+
+\subsection{Long-Document VQA}
+\label{app:evaluation_details:longdoc}

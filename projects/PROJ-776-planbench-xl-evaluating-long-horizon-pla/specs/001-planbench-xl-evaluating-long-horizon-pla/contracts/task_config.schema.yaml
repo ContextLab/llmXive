@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PlanBench Task Configuration Schema"
+description: "Schema for YAML configuration files used by run_retail_batch.py. Note: While this schema allows any string for model_id, the execution plan restricts usage to CPU-tractable API models (e.g., gpt-5.4-mini). Local models like llama3.3-70b are excluded due to CI constraints."
+type: "object"
+required:
+  - model_id
+  - task_count
+  - condition
+properties:
+  model_id:
+    type: "string"
+    description: "Identifier for the LLM model. WARNING: Only CPU-tractable API models (e.g., gpt-5.4-mini) are supported in this CI environment. Local models (llama3.3-70b, qwen3-14b) are excluded."
+  task_count:
+    type: "integer"
+    minimum: 1
+    description: "Number of tasks to execute (limited to 5 for CI)"
+  condition:
+    type: "string"
+    enum:
+      - default
+      - blocker
+      - noise
+    description: "Experimental condition"
+  noise_ratio:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Ratio of noisy tools to inject (only for noise condition)"
+  timeout_per_tool:
+    type: "integer"
+    minimum: 10
+    maximum: 300
+    description: "Timeout in seconds for a single tool call"
+  timeout_per_task:
+    type: "integer"
+    minimum: 60
+    maximum: 600
+    description: "Total timeout in seconds for a single task"

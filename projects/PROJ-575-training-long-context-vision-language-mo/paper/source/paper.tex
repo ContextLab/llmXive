@@ -1,6 +1,6 @@
 \documentclass[]{bytedance_seed}
 
-% single-column: \documentclass[]{bytedance_seed}, 
+% single-column: \documentclass[]{bytedance_seed},
 %Please prioritize using single-column。
 
 % twocolumn: \documentclass[twocolumn]{bytedance_seed}
@@ -13,14 +13,14 @@
 \renewcommand{\emph}[1]{\textit{#1}}
 \usepackage{wrapfig}
 \captionsetup[subtable]{
-  format=plain,
-  labelformat=parens,
-  labelsep=space,
-  font=footnotesize,
-  labelfont=normalfont,
-  textfont=normalfont,
-  justification=centering,
-  skip=1pt
+ format=plain,
+ labelformat=parens,
+ labelsep=space,
+ font=footnotesize,
+ labelfont=normalfont,
+ textfont=normalfont,
+ justification=centering,
+ skip=1pt
 }
 %%%%%%%%%%%%%%%%%%%%
 
@@ -93,27 +93,27 @@
 \contribution[\dagger]{Corresponding authors}
 
 \abstract{
-Long-context modeling is becoming a core capability of modern large vision-language models (LVLMs), enabling sustained context management across long-document understanding, video analysis, and multi-turn tool use in agentic workflows. 
-Yet practical training recipes remain insufficiently explored, 
+Long-context modeling is becoming a core capability of modern large vision-language models (LVLMs), enabling sustained context management across long-document understanding, video analysis, and multi-turn tool use in agentic workflows.
+Yet practical training recipes remain insufficiently explored,
 particularly for designing and balancing long-context data mixtures.
-In this work, we present a systematic study of \emph{long-context continued pre-training} for LVLMs, extending a 7B model from 32K to 128K context with extensive ablations on long-document data. 
+In this work, we present a systematic study of \emph{long-context continued pre-training} for LVLMs, extending a 7B model from 32K to 128K context with extensive ablations on long-document data.
 We first show that long-document VQA is substantially more effective than OCR transcription.
 Building on this observation, our ablations further yield three key findings:
 \begin{inparaenum}[i)]
 \item for sequence-length distribution, balanced data outperforms target-length-focused data (e.g., 128K), suggesting that long-context ability requires generalizable key-information retrieval across various lengths and positions;
 \item retrieval remains the primary bottleneck, favoring retrieval-heavy mixtures with modest reasoning data for task diversity;
-\item pure long-document VQA largely preserves short-context capabilities, suggesting that instruction-formatted long data reduces the need for short-data mixing.
+\item pure long-document VQA largely preserves short-context capabilities
 \end{inparaenum}
-Based on these findings, we introduce \modelname, obtained by long-context continued pre-training from Qwen2.5-VL-7B with only a 5B-token budget. 
+Based on these findings, we introduce \modelname, obtained by long-context continued pre-training from Qwen2.5-VL-7B with only a 5B (2605.13831, https://arxiv.org/abs/2605.13831)-token budget.
 \modelname improves long-document VQA scores by 7.1\% and maintains strong performance at 256K and 512K contexts beyond its 128K training window, without additional training.
-It further generalizes to webpage-based multimodal needle retrieval, long-context vision-text compression, and long-video understanding without task-specific supervision.
+MMProLong generalizes to webpage-based multimodal needle retrieval, long-context vision-text compression, and long-video understanding without task-specific supervision. [UNRESOLVED-CLAIM: c_a146b50d — status=not_enough_info]
 Overall, our study establishes a practical LongPT recipe and an empirical foundation for advancing long-context vision-language models.
 }
 
 %\date{\today}
 \checkdata[Email]{\texttt{\{zwanggy, yqsong\}@cse.ust.hk};\ \texttt{linyi.james@bytedance.com}}
 
-% You can add additional info fields as follows 
+% You can add additional info fields as follows
 \checkdata[Project Page]{coming soon} %\url{xxx}
 
 \begin{document}

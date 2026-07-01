@@ -1,0 +1,86 @@
+We have open-sourced the structured metadata and spatial coordinates (Bounding Boxes) annotated by our automated data pipeline. We ensure that our PDF usage logic remains consistent with large-scale open-source datasets like LAION~\citep{schuhmann2021laion} to promote academic reproducibility while maintaining the compliance of the content distribution chain.
+
+\paragraph{Copyright Respect and Protection of Rights Holders} All PDF documents in this dataset sourced from Common Crawl are clearly attributed in the repository's metadata. We hold the legal rights of original copyright holders in the highest regard. If any owner of the relevant documents believes that the indexing or usage within this benchmark is inappropriate, please contact us. We commit to cooperating promptly with the removal or updating of the relevant content upon verification of the rights holder's identity.
+
+\paragraph{Vision: Advancing Transparent and Trustworthy AI Auditing} The core vision of CiteVQA is to address the issue of "evidence Attribution Hallucination" in MLLMs when processing complex documents. Inspired by the ethical guidelines of OBELICS~\citep{laurencon2023obelics}, we firmly believe that establishing transparent, traceable, and open-source benchmarks is key to building a responsible AI ecosystem. By constructing this evidence-chain benchmark, we aim to provide the community with an auditable and reproducible research tool, pushing global document intelligence research toward a more faithful and transparent future.
+
+
+
+\section{Details of CiteVQA Pipeline}
+\label{Appendix: Details of CiteVQA Pipeline}
+
+\subsection{Details of Multi-Document Linking}
+\label{Appendix: Details of Multi-Document Linking}
+
+\paragraph{Semantic Profiling and Dense Retrieval}
+To mitigate semantic truncation caused by directly embedding long documents, we first use MLLM to construct a semantic profile for each document $d_i$, extracting metadata such as document type, core thesis, and section units. These profiles serve as high-level descriptors that capture the global context of the document beyond simple text snippets. The extracted metadata is then mapped to normalized vectors via an encoder. For an anchor document $d_a$, the top-$K_{doc}$ (default 5) candidate documents are selected based on cosine similarity to form the candidate pool $C_a$, ensuring that only the most contextually relevant documents are considered for expensive fine-grained analysis.
+
+\paragraph{Fine-Grained Alignment via LLM}
+While coarse retrieval identifies document-level relevance, cross-document QA requires precise segment-level evidence chains. We input all section units from both the anchor and candidate documents into an LLM to perform chain-of-thought (CoT) cross-document matching. The model is prompted to reason through the structural hierarchy of each document to find logical bridges between them. The model outputs structured association groups, including the anchor section, candidate section, a similarity score $s \in [0,1]$, and a brief rationale for the connection. We limit the output to a maximum of 5 matching groups with 1--3 related segments per group to maintain high information density. The system retains the best matches in descending order of scores and returns an empty list when no reliable match is found, thereby filtering out noisy or coincidental associations.
+
+\paragraph{Spatial Mapping and Evidence Synthesis}
+The matched pages from diverse sources are assembled into a synthetic document, which serves as the workspace for generating complex QA pairs spanning $\ge 2$ source documents. A critical component of this process is the element-level one-to-one mapping $f_{map}$, which maintains a persistent link between the synthetic layout and the original files. This function maps the synthetic evidence bounding boxes back to their original spatial coordinates in the source PDF. By ensuring that every byte of synthesized evidence is traceable to its original page, the system fundamentally eliminates visual hallucinations and ensures the absolute fidelity of the citation annotations.
+
+\subsection{Details of Template Distillation}
+\label{Appendix: Details of QA Construction}
+
+To simulate real-world business scenarios effectively, we collected diverse problems from multi-domain open-source datasets and distilled them into a series of templates.
+
+Table~\ref{tab:domain_datasets} details the distribution of the datasets used in our framework, covering 5 key domains to ensure broad representation. We would like to express our sincere gratitude to the contributors of these open-source projects for their invaluable support to the research community.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabular}{lll}
+\toprule
+\textbf{Domain} & \textbf{Dataset} & \textbf{License} \\
+\midrule
+Academic Tech & SPIQA \citep{pramanick2024spiqa} & CC BY 4.0 \\
+\multirow{2}{*}{Medical \& Health} & MedQA \citep{jin2020disease} & MIT \\
+ & PubMedQA \citep{jin2019pubmedqa} & MIT \\
+Business Finance & ViDoRe V3 \citep{loison2026vidore} & CC BY 4.0 \\
+\multirow{2}{*}{Industrial \& Construction} & MaintNorm \citep{bikaun2024maintnorm} & MIT \\
+ & ViDoRe V3 \citep{loison2026vidore} & CC BY 4.0 \\
+Gov \& Legal & PolicyBench \citep{foo2025know} & OpenRail \\
+\bottomrule
+\end{tabular}
+\caption{Distribution of Multi-domain Open-source Datasets}
+\label{tab:domain_datasets}
+\end{table}
+
+We employed Gemini-3.1-Pro-Preview to extract four core categories of templates from the aforementioned datasets (see Table~\ref{tab:template_examples}). These templates guide the MLLM to synthesize logically rigorous QA pairs based on specific evidence packages.
+
+\begin{table}[htbp]
+\centering
+\small
+\begin{tabularx}{\textwidth}{l|X}
+\toprule
+\textbf{Category} & \textbf{Template and Representative Example} \\
+\midrule
+\textbf{Factual Retrieval} & \textbf{Template:} What is the [Metric] for [Entity]'s [Segment] in [Time Period]? \\
+ & \textbf{Example:} What is the net interest margin for Citigroup's banking segment in 2024? \\
+\midrule
+\textbf{Complex Synthesis} & \textbf{Template:} Synthesize the [Entity] management's outlook for [Metric] in [Time Period]. \\
+ & \textbf{Example:} Synthesize the Bank of America management's outlook for credit loss provisions in 2025. \\
+\midrule
+\textbf{Quantitative Reasoning} & \textbf{Template:} Determine the [Metric] for [Entity] by subtracting [Value A] from [Value B]. \\
+ & \textbf{Example:} Determine the tangible common equity for Citigroup by subtracting goodwill from total equity. \\
+\midrule
+\textbf{Multimodal Parsing} & \textbf{Template:} On which page and in which paragraph is [Visual Style] located? \\
+ & \textbf{Example:} On which page and in which paragraph are the green italic numbers located? \\
+\bottomrule
+\end{tabularx}
+\caption{Classification and Examples of Templates}
+\label{tab:template_examples}
+\end{table}
+
+\subsection{Details of Expert Evaluation}
+\label{Appendix: Details of Expert Evaluation}
+Despite the automated production, we invited several PhD-level experts to conduct sampling audits of 200 randomly selected CiteVQA outputs, focusing on question difficulty, answer quality, and the quality of crucial evidence. To ensure consistency in the evaluation standard, the experts followed the same prompt templates as the models, the details of which are provided in Appendix~\ref{Prompts for CiteVQA Pipeline}. The audit results (Table~\ref{tab:Expert Evaluation}) confirm the high quality of the automated pipeline, demonstrating appropriate question difficulty and high-quality annotation.
+
+\paragraph{Remark on Compensation} All human experts involved in data annotation and evaluation (including Appendix~\ref{Appendix: Details of Expert Evaluation} and~\ref{Appendix: Analysis of Different Judges})  were compensated with a task-based honorarium that exceeds the local minimum hourly wage, ensuring fair labor practices.
+
+\begin{table}[htbp]
+    \centering
+    \footnotesize
+    \begin{tabular}{lccc}

@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Task Instance Schema"
+description: "Schema for input task data in A2UI-Bench"
+type: "object"
+required:
+  - "task_id"
+  - "dataset"
+  - "dialogue_history"
+  - "model_name"
+properties:
+  task_id:
+    type: string
+    description: "Unique identifier for the task."
+  dataset:
+    type: string
+    description: "Source dataset name."
+    enum:
+      - "annomi"
+      - "esconv"
+      - "multiwoz"
+      - "sgd"
+  dialogue_history:
+    type: array
+    description: "List of dialogue turns."
+    items:
+      type: string
+  target_ui:
+    type: object
+    description: "Ground truth UI description (optional)."
+  constraints:
+    type: object
+    description: "Task-specific constraints (optional)."
+  model_name:
+    type: string
+    description: "The specific model name to be used for this task."

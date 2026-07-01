@@ -1,0 +1,276 @@
+resolved_at: '2026-07-01T05:36:12.376690+00:00'
+datasets:
+- intent: GHTorrent
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/The_effect_of_a_combined_lifestyle_intervention_with_and_without_protein_drink_on_inflammation_in_older_adults_with_obesity_and_type_2_diabetes/32843894
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/SSMAP_Weekly_Environmental_Traffic_Safety_Report_057_2020_Prepared_for_Egis_SRKN/32843858
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Tactile_Neuromorphic_Ion-Gated_Vertical_Transistor_Displays_Enabling_Dual-Output_Reservoir_Computing/32843892
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Hyperbranched_Rolling_Circle_Amplification_Assay_Using_Aptamer_Hemin_G-Quadruplex_Recognition_for_the_Detection_of_Creatine_Kinase-MB/32843889
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Photochemical_Ni-Catalyzed_Cross-Coupling_of_Aryl_Bromides_with_Hydrazides/32843886
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3711500
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3711630
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5111043
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12741072
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3840472
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.29550
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4566198
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4566740
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10049493
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10049493
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: PRs
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/loubnabnl/prs-v2-sample/resolve/main/data/train-00000-of-00001-a3494cf8c0712e34.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/davanstrien/authors_merged_model_prs/resolve/main/data/train-00000-of-00001-d32a63c5798549f1.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 705
+      parsed: true
+  - url: https://huggingface.co/datasets/davanstrien/authors_merged_dataset_prs/resolve/main/data/train-00000-of-00001-d5c709e857d2ca0b.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 7290
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/loubnabnl/prs-v2-sample/resolve/main/data/train-00000-of-00001-a3494cf8c0712e34.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/loubnabnl/clean_prs2/resolve/main/data/train-00000-of-00001-b48b6d01dc6d5c4a.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/davanstrien/authors_merged_model_prs/resolve/main/data/train-00000-of-00001-d32a63c5798549f1.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/davanstrien/authors_merged_dataset_prs/resolve/main/data/train-00000-of-00001-d5c709e857d2ca0b.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/susnato/python_PRs/resolve/main/data/train-00000-of-00177.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://opal.latrobe.edu.au/articles/composition/The_Enhanced_Games_are_not_about_doping_they_are_clearing_a_path_for_accelerationism/32740728
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/The_effect_of_a_combined_lifestyle_intervention_with_and_without_protein_drink_on_inflammation_in_older_adults_with_obesity_and_type_2_diabetes/32843894
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/SSMAP_Weekly_Environmental_Traffic_Safety_Report_057_2020_Prepared_for_Egis_SRKN/32843858
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Tactile_Neuromorphic_Ion-Gated_Vertical_Transistor_Displays_Enabling_Dual-Output_Reservoir_Computing/32843892
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Hyperbranched_Rolling_Circle_Amplification_Assay_Using_Aptamer_Hemin_G-Quadruplex_Recognition_for_the_Detection_of_Creatine_Kinase-MB/32843889
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8008235
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5546655
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7123901
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16931148
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6203212
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Maternal_influenza_vaccination_intention_and_associated_factors_among_pregnant_women_in_Guizhou_Province_China/30382974
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Maternal_influenza_vaccination_intention_and_associated_factors_among_pregnant_women_in_Guizhou_Province_China/30382974/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Seroprevalence_and_determinants_of_SARS-CoV-2_anti-nucleocapsid_IgG_in_a_vaccinated_Iranian_adult_population_A_cross-sectional_study_Summer_2023/30145928
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Seroprevalence_and_determinants_of_SARS-CoV-2_anti-nucleocapsid_IgG_in_a_vaccinated_Iranian_adult_population_A_cross-sectional_study_Summer_2023/30145928/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://fair.unifg.it//handle/11369/363317
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: LOC
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/LocalLaws/LOCUS-v1/resolve/main/data/train-00000-of-00008.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/locuslab/refuseweb/resolve/main/score_4_refusal/train-00000-of-00032.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/local-deep-research/ldr-benchmarks/resolve/main/leaderboards/all.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 3357
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/LocalLaws/LOCUS-v1/resolve/main/data/train-00000-of-00008.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/locuslab/refuseweb/resolve/main/score_4_refusal/train-00000-of-00032.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/api/resolve-cache/datasets/localmin/GOATBench/f75bf4abac4f232b0f3b6afdf04dbf6730972f95/api_corpus%2Fseen_corpus.json?%2Fdatasets%2Flocalmin%2FGOATBench%2Fresolve%2Fmain%2Fapi_corpus%2Fseen_corpus.json=&etag=%227ee0d26a7803b11eebeb254939844a6a32826e43%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/local-deep-research/ldr-benchmarks/resolve/main/leaderboards/all.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/nvidia/PhysicalAI-Robotics-Locomanipulation-GRAIL/resolve/main/checkpoint/GEM-SMPL/inputs/checkpoints/body_models/smplx/SMPLX_NEUTRAL.npz
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://figshare.com/articles/dataset/Greenfield_University_i_0704_096_4654_i_officially_release_the_2026_2027_Admission_forms_for_all_programs_You_can_find_the_forms_available_for_Direct_Entry_Transfer_JUPEB_Form_Is_Out_07040964654_/32843861
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Patients_perspectives_of_factors_influencing_active_participation_in_healthcare_interactions_A_qualitative_study/32843903
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opal.latrobe.edu.au/articles/composition/The_Enhanced_Games_are_not_about_doping_they_are_clearing_a_path_for_accelerationism/32740728
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/The_effect_of_a_combined_lifestyle_intervention_with_and_without_protein_drink_on_inflammation_in_older_adults_with_obesity_and_type_2_diabetes/32843894
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/SSMAP_Weekly_Environmental_Traffic_Safety_Report_057_2020_Prepared_for_Egis_SRKN/32843858
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5875084
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/u9xc5/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20272240
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20247041
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19345923
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.20790
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2509.20491
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2404.10034
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21089152
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21089152
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

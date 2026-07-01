@@ -13,6 +13,6 @@ points_research: {}
 revision_round: 0
 revision_spec_path: specs/auto-revisions/PROJ-793-viq-text-aligned-visual-quantized-repres/round-1
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-793-viq-text-aligned-visual-quantized-repres/specs/001-viq-text-aligned-visual-quantized-repres
 title: 'ViQ: Text-Aligned Visual Quantized Representations at Any Resolution'
 updated_at: '2026-06-30T20:56:39.478104Z'

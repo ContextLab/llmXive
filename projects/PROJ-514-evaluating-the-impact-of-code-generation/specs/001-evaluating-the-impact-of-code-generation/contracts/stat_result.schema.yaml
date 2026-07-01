@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StatResult"
+description: "Schema for statistical test results"
+type: "object"
+properties:
+  result_id:
+    type: "string"
+    description: "UUID of the result"
+  smell_type:
+    type: "string"
+    description: "Smell type being tested"
+  test_method:
+    type: "string"
+    description: "Statistical test used (e.g., welch_t, mann_whitney_u)"
+  p_value:
+    type: "number"
+    description: "Raw p-value"
+  p_value_corrected:
+    type: "number"
+    description: "Bonferroni corrected p-value"
+  effect_size:
+    type: "number"
+    description: "Effect size (Cohen's d or equivalent)"
+  confidence_interval_lower:
+    type: "number"
+    description: "Lower bound of 95% CI"
+  confidence_interval_upper:
+    type: "number"
+    description: "Upper bound of 95% CI"
+  correction_method:
+    type: "string"
+    description: "Method used for correction (e.g., bonferroni)"
+required:
+  - result_id
+  - smell_type
+  - test_method
+  - p_value
+  - p_value_corrected
+  - effect_size
+  - confidence_interval_lower
+  - confidence_interval_upper
+  - correction_method

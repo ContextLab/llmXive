@@ -1,0 +1,116 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Regression Analysis Output Schema"
+description: "Schema for the primary regression results and diagnostic metrics."
+type: "object"
+properties:
+  model_id:
+    type: "string"
+    description: "Unique identifier for the model run."
+  coefficients:
+    type: "object"
+    properties:
+      intercept:
+        type: "number"
+      avatar_condition:
+        type: "number"
+        description: "Beta coefficient for avatar condition."
+      comparison_tendency:
+        type: "number"
+        description: "Beta coefficient for comparison tendency."
+      interaction:
+        type: "number"
+        description: "Beta coefficient for the interaction term (Condition * Tendency)."
+    required:
+      - intercept
+      - avatar_condition
+      - comparison_tendency
+      - interaction
+  p_values:
+    type: "object"
+    properties:
+      avatar_condition:
+        type: "number"
+      comparison_tendency:
+        type: "number"
+      interaction:
+        type: "number"
+      interaction_corrected:
+        type: "number"
+        description: "Bonferroni or Holm-Bonferroni corrected p-value for interaction."
+    required:
+      - avatar_condition
+      - comparison_tendency
+      - interaction
+      - interaction_corrected
+  diagnostics:
+    type: "object"
+    properties:
+      r_squared:
+        type: "number"
+      shapiro_wilk_p:
+        type: "number"
+        description: "Normality test p-value (target > 0.05)."
+      breusch_pagan_p:
+        type: "number"
+        description: "Homoscedasticity test p-value (target > 0.05)."
+      vif_max:
+        type: "number"
+        description: "Maximum Variance Inflation Factor (target < 5)."
+      power_analysis:
+        type: "object"
+        properties:
+          achieved_power:
+            type: "number"
+            description: "Post-hoc power for the interaction effect (Real Data Path only)."
+          is_preliminary:
+            type: "boolean"
+            description: "True if power < 0.80 (Real Data Path only)."
+      missingness_diagnostic:
+        type: "object"
+        properties:
+          little_mcar_p:
+            type: "number"
+            description: "P-value for Little's MCAR test."
+          mnar_sensitivity:
+            type: "string"
+            description: "Qualitative assessment of MNAR sensitivity."
+    required:
+      - r_squared
+      - shapiro_wilk_p
+      - breusch_pagan_p
+      - vif_max
+      - power_analysis
+      - missingness_diagnostic
+  bootstrap_stability:
+    type: "object"
+    properties:
+      iterations:
+        type: "integer"
+      ci_lower_95:
+        type: "number"
+      ci_upper_95:
+        type: "number"
+  parameter_recovery:
+    type: "object"
+    properties:
+      true_beta_interaction:
+        type: "number"
+        description: "Ground truth beta for synthetic data."
+      estimated_beta_interaction:
+        type: "number"
+        description: "Estimated beta from model."
+      bias:
+        type: "number"
+        description: "Absolute difference between true and estimated beta."
+    required:
+      - true_beta_interaction
+      - estimated_beta_interaction
+      - bias
+required:
+  - model_id
+  - coefficients
+  - p_values
+  - diagnostics
+  - bootstrap_stability
+  - parameter_recovery
+additionalProperties: false

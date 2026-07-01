@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Feedback Signal Schema"
+description: "Schema for HiFPO feedback signals generated from trajectories. Includes syntactic validation rules."
+type: "object"
+properties:
+  task_id:
+    type: "string"
+    description: "Reference to the parent task"
+  step_id:
+    type: "integer"
+    description: "Reference to the specific step that failed"
+  error_type:
+    type: "string"
+    description: "Categorized error type (e.g., wrong_element, infinite_loop)"
+  hint_text:
+    type: "string"
+    minLength: 10
+    description: "Generated hint text for the agent (must be >= 10 chars and contain actionable verbs)"
+  step_context:
+    type: "string"
+    description: "Summary of the context leading to the error"
+  generated_at:
+    type: "string"
+    format: "date-time"
+    description: "Timestamp of feedback generation"
+  validation_rules:
+    type: "object"
+    description: "Heuristic validation rules applied to the hint"
+    properties:
+      min_length_check:
+        type: "boolean"
+        description: "True if hint length >= 10"
+      keyword_check:
+        type: "boolean"
+        description: "True if hint contains actionable verbs (e.g., tap, swipe, enter)"
+      required:
+        - min_length_check
+        - keyword_check
+required:
+  - task_id
+  - step_id
+  - error_type
+  - hint_text
+  - step_context
+  - validation_rules
+additionalProperties: false

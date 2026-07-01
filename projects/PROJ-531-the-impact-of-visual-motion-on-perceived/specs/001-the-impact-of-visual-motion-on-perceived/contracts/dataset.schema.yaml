@@ -1,0 +1,17 @@
+type: object
+properties:
+  participant_id:
+    type: string
+  latency:
+    type: number
+  smoothness:
+    type: number
+  lead_time:
+    type: number
+  agency_score:
+    type: number
+required:
+  - participant_id
+  - latency
+  - smoothness
+  - agency_score
