@@ -1,0 +1,3 @@
+T008 Implement syntax validation utility (`code/utils/validators.py`) for Python/Java file integrity checks: 2
+T009 Setup CI environment check for PMD/JRE availability (Dockerfile or CI script to install PMD CLI): 1
+'T016 [Spec Update] Update `specs/001-code-smell-comparison/spec.md`:': 1
