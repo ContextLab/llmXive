@@ -182,10 +182,13 @@ def test_plan_reviser_allows_new_contract_schema_in_feature_dir(tmp_path: Path):
     assert "v2" in updated[plan_key]
 
 
-def test_plan_reviser_rejects_writes_outside_plan_set(tmp_path: Path):
-    """If the LLM tries to write a path that isn't in the declared plan
-    artifacts, the reviser must raise — not silently drop, not silently
-    accept. (Honest reporting per Constitution Principle II.)"""
+def test_plan_reviser_drops_foreign_write_but_keeps_valid_edits(tmp_path: Path):
+    """If the LLM writes a foreign path (the source spec.md) ALONGSIDE a valid
+    plan edit, the foreign write must be DROPPED (never landed) while the valid
+    edit is kept — NOT crash the whole engine. The source spec.md is protected
+    (honest reporting per Constitution Principle II: the drop is logged, not
+    silent) but a single wrong-file write must not discard the good revision or
+    file a spurious [engine-failure] issue (issues #384/#385/#386)."""
     plan_key = "specs/000-x/plan.md"
     artifacts = {
         plan_key: "# plan v1",
@@ -203,8 +206,11 @@ def test_plan_reviser_rejects_writes_outside_plan_set(tmp_path: Path):
         backend=backend, repo_root=_REPO_ROOT, project_id="PROJ-000-x",
         summarize_cache_dir=tmp_path / "summarize_cache",
     )
-    with pytest.raises(RuntimeError, match="outside the plan set"):
-        reviser.revise(artifacts, [])
+    updated, _responses = reviser.revise(artifacts, [])
+    assert updated[plan_key] == "# plan v2"
+    # The foreign write to the source spec.md is dropped — the original,
+    # unchanged spec.md remains (the reviser never rewrites it).
+    assert updated["specs/000-x/spec.md"] == "# spec"
 
 
 def test_plan_reviser_raises_when_no_plan_artifacts_present(tmp_path: Path):
@@ -357,9 +363,10 @@ def test_plan_reviser_parses_delimited_multi_artifact(tmp_path: Path):
     assert responses[0].concern_id == "C1"
 
 
-def test_plan_reviser_delimited_rejects_path_outside_plan_set(tmp_path: Path):
+def test_plan_reviser_delimited_drops_foreign_path_keeps_valid(tmp_path: Path):
     """The path-validation still fires on the delimited contract: a block for
-    a non-plan path must raise (honest reporting), not silently land."""
+    a foreign (source spec.md) path is DROPPED (never lands), while the valid
+    plan edit in the same reply is kept — no engine crash."""
     plan_key = "specs/000-x/plan.md"
     artifacts = {plan_key: "# plan v1", "specs/000-x/spec.md": "# spec"}
     reply = (
@@ -372,5 +379,75 @@ def test_plan_reviser_delimited_rejects_path_outside_plan_set(tmp_path: Path):
         backend=backend, repo_root=_REPO_ROOT, project_id="PROJ-000-x",
         summarize_cache_dir=tmp_path / "summarize_cache",
     )
-    with pytest.raises(RuntimeError, match="outside the plan set"):
+    updated, _responses = reviser.revise(artifacts, [])
+    assert updated[plan_key] == "# plan v2"
+    assert updated["specs/000-x/spec.md"] == "# spec"  # source spec untouched
+
+
+def test_plan_reviser_rekeys_paraphrased_feature_slug(tmp_path: Path):
+    """Engine-failure #385/#386: the reviser emitted its plan edits under a
+    paraphrased/truncated feature-dir slug (e.g. `001-predict-...` instead of
+    the canonical `001-predicting-...`), which the exact `path in valid_set`
+    check rejected — crashing the whole engine. The bodies must instead be
+    re-keyed to the canonical paths (matched by the feature-relative tail:
+    `plan.md`, `contracts/x.schema.yaml`)."""
+    plan_key = "projects/PROJ-259-predicting/specs/001-predicting-plant/plan.md"
+    schema_key = (
+        "projects/PROJ-259-predicting/specs/001-predicting-plant/"
+        "contracts/output.schema.yaml"
+    )
+    artifacts = {
+        plan_key: "# plan v1",
+        schema_key: "type: object",
+        "projects/PROJ-259-predicting/specs/001-predicting-plant/spec.md": "# spec",
+    }
+    # The model paraphrases the feature-dir slug (drops 'ing', shortens it).
+    bad_plan = "projects/PROJ-259-predicting/specs/001-predict-plant/plan.md"
+    bad_schema = (
+        "projects/PROJ-259-predicting/specs/001-predict-plant/"
+        "contracts/output.schema.yaml"
+    )
+    fake_reply = {
+        "updated_artifacts": {
+            bad_plan: "# plan v2",
+            bad_schema: "type: object\nrequired: [id]",
+        },
+        "responses": [],
+    }
+    backend = _FakeBackend(response_text=json.dumps(fake_reply))
+    reviser = PlanReviser(
+        backend=backend, repo_root=_REPO_ROOT, project_id="PROJ-259-predicting",
+        summarize_cache_dir=tmp_path / "summarize_cache",
+    )
+    updated, _responses = reviser.revise(artifacts, [])
+    # Re-keyed to the CANONICAL paths (not the hallucinated slug).
+    assert updated[plan_key] == "# plan v2"
+    assert updated[schema_key] == "type: object\nrequired: [id]"
+    assert bad_plan not in updated
+    assert bad_schema not in updated
+
+
+def test_plan_reviser_foreign_only_reply_degrades_not_crashes(tmp_path: Path):
+    """Engine-failure #384: the reviser emitted ONLY the source spec.md (zero
+    valid plan edits). This must raise the RECOGNIZED malformed-reply shape
+    ('no usable ...') so the engine degrades to 'no artifact change this round'
+    (is_malformed_reply_error) instead of filing a spurious [engine-failure]
+    issue with the old 'outside the plan set' message."""
+    from llmxive.convergence.revisers._reviser_response import (
+        is_malformed_reply_error,
+    )
+
+    plan_key = "specs/000-x/plan.md"
+    artifacts = {plan_key: "# plan v1", "specs/000-x/spec.md": "# spec"}
+    fake_reply = {
+        "updated_artifacts": {"specs/000-x/spec.md": "# rewrote the wrong file"},
+        "responses": [],
+    }
+    backend = _FakeBackend(response_text=json.dumps(fake_reply))
+    reviser = PlanReviser(
+        backend=backend, repo_root=_REPO_ROOT, project_id="PROJ-000-x",
+        summarize_cache_dir=tmp_path / "summarize_cache",
+    )
+    with pytest.raises(RuntimeError, match="no usable") as exc_info:
         reviser.revise(artifacts, [])
+    assert is_malformed_reply_error(exc_info.value)

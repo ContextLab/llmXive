@@ -1,5 +1,6 @@
-'|csv representation style text':
-  quote: Christian Social People's Party
-  source_id: Q1344670
-  url: https://www.wikidata.org/wiki/Q1344670
-  value: Christian Social People's Party
+'|benchmark different reproducibility run seed time verification':
+  quote: 'tasks [5, 6]. Policy gradient methods can be generally divided into two
+    groups: off-policy gradient'
+  source_id: '1708.04133'
+  url: https://arxiv.org/abs/1708.04133
+  value: '5'

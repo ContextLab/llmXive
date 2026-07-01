@@ -130,3 +130,9 @@
 [submodule "projects/PROJ-602-https-arxiv-org-abs-2605-18661/external/awesome-ai-auto-research"]
 	path = projects/PROJ-602-https-arxiv-org-abs-2605-18661/external/awesome-ai-auto-research
 	url = https://github.com/worldbench/awesome-ai-auto-research
+[submodule "projects/PROJ-687-swe-explore-benchmarking-how-coding-agen/external/SWE-Explore-Bench"]
+	path = projects/PROJ-687-swe-explore-benchmarking-how-coding-agen/external/SWE-Explore-Bench
+	url = https://github.com/Qiushao-E/SWE-Explore-Bench
+[submodule "projects/PROJ-650-colleague-skill-automated-ai-skill-gener/external/colleague-skill"]
+	path = projects/PROJ-650-colleague-skill-automated-ai-skill-gener/external/colleague-skill
+	url = https://github.com/titanwings/colleague-skill

@@ -1,0 +1,183 @@
+artifact_links:
+- projects/PROJ-687-swe-explore-benchmarking-how-coding-agen/specs/001-swe-explore-benchmarking-how-coding-agen/plan.md
+- specs/*/contracts/*
+- specs/*/data-model.md
+- specs/*/plan.md
+- specs/*/quickstart.md
+- specs/*/research.md
+reason: 12 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst
+  unresolved severity = 'science'. Routing to 'specified' with full provenance so
+  the next worker can address the root cause.
+stage: plan
+to_stage: specified
+unresolved_concerns:
+- artifact: projects/PROJ-687-swe-explore-benchmarking-how-coding-agen/specs/001-swe-explore-benchmarking-how-coding-agen/plan.md
+  id: methodology-7e1d2f88
+  location: plan.md:Statistical Rigor
+  reviewer: methodology
+  round: 1
+  severity: methodology
+  text: The plan proposes a paired t-test or Wilcoxon signed-rank test on N=10 instances
+    to assess significance of the 'tiering' effect. With N=10, statistical power is
+    extremely low to detect the specific effect size (0.05 difference) claimed in
+    SC-004. A non-significant result (p > 0.05) would be inconclusive (Type II error)
+    rather than evidence of no difference, undermining the validation goal. The plan
+    must explicitly acknowledge this power limitation or increase the sample size
+    if feasible within the 6h constraint.
+- artifact: projects/PROJ-687-swe-explore-benchmarking-how-coding-agen/specs/001-swe-explore-benchmarking-how-coding-agen/plan.md
+  id: methodology-04f20404
+  location: plan.md:Statistical Rigor
+  reviewer: methodology
+  round: 1
+  severity: methodology
+  text: 'The plan states: ''Claims will be framed as associational... as this is an
+    observational benchmark.'' However, the spec (US-3, SC-004) requires reproducing
+    the paper''s claim of ''tiering'' (implying a causal or at least robust predictive
+    superiority of agents over classical methods). If the benchmark is purely observational
+    on existing issues, confounding variables (e.g., issue complexity, repository
+    size) could explain the performance difference. The plan lacks a design to control
+    for these confounds (e.g., stratified sampling, matching, or regression adjustment)
+    to isolate the ''explorer type'' effect.'
+- artifact: projects/PROJ-687-swe-explore-benchmarking-how-coding-agen/specs/001-swe-explore-benchmarking-how-coding-agen/plan.md
+  id: methodology-6705e30e
+  location: research.md:Metric Calculation
+  reviewer: methodology
+  round: 1
+  severity: methodology
+  text: The 'Context-Efficiency' metric is defined as 'Relevant lines found / Total
+    tokens in context'. The plan approximates 'Total tokens' using a standard tokenizer
+    (e.g., tiktoken) on the *returned* context. However, the paper's definition likely
+    refers to the *budget* or *cost* incurred to retrieve that context. If the explorer
+    retrieves a large, irrelevant context to find one line, the metric should penalize
+    it. The current definition (lines found / tokens used) might not capture the 'efficiency'
+    of the *retrieval process* if the denominator is just the output size rather than
+    the search cost. The plan needs to clarify if 'tokens used' includes the search
+    overhead or just the final payload.
+- artifact: projects/PROJ-687-swe-explore-benchmarking-how-coding-agen/specs/001-swe-explore-benchmarking-how-coding-agen/plan.md
+  id: data_resources-67e6ddb0
+  location: plan.md:Dataset & Variable Fit
+  reviewer: data_resources
+  round: 1
+  severity: methodology
+  text: The plan explicitly states 'NO verified source found' for `traj_datasets`
+    and relies on a 'Local Submodule/Manual Provisioning' strategy without citing
+    a specific repository, accession ID, or URL for the ground truth data. While the
+    spec assumes the data exists, the plan fails to identify the actual source of
+    the benchmark instances (e.g., SWE-bench, SWE-Explore specific repo) required
+    to execute FR-002. Without a defined, accessible source for the ground truth,
+    the pipeline cannot run as described, rendering the reproduction infeasible.
+- artifact: projects/PROJ-687-swe-explore-benchmarking-how-coding-agen/specs/001-swe-explore-benchmarking-how-coding-agen/plan.md
+  id: data_resources-6d7caf0e
+  location: research.md:Dataset Strategy
+  reviewer: data_resources
+  round: 1
+  severity: methodology
+  text: The research phase acknowledges the lack of a verified URL for `traj_datasets`
+    and proposes using 'Mock Data' for the smoke test. However, the plan's primary
+    goal is to 'Reproduce & Validate' the paper's claims regarding 'tiering' of explorers.
+    Mock data cannot validate these claims. The plan must identify the real dataset
+    source (e.g., the specific SWE-Explore benchmark release) to be methodologically
+    sound. Relying on a non-existent or undefined dataset source for the core validation
+    step is a fatal methodological gap.
+- artifact: projects/PROJ-687-swe-explore-benchmarking-how-coding-agen/specs/001-swe-explore-benchmarking-how-coding-agen/plan.md
+  id: plan_consistency-455732be
+  location: plan.md:Constitution Check
+  reviewer: plan_consistency
+  round: 1
+  severity: requirement
+  text: 'The ''Constitution Check'' section lists 4 gates (Reproducibility, Resource
+    Constraints, Data Integrity, Transparency) but does not map them to specific Constitutional
+    Principles (e.g., Principle I: SSoT, Principle II: No Silent Fallbacks, Principle
+    V: Real-Call Testing). The plan mentions ''fail gracefully'' for missing data,
+    which risks violating Principle II if not explicitly defined as a hard stop or
+    documented deviation. The plan must explicitly cite the per-project `constitution.md`
+    principles to ensure compliance.'
+- artifact: projects/PROJ-687-swe-explore-benchmarking-how-coding-agen/specs/001-swe-explore-benchmarking-how-coding-agen/plan.md
+  id: plan_consistency-19f14787
+  location: plan.md:Requirement Mapping
+  reviewer: plan_consistency
+  round: 1
+  severity: requirement
+  text: 'The plan maps FR-002 to ''Phase 0 (Research): Verify dataset availability''
+    and ''Phase 1: Implement loader''. However, the `research.md` and `spec.md` explicitly
+    state that `traj_datasets` has NO verified source. The plan does not define a
+    concrete ''Single Source of Truth'' (Principle I) for the ground truth data. If
+    the dataset is missing, the plan relies on ''mock data'' (from research) but the
+    plan text says ''fail gracefully''. This ambiguity violates the requirement for
+    a defined SSoT for empirical data.'
+- artifact: projects/PROJ-687-swe-explore-benchmarking-how-coding-agen/specs/001-swe-explore-benchmarking-how-coding-agen/plan.md
+  id: plan_consistency-be2c92de
+  location: plan.md:Project Structure
+  reviewer: plan_consistency
+  round: 1
+  severity: writing
+  text: The 'Project Structure' section lists `contracts/explorer_output.schema.yaml`
+    and `contracts/metrics_report.schema.yaml`. The `data-model.md` defines entities
+    `ExplorationTrace` and `MetricsReport`. While the names align, the plan does not
+    explicitly state that the code implementation MUST validate against these specific
+    schema files, creating a potential gap between the data model definition and the
+    contract enforcement in the plan steps.
+- artifact: projects/PROJ-687-swe-explore-benchmarking-how-coding-agen/specs/001-swe-explore-benchmarking-how-coding-agen/plan.md
+  id: plan_consistency-ed4fbe63
+  location: plan.md:Plan Completeness & Methodological Rigor
+  reviewer: plan_consistency
+  round: 1
+  severity: writing
+  text: The 'Statistical Rigor' section mentions using a 'paired t-test or Wilcoxon
+    signed-rank test'. The `research.md` recommends Wilcoxon due to small sample size.
+    The plan should explicitly commit to the non-parametric test (Wilcoxon) in the
+    implementation steps to avoid ambiguity, as the t-test assumption (normality)
+    is likely violated with N=10. This is a minor methodological clarity issue within
+    the plan.
+- artifact: projects/PROJ-687-swe-explore-benchmarking-how-coding-agen/specs/001-swe-explore-benchmarking-how-coding-agen/plan.md
+  id: scientific_soundness-2de13ec2
+  location: plan.md:Statistical Rigor
+  reviewer: scientific_soundness
+  round: 1
+  severity: science
+  text: "The plan defines 'Ranking Score' as '1/Position of first relevant line' (research.md)\
+    \ but sets Success Criterion SC-004 to require a '\u2265 0.05 difference in Ranking\
+    \ Score' between explorers. This metric is highly discrete (values: 1.0, 0.5,\
+    \ 0.33, 0.25...). On a subset of 10 instances, the mean difference between two\
+    \ explorers is unlikely to resolve to a stable 0.05 threshold unless the performance\
+    \ gap is massive. The plan treats this discrete, sparse metric as a continuous\
+    \ variable suitable for a t-test/Wilcoxon test to detect a small effect size (0.05),\
+    \ which is statistically unsound for N=10. The validation target (detecting a\
+    \ 0.05 gap) is not empirically feasible with the chosen metric granularity and\
+    \ sample size."
+- artifact: projects/PROJ-687-swe-explore-benchmarking-how-coding-agen/specs/001-swe-explore-benchmarking-how-coding-agen/plan.md
+  id: scientific_soundness-a8a3b2b7
+  location: research.md:Metric Calculation
+  reviewer: scientific_soundness
+  round: 1
+  severity: science
+  text: The plan defines 'Context-Efficiency' as 'Relevant lines found / Total tokens
+    in context'. This creates a circular validation risk if the 'Total tokens in context'
+    is derived from the *same* ranked list being evaluated. If the explorer returns
+    a list, and the metric divides the 'hits' in that list by the 'tokens' of that
+    *same* list, the metric is a self-referential ratio of the output, not an independent
+    measure of efficiency against a ground truth. The ground truth (relevant lines)
+    is independent, but the denominator (tokens) is a function of the predictor's
+    output size. While not strictly tautological, it conflates 'precision' with 'efficiency'
+    in a way that may bias the comparison if one explorer returns longer lists than
+    the other, regardless of relevance. The plan must clarify if the denominator is
+    a fixed budget or the actual output size; if the latter, the metric rewards shorter
+    lists regardless of content quality, potentially invalidating the 'tiering' claim.
+- artifact: projects/PROJ-687-swe-explore-benchmarking-how-coding-agen/specs/001-swe-explore-benchmarking-how-coding-agen/plan.md
+  id: scientific_soundness-72816093
+  location: plan.md:Statistical Rigor
+  reviewer: scientific_soundness
+  round: 1
+  severity: methodology
+  text: "The plan proposes a 'Paired t-test or Wilcoxon signed-rank test' on N=10\
+    \ instances to validate the paper's 'tiering' claim. In information retrieval\
+    \ and benchmarking, N=10 is statistically underpowered to detect anything but\
+    \ the most extreme effects, especially with the discrete nature of the 'Ranking\
+    \ Score' metric. The plan acknowledges 'low power' but proceeds to set a specific\
+    \ success criterion (SC-004: \u2265 0.05 difference) that implies a high-confidence\
+    \ detection. This is a methodological mismatch: the statistical test cannot reliably\
+    \ validate the specific quantitative claim (0.05 difference) with the proposed\
+    \ sample size. The validation strategy should be qualitative (e.g., 'BM25 > Rule-Based\
+    \ in X out of 10 cases') rather than relying on a p-value or a specific mean difference\
+    \ threshold."
+worst_severity: science

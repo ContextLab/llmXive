@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-02T09:29:13.448212Z'
-current_stage: paper_ingested
+current_stage: in_progress
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-650-colleague-skill-automated-ai-skill-gener
-last_run_id: 503b4683-d003-403e-9ae6-51d444df8e78
+last_run_id: 0704c573-e9d1-4096-8b8e-1de54f7f1283
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: specs/auto-revisions/PROJ-650-colleague-skill-automated-ai-skill-gener/round-2
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-650-colleague-skill-automated-ai-skill-gener/specs/001-colleague-skill-automated-ai-skill-gener
 title: 'COLLEAGUE.SKILL: Automated AI Skill Generation via Expert Knowledge Distillation'
-updated_at: '2026-06-30T12:11:19.203334Z'
+updated_at: '2026-07-01T03:39:05.551850Z'

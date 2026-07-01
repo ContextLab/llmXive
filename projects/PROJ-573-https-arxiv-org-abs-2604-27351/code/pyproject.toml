@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=68.0", "wheel"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -8,60 +8,57 @@ version = "0.1.0"
 description = "Heterogeneous Scientific Foundation Model Collaboration Benchmark"
 readme = "README.md"
 requires-python = ">=3.11"
-license = {text = "Apache-2.0"}
+license = {text = "MIT"}
 authors = [
     {name = "llmXive Research Team"}
 ]
 dependencies = [
     "numpy>=1.24.0",
     "pandas>=2.0.0",
-    "scipy>=1.11.0",
+    "scipy>=1.10.0",
+    "scikit-learn>=1.2.0",
     "datasets>=2.14.0",
-    "huggingface_hub>=0.17.0",
-    "transformers>=4.33.0",
-    "accelerate>=0.23.0",
+    "transformers>=4.30.0",
+    "accelerate>=0.20.0",
     "pyyaml>=6.0",
+    "jsonschema>=4.17.0",
     "matplotlib>=3.7.0",
     "seaborn>=0.12.0",
     "reportlab>=4.0.0",
-    "pytest>=7.4.0",
-    "ruff>=0.0.290",
-    "psutil>=5.9.0",
+    "jinja2>=3.1.0",
+    "pytest>=7.3.0",
+    "tqdm>=4.65.0",
+    "requests>=2.31.0",
+    "rich>=13.0.0",
+    "tabpfn>=0.1.0"
 ]
 
 [project.optional-dependencies]
 dev = [
-    "pytest-cov>=4.1.0",
     "black>=23.0.0",
-    "mypy>=1.5.0",
+    "ruff>=0.0.280",
+    "mypy>=1.0.0"
 ]
 
+[project.scripts]
+run-benchmark = "src.benchmark.run_benchmark:main"
+run-task = "src.benchmark.run_task:main"
+
 [tool.setuptools.packages.find]
-where = ["code/src"]
-exclude = ["tests*"]
+where = ["code"]
 
 [tool.black]
 line-length = 88
 target-version = ['py311']
+include = '\.pyi?$'
 
 [tool.ruff]
 line-length = 88
 target-version = "py311"
-select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
-ignore = ["E501", "E731"]
-
-[tool.ruff]
-line-length = 88
-target-version = "py311"
-src = ["code/src", "code/tests", "code/research", "code/setup"]
-
-[tool.ruff.lint]
-select = ["E", "W", "F", "I", "B", "C4", "UP"]
-ignore = ["E501"]
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "ARG"]
+ignore = ["E501", "B008"]
 
 [tool.pytest.ini_options]
-testpaths = ["code/tests"]
+testpaths = ["tests"]
 python_files = ["test_*.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
 addopts = "-v --tb=short"

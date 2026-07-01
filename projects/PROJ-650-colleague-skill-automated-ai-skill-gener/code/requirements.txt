@@ -1,0 +1,2 @@
+skill_schema  # auto-added: imported by run-book but missing from venv
+skill_writer  # auto-added: imported by run-book but missing from venv

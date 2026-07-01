@@ -70,6 +70,12 @@
   \ (boolean) (FR-002, SC-002, Phase 0.5)"
 : 1
 ? "T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM\
+  \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_6a809fb2 \u2014 status=not_enough_info];\
+  \ create `src/research/verify_models.py` script; document in research.md section\
+  \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
+  \ (boolean) (FR-002, SC-002, Phase 0.5)"
+: 1
+? "T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM\
   \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_78dcd9b2 \u2014 status=not_enough_info];\
   \ create `src/research/verify_models.py` script; document in research.md section\
   \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
@@ -117,6 +123,11 @@
   \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
   \ (boolean) (FR-002, SC-002, Phase 0.5)"
 : 1
+? 'T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM
+  via HuggingFace model cards; create `src/research/verify_models.py` script; document
+  in research.md section "Model Verification" with fields: model_name, hf_id, size_mb,
+  cpu_tractable (boolean) (FR-002, SC-002, Phase 0.5)'
+: 1
 ? "T006a Implement Reference-Validator Agent in `src/validators/reference_validator.py`\
   \ with title-token-overlap \u2265 0.7 [UNRESOLVED-CLAIM: c_0d8fe0be \u2014 status=not_enough_info]\
   \ check before contributing review points; add blocking gate for Constitution II\
@@ -155,13 +166,13 @@
 ? "T006a Implement Reference-Validator Agent in `src/validators/reference_validator.py`\
   \ with title-token-overlap \u2265 0.7 check before contributing review points; add\
   \ blocking gate for Constitution II compliance (Constitution II, Plan Gap)"
-: 1
+: 2
 "T008 Initialize Python 3.11 [UNRESOLVED-CLAIM: c_31b68441 \u2014 status=not_enough_info] project with {{claim:c_9da78e09}}": 1
 "T008 Initialize Python 3.11 [UNRESOLVED-CLAIM: c_92679e95 \u2014 status=not_enough_info] project with {{claim:c_9da78e09}}": 1
 "T008 Initialize Python 3.11 [UNRESOLVED-CLAIM: c_f21aed3b \u2014 status=not_enough_info] project with {{claim:c_9da78e09}}": 1
 "T008 Initialize Python 3.11 project [UNRESOLVED-CLAIM: c_5b5fd135 \u2014 status=not_enough_info] with {{claim:c_9da78e09}}": 1
 "T008 Initialize Python 3.11 project [UNRESOLVED-CLAIM: c_b468013a \u2014 status=not_enough_info] with {{claim:c_9da78e09}}": 1
-T008 Initialize Python 3.11 project with {{claim:c_9da78e09}}: 1
+T008 Initialize Python 3.11 project with {{claim:c_9da78e09}}: 2
 ? "T009 [P] Configure linting and formatting tools: ruff.toml (line-length=88 [UNRESOLVED-CLAIM:\
   \ c_894bffc9 \u2014 status=not_enough_info], target-version=py311) and pyproject.toml\
   \ (black config) in repository root"
