@@ -169,6 +169,9 @@
 [submodule "projects/PROJ-776-planbench-xl-evaluating-long-horizon-pla/external/PlanBench-XL"]
 	path = projects/PROJ-776-planbench-xl-evaluating-long-horizon-pla/external/PlanBench-XL
 	url = https://github.com/JiayuJeff/PlanBench-XL
+[submodule "projects/PROJ-576-sana-wm-efficient-minute-scale-world-mod/external/Sana"]
+	path = projects/PROJ-576-sana-wm-efficient-minute-scale-world-mod/external/Sana
+	url = https://github.com/NVlabs/Sana
 [submodule "projects/PROJ-599-mmskills-towards-multimodal-skills-for-g/external/MMSkills"]
 	path = projects/PROJ-599-mmskills-towards-multimodal-skills-for-g/external/MMSkills
 	url = https://github.com/DeepExperience/MMSkills

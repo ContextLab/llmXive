@@ -22,5 +22,17 @@
         "intent": "OSWorld Bench Benchmark The task definition and evaluation environment for agent. datasets.load_dataset \"OSWorld/OSWorld\" if available or local definitions"
       }
     ]
+  },
+  {
+    "repaired_at": "2026-07-01T12:29:26.947584+00:00",
+    "project": "PROJ-599-mmskills-towards-multimodal-skills-for-g",
+    "repairs": [
+      {
+        "dead_url": "https://huggingface.co/datasets/OSWorld-Bench/OSWorld",
+        "reason": "HTTP 401",
+        "replacement_url": "https://huggingface.co/datasets/josancamon/harbor-osworld-solutions/resolve/main/data/solutions.jsonl",
+        "intent": "OSWorld Bench Benchmark via datasets.load_dataset Used for task definitions and ground truth."
+      }
+    ]
   }
 ]

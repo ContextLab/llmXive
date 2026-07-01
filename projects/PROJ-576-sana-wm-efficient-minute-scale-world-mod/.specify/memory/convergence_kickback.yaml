@@ -1,0 +1,128 @@
+artifact_links:
+- projects/PROJ-576-sana-wm-efficient-minute-scale-world-mod/specs/001-sana-wm-efficient-minute-scale-world-mod/plan.md
+- specs/*/contracts/*
+- specs/*/data-model.md
+- specs/*/plan.md
+- specs/*/quickstart.md
+- specs/*/research.md
+reason: 9 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst
+  unresolved severity = 'science'. Routing to 'specified' with full provenance so
+  the next worker can address the root cause.
+stage: plan
+to_stage: specified
+unresolved_concerns:
+- artifact: projects/PROJ-576-sana-wm-efficient-minute-scale-world-mod/specs/001-sana-wm-efficient-minute-scale-world-mod/plan.md
+  id: methodology-35a36f9a
+  location: spec.md:User Story 2
+  reviewer: methodology
+  round: 1
+  severity: methodology
+  text: SC-002 defines 'Camera adherence accuracy' as 'visual inspection' (human-in-the-loop)
+    with a target of 4/5 videos. This is a subjective, non-reproducible metric that
+    cannot statistically validate the 'precise 6-DoF trajectory adherence' claim.
+    A methodology relying on human visual inspection for geometric precision is insufficient
+    to distinguish between actual trajectory adherence and hallucinated motion that
+    merely 'looks smooth'.
+- artifact: projects/PROJ-576-sana-wm-efficient-minute-scale-world-mod/specs/001-sana-wm-efficient-minute-scale-world-mod/plan.md
+  id: methodology-8cfa105e
+  location: plan.md:Mapping to Requirements
+  reviewer: methodology
+  round: 1
+  severity: methodology
+  text: The plan maps SC-002 to 'visual inspection of 5 generated clips (manual review
+    in PR)'. This confirms the reliance on subjective human judgment. To validate
+    a 'World Model' claim regarding 6-DoF control, the methodology must include an
+    objective quantitative metric (e.g., comparing generated frame camera matrices
+    against input `.npy` matrices via reprojection error or optical flow consistency)
+    rather than manual review.
+- artifact: projects/PROJ-576-sana-wm-efficient-minute-scale-world-mod/specs/001-sana-wm-efficient-minute-scale-world-mod/plan.md
+  id: methodology-3d77aa9d
+  location: research.md:Technical Feasibility Analysis
+  reviewer: methodology
+  round: 1
+  severity: methodology
+  text: The research section proposes 'Visual inspection (Human-in-the-loop)' as the
+    verification method for camera trajectory. This fails the construct validity test
+    for '6-DoF trajectory adherence'. Human vision cannot detect subtle drift or geometric
+    inconsistencies in 3D space that a 'World Model' is expected to prevent. The approach
+    does not support the conclusion that the model adheres to the trajectory.
+- artifact: projects/PROJ-576-sana-wm-efficient-minute-scale-world-mod/specs/001-sana-wm-efficient-minute-scale-world-mod/plan.md
+  id: plan_consistency-36002f92
+  location: plan.md:Mapping to Requirements
+  reviewer: plan_consistency
+  round: 1
+  severity: writing
+  text: The plan maps FR-006 to 'Phase 2 includes a pre-check script', but the Data
+    Model and Contracts define 'CameraPose' as a schema for validation. The plan should
+    explicitly reference the 'CameraPose' schema or contract in Phase 1 to ensure
+    the pre-check logic is derived from the defined data model, not just an ad-hoc
+    script.
+- artifact: projects/PROJ-576-sana-wm-efficient-minute-scale-world-mod/specs/001-sana-wm-efficient-minute-scale-world-mod/plan.md
+  id: plan_consistency-98dcaaaa
+  location: plan.md:Mapping to Requirements
+  reviewer: plan_consistency
+  round: 1
+  severity: writing
+  text: SC-002 (Camera Adherence) is mapped to 'manual review in PR'. The Constitution
+    (Principle V) and Spec (US-2) require 'Independent Test' and 'Verified' data.
+    Relying solely on manual review for a core success criterion violates the 'Real-Call
+    Testing' principle. The plan must define an automated or scriptable metric (e.g.,
+    pose drift calculation) or explicitly defer this SC to a later stage where human-in-the-loop
+    is sanctioned, rather than listing it as a current success criterion.
+- artifact: projects/PROJ-576-sana-wm-efficient-minute-scale-world-mod/specs/001-sana-wm-efficient-minute-scale-world-mod/plan.md
+  id: plan_consistency-5974031d
+  location: plan.md:Phases
+  reviewer: plan_consistency
+  round: 1
+  severity: writing
+  text: Phase 1 defines 'CameraPose' schema but the plan does not explicitly state
+    that the 'CameraPose' contract (contracts/CameraPose.schema.yaml) will be used
+    to validate the input .npy files in Phase 2. The link between the defined schema
+    and the execution step is implied but not explicit, risking a disconnect between
+    the data model and the implementation.
+- artifact: projects/PROJ-576-sana-wm-efficient-minute-scale-world-mod/specs/001-sana-wm-efficient-minute-scale-world-mod/plan.md
+  id: scientific_soundness-31232114
+  location: plan.md:Mapping to Requirements (SC-002)
+  reviewer: scientific_soundness
+  round: 1
+  severity: science
+  text: SC-002 defines 'Camera Adherence' validation as 'visual inspection of the
+    generated clips (manual review in PR).' This is a non-scientific validation for
+    a 'World Model' claim. Visual inspection is subjective, non-reproducible, and
+    cannot quantify '6-DoF trajectory adherence' or distinguish between correct motion
+    and hallucinated artifacts that merely 'look smooth.' A valid scientific validation
+    requires an objective metric (e.g., re-projecting the input pose to the video
+    frames and measuring pixel-space drift, or using a pre-trained pose estimator
+    to recover camera motion and comparing it to the ground truth). Relying on human
+    review makes the result non-falsifiable and the validation circular (the reviewer
+    assumes the model works because the video looks 'okay').
+- artifact: projects/PROJ-576-sana-wm-efficient-minute-scale-world-mod/specs/001-sana-wm-efficient-minute-scale-world-mod/plan.md
+  id: scientific_soundness-4d0e7ef1
+  location: research.md:Technical Feasibility Analysis (3. Camera Trajectory Validation)
+  reviewer: scientific_soundness
+  round: 1
+  severity: science
+  text: The research plan confirms the reliance on 'Visual inspection (Human-in-the-loop)'
+    to verify the core claim of 'precise 6-DoF trajectory adherence.' This is a category
+    error in computer vision research. The input is a mathematical trajectory (extrinsic
+    matrices); the output is a video. Validating adherence requires a geometric or
+    learned metric that maps video back to pose space (e.g., Structure-from-Motion
+    or a pose-conditioned discriminator). Human inspection cannot verify the mathematical
+    fidelity of the 6-DoF path, only the aesthetic smoothness, which is a different
+    property entirely.
+- artifact: projects/PROJ-576-sana-wm-efficient-minute-scale-world-mod/specs/001-sana-wm-efficient-minute-scale-world-mod/plan.md
+  id: scientific_soundness-3430b7cf
+  location: plan.md:Mapping to Requirements (SC-003, SC-004)
+  reviewer: scientific_soundness
+  round: 1
+  severity: methodology
+  text: The plan sets success criteria for RAM (<7GB) and Time (<4h) on a 2 vCPU runner
+    for a diffusion transformer. While not circular, the methodology for 'validation'
+    here is purely feasibility testing (can it run?) rather than scientific validation
+    of the 'efficient minute-scale' claim. The plan admits the full minute-scale generation
+    is deferred. The scientific soundness of the *reproduction* is compromised because
+    the 'efficiency' claim cannot be tested at the claimed scale (minute-scale) on
+    the target hardware, and the reduced scale (4s) may not exhibit the same memory/time
+    scaling behaviors as the full task. The validation targets (4s, 480p) are arbitrary
+    reductions that do not scientifically validate the 'minute-scale' hypothesis.
+worst_severity: science
