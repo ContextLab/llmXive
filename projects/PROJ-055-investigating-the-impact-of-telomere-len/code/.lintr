@@ -1,0 +1,10 @@
+exclusions:
+  "tests/*": [102, 103]
+  "data/*": [100]
+linters:
+  - line_length_linter(100)
+  - object_name_linter()
+  - whitespace_linter()
+  - unnecessary_nested_if_linter()
+  - assignment_linter()
+  - brace_linter()

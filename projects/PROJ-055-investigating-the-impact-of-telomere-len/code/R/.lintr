@@ -1,0 +1,27 @@
+linters:
+  - absolute_path_linter()
+  - assignment_linter()
+  - brace_linter()
+  - commas_linter()
+  - commented_code_linter()
+  - duplicated_argument_linter()
+  - equals_na_linter()
+  - function_left_parentheses_linter()
+  - infix_spaces_linter()
+  - nonportable_path_linter()
+  - numeric_leading_zero_linter()
+  - object_length_linter()
+  - paren_body_linter()
+  - pipe_continuation_linter()
+  - semicolon_linter()
+  - spaces_inside_linter()
+  - spaces_left_parentheses_linter()
+  - todo_comment_linter()
+  - trailing_blank_lines_linter()
+  - trailing_whitespace_linter()
+  - unnecessary_concatenation_linter()
+  - unneeded_concatenation_linter()
+  - whitespace_linter()
+exclude_files:
+  - "inst/"
+  - "vignettes/"

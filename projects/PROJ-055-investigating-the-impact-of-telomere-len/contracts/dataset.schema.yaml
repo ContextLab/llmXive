@@ -1,0 +1,20 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Schema"
+type: object
+properties:
+  species:
+    type: string
+  telomere_length_kb:
+    type: number
+  lifespan:
+    type: number
+  migration_status:
+    type: string
+  body_mass_g:
+    type: number
+required:
+  - species
+  - telomere_length_kb
+  - lifespan
+  - migration_status
+  - body_mass_g
