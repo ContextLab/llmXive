@@ -1,213 +1,26 @@
-resolved_at: '2026-06-30T23:18:29.352037+00:00'
+resolved_at: '2026-07-01T20:02:18.189125+00:00'
 datasets:
-- intent: RAM
-  status: verified
-  candidates:
-  - url: https://huggingface.co/datasets/RamAnanth1/lex-fridman-podcasts/resolve/main/lex-fridman-podcast-dataset.jsonl
-    source: huggingface
-    format: jsonl
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  - url: https://huggingface.co/datasets/huggingartists/ramil/resolve/main/datasets.json
-    source: huggingface
-    format: json
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 130991
-      parsed: true
-  - url: https://huggingface.co/datasets/ramitsurana/sanskrit/resolve/main/train.csv
-    source: huggingface
-    format: csv
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 91560
-      parsed: true
-  candidates_tried:
-  - url: https://huggingface.co/datasets/RamAnanth1/lex-fridman-podcasts/resolve/main/lex-fridman-podcast-dataset.jsonl
-    source: huggingface
-    status: verified
-    format: jsonl
-  - url: https://huggingface.co/datasets/huggingartists/ramil/resolve/main/datasets.json
-    source: huggingface
-    status: verified
-    format: json
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f18358b/f6b3240580548bf9e5ffa880b18cc34773c2f1b69b262e8efb62b55f5894cbf5?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27datasets.json%3B+filename%3D%22datasets.json%22%3B&response-content-type=application%2Fjson&user_id=public&Expires=1782865011&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgzNThiL2Y2YjMyNDA1ODA1NDhiZjllNWZmYTg4MGIxOGNjMzQ3NzNjMmYxYjY5YjI2MmU4ZWZiNjJiNTVmNTg5NGNiZjVcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGF0YXNldHMuanNvbiUzQitmaWxlbmFtZSUzRCUyMmRhdGFzZXRzLmpzb24lMjIlM0ImcmVzcG9uc2UtY29udGVudC10eXBlPWFwcGxpY2F0aW9uJTJGanNvbiZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyODY1MDExfX19XX0_&Signature=MEUCIGKUvEEI-kxkgQYguCrbfQFf~UK1Qr3B8AHzw4D5ricvAiEAu57JrlcKX2tLbk47b-Hh3duxgGTUbk-8pQzAuL1GLLA_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-    source: huggingface
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://huggingface.co/datasets/ramitsurana/sanskrit/resolve/main/train.csv
-    source: huggingface
-    status: verified
-    format: csv
-  - url: https://figshare.com/articles/poster/O9164691706_School_of_Midwifery_Waterside_Onitsha_Undergraduate_screening_2026-_2027_FORM_Is_Open_Now_O_9164691706_MRS_GRACE_09164691706_Admission_form_Office_Applicants_are_advised_to_ensure_that_all_information_provided_during_the_applica/32841584
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/O9164691706_School_of_Nursing_Borromeo_Undergraduate_screening_2026-_2027_FORM_Is_Open_Now_O_9164691706_MRS_GRACE_09164691706_Admission_form_Office_Applicants_are_advised_to_ensure_that_all_information_provided_during_the_application_proces/32841578
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Salem_University_Lokoja_0704_096_4654_officially_release_the_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Transfer_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and/32841575
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/O9164691706_School_of_Nursing_Amichi_Undergraduate_screening_2026-_2027_FORM_Is_Open_Now_O_9164691706_MRS_GRACE_09164691706_Admission_form_Office_Applicants_are_advised_to_ensure_that_all_information_provided_during_the_application_process_/32841572
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Tansian_University_Umunya_0704_096_4654_officially_release_the_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Transfer_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_a/32841569
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10272639
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20065754
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10353767
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7951034
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5365769
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/Detection_of_S1_spike_protein_in_CD16_monocytes_up_to_245_days_in_SARS-CoV-2-negative_post-COVID-19_vaccine_syndrome_PCVS_individuals/29062725/1
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/Detection_of_S1_spike_protein_in_CD16_monocytes_up_to_245_days_in_SARS-CoV-2-negative_post-COVID-19_vaccine_syndrome_PCVS_individuals/29062725
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21085491
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21085491
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20420229
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-- intent: MUST
-  status: verified
-  candidates:
-  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
-    source: huggingface
-    format: parquet
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 190547
-      parsed: true
-  - url: https://huggingface.co/datasets/enimai/MuST-C-fr/resolve/main/test.csv
-    source: huggingface
-    format: csv
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  candidates_tried:
-  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/enimai/MuST-C-fr/resolve/main/test.csv
-    source: huggingface
-    status: verified
-    format: csv
-  - url: https://figshare.com/articles/dataset/Obong_University_0704_096_4654_officially_release_the_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Transfer_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diplom/32841581
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/O9164691706_School_of_Midwifery_Waterside_Onitsha_Undergraduate_screening_2026-_2027_FORM_Is_Open_Now_O_9164691706_MRS_GRACE_09164691706_Admission_form_Office_Applicants_are_advised_to_ensure_that_all_information_provided_during_the_applica/32841584
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/O9164691706_School_of_Nursing_Borromeo_Undergraduate_screening_2026-_2027_FORM_Is_Open_Now_O_9164691706_MRS_GRACE_09164691706_Admission_form_Office_Applicants_are_advised_to_ensure_that_all_information_provided_during_the_application_proces/32841578
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Salem_University_Lokoja_0704_096_4654_officially_release_the_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Transfer_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and/32841575
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/O9164691706_School_of_Nursing_Amichi_Undergraduate_screening_2026-_2027_FORM_Is_Open_Now_O_9164691706_MRS_GRACE_09164691706_Admission_form_Office_Applicants_are_advised_to_ensure_that_all_information_provided_during_the_application_process_/32841572
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5746416
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/16954306
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15420758
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/8056637
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19980220
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21086797
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://osf.io/jsavu/
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Clinical_and_economic_burden_of_herpes_zoster_in_Mexico_A_retrospective_medical_chart_analysis_in_a_private_healthcare_setting/30438113/2
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Clinical_and_economic_burden_of_herpes_zoster_in_Mexico_A_retrospective_medical_chart_analysis_in_a_private_healthcare_setting/30438113
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Clinical_and_economic_burden_of_herpes_zoster_in_Mexico_A_retrospective_medical_chart_analysis_in_a_private_healthcare_setting/30438113/1
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
 - intent: CPU-supported
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/Obong_University_0704_096_4654_officially_release_the_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Transfer_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diplom/32841581
+  - url: https://figshare.com/articles/poster/_O9167660199_Augustine_University_Remedial_2026-2027Jupeb_Application_Form_are_now_open_O916-766-0199_MRS_ANITA_i_admission_Form_i_Prospective_candidates_seeking_i_admission_Form_i_into_the_i_University_i_can_now_apply_for_the_Academic_Sess/32867045
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/O9164691706_School_of_Midwifery_Waterside_Onitsha_Undergraduate_screening_2026-_2027_FORM_Is_Open_Now_O_9164691706_MRS_GRACE_09164691706_Admission_form_Office_Applicants_are_advised_to_ensure_that_all_information_provided_during_the_applica/32841584
+  - url: https://tandf.figshare.com/articles/journal_contribution/Separating_and_analyzing_wind-_and_boat-induced_waves_a_filtering_framework_for_hydraulic_lake_monitoring/32867028
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/O9164691706_School_of_Nursing_Borromeo_Undergraduate_screening_2026-_2027_FORM_Is_Open_Now_O_9164691706_MRS_GRACE_09164691706_Admission_form_Office_Applicants_are_advised_to_ensure_that_all_information_provided_during_the_application_proces/32841578
+  - url: https://figshare.com/articles/online_resource/Legislative_Congruence_Interactive_Map/32680776
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Salem_University_Lokoja_0704_096_4654_officially_release_the_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Transfer_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and/32841575
+  - url: https://figshare.com/articles/poster/_O9167660199_Al-Hikmah_University_Ilorin_Remedial_2026-2027Jupeb_Application_Form_are_now_open_O916-766-0199_MRS_ANITA_i_admission_Form_i_Prospective_candidates_seeking_i_admission_Form_i_into_the_i_University_i_can_now_apply_for_the_Academ/32867042
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/O9164691706_School_of_Nursing_Amichi_Undergraduate_screening_2026-_2027_FORM_Is_Open_Now_O_9164691706_MRS_GRACE_09164691706_Admission_form_Office_Applicants_are_advised_to_ensure_that_all_information_provided_during_the_application_process_/32841572
+  - url: https://figshare.com/articles/media/Call_O9167660199_Ajayi_Crowther_University_Ibadan_2026-2027Jupeb_Application_Form_are_now_open_Call_O916-766-0199_MRS_ANITA_i_admission_Form_i_Prospective_candidates_seeking_i_admission_Form_i_into_the_i_University_i_can_now_apply_for_the_A/32867036
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -223,11 +36,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3810211
+  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
+  - url: https://zenodo.org/records/3810211
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content

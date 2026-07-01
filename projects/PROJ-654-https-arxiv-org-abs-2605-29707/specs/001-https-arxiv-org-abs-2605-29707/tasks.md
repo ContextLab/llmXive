@@ -41,11 +41,18 @@
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-**Purpose**: Project initialization and basic structure
+**Purpose**: Project initialization, Constitution Check, and basic structure
 
-- [ ] T001a Create repository directory structure (`src/`, `tests/`, `external/`)
-- [ ] T001b Initialize git submodule for `external/Domino` (`git submodule init`, `git submodule update`)
+- [ ] T001 Create repository directory structure (`src/`, `tests/`, `external/`), initialize git submodule for `external/Domino`, and verify required files
+  - **Action**: Create `src/`, `tests/`, `external/` directories. Initialize git submodule: `git submodule update --init --recursive`.
+  - **Verification**: Run `test -d src && test -f src/__init__.py && test -d external/Domino && test -f external/Domino/.git && test -f external/Domino/run_hf_benchmark.sh`. If any fail, abort.
+- [ ] T001c Verify Constitution File (Blocking Check)
+  - **Action**: Check if `projects/PROJ-654-https-arxiv-org-abs-2605-29707/.specify/memory/constitution.md` exists.
+  - **Verification**: If missing, abort pipeline with error: `CONSTITUTION_MISSING: constitution.md not found. Provide the file to proceed.`
+  - **Dependency**: Must run before any other task.
 - [ ] T002 Initialize Python 3.10+ project with CPU-only `torch` and `transformers` dependencies in `requirements.txt`
+  - **Requirement**: Pin exact versions: `torch==2.2.2+cpu`, `transformers==4.41.0`, `accelerate==0.31.0`.
+  - **Verification**: Run `pip install -r requirements.txt --dry-run` to confirm installability without network.
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -58,12 +65,25 @@
 
 - [ ] T004 Setup environment configuration management (`src/benchmark/config.py`) to handle model substitution (Qwen3 -> Qwen2-1.8B) and device detection
 - [ ] T005 [P] Implement hardware detection utility in `src/benchmark/utils.py` to enforce CPU-only mode and prevent CUDA imports
-- [ ] T005b Configure `device_map` parameter in model loader based on T005 detection results to satisfy FR-004; **Acceptance**: Verify `device_map` is set to "cpu" and no CUDA device is initialized
+  - **Output**: `hardware.json` with `cpu_cores`, `ram_gb`, `device`.
+  - **Verification**: Run `python src/benchmark/utils.py` and verify `hardware.json` is created with `device: "cpu"`.
+- [ ] T005c [Sequential after T005] Configure `device_map` parameter and create `device_config.json` artifact
+  - **Action**: Implement `src/utils/device_config.py` to read `hardware.json` and write `device_config.json` with `{"device_map": "cpu"}`.
+  - **Verification**: Verify `device_map` is set to "cpu" in the loaded model config.
+  - **Dependency**: Must run after T005 completes. Do NOT mark [P].
 - [ ] T006 Create base metrics schema in `contracts/benchmark_metrics.schema.yaml`
-- [ ] T007 Create logging infrastructure in `src/benchmark/logging.py` to capture library versions (FR-006) and hardware context (SC-004)
-- [ ] T007b Implement code in `src/benchmark/logging.py` to explicitly query `transformers` and `torch` versions and write to log (FR-006)
+  - **Requirement**: Must include fields: `total_latency`, `tokens_per_second`, `speedup_ratio`, `model_name`, `library_versions`.
+  - **Verification**: Validate an empty JSON object against the schema using a Python script (e.g., `python -c "import json, yaml; schema=yaml.safe_load(open('contracts/benchmark_metrics.schema.yaml')); jsonschema.validate({}, schema)"`).
+- [ ] T007 [P] Setup logging infrastructure in `src/benchmark/logging.py` to capture library versions (FR-006) and hardware context (SC-004)
+- [ ] T007b [Sequential after T007] Implement code in `src/benchmark/logging.py` to explicitly query `transformers` and `torch` versions and write to log
+  - **Action**: Write version details to `versions.txt`.
+  - **Verification**: Verify `versions.txt` contains non-empty version strings.
+  - **Dependency**: Must run after T007 completes. Do NOT mark [P].
 - [ ] T008 Setup timeout wrapper mechanism in `src/benchmark/runner.py` to abort processes exceeding 45 minutes (FR-005)
-- [ ] T009 Implement model fetcher in `src/benchmark/data.py` to download `Qwen/Qwen2-0.5B-Instruct` (Draft) and `Qwen/Qwen2-1.8B-Instruct` (Target) from HuggingFace Hub for prompt generation, replacing irrelevant dataset fetches
+- [ ] T009 Implement model fetcher with dynamic fallback in `src/benchmark/data.py`
+  - **Action**: Implement logic to attempt loading `Qwen/Qwen2-1.8B-Instruct` first. On `torch.OutOfMemoryError` or `RuntimeError` indicating OOM, automatically retry with `Qwen/Qwen2-0.5B-Instruct`. If both fail, abort with `OUT_OF_MEMORY` error.
+  - **Verification**: Simulate OOM or verify logic path in code; ensure `model_selection.json` records the chosen model and any fallback actions.
+  - **Dependency**: Implements Plan Phase 2 fallback logic.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -77,18 +97,24 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+> **NOTE**: Tests must be written and FAIL before implementation. T010 depends on T006 completion. T010/T011 must wait for Phase 2 completion.
 
-- [ ] T010 [P] [US1] Contract test for metrics JSON schema in `tests/contract/test_metrics_schema.py`: function `test_metrics_schema_validates_required_fields` validates `contracts/benchmark_metrics.schema.yaml`
-- [ ] T011 [P] [US1] Integration test for CPU-only execution flow in `tests/integration/test_cpu_execution.py`: function `test_runner_enforces_cpu_only_mode` asserts no CUDA import errors raised
+- [ ] T010 [P] Contract test for metrics JSON schema in `tests/contract/test_metrics_schema.py`: function `test_metrics_schema_validates_required_fields` validates `contracts/benchmark_metrics.schema.yaml`
+  - **Dependency**: Must run after T006 is complete. Do NOT mark [P] until T006 is verified.
+- [ ] T011 [P] Integration test for CPU-only execution flow in `tests/integration/test_cpu_execution.py`: function `test_runner_enforces_cpu_only_mode` asserts no CUDA import errors raised
+  - **Dependency**: Must run after T005/T005c and T008 are complete.
 
 ### Implementation for User Story 1
 
 - [ ] T012 [US1] Implement `src/benchmark/runner.py` to wrap `external/Domino/run_hf_benchmark.sh` with timeout and CPU-enforcement logic
-- [ ] T013 [US1] Create wrapper script `src/benchmark/patch_requirements.sh` to inject dependencies at runtime (excluding `bitsandbytes`) without modifying vendored `external/Domino/requirements-hf.txt` (Preserves US-1 'unmodified' constraint)
+- [ ] T013 Create pre-run wrapper script `src/benchmark/patch_requirements.sh` to inject dependencies at runtime (excluding bitsandbytes)
+  - **Action**: Create a script that modifies the environment *before* running the benchmark, ensuring `external/Domino/requirements-hf.txt` remains unmodified.
+  - **Verification**: Run `diff` to confirm `external/Domino/requirements-hf.txt` is unchanged after script execution; verify `pip list` shows injected packages.
 - [ ] T014 [US1] Implement `src/benchmark/metrics.py` to parse `results_*.json` files generated by the benchmark, extracting `total_latency`, `tokens_per_second`, and `speedup_ratio` fields as defined in the Plan (Phase 4, Step 4.1)
-- [ ] T015 [US1] Add error handling for "Out of Memory" scenarios: catch `torch.OutOfMemoryError`, log "OOM: Subsampling dataset", and exit with non-zero status and explicit OOM error message suggesting model quantization or dataset subsampling
-- [ ] T016 [US1] Add retry logic for `pip install` commands using `tenacity` library with 3 retries
+- [ ] T015 Add error handling for "Out of Memory" scenarios
+  - **Action**: Catch `torch.OutOfMemoryError`, log "OOM: Switching to smaller model", and trigger the fallback logic defined in T009. Do NOT suggest quantization (unsupported on CPU).
+  - **Verification**: Ensure the fallback model is selected and logged; ensure no quantization libraries are invoked.
+- [ ] T016 Add retry logic for `pip install` commands using `tenacity` library with 3 retries
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -96,7 +122,7 @@
 
 ## Phase 4: User Story 2 - Verify Computational Feasibility & Resource Constraints (Priority: P2)
 
-**Goal**: Confirm that the reproduction process completes within the GitHub Actions free-tier limits (standard CPU allocation, adequate RAM, 6 hours) without OOM errors or excessive runtime.
+**Goal**: Confirm that the reproduction process completes within the GitHub Actions free-tier limits (standard CPU allocation, adequate RAM, and the maximum allowed runtime) without OOM errors or excessive runtime.
 
 **Independent Test**: The benchmark run finishes in ≤45 minutes on a standard 2-core runner and stays under 6GB RAM usage peak.
 
@@ -109,8 +135,11 @@
 
 - [ ] T020 [US2] Implement `src/benchmark/resource_monitor.py` to track peak RSS memory and log warnings if >6.5 GB
 - [ ] T021 [US2] Refine `src/benchmark/runner.py` to enforce a reasonable hard timeout (FR-005) and log termination reasons
-- [ ] T022 [US2] Implement benchmark logic in `src/benchmark/data.py` to run 5 prompts repeated 10 times (n=10) and abort if cumulative time exceeds 40 minutes, ensuring FR-005 compliance
-- [ ] T023 [US2] Integrate hardware detection (from T005b) to ensure `device_map` is correctly configured (CPU fallback if no GPU), preventing `CUDA_VISIBLE_DEVICES` errors (US-2, FR-002)
+- [ ] T022 [US2] Implement benchmark logic in `src/benchmark/data.py` to run 30 prompts repeated 20 times (n=600)
+  - **Action**: Read parameters from `benchmark_config.yaml` (prompt_count: 30, run_repeats: 20).
+  - **Verification**: Ensure total prompt count matches 600; abort if cumulative time exceeds a predefined threshold.
+  - **Dependency**: Aligns with Plan Phase 3 statistical power requirements. Must run after T009 (model fetcher) and T020/T021.
+- [ ] T023 Integrate hardware detection (from T005c) to ensure `device_map` is correctly configured (CPU fallback if no GPU), preventing `CUDA_VISIBLE_DEVICES` errors (US-2, FR-002)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -130,10 +159,17 @@
 ### Implementation for User Story 3
 
 - [ ] T026 [US3] Implement `src/benchmark/analyzer.py` to calculate `speedup_ratio` (Baseline_Latency / Domino_Latency)
-- [ ] T027 [US3] Implement `src/benchmark/reporter.py` to generate `validation_report.md` comparing results against the 5.49x claim; explicitly output "N/A (Hardware Mismatch: CPU vs GPU)" for the 20% tolerance check per Plan Phase 4 Step 4.4
-- [ ] T028 [US3] Add logic to `src/benchmark/reporter.py` to strictly enforce SC-003: if `mean_speedup_ratio` <= 1.0, flag as "Failed to Reproduce Speedup"; if > 1.0, flag as "PASS (Mechanism Valid)" while noting hardware mismatch for magnitude
+- [ ] T027 [US3] Implement `src/benchmark/reporter.py` to generate `validation_report.md` with full tolerance check logic
+  - **Action**: Calculate a tolerance range around the target magnitude (4.392x to 6.588x). Compare `speedup_mean` against this range.
+  - **Output**: Explicitly output "PASS" if within range, "FAIL" if outside range but >1.0, or "FAIL" if <=1.0. Do NOT output "N/A".
+  - **Constraint**: Must satisfy FR-007 Pass/Fail requirement. Must run after T026.
+- [ ] T028 [US3] Add logic to `src/benchmark/reporter.py` to strictly enforce SC-003 and the 20% tolerance threshold
+  - **Action**: If `mean_speedup_ratio` <= 1.0, flag as "Failed to Reproduce Speedup". If > 1.0 but outside tolerance, flag as "Mechanism Valid but Magnitude Deviates".
+  - **Constraint**: Must include tolerance check in Pass/Fail logic. Must run after T027.
 - [ ] T029 [US3] Implement acceptance rate analysis in `src/benchmark/analyzer.py` as the primary scientific validation metric (Plan Note: Mechanism Validation)
+  - **Dependency**: Must run after T026.
 - [ ] T030 [US3] Log specific configuration parameters (draft size, model size) in the report if speedup < 1.0x (FR-007)
+  - **Dependency**: Must run after T027/T028.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -155,7 +191,7 @@
 
 ### Phase Dependencies
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
+- **Setup (Phase 1)**: No dependencies - can start immediately (except T001c which blocks all)
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
   - User stories can then proceed in parallel (if staffed)
@@ -180,8 +216,9 @@
 
 - All Setup tasks marked [P] can run in parallel
 - All Foundational tasks marked [P] (T005, T007) can run in parallel (within Phase 2)
-- **Note**: T005b depends on T005 and must run sequentially.
-- **Note**: T007b depends on T007 and must run sequentially.
+- **Note**: T005c depends on T005 and must run sequentially after T005.
+- **Note**: T007b depends on T007 and must run sequentially after T007.
+- **Note**: T010 depends on T006 completion; do not run [P] until T006 is verified.
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
@@ -193,7 +230,7 @@
 
 ```bash
 # Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for metrics JSON schema in tests/contract/test_metrics_schema.py: function test_metrics_schema_validates_required_fields"
+Task: "Contract test for metrics JSON schema in tests/contract/test_metrics_schema.py: function test_metrics_schema_validates_required_fields" (Ensure T006 complete first)
 Task: "Integration test for CPU-only execution flow in tests/integration/test_cpu_execution.py: function test_runner_enforces_cpu_only_mode"
 
 # Launch all models for User Story 1 together:
@@ -207,7 +244,7 @@ Task: "Create wrapper script src/benchmark/patch_requirements.sh to inject depen
 
 ### MVP First (User Story 1 Only)
 
-1. Complete Phase 1: Setup
+1. Complete Phase 1: Setup (including T001c Constitution Check)
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
 3. Complete Phase 3: User Story 1
 4. **STOP and VALIDATE**: Test User Story 1 independently
@@ -244,3 +281,4 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All tasks must be executable on CPU-only runners with limited computational resources (few vCPUs, moderate RAM) without CUDA dependencies.
+- **Note on Spec Contradiction**: The spec's "Assumptions" section states benchmark scripts handle missing GPU without code modification, which contradicts FR-004 and the implementation in T005/T005c. Tasks implement the required detection logic; the spec contradiction is flagged for resolution.

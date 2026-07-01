@@ -1,24 +1,27 @@
-# Domino CPU Adaptation Quickstart
+# Quickstart: Domino Mechanism Verification
 
-This guide runs the CPU-scaled adaptation of the **Domino** paper. It reproduces the core finding: **decoupling causal modeling from a parallel draft backbone improves draft quality** (measured here as next-token prediction accuracy on a small text sample).
+This guide runs the scaled-down adaptation of the **Domino** paper. It verifies the core claim: that a lightweight causal refinement head (Domino) improves draft quality over a parallel draft backbone, using tiny models on a CPU.
 
 ## Prerequisites
 - Python 3.9+
-- `pip install datasets scikit-learn pandas matplotlib numpy tqdm`
+- `pip install torch transformers datasets numpy`
 
-## Run Command
-Execute the following single command to run the full experiment:
+## Run Commands
+Execute the following command to run the verification:
 
 ```bash
-python code/domino_cpu_demo.py
+python code/verify_domino_mechanism.py
 ```
 
 ## Expected Output
-1. **Console**: Logs showing the training of the "Parallel Backbone" and "Domino Head", followed by their accuracy scores.
-2. **`data/results.csv`**: A CSV file containing the accuracy metrics for both methods.
-3. **`figures/accuracy_comparison.png`**: A bar chart comparing the performance.
+The script will:
+1. Load tiny GPT-2 models (Target) and DistilGPT-2 (Draft).
+2. Process the first 50 samples of the GSM8K dataset.
+3. Simulate speculative decoding steps.
+4. Calculate **Acceptance Rates** and **KL Divergence** for:
+   - Baseline (Parallel Draft)
+   - Domino (Refined Draft)
+5. Save results to `data/results.json` and `data/results.csv`.
 
-## Interpretation
-- **Parallel Backbone**: Represents a drafter that ignores token order (fast but low quality).
-- **Domino Head**: Represents the paper's innovation—a lightweight module that adds causal context to the parallel draft.
-- **Result**: The Domino Head should show higher accuracy, validating the paper's claim that causal refinement is necessary even with parallel drafting.
+## Verification
+Check `data/results.json` for the `acceptance_improvement_pct`. A positive value confirms the Domino mechanism improves draft quality, aligning with the paper's core quantitative claim.

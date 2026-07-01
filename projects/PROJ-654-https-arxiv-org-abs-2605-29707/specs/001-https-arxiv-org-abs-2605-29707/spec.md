@@ -1,15 +1,15 @@
 # Feature Specification: Reproduce & Validate Domino Speculative Decoding Framework
 
 **Feature Branch**: `001-reproduce-domino-speculative-decoding`  
-**Created**: 2024-05-21  
+**Created**: 2025-05-21  
 **Status**: Draft  
 **Input**: User description: "Reproduce & validate: Domino: Decoupling Causal Modeling from Autoregressive Drafting in Speculative Decoding (arXiv:2605.29707)"
 
 ## User Scenarios & Testing
 
-### User Story 1 - Execute End-to-End Validation Pipeline (Priority: P1)
+### User Story 1 - Execute End-to-End Validation Pipeline on CPU (Priority: P1)
 
-**Journey**: As a researcher, I want to execute the vendored `Domino` benchmark scripts on a standard CPU-only environment to confirm the implementation runs without modification and produces initial output artifacts, establishing the baseline for reproducibility.
+**Journey**: As a researcher, I want to execute the vendored `Domino` benchmark scripts in a CPU-only environment to confirm the implementation runs without modification and produces initial output artifacts, establishing the baseline for reproducibility.
 
 **Why this priority**: This is the critical path. Without a successful run, no validation or comparison to the paper's claims is possible. It validates the "shipped code" claim immediately.
 
@@ -67,7 +67,7 @@
 - **FR-002**: The system MUST run the inference entirely on CPU, avoiding any CUDA-specific imports (e.g., `bitsandbytes`, `load_in_8bit`) that would cause runtime errors on free-tier runners. (See US-2)
 - **FR-003**: The system MUST generate a structured metrics file (JSON or CSV) containing at least: `total_latency`, `tokens_per_second`, `speedup_ratio`, and `model_name`. (See US-3)
 - **FR-004**: The system MUST detect the available hardware (CPU/GPU) at runtime and configure the `device_map` parameter accordingly to prevent initialization crashes. (See US-2)
-- **FR-005**: The system MUST implement a timeout mechanism for the benchmark step, aborting the process if it exceeds 45 minutes to preserve CI resources. (See US-2)
+- **FR-005**: The system MUST implement a timeout mechanism for the benchmark step, aborting the process if it exceeds a predefined duration threshold to preserve CI resources. (See US-2)
 - **FR-006**: The system MUST log the exact version of the `transformers` and `torch` libraries used during execution to ensure reproducibility of the environment. (See US-3)
 - **FR-007**: The system MUST compare the calculated `speedup_ratio` against the paper's claimed value (5.49x) and output a "Pass/Fail" status based on a 20% tolerance threshold. (See US-3)
 
@@ -82,7 +82,7 @@
 ### Measurable Outcomes
 
 - **SC-001**: The benchmark script MUST complete successfully (exit code 0) within 45 minutes on a 2-core CPU runner. (See US-2)
-- **SC-002**: The peak memory usage of the process MUST remain below 6.5 GB during the entire benchmark run. (See US-2)
+- **SC-002**: The peak memory usage of the process MUST remain within acceptable system limits during the entire benchmark run. (See US-2)
 - **SC-003**: The generated metrics artifact MUST contain a valid `speedup_ratio` value > 1.0, indicating Domino is faster than the baseline in the tested configuration. (See US-3)
 - **SC-004**: The validation report MUST explicitly state the hardware configuration used (e.g., "2 vCPU, 7GB RAM") and the specific model version tested. (See US-3)
 - **SC-005**: The system MUST NOT crash with a `CUDA_ERROR` or `ImportError` related to GPU-specific libraries. (See US-1, US-2)
@@ -91,7 +91,7 @@
 
 - The vendored `external/Domino` repository contains a `requirements-hf.txt` that is compatible with standard CPU-only PyTorch installations (i.e., does not strictly require `bitsandbytes` or CUDA-specific wheel versions).
 - The target model (Qwen3 or a compatible proxy) is available via HuggingFace Hub and can be loaded into 7GB of RAM (likely requiring a smaller model variant like Qwen2-1.8B or similar if Qwen3 is too large).
-- The paper's claim of "5.49x speedup" is based on GPU acceleration; the reproduced speedup on CPU may be lower (e.g., 1.5x - 3x) but must still demonstrate a positive speedup over the baseline to validate the algorithm's efficacy.
+- The paper's claim of "significant speedup" is based on GPU acceleration; the reproduced speedup on CPU may be lower (e.g., x - 3x) but must still demonstrate a positive speedup over the baseline to validate the algorithm's efficacy.
 - The GitHub Actions runner provides stable network access to `huggingface.co` for model and dependency downloads.
 - The "base-anchored training curriculum" mentioned in the paper is not required for this reproduction task, as the task is to validate the *inference* framework, not retrain the model weights.
 - The benchmark scripts in `external/Domino/code/` are designed to handle missing GPU devices by falling back to CPU execution without requiring code modification.

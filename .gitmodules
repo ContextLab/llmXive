@@ -112,9 +112,6 @@
 [submodule "projects/PROJ-780-openthoughts-agent-data-recipes-for-agen/external/OpenThoughts-Agent"]
 	path = projects/PROJ-780-openthoughts-agent-data-recipes-for-agen/external/OpenThoughts-Agent
 	url = https://github.com/open-thoughts/OpenThoughts-Agent
-[submodule "projects/PROJ-654-https-arxiv-org-abs-2605-29707/external/Domino"]
-	path = projects/PROJ-654-https-arxiv-org-abs-2605-29707/external/Domino
-	url = https://github.com/jianuo-huang/Domino
 [submodule "projects/PROJ-738-efficientrollout-system-aware-self-specu/external/EfficientRollout"]
 	path = projects/PROJ-738-efficientrollout-system-aware-self-specu/external/EfficientRollout
 	url = https://github.com/furiosa-ai/EfficientRollout
@@ -199,3 +196,9 @@
 [submodule "projects/PROJ-792-are-we-ready-for-an-agent-native-memory/external/awesome-agent-memory"]
 	path = projects/PROJ-792-are-we-ready-for-an-agent-native-memory/external/awesome-agent-memory
 	url = https://github.com/OpenDataBox/awesome-agent-memory
+[submodule "projects/PROJ-615-mega-asr-towards-in-the-wild-2-speech-re/external/Voices-in-the-Wild-Bench"]
+	path = projects/PROJ-615-mega-asr-towards-in-the-wild-2-speech-re/external/Voices-in-the-Wild-Bench
+	url = https://github.com/xzf-thu/Voices-in-the-Wild-Bench
+[submodule "projects/PROJ-654-https-arxiv-org-abs-2605-29707/external/Domino"]
+	path = projects/PROJ-654-https-arxiv-org-abs-2605-29707/external/Domino
+	url = https://github.com/jianuo-huang/Domino

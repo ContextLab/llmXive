@@ -1,14 +1,3 @@
-- artifact_hash: 5d2e91eb3ebe0ad9c7e1975195c8175a327033b653f07b170a684e09a58bf8e8
-  artifact_path: projects/PROJ-654-https-arxiv-org-abs-2605-29707/specs/001-https-arxiv-org-abs-2605-29707/spec.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: arxiv
-  value: '2605.29707'
-  verification_status: unreachable
-  verified_against_url: null
-  verified_at: '2026-06-30T23:16:12.484848Z'
 - artifact_hash: b1a334d16244cd59e22f5e1530579ca0eba5bc35bea5060cb4ba2357a96fe4b9
   artifact_path: projects/PROJ-654-https-arxiv-org-abs-2605-29707/specs/001-https-arxiv-org-abs-2605-29707/plan.md
   cite_id: c-001
@@ -53,3 +42,14 @@
   verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
   verified_at: '2026-06-30T23:54:18.586376Z'
+- artifact_hash: abb080faac688e3541a458a491b6404c4cb8c6c61fa2eef1af2432cc71d4a7e6
+  artifact_path: projects/PROJ-654-https-arxiv-org-abs-2605-29707/specs/001-https-arxiv-org-abs-2605-29707/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: arxiv
+  value: '2605.29707'
+  verification_status: unreachable
+  verified_against_url: null
+  verified_at: '2026-07-01T20:01:16.956579Z'

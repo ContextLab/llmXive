@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Evaluation Output Schema"
+description: "Schema for the output of evaluate_predictions.py (metric report)"
+type: "object"
+properties:
+  benchmark_name:
+    type: "string"
+    description: "Name of the benchmark evaluated."
+  total_samples:
+    type: "integer"
+    description: "Total number of samples processed."
+  wer:
+    type: "number"
+    description: "Word Error Rate (float value)."
+  sample_type:
+    type: "string"
+    description: "Indicates if the result is from a 'Full' or 'Sampled' dataset."
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of the evaluation run."
+  wer_ci_lower:
+    type: "number"
+    description: "Lower bound of 95% Confidence Interval for WER."
+  wer_ci_upper:
+    type: "number"
+    description: "Upper bound of 95% Confidence Interval for WER."
+required:
+  - benchmark_name
+  - total_samples
+  - wer
+  - sample_type
+  - timestamp
+  - wer_ci_lower
+  - wer_ci_upper
+additionalProperties: false
