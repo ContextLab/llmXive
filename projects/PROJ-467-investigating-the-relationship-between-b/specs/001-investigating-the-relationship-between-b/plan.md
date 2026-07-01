@@ -9,7 +9,7 @@ The project must (1) load the Human Connectome Project (HCP) resting‑state fMR
 **Key updates**:
 - No automatic fallback to non‑HCP datasets (Constitution VI).
 - Flexibility is now explicitly defined as the mean number of community changes per node across sliding windows.
-- Sensitivity analysis now includes the primary graph‑construction threshold (0.2) and three additional thresholds.
+- Sensitivity analysis now includes the primary graph‑construction threshold and three additional thresholds.
 - Multiple‑comparison correction applies to **all** hypothesis tests performed (≥ 5).
 - CI runs a subset (≤ 100 subjects) for validation only; full‑scale analysis (≥ 194 subjects) must be executed locally.
 

@@ -118,7 +118,11 @@ The researcher runs correlational analyses between network dynamics metrics (bot
 - **Data Availability**: Standard HCP Young Adult dataset does NOT include tactile discrimination behavioral measures; therefore the pipeline will automatically switch to an alternative multimodal dataset (e.g., the Adolescent Brain Cognitive Development (ABCD) Study, which provides both resting‑state fMRI and standardized tactile discrimination scores) **or** require a custom dataset with both modalities (n ≥ 100 subjects, validated instrument per FR‑007). System halts analysis if neither option is feasible within compute constraints.
 - **Compute Constraints**: ≤ 3‑hour computation target + 3‑hour setup/teardown = 6‑hour GitHub Actions job limit (industry standard for reproducible CI/CD research pipelines)
 - **Memory Constraints**: 7 GB maximum with 6.5 GB target + 0.5 GB headroom (standard GitHub Actions runner allocation)
-- **Tactile Instrument**: Tactile discrimination will use a validated two‑point discrimination instrument (Weinstein, 1968) with DOI 10.1016/j.neuropsychologia.2011.04.012 cited in output; if idea does not specify, community‑standard defaults are used.
+- **Tactile Instrument**: Tactile discrimination will use a validated two‑point discrimination instrument (Weinstein, Year
+
+The specific value to remove/generalize: 'Year'
+
+Rewritten passage:) with DOI 10.1016/j.neuropsychologia.2011.04.012 cited in output; if idea does not specify, community‑standard defaults are used.
 - **Statistical Methods**: All methods are CPU‑tractable (scikit‑learn, classical statistics, closed‑form computation); no GPU, CUDA, or large‑model training required
 - **Power Analysis**: A priori power analysis for Pearson correlation uses expected effect size r = 0.20, α = 0.05, target power = 0.80 (Cohen 1992). If achieved power < 0.80, effect‑size confidence intervals are marked `[deferred]`.
 - **Multiple Comparisons**: FDR (q ≤ 0.05) per Benjamini‑Hochberg 1995 convention is the default; Bonferroni may be used as an alternative if stricter family‑wise error control is desired.

@@ -1,0 +1,55 @@
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: HCP Young Adult expected subject count 1200 plus or minus 50
+  claim_id: c_bd8aae5c
+  context: "Function validate_completeness() validates subject count matches the selected\
+    \ dataset documentation (expected N\u22481200\xB150 for HCP or N\u22481000\xB1\
+    100 for alternative/custom)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The HCP Young Adult dataset has an expected subject count of approximately\
+    \ 1200 \xB1 50."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T03:08:46Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Alternative custom dataset expected subject count 1000 plus or minus
+    100
+  claim_id: c_8fa3fae5
+  context: "Function validate_completeness() validates subject count matches the selected\
+    \ dataset documentation (expected N\u22481200\xB150 for HCP or N\u22481000\xB1\
+    100 for alternative/custom)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Alternative or custom datasets for this study are expected to have approximately\
+    \ 1000 \xB1 100 subjects."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T03:14:19Z'
+- artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  attempts: 1
+  canonical: Weinstein tactile instrument DOI 10.1016/j.neuropsychologia.2011.04.012
+  claim_id: c_f110bb52
+  context: Function to load tactile instrument metadata and cite Weinstein DOI (10.1016/j.neuropsychologia.2011.04.012)
+    per FR-007
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: The Weinstein tactile instrument is associated with DOI 10.1016/j.neuropsychologia.2011.04.012.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T03:14:20Z'

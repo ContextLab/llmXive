@@ -88,3 +88,15 @@
   verification_status: mismatch
   verified_against_url: https://github.com/your-org/brainnet-tactile
   verified_at: '2026-06-29T16:50:06.661061Z'
+- artifact_hash: 8d792624505606e1fe67865b00c1068a5ae7600020c8a265620f79b9f71b5aa1
+  artifact_path: projects/PROJ-467-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: 'Cognition and beta-amyloid in preclinical Alzheimer''s disease:
+    Data from the AIBL study'
+  kind: doi
+  value: 10.1016/j.neuropsychologia.2011.04.012
+  verification_status: verified
+  verified_against_url: https://doi.org/10.1016/j.neuropsychologia.2011.04.012
+  verified_at: '2026-07-01T03:14:52.052622Z'

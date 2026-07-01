@@ -1,0 +1,112 @@
+# Implementation Plan: Investigating the Relationship Between Brain Network Dynamics and Individual Differences in Tactile Discrimination
+
+**Branch**: `001-brain-network-tactile` | **Date**: 2026-06-29 | **Spec**: [spec.md](../specs/001-brain-network-tactile/spec.md)
+**Input**: Feature specification from `/specs/001-brain-network-tactile/spec.md`
+
+## Summary
+The project must (1) load the Human Connectome Project (HCP) resting‑state fMRI dataset **and** verify the presence of tactile discrimination scores, (2) compute a suite of static and dynamic graph‑theoretic metrics from the fMRI data using CPU‑only methods within ≤ 3 hours for ≤ 100 subjects (CI subset), (3) test associational relationships between those metrics and tactile behavior while adjusting for confounds, (4) enforce rigorous statistical safeguards (multiple‑comparison correction, power analysis, collinearity diagnostics, sensitivity sweeps, and a fallback dimensionality‑reduction strategy), and (5) produce reproducible reports and artifacts that satisfy all functional (FR‑001‑FR‑013) and success (SC‑001‑SC‑009) criteria **without violating any constitutional principle**.
+
+**Key updates**:
+- No automatic fallback to non‑HCP datasets (Constitution VI).
+- Flexibility is now explicitly defined as the mean number of community changes per node across sliding windows.
+- Sensitivity analysis now includes the primary graph‑construction threshold and three additional thresholds.
+- Multiple‑comparison correction applies to **all** hypothesis tests performed (≥ 5).
+- CI runs a subset (≤ 100 subjects) for validation only; full‑scale analysis (≥ 194 subjects) must be executed locally.
+
+## Technical Context
+- **Language/Version**: Python 3.11
+- **Primary Dependencies**:
+ - `numpy==1.26.*`, `pandas==2.2.*`
+ - `nilearn==0.10.*` (fMRI loading & preprocessing)
+ - `networkx==3.2.*` (graph metrics)
+ - `scikit‑learn==1.5.*` (VIF, regression)
+ - `statsmodels==0.14.*` (partial correlations, FDR)
+ - `pingouin==0.5.*` (power analysis)
+ - `datasets==2.18.*` (HCP download)
+- **Storage**: All intermediate files are stored under `data/processed/` as compressed NumPy (`.npz`) or Parquet files.
+- **Testing**: `pytest==8.2.*` with unit tests for each pipeline stage; contract validation via `jsonschema` against `contracts/*.schema.yaml`.
+- **Target Platform**: Linux (GitHub Actions runner).
+- **Performance Goals**:
+ - ≤ 3 h wall‑clock for metric computation on ≤ 100 subjects (CI).
+ - Peak RAM ≤ 6.5 GB.
+- **Constraints**: CPU‑only; no GPU, no large‑model inference; all libraries must install on a default Ubuntu‑22.04 runner.
+- **Scale/Scope**: Up to 1200 subjects (HCP) – CI limited to 100; full runs locally can use the entire cohort.
+
+## Constitution Check
+| Principle | How the plan satisfies it |
+|-----------|---------------------------|
+| I. Reproducibility | Fixed random seeds, deterministic preprocessing, all external URLs are pinned to specific HF releases. |
+| II. Verified Accuracy | All citations (e.g., Weinstein tactile instrument DOI 10.1016/j.neuropsychologia.2011.04.012) will be validated by the Reference‑Validator before any review point is awarded. |
+| III. Data Hygiene | Raw datasets are never overwritten; checksums are recorded in `state/projects/PROJ-467...yaml`. |
+| IV. Single Source of Truth | Every figure/table references a single row in a derived Parquet file; metadata logs map each artifact to its provenance. |
+| V. Versioning Discipline | All artifacts are content‑hashed; `state/projects/...yaml` is updated automatically by the CI pipeline. |
+| VI. Neuroimaging Data Consistency | All fMRI comes exclusively from HCP; no fallback to other datasets is permitted. |
+| VII. Network Metric Transparency | Metric calculations use Nilearn (v0.10) + NetworkX (v3.2); all parameters (window length, step, community‑detection algorithm) are stored in a side‑car JSON file per network file. |
+
+## Project Structure
+```text
+specs/001-brain-network-tactile/
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+└── contracts/
+ ├── analysis_results.schema.yaml
+ ├── network_metric.schema.yaml
+ └── raw_subject.schema.yaml
+
+src/
+├── brainnet/
+│ ├── __init__.py
+│ ├── data_loader.py # HCP download & validation
+│ ├── preprocessing.py # fMRI motion correction, masking
+│ ├── static_metrics.py # connectivity, modularity, segregation
+│ ├── dynamic_metrics.py # sliding‑window, dynamic modularity, flexibility
+│ ├── analysis.py # correlation, partial correlation, VIF, power, sensitivity, PCA fallback
+│ └── utils.py # logging, seed handling
+tests/
+├── unit/
+│ ├── test_data_loader.py
+│ ├── test_static_metrics.py
+│ └── test_analysis.py
+└── contract/
+ └── test_network_schema.py
+requirements.txt
+```
+**Structure Decision**: A single‑package Python library (`src/brainnet/`) is sufficient; no web or mobile components are required.
+
+## Complexity Tracking
+No constitution violations remain after the design. All FR and SC items are covered by explicit pipeline stages (see mapping below).
+
+### FR / SC Mapping
+| FR / SC | Pipeline Phase | Description |
+|--------|----------------|-------------|
+| FR‑001 | `data_loader.validate()` | Load HCP; if tactile missing → **halt** (no fallback). |
+| FR‑002 | `static_metrics` & `dynamic_metrics` | Compute static & dynamic graph metrics, including flexibility. |
+| FR‑003 | `analysis.perform_corrections()` | Apply FDR (q ≤ 0.05) for **all** hypothesis tests (≥ 5). |
+| FR‑004 | `analysis.report_association()` | Enforce association‑only language. |
+| FR‑005 | `analysis.check_vif()` | Flag VIF > 5.0. |
+| FR‑006 | `analysis.sensitivity_sweep()` | Sweep thresholds {0.01, 0.05, 0.1, 0.2}. |
+| FR‑007 | `data_loader.load_tactile_instrument()` | Cite Weinstein DOI. |
+| FR‑008 | `analysis.power_analysis()` | Compute required N≈ on the order of a few hundred participants; flag under‑powered. |
+| FR‑009 | Same as FR‑001 (halt if tactile absent). |
+| FR‑010 | `dynamic_metrics.save_series()` | Store dynamic modularity & flexibility time‑series. |
+| FR‑011 | Same as FR‑008 (report required N). |
+| FR‑012 | `analysis.partial_correlation()` | Adjust for age, sex, motion, scanner. |
+| FR‑013 | **Not executed** – Constitution VI forbids non‑HCP fMRI; pipeline will halt if tactile missing, flagging a spec gap. |
+| SC‑001 | `data_loader.validate_completeness()` | ≥ 95 % subjects complete. |
+| SC‑002 | `static_metrics.timing()` & `dynamic_metrics.timing()` | ≤ 3 h runtime (CI subset). |
+| SC‑003 | `dynamic_metrics.memory_profile()` | ≤ 6.5 GB peak. |
+| SC‑004 | `analysis.correction_report()` | FDR/Bonferroni details. |
+| SC‑005 | `analysis.sensitivity_report()` | ≥ 3 thresholds, stability metric. |
+| SC‑006 | `analysis.vif_report()` | Flag VIF > 5.0 and report effect‑size change after removal or PCA. |
+| SC‑007 | `analysis.power_report()` | Power ≥ 0.80 or under‑power flag. |
+| SC‑008 | Same as SC‑002/SC‑003 for dynamic metrics. |
+| SC‑009 | `analysis.adjusted_vs_raw()` | Both raw & covariate‑adjusted correlations. |
+
+## Phased Execution Plan
+| Phase | Tasks | Expected Duration (CI) |
+|-------|-------|------------------------|
+| 0️⃣ **Dataset Validation** | - Download HCP via `datasets.load_dataset` <br> - Verify presence of `tactile_score` column <br> - Compute completeness stats, checksum files <br> - **If tactile column missing → abort** with explicit message (Constitution VI compliance) | ≤ 15 min |
+| 1️⃣ **Preprocessing** | - Motion correction, band‑pass filtering (Nilearn) <br> - Spatial normalization to MNI152 2 mm <br> - Extract Schaefer‑200 ROI time series | ≤ 30 min |
+| 2️⃣ **Static Metric Computation** | - Pearson correlation matrix (200 × 200) <br> - Graph construction (absolute r ≥ 0.2) <br> - Modularity (Louvain) <br> - Segregation index | ≤ 45 min |
