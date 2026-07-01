@@ -1,0 +1,94 @@
+\section{Experimental Results}
+\label{sec:exp}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Evaluation Setting} 
+\textbf{For the long-horizon search evaluation}, we cover four public benchmarks: GAIA~\citep{gaia}, BrowseComp~\citep{browsecomp}, XBench-DeepResearch~\citep{xbench}, and SEAL‑0~\citep{sealqa}. Each agent is equipped with three tools: a search tool that retrieves web pages and returns the top‑50 results per query; a visit tool that fetches webpage content and summarizes it with a dedicated summarization model to extract task‑relevant information; and a code tool that executes Python scripts in a remote sandbox to support complex computation and logical reasoning. We cap each task at 300 turns and report pass@1 as the primary metric. For answer verification, we strictly follow each benchmark's official judge model and prompt settings, rather than using a unified judge.
+
+\textbf{For engineering tasks}, we evaluate SciCode~\citep{scicode} and MLE-Bench-Lite~\citep{mlebench} under their respective official protocols. SciCode targets research-level scientific coding tasks in which problems are decomposed into sequential subproblems, and solutions are judged correct only when they pass all associated hidden unit tests. Following the standard setup, we supply the scientist-annotated background for each subproblem and report pass@1 over the $288$ subproblems in the test set. MLE-Bench-Lite instead measures end-to-end machine-learning engineering on $22$ Kaggle competitions: given only a dataset and a task description, the agent has to autonomously explore the data, train models, and emit a submission, which is graded against the original competition leaderboard and mapped to a Kaggle medal (bronze, silver, or gold). We follow the official MLE-Bench grading and report the medal rate, \textit{i.e.}, the fraction of competitions in which the submission earns at least a bronze medal, averaged over three seeds. Every task runs in isolation on a dedicated H200 GPU with a 12-hour wall-clock budget.
+
+\textbf{For scientific research evaluation}, we include four representative benchmarks: HLE with tools~\citep{phan2025humanity}, HiPhO~\citep{hipho}, FS-O (FrontierScience-Olympiad)~\citep{frontierscience}, and FS-R (FrontierScience-Research)~\citep{frontierscience}. HLE with tools evaluates expert-level reasoning with external tool use and is one of the most widely used public leaderboards for frontier reasoning. We report official scores for baseline models whenever available; for Qwen3.6-35B-A3B, which lacks an official result, we use the same tool-augmented pipeline as our model, including search, visit, code, and scholar tools. HiPhO is the first benchmark dedicated to physics Olympiad evaluation, assessing multimodal physics reasoning across $13$ recent competitions from 2024--2025, and we report the average score over all competitions. FS-O and FS-R evaluate olympiad-level and research-level scientific reasoning, respectively, across disciplines such as physics, chemistry, and biology. We follow the official protocols and report average accuracy. For HiPhO, FS-O, and FS-R, we report tool-free results for comparison models to avoid confounding effects from applying our tool-augmented evaluation protocol to models not trained for tool use, which can in some cases degrade performance. This setup also provides a stringent comparison, as it tests whether our tool-equipped agentic model can outperform leading large-scale frontier models under their standard evaluation configurations.
+
+\textbf{For long-context and instruction-following evaluation}, we use LongBench V2~\citep{LongBench}, IFBench~\citep{IFBench}, and IFEval~\citep{zhou2023ifeval}under the evaluation protocols implemented in their official or benchmark-provided scripts. LongBench V2 evaluates long-context understanding over 503 multiple-choice questions spanning single-document QA, multi-document QA, long in-context learning, long-dialogue history understanding, code repository understanding, and long structured data understanding. We use the chain-of-thought prompting setting, truncate inputs to 128K tokens when necessary, and extract the final multiple-choice answer, reporting accuracy over the full set as well as breakdowns by difficulty and context length. IFBench and IFEval measure fine-grained instruction-following ability. The model generates a response for each prompt, and rule-based validators check whether all specified constraints are satisfied. IFBench contains 294 test prompts and IFEval contains 541 prompts. For both benchmarks, we follow the benchmark evaluation scripts and report strict instruction-following accuracy at both the prompt level and instruction level.
+
+\textbf{For general agentic tasks}, both $\tau^2$-Bench~\citep{barres2025tau2} and VitaBench~\citep{he2025vitabench} use pass@1 averaged over all domains. Specifically, $\tau^2$-Bench covers retail, telecom, and airline, while VitaBench covers cross-domain, delivery, in-store, and OTA. The official settings of both benchmarks use GPT-4.1 as the user simulator; to reduce potential reproducibility risks from future model retirement, we use the open-source DeepSeek-V3.2~\citep{liu2025deepseek} as the user simulator for both benchmarks. For VitaBench, we also use DeepSeek-V3.2 as the judge, replacing the Claude-3.7-Sonnet judge used in the original report (Anthropic states that Claude-3.7-Sonnet has been retired and is no longer available~\footnote{\url{https://platform.claude.com/docs/en/about-claude/model-deprecations}}). 
+
+For MolBench~\citep{zhang2026molclaw}, we report the score of Binding Affinity Comparison (MolBench-bind.), following the official evaluation setting and averaging over three repeated runs. For MatTools~\citep{MatTools}, we use an autonomous code-exploration setting: the model is allowed to inspect, interact with, and explore the nearly 100K-line tool codebase over multiple turns before completing the tasks. We report the completion rate over 138 subtasks, averaged over three runs. For inference settings, GPT-5.5 uses xhigh reasoning effort, while all other models use temperature 0.7 with other parameters kept at their default values.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Results and Observations} 
+
+\input{tables/sft_opd_ablation}
+
+\subsubsection{Full-domain SFT Results} 
+\label{sec:sft_results}
+
+The results of the SFT-stage model are shown in Table~\ref{tab:sft_opd}. From the results, it can be observed that compared with Qwen3.5-35B-A3B, \ProjectName-SFT shows clear improvements on long-horizon search, engineering tasks, scientific research, and agentic tasks. However, we also observe that \ProjectName-SFT has clear performance drops on general agentic tasks, instruction following, and HLE. \textit{We believe this is mainly caused by the difference between the long-thinking reasoning pattern and the multi-turn agentic pattern. Full-domain SFT cannot easily solve the domain conflicts caused by different reasoning patterns.} Therefore, we choose the multi-domain on-policy distillation (OPD). Before presenting the experimental results of OPD, we show the results of the teacher model training for each domain.
+
+\subsubsection{Results of Domain Teacher Training} 
+\textbf{Experiments on Search Tasks.} As shown in Table~\ref{tab:search_rl_results}, the search-enhanced teacher consistently outperforms the Qwen3.5-35B-A3B model across all four benchmarks. The most notable improvement is observed on GAIA, where the score increases from 59.8 to 85.4 (+25.6). On HLE, the search-enhanced teacher yields a moderate improvement of 2.9 points (47.4 $\to$ 50.3).
+
+\input{tables/search_rl}
+
+\textbf{Experiments on Scientific Domain.} It can be observed from Table~\ref{tab:sci-enhanced-teacher} that the science-enhanced teacher displays a comprehensive superiority compared with the baseline Qwen3.5-35B-A3B, especially on FS-R. It demonstrates that the proposed two-stage SFT can significantly promote both the intrinsic reasoning ability and extrinsic tool-use interaction capability in scientific scenarios. 
+
+\input{tables/sci_rl}
+\input{tables/long_rl}
+
+\paragraph{Experiments on Instruction Following and Long-Context Learning}
+As shown in Table~\ref{tab:long_sft_rl_results}, the RL-enhanced teacher consistently improves over Qwen3.5-35B-A3B on both long-context and instruction-following evaluations. On LongBench v2, the overall score increases from 59.0 to 62.4. This suggests that our long-context RL stage mainly strengthens the model's ability to retrieve and understand relevant evidence from longer and more difficult contexts, thereby improving complex long-context learning. On IFBench, the strict score increases from 70.2 to 82.0, indicating stronger generalization to challenging verifiable instruction constraints. The model also improves on IFEval. Overall, these results show that our RL enhancement effectively improves long-context learning and precise instruction-following capability.
+
+\textbf{Experiments on Tool-calling.} We further evaluate the effect of tool-enhanced post-training on tool-calling benchmarks. As shown in Table~\ref{tab:tool_rl_results}, the tool-enhanced model, obtained by applying SFT and RL on top of Qwen3.5-35B-A3B, brings substantial improvements on $\tau^2$-Bench and VitaBench. On $\tau^2$-Bench, the average score increases from 32.53 to 82.50, with consistent gains on Airline, Retail, and Telecom. In particular, Airline improves from 16.00 to 72.00, and Retail improves from 30.70 to 82.50, suggesting that tool-enhanced post-training strengthens the model's ability to follow domain-specific tool-use constraints and complete multi-turn operational tasks. On VitaBench, the average score improves from 26.00 to 44.16. These results indicate that tool-calling ability benefits strongly from explicit tool-use supervision and reinforcement learning, especially when the tasks require structured interaction with external environments rather than pure language understanding. 
+
+\input{tables/tool_rl}
+
+\subsubsection{Results of On-policy Distillation} 
+
+\input{tables/base_eval}
+
+The results of Multi-Domain-Routed On-Policy Distillation based on the \ProjectName-SFT model are shown in Table~\ref{tab:main_results}. It can be observed from Table~\ref{tab:main_results} that \ProjectName~is a strong 35B-level model and can compete with much larger 1T-level models on many difficult tasks. \ProjectName~outperforms same-scale 35B baselines and even surpassing several 1T-level models in multi-step search, scientific research, and long-instruction following. We find that the abilities of multi-step search, scientific research, and long-instruction following can support each other. For example, when solving complex scientific problems, improving the model’s ability to use external tools, such as search tools or code tools, helps the model choose the right tool in open-ended tasks and get external knowledge more efficiently. This further improves its performance on scientific research tasks.
+
+Besides, \ProjectName~achieves 44.3 on SciCode and 43.9 on MLE-Bench-Lite, leading all same-scale 35B baselines on both benchmarks. However, it is still clearly weaker than 1T-level models. For example, GPT-5.5 reaches 72.7 on MLE-Bench-Lite. We believe this is mainly due to that MLE optimization is not a static problem-solving task. Instead, it requires the model to complete a full engineering process. This places higher demands on keeping a stable goal, remembering past decisions, and avoiding repeated trials across many experiments.
+
+For $\tau^2$-Bench, Qwen3.5-35B-A3B baseline we reproduced only gets a score below 40. Some other community works also report a similar issue~\footnote{\url{https://github.com/thinking-machines-lab/tinker-cookbook/blob/main/tinker_cookbook/eval}}. We think this discrepancy may stem from differences across $\tau^2$-Bench codebase versions and evaluation environments, a topic that has also been discussed within the community~\footnote{\url{https://github.com/QwenLM/Qwen3/discussions/1809}}.
+On Vita, MatTools, and MolBench-MS Binding Affinity tasks, we observe consistent improvements from \ProjectName.
+
+Besides, Table~\ref{tab:sft_opd} shows the performance comparison between \ProjectName-SFT and \ProjectName~(trained with OPD). We can observe that the thinking pattern of long-instruction following is very different from that of long-horizon search. The former uses a single-turn and long-thinking pattern, while the latter uses a multi-turn tool-use and short-thinking pattern. The performance drop in the full-domain SFT stage, caused by different thinking patterns, can be substantially reduced by the Multi-teacher Multi-domain OPD stage. 
+
+By comparing Table~\ref{tab:sci-enhanced-teacher}, Table~\ref{tab:long_sft_rl_results} and Table~\ref{tab:main_results}, we observe that the OPD-trained model does not always outperform the corresponding domain teacher. This is expected, since each teacher is specialized for one domain, while \ProjectName~is required to maintain a unified policy across heterogeneous tasks. In our empirical setting, OPD mainly serves to transfer teacher strengths into a single model and improve the balance over full-domain SFT, rather than consistently exceeding every teacher on its own specialty.
+
+Based on the above experimental observations, we hope that \ProjectName~can provide the community with a clear technical path to unify more diverse agentic scenarios and tasks. Besides, we pay special attention to the model’s performance on long-horizon agentic tasks. Therefore, we analyze the strengths and limitations of \ProjectName~through several long-horizon cases in the following section.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Long-Horizon Task Applications}
+
+\subsubsection{A 12-Hour Long-Horizon Optimization Run}
+\label{mle:example}
+\vspace{-0.5em}
+
+To evaluate the multi-step reasoning capability of \ProjectName~on machine learning engineering tasks, we select the right whale call detection task from the MLE dataset as a representative subtask~\cite{mlebench} and require the model to perform end-to-end optimization over a long-horizon run. In this case, \ProjectName~starts from a naive CNN baseline and autonomously improves the pipeline through a sequence of selected interventions, including temporal data analysis, audio augmentation, temporally localized training, architectural refinement with Mel-spectrogram CNN ensembles, and large-scale augmentation. Across a 12-hour optimization trajectory, the model progressively raises the best validation AUC from 0.58 to 0.9935, ultimately reaching a gold-medal-level result.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/appendix_mle.png}
+\caption{Optimization trajectory of \ProjectName~on the ICML 2013 Whale Challenge~\cite{icml2013bioacoustics_challenge} over a 12-hour run. The curve shows the best validation AUC achieved over wall-clock time, with annotated breakthrough moments corresponding to distinct algorithmic improvements. The shaded band indicates run-to-run variance across independent seeds.}
+\label{fig:mle_example}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/appendix_earth.png}
+\caption{Integrated track, intensity, and motion characteristics of Tropical Cyclone Nargis (2008) produced by \ProjectName. (a) Best-track map of Nargis, with track-segment colors indicating intensity class and marker colors indicating maximum sustained wind speed; key stages are labeled A--E. (b) Temporal evolution of maximum sustained wind speed from USA/JTWC and WMO/IMD estimates, with orange shading indicating the 6~h pre-landfall period, red shading indicating the post-landfall period, and the red dashed line denoting landfall at 12:00 UTC on 2 May 2008. (c) Temporal evolution of latitude and longitude, shown on the left and right y-axes, respectively. (d) Translation speed as a function of time, with triangles marking significant acceleration and deceleration events. (e) Track heading as a function of time, with red annotations indicating rapid turning events. All times are in UTC.}
+\label{fig:earth_science_nargis}
+\end{figure}
+
+This example shows that \ProjectName~can perform long-horizon model optimization beyond isolated hyperparameter tuning. Figure~\ref{fig:mle_example} reflects a consistent improvement direction across multiple iterations, identifies a meaningful temporal domain shift between training and test recordings, and applies targeted algorithmic changes that substantially improve generalization performance. Taken together, these results indicate that \ProjectName~can integrate dataset diagnosis, representation design, augmentation strategy, and iterative evaluation to produce an interpretable multi-step optimization solution for a challenging real-world machine learning task.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsubsection{Closing the Loop in Earth Science Analysis with \ProjectName}
+\label{earth_science:example}
+
+To evaluate the end-to-end analytical capability of \ProjectName~on Earth science tasks, we select Severe Cyclonic Storm Nargis (2008) over the North Indian Ocean as a representative case and require the model to reconstruct the storm track, generate diagnostic visualizations, and interpret its track and intensity evolution from real best-track data. In this Earth science attempt, \ProjectName~automatically identifies IBTrACS as the data source~\cite{knapp2010ibtracs,gahtan2024ibtracs} and completes \textbf{data extraction}, \textbf{cleaning}, \textbf{derived-metric computation}, \textbf{visualization}, and \textbf{result synthesis}, forming a multi-stage closed loop of planning, coding, execution, result checking, scientific analysis, and report generation.
+
+The results show that \ProjectName~reconstructs the major evolution of Nargis with reasonable fidelity, including its formation over the central Bay of Bengal, northwestward motion, later recurvature toward the east-northeast, and eventual landfall over southern Myanmar~\cite{jtwc2008atcr}. It further derives diagnostic quantities such as track length, translation speed, heading variation, and intensity evolution, while preserving both WMO/IMD and JTWC/USA intensity estimates to avoid conflating different operational conventions~\cite{ibtracs2025columns}. Figure~\ref{fig:earth_science_nargis} summarizes the key diagnostics of storm track, intensity, position, translation speed, and heading change, showing that this case provides an informative example of \ProjectName's capability for Earth science data organization, diagnostic computation, and result integration.

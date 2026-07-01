@@ -1,0 +1,96 @@
+
+
+
+
+\clearpage
+\setcounter{page}{1}
+\maketitlesupplementary
+
+
+
+\tableofcontents
+\setcounter{page}{1}
+\renewcommand{\thepage}{S\arabic{page}}
+\setcounter{section}{0}
+\setcounter{figure}{0}
+\setcounter{table}{0}
+
+\appendix
+
+
+\section{Discussion with Previous Methods}
+
+Among existing works about video diffusion model~\cite{ma2025followfaster, ma2024followyouremoji, song2026vista, song2026streamingeffect, gao2026pai, song2024processpainter, Deng_2026_CVPR, deng2024compact, wu2025freeswim, wu2026vibe, liang2026spongebob, liang2026cot, xu2026smrabooth}, the two methods most similar to our proposed framework are Self-Forcing~\cite{huang2025self} and EgoEdit~\cite{li2025egoedit}. Here, We discuss the differences between these methods and our approach.
+
+Self-Forcing is fundamentally designed for Text-to-Video generation scenarios, bridging exposure bias through self-generated conditioning. However, its reliance on an ODE initialization~\cite{yin2025slow, zhu2026causal} phase to establish an initial causal checkpoint introduces a severe computational bottleneck. While this ODE trajectory is manageable to sample from text in T2V tasks, constructing it for streaming video editing demands processing the original high-resolution and long sequence video data, incurring prohibitive computational overhead. Furthermore, T2V generation focuses on synthesizing from scratch, requiring only consistency with the previous generated content, while video editing necessitates strict spatial alignment with the input raw video. Directly applying the mechanism to editing tasks inevitably leads to structural deviation. In contrast, our proposed LiveEdit framework explicitly bypasses the costly ODE initialization by directly utilizing the autoregressive weights from Stage 2 as a highly stable distillation starting point. To strictly preserve source fidelity, we introduce an AR-oriented Mask Cache, prioritizing precise spatial restoration over free-form video synthesis.
+
+EgoEdit pioneers streaming models for egocentric video editing, primarily validating the effectiveness of task-specific data within an established Self-Forcing pipeline. While it successfully demonstrates a continuous first-person visual dataset and benchmark, it structurally relies on this existing route without further inference acceleration for streaming video editing. Consequently, its research scope remains highly specialized and tailored to egocentric tasks, making it difficult to generalize to out-of-distribution tasks. Conversely, our LiveEdit is architected for general, high-fidelity streaming video editing across diverse scenarios. Instead of merely adapting data to existing pipelines, we introduce a comprehensive three-stage distillation pipeline that compresses inference to merely 4 steps. By dynamically decoupling computation, our framework achieves real-time responsiveness and strict background preservation in universal editing applications, breaking the limitations of single-domain adaptations.
+
+\section{User Study}
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=0.9\linewidth]{images/user_study.pdf}
+\caption{\textbf{User study results.} Volunteers ranked the generated videos from our method and six baselines across three metrics: Instruction Consistency, Background Preservation, and Overall Quality. The line plots indicate the proportion of top-3 selections. Our proposed approach overwhelmingly dominates the evaluations, securing the vast majority of absolute "Best" rankings across all dimensions..}
+    \label{fig:user_study}
+\end{figure*}
+
+
+To complement our quantitative metrics, we conducted a comprehensive user study to evaluate the perceptual quality of the generated videos. We invited 20 volunteers to review and rank the editing results from our method against six state-of-the-art baselines: InsV2V, LucyEdit, VideoCoF, StreamDiffusion, StreamDiffusionV2, and StreamV2V. Participants were asked to rigorously evaluate the videos based on three core dimensions: Instruction Consistency, Background Preservation, and Overall Quality. For each video group, volunteers ranked the methods, and we aggregated the results into "Best", "Second", "Third", and "Others" categories.
+
+As illustrated in Fig.~\ref{fig:user_study}, our streaming editing framework demonstrates overwhelming superiority across all evaluation metrics. For Instruction Consistency, our method achieved a 100.0\% top-3 preference rate and monopolized the vast majority of the absolute "Best" rankings. In severe contrast, existing streaming generation baselines fall predominantly into the "Others" category, showing that they fundamentally struggled to execute the editing instructions accurately, .
+
+Regarding Background Preservation, our approach received 75.0\% of the explicit "Best" votes and an 87.5\% top-3 preference rate. While offline bidirectional models like LucyEdit also exhibited competitive top-3 rates (87.5\%), they were rarely selected as the definitive top choice (only securing 12.5\% of "Best" votes) due to slight structural shifts or minor temporal inconsistencies. This stark contrast solidifies the effectiveness of our AR-oriented Mask Cache in strictly maintaining the visual integrity of unedited regions.
+
+Ultimately, in terms of Overall Quality, our framework was consistently favored by the human evaluators, achieving a 95.8\% top-3 preference rate and definitively outperforming both offline and streaming baselines. The user study firmly aligns with our quantitative findings, confirming that our method uniquely balances high-fidelity semantic editing with strict spatial-temporal consistency.
+
+\section{More cases}
+
+We provide more cases to show the effectiveness of our method. (shown in Fig. \ref{fig:case1}, \ref{fig:case2}, \ref{fig:case3})
+
+
+\section{More Comparisons}
+
+We provide more comparisons to show the baseline and our method. (shown in Fig. \ref{fig:case4}, \ref{fig:case5})
+
+
+
+\begin{figure*}[ht]
+    \centering
+    \includegraphics[width=1.\textwidth]{images/More-Case-final.pdf}
+    \caption{\textbf{More cases generated by LiveEdit}. 
+    }
+    \label{fig:case1}
+\end{figure*}
+
+\begin{figure*}[ht]
+    \centering
+    \includegraphics[width=1.\textwidth]{images/More-Case-v2-final.pdf}
+    \caption{\textbf{More cases generated by LiveEdit}. 
+    }
+    \label{fig:case2}
+\end{figure*}
+
+\begin{figure*}[ht]
+    \centering
+    \includegraphics[width=1.\textwidth]{images/More-Case-v3-final.pdf}
+    \caption{\textbf{More cases generated by LiveEdit}. 
+    }
+    \label{fig:case3}
+\end{figure*}
+
+\begin{figure*}[ht]
+    \centering
+    \includegraphics[width=1.\textwidth]{images/More-Comparison-v1-final.pdf}
+    \caption{\textbf{More comparison between baseline and our LiveEdit}. 
+    }
+    \label{fig:case4}
+\end{figure*}
+
+\begin{figure*}[ht]
+    \centering
+    \includegraphics[width=1.\textwidth]{images/More-Comparison-v2-final.pdf}
+    \caption{\textbf{More comparison between baseline and our LiveEdit}. 
+    }
+    \label{fig:case5}
+\end{figure*}

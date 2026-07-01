@@ -1,0 +1,98 @@
+\documentclass[]{fairmeta}
+% Option "twocolumn" available, but please prioritize single-column.
+
+\usepackage{amsmath}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{xspace}
+\usepackage[table]{xcolor}
+
+\usepackage{booktabs}
+\usepackage{pifont}
+\usepackage{wasysym}
+\usepackage{colortbl} % for \rowcolor; safer than \usepackage[table]{xcolor} if xcolor is already loaded
+\usepackage{wrapfig}
+\usepackage{multirow}
+
+\newcommand{\cmark}{\ding{51}}
+\newcommand{\xmark}{\ding{55}}
+\newcommand{\pmark}{\LEFTcircle}
+\newcommand{\vs}{\textit{vs.}\xspace}
+\Urlmuskip=0mu plus 1mu\relax
+
+\setlist[itemize]{leftmargin=*, topsep=2pt, itemsep=1pt}
+\setlist[enumerate]{leftmargin=*, topsep=2pt, itemsep=1pt}
+
+\crefname{section}{Sec.}{Secs.}
+\Crefname{section}{Section}{Sections}
+\Crefname{table}{Table}{Tables}
+\crefname{table}{Tab.}{Tabs.}
+
+\newtcolorbox{instructionbox}[1][]{
+  colback=cyan!2,
+  colframe=cyan!35!black,
+  boxrule=0.5pt,
+  arc=2pt,
+  left=7pt,
+  right=7pt,
+  top=6pt,
+  bottom=6pt,
+  before skip=10pt,
+  after skip=10pt,
+  fonttitle=\bfseries,
+  title={Task\if\relax\detokenize{#1}\relax\else \; \textperiodcentered \; {\footnotesize #1}\fi},
+  breakable
+}
+
+\newcommand{\benchname}{\mbox{TUA-Bench}\xspace}
+\newcommand{\answerYes}{\textbf{Yes}}
+\newcommand{\answerNo}{\textbf{No}}
+\newcommand{\answerNA}{\textbf{N/A}}
+\newcommand{\todo}[1]{\textcolor{red}{[TODO: #1]}}
+
+
+\title{\raisebox{-0.16\height}{\includegraphics[height=1.1em]{assets/logotua.pdf}}\hspace{0.2em} TUA-Bench: A Benchmark for General-Purpose Terminal-Use Agents}
+
+
+\author[1,*]{\fontsize{9}{11}\selectfont Shoufa Chen}
+\author[1,*]{\fontsize{9}{11}\selectfont Luyuan Wang}
+\author[2]{\fontsize{9}{11}\selectfont Xuan Yang}
+\author[1]{\fontsize{9}{11}\selectfont Zhiheng Liu}
+\author[1]{\fontsize{9}{11}\selectfont Yuren Cong}
+\author[3]{\fontsize{9}{11}\selectfont Yuanfeng Ji}
+\author[1]{\fontsize{9}{11}\selectfont Feiyan Zhou}
+\author[1]{\fontsize{9}{11}\selectfont Xiaohui Zhang}
+\author[1]{\fontsize{9}{11}\selectfont Fanny Yang}
+\author[1]{\fontsize{9}{11}\selectfont Belinda Zeng}
+
+\affiliation[1]{Meta AI}
+\affiliation[2]{Duke University}
+\affiliation[3]{Stanford University}
+\contribution[*]{Equal contribution}
+
+\abstract{\input{sections/0_abs}}
+
+\date{\today}
+\metadata[Website]{\url{https://tuabench.ai/}}
+\metadata[Code]{\url{https://github.com/facebookresearch/TUA-Bench}}
+
+\begin{document}
+
+\maketitle
+
+\input{sections/1_intro}
+\input{sections/2_related_work}
+\input{sections/3_tua_bench}
+\input{sections/4_benchmark_exp}
+\input{sections/5_limitations}
+\input{sections/6_conclusion}
+
+\clearpage
+\bibliographystyle{assets/plainnat}
+\bibliography{paper}
+
+\clearpage
+\beginappendix
+\input{sections/7_appendix}
+
+\end{document}

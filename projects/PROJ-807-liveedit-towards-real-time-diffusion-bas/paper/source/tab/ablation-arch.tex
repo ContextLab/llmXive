@@ -1,0 +1,22 @@
+\begin{table}[t]
+  \centering
+  \caption{\textbf{Ablation of our three-stage distillation pipeline.} Comparison of generation configurations and inference efficiency across the different training stages.}
+    \resizebox{1.0\linewidth}{!}{%
+      \begin{tabular}{lccc}
+        \toprule
+        & \textbf{Stage 1 (Foundation)} & \textbf{Stage 2 (Teacher Forcing)} & \textbf{Stage 3 (DMD)} \\
+        \midrule
+        Is streaming? & $\times$ & $\checkmark$ & $\checkmark$ \\
+        NFEs & 100 & 100 & 4 \\
+        With CFG? &  $\checkmark$ & $\checkmark$ & $\times$  \\
+        Latency & 197.48 & 200.36 & 7.89 \\
+        First chunk size & Full sequence & 3 frames & 3 frames \\
+        Next chunk size & N/A & 3 frames & 3 frames \\
+        Text Alignment & 0.268 & 0.264 & 0.265 \\
+        Image Quality  & 0.716 & 0.702 & 0.720 \\
+        \bottomrule
+      \end{tabular}
+    }
+    \vspace{-1em}
+  \label{tab:three_stages_ablation}
+\end{table}

@@ -1,0 +1,129 @@
+% CVPR 2026 Paper Template; see https://github.com/cvpr-org/author-kit
+
+\documentclass[10pt,twocolumn,letterpaper]{article}
+
+%%%%%%%%% PAPER TYPE  - PLEASE UPDATE FOR FINAL VERSION
+\usepackage{cvpr}              % To produce the CAMERA-READY version
+% \usepackage[review]{cvpr}      % To produce the REVIEW version
+\usepackage{csquotes}
+\usepackage{algorithm}
+% \usepackage{algorithmic}
+\usepackage{algpseudocode}
+\usepackage{multirow}
+
+\usepackage{textcomp} 
+\usepackage{marvosym}
+\usepackage{colortbl}
+\usepackage{xcolor}
+\usepackage{diagbox}
+\usepackage{wasysym}
+\usepackage{marvosym}
+\usepackage{pifont}
+\usepackage{setspace}
+
+\usepackage{enumitem}
+
+\usepackage{makecell}
+% \usepackage[pagenumbers]{cvpr} % To force page numbers, e.g. for an arXiv version
+
+% Import additional packages in the preamble file, before hyperref
+% 新增
+\input{preamble}
+
+% It is strongly recommended to use hyperref, especially for the review version.
+% hyperref with option pagebackref eases the reviewers' job.
+% Please disable hyperref *only* if you encounter grave issues, 
+% e.g. with the file validation for the camera-ready version.
+%
+% If you comment hyperref and then uncomment it, you should delete *.aux before re-running LaTeX.
+% (Or just hit 'q' on the first LaTeX run, let it finish, and you should be clear).
+\definecolor{cvprblue}{rgb}{0.21,0.49,0.74}
+\definecolor{gcol}{RGB}{70,0,120}
+\definecolor{ccol}{RGB}{90,0,150}
+\definecolor{scol}{RGB}{110,0,180}
+\definecolor{ecol}{RGB}{130,20,200}
+\definecolor{dcol}{RGB}{150,40,215}
+\definecolor{icol}{RGB}{170,70,225}
+\definecolor{tcol}{RGB}{190,100,235}
+
+\usepackage[pagebackref,breaklinks,colorlinks,allcolors=cvprblue]{hyperref}
+\usepackage[most,theorems,skins,listings]{tcolorbox}
+
+%%%%%%%%% PAPER ID  - PLEASE UPDATE
+\def\paperID{5447} % *** Enter the Paper ID here
+\def\confName{CVPR}
+\def\confYear{2026}
+
+\newcommand{\qianli}[1]{\textcolor{cvprblue}{[qianli: #1]}}  
+
+
+%%%%%%%%% TITLE - PLEASE UPDATE
+\title{
+\textcolor{gcol}{L}%
+\textcolor{ccol}{i}%
+\textcolor{scol}{v}%
+\textcolor{ecol}{e}%
+\textcolor{dcol}{E}%
+\textcolor{icol}{d}%
+\textcolor{tcol}{i}%
+\textcolor{tcol}{t}:
+Towards Real-Time Diffusion-Based Streaming Video Editing
+}
+% GroupEdit: Group Image Editing via Geometry and Generation Prior
+%%%%%%%%% AUTHORS - PLEASE UPDATE
+\author{%
+  Xinyu Wang\textsuperscript{1},
+  Chongbo Zhao\textsuperscript{1},
+  Fangneng Zhan\textsuperscript{2},
+  Yue Ma\textsuperscript{2}\textsuperscript{\Letter}
+  \\[1mm]
+  \textsuperscript{1} THU \quad 
+  \textsuperscript{2} HKUST \quad
+   \\
+  \\
+  \textbf{Project: \href{https://live-edit.github.io}{\texttt{\textcolor{cyan}{https://live-edit.github.io}}}}
+}
+
+
+\begin{document}
+% \maketitle
+
+
+
+\twocolumn[{
+\begin{center}
+\maketitle
+\vspace{-2em}
+    \captionsetup{type=figure}
+    \includegraphics[width=1.0\textwidth]{images/Teaser-v3.pdf}
+    \vspace{-0.5em}
+    \caption{\textbf{Gallery of various editing results and efficiency comparisons.} We propose the \textit{LiveEdit}, a novel streaming video editing framework capable of performing causal, chunk-by-chunk manipulation with ultra-low latency and strict background preservation. By synergizing a progressive three-stage architectural distillation pipeline with an AR-oriented Mask Cache, \textit{LiveEdit} effectively resolves the architectural incompatibilities and computational bottlenecks inherent in streaming editing paradigms.}
+\end{center}
+}]
+
+
+\begingroup
+\renewcommand{\thefootnote}{}
+% \footnotetext{\dag~Equal contribution.}
+\footnotetext{\Letter~Corresponding author.}
+\endgroup
+
+% \clearpage
+
+\input{sec/0_abstract}    
+\input{sec/1_introduction}
+\input{sec/2_related}
+\input{sec/3_method}
+\input{sec/4_experiment}
+\input{sec/5_conclusion}
+\input{sec/X_suppl}
+{
+    \small
+    \bibliographystyle{ieeenat_fullname}
+    \bibliography{main}
+}
+
+% WARNING: do not forget to delete the supplementary pages from your submission 
+
+
+\end{document}

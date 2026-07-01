@@ -1,0 +1,20 @@
+
+
+\begin{table}[t]
+    \centering
+    \caption{\textbf{Quantitative results of the cache-mechanism ablation.} Comparing the performance of applying the caching mechanism to either Self-Attention or FFN layers. \textcolor{red}{\textbf{Red}} denote the best results.}
+    \label{tab:ablation_cache}
+    \resizebox{0.5\textwidth}{!}{
+        \begin{tabular}{lcccccc}
+        \toprule
+        Method & TA$\uparrow$ & BC$\uparrow$ & MS$\uparrow$ & DD$\uparrow$ & AQ$\uparrow$ & IQ$\uparrow$ \\
+        \midrule
+        \textbf{W/o Cache}      & 0.265 & \textcolor{red}{\textbf{0.956}} & 0.991 & \textcolor{red}{\textbf{0.282}} & \textcolor{red}{\textbf{0.584}} & \textcolor{red}{\textbf{0.720}} \\
+        \textbf{Cache on SA}   & \textcolor{red}{\textbf{0.270}} & 0.956 & \textcolor{red}{\textbf{0.992}} & 0.256 & 0.581 & 0.708 \\
+        \textbf{Cache on FFN}  & 0.236 & 0.841 & 0.982 & 0.017 & 0.440 & 0.513 \\
+        \bottomrule
+      \end{tabular}
+    }
+\end{table}
+
+

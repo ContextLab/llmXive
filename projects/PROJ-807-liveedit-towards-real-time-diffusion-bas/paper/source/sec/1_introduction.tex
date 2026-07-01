@@ -1,0 +1,39 @@
+
+
+\section{Introduction}
+Video editing~\cite{jiang2025vace,li2025egoedit,decart2025lucyedit,qi2023fatezero,wu2023tune,zhang2023controllable, chen2025contextflow,wang2024taming, feng2025dit4edit, wang2024cove, ma2025magicstick, yang2025unified} has witnessed significant advancements, driven by the increasing demand for high-quality content creation and interactive digital experiences. As augmented reality and live-streaming applications become more prevalent, the industry's focus is shifting from traditional offline batch processing toward real-time, responsive editing. However, achieving practical, low-latency deployment remains a formidable challenge, particularly when moving toward a streaming paradigm where video must be processed chunk-by-chunk without access to future information.
+
+As illustrated in Fig.~\ref{fig:motivation}, the transition to practical streaming video editing is currently obstructed by two fundamental bottlenecks. {\bf i)} \textbf{Attention distribution shift}: State-of-the-art video diffusion models typically rely on bidirectional or global attention to maintain temporal consistency. Directly adapting these non-causal models to a causal streaming setting—where future frames are unavailable—often leads to a "forgetting" effect or severe flickering, as the model lacks the global structural context required for stable editing. {\bf ii)} \textbf{Spatial-temporal token redundancy}: Standard diffusion pipelines treat every frame as an independent, heavy generation task. However, in autoregressive (AR) oriented streaming generation, the majority of the background remains static or undergoes predictable linear motion. Repeatedly applying dense Feed-Forward Network (FFN) and Attention modules to these redundant, unedited regions leads to prohibitive per-frame latency, making real-time interactive experiences unattainable on edge devices.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=1.0\linewidth]{images/Architecture.pdf}
+    % \caption{\textbf{Comparison of video editing paradigms.} (Top) Bidirectional Editing Models achieve accurate editing but lack the efficiency required for streaming due to non-causal constraints. (Middle) Past Video2Video Streaming Models offer efficient inference but struggle with content preservation, leading to inaccurate editing (e.g., severe background alteration). (Bottom) Our Streaming Editing Model employs a Causal DiT equipped with a Mask-guided caching mechanism, successfully achieving both accurate content preservation and highly efficient streaming inference.}
+    \caption{\textbf{Comparison of video editing paradigms.} Unlike bidirectional models that suffer from inefficient inference, and past streaming models that fail to preserve accurate unedited content, our proposed streaming editing model leverages a Causal DiT with a mask-guided cache mechanism to achieve high-fidelity and efficient editing.}
+    \label{fig:motivation}
+    % \vspace{-2.5em}
+\end{figure}
+
+
+To bridge this gap, we introduce a novel framework designed for causal, chunk-by-chunk video editing with strong content preservation and ultra-low latency. Our approach addresses the latency-stability trade-off through a structured three-stage distillation pipeline that progressively transfers the editing capabilities of a powerful bidirectional foundation model to an efficient, unidirectional streaming editor.
+
+Specifically, \textbf{Stage 1 (Foundation Tuning)} focuses on equipping a Bidirectional Diffusion Transformer with robust editing abilities. By leveraging full attention mechanisms and text embeddings, the model learns complex editing mappings supervised by an $\mathcal{L}_{MSE}$ loss. To bridge the gap between offline and streaming processing, \textbf{Stage 2 (Teacher Forcing for Chunk-wise Causal Initial)} transitions the architecture from a bidirectional to a Causal DiT. We employ a teacher-forcing strategy equipped with chunk-wise causal attention, ensuring the model successfully adapts to sequential, unidirectional inputs while strictly maintaining the visual quality and editing priors established in the first stage. Finally, \textbf{Stage 3 (DMD for Streaming Video Editing)} performs advanced distillation to achieve real-time inference. By integrating Distribution Matching Distillation (DMD) with a frozen Real Score and a trainable Fake Score model, we compress the generation process into merely 4 steps. This stage is optimized via both $\mathcal{L}_{MSE}$ and $\nabla_{\theta}\mathcal{L}_{DMD}$ gradients, utilizing pruned noise inputs to further accelerate streaming video editing.
+
+Beyond architectural distillation, redundant background processing remains a critical bottleneck for AR applications. To address this, we introduce an \textbf{AR-oriented Mask Cache} during inference. Instead of running the full DiT forward pass for every frame, our method calculates the $L_2$ distance between the edited output and the source to extract an accurate editing mask. We observe a functional divergence in how different modules handle redundant information: while the Feed-Forward Network and Cross-Attention are essential for maintaining per-pixel spatial detail and text-conditioned alignment, the Self-Attention layers exhibit significant spatio-temporal redundancy in unedited regions. This selective spatial-temporal reuse significantly reduces per-frame latency while guaranteeing that the editing quality remains indistinguishable from the full-calculation baseline.
+
+
+Our contributions are summarized as follows:
+
+\begin{itemize}
+
+\item We analyze the property of streaming video editing and present the novel streaming video editing framework capable of performing causal, chunk-by-chunk editing with high fidelity and ultra-low inference latency(12.66 FPS).
+
+
+
+\item Technically, we first design a comprehensive three-stage distillation pipeline that effectively migrates complex editing knowledge from a Bidirectional DiT teacher to an ultra-efficient, 4-step Causal DiT student. Moreover,  the AR-oriented Mask Cache mechanism is proposed by leveraging $L_2$ distance to dynamically decouple computation.
+
+
+\item We establish a dedicated benchmark for streaming video editing and demonstrate that our method achieves state-of-the-art performance in terms of both visual quality, temporal consistency, and throughput.
+
+\end{itemize}
+

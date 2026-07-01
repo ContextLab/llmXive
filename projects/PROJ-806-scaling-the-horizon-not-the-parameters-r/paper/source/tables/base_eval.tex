@@ -1,0 +1,49 @@
+\begin{table}[]
+    \centering
+    \footnotesize
+    \setlength{\tabcolsep}{1.9pt}
+    \caption{Comparison between \ProjectName~ and 35B/1T-level models, where FS-O, FS-R, and MolBench-Bind represent FrontierScience-Olympiad~\citep{frontierscience}, FrontierScience-Research~\citep{frontierscience}, and MolBench-binding affinity comparison~\citep{zhang2026molclaw}. For 35B model, we compare with recently released open-source 35B models. For 1T-level models, we compare with Kimi-K2.6~\citep{kimi2.6}, DeepSeek-V4-Pro~\citep{deepseekai2026deepseekv4} with Max reasoning effort, and GPT-5.5~\citep{GPT5.5}. To ensure a fair comparison, we report the results from their original technical reports. If a model does not report the corresponding benchmark results, we evaluate it using the same evaluation protocol as our model. \underline{underline} means the best result for 35B parameters, and \textbf{Bold} means the best overall result. }
+    \label{tab:main_results}
+
+    \begin{tabular}{@{}lcccccccc@{}}
+    \toprule
+    & \multicolumn{4}{c}{\textbf{35B parameters}} & \multicolumn{3}{c}{\textbf{\textgreater{}1T parameters}} \\
+    \cmidrule(lr){2-4} \cmidrule(lr){5-7}
+    & \multicolumn{1}{l}{\textbf{\ProjectName}} & \multicolumn{1}{l}{\textbf{Qwen3.6-35B-A3B}} & \multicolumn{1}{l}{\textbf{Nex-N2-mini}} & \multicolumn{1}{l}{\textbf{Kimi-K2.6}} & \multicolumn{1}{l}{\textbf{DSV4-Pro (Max)}} & \multicolumn{1}{l}{\textbf{GPT-5.5}} \\
+    \midrule
+    \textbf{Long-horizon Search} & \multicolumn{1}{l}{} & \multicolumn{1}{l}{} & \multicolumn{1}{l}{} & \multicolumn{1}{l}{} & \multicolumn{1}{l}{} & \multicolumn{1}{l}{} & \multicolumn{1}{l}{} & \multicolumn{1}{l}{} \\
+    \midrule
+    BrowseComp~\citep{browsecomp} & \underline{75.5} & 67.9 & 74.1 & 83.2 & 83.4 & \textbf{84.4} \\
+    XBench-DS-2510~\citep{xbench} & \underline{86.0} & 71.0 & 82.0 & \textbf{90.0} & \textbf{90.0} & 84.0 \\
+    Seal-0~\citep{sealqa} & \textbf{56.4} & 38.7 & 49.6 & 50.5 & 55.0 & 42.3 \\
+    GAIA~\citep{gaia} & \underline{96.0} & 78.6 & 82.5 & 80.6 & \textbf{98.1} & 87.4 \\
+    \midrule
+    \textbf{Engineering Tasks} & & & & & & \\
+    \midrule
+    SciCode~\citep{scicode} & \underline{44.3} & 35.8 & 29.9 & 53.5 & 50.0 & \textbf{56.1} \\
+    MLE-Bench-Lite~\citep{mlebench} & \underline{43.9} & 34.9 & 34.9 & 62.1 & 63.6 & \textbf{72.7} \\
+    \midrule
+    \textbf{Scientific Research} & & & & & & \\
+    \midrule
+    HLE w/ tools~\citep{phan2025humanity} & \underline{47.6} & 36.2 & 32.0 & \textbf{54.0} & 48.2 & 52.2 \\
+    HiPhO~\citep{hipho} & \textbf{46.4} & 37.7 & 38.5 & 41.1 & 38.7 & 43.3 \\
+    FS-O~\citep{frontierscience} & \textbf{79.0} & 60.3 & 52.0 & 73.0 & 76.0 & 78.0 \\
+    FS-R~\citep{frontierscience} & \textbf{40.0} & 2.9 & 5.0 & 17.9 & 13.3 & 26.7 \\
+    \midrule
+    \textbf{Instruction Following} & & & & & & \\
+    \midrule
+    IFbench~\citep{IFBench} & \textbf{80.6} & 64.4 & 54.1 & 71.8 & 73.5 & 75.9 \\
+    Longbench V2~\citep{LongBench} & \underline{60.2} & 57.7 & 59.6 & 62.0 & \textbf{64.3} & -\\
+    \midrule
+    \textbf{General Agentic Tasks} & & & & & & \\
+    \midrule
+    $\tau^2$-Bench~\citep{barres2025tau2} & \underline{79.8} & 79.0 & 74.5 & 81.9 & \textbf{82.2} & 81.6 \\
+    VitaBench~\citep{he2025vitabench} & \underline{38.8} & 35.6 & 23.0 & 35.6 & \textbf{49.0} & 45.0 \\
+    \midrule
+    \textbf{Scientific Agentic Tasks} & & & & & & \\
+    \midrule
+    MatTools~\citep{MatTools} & \underline{47.1} & 15.9 & 34.1 & 63.8 & 47.1 & \textbf{68.8} \\
+    MolBench-Bind.~\citep{zhang2026molclaw} & \underline{56.8} & 48.7 & 51.4 & 21.6 & 37.8 & \textbf{62.2} \\
+    \bottomrule
+    \end{tabular}
+\end{table}

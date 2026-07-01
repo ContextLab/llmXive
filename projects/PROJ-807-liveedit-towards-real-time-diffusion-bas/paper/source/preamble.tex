@@ -1,0 +1,90 @@
+%% This file contains a number of tweaks that are typically applied to the main document.
+%% They are not enabled by default, but can be enabled by uncommenting the relevant lines.
+
+%%
+%% Inline annotations; for predefined colors, refer to "dvipsnames" in the xcolor package:
+%% https://tinyurl.com/overleaf-colors
+%%
+\newcommand{\red}[1]{{\color{red}#1}}
+\newcommand{\todo}[1]{{\color{red}#1}}
+\newcommand{\TODO}[1]{\textbf{\color{red}[TODO: #1]}}
+\newcommand{\modelname}{\textit{GroupEditing}\xspace}
+\definecolor{myorange}{RGB}{255,100,3}
+\definecolor{mygray}{gray}{.85}
+\definecolor{mygray1}{gray}{.7}
+\definecolor{mygray2}{gray}{.93}
+\definecolor{mygray3}{gray}{.90}
+\usepackage{tikz}
+\usepackage{array}
+\usepackage{graphicx}      % for resizing the table (resizebox)
+\usepackage{multirow}      % for multi-row cells in the table
+\usepackage{colortbl}      % for coloring the cells
+\usepackage{booktabs}      % for better table formatting with \toprule, \midrule, and \bottomrule
+\usepackage{xcolor}        % for text color (like \textcolor)
+\usepackage{caption}       % for better control of captions (optional)
+\usepackage{gensymb}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
+
+\usepackage{pifont}
+\newcommand{\cmark}{\ding{51}\xspace}%
+\newcommand{\cmarkb}{\textcolor{blue}{\ding{51}}\xspace}%
+\newcommand{\cmarkg}{\textcolor{lightgray}{\ding{51}}\xspace}%
+\newcommand{\xmark}{\ding{55}\xspace}%
+\newcommand{\xmarkg}{\textcolor{lightgray}{\ding{55}}\xspace}%
+\definecolor{iccvblue}{rgb}{0.21,0.49,0.74}
+\definecolor{Blue}{RGB}{12, 114, 186} 
+\usepackage{color, xcolor}
+\usepackage{svg}
+\usepackage{pifont}
+\usepackage{graphicx}
+\usepackage{adjustbox}
+\usepackage{algorithm}
+% \usepackage{algorithmicx}
+\usepackage{algpseudocode}
+\usepackage{amssymb}
+\usepackage{multirow}
+\usepackage{xcolor} 
+\usepackage{makecell}
+\usepackage{wrapfig}
+% \usepackage[noend]{algcompatible}
+%%
+%% disable for camera ready / submission by uncommenting these lines  
+%%
+% \renewcommand{\TODO}[1]{}
+% \renewcommand{\todo}[1]{#1}
+
+%%
+%% work harder in optimizing text layout. Typically shrinks text by 1/6 of page, enable
+%% it at the very end of the writing process, when you are just above the page limit
+%%
+% \usepackage{microtype}
+
+%%
+%% fine-tune paragraph spacing
+%%
+% \renewcommand{\paragraph}[1]{\vspace{.5em}\noindent\textbf{#1.}}
+
+%%
+%% globally adjusts space between figure and caption
+%%
+% \setlength{\abovecaptionskip}{.5em}
+
+
+%%
+%% Allows "the use of \paper to refer to the project name"
+%% with automatic management of space at the end of the word
+%%
+% \usepackage{xspace}
+% \newcommand{\paper}{ProjectName\xspace}
+
+%%
+%% Commonly used math definitions
+%%
+% \DeclareMathOperator*{\argmin}{arg\,min}
+% \DeclareMathOperator*{\argmax}{arg\,max}
+
+%%
+%% Tigthen underline
+%%
+% \usepackage{soul}
+% \setuldepth{foobar}

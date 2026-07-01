@@ -1,0 +1,49 @@
+\begin{table}[]
+    \centering
+    \footnotesize
+    \setlength{\tabcolsep}{1.9pt}
+    \caption{Performance comparison of Qwen3.5-35B-A3B, \ProjectName-SFT, and \ProjectName.}
+    \label{tab:sft_opd}
+    \begin{tabular}{@{}lccc@{}}
+    \toprule
+    & \multicolumn{1}{l}{\textbf{Qwen3.5-35B-A3B}} & \multicolumn{1}{l}{\textbf{\ProjectName-SFT}} & \multicolumn{1}{l}{\textbf{\ProjectName}} \\
+    \midrule
+    \textbf{Long-horizon Search} & & & \\
+    \midrule
+    BrowseComp~\citep{browsecomp} & 61.0 & 74.6 & \textbf{75.5} \\
+    XBench-DS-2510~\citep{xbench} & 77.0 & \textbf{88.0} & 86.0 \\
+    Seal-0~\citep{sealqa} & 41.4 & 52.3 & \textbf{56.4} \\
+    GAIA~\citep{gaia} & 59.8 & 95.2 & \textbf{96.0} \\
+    \midrule
+    \textbf{Engineering Tasks} & & & \\
+    \midrule
+    SciCode~\citep{scicode} & 37.1 & 42.3 & \textbf{44.3} \\
+    MLE-Bench-Lite~\citep{mlebench} & 24.2 & 39.4 & \textbf{43.9} \\
+    \midrule
+    \textbf{Scientific Research} & & & \\
+    \midrule
+    HLE w/ tools~\citep{phan2025humanity} & 47.4 & 41.6 & \textbf{47.6} \\
+    HiPhO~\citep{hipho} & 37.0 & 42.9 & \textbf{46.4} \\
+    FS-O~\citep{frontierscience} & 64.5 & 75.0 & \textbf{79.0} \\
+    FS-R~\citep{frontierscience} & 2.5 & 31.7 & \textbf{40.0} \\
+    \midrule
+    \textbf{Instruction Following} & & & \\
+    \midrule
+    IFbench~\citep{IFBench} & 70.2 & 68.7 & \textbf{80.6} \\
+    Longbench V2~\citep{LongBench} & 59.0 & 58.3 & \textbf{60.2} \\
+    \midrule
+    \textbf{General Agentic Tasks} & & & \\
+    \midrule
+    $\tau^2$-Bench~\citep{barres2025tau2} & \textbf{81.2} (32.5)$^\dag$ & 76.7 & 79.8 \\
+    VitaBench~\citep{he2025vitabench} & 26.0 & 37.3 & \textbf{38.8} \\
+    \midrule
+    \textbf{Scientific Agentic Tasks} & & & \\
+    \midrule
+    MatTools~\citep{MatTools} & 21.0 & 37.0 & \textbf{47.1} \\
+    MolBench-Bind.~\citep{zhang2026molclaw} & 46.0 & 46.0 & \textbf{56.8} \\
+    \bottomrule
+    \end{tabular}
+    
+    \vspace{1mm}
+    \footnotesize{$^\dag$ For $\tau^2$-Bench, we report both the official Qwen3.5-35B-A3B result (81.2) and our reproduced result (33.0); see Section~\ref{sec:sft_results} for discussion.}
+\end{table}

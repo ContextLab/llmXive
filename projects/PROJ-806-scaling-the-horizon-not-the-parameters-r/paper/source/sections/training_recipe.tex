@@ -1,0 +1,179 @@
+\section{Three-stage Training Recipe}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Full-domain Supervised Fine-Tuning}
+\label{sec:sft}
+
+We start from Qwen3.5-35B-A3B~\citep{Qwen3.5} and perform supervised fine-tuning (SFT). The goal is to make the model follow the desired behavior and improve its ability to follow instructions. SFT helps bridge the gap between atomic ability learned during mid-training and the ability to give helpful, clear, and context-aware responses to user instructions.
+
+
+\textbf{Data Composition.}
+Our SFT dataset comprises a diverse mixture of high-quality long-horizon trajectories spanning multiple domains and task categories. The data sources include:
+\begin{itemize}
+    \item \textbf{Deep research}: Surveys, deep research topics, and puzzles that require the model to search the internet for relevant information and synthesize answers.
+    \item \textbf{Coding and engineering}: Programming tasks spanning multiple languages and frameworks, with step-by-step reasoning and code generation. This category also includes machine learning engineering data, where the model develops machine learning methods such as designing model architectures, implementing training pipelines, and tuning hyperparameters.
+    \item \textbf{Scientific problem-solving}: Chain-of-thought solutions to scientific and mathematical problems, including the use of scientific computation tools.
+    \item \textbf{Instruction following}: Tasks designed to enhance the model's ability to follow fine-grained instructions in generative settings under strict constraints.
+    \item \textbf{General agentic tasks}: Multi-turn dialogues involving planning, decision-making, and general tool-use capabilities.
+\end{itemize}
+
+In total, the SFT dataset contains approximately $100$K trajectories with an overall average length of $45$K tokens. Table~\ref{tab:sft_data_stats} summarizes the average token length per domain. Notably, the majority of our SFT data consists of long-horizon trajectories, which enhance the model's long-horizon thinking capabilities under different extended contexts. All data undergo rigorous quality filtering, deduplication, and human review to ensure accuracy and consistency.
+
+\input{tables/avg_token}
+
+\textbf{Training Details.} We fine-tune from Qwen3.5-35B-A3B~\citep{Qwen3.5} using a standard cross-entropy loss computed only on the response tokens, while the instruction tokens are masked from the loss computation. This ensures the model learns to generate responses conditioned on given instructions without overfitting to prompt patterns. Key hyperparameters are listed in Table~\ref{tab:sft_hyperparams}.
+
+\input{tables/sft_param}
+
+To improve training throughput, we adopt a sample packing strategy that concatenates multiple short examples into a single training sequence up to the maximum context length. Attention masks are applied to prevent cross-contamination between packed samples. This reduces padding overhead and leads to significant improvements in GPU utilization. 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Domain-level Teacher Training}
+\label{sec:domain-level}
+
+\subsubsection{Reinforcement Learning on Search Tasks}
+To construct the teacher model of agentic searching, we adopt a two-stage training pipeline. In the first stage, we perform supervised fine-tuning (SFT) on the base model using only the search trajectories collected in Section~\ref{sec:search_data}. These trajectories demonstrate how to decompose complex questions into sub-queries, invoke web search and page reading tools at appropriate points, and synthesize retrieved information into a coherent answer. The SFT stage equips the model with basic tool-use capabilities and multi-turn agentic search patterns. In the second stage, we apply RL on top of the SFT model to further improve the model's ability to leverage external search tools for complex multi-hop reasoning.
+
+\textbf{RL Algorithm.} We adopt GRPO~\citep{shao2024deepseekmath} as our RL algorithm. The training objective combines a clipped policy loss, a KL divergence penalty to prevent the policy from deviating too far from the reference model, and an entropy regularization term to encourage exploration. We use rollout log-probabilities for accurate advantage computation.
+
+\textbf{Agentic Tools.} We equip the model with three tools during RL training:
+\begin{itemize}
+    \item \textbf{Web Search}: Returns Google search results given a query, allowing the model to discover relevant web pages.
+    \item \textbf{Read Page}: Given a URL and a query, this tool uses a summarization model to extract and return information from the page that is relevant to the query.
+    \item \textbf{Code}: Enables the model to write and execute Python code in a sandbox environment, supporting computation and file processing.
+\end{itemize}
+
+\textbf{Training Data.} The training dataset consists of approximately 2,000 carefully selected multi-hop reasoning questions that require web search capabilities. Each sample contains a user query and a ground-truth answer. To construct the dataset, we use the SFT model equipped with the above tools to attempt each problem with 5 retries. We then select the questions for which the model produces both correct and incorrect trajectories, filtering out questions that are either too easy (always correct) or too hard (always incorrect) for the model. This selection strategy ensures that the RL training signal is maximally informative.
+
+\textbf{Rollout and Reward Design.}
+During each rollout step, the model generates 8 rollouts per prompt. Each response is a multi-turn agentic trajectory in which the model iteratively invokes tools and reasons over the retrieved information. The final reward combines three components:
+
+\textit{(1) Correctness reward.} We employ an LLM judge to evaluate whether the model's final answer is correct. The judge accepts equivalent numerical formats, semantic paraphrases, and answers that contain the correct information as a clear sub-phrase, while rejecting contradictory or evasive responses.
+
+\textit{(2) Search behavior penalties.} We introduce two penalties to encourage efficient and non-redundant search behavior.
+\begin{itemize}
+    \item \textbf{Efficiency penalty}: We allow the model to search freely within the first $K$ rounds without any penalty. Beyond $K$ rounds, a penalty that increases linearly with the number of additional rounds is applied. This encourages the model to stop searching promptly once sufficient information has been gathered.
+    \item \textbf{Repetition penalty}: If a \texttt{google\_search} query or a \texttt{read\_page} URL has already appeared within a recent sliding window, each repeated occurrence incurs a small penalty, capped at a maximum per trajectory. This discourages redundant searches and repetitive page reads.
+\end{itemize}
+
+\textit{(3) Format calibration reward.} We additionally reward the model for producing answers that conform to the expected output format, ensuring that the final response is well-structured and can be reliably parsed for evaluation.
+
+\textbf{Training Configuration.} We fine-tune the SFT model using RL with a constant learning rate of $1 \times 10^{-6}$. At each rollout step, we sample 32 questions and generate 8 candidate responses per question, yielding a global batch size of 256 for each gradient update. The GRPO objective uses a clip range of $[0.2, 0.28]$, a KL divergence penalty coefficient of $0.001$, and an entropy regularization coefficient of $0.0001$. The maximum response length is set to 4,096 tokens and the maximum sequence length is 131,072. Each rollout has 300 tool calls at most. The rollout temperature is set to 1.0.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsubsection{Science-enhanced Supervised Fine-Tuning}
+In this part, we introduce how to train a science teacher model that preserve both deep problem-solving ability and reliable interactive behavior in scientific scenarios. Because frontier scientific tasks often combine long derivations, specialized knowledge, numerical computation, and symbolic manipulation, a science teacher requires to maintain both strong intrinsic reasoning and extrinsic interaction abilities. It should reason through difficult scientific and professional problems, decide when internal reasoning is insufficient, invoke external tools when factual grounding or exact computation is needed, and synthesize the resulting evidence into a coherent answer. Thus, we design a two-stage SFT pipeline. The first stage focuses on boosting the \textbf{reasoning ability} while the second stage further strengths the \textbf{interaction ability}. The details are as following. 
+
+\textbf{Training Data.}
+We initialize from the general-domain model Qwen3.5-35B-A3B~\citep{Qwen3.5} and continue training it with the scientific data constructed in Section~\ref{sec:science-data-pipeline}. The supervised corpus contains two complementary types of targets. The first type consists of high-quality reasoning traces produced by strong non-tool reasoning models over curated scientific QA problems. These traces emphasize intrinsic scientific reasoning ability, including problem decomposition, physical assumption identification, derivation of intermediate quantities, unit consistency, and final-answer verification. The second type consists of filtered tool-augmented reasoning trajectories equipped with \texttt{search}, \texttt{visit}, \texttt{code}, and \texttt{scholar}. These trajectories expose the model to grounded interaction with external objects, including retrieving background facts, inspecting source documents, executing computations, checking intermediate results, and using the observations to revise the solution path.
+
+\textbf{Two-stage SFT.} The science teacher is trained through a two-stage SFT pipeline. Both stages use the standard response-token supervised objective.
+\begin{itemize}
+    \item \textbf{Stage 1: Reasoning-Enhanced SFT.} 
+     we focus on substantially strengthening the model's intrinsic reasoning depth. We fine-tune the model on high-quality non-tool scientific reasoning trajectories, which encourages the model to form complete causal and mathematical chains before producing the final response. This stage improves the teacher's ability to solve problems through self-contained derivation rather than relying prematurely on extrinsic tools.
+
+    \item \textbf{Stage 2: Tool-Augmented SFT.}
+    we continue from the strong-reasoning checkpoint and perform tool-enhanced SFT on the filtered multi-subject science trajectories. Compared with the first-stage data, these samples require the model to coordinate reasoning with explicit tool interactions. The training objective encourages the teacher to recognize when a problem requires external support, choose the appropriate tool, formulate precise tool inputs, interpret returned observations, validate numerical or symbolic intermediate states, and fold retrieved or computed evidence back into a logically connected solution. We extend the training rounds in this stage to make tool-use behavior stable under long scientific interactions, while retaining the reasoning style acquired in the first stage.
+\end{itemize}
+
+% \textbf{Training Objective.} Both stages use the standard response-token supervised objective. For a training instance with prompt and interaction context $x$ and supervised assistant target $y=(y_1,\ldots,y_T)$, we minimize
+% \begin{equation}
+% \mathcal{L}_{\mathrm{sci\text{-}SFT}}(\theta)
+% =
+% -\sum_{t=1}^{T}
+% m_t \log \pi_{\theta}(y_t \mid x, y_{<t}),
+% \end{equation}
+% where $m_t$ is a loss mask. We apply loss only to teacher-generated assistant tokens, including reasoning text, tool-call decisions, and final responses. User prompts, system instructions and tool observations are masked. This masking scheme teaches the model how to act on scientific evidence without forcing it to memorize tool outputs or prompt templates.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsubsection{Reinforcement Learning on Instruction Following}
+
+We hypothesize that stronger instruction-following ability can facilitate effective in-context learning (ICL), especially in long-context settings where the model must understand task instructions, respect output constraints, and identify relevant evidence from lengthy inputs. To this end, we adopt a two-stage reinforcement learning pipeline to optimize our SFT model. The first stage focuses on fine-grained instruction following, while the second stage further improves the model's ICL ability.
+
+\textbf{Training Data.}
+We use the instruction-following and long-context learning data constructed in Sec.~\ref{sec:if_data}. The first RL stage uses the verifiable instruction-following subset to optimize fine-grained constraint satisfaction, while the second stage uses the long-context ICL reasoning subset to improve evidence grounding and adaptation to in-context information.
+
+
+\textbf{Training Stages.} We adopt GRPO~\citep{shao2024deepseekmath} in both stages. For each prompt, the model generates a group of candidate responses, and the reward differences within the group provide self-contrastive supervision for policy optimization. To improve the efficiency of RL training, we apply dynamic sampling during rollout. Specifically, for each prompt group, we retain only groups with non-uniform rewards and filter out groups where all sampled responses receive the same reward. This strategy removes prompts that are either too easy or too hard for the current policy, since such groups provide little useful preference signal. As a result, the policy update is concentrated on samples with meaningful reward contrast. The RL training pipeline consists of two consecutive stages:
+\begin{itemize}
+    \item \textbf{Stage 1: Instruction-following RL.} 
+    We first train the model on Nemotron instruction-following data~\citep{nemo-gym}. This stage aims to improve the model's ability to understand and satisfy fine-grained user constraints, such as formatting requirements, length limits, keyword inclusion or exclusion, language constraints, and other explicit instructions.  We use verifiable rule-based rewards. The reward function checks whether the generated response satisfies explicit constraints specified in the prompt, including formatting, length, keyword, language, and other rule-based requirements. This design provides a reliable supervision signal for instruction adherence while avoiding dependence on external judges.
+
+    \item \textbf{Stage 2: Long-context Learning RL.}
+    Starting from the instruction-following RL checkpoint, we continue training the model on long-context learning data. We use rule-based answer matching as the outcome reward. A response is rewarded when its final answer matches the ground-truth answer according to predefined matching rules. This stage encourages the model to ground its reasoning in task-specific information from the long input. By training on our constructed data, the model learns to retrieve sparse but decisive evidence, integrate information across distant document locations, adapt to newly introduced in-context rules, and reject salient but unsupported distractors. Consequently, the model relies less on memorized priors or local pattern matching, leading to stronger long-context learning behavior.
+\end{itemize}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsubsection{Reinforcement Learning on Tool-calling}
+For agentic tool use, SFT alone is insufficient because the main failure modes are not only local formatting errors. The agent must learn when to call tools, which tool to call, how to produce valid arguments, how to recover from tool errors, and when the task is actually complete. These decisions create delayed consequences: a wrong early tool call may only become visible many turns later, and premature stopping may look fluent while failing the task. RL is therefore required to optimize complete trajectories rather than isolated assistant turns.
+
+\textbf{Reward Design and Advantage Enhancement.} To enable the model to obtain denser marginal signals and maximize marginal gains, we construct two types of reward functions. The first is an outcome reward indicating complete task success. The second is a process score measuring partial completion over LLM rubrics:
+\begin{equation}
+r_i^{\mathrm{out}} \in \{0,1\},
+\qquad
+r_i^{\mathrm{proc}}
+=
+\frac{1}{|\mathcal{R}|}
+\sum_{j=1}^{|\mathcal{R}|}
+\mathbf{1}[\mathcal{R}_j \text{ is satisfied}].
+\end{equation}
+The advantage uses an asymmetric design~\citep{tan2026papostabilizingrubricintegration}. Successful trajectories already satisfy all rubrics, so adding process reward to positive samples would double-count the same signal. The informative use of process reward is on failed trajectories, where different failures can be meaningfully ranked by how close they were to success. For group-based RL, the shaped advantage is: 
+\begin{equation}
+A_i
+=
+A_i^{\mathrm{out}}
++
+\lambda_{\mathrm{neg}}
+\mathbf{1}[r_i^{\mathrm{out}}=0]
+A_i^{\mathrm{proc}},
+\qquad
+\lambda_{\mathrm{neg}}=0.5,
+\end{equation}
+where $A^{\mathrm{out}}$ is normalized over valid samples in the group, while $A^{\mathrm{proc}}$ is normalized only over valid negative samples. This preserves the relative ranking among failed trajectories and avoids using positive samples to distort the failure-side process distribution.
+
+\textbf{Training Data.} The data strategy is designed around the general problem of sparse, noisy, long-horizon agent rewards. One component is a hard-task set, which provides challenging prompts where the SFT model has a low pass rate and many trajectories are near misses. This is useful for RL because it creates gradient-bearing contrast within a group. 
+In RL post-training, data reuse is an effective strategy that repeatedly leverages the same batch of high-quality data, achieving an effect comparable to using a much larger batch of data within certain constraints. The hard-data component is intentionally reused rather than treated as a large one-pass corpus. For the training set has $|\mathcal{D}|$ tasks, rollout batch size $B$, samples per prompt $K$, and $R$ rollout rounds, the expected number of generated trajectories per task is approximately:
+\begin{equation}
+N_{\mathrm{reuse}}
+\approx
+\frac{R \cdot B \cdot K}{|\mathcal{D}|}.
+\end{equation}
+
+\textbf{Training Stages.} Our training pipeline consists of two stages: Tool-specific SFT and Tool-enhanced RL.
+\begin{itemize}
+    \item \textbf{Tool-specific SFT.} In the SFT stage, we use the data collected in Section \ref{sec:tool-calling} to enhance the tool-use capabilities of on Qwen3.5-35B-A3B~\citep{Qwen3.5}. The primary objective of this stage is to improve the model’s ability to generate tool-use instructions, produce correctly formatted tool calls, and perform basic tool invocation. Meanwhile, we employ a rubric model to record and monitor challenging tasks encountered at this stage. These tasks are then used for RL-based enhancement in the subsequent stage.
+    \item \textbf{Tool-specific RL.} In the RL stage, we re-evaluate the trajectories of the aforementioned tasks using rubrics. This additional round of evaluation further filters the data and retains the higher-quality subset. A salient property of this subset is that it consists of near-success cases that nevertheless fail to obtain outcome rewards. Based on this process, we construct a hard-task set containing only 64 samples. By data reuse as described above and applying a PAPO-style advantage to enhance GRPO, we achieve efficient Tool RL improvement with a small amount of high-quality data over only a few training steps. 
+\end{itemize}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\subsection{Multi-teacher On-Policy Distillation}
+\label{sec:multi-opd}
+
+After full-domain SFT and domain-level teacher training, we consolidate specialized teachers into a single deployable student through multi-teacher OPD. The student is optimized on its own rollouts under domain-specific teacher guidance, while the detailed OPD objective, including salient vocabulary alignment and domain-normalized aggregation, is introduced in Sec.~\ref{subsec:on-policy-distillation}. This section describes the training pipeline.
+
+\textbf{Student initialization and teacher pool.}
+The student is initialized from the full-domain SFT checkpoint in Sec.~\ref{sec:sft}. The teacher pool is built from the domain-level models in Sec.~\ref{sec:domain-level}, where each teacher is specialized through targeted SFT or RL. During OPD, teachers are not merged at the parameter level. Instead, each prompt is assigned a domain label, and the corresponding teacher provides the distillation signal for the student rollout.
+
+\textbf{Training data and domain routing.}
+\textbf{1) Data organization:} The OPD training set is reorganized from earlier task families for on-policy learning. Each example contains the user prompt, domain label, applicable interaction protocol, and execution metadata such as environment configuration, finalization rules, and verifier information. 
+\textbf{2) Domain routing:} We deduplicate prompts and balance the number of unique prompts per domain. During training, each sample is routed to the teacher trained for its domain, preserving domain-specific preferences and avoiding incompatible teacher signals.
+
+\textbf{On-policy rollout generation.}
+\textbf{1) Rollout construction:} For each batch, the current student generates responses or agentic trajectories under the corresponding domain protocol. Tool outputs, user turns, and environment observations are kept as context but masked from the loss, so optimization applies only to student-generated tokens. 
+\textbf{2) Rollout bounding:} To control the large variance in rollout structure, each rollout is bounded by a turn budget $T_{\max}$, response-length budget $L_{\max}^{\mathrm{resp}}$, and context-length budget $L_{\max}^{\mathrm{ctx}}$. Capped rollouts are marked \texttt{TRUNCATED} and retained as valid prefixes, while system-interrupted rollouts are marked \texttt{ABORTED} and retried.
+
+
+\textbf{Teacher-guided policy optimization.}
+After rollout collection, the routed teacher evaluates the student-generated prefixes and provides token-level guidance. Unlike offline imitation, the teacher does not generate a separate reference trajectory; it scores the student's own trajectory, making the signal on-policy. In our final configuration, the student is trained with the domain-routed SVA objective in Sec.~\ref{subsec:on-policy-distillation}, where losses are aggregated with domain-normalized weighting to balance heterogeneous teachers. Through OPD, the student retains broad SFT coverage while absorbing stronger domain-specific behaviors from the teacher pool into a unified long-horizon agent.
+
+
+
+

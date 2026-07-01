@@ -1,0 +1,149 @@
+\section{Benchmark Experiments}\label{sec:results}
+
+\subsection{Experimental Settings}
+\noindent\textbf{Agents.}
+We conduct a broad evaluation of contemporary terminal-based agents and frontier language models to characterize both agent-level and model-level performance on \benchname. Specifically, we evaluate five agent frameworks: Terminus-2~\citep{harbor_terminus2}, Codex~\citep{openai2025codex}, OpenHands~\citep{wang2025openhands}, Mini-SWE-Agent~\citep{yang2024swe}, and Claude Code~\citep{anthropic2026claudecode}. 
+
+\noindent\textbf{Models.}
+To evaluate model capability across a wide range of current systems, we include both leading proprietary models and strong open or widely available alternatives. The evaluated models include GPT-5.5, GPT-5.4 mini, Claude Opus 4.8, Claude Opus 4.7, Claude Sonnet 4.6, Claude Haiku 4.5, Gemini 3.1 Pro, GLM-5.1, MiniMax-M3, DeepSeek-V4 Pro, Qwen3.7-Max, and Kimi K2.6. This model suite covers different capability tiers, ranging from frontier large-scale reasoning models to more compact or cost-efficient variants, enabling us to examine how \benchname distinguishes models across the performance spectrum.
+
+\noindent\textbf{Metrics.}
+We evaluate agents using execution-grounded task success rather than agent action/trajectory. Each task is associated with an automatic verifier that inspects the final environment state and returns a scalar reward, with full task completion corresponding to success. For each agent--model--thinking configuration, we run 5 independent trials per task and report the mean success rate across all trials. In addition, we report Pass@1, Pass@5, and All-5 to characterize reliability across repeated attempts: Pass@1 measures single-run task performance, Pass@5 measures the best outcome across five independent trials for each task, and All-5 measures the fraction of tasks solved consistently in all five trials. These complementary metrics distinguish systems that occasionally solve a task from those that solve it robustly.
+
+% ------------------------------------------------------------
+\subsection{Main results}
+\label{sec:main-results}
+
+
+\begin{table}[t]
+\centering
+\small
+\caption{\textbf{\benchname results.} \textbf{(a)} All models evaluated on the Terminus-2 scaffold, sorted by success rate. \textbf{(b)} Each agent at its best-performing model. All configurations use the \textbf{\emph{highest}} available reasoning-effort setting, except Claude Haiku 4.5$^\dagger$, for which thinking is disabled. \textbf{Bold} marks the best success rate within each panel. Additional agent-model combination results are reported in \Cref{tab:full-results}.}
+\label{tab:two-panel}
+\setlength{\tabcolsep}{10pt}
+\renewcommand{\arraystretch}{1.05}
+\begin{tabular}{l l c c c c}
+\toprule
+Agent & Model & Success Rate (\%) & Pass@1 & Pass@5 & All-5 \\
+\midrule
+\multicolumn{6}{l}{\textbf{(a)} Model sweep on the Terminus-2 agent} \\
+\midrule
+\multirow{12}{*}{Terminus-2}
+ & GPT-5.5              & \textbf{60.1 $\pm$ 0.6} & 52.3\% & 64.2\% & 31.7\% \\
+ & Claude Opus 4.8      & 59.7 $\pm$ 1.0 & 53.8\% & 62.5\% & 42.5\% \\
+ & Claude Opus 4.7      & 58.0 $\pm$ 0.8 & 51.0\% & 64.2\% & 39.2\% \\
+ & Gemini 3.1 Pro & 49.3 $\pm$ 1.8 & 41.2\% & 57.5\% & 24.2\% \\
+ & GLM-5.1              & 48.1 $\pm$ 1.3 & 40.3\% & 59.2\% & 20.8\% \\
+ & MiniMax-M3           & 47.0 $\pm$ 1.3 & 41.2\% & 59.2\% & 22.5\% \\
+ & DeepSeek-V4 Pro      & 46.2 $\pm$ 0.8 & 38.0\% & 57.5\% & 18.3\% \\
+ & Qwen3.7-Max          & 44.9 $\pm$ 0.7 & 37.7\% & 57.5\% & 21.7\% \\
+ & Kimi K2.6            & 42.8 $\pm$ 1.8 & 35.3\% & 55.8\% & 18.3\% \\
+ & Claude Sonnet 4.6    & 42.8 $\pm$ 0.3 & 34.8\% & 49.2\% & 20.0\% \\
+ & GPT-5.4 mini         & 27.2 $\pm$ 1.4 & 20.0\% & 41.7\% & 6.7\%  \\
+ & Claude Haiku 4.5$^\dagger$     & 23.9 $\pm$ 1.5 & 15.7\% & 30.8\% & 3.3\%  \\
+\midrule
+\multicolumn{6}{l}{\textbf{(b)} Best model per agent} \\
+\midrule
+Claude Code & Claude Opus 4.8 & \textbf{65.8 $\pm$ 0.7} & 58.8\% & 64.2\% & 51.7\% \\
+Codex          & GPT-5.5          & 64.7 $\pm$ 0.7 & 57.7\% & 68.3\% & 42.5\% \\
+OpenHands      & Claude Opus 4.8  & 63.4 $\pm$ 0.6 & 57.3\% & 67.5\% & 45.0\% \\
+Mini-SWE-Agent & GPT-5.5          & 62.4 $\pm$ 0.8 & 54.2\% & 67.5\% & 40.0\% \\
+Terminus-2     & GPT-5.5          & 60.1 $\pm$ 0.6 & 52.3\% & 64.2\% & 31.7\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent\textbf{Model comparison at a fixed agent framework.}
+\Cref{tab:two-panel}~(a) isolates the effect of the underlying model by fixing the agent to basic Terminus-2. Three frontier models form a leading group: GPT-5.5 (60.1\%), Claude Opus 4.8 (59.7\%), and Claude Opus 4.7 (58.0\%). The difference between the top two models is smaller than their trial-to-trial variation ($\pm0.6$ and $\pm1.0$, respectively), suggesting the observed difference is small relative to the reported run-to-run uncertainty. However, this near-tie in average performance does not imply comparable reliability. Claude Opus 4.8 solves all five attempts on 42.5\% of tasks, compared with 31.7\% for GPT-5.5, indicating more consistent behavior across seeds despite a similar overall success rate. Below this leading group, a gap of approximately nine percentage points separates the frontier models from a mid-tier band ranging from 44.9\% to 49.3\%, which includes Gemini 3.1 Pro Preview, GLM-5.1, MiniMax-M3, DeepSeek-V4 Pro, and Qwen3.7-Max. The within-family Claude results further reveal a clear capability hierarchy: Opus 4.8 achieves 59.7\%, Sonnet 4.6 achieves 42.8\%, and Haiku 4.5 achieves 23.9\%. This pattern suggests that the benchmark distinguishes model tiers effectively rather than being saturated.
+
+\noindent\textbf{Best achievable performance per agent.}
+\Cref{tab:two-panel}~(b) reports the strongest configuration for each agent scaffold by pairing every scaffold with its best-performing model. Claude Code achieves the highest overall result, reaching \textbf{65.8\%} with Claude Opus 4.8~(\texttt{max}), followed closely by Codex with GPT-5.5~(\texttt{xhigh}) at 64.7\%, OpenHands with Claude Opus 4.8~(\texttt{max}) at 63.4\%, and Mini-SWE-Agent with GPT-5.5~(\texttt{xhigh}) at 62.4\%. Terminus-2 with GPT-5.5~(\texttt{xhigh}) obtains 60.1\%, still within 5.7 percentage points of the best-performing configuration. Overall, the leading scaffolds occupy a relatively narrow performance band, suggesting that strong frontier models can yield competitive results across a range of agent implementations.
+
+
+\subsection{Ablation Studies and Empirical Analysis}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{figure}[t]
+\centering
+\begin{minipage}[t]{0.48\linewidth}
+  \centering
+  \includegraphics[width=\linewidth]{figures/timebudget_scaling.pdf}
+  \caption{\textbf{Task-execution time budget} for Terminus-2 + GPT-5.5 (\texttt{xhigh}). Larger budgets cut timed-out trials from 337 to just 4 of 600 and steadily
+raise the success rate.}\label{fig:time-budget-scaling}
+\end{minipage}\hfill
+\begin{minipage}[t]{0.48\linewidth}
+  \centering
+  \includegraphics[width=\linewidth]{figures/thinking_scaling.pdf}
+  \caption{\textbf{Thinking-effort scaling results}. Success rate across five thinking-effort settings for GPT-5.5; higher effort costs more tokens and steadily lifts performance.}
+  \label{fig:effort-ablation}
+\end{minipage}
+\end{figure}
+
+
+\noindent\textbf{Task-execution time budget.}
+\Cref{fig:time-budget-scaling} isolates the effect of the per-task time limit for Terminus-2 + GPT-5.5~(\texttt{xhigh}). As the time limit increases from 150s to 2400s, the number of timed-out trials drops sharply from 337 to 4 out of 600, while the success rate rises from 33.0\% to 60.1\%. This 27.1-point improvement is obtained without changing the model or agent scaffold, indicating that task-execution time is a major factor in measured performance. The close correspondence between fewer timeouts and higher success suggests that many low-budget failures are premature terminations rather than fundamental reasoning failures: the agent is often on a viable trajectory but does not have enough time to complete the task. The gains diminish beyond 1200s, where timeouts are already relatively rare (34 trials) and success reaches 57.1\%. At this point, the remaining failures are more likely to reflect genuine task difficulty rather than truncation. We therefore use a \textbf{2400s} per-task time limit as the default for all other experiments unless otherwise specified, as it nearly eliminates timeouts and provides the cleanest estimate of the agent's task-solving ceiling under this configuration.
+
+
+\noindent\textbf{Thinking-effort scaling.} \Cref{fig:effort-ablation} shows how Terminus-2 $+$ GPT-5.5 responds to increased reasoning effort. Success rate improves monotonically with the reasoning budget, rising from 36.5\% under the \texttt{none} setting to 60.1\% under \texttt{xhigh}. The largest gains occur at lower effort levels: moving from \texttt{none} to \texttt{medium} recovers roughly 15 percentage points with a modest increase in token cost. Beyond this point, the returns diminish. In particular, increasing effort from \texttt{high} to \texttt{xhigh} improves success by only 2.3 points, while nearly doubling the average number of output tokens from $\sim$13K to $\sim$19K per run. These results indicate that reasoning effort is a reliable lever for improving accuracy, but its cost-effectiveness declines sharply at high effort levels. Medium-to-high settings therefore provide the best accuracy--cost trade-off for most deployments.
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.98\linewidth]{figures/cost_efficiency.pdf}
+    \caption{\textbf{Success rate \vs cost per run across agent--model--effort configurations.} Each point is one configuration; the connected line marks the Pareto frontier (best success rate at a given cost). Low-cost efficiency comes from Terminus-2 with open-weight models ($\sim$47--48\% at \$12--23/run), while Claude Code with Claude Opus 4.8 (max) reaches the highest success rate at 65.8\% (\$173.61/run); Codex with GPT-5.5 (\texttt{xhigh}) is close behind at 64.7\% for $\sim$\$138/run. Returns flatten beyond $\sim$\$105/run.}
+    \label{fig:success_vs_cost}
+    \vspace{-10pt}
+\end{figure}
+\noindent\textbf{Cost--performance trade-off.} 
+\Cref{fig:success_vs_cost} compares task success rate with the average dollar cost per run across 39 agent--model configurations, covering five agent scaffolds and multiple reasoning-effort settings. Overall, cost spans more than an order of magnitude, from roughly \$12 to \$304 per run, while success rates range from 23.9\% to 65.8\%. The highlighted Pareto frontier shows that a small subset of configurations achieves the best trade-off between success and cost. At the low-cost end, Terminus-2 with open-weight models is particularly efficient, with MiniMax-M3 reaching $\sim$47\% success at \$12/run and GLM-5.1 reaching $\sim$48\% at \$23/run. In the mid-cost regime, Terminus-2 with Claude Opus 4.7 and Mini-SWE-Agent with Claude Opus 4.8 further improve the frontier, achieving around 50--57\% success at roughly \$54--\$57 per run. The highest success rates are obtained by Claude Code with Claude Opus 4.8 (\texttt{max}), which reaches 65.8\% at \$173.61/run under maximum reasoning effort.
+
+These results reveal two main trends. First, returns diminish sharply near the top of the frontier: increasing Codex/GPT-5.5 from \texttt{high} to \texttt{xhigh} effort raises success by less than one percentage point while adding about \$33 per run. Second, the scaffold has a substantial impact on cost--performance efficiency. The same model can occupy very different regions of the plot depending on the scaffold; for example, Claude Opus 4.7 achieves comparable accuracy at much lower cost under Terminus-2 than under Claude Code.
+
+
+\begin{wraptable}{r}{0.46\textwidth}
+  \centering
+  \small
+  \vspace{-\baselineskip}
+  \caption{\textbf{Success rate across three open-source agents}. Best per row in \textbf{bold}; $\Delta$ is GPT-5.5~\texttt{xhigh} minus Opus 4.8~\texttt{max}. The stronger model depends on the agent scaffold.}
+  \label{tab:model-comparison}
+  \begin{tabular}{l c c c}
+    \toprule
+    Agent & Opus 4.8 & GPT-5.5 & $\Delta$ \\
+    \midrule
+    Mini-SWE-Agent & $57.4$          & $\mathbf{62.4}$ & $+5.0$ \\
+    OpenHands  & $\mathbf{63.4}$ & $61.4$          & $-2.0$ \\
+    Terminus-2     & $59.7$          & $\mathbf{60.1}$ & $+0.4$ \\
+    \midrule
+    Mean           & $60.2$          & $\mathbf{61.3}$ & $+1.1$ \\
+    \bottomrule
+  \end{tabular}
+\end{wraptable}
+
+\noindent\textbf{Agent-dependent model performance.}
+\Cref{tab:model-comparison} compares Claude Opus 4.8 and GPT-5.5 across three open-source agent scaffolds, all models are with highest reasoning effort. When averaged over the three harnesses, the two models perform similarly: GPT-5.5 achieves a mean success rate of 61.3\%, only 1.1 percentage points higher than Opus~4.8 at 60.2\%. However, this small aggregate difference masks substantial scaffold-dependent variation. GPT-5.5 outperforms Claude Opus~4.8 by 5.0 points with Mini-SWE-Agent (62.4\% vs.\ 57.4\%), whereas Opus~4.8 leads by 2.0 points with OpenHands (63.4\% vs.\ 61.4\%). Under Terminus-2, the two models are effectively tied, with GPT-5.5 ahead by only 0.4 points (60.1\% vs.\ 59.7\%). These reversals indicate that relative model performance is not invariant to the agent scaffold. Consequently, the choice of harness can have a comparable effect to the choice of underlying model, and conclusions drawn from a single scaffold may misrepresent the relative capabilities of the models.
+
+
+\noindent\textbf{Per-category performance.} \Cref{fig:category-success-rate} reports per-category success rates for eight selected Terminus-2 model configurations (excluding the smallest/legacy variants for readability). Three findings emerge. First, no model dominates uniformly across the suite. GPT-5.5~(\texttt{xhigh}) is the most consistent performer, ranking at or near the top in every category, whereas Claude Opus~4.8~(\texttt{max}) leads by a wide margin on Web \& Info but falls closer to the middle of the field elsewhere, suggesting a more concentrated advantage. Second, task category strongly shapes performance. System \& SW is comparatively tractable, with all models clustered in a narrow high-performing band, while Office and Multimedia are consistently difficult: most models fall below 45\%, and even the strongest systems remain only in the mid-50\% range. Third, absolute success rates remain well below saturation, indicating that TUA-Bench continues to distinguish among frontier systems while leaving substantial headroom. 
+
+Category-level averages can obscure substantial task-level variation. To expose this structure, \Cref{fig:task-success-heatmap} shows mean success rates for individual tasks, grouped by category and subcategory. The heatmap reveals strong within-category heterogeneity: many categories contain both broadly solved tasks and tasks that nearly all models fail, so moderate averages often reflect a mixture of easy and hard tasks rather than uniform partial success. This pattern is especially visible in Multimedia and parts of Office, where broad low-reward regions indicate shared capability gaps. The heatmap also supports the aggregate trends, with GPT-5.5 and Claude Opus~4.8 appearing darker overall, and shows that Opus~4.8's Web \& Info advantage is concentrated in specific task groups. Together, \Cref{fig:category-success-rate,fig:task-success-heatmap} suggest that progress on TUA-Bench requires addressing the specific hard tasks that current agents consistently fail, not only improving aggregate category-level performance.
+
+
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.96\linewidth]{figures/success_rate_per_category.pdf}
+\vspace{-10pt}
+\caption{\textbf{Per-category success rates on TUA-Bench for eight models}, each run with the Terminus-2 agent under the indicated reasoning-effort setting (in parentheses). Bars are grouped by task category, with the number of tasks per category shown below each group (n). A more detailed, task-level breakdown of success rates is provided in \Cref{fig:task-success-heatmap}.}\label{fig:category-success-rate}
+\end{figure}
+
+
+
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.96\linewidth]{figures/success_rate_heatmap.pdf}
+\vspace{-10pt}
+\caption{\textbf{Task-level success rate heatmap.} Mean success rate runs for eight models evaluated with the Terminus-2 agent on each \benchname task. Rows correspond to model configurations and columns correspond to individual tasks, grouped by category and subcategory. Darker cells indicate higher success rate. The heatmap reveals substantial within-category heterogeneity: each category contains both broadly solved tasks and tasks that remain difficult for nearly all models, highlighting task-level capability gaps that are obscured by category-level averages.}\label{fig:task-success-heatmap}
+\vspace{-10pt}
+\end{figure}

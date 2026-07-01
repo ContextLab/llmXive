@@ -1,0 +1,179 @@
+\documentclass[11pt,a4paper,logo]{googledeepmind}
+
+\setleftlogo[180pt]{imgs/logo_lab.png} 
+\setrightlogo[180pt]{}
+
+\usepackage{placeins}
+\usepackage{subcaption}
+
+
+\usepackage[
+    natbib=true,
+    backend=biber,
+    style=numeric, % Changed from 'alphabetic' to 'numeric' as per common technical report styles
+    sorting=none % To keep references in order of appearance or as defined in .bib
+]{biblatex}
+\addbibresource{main.bib} 
+\AtEveryBibitem{\clearfield{month}}
+\AtEveryBibitem{\clearfield{day}}
+
+\usepackage{csquotes}
+
+\newcommand{\ProjectName}{Agents-A1}
+\newcommand{\github}{\raisebox{-1.5pt}{\includegraphics[height=1em]{figures/github-logo.pdf}}}
+
+
+\title{Scaling the Horizon, Not the Parameters: Reaching Trillion-Parameter Performance with a 35B Agent}
+
+\author[1]{\ProjectName~Team, Shanghai Artificial Intelligence Laboratory \\
+}
+
+\usepackage{pdflscape}
+\usepackage{amsthm}
+\newtheorem{definition}{Definition}
+\usepackage{textcomp}
+\usepackage{rotating}
+\usepackage{setspace}
+\usepackage{soul} 
+\usepackage{multicol}
+\usepackage{subcaption}
+\usepackage{caption}
+
+\newcommand{\titledcaption}[2]{\caption[{#1}]{\textbf{#1}\\#2}}
+\sethlcolor{green!14}
+\newcommand{\mc}[2]{\makecell[t]{#1 \\ \scriptsize{(#2)}}}
+\newcommand{\mcb}[2]{\makecell[t]{{\bfseries #1} \\ \scriptsize{(#2)}}}
+\newcommand{\nan}{\makecell{--}}
+\usepackage{array}
+% \usepackage{threeparttable}
+\usepackage{multirow}
+\usepackage[justification=centering]{subcaption}
+% Math and units.
+\usepackage{amsmath}
+\usepackage{siunitx}
+
+% Formatting.
+\usepackage{enumitem}
+\usepackage{float}
+\usepackage{seqsplit}
+\usepackage{framed}
+\usepackage{tikz}
+\usepackage{listings}
+\usepackage{colortbl}
+\usepackage{wrapfig}
+\usepackage[most]{tcolorbox}
+\usepackage{pdfpages}
+\tcbuselibrary{listingsutf8}
+\definecolor{mycolor}{RGB}{50,80,150}
+
+\setcounter{topnumber}{2}
+\setcounter{bottomnumber}{2}
+\setcounter{totalnumber}{4}
+\renewcommand{\topfraction}{0.85}
+\renewcommand{\bottomfraction}{0.85}
+\renewcommand{\textfraction}{0.15}
+\renewcommand{\floatpagefraction}{0.7}
+\usepackage{ragged2e}
+\usepackage{makecell}
+\usepackage{adjustbox}
+
+\usepackage[symbol]{footmisc}
+\newcolumntype{Y}{>{\RaggedRight\arraybackslash}X}
+\newcommand{\cmark}{\ding{51}}
+\newcommand{\xmark}{\ding{55}} 
+\newcommand{\maybe}{\textcolor{orange}{\textbf{?}}}
+\newcommand{\bad}[1]{\textcolor{red!70!black}{#1}}
+\newcommand{\good}[1]{\textcolor{teal!70!black}{#1}}
+\newcommand{\miss}[1]{\textcolor{red!70!black}{\emph{[missing: #1]}}}
+
+\newcommand{\Match}[1]{\textcolor{blue!70!black}{\textbf{#1}}}  
+\newcommand{\PMatch}[1]{\textcolor{orange!85!black}{#1}} 
+\newcommand{\BestPerf}[1]{\textbf{#1}}
+\newcommand{\SecBestPerf}[1]{\underline{#1}}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1ex} % Add some space between paragraphs
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue, % Changed for better visibility of links
+    citecolor=blue,  % Changed for better visibility of citations
+    filecolor=black,
+    urlcolor=blue    % Changed for better visibility of URLs
+}
+\definecolor{AbstractBgColor}{HTML}{F4F7FB}
+% Table of contents.
+\usepackage{tocloft}
+% Remove dots from the table of contents.
+\renewcommand{\cftdotsep}{\cftnodots}
+% This will preserve clickable links in the TOC
+\usepackage{etoolbox}
+\usepackage{arydshln}
+\makeatletter
+\patchcmd{\@tocline}
+    {\hfil}
+    {\leaders\hbox{\hfil}\hfil}
+    {}{}
+\makeatother
+
+
+\begin{document}
+\sloppy
+\thispagestyle{firststyle}
+
+
+\begin{tcolorbox}[
+    colback=AbstractBgColor, 
+    colframe=AbstractBgColor, 
+    arc=5pt,                  
+    auto outer arc,
+    boxrule=0pt,              
+    left=8pt, right=8pt, 
+    % left=12pt, right=12pt,
+    top=4pt, bottom=4pt,      
+    parbox=false,
+    width=\textwidth,
+    before skip=-800pt,        
+    after skip=0pt, 
+    enlarge top by=-12pt
+]
+\input{sections/abstract}
+
+\maketitle
+
+\begin{center}
+\href{https://github.com/InternScience/Agents-A1}{\textcolor{black}{\github~\textbf{Code}}} \qquad
+    \href{https://huggingface.co/InternScience/Agents-A1}{\raisebox{-0.15\height}{\includegraphics[height=1em]{imgs/huggingface.png}}~\textcolor{black}{\textbf{Model}}}
+\end{center}
+\end{tcolorbox}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\linewidth]{figures/Fig1_a1_benchmarks_altair_grid-8.pdf}
+    \caption{Benchmark performance of \ProjectName
+    }
+    \label{fig:benchmark_performance}
+\end{figure}
+
+
+\clearpage
+\tableofcontents
+\newpage
+
+\input{sections/introduction}
+\input{sections/know_agent_with_teachers}
+\input{sections/data_pipeline}
+\input{sections/training_recipe}
+\input{sections/exp_and_app}
+\input{sections/limitation}
+
+\begingroup
+\sloppy
+\printbibliography[heading=bibintoc]
+% \bibliography{references}
+% \input{main.bbl}
+\endgroup
+
+\clearpage
+\input{sections/appendix}
+
+\end{document}

@@ -1,0 +1,49 @@
+\begin{table*}[h]
+\footnotesize
+\centering
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.3}
+\caption{Evaluation results of Qwen3.5-35B-A3B and the tool-enhanced RL teacher on $\tau^2$-bench and Vita-bench.}
+\begin{tabular}{lccccccccc}
+\toprule
+& \multicolumn{4}{c}{$\tau^2$-bench\textsuperscript{\dag}} 
+& \multicolumn{5}{c}{VitaBench} \\
+\cmidrule(lr){2-5} \cmidrule(lr){6-10}
+\textbf{Model}
+& \textbf{Airline}
+& \textbf{Retail}
+& \textbf{Telecom}
+& \textbf{Avg}
+& \textbf{Cross Domain}
+& \textbf{Delivery}
+& \textbf{In-store}
+& \textbf{Ota}
+& \textbf{Avg} \\
+\midrule
+Qwen3.5-35B-A3B
+& 16.00
+& 30.70
+& 50.90
+& 32.53
+& 11.51
+& 39.25
+& 31.50
+& 21.75
+& 26.00 \\
+
+Tool-enhanced (SFT+RL)
+& \textbf{72.00}
+& \textbf{82.50}
+& \textbf{93.00}
+& \textbf{82.50}
+& \textbf{30.00}
+& \textbf{56.00}
+& \textbf{51.75}
+& \textbf{38.89}
+& \textbf{44.16} \\
+\bottomrule
+\multicolumn{10}{l}{\footnotesize \textsuperscript{\dag} For $\tau^2$-Bench, we report our reproduced result (32.53); see Section~\ref{sec:sft_results} for discussion.} \\
+\end{tabular}
+\label{tab:tool_rl_results}
+\end{table*}
+

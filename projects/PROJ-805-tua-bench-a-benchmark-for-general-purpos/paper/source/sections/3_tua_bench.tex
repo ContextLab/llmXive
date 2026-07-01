@@ -1,0 +1,79 @@
+\section{TUA-Bench}\label{sec:tua-bench}
+TUA-Bench is a benchmark framework for evaluating the ability of agents and models to complete a broad range of terminal-based tasks, spanning both everyday digital workflows and domain-specialized professional procedures. The benchmark is designed to assess not only whether agents can execute isolated commands, but also whether they can plan, interact with realistic software environments, manipulate files and artifacts, and verify task completion under reproducible conditions. The following subsections first introduce the execution environment underlying TUA-Bench, and then describe the task curation process.
+
+%%%%%%%%%%%%%%%% Benchmark Environment %%%%%%%%%%%%%%%
+\subsection{Task Execution Environment}\label{sec:task-env}
+
+To support standardized and reproducible evaluation, we build \benchname on top of Harbor~\citep{Harbor_Framework}, the orchestration framework also used by Terminal-Bench~\citep{merrill2026terminalbench}. Harbor provides a mature execution substrate for terminal-agent evaluation, including task setup, environment management, execution control, logging, and result verification. By adopting this shared infrastructure, \benchname can focus on constructing, curating, and validating realistic tasks while maintaining compatibility with existing terminal-agent evaluation pipelines.
+
+\noindent\textbf{Execution infrastructure.}
+Harbor serves as the orchestration layer of \benchname. It manages task configuration, environment construction, container launch, parallel execution, and the collection of trajectories, token usage, scores, and runtime metadata. Each task is executed inside an isolated and resettable Linux container, ensuring that evaluations are reproducible and that failed, incomplete, or unsafe executions do not affect subsequent trials. In addition to Docker, \benchname supports Podman~\citep{podman2026}, which preserves Dockerfile compatibility while enabling rootless execution on shared clusters without requiring \texttt{sudo} privileges. This infrastructure allows agents to operate in realistic terminal environments, interacting with files, shell commands, installed packages, optional internet access, and native CLI-based agent interfaces.
+
+\noindent\textbf{Task specification and reproducibility.}
+Each task in \benchname is packaged as a self-contained specification, including a Dockerfile, task-specific input artifacts, natural-language instructions, environment variables, model and runtime settings, and an in-environment verifier. This packaging standardizes the initial state, execution procedure, and evaluation protocol for every task. As a result, \benchname provides consistent and reproducible evaluation while preserving realistic sources of variability, such as stochastic agent behavior and internet-dependent execution when network access is enabled.
+
+
+\subsection{Task Curation}\label{sec:task-curation}
+TUA-Bench comprises 120 real-world tasks organized along two complementary dimensions. The \emph{breadth} dimension captures the everyday digital work of general computer users, including web browsing, document and spreadsheet editing, email management, and media processing. The \emph{depth} dimension focuses on expert workflows co-designed with PhD-level domain experts in biology, medical physics, architectural engineering, and mechanical engineering. These tasks require agents to operate specialized software and complete domain-specific procedures, often through command-line interfaces.
+
+Our curation pipeline reflects the different design requirements of everyday and professional computer-use tasks. For everyday tasks~(\cref{sec:everyday-task}), we start from established GUI-based benchmarks and translate them into terminal-centric settings, preserving the underlying user goals while requiring agents to complete the tasks through command-line interaction and file-level manipulation. For professional tasks~(\cref{sec:pro-tasks}), we construct new workflows in collaboration with domain experts, with an emphasis on realistic procedures, domain-specific constraints, and executable evaluation. We describe these two tracks in detail below.
+
+
+\subsubsection{Everyday Digital Tasks}\label{sec:everyday-task}
+We source everyday digital tasks from OSWorld~\citep{xie2024osworld}, a GUI-based benchmark for evaluating computer-use agents on realistic tasks across real-world applications.
+
+\noindent\textbf{GUI-to-CLI task conversion.}
+OSWorld contains 369 computer-use tasks grounded in real web and desktop applications across open-ended domains. We reuse these tasks as the basis for our everyday digital task set and convert them into CLI-based tasks that can be executed within our evaluation environment~(\cref{sec:task-env}). For each task, we also reuse the corresponding input files and gold artifacts from OSWorld, which define the initial task state and the target output for evaluation. Unlike OSWorld, which specifies the target application during task setup, such as using LibreOffice to edit a spreadsheet, our formulation preserves only the underlying task intent and does not constrain the tools that an agent may use. This design gives agents greater flexibility in choosing appropriate commands, utilities, or workflows to complete each task. Based on this principle, we rewrite the task instructions so that they are natural and actionable in a terminal-based setting.
+
+\noindent\textbf{Quality control via human verification.}
+After converting all 369 tasks from OSWorld, we apply a rigorous quality-control process with human verification to identify and remove tasks with inconsistencies between the provided input files and the target gold artifacts.
+% 
+Specifically, we manually inspect failed execution trajectories together with the final artifacts produced by agents. This human verification process reveals that, in some cases, task failure is caused not by agent limitations but by discrepancies between the task inputs and the corresponding gold files. For instance, certain presentation-editing tasks exhibit mismatches in slide themes or formatting conventions between the input and gold files. In these cases, an agent may correctly follow the task intent yet still fail the verifier due to artifact-level inconsistencies, making the task unreliable for evaluation. We therefore exclude tasks with verified input--gold mismatches from the benchmark.
+
+
+\noindent\textbf{Difficulty-aware task selection.}
+Benchmarks for agentic computer use can rapidly become saturated as foundation models and agent frameworks continue to improve. For instance, while the best-performing model achieved only a 12.24\% success rate on OSWorld at the time of its release, recent state-of-the-art GPT-5.5~\citep{openai2026introducinggpt55} reports substantially higher performance, reaching 78.7\%. This rapid progress suggests that many tasks that once served as meaningful challenges may no longer sufficiently distinguish the capabilities of modern agents. 
+
+
+
+\begin{table}[t]
+\centering
+\small
+\caption{Scientific subjects spanning biology, medical physics, architectural engineering, and mechanical engineering. Each row shows the subject's task scope and a representative task example.}\label{tab:depth-subjects}
+\renewcommand{\arraystretch}{1.1}
+\begin{tabular}{@{}m{3.2cm}m{7.4cm}>{\centering\arraybackslash}m{4.4cm}@{}}
+\toprule
+\textbf{Subject} & \textbf{Scope} & \textbf{Task Example} \\
+\midrule
+Biology
+& Counting and localizing cell nuclei from fluorescence / nuclear-stain micrographs; image-based cytometry of cells and subcellular structures.
+& \includegraphics[width=\linewidth,height=2.2cm,keepaspectratio]{figures/task_cell_detection.png}  \\
+\addlinespace
+Medical Physics
+& Histopathology image segmentation, volumetry, and overlay from MRI volumes; anatomical segmentation and morphometry in medical image computing.
+& \includegraphics[width=\linewidth,height=2.2cm,keepaspectratio]{figures/task_mri.png} \\
+\addlinespace
+Architectural Engineering
+& Reconstructing and simulating whole-building energy performance with OpenStudio and EnergyPlus; building energy performance simulation.
+& \includegraphics[width=\linewidth,height=2.2cm,keepaspectratio]{figures/task_building.png} \\
+\addlinespace
+Mechanical Engineering
+& Heater placement, cold-plate optimization, and heated-plate analysis via OpenFOAM, including conjugate heat transfer; computational fluid dynamics and heat transfer.
+& \includegraphics[width=\linewidth,height=2.2cm,keepaspectratio]{figures/task_thermal_sim.png} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+To this end, we evaluate each candidate task using three frontier models, GPT-5.5~\citep{openai2026introducinggpt55}, Claude Opus 4.7~\citep{anthropic2026opus47}, and Gemini 3.1 Pro~\citep{google2026gemini31pro}, each deployed within the Terminus-2 agent framework. For each model-task pair, we conduct five independent trials and compute the mean reward as a quantitative measure of empirical task solvability. Tasks are then ranked according to their aggregate solvability across models, and 100 tasks with the lowest solvability are retained for inclusion in the benchmark. Through this difficulty-aware selection process, we aim to construct a benchmark with sustained difficulty and long-term discriminative power by selecting tasks that remain among the most challenging under strong contemporary baselines.
+
+
+\subsubsection{Professional Scientific Tasks}\label{sec:pro-tasks}
+Beyond everyday digital tasks, we introduce a set of professional tasks designed to evaluate whether LLM agents can operate specialized software in domain-specific settings. These tasks target scientific and engineering workflows that require procedural knowledge, familiarity with specialized tools, and the ability to produce outputs satisfying domain-specific constraints. To ensure realism and evaluability, our design follows three principles. First, each task should reflect a meaningful workflow commonly performed by professionals, rather than an artificial exercise created solely for benchmarking. Second, each task should require a sufficiently complex sequence of operations, allowing us to assess whether agents can plan, execute, and revise multi-step procedures across multiple tool calls. Third, each task should support reliable evaluation, either through programmatic verifiers or LLM-as-a-judge assessment.
+
+Concretely, we construct an initial pool of 25 professional tasks mainly across biology, medical physics, architectural engineering, and mechanical engineering. Each task is developed and validated in collaboration with PhD-level domain experts, who help identify representative workflows, prepare realistic input assets, specify expected outputs, and verify that the task reflects authentic professional practice. During task construction, we package the required files, software environments, and execution instructions into reproducible settings, so that agents must complete the workflow through actual interaction with specialized tools. We also define task-specific evaluation criteria, prioritizing automatically checkable outputs when possible and using expert-informed judging rubrics when programmatic verification is insufficient. Finally, we remove overly simple tasks that multiple agents can already solve and retain 20 challenging tasks.
+
+\subsubsection{Task Statistics and Features}
+
+\Cref{fig:task-distribution} presents a two-level taxonomy of the 120 tasks in TUA-Bench. The benchmark is structured into five top-level task families: Office \& Productivity, Web \& Information, System \& Software Operations, Scientific \& Engineering, and Multimedia \& Design. These families are further divided into 20 subcategories. In the sunburst visualization, the inner ring indicates the relative proportion of each top-level family, while the outer ring provides the corresponding subcategory-level breakdown. Office \& Productivity constitutes the largest portion of the benchmark, accounting for 38.3\% of all tasks, consistent with the prevalence of spreadsheet, document, presentation, and email workflows in everyday computer use. The remaining four families are more evenly represented, ranging from 13.3\% for Multimedia \& Design to 18.3\% for Web \& Information. This task composition is intended to cover both routine productivity scenarios and specialized professional workflows, including engineering simulation, medical imaging, and software configuration. As a result, aggregate performance on TUA-Bench reflects an agent's ability to operate across heterogeneous, real-world computer-use settings rather than within a narrow application domain.
+

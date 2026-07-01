@@ -1,0 +1,29 @@
+\begin{table}[ht]
+\centering
+\caption{\textbf{Our designed tool interface used by \ProjectName, according to the MLE agentic harness.} The tools define a compact action space through which the model performs code authoring, execution, search-tree management, persistent memory, and delegated analysis.}
+\label{tab:mle_tools}
+\begin{tabular}{@{}l p{0.66\linewidth}@{}}
+\toprule
+\textbf{Tool} & \textbf{Function} \\
+\midrule
+\multicolumn{2}{@{}l}{\textit{Code authoring \& execution}}\\
+\texttt{write\_full\_code} & Author a complete training script from scratch; opens a new root node (a fresh line of attack). \\
+\texttt{patch\_code} & Apply a localized edit to a node's code; spawns a child node, preserving tree history for incremental refinement. \\
+\texttt{execute\_code} & Run a node, capture stdout and exceptions, extract its validation metric, and check the emitted submission for validity. \\
+\texttt{execute\_bash} & Run a guarded shell command for environment setup and inspection (installs, GPU checks, file operations). \\
+\addlinespace
+\multicolumn{2}{@{}l}{\textit{Search-tree navigation \& answer management}}\\
+\texttt{list\_nodes} & Survey the solution tree: the selected answer, the recent answer trail, invalidated history, and a metric-ranked listing. \\
+\texttt{select\_node} & Inspect one node in full (code, plan, output, metric, parent chain) before revisiting or branching from it. \\
+\texttt{invalidate\_node} & Exclude a node whose metric is untrustworthy (leakage, overfitting) from ranking and submission. \\
+\texttt{update\_answer} & Commit a node as the current submission candidate, written to the canonical path the grader reads. \\
+\texttt{get\_current\_answer} & Report the node currently committed as the answer. \\
+\addlinespace
+\multicolumn{2}{@{}l}{\textit{Persistent memory}}\\
+\texttt{write\_notes} / \texttt{read\_notes} & Append to / re-read a notebook that survives context compaction (decisions, failed strategies and why, hypotheses). \\
+\addlinespace
+\multicolumn{2}{@{}l}{\textit{Sub-agent}}\\
+\texttt{analyze} & Spawn an isolated analysis sub-agent that explores data and results in its own context window and returns a single structured report. \\
+\bottomrule
+\end{tabular}
+\end{table}

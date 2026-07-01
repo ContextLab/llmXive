@@ -1,0 +1,16 @@
+\begin{table*}[]
+\footnotesize
+\centering
+\setlength{\tabcolsep}{8pt}
+\renewcommand{\arraystretch}{1.4}
+\caption{Performance comparison between Qwen3.5-35B-A3B and the science-enhanced teacher. Tool usage is allowed for all benchmarks.}
+\label{tab:sci-enhanced-teacher}
+\begin{tabular}{lcccc}
+\midrule
+Model & HLE w/ tools  & HiPhO & FS-O & FS-R \\ 
+\midrule
+Qwen3.5-35B-A3B & 47.4 & 37.0  & 64.5 & 2.5  \\
+Science-enhanced Teacher (SFT) & \textbf{47.8} & \textbf{46.9} & \textbf{82.0} & \textbf{54.3} \\ 
+\midrule
+\end{tabular}
+\end{table*}

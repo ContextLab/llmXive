@@ -1,0 +1,95 @@
+
+
+
+\section{Method}
+\label{sec:method}
+
+ 
+
+
+\subsection{Motivation}
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=1.0\linewidth]{images/attention-2.pdf}
+    \caption{\textbf{Visualization of the attention distribution shift.} \textbf{Left:} The bidirectional prior exhibits localized attention gathering. \textbf{Right:} Direct causal truncation forces attention to spread uniformly across all historical frames.}
+    \label{fig:attention_shift}
+    % \vspace{-2em}
+\end{figure}
+
+We summarize the two primary observations regarding the inefficiencies of adapting state-of-the-art video diffusion models to the streaming video editing task and propose the modules to address them.
+
+
+\noindent \textbf{Attention distribution shift.} In the offline video editing phase, state-of-the-art bidirectional diffusion models utilize dense temporal attention to propagate structural information, natively assigning significant weights to both past and immediate future tokens. However, we observe that abruptly truncating these future keys and values for causal execution causes a severe shift in the attention distribution. Specifically, as illustrated in Fig.~\ref{fig:attention_shift}, the loss of future context forces the attention weights to flatten and distribute uniformly across all available historical frames. This homogenized attention behavior intrinsically conflicts with the streaming paradigm, which relies heavily on the nearest neighboring frames to maintain temporal coherence and structural integrity. Consequently, this over-smoothed dependency disrupts the pre-trained structural priors, making it theoretically suboptimal to directly deploy naively truncated bidirectional models in a streaming pipeline. To address this, we introduce a progressive three-stage distillation pipeline. Our teacher-forcing mechanism explicitly aligns the causal attention distribution with the localized bidirectional prior, ensuring robust, localized representation mapping without the need for future context.
+
+\noindent \textbf{Spatial-temporal token redundancy.} Existing streaming generation approaches (e.g., StreamV2V~\cite{liang2024looking}, StreamDiffusion~\cite{kodaira2025streamdiffusion} and StreamDiffusionV2~\cite{feng2025streamdiffusionv2}) primarily focus on global Video-to-Video translation tasks. Specifically, for every incoming frame, these pipelines perform dense computations across all spatial tokens globally to synthesize the entire scene. However, we note that streaming video editing fundamentally differs from global translation, as the intermediate feature representations of tokens in unedited regions must strictly maintain absolute temporal consistency. Therefore, applying such a global generation paradigm to editing tasks inherently disrupts the visual integrity of unedited areas, causing destructive structural degradation and severe flickering in the background, alongside massive computational redundancy. To address this, we introduce the AR-oriented Mask Cache mechanism. Only the actively edited spatial tokens undergo full calculation, while the intermediate features of highly correlated static tokens are directly retrieved from the cache, ensuring strict background preservation and efficient generation.
+
+\subsection{Three-Stage Distillation Pipeline}
+
+\begin{figure*}[ht]
+    \centering
+    \includegraphics[width=1.0\linewidth]{images/Framework-v2.pdf}
+    \vspace{-2em}
+    
+    \caption{\textbf{Overview of the proposed streaming video editing framework.} Our approach features a three-stage distillation pipeline that transfers editing capabilities from a bidirectional DiT to a 4-step causal model. Furthermore, an AR-oriented Mask Cache accelerates real-time inference by dynamically decoupling computation and reusing tokens in unedited background regions.}
+    
+    \label{fig:framework}
+    % \vspace{-2em}
+\end{figure*}
+
+To bridge the architectural gap between offline bidirectional priors and online causal execution, we propose a progressive three-stage distillation pipeline. Let $z_0\in\mathbb{R}^{F\times C\times H\times W}$ denote the input video latent sequence and $c$ represent the text embedding extracted from the editing prompt. This design effectively transfers the high-fidelity editing capabilities of a foundation model into an ultra-fast, unidirectional streaming editor. An overview of the framework is illustrated in Fig. \ref{fig:framework}.
+
+\noindent \textbf{Stage 1: Foundation Tuning for Editing Ability Acquisition.}
+In the initial stage, we establish a robust multimodal video-to-video editing baseline utilizing a Bidirectional Diffusion Transformer (DiT). Specifically, the network processes the channel-wise concatenation of the original video latent and the noisy latent $z_t$ at timestep $t$. To mitigate the quadratic computational overhead inherently associated with long token sequences in video generation, we emphasize this channel-wise integration strategy over spatial or temporal sequence concatenation. The bidirectional architecture, denoted as $\epsilon_{\theta}^{bid}$, leverages full temporal and spatial attention to learn complex mapping functions for content manipulation. The entire foundation model is supervised via the standard noise-matching objective:
+$$\mathcal{L}_{MSE}^{bid}=\mathbb{E}_{z_0,\epsilon\sim\mathcal{N}(0,I),t,c}\left[\left\|\epsilon-\epsilon_{\theta}^{bid}(z_t,t,c)\right\|_2^2\right]$$
+This optimization yields a powerful offline editing prior capable of maintaining high-fidelity generation.
+
+\noindent \textbf{Stage 2: Teacher Forcing for Chunk-wise Causal Initial.}
+To enable basic streaming input-output functionality, the architecture must transition from a bidirectional to an autoregressive (AR) generation paradigm. However, directly applying causal masks to a pre-trained bidirectional model severely degrades performance. Therefore, we introduce a Teacher Forcing mechanism equipped with chunk-wise causal attention. Let $M_{causal}$ denote the causal attention mask that restricts temporal tokens from attending to future chunks. The causal DiT, $\epsilon_{\theta}^{causal}$, is optimized to predict the noise while strictly adhering to the causal constraint:
+$$\mathcal{L}_{MSE}^{causal}=\mathbb{E}_{z_0,\epsilon,t,c}\left[\left\|\epsilon-\epsilon_{\theta}^{causal}(z_t,t,c\mid M_{causal})\right\|_2^2\right]$$
+Inspired by recent autoregressive frameworks such as Causal Forcing, we establish that deriving an AR model via explicit Teacher Forcing is structurally essential for streaming video generation. By aligning the output distribution of the causal DiT with the bidirectional representations learned in Stage 1, the model prevents the structural collapse typically caused by the absence of future tokens.
+
+\noindent \textbf{Stage 3: DMD for Streaming Video Editing.}
+To achieve ultra-low latency while eliminating accumulated shift errors during continuous streaming, we perform advanced step-distillation using Distribution Matching Distillation (DMD). Recent autoregressive generation paradigms, notably Self-Forcing, heavily rely on an Ordinary Differential Equation (ODE) initialization phase to bridge the training-inference distribution gap. However, this ODE initialization incurs prohibitive computational resource overhead and severely limits practical scalability. To circumvent this fundamental bottleneck, we directly utilize the AR-based model parameters from Stage 2 ($\epsilon_{\theta}^{causal}$) to initialize the 4-step DMD generator $G_{\theta}$. This architectural decision not only avoids the excessive initialization overhead but also provides a highly stable starting point for distillation, echoing the empirical insights observed in recent works like EgoEdit.
+
+During training, the generator $G_{\theta}$ maps pruned noise inputs directly to the edited frames. The distillation process is jointly optimized by $\mathcal{L}_{MSE}$ and the DMD gradient $\nabla_{\theta}\mathcal{L}_{DMD}$. The DMD gradient is computed between a frozen Real Score model $\epsilon_{\phi}^{real}$ and a trainable Fake Score model $\epsilon_{\psi}^{fake}$:
+
+
+\begin{align*}
+\nabla_{\theta}\mathcal{L}_{DMD}
+&=\mathbb{E}_{z_T,c}\Bigl[
+w(t)\Bigl(\epsilon_{\phi}^{real}(z_t,t,c)- \\
+&\qquad
+\epsilon_{\psi}^{fake}(z_t,t,c)\Bigr)
+\nabla_{\theta}G_{\theta}(z_T,c)\Bigr]
+\end{align*}
+
+
+where $z_t$ is the intermediate latent simulated from the generated output $G_{\theta}(z_T,c)$, and $w(t)$ is a timestep-dependent weighting function. This mechanism effectively compresses the generation process into merely 4 inference steps, ensuring real-time responsiveness.
+
+\subsection{AR-oriented Mask Cache}
+
+
+
+\begin{figure*}[ht]
+    \centering
+    \includegraphics[width=1.0\linewidth]{images/Mask.pdf}
+    \caption{\textbf{Visualization of the temporal consistency analysis and mask generation process.} The left panels show (from top to bottom) the source video frames, the synthesized video frames, the computed difference matrices, and the resulting binary masks. The right panels display the statistical distributions of Temporal IoU and Pixel Difference across the sequence, with mean values of 0.016\% and 0.126\%, respectively, indicating high structural stability.}
+    \label{fig:mask}
+    % \vspace{-3em}
+\end{figure*}
+
+
+While the three-stage distillation pipeline resolves the architectural incompatibility, the fundamental issue of spatial-temporal redundancy remains a critical bottleneck for real-time inference. To address this, we introduce the AR-oriented Mask Cache mechanism, dynamically decoupling the computational graph based on regional editing activity.
+
+During the streaming inference phase, the pipeline processes the video in sequential chunks. To dynamically route the computation for an incoming chunk $k$, we derive its spatial editing mask from the generation trajectory of the preceding chunk. Let $z_{src}^{k-1}$ denote the original source latent representation of the previously generated chunk $k-1$, and $z_{edit}^{k-1}$ denote its corresponding edited output latent. We extract a binary spatial editing mask $M^k\in\{0,1\}^{H\times W}$ for the current chunk $k$ by computing the $L_2$ distance between these two latents:
+
+$$M^k_{u,v}=\mathbb{I}\left(\left\|z_{edit,u,v}^{k-1}-z_{src,u,v}^{k-1}\right\|_2>\tau\right)$$
+
+where $\mathbb{I}(\cdot)$ is the indicator function and $\tau$ is dynamically determined by calculating a redundancy level among the tokens. This mask geometrically separates the spatial layout of the incoming chunk $k$ into active editing regions ($M^k_{u,v}=1$) and static background regions ($M^k_{u,v}=0$). As visualized in Fig. \ref{fig:mask}, our mask generation process demonstrate extremely high structural stability, with the statistical distribution across the entire sequence.
+
+Instead of executing the complete network forward pass globally for chunk $k$, our mechanism implements a spatial routing strategy guided by $M^k$. For the spatial tokens located within the active mask, the model allocates its full computational capacity, executing the complete sequence of Self-Attention, Cross-Attention, and Feed-Forward Network modules (\textit{Full Calculation}). Conversely, for the tokens corresponding to the unedited regions, the mechanism entirely bypasses the computationally expensive layers. Let $\mathcal{F}$ denote the full block transformation and $z^k_{u,v}$ denote the input token for the current chunk; the output token feature $f^k_{u,v}$ is determined by:
+
+$$f^k_{u,v}=\begin{cases}\mathcal{F}(z^k_{u,v})&\text{if }M^k_{u,v}=1\\f^{k-1}_{u,v}&\text{if }M^k_{u,v}=0\end{cases}$$
+
+The intermediate feature representations for the static regions are directly retrieved from a maintained Token Cache populated by the preceding chunk (\textit{Token Reuse}). This dynamic, inter-chunk spatial decoupling dramatically reduces the per-frame computational complexity, achieving substantial acceleration while strictly guaranteeing absolute visual consistency in the unedited background areas.

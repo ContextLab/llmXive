@@ -1,0 +1,27 @@
+\begin{table*}[t]
+\footnotesize
+\centering
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.3}
+\caption{Evaluation results of Qwen3.5-35B-A3B and RL-enhanced teacher on LongBench V2, IFBench, and IFEval, where IFBench and IFEval report strict scores.}
+\begin{tabular}{lccc}
+\toprule
+\textbf{Model}
+& \textbf{LongBench V2}
+& \textbf{IFBench}
+& \textbf{IFEval} \\
+\midrule
+
+Qwen3.5-35B-A3B
+& 59.0
+& 70.2
+& 91.9 \\
+
+Long-instruction-enhanced RL
+& \textbf{62.4}
+& \textbf{82.0}
+& \textbf{93.4} \\
+\bottomrule
+\end{tabular}
+\label{tab:long_sft_rl_results}
+\end{table*}

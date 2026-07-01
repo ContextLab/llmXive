@@ -1,0 +1,55 @@
+% ============================================================
+% RELATED WORK
+%============================================================
+
+\section{Related Work}
+\label{sec:related-work}
+
+\noindent\textbf{GUI-based computer-use benchmarks.}
+Most benchmarks for general computer use evaluate agents through GUI-based interaction, reflecting the central role of graphical interfaces in human-computer interaction. This line of work spans controlled browser tasks in MiniWoB~\citep{shi2017world} and MiniWoB++~\citep{zheran2018reinforcement}, real-world and reproducible web environments in Mind2Web~\citep{deng2023mind2web} and WebArena~\citep{zhou2024webarena}, live-web evaluation in WebVoyager~\citep{he2024webvoyager}, and full desktop operation in OSWorld~\citep{xie2024osworld}, WindowsAgentArena~\citep{bonatti2025windows}, macOSWorld~\citep{yang2026macosworld}, and OSUniverse~\citep{davydova2025osuniverse}. These benchmarks evaluate both general agentic capabilities, such as planning and error recovery, and GUI-specific skills, such as visual grounding, spatial reasoning, and graphical control. They therefore provide coverage of graphical computer use, while leaving open how well agents can operate computers through text-native command interfaces.
+
+\noindent\textbf{CLI-based agents and benchmarks.}
+Recent agent systems increasingly treat the command line as a practical interface for computer operation. SWE-agent~\citep{yang2024swe} and OpenHands~\citep{wang2025openhands} demonstrate how agents can use shell access to inspect codebases, edit files, execute tests, and iteratively resolve software tasks. This trend has also appeared in deployed CLI assistants, including Claude Code~\citep{anthropic2026claudecode}, Codex CLI~\citep{openai2025codex}, Gemini CLI~\citep{google2025geminicli}, OpenCode~\citep{opencode2026github}, Qwen Code~\citep{qwen_code2026}, Kimi Code~\citep{kimi_code2026}, and MiMo Code~\citep{mimo_code2026}. These systems highlight the growing importance of CLI-based interaction, although their primary focus remains software engineering and developer assistance.
+
+The emergence of CLI-based agents has motivated benchmarks for text-native interaction, where agents issue commands, invoke tools, and produce verifiable outcomes rather than manipulate pixels. Closest to our setting, Terminal-Bench~\citep{merrill2026terminalbench} evaluates long-horizon terminal tasks with executable tests, while TerminalWorld~\citep{chu2026terminalworld} scales this paradigm using real-world terminal recordings. Other benchmarks target specialized command-line capabilities, including shell programming and optimization in Koala~\citep{lamprou2025koala}, development-environment configuration in SetupBench~\citep{arora2025setupbench} and the process-level framework of \citet{kuang2025process}, natural-language-to-Bash translation in \citet{westenfelder2025llm}, and reward-hacking vulnerabilities in Terminal-Wrench~\citep{bercovich2026terminal}. SWE-bench Verified~\citep{jimenez2023swe} is also execution-grounded but focuses on repository-level software repair. Related tool-use benchmarks such as MCP-Universe~\citep{luo2025mcp} and Toolathlon~\citep{li2026the} evaluate agents through structured tool interfaces. Overall, existing CLI-based and text-native evaluations remain concentrated on software engineering, technical terminal workflows, or structured tool use.
+
+
+\noindent\textbf{Positioning of \benchname.}
+As summarized in \Cref{tab:positioning}, existing benchmarks can be situated along two central dimensions: the interface through which agents act and the scope of work they evaluate. Benchmarks with broad or professionally relevant task coverage generally rely on graphical or application-specific interfaces. OSWorld~\citep{xie2024osworld} evaluates general desktop interaction through a GUI, while OfficeBench~\citep{wang2024officebench} focuses on workflows across office applications. ScienceAgentBench~\citep{chen2025scienceagentbench} and GDPval~\citep{patwardhan2025gdpval} extend evaluation to economically valuable tasks. By contrast, existing terminal benchmarks remain concentrated on technical and shell-centric workflows, leaving broad computer use through the terminal largely unevaluated. \benchname fills this gap by combining native command-line interaction with broad task coverage. It evaluates everyday, technical, and expert work in executable terminal environments, providing a unified, execution-grounded assessment of whether agents can use the terminal as a general-purpose interface to computers.
+
+
+\begin{table*}[t]
+\small
+\centering
+\caption{\textbf{Positioning of \benchname.} We compare \benchname with representative agent benchmarks along interface modality, multimodal requirements, task scope, scientific coverage, and scale. \textbf{Interface} denotes the modality through which the agent acts. \textbf{MM} indicates whether tasks require perception or processing of non-textual inputs. \textbf{Task scope} summarizes coverage of office productivity, web use, and software/system operations. \textbf{\# Sci. Subj.} denotes the number of scientific subjects covered, counted according to the discipline-level taxonomy of ScienceAgentBench~\citep{chen2025scienceagentbench}. \cmark~/~\xmark~indicate covered/not covered, and \textbf{\# Tasks} denotes the total number of tasks.}\label{tab:positioning}
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.15}
+\begin{tabular}{l l c c c c c c}
+\toprule
+\multirow{2}{*}{Benchmark} & \multirow{2}{*}{Interface} & \multirow{2}{*}{MM} & \multicolumn{3}{c}{Task scope} & \multirow{2}{*}{\# Sci.\ Subj.} & \multirow{2}{*}{\# Tasks} \\
+\cmidrule(lr){4-6} & & & Office & Web & SWE/Sys. & & \\
+\midrule
+WebArena~\citep{zhou2024webarena}
+& Web GUI & \xmark & \xmark & \cmark & \xmark & 0 & 812 \\
+ 
+OSWorld~\citep{xie2024osworld}
+& Desktop GUI & \cmark & \cmark & \cmark & \cmark & 0 & 369 \\
+ 
+MCP-Universe~\citep{luo2025mcp}
+& MCP tools & \xmark & \xmark & \cmark & \cmark & 0 & 231 \\
+ 
+SWE-bench Verified~\citep{jimenez2023swe}
+& Code repo & \xmark & \xmark & \xmark & \cmark & 0 & 500 \\
+ 
+ScienceAgentBench~\citep{chen2025scienceagentbench}
+& Code scaffold & \xmark & \xmark & \xmark & \xmark & 4 & 102 \\
+ 
+Terminal-Bench 2.0~\citep{merrill2026terminalbench}
+& Terminal & \xmark & \xmark & \xmark & \cmark & 0 & 89 \\
+\midrule
+\textbf{\benchname}~(ours)
+& Terminal & \cmark & \cmark & \cmark & \cmark & 4 & 120 \\
+\bottomrule
+\end{tabular}
+\end{table*}
+

@@ -1,0 +1,17 @@
+\begin{table}[]
+    \centering
+    \footnotesize
+    \setlength{\tabcolsep}{8pt}
+    \renewcommand{\arraystretch}{1.4}
+    \caption{Performance comparison between Qwen3.5-35B-A3B and the search-enhanced Teacher.}
+    \label{tab:search_rl_results}
+
+    \begin{tabular}{@{}lcccc@{}}
+    \toprule
+    \textbf{Model} & \textbf{GAIA} & \textbf{Seal-0} & \textbf{HLE w/ tools} & \textbf{XBench-DS-2510} \\
+    \midrule
+    Qwen3.5-35B-A3B & 59.8 & 41.4 & 47.4 & 77.0 \\
+    Search-enhanced Teacher (SFT+RL) & \textbf{95.1} & \textbf{54.1} & \textbf{50.3} & \textbf{86.0} \\
+    \bottomrule
+    \end{tabular}
+\end{table}

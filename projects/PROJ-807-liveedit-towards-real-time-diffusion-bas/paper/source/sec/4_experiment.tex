@@ -1,0 +1,91 @@
+
+
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=1.0\linewidth]{images/Compare.pdf}
+    \caption{\textbf{Qualitative comparison of streaming video editing performance.} The source videos and instructions are displayed at the top. While existing methods exhibit significant limitations, leading to structural collapse or an inability to accurately follow the text, our approach precisely modifies the target regions and preserves the visual quality and temporal coherence of the original scenes.}
+    \label{fig:compare}
+    % \vspace{-2em}
+\end{figure*}
+
+\section{Experiment}
+\label{sec:experiment}
+
+\subsection{Implementation Details}
+
+\noindent \textbf{Model Configuration.} We build our foundation model upon Wan2.1-T2V-1.3B~\cite{wan2025wanopenadvancedlargescale}. During Stage 1, we explicitly employ channel-wise concatenation to integrate the noisy latent $z_t$ and the condition latent, rather than appending them token-wise along the sequence dimension. By strictly maintaining the original sequence length, this structural design fundamentally bypasses the quadratic computational explosion in attention mechanisms typically associated with spatial-temporal video generation. For training, our dataset comprises 20K high-quality video-video pairs, which are carefully filtered from the large-scale Ditto-1M~\cite{bai2025ditto} dataset.
+
+
+\noindent \textbf{Training Setup.} The three-stage distillation pipeline is trained progressively on 8 NVIDIA A100 GPUs. We employ the AdamW optimizer across all stages. 
+\begin{itemize}
+    \item \textbf{Stage 1 (Foundation Tuning):} The bidirectional foundation model $\epsilon_{\theta}^{bid}$ is trained for 9K steps with a learning rate of $10^{-5}$ and a global batch size of 8. We utilize a standard noise scheduler with continuous timesteps $t \in [0, 1000]$.
+    \item \textbf{Stage 2 (Teacher Forcing):} We transition the bid. Dit to the causal DiT $\epsilon_{\theta}^{causal}$ by introducing the chunk-wise causal attention mask $M_{causal}$. The model is fine-tuned for an additional 20K steps. The temporal chunk size is set to 3 latent frames, ensuring that tokens can only attend to the current and strictly preceding chunks.
+    % \item \textbf{Stage 3 (DMD):} The 4-step generator $G_{\theta}$ is initialized directly from the Stage 2 weights. deliberately bypassing the computationally expensive ODE initialization. This bypass is explicitly enabled by the autoregressive training conducted in Stage 2, which provides a well-aligned causal distribution starting point. For the 4-step generation, the sampling timesteps are specifically set to $[0, 250, 500, 750]$. Both the Real Score model $\epsilon_{\phi}^{real}$ and the Fake Score model $\epsilon_{\psi}^{fake}$ are initialized from the foundation model weights obtained in Stage 1. During training, $\epsilon_{\phi}^{real}$ is frozen, while $\epsilon_{\psi}^{fake}$ and $G_{\theta}$ are jointly optimized. We apply a reduced learning rate of $10^{-5}$ for 10K steps, utilizing the timestep-dependent weighting function $w(t)$ as proposed in standard DMD formulations.
+    \item \textbf{Stage 3 (DMD):} The 4-step generator $G_{\theta}$ is initialized directly from the Stage 2 weights. deliberately bypassing the computationally expensive ODE initialization. This bypass is explicitly enabled by the autoregressive training conducted in Stage 2, which provides a well-aligned causal distribution starting point. For the 4-step generation, the sampling timesteps are specifically set to $[0, 250, 500, 750]$. Both the Real Score model and the Fake Score model are initialized from the foundation model weights obtained in Stage 1. We apply a reduced learning rate of $10^{-5}$ for 10K steps, utilizing the timestep-dependent weighting function $w(t)$ as proposed in standard DMD formulations.
+
+\end{itemize}
+
+
+
+\noindent \textbf{Inference and Mask Cache.} During the streaming inference phase, the model operates in a purely autoregressive manner, decoding 3 frames per step. For the AR-oriented Mask Cache, rather than using a fixed empirical value, the $L_2$ distance threshold $\tau$ for the binary spatial editing mask $M^k$ is dynamically calculated to explicitly prune $70\%$ of the redundant spatial tokens. Specifically, this caching mechanism is applied within the Self-Attention layers, as we empirically find that applying the cache to the Self-Attention computation introduces no degradation in generation quality. Tokens in these pruned regions bypass the standard attention computation, and their intermediate features are directly retrieved from the Token Cache. This dynamic routing allows the 4-step streaming editing to achieve an ultra-low latency of $79ms$ per-frame, ensuring real-time responsiveness without background flickering.
+
+
+\subsection{Qualitative comparison.}
+
+
+\label{subsec:qualitative_comparison}
+
+We present the visual comparison between our proposed framework and two distinct categories of state-of-the-art video editing baselines: bidirectional offline editing models (LucyEdit~\cite{decart2025lucyedit}, InsV2V~\cite{cheng2023consistent}, VideoCoF~\cite{yang2025unified}) and streaming generation models (StreamV2V~\cite{liang2024looking}, StreamDiffusion~\cite{kodaira2025streamdiffusion}, StreamDiffusionV2~\cite{feng2025streamdiffusionv2}). As illustrated in Fig. \ref{fig:compare}, existing methods exhibit significant limitations in balancing precise prompt alignment with structural preservation.
+
+StreamV2V fundamentally struggles to execute localized, precise attribute modifications, failing to apply the requested edits and leaving the source attributes largely unaltered. Conversely, approaches such as InsV2V and VideoCoF suffer from severe color bleeding because they indiscriminately apply target attributes across the entire frame, thereby corrupting the subject's skin tone and the surrounding environment. Furthermore, methods relying on global translation paradigms inherently compromise the visual integrity of unedited areas; StreamDiffusion and StreamDiffusionV2 exhibit severe structural collapse and unintended style shifts, whereas LucyEdit lacks the strict spatial control necessary to preserve delicate structural details. Overcoming these limitations, our method accurately interprets complex textual conditions to apply distinct textures and colors exclusively to target regions. Benefiting from the proposed AR-oriented Mask Cache mechanism, our approach explicitly decouples the generation process, guaranteeing zero visual degradation in unedited background regions. Consequently, complex lighting conditions, shadows, and subject identities are strictly preserved alongside high-fidelity edits.
+
+
+
+\begin{figure*}[t]
+    \centering
+    \includegraphics[width=1.0\linewidth]{images/Cache-Layer.pdf}
+    \caption{\textbf{Visual comparison of different cache locations.} With the instruction \textit{"Change the red currants to deep purple grapes with a thin layer of frost on their skins"}.}
+    \label{fig:cache_layer}
+\end{figure*}
+
+
+\subsection{Quantitative comparison.}
+\input{tab/baseline}
+We compare our method against the state-of-the-art baselines on a collected benchmark consisting of 120 pairs. To comprehensively assess both the generation quality and editing accuracy, we employ six standard automated metrics, with the results summarized in Tab.~\ref{tab:comparison_videoediting_metrics}. 
+
+For Text Alignment, following EgoEdit~\cite{li2025egoedit}, we compute the CLIP~\cite{radford2021learning} feature similarity of the edited results with the text prompt to evaluate editing consistency and instruction adherence. To assess the aesthetic appeal, we utilize the LAION-Aesthetic Score Predictor~\cite{laion2022aesthetics} for the Aesthetic Quality metric. Furthermore, we employ the VBench evaluation framework~\cite{huang2024vbench} to measure Background Consistency, Motion Smoothness, Dynamic Degree, and Imaging Quality, which collectively provide a comprehensive assessment of the overall visual fidelity.
+
+
+As demonstrated in Tab.~\ref{tab:comparison_videoediting_metrics}, our proposed framework achieves best performance across almost all dimensions. Notably, while bidirectional offline architectures naturally benefit from future temporal context, our unidirectional streaming approach not only bridges the performance gap but strictly outperforms them in Text Alignment (achieving 0.270 compared to InsV2V's 0.259). Furthermore, our method achieves the highest Dynamic Degree and Imaging Quality among all evaluated methods, while maintaining highly competitive Aesthetic Quality against strong streaming baselines like StreamDiffusion. Crucially, the results demonstrate that the proposed AR-oriented cache improves Text Alignment and Motion Smoothness while perfectly preserving Background Consistency, proving that our mechanism effectively maintains high visual integrity during continuous sequential processing. Furthermore, we invited 20 volunteers to rank methods across background consistency, editing fidelity, and overall quality. The results are provided in the supplementary materials.
+
+
+\input{tab/ablation-arch}
+
+
+\subsection{Ablation Study}
+\label{subsec:ablation_study}
+\input{tab/ablation_cache}
+
+
+We conduct an ablation study to validate the necessity of each phase within our three-stage distillation pipeline, with the configuration progression summarized in Tab.~\ref{tab:three_stages_ablation}.
+
+\noindent \textbf{Effectiveness of Stage 1 (Foundation Tuning).} The initial phase establishes a robust bidirectional prior essential for high-fidelity structural preservation and text alignment. Operating globally across the full sequence, this stage successfully acquires complex editing capabilities. However, it requires 100 Network Function Evaluations (NFEs) and relies on Classifier-Free Guidance (CFG), which strictly prevents online, continuous streaming inference. 
+
+\noindent \textbf{Effectiveness of Stage 2 (Teacher Forcing).} To transition the offline foundation model to a streaming paradigm, Stage 2 introduces chunk-wise causal attention. This structural modification successfully enables autoregressive execution, processing the video continuously in sequential chunks of 3 frames. While this stage achieves the fundamental streaming input-output format, it still requires 100 NFEs and maintains the CFG dependency, resulting in substantial computational latency that prohibits real-time deployment. 
+
+\noindent \textbf{Effectiveness of Stage 3 (DMD).} The final distillation phase dramatically accelerates the inference speed. By compressing the generation process down to 4 NFEs and explicitly eliminating the need for CFG (which otherwise doubles the required forward passes), the computational overhead is drastically reduced. Furthermore, initializing the student generator directly from the autoregressive weights optimized in Stage 2 bypasses the expensive standard ODE initialization. Ultimately, the integration of all three stages yields a framework that simultaneously achieves an ultra-low latency of 7.89s for 81 frames, pure streaming functionality, and high-quality editing performance.
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{images/cos_sim_comparison_restored.pdf}
+    \caption{Distribution of token cosine similarity between consecutive denoising step.}
+    \label{fig:cosine}
+\end{figure}
+\noindent\textbf{Effectiveness of AR-oriented Mask Cache.}
+To identify the optimal integration point for the AR-oriented Mask Cache, we investigate the impact of applying the caching mechanism to different architectural components, specifically comparing its placement in the Self-Attention (SA) layers versus the FFN modules.
+
+As summarized in Tab.~\ref{tab:ablation_cache}, applying the cache to the SA layers (Ours) achieves superior performance across all evaluated dimensions. In contrast, caching FFN features causes significant degradation, suggesting that FFN layers contain high-frequency spatial information too sensitive for direct temporal reuse. This architectural divergence is explicitly validated by the feature similarity distributions in Fig.~\ref{fig:cosine}, where SA tokens maintain exceptionally high temporal redundancy across consecutive steps, whereas FFN representations exhibit notably low similarity.
+
+The visual evidence in Fig.~\ref{fig:cache_layer} further corroborates these findings. Both the baseline configuration (W/o Cache) and the SA-cache version successfully modify the target object with high fidelity, correctly rendering fine-grained textures and maintaining natural color saturation. Conversely, caching on FFN results in severe blurring and structural instability. These results confirm that caching SA features is the optimal strategy, as it effectively leverages spatial-temporal redundancy to achieve significant acceleration without sacrificing the generative capacity and high-quality spatial details of the full-calculation baseline.

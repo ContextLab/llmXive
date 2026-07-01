@@ -1,0 +1,280 @@
+\begin{thebibliography}{53}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[{Anthropic}(2023)]{anthropic2023claude}
+{Anthropic}.
+\newblock Introducing claude.
+\newblock \url{https://www.anthropic.com/news/introducing-claude}, March 2023.
+
+\bibitem[{Anthropic}(2026{\natexlab{a}})]{anthropic2026claudecode}
+{Anthropic}.
+\newblock Claude code.
+\newblock \url{https://www.anthropic.com/claude-code}, 2026{\natexlab{a}}.
+
+\bibitem[{Anthropic}(2026{\natexlab{b}})]{anthropic2026opus47}
+{Anthropic}.
+\newblock Introducing claude opus 4.7.
+\newblock \url{https://www.anthropic.com/news/claude-opus-4-7}, 2026{\natexlab{b}}.
+
+\bibitem[{Anysphere}(2026)]{anysphere2026cursor}
+{Anysphere}.
+\newblock Cursor.
+\newblock \url{https://cursor.com/}, 2026.
+
+\bibitem[Arora et~al.(2025)Arora, Jang, and Moghaddam]{arora2025setupbench}
+Avi Arora, Jinu Jang, and Roshanak~Zilouchian Moghaddam.
+\newblock Setupbench: Assessing software engineering agents' ability to bootstrap development environments.
+\newblock \emph{arXiv preprint arXiv:2507.09063}, 2025.
+
+\bibitem[Bercovich et~al.(2026)Bercovich, Segal, Zhang, Saxena, Raghunathan, and Zhong]{bercovich2026terminal}
+Ivan Bercovich, Ivgeni Segal, Kexun Zhang, Shashwat Saxena, Aditi Raghunathan, and Ziqian Zhong.
+\newblock Terminal wrench: A dataset of 331 reward-hackable environments and 3,632 exploit trajectories.
+\newblock \emph{arXiv preprint arXiv:2604.17596}, 2026.
+
+\bibitem[Bonatti et~al.(2025)Bonatti, Zhao, Bonacci, Dupont, Abdali, Li, Lu, Wagle, Koishida, Bucker, Jang, and Hui]{bonatti2025windows}
+Rogerio Bonatti, Dan Zhao, Francesco Bonacci, Dillon Dupont, Sara Abdali, Yinheng Li, Yadong Lu, Justin Wagle, Kazuhito Koishida, Arthur Bucker, Lawrence~Keunho Jang, and Zheng Hui.
+\newblock Windows agent arena: Evaluating multi-modal {OS} agents at scale.
+\newblock In \emph{Forty-second International Conference on Machine Learning}, 2025.
+\newblock \url{https://openreview.net/forum?id=W9s817KqYf}.
+
+\bibitem[Chen et~al.(2025)Chen, Chen, Ning, Zhang, Wang, Yu, Li, Liao, Wei, Lu, et~al.]{chen2025scienceagentbench}
+Ziru Chen, Shijie Chen, Yuting Ning, Qianheng Zhang, Boshi Wang, Botao Yu, Yifei Li, Zeyi Liao, Chen Wei, Zitong Lu, et~al.
+\newblock Scienceagentbench: Toward rigorous assessment of language agents for data-driven scientific discovery.
+\newblock In \emph{International Conference on Learning Representations}, volume 2025, pages 96934--96990, 2025.
+
+\bibitem[Chu et~al.(2026)Chu, Hu, Jiang, Zou, Li, Peng, O'Hearn, Barr, Harman, Sarro, et~al.]{chu2026terminalworld}
+Zhaoyang Chu, Jiarui Hu, Xingyu Jiang, Pengyu Zou, Han Li, Chao Peng, Peter O'Hearn, Earl~T Barr, Mark Harman, Federica Sarro, et~al.
+\newblock Terminalworld: Benchmarking agents on real-world terminal tasks.
+\newblock \emph{arXiv preprint arXiv:2605.22535}, 2026.
+
+\bibitem[Contributors(2026)]{opencli2026}
+OpenCLI Contributors.
+\newblock {OpenCLI}: Make any website your {CLI} --- an {AI}-native runtime for browser automation and dynamic web data extraction.
+\newblock \url{https://github.com/jackwener/opencli}, 2026.
+
+\bibitem[Davydova et~al.(2025)Davydova, Jeffries, Barker, Flores, and Ryan]{davydova2025osuniverse}
+Mariya Davydova, Daniel Jeffries, Patrick Barker, Arturo~M{\'a}rquez Flores, and Sin{\'e}ad Ryan.
+\newblock Osuniverse: Benchmark for multimodal gui-navigation ai agents.
+\newblock \emph{arXiv preprint arXiv:2505.03570}, 2025.
+
+\bibitem[Deng et~al.(2023)Deng, Gu, Zheng, Chen, Stevens, Wang, Sun, and Su]{deng2023mind2web}
+Xiang Deng, Yu~Gu, Boyuan Zheng, Shijie Chen, Sam Stevens, Boshi Wang, Huan Sun, and Yu~Su.
+\newblock Mind2web: Towards a generalist agent for the web.
+\newblock \emph{Advances in Neural Information Processing Systems}, 36:\penalty0 28091--28114, 2023.
+
+\bibitem[{GitHub}(2021)]{github2021copilot}
+{GitHub}.
+\newblock Introducing github copilot: Your ai pair programmer.
+\newblock \url{https://github.blog/news-insights/product-news/introducing-github-copilot-ai-pair-programmer/}, June 2021.
+
+\bibitem[{GitHub}(2026)]{githubcli}
+{GitHub}.
+\newblock {GitHub CLI Documentation}.
+\newblock \url{https://docs.github.com/en/github-cli}, 2026.
+
+\bibitem[{Google}(2025)]{google2025geminicli}
+{Google}.
+\newblock Gemini cli: Your open-source ai agent.
+\newblock \url{https://blog.google/innovation-and-ai/technology/developers-tools/introducing-gemini-cli-open-source-ai-agent/}, June 2025.
+
+\bibitem[{Google Cloud}(2026)]{gcloudcli}
+{Google Cloud}.
+\newblock {gcloud CLI Overview}.
+\newblock \url{https://docs.cloud.google.com/sdk/gcloud}, 2026.
+
+\bibitem[{Harbor}(2026)]{harbor_terminus2}
+{Harbor}.
+\newblock {Terminus-2: Harbor's High-Performance Reference Agent Implementation}.
+\newblock \url{https://www.harborframework.com/docs/agents/terminus-2}, 2026.
+
+\bibitem[{Harbor Framework Team}(2026)]{Harbor_Framework}
+{Harbor Framework Team}.
+\newblock {Harbor: A framework for evaluating and optimizing agents and models in container environments}, January 2026.
+\newblock \url{https://github.com/harbor-framework/harbor}.
+
+\bibitem[He et~al.(2024)He, Yao, Ma, Yu, Dai, Zhang, Lan, and Yu]{he2024webvoyager}
+Hongliang He, Wenlin Yao, Kaixin Ma, Wenhao Yu, Yong Dai, Hongming Zhang, Zhenzhong Lan, and Dong Yu.
+\newblock Webvoyager: Building an end-to-end web agent with large multimodal models.
+\newblock In \emph{Proceedings of the 62nd Annual Meeting of the Association for Computational Linguistics (Volume 1: Long Papers)}, pages 6864--6890, 2024.
+
+\bibitem[Janssens(2014)]{janssens2014data}
+Jeroen Janssens.
+\newblock \emph{Data science at the command line: Facing the future with time-tested tools}.
+\newblock " O'Reilly Media, Inc.", 2014.
+
+\bibitem[Jia et~al.(2026)Jia, Liao, Zhang, Xu, Xie, Jiang, Yan, Liu, Ye, and Huang]{jia2026osworldmcp}
+Hongrui Jia, Jitong Liao, Xi~Zhang, Haiyang Xu, Tianbao Xie, Chaoya Jiang, Ming Yan, Si~Liu, Wei Ye, and Fei Huang.
+\newblock {OSW}orld-{MCP}: Benchmarking {MCP} tool invocation in computer-use agents.
+\newblock In \emph{The Fourteenth International Conference on Learning Representations}, 2026.
+\newblock \url{https://openreview.net/forum?id=rceD6wwt4B}.
+
+\bibitem[Jimenez et~al.(2023)Jimenez, Yang, Wettig, Yao, Pei, Press, and Narasimhan]{jimenez2023swe}
+Carlos~E Jimenez, John Yang, Alexander Wettig, Shunyu Yao, Kexin Pei, Ofir Press, and Karthik~R Narasimhan.
+\newblock Swe-bench: Can language models resolve real-world github issues?
+\newblock In \emph{The twelfth international conference on learning representations}, 2023.
+
+\bibitem[Kernighan and Mashey(1979)]{kernighan1979unix}
+Brian~W Kernighan and John~R Mashey.
+\newblock The unix\texttrademark{} programming environment.
+\newblock \emph{Software: Practice and Experience}, 9\penalty0 (1):\penalty0 1--15, 1979.
+
+\bibitem[Kuang et~al.(2025)Kuang, Li, Zhang, Li, Yin, Sun, Shen, and Yu]{kuang2025process}
+Jiayi Kuang, Yinghui Li, Xin Zhang, Yangning Li, Di~Yin, Xing Sun, Ying Shen, and Philip~S Yu.
+\newblock Process-level trajectory evaluation for environment configuration in software engineering agents.
+\newblock \emph{arXiv preprint arXiv:2510.25694}, 2025.
+
+\bibitem[Lamprou et~al.(2025)Lamprou, Williams, Kaoukis, Zhang, Greenberg, Kallas, Lazarek, and Vasilakis]{lamprou2025koala}
+Evangelos Lamprou, Ethan Williams, Georgios Kaoukis, Zhuoxuan Zhang, Michael Greenberg, Konstantinos Kallas, Lukas Lazarek, and Nikos Vasilakis.
+\newblock The koala benchmarks for the shell: characterization and implications.
+\newblock In \emph{2025 USENIX Annual Technical Conference (USENIX ATC 25)}, pages 449--464, 2025.
+
+\bibitem[{LarkSuite}(2026)]{larksuite_cli}
+{LarkSuite}.
+\newblock lark-cli: The official lark/feishu cli tool.
+\newblock \url{https://github.com/larksuite/cli}, 2026.
+
+\bibitem[Li et~al.(2026)Li, Zhao, Zhao, Zeng, Wu, Wang, Ge, Cao, Huang, Liu, Liu, Su, Guo, Zhou, Zhang, Michelini, Wang, Yue, Zhou, Neubig, and He]{li2026the}
+Junlong Li, Wenshuo Zhao, Jian Zhao, Weihao Zeng, Haoze Wu, Xiaochen Wang, Rui Ge, Yuxuan Cao, Yuzhen Huang, Wei Liu, Junteng Liu, Zhaochen Su, Yiyang Guo, Fan Zhou, Lueyang Zhang, Juan Michelini, Xingyao Wang, Xiang Yue, Shuyan Zhou, Graham Neubig, and Junxian He.
+\newblock The tool decathlon: Benchmarking language agents for diverse, realistic, and long-horizon task execution.
+\newblock In \emph{The Fourteenth International Conference on Learning Representations}, 2026.
+\newblock \url{https://openreview.net/forum?id=z53s5p0qhf}.
+
+\bibitem[Liu et~al.(2018)Liu, Guu, Pasupat, and Liang]{zheran2018reinforcement}
+Evan~Zheran Liu, Kelvin Guu, Panupong Pasupat, and Percy Liang.
+\newblock Reinforcement learning on web interfaces using workflow-guided exploration.
+\newblock In \emph{International Conference on Learning Representations}, 2018.
+\newblock \url{https://openreview.net/forum?id=ryTp3f-0-}.
+
+\bibitem[Luo et~al.(2025)Luo, Shen, Yang, Zhao, Jwalapuram, Saha, Sahoo, Savarese, Xiong, and Li]{luo2025mcp}
+Ziyang Luo, Zhiqi Shen, Wenzhuo Yang, Zirui Zhao, Prathyusha Jwalapuram, Amrita Saha, Doyen Sahoo, Silvio Savarese, Caiming Xiong, and Junnan Li.
+\newblock Mcp-universe: Benchmarking large language models with real-world model context protocol servers.
+\newblock \emph{arXiv preprint arXiv:2508.14704}, 2025.
+
+\bibitem[{Manus}(2025)]{manus2025launch}
+{Manus}.
+\newblock Manus.
+\newblock \url{https://manus.im/}, March 2025.
+
+\bibitem[Merrill et~al.(2026)Merrill, Shaw, Carlini, Li, Raj, Bercovich, Shi, Shin, Walshe, Buchanan, Shen, Ye, Lin, Poulos, Wang, Nezhurina, Lu, Mastromichalakis, Xu, Chen, Liu, Zhang, Chen, Kashyap, Uslu, Li, Wu, Yan, Bian, Sharma, Sun, Dillmann, Anand, Lanpouthakoun, Koopah, Hu, Guha, Dreiman, Zhu, Krauth, Zhong, Muennighoff, Amanfu, Tan, Pimpalgaonkar, Aggarwal, Lin, Lan, Zhao, Liang, Wang, Wang, Zhou, Heineman, Liu, Trivedi, Yang, Lin, Shetty, Yang, Omi, Raoof, Li, Zhuo, Lin, Dai, Wang, Chai, Zhou, Wahdany, She, Hu, Dong, Zhu, Cui, Saiyed, Kolbeinsson, Rytting, Marten, Wang, Jitsev, Dimakis, Konwinski, and Schmidt]{merrill2026terminalbench}
+Mike~A Merrill, Alexander~Glenn Shaw, Nicholas Carlini, Boxuan Li, Harsh Raj, Ivan Bercovich, Lin Shi, Jeong~Yeon Shin, Thomas Walshe, E.~Kelly Buchanan, Junhong Shen, Guanghao Ye, Haowei Lin, Jason Poulos, Maoyu Wang, Marianna Nezhurina, Di~Lu, Orfeas~Menis Mastromichalakis, Zhiwei Xu, Zizhao Chen, Yue Liu, Robert Zhang, Leon~Liangyu Chen, Anurag Kashyap, Jan-Lucas Uslu, Jeffrey Li, Jianbo Wu, Minghao Yan, Song Bian, Vedang Sharma, Ke~Sun, Steven Dillmann, Akshay Anand, Andrew Lanpouthakoun, Bardia Koopah, Changran Hu, Etash~Kumar Guha, Gabriel H.~S. Dreiman, Jiacheng Zhu, Karl Krauth, Li~Zhong, Niklas Muennighoff, Robert~Kwesi Amanfu, Shangyin Tan, Shreyas Pimpalgaonkar, Tushar Aggarwal, Xiangning Lin, Xin Lan, Xuandong Zhao, Yiqing Liang, Yuanli Wang, Zilong Wang, Changzhi Zhou, David Heineman, Hange Liu, Harsh Trivedi, John Yang, Junhong Lin, Manish Shetty, Michael Yang, Nabil Omi, Negin Raoof, Shanda Li, Terry~Yue Zhuo, Wuwei Lin, Yiwei Dai, Yuxin Wang, Wenhao Chai, Shang Zhou, Dariush Wahdany, Ziyu She,
+  Jiaming Hu, Zhikang Dong, Yuxuan Zhu, Sasha Cui, Ahson Saiyed, Arinbj{\"o}rn Kolbeinsson, Christopher~Michael Rytting, Ryan Marten, Yixin Wang, Jenia Jitsev, Alex Dimakis, Andy Konwinski, and Ludwig Schmidt.
+\newblock Terminal-bench: Benchmarking agents on hard, realistic tasks in command line interfaces.
+\newblock In \emph{The Fourteenth International Conference on Learning Representations}, 2026.
+\newblock \url{https://openreview.net/forum?id=a7Qa4CcHak}.
+
+\bibitem[{Moonshot AI}(2026)]{kimi_code2026}
+{Moonshot AI}.
+\newblock {Kimi Code}: Next-gen ai code agent.
+\newblock \url{https://www.kimi.com/code}, 2026.
+
+\bibitem[{OpenAI}(2022)]{openai2022chatgpt}
+{OpenAI}.
+\newblock Introducing chatgpt.
+\newblock \url{https://openai.com/index/chatgpt/}, November 2022.
+
+\bibitem[{OpenAI}(2025)]{openai2025codex}
+{OpenAI}.
+\newblock Introducing codex.
+\newblock \url{https://openai.com/index/introducing-codex/}, May 2025.
+
+\bibitem[{OpenAI}(2026)]{openai2026introducinggpt55}
+{OpenAI}.
+\newblock Introducing {GPT-5.5}.
+\newblock \url{https://openai.com/index/introducing-gpt-5-5/}, April 2026.
+
+\bibitem[{OpenClaw}(2026)]{openclaw2026}
+{OpenClaw}.
+\newblock Openclaw: Personal ai assistant.
+\newblock \url{https://openclaw.ai/}, 2026.
+
+\bibitem[{OpenCode}(2026)]{opencode2026github}
+{OpenCode}.
+\newblock Opencode: A powerful ai coding agent built for the terminal.
+\newblock \url{https://github.com/opencode-ai/opencode}, 2026.
+
+\bibitem[Patwardhan et~al.(2025)Patwardhan, Dias, Proehl, Kim, Wang, Watkins, Fishman, Aljubeh, Thacker, Fauconnet, et~al.]{patwardhan2025gdpval}
+Tejal Patwardhan, Rachel Dias, Elizabeth Proehl, Grace Kim, Michele Wang, Olivia Watkins, Sim{\'o}n~Posada Fishman, Marwan Aljubeh, Phoebe Thacker, Laurance Fauconnet, et~al.
+\newblock Gdpval: Evaluating ai model performance on real-world economically valuable tasks.
+\newblock \emph{arXiv preprint arXiv:2510.04374}, 2025.
+
+\bibitem[Piccolo and Frampton(2016)]{piccolo2016tools}
+Stephen~R Piccolo and Michael~B Frampton.
+\newblock Tools and techniques for computational reproducibility.
+\newblock \emph{Gigascience}, 5\penalty0 (1):\penalty0 s13742--016, 2016.
+
+\bibitem[{Podman Container Tools}(2026)]{podman2026}
+{Podman Container Tools}.
+\newblock Podman: The best free and open source container tools.
+\newblock \url{https://podman.io/}, 2026.
+
+\bibitem[{QwenLM}(2026)]{qwen_code2026}
+{QwenLM}.
+\newblock {Qwen Code}: An open-source ai coding agent that lives in your terminal.
+\newblock \url{https://github.com/QwenLM/qwen-code}, 2026.
+
+\bibitem[Shi et~al.(2017)Shi, Karpathy, Fan, Hernandez, and Liang]{shi2017world}
+Tianlin Shi, Andrej Karpathy, Linxi Fan, Jonathan Hernandez, and Percy Liang.
+\newblock World of bits: An open-domain platform for web-based agents.
+\newblock In \emph{International Conference on Machine Learning}, pages 3135--3144. PMLR, 2017.
+
+\bibitem[{Slack}(2026)]{slackcli}
+{Slack}.
+\newblock {Slack CLI}.
+\newblock \url{https://docs.slack.dev/tools/slack-cli/}, 2026.
+
+\bibitem[{The Gemini Team}(2026)]{google2026gemini31pro}
+{The Gemini Team}.
+\newblock Gemini 3.1 pro: A smarter model for your most complex tasks.
+\newblock \url{https://blog.google/innovation-and-ai/models-and-research/gemini-models/gemini-3-1-pro/}, 2026.
+
+\bibitem[Wang et~al.(2025)Wang, Li, Song, Xu, Tang, Zhuge, Pan, Song, Li, Singh, et~al.]{wang2025openhands}
+Xingyao Wang, Boxuan Li, Yufan Song, Frank~F Xu, Xiangru Tang, Mingchen Zhuge, Jiayi Pan, Yueqi Song, Bowen Li, Jaskirat Singh, et~al.
+\newblock Openhands: An open platform for ai software developers as generalist agents.
+\newblock In \emph{International Conference on Learning Representations}, volume 2025, pages 65882--65919, 2025.
+
+\bibitem[Wang et~al.(2024)Wang, Cui, Zhong, Zhang, Yin, Lin, and Shang]{wang2024officebench}
+Zilong Wang, Yuedong Cui, Li~Zhong, Zimin Zhang, Da~Yin, Bill~Yuchen Lin, and Jingbo Shang.
+\newblock Officebench: Benchmarking language agents across multiple applications for office automation.
+\newblock \emph{arXiv preprint arXiv:2407.19056}, 2024.
+
+\bibitem[Westenfelder et~al.(2025)Westenfelder, Hemberg, Moskal, O'Reilly, and Chiricescu]{westenfelder2025llm}
+Finnian Westenfelder, Erik Hemberg, Stephen Moskal, Una-May O'Reilly, and Silviu Chiricescu.
+\newblock Llm-supported natural language to bash translation.
+\newblock In \emph{Proceedings of the 2025 Conference of the Nations of the Americas Chapter of the Association for Computational Linguistics: Human Language Technologies (Volume 1: Long Papers)}, pages 11135--11147, 2025.
+
+\bibitem[{Xiaomi MiMo Team}(2026)]{mimo_code2026}
+{Xiaomi MiMo Team}.
+\newblock {MiMo Code}: Scaling coding agents to long-horizon tasks.
+\newblock \url{https://mimo.xiaomi.com/coder}, 2026.
+
+\bibitem[Xie et~al.(2024)Xie, Zhang, Chen, Li, Zhao, Cao, Hua, Cheng, Shin, Lei, et~al.]{xie2024osworld}
+Tianbao Xie, Danyang Zhang, Jixuan Chen, Xiaochuan Li, Siheng Zhao, Ruisheng Cao, Toh~J Hua, Zhoujun Cheng, Dongchan Shin, Fangyu Lei, et~al.
+\newblock Osworld: Benchmarking multimodal agents for open-ended tasks in real computer environments.
+\newblock \emph{Advances in Neural Information Processing Systems}, 37:\penalty0 52040--52094, 2024.
+
+\bibitem[Yang et~al.(2024)Yang, Jimenez, Wettig, Lieret, Yao, Narasimhan, and Press]{yang2024swe}
+John Yang, Carlos Jimenez, Alexander Wettig, Kilian Lieret, Shunyu Yao, Karthik Narasimhan, and Ofir Press.
+\newblock Swe-agent: Agent-computer interfaces enable automated software engineering.
+\newblock \emph{Advances in Neural Information Processing Systems}, 37:\penalty0 50528--50652, 2024.
+
+\bibitem[Yang et~al.(2026{\natexlab{a}})Yang, Ci, and Shou]{yang2026macosworld}
+Pei Yang, Hai Ci, and Mike~Zheng Shou.
+\newblock macosworld: A multilingual interactive benchmark for gui agents.
+\newblock \emph{Advances in Neural Information Processing Systems}, 38:\penalty0 134014--134056, 2026{\natexlab{a}}.
+
+\bibitem[Yang et~al.(2026{\natexlab{b}})Yang, Fan, and Huang]{yang2026cli}
+Yuhao Yang, Tianyu Fan, and Chao Huang.
+\newblock Cli-anything: Towards agent-native computer use.
+\newblock \emph{arXiv preprint arXiv:2606.03854}, 2026{\natexlab{b}}.
+
+\bibitem[Zhou et~al.(2024)Zhou, Xu, Zhu, Zhou, Lo, Sridhar, Cheng, Ou, Bisk, Fried, Alon, and Neubig]{zhou2024webarena}
+Shuyan Zhou, Frank~F. Xu, Hao Zhu, Xuhui Zhou, Robert Lo, Abishek Sridhar, Xianyi Cheng, Tianyue Ou, Yonatan Bisk, Daniel Fried, Uri Alon, and Graham Neubig.
+\newblock Webarena: A realistic web environment for building autonomous agents.
+\newblock In \emph{The Twelfth International Conference on Learning Representations}, 2024.
+\newblock \url{https://openreview.net/forum?id=oKn9c6ytLx}.
+
+\end{thebibliography}

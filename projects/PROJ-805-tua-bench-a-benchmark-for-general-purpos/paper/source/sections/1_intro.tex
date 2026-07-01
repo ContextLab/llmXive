@@ -1,0 +1,46 @@
+
+\begin{figure}
+    \centering
+    \small
+    \includegraphics[width=0.96\linewidth]{figures/teaser.pdf}
+   \caption{\textbf{Overview of TUA-Bench.} TUA-Bench evaluates terminal-use agents on realistic, application-grounded tasks spanning a five-domain taxonomy of real-world workflows. Each workflow is instantiated as concrete tasks in a unified terminal environment. Tasks that would conventionally require graphical interfaces are reformulated as GUI-to-terminal problems, requiring agents to interact solely through the command line. Agents execute each task autonomously, and the resulting rollout is automatically verified against ground truth.}\label{fig:teaser}
+   \vspace{-40pt}
+\end{figure}
+
+\section{Introduction}\label{sec:intro}
+
+Large language models (LLMs) have catalyzed a paradigm shift in artificial intelligence, expanding from conversational tools~\citep{openai2022chatgpt, anthropic2023claude} to programming assistants~\citep{github2021copilot, anysphere2026cursor, openai2025codex, anthropic2026claudecode, opencode2026github, google2025geminicli} and, more recently, to autonomous agents capable of executing complex, multi-step workflows beyond programming~\citep{manus2025launch, openclaw2026}. As these agents increasingly act on behalf of users across diverse digital environments, evaluating their ability to use computers reliably has become an important problem.
+
+Most existing computer-use agents and benchmarks~\citep{zhou2024webarena, xie2024osworld, jia2026osworldmcp} assume that agents interact with computers through graphical user interfaces~(GUIs), such as desktop applications or web-based interfaces, mirroring how humans operate software systems. While GUIs are natural for human users, they are not necessarily the most suitable interface for LLM-based agents. GUI operation requires agents to combine language reasoning with visual perception: they must interpret screenshots, ground actions to precise screen locations, and remain robust to changes in layout, resolution, and rendering. These requirements introduce perception and grounding challenges, causing GUI-based evaluations to partly measure visual understanding and coordinate-level control rather than an agent's core ability to plan, reason, and use tools.
+
+Command-line interfaces (CLIs), in contrast, expose computer interaction in a text-native form. Commands are explicit, feedback is textual, and complex workflows can be composed through scripts, pipes, and specialized programs. These properties make CLI environments naturally aligned with the strengths of language models. Moreover, many high-value professional workflows, including software engineering, data analysis, scientific computing, system administration, and multimedia processing, are already conducted primarily through terminals~\citep{kernighan1979unix,janssens2014data,piccolo2016tools}.
+
+Beyond these traditionally terminal-centric domains, command-line access is increasingly available for a broader range of software systems. Popular platforms provide official or widely used command-line tools, including GitHub~\citep{githubcli}, Slack~\citep{slackcli}, Google Cloud~\citep{gcloudcli}, and Lark~\citep{larksuite_cli}; community-developed projects such as OpenCLI~\citep{opencli2026} and CLI-Anything~\citep{yang2026cli} further extend command-line access across application ecosystems. Together, these developments suggest that terminal interfaces are evolving from programming-specific tools into a broader medium for invoking applications, inspecting state, composing tools, and verifying results.
+
+ 
+\begin{wrapfigure}{r}{0.4\linewidth}
+    \centering
+    \small
+    \vspace{-5pt}
+    \includegraphics[width=\linewidth]{figures/task_distribution.pdf}
+    \vspace{2pt}
+    \caption{\textbf{TUA-Bench task distribution.} The 120 tasks span five categories with fine-grained subcategories, covering both everyday digital work and expert professional workflows.}\label{fig:task-distribution}
+    \vspace{-12pt}
+\end{wrapfigure}
+Despite this trend, existing evaluations have not fully captured the breadth of terminal-based computer use. Current terminal benchmarks, such as Terminal-Bench~\citep{merrill2026terminalbench},
+primarily focus on shell-native technical and programming workflows, and therefore remain limited in evaluating general-purpose terminal-based computer use.
+
+Motivated by this gap, we introduce \benchname, a benchmark for evaluating general-purpose terminal-use agents. As illustrated in \Cref{fig:teaser}, \benchname contains 120 diverse, realistic, and challenging computer-use tasks that require agents to operate through CLI, organized into five task families that span the breadth of computer-use, from everyday digital work such as document editing, web information seeking, and media processing, to expert scientific and engineering workflows co-designed with PhD-level domain experts in biology, medical physics, architectural engineering, and mechanical engineering. To ensure task quality and difficulty, we start from an initial pool of candidate tasks and apply a rigorous curation process, filtering or revising tasks with ambiguous instructions, overly simple solutions, or mismatches between input files and target outputs. The final benchmark is manually verified and designed to provide a reliable, challenging, and informative evaluation of terminal-use agents.
+
+We further conduct a comprehensive evaluation of frontier models and agent frameworks on \benchname, including ablations on model reasoning effort. The strongest evaluated agent achieves 65.8\% success rate, revealing substantial remaining gaps in long-horizon planning, tool use, execution monitoring, and error recovery in terminal environments. By providing a broad and realistic testbed for terminal-based computer use, \benchname aims to support progress toward general-purpose agents that can operate reliably across diverse digital and professional workflows.
+
+Our main contributions are summarized as follows:
+
+\begin{itemize}
+    \item We introduce \benchname, a high-quality benchmark for evaluating general-purpose terminal-use agents. It contains 120 diverse, realistic, and challenging tasks that span everyday digital work and professional workflows co-designed with domain experts.
+
+    \item We provide a reliable evaluation suite for benchmarking terminal-use agents. Each task is specified in a standardized format, paired with executable environments and verification procedures, and manually curated from an initial pool of 394 candidates to remove ambiguous, overly simple, or inconsistent tasks.
+
+    \item We conduct a comprehensive evaluation of frontier models and agent frameworks on \benchname, including ablations on model reasoning effort. Our analysis reveals that even the strongest evaluated agent achieves only 65.8\% success rate, highlighting remaining challenges in long-horizon planning, tool use, execution monitoring, and error recovery.
+\end{itemize}
+

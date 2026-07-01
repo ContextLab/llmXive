@@ -1,0 +1,19 @@
+\begin{table}[ht]
+\centering
+\caption{Hyperparameters for supervised fine-tuning.}
+\label{tab:sft_hyperparams}
+\begin{tabular}{ll}
+\toprule
+\textbf{Hyperparameter} & \textbf{Value} \\
+\midrule
+Learning rate & $1 \times 10^{-5}$ \\
+Learning rate schedule & Cosine with warmup \\
+Warmup ratio & $0.05$ \\
+Batch size & $16$ \\
+Epochs & $1$ \\
+Max sequence length & $131{,}072$ \\
+Optimizer & AdamW \\
+Weight decay & $0.1$ \\
+\bottomrule
+\end{tabular}
+\end{table}

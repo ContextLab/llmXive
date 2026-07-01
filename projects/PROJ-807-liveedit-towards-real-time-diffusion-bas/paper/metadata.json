@@ -1,0 +1,58 @@
+{
+  "arxiv_id": "2606.26740",
+  "arxiv_url": "https://arxiv.org/abs/2606.26740",
+  "title": "LiveEdit: Towards Real-Time Diffusion-Based Streaming Video Editing",
+  "authors": [
+    "Xinyu Wang",
+    "Chongbo Zhao",
+    "Fangneng Zhan",
+    "Yue Ma"
+  ],
+  "submitter": "github-actions[bot]",
+  "abstract": "Streaming video editing has made rapid progress, yet practical deployment is still limited by two core issues: maintaining stable backgrounds and non-edited regions over time, and achieving the low latency required for real-time interactive scenarios. Meanwhile, recent streaming video generation methods are mostly developed for synthesis and cannot be directly applied to editing due to the strict preservation requirement and region-specific control. In this work, we present a novel streaming video editing framework that performs causal, frame-by-frame editing with strong content preservation and real-time responsiveness. Our key design is a three-stage distillation pipeline that progressively transfers editing capability from a powerful bidirectional foundation model to an efficient unidirectional streaming editor, enabling stable long-horizon edits without sacrificing visual fidelity. To further support real-time deployment, we introduce an AR-oriented mask cache that reuses region-related computation across frames, substantially reducing redundant processing and accelerating inference. Finally, we establish a dedicated benchmark for streaming video editing. Extensive evaluations demonstrate that our method achieves state-of-the-art visual quality among streaming baselines while drastically boosting inference speed to 12.66 FPS, making it suitable for interactive and augmented reality applications.",
+  "submitted_via": "llmXive dashboard, GitHub issue #408",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [
+    "https://github.com/cvpr-org/author-kit"
+  ],
+  "data": [],
+  "toplevel_tex": [
+    "main.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "cvpr.sty",
+    "ieeenat_fullname.bst",
+    "images",
+    "images/More-Comparison-v2-final.pdf",
+    "images/More-Comparison-v1-final.pdf",
+    "images/More-Case-v3-final.pdf",
+    "images/More-Case-v2-final.pdf",
+    "images/More-Case-final.pdf",
+    "images/Mask.pdf",
+    "images/user_study.pdf",
+    "images/Compare.pdf",
+    "images/Architecture.pdf",
+    "images/cos_sim_comparison_restored.pdf",
+    "images/Framework-v2.pdf",
+    "images/Teaser-v3.pdf",
+    "images/Cache-Layer.pdf",
+    "images/attention-2.pdf",
+    "main.bib",
+    "main.tex",
+    "preamble.tex",
+    "sec",
+    "sec/5_conclusion.tex",
+    "sec/3_method.tex",
+    "sec/0_abstract.tex",
+    "sec/X_suppl.tex",
+    "sec/2_related.tex",
+    "sec/1_introduction.tex",
+    "sec/4_experiment.tex",
+    "tab",
+    "tab/ablation-arch.tex",
+    "tab/ablation_cache.tex",
+    "tab/baseline.tex"
+  ]
+}

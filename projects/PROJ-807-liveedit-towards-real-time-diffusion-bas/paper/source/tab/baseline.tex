@@ -1,0 +1,25 @@
+\begin{table}[t]
+  \centering
+  \caption{\textbf{Quantitative comparison of video editing methods.} We evaluate across six metrics: Text Alignment (TA), Background Consistency (BC), Motion Smoothness (MS), Dynamic Degree (DD), Aesthetic Quality (AQ), and Imaging Quality (IQ). \textcolor{red}{\textbf{Red}} and \textcolor{blue}{\textbf{Blue}} denote the best and second-best results, respectively.}
+  \label{tab:comparison_videoediting_metrics}
+  \addtolength{\tabcolsep}{4pt}
+    \resizebox{1.0\linewidth}{!}{%
+      \begin{tabular}{lcccccc}
+        \toprule
+        Method & TA$\uparrow$ & BC$\uparrow$ & MS$\uparrow$ & DD$\uparrow$ & AQ$\uparrow$ & IQ$\uparrow$ \\
+        \midrule
+        LucyEdit & 0.253 & 0.943 & 0.990 & 0.266 & 0.529 & 0.707 \\
+        VideoCoF & 0.245 & 0.953 & 0.991 & 0.094 & 0.542 & 0.709 \\
+        InsV2V   & 0.259 & 0.943 & 0.986 & 0.196 & 0.577 & 0.708 \\
+        \midrule
+        StreamDiffusion   & 0.239 & 0.886 & 0.975 & 0.239 & \textcolor{red}{\textbf{0.590}} & \textcolor{blue}{\textbf{0.717}} \\
+        StreamDiffusionV2 & 0.252 & 0.951 & \textcolor{blue}{\textbf{0.992}} & 0.264 & 0.539 & 0.653 \\
+        StreamV2V         & 0.244 & 0.934 & 0.989 & 0.153 & 0.548 & 0.712 \\
+        \midrule
+        \textbf{Ours (W/o Cache)} & \textcolor{blue}{\textbf{0.265}} & \textcolor{red}{\textbf{0.956}} & 0.991 & \textcolor{red}{\textbf{0.282}} & \textcolor{blue}{\textbf{0.584}} & \textcolor{red}{\textbf{0.720}} \\
+        \textbf{Ours (W/ Cache)}  & \textcolor{red}{\textbf{0.270}} & \textcolor{blue}{\textbf{0.956}} & \textcolor{red}{\textbf{0.992}} & \textcolor{blue}{\textbf{0.256}} & 0.581 & 0.708 \\
+        \bottomrule
+      \end{tabular}
+    }
+  % \vspace{-2em}
+\end{table}
