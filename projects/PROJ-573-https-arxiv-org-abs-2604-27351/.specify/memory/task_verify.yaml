@@ -23,6 +23,17 @@
   {{claim:c_101df1fb}}, and effect size calculation (FR-007, FR-014, Phase 0.3) <!--
   SKIPPED: non-mapping output -->'
 : 1
+? 'T004 Validate statistical methodology ({{claim:c_5cb9c0de}} (1311.5354, https://arxiv.org/abs/1311.5354),
+  {{claim:c_55db4237}})); document in research.md section "Methodology" with formula,
+  {{claim:c_101df1fb}}, and effect size calculation (FR-007, FR-014, Phase 0.3) <!--
+  SKIPPED: non-mapping output --> <!-- SKIPPED: non-mapping output -->'
+: 1
+? 'T004 Validate statistical methodology ({{claim:c_5cb9c0de}} (1311.5354, https://arxiv.org/abs/1311.5354),
+  {{claim:c_55db4237}})); document in research.md section "Methodology" with formula,
+  {{claim:c_101df1fb}}, and effect size calculation (FR-007, FR-014, Phase 0.3) <!--
+  SKIPPED: non-mapping output --> <!-- SKIPPED: non-mapping output --> <!-- SKIPPED:
+  non-mapping output -->'
+: 2
 ? "T006 Validate model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled\
   \ LLM via HuggingFace model cards [UNRESOLVED-CLAIM: c_02f32ae0 \u2014 status=not_enough_info];\
   \ create `src/research/verify_models.py` script; document in research.md section\
@@ -78,6 +89,12 @@
 : 1
 ? "T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM\
   \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_9f96ea29 \u2014 status=not_enough_info];\
+  \ create `src/research/verify_models.py` script; document in research.md section\
+  \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
+  \ (boolean) (FR-002, SC-002, Phase 0.5)"
+: 2
+? "T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM\
+  \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_a4b272a4 \u2014 status=not_enough_info];\
   \ create `src/research/verify_models.py` script; document in research.md section\
   \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
   \ (boolean) (FR-002, SC-002, Phase 0.5)"
@@ -190,6 +207,11 @@ T008 Initialize Python 3.11 project with {{claim:c_9da78e09}}: 1
   \ artifact_hashes map with sha256 format [UNRESOLVED-CLAIM: c_bfdee63e \u2014 status=not_enough_info]\
   \ (Constitution III)"
 : 1
+? "T018 Update state/projects/PROJ-573-https-arxiv-org-abs-2604-27351 [UNRESOLVED-CLAIM:\
+  \ c_0819e929 \u2014 status=not_enough_info].yaml updated_at timestamp on any artifact\
+  \ change; create helper function in src/utils/versioning.py with function update_artifact_timestamp(artifact_path)\
+  \ (Constitution V)"
+: 1
 ? "T022 [US1] Implement dataset download with 3-retry logic [UNRESOLVED-CLAIM: c_7efb44c4\
   \ \u2014 status=not_enough_info] in src/data/download.py (FR-010); function signatures:\
   \ download_dataset(url, max_retries=3, timeout=300) [UNRESOLVED-CLAIM: c_582df700\
@@ -286,6 +308,11 @@ T008 Initialize Python 3.11 project with {{claim:c_9da78e09}}: 1
   min = Z bpm, std = W bpm " (all quantitative information retained); function signature:
   timeseries_to_text(data, label_name) -> string'
 : 2
+? 'T048 [US3] Implement tabular to text conversion logic in src/models/translation.py
+  (US-3 Scenario 1); deterministic schema: CSV (Wikidata Q28914856, https://www.wikidata.org/wiki/Q28914856)-style
+  text representation with column names and values; function signature: tabular_to_text(df,
+  label_column) -> string'
+: 1
 ? "T055b Implement total runtime verification in src/evaluation/runtime_verification.py;\
   \ verify total runtime \u22644 hours on reference hardware (SC-003); record pass/fail\
   \ to data/runtime_metrics.yaml <!-- FAILED: unspecified -->"
@@ -306,4 +333,9 @@ T008 Initialize Python 3.11 project with {{claim:c_9da78e09}}: 1
   \ sha256 [UNRESOLVED-CLAIM: c_794eedd6 \u2014 status=not_enough_info]; update procedure:\
   \ compute hash for each file, write to state/artifact_hashes.yaml with file_path\
   \ and hash value"
+: 1
+? "T058 Update state/projects/PROJ-573-https-arxiv-org-abs-2604-27351 [UNRESOLVED-CLAIM:\
+  \ c_0819e929 \u2014 status=not_enough_info].yaml updated_at timestamp on artifact\
+  \ changes; depends on T018; helper function: update_timestamp_on_change(artifact_path);\
+  \ integrate with T040-T042 config updates"
 : 1
