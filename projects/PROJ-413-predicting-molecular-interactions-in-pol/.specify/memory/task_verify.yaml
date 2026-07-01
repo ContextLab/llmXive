@@ -1,0 +1,21 @@
+? 'T001 Create project structure per implementation plan (`projects/PROJ-413-predicting-molecular-interactions-in-pol/`)
+  by executing: `mkdir -p data/raw data/curated data/processed code/data code/models
+  code/analysis code/utils results analysis docs tests/contract tests/integration`.
+  Also create `.flake8` and `pyproject.toml` with black config. <!-- ATOMIZE: requested
+  -->'
+: 2
+? T002 Initialize Python project by creating `code/requirements.txt` with pinned versions
+  (torch, torch-geometric, rdkit, datasets, pandas, scipy, scikit-learn) and executing
+  `pip install -r code/requirements.txt` in the virtualenv.
+: 2
+? T006 [P] [FR-002] [US-1] Create base data structures for `MolecularGraph` and `InterfacePair`
+  entities in `code/models/entities.py` with explicit class signatures for node/edge
+  attributes.
+: 2
+? T008 [P] Setup logging infrastructure to track runtime and memory usage in `results/performance.json`
+  via `code/utils/logger.py`.
+: 1
+T009 [P] [US1] Contract test for data download and checksum verification in `tests/contract/test_data_download.py`.: 1
+? T010 [P] [US1] Integration test for variable validation and missing value flagging
+  in `tests/integration/test_data_validation.py`.
+: 1

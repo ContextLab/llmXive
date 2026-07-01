@@ -132,7 +132,7 @@ All results (`performance.json`, `stats.csv`, `attribution.json`, `topology_audi
 | FR‑001 | Download & cross‑reference data | Phase 0 |
 | FR‑002 | Heterogeneous graph construction | Phase 1 |
 | FR‑003 | 3‑layer GAT (CPU) | Phase 2 |
-| FR‑004 | Train with 80/20 split, MSE, batch ≤32 | Phase 3 |
+| FR‑004 | Train with /20 split, MSE, batch ≤32 | Phase 3 |
 | FR‑005 | Permutation test (re‑trains, reduced subset) | Phase 4 |
 | FR‑006 | Gradient‑based attribution | Phase 4 |
 | FR‑007 | Attention mechanism (for weighting) + VIF reporting | Phase 2 & Phase 4 |

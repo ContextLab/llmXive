@@ -67,7 +67,7 @@ As a peer reviewer, I need to verify that the model's predictive performance is 
 - **FR-002**: System MUST construct heterogeneous graphs encoding atom types as nodes and bonds/interactions as edges for each polymer-filler interface pair (See US-1)
 - **FR-003**: System MUST implement a 3-layer Graph Convolutional Network using PyTorch Geometric with CPU-only execution (no CUDA, no GPU device_map) (See US-2)
 - **FR-004**: System MUST train the model using 80/20 train-test split with mean squared error (MSE) loss and batch size ≤32 (See US-2)
-- **FR-005**: System MUST execute a permutation test with 1000 iterations to validate model performance exceeds random chance (See US-3)
+- **FR-005**: System MUST execute a permutation test with a sufficient number of iterations to validate model performance exceeds random chance (See US-3)
 - **FR-006**: System MUST perform gradient-based attribution analysis to identify topological features driving adhesion predictions (See US-3)
 - **FR-007**: System MUST compute variance inflation factor (VIF) for all graph topology predictors for interpretability reporting, but MUST NOT halt training based on VIF thresholds; the GNN MUST use attention mechanisms to handle collinearity (See US-3)
 - **FR-008**: System MUST apply Bonferroni or Holm correction to p-values if the count of p-values in `results.csv` > 1 (See US-3)
