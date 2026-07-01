@@ -1,0 +1,62 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Processed Migration Climate Dataset"
+description: "Schema for the grid-aligned, aggregated dataset used in GAMM fitting. Includes effort covariates and imputation flags."
+type: "object"
+properties:
+  species_id:
+    type: "string"
+    description: "Unique species code."
+  grid_cell:
+    type: "string"
+    description: "Grid cell identifier (lat_lon)."
+  year:
+    type: "integer"
+    description: "Observation year (2020-2024)."
+  week:
+    type: "integer"
+    description: "ISO week number."
+  first_arrival_date:
+    type: "string"
+    format: "date"
+    description: "Earliest observation date."
+  median_arrival_date:
+    type: "string"
+    format: "date"
+    description: "Median observation date."
+  stopover_duration:
+    type: "number"
+    description: "Duration in days."
+  mean_temperature:
+    type: "number"
+    description: "Mean temperature in °C."
+  total_precipitation:
+    type: "number"
+    description: "Total precipitation in mm."
+  data_quality:
+    type: "string"
+    enum:
+      - "sufficient"
+      - "insufficient"
+    description: "Data quality flag."
+  checklist_duration:
+    type: "number"
+    description: "Duration of the checklist in minutes (effort covariate)."
+  distance_traveled:
+    type: "number"
+    description: "Distance traveled during checklist in km (effort covariate)."
+  num_observers:
+    type: "integer"
+    description: "Number of observers on the checklist (effort covariate)."
+  imputed:
+    type: "boolean"
+    description: "True if climate value was interpolated."
+  imputation_source:
+    type: "string"
+    description: "Source of imputation (e.g., 'spatial_interpolation', 'synthetic')."
+required:
+  - species_id
+  - grid_cell
+  - year
+  - week
+  - data_quality
+additionalProperties: false

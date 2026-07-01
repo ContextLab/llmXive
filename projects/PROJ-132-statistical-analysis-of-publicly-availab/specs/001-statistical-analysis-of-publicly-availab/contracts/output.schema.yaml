@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "GAMM Model Results"
+description: "Schema for the output of the Generalized Additive Mixed Model fitting."
+type: "object"
+properties:
+  species_id:
+    type: "string"
+  grid_cell:
+    type: "string"
+  model_id:
+    type: "string"
+    description: "Unique identifier for the model run."
+  coefficients:
+    type: "object"
+    description: "Map of predictor names to coefficient estimates."
+    additionalProperties:
+      type: "number"
+  p_values:
+    type: "object"
+    description: "Map of predictor names to p-values."
+    additionalProperties:
+      type: "number"
+  fdr_corrected_p:
+    type: "number"
+    description: "Benjamini-Hochberg corrected p-value."
+  aic:
+    type: "number"
+    description: "Akaike Information Criterion."
+  r_squared:
+    type: "number"
+    description: "Coefficient of determination."
+  convergence_status:
+    type: "string"
+    enum:
+      - "success"
+      - "failure"
+    description: "Model convergence status."
+  moran_i:
+    type: "number"
+    description: "Moran's I statistic for residuals (diagnostic only)."
+  gp_applied:
+    type: "boolean"
+    description: "Whether a Gaussian Process was applied for spatial effects (always true for Unified Spatial Model)."
+required:
+  - species_id
+  - grid_cell
+  - model_id
+  - convergence_status
+additionalProperties: false
