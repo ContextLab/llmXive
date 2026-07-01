@@ -174,6 +174,34 @@ class TestClassifyFixtures(unittest.TestCase):
         finally:
             shutil.rmtree(tmp, ignore_errors=True)
 
+    def test_real_tasks_md_with_const_principle_labels_classifies_real(self):
+        """A real tasks.md that tags tasks with a Constitution-principle reference in
+        the [Story] position ([Const VII] — e.g. PROJ-704's clinical-validation gate)
+        must classify 'real'. Those are FILLED labels, not unfilled placeholders, and
+        must not trip unfilled_bracket_density (a live CI audit failure)."""
+        tmp = Path(tempfile.mkdtemp(prefix="tasks_const_"))
+        try:
+            tasks = tmp / "tasks.md"
+            tasks.write_text(textwrap.dedent("""\
+                # Tasks: Measuring Epistemic Resilience
+
+                ## Phase 5: Clinical Validation (Constitution VII)
+
+                - [ ] T041a [Const VII] [US1] Sample items from mislead_questions.jsonl.
+                - [ ] T041b [Const VII] Define clinical review CSV schema in contracts/.
+                - [ ] T041c [Const VII] Generate manual review instructions for two clinicians.
+                - [ ] T042 [Const VII] Create validate_clinical.py to compute Cohen's kappa.
+                - [ ] T043 [Const VII] Generate clinical_validation_report.md with kappa + status.
+                - [ ] T044 [Const VII] Enforce gate: cannot reach research_complete without validation.
+            """))
+            cls, rules = classify(tasks, templates_dir=TEMPLATES_DIR)
+            self.assertEqual(
+                cls, "real",
+                msg=f"[Const VII]-labelled tasks.md misclassified {cls}; rules: {[r.rule_id for r in rules]}",
+            )
+        finally:
+            shutil.rmtree(tmp, ignore_errors=True)
+
     def test_claim_layer_markers_do_not_classify_real_artifact_as_template(self):
         """A real artifact carrying claims-layer quality markers
         ([UNRESOLVED-CLAIM: <id> — <reason>] from specs 016-020, and the legacy

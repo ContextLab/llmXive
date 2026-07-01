@@ -48,6 +48,12 @@ FILLED_TASK_REF_RE = re.compile(r"\bT\d{2,4}\b|\bUS-?\d+\b")
 # (speckit/_real_only_guard.py) REFUSES anything so classified — silently
 # blocking a claim-flagged project from advancing.
 CLAIM_MARKER_RE = re.compile(r"\[(?:UNRESOLVED-CLAIM|UNVERIFIED):")
+# A Constitution-principle REFERENCE used as a task label/tag — ``[Const VII]``,
+# ``[Constitution IV]`` — is FILLED content (the generator tags which tasks satisfy
+# which constitution principle, e.g. PROJ-704's clinical-validation gate). It sits
+# in the ``[Story]`` position of real ``- [ ] Txxx [Const VII] …`` task lines and
+# must NOT count as an unfilled placeholder; a genuine template never emits it.
+CONST_REF_RE = re.compile(r"^\[Const(?:itution)?\s+[IVXLC\d]", re.IGNORECASE)
 ACTION_REQUIRED_RE = re.compile(r"ACTION REQUIRED:", re.IGNORECASE)
 META_INSTRUCTION_RE = re.compile(
     r"(fill (?:them|it|this|out|in) (?:out )?with the right|placeholders\?|REMOVE IF UNUSED)",
@@ -178,6 +184,7 @@ def classify(path: Path, templates_dir: Path | None = None) -> tuple[str, list[R
         and " " in b[1:-1].strip()
         and not FILLED_TASK_REF_RE.search(b)  # "[DEPENDS ON: T011]" is filled, not a placeholder
         and not CLAIM_MARKER_RE.match(b)  # "[UNRESOLVED-CLAIM: …]" is a filled quality marker
+        and not CONST_REF_RE.match(b)  # "[Const VII]" is a filled constitution-principle label
     ]
     if brackets and len(brackets) >= 6:
         # treat >=6 unfilled multi-word bracket placeholders as template

@@ -49,17 +49,33 @@ jobs:
         # proper Content-Type: application/pdf, so we mirror every paper PDF
         # under docs/papers/<project_id>/<filename>.pdf for the paper modal
         # to embed.
+        #
+        # SIZE CAP: GitHub Pages caps a published site at 1 GB. The full PDF set
+        # is ~1.7 GB (dominated by a few dozen oversized 20-50 MB PDFs), which put
+        # the site over the limit (the deploy warned "exceeds 1 GB"). Mirror only
+        # PDFs <= MAX_MB so docs/ stays comfortably under 1 GB; the paper modal
+        # (dialog.js _renderArtifactPane) already falls back to a raw download link
+        # when the same-origin mirror is absent, so oversized papers still open.
         run: |
           set -euo pipefail
           mkdir -p docs/papers
+          MAX_MB=15
+          skipped=0
           # File paths are entirely under our control here (repo-checked-out
           # paths only). No untrusted input is interpolated into the shell.
           while IFS= read -r src; do
+            sz=$(stat -c%s "$src" 2>/dev/null || echo 0)
+            if [ "$sz" -gt $((MAX_MB * 1024 * 1024)) ]; then
+              echo "skip oversized ($((sz / 1024 / 1024))MB > ${MAX_MB}MB), modal falls back to download link: $src"
+              skipped=$((skipped + 1))
+              continue
+            fi
             proj=$(echo "$src" | awk -F/ '{print $2}')
             name=$(basename "$src")
             mkdir -p "docs/papers/$proj"
             cp "$src" "docs/papers/$proj/$name"
           done < <(find projects -path 'projects/*/paper/pdf/*.pdf' -type f)
+          echo "mirrored PDFs total: $(du -sh docs/papers | cut -f1); skipped oversized: $skipped"
 
       - name: Commit if changed
         # The ~14 cron workflows commit to main constantly, so a bare push races
