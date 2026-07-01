@@ -162,3 +162,38 @@ def search_datacite(intent: str, *, limit: int = 5) -> list[DatasetCandidate]:
             title = first.get("title", "") if isinstance(first, dict) else ""
             out.append(DatasetCandidate(intent, f"https://doi.org/{doi}", str(title), "datacite"))
     return out
+
+
+def search_openml(intent: str, *, limit: int = 5) -> list[DatasetCandidate]:
+    """OpenML — thousands of curated tabular ML datasets, each with a direct CSV
+    export the resolver's CSV sniffer verifies without special handling. The v1
+    list API filters by dataset NAME (a substring match), which fits the resolver's
+    intents (dataset names like "iris"/"diabetes"/"QM9", not free-text prose); a
+    DOI or multi-word research phrase simply returns no OpenML match and the other
+    sources cover it. URL: get_csv/<file_id>/<name>.csv."""
+    from urllib.parse import quote
+
+    name_q = quote(intent.strip(), safe="")
+    if not name_q:
+        return []
+    url = (
+        "https://www.openml.org/api/v1/json/data/list/"
+        f"data_name/{name_q}/limit/{max(1, int(limit))}/status/active"
+    )
+    data = _get_json(url)
+    data_dict: dict[str, Any] = data if isinstance(data, dict) else {}
+    outer = data_dict.get("data")
+    inner: dict[str, Any] = outer if isinstance(outer, dict) else {}
+    raw = inner.get("dataset")
+    rows: list[Any] = raw if isinstance(raw, list) else []
+    out: list[DatasetCandidate] = []
+    for d in rows:
+        if not isinstance(d, dict):
+            continue
+        fid = d.get("file_id")
+        nm = str(d.get("name") or "dataset")
+        if fid is None:
+            continue
+        csv_url = f"https://www.openml.org/data/get_csv/{fid}/{quote(nm, safe='')}.csv"
+        out.append(DatasetCandidate(intent, csv_url, nm, "openml"))
+    return out

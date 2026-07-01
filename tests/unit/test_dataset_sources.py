@@ -3,6 +3,7 @@ from llmxive.librarian.dataset_sources import (
     search_datacite,
     search_figshare,
     search_huggingface,
+    search_openml,
     search_zenodo,
 )
 
@@ -42,3 +43,34 @@ def test_datacite_resolves_doi():
     r = requests.get(cands[0].url, allow_redirects=True, timeout=30,
                      headers={"User-Agent": "llmxive-test/1.0"})
     assert r.status_code == 200, f"{cands[0].url} -> {r.status_code}"
+
+
+def test_openml_search_returns_verifiable_csv_candidates():
+    # OpenML adds thousands of tabular ML datasets whose CSV export the resolver
+    # can verify directly — the most common gap for tabular/ML projects that
+    # otherwise find NO verified source and fabricate. Real call, no mocks.
+    cands = search_openml("iris", limit=3)
+    assert cands, "expected >=1 OpenML dataset candidate for iris"
+    for c in cands:
+        assert c.source == "openml"
+        assert c.url.startswith("https://www.openml.org/data/get_csv/")
+        assert c.url.endswith(".csv")
+
+
+def test_openml_verified_end_to_end_by_resolver():
+    # The candidate's CSV export must actually pass the resolver's reachability +
+    # format sniff (the whole point — a "verified dataset" the Planner can cite).
+    from llmxive.librarian.dataset_resolver import verify_candidate
+    cands = search_openml("iris", limit=3)
+    assert cands
+    verified = next((verify_candidate(c) for c in cands if verify_candidate(c)), None)
+    assert verified is not None, "an OpenML iris CSV should verify (reachable + CSV format)"
+    assert verified.url.endswith(".csv")
+
+
+def test_openml_wired_into_resolver_source_aggregation():
+    # Regression guard: OpenML must remain in the resolver's source set, else the
+    # coverage silently drops back to the pre-fix registries.
+    import inspect
+    from llmxive.librarian import dataset_resolver
+    assert "search_openml" in inspect.getsource(dataset_resolver)

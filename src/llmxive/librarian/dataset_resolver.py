@@ -261,13 +261,16 @@ def _gather_candidates(intent: str) -> list[DatasetCandidate]:
     # paper-linked-data source sketched in the design is intentionally DEFERRED.
     # Those APIs yield *paper pages* (HTML landing pages), not directly
     # sample-streamable dataset files, so they would fail the format sniff and
-    # add no verified candidates today. The four registries below (HF Hub,
-    # figshare, Zenodo, DataCite) cover the in-scope cases (e.g. QM9). A
-    # paper-linked source can be appended here later without changing any
-    # interface (see design "Out of scope / future").
+    # add no verified candidates today. The registries below (HF Hub, figshare,
+    # Zenodo, DataCite, OpenML) cover the in-scope cases (e.g. QM9). OpenML adds
+    # thousands of curated tabular ML datasets with a directly-verifiable CSV
+    # export — the most common gap for the tabular/ML projects that otherwise find
+    # NO verified source and fabricate. A paper-linked source can be appended here
+    # later without changing any interface (see design "Out of scope / future").
     cands: list[DatasetCandidate] = []
     for fn in (_sources.search_huggingface, _sources.search_figshare,
-               _sources.search_zenodo, _sources.search_datacite):
+               _sources.search_zenodo, _sources.search_datacite,
+               _sources.search_openml):
         try:
             cands.extend(fn(intent, limit=5))
         except Exception:
