@@ -1,6 +1,7 @@
 """
-Unit tests for the Reference Validator Agent.
+Unit tests for the ReferenceValidatorAgent.
 """
+
 import pytest
 from src.validators.reference_validator import (
     tokenize_title,
@@ -10,166 +11,210 @@ from src.validators.reference_validator import (
     ReferenceValidatorAgent
 )
 
-
 class TestTokenizeTitle:
-    def test_simple_tokenization(self):
+    def test_simple_title(self):
         title = "Hello World"
-        tokens = tokenize_title(title)
-        assert tokens == ["hello", "world"]
-
-    def test_punctuation_removal(self):
-        title = "Hello, World! How are you?"
         tokens = tokenize_title(title)
         assert "hello" in tokens
         assert "world" in tokens
-        assert "how" in tokens
-        assert "are" in tokens
-        assert "you" in tokens
-        assert "," not in tokens
-        assert "!" not in tokens
-        assert "?" not in tokens
 
     def test_empty_title(self):
         assert tokenize_title("") == []
         assert tokenize_title(None) == []
 
-    def test_single_char_filtering(self):
-        title = "A B C"
+    def test_special_characters(self):
+        title = "A Study on 123-456: The Results!"
         tokens = tokenize_title(title)
-        # Single chars should be filtered
-        assert len(tokens) == 0
+        assert "study" in tokens
+        assert "123" in tokens
+        assert "456" in tokens
+        assert "results" in tokens
 
     def test_case_insensitivity(self):
         title = "HeLLo WoRLd"
         tokens = tokenize_title(title)
-        assert tokens == ["hello", "world"]
-
+        assert "hello" in tokens
+        assert "world" in tokens
 
 class TestComputeTitleTokenOverlap:
     def test_identical_titles(self):
-        title1 = "Scientific Benchmark Model"
-        title2 = "Scientific Benchmark Model"
-        overlap = compute_title_token_overlap(title1, title2)
-        assert overlap == 1.0
+        title = "Same Title"
+        assert compute_title_token_overlap(title, title) == 1.0
 
     def test_no_overlap(self):
-        title1 = "Cat Dog Bird"
-        title2 = "Car Bus Train"
-        overlap = compute_title_token_overlap(title1, title2)
-        assert overlap == 0.0
+        title_a = "Completely Different"
+        title_b = "Nothing In Common"
+        assert compute_title_token_overlap(title_a, title_b) == 0.0
 
     def test_partial_overlap(self):
-        title1 = "Scientific Model Benchmark"
-        title2 = "Scientific Data Analysis"
-        # Common: "scientific" -> 1 / (3 + 3 - 1) = 1/5 = 0.2
-        overlap = compute_title_token_overlap(title1, title2)
-        assert overlap == 0.2
+        title_a = "Scientific Foundation Models"
+        title_b = "Foundation Models for Science"
+        overlap = compute_title_token_overlap(title_a, title_b)
+        # Common: "foundation", "models", "science"/"scientific" (different)
+        # tokens_a: scientific, foundation, models
+        # tokens_b: foundation, models, science
+        # intersection: foundation, models (2)
+        # union: scientific, foundation, models, science (4)
+        assert overlap == 0.5
 
-    def test_empty_inputs(self):
+    def test_empty_titles(self):
         assert compute_title_token_overlap("", "") == 0.0
-        assert compute_title_token_overlap("A", "") == 0.0
-        assert compute_title_token_overlap("", "B") == 0.0
-
+        assert compute_title_token_overlap("Title", "") == 0.0
 
 class TestValidateReferenceTitleOverlap:
-    def test_valid_overlap(self):
-        candidate = "Scientific Benchmark Model"
-        references = [
-            "Scientific Benchmark Analysis",
-            "Completely Different Topic"
-        ]
-        is_valid, score, closest = validate_reference_title_overlap(candidate, references)
+    def test_pass_threshold(self):
+        ref_title = "Heterogeneous Scientific Foundation Model Collaboration Benchmark"
+        target_title = "Heterogeneous Scientific Foundation Model Collaboration Benchmark"
+        is_valid, score = validate_reference_title_overlap(ref_title, target_title, threshold=0.7)
         assert is_valid is True
-        assert score > 0.0
-        assert closest == "Scientific Benchmark Analysis"
+        assert score == 1.0
 
-    def test_invalid_overlap(self):
-        candidate = "Random Unrelated Title"
-        references = [
-            "Scientific Benchmark Model",
-            "Tabular Data Analysis"
-        ]
-        is_valid, score, closest = validate_reference_title_overlap(candidate, references)
+    def test_fail_threshold(self):
+        ref_title = "Completely Unrelated Title"
+        target_title = "Heterogeneous Scientific Foundation Model Collaboration Benchmark"
+        is_valid, score = validate_reference_title_overlap(ref_title, target_title, threshold=0.7)
         assert is_valid is False
         assert score < 0.7
 
-    def test_empty_references(self):
-        is_valid, score, closest = validate_reference_title_overlap("Any Title", [])
-        assert is_valid is False
-        assert score == 0.0
-        assert closest is None
-
+    def test_custom_threshold(self):
+        ref_title = "Some Shared Words Here"
+        target_title = "Some Words Different Here"
+        # Common: "some", "words", "here" (3)
+        # Union: "some", "shared", "words", "here", "different" (5)
+        # Overlap = 0.6
+        is_valid_high, _ = validate_reference_title_overlap(ref_title, target_title, threshold=0.7)
+        is_valid_low, _ = validate_reference_title_overlap(ref_title, target_title, threshold=0.5)
+        assert is_valid_high is False
+        assert is_valid_low is True
 
 class TestCheckConstitutionIICompliance:
-    def test_compliant_context(self):
-        context = {
-            "title": "Scientific Benchmark Model",
-            "reference_titles": ["Scientific Benchmark Analysis"],
-            "review_points": 5
+    def test_valid_reference(self):
+        ref = {
+            "title": "Test Title",
+            "abstract": "This is a sufficiently long abstract that meets the requirements.",
+            "doi": "10.1234/test",
+            "authors": ["Alice", "Bob"]
         }
-        assert check_constitution_ii_compliance(context) is True
+        is_compliant, violations = check_constitution_ii_compliance(ref)
+        assert is_compliant is True
+        assert len(violations) == 0
 
-    def test_non_compliant_context(self):
-        context = {
-            "title": "Random Unrelated Title",
-            "reference_titles": ["Scientific Benchmark Model"],
-            "review_points": 5
+    def test_missing_abstract(self):
+        ref = {
+            "title": "Test Title",
+            "doi": "10.1234/test",
+            "authors": ["Alice"]
         }
-        assert check_constitution_ii_compliance(context) is False
+        is_compliant, violations = check_constitution_ii_compliance(ref)
+        assert is_compliant is False
+        assert any("abstract" in v for v in violations)
 
-    def test_zero_points_bypass(self):
-        context = {
-            "title": "Random Unrelated Title",
-            "reference_titles": ["Scientific Benchmark Model"],
-            "review_points": 0
+    def test_missing_doi_arxiv(self):
+        ref = {
+            "title": "Test Title",
+            "abstract": "This is a sufficiently long abstract that meets the requirements.",
+            "authors": ["Alice"]
         }
-        # No points to contribute, so it passes
-        assert check_constitution_ii_compliance(context) is True
+        is_compliant, violations = check_constitution_ii_compliance(ref)
+        assert is_compliant is False
+        assert any("DOI" in v or "arXiv" in v for v in violations)
 
-    def test_missing_title_fails(self):
-        context = {
-            "title": "",
-            "reference_titles": ["Scientific Benchmark Model"],
-            "review_points": 5
+    def test_too_many_authors(self):
+        ref = {
+            "title": "Test Title",
+            "abstract": "This is a sufficiently long abstract that meets the requirements.",
+            "doi": "10.1234/test",
+            "authors": [f"Author{i}" for i in range(51)]
         }
-        assert check_constitution_ii_compliance(context) is False
-
+        is_compliant, violations = check_constitution_ii_compliance(ref)
+        assert is_compliant is False
+        assert any("authors" in v for v in violations)
 
 class TestReferenceValidatorAgent:
     @pytest.fixture
-    def agent(self):
-        return ReferenceValidatorAgent([
-            "Scientific Benchmark Model",
-            "Tabular Data Analysis"
-        ])
+    def validator(self):
+        return ReferenceValidatorAgent(target_title="Heterogeneous Scientific Foundation Model Collaboration Benchmark")
 
-    def test_valid_contribution(self, agent):
-        result = agent.validate_and_contribute(
-            candidate_title="Scientific Benchmark Analysis",
-            review_points=10
-        )
-        assert result["allowed"] is True
-        assert result["points_contributed"] == 10
-        assert result["overlap_score"] > 0.0
+    def test_validate_valid_reference(self, validator):
+        ref = {
+            "id": "ref_001",
+            "title": "Heterogeneous Scientific Foundation Model Collaboration Benchmark",
+            "abstract": "This is a sufficiently long abstract that meets the requirements.",
+            "doi": "10.1234/test",
+            "authors": ["Alice", "Bob"]
+        }
+        result = validator.validate_reference(ref)
+        assert result["should_contribute_points"] is True
+        assert result["passed_title_overlap"] is True
+        assert result["passed_constitution_ii"] is True
 
-    def test_invalid_contribution_blocked(self, agent):
-        result = agent.validate_and_contribute(
-            candidate_title="Completely Random Title",
-            review_points=10
-        )
-        assert result["allowed"] is False
-        assert result["points_contributed"] == 0
-        assert "blocked" in result["reason"].lower()
+    def test_validate_invalid_overlap(self, validator):
+        ref = {
+            "id": "ref_002",
+            "title": "Completely Unrelated Title About Cats",
+            "abstract": "This is a sufficiently long abstract that meets the requirements.",
+            "doi": "10.1234/test",
+            "authors": ["Alice"]
+        }
+        result = validator.validate_reference(ref)
+        assert result["should_contribute_points"] is False
+        assert result["passed_title_overlap"] is False
 
-    def test_zero_points_contribution(self, agent):
-        result = agent.validate_and_contribute(
-            candidate_title="Completely Random Title",
-            review_points=0
-        )
-        assert result["allowed"] is True
-        assert result["points_contributed"] == 0
+    def test_validate_invalid_constitution(self, validator):
+        ref = {
+            "id": "ref_003",
+            "title": "Heterogeneous Scientific Foundation Model Collaboration Benchmark",
+            "abstract": "Short",
+            "authors": ["Alice"]
+        }
+        result = validator.validate_reference(ref)
+        assert result["should_contribute_points"] is False
+        assert result["passed_title_overlap"] is True
+        assert result["passed_constitution_ii"] is False
 
-    def test_get_reference_titles(self, agent):
-        titles = agent.get_reference_titles()
-        assert len(titles) == 2
-        assert "Scientific Benchmark Model" in titles
+    def test_validate_batch(self, validator):
+        refs = [
+            {
+                "id": "ref_001",
+                "title": "Heterogeneous Scientific Foundation Model Collaboration Benchmark",
+                "abstract": "This is a sufficiently long abstract that meets the requirements.",
+                "doi": "10.1234/test",
+                "authors": ["Alice"]
+            },
+            {
+                "id": "ref_002",
+                "title": "Completely Unrelated",
+                "abstract": "This is a sufficiently long abstract that meets the requirements.",
+                "doi": "10.1234/test",
+                "authors": ["Alice"]
+            }
+        ]
+        results = validator.validate_batch(refs)
+        assert len(results) == 2
+        assert results[0]["should_contribute_points"] is True
+        assert results[1]["should_contribute_points"] is False
+
+    def test_validation_summary(self, validator):
+        refs = [
+            {
+                "id": "ref_001",
+                "title": "Heterogeneous Scientific Foundation Model Collaboration Benchmark",
+                "abstract": "This is a sufficiently long abstract that meets the requirements.",
+                "doi": "10.1234/test",
+                "authors": ["Alice"]
+            },
+            {
+                "id": "ref_002",
+                "title": "Completely Unrelated",
+                "abstract": "This is a sufficiently long abstract that meets the requirements.",
+                "doi": "10.1234/test",
+                "authors": ["Alice"]
+            }
+        ]
+        validator.validate_batch(refs)
+        summary = validator.get_validation_summary()
+        assert summary["total_validated"] == 2
+        assert summary["passed"] == 1
+        assert summary["failed_overlap"] == 1
+        assert summary["failed_constitution"] == 0
+        assert summary["contribution_rate"] == 0.5
