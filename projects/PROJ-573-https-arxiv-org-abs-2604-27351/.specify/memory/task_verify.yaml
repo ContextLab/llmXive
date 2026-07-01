@@ -1,7 +1,29 @@
+? 'T001 [P] Verify time-series dataset availability (UCI_HAR) via `datasets.load_dataset(''UCI_HAR'')`;
+  create `src/research/verify_timeseries.py` script; document in research.md section
+  "Dataset Verification" with fields: dataset_name, url, variables (list), size_mb,
+  verification_status (FR-001, Phase 0.1)'
+: 1
+? "T001 [P] Verify time-series dataset availability (UCI_HAR) via `datasets.load_dataset('UCI_HAR')`;\
+  \ create `src/research/verify_timeseries.py` script; document in research.md section\
+  \ \"Dataset Verification\" with fields: dataset_name, url, variables (list), size_mb,\
+  \ verification_status [UNRESOLVED-CLAIM: c_8e2eb196 \u2014 status=not_enough_info]\
+  \ (FR-001, Phase 0.1)"
+: 1
 ? "T002 [P] Verify tabular dataset availability (selected UCI sets) via HuggingFace\
   \ datasets [UNRESOLVED-CLAIM: c_dd8f0bb0 \u2014 status=not_enough_info]; create\
   \ `src/research/verify_tabular.py` script; document in research.md section \"Dataset\
   \ Verification\" with fields: dataset_name, url, variables (list), size_mb, verification_status\
+  \ (FR-001, Phase 0.1)"
+: 1
+? 'T002 [P] Verify tabular dataset availability (selected UCI sets) via HuggingFace
+  datasets; create `src/research/verify_tabular.py` script; document in research.md
+  section "Dataset Verification" with fields: dataset_name, url, variables (list),
+  size_mb, verification_status (FR-001, Phase 0.1)'
+: 1
+? "T002 [P] Verify tabular dataset availability (selected UCI sets) via HuggingFace\
+  \ datasets; create `src/research/verify_tabular.py` script; document in research.md\
+  \ section \"Dataset Verification\" with fields: dataset_name, url, variables (list),\
+  \ size_mb, verification_status [UNRESOLVED-CLAIM: c_8e2eb196 \u2014 status=not_enough_info]\
   \ (FR-001, Phase 0.1)"
 : 1
 ? "T003 [P] Verify text dataset availability (DROP/MUST) via HuggingFace datasets\
@@ -13,6 +35,12 @@
   \ [UNRESOLVED-CLAIM: c_fe427784 \u2014 status=not_enough_info]; create `src/research/verify_text.py`\
   \ script;document in research.md section \"Dataset Verification\" with fields: dataset_name,\
   \ url, variables (list), size_mb, verification_status (FR-001, Phase 0.1)"
+: 1
+? "T003 [P] Verify text dataset availability (DROP/MUST) via HuggingFace datasets;\
+  \ create `src/research/verify_text.py` script;document in research.md section \"\
+  Dataset Verification\" with fields: dataset_name, url, variables (list), size_mb,\
+  \ verification_status [UNRESOLVED-CLAIM: c_8e2eb196 \u2014 status=not_enough_info]\
+  \ (FR-001, Phase 0.1)"
 : 1
 ? "T004 Validate statistical methodology ({{claim:c_5cb9c0de}} (1311.5354, https://arxiv.org/abs/1311.5354\
   \ [UNRESOLVED-CLAIM: c_076cb98d \u2014 status=verified]), {{claim:c_55db4237}}));\
@@ -81,6 +109,12 @@
   \ (boolean) (FR-002, SC-002, Phase 0.5)"
 : 1
 ? "T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM\
+  \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_23f1879a \u2014 status=not_enough_info];\
+  \ create `src/research/verify_models.py` script; document in research.md section\
+  \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
+  \ (boolean) (FR-002, SC-002, Phase 0.5)"
+: 1
+? "T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM\
   \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_437515a4 \u2014 status=not_enough_info];\
   \ create `src/research/verify_models.py` script; document in research.md section\
   \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
@@ -104,6 +138,13 @@
   \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
   \ (boolean) (FR-002, SC-002, Phase 0.5)"
 : 2
+? "T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM\
+  \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_93ce84ee \u2014 status=not_enough_info];\
+  \ create `src/research/verify_models.py` script; document in research.md section\
+  \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
+  \ (boolean) [UNRESOLVED-CLAIM: c_674e7f12 \u2014 status=not_enough_info] (FR-002,\
+  \ SC-002, Phase 0.5)"
+: 1
 ? "T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM\
   \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_a4b272a4 \u2014 status=not_enough_info];\
   \ create `src/research/verify_models.py` script; document in research.md section\
@@ -219,10 +260,6 @@
   \ c_bb5d85cf \u2014 status=not_enough_info]; add blocking gate for Constitution\
   \ II compliance (Constitution II, Plan Gap)"
 : 1
-? "T006a Implement Reference-Validator Agent in `src/validators/reference_validator.py`\
-  \ with title-token-overlap \u2265 0.7 check before contributing review points; add\
-  \ blocking gate for Constitution II compliance (Constitution II, Plan Gap)"
-: 2
 "T008 Initialize Python 3.11 [UNRESOLVED-CLAIM: c_31b68441 \u2014 status=not_enough_info] project with {{claim:c_9da78e09}}": 1
 "T008 Initialize Python 3.11 [UNRESOLVED-CLAIM: c_92679e95 \u2014 status=not_enough_info] project with {{claim:c_9da78e09}}": 1
 "T008 Initialize Python 3.11 [UNRESOLVED-CLAIM: c_f21aed3b \u2014 status=not_enough_info] project with {{claim:c_9da78e09}}": 1
@@ -251,6 +288,14 @@
   \ [UNRESOLVED-CLAIM: c_3e5fd4de \u2014 status=not_enough_info] and pyproject.toml\
   \ (black config) in repository root"
 : 1
+? "T010 [P] Create dataset schema contract in contracts/dataset.schema.yaml with required\
+  \ fields (name, url, variables, size_mb, checksum [UNRESOLVED-CLAIM: c_c8b13512\
+  \ \u2014 status=not_enough_info])"
+: 1
+T011 [P] Create task schema contract in contracts/task.schema.yaml with required fields ({{claim:c_6a929bb3}}): 1
+? T013 [P] Create modality_model schema contract in contracts/modality_model.schema.yaml
+  with required fields (model_id, model_type, max_memory_gb)
+: 1
 ? "T015 Create quickstart.md with setup instructions; include sections: (1) Prerequisites\
   \ list (Python 3.11 [UNRESOLVED-CLAIM: c_31b68441 \u2014 status=not_enough_info],\
   \ pip, git), (2) Setup commands (clone, venv, install), (3) Verification steps (run\
@@ -276,6 +321,13 @@
   \ \u2014 status=not_enough_info] -> (path, checksum); verify URLs: UCI_HAR via `datasets.load_dataset('UCI_HAR')`,\
   \ DROP/MUST via HuggingFace datasets; depends on T007/T008 complete"
 : 1
+? "T022 [US1] Implement dataset download with 3-retry logic [UNRESOLVED-CLAIM: c_ca8a3958\
+  \ \u2014 status=not_enough_info] in src/data/download.py (FR-010); function signatures:\
+  \ download_dataset(url, max_retries=3, timeout=300) -> (path, checksum); verify\
+  \ URLs: UCI_HAR via `datasets.load_dataset('UCI_HAR')`, DROP/MUST via HuggingFace\
+  \ datasets; depends on T007/T008 complete <!-- FAILED: unspecified --> <!-- FAILED:\
+  \ unspecified -->"
+: 1
 ? "T022 [US1] Implement dataset download with 3-retry logic in src/data/download.py\
   \ (FR-010); function signatures: download_dataset(url, max_retries=3 [UNRESOLVED-CLAIM:\
   \ c_ee5121e3 \u2014 status=not_enough_info], timeout=300 [UNRESOLVED-CLAIM: c_4222a53b\
@@ -299,7 +351,7 @@
   -> (path, checksum); verify URLs: UCI_HAR via `datasets.load_dataset(''UCI_HAR'')`,
   DROP/MUST via HuggingFace datasets; depends on T007/T008 complete <!-- FAILED: unspecified
   --> <!-- FAILED: unspecified -->'
-: 1
+: 2
 ? "T022 [US1] Implement dataset download with 3-retry logic in src/data/download.py\
   \ (FR-010); function signatures: download_dataset(url, max_retries=3, timeout=300)\
   \ [UNRESOLVED-CLAIM: c_019ee08d \u2014 status=not_enough_info] -> (path, checksum);\
@@ -311,6 +363,10 @@
   \ function signatures: enforce_timeout(func, timeout_seconds=300 [UNRESOLVED-CLAIM:\
   \ c_1d4cac1d \u2014 status=not_enough_info]) -> result; raise TimeoutError if exceeded;\
   \ depends on T016 complete"
+: 1
+? 'T024 [US1] Implement timeout enforcement in src/utils/timeout.py (FR-006, FR-013);
+  function signatures: enforce_timeout(func, timeout_seconds=300) -> result; raise
+  TimeoutError if exceeded; depends on T016 complete'
 : 1
 ? "T024 [US1] Implement timeout enforcement in src/utils/timeout.py (FR-006, FR-013);\
   \ function signatures: enforce_timeout(func, timeout_seconds=300) [UNRESOLVED-CLAIM:\
@@ -381,6 +437,11 @@
 ? "T029 [US1] Create run_benchmark.py main entry point in src/benchmark/run_benchmark.py\
   \ (FR-001, FR-006, FR-010); CLI arguments: --config (default default.yaml), --mode\
   \ (heterogeneous|unified), --seeds (5) [UNRESOLVED-CLAIM: c_1deb9e69 \u2014 status=not_enough_info];\
+  \ depends on T024, T025 logging complete"
+: 1
+? "T029 [US1] Create run_benchmark.py main entry point in src/benchmark/run_benchmark.py\
+  \ (FR-001, FR-006, FR-010); CLI arguments: --config (default default.yaml), --mode\
+  \ (heterogeneous|unified), --seeds (5) [UNRESOLVED-CLAIM: c_803fff8d \u2014 status=not_enough_info];\
   \ depends on T024, T025 logging complete"
 : 1
 ? "T030 [US1] Create default.yaml config in src/benchmark/config/default.yaml with\

@@ -1,7 +1,7 @@
 """
-Dataset download and verification module.
-Implements robust download logic with retries, checksum verification,
-and support for HuggingFace datasets.
+Dataset download module with retry logic and checksum verification.
+
+Implements FR-010: Dataset download with 3-retry logic.
 """
 import hashlib
 import os
@@ -9,365 +9,292 @@ import time
 import logging
 import shutil
 from pathlib import Path
-from typing import Tuple, Optional, List, Dict, Any
+from typing import Tuple, Optional, Dict, Any, List, Union
 import requests
-from requests.exceptions import RequestException, Timeout, ConnectionError
+from datasets import load_dataset
 
-# Try to import datasets, but handle gracefully if not present
-try:
-    from datasets import load_dataset
-    HF_AVAILABLE = True
-except ImportError:
-    HF_AVAILABLE = False
+# Configure logger
+logger = logging.getLogger(__name__)
 
-from src.utils.logging import get_logger
-
-logger = get_logger(__name__)
-
-# Configuration
+# Constants
+CHECKSUM_ALGORITHM = 'sha256'
 DEFAULT_MAX_RETRIES = 3
-DEFAULT_TIMEOUT = 300
-BUFFER_SIZE = 8192
+DEFAULT_TIMEOUT = 300  # seconds
 
-def ensure_data_dirs() -> Dict[str, Path]:
-    """
-    Ensure data directories exist.
-    Returns a dictionary of path names to Path objects.
-    """
-    base = Path("data")
-    raw = base / "raw"
-    processed = base / "processed"
+def ensure_data_dirs() -> Path:
+    """Ensure data directories exist."""
+    data_dir = Path("data")
+    raw_dir = data_dir / "raw"
+    processed_dir = data_dir / "processed"
     
-    raw.mkdir(parents=True, exist_ok=True)
-    processed.mkdir(parents=True, exist_ok=True)
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    processed_dir.mkdir(parents=True, exist_ok=True)
     
-    return {
-        "base": base,
-        "raw": raw,
-        "processed": processed
-    }
+    logger.info(f"Data directories ensured: {data_dir}")
+    return data_dir
 
-def compute_file_checksum(file_path: Path, algorithm: str = "sha256") -> str:
-    """
-    Compute SHA256 checksum of a file.
-    
-    Args:
-        file_path: Path to the file
-        algorithm: Hash algorithm (default: sha256)
-        
-    Returns:
-        Hexadecimal checksum string
-    """
+def compute_file_checksum(file_path: Path, algorithm: str = CHECKSUM_ALGORITHM) -> str:
+    """Compute SHA256 checksum of a file."""
     if not file_path.exists():
         raise FileNotFoundError(f"File not found: {file_path}")
     
     hash_obj = hashlib.new(algorithm)
-    with open(file_path, "rb") as f:
-        while chunk := f.read(BUFFER_SIZE):
+    with open(file_path, 'rb') as f:
+        # Read in chunks for large files
+        for chunk in iter(lambda: f.read(8192), b""):
             hash_obj.update(chunk)
     
     return hash_obj.hexdigest()
 
-def compute_directory_checksum(dir_path: Path, extensions: Optional[List[str]] = None) -> str:
-    """
-    Compute checksum of all files in a directory (sorted by name for determinism).
+def compute_directory_checksum(dir_path: Path, algorithm: str = CHECKSUM_ALGORITHM) -> str:
+    """Compute checksum of a directory by hashing all file contents in sorted order."""
+    if not dir_path.is_dir():
+        raise NotADirectoryError(f"Path is not a directory: {dir_path}")
     
-    Args:
-        dir_path: Path to directory
-        extensions: Optional list of file extensions to include
-        
-    Returns:
-        Combined checksum string
-    """
-    if not dir_path.exists():
-        raise FileNotFoundError(f"Directory not found: {dir_path}")
-    
-    hash_obj = hashlib.sha256()
-    files = sorted(dir_path.rglob("*"))
+    hash_obj = hashlib.new(algorithm)
+    files = sorted(dir_path.rglob('*'))
     
     for file_path in files:
         if file_path.is_file():
-            if extensions:
-                if file_path.suffix not in extensions:
-                    continue
-            # Include relative path in hash for structure awareness
-            rel_path = file_path.relative_to(dir_path)
-            hash_obj.update(str(rel_path).encode())
-            
-            with open(file_path, "rb") as f:
-                while chunk := f.read(BUFFER_SIZE):
-                    hash_obj.update(chunk)
+          # Include relative path in hash for structural integrity
+          rel_path = file_path.relative_to(dir_path)
+          hash_obj.update(str(rel_path).encode('utf-8'))
+          # Include file content
+          with open(file_path, 'rb') as f:
+              for chunk in iter(lambda: f.read(8192), b""):
+                  hash_obj.update(chunk)
     
     return hash_obj.hexdigest()
 
-def compute_dataset_checksum(dataset_path: Path) -> str:
-    """
-    Compute checksum for a dataset directory.
-    
-    Args:
-        dataset_path: Path to dataset directory
-        
-    Returns:
-        Checksum string
-    """
-    return compute_directory_checksum(dataset_path)
-
-def verify_dataset_integrity(dataset_path: Path, expected_checksum: Optional[str] = None) -> Tuple[bool, str]:
-    """
-    Verify dataset integrity via checksum.
-    
-    Args:
-        dataset_path: Path to dataset
-        expected_checksum: Optional expected checksum for verification
-        
-    Returns:
-        Tuple of (is_valid, checksum_or_error)
-    """
-    try:
-        actual_checksum = compute_dataset_checksum(dataset_path)
-        
-        if expected_checksum:
-            if actual_checksum == expected_checksum:
-                return True, actual_checksum
-            else:
-                return False, f"Checksum mismatch: expected {expected_checksum}, got {actual_checksum}"
-        else:
-            return True, actual_checksum
-            
-    except Exception as e:
-        return False, str(e)
-
 def download_file_with_retry(
-    url: str, 
-    dest_path: Path, 
+    url: str,
+    output_path: Path,
     max_retries: int = DEFAULT_MAX_RETRIES,
     timeout: int = DEFAULT_TIMEOUT
-) -> bool:
+) -> Tuple[Path, str]:
     """
-    Download a file with retry logic.
+    Download a file from URL with retry logic.
     
     Args:
-        url: Source URL
-        dest_path: Destination path
-        max_retries: Maximum number of retry attempts
-        timeout: Request timeout in seconds
+        url: URL to download from
+        output_path: Local path to save the file
+        max_retries: Maximum number of retry attempts (default: 3)
+        timeout: Timeout in seconds for the request (default: 300)
         
     Returns:
-        True if download successful, False otherwise
+        Tuple of (Path to saved file, SHA256 checksum)
+        
+    Raises:
+        RuntimeError: If download fails after all retries
+        TimeoutError: If request times out
     """
-    dest_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    for attempt in range(max_retries):
+    attempt = 0
+    last_exception = None
+    
+    while attempt < max_retries:
         try:
-            logger.info(f"Downloading {url} to {dest_path} (attempt {attempt + 1}/{max_retries})")
+            logger.info(f"Downloading {url} to {output_path} (attempt {attempt + 1}/{max_retries})")
             
             response = requests.get(url, stream=True, timeout=timeout)
             response.raise_for_status()
             
-            total_size = int(response.headers.get('content-length', 0))
-            downloaded = 0
-            
-            with open(dest_path, 'wb') as f:
-                for chunk in response.iter_content(chunk_size=BUFFER_SIZE):
+            with open(output_path, 'wb') as f:
+                for chunk in response.iter_content(chunk_size=8192):
                     if chunk:
                         f.write(chunk)
-                        downloaded += len(chunk)
-                        
-                        if total_size > 0:
-                            progress = (downloaded / total_size) * 100
-                            logger.debug(f"Download progress: {progress:.1f}%")
             
-            logger.info(f"Successfully downloaded {dest_path} ({downloaded} bytes)")
-            return True
+            checksum = compute_file_checksum(output_path)
+            logger.info(f"Download successful: {output_path}, checksum: {checksum[:16]}...")
+            return output_path, checksum
             
-        except (Timeout, ConnectionError, RequestException) as e:
-            logger.warning(f"Download attempt {attempt + 1} failed: {e}")
-            if attempt < max_retries - 1:
-                wait_time = (attempt + 1) * 2  # Exponential backoff
-                logger.info(f"Retrying in {wait_time} seconds...")
-                time.sleep(wait_time)
-            else:
-                logger.error(f"Failed to download {url} after {max_retries} attempts")
-                return False
-                
+        except requests.exceptions.Timeout as e:
+            last_exception = e
+            logger.warning(f"Timeout on attempt {attempt + 1}: {e}")
+        except requests.exceptions.RequestException as e:
+            last_exception = e
+            logger.warning(f"Request error on attempt {attempt + 1}: {e}")
         except Exception as e:
-            logger.error(f"Unexpected error downloading {url}: {e}")
-            return False
+            last_exception = e
+            logger.warning(f"Unexpected error on attempt {attempt + 1}: {e}")
+        
+        attempt += 1
+        if attempt < max_retries:
+            wait_time = 2 ** attempt  # Exponential backoff
+            logger.info(f"Retrying in {wait_time} seconds...")
+            time.sleep(wait_time)
     
-    return False
+    raise RuntimeError(
+        f"Failed to download {url} after {max_retries} attempts. "
+        f"Last error: {last_exception}"
+    )
 
 def download_huggingface_dataset(
-    dataset_name: str, 
+    dataset_name: str,
     config_name: Optional[str] = None,
     split: Optional[str] = None,
-    max_retries: int = DEFAULT_MAX_RETRIES,
-    timeout: int = DEFAULT_TIMEOUT
-) -> Tuple[Optional[Path], Optional[str]]:
+    output_dir: Optional[Path] = None,
+    max_retries: int = DEFAULT_MAX_RETRIES
+) -> Tuple[Path, str]:
     """
-    Download a dataset from HuggingFace.
+    Download a dataset from HuggingFace datasets.
     
     Args:
         dataset_name: Name of the dataset (e.g., 'UCI_HAR', 'drop')
-        config_name: Optional configuration name
-        split: Optional split to download
-        max_retries: Maximum retry attempts
-        timeout: Timeout in seconds
+        config_name: Configuration name if required
+        split: Specific split to download (e.g., 'train', 'test')
+        output_dir: Directory to save the dataset (default: data/raw/dataset_name)
+        max_retries: Maximum retry attempts for loading issues
         
     Returns:
-        Tuple of (download_path, checksum) or (None, None) on failure
+        Tuple of (Path to dataset directory, SHA256 checksum of directory)
+        
+    Raises:
+        RuntimeError: If dataset cannot be loaded after retries
     """
-    if not HF_AVAILABLE:
-        logger.error("HuggingFace datasets library not installed. Install with: pip install datasets")
-        return None, None
+    if output_dir is None:
+        ensure_data_dirs()
+        output_dir = Path("data") / "raw" / dataset_name
     
-    try:
-        logger.info(f"Loading HuggingFace dataset: {dataset_name}")
-        
-        kwargs = {}
-        if config_name:
-            kwargs['config_name'] = config_name
-        if split:
-            kwargs['split'] = split
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    attempt = 0
+    last_exception = None
+    
+    while attempt < max_retries:
+        try:
+            logger.info(f"Loading HuggingFace dataset: {dataset_name} (attempt {attempt + 1}/{max_retries})")
             
-        dataset = load_dataset(dataset_name, **kwargs)
-        
-        # Save dataset to disk
-        data_dirs = ensure_data_dirs()
-        dataset_dir = data_dirs["raw"] / dataset_name.replace("/", "_")
-        dataset_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Save dataset
-        save_path = dataset_dir / "dataset.json"
-        # For simplicity, we save a manifest. Real usage would save actual data.
-        # In practice, datasets are cached by HF, but we create a local reference.
-        
-        manifest = {
-            "dataset_name": dataset_name,
-            "config_name": config_name,
-            "split": split,
-            "features": str(dataset.info.features) if hasattr(dataset, 'info') else "N/A",
-            "num_rows": len(dataset[split]) if split and split in dataset else "N/A"
-        }
-        
-        import json
-        with open(save_path, 'w') as f:
-            json.dump(manifest, f, indent=2)
-        
-        logger.info(f"Dataset {dataset_name} loaded and manifest saved to {save_path}")
-        
-        # Compute checksum of the manifest
-        checksum = compute_file_checksum(save_path)
-        
-        return dataset_dir, checksum
-        
-    except Exception as e:
-        logger.error(f"Failed to load HuggingFace dataset {dataset_name}: {e}")
-        return None, None
+            # Load dataset
+            load_kwargs = {}
+            if config_name:
+                load_kwargs['config_name'] = config_name
+            if split:
+                load_kwargs['split'] = split
+                
+            dataset = load_dataset(dataset_name, **load_kwargs)
+            
+            # Save dataset to disk in Arrow format (efficient)
+            save_path = output_dir / "dataset"
+            dataset.save_to_disk(str(save_path))
+            
+            # Compute checksum of the saved directory
+            checksum = compute_directory_checksum(save_path)
+            
+            logger.info(f"Dataset saved to {save_path}, checksum: {checksum[:16]}...")
+            return save_path, checksum
+            
+        except Exception as e:
+            last_exception = e
+            logger.warning(f"Error loading dataset on attempt {attempt + 1}: {e}")
+            attempt += 1
+            if attempt < max_retries:
+                wait_time = 2 ** attempt
+                logger.info(f"Retrying in {wait_time} seconds...")
+                time.sleep(wait_time)
+    
+    raise RuntimeError(
+        f"Failed to load HuggingFace dataset '{dataset_name}' after {max_retries} attempts. "
+        f"Last error: {last_exception}"
+    )
 
 def download_dataset(
-    url: str, 
-    max_retries: int = DEFAULT_MAX_RETRIES, 
+    url: str,
+    max_retries: int = DEFAULT_MAX_RETRIES,
     timeout: int = DEFAULT_TIMEOUT
-) -> Tuple[Optional[Path], Optional[str]]:
+) -> Tuple[Path, str]:
     """
-    Download a dataset from a URL with retry logic.
+    Download a dataset with 3-retry logic.
+    
+    Supports both direct URL downloads and HuggingFace datasets.
+    For HuggingFace datasets, use the dataset name as the URL (e.g., 'UCI_HAR').
     
     Args:
-        url: URL to download from
+        url: URL or HuggingFace dataset name
         max_retries: Maximum number of retry attempts (default: 3)
         timeout: Timeout in seconds (default: 300)
         
     Returns:
-        Tuple of (path, checksum) if successful, (None, None) otherwise
+        Tuple of (Path to downloaded data, SHA256 checksum)
+        
+    Raises:
+        RuntimeError: If download fails after all retries
     """
-    # Validate inputs
-    if not url:
-        logger.error("URL cannot be empty")
-        return None, None
+    # Check if this is a HuggingFace dataset name (no http/https)
+    if not url.startswith(('http://', 'https://')):
+        # Treat as HuggingFace dataset
+        dataset_name = url
+        return download_huggingface_dataset(
+            dataset_name=dataset_name,
+            max_retries=max_retries
+        )
     
-    if max_retries < 1:
-        logger.warning("max_retries must be at least 1, setting to 1")
-        max_retries = 1
+    # Otherwise, treat as direct URL download
+    filename = url.split('/')[-1]
+    if not filename:
+        filename = "dataset"
     
-    try:
-        # Ensure data directories exist
-        data_dirs = ensure_data_dirs()
+    output_path = Path("data") / "raw" / filename
+    return download_file_with_retry(
+        url=url,
+        output_path=output_path,
+        max_retries=max_retries,
+        timeout=timeout
+    )
+
+def verify_dataset_integrity(
+    dataset_path: Path,
+    expected_checksum: str
+) -> bool:
+    """
+    Verify dataset integrity using checksum.
+    
+    Args:
+        dataset_path: Path to dataset file or directory
+        expected_checksum: Expected SHA256 checksum
         
-        # Extract filename from URL
-        filename = url.split('/')[-1].split('?')[0]
-        if not filename:
-            filename = "dataset.zip"
-        
-        dest_path = data_dirs["raw"] / filename
-        
-        # Check if already downloaded
-        if dest_path.exists():
-            logger.info(f"File already exists: {dest_path}")
-            checksum = compute_file_checksum(dest_path)
-            return dest_path, checksum
-        
-        # Download with retries
-        success = download_file_with_retry(url, dest_path, max_retries, timeout)
-        
-        if not success:
-            return None, None
-        
-        # Compute checksum
-        checksum = compute_file_checksum(dest_path)
-        
-        logger.info(f"Dataset downloaded successfully: {dest_path}")
-        logger.info(f"Checksum: {checksum}")
-        
-        return dest_path, checksum
-        
-    except Exception as e:
-        logger.error(f"Error downloading dataset from {url}: {e}")
-        return None, None
+    Returns:
+        True if checksum matches, False otherwise
+    """
+    if not dataset_path.exists():
+        logger.error(f"Dataset path does not exist: {dataset_path}")
+        return False
+    
+    if dataset_path.is_file():
+        actual_checksum = compute_file_checksum(dataset_path)
+    else:
+        actual_checksum = compute_directory_checksum(dataset_path)
+    
+    if actual_checksum != expected_checksum:
+        logger.error(
+            f"Checksum mismatch for {dataset_path}. "
+            f"Expected: {expected_checksum[:16]}..., Got: {actual_checksum[:16]}..."
+        )
+        return False
+    
+    logger.info(f"Dataset integrity verified: {dataset_path}")
+    return True
 
 def main():
-    """
-    Main entry point for dataset download script.
-    Demonstrates download functionality.
-    """
-    logger.info("Starting dataset download verification")
+    """Main function for testing download functionality."""
+    logging.basicConfig(level=logging.INFO)
     
-    # Ensure directories
-    ensure_data_dirs()
+    # Example: Download UCI_HAR dataset
+    try:
+        logger.info("Testing download_dataset with UCI_HAR...")
+        path, checksum = download_dataset('UCI_HAR', max_retries=3)
+        logger.info(f"Success: {path}, checksum: {checksum}")
+    except Exception as e:
+        logger.error(f"Failed to download UCI_HAR: {e}")
     
-    # Example: Download a small public dataset for verification
-    # Note: In production, URLs would be configured in a YAML file
-    test_urls = [
-        # Example URL for a small test file
-        "https://archive.ics.uci.edu/ml/machine-learning-databases/00244/UCI_HAR_Dataset.zip"
-    ]
-    
-    for url in test_urls:
-        logger.info(f"Attempting to download: {url}")
-        path, checksum = download_dataset(url, max_retries=3, timeout=300)
-        
-        if path:
-            logger.info(f"Download successful: {path}")
-            logger.info(f"Checksum: {checksum}")
-            
-            # Verify integrity
-            is_valid, msg = verify_dataset_integrity(path)
-            logger.info(f"Integrity check: {msg}")
-        else:
-            logger.error(f"Download failed for: {url}")
-    
-    # Example: HuggingFace dataset verification
-    if HF_AVAILABLE:
-        logger.info("Testing HuggingFace dataset loading...")
-        path, checksum = download_huggingface_dataset("UCI_HAR")
-        if path:
-            logger.info(f"HF Dataset path: {path}")
-            logger.info(f"HF Dataset checksum: {checksum}")
-        else:
-            logger.warning("HF Dataset download failed or not available")
-    else:
-        logger.info("HuggingFace datasets not available, skipping HF test")
-    
-    logger.info("Dataset download verification complete")
+    # Example: Download a file from URL (if available)
+    # try:
+    #     url = "https://example.com/dataset.csv"
+    #     path, checksum = download_dataset(url, max_retries=3)
+    #     logger.info(f"Success: {path}, checksum: {checksum}")
+    # except Exception as e:
+    #     logger.error(f"Failed to download from URL: {e}")
 
 if __name__ == "__main__":
     main()

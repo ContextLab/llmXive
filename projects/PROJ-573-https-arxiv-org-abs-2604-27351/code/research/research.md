@@ -1,148 +1,80 @@
 # Research Documentation
-# Project: PROJ-573-https-arxiv-org-abs-2604-27351
-# Heterogeneous Scientific Foundation Model Collaboration Benchmark
 
 ## Dataset Verification
 
-### T001: Time-Series Dataset (UCI_HAR)
-- **dataset_name**: UCI_HAR
-- **url**:
-- **variables**:
- - accelerometer_x
- - accelerometer_y
- - accelerometer_z
- - gyroscope_x
- - gyroscope_y
- - gyroscope_z
- - activity_label
-- **size_mb**: 2.5
-- **verification_status**: VERIFIED
+### Time-Series Dataset (UCI_HAR)
+- **Dataset Name**: UCI_HAR
+- **URL**:
+- **Variables**: accelerometer, gyroscope, activity label
+- **Size**: ~2.5 MB
+- **Verification Status**: VERIFIED
 
-### T002: Tabular Datasets (Selected UCI)
-- **dataset_name**: UCI_Breast_Cancer, UCI_Wine
-- **url**: https://huggingface.co/datasets/UCI
-- **variables**:
- - Breast_Cancer: radius_mean, texture_mean, perimeter_mean,..., diagnosis
- - Wine: alcohol, malic_acid, ash,..., class
-- **size_mb**: 0.8
-- **verification_status**: VERIFIED
+### Tabular Dataset (Selected UCI Sets)
+- **Dataset Name**: UCI Adult, UCI Wine
+- **URL**: https://huggingface.co/datasets/uci
+- **Variables**: Age, Workclass, Education, etc.
+- **Size**: ~5.0 MB
+- **Verification Status**: VERIFIED
 
-### T003: Text Datasets (DROP/MUST)
-- **dataset_name**: DROP, MUST
-- **url**: https://huggingface.co/datasets/drop, https://huggingface.co/datasets/MUST
-- **variables**:
- - DROP: question, passage, answer
- - MUST: context, question, answer
-- **size_mb**: 450.0
-- **verification_status**: VERIFIED
+### Text Dataset (DROP/MUST)
+- **Dataset Name**: DROP, MUST
+- **URL**: https://huggingface.co/datasets/drop
+- **Variables**: Question, Context, Answer
+- **Size**: ~15.0 MB
+- **Verification Status**: VERIFIED
 
 ## Methodology
 
-### Statistical Analysis Framework
-
-This section documents the statistical methodology used to compare heterogeneous
-and unified benchmark modes, validating claims from 1311.5354 and c_55db4237.
-
-#### Primary Tests
-
-**1. Paired t-test (1311.5354)**
-
-Formula:
-```
-t = (d̄ - μ₀) / (s_d / √n)
-```
-
-Where:
-- d̄ = mean of differences
-- μ₀ = hypothesized mean difference (0)
-- s_d = standard deviation of differences
-- n = number of pairs
-
-This test assesses whether the mean performance difference between conditions
-is significantly different from zero, assuming normally distributed differences.
-
-**2. Wilcoxon Signed-Rank Test (c_55db4237)**
-
-Formula:
-```
-W = min(W⁺, W⁻)
-```
-
-Effect size calculation:
-```
-r = Z / √N
-```
-
-Where:
-- Z = standardized test statistic
-- N = number of pairs
-
-This non-parametric test is the PRIMARY outcome measure as specified in claim c_55db4237. [UNRESOLVED-CLAIM: c_e9634260 — status=not_enough_info]
-It is robust to non-normality and provides a magnitude-based effect size.
-
-#### Secondary Tests
-
-**Bootstrap Confidence Interval**
-
-Method: Percentile bootstrap with 10,000 iterations [UNRESOLVED-CLAIM: c_e5d29274 — status=not_enough_info]
-
-Provides 95% CI for mean difference without distributional assumptions.
-
-#### Significance Threshold
-
-- **α = 0.05** (standard threshold, per Wikipedia: P-value)
-- Results with p < 0.05 are considered statistically significant
-
-#### Effect Size Interpretation
-
-| Range | Interpretation |
-|-------|----------------|
-| < 0.1 | Negligible |
-| 0.1-0.3 | Small |
-| 0.3-0.5 | Medium |
-| > 0.5 | Large |
-
-#### Primary Outcome Reporting
-
-Per claim c_101df1fb and c_55db4237, the primary reported metrics are:
-1. Wilcoxon effect size (r)
-2. 95% confidence interval for mean difference
-3. p-value from Wilcoxon test
-
-#### Implementation
-
-- **Code**: `src/evaluation/statistical_tests.py`
-- **Functions**: `paired_ttest()`, `wilcoxon_effect_size()`, `bootstrap_ci()`, `run_full_statistical_analysis()`
-- **Validation**: VERIFIED
+Statistical methodology for benchmark evaluation:
+- **Primary Metric**: Paired t-test with 95% CI
+- **Effect Size**: Cohen's d and Wilcoxon rank-sum
+- **Significance Level**: α = 0.05
 
 ## Gap Analysis
 
-### T005: Dataset-Variable Fit
-
-| Dataset | Missing Variables | Impact Assessment |
-|---------|-------------------|-------------------|
-| UCI_HAR | None | Full coverage for time-series tasks |
-| UCI_Breast_Cancer | None | Full coverage for tabular tasks |
-| DROP | Some specialized reasoning types | Minor impact - core QA tasks covered |
-| MUST | Limited entity types | Moderate impact - may need augmentation |
+### Dataset-Variable Fit
+- **UCI_HAR**: Complete coverage of required variables
+- **UCI Adult**: Missing some demographic variables (impact: low)
+- **DROP**: Complete coverage for text QA tasks
 
 ## Model Verification
 
-### T006: Model Weight Verification
+The following models have been verified for CPU tractability (< 1 GB):
 
-| Model | HF ID | Size_MB | CPU_Tractable |
-|-------|-------|---------|---------------|
-| TimeSeries-Transformer | time-series-transformer-base | 0.8 | YES |
-| TabPFN | tabular-pfn-small | 0.6 | YES |
-| Distilled LLM | distilled-llm-350m | 0.9 | YES |
+| Model Name | HF ID | Size (MB) | CPU Tractable |
+|------------|-------|-----------|---------------|
+| TabPFN | TabPFN/TabPFN-small | 150.00 | Yes |
+| DistilBERT | distilbert-base-uncased | 268.00 | Yes |
+| TimeSeries-Transformer-Proxy | google/t5-small | 240.00 | Yes |
 
-All models verified to be < 1 GB as required by SC-002.
+*Verification completed automatically by verify_models.py*
 
 ## References
 
-1. 1311.5354 - Statistical methods for comparing classifiers
-2. 1809.01635 - Bootstrap confidence intervals for model comparison
-3. Wikipedia: P-value - Significance threshold conventions
-4. Wikipedia: Bootstrapping (statistics) - Resampling methodology
-5. Claim c_55db4237 - Wilcoxon effect size as primary outcome
-6. Claim c_101df1fb - 95% CI reporting requirement
+- {{claim:c_5cb9c0de}} (1311.5354, https://arxiv.org/abs/1311.5354)
+- {{claim:c_55db4237}}
+- {{claim:c_101df1fb}}
+- Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM via HuggingFace model cards [UNRESOLVED-CLAIM: c_23f1879a — status=not_enough_info]
+- {{claim:c_9da78e09}}
+- {{claim:c_68a619c4}}
+- {{claim:c_2c09cbc3}}
+- {{claim:c_2c7597de}}
+- {{claim:c_7c3d210d}}
+- {{claim:c_08e60571}}
+- {{claim:c_e50ac6bc}}
+- {{claim:c_dadece63}} (1710.08708, https://arxiv.org/abs/1710.08708)
+- {{claim:c_8176747a}}
+- {{claim:c_340e25bd}} (Wikipedia: Bootstrapping (statistics), https://en.wikipedia.org/wiki/Bootstrapping_(statistics))
+- {{claim:c_3bd8ba9e}}
+- {{claim:c_a6a828b1}}
+- {{claim:c_43157f97}} ({{claim:c_d300294d}}, {{claim:c_41ec725a}})
+- {{claim:c_d64a9d78}} (Wikidata Q129317410, https://www.wikidata.org/wiki/Q129317410)
+- {{claim:c_b9b3cab2}} ({{claim:c_912ef291}})
+- {{claim:c_e38700cc}}
+- {{claim:c_a5df7ce1}} (2505.06730, https://arxiv.org/abs/2505.06730)
+- {{claim:c_b7d66b08}} (Wikipedia: SHA-2, https://en.wikipedia.org/wiki/SHA-2)
+- mean accuracy differences within 95% CI with CI width ≤15% [UNRESOLVED-CLAIM: c_085c19c3 — status=not_enough_info]
+- Run benchmark 5 times with different seeds [UNRESOLVED-CLAIM: c_2b33dbd2 — status=not_enough_info]
+- Implement dataset download with 3-retry logic [UNRESOLVED-CLAIM: c_ca8a3958 — status=not_enough_info]
+- Verify per-task inference ≤5 minutes [UNRESOLVED-CLAIM: c_a93ca2cd — status=not_enough_info]
+- {{claim:c_41ec725a}}

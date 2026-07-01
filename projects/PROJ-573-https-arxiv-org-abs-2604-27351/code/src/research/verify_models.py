@@ -1,8 +1,13 @@
 """
-Verify model weights for CPU-tractable models.
+Verify model weights for CPU-tractable foundation models.
 
-This script checks the size of model weights for TimeSeries-Transformer,
-TabPFN, and a distilled LLM via HuggingFace model cards.
+This script checks the size of HuggingFace models to ensure they are < 1 GB,
+making them suitable for CPU-only inference as required by the benchmark.
+
+Models verified:
+- TimeSeries-Transformer (via a small proxy or public weights)
+- TabPFN (tabular foundation model)
+- Distilled LLM (e.g., DistilBERT or similar small text model)
 """
 import json
 import logging
@@ -13,9 +18,9 @@ from typing import List, Dict, Any, Optional
 
 try:
     from huggingface_hub import HfApi, model_info
-    from huggingface_hub.utils import RepositoryNotFoundError, RevisionNotFoundError
 except ImportError:
-    print("Error: huggingface_hub is required. Install with: pip install huggingface_hub")
+    # Fallback if huggingface_hub is not installed
+    print("ERROR: huggingface_hub is required. Install with: pip install huggingface_hub")
     sys.exit(1)
 
 # Configure logging
@@ -25,222 +30,219 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Define the models to verify based on task requirements
-# We use known CPU-tractable models or small variants
+# Define models to verify
+# Note: Using specific, known CPU-tractable models that are likely < 1GB
 MODELS_TO_VERIFY = [
     {
-        "model_name": "TimeSeries-Transformer (Small)",
-        "hf_id": "google/t5-small"  # Placeholder for a small transformer, actual TS model might vary
-        # Note: Specific "TimeSeries-Transformer" might not have a single canonical HF ID.
-        # We use a small T5 or similar as a proxy for size verification logic.
-        # In a real scenario, we would list specific TS model IDs like 'Nixtla/hierarchical-forecast-ts' if available and small.
-        # Let's use a specific small model often used for TS or a generic small transformer if a specific TS one isn't standard.
-        # For this task, we will try to find a specific small TS model or fallback to a small transformer.
-        # Let's try: 'Salesforce/codegen-2b-mono' is too big. 
-        # Let's try: 'hf-internal-testing/tiny-random-T5ForSequenceClassification' for testing size logic.
-        # But the task asks for real models.
-        # Let's use: 'nlp-ai-researcher/TimeSeriesTransformer' (if exists) or similar.
-        # Since specific TS models vary, we will verify the *mechanism* on a known small model 
-        # and document the actual TS model if found.
-        # For robustness, we will use:
-        # 1. A known small model representing "TimeSeries" capability (e.g., a tiny transformer)
-        # 2. TabPFN-small
-        # 3. Distilled LLM (e.g., DistilBERT)
-    },
-    {
-        "model_name": "TabPFN (Small)",
-        "hf_id": "TabPFN/tabpfn-small" # Hypothetical or actual small variant
-    },
-    {
-        "model_name": "Distilled LLM",
-        "hf_id": "distilbert-base-uncased"
-    }
-]
-
-# Correction: Use specific known models for verification
-# TabPFN: 'TabPFN/tabpfn-small' might not exist. Let's use 'TabPFN/tabpfn-base' and check size.
-# TimeSeries: 'Nixtla/hierarchical-forecast-ts' or similar. 
-# Let's define a list of candidate models to check for size < 1GB.
-
-CANDIDATE_MODELS = [
-    {
-        "model_name": "TimeSeries-Transformer (Tiny)",
-        "hf_id": "hf-internal-testing/tiny-random-T5ForSequenceClassification", # Proxy for TS transformer size check
-        "description": "Proxy for TS transformer size verification"
-    },
-    {
-        "model_name": "TabPFN (Base)",
-        "hf_id": "TabPFN/tabpfn-base", # Check if this exists and is < 1GB
-        "description": "TabPFN base model"
+        "model_name": "TabPFN",
+        "hf_id": "TabPFN/TabPFN-small",  # Smaller variant if available, or standard
+        "expected_type": "tabular"
     },
     {
         "model_name": "DistilBERT",
-        "hf_id": "distilbert-base-uncased",
-        "description": "Distilled LLM (BERT)"
+        "hf_id": "distilbert-base-uncased",  # Standard distilled LLM
+        "expected_type": "text"
+    },
+    {
+        "model_name": "TimeSeries-Transformer-Proxy",
+        "hf_id": "google/t5-small",  # Using T5-small as a proxy for small transformer architecture
+        "expected_type": "timeseries_proxy"
     }
 ]
 
-def get_model_size_mb(hf_id: str) -> Optional[float]:
+def get_model_size_mb(hf_id: str) -> float:
     """
-    Fetch the model size from HuggingFace Hub in MB.
+    Fetch the total size of a HuggingFace model in MB.
     
     Args:
-        hf_id: HuggingFace model ID (e.g., 'username/model-name')
+        hf_id: The HuggingFace model identifier (e.g., 'username/repo')
         
     Returns:
-        Size in MB or None if fetch fails.
+        Size in MB (float)
+        
+    Raises:
+        Exception: If model cannot be found or accessed
     """
     try:
-        logger.info(f"Fetching info for model: {hf_id}")
-        # Use model_info to get siblings (files) and calculate size
-        info = model_info(hf_id, files_metadata=True)
+        api = HfApi()
+        # Get model info including siblings (files)
+        info = model_info(hf_id)
         
         total_size_bytes = 0
-        for sibling in info.siblings:
-            if sibling.size:
-                total_size_bytes += sibling.size
-            
+        # Sum sizes of all files in the model repo
+        for file in info.siblings:
+            if file.size:
+                total_size_bytes += file.size
+        
         size_mb = total_size_bytes / (1024 * 1024)
-        logger.info(f"Model {hf_id} total size: {size_mb:.2f} MB")
         return size_mb
-    except RepositoryNotFoundError:
-        logger.warning(f"Model {hf_id} not found on HuggingFace Hub.")
-        return None
     except Exception as e:
-        logger.error(f"Error fetching info for {hf_id}: {e}")
-        return None
+        logger.error(f"Failed to get size for model {hf_id}: {e}")
+        raise
 
-def verify_models() -> List[Dict[str, Any]]:
+def verify_models(models: List[Dict[str, Any]], max_size_gb: float = 1.0) -> List[Dict[str, Any]]:
     """
-    Verify all candidate models and return results.
+    Verify that all specified models are under the size limit.
+    
+    Args:
+        models: List of model dicts with 'model_name', 'hf_id', 'expected_type'
+        max_size_gb: Maximum allowed size in GB (default 1.0)
+        
+    Returns:
+        List of verification results
     """
     results = []
-    for model in CANDIDATE_MODELS:
-        name = model["model_name"]
-        hf_id = model["hf_id"]
-        desc = model.get("description", "")
+    max_size_mb = max_size_gb * 1024 * 1024
+    
+    for model_spec in models:
+        model_name = model_spec['model_name']
+        hf_id = model_spec['hf_id']
         
-        size_mb = get_model_size_mb(hf_id)
+        logger.info(f"Verifying model: {model_name} ({hf_id})")
         
-        if size_mb is not None:
-            cpu_tractable = size_mb < 1024  # < 1 GB
-            status = "PASS" if cpu_tractable else "FAIL"
-            logger.info(f"{name} ({hf_id}): {size_mb:.2f} MB -> {status}")
-        else:
-            cpu_tractable = False
-            status = "ERROR"
-            logger.warning(f"{name} ({hf_id}): Could not verify size.")
+        try:
+            size_mb = get_model_size_mb(hf_id)
+            cpu_tractable = size_mb <= max_size_mb
+            
+            result = {
+                "model_name": model_name,
+                "hf_id": hf_id,
+                "size_mb": round(size_mb, 2),
+                "cpu_tractable": cpu_tractable,
+                "status": "PASS" if cpu_tractable else "FAIL"
+            }
+            logger.info(f"  Size: {result['size_mb']} MB, CPU Tractable: {cpu_tractable}")
+            
+        except Exception as e:
+            result = {
+                "model_name": model_name,
+                "hf_id": hf_id,
+                "size_mb": None,
+                "cpu_tractable": False,
+                "status": "ERROR",
+                "error": str(e)
+            }
+            logger.error(f"  Error verifying {model_name}: {e}")
         
-        results.append({
-            "model_name": name,
-            "hf_id": hf_id,
-            "size_mb": size_mb,
-            "cpu_tractable": cpu_tractable,
-            "status": status,
-            "description": desc
-        })
+        results.append(result)
     
     return results
 
-def update_research_md(results: List[Dict[str, Any]], research_md_path: str) -> None:
+def update_research_md(results: List[Dict[str, Any]], research_md_path: str = "code/research/research.md"):
     """
-    Update research.md with the Model Verification section.
+    Update the research.md file with the model verification results.
+    
+    Adds or updates the "Model Verification" section with a table of results.
     """
-    # Ensure path exists
-    path = Path(research_md_path)
-    if not path.exists():
+    research_path = Path(research_md_path)
+    if not research_path.exists():
         logger.warning(f"research.md not found at {research_md_path}. Creating new file.")
-        content = "# Research Documentation\n\n"
-    else:
-        content = path.read_text()
-    
-    # Define the section header
-    section_header = "## Model Verification"
-    
-    # Check if section exists
-    if section_header in content:
-        # Find the start of the section and replace until next section or end
-        # Simple approach: split by next known header if exists, or just append
-        # For robustness, we will replace the entire section content if found, 
-        # or append if not found.
+        # Create a new research.md with the section
+        content = f"""# Research Documentation
+
+## Model Verification
+
+The following models have been verified for CPU tractability (< 1 GB):
+
+| Model Name | HF ID | Size (MB) | CPU Tractable |
+|------------|-------|-----------|---------------|
+"""
+        for r in results:
+            size_str = f"{r['size_mb']:.2f}" if r['size_mb'] is not None else "N/A"
+            tractable_str = "Yes" if r['cpu_tractable'] else "No"
+            content += f"| {r['model_name']} | {r['hf_id']} | {size_str} | {tractable_str} |\n"
         
-        # Find index
-        start_idx = content.find(section_header)
-        # Find next header (##) after start_idx + len(section_header)
-        next_header_idx = content.find("\n## ", start_idx + len(section_header))
+        content += "\n*Verification completed automatically by verify_models.py*\n"
         
-        if next_header_idx == -1:
-            # No next section, replace from start to end
-            new_content = content[:start_idx]
+        with open(research_path, 'w') as f:
+            f.write(content)
+        logger.info(f"Created new research.md at {research_path}")
+        return
+
+    # Read existing content
+    with open(research_path, 'r') as f:
+        content = f.read()
+
+    # Check if "Model Verification" section exists
+    section_marker = "## Model Verification"
+    if section_marker in content:
+        # Find the start and end of the section
+        start_idx = content.find(section_marker)
+        # Look for the next section (starts with ##) or end of file
+        next_section_idx = content.find("\n## ", start_idx + len(section_marker))
+        if next_section_idx == -1:
+            end_idx = len(content)
         else:
-            new_content = content[:start_idx]
+            end_idx = next_section_idx
+
+        # Build new section content
+        new_section = f"""## Model Verification
+
+The following models have been verified for CPU tractability (< 1 GB):
+
+| Model Name | HF ID | Size (MB) | CPU Tractable |
+|------------|-------|-----------|---------------|
+"""
+        for r in results:
+            size_str = f"{r['size_mb']:.2f}" if r['size_mb'] is not None else "N/A"
+            tractable_str = "Yes" if r['cpu_tractable'] else "No"
+            new_section += f"| {r['model_name']} | {r['hf_id']} | {size_str} | {tractable_str} |\n"
         
-        # Build new section
-        new_section = f"{section_header}\n\n"
-        new_section += "Verification of model weights for CPU-tractability (< 1 GB).\n\n"
-        new_section += "| Model Name | HF ID | Size (MB) | CPU Tractable | Status |\n"
-        new_section += "| :--- | :--- | :--- | :--- | :--- |\n"
-        
-        for res in results:
-            size_str = f"{res['size_mb']:.2f}" if res['size_mb'] is not None else "N/A"
-            tractable_str = "Yes" if res['cpu_tractable'] else "No"
-            new_section += f"| {res['model_name']} | `{res['hf_id']}` | {size_str} | {tractable_str} | {res['status']} |\n"
-        
-        new_section += "\n"
-        
-        if next_header_idx != -1:
-            new_content += new_section + content[next_header_idx:]
-        else:
-            new_content += new_section
-        
-        content = new_content
+        new_section += "\n*Verification completed automatically by verify_models.py*\n"
+
+        # Replace old section with new
+        new_content = content[:start_idx] + new_section + content[end_idx:]
     else:
-        # Append section
-        content += f"\n\n{section_header}\n\n"
-        content += "Verification of model weights for CPU-tractability (< 1 GB).\n\n"
-        content += "| Model Name | HF ID | Size (MB) | CPU Tractable | Status |\n"
-        content += "| :--- | :--- | :--- | :--- | :--- |\n"
+        # Append new section to end
+        new_content = content + f"""
+## Model Verification
+
+The following models have been verified for CPU tractability (< 1 GB):
+
+| Model Name | HF ID | Size (MB) | CPU Tractable |
+|------------|-------|-----------|---------------|
+"""
+        for r in results:
+            size_str = f"{r['size_mb']:.2f}" if r['size_mb'] is not None else "N/A"
+            tractable_str = "Yes" if r['cpu_tractable'] else "No"
+            new_content += f"| {r['model_name']} | {r['hf_id']} | {size_str} | {tractable_str} |\n"
         
-        for res in results:
-            size_str = f"{res['size_mb']:.2f}" if res['size_mb'] is not None else "N/A"
-            tractable_str = "Yes" if res['cpu_tractable'] else "No"
-            content += f"| {res['model_name']} | `{res['hf_id']}` | {size_str} | {tractable_str} | {res['status']} |\n"
-        
-        content += "\n"
+        new_content += "\n*Verification completed automatically by verify_models.py*\n"
+
+    # Write updated content
+    with open(research_path, 'w') as f:
+        f.write(new_content)
     
-    # Write back
-    path.write_text(content)
-    logger.info(f"Updated {research_md_path} with Model Verification section.")
+    logger.info(f"Updated research.md at {research_path}")
 
 def main():
-    """Main entry point."""
+    """Main entry point for model verification."""
     logger.info("Starting model verification...")
     
-    # Determine research.md path
-    # Assuming standard project structure: code/research.md or code/src/research/../research.md
-    # Based on tasks.md: "document in research.md section"
-    # We assume research.md is at code/research.md relative to project root
-    # The script is at code/src/research/verify_models.py
-    # So relative to script: ../../research.md
+    # Run verification
+    results = verify_models(MODELS_TO_VERIFY)
     
-    script_dir = Path(__file__).parent
-    project_root = script_dir.parent.parent # code/src -> code
-    research_md_path = project_root / "research.md"
+    # Update research.md
+    update_research_md(results)
     
-    if not research_md_path.exists():
-        # Try alternative: code/research.md
-        research_md_path = project_root / "research.md"
-        if not research_md_path.exists():
-            # Fallback to current directory if not found
-            research_md_path = Path("research.md")
+    # Print summary
+    print("\n" + "="*60)
+    print("MODEL VERIFICATION SUMMARY")
+    print("="*60)
+    print(f"{'Model Name':<30} {'HF ID':<30} {'Size (MB)':<10} {'CPU Tractable'}")
+    print("-"*60)
+    for r in results:
+        size_str = f"{r['size_mb']:.2f}" if r['size_mb'] is not None else "N/A"
+        tractable_str = "Yes" if r['cpu_tractable'] else "No"
+        print(f"{r['model_name']:<30} {r['hf_id']:<30} {size_str:<10} {tractable_str}")
+    print("="*60)
     
-    results = verify_models()
-    
-    if results:
-        update_research_md(results, str(research_md_path))
-        logger.info("Model verification complete.")
+    # Check if all passed
+    all_passed = all(r['cpu_tractable'] for r in results if r['status'] != 'ERROR')
+    if all_passed:
+        print("✓ All models are CPU tractable (< 1 GB)")
     else:
-        logger.error("No results generated.")
+        print("✗ Some models exceed the 1 GB limit or failed verification")
         sys.exit(1)
 
 if __name__ == "__main__":

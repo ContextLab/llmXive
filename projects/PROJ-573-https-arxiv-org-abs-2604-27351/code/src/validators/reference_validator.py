@@ -1,10 +1,16 @@
 """
 Reference Validator Agent for llmXive.
 
-Implements Constitution II compliance checks and reference validation
-for research contributions, specifically:
-1. Title-token-overlap check (>= 0.7 threshold)
-2. Blocking gate for Constitution II compliance
+This module implements a validation agent that checks incoming research
+contributions against a set of reference criteria before allowing them
+to contribute review points.
+
+Key Features:
+1. Title-Token-Overlap Check: Ensures the contribution title shares
+   at least 70% token overlap with the reference title.
+2. Constitution II Compliance Gate: Blocks contributions that violate
+   specific constitutional rules (e.g., missing required fields,
+   unauthorized data sources).
 """
 
 import re
@@ -14,326 +20,316 @@ from pathlib import Path
 
 from src.utils.logging import get_logger
 
-logger = get_logger(__name__)
+# Constants
+MIN_TITLE_OVERLAP_THRESHOLD = 0.7
+CONSTITUTION_II_REQUIRED_FIELDS = {
+    "title",
+    "abstract",
+    "methodology",
+    "results",
+    "conclusion",
+    "references"
+}
 
-# Constitution II Compliance Thresholds
-TITLE_TOKEN_OVERLAP_THRESHOLD = 0.7
-CONSTITUTION_II_REQUIRED_FIELDS = [
-    'claim_id',
-    'claim_text',
-    'source_reference',
-    'validation_status',
-    'compliance_check'
-]
+logger = get_logger(__name__)
 
 
 class ReferenceValidatorAgent:
     """
-    Agent to validate research references and enforce Constitution II compliance.
+    An agent that validates research contributions against reference standards.
 
-    This agent performs:
-    - Token overlap analysis between claims and references
-    - Constitution II compliance verification
-    - Blocking gates for non-compliant contributions
+    Attributes:
+        reference_title (str): The canonical title to compare against.
+        reference_abstract (str): The canonical abstract for context.
+        constitution_ii_rules (Dict): Configuration for Constitution II compliance.
     """
 
     def __init__(
         self,
-        overlap_threshold: float = TITLE_TOKEN_OVERLAP_THRESHOLD,
-        constitution_ii_required_fields: Optional[List[str]] = None
+        reference_title: str,
+        reference_abstract: Optional[str] = None,
+        constitution_ii_rules: Optional[Dict[str, Any]] = None
     ):
         """
-        Initialize the Reference Validator Agent.
+        Initialize the validator with reference materials.
 
         Args:
-            overlap_threshold: Minimum token overlap ratio (0.0 to 1.0)
-            constitution_ii_required_fields: List of required fields for Constitution II
+            reference_title: The authoritative title for overlap comparison.
+            reference_abstract: Optional abstract for context matching.
+            constitution_ii_rules: Optional dict of specific rules to enforce.
         """
-        self.overlap_threshold = overlap_threshold
-        self.required_fields = constitution_ii_required_fields or CONSTITUTION_II_REQUIRED_FIELDS
-        self._validation_log: List[Dict[str, Any]] = []
+        self.reference_title = reference_title
+        self.reference_abstract = reference_abstract or ""
+        self.constitution_ii_rules = constitution_ii_rules or {}
+        self._token_cache: Set[str] = set()
 
-        logger.info(
-            f"ReferenceValidatorAgent initialized with threshold={overlap_threshold}"
-        )
+        logger.info(f"ReferenceValidatorAgent initialized with title: '{reference_title}'")
 
-    def _tokenize(self, text: str) -> Set[str]:
+    def _tokenize(self, text: str) -> List[str]:
         """
-        Tokenize text into lowercase alphanumeric tokens.
+        Tokenize text into a list of normalized tokens.
 
         Args:
-            text: Input text string
+            text: Input string to tokenize.
 
         Returns:
-            Set of normalized tokens
+            List of lowercased, alphanumeric tokens.
         """
         if not text:
-            return set()
-
-        # Convert to lowercase and extract alphanumeric tokens
-        tokens = re.findall(r'\b[a-z0-9]+\b', text.lower())
-        return set(tokens)
+            return []
+        # Normalize: lowercase, keep alphanumeric and spaces, split
+        normalized = re.sub(r'[^a-z0-9\s]', ' ', text.lower())
+        tokens = [t for t in normalized.split() if len(t) > 1] # Filter very short tokens
+        return tokens
 
     def calculate_title_token_overlap(
         self,
-        title1: str,
-        title2: str
-    ) -> float:
+        candidate_title: str,
+        reference_title: Optional[str] = None
+    ) -> Tuple[float, Set[str], Set[str]]:
         """
-        Calculate Jaccard similarity between token sets of two titles.
+        Calculate the Jaccard similarity (token overlap) between two titles.
+
+        Formula: |A ∩ B| / |A ∪ B|
 
         Args:
-            title1: First title string
-            title2: Second title string
+            candidate_title: The title to validate.
+            reference_title: Optional override for the reference title.
 
         Returns:
-            Overlap ratio (0.0 to 1.0)
+            Tuple of (overlap_score, candidate_tokens, reference_tokens)
         """
-        tokens1 = self._tokenize(title1)
-        tokens2 = self._tokenize(title2)
+        ref_title = reference_title or self.reference_title
+        candidate_tokens = set(self._tokenize(candidate_title))
+        reference_tokens = set(self._tokenize(ref_title))
 
-        if not tokens1 or not tokens2:
-            return 0.0
+        if not candidate_tokens or not reference_tokens:
+            return 0.0, candidate_tokens, reference_tokens
 
-        intersection = tokens1.intersection(tokens2)
-        union = tokens1.union(tokens2)
+        intersection = candidate_tokens & reference_tokens
+        union = candidate_tokens | reference_tokens
 
-        if not union:
-            return 0.0
-
-        return len(intersection) / len(union)
+        overlap = len(intersection) / len(union)
+        return overlap, candidate_tokens, reference_tokens
 
     def validate_title_overlap(
         self,
-        claim_title: str,
-        reference_title: str
-    ) -> Tuple[bool, float, Dict[str, Any]]:
+        candidate_title: str,
+        threshold: float = MIN_TITLE_OVERLAP_THRESHOLD
+    ) -> bool:
         """
-        Validate that claim title has sufficient token overlap with reference.
+        Validate that the candidate title meets the token overlap threshold.
 
         Args:
-            claim_title: Title of the research claim
-            reference_title: Title of the reference paper
+            candidate_title: Title to check.
+            threshold: Minimum required overlap ratio (default 0.7).
 
         Returns:
-            Tuple of (is_valid, overlap_score, details_dict)
+            True if overlap >= threshold, False otherwise.
         """
-        overlap_score = self.calculate_title_token_overlap(
-            claim_title, reference_title
-        )
-        is_valid = overlap_score >= self.overlap_threshold
+        overlap, _, _ = self.calculate_title_token_overlap(candidate_title)
+        logger.debug(f"Title overlap check: '{candidate_title}' -> {overlap:.2f} (threshold: {threshold})")
+        return overlap >= threshold
 
-        details = {
-            'claim_title': claim_title,
-            'reference_title': reference_title,
-            'overlap_score': overlap_score,
-            'threshold': self.overlap_threshold,
-            'is_valid': is_valid,
-            'tokens_claim': len(self._tokenize(claim_title)),
-            'tokens_reference': len(self._tokenize(reference_title))
-        }
-
-        logger.debug(
-            f"Title overlap validation: {overlap_score:.3f} "
-            f"(threshold={self.overlap_threshold}, valid={is_valid})"
-        )
-
-        return is_valid, overlap_score, details
-
-    def check_constitution_ii_compliance(
+    def validate_constitution_ii_compliance(
         self,
         contribution: Dict[str, Any]
-    ) -> Tuple[bool, List[str], Dict[str, Any]]:
+    ) -> Tuple[bool, List[str]]:
         """
-        Check if a research contribution meets Constitution II requirements.
+        Validate a contribution against Constitution II rules.
+
+        Checks:
+        1. Presence of all required fields (title, abstract, etc.).
+        2. Absence of prohibited keywords (if configured in rules).
+        3. Data source verification (if configured).
 
         Args:
-            contribution: Dictionary containing claim/review data
+            contribution: Dict containing the research contribution data.
 
         Returns:
-            Tuple of (is_compliant, missing_fields, details_dict)
+            Tuple of (is_compliant, list_of_violations)
         """
-        missing_fields = []
-        for field in self.required_fields:
-            if field not in contribution or contribution[field] is None:
-                missing_fields.append(field)
+        violations = []
 
-        # Additional checks for specific field validity
-        validation_issues = []
+        # 1. Check Required Fields
+        missing_fields = CONSTITUTION_II_REQUIRED_FIELDS - set(contribution.keys())
+        if missing_fields:
+            violations.append(f"Missing required fields: {', '.join(missing_fields)}")
 
-        # Check claim_id format (should be non-empty string)
-        if 'claim_id' in contribution:
-            if not isinstance(contribution['claim_id'], str) or not contribution['claim_id'].strip():
-                validation_issues.append("claim_id must be a non-empty string")
+        # 2. Check Prohibited Keywords (from rules)
+        prohibited = self.constitution_ii_rules.get("prohibited_keywords", [])
+        if prohibited:
+            content_text = " ".join(str(v) for v in contribution.values()).lower()
+            found_prohibited = [k for k in prohibited if k.lower() in content_text]
+            if found_prohibited:
+                violations.append(f"Contains prohibited keywords: {', '.join(found_prohibited)}")
 
-        # Check validation_status values
-        valid_statuses = ['pending', 'verified', 'rejected', 'flagged']
-        if 'validation_status' in contribution:
-            if contribution['validation_status'] not in valid_statuses:
-                validation_issues.append(
-                    f"validation_status must be one of {valid_statuses}"
-                )
+        # 3. Check Data Source Whitelist (from rules)
+        allowed_sources = self.constitution_ii_rules.get("allowed_data_sources", [])
+        if allowed_sources:
+            # Assume 'data_sources' key exists if provided in contribution
+            sources = contribution.get("data_sources", [])
+            if isinstance(sources, str):
+                sources = [sources]
+            invalid_sources = [s for s in sources if s not in allowed_sources]
+            if invalid_sources:
+                violations.append(f"Unauthorized data sources: {', '.join(invalid_sources)}")
 
-        is_compliant = len(missing_fields) == 0 and len(validation_issues) == 0
+        is_compliant = len(violations) == 0
+        if not is_compliant:
+            logger.warning(f"Constitution II violation detected: {violations}")
+        else:
+            logger.info("Constitution II compliance check passed.")
 
-        details = {
-            'required_fields': self.required_fields,
-            'present_fields': list(contribution.keys()),
-            'missing_fields': missing_fields,
-            'validation_issues': validation_issues,
-            'is_compliant': is_compliant
-        }
+        return is_compliant, violations
 
-        logger.info(
-            f"Constitution II compliance check: {is_compliant} "
-            f"(missing={missing_fields}, issues={validation_issues})"
-        )
-
-        return is_compliant, missing_fields, details
-
-    def validate_reference_contribution(
+    def validate_contribution(
         self,
-        claim: Dict[str, Any],
-        reference: Dict[str, Any]
+        contribution: Dict[str, Any]
     ) -> Dict[str, Any]:
         """
-        Perform full validation of a reference contribution.
+        Perform a full validation of a research contribution.
 
-        This is the main entry point for validating a research contribution
-        before it can be added to the knowledge base.
+        This is the main entry point for the agent. It checks:
+        1. Title Token Overlap (blocking if < 0.7)
+        2. Constitution II Compliance (blocking if false)
 
         Args:
-            claim: The claim/review being submitted
-            reference: The reference paper being cited
+            contribution: The full contribution dictionary.
 
         Returns:
-            Validation result dictionary with all checks and decisions
+            Dict with validation results:
+            {
+                "valid": bool,
+                "title_overlap_score": float,
+                "title_overlap_passed": bool,
+                "constitution_ii_compliant": bool,
+                "violations": List[str],
+                "can_contribute_points": bool
+            }
         """
-        logger.info(f"Validating reference contribution for claim: {claim.get('claim_id', 'unknown')}")
-
-        results = {
-            'claim_id': claim.get('claim_id', 'unknown'),
-            'is_valid': True,
-            'blocking_gates': [],
-            'checks': {},
-            'timestamp': None
-        }
-
-        # Check 1: Constitution II Compliance
-        is_compliant, missing_fields, compliance_details = self.check_constitution_ii_compliance(claim)
-        results['checks']['constitution_ii'] = compliance_details
-
-        if not is_compliant:
-            results['blocking_gates'].append(
-                f"Constitution II violation: missing fields {missing_fields}"
-            )
-            results['is_valid'] = False
-
-        # Check 2: Title Token Overlap (if both titles available)
-        if 'claim_title' in claim and 'reference_title' in reference:
-            is_valid_overlap, overlap_score, overlap_details = self.validate_title_overlap(
-                claim['claim_title'],
-                reference['reference_title']
-            )
-            results['checks']['title_overlap'] = overlap_details
-
-            if not is_valid_overlap:
-                results['blocking_gates'].append(
-                    f"Title overlap {overlap_score:.3f} below threshold {self.overlap_threshold}"
-                )
-                results['is_valid'] = False
-        else:
-            results['checks']['title_overlap'] = {
-                'skipped': True,
-                'reason': 'Missing claim_title or reference_title'
+        candidate_title = contribution.get("title", "")
+        if not candidate_title:
+            return {
+                "valid": False,
+                "title_overlap_score": 0.0,
+                "title_overlap_passed": False,
+                "constitution_ii_compliant": False,
+                "violations": ["Missing title"],
+                "can_contribute_points": False
             }
 
-        # Check 3: Required data presence
-        if 'claim_text' not in claim or not claim.get('claim_text'):
-            results['blocking_gates'].append("claim_text is required")
-            results['is_valid'] = False
+        # Check 1: Title Overlap
+        overlap_score, _, _ = self.calculate_title_token_overlap(candidate_title)
+        title_passed = overlap_score >= MIN_TITLE_OVERLAP_THRESHOLD
 
-        if 'source_reference' not in claim or not claim.get('source_reference'):
-            results['blocking_gates'].append("source_reference is required")
-            results['is_valid'] = False
+        # Check 2: Constitution II
+        const_passed, const_violations = self.validate_constitution_ii_compliance(contribution)
 
-        # Final decision
-        if results['is_valid']:
-            logger.info(
-                f"Reference contribution VALIDATED: {claim.get('claim_id', 'unknown')}"
+        # Aggregate Results
+        is_valid = title_passed and const_passed
+        all_violations = []
+        if not title_passed:
+            all_violations.append(
+                f"Title token overlap ({overlap_score:.2f}) is below threshold ({MIN_TITLE_OVERLAP_THRESHOLD})"
             )
-        else:
-            logger.warning(
-                f"Reference contribution BLOCKED: {claim.get('claim_id', 'unknown')}. "
-                f"Gates: {results['blocking_gates']}"
-            )
+        all_violations.extend(const_violations)
 
-        # Record in validation log
-        self._validation_log.append(results)
-
-        return results
-
-    def get_validation_log(self) -> List[Dict[str, Any]]:
-        """Return the complete validation log."""
-        return self._validation_log.copy()
-
-    def clear_validation_log(self) -> None:
-        """Clear the validation log."""
-        self._validation_log.clear()
-        logger.info("Validation log cleared")
+        return {
+            "valid": is_valid,
+            "title_overlap_score": overlap_score,
+            "title_overlap_passed": title_passed,
+            "constitution_ii_compliant": const_passed,
+            "violations": all_violations,
+            "can_contribute_points": is_valid
+        }
 
 
 def main():
     """
-    Main entry point for ReferenceValidatorAgent CLI/testing.
-
-    Demonstrates the validation workflow with sample data.
+    CLI entry point for testing the ReferenceValidatorAgent.
+    Runs a simple self-test with mock data.
     """
-    logger.info("ReferenceValidatorAgent - Main entry point")
+    print("Running ReferenceValidatorAgent Self-Test...")
 
-    # Initialize agent
+    # Mock Reference
+    ref_title = "Heterogeneous Scientific Foundation Model Collaboration Benchmark"
     validator = ReferenceValidatorAgent(
-        overlap_threshold=TITLE_TOKEN_OVERLAP_THRESHOLD
+        reference_title=ref_title,
+        constitution_ii_rules={
+            "prohibited_keywords": ["fake", "fabricated", "simulated"],
+            "allowed_data_sources": ["UCI_HAR", "DROP", "MUST", "HuggingFace"]
+        }
     )
 
-    # Sample claim data (simulating a research contribution)
-    sample_claim = {
-        'claim_id': 'c_ee9dd6c2',
-        'claim_text': 'The model achieves 85% accuracy on the benchmark.',
-        'claim_title': 'Benchmark Performance Analysis',
-        'source_reference': 'https://arxiv.org/abs/2604.27351',
-        'validation_status': 'pending',
-        'compliance_check': None
+    # Test Case 1: Valid Contribution
+    valid_contrib = {
+        "title": "Heterogeneous Scientific Foundation Model Benchmarking",
+        "abstract": "A study on heterogeneous models.",
+        "methodology": "We used standard benchmarks.",
+        "results": "Accuracy improved by 5%.",
+        "conclusion": "The approach works.",
+        "references": ["Ref1"],
+        "data_sources": ["UCI_HAR"]
     }
 
-    # Sample reference data
-    sample_reference = {
-        'reference_title': 'Heterogeneous Scientific Foundation Model Collaboration Benchmark',
-        'reference_url': 'https://arxiv.org/abs/2604.27351',
-        'authors': ['Research Team'],
-        'year': 2026
+    result1 = validator.validate_contribution(valid_contrib)
+    print(f"\nTest 1 (Valid): {result1['valid']}")
+    print(f"  Overlap: {result1['title_overlap_score']:.2f}")
+    print(f"  Violations: {result1['violations']}")
+    assert result1['valid'], "Valid contribution should pass."
+
+    # Test Case 2: Low Overlap Title
+    bad_title_contrib = {
+        "title": "Completely Unrelated Topic About Cats",
+        "abstract": "Cats are great.",
+        "methodology": "We observed cats.",
+        "results": "Cats sleep a lot.",
+        "conclusion": "Cats are good.",
+        "references": [],
+        "data_sources": ["UCI_HAR"]
     }
 
-    # Perform validation
-    logger.info("Running validation on sample claim...")
-    result = validator.validate_reference_contribution(sample_claim, sample_reference)
+    result2 = validator.validate_contribution(bad_title_contrib)
+    print(f"\nTest 2 (Low Overlap): {result2['valid']}")
+    print(f"  Overlap: {result2['title_overlap_score']:.2f}")
+    print(f"  Violations: {result2['violations']}")
+    assert not result2['valid'], "Low overlap title should fail."
+    assert not result2['title_overlap_passed'], "Title check should fail."
 
-    # Output results
-    print("\n=== Reference Validation Results ===")
-    print(f"Claim ID: {result['claim_id']}")
-    print(f"Is Valid: {result['is_valid']}")
-    print(f"Blocking Gates: {result['blocking_gates']}")
-    print(f"Title Overlap Score: {result['checks'].get('title_overlap', {}).get('overlap_score', 'N/A')}")
-    print(f"Constitution II Compliant: {result['checks'].get('constitution_ii', {}).get('is_compliant', 'N/A')}")
+    # Test Case 3: Constitution II Violation (Missing Field)
+    missing_field_contrib = {
+        "title": "Heterogeneous Scientific Foundation Model Collaboration",
+        "abstract": "Brief abstract.",
+        # Missing methodology, results, etc.
+        "data_sources": ["UCI_HAR"]
+    }
 
-    if not result['is_valid']:
-        print("\n⚠️  CONTRIBUTION BLOCKED - See blocking gates above")
-        return 1
-    else:
-        print("\n✅ CONTRIBUTION VALIDATED - Ready for knowledge base")
-        return 0
+    result3 = validator.validate_contribution(missing_field_contrib)
+    print(f"\nTest 3 (Missing Fields): {result3['valid']}")
+    print(f"  Violations: {result3['violations']}")
+    assert not result3['valid'], "Missing fields should fail."
+    assert not result3['constitution_ii_compliant'], "Constitution II check should fail."
+
+    # Test Case 4: Prohibited Keyword
+    bad_keyword_contrib = {
+        "title": "Heterogeneous Scientific Foundation Model Collaboration",
+        "abstract": "This study is fabricated.",
+        "methodology": "We simulated results.",
+        "results": "Fake data used.",
+        "conclusion": "Simulated outcome.",
+        "references": [],
+        "data_sources": ["UCI_HAR"]
+    }
+
+    result4 = validator.validate_contribution(bad_keyword_contrib)
+    print(f"\nTest 4 (Prohibited Keyword): {result4['valid']}")
+    print(f"  Violations: {result4['violations']}")
+    assert not result4['valid'], "Prohibited keyword should fail."
+    assert not result4['constitution_ii_compliant'], "Constitution II check should fail."
+
+    print("\n✅ All self-tests passed.")
 
 
-if __name__ == '__main__':
-    import sys
-    sys.exit(main())
+if __name__ == "__main__":
+    main()
