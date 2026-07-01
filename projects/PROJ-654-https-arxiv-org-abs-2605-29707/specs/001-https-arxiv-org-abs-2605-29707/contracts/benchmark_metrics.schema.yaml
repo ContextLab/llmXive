@@ -1,9 +1,11 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Benchmark Metrics Schema
-description: Schema for the raw metrics output from the Domino benchmark execution (aggregated over n=5 runs).
+description: Schema for the raw metrics output from the Domino benchmark execution (aggregated over n=10 runs).
 type: object
 required:
   - model_name
+  - draft_model_name
+  - target_model_name
   - hardware
   - baseline_latency_ms
   - domino_latency_ms
@@ -17,7 +19,13 @@ required:
 properties:
   model_name:
     type: string
-    description: "Name of the model used (e.g., 'Qwen2-1.8B')"
+    description: "Name of the target model used (e.g., 'Qwen2-1.8B')"
+  draft_model_name:
+    type: string
+    description: "Name of the draft model used (e.g., 'Qwen2-0.5B')"
+  target_model_name:
+    type: string
+    description: "Name of the target model used (e.g., 'Qwen2-1.8B')"
   hardware:
     type: object
     required:
@@ -142,7 +150,7 @@ properties:
     minimum: 1
   run_count:
     type: integer
-    description: "Number of independent runs (n=5)"
+    description: "Number of independent runs (n=10)"
     minimum: 1
   timestamp:
     type: string

@@ -1,4 +1,4 @@
-resolved_at: '2026-06-30T16:46:15.947327+00:00'
+resolved_at: '2026-06-30T23:18:29.352037+00:00'
 datasets:
 - intent: RAM
   status: verified
@@ -33,7 +33,7 @@ datasets:
     source: huggingface
     status: verified
     format: json
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f18358b/f6b3240580548bf9e5ffa880b18cc34773c2f1b69b262e8efb62b55f5894cbf5?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27datasets.json%3B+filename%3D%22datasets.json%22%3B&response-content-type=application%2Fjson&user_id=public&Expires=1782841481&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgzNThiL2Y2YjMyNDA1ODA1NDhiZjllNWZmYTg4MGIxOGNjMzQ3NzNjMmYxYjY5YjI2MmU4ZWZiNjJiNTVmNTg5NGNiZjVcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGF0YXNldHMuanNvbiUzQitmaWxlbmFtZSUzRCUyMmRhdGFzZXRzLmpzb24lMjIlM0ImcmVzcG9uc2UtY29udGVudC10eXBlPWFwcGxpY2F0aW9uJTJGanNvbiZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyODQxNDgxfX19XX0_&Signature=MEYCIQCRGtbcx2EwxUo2S8LO68aR4K4zYz8BhCqabUMFvfrVOQIhAJxJjpHXVetBA3GlEWPAdx2QLgZQ6S6Rk~eZ-kv4xY1Q&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f18358b/f6b3240580548bf9e5ffa880b18cc34773c2f1b69b262e8efb62b55f5894cbf5?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27datasets.json%3B+filename%3D%22datasets.json%22%3B&response-content-type=application%2Fjson&user_id=public&Expires=1782865011&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgzNThiL2Y2YjMyNDA1ODA1NDhiZjllNWZmYTg4MGIxOGNjMzQ3NzNjMmYxYjY5YjI2MmU4ZWZiNjJiNTVmNTg5NGNiZjVcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGF0YXNldHMuanNvbiUzQitmaWxlbmFtZSUzRCUyMmRhdGFzZXRzLmpzb24lMjIlM0ImcmVzcG9uc2UtY29udGVudC10eXBlPWFwcGxpY2F0aW9uJTJGanNvbiZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyODY1MDExfX19XX0_&Signature=MEUCIGKUvEEI-kxkgQYguCrbfQFf~UK1Qr3B8AHzw4D5ricvAiEAu57JrlcKX2tLbk47b-Hh3duxgGTUbk-8pQzAuL1GLLA_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -41,23 +41,23 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Early_citation_dynamics_and_predictors_of_time_to_first_citation_in_Ecuadorian_medical_publications_a_survival_analysis_of_research_visibility_docx/32838443
+  - url: https://figshare.com/articles/poster/O9164691706_School_of_Midwifery_Waterside_Onitsha_Undergraduate_screening_2026-_2027_FORM_Is_Open_Now_O_9164691706_MRS_GRACE_09164691706_Admission_form_Office_Applicants_are_advised_to_ensure_that_all_information_provided_during_the_applica/32841584
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/A_Model_Decoupling_Cohesive_and_Interfacial_Properties_of_Adhesives_Boronic_Ester-Functionalized_Random_Copolymers_as_a_Case_Study/32838441
+  - url: https://figshare.com/articles/dataset/O9164691706_School_of_Nursing_Borromeo_Undergraduate_screening_2026-_2027_FORM_Is_Open_Now_O_9164691706_MRS_GRACE_09164691706_Admission_form_Office_Applicants_are_advised_to_ensure_that_all_information_provided_during_the_application_proces/32841578
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Suppression_of_Salmonella_Effectors_with_CRISPRi_Controls_the_Immune_Response_to_Bacterial_Therapies/32838438
+  - url: https://figshare.com/articles/dataset/Salem_University_Lokoja_0704_096_4654_officially_release_the_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Transfer_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and/32841575
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Utilizing_Light_to_Control_Glycopolymer_DC-SIGN_Interactions_via_Molecular_Motors/32838435
+  - url: https://figshare.com/articles/journal_contribution/O9164691706_School_of_Nursing_Amichi_Undergraduate_screening_2026-_2027_FORM_Is_Open_Now_O_9164691706_MRS_GRACE_09164691706_Admission_form_Office_Applicants_are_advised_to_ensure_that_all_information_provided_during_the_application_process_/32841572
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Regenerative_Tourism_in_the_Philippines_Millennial_Tourists_Perspective_and_Intent_to_Participate/32838419
+  - url: https://figshare.com/articles/dataset/Tansian_University_Umunya_0704_096_4654_officially_release_the_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Transfer_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_a/32841569
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -81,23 +81,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21074929
+  - url: https://tandf.figshare.com/articles/dataset/Detection_of_S1_spike_protein_in_CD16_monocytes_up_to_245_days_in_SARS-CoV-2-negative_post-COVID-19_vaccine_syndrome_PCVS_individuals/29062725/1
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21074929
+  - url: https://tandf.figshare.com/articles/dataset/Detection_of_S1_spike_protein_in_CD16_monocytes_up_to_245_days_in_SARS-CoV-2-negative_post-COVID-19_vaccine_syndrome_PCVS_individuals/29062725
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21073525
+  - url: https://zenodo.org/records/21085491
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21073525
+  - url: https://zenodo.org/records/21085491
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21073797
+  - url: https://zenodo.org/records/20420229
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -127,23 +127,23 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://figshare.com/articles/figure/Fatigue_Cracking_and_Reflection_Cracking_in_Asphalt_Layers_in_Pavements/32838425
+  - url: https://figshare.com/articles/dataset/Obong_University_0704_096_4654_officially_release_the_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Transfer_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diplom/32841581
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Early_citation_dynamics_and_predictors_of_time_to_first_citation_in_Ecuadorian_medical_publications_a_survival_analysis_of_research_visibility_docx/32838443
+  - url: https://figshare.com/articles/poster/O9164691706_School_of_Midwifery_Waterside_Onitsha_Undergraduate_screening_2026-_2027_FORM_Is_Open_Now_O_9164691706_MRS_GRACE_09164691706_Admission_form_Office_Applicants_are_advised_to_ensure_that_all_information_provided_during_the_applica/32841584
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/A_Model_Decoupling_Cohesive_and_Interfacial_Properties_of_Adhesives_Boronic_Ester-Functionalized_Random_Copolymers_as_a_Case_Study/32838441
+  - url: https://figshare.com/articles/dataset/O9164691706_School_of_Nursing_Borromeo_Undergraduate_screening_2026-_2027_FORM_Is_Open_Now_O_9164691706_MRS_GRACE_09164691706_Admission_form_Office_Applicants_are_advised_to_ensure_that_all_information_provided_during_the_application_proces/32841578
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Suppression_of_Salmonella_Effectors_with_CRISPRi_Controls_the_Immune_Response_to_Bacterial_Therapies/32838438
+  - url: https://figshare.com/articles/dataset/Salem_University_Lokoja_0704_096_4654_officially_release_the_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Transfer_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and/32841575
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Utilizing_Light_to_Control_Glycopolymer_DC-SIGN_Interactions_via_Molecular_Motors/32838435
+  - url: https://figshare.com/articles/journal_contribution/O9164691706_School_of_Nursing_Amichi_Undergraduate_screening_2026-_2027_FORM_Is_Open_Now_O_9164691706_MRS_GRACE_09164691706_Admission_form_Office_Applicants_are_advised_to_ensure_that_all_information_provided_during_the_application_process_/32841572
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -155,11 +155,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/8056637
+  - url: https://zenodo.org/records/15420758
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15420758
+  - url: https://zenodo.org/records/8056637
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -167,23 +167,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21076134
+  - url: https://zenodo.org/records/21086797
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21076134
+  - url: https://osf.io/jsavu/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21075572
+  - url: https://tandf.figshare.com/articles/journal_contribution/Clinical_and_economic_burden_of_herpes_zoster_in_Mexico_A_retrospective_medical_chart_analysis_in_a_private_healthcare_setting/30438113/2
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21075572
+  - url: https://tandf.figshare.com/articles/journal_contribution/Clinical_and_economic_burden_of_herpes_zoster_in_Mexico_A_retrospective_medical_chart_analysis_in_a_private_healthcare_setting/30438113
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21075658
+  - url: https://tandf.figshare.com/articles/journal_contribution/Clinical_and_economic_burden_of_herpes_zoster_in_Mexico_A_retrospective_medical_chart_analysis_in_a_private_healthcare_setting/30438113/1
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -191,23 +191,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/figure/Fatigue_Cracking_and_Reflection_Cracking_in_Asphalt_Layers_in_Pavements/32838425
+  - url: https://figshare.com/articles/dataset/Obong_University_0704_096_4654_officially_release_the_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Transfer_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and_Diplom/32841581
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Early_citation_dynamics_and_predictors_of_time_to_first_citation_in_Ecuadorian_medical_publications_a_survival_analysis_of_research_visibility_docx/32838443
+  - url: https://figshare.com/articles/poster/O9164691706_School_of_Midwifery_Waterside_Onitsha_Undergraduate_screening_2026-_2027_FORM_Is_Open_Now_O_9164691706_MRS_GRACE_09164691706_Admission_form_Office_Applicants_are_advised_to_ensure_that_all_information_provided_during_the_applica/32841584
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/A_Model_Decoupling_Cohesive_and_Interfacial_Properties_of_Adhesives_Boronic_Ester-Functionalized_Random_Copolymers_as_a_Case_Study/32838441
+  - url: https://figshare.com/articles/dataset/O9164691706_School_of_Nursing_Borromeo_Undergraduate_screening_2026-_2027_FORM_Is_Open_Now_O_9164691706_MRS_GRACE_09164691706_Admission_form_Office_Applicants_are_advised_to_ensure_that_all_information_provided_during_the_application_proces/32841578
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Suppression_of_Salmonella_Effectors_with_CRISPRi_Controls_the_Immune_Response_to_Bacterial_Therapies/32838438
+  - url: https://figshare.com/articles/dataset/Salem_University_Lokoja_0704_096_4654_officially_release_the_2026_2027_admission_forms_for_all_programs_You_can_find_the_forms_available_for_various_courses_including_Post-Utme_Transfer_Pre-Degree_Form_Jupeb_Form_Master_s_form_Ph_D_Form_and/32841575
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Utilizing_Light_to_Control_Glycopolymer_DC-SIGN_Interactions_via_Molecular_Motors/32838435
+  - url: https://figshare.com/articles/journal_contribution/O9164691706_School_of_Nursing_Amichi_Undergraduate_screening_2026-_2027_FORM_Is_Open_Now_O_9164691706_MRS_GRACE_09164691706_Admission_form_Office_Applicants_are_advised_to_ensure_that_all_information_provided_during_the_application_process_/32841572
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content

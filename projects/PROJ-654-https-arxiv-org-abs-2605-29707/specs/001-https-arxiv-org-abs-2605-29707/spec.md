@@ -29,12 +29,12 @@
 
 **Why this priority**: The paper claims speedups using LLMs, which often require GPUs. If the reproduction fails due to resource exhaustion on CPU, the project cannot reach `research_complete`. This ensures the "Compute Feasibility" constraint is met.
 
-**Independent Test**: The benchmark run finishes in [deferred] on a standard 2-core runner and stays under 6GB RAM usage peak.
+**Independent Test**: The benchmark run finishes in ≤ 45 minutes on a standard 2-core runner and stays under 6.5GB RAM usage peak.
 
 **Acceptance Scenarios**:
 
 1. **Given** the benchmark is running on a 2-core, 7GB RAM runner, **When** the process consumes memory, **Then** the peak RSS (Resident Set Size) remains below 6.5 GB, preventing an OOM kill.
-2. **Given** the benchmark processes a sample dataset (e.g., 100 prompts), **When** the total wall-clock time is measured, **Then** the duration is ≤ 45 minutes, leaving a buffer for the 6-hour CI limit.
+2. **Given** the benchmark processes a sample dataset (e.g., 50 prompts), **When** the total wall-clock time is measured, **Then** the duration is ≤ 45 minutes, leaving a buffer for the 6-hour CI limit.
 3. **Given** the environment has no GPU, **When** the model loads, **Then** the system uses standard 32-bit float precision (FP32) or FP16 on CPU (if supported by the backend) rather than attempting 8-bit/4-bit quantization which requires CUDA libraries.
 
 ---
@@ -94,3 +94,4 @@
 - The paper's claim of "5.49x speedup" is based on GPU acceleration; the reproduced speedup on CPU may be lower (e.g., 1.5x - 3x) but must still demonstrate a positive speedup over the baseline to validate the algorithm's efficacy.
 - The GitHub Actions runner provides stable network access to `huggingface.co` for model and dependency downloads.
 - The "base-anchored training curriculum" mentioned in the paper is not required for this reproduction task, as the task is to validate the *inference* framework, not retrain the model weights.
+- The benchmark scripts in `external/Domino/code/` are designed to handle missing GPU devices by falling back to CPU execution without requiring code modification.

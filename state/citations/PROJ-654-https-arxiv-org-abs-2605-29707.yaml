@@ -1,4 +1,4 @@
-- artifact_hash: ffdc03d4a8d6c70512ef661d263a0a182ee5dfce7ebeee191a64b22a506889e4
+- artifact_hash: 5d2e91eb3ebe0ad9c7e1975195c8175a327033b653f07b170a684e09a58bf8e8
   artifact_path: projects/PROJ-654-https-arxiv-org-abs-2605-29707/specs/001-https-arxiv-org-abs-2605-29707/spec.md
   cite_id: c-001
   cited_authors: []
@@ -8,9 +8,31 @@
   value: '2605.29707'
   verification_status: unreachable
   verified_against_url: null
-  verified_at: '2026-06-30T16:44:31.077425Z'
-- artifact_hash: 028d24ff04dfa634091b4e7711452b934606b1cb42308a877399cf79ce33b45f
+  verified_at: '2026-06-30T23:16:12.484848Z'
+- artifact_hash: b1a334d16244cd59e22f5e1530579ca0eba5bc35bea5060cb4ba2357a96fe4b9
   artifact_path: projects/PROJ-654-https-arxiv-org-abs-2605-29707/specs/001-https-arxiv-org-abs-2605-29707/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: cpu
+  kind: url
+  value: https://download.pytorch.org/whl/cpu`
+  verification_status: pending
+  verified_against_url: https://download.pytorch.org/whl/cpu
+  verified_at: '2026-06-30T23:51:59.835154Z'
+- artifact_hash: b1a334d16244cd59e22f5e1530579ca0eba5bc35bea5060cb4ba2357a96fe4b9
+  artifact_path: projects/PROJ-654-https-arxiv-org-abs-2605-29707/specs/001-https-arxiv-org-abs-2605-29707/plan.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: arxiv
+  value: '2605.29707'
+  verification_status: unreachable
+  verified_against_url: null
+  verified_at: '2026-06-30T23:51:59.835154Z'
+- artifact_hash: 31f41c5b38ed45464b56000b9aeabaaa25131ae77a507277d0c1a8b158b633c0
+  artifact_path: projects/PROJ-654-https-arxiv-org-abs-2605-29707/specs/001-https-arxiv-org-abs-2605-29707/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
@@ -19,30 +41,8 @@
   value: '2605.29707'
   verification_status: unreachable
   verified_against_url: null
-  verified_at: '2026-06-30T16:56:55.547047Z'
-- artifact_hash: 5f166e76745e86a96b4a7ee26a632224e4b47fbb874eb5fcb221e116aab798a6
-  artifact_path: projects/PROJ-654-https-arxiv-org-abs-2605-29707/specs/001-https-arxiv-org-abs-2605-29707/research.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/datasets/cnn_dailymail`
-  verification_status: mismatch
-  verified_against_url: https://huggingface.co/cnn_dailymail%60/datasets
-  verified_at: '2026-06-30T16:57:18.461671Z'
-- artifact_hash: 5f166e76745e86a96b4a7ee26a632224e4b47fbb874eb5fcb221e116aab798a6
-  artifact_path: projects/PROJ-654-https-arxiv-org-abs-2605-29707/specs/001-https-arxiv-org-abs-2605-29707/research.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://download.pytorch.org/whl/cpu`
-  verification_status: unreachable
-  verified_against_url: https://download.pytorch.org/whl/cpu%60
-  verified_at: '2026-06-30T16:57:18.461671Z'
-- artifact_hash: 90aeab2036abab5265718fe8a55878d4868242def73ba6932dbefe62247c7be7
+  verified_at: '2026-06-30T23:52:50.829472Z'
+- artifact_hash: 896fdb5bd54a0b80f7efe97f2542644bc1f9fddda4a4f8369c5d7fa9cb0a55a3
   artifact_path: projects/PROJ-654-https-arxiv-org-abs-2605-29707/specs/001-https-arxiv-org-abs-2605-29707/quickstart.md
   cite_id: c-001
   cited_authors: []
@@ -50,6 +50,6 @@
   fetched_title: cpu
   kind: url
   value: https://download.pytorch.org/whl/cpu
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://download.pytorch.org/whl/cpu
-  verified_at: '2026-06-30T16:57:19.972480Z'
+  verified_at: '2026-06-30T23:54:18.586376Z'

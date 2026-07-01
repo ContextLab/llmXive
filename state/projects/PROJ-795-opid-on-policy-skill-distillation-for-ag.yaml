@@ -1,7 +1,7 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-27T08:58:08.431049Z'
-current_stage: paper_review
+current_stage: paper_ingested
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'OPID: On-Policy Skill Distillation for Agentic Reinforcement Learning'
-updated_at: '2026-06-27T08:58:08.700917Z'
+updated_at: '2026-06-30T22:57:18.927983Z'
