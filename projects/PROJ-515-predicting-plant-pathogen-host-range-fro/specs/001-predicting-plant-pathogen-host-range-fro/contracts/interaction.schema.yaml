@@ -14,11 +14,12 @@ properties:
     enum:
       - 0
       - 1
-    description: "Binary interaction label (1=infects, 0=does not infect)"
+      - -1
+    description: "Binary interaction label (1=infects, 0=does not infect, -1=unknown/missing)"
   source_db:
     type: string
-    description: "Source database (PHI-base, Interactome3D, BioSample)"
-    pattern: "^(PHI-base|Interactome3D|BioSample)$"
+    description: "Source database (PHI-base, Interactome3D, NCBI BioSample)"
+    pattern: "^(PHI-base|Interactome3D|NCBI BioSample)$"
   confidence:
     type: string
     description: "Confidence level of the interaction record"

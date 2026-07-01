@@ -1,0 +1,91 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Plant Pathogen Host Range Dataset Schema"
+description: "Schema for input dataset files (genomes, interactions, features)"
+type: object
+properties:
+  pathogen_genomes:
+    type: object
+    description: "Mapping of pathogen accession_id to genome file path"
+    additionalProperties:
+      type: string
+      pattern: "^data/raw/.*\\.fasta$"
+    required:
+      - "GCF_000001234.5"
+      - "GCF_000005678.9"
+  interactions:
+    type: array
+    description: "List of host-pathogen interaction records"
+    items:
+      type: object
+      properties:
+        pathogen_id:
+          type: string
+          description: "NCBI GenBank accession number"
+        host_id:
+          type: string
+          description: "Plant species name or taxonomic ID"
+        infects:
+          type: integer
+          enum: [0, 1, -1]
+          description: "Binary infection label (1=yes, 0=no, -1=unknown)"
+        source:
+          type: string
+          enum: ["PHI-Base", "Interactome3D", "NCBI BioSample"]
+          description: "Source database for interaction record"
+        retrieval_date:
+          type: string
+          format: date
+          description: "Date of data retrieval (YYYY-MM-DD)"
+      required:
+        - pathogen_id
+        - host_id
+        - infects
+        - source
+        - retrieval_date
+  feature_vectors:
+    type: array
+    description: "List of genomic feature vectors for each pathogen"
+    items:
+      type: object
+      properties:
+        pathogen_id:
+          type: string
+          description: "NCBI GenBank accession number"
+        effector_count:
+          type: integer
+          minimum: 0
+          description: "Number of predicted effector proteins"
+        pfam_counts:
+          type: object
+          description: "Dictionary of Pfam domain counts"
+          additionalProperties:
+            type: integer
+            minimum: 0
+        gc_content:
+          type: number
+          minimum: 0
+          maximum: 100
+          description: "GC percentage"
+        kmer_freq:
+          type: object
+          description: "Normalized 4-mer frequency profile"
+          additionalProperties:
+            type: number
+            minimum: 0
+            maximum: 1
+        sm_cluster_count:
+          type: integer
+          minimum: 0
+          description: "Number of secondary-metabolism clusters"
+      required:
+        - pathogen_id
+        - effector_count
+        - pfam_counts
+        - gc_content
+        - kmer_freq
+        - sm_cluster_count
+required:
+  - pathogen_genomes
+  - interactions
+  - feature_vectors
+additionalProperties: false

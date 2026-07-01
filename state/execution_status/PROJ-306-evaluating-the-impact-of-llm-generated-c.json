@@ -1,12 +1,12 @@
 {
   "project_id": "PROJ-306-evaluating-the-impact-of-llm-generated-c",
   "ok": false,
-  "reason": "235 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/.venv/lib/python3.11/site-packages/PIL/ImageCms.py: self-declared fabricated metric \u2014 \u201c\u2026outputProfile``, but tries to simulate the result that would be     obtained on\u2026\u201d; code/.venv/lib/python3.11/site-packages/PIL/ImageCms.py: self-declared fabricated metric \u2014 \u201c\u2026outputProfile``, but tries to simulate the result that would be     obtained on\u2026\u201d; code/.venv/lib/python3.11/site-packages/_pytest/subtests.py: self-declared fabricated metric \u2014 \u201c\u2026:param kwargs:             Arbitrary values that are also added to the s\u2026\u201d; 1 command(s) failed: python code/main.py --num-tasks 100 --output-dir data/processed (rc=1); 1 declared deliverable(s) absent: data/benchmarks/processed/catalog.json",
+  "reason": "1 command(s) failed: python code/main.py --num-tasks 100 --output-dir data/processed (rc=1); 1 declared deliverable(s) absent: data/processed/sensitivity_report.csv",
   "artifacts": [],
   "failures": [
-    "python code/main.py --num-tasks 100 --output-dir data/processed -> rc=1\n    ojects/PROJ-306-evaluating-the-impact-of-llm-generated-c/code/error_handling.py\", line 16, in <module>\n    from utils import exponential_backoff_retry\nImportError: cannot import name 'exponential_backoff_retry' from partially initialized module 'utils' (most likely due to a circular import) (/home/runner/work/llmXive/llmXive/projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/code/utils.py)"
+    "python code/main.py --num-tasks 100 --output-dir data/processed -> rc=1\n    Warning: LLM_API_KEY not found in environment. Local models will be used if available.\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/code/main.py\", line 11, in <module>\n    from utils import exponential_backoff_retry\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-306-evaluating-the-impact-of-llm-generated-c/code/utils.py\", line 10, in <module>\n    from error_handling import api_logger, log_error\n  File \"/home/runner/work"
   ],
-  "fix_rounds": 3,
+  "fix_rounds": 4,
   "model_tier": 0,
-  "updated_at": "2026-06-30T14:51:59Z"
+  "updated_at": "2026-07-01T08:15:11Z"
 }
