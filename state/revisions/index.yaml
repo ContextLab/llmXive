@@ -315,3 +315,6 @@ ready:
 - project_id: PROJ-788-improved-large-language-diffusion-models
   revision_spec_path: specs/auto-revisions/PROJ-788-improved-large-language-diffusion-models/round-1
   queued_at: '2026-06-30T21:49:16.184566+00:00'
+- project_id: PROJ-795-opid-on-policy-skill-distillation-for-ag
+  revision_spec_path: specs/auto-revisions/PROJ-795-opid-on-policy-skill-distillation-for-ag/round-1
+  queued_at: '2026-07-01T00:06:50.105467+00:00'

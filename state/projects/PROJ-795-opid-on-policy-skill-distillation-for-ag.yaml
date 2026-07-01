@@ -6,13 +6,13 @@ failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-795-opid-on-policy-skill-distillation-for-ag
-last_run_id: null
+last_run_id: fb3d7a31-41ca-4b01-bb5c-b0c3ec7d1a2a
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
-revision_spec_path: null
+revision_spec_path: specs/auto-revisions/PROJ-795-opid-on-policy-skill-distillation-for-ag/round-1
 speckit_paper_dir: null
 speckit_research_dir: null
 title: 'OPID: On-Policy Skill Distillation for Agentic Reinforcement Learning'
-updated_at: '2026-06-30T22:57:18.927983Z'
+updated_at: '2026-07-01T00:06:50.148974Z'
