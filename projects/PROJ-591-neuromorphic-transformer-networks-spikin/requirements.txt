@@ -1,0 +1,8 @@
+torch
+snnTorch
+codecarbon
+datasets
+scikit-learn
+pandas
+numpy
+tqdm

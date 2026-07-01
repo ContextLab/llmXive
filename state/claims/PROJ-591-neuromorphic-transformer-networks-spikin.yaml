@@ -1,0 +1,388 @@
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/specs/001-neuromorphic-transformer-networks-spikin/tasks.md
+  attempts: 1
+  canonical: WikiText-2 dataset used from HuggingFace wikitext-2-raw-v1
+  claim_id: c_d6cdc23e
+  context: 'Implement `code/data/dataset_loader.py` to download WikiText-2. Primary
+    Source: Use `datasets.load_dataset(''wikitext'', ''wikitext-2-raw-v1'')` (HuggingFace)
+    as the canonical source per Constitution Principle I.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses WikiText-2 as the dataset, specifically 'wikitext-2-raw-v1'
+    from HuggingFace.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T22:16:17Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/specs/001-neuromorphic-transformer-networks-spikin/tasks.md
+  attempts: 1
+  canonical: Baseline Transformer 2-layer 4-head 2M parameters
+  claim_id: c_62842db7
+  context: Implement `code/models/baseline_transformer.py` for a -layer, 4-head Transformer
+    (~2M params) with CPU-only enforcement.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline_Transformer_2-layer_4-head_2M_parameters
+  kind: entity_fact
+  raw_text: The baseline model is a 2-layer, 4-head Transformer with approximately
+    2 million parameters.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T22:17:32Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/specs/001-neuromorphic-transformer-networks-spikin/tasks.md
+  attempts: 1
+  canonical: Baseline training batch size 32 learning rate 1e-3
+  claim_id: c_b5e54a52
+  context: Implement baseline training loop in `code/main.py` (seeds 1-5, batch size
+    32, lr 1e-3).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline training uses a batch size of 32 and a learning rate of 1e-3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T22:17:55Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/specs/001-neuromorphic-transformer-networks-spikin/tasks.md
+  attempts: 1
+  canonical: Baseline training minimum 3 epochs
+  claim_id: c_86e58152
+  context: Can be fully tested by training the baseline transformer for minimum 3
+    epochs (with early stopping if validation loss plateaus) on WikiText-2
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline training runs for a minimum of 3 epochs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T22:18:16Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/specs/001-neuromorphic-transformer-networks-spikin/tasks.md
+  attempts: 1
+  canonical: Spiking model uses surrogate-gradient learning
+  claim_id: c_c22355c3
+  context: Implement `code/models/spiking_transformer.py` replacing feed-forward layers
+    with LIF neurons (snnTorch) using **surrogate-gradient learning** (FR-005).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Spiking_model_uses_surrogate-gradient_learning
+  kind: entity_fact
+  raw_text: The spiking model uses surrogate-gradient learning.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T22:18:39Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/specs/001-neuromorphic-transformer-networks-spikin/tasks.md
+  attempts: 1
+  canonical: Training termination trigger 50% silent neurons for 3 epochs
+  claim_id: c_064335a8
+  context: Integrate zero-spike detection logic (FR-006 edge case) as a blocking condition
+    within the training loop. If >50% neurons silent for 3 epochs, raise `TrainingTerminationError`
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Training_termination_trigger_50%25_silent_neurons_for_3_epochs
+  kind: magnitude
+  raw_text: Training terminates if more than 50% of neurons are silent for 3 consecutive
+    epochs.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T22:19:04Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/specs/001-neuromorphic-transformer-networks-spikin/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis thresholds 0.20 0.25 0.30 0.35
+  claim_id: c_623baa83
+  context: "Implement sensitivity analysis sweep over thresholds {0.20, 0.25, 0.30,\
+    \ 0.35} to calculate FP/FN rates (ground truth: \u226530% reduction)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis sweeps over reduction thresholds of 0.20, 0.25,
+    0.30, and 0.35.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T22:19:30Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/specs/001-neuromorphic-transformer-networks-spikin/tasks.md
+  attempts: 1
+  canonical: Ground truth energy reduction 30%
+  claim_id: c_81a01612
+  context: "Implement sensitivity analysis sweep over thresholds {0.20, 0.25, 0.30,\
+    \ 0.35} to calculate FP/FN rates (ground truth: \u226530% reduction)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ground_truth_energy_reduction_30%25
+  kind: magnitude
+  raw_text: The ground truth for energy reduction in sensitivity analysis is defined
+    as at least 30%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T22:19:58Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/specs/001-neuromorphic-transformer-networks-spikin/tasks.md
+  attempts: 1
+  canonical: Statistical analysis alpha 0.05
+  claim_id: c_fe7ad3a0
+  context: "Implement paired t-tests (\u03B1=0.05) in `code/analysis/statistical_tests.py`\
+    \ comparing baseline vs. spiking metrics."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The statistical analysis uses a significance level (alpha) of 0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-01T22:20:13Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/specs/001-neuromorphic-transformer-networks-spikin/tasks.md
+  attempts: 1
+  canonical: Total runtime target less than 6 hours
+  claim_id: c_3081a6ac
+  context: '[P] Performance optimization across all stories (ensure <6h total runtime)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_runtime_target_less_than_6_hours
+  kind: magnitude
+  raw_text: The total runtime target for performance optimization is less than 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T22:20:32Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/specs/001-neuromorphic-transformer-networks-spikin/tasks.md
+  attempts: 1
+  canonical: Primary data source for WikiText-2 is HuggingFace wikitext-2-raw-v1
+  claim_id: c_d8ef86ba
+  context: 'Implement code/data/dataset_loader.py to download WikiText-2. Primary
+    Source: Use datasets.load_dataset(''wikitext'', ''wikitext-2-raw-v1'') (HuggingFace)
+    as the canonical source per Constitution Principle I.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use datasets.load_dataset('wikitext', 'wikitext-2-raw-v1') (HuggingFace)
+    as the canonical source.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T22:54:24Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/specs/001-neuromorphic-transformer-networks-spikin/tasks.md
+  attempts: 1
+  canonical: Fallback data source for WikiText-2 is S3 with 3 retry attempts
+  claim_id: c_202e4bc5
+  context: 'Fallback: If HF fails, use https://s3.amazonaws.com/research.metamind.io/wikitext/wikitext-2-v1.zip
+    with 3 retry attempts.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: If HF fails, use https://s3.amazonaws.com/research.metamind.io/wikitext/wikitext-2-v1.zip
+    with 3 retry attempts.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T22:56:52Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/specs/001-neuromorphic-transformer-networks-spikin/tasks.md
+  attempts: 1
+  canonical: Baseline Transformer has 2M parameters
+  claim_id: c_fd46db60
+  context: Implement code/models/baseline_transformer.py for a -layer, 4-head Transformer
+    (~2M params) with CPU-only enforcement.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Baseline_Transformer_has_2M_parameters
+  kind: entity_fact
+  raw_text: Baseline Transformer has approximately 2M parameters.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T23:01:18Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/specs/001-neuromorphic-transformer-networks-spikin/tasks.md
+  attempts: 1
+  canonical: Baseline Transformer has 2 layers
+  claim_id: c_a6acf0a8
+  context: 'Goal: Train a conventional 2-layer, 4-head transformer on WikiText-2 and
+    measure validation perplexity as the performance baseline.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Baseline Transformer has 2 layers.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T23:04:25Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/specs/001-neuromorphic-transformer-networks-spikin/tasks.md
+  attempts: 1
+  canonical: Baseline Transformer has 4 heads
+  claim_id: c_91d06698
+  context: 'Goal: Train a conventional 2-layer, 4-head transformer on WikiText-2 and
+    measure validation perplexity as the performance baseline.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Baseline Transformer has 4 heads.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T23:07:22Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/specs/001-neuromorphic-transformer-networks-spikin/tasks.md
+  attempts: 1
+  canonical: Early stopping patience is 2
+  claim_id: c_29545025
+  context: Add early stopping logic (patience=2, delta=0.01) to baseline training.
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Early stopping patience is 2.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-01T23:07:22Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/specs/001-neuromorphic-transformer-networks-spikin/tasks.md
+  attempts: 1
+  canonical: Early stopping delta is 0.01
+  claim_id: c_5d6f8843
+  context: Add early stopping logic (patience=2, delta=0.01) to baseline training.
+  evidence:
+    asserted: '0.01'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Early stopping delta is 0.01.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-01T23:07:22Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/specs/001-neuromorphic-transformer-networks-spikin/tasks.md
+  attempts: 1
+  canonical: Zero-spike detection threshold is 50% silent neurons for 3 epochs
+  claim_id: c_40445679
+  context: 'If >50% neurons silent for 3 epochs, raise TrainingTerminationError, log
+    warning ''WARNING: Zero-spike detection triggered'', and save diagnostic report
+    to data/logs/zero_spike_report.json.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Zero-spike detection triggers if >50% neurons are silent for 3 epochs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T23:07:22Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/specs/001-neuromorphic-transformer-networks-spikin/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis thresholds are 0.20, 0.25, 0.30, 0.35
+  claim_id: c_1e1947aa
+  context: "Implement sensitivity analysis sweep over thresholds {0.20, 0.25, 0.30,\
+    \ 0.35} to calculate FP/FN rates (ground truth: \u226530% reduction)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis sweeps over thresholds 0.20, 0.25, 0.30, 0.35.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T23:07:46Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/specs/001-neuromorphic-transformer-networks-spikin/tasks.md
+  attempts: 1
+  canonical: Energy reduction ground truth is 30%
+  claim_id: c_a03b360b
+  context: "Implement sensitivity analysis sweep over thresholds {0.20, 0.25, 0.30,\
+    \ 0.35} to calculate FP/FN rates (ground truth: \u226530% reduction)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ground truth for energy reduction is \u226530%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T23:07:46Z'
+- artifact_path: projects/PROJ-591-neuromorphic-transformer-networks-spikin/specs/001-neuromorphic-transformer-networks-spikin/tasks.md
+  attempts: 1
+  canonical: Paired t-tests alpha level is 0.05
+  claim_id: c_8e048f45
+  context: "Implement paired t-tests (\u03B1=0.05 (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value))\
+    \ in code/analysis/statistical_tests.py comparing baseline vs. spiking metrics."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: '0.05'
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: Paired t-tests use alpha level 0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-01T23:08:04Z'

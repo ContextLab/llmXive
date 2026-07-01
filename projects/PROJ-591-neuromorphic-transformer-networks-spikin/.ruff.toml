@@ -1,0 +1,4 @@
+# Extends the configuration in pyproject.toml for specific overrides if needed
+# Currently, main configuration is in pyproject.toml for cohesiveness.
+# This file exists to satisfy tool discovery if pyproject.toml is ignored by specific environments.
+extend = "pyproject.toml"

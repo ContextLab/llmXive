@@ -20,32 +20,32 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`projects/PROJ-591-neuromorphic-transformer-networks-spikin/`)
-- [ ] T002 Initialize Python project with `requirements.txt` (torch, snnTorch, codecarbon, datasets, scikit-learn, pandas, numpy)
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [X] T001 Create project structure per implementation plan (`projects/PROJ-591-neuromorphic-transformer-networks-spikin/`)
+- [X] T002 Initialize Python project with `requirements.txt` (torch, snnTorch, codecarbon, datasets, scikit-learn, pandas, numpy)
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
 
@@ -56,12 +56,12 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T003.5 [P] **CRITICAL PLAN UPDATE**: Update `plan.md` (Complexity Tracking section) to resolve the contradiction between the current "Unpaired Statistical Design" claim and `spec.md` FR-009 which mandates **paired** t-tests. The plan MUST be updated to reflect "Paired Statistical Design" using matching random seeds for baseline and spiking models to enable statistical pairing. If this is not done, the project will fail the FR-009 requirement.
-- [ ] T004 Implement `code/data/dataset_loader.py` to download WikiText-2. **Primary Source**: Use `datasets.load_dataset('wikitext', 'wikitext-2-raw-v1')` (HuggingFace) as the canonical source per Constitution Principle I. **Fallback**: If HF fails, use `https://s3.amazonaws.com/research.metamind.io/wikitext/wikitext-2-v1.zip` with 3 retry attempts. **Data Hygiene**: Compute SHA-256 checksum of the downloaded data and record it in `state/projects/PROJ-591-neuromorphic-transformer-networks-spikin.yaml` (Constitution Principle III).
-- [ ] T005 Implement `code/models/baseline_transformer.py` for a -layer, 4-head Transformer (~2M params) with CPU-only enforcement.
-- [ ] T006 Implement `code/models/spiking_transformer.py` replacing feed-forward layers with LIF neurons (snnTorch) using **surrogate-gradient learning** (FR-005). **Constitution Principle VII**: Must include a verification function that asserts surrogate-gradient learning produces non-NaN gradients on a mini-batch.
-- [ ] T007 Implement `code/metrics/energy_logger.py` wrapping `codecarbon` with wall-clock fallback and "estimated" flag logic.
+- [X] T004 Implement `code/data/dataset_loader.py` to download WikiText-2. **Primary Source**: Use `datasets.load_dataset('wikitext', 'wikitext-2-raw-v1')` (HuggingFace) as the canonical source per Constitution Principle I. **Fallback**: If HF fails, use `https://s3.amazonaws.com/research.metamind.io/wikitext/wikitext-2-v1.zip` with 3 retry attempts. **Data Hygiene**: Compute SHA-256 checksum of the downloaded data and record it in `state/projects/PROJ-591-neuromorphic-transformer-networks-spikin.yaml` (Constitution Principle III).
+- [X] T005 Implement `code/models/baseline_transformer.py` for a -layer, 4-head Transformer (~2M params) with CPU-only enforcement.
+- [X] T006 Implement `code/models/spiking_transformer.py` replacing feed-forward layers with LIF neurons (snnTorch) using **surrogate-gradient learning** (FR-005). **Constitution Principle VII**: Must include a verification function that asserts surrogate-gradient learning produces non-NaN gradients on a mini-batch.
+- [X] T007 Implement `code/metrics/energy_logger.py` wrapping `codecarbon` with wall-clock fallback and "estimated" flag logic.
 - [ ] T008 Implement `code/metrics/temporal_coding.py` to compute inter-spike interval variance, bits/spike, and spike train synchrony.
-- [ ] T009 Create `code/tests/test_lif_dynamics.py` to verify LIF membrane potential update rules.
+- [X] T009 Create `code/tests/test_lif_dynamics.py` to verify LIF membrane potential update rules.
 - [ ] T010 Create `code/tests/test_training_loop.py` to verify CPU execution and early stopping logic.
 
 ---
@@ -77,7 +77,7 @@
 - [ ] T012 [US1] Implement perplexity calculation in `code/metrics/perplexity.py` and log to CSV after each epoch.
 - [ ] T013 [US1] Implement baseline training loop in `code/main.py` (seeds 1-5, batch size 32, lr 1e-3). **Signature**: `def train_baseline(seed: int) -> MetricRecord`. **Output**: Save results to `data/processed/baseline_metrics.csv` with columns: `seed`, `epoch`, `perplexity`, `energy_per_token_kWh`, `wall_clock_time`. **Requirement**: Must use the same random seed configuration as the spiking model (T017) to enable paired testing (FR-009).
 - [ ] T014 [US1] Add early stopping logic (patience=2, delta=0.01) to baseline training.
-- [ ] T015 [US1] Add random seed configuration (multiple seeds) and store results in `data/processed/baseline_metrics.csv`.
+- [~] T015 [US1] Add random seed configuration (multiple seeds) and store results in `data/processed/baseline_metrics.csv`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -91,10 +91,10 @@
 
 ### Implementation for User Story 2
 
-- [ ] T017 [US2] Implement spiking training loop in `code/main.py` (multiple seeds, LIF neurons, surrogate gradients). **Merged Logic**: Integrate zero-spike detection logic (FR-006 edge case) as a blocking condition within the training loop. If >50% neurons silent for 3 epochs, raise `TrainingTerminationError`, log warning "WARNING: Zero-spike detection triggered", and save diagnostic report to `data/logs/zero_spike_report.json`. **Requirement**: Must use the **exact same random seeds** as the baseline model (T013) to enable paired testing (FR-009). **Output**: Save results to `data/processed/spiking_metrics.csv` with columns: `seed`, `epoch`, `perplexity`, `energy_per_token_kWh`, `wall_clock_time`, `temporal_coding_metrics` (JSON string).
-- [ ] T018 [US2] Integrate `code/metrics/energy_logger.py` to log energy-per-token (kWh) with fallback to wall-clock time.
-- [ ] T019 [US2] Integrate `code/metrics/temporal_coding.py` to record ISI variance, bits/spike, and synchrony during validation.
-- [ ] T020 [US2] Save spiking results to `data/processed/spiking_metrics.csv` with explicit "estimated" flag for energy if codecarbon fails.
+- [~] T017 [US2] Implement spiking training loop in `code/main.py` (multiple seeds, LIF neurons, surrogate gradients). **Merged Logic**: Integrate zero-spike detection logic (FR-006 edge case) as a blocking condition within the training loop. If >50% neurons silent for 3 epochs, raise `TrainingTerminationError`, log warning "WARNING: Zero-spike detection triggered", and save diagnostic report to `data/logs/zero_spike_report.json`. **Requirement**: Must use the **exact same random seeds** as the baseline model (T013) to enable paired testing (FR-009). **Output**: Save results to `data/processed/spiking_metrics.csv` with columns: `seed`, `epoch`, `perplexity`, `energy_per_token_kWh`, `wall_clock_time`, `temporal_coding_metrics` (JSON string).
+- [~] T018 [US2] Integrate `code/metrics/energy_logger.py` to log energy-per-token (kWh) with fallback to wall-clock time.
+- [~] T019 [US2] Integrate `code/metrics/temporal_coding.py` to record ISI variance, bits/spike, and synchrony during validation.
+- [~] T020 [US2] Save spiking results to `data/processed/spiking_metrics.csv` with explicit "estimated" flag for energy if codecarbon fails.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -108,7 +108,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T022 [US3] Implement paired t-tests (α=0.05) in `code/analysis/statistical_tests.py` comparing baseline vs. spiking metrics. **Requirement**: Must use the **same random seed** for both baseline and spiking runs to enable paired testing (per FR-009). **Implementation**: Must read `data/processed/baseline_metrics.csv` and `data/processed/spiking_metrics.csv`, match rows by `seed`, and perform paired t-tests on `perplexity` and `energy_per_token_kWh`.
+- [~] T022 [US3] Implement paired t-tests ) in `code/analysis/statistical_tests.py` comparing baseline vs. spiking metrics. **Requirement**: Must use the **same random seed** for both baseline and spiking runs to enable paired testing (per FR-009). **Implementation**: Must read `data/processed/baseline_metrics.csv` and `data/processed/spiking_metrics.csv`, match rows by `seed`, and perform paired t-tests on `perplexity` and `energy_per_token_kWh`.
 - [ ] T023 [US3] Apply Bonferroni/Holm-Bonferroni correction for multiple hypothesis testing (perplexity + energy).
 - [ ] T024 [US3] Implement sensitivity analysis sweep over thresholds {0.20, 0.25, 0.30, 0.35} to calculate FP/FN rates (ground truth: ≥30% reduction). **Output**: Save sensitivity curves and rates to `data/results/sensitivity_analysis.csv`.
 - [ ] T025 [US3] Generate comparison report in `data/results/statistical_analysis_report.md` including temporal coding comparisons.
@@ -137,8 +137,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -189,9 +189,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---

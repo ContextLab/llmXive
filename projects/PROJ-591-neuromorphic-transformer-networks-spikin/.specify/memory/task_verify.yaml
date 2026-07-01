@@ -1,0 +1,13 @@
+? T008 Implement `code/metrics/temporal_coding.py` to compute inter-spike interval
+  variance, bits/spike, and spike train synchrony.
+: 2
+T010 Create `code/tests/test_training_loop.py` to verify CPU execution and early stopping logic.: 1
+T012 [US1] Implement perplexity calculation in `code/metrics/perplexity.py` and log to CSV after each epoch.: 1
+? 'T013 [US1] Implement baseline training loop in `code/main.py` (seeds 1-5, batch
+  size 32, lr 1e-3). **Signature**: `def train_baseline(seed: int) -> MetricRecord`.
+  **Output**: Save results to `data/processed/baseline_metrics.csv` with columns:
+  `seed`, `epoch`, `perplexity`, `energy_per_token_kWh`, `wall_clock_time`. **Requirement**:
+  Must use the same random seed configuration as the spiking model (T017) to enable
+  paired testing (FR-009).'
+: 1
+T014 [US1] Add early stopping logic (patience=2, delta=0.01) to baseline training.: 1
