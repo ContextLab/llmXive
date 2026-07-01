@@ -1,0 +1,210 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Validation Report Schema
+description: >
+  Defines the structure of the comprehensive validation report generated after
+  model evaluation. Includes statistical tests, robustness checks, and data integrity
+  anchors as per FR-006, FR-007, FR-008, FR-009, FR-014, FR-016, FR-017.
+type: object
+required:
+  - report_version
+  - generated_at
+  - model_id
+  - dataset_summary
+  - statistical_tests
+  - robustness_analysis
+  - data_integrity_checks
+  - conclusions
+properties:
+  report_version:
+    type: string
+    description: Version of the report schema
+    const: "1.0"
+  generated_at:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of report generation
+  model_id:
+    type: string
+    description: Unique identifier for the model being validated
+  dataset_summary:
+    type: object
+    description: Summary statistics of the dataset used
+    properties:
+      total_samples:
+        type: integer
+        minimum: 0
+      train_samples:
+        type: integer
+        minimum: 0
+      test_samples:
+        type: integer
+        minimum: 0
+      feature_count:
+        type: integer
+        minimum: 0
+      target_mean:
+        type: number
+      target_std:
+        type: number
+      target_min:
+        type: number
+      target_max:
+        type: number
+  statistical_tests:
+    type: object
+    description: Results of statistical validation tests
+    required:
+      - residual_normality
+      - correlation_strength
+      - permutation_significance
+    properties:
+      residual_normality:
+        type: object
+        description: Shapiro-Wilk test results for residuals
+        properties:
+          statistic:
+            type: number
+          p_value:
+            type: number
+          is_normal:
+            type: boolean
+            description: True if p_value > 0.05
+      correlation_strength:
+        type: object
+        description: Correlation metrics
+        properties:
+          pearson_r:
+            type: number
+          spearman_rho:
+            type: number
+          interpretation:
+            type: string
+            description: Qualitative interpretation of correlation strength
+      permutation_significance:
+        type: object
+        description: Permutation test results
+        properties:
+          observed_metric:
+            type: number
+          p_value:
+            type: number
+          shuffles:
+            type: integer
+            minimum: 10000
+          is_significant:
+            type: boolean
+            description: True if p_value < 0.05
+  robustness_analysis:
+    type: object
+    description: Sensitivity analysis results regarding threshold choices
+    properties:
+      threshold_sweep:
+        type: array
+        description: Results for each threshold in {0.5, 0.6, 0.7}
+        items:
+          type: object
+          properties:
+            threshold:
+              type: number
+              enum:
+                - 0.5
+                - 0.6
+                - 0.7
+            pearson_r:
+              type: number
+            spearman_rho:
+              type: number
+            mae:
+              type: number
+            p_value:
+              type: number
+      bonferroni_corrected_p:
+        type: number
+        description: Bonferroni corrected p-value for multiple hypothesis testing
+      r_variation:
+        type: number
+        description: Variation in r across thresholds
+      passes_r_variation_check:
+        type: boolean
+        description: True if variation in r <= 0.05
+  data_integrity_checks:
+    type: object
+    description: Checks ensuring data is anchored in measured diffraction parameters
+    properties:
+      cif_metadata_present:
+        type: boolean
+        description: True if unit-cell and symmetry data present for all samples
+      cape_computation_valid:
+        type: boolean
+        description: True if CAPE was successfully computed for all samples
+      smiles_validity_rate:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: Fraction of valid SMILES strings
+      outlier_detection:
+        type: object
+        description: Summary of outlier detection
+        properties:
+          method:
+            type: string
+          outliers_removed:
+            type: integer
+          outliers_flagged:
+            type: integer
+  multicollinearity_diagnosis:
+    type: object
+    description: VIF analysis results for all predictors
+    properties:
+      max_vif:
+        type: number
+        description: Maximum VIF score observed
+      features_above_threshold:
+        type: array
+        items:
+          type: object
+          properties:
+            feature_name:
+              type: string
+            vif_score:
+              type: number
+      threshold:
+        type: number
+        description: VIF threshold used (e.g., 5 or 10)
+  partial_correlation_analysis:
+    type: object
+    description: Results of partial correlation controlling for atom-type counts
+    properties:
+      control_variables:
+        type: array
+        items:
+          type: string
+      partial_r:
+        type: number
+      p_value:
+        type: number
+      interpretation:
+        type: string
+  conclusions:
+    type: object
+    description: High-level conclusions drawn from the validation
+    properties:
+      model_valid:
+        type: boolean
+        description: Overall model validity flag
+      key_findings:
+        type: array
+        items:
+          type: string
+        description: List of key findings
+      limitations:
+        type: array
+        items:
+          type: string
+        description: List of identified limitations
+      recommendations:
+        type: array
+        items:
+          type: string
+        description: Recommendations for future work
+additionalProperties: false

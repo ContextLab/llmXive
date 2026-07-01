@@ -1,0 +1,63 @@
+# Data artifacts (raw and processed)
+data/raw_cif/
+data/*.csv
+data/*.json
+data/*.pt
+data/*.h5
+data/*.parquet
+
+# Model checkpoints and weights
+models/*.pt
+models/*.pth
+models/*.bin
+models/*.safetensors
+
+# Python cache and temporary files
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+venv/
+ENV/
+env/
+.env
+
+# Environment variables and secrets
+.env
+.env.local
+.env.production
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Logs and reports (unless explicitly tracked)
+logs/
+results/*.log
+results/*.txt
+
+# Jupyter notebooks cache
+.ipynb_checkpoints/
+
+# Testing artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/

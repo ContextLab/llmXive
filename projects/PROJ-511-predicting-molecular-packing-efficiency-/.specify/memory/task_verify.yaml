@@ -1,0 +1,10 @@
+'T001 Create project directory structure: `code/`, `data/`, `data/raw_cif/`, `models/`, `results/`, `contracts/`, `specs/`': 1
+? T002 Initialize `requirements.txt` with pinned versions (rdkit, torch-cpu, scikit-learn,
+  pandas, numpy, requests, tqdm, jinja2, statsmodels, scipy, matplotlib, seaborn,
+  pyyaml, jsonschema)
+: 1
+T003 Create `.gitignore` excluding `data/raw_cif/`, `*.pt`, `*.csv`, `__pycache__`, `.env`: 1
+? T004 [P] Create `contracts/dataset.schema.yaml` defining SMILES, PC, CAPE, 3D descriptors,
+  H-bond count, aromatic ring count, and confounder fields
+: 1
+T005 [P] Create `contracts/model.schema.yaml` and `contracts/validation_report.schema.yaml`: 1

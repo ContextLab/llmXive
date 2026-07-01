@@ -10,7 +10,7 @@ This project implements a CPU-only pipeline to predict the **Composition-Adjuste
 2.  **3D-Only Control Model**: Trains a 2-layer MLP using **only** 3D geometric descriptors (derived from CIF) to predict **CAPE**. This isolates the signal available purely from 3D geometry, serving as a control to quantify the specific contribution of SMILES.
 3.  **Upper Bound Model (Diagnostic)**: Trains a 2-layer MLP using **both** SMILES embeddings and 3D geometric descriptors to predict **CAPE**. This establishes the theoretical maximum predictability when all available geometric information is used.
 
-The pipeline rigorously validates statistical significance via a conditional two-stage permutation test (1,000 shuffles initially; if significant, proceeds to [deferred] shuffles for high resolution) and assesses robustness across packing thresholds.
+The pipeline rigorously validates statistical significance via a conditional two-stage permutation test (A substantial number of shuffles initially; if significant, proceeds to [deferred] shuffles for high resolution) and assesses robustness across packing thresholds.
 
 The research question and method will be addressed using a permutation test with a sufficiently large number of resamples to ensure robust statistical inference, following established protocols (per Constitution Principle VII) and assessing robustness across packing thresholds.
 
@@ -30,7 +30,7 @@ The research question and method will be addressed using a permutation test with
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
 - **Principle I (Reproducibility)**: All random seeds pinned in `code/`. COD data fetched via verified URLs. `requirements.txt` pins versions.
-- **Principle II (Verified Accuracy)**: COD source URL and Bondi (1964) citation verified. `data_provenance.json` records source version.
+- **Principle II (Verified Accuracy)**: COD source URL and Bondi (year) citation verified. `data_provenance.json` records source version.
 - **Principle III (Data Hygiene)**: Raw CIFs preserved; derived CSVs checksummed. No in-place modification.
 - **Principle IV (Single Source of Truth)**: All metrics in `report.html` generated directly from `results/validation_report.json` (validated against schema).
 - **Principle V (Versioning)**: Artifacts hashed; `state` updated on change.
@@ -129,7 +129,7 @@ projects/PROJ-511-predicting-molecular-packing-efficiency-/
 
 ## Compute Feasibility Strategy
 
--   **Memory**: Dataset subset to ~-1000 rows. RDKit and PyTorch CPU used in default precision. **Batched Inference**: SMILES transformer inference is performed in batches. to prevent OOM. `torch.inference_mode()` used to reduce memory overhead.
+-   **Memory**: Dataset subset to ~ rows. RDKit and PyTorch CPU used in default precision. **Batched Inference**: SMILES transformer inference is performed in batches. to prevent OOM. `torch.inference_mode()` used to reduce memory overhead.
 - **Runtime**: Permutation test optimized via conditional logic: [deferred] shuffles for non-significant results; [deferred] shuffles only for significant results. This ensures high resolution for claims while minimizing runtime for null results. Estimated runtime < 4 hours.
 -   **Dependencies**: `torch` installed from CPU wheel only. `rdkit` via conda/pip binary.
 -   **Data Download**: Use the "COD Organic Subset" (approx. moderate size) instead of the full COD archive to avoid I/O bottlenecks.

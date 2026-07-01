@@ -1,0 +1,144 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Molecular Packing Dataset Schema
+description: |
+  Schema for the final dataset (data/dataset.csv) used in the 
+  Predicting Molecular Packing Efficiency project.
+  Defines SMILES, packing metrics, 3D descriptors, and confounders.
+  Validated per FR-017 (Franklin requirement) and SC-001.
+type: object
+required:
+  - smiles
+  - cape
+  - raw_pc
+  - hbond_donors
+  - hbond_acceptors
+  - aromatic_ring_count
+  - aromatic_ring_fraction
+  - radius_of_gyration
+  - asphericity
+  - principal_moment_inertia_1
+  - principal_moment_inertia_2
+  - principal_moment_inertia_3
+  - temperature_k
+  - solvent_present
+  - atom_count
+  - source_cif_id
+  - unit_cell_volume
+  - unit_cell_a
+  - unit_cell_b
+  - unit_cell_c
+  - unit_cell_alpha
+  - unit_cell_beta
+  - unit_cell_gamma
+properties:
+  # Core Identifiers & Connectivity
+  smiles:
+    type: string
+    description: Canonical SMILES string representing molecular connectivity.
+    minLength: 1
+  source_cif_id:
+    type: string
+    description: Unique identifier of the source CIF file (e.g., COD ID).
+    minLength: 1
+  
+  # Packing Metrics (Target & Diagnostic)
+  cape:
+    type: number
+    description: Corrected Atomic Packing Efficiency (Target Variable).
+    minimum: 0.0
+    maximum: 1.0
+  raw_pc:
+    type: number
+    description: Raw Packing Coefficient calculated from unit cell volume and atomic volumes.
+    minimum: 0.0
+    maximum: 1.0
+
+  # Physics Features (H-bond & Aromaticity)
+  hbond_donors:
+    type: integer
+    description: Count of hydrogen bond donors (Pauling requirement).
+    minimum: 0
+  hbond_acceptors:
+    type: integer
+    description: Count of hydrogen bond acceptors (Pauling requirement).
+    minimum: 0
+  aromatic_ring_count:
+    type: integer
+    description: Number of aromatic rings in the molecule.
+    minimum: 0
+  aromatic_ring_fraction:
+    type: number
+    description: Ratio of aromatic atoms to total heavy atoms.
+    minimum: 0.0
+    maximum: 1.0
+
+  # 3D Descriptors (Computed from RDKit ETKDG conformers)
+  radius_of_gyration:
+    type: number
+    description: Radius of gyration (Angstroms) of the 3D conformer.
+    minimum: 0.0
+  asphericity:
+    type: number
+    description: Asphericity parameter (0=perfect sphere, 1=rod).
+    minimum: 0.0
+    maximum: 1.0
+  principal_moment_inertia_1:
+    type: number
+    description: First principal moment of inertia.
+    minimum: 0.0
+  principal_moment_inertia_2:
+    type: number
+    description: Second principal moment of inertia.
+    minimum: 0.0
+  principal_moment_inertia_3:
+    type: number
+    description: Third principal moment of inertia.
+    minimum: 0.0
+
+  # Thermodynamic Confounders (Curie requirement)
+  temperature_k:
+    type: number
+    description: Temperature in Kelvin at which the crystal structure was determined.
+    minimum: 0.0
+  solvent_present:
+    type: boolean
+    description: Flag indicating if solvent molecules were present in the unit cell.
+
+  # Structural Metadata (Franklin requirement - anchoring to diffraction data)
+  atom_count:
+    type: integer
+    description: Total number of atoms (heavy + hydrogens) in the asymmetric unit.
+    minimum: 1
+  unit_cell_volume:
+    type: number
+    description: Unit cell volume in cubic Angstroms.
+    minimum: 0.0
+  unit_cell_a:
+    type: number
+    description: Unit cell dimension a (Angstroms).
+    minimum: 0.0
+  unit_cell_b:
+    type: number
+    description: Unit cell dimension b (Angstroms).
+    minimum: 0.0
+  unit_cell_c:
+    type: number
+    description: Unit cell dimension c (Angstroms).
+    minimum: 0.0
+  unit_cell_alpha:
+    type: number
+    description: Unit cell angle alpha (degrees).
+    minimum: 0.0
+    maximum: 180.0
+  unit_cell_beta:
+    type: number
+    description: Unit cell angle beta (degrees).
+    minimum: 0.0
+    maximum: 180.0
+  unit_cell_gamma:
+    type: number
+    description: Unit cell angle gamma (degrees).
+    minimum: 0.0
+    maximum: 180.0
+
+additionalProperties: false

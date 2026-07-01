@@ -1,0 +1,172 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Model Output Schema
+description: >
+  Defines the structure of the serialized model metadata and training configuration.
+  Ensures reproducibility and compliance with statistical requirements (FR-005, FR-006).
+type: object
+required:
+  - model_type
+  - architecture
+  - hyperparameters
+  - training_config
+  - performance_metrics
+  - data_splits
+  - timestamp
+  - seed
+  - feature_columns
+  - target_column
+properties:
+  model_type:
+    type: string
+    description: Type of model used (e.g., "MLP")
+    enum:
+      - MLP
+      - RandomForest
+      - LinearRegression
+  architecture:
+    type: object
+    description: Structural definition of the neural network if applicable
+    properties:
+      layers:
+        type: array
+        items:
+          type: integer
+        description: List of layer sizes (e.g., [input_dim, 64, 32, 1])
+      activation:
+        type: string
+        description: Activation function used in hidden layers
+      dropout_rate:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: Dropout rate applied to hidden layers
+  hyperparameters:
+    type: object
+    description: Hyperparameters used during training
+    properties:
+      learning_rate:
+        type: number
+        minimum: 0
+      batch_size:
+        type: integer
+        minimum: 1
+      epochs:
+        type: integer
+        minimum: 1
+      optimizer:
+        type: string
+        description: Optimizer name (e.g., "adam", "sgd")
+      weight_decay:
+        type: number
+        minimum: 0
+  training_config:
+    type: object
+    description: Configuration details for the training run
+    properties:
+      random_seed:
+        type: integer
+        description: Seed used for reproducibility
+      device:
+        type: string
+        enum:
+          - cpu
+          - cuda
+      loss_function:
+        type: string
+        description: Loss function used (e.g., "MSE")
+  performance_metrics:
+    type: object
+    description: Evaluation metrics on the test set
+    required:
+      - mae
+      - mse
+      - rmse
+      - r2
+      - pearson_r
+      - spearman_rho
+    properties:
+      mae:
+        type: number
+        description: Mean Absolute Error
+      mse:
+        type: number
+        description: Mean Squared Error
+      rmse:
+        type: number
+        description: Root Mean Squared Error
+      r2:
+        type: number
+        description: R-squared coefficient
+      pearson_r:
+        type: number
+        description: Pearson correlation coefficient
+      spearman_rho:
+        type: number
+        description: Spearman rank correlation coefficient
+      shapiro_wilk_statistic:
+        type: number
+        description: Shapiro-Wilk test statistic for residuals
+      shapiro_wilk_pvalue:
+        type: number
+        description: Shapiro-Wilk test p-value for residuals
+      permutation_pvalue:
+        type: number
+        description: Permutation test p-value
+      permutation_shuffles:
+        type: integer
+        description: Number of shuffles performed in permutation test
+  data_splits:
+    type: object
+    description: Information about data splitting
+    properties:
+      train_size:
+        type: integer
+        minimum: 0
+      val_size:
+        type: integer
+        minimum: 0
+      test_size:
+        type: integer
+        minimum: 0
+      split_ratio:
+        type: string
+        description: Ratio used (e.g., "80/20")
+  feature_columns:
+    type: array
+    items:
+      type: string
+    description: List of feature column names used for training
+  target_column:
+    type: string
+    description: Name of the target variable
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of model creation
+  seed:
+    type: integer
+    description: Global random seed for reproducibility
+  vif_diagnostics:
+    type: array
+    description: Variance Inflation Factor diagnostics for predictors
+    items:
+      type: object
+      properties:
+        feature_name:
+          type: string
+        vif_score:
+          type: number
+          minimum: 1
+  partial_correlation:
+    type: object
+    description: Partial correlation analysis results controlling for atom-type counts
+    properties:
+      control_variables:
+        type: array
+        items:
+          type: string
+      correlation_coefficient:
+        type: number
+      p_value:
+        type: number
+additionalProperties: false

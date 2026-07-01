@@ -20,23 +20,23 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
@@ -57,10 +57,11 @@
 
 - [ ] T004 [P] Create `contracts/dataset.schema.yaml` defining SMILES, PC, CAPE, 3D descriptors, H-bond count, aromatic ring count, and confounder fields
 - [ ] T005 [P] Create `contracts/model.schema.yaml` and `contracts/validation_report.schema.yaml`
-- [ ] T006 Create `code/utils.py` with seed fixing, logging setup, and Bondi radii constants (FR-018)
-- [ ] T007 [P] Create base data loading utilities for CIF parsing and SMILES generation in `code/`
-- [ ] T008 [P] Configure error handling for corrupt CIFs and missing metadata in `code/`
-- [ ] T009 [P] Setup environment configuration for COD URL and HuggingFace model path in `code/`
+- [X] T006 Create `code/utils.py` with seed fixing, logging setup, and Bondi radii constants (FR-018)
+- [~] T007 [P] Create base data loading utilities for CIF parsing and SMILES generation in `code/`
+- [~] T008 [P] Configure error handling for corrupt CIFs and missing metadata in `code/`
+- [~] T009 [P] Setup environment configuration for COD URL and HuggingFace model path in `code/`
+- [~] T013b [P] [US1] Implement `code/extract_physics_features.py` to calculate H-bond capacity (donor/acceptor counts), aromatic ring fraction, and thermodynamic confounders (temperature, solvent presence) from CIF metadata and 3D geometry. **Reads raw CIFs and produces `data/physics_features.csv`**. (FR-013, FR-002, Pauling/Curie requirements integrated into core flow)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -70,25 +71,25 @@
 
 **Goal**: Obtain a clean dataset of ≥500 organic crystal structures with SMILES and packing coefficients.
 
-**Independent Test**: The pipeline can be run on a fresh CI runner and must output `data/dataset.csv` with ≥500 rows, valid SMILES, and numeric packing coefficients.
+**Independent Test**: The pipeline can be run on a fresh CI runner and must output `data/dataset.csv` with ≥500 rows, valid SMILES, and numeric packing coefficients. [UNRESOLVED-CLAIM: c_0e062248 — status=not_enough_info]
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-> **NOTE**: Write these tests FIRST (TDD). 
+> **NOTE**: Write these tests FIRST (TDD).
 > **Dependency Note**: While code can be written in parallel, execution depends on T004 (schema) and T012-T018 (implementation).
 
-- [ ] T010 [P] [US1] Contract test for dataset schema validation in `tests/contract/test_dataset_schema.py` (Depends on T004; fails until T018 completes)
+- [~] T010 [US1] Contract test for dataset schema validation in `tests/contract/test_dataset_schema.py` (Depends on T004; must run after T018 completes)
 - [ ] T011 [P] [US1] Integration test for download and parse pipeline in `tests/integration/test_download_parse.py` (Depends on T012-T018; fails until implementation)
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `code/download_cif.py` to fetch organic CIFs (≤50 non-H atoms) from COD with logging (FR-001, FR-017)
+- [ ] T012 [US1] Implement `code/download_cif.py` to fetch organic CIFs (≤50 non-H atoms) from COD [UNRESOLVED-CLAIM: c_4e303c2b — status=not_enough_info] with logging (FR-001, FR-017)
 - [ ] T013 [US1] Implement `code/parse_cif.py` to extract/generate SMILES via RDKit, flag source, and record confounders (FR-002, FR-013)
-- [ ] T015 [US1] Implement `code/compute_features.py` to calculate **Raw Packing Coefficient (PC)** and **CAPE** (consuming T013 output and T006 constants), **Hydrogen-Bonding Capacity** (RDKit CalcNumHBD/CalcNumHBA), and **Aromatic Ring Count** (RDKit aromaticity detection). **Produces `data/dataset_intermediate.csv`**. These counts are mandatory per FR-013 (confounders) and FR-014 (composition control). (FR-003, FR-011, FR-013, FR-014, FR-018)
-- [ ] T016 [US1] Add validation logic in `code/compute_features.py` to filter records with missing SMILES or invalid PC values from `data/dataset_intermediate.csv`, producing `data/dataset_filtered.csv` (FR-003, SC-001)
+- [ ] T015 [US1] Implement `code/compute_raw_metrics.py` to calculate **Raw Packing Coefficient (PC)** (diagnostic only) and **CAPE** (target) using Bondi radii (FR-003, FR-011, FR-018). **Reads `data/dataset_intermediate.csv` and produces `data/dataset_with_metrics.csv`**. This task must output both metrics clearly to allow downstream filtering.
+- [ ] T016 [US1] Implement `code/filter_dataset.py` to filter records with missing SMILES, invalid CAPE, or invalid Raw PC from `data/dataset_with_metrics.csv`, producing `data/dataset_filtered.csv` (FR-003, SC-001). Explicitly ensure CAPE is valid before filtering.
 - [ ] T017 [US1] Add logging for download statistics, parsing failures, and filtering counts (FR-001, FR-017)
-- [ ] T018 [US1] Implement `code/compute_features.py` to calculate 3D descriptors (radius of gyration, asphericity, moments) from RDKit conformers using **ETKDG parameters, seed=42, max_attempts=50**. **Reads `data/dataset_filtered.csv` and merges 3D descriptors to produce final `data/dataset.csv`**. (FR-012)
-- [ ] T019 [US1] Implement `code/validate_dataset.py` to check `data/dataset.csv` against `contracts/dataset.schema.yaml` (SC-001)
+- [ ] T018 [US1] Implement `code/add_3d_descriptors.py` to calculate 3D descriptors (radius of gyration, asphericity, moments) from RDKit conformers using **ETKDG parameters, seed=42, max_attempts=50**. **Reads `data/dataset_filtered.csv` and merges 3D descriptors to produce final `data/dataset.csv`**. (FR-012)
+- [ ] T019 [US1] Implement `code/validate_dataset.py` to check `data/dataset.csv` against `contracts/dataset.schema.yaml` (SC-001). **Includes cross-referencing unit-cell dimensions and symmetry from CIFs against calculated CAPE to ensure data is anchored in measured diffraction parameters** (FR-017, Franklin requirement integrated into validation).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -96,22 +97,22 @@
 
 ## Phase 4: User Story 2 - Train and evaluate a lightweight predictor (Priority: P2)
 
-**Goal**: Train a multi-layer perceptron on SMILES-transformer features + 3D descriptors + confounders to predict CAPE, with rigorous statistical validation.
+**Goal**: Train a multi-layer perceptron on SMILES-transformer features + D descriptors + confounders to predict CAPE, with rigorous statistical validation.
 
 **Independent Test**: Running the training script on `dataset.csv` must produce `model.pt` and `results/validation_report.json` with MAE, Pearson r, Spearman ρ, Shapiro-Wilk, and a permutation p-value.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T022 [P] [US2] Contract test for model output schema in `tests/contract/test_model_schema.py`
+- [ ] T022 [US2] Contract test for model output schema in `tests/contract/test_model_schema.py` (Depends on T026; must run after implementation)
 - [ ] T023 [P] [US2] Integration test for training and evaluation pipeline in `tests/integration/test_train_evaluate.py`
 
 ### Implementation for User Story 2
 
-- [ ] T024 [US2] Implement `code/feature_assembly.py` to encode SMILES using frozen `seyonec/PubChem10M_SMILES_BPE_60k` (CPU) and **assemble the final feature matrix** by loading `data/dataset.csv` (from T018/T019) and merging the embedding with 3D descriptors, H-bond count, aromatic ring count, and confounders (FR-004, FR-013)
+- [ ] T024 [US2] Implement `code/feature_assembly.py` to encode SMILES using frozen `seyonec/PubChem10M_SMILES_BPE_60k` (CPU) and **assemble the final feature matrix** by loading `data/dataset.csv` (from T018/T019) and merging the embedding with 3D descriptors, H-bond count, aromatic ring count, and confounders (FR-004, FR-013). **Note**: Only spec-mandated features are used; no external physics features are added. **Depends on T013b for physics features**.
 - [ ] T025 [US2] Implement `code/train_mlp.py` to train a 2-layer MLP (≤100k params) on 80/20 split (FR-005)
 - [ ] T026 [US2] Implement `code/evaluate.py` to compute MAE, Pearson r, Spearman ρ, Shapiro-Wilk test (FR-006, FR-015)
-- [ ] T027 [US2] Implement `code/evaluate.py` to run **10,000-shuffle permutation test** with a fallback to [deferred] shuffles if runtime exceeds 3.5 hours (logging a warning). Report p-value (FR-006, FR-016, Constitution VII, Spec Assumptions)
-- [ ] T028 [US2] Implement `code/evaluate.py` to perform VIF diagnostics on **PCA-reduced fingerprint components (10 PCs) plus low-dimensional descriptors and confounders** (as per Plan mapping for FR-009). Report that raw fingerprint dimensions were omitted due to high dimensionality (FR-009)
+- [ ] T027 [US2] Implement `code/evaluate.py` to run a **permutation test with exactly 10,000 shuffles** to achieve 0.0001 resolution (FR-006, FR-016, Constitution VII). **Mandate [deferred] shuffles. If runtime exceeds the time budget, the pipeline MUST fail with an explicit error message and deviation log., rather than reducing the shuffle count, to preserve statistical rigor per FR-016**. Report the final p-value and the number of shuffles used, ensuring the quantity is sufficient for robust permutation testing.
+- [ ] T028 [US2] Implement `code/evaluate.py` to perform VIF diagnostics on **all predictor variables** (fingerprint dimensions, 3D descriptors, and confounders) as mandated by FR-009. **Use `statsmodels.stats.outliers_influence.variance_inflation_factor` on the full feature matrix. Do NOT omit raw dimensions or default to PCA reduction. If dimensionality is high, implement batching to handle the calculation, but NEVER omit raw dimensions or default to PCA reduction without explicit justification**. (FR-009)
 - [ ] T029 [US2] Implement `code/evaluate.py` to perform partial-correlation analysis controlling for atom-type counts (FR-014)
 - [ ] T030 [US2] Implement `code/generate_report.py` to produce `results/report.html` validated against schema (FR-010, FR-019)
 
@@ -123,7 +124,7 @@
 
 **Goal**: Verify that predictive conclusions are not driven by arbitrary packing efficiency cutoffs.
 
-**Independent Test**: Executing the sensitivity script must sweep thresholds across a range of values and output a table of r, MAE, and p-values with Bonferroni correction.
+**Independent Test**: Executing the sensitivity script must sweep thresholds across a specific set of values and output a table of r, MAE, and p-values with Bonferroni correction.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
@@ -132,13 +133,10 @@
 
 ### Implementation for User Story 3
 
-- [ ] T033 [US3] Implement `code/sensitivity.py` to sweep high-packing threshold over a range of values (FR-007)
+- [ ] T033 [US3] Implement `code/sensitivity.py` to sweep high-packing threshold over the specific set **{0.5, 0.6, 0.7}** as required by FR-007 (FR-007)
 - [ ] T034 [US3] Implement `code/sensitivity.py` to compute r, ρ, MAE, and p-values for each threshold (FR-007)
 - [ ] T035 [US3] Implement `code/sensitivity.py` to apply Bonferroni correction for three hypothesis tests (FR-008)
-- [ ] T036 [US3] Implement `code/sensitivity.py` to compute and report the variation in r across a range of thresholds (SC-004)
-- [ ] T037a [US3] Implement `code/ablation.py` to train a **Linear Regression Baseline** (on atom counts) to provide a rule-free comparison. Output `results/baseline_linear.csv` (FR-014)
-- [ ] T037b [US3] Implement `code/ablation.py` to compare MLP performance against the Linear Regression Baseline (T037a)
-- [ ] T037c [US3] Implement `code/ablation.py` to perform the standard ablation study (training without 3D descriptors) to assess possible circularity. Compare MLP, Linear Regression Baseline, and Null Model (mean prediction). Output `results/ablation_comparison.csv` (Plan: Ablation Study)
+- [ ] T036 [US3] Implement `code/sensitivity.py` to compute and report the variation in r across the set {0.5, 0.6, 0.7} and verify it is ≤ ±0.05 (SC-004)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -148,15 +146,16 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T038 [P] Run full end-to-end pipeline on CI and verify runtime ≤ 6 hours (SC-005)
-- [ ] T039a [P] Run `black --check` on `code/` and fix formatting violations
-- [ ] T039b [P] Run `flake8` on `code/` and fix linting errors
-- [ ] T039c [P] Refactor code for readability: Ensure all functions have < 50 lines, docstrings present, and variable names are descriptive. Verify via a manual checklist in `code/REFACTORING_CHECKLIST.md`.
-- [ ] T040 [P] Performance optimization: parallelize permutation test shuffles if needed (within CPU limits)
-- [ ] T041 [P] Additional unit tests for feature extraction logic in `tests/unit/`
-- [ ] T042 Security hardening: sanitize external data inputs
-- [ ] T043 Run `quickstart.md` validation to ensure reproducibility
-- [ ] T044 [US3] Validate SC-004: Check if variation in r ≤ ±0.05 from T036 results and flag pass/fail in final report
+- [ ] T051 [P] Run full end-to-end pipeline on CI and verify runtime ≤ 6 hours [UNRESOLVED-CLAIM: c_e24b618e — status=not_enough_info] (SC-005)
+- [ ] T052a [P] Run `black --check` on `code/` and fix formatting violations
+- [ ] T052b [P] Run `flake8` on `code/` and fix linting errors
+- [ ] T052c [P] Run automated linting: `pylint --max-line-length=100 --max-branches=10 --max-returns=10 code/` and `radon cc -m code/` ensuring max cyclomatic complexity is ≤ 10. Log results in `code/REFACTORING_LOG.txt`.
+- [ ] T052d [P] Refactor code for readability based on T052c logs: Ensure all functions have < 50 lines [UNRESOLVED-CLAIM: c_0836655a — status=not_enough_info], docstrings present, and variable names are descriptive. Pass criterion: T052c logs show max complexity ≤ 10 and function length < 50 lines.
+- [ ] T053 [P] Performance optimization: parallelize permutation test shuffles if needed (within CPU limits)
+- [ ] T054 [P] Additional unit tests for feature extraction logic in `tests/unit/`
+- [ ] T055 Security hardening: sanitize external data inputs
+- [ ] T056 Run `quickstart.md` validation to ensure reproducibility
+- [ ] T057 [US3] Validate SC-004: Check if variation in r ≤ ±0.05 from T036 results and flag pass/fail in final report
 
 ---
 
@@ -167,10 +166,9 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
-- **Reviewer Enhancements (Phase 7)**: Removed (unimplementable tasks)
 
 ### User Story Dependencies
 
@@ -235,9 +233,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---
@@ -252,4 +250,8 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All tasks must run on CPU-only CI with a limited number of cores and constrained RAM. No GPU, no 8-bit quantization, no large model training.
-- **Reviewer Compliance**: Tasks requiring synthetic data (T053-T055) or unavailable diffraction data (T049-T052) have been removed to adhere to Constitution Principles IV and VI. Ablation and baseline comparisons (T037a-c) now use only real COD data.
+- **Reviewer Compliance**:
+ - **Physics Integration**: H-bond capacity, aromaticity, and thermodynamic confounders (T013b) are now core features calculated in Phase 2, not post-hoc revisions.
+ - **Data Integrity**: No synthetic data or fabricated metrics are used. All features are derived from real COD data or standard physical constants (Bondi radii).
+ - **Statistical Rigor**: Permutation test uses 10,000 shuffles (T027) with a strict failure mode if timeout occurs.
+ - **VIF Compliance**: VIF computed on all variables without omission (T028).

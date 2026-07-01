@@ -1,0 +1,167 @@
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: Obtain clean dataset of 500 or more organic crystal structures with SMILES
+    and packing coefficients
+  claim_id: c_490e3fa9
+  context: "Phase 3: User Story 1 - Build a reproducible SMILES-packing dataset (Priority:\
+    \ P1) \U0001F3AF MVP. Goal: Obtain a clean dataset of \u2265500 organic crystal\
+    \ structures with SMILES and packing coefficients."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Goal: Obtain a clean dataset of \u2265500 organic crystal structures\
+    \ with SMILES and packing coefficients."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T18:55:02Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: Pipeline must output dataset with 500 or more rows, valid SMILES, and
+    numeric packing coefficients
+  claim_id: c_65bf2ad8
+  context: "Independent Test: The pipeline can be run on a fresh CI runner and must\
+    \ output `data/dataset.csv` with \u2265500 rows, valid SMILES, and numeric packing\
+    \ coefficients."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Independent Test: The pipeline can be run on a fresh CI runner and must\
+    \ output `data/dataset.csv` with \u2265500 rows, valid SMILES, and numeric packing\
+    \ coefficients."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T18:55:02Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: Pipeline outputs dataset.csv with at least 500 rows
+  claim_id: c_0e062248
+  context: "Goal: Obtain a clean dataset of \u2265500 organic crystal structures with\
+    \ SMILES and packing coefficients. Independent Test: The pipeline can be run on\
+    \ a fresh CI runner and must output `data/dataset.csv` with \u2265500 rows, valid\
+    \ SMILES, and numeric packing coefficients."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_outputs_dataset.csv_with_at_least_500_rows
+  kind: magnitude
+  raw_text: "The pipeline can be run on a fresh CI runner and must output `data/dataset.csv`\
+    \ with \u2265500 rows, valid SMILES, and numeric packing coefficients."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T19:01:56Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: Fetch organic CIFs with 50 or fewer non-hydrogen atoms from COD
+  claim_id: c_4e303c2b
+  context: "- [ ] T012 [US1] Implement `code/download_cif.py` to fetch organic CIFs\
+    \ (\u226450 non-H atoms) from COD with logging (FR-001, FR-017)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement `code/download_cif.py` to fetch organic CIFs (\u226450 non-H\
+    \ atoms) from COD"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T19:01:57Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: Permutation test uses 10000 shuffles for 0.0001 resolution
+  claim_id: c_eceb8b8d
+  context: '- [ ] T027 [US2] Implement `code/evaluate.py` to run a **permutation test
+    with exactly 10,000 shuffles** to achieve 0.0001 resolution (FR-006, FR-016, Constitution
+    VII).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/evaluate.py` to run a permutation test with exactly 10,000
+    shuffles to achieve 0.0001 resolution
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T19:02:24Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: Variation in r across thresholds 0.5, 0.6, 0.7 is less than or equal
+    to 0.05
+  claim_id: c_e532f3b6
+  context: "- [ ] T036 [US3] Implement `code/sensitivity.py` to compute and report\
+    \ the variation in r across the set {0.5, 0.6, 0.7} and verify it is \u2264 \xB1\
+    0.05 (SC-004)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Variation_in_r_across_thresholds_0.5,_0.6,_0.7_is_less_than
+  kind: magnitude
+  raw_text: "Verify that variation in r across the set {0.5, 0.6, 0.7} is \u2264 \xB1\
+    0.05"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T19:03:57Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: Full end-to-end pipeline runtime is 6 hours or less
+  claim_id: c_e24b618e
+  context: "- [ ] T051 [P] Run full end-to-end pipeline on CI and verify runtime \u2264\
+    \ 6 hours (SC-005)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Run full end-to-end pipeline on CI and verify runtime \u2264 6 hours"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T19:03:57Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: Maximum cyclomatic complexity is 10 or less
+  claim_id: c_29eff3c0
+  context: "- [ ] T052c [P] Run automated linting: `pylint --max-line-length=100 --max-branches=10\
+    \ --max-returns=10 code/` and `radon cc -m code/` ensuring max cyclomatic complexity\
+    \ is \u2264 10."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Run automated linting ensuring max cyclomatic complexity is \u2264 10"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T19:03:57Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: All functions are fewer than 50 lines
+  claim_id: c_0836655a
+  context: '- [ ] T052d [P] Refactor code for readability based on T052c logs: Ensure
+    all functions have < 50 lines, docstrings present, and variable names are descriptive.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/All_functions_are_fewer_than_50_lines
+  kind: magnitude
+  raw_text: Ensure all functions have < 50 lines
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T19:04:37Z'

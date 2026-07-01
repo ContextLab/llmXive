@@ -1,0 +1,14 @@
+rdkit
+torch-cpu
+scikit-learn
+pandas
+numpy
+requests
+tqdm
+jinja2
+statsmodels
+scipy
+matplotlib
+seaborn
+pyyaml
+jsonschema
