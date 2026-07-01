@@ -1,67 +1,86 @@
 # Default benchmark configuration
-# This file defines the default parameters for running the benchmark
+# Matches requirements from tasks.md T030
 
-# Datasets to use in the benchmark
+# List of datasets to use for benchmarking
 datasets:
   - name: UCI_HAR
-    url: "https://huggingface.co/datasets/UCI_HAR"
-    modalities:
-      - time_series
+    url: "UCI_HAR"
+    modality: timeseries
   - name: DROP
-    url: "https://huggingface.co/datasets/drop"
-    modalities:
-      - text
+    url: "DROP"
+    modality: text
   - name: MUST
-    url: "https://huggingface.co/datasets/must"
-    modalities:
-      - text
+    url: "MUST"
+    modality: text
+  - name: UCI_Adult
+    url: "UCI_Adult"
+    modality: tabular
 
-# Modalities to evaluate
+# Modalities to benchmark
 modalities:
-  - time_series
+  - timeseries
   - tabular
   - text
 
-# Random seeds for reproducibility
-seeds:
-  - 42
-  - 123
-  - 456
-  - 789
-  - 1011
+# Number of random seeds for reproducibility
+seeds: 5
 
-# Timeout settings (in seconds)
+# Timeout per task in seconds (5 minutes)
 timeout_per_task: 300
-total_benchmark_timeout: 14400  # 4 hours
 
-# Model configuration
-models:
-  time_series:
-    model_id: "google/t5-small"
-    max_memory_gb: 1.0
+# Bootstrapping configuration for statistical analysis
+# Reference: Wikipedia: Bootstrapping (statistics)
+bootstrapping:
+  enabled: true
+  n_iterations: 1000
+  confidence_level: 0.95
+
+# Task definitions reference
+tasks:
+  - T001
+  - T002
+  - T003
+  - T004
+  - T005
+  - T006
+  - T007
+  - T008
+  - T009
+  - T010
+  - T011
+  - T012
+  - T013
+  - T014
+  - T015
+  - T016
+  - T017
+  - T018
+  - T019
+  - T020
+
+# Execution mode options
+mode_options:
+  - heterogeneous
+  - unified
+
+# Default mode if not specified
+default_mode: heterogeneous
+
+# Model configuration references
+model_configs:
+  timeseries:
+    model_id: "timeseries_transformer_cpu"
+    max_memory_gb: 1
   tabular:
-    model_id: "TabPFN/tabpfn-v2-cifar10"
-    max_memory_gb: 1.0
+    model_id: "tabPFN_cpu"
+    max_memory_gb: 1
   text:
-    model_id: "distilbert-base-uncased"
-    max_memory_gb: 1.0
+    model_id: "distilbert_cpu"
+    max_memory_gb: 1
 
-# Evaluation settings
-evaluation:
-  metrics:
-    - accuracy
-    - f1
-    - mape
-  statistical_tests:
-    - paired_ttest
-    - wilcoxon
-    - bootstrap_ci
-
-# Output settings
+# Output configuration
 output:
-  results_dir: "data/results"
-  reports_dir: "data/reports"
-  log_level: "INFO"
-
-# Running mode
-mode: heterogeneous  # Options: heterogeneous, unified
+  csv_report: true
+  pdf_report: true
+  statistical_summary: true
+  output_dir: "data/results"

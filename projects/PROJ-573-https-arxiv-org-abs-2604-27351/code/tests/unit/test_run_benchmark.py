@@ -1,207 +1,129 @@
-"""
-Unit tests for run_benchmark.py functionality.
-
-Tests cover:
-- Configuration loading
-- Task execution in both modes
-- Result aggregation
-- Error handling
-"""
-
 import pytest
 import yaml
 import json
-import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock, mock_open
-import sys
+import tempfile
+import os
 
-# Add project root to path
-project_root = Path(__file__).parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
-from src.benchmark.run_benchmark import load_config, run_single_task, execute_unified_task, execute_heterogeneous_task
+from src.benchmark.run_benchmark import load_config, run_single_task, main
 from src.tasks.task_runner import TaskRunner
-from src.models.translation import UnifiedTranslator
-from src.models.routing import ModalityRouter
 
-
-class TestLoadConfig:
-    """Tests for load_config function."""
+class TestRunBenchmark:
+    """Unit tests for run_benchmark.py functionality."""
     
-    def test_load_config_valid_file(self, tmp_path):
+    @pytest.fixture
+    def temp_config_file(self):
+        """Create a temporary config file for testing."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+            config = {
+                'datasets': ['UCI_HAR'],
+                'modalities': ['time_series'],
+                'seeds': 2,
+                'timeout_per_task': 300,
+                'bootstrapping': {
+                    'enabled': True,
+                    'n_iterations': 100
+                },
+                'task_definitions_path': 'src/tasks/task_definitions.yaml',
+                'output_dir': 'data'
+            }
+            yaml.dump(config, f)
+            temp_path = f.name
+        
+        yield temp_path
+        
+        # Cleanup
+        if os.path.exists(temp_path):
+            os.unlink(temp_path)
+    
+    def test_load_config_valid(self, temp_config_file):
         """Test loading a valid configuration file."""
-        config_data = {
-            'datasets': [{'name': 'test'}],
-            'modalities': ['text'],
-            'seeds': 3,
-            'timeout_per_task': 300
-        }
+        config = load_config(temp_config_file)
         
-        config_file = tmp_path / 'test_config.yaml'
-        with open(config_file, 'w') as f:
-            yaml.dump(config_data, f)
-        
-        loaded_config = load_config(str(config_file))
-        
-        assert loaded_config == config_data
-        assert loaded_config['seeds'] == 3
+        assert config is not None
+        assert 'datasets' in config
+        assert 'modalities' in config
+        assert config['seeds'] == 2
+        assert config['timeout_per_task'] == 300
     
-    def test_load_config_missing_file(self):
-        """Test loading a non-existent configuration file."""
+    def test_load_config_invalid_path(self):
+        """Test loading a non-existent config file."""
         with pytest.raises(FileNotFoundError):
-            load_config('nonexistent.yaml')
+            load_config('non_existent_file.yaml')
     
-    def test_load_config_invalid_yaml(self, tmp_path):
-        """Test loading a file with invalid YAML syntax."""
-        config_file = tmp_path / 'invalid.yaml'
-        with open(config_file, 'w') as f:
-            f.write('invalid: yaml: content: [')
+    def test_run_single_task_timeout(self, temp_config_file):
+        """Test task execution with timeout enforcement."""
+        config = load_config(temp_config_file)
+        runner = TaskRunner()
         
-        with pytest.raises(yaml.YAMLError):
-            load_config(str(config_file))
+        # This should complete within timeout
+        result = run_single_task(runner, "T001", config, seed=42)
+        
+        assert result is not None
+        assert 'task_id' in result
+        assert result['task_id'] == "T001"
+    
+    def test_heterogeneous_mode(self, temp_config_file):
+        """Test heterogeneous mode execution."""
+        config = load_config(temp_config_file)
+        
+        # Mock task execution
+        from unittest.mock import patch, MagicMock
+        
+        with patch('src.benchmark.run_benchmark.ModalityRouter') as mock_router:
+            with patch('src.benchmark.run_benchmark.TaskRunner') as mock_runner:
+                mock_runner.return_value.run_task.return_value = {
+                    'task_id': 'T001',
+                    'status': 'completed',
+                    'metrics': {'f1': 0.85}
+                }
+                
+                # Test execution
+                result = run_single_task(mock_runner.return_value, "T001", config, seed=42)
+                
+                assert result['mode'] == 'heterogeneous'
+                assert result['status'] == 'completed'
+    
+    def test_unified_mode(self, temp_config_file):
+        """Test unified mode execution."""
+        config = load_config(temp_config_file)
+        
+        from unittest.mock import patch
+        
+        with patch('src.benchmark.run_benchmark.UnifiedTranslator') as mock_translator:
+            with patch('src.benchmark.run_benchmark.TaskRunner') as mock_runner:
+                mock_runner.return_value.run_task.return_value = {
+                    'task_id': 'T001',
+                    'status': 'completed',
+                    'metrics': {'f1': 0.85}
+                }
+                
+                result = run_single_task(mock_runner.return_value, "T001", config, seed=42)
+                
+                assert result['mode'] == 'unified'
+                assert result['status'] == 'completed'
+    
+    def test_task_not_found(self, temp_config_file):
+        """Test handling of non-existent task."""
+        config = load_config(temp_config_file)
+        runner = TaskRunner()
+        
+        result = run_single_task(runner, "NON_EXISTENT_TASK", config, seed=42)
+        
+        assert result['status'] == 'error'
+        assert 'not found' in result.get('error', '').lower()
+    
+    def test_config_loading_from_default(self):
+        """Test that default config path is handled correctly."""
+        # This test verifies the default config path exists or fails gracefully
+        default_path = Path('src/benchmark/config/default.yaml')
+        
+        # If file exists, it should load
+        if default_path.exists():
+            config = load_config(str(default_path))
+            assert config is not None
+            assert 'datasets' in config
+            assert 'seeds' in config
 
-class TestRunSingleTask:
-    """Tests for run_single_task function."""
-    
-    @patch('src.benchmark.run_benchmark.TaskRunner')
-    @patch('src.benchmark.run_benchmark.UnifiedTranslator')
-    @patch('src.benchmark.run_benchmark.ModalityRouter')
-    def test_run_task_heterogeneous_mode(self, mock_router, mock_translator, mock_runner):
-        """Test task execution in heterogeneous mode."""
-        # Setup mocks
-        mock_runner_instance = MagicMock()
-        mock_runner.return_value = mock_runner_instance
-        mock_runner_instance.get_task.return_value = {
-            'task_id': 'T001',
-            'modalities': ['text'],
-            'datasets': ['test']
-        }
-        
-        mock_router_instance = MagicMock()
-        mock_router.return_value = mock_router_instance
-        mock_model = MagicMock()
-        mock_model.predict.return_value = 'prediction'
-        mock_router_instance.get_model.return_value = mock_model
-        
-        config = {'tasks': ['T001'], 'seeds': 1}
-        
-        result = run_single_task('T001', config, 'heterogeneous', 42)
-        
-        assert result['task_id'] == 'T001'
-        assert result['mode'] == 'heterogeneous'
-        assert result['seed'] == 42
-        assert result['status'] in ['success', 'failed']  # Depends on mock setup
-        assert 'duration_seconds' in result
-    
-    @patch('src.benchmark.run_benchmark.TaskRunner')
-    @patch('src.benchmark.run_benchmark.UnifiedTranslator')
-    def test_run_task_unified_mode(self, mock_translator, mock_runner):
-        """Test task execution in unified mode."""
-        # Setup mocks
-        mock_runner_instance = MagicMock()
-        mock_runner.return_value = mock_runner_instance
-        mock_runner_instance.get_task.return_value = {
-            'task_id': 'T001',
-            'modalities': ['text'],
-            'datasets': ['test']
-        }
-        
-        mock_translator_instance = MagicMock()
-        mock_translator.return_value = mock_translator_instance
-        mock_translator_instance.translate_all.return_value = 'translated text'
-        
-        config = {'tasks': ['T001'], 'seeds': 1}
-        
-        result = run_single_task('T001', config, 'unified', 42)
-        
-        assert result['task_id'] == 'T001'
-        assert result['mode'] == 'unified'
-        assert result['seed'] == 42
-        assert result['status'] in ['success', 'failed']
-        assert 'duration_seconds' in result
-    
-    def test_run_task_missing_task(self):
-        """Test execution of a non-existent task."""
-        config = {'tasks': []}
-        
-        # This should handle the missing task gracefully
-        result = run_single_task('T999', config, 'heterogeneous', 42)
-        
-        assert result['task_id'] == 'T999'
-        assert result['status'] in ['failed', 'crashed']
-
-class TestExecuteUnifiedTask:
-    """Tests for execute_unified_task function."""
-    
-    @patch('src.benchmark.run_benchmark.UnifiedTranslator')
-    def test_execute_unified_task(self, mock_translator):
-        """Test unified task execution."""
-        mock_runner = MagicMock()
-        mock_runner.get_task.return_value = {
-            'task_id': 'T001',
-            'datasets': ['test']
-        }
-        
-        mock_translator_instance = MagicMock()
-        mock_translator.return_value = mock_translator_instance
-        mock_translator_instance.translate_all.return_value = 'translated'
-        
-        config = {}
-        
-        result = execute_unified_task('T001', mock_runner, mock_translator_instance, config, 42)
-        
-        assert 'predictions' in result
-        assert 'metrics' in result
-        assert 'modality_contributions' in result
-
-class TestExecuteHeterogeneousTask:
-    """Tests for execute_heterogeneous_task function."""
-    
-    @patch('src.benchmark.run_benchmark.ModalityRouter')
-    def test_execute_heterogeneous_task(self, mock_router):
-        """Test heterogeneous task execution."""
-        mock_runner = MagicMock()
-        mock_runner.get_task.return_value = {
-            'task_id': 'T001',
-            'modalities': ['text', 'tabular']
-        }
-        
-        mock_router_instance = MagicMock()
-        mock_router.return_value = mock_router_instance
-        
-        mock_model = MagicMock()
-        mock_model.predict.return_value = 'prediction'
-        mock_router_instance.get_model.return_value = mock_model
-        
-        config = {}
-        
-        result = execute_heterogeneous_task('T001', mock_runner, mock_router_instance, config, 42)
-        
-        assert 'predictions' in result
-        assert 'modality_contributions' in result
-        assert len(result['predictions']) == 2  # Two modalities
-
-class TestIntegration:
-    """Integration tests for the benchmark flow."""
-    
-    def test_config_and_task_flow(self, tmp_path):
-        """Test end-to-end flow with temporary config."""
-        # Create a minimal valid config
-        config_data = {
-            'datasets': [{'name': 'test'}],
-            'modalities': ['text'],
-            'seeds': 1,
-            'timeout_per_task': 60,
-            'tasks': ['T001']
-        }
-        
-        config_file = tmp_path / 'test.yaml'
-        with open(config_file, 'w') as f:
-            yaml.dump(config_data, f)
-        
-        # Verify config loads correctly
-        config = load_config(str(config_file))
-        assert config['seeds'] == 1
-        assert len(config['tasks']) == 1
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

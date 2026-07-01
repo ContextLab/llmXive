@@ -1,6 +1,7 @@
 """
-Unit tests for the ReferenceValidatorAgent.
+Unit tests for ReferenceValidatorAgent.
 """
+
 import pytest
 from src.validators.reference_validator import ReferenceValidatorAgent
 
@@ -8,150 +9,175 @@ from src.validators.reference_validator import ReferenceValidatorAgent
 class TestReferenceValidatorAgent:
     """Test suite for ReferenceValidatorAgent."""
 
-    def setup_method(self):
-        """Set up test fixtures."""
-        self.agent = ReferenceValidatorAgent()
+    @pytest.fixture
+    def validator(self):
+        """Create a validator instance for testing."""
+        return ReferenceValidatorAgent(overlap_threshold=0.7)
 
-    def test_init_default_threshold(self):
-        """Test initialization with default threshold."""
-        assert self.agent.title_token_overlap_threshold == 0.7
+    def test_initialization(self):
+        """Test agent initialization with default and custom thresholds."""
+        v1 = ReferenceValidatorAgent()
+        assert v1.overlap_threshold == 0.7
 
-    def test_init_custom_threshold(self):
-        """Test initialization with custom threshold."""
-        custom_agent = ReferenceValidatorAgent(threshold=0.5)
-        assert custom_agent.title_token_overlap_threshold == 0.5
+        v2 = ReferenceValidatorAgent(overlap_threshold=0.5)
+        assert v2.overlap_threshold == 0.5
 
-    def test_tokenize_title_basic(self):
+    def test_tokenize_empty(self, validator):
+        """Test tokenization of empty strings."""
+        assert validator._tokenize("") == set()
+        assert validator._tokenize(None) == set()
+        assert validator._tokenize("   ") == set()
+
+    def test_tokenize_basic(self, validator):
         """Test basic tokenization."""
-        tokens = self.agent._tokenize_title("Hello World Test")
-        assert "hello" in tokens
-        assert "world" in tokens
-        assert "test" in tokens
-        assert len(tokens) == 3
+        tokens = validator._tokenize("Hello World Test")
+        assert tokens == {"hello", "world", "test"}
 
-    def test_tokenize_title_empty(self):
-        """Test tokenization of empty string."""
-        tokens = self.agent._tokenize_title("")
-        assert tokens == set()
+    def test_tokenize_with_numbers(self, validator):
+        """Test tokenization including numbers."""
+        tokens = validator._tokenize("Model 2026 Performance")
+        assert tokens == {"model", "2026", "performance"}
 
-    def test_tokenize_title_case_insensitive(self):
-        """Test that tokenization is case insensitive."""
-        tokens = self.agent._tokenize_title("HELLO World")
-        assert "hello" in tokens
-        assert "world" in tokens
-
-    def test_compute_token_overlap_identical(self):
+    def test_calculate_overlap_identical(self, validator):
         """Test overlap of identical titles."""
-        overlap = self.agent.compute_token_overlap("Test Title", "Test Title")
+        overlap = validator.calculate_title_token_overlap(
+            "Test Title", "Test Title"
+        )
         assert overlap == 1.0
 
-    def test_compute_token_overlap_different(self):
+    def test_calculate_overlap_different(self, validator):
         """Test overlap of completely different titles."""
-        overlap = self.agent.compute_token_overlap("Apple Orange", "Banana Grape")
+        overlap = validator.calculate_title_token_overlap(
+            "Apple Orange", "Banana Grape"
+        )
         assert overlap == 0.0
 
-    def test_compute_token_overlap_partial(self):
-        """Test partial overlap."""
-        overlap = self.agent.compute_token_overlap("A B C", "B C D")
-        # Intersection: {B, C} (2), Union: {A, B, C, D} (4) -> 0.5
-        assert overlap == 0.5
-
-    def test_check_title_token_overlap_pass(self):
-        """Test check that passes threshold."""
-        # Threshold is 0.7 by default
-        # "A B C D E" vs "A B C D F" -> overlap 4/5 = 0.8
-        passes, score = self.agent.check_title_token_overlap(
-            "A B C D E", "A B C D F"
+    def test_calculate_overlap_partial(self, validator):
+        """Test overlap of partially similar titles."""
+        overlap = validator.calculate_title_token_overlap(
+            "Machine Learning", "Deep Learning"
         )
-        assert passes is True
-        assert score == 0.8
+        # Common: "learning", Unique1: "machine", Unique2: "deep"
+        # Intersection: 1, Union: 3 => 0.333
+        assert 0.3 < overlap < 0.4
 
-    def test_check_title_token_overlap_fail(self):
-        """Test check that fails threshold."""
-        # "A B" vs "C D" -> overlap 0/4 = 0.0
-        passes, score = self.agent.check_title_token_overlap(
-            "A B", "C D"
+    def test_validate_title_overlap_above_threshold(self, validator):
+        """Test validation when overlap is above threshold."""
+        is_valid, score, details = validator.validate_title_overlap(
+            "Benchmark Analysis", "Benchmark Performance Analysis"
         )
-        assert passes is False
-        assert score == 0.0
+        assert is_valid is True
+        assert score >= 0.7
+        assert details['is_valid'] is True
 
-    def test_validate_constitution_ii_compliance_valid(self):
-        """Test validation of a compliant contribution."""
+    def test_validate_title_overlap_below_threshold(self, validator):
+        """Test validation when overlap is below threshold."""
+        is_valid, score, details = validator.validate_title_overlap(
+            "Completely Different", "Totally Unrelated Work"
+        )
+        assert is_valid is False
+        assert score < 0.7
+
+    def test_constitution_ii_compliant(self, validator):
+        """Test compliance check with all required fields."""
         contribution = {
-            "title": "Test",
-            "reference_title": "Test",
-            "citations": ["ref1"],
-            "data_sources": ["source1"],
-            "results_type": "real_measurement"
+            'claim_id': 'c_123',
+            'claim_text': 'Test claim',
+            'source_reference': 'https://example.com',
+            'validation_status': 'pending',
+            'compliance_check': 'ok'
         }
-        is_compliant, violations = self.agent.validate_constitution_ii_compliance(contribution)
+        is_compliant, missing, details = validator.check_constitution_ii_compliance(
+            contribution
+        )
         assert is_compliant is True
-        assert len(violations) == 0
+        assert len(missing) == 0
 
-    def test_validate_constitution_ii_compliance_no_citations(self):
-        """Test validation failing due to missing citations."""
+    def test_constitution_ii_missing_fields(self, validator):
+        """Test compliance check with missing required fields."""
         contribution = {
-            "title": "Test",
-            "reference_title": "Test",
-            "citations": [],
-            "data_sources": ["source1"],
-            "results_type": "real_measurement"
+            'claim_id': 'c_123',
+            # Missing other required fields
         }
-        is_compliant, violations = self.agent.validate_constitution_ii_compliance(contribution)
+        is_compliant, missing, details = validator.check_constitution_ii_compliance(
+            contribution
+        )
         assert is_compliant is False
-        assert any("No citations" in v for v in violations)
+        assert len(missing) > 0
+        assert 'claim_text' in missing
 
-    def test_validate_constitution_ii_compliance_fabricated(self):
-        """Test validation failing due to fabricated results."""
-        contribution = {
-            "title": "Test",
-            "reference_title": "Test",
-            "citations": ["ref1"],
-            "data_sources": ["source1"],
-            "results_type": "fabricated"
+    def test_full_validation_valid(self, validator):
+        """Test full validation workflow with valid data."""
+        claim = {
+            'claim_id': 'c_valid',
+            'claim_text': 'Valid claim text',
+            'claim_title': 'Benchmark Analysis',
+            'source_reference': 'https://arxiv.org/abs/1234.5678',
+            'validation_status': 'pending',
+            'compliance_check': None
         }
-        is_compliant, violations = self.agent.validate_constitution_ii_compliance(contribution)
-        assert is_compliant is False
-        assert any("fabricated" in v.lower() for v in violations)
+        reference = {
+            'reference_title': 'Benchmark Performance Analysis',
+            'reference_url': 'https://arxiv.org/abs/1234.5678'
+        }
 
-    def test_validate_contribution_full_pass(self):
-        """Test full validation pipeline passing."""
-        contribution = {
-            "title": "A B C D E",
-            "reference_title": "A B C D F",
-            "citations": ["ref1"],
-            "data_sources": ["source1"],
-            "results_type": "real_measurement"
-        }
-        result = self.agent.validate_contribution(contribution)
-        assert result["is_valid"] is True
-        assert result["can_contribute_points"] is True
-        assert result["overlap_score"] == 0.8
+        result = validator.validate_reference_contribution(claim, reference)
+        assert result['is_valid'] is True
+        assert len(result['blocking_gates']) == 0
 
-    def test_validate_contribution_full_fail_overlap(self):
-        """Test full validation pipeline failing on overlap."""
-        contribution = {
-            "title": "A B",
-            "reference_title": "C D",
-            "citations": ["ref1"],
-            "data_sources": ["source1"],
-            "results_type": "real_measurement"
+    def test_full_validation_invalid_compliance(self, validator):
+        """Test full validation with Constitution II violation."""
+        claim = {
+            'claim_id': 'c_invalid',
+            # Missing required fields
         }
-        result = self.agent.validate_contribution(contribution)
-        assert result["is_valid"] is True
-        assert result["can_contribute_points"] is False
-        assert result["overlap_score"] == 0.0
+        reference = {
+            'reference_title': 'Some Title',
+            'reference_url': 'https://example.com'
+        }
 
-    def test_validate_contribution_full_fail_fabrication(self):
-        """Test full validation pipeline failing on fabrication."""
-        contribution = {
-            "title": "A B C D E",
-            "reference_title": "A B C D F",
-            "citations": ["ref1"],
-            "data_sources": ["source1"],
-            "results_type": "fabricated"
+        result = validator.validate_reference_contribution(claim, reference)
+        assert result['is_valid'] is False
+        assert len(result['blocking_gates']) > 0
+
+    def test_full_validation_invalid_overlap(self, validator):
+        """Test full validation with low title overlap."""
+        claim = {
+            'claim_id': 'c_overlap',
+            'claim_text': 'Text',
+            'claim_title': 'Completely Different Title',
+            'source_reference': 'https://example.com',
+            'validation_status': 'pending',
+            'compliance_check': None
         }
-        result = self.agent.validate_contribution(contribution)
-        assert result["is_valid"] is False
-        assert result["can_contribute_points"] is False
-        assert len(result["violations"]) > 0
+        reference = {
+            'reference_title': 'Totally Unrelated Work',
+            'reference_url': 'https://example.com'
+        }
+
+        result = validator.validate_reference_contribution(claim, reference)
+        assert result['is_valid'] is False
+        assert any('overlap' in gate for gate in result['blocking_gates'])
+
+    def test_validation_log(self, validator):
+        """Test validation log functionality."""
+        claim = {
+            'claim_id': 'c_log',
+            'claim_text': 'Text',
+            'claim_title': 'Test',
+            'source_reference': 'https://example.com',
+            'validation_status': 'pending',
+            'compliance_check': None
+        }
+        reference = {
+            'reference_title': 'Test',
+            'reference_url': 'https://example.com'
+        }
+
+        validator.validate_reference_contribution(claim, reference)
+        log = validator.get_validation_log()
+        assert len(log) == 1
+        assert log[0]['claim_id'] == 'c_log'
+
+        validator.clear_validation_log()
+        assert len(validator.get_validation_log()) == 0

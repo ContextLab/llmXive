@@ -119,7 +119,7 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/drop/datasets
   verified_at: '2026-07-01T14:33:30.439481Z'
-- artifact_hash: 3ff5bcba91444c1ec9cacd2a99cb700c91bf435579dc34fb3d7960d5ab8f1c0f
+- artifact_hash: 724841edc24a8210151c1106cbd901058ea5e2796c4a536fa78795b3690c205f
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -130,8 +130,8 @@
   value: https://arxiv.org/abs/1311.5354
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/1311.5354
-  verified_at: '2026-07-01T16:58:48.028675Z'
-- artifact_hash: 3ff5bcba91444c1ec9cacd2a99cb700c91bf435579dc34fb3d7960d5ab8f1c0f
+  verified_at: '2026-07-01T17:54:00.385575Z'
+- artifact_hash: 724841edc24a8210151c1106cbd901058ea5e2796c4a536fa78795b3690c205f
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -142,8 +142,8 @@
   value: https://arxiv.org/abs/1710.08708
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/1710.08708
-  verified_at: '2026-07-01T16:58:48.028675Z'
-- artifact_hash: 3ff5bcba91444c1ec9cacd2a99cb700c91bf435579dc34fb3d7960d5ab8f1c0f
+  verified_at: '2026-07-01T17:54:00.385575Z'
+- artifact_hash: 724841edc24a8210151c1106cbd901058ea5e2796c4a536fa78795b3690c205f
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -153,21 +153,10 @@
   value: https://en.wikipedia.org/wiki/Bootstrapping_
   verification_status: verified
   verified_against_url: https://en.wikipedia.org/wiki/Bootstrapping
-  verified_at: '2026-07-01T16:58:48.028675Z'
-- artifact_hash: 3ff5bcba91444c1ec9cacd2a99cb700c91bf435579dc34fb3d7960d5ab8f1c0f
+  verified_at: '2026-07-01T17:54:00.385575Z'
+- artifact_hash: 724841edc24a8210151c1106cbd901058ea5e2796c4a536fa78795b3690c205f
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-004
-  cited_authors: []
-  cited_title: null
-  fetched_title: TabPFN - Wikidata
-  kind: url
-  value: https://www.wikidata.org/wiki/Q136288530
-  verification_status: verified
-  verified_against_url: https://www.wikidata.org/wiki/Q136288530
-  verified_at: '2026-07-01T16:58:48.028675Z'
-- artifact_hash: 3ff5bcba91444c1ec9cacd2a99cb700c91bf435579dc34fb3d7960d5ab8f1c0f
-  artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
-  cite_id: c-005
   cited_authors: []
   cited_title: null
   fetched_title: SHA-2 - Wikipedia
@@ -175,15 +164,16 @@
   value: https://en.wikipedia.org/wiki/SHA-2
   verification_status: verified
   verified_against_url: https://en.wikipedia.org/wiki/SHA-2
-  verified_at: '2026-07-01T16:58:48.028675Z'
-- artifact_hash: 3ff5bcba91444c1ec9cacd2a99cb700c91bf435579dc34fb3d7960d5ab8f1c0f
+  verified_at: '2026-07-01T17:54:00.385575Z'
+- artifact_hash: 724841edc24a8210151c1106cbd901058ea5e2796c4a536fa78795b3690c205f
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
-  cite_id: c-006
+  cite_id: c-005
   cited_authors: []
   cited_title: null
-  fetched_title: Wikimedia category - Wikidata
+  fetched_title: '[2505.06730] Activity and Subject Detection for UCI HAR Dataset
+    with &amp; without missing Sensor Data'
   kind: url
-  value: https://www.wikidata.org/wiki/Q4167836
+  value: https://arxiv.org/abs/2505.06730
   verification_status: verified
-  verified_against_url: https://www.wikidata.org/wiki/Q4167836
-  verified_at: '2026-07-01T16:58:48.028675Z'
+  verified_against_url: https://arxiv.org/abs/2505.06730
+  verified_at: '2026-07-01T17:54:00.385575Z'

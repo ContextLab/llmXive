@@ -105,12 +105,6 @@
   \ (boolean) (FR-002, SC-002, Phase 0.5)"
 : 2
 ? "T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM\
-  \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_93ce84ee \u2014 status=not_enough_info];\
-  \ create `src/research/verify_models.py` script; document in research.md section\
-  \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
-  \ (boolean) (FR-002, SC-002, Phase 0.5)"
-: 2
-? "T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM\
   \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_a4b272a4 \u2014 status=not_enough_info];\
   \ create `src/research/verify_models.py` script; document in research.md section\
   \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
@@ -147,6 +141,12 @@
   \ (boolean) (FR-002, SC-002, Phase 0.5)"
 : 2
 ? "T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM\
+  \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_d8c6ec75 \u2014 status=not_enough_info];\
+  \ create `src/research/verify_models.py` script; document in research.md section\
+  \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
+  \ (boolean) (FR-002, SC-002, Phase 0.5)"
+: 1
+? "T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM\
   \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_d9e0f460 \u2014 status=not_enough_info];\
   \ create `src/research/verify_models.py` script; document in research.md section\
   \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
@@ -163,6 +163,11 @@
   \ create `src/research/verify_models.py` script; document in research.md section\
   \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
   \ (boolean) (FR-002, SC-002, Phase 0.5)"
+: 1
+? 'T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM
+  via HuggingFace model cards; create `src/research/verify_models.py` script; document
+  in research.md section "Model Verification" with fields: model_name, hf_id, size_mb,
+  cpu_tractable (boolean) (FR-002, SC-002, Phase 0.5)'
 : 1
 ? "T006a Implement Reference-Validator Agent in `src/validators/reference_validator.py`\
   \ with title-token-overlap \u2265 0.7 [UNRESOLVED-CLAIM: c_0d8fe0be \u2014 status=not_enough_info]\
@@ -195,6 +200,11 @@
   \ Constitution II compliance (Constitution II, Plan Gap)"
 : 1
 ? "T006a Implement Reference-Validator Agent in `src/validators/reference_validator.py`\
+  \ with title-token-overlap \u2265 0.7 check [UNRESOLVED-CLAIM: c_ee9dd6c2 \u2014\
+  \ status=not_enough_info] before contributing review points; add blocking gate for\
+  \ Constitution II compliance (Constitution II, Plan Gap)"
+: 1
+? "T006a Implement Reference-Validator Agent in `src/validators/reference_validator.py`\
   \ with title-token-overlap \u2265 0.7 check before contributing review points [UNRESOLVED-CLAIM:\
   \ c_06e339d8 \u2014 status=not_enough_info]; add blocking gate for Constitution\
   \ II compliance (Constitution II, Plan Gap)"
@@ -209,6 +219,10 @@
   \ c_bb5d85cf \u2014 status=not_enough_info]; add blocking gate for Constitution\
   \ II compliance (Constitution II, Plan Gap)"
 : 1
+? "T006a Implement Reference-Validator Agent in `src/validators/reference_validator.py`\
+  \ with title-token-overlap \u2265 0.7 check before contributing review points; add\
+  \ blocking gate for Constitution II compliance (Constitution II, Plan Gap)"
+: 2
 "T008 Initialize Python 3.11 [UNRESOLVED-CLAIM: c_31b68441 \u2014 status=not_enough_info] project with {{claim:c_9da78e09}}": 1
 "T008 Initialize Python 3.11 [UNRESOLVED-CLAIM: c_92679e95 \u2014 status=not_enough_info] project with {{claim:c_9da78e09}}": 1
 "T008 Initialize Python 3.11 [UNRESOLVED-CLAIM: c_f21aed3b \u2014 status=not_enough_info] project with {{claim:c_9da78e09}}": 1
@@ -280,15 +294,24 @@
   DROP/MUST via HuggingFace datasets; depends on T007/T008 complete <!-- FAILED: unspecified
   -->'
 : 1
+? 'T022 [US1] Implement dataset download with 3-retry logic in src/data/download.py
+  (FR-010); function signatures: download_dataset(url, max_retries=3, timeout=300)
+  -> (path, checksum); verify URLs: UCI_HAR via `datasets.load_dataset(''UCI_HAR'')`,
+  DROP/MUST via HuggingFace datasets; depends on T007/T008 complete <!-- FAILED: unspecified
+  --> <!-- FAILED: unspecified -->'
+: 1
+? "T022 [US1] Implement dataset download with 3-retry logic in src/data/download.py\
+  \ (FR-010); function signatures: download_dataset(url, max_retries=3, timeout=300)\
+  \ [UNRESOLVED-CLAIM: c_019ee08d \u2014 status=not_enough_info] -> (path, checksum);\
+  \ verify URLs: UCI_HAR via `datasets.load_dataset('UCI_HAR')`, DROP/MUST via HuggingFace\
+  \ datasets; depends on T007/T008 complete <!-- FAILED: unspecified --> <!-- FAILED:\
+  \ unspecified -->"
+: 1
 ? "T024 [US1] Implement timeout enforcement in src/utils/timeout.py (FR-006, FR-013);\
   \ function signatures: enforce_timeout(func, timeout_seconds=300 [UNRESOLVED-CLAIM:\
   \ c_1d4cac1d \u2014 status=not_enough_info]) -> result; raise TimeoutError if exceeded;\
   \ depends on T016 complete"
 : 1
-? 'T024 [US1] Implement timeout enforcement in src/utils/timeout.py (FR-006, FR-013);
-  function signatures: enforce_timeout(func, timeout_seconds=300) -> result; raise
-  TimeoutError if exceeded; depends on T016 complete'
-: 2
 ? "T024 [US1] Implement timeout enforcement in src/utils/timeout.py (FR-006, FR-013);\
   \ function signatures: enforce_timeout(func, timeout_seconds=300) [UNRESOLVED-CLAIM:\
   \ c_e77c9091 \u2014 status=not_enough_info] -> result; raise TimeoutError if exceeded;\
@@ -331,6 +354,24 @@
   \ condition_b), bootstrap_ci(values, {{claim:c_e50ac6bc}}, {{claim:c_dadece63}}\
   \ (1710.08708, https://arxiv.org/abs/1710.08708))"
 : 1
+? "T027 [US1] Implement statistical tests in src/evaluation/statistical_tests.py (FR-007,\
+  \ FR-014, FR-011); MUST include: {{claim:c_2c09cbc3}}, {{claim:c_2c7597de}} with\
+  \ {{claim:c_7c3d210d}} and 95% CI as PRIMARY outcome [UNRESOLVED-CLAIM: c_84581542\
+  \ \u2014 status=not_enough_info] (document formula), {{claim:c_55db4237}} (explicit\
+  \ count), configurable \u03B1 threshold) with logging; function signatures: paired_ttest(condition_a,\
+  \ condition_b, {{claim:c_08e60571}}), wilcoxon_effect_size(condition_a, condition_b),\
+  \ bootstrap_ci(values, {{claim:c_e50ac6bc}}, {{claim:c_dadece63}} (1710.08708, https://arxiv.org/abs/1710.08708))\
+  \ <!-- FAILED: unspecified -->"
+: 1
+? "T027 [US1] Implement statistical tests in src/evaluation/statistical_tests.py (FR-007,\
+  \ FR-014, FR-011); MUST include: {{claim:c_2c09cbc3}}, {{claim:c_2c7597de}} with\
+  \ {{claim:c_7c3d210d}} and 95% CI as PRIMARY outcome [UNRESOLVED-CLAIM: c_fc5da661\
+  \ \u2014 status=not_enough_info] (document formula), {{claim:c_55db4237}} (explicit\
+  \ count), configurable \u03B1 threshold) with logging; function signatures: paired_ttest(condition_a,\
+  \ condition_b, {{claim:c_08e60571}}), wilcoxon_effect_size(condition_a, condition_b),\
+  \ bootstrap_ci(values, {{claim:c_e50ac6bc}}, {{claim:c_dadece63}} (1710.08708, https://arxiv.org/abs/1710.08708))\
+  \ <!-- FAILED: unspecified -->"
+: 1
 ? "T028 [US1] Implement report generator in src/evaluation/report_generator.py (FR-007);\
   \ MUST verify report includes (a) t-statistic, (b) p-value, (c) bootstrap CI ({{claim:c_8176747a}})\
   \ [UNRESOLVED-CLAIM: c_517f038e \u2014 status=not_enough_info], (d) Wilcoxon effect\
@@ -342,13 +383,14 @@
   \ (heterogeneous|unified), --seeds (5) [UNRESOLVED-CLAIM: c_1deb9e69 \u2014 status=not_enough_info];\
   \ depends on T024, T025 logging complete"
 : 1
-? 'T029 [US1] Create run_benchmark.py main entry point in src/benchmark/run_benchmark.py
-  (FR-001, FR-006, FR-010); CLI arguments: --config (default default.yaml), --mode
-  (heterogeneous|unified), --seeds (5); depends on T024, T025 logging complete'
-: 1
 ? "T030 [US1] Create default.yaml config in src/benchmark/config/default.yaml with\
   \ required keys: datasets (list), modalities (list), seeds (5), timeout_per_task\
   \ (300) [UNRESOLVED-CLAIM: c_a5cdbef1 \u2014 status=not_enough_info], {{claim:c_340e25bd}}\
+  \ (Wikipedia: Bootstrapping (statistics), https://en.wikipedia.org/wiki/Bootstrapping_(statistics))"
+: 1
+? "T030 [US1] Create default.yaml config in src/benchmark/config/default.yaml with\
+  \ required keys: datasets (list), modalities (list), seeds (5), timeout_per_task\
+  \ (300) [UNRESOLVED-CLAIM: c_cd0220c9 \u2014 status=not_enough_info], {{claim:c_340e25bd}}\
   \ (Wikipedia: Bootstrapping (statistics), https://en.wikipedia.org/wiki/Bootstrapping_(statistics))"
 : 1
 ? 'T035 [P] [US2] Implement modality-specific model wrapper for time-series in src/models/timeseries_model.py
