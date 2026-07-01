@@ -1,0 +1,171 @@
+resolved_at: '2026-07-01T14:31:25.806695+00:00'
+datasets:
+- intent: SDM
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/6361c06e00905b1ffb91ce40/d84f2db8161e44a9c855c44c4e675dc8b1f8ab4bd63ec729f743aad757334481?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27room-0.json%3B+filename%3D%22room-0.json%22%3B&response-content-type=application%2Fjson&Expires=1782919673&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjM2MWMwNmUwMDkwNWIxZmZiOTFjZTQwL2Q4NGYyZGI4MTYxZTQ0YTljODU1YzQ0YzRlNjc1ZGM4YjFmOGFiNGJkNjNlYzcyOWY3NDNhYWQ3NTczMzQ0ODFcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3cm9vbS0wLmpzb24lM0IrZmlsZW5hbWUlM0QlMjJyb29tLTAuanNvbiUyMiUzQiZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODI5MTk2NzN9fX1dfQ__&Signature=MEUCIDxWLaDCDdFAYHSUXWcfztvIOlaUL6MesGDxsZ9d1M65AiEAliMUpszG9YX8FmiltCvMQcM8j3TIGN3SUcACox7sUmU_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Some_progress_but_role_of_women_in_local_government_often_marginal/32860310
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Coital_bleeding_and_HIV_risks_among_men_and_women_in_Cape_Town_South_Africa/32860244
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Getting_the_guaranteed_basics_right_on_safety_security_and_2010/32860307
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Alcohol_use_and_sexual_risks_for_HIV_AIDS_in_sub-Saharan_Africa_systematic_review_of_empirical_findings/32860238
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Disability_and_human_rights_the_South_African_Human_Rights_Commission/32860283
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/xqdg2/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/9wrms/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/zxrwm/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/u5dkt/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/s5n36/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MaxEnt
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/maxentius42/dataset/resolve/main/dataset.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 121365
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/maxentius42/dataset/resolve/main/dataset.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Coital_bleeding_and_HIV_risks_among_men_and_women_in_Cape_Town_South_Africa/32860244
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Lasting_changes/32860304
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Language_identity_modernity_the_Arabic_study_circle_of_Durban/32860328
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/South_Africa_in_Africa_introduction/32860262
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Parreira_must_be_given_free_rein_as_national_coach/32860256
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21027854
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21027854
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20379912
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20379912
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21035103
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-optimized
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Getting_the_guaranteed_basics_right_on_safety_security_and_2010/32860307
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Workers_and_policy-making/32860301
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/The_smallest_parties_the_ACDP_UCDP_FF_MF_and_UDM/32860295
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Lasting_changes/32860304
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Genealogies_of_the_Royal_amaZondi_of_Ngome/32860292
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/803257
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1136109
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1331998
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21102176
+    source: datacite
+    status: wrong_format
+    reason: 'HTTPSConnectionPool(host=''zenodo.org'', port=443): Read timed out. (read
+      timeout=20)'
+  - url: https://zenodo.org/records/21102176
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2603.16428
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21069914
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.21069913
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
+      port=443): Read timed out. (read timeout=20.0)'

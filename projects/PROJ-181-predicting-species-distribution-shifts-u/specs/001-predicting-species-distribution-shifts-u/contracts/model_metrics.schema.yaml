@@ -1,0 +1,58 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Metrics Schema"
+description: "Schema for output metrics from SDM training and evaluation."
+type: object
+properties:
+  species_name:
+    type: string
+    description: "Species for which metrics are calculated."
+  algorithm:
+    type: string
+    enum:
+      - "Random Forest"
+      - "Bioclim"
+      - "Regularized Logistic Regression (PB)"
+    description: "Algorithm used for the model. Note: 'Regularized Logistic Regression (PB)' is a Presence-Background method using L2 regularization, distinct from the MaxEnt algorithm."
+  split_type:
+    type: string
+    enum:
+      - "spatial_block_cv"
+      - "temporal_validation"
+      - "future_projection"
+    description: "Type of validation or projection."
+  auc:
+    type: number
+    description: "Area Under the ROC Curve."
+    minimum: 0
+    maximum: 1
+  tss:
+    type: number
+    description: "True Skill Statistic."
+    minimum: -1
+    maximum: 1
+  sample_size:
+    type: integer
+    description: "Number of occurrence records used."
+  status:
+    type: string
+    enum:
+      - "SUCCESS"
+      - "UNDERPOWERED"
+      - "INSUFFICIENT_DATA"
+      - "ERROR"
+    description: "Status of the model run."
+  p_value:
+    type: number
+    description: "P-value from statistical comparison (if applicable)."
+  effect_size:
+    type: number
+    description: "Effect size from statistical comparison (if applicable)."
+required:
+  - species_name
+  - algorithm
+  - split_type
+  - auc
+  - tss
+  - sample_size
+  - status
+additionalProperties: false
