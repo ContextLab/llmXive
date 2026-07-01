@@ -921,6 +921,14 @@ def _project_authors(repo: Path, project_id: str) -> list[dict[str, str]]:
 
     pdir = _project_dir(repo, project_id)
 
+    # Reviewed-Preprint ethics (2026-07-01): a review-only ingested paper credits
+    # ONLY the original authors + the submitter + the UNDERLYING review models.
+    # llmXive never modified the paper, so no implementer/planner/tasker/reviser
+    # may be credited — the run-log loop below is filtered to reviewer runs when
+    # this flag is set (protects the invariant against legacy/pre-migration runs).
+    from llmxive.paper_reprocess.preprint import is_reviewed_preprint
+    is_preprint = is_reviewed_preprint(pdir)
+
     # 1. Idea submitter
     #    Skip bot submitters (github-actions[bot] etc.) — the user's rule:
     #    bots that act on behalf of the platform never count as authors. The
@@ -1009,6 +1017,11 @@ def _project_authors(repo: Path, project_id: str) -> list[dict[str, str]]:
                         continue
                     model = (e.get("model_name") or "").strip()
                     role = (e.get("agent_name") or "").strip()
+                    # Reviewed-Preprint invariant: credit reviewer runs only; a
+                    # modifier run (implementer/planner/tasker/reviser/etc.) must
+                    # never appear as an author of a paper we did not write.
+                    if is_preprint and "reviewer" not in role.lower():
+                        continue
                     if model:
                         add(model, "llm", role or "agent")
 
