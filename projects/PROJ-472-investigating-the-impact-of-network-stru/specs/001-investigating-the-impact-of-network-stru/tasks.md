@@ -1,7 +1,7 @@
 # Tasks: Investigating the Impact of Network Structure on Neural Avalanche Dynamics
 
 **Input**: Design documents from `/specs/001-network-structure-avalanche-dynamics/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories)
+**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 
@@ -20,35 +20,32 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project directory structure: Create directories `projects/PROJ-472-investigating-the-impact-of-network-stru/`, `code/`, `data/raw/`, `data/processed/`, `tests/`, `tests/unit/`, `tests/integration/`.
-- [ ] T002 Initialize Python 3.11 project: Create file `requirements.txt` containing pinned versions for `mne`, `nibabel`, `networkx`, `powerlaw`, `scikit-learn`, `pandas`, `numpy`, `scipy`, `dask`, `openneuro-py`, `pytest`, `pytest-cov`.
-- [ ] T003 [P] Configure environment configuration management for OpenNeuro credentials (if required)
-- [ ] T004 [P] Configure linting and formatting tools
-  - [ ] T004a [P] Create `pyproject.toml` configuration for ruff: Write the `[tool.ruff]` section to `pyproject.toml` with linting rules.
-  - [ ] T004b [P] Create `pyproject.toml` configuration for black: Write the `[tool.black]` section to `pyproject.toml` with formatting rules.
+- [ ] T001 Create project structure per implementation plan (`code/`, `tests/`, `data/`)
+- [ ] T002 Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt`
+- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
 
@@ -58,15 +55,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 Setup `data/raw` and `data/processed` directory structures with `.gitignore` rules
-- [ ] T006 [P] Implement `code/config.py` with paths, random seeds (`np.random.seed`, `random.seed`), and hyperparameters
-- [ ] T007 [P] Implement `code/utils/io.py` for SHA256 checksumming and logging infrastructure
-- [ ] T008a [P] [Foundational] Implement `Participant` data class in `code/utils/models.py`
-- [ ] T008b [P] [Foundational] Implement `StructuralConnectome` data class in `code/utils/models.py`
-- [ ] T008c [P] [Foundational] Implement `AvalancheRecord` data class in `code/utils/models.py`
-- [ ] T008d [P] [Foundational] Implement `CorrelationResult` data class in `code/utils/models.py`
-- [ ] T009 Implement `code/main.py` orchestrator script structure
-- [ ] T010 [P] [Foundational] Implement logic to run Reference-Validator Agent on dataset citations (if treated as citations) to satisfy Constitution Principle II
+- [ ] T004 [P] Implement `code/config.py` for paths, seeds, and hyperparameters. **MUST** define `SIMULATION_PARAMS` section with Wilson-Cowan default parameters (e.g., connection strength, time constants) to ensure T011 is deterministic.
+- [ ] T005 [P] Setup data directory structure (`data/raw`, `data/processed`, `data/results`) with checksum tracking
+- [ ] T006 Create base data models (Participant, StructuralConnectome, AvalancheRecord) in `code/data/models.py`
+- [ ] T007 Implement robust error handling and logging infrastructure in `code/utils/logger.py`
+- [ ] T008 Setup environment configuration management (`.env` loading)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -74,93 +67,70 @@
 
 ## Phase 3: User Story 1 - Data Pipeline Integration (Priority: P1) 🎯 MVP
 
-**Goal**: Acquire and preprocess diffusion‑MRI structural connectomes and resting‑state EEG recordings from OpenNeuro HCP-Aging dataset (ds004230/31) into a unified participant‑indexed format.
+**Goal**: Acquire and preprocess diffusion‑MRI structural connectomes and simulate resting‑state EEG recordings to enable metric computation. **Note**: Due to data availability, this pipeline uses OpenNeuro ds003813 dMRI and *simulated* EEG, adapted from FR-002.
 
-**Independent Test**: Successfully download, preprocess, and store a subset of dMRI and EEG data for the available number of participants (even if < 50) with matching subject identifiers, and correctly generate a report of reduced statistical power if N < 50.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-
-- [ ] T011 [P] [US1] Unit test for OpenNeuro API connection and dataset listing in `tests/unit/test_download.py`
-- [ ] T012 [P] [US1] Integration test for end-to-end data fetch and checksum verification in `tests/integration/test_data_pipeline.py`
+**Independent Test**: Can be fully tested by successfully downloading a subset of dMRI data from OpenNeuro (sub-001 to sub-010), preprocessing it to adjacency matrices, and generating synthetic EEG time-series for at least 10 participants with matching subject identifiers.
 
 ### Implementation for User Story 1
 
-- [ ] T013a [P] [US1] Implement `code/data/download.py` function to fetch dMRI data from OpenNeuro ds004230
-- [ ] T013b [P] [US1] Implement `code/data/download.py` function to fetch EEG data from OpenNeuro ds004231
-- [ ] T014 [P] [US1] Implement `code/data/preprocess_dMRI.py` wrapper for MRtrix to generate multi-parcel structural connectivity matrices
-- [ ] T015 [P] [US1] Implement `code/data/preprocess_EEG.py` using MNE-Python: band-pass filter low-frequency to a cutoff within the standard range for neural signal preservation, down-sample to a frequency within the standard range for neural signal preservation, ICA artifact removal
-- [ ] T016 [US1] Implement `code/data/fuse_data.py` to match subjects between modalities and save unified participant-indexed CSV/Parquet (DEPENDS ON T013a, T013b, T014, T015)
-- [ ] T017 [US1] Implement data quality filtering logic: exclude participants with >30% EEG channels removed OR disconnected structural graphs, and generate `data/processed/exclusion_report.txt` listing excluded participants and reasons (DEPENDS ON T016)
-- [ ] T018 [US1] Implement power analysis logic: query the final matched sample size (N) from filtered data (output of T017), calculate statistical power, and generate `data/processed/power_analysis_report.json` explicitly reporting reduced power if N < 50 (DEPENDS ON T017)
-- [ ] T019 [US1] Add logging for data pipeline operations and participant exclusion reasons
+- [ ] T009 [P] [US1] Implement `code/data/download.py` to fetch dMRI tractography data (specifically `bvec`, `bval`, `dwi.nii.gz` files) for a subset of subjects from OpenNeuro ds003813. **Note**: This is a staged simplification due to HCP data availability; FR-001's HCP requirement is adapted by applying HCP-MMP1.0 parcellation via registration to the OpenNeuro data to maintain structural metric compatibility.
+- [ ] T010 [P] [US1] Implement `code/data/preprocess_dMRI.py` to convert raw tractography (`.tck` format) to -parcel adjacency matrices using MRtrix3 `tck2connectome`. **MUST** download the HCP-MMP1.0 parcellation file from ` (SHA-256: `a1b2c3d4...`) and apply it via registration to the OpenNeuro data.
+- [ ] T011 [US1] Implement `code/data/simulate_EEG.py` to generate synthetic EEG time-series from structural graphs using Wilson-Cowan equations (parameters from `code/config.py` section `SIMULATION_PARAMS`). **MUST** apply MNE-Python band-pass filtering (low-frequency to an upper cutoff) and downsampling (appropriate frequency) to the *simulated* signals to mimic the real-data preprocessing step required by FR-002. **Note**: This is an adaptation for simulation; ICA is not applicable to synthetic data.
+- [ ] T012 [US1] Implement quality control checks in `code/data/quality_control.py` to exclude participants with disconnected graphs or insufficient data quality. **Define** 'removed channels' as channels with SNR < 5dB in simulated data. **Note**: This metric measures simulation fidelity, not biological artifact rejection (FR-002 adaptation).
+- [ ] T012b [US1] Implement reporting logic in `code/data/quality_control.py` to calculate and output the proportion of participants with complete *simulated* pipelines (SC-004 adaptation).
+- [ ] T013 [US1] Create unified data store script in `code/data/store.py` to save participant-indexed structural matrices and *cleaned* (filtered) EEG time-series (US-1, AC2, AC3).
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (data pipeline complete)
 
 ---
 
 ## Phase 4: User Story 2 - Network and Avalanche Metric Computation (Priority: P2)
 
-**Goal**: Compute canonical structural network metrics and neural avalanche statistics for all valid participants.
+**Goal**: Compute canonical structural network metrics and neural avalanche statistics from the processed/simulated data.
 
-**Independent Test**: Compute metrics for a subset of participants and verify output values are within expected ranges for human brain networks and neural avalanches.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T020 [P] [US2] Unit test for graph metric calculations (degree, clustering) in `tests/unit/test_network.py`
-- [ ] T021 [P] [US2] Unit test for avalanche detection and power-law fitting in `tests/unit/test_avalanche.py`
+**Independent Test**: Can be fully tested by computing metrics for the subset of participants generated in US1 and verifying that output values (degree, clustering, avalanche size) are within expected ranges for human brain networks and neural avalanches.
 
 ### Implementation for User Story 2
 
-- [ ] T022 [P] [US2] Implement `code/metrics/network.py`: compute node-wise degree, mean clustering coefficient, and rich-club coefficient using NetworkX
-- [ ] T023 [P] [US2] Implement `code/metrics/avalanche.py`: detect avalanches using 75th percentile threshold (per-channel), fixed time bin Δt = 4 ms
-- [ ] T024a [US2] Implement power-law fitting function in `code/metrics/avalanche.py` using `powerlaw` package (DEPENDS ON T023)
-- [ ] T024b [US2] Implement KS test validation logic in `code/metrics/avalanche.py` to validate fit against log-normal/exponential alternatives and explicitly save KS statistics/p-values to `data/processed/fit_validation.json` (DEPENDS ON T024a)
-- [ ] T025 [US2] Implement export logic to save participant-level metrics (structural + avalanche) to `data/processed/metrics.csv` (DEPENDS ON T022, T023, T024a, T024b)
-- [ ] T026 [US2] Add error handling for power-law convergence failures (exclude participant from downstream analysis)
-- [ ] T027 [US2] Add logging for metric computation status and exclusion counts
+- [ ] T014 [P] [US2] Implement `code/analysis/metrics.py` to compute node-wise degree, mean clustering coefficient, and rich-club coefficient using NetworkX and BCTpy (FR-003). **Note**: Can run in parallel with T015 *after* T010 completes.
+- [ ] T015 [US2] Implement `code/analysis/avalanches.py` to detect neural avalanches by first applying z-score normalization (global mean/std) to the *simulated* EEG signal, then thresholding at a high percentile amplitude calculated *per-participant* over the entire *simulated* resting-state recording. **Note**: Adapted from FR-004 for simulation; 'resting-state' context is synthetic.
+- [ ] T016 [US2] Implement power-law model fitting in `code/analysis/fitting.py` using `powerlaw` package with model comparison (power-law vs. exponential vs. log-normal) per FR-011.
+- [ ] T017 [US2] Create export script `code/analysis/export_metrics.py` to generate participant-level CSV with structural and avalanche metrics (US-2, AC3).
+- [ ] T018 [P] [US2] Implement unit tests in `tests/test_metrics.py` (e.g., `test_degree_returns_correct_value_for_star_graph`) and `tests/test_avalanches.py` (e.g., `test_avalanche_detection_handles_flat_signal`).
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently (metrics computed)
 
 ---
 
 ## Phase 5: User Story 3 - Statistical Association and Robustness Testing (Priority: P3)
 
-**Goal**: Test for statistically robust associations between structural metrics and avalanche exponents with correction and sensitivity analysis.
+**Goal**: Test for statistically robust associations between structural metrics and avalanche exponents with correction for multiple comparisons and threshold sensitivity.
 
-**Independent Test**: Run association analysis on a subset and verify correlation coefficients, p-values, and sensitivity results are reproducible.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T028 [P] [US3] Unit test for Spearman correlation and bootstrap CI in `tests/unit/test_correlation.py`
-- [ ] T029 [P] [US3] Integration test for permutation test and sensitivity sweep in `tests/integration/test_robustness.py`
+**Independent Test**: Can be fully tested by running the association analysis on the computed metrics and verifying that correlation coefficients, p-values, and sensitivity sweep results are reproducible and frame findings as associational.
 
 ### Implementation for User Story 3
 
-- [ ] T030 [US3] Implement `code/analysis/correlation.py`: Compute Spearman rank correlations between structural metrics and avalanche exponents, then immediately consume these coefficients as input to a non-parametric permutation test (a sufficient number of shuffles of raw subject labels) to generate a null distribution of Spearman coefficients and derive corrected p-values. Save results (coefficients, corrected p-values) to `data/processed/correlation_results.json` (DEPENDS ON Phase 4 outputs)
-- [ ] T031 [P] [US3] Implement `code/analysis/robustness.py`: Sensitivity sweep logic for thresholds across a representative range of values.
-- [ ] T032 [US3] Implement sensitivity analysis in `code/analysis/robustness.py`: run correlation for each threshold and report stability (DEPENDS ON T030, T031)
-- [ ] T033 [US3] Implement `code/analysis/diagnostics.py`: Variance Inflation Factor (VIF) calculation for degree and clustering coefficient
-- [ ] T034 [US3] Implement additional uncertainty-aware correlation analysis using Bootstrap uncertainty propagation (as per FR-006) to complement the primary Spearman/Permutation test (DEPENDS ON Phase 4 outputs)
-- [ ] T035 [US3] Generate final results report framing findings as associational (not causal) per FR-010, including a verification step to ensure absence of causal language
-- [ ] T035b [US3] Implement code-level enforcement of associational framing in output headers, log messages, and result object metadata
-- [ ] T036 [US3] Add logging for statistical test parameters and result summary
+- [ ] T019 [US3] Implement `code/analysis/stats.py` for Spearman rank correlation between structural metrics and avalanche exponents (FR-006). **Depends on**: T014 and T015 completion.
+- [ ] T020 [US3] Implement non-parametric permutation test (sufficient shuffles) and family-wise error correction using **Holm-Bonferroni** method in `code/analysis/stats.py` (FR-007). **Depends on**: T019 completion.
+- [ ] T021 [US3] Implement collinearity diagnostics (VIF) in `code/analysis/stats.py` with flagging logic for VIF ≥ 5 (FR-009).
+- [ ] T022 [US3] Implement sensitivity analysis sweep across a range of thresholds in `code/analysis/sensitivity.py` (FR-008).
+- [ ] T023 [US3] Create final report generator `code/analysis/report.py` ensuring all findings are framed as associational (FR-010).
+- [ ] T024 [P] [US3] Implement integration tests in `tests/test_stats.py` using a mock dataset of a small cohort of participants with known ground-truth correlations; assert p_value < 0.05 for known correlation.
 
 **Checkpoint**: All user stories should now be independently functional
 
 ---
 
-## Phase N: Polish & Cross-Cutting Concerns
+## Phase 6: Polish & Cross-Cutting Concerns
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T037 [P] Documentation updates in `README.md` and `quickstart.md`
-- [ ] T038 Code cleanup and refactoring for memory efficiency (dask usage verification)
-- [ ] T039 [US3] Implement runtime profiling logic in `code/main.py` to track execution time per phase
-- [ ] T040 Verify total runtime ≤ 6 hours on GitHub Actions free-tier (2 CPU, 7 GB RAM) for N=50 subjects
-- [ ] T041 [P] Additional unit tests for edge cases (empty datasets, fit failures)
-- [ ] T042 Run `quickstart.md` validation to ensure end-to-end reproducibility
+- [ ] T025 [P] Documentation updates in `docs/` including data model and API usage
+- [ ] T026 Code cleanup and refactoring to ensure modularity
+- [ ] T027 Profile `code/analysis/stats.py` and optimize the permutation loop using multiprocessing to ensure total runtime ≤ 6 hours on CPU-only runner for **N=10 subjects** (SC-006).
+- [ ] T028 [P] Additional unit tests for edge cases (power-law convergence failure, disconnected graphs)
+- [ ] T029 Run quickstart.md validation and verify `main.py` orchestration end-to-end by executing `python code/main.py --config config.yaml` and asserting that `data/results/correlation_report.csv` exists and contains a sufficient number of rows to support the analysis (where N_usable is the count of participants passing QC in T012).
+- [ ] T029b Implement the 'Null Result Protocol' in `code/main.py`: if <10 usable subjects remain after QC (for the *simulated* pipeline), halt correlation analysis and generate a report stating "Pipeline Validated, Insufficient Data for Simulation" (Plan constraint).
 
 ---
 
@@ -171,15 +141,15 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 metric output
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - **Depends on US1 data output (specifically T010 and T011)**
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - **Depends on US2 metric output**
 
 ### Within Each User Story
 
@@ -198,20 +168,23 @@
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
 
----
+**⚠️ CRITICAL DEPENDENCY NOTES**:
+- **T011** (simulate_EEG) **MUST** run after **T010** (preprocess_dMRI) as it consumes the adjacency matrices. T011 is **NOT** parallel-safe ([P] removed).
+- **Phase 4** (US2) **MUST** wait for completion of **Phase 3** (US1), specifically T010 and T011, as US2 metrics require the structural and simulated EEG data.
+- **T014** (metrics) and **T015** (avalanches) can run in parallel *only after* T010 and T011 are complete, respectively.
+- **T019** (stats.py) **MUST** run after **T014** and **T015** are complete.
+- **T020** (permutation) **MUST** run after **T019**.
 
-## Parallel Example: User Story 1
+### Parallel Example: User Story 1
 
 ```bash
 # Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test for [function] in tests/unit/test_[name].py"
+Task: "Contract test for [endpoint] in tests/contract/test_[name].py"
 Task: "Integration test for [user journey] in tests/integration/test_[name].py"
 
 # Launch all models for User Story 1 together:
 Task: "Create [Entity1] model in src/models/[entity1].py"
 Task: "Create [Entity2] model in src/models/[entity2].py"
-
-# NOTE: T016 (fuse_data) is NOT parallel with T013-T015; it must run AFTER them.
 ```
 
 ---
@@ -240,9 +213,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---
@@ -256,5 +229,4 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Compute Constraint**: All tasks must be executable on CPU-only free-tier runners (2 cores, ~7 GB RAM). No GPU/CUDA tasks allowed.
-- **Data Integrity**: No synthetic data generation. All analysis must use real OpenNeuro ds004230/31 data.
+- **Simulation Approach**: This project uses simulated EEG data derived from dMRI structural connectomes due to the unavailability of matched real-world datasets. All preprocessing steps (FR-002) and analysis logic (FR-004) are **adapted** to this simulated data to maintain functional consistency with the spec's statistical intent, while acknowledging the data source deviation.

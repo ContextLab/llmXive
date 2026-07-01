@@ -1,0 +1,49 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: "Correlation Output Schema"
+description: "Schema for the final statistical association results."
+type: object
+properties:
+  metric_pair:
+    type: string
+    description: "The pair of metrics being correlated (e.g., 'degree_vs_size_exponent')."
+  spearman_rho:
+    type: number
+    description: "Spearman rank correlation coefficient."
+  p_value:
+    type: number
+    description: "Raw p-value from the correlation test."
+  corrected_p_value:
+    type: number
+    description: "Permutation-corrected p-value (family-wise error rate)."
+  vif_score:
+    type: number
+    description: "Variance Inflation Factor if collinearity was checked."
+  collinearity_flag:
+    type: string
+    enum:
+      - "high_collinearity"
+      - "low_collinearity"
+    description: "Flag indicating if VIF >= 5."
+  robustness_status:
+    type: string
+    enum:
+      - "stable"
+      - "sensitive"
+      - "inconclusive"
+      - "not_applicable"
+    description: "Result of the sensitivity analysis across thresholds."
+  sample_size:
+    type: integer
+    description: "Number of participants included in this correlation."
+  pipeline_quality_rate:
+    type: number
+    description: "Proportion of participants with complete preprocessing pipelines."
+required:
+  - metric_pair
+  - spearman_rho
+  - p_value
+  - corrected_p_value
+  - robustness_status
+  - sample_size
+  - pipeline_quality_rate
+additionalProperties: false

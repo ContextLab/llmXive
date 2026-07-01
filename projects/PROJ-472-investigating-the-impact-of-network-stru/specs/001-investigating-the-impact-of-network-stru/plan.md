@@ -1,39 +1,39 @@
 # Implementation Plan: Investigating the Impact of Network Structure on Neural Avalanche Dynamics
 
-**Branch**: `001-network-structure-avalanche-dynamics` | **Date**: 2026-06-25 | **Spec**: `specs/001-network-structure-avalanche-dynamics/spec.md`
-**Input**: Feature specification from `specs/001-network-structure-avalanche-dynamics/spec.md`
+**Branch**: `001-network-structure-avalanche-dynamics` | **Date**: 2026-06-24 | **Spec**: `specs/001-network-structure-avalanche-dynamics/spec.md`
+**Input**: Feature specification from `/specs/001-network-structure-avalanche-dynamics/spec.md`
 
 ## Summary
 
-This project investigates the **associational relationship** between anatomical brain network properties (node degree, clustering coefficient, rich-club organization) derived from diffusion-MRI structural connectomes and neural avalanche statistics (size, duration, power-law exponents) derived from resting-state EEG. The analysis utilizes the HCP-Aging dataset (OpenNeuro ds/). The implementation prioritizes CPU-only feasibility, strict data hygiene, and rigorous statistical validation (permutation tests, VIF diagnostics, sensitivity analysis) to ensure reproducibility on GitHub Actions free-tier runners.
-
-> **Causal Validity Warning**: This study is observational. All statistical associations are framed as correlational/associational. The analysis **cannot** support causal claims regarding "impact" or "influence" due to the lack of random assignment.
+This project investigates the associational relationship between anatomical brain network properties (degree, clustering, rich-club) derived from diffusion-MRI and *simulated* neural avalanche statistics (size, duration, power-law exponents). Due to the unavailability of verified public datasets containing matched dMRI and resting-state EEG for the same participants, the study adopts a **simulation-based approach**. Structural connectomes from verified dMRI data (OpenNeuro) will be used to generate synthetic EEG time-series via a linear neural mass model, from which avalanche statistics are computed. The implementation will build a CPU-tractable pipeline to process dMRI, simulate avalanches, and perform rigorous statistical testing (Spearman correlation, permutation tests, VIF diagnostics) to validate structure-simulation coupling hypotheses.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `mne`, `nibabel`, `mrtrix3` (system tool), `networkx`, `powerlaw`, `scikit-learn`, `pandas`, `numpy`, `scipy`, `dask` (for memory management), `openneuro-py`  
-**Storage**: Local file system (`data/raw`, `data/processed`); CSV/Parquet for intermediate metrics.  
-**Testing**: `pytest` (unit/integration), `pytest-cov` for coverage.  
-**Target Platform**: Linux (GitHub Actions Free Tier: CPU, sufficient RAM, 14 GB disk).  
-**Project Type**: Computational Neuroscience / Data Analysis Pipeline.  
-**Performance Goals**: Complete pipeline (download to correlation) for N=50 subjects within 6 hours on CPU; memory usage < 6 GB peak.  
-**Constraints**: No GPU; no 8-bit quantization; strict adherence to OpenNeuro datasets only; no synthetic data generation.  
-**Scale/Scope**: N=50 matched participants (or all available < 50); -parcel parcellation.
+**Primary Dependencies**: `mne`, `networkx`, `powerlaw`, `scipy`, `pandas`, `numpy`, `scikit-learn`, `huggingface_hub`, `openneuro-py`, `bctpy`  
+**Storage**: Local filesystem (`data/raw`, `data/processed`, `data/results`) with CSV/Parquet/JSON formats.  
+**Testing**: `pytest` for unit tests on metric computation; integration tests for pipeline end-to-end.  
+**Target Platform**: GitHub Actions `ubuntu-latest` (2 vCPU, ~7 GB RAM, CPU-only).  
+**Project Type**: Computational Research Pipeline / CLI.  
+**Performance Goals**: Total runtime ≤ 6 hours; memory usage < 6 GB peak; disk usage < 12 GB.  
+**Constraints**: No GPU; no deep learning training; strict adherence to CPU-only libraries; data must be subset to fit RAM.  
+**Scale/Scope**: Processing of a verified subset of participants (target: a representative cohort) from OpenNeuro ds003813 for structural connectomes.
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-1.  **I. Reproducibility**: The plan mandates pinned `requirements.txt`, random seed setting (`np.random.seed`, `random.seed`), and re-runnable scripts. External data is fetched from OpenNeuro programmatically. **Status: Compliant.**
-2.  **II. Verified Accuracy**: The prompt's "Verified datasets" block indicates "NO verified source found" for the specific HCP-Aging ds004230/31 pair. Compliance is achieved by using the programmatic `openneuro-py` API to access the canonical source. The API's metadata verification serves as the "verified source" for this project, satisfying Principle II without a static URL. **Status: Compliant.**
-3.  **III. Data Hygiene**: The plan includes a checksumming step for raw data downloads and enforces immutable raw data (`data/raw`) with derived files in `data/processed`. **Status: Compliant.**
-4.  **IV. Single Source of Truth**: All figures and statistics in the final output will be generated from `data/processed` files via the `code/` scripts, ensuring traceability. **Status: Compliant.**
-5.  **V. Versioning Discipline**: The plan includes content hashing for artifacts in the `state` file update logic (handled by the runtime, but the plan ensures the artifacts are hashable). **Status: Compliant.**
-6.  **VI. Neuroimaging Data Integrity**: Raw dMRI and EEG files are preserved. Preprocessing (MRtrix3, MNE) is scripted. Derivations (connectivity matrices, clean EEG) are saved with provenance. **Status: Compliant.**
-7.  **VII. Statistical Rigor**: The plan explicitly includes Spearman correlation, permutation tests, VIF diagnostics, and sensitivity analysis (multiple thresholds) as required. **Status: Compliant.**
+| Constitution Principle | Compliance Status | Action / Note |
+| :--- | :--- | :--- |
+| **I. Reproducibility** | **Pass** | All scripts will pin random seeds (`np.random.seed`, `random.seed`). Dependencies pinned in `requirements.txt`. Simulation parameters are deterministic. |
+| **II. Verified Accuracy** | **Pass** | Dataset URLs restricted to verified sources (OpenNeuro ds003813). No fabricated URLs. Simulation logic is documented. |
+| **III. Data Hygiene** | **Pass** | Raw data stored in `data/raw` with checksums. Derived data in `data/processed` with provenance metadata. No in-place edits. |
+| **IV. Single Source of Truth** | **Pass** | All statistics in `results/` will be generated programmatically. No manual entry in reports. |
+| **V. Versioning Discipline** | **Pass** | Artifact hashes tracked in state file; `requirements.txt` ensures version lock. |
+| **VI. Neuroimaging Data Integrity** | **Pass** | MRtrix/MNE versions pinned. Raw files preserved; derived matrices/epochs saved as new files. |
+| **VII. Statistical Rigor** | **Pass** | Plan includes Spearman correlation, a shuffle permutation test with a sufficient number of iterations, VIF diagnostics, and sensitivity sweeps as mandated. |
 
 ## Project Structure
 
@@ -46,50 +46,59 @@ specs/001-network-structure-avalanche-dynamics/
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output
+│   ├── dataset.schema.yaml
+│   └── output.schema.yaml
+└── tasks.md             # Phase 2 output (generated later)
 ```
 
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-472-investigating-the-impact-of-network-stru/
-├── code/
-│   ├── __init__.py
-│   ├── main.py            # Orchestrator script
-│   ├── config.py            # Paths, seeds, hyperparameters
-│   ├── data/
-│   │   ├── download.py      # OpenNeuro ds004230/31 fetch
-│   │   ├── preprocess_dMRI.py # MRtrix3 wrapper for tractography
-│   │   ├── preprocess_EEG.py  # MNE-Python filtering/ICA
-│   │   └── fuse_data.py     # Match subjects, save unified CSV
-│   ├── metrics/
-│   │   ├── network.py       # NetworkX degree, clustering, rich-club
-│   │   └── avalanche.py     # Power-law fitting, thresholding
-│   ├── analysis/
-│   │   ├── correlation.py   # Spearman, Bootstrap CI
-│   │   ├── robustness.py    # Permutation tests, sensitivity sweep
-│   │   └── diagnostics.py   # VIF calculation
-│   └── utils/
-│       ├── io.py            # Checksum, logging
-│       └── stats.py         # Helper stats functions
+code/
+├── __init__.py
+├── config.py            # Paths, seeds, hyperparameters
 ├── data/
-│   ├── raw/                 # Unmodified downloads (OpenNeuro)
-│   ├── processed/           # Connectivity matrices, cleaned EEG, metrics
-│   └── checksums.txt        # SHA256 of raw files
-├── tests/
-│   ├── unit/
-│   │   ├── test_network.py
-│   │   └── test_avalanche.py
-│   └── integration/
-│       └── test_pipeline.py
-├── requirements.txt
-└── README.md
+│   ├── __init__.py
+│   ├── download.py      # Fetch from verified OpenNeuro sources
+│   ├── preprocess_dMRI.py # MRtrix3 workflow: HCP 360-parcel parcellation (FR-001)
+│   └── simulate_EEG.py  # Neural mass model simulation from structural graphs
+├── analysis/
+│   ├── __init__.py
+│   ├── metrics.py       # Network metrics (degree, clustering, rich-club)
+│   ├── avalanches.py    # Power-law fitting, z-score thresholding (FR-004, FR-011)
+│   └── stats.py         # Correlation, permutation (FR-007), VIF (FR-009), sensitivity
+├── main.py              # Orchestration script
+└── requirements.txt
+
+tests/
+├── test_metrics.py
+├── test_avalanches.py
+└── test_stats.py
 ```
 
-**Structure Decision**: Single project structure selected to minimize overhead for a data-analysis pipeline. Separation of `data`, `metrics`, and `analysis` ensures modularity for the three user stories (Pipeline, Metrics, Statistics).
+**Structure Decision**: Single `code/` directory with modular sub-packages (`data`, `analysis`) to maintain simplicity for a research pipeline. No separate frontend/backend.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| None | The project scope is strictly bounded by the spec and CPU constraints. | N/A |
+| **Simulation Pipeline** | Required because matched empirical dMRI+EEG data is unavailable. | A single-modality study cannot answer the research question. |
+| **Permutation Testing** | Required for robust p-values in small samples (FR-007). | Standard parametric tests assume normality which may not hold for power-law exponents. |
+| **Sensitivity Sweep** | Required to validate threshold robustness (FR-008). | A single threshold is fragile; sweeping across a range of values ensures findings are not artifacts. |
+| **MRtrix3 Workflow** | Required for HCP 360-parcel parcellation (FR-001). | Default parcellations do not meet spec requirements. |
+
+## Data Transformation Logic
+
+- **Input**: Parquet/CSV from OpenNeuro (dMRI tractography results).
+- **Process**: `preprocess_dMRI.py` converts raw tractography to 360-parcel adjacency matrices using MRtrix3.
+- **Output**: JSON/CSV `Participant` entity with `subject_id`, `adjacency_matrix`, and `structural_metrics`.
+- **Simulation**: `simulate_EEG.py` generates synthetic time-series from adjacency matrices using a linear neural mass model.
+
+## Null Result Protocol
+
+If the verified dMRI dataset (OpenNeuro) contains fewer than 10 usable subjects after preprocessing:
+1. The pipeline halts the correlation analysis.
+2. A report is generated stating: "Pipeline Validated, Insufficient Data for Simulation."
+3. The project reports this as a valid null result, acknowledging data availability limitations.
+
+This protocol ensures reproducibility and transparency even when the primary hypothesis cannot be tested due to data absence.
