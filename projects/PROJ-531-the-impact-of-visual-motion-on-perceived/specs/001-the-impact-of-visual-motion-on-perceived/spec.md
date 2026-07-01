@@ -13,11 +13,11 @@ As a researcher, I need to download and preprocess publicly available human-avat
 
 **Why this priority**: This is the foundational step without which no analysis can occur. The entire research pipeline depends on obtaining clean, structured data with both predictor variables (motion parameters) and outcome variables (agency ratings).
 
-**Independent Test**: Can be fully tested by successfully downloading a dataset, extracting the required motion and agency variables, and producing a structured CSV/parquet file with ≥100 complete observations. Delivers usable analysis-ready data even if no modeling occurs.
+**Independent Test**: Can be fully tested by successfully downloading a dataset (or generating synthetic data), extracting the required motion and agency variables, and producing a structured CSV/parquet file with ≥100 complete observations. Delivers usable analysis-ready data even if no modeling occurs.
 
 **Acceptance Scenarios**:
 
-1. **Given** a publicly available dataset URL from OpenML or HuggingFace Datasets containing human-avatar interaction logs and questionnaire responses, **When** the data download script executes, **Then** the dataset is stored locally with ≥100 complete observations containing motion features (latency, smoothness, lead time) and agency scale scores.
+1. **Given** a publicly available dataset URL from any repository (OpenML, HuggingFace, OSF, GitHub, etc.) containing human-avatar interaction logs and questionnaire responses, **When** the data download script executes, **Then** the dataset is stored locally with ≥100 complete observations containing motion features (latency, smoothness, lead time) and agency scale scores.
 2. **Given** a raw dataset with missing values, **When** the preprocessing pipeline runs, **Then** observations with missing motion or agency variables are removed, leaving ≥80 complete cases for analysis.
 3. **Given** Likert-scale agency questionnaire responses, **When** the outcome variable is constructed, **Then** the agency score is computed as a continuous variable (mean of items or summed scale) with documented scoring method.
 
@@ -57,7 +57,7 @@ As a researcher, I need to generate visualizations and interpret model results s
 
 ### Edge Cases
 
-- What happens when the downloaded dataset has fewer than 50 complete observations? **Then** the analysis is aborted with an error message recommending alternative data sources, as statistical power would be insufficient for meaningful inference.
+- What happens when the downloaded dataset has fewer than 50 complete observations? **Then** the analysis is aborted with an error message recommending alternative data sources or synthetic data generation, as statistical power would be insufficient for meaningful inference.
 - How does system handle datasets where motion features are highly collinear (e.g., smoothness and jerk metric)? **Then** a variance inflation factor (VIF) diagnostic is computed, and if VIF ≥5 for any predictor, the feature is excluded from multivariate models with documentation of the collinearity issue.
 - What happens when agency questionnaire items use different scales across studies? **Then** all items are standardized to a 0–1 range before aggregation, with the standardization method documented in the preprocessing log.
 - How does system handle datasets where the outcome variable (agency) has low variance (e.g., most participants rate agency as 4/5)? **Then** the analysis is flagged with a warning that low outcome variance limits detection of predictor effects.
@@ -68,7 +68,7 @@ As a researcher, I need to generate visualizations and interpret model results s
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download and store publicly available human-avatar interaction datasets from OpenML or HuggingFace Datasets containing both motion telemetry logs and questionnaire responses (See US-1)
+- **FR-001**: System MUST download and store publicly available human-avatar interaction datasets from any publicly accessible repository (e.g., OpenML, HuggingFace, OSF, GitHub) containing both motion telemetry logs and questionnaire responses, OR generate synthetic data if no real dataset exists (See US-1)
 - **FR-002**: System MUST extract motion features including response latency (ms), trajectory smoothness (jerk metric), and anticipatory lead time (ms) from interaction logs (See US-1)
 - **FR-003**: System MUST preprocess agency scale questionnaire responses into a continuous outcome variable using validated scoring methods for the specific instrument used (See US-1)
 - **FR-004**: System MUST fit multiple linear regression and random forest models with 5-fold cross-validation to predict agency scores from motion features (See US-2)
@@ -76,8 +76,12 @@ As a researcher, I need to generate visualizations and interpret model results s
 - **FR-006**: System MUST compute variance inflation factor (VIF) diagnostics for all motion predictors and flag collinearity when VIF ≥5 (See US-2)
 - **FR-007**: System MUST generate scatter plots of each motion feature vs. agency scores, feature importance bar charts, and partial dependence plots for the top predictor (See US-3)
 - **FR-008**: System MUST frame all reported associations as correlational rather than causal when the dataset is observational (no random assignment) (See US-2)
-- **FR-009**: System MUST require that agency questionnaires use validated instruments with citable validation studies (e.g., established agency scales with published reliability/validity) (See US-1)
-- **FR-010**: System MUST perform sensitivity analysis sweeping decision thresholds (e.g., absolute correlation difference ∈ {0.01, 0.05, 0.1}) and report how significance rates vary across cutoffs (See US-2)
+- **FR-009**: System MUST flag and exclude datasets that use agency questionnaires without validated instruments (See US-1)
+- **FR-010**: System MUST perform sensitivity analysis sweeping decision thresholds (absolute regression coefficient magnitude ∈ {0.01, 0.05, 0.1}) and report how significance rates (p-values) vary across cutoffs to ensure robustness of inference (See US-2)
+- **FR-011**: System MUST generate synthetic human-avatar interaction data with known ground-truth motion-agency relationships if no real dataset meeting FR-001 criteria is found (See US-1)
+- **FR-012**: System MUST derive anticipatory lead time only if the 'user response trigger' used for calculation is distinct from the outcome variable (agency score) to prevent tautological coupling (See US-1)
+- **FR-013**: System MUST verify instrument validity by checking for a DOI and ≥10 citations or inclusion in a recognized validation registry (See US-1)
+- **FR-014**: System MUST perform a power analysis before modeling and limit Random Forest complexity (max_depth ≤ 3) when sample size N < 100 to prevent overfitting (See US-2)
 
 ### Key Entities *(include if feature involves data)*
 
@@ -99,20 +103,20 @@ As a researcher, I need to generate visualizations and interpret model results s
 - **SC-002**: Model generalizability is measured against out-of-sample performance metrics from 5-fold cross-validation (R² and RMSE on held-out folds) (See US-2)
 - **SC-003**: Statistical inference validity is measured against family-wise error rate control via multiple-comparison correction (See US-2)
 - **SC-004**: Predictor independence is measured against variance inflation factor diagnostics (VIF <5 for all retained predictors) (See US-2)
-- **SC-005**: Visualization interpretability is measured against stakeholder review feedback on clarity of motion-feature-to-agency relationships (See US-3)
+- **SC-005**: Visualization interpretability is measured against ≥80% of 5 independent reviewers rating clarity ≥4/5 on a standardized rubric (See US-3)
 
 ---
 
 ## Assumptions
 
-- Publicly available datasets exist on OpenML or HuggingFace Datasets containing both motion telemetry logs and agency questionnaire responses with ≥100 complete observations
-- The analysis will run on GitHub Actions free-tier runners (2 CPU cores, ~7 GB RAM, ~14 GB disk, NO GPU, ≤6 h per job)
-- Classical statistical methods (multiple linear regression, random forest with scikit-learn) are computationally tractable on CPU-only infrastructure for datasets ≤500 observations
-- Agency questionnaires in available datasets use validated instruments with published reliability/validity (e.g., established agency scales)
-- The research design is observational (no random assignment), so all reported findings will be framed as associational rather than causal
-- Sample size/power considerations are deferred to the implementation phase, with a note that ≥100 observations provides [deferred] power to detect medium effect sizes (r ≈ 0.3) at α = 0.05
-- Dataset-variable fit is assumed: the available data contains all required predictors (latency, smoothness, lead time) and outcome (agency ratings); [NEEDS CLARIFICATION: does the selected dataset contain anticipatory lead time as a separate variable from response latency?]
-- Multiple-comparison correction method will be Bonferroni (conservative) unless the number of tests exceeds 10, in which case Benjamini-Hochberg (FDR control) will be used
-- Sensitivity analysis will sweep correlation thresholds ∈ {0.01, 0.05, 0.1} as these represent small-to-medium effect sizes in behavioral research
-- [NEEDS CLARIFICATION: does the selected dataset contain post-task agency ratings, or only trait/personality measures?]
-- [NEEDS CLARIFICATION: what is the specific agency questionnaire instrument used, and does it have published validation studies?]
+- Preferred data sources include OpenML, HuggingFace, OSF, and GitHub, but the system is designed to handle any publicly accessible repository if it meets data criteria.
+- The analysis will run on GitHub Actions free-tier runners (2 CPU cores, ~7 GB RAM, ~14 GB disk, NO GPU, ≤6 h per job).
+- Classical statistical methods (multiple linear regression, random forest with scikit-learn) are computationally tractable on CPU-only infrastructure for datasets ≤500 observations.
+- Agency questionnaires in available datasets use validated instruments (verified via DOI/citations as per FR-013).
+- The research design is observational (no random assignment), so all reported findings will be framed as associational rather than causal.
+- Sample size/power considerations are deferred to the implementation phase, with a note that ≥100 observations provides [deferred] power to detect medium effect sizes (r ≈ 0.3) at α = 0.05.
+- Dataset-variable fit is assumed: the available data contains all required predictors (latency, smoothness, lead time) and outcome (agency ratings); If the selected dataset does not contain anticipatory lead time as a distinct variable, the system MUST derive it by calculating the temporal offset between the avatar's motion onset and the user's response trigger, provided the raw telemetry allows millisecond-level alignment and the trigger is independent of the agency score (See FR-012). If raw telemetry is unavailable, the feature is marked as missing, and the analysis proceeds with available features only (latency, smoothness), with a warning logged that lead time was not derivable (See US-1).
+- Multiple-comparison correction method will be Bonferroni (conservative) unless the number of tests exceeds 10, in which case Benjamini-Hochberg (FDR control) will be used.
+- Sensitivity analysis will sweep regression coefficient magnitude thresholds ∈ {0.01, 0.05, 0.1} as these represent small-to-medium effect sizes in behavioral research.
+- The analysis requires post-task agency ratings. If the dataset contains only trait/personality measures, those variables MUST be excluded from the primary regression model predicting state agency. Instead, trait measures may be included as covariates in a secondary robustness check, but the primary hypothesis test (FR-004) is strictly limited to post-task state ratings. If no post-task ratings exist, the dataset is rejected for this specific feature branch (See US-1).
+- Any validated instrument meeting the criteria in FR-013 (DOI + citations or registry inclusion) is acceptable; specific instruments like SoAS or PAS are preferred but not mandatory.
