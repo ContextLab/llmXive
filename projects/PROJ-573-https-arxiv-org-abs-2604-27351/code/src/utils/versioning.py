@@ -3,70 +3,93 @@ import yaml
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional
+from .logging import get_logger
 
-from .checksum_utils import load_state_file, save_state_file
+logger = get_logger(__name__)
 
+STATE_FILE_PATH = Path("state/projects/PROJ-573-https-arxiv-org-abs-27351.yaml")
 
-def update_artifact_timestamp(artifact_path: str) -> None:
+def update_artifact_timestamp(artifact_path: str) -> bool:
     """
-    Update the updated_at timestamp in the project state file when an artifact changes.
-
-    This implements Constitution V (artifact versioning).
+    Updates the 'updated_at' timestamp in the project state file whenever
+    an artifact changes. This enforces Constitution V (audit trail).
 
     Args:
-        artifact_path: Path to the artifact that was modified.
-    """
-    # Determine the project state file path based on the artifact location
-    # Assuming artifacts are under code/ and state is under code/state/
-    project_root = Path(artifact_path).parent.parent.parent
-    state_file = project_root / "state" / "projects" / "PROJ-573-https-arxiv-org-abs-2604-27351.yaml"
+        artifact_path: The relative or absolute path of the artifact that changed.
 
-    if not state_file.exists():
-        # If state file doesn't exist, create it
-        state_file.parent.mkdir(parents=True, exist_ok=True)
-        state_data = {
-            "project_id": "PROJ-573-https-arxiv-org-abs-2604-27351",
-            "updated_at": "",
-            "artifact_hashes": {}
-        }
+    Returns:
+        bool: True if the state file was updated successfully, False otherwise.
+    """
+    try:
+        # Ensure the artifact path is normalized
+        artifact_p = Path(artifact_path)
+        if not artifact_p.is_absolute():
+            artifact_p = Path.cwd() / artifact_p
+
+        # Determine the project state file location
+        # Ensure state directory exists
+        state_dir = STATE_FILE_PATH.parent
+        state_dir.mkdir(parents=True, exist_ok=True)
+
+        # Load existing state or create new structure
+        state_data: Dict[str, Any] = {}
+        if STATE_FILE_PATH.exists():
+            try:
+                with open(STATE_FILE_PATH, 'r', encoding='utf-8') as f:
+                    state_data = yaml.safe_load(f) or {}
+            except yaml.YAMLError as e:
+                logger.error(f"Failed to parse existing state file: {e}")
+                return False
+
+        # Ensure top-level keys exist
+        if "projects" not in state_data:
+            state_data["projects"] = {}
+
+        project_key = "PROJ-573-https-arxiv-org-abs-2604-27351"
+        if project_key not in state_data["projects"]:
+            state_data["projects"][project_key] = {}
+
+        # Update timestamp
+        now = datetime.now(timezone.utc).isoformat()
+        state_data["projects"][project_key]["updated_at"] = now
+
+        # Optionally log the artifact that triggered the update
+        if "artifact_hashes" not in state_data["projects"][project_key]:
+            state_data["projects"][project_key]["artifact_hashes"] = {}
+
+        logger.info(f"Updated state file for {project_key}. Timestamp: {now}")
+
+        # Write back to file
+        with open(STATE_FILE_PATH, 'w', encoding='utf-8') as f:
+            yaml.dump(state_data, f, default_flow_style=False, sort_keys=False)
+
+        return True
+
+    except Exception as e:
+        logger.error(f"Failed to update artifact timestamp for {artifact_path}: {e}")
+        return False
+
+def update_timestamp_on_change(artifact_path: str) -> bool:
+    """
+    Wrapper function to update timestamp on artifact change.
+    Delegates to update_artifact_timestamp.
+    """
+    return update_artifact_timestamp(artifact_path)
+
+def main() -> None:
+    """CLI entry point for testing/updating timestamps."""
+    import sys
+    if len(sys.argv) < 2:
+        print("Usage: python -m src.utils.versioning <artifact_path>")
+        sys.exit(1)
+
+    path = sys.argv[1]
+    success = update_artifact_timestamp(path)
+    if success:
+        print(f"Successfully updated timestamp for {path}")
     else:
-        state_data = load_state_file(str(state_file))
-
-    # Update timestamp
-    state_data["updated_at"] = datetime.now(timezone.utc).isoformat()
-
-    # Ensure artifact_hashes exists even if empty
-    if "artifact_hashes" not in state_data:
-        state_data["artifact_hashes"] = {}
-
-    save_state_file(str(state_file), state_data)
-
-
-def update_timestamp_on_change(artifact_path: str) -> None:
-    """
-    Helper function to update timestamp when an artifact changes.
-    Alias for update_artifact_timestamp for compatibility.
-
-    Args:
-        artifact_path: Path to the artifact that was modified.
-    """
-    update_artifact_timestamp(artifact_path)
-
-
-def main():
-    """
-    CLI entry point for versioning utilities.
-    """
-    import argparse
-
-    parser = argparse.ArgumentParser(description="Versioning utilities for artifact tracking")
-    parser.add_argument("--artifact", required=True, help="Path to the artifact file")
-
-    args = parser.parse_args()
-
-    update_artifact_timestamp(args.artifact)
-    print(f"Updated timestamp for artifact: {args.artifact}")
-
+        print(f"Failed to update timestamp for {path}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

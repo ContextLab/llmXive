@@ -1,27 +1,4 @@
-# Ruff configuration for PROJ-573-https-arxiv-org-abs-2604-27351
-# Targeting Python 3.11 as per project requirements
-
-# Line length configuration
-line-length = 88
-
-# Target Python version
-target-version = "py311"
-
-# Exclude common directories
-exclude = [
-    ".git",
-    ".venv",
-    "venv",
-    "__pycache__",
-    "build",
-    "dist",
-    ".eggs",
-    "*.egg-info",
-]
-
-# Linting rules
 [lint]
-# Enable common rule sets
 select = [
     "E",  # pycodestyle errors
     "W",  # pycodestyle warnings
@@ -31,22 +8,55 @@ select = [
     "C4", # flake8-comprehensions
     "UP", # pyupgrade
 ]
-ignore = [
-    "E501", # Line too long (handled by formatter)
-    "B008", # Do not perform function calls in argument defaults
+ignore = []
+
+# Allow autofix for all enabled rules (if `--fix` is provided).
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few specific files/directories.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
 ]
 
-# Per-file ignores if needed
-[lint.per-file-ignores]
-"tests/*" = ["S101"] # Allow assert in tests
+# Same as the global `extend-exclude` setting.
+per-file-ignores = {}
 
-# Formatting configuration
-[format]
-# Use double quotes for strings
-quote-style = "double"
-# Indent with spaces
-indent-style = "space"
-# Respect magic trailing commas
-skip-magic-trailing-comma = false
-# Line ending
-line-ending = "auto"
+# Line length configuration (matching Black default)
+line-length = 88
+
+# Target version
+target-version = "py311"
+
+# Dummy variable names (e.g., unused variables)
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[lint.isort]
+force-single-line = false
+force-sort-within-sections = false
+lines-after-imports = 2
+known-first-party = []
+known-third-party = []
+no-lines-before = []
+order-by-type = true
+relative-imports-order = "closest-to-furthest"

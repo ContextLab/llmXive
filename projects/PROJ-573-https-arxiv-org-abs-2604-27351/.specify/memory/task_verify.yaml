@@ -88,13 +88,13 @@
   \ (boolean) (FR-002, SC-002, Phase 0.5)"
 : 1
 ? "T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM\
-  \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_93ce84ee \u2014 status=not_enough_info];\
+  \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_a4b272a4 \u2014 status=not_enough_info];\
   \ create `src/research/verify_models.py` script; document in research.md section\
   \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
   \ (boolean) (FR-002, SC-002, Phase 0.5)"
-: 2
+: 1
 ? "T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM\
-  \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_a4b272a4 \u2014 status=not_enough_info];\
+  \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_aa47f6bd \u2014 status=not_enough_info];\
   \ create `src/research/verify_models.py` script; document in research.md section\
   \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
   \ (boolean) (FR-002, SC-002, Phase 0.5)"
@@ -128,6 +128,11 @@
   \ create `src/research/verify_models.py` script; document in research.md section\
   \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
   \ (boolean) (FR-002, SC-002, Phase 0.5)"
+: 1
+? 'T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM
+  via HuggingFace model cards; create `src/research/verify_models.py` script; document
+  in research.md section "Model Verification" with fields: model_name, hf_id, size_mb,
+  cpu_tractable (boolean) (FR-002, SC-002, Phase 0.5)'
 : 1
 ? "T006a Implement Reference-Validator Agent in `src/validators/reference_validator.py`\
   \ with title-token-overlap \u2265 0.7 [UNRESOLVED-CLAIM: c_0d8fe0be \u2014 status=not_enough_info]\
@@ -169,10 +174,6 @@
   \ c_5b89c1f7 \u2014 status=not_enough_info]; add blocking gate for Constitution\
   \ II compliance (Constitution II, Plan Gap)"
 : 1
-? "T006a Implement Reference-Validator Agent in `src/validators/reference_validator.py`\
-  \ with title-token-overlap \u2265 0.7 check before contributing review points; add\
-  \ blocking gate for Constitution II compliance (Constitution II, Plan Gap)"
-: 1
 "T008 Initialize Python 3.11 [UNRESOLVED-CLAIM: c_31b68441 \u2014 status=not_enough_info] project with {{claim:c_9da78e09}}": 1
 "T008 Initialize Python 3.11 [UNRESOLVED-CLAIM: c_92679e95 \u2014 status=not_enough_info] project with {{claim:c_9da78e09}}": 1
 "T008 Initialize Python 3.11 [UNRESOLVED-CLAIM: c_f21aed3b \u2014 status=not_enough_info] project with {{claim:c_9da78e09}}": 1
@@ -196,9 +197,6 @@
   \ [UNRESOLVED-CLAIM: c_09293d6f \u2014 status=not_enough_info] and pyproject.toml\
   \ (black config) in repository root"
 : 1
-? 'T009 [P] Configure linting and formatting tools: ruff.toml (line-length=88, target-version=py311)
-  and pyproject.toml (black config) in repository root'
-: 1
 ? "T015 Create quickstart.md with setup instructions; include sections: (1) Prerequisites\
   \ list (Python 3.11 [UNRESOLVED-CLAIM: c_31b68441 \u2014 status=not_enough_info],\
   \ pip, git), (2) Setup commands (clone, venv, install), (3) Verification steps (run\
@@ -209,13 +207,6 @@
   \ pip, git), (2) Setup commands (clone, venv, install), (3) Verification steps (run\
   \ --help, check data/), (4) Troubleshooting common issues (US-1)"
 : 1
-? 'T015 Create quickstart.md with setup instructions; include sections: (1) {{claim:c_68a619c4}},
-  (2) Setup commands (clone, venv, install), (3) Verification steps (run --help, check
-  data/), (4) Troubleshooting common issues (US-1)'
-: 2
-? T017 Create checksum tracking infrastructure in state/projects/PROJ-573-https-arxiv-org-abs-2604-27351.yaml
-  artifact_hashes map with sha256 format (Constitution III)
-: 1
 ? "T017 Create checksum tracking infrastructure in state/projects/PROJ-573-https-arxiv-org-abs-2604-27351.yaml\
   \ artifact_hashes map with sha256 format [UNRESOLVED-CLAIM: c_bfdee63e \u2014 status=not_enough_info]\
   \ (Constitution III)"
@@ -224,6 +215,10 @@
   \ c_0819e929 \u2014 status=not_enough_info].yaml updated_at timestamp on any artifact\
   \ change; create helper function in src/utils/versioning.py with function update_artifact_timestamp(artifact_path)\
   \ (Constitution V)"
+: 1
+? T018 Update state/projects/PROJ-573-https-arxiv-org-abs-2604-27351.yaml updated_at
+  timestamp on any artifact change; create helper function in src/utils/versioning.py
+  with function update_artifact_timestamp(artifact_path) (Constitution V)
 : 1
 ? "T022 [US1] Implement dataset download with 3-retry logic [UNRESOLVED-CLAIM: c_7efb44c4\
   \ \u2014 status=not_enough_info] in src/data/download.py (FR-010); function signatures:\
@@ -243,10 +238,20 @@
   -> (path, checksum); verify URLs: UCI_HAR via `datasets.load_dataset(''UCI_HAR'')`,
   DROP/MUST via HuggingFace datasets; depends on T007/T008 complete'
 : 1
+? 'T022 [US1] Implement dataset download with 3-retry logic in src/data/download.py
+  (FR-010); function signatures: download_dataset(url, max_retries=3, timeout=300)
+  -> (path, checksum); verify URLs: UCI_HAR via `datasets.load_dataset(''UCI_HAR'')`,
+  DROP/MUST via HuggingFace datasets; depends on T007/T008 complete <!-- FAILED: unspecified
+  -->'
+: 1
 ? "T024 [US1] Implement timeout enforcement in src/utils/timeout.py (FR-006, FR-013);\
   \ function signatures: enforce_timeout(func, timeout_seconds=300 [UNRESOLVED-CLAIM:\
   \ c_1d4cac1d \u2014 status=not_enough_info]) -> result; raise TimeoutError if exceeded;\
   \ depends on T016 complete"
+: 1
+? 'T024 [US1] Implement timeout enforcement in src/utils/timeout.py (FR-006, FR-013);
+  function signatures: enforce_timeout(func, timeout_seconds=300) -> result; raise
+  TimeoutError if exceeded; depends on T016 complete'
 : 1
 ? "T024 [US1] Implement timeout enforcement in src/utils/timeout.py (FR-006, FR-013);\
   \ function signatures: enforce_timeout(func, timeout_seconds=300) [UNRESOLVED-CLAIM:\

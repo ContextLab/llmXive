@@ -3,49 +3,43 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmXive-benchmark"
+name = "llmxive-benchmark"
 version = "0.1.0"
 description = "Heterogeneous Scientific Foundation Model Collaboration Benchmark"
 readme = "README.md"
 requires-python = ">=3.11"
-license = {text = "MIT"}
 dependencies = [
     "numpy>=1.24.0",
     "pandas>=2.0.0",
-    "pyyaml>=6.0",
     "scipy>=1.10.0",
+    "pyyaml>=6.0",
     "datasets>=2.14.0",
-    "transformers>=4.30.0",
-    "tabpfn>=0.1.0",
-    "pytest>=7.0.0",
-    "ruff>=0.1.0",
+    "pytest>=7.4.0",
 ]
 
 [tool.black]
-# Black formatter configuration per task T009
 line-length = 88
-target-version = ["py311"]
+target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
+    \.eggs
+    | \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
 )/
 '''
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-python_functions = ["test_*"]
-addopts = "-v --tb=short"
+addopts = "-v"
 
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["src*", "tests*", "research*", "setup*"]
+[tool.setuptools]
+packages = ["src", "src.benchmark", "src.data", "src.evaluation", "src.models", "src.tasks", "src.utils", "src.validators", "src.research"]

@@ -1,13 +1,16 @@
-# Quickstart Guide
+# Quickstart Guide: Heterogeneous Scientific Foundation Model Collaboration Benchmark
 
-This guide provides the instructions to set up the **Heterogeneous Scientific Foundation Model Collaboration Benchmark** project and run the benchmark.
+This guide provides instructions for setting up the project environment and running the benchmark.
+Follow these steps to verify the installation and execute the analysis pipeline.
 
 ## 1. Prerequisites
 
-- **Python**: Version 3.11 or higher is required.
-- **System**: Linux, macOS, or Windows (WSL2 recommended).
-- **Memory**: Minimum 4GB RAM (8GB recommended for full benchmark runs).
-- **Disk**: At least 2GB of free space for dependencies and datasets.
+Ensure your environment meets the following requirements:
+
+- **Python**: Version 3.11 or higher
+- **Package Manager**: `pip` (bundled with Python)
+- **Operating System**: Linux, macOS, or Windows (WSL recommended for Linux tools)
+- **Disk Space**: At least 5GB free space for datasets and dependencies
 
 ## 2. Setup Commands
 
@@ -17,106 +20,129 @@ Follow these steps to clone the repository, create a virtual environment, and in
 
 ```bash
 git clone
-cd PROJ-573-https-arxiv-org-abs-2604-27351
+cd llmXive/projects/PROJ-573-https-arxiv-org-abs-2604-27351
 ```
 
-### 2.2 Create Virtual Environment
+### 2.2 Create a Virtual Environment
+
+It is recommended to use a virtual environment to isolate dependencies.
 
 ```bash
-python3.11 -m venv.venv
-source.venv/bin/activate # On Windows:.venv\Scripts\activate
+# Create a virtual environment named '.venv'
+python -m venv.venv
+
+# Activate the virtual environment
+# On macOS/Linux:
+source.venv/bin/activate
+# On Windows:
+#.venv\Scripts\activate
 ```
 
 ### 2.3 Install Dependencies
+
+Install the required packages from the project's requirements file.
 
 ```bash
 pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
+*Note: If `requirements.txt` is not present in the root, ensure you have completed Task T008 (Initialize Python project).*
+
 ## 3. Verification Steps
 
-Ensure the installation was successful by running the following checks.
+Before running the full benchmark, verify that the installation is successful and the environment is configured correctly.
 
-### 3.1 Verify CLI Help
+### 3.1 Check CLI Help
 
-Run the main benchmark script with the help flag to ensure the entry point is registered correctly.
+Verify that the main entry point is executable and can parse arguments.
 
 ```bash
 python code/src/benchmark/run_benchmark.py --help
 ```
 
-Expected output should list arguments like `--config`, `--mode`, and `--seeds`.
+You should see a list of available arguments including `--config`, `--mode`, and `--seeds`.
 
 ### 3.2 Verify Data Directory
 
-Ensure the required data directories exist. The project structure expects the following:
+Ensure the data directories exist. If they are empty, you may need to run the download scripts (Task T022).
 
 ```bash
 ls -la code/data/
 ls -la code/data/processed/
 ```
 
-If directories are missing, the setup script `code/setup_project_structure.py` can be run to create them:
+Expected structure:
+- `code/data/`
+- `code/data/processed/`
+- `code/state/`
+
+### 3.3 Run a Quick Test (Single Task)
+
+Run a single task to verify the pipeline connectivity without executing the full benchmark.
 
 ```bash
-python code/setup_project_structure.py
+# Example: Run task T001 with a short timeout
+python code/src/benchmark/run_task.py --task-id T001
 ```
 
-### 3.3 Verify Configuration Loading
-
-Run a dry-run of the benchmark to verify that the default configuration loads without errors.
-
-```bash
-python code/src/benchmark/run_benchmark.py --config code/src/benchmark/config/default.yaml
-```
-
-*Note: This command may fail if datasets are not yet downloaded (see Phase 0 tasks), but it should not fail due to missing configuration files or syntax errors.*
+If successful, you should see log output indicating the task status and potentially a result file in `code/data/`.
 
 ## 4. Troubleshooting Common Issues
 
-### 4.1 `ModuleNotFoundError`
+### 4.1 Module Import Errors
 
-If you see errors like `ModuleNotFoundError: No module named 'src'`, ensure you are running commands from the project root (`code/`) and that the virtual environment is activated.
-
-**Solution:**
+**Symptom**: `ModuleNotFoundError: No module named 'src'` or similar.
+**Solution**: Ensure you are running the script from the project root (`code/` directory in this repo structure) and that the virtual environment is activated.
 ```bash
-cd code
-source.venv/bin/activate
-python -m src.benchmark.run_benchmark --help
+export PYTHONPATH="${PYTHONPATH}:$(pwd)/code"
 ```
 
-### 4.2 `FileNotFoundError` for Config
+### 4.2 Dataset Download Failures
 
-If the benchmark fails to find `default.yaml`:
+**Symptom**: `ConnectionError` or `Timeout` when running download scripts.
+**Solution**:
+- Check your internet connection.
+- Verify that the HuggingFace datasets library is installed: `pip install datasets`.
+- If running behind a proxy, configure `HTTP_PROXY` and `HTTPS_PROXY` environment variables.
 
-1. Verify the file exists at `code/src/benchmark/config/default.yaml`.
-2. Ensure the path passed to `--config` is relative to the `code/` directory.
+### 4.3 TaskRunner Configuration Errors
 
-### 4.3 Dataset Download Failures
+**Symptom**: `TypeError: TaskRunner.__init__() got an unexpected keyword argument 'config'`.
+**Solution**: This indicates a version mismatch between the caller and the `TaskRunner` implementation. Ensure you have updated `code/src/tasks/task_runner.py` to accept the `config` argument or use the updated version from the latest commit. The current implementation should support flexible initialization.
 
-If the benchmark fails during the dataset download phase:
+### 4.4 Memory Issues
 
-1. Check your internet connection.
-2. Ensure you have sufficient disk space.
-3. Verify the dataset availability by running the verification scripts in `code/src/research/`.
+**Symptom**: `MemoryError` during model loading or inference.
+**Solution**: The benchmark is designed for CPU-tractable models (< 1GB). If you encounter memory issues:
+- Ensure no other heavy applications are running.
+- Check that the correct model weights (distilled/quantized versions) are being loaded.
+- Verify the `max_memory_gb` settings in `code/src/benchmark/config/modalities/*.yaml`.
 
-### 4.4 TaskRunner Initialization Errors
+### 4.5 Timeout Errors
 
-If you encounter `TypeError: TaskRunner.__init__() got an unexpected keyword argument`:
+**Symptom**: `TimeoutError` during task execution.
+**Solution**: The default timeout per task is 300 seconds. If a task legitimately requires more time, update the `timeout_per_task` parameter in `code/src/benchmark/config/default.yaml`.
 
-This indicates a mismatch between the caller and the `TaskRunner` definition. Ensure you are using the latest version of `code/src/tasks/task_runner.py` which includes a tolerant `__init__` signature accepting `**kwargs`.
+## 5. Running the Full Benchmark
 
-### 4.5 YAML Parsing Errors
+Once verification is complete, you can run the full benchmark.
 
-If you see `yaml.scanner.ScannerError`:
+```bash
+# Run with default configuration (Heterogeneous mode)
+python code/src/benchmark/run_benchmark.py --config code/src/benchmark/config/default.yaml
 
-1. Open the failing YAML file (e.g., `task_definitions.yaml`).
-2. Check for indentation inconsistencies or unquoted strings that look like special characters.
-3. Run `python -c "import yaml; yaml.safe_load(open('path/to/file'))"` to validate syntax.
+# Run in Unified mode (Text-only translation)
+python code/src/benchmark/run_benchmark.py --config code/src/benchmark/config/default.yaml --mode unified
+```
 
-## 5. Next Steps
+Results will be saved to:
+- `code/data/results.csv`
+- `code/data/summary.pdf`
+- `code/state/artifact_hashes.yaml` (for integrity tracking)
 
-Once verification is complete, proceed to **Phase 0: Research & Dataset Verification** to ensure all required datasets and models are available before running the full benchmark.
+## 6. Next Steps
 
-For detailed task lists and user stories, refer to `tasks.md`.
+- Review `code/research/research.md` for dataset verification details.
+- Check `code/specs/001-https-arxiv-org-abs-2604-27351/` for the full specification.
+- Run the test suite: `pytest code/tests/`
