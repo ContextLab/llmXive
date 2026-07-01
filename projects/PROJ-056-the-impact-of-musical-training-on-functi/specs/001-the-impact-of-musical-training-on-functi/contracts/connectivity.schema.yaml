@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Connectivity Matrix Schema"
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Link to the subject"
+  atlas:
+    type: "string"
+    description: "Name of the parcellation atlas"
+  n_rois:
+    type: "integer"
+    minimum: 1
+    description: "Number of regions of interest"
+  z_matrix:
+    type: "array"
+    items:
+      type: "array"
+      items:
+        type: "number"
+    description: "Symmetric matrix of Fisher z-transformed correlations"
+  networks:
+    type: "object"
+    description: "Mapping of network names to ROI indices"
+    additionalProperties:
+      type: "array"
+      items:
+        type: "integer"
+required:
+  - subject_id
+  - atlas
+  - n_rois
+  - z_matrix
+  - networks
+additionalProperties: false

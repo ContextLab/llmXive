@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Subject Schema"
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique identifier for the subject"
+  group:
+    type: "string"
+    enum:
+      - "musician"
+      - "non_musician"
+    description: "Group assignment based on musical training"
+  years_of_training:
+    type: "number"
+    minimum: 0.0
+    description: "Years of musical training. 0.0 for non-musicians."
+  age:
+    type: "number"
+    description: "Age of the subject in years"
+  sex:
+    type: "string"
+    enum:
+      - "M"
+      - "F"
+    description: "Sex of the subject"
+  motion_score:
+    type: "number"
+    description: "Head motion metric (e.g., FD)"
+  ses_score:
+    type: "number"
+    description: "Socioeconomic status proxy score"
+required:
+  - subject_id
+  - group
+  - years_of_training
+  - age
+  - sex
+  - motion_score
+  - ses_score
+additionalProperties: false

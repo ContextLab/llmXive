@@ -1,0 +1,52 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Result Schema"
+type: "object"
+properties:
+  connection_id:
+    type: "string"
+    description: "Identifier for the connection (e.g., ROI1_ROI2)"
+  network:
+    type: "string"
+    description: "Network to which the connection belongs"
+  test_statistic:
+    type: "number"
+    description: "t-statistic value"
+  p_value:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Uncorrected p-value"
+  q_value:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "FDR-corrected q-value"
+  effect_size:
+    type: "number"
+    description: "Cohen's d effect size"
+  confidence_interval:
+    type: "array"
+    items:
+      type: "number"
+    minItems: 2
+    maxItems: 2
+    description: "95% confidence interval [lower, upper]"
+  is_significant:
+    type: "boolean"
+    description: "True if q_value < 0.05"
+  threshold_sensitivity:
+    type: "object"
+    description: "Significance status at different thresholds"
+    additionalProperties:
+      type: "boolean"
+required:
+  - connection_id
+  - network
+  - test_statistic
+  - p_value
+  - q_value
+  - effect_size
+  - confidence_interval
+  - is_significant
+  - threshold_sensitivity
+additionalProperties: false

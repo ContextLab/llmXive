@@ -1,0 +1,22 @@
+- artifact_hash: e24b1aa86a027183c4f7929e74ef65cbbd1e446ac77f3819d61b3d8c7812538a
+  artifact_path: projects/PROJ-056-the-impact-of-musical-training-on-functi/specs/001-the-impact-of-musical-training-on-functi/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: fdjis.zip
+  kind: url
+  value: https://huggingface.co/datasets/g4849d/abcde/resolve/main/fdjis.zip`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/641adbbe1b6ca4151d9a3ce9/9bfe0cd5be17ad3dffd015b700d2733f3694a11ee65ed4957548e433cc4b8098?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27fdjis.zip%3B+filename%3D%22fdjis.zip%22%3B&response-content-type=application%2Fzip&user_id=public&Expires=1782889618&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQxYWRiYmUxYjZjYTQxNTFkOWEzY2U5LzliZmUwY2Q1YmUxN2FkM2RmZmQwMTViNzAwZDI3MzNmMzY5NGExMWVlNjVlZDQ5NTc1NDhlNDMzY2M0YjgwOThcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZmRqaXMuemlwJTNCK2ZpbGVuYW1lJTNEJTIyZmRqaXMuemlwJTIyJTNCJnJlc3BvbnNlLWNvbnRlbnQtdHlwZT1hcHBsaWNhdGlvbiUyRnppcCZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyODg5NjE4fX19XX0_&Signature=MEUCICFmG38NbibNTU1K9Bwdb9K7tZrZTPEgTXRemO09r2SZAiEAqkDDpx30cd0UVezNcYUc9ZEwiGtm0UOnCCb24l%7EL0y0_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-01T06:06:58.007554Z'
+- artifact_hash: e24b1aa86a027183c4f7929e74ef65cbbd1e446ac77f3819d61b3d8c7812538a
+  artifact_path: projects/PROJ-056-the-impact-of-musical-training-on-functi/specs/001-the-impact-of-musical-training-on-functi/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: "7eu7d7/HCP-Diffusion-datas \xB7 Datasets at Hugging Face"
+  kind: url
+  value: https://huggingface.co/datasets/7eu7d7/HCP-Diffusion-datas/...`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/datasets/7eu7d7/HCP-Diffusion-datas
+  verified_at: '2026-07-01T06:06:58.007554Z'
