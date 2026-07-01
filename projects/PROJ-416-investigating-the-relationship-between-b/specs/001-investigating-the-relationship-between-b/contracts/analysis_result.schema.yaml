@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Result Schema"
+type: "object"
+description: "Schema for statistical analysis results."
+required:
+  - result_id
+  - metric_type
+  - coefficient
+  - p_value_uncorrected
+  - p_value_corrected
+  - effect_size
+  - model_type
+properties:
+  result_id:
+    type: "string"
+    description: "Unique identifier for the result."
+  metric_type:
+    type: "string"
+    enum: ["modularity", "global_efficiency", "local_efficiency"]
+    description: "Type of network metric tested."
+  coefficient:
+    type: "number"
+    description: "Regression coefficient."
+  p_value_uncorrected:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Uncorrected p-value."
+  p_value_corrected:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Multiple-comparison corrected p-value (Bonferroni/FDR)."
+  effect_size:
+    type: "number"
+    description: "Effect size (Cohen's d)."
+  model_type:
+    type: "string"
+    enum: ["ANCOVA_State", "Linear_Exploratory", "Delta_Delta_Exploratory"]
+    description: "Statistical model used (Primary: State, Secondary: Response, Tertiary: Delta-Delta)."
+  is_significant:
+    type: "boolean"
+    description: "True if corrected p-value < 0.05."
+  framing:
+    type: "string"
+    enum: ["associational", "causal"]
+    description: "Framing of the result based on study design."
+  collinearity_flag:
+    type: "boolean"
+    description: "True if VIF > 5 was detected (Ridge not used)."
+additionalProperties: false

@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Network Metric Schema"
+type: "object"
+description: "Schema for computed brain network metrics."
+required:
+  - subject_id
+  - timepoint
+  - atlas
+  - modularity_q
+  - global_efficiency
+  - local_efficiency
+properties:
+  subject_id:
+    type: "string"
+    description: "Foreign key to Subject."
+  timepoint:
+    type: "string"
+    enum: ["pre", "post"]
+    description: "Timepoint of the scan."
+  atlas:
+    type: "string"
+    description: "Parcellation atlas used (e.g., 'Schaefer100', 'AAL')."
+  modularity_q:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Modularity Q value."
+  global_efficiency:
+    type: "number"
+    minimum: 0
+    description: "Global efficiency value."
+  local_efficiency:
+    type: "number"
+    minimum: 0
+    description: "Local efficiency value."
+  valid:
+    type: "boolean"
+    description: "True if metrics are within bounds and not NaN."
+additionalProperties: false

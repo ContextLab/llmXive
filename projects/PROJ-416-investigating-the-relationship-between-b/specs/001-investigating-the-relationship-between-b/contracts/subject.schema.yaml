@@ -1,0 +1,60 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Subject Metadata Schema"
+type: "object"
+description: "Schema for validated subject metadata including clinical scores and motion metrics."
+required:
+  - subject_id
+  - pre_treatment_score
+  - post_treatment_score
+  - instrument_name
+  - motion_metrics
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique identifier for the subject."
+  age:
+    type: "integer"
+    minimum: 18
+    description: "Age of the subject in years."
+  sex:
+    type: "string"
+    enum: ["M", "F", "Other", "Unknown"]
+  medication_status:
+    type: "string"
+    description: "Current medication status (e.g., None, SSRI)."
+  pre_treatment_score:
+    type: "number"
+    description: "Anxiety score before treatment (e.g., GAD-7)."
+  post_treatment_score:
+    type: "number"
+    description: "Anxiety score after treatment."
+  instrument_name:
+    type: "string"
+    description: "Name of the clinical instrument used (e.g., 'GAD-7', 'HAM-A')."
+  motion_metrics:
+    type: "object"
+    required:
+      - mean_fd
+      - max_translation
+      - max_rotation
+    properties:
+      mean_fd:
+        type: "number"
+        description: "Mean Framewise Displacement."
+      max_translation:
+        type: "number"
+        description: "Maximum translation in mm."
+      min_translation:
+        type: "number"
+        description: "Minimum translation in mm."
+      max_rotation:
+        type: "number"
+        description: "Maximum rotation in degrees."
+  exclusion_reason:
+    type: ["string", "null"]
+    description: "Reason for exclusion if any (e.g., 'Excessive motion')."
+  checksum:
+    type: "string"
+    pattern: "^[a-f0-9]{64}$"
+    description: "SHA256 checksum of the raw data file."
+additionalProperties: false
