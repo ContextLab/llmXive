@@ -55,7 +55,7 @@ The system MUST aggregate the results of the executed tasks and generate a valid
 ### Edge Cases
 
 - **What happens when API keys are missing?** The system MUST detect missing environment variables (e.g., `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`) and fail gracefully with a clear error message instructing the user to set them, rather than crashing with a generic `KeyError`.
-- **How does the system handle sandbox timeout?** If a task exceeds the 6-hour CI limit or a specific task timeout (e.g., 30 mins), the runner MUST terminate the specific task, log a `TIMEOUT` status, and proceed to the next task (if any) or exit cleanly, rather than hanging the entire CI job.
+- **How does the system handle sandbox timeout?** If a task exceeds the 6-hour CI limit or a specific task timeout (e.g., 60 mins), the runner MUST terminate the specific task, log a `TIMEOUT` status, and proceed to the next task (if any) or exit cleanly, rather than hanging the entire CI job.
 - **What happens if the submodule is corrupted?** The initialization step MUST verify the integrity of the git submodule and fail immediately with a descriptive error if the `external/agents-last-exam` directory is incomplete.
 
 ## Requirements
@@ -69,6 +69,7 @@ The system MUST aggregate the results of the executed tasks and generate a valid
 - **FR-005**: System MUST produce a `validation_report.md` that aggregates task outcomes and compares them against the paper's stated metrics (See US-3).
 - **FR-006**: System MUST enforce a per-task timeout of ≤ 60 minutes to ensure CI feasibility (See US-2).
 - **FR-007**: System MUST handle sandbox provisioning failures by logging the error and marking the task as "FAILED" rather than crashing the runner (See US-2).
+- **FR-008**: System MUST run exclusively on CPU without requiring CUDA, GPU acceleration, or 8-bit/4-bit quantization libraries that depend on GPU hardware (See US-2, Assumption: Compute Limits).
 
 ### Key Entities
 
@@ -88,6 +89,7 @@ The system MUST aggregate the results of the executed tasks and generate a valid
 - **SC-003**: Execution time per task is measured against the CI constraint of ≤ 6 hours total job time and ≤ 60 minutes per task (See FR-006, US-2).
 - **SC-004**: Error handling efficacy is measured by the absence of unhandled exceptions (Python tracebacks) during the runner's lifecycle (See FR-004, FR-007, US-1).
 - **SC-005**: Validation report fidelity is measured by the presence of a direct, explicit comparison statement between observed results and paper claims (See FR-005, US-3).
+- **SC-006**: Compute feasibility is measured by the successful completion of the run on a GitHub Actions free-tier runner (2 CPU, ~7 GB RAM) without GPU allocation errors (See FR-008, US-2).
 
 ## Assumptions
 
@@ -96,3 +98,4 @@ The system MUST aggregate the results of the executed tasks and generate a valid
 - **Assumption about Task Selection**: The reproduction assumes that running a single representative task (e.g., `ar_full_300`) is sufficient to validate the codebase's execution logic, as running the full 1K+ task suite is computationally infeasible on free-tier CI.
 - **Assumption about Paper Claims**: The validation report assumes the paper's stated "[deferred] pass rate" applies to the specific "hardest tier" of tasks, and the reproduction will focus on tasks within that tier if identifiable.
 - **Assumption about Compute Limits**: The analysis assumes that the `ale_run` codebase is compatible with CPU-only execution for the sandbox and agent orchestration layers, as the project is constrained to free-tier GitHub Actions resources (no GPU).
+- **Assumption about Network**: The system assumes the runner has outbound internet access to clone the git submodule and pull Docker images, but does not require access to external proprietary databases beyond what is provided in the task definitions.

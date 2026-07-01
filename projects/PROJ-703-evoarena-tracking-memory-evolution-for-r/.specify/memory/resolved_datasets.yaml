@@ -1,0 +1,362 @@
+resolved_at: '2026-07-01T06:59:48.676050+00:00'
+datasets:
+- intent: EvoMem
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://acquire.cqu.edu.au/articles/journal_contribution/Exploring_the_Cyber_Technology_Critical_Success_Factors_for_Sustainable_Building_Projects_A_Stationary_Analysis_Approach/32844869
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Wedelactone-loaded_exosomes_for_sepsis-induced_liver_injury_a_novel_therapeutic_strategy/32844801
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Contributions_and_Limitations_of_Lokomat_sup_sup_on_Gait_Rehabilitation_of_Children_With_Cerebral_Palsy_A_Systematic_Review/32844867
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/_b_A_Study_and_Design_of_Food_Storage_Containers_for_Portion_Control_and_Refrigerator_Organization_A_Case_Study_of_Office_Workers_at_Maitreechit888_Co_Ltd_b_/32844824
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Application-driven_pedagogical_knowledge_optimization_of_open-source_LLMs_via_reinforcement_learning_and_supervised_fine-tuning_pdf/32844860
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.13681
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2511.01912
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: TerminalBench
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/harborframework/terminal-bench-2.0/resolve/main/multi-source-data-merger/environment/data/source_c/users.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 3639
+      parsed: true
+  - url: https://huggingface.co/datasets/wufeiwu/Terminal-Bench-Evo/resolve/main/multi-source-data-merger/environment/data/source_c/users.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 3639
+      parsed: true
+  - url: https://huggingface.co/datasets/mlfoundations-dev/terminal-bench-traces-local/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/harborframework/terminal-bench-2.0/resolve/main/multi-source-data-merger/environment/data/source_c/users.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/wufeiwu/Terminal-Bench-Evo/resolve/main/multi-source-data-merger/environment/data/source_c/users.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/mlfoundations-dev/terminal-bench-traces-local/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ia03/terminal-bench/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acquire.cqu.edu.au/articles/journal_contribution/Exploring_the_Cyber_Technology_Critical_Success_Factors_for_Sustainable_Building_Projects_A_Stationary_Analysis_Approach/32844869
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Wedelactone-loaded_exosomes_for_sepsis-induced_liver_injury_a_novel_therapeutic_strategy/32844801
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Contributions_and_Limitations_of_Lokomat_sup_sup_on_Gait_Rehabilitation_of_Children_With_Cerebral_Palsy_A_Systematic_Review/32844867
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/_b_A_Study_and_Design_of_Food_Storage_Containers_for_Portion_Control_and_Refrigerator_Organization_A_Case_Study_of_Office_Workers_at_Maitreechit888_Co_Ltd_b_/32844824
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Application-driven_pedagogical_knowledge_optimization_of_open-source_LLMs_via_reinforcement_learning_and_supervised_fine-tuning_pdf/32844860
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18568843
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19819492
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19688476
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20043827
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20592878
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.17930
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.00579
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2605.20251
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2605.24517
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2605.16604
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: PersonaMem
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/bowen-upenn/PersonaMem-v1/resolve/main/questions_128k.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/bowen-upenn/PersonaMem-v2-parquet/resolve/main/implicit_persona_benchmark/benchmark_text_32k.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/MemoryAsModality/PersonaMem-v2/resolve/main/persona_0/train.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/bowen-upenn/PersonaMem-v1/resolve/main/questions_128k.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/68a6354311d4d9eae55941dc/bda17fa2082f3b64864e639dab4222e98097d2dc75aff7f43b7c2f2d4206f4f9?X-Xet-Cas-Uid=public&response-content-type=text%2Fcsv&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27benchmark.csv%3B+filename%3D%22benchmark.csv%22%3B&user_id=public&Expires=1782892703&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjhhNjM1NDMxMWQ0ZDllYWU1NTk0MWRjL2JkYTE3ZmEyMDgyZjNiNjQ4NjRlNjM5ZGFiNDIyMmU5ODA5N2QyZGM3NWFmZjdmNDNiN2MyZjJkNDIwNmY0ZjlcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3YmVuY2htYXJrLmNzdiUzQitmaWxlbmFtZSUzRCUyMmJlbmNobWFyay5jc3YlMjIlM0ImdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4Mjg5MjcwM319fV19&Signature=MEYCIQDIs26KhCNBVQOkKYynutqp4phANFOOfok9LLN8DEegbgIhAKeBEdOcw8NGVOIlMvuLOda~zTOqBCIr4TWeP9amcjSf&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/68543c7a24ed33e1cd0d183a/9d484db8656c5a0945eca826b0bcd7e2eb3fc5cdc6ceaad1a2b139b6f2bcf6dc?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27shared_contexts_128k.jsonl%3B+filename%3D%22shared_contexts_128k.jsonl%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1782892705&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjg1NDNjN2EyNGVkMzNlMWNkMGQxODNhLzlkNDg0ZGI4NjU2YzVhMDk0NWVjYTgyNmIwYmNkN2UyZWIzZmM1Y2RjNmNlYWFkMWEyYjEzOWI2ZjJiY2Y2ZGNcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3c2hhcmVkX2NvbnRleHRzXzEyOGsuanNvbmwlM0IrZmlsZW5hbWUlM0QlMjJzaGFyZWRfY29udGV4dHNfMTI4ay5qc29ubCUyMiUzQiZ1c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyODkyNzA1fX19XX0_&Signature=MEUCIQCv~teLI9kHdPvlGRlqUy0i7E9W9scMQZD1uXQf62limQIgJQqDEd6VKt2TIYH2HMdfsUg4FPxicUfsDi13eiwI~qE_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/bowen-upenn/PersonaMem-v2-parquet/resolve/main/implicit_persona_benchmark/benchmark_text_32k.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/MemoryAsModality/PersonaMem-v2/resolve/main/persona_0/train.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acquire.cqu.edu.au/articles/journal_contribution/Exploring_the_Cyber_Technology_Critical_Success_Factors_for_Sustainable_Building_Projects_A_Stationary_Analysis_Approach/32844869
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Wedelactone-loaded_exosomes_for_sepsis-induced_liver_injury_a_novel_therapeutic_strategy/32844801
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Contributions_and_Limitations_of_Lokomat_sup_sup_on_Gait_Rehabilitation_of_Children_With_Cerebral_Palsy_A_Systematic_Review/32844867
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/_b_A_Study_and_Design_of_Food_Storage_Containers_for_Portion_Control_and_Refrigerator_Organization_A_Case_Study_of_Office_Workers_at_Maitreechit888_Co_Ltd_b_/32844824
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Application-driven_pedagogical_knowledge_optimization_of_open-source_LLMs_via_reinforcement_learning_and_supervised_fine-tuning_pdf/32844860
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.20911
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.09483
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2510.16392
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2603.16496
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2604.13074
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-only
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acquire.cqu.edu.au/articles/journal_contribution/Exploring_the_Cyber_Technology_Critical_Success_Factors_for_Sustainable_Building_Projects_A_Stationary_Analysis_Approach/32844869
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Wedelactone-loaded_exosomes_for_sepsis-induced_liver_injury_a_novel_therapeutic_strategy/32844801
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Contributions_and_Limitations_of_Lokomat_sup_sup_on_Gait_Rehabilitation_of_Children_With_Cerebral_Palsy_A_Systematic_Review/32844867
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/_b_A_Study_and_Design_of_Food_Storage_Containers_for_Portion_Control_and_Refrigerator_Organization_A_Case_Study_of_Office_Workers_at_Maitreechit888_Co_Ltd_b_/32844824
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Application-driven_pedagogical_knowledge_optimization_of_open-source_LLMs_via_reinforcement_learning_and_supervised_fine-tuning_pdf/32844860
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.11591/eei.v9i2.1972
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''beei.org'',
+      port=443): Max retries exceeded with url: /index.php/EEI/article/view/1972 (Caused
+      by ConnectTimeoutError(<HTTPSConnection(host=''beei.org'', port=443) at 0x7f3f9035cc10>,
+      ''Connection to beei.org timed out. (connect timeout=20.0)''))'
+  - url: https://zenodo.org/records/6127654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21094778
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21094778
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21092258
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21092258
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.30553
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-compatible
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://acquire.cqu.edu.au/articles/journal_contribution/Exploring_the_Cyber_Technology_Critical_Success_Factors_for_Sustainable_Building_Projects_A_Stationary_Analysis_Approach/32844869
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Wedelactone-loaded_exosomes_for_sepsis-induced_liver_injury_a_novel_therapeutic_strategy/32844801
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Contributions_and_Limitations_of_Lokomat_sup_sup_on_Gait_Rehabilitation_of_Children_With_Cerebral_Palsy_A_Systematic_Review/32844867
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/thesis/_b_A_Study_and_Design_of_Food_Storage_Containers_for_Portion_Control_and_Refrigerator_Organization_A_Case_Study_of_Office_Workers_at_Maitreechit888_Co_Ltd_b_/32844824
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Application-driven_pedagogical_knowledge_optimization_of_open-source_LLMs_via_reinforcement_learning_and_supervised_fine-tuning_pdf/32844860
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12770771
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3810211
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20988950
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20988950
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17106263
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17106263
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20723007
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

@@ -1,0 +1,47 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Validation Report Schema
+description: Schema for the aggregated validation report (validation_report.md content).
+type: object
+required:
+  - report_date
+  - tasks_executed
+  - total_tasks
+  - passed_count
+  - failed_count
+  - pass_rate
+  - comparison_statement
+properties:
+  report_date:
+    type: string
+    format: date
+    description: "Date of report generation"
+  tasks_executed:
+    type: array
+    items:
+      type: string
+    description: "List of task IDs executed"
+  total_tasks:
+    type: integer
+    description: "Total number of tasks executed"
+  passed_count:
+    type: integer
+    description: "Number of tasks that passed"
+  failed_count:
+    type: integer
+    description: "Number of tasks that failed"
+  timeout_count:
+    type: integer
+    description: "Number of tasks that timed out"
+  pass_rate:
+    type: number
+    description: "Calculated pass rate (passed / total). Note: With N=1, this is 0.0 or 1.0."
+  paper_claim_pass_rate:
+    type: string
+ description: "The value stated in the paper (e.g., '[deferred]')"
+  comparison_statement:
+    type: string
+    description: "Text describing the alignment or discrepancy, explicitly noting the N=1 limitation."
+  limitations:
+    type: string
+    description: "Text describing sample size and constraints (e.g., 'N=1, no statistical inference')."
+additionalProperties: false

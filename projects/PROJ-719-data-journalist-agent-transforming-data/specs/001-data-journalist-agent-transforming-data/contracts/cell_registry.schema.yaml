@@ -1,0 +1,51 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Cell Registry Schema
+description: Schema for the cell_registry.json artifact mapping story claims to data evidence.
+type: object
+properties:
+  claims:
+    type: array
+    items:
+      type: object
+      properties:
+        claim_id:
+          type: string
+          description: "Unique identifier for the claim."
+        claim_text:
+          type: string
+          description: "The text of the factual claim."
+        source_type:
+          type: string
+          enum: ["data_cell", "code_block", "external_reference"]
+          description: "Type of evidence source."
+        source_id:
+          type: string
+          description: "Identifier pointing to the specific cell, line, or reference."
+        confidence_score:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: "Confidence score of the mapping (0-1)."
+      required:
+        - claim_id
+        - claim_text
+        - source_type
+        - source_id
+  metadata:
+    type: object
+    properties:
+      scenario_id:
+        type: string
+      generated_at:
+        type: string
+        format: date-time
+      total_claims:
+        type: integer
+      total_mapped:
+        type: integer
+    required:
+      - scenario_id
+      - generated_at
+required:
+  - claims
+  - metadata

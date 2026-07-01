@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-13T09:06:29.907913Z'
-current_stage: paper_ingested
+current_stage: in_progress
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-703-evoarena-tracking-memory-evolution-for-r
-last_run_id: 4aed17f3-f385-4c2c-8ba9-f3271580ba28
+last_run_id: 9910ee7d-8ddd-48a1-bfac-9e42d3b5e797
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-703-evoarena-tracking-memory-evolution-for-r/specs/001-evoarena-tracking-memory-evolution-for-r
 title: 'EvoArena: Tracking Memory Evolution for Robust LLM Agents in Dynamic Environments'
-updated_at: '2026-06-30T17:12:11.684562Z'
+updated_at: '2026-07-01T07:17:13.049887Z'

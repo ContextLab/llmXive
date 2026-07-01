@@ -82,9 +82,6 @@
 [submodule "projects/PROJ-667-https-arxiv-org-abs-2606-05259/external/VideoKR"]
 	path = projects/PROJ-667-https-arxiv-org-abs-2606-05259/external/VideoKR
 	url = https://github.com/Fu-Fu-Fu-Fu/VideoKR
-[submodule "projects/PROJ-688-agents-last-exam/external/agents-last-exam"]
-	path = projects/PROJ-688-agents-last-exam/external/agents-last-exam
-	url = https://github.com/rdi-berkeley/agents-last-exam
 [submodule "projects/PROJ-700-spatialclaw-rethinking-action-interface/external/SpatialClaw"]
 	path = projects/PROJ-700-spatialclaw-rethinking-action-interface/external/SpatialClaw
 	url = https://github.com/NVlabs/SpatialClaw
@@ -148,3 +145,12 @@
 [submodule "projects/PROJ-806-scaling-the-horizon-not-the-parameters-r/external/Agents-A1"]
 	path = projects/PROJ-806-scaling-the-horizon-not-the-parameters-r/external/Agents-A1
 	url = https://github.com/InternScience/Agents-A1
+[submodule "projects/PROJ-688-agents-last-exam/external/agents-last-exam"]
+	path = projects/PROJ-688-agents-last-exam/external/agents-last-exam
+	url = https://github.com/rdi-berkeley/agents-last-exam
+[submodule "projects/PROJ-719-data-journalist-agent-transforming-data/external/data2story-skill"]
+	path = projects/PROJ-719-data-journalist-agent-transforming-data/external/data2story-skill
+	url = https://github.com/QinghongLin/data2story-skill
+[submodule "projects/PROJ-703-evoarena-tracking-memory-evolution-for-r/external/EvoArena"]
+	path = projects/PROJ-703-evoarena-tracking-memory-evolution-for-r/external/EvoArena
+	url = https://github.com/Aiden0526/EvoArena

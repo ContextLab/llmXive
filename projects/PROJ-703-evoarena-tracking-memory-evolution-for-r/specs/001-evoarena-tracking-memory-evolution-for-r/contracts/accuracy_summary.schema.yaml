@@ -1,0 +1,72 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Accuracy Summary Schema"
+description: "Schema for the aggregated accuracy metrics comparing Baseline and EvoMem. Note: This is a descriptive comparison only; no statistical significance is claimed."
+type: "object"
+required:
+  - "terminal_bench"
+  - "persona_mem"
+  - "generated_at"
+properties:
+  generated_at:
+    type: "string"
+    format: "date-time"
+    description: "Timestamp of summary generation."
+  terminal_bench:
+    type: "object"
+    required:
+      - "baseline_accuracy"
+      - "evomem_accuracy"
+      - "chain_count"
+      - "comparison_status"
+    properties:
+      baseline_accuracy:
+        type: "number"
+        description: "Observed average accuracy of the baseline agent."
+      evomem_accuracy:
+        type: "number"
+        description: "Observed average accuracy of the EvoMem agent."
+      chain_count:
+        type: "integer"
+        description: "Number of chains evaluated."
+      chain_level_gain:
+        type: "number"
+        description: "Difference in chain-level accuracy (EvoMem - Baseline)."
+      comparison_status:
+        type: "string"
+        enum: ["match", "drift_detected", "insufficient_data"]
+        description: "Status of comparison against reference values (descriptive only)."
+  persona_mem:
+    type: "object"
+    required:
+      - "baseline_accuracy"
+      - "evomem_accuracy"
+      - "chain_count"
+      - "comparison_status"
+    properties:
+      baseline_accuracy:
+        type: "number"
+        description: "Observed average accuracy of the baseline agent."
+      evomem_accuracy:
+        type: "number"
+        description: "Observed average accuracy of the EvoMem agent."
+      chain_count:
+        type: "integer"
+        description: "Number of chains evaluated."
+      chain_level_gain:
+        type: "number"
+        description: "Difference in chain-level accuracy (EvoMem - Baseline)."
+      comparison_status:
+        type: "string"
+        enum: ["match", "drift_detected", "insufficient_data"]
+        description: "Status of comparison against reference values (descriptive only)."
+  validation_status:
+    type: "string"
+    enum: ["passed", "failed", "partial"]
+    description: "Result of the artifact integrity check."
+  notes:
+    type: "string"
+    description: "Any additional notes on the run (e.g., API limits hit, statistical limitations)."
+  statistical_limitation:
+    type: "string"
+    description: "Explicit disclaimer that no statistical significance is claimed due to small sample size."
+    default: "Descriptive statistics only. No inferential statistics performed due to N=5."

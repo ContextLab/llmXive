@@ -1,0 +1,208 @@
+resolved_at: '2026-07-01T06:26:12.060171+00:00'
+datasets:
+- intent: NEEDS
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/bhaskars113/diageo-needs-theme-classification/resolve/main/test_data_with_label.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 15311
+      parsed: true
+  - url: https://huggingface.co/datasets/elgui/drafting_needs/resolve/main/drafting_needs_messages.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 28137
+      parsed: true
+  - url: https://huggingface.co/datasets/Gopher-Lab/huberman_lab_GUEST_SERIES__Dr._Matt_Walker_The_Biology_of_Sleep__Your_Unique_Sleep_Needs/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 93834
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/bsen26/jtbd-needs/resolve/main/diageo_super_premium_final(40k)_c.csv
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/bhaskars113/diageo-needs-theme-classification/resolve/main/test_data_with_label.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/elgui/drafting_needs/resolve/main/drafting_needs_messages.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/Gopher-Lab/huberman_lab_GUEST_SERIES__Dr._Matt_Walker_The_Biology_of_Sleep__Your_Unique_Sleep_Needs/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Monthly_methane_emissions_in_China_from_2018-2024_based_on_point_source_level_data/30937736
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Context_Is_the_Lever_Capability_Is_the_Ceiling_Static_Augmentation_for_LLM_Unit_Test_Generation/32844818
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opal.latrobe.edu.au/articles/dataset/ToF-SIMS_Microarray_Dataset_-_Blue_and_Red_Dyes/32775732
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/In_silico_optimised_RP-HPLC_FLD_method_coupled_with_MgSO_sub_4_sub_-assisted_salting-out_extraction_for_ultra-trace_detection_of_three_Fluoroquinolone_antibiotics_in_aquatic_matrices/32844819
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://preprints.opticaopen.org/articles/preprint/Non-Hermitian_engineering_for_low-loss_terahertz_transmission_in_a_lithium_niobate-on-silicon_platform/32835545
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://content-select.com/de/portal/media/view/0fc46f38-180c-4bfc-888b-573e46c4de3b
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.frontiersin.org/journals/developmental-psychology/articles/10.3389/fdpys.2025.1503647/full
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14935913
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ojs.szh.ch/index.php/zeitschrift/article/view/1382
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13596715
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21095866
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21095866
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21095828
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21095828
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.3929/ethz-b-000069472
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+- intent: CLARIFICATION
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/YosepMulia/instruction-clarification-decision-en-id/resolve/main/test.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 587
+      parsed: true
+  - url: https://huggingface.co/datasets/ClarusC64/epistemic_clarification_benchmark_v01/resolve/main/epistemic_clarification_benchmark_v01.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 2979
+      parsed: true
+  - url: https://huggingface.co/datasets/ClarusC64/clinical_epistemic_clarification_v0.1/resolve/main/data/test.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 2316
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/Oliverluyu/Singapore-fake-news-clarification-llama2/cf9ce6feee6acb3e54a299064e9ad2c1d330f70d/train.csv?%2Fdatasets%2FOliverluyu%2FSingapore-fake-news-clarification-llama2%2Fresolve%2Fmain%2Ftrain.csv=&etag=%22e277ef50c146b4776dd63b36abd5ddcf39b7eaec%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/YosepMulia/instruction-clarification-decision-en-id/resolve/main/test.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/ClarusC64/epistemic_clarification_benchmark_v01/resolve/main/epistemic_clarification_benchmark_v01.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/ClarusC64/clinical_epistemic_clarification_v0.1/resolve/main/data/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/vosap52/robot-clarification-dialogue-tr/resolve/main/train.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://figshare.com/articles/dataset/Monthly_methane_emissions_in_China_from_2018-2024_based_on_point_source_level_data/30937736
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Context_Is_the_Lever_Capability_Is_the_Ceiling_Static_Augmentation_for_LLM_Unit_Test_Generation/32844818
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opal.latrobe.edu.au/articles/dataset/ToF-SIMS_Microarray_Dataset_-_Blue_and_Red_Dyes/32775732
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/In_silico_optimised_RP-HPLC_FLD_method_coupled_with_MgSO_sub_4_sub_-assisted_salting-out_extraction_for_ultra-trace_detection_of_three_Fluoroquinolone_antibiotics_in_aquatic_matrices/32844819
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://preprints.opticaopen.org/articles/preprint/Non-Hermitian_engineering_for_low-loss_terahertz_transmission_in_a_lithium_niobate-on-silicon_platform/32835545
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3551152
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10275184
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://folia.nhmus.hu/sites/default/files/nhmusfiles/2021/9_Sz%C5%91ke_Folia2021.pdf
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10275186
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10275146
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21094318
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21094318
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21094102
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21094102
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21021303
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

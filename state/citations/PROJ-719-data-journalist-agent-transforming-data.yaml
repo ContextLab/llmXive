@@ -1,0 +1,11 @@
+- artifact_hash: deafa277c8ee2df5612c6dc8b15d4c171118d3d3dc123fda624a5524a293318c
+  artifact_path: projects/PROJ-719-data-journalist-agent-transforming-data/specs/001-data-journalist-agent-transforming-data/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://data.nasa.gov/Space-Science/Meteorite-Landings/gh4g-9sfh`
+  verification_status: mismatch
+  verified_against_url: https://data.nasa.gov/Space-Science/Meteorite-Landings/gh4g-9sfh
+  verified_at: '2026-07-01T06:55:49.379393Z'
