@@ -1,0 +1,32 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Defects4J Prompt Dataset Schema"
+description: "Schema for the raw Defects4J dataset used as input for test generation."
+type: "object"
+properties:
+  project_id:
+    type: "string"
+    description: "Unique identifier for the Defects4J project (e.g., 'Chart-1')."
+  version:
+    type: "string"
+    description: "Version of the project (e.g., 'v1.0')."
+  bug_id:
+    type: "integer"
+    description: "Unique bug identifier within the project."
+  description_text:
+    type: "string"
+    description: "Natural language description of the bug fix or feature request."
+  source_url:
+    type: "string"
+    format: "uri"
+    description: "URL to the original issue tracker entry."
+  changed_lines:
+    type: "array"
+    items:
+      type: "integer"
+    description: "List of line numbers changed in the bug fix."
+required:
+  - project_id
+  - version
+  - bug_id
+  - description_text
+  - changed_lines
