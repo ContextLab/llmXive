@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-22T09:07:52.562054Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-616-video2gui-synthesizing-large-scale-inter
-last_run_id: c24e1fcc-21fb-46e3-9f30-33a359eb5ef2
+last_run_id: 65a2f557-3445-444b-9ebf-c8203ee2462b
 last_run_status: null
 points_paper: {}
 points_research: {}

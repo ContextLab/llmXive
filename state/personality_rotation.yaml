@@ -1,14 +1,7 @@
 last_used: eric-kandel
-last_used_at: '2026-07-01T22:36:09.926604+00:00'
-last_outcome: committed
+last_used_at: '2026-07-02T03:12:29.732378+00:00'
+last_outcome: target_missing
 history:
-- slug: eric-kandel
-  started_at: '2026-06-21T20:07:35.389537+00:00'
-  ended_at: '2026-06-21T20:57:58.935231+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-745-resting-state-fmri-entropy-predicts-meta/reviews/research/eric-kandel-simulated__2026-06-21__research.md
 - slug: freeman-dyson
   started_at: '2026-06-21T20:57:58.935231+00:00'
   ended_at: '2026-06-21T21:30:37.685088+00:00'
@@ -1206,3 +1199,8 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-511-predicting-molecular-packing-efficiency-/reviews/research/eric-kandel-simulated__2026-07-01__research.md
+- slug: freeman-dyson
+  started_at: '2026-07-01T22:36:09.926604+00:00'
+  ended_at: '2026-07-02T03:12:29.732378+00:00'
+  outcome: target_missing
+  action: comment

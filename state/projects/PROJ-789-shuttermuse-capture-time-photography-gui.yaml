@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-26T09:08:46.908439Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-789-shuttermuse-capture-time-photography-gui
-last_run_id: 5f1346c4-bb54-4f6e-a1c8-c779c951a317
+last_run_id: d4c3155b-24b6-46ef-abfb-890c19051002
 last_run_status: null
 points_paper: {}
 points_research: {}

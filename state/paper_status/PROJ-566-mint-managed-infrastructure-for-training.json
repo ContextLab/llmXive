@@ -1,21 +1,10 @@
 {
-  "pdf": "projects/PROJ-566-mint-managed-infrastructure-for-training/paper/pdf/main-llmxive.pdf",
-  "audit": {
-    "passed": false,
-    "defects": [
-      {
-        "kind": "section_number_gap",
-        "evidence": "expected section 8, saw section 2025",
-        "class": "unsupported_construct",
-        "recommendation": "check for stray \\setcounter or \\section* in source",
-        "page": 36
-      }
-    ],
-    "audited_at": "2026-06-11T03:03:17.281825+00:00"
-  },
+  "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-566-mint-managed-infrastructure-for-training/paper/pdf/main-llmxive.pdf",
+  "audit": null,
   "repair_rounds": 1,
+  "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-566-mint-managed-infrastructure-for-training",
-  "updated_at": "2026-06-11T03:03:17.464481+00:00"
+  "updated_at": "2026-07-02T03:07:22.214988+00:00"
 }
