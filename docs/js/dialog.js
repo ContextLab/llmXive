@@ -90,6 +90,17 @@
     document.body.appendChild(bd);
 
     bd.addEventListener("click", e => {
+      // Follow-up link: open the follow-up project's modal directly (it lives in
+      // the payload as a normal project). Only intercept if we can resolve it.
+      const fu = e.target.closest("[data-open-followup]");
+      if (fu) {
+        const pid = fu.getAttribute("data-open-followup");
+        const pl = (window._llmxive && window._llmxive.payload) || {};
+        const proj = (pl.projects || []).find(p => p.id === pid)
+          || (pl.reviewed_preprints || []).find(p => p.id === pid);
+        if (proj) { e.preventDefault(); open(proj, {}); return; }
+        // else: fall through to the #inProgress anchor (default navigation).
+      }
       if (e.target === bd || e.target.closest(".ad-close")) close();
     });
     document.addEventListener("keydown", e => {
@@ -339,7 +350,13 @@
       html += row('<i class="fa-solid fa-file-pen"></i>', 'View automated-review report', viewable(pp.peer_review_pdf), 'peer-review-llmxive.pdf');
     }
     if (pp.followup_project_id) {
-      html += row('<i class="fa-solid fa-code-branch"></i>', 'llmXive follow-up study', '#inProgress', pp.followup_project_id);
+      // Clickable: opens the follow-up project's modal directly (it's a normal
+      // project in the payload). Falls back to a no-op if not yet in the payload.
+      html += '<a class="ad-row" href="#inProgress" data-open-followup="' +
+        escapeHtml(pp.followup_project_id) + '">' +
+        '<span class="ad-row-icon"><i class="fa-solid fa-code-branch"></i></span>' +
+        '<span class="ad-row-label">llmXive follow-up study</span>' +
+        '<span class="ad-row-meta">' + escapeHtml(pp.followup_project_id) + '</span></a>';
     }
     // Credit split: review MODELS (never authored the paper — llmXive reviewed it).
     if (pp.review_models && pp.review_models.length) {
