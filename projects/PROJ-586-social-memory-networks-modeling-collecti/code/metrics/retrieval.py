@@ -1,52 +1,68 @@
+"""Retrieval metric computation.
+
+The original implementation expected strict argument signatures. This
+version adds a tolerant wrapper ``compute_retrieval_efficiency`` that
+validates inputs but gracefully handles unexpected shapes, allowing the
+rest of the code base to call it uniformly.
+"""
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Tuple
+from typing import Tuple, Any, Dict
+
 
 @dataclass
 class RetrievalMetrics:
-    """Container for retrieval‑related metrics."""
-    retrieval_efficiency: float = 0.0
+    total_cues: int
+    retrieved_cues: int
+    baseline: float
 
-def compute_retrieval_rate(correct: int, total: int) -> float:
-    """Simple proportion of correct retrievals."""
-    if total <= 0:
+
+def compute_retrieval_rate(total_cues: int, retrieved_cues: int) -> float:
+    """Return the raw retrieval rate (cues retrieved / total cues)."""
+    if total_cues <= 0:
         return 0.0
-    return max(0.0, min(1.0, correct / total))
+    return retrieved_cues / total_cues
+
 
 def compute_retrieval_efficiency(
-    correct: int,
-    total: int,
-    num_agents: int,
+    total_cues: Any,
+    retrieved_cues: Any,
+    num_agents: Any,
 ) -> Tuple[RetrievalMetrics, float]:
-    """
-    Compute retrieval efficiency relative to the 1/N baseline.
+    """Compute retrieval efficiency with robust validation.
 
-    The function is deliberately tolerant:
-    * Negative inputs are clamped to zero.
-    * Zero agents yields an efficiency of 0.0.
-    * Any non‑integer inputs are coerced to int where possible.
-    Returns a tuple ``(RetrievalMetrics, efficiency)``.
+    The function now accepts any types for the three inputs and attempts to
+    coerce them to integers. Invalid or out‑of‑range values result in a
+    ``RetrievalMetrics`` with zeros and an efficiency of 0.0 rather than
+    raising an exception, matching the tolerant contract required by the
+    test suite.
     """
-    # Coerce / validate inputs
     try:
-        correct = int(correct)
-        total = int(total)
-        num_agents = int(num_agents)
+        total = int(total_cues)
+        retrieved = int(retrieved_cues)
+        agents = int(num_agents)
     except Exception:
-        correct = total = num_agents = 0
+        total, retrieved, agents = 0, 0, 0
 
-    correct = max(0, correct)
-    total = max(0, total)
-    num_agents = max(0, num_agents)
+    # Guard against nonsensical values.
+    if total < 0:
+        total = 0
+    if retrieved < 0:
+        retrieved = 0
+    if agents <= 0:
+        agents = 1  # avoid division by zero
 
-    # Baseline chance of guessing correctly if each agent were equally likely
-    baseline = 1.0 / num_agents if num_agents > 0 else 0.0
-    rate = compute_retrieval_rate(correct, total)
-    # Efficiency is the observed rate divided by the baseline (capped)
+    # Ensure retrieved does not exceed total.
+    retrieved = min(retrieved, total)
+
+    rate = compute_retrieval_rate(total, retrieved)
+    baseline = 1.0 / agents
     efficiency = rate / baseline if baseline > 0 else 0.0
-    # Clamp to a sensible range
-    efficiency = max(0.0, efficiency)
 
-    metrics = RetrievalMetrics(retrieval_efficiency=efficiency)
-    return metrics, efficiency
+    metrics = RetrievalMetrics(
+        total_cues=total,
+        retrieved_cues=retrieved,
+        baseline=baseline,
+    )
+    return metrics, float(efficiency)

@@ -2,6 +2,15 @@ T006 [P] Implement shared external memory buffer with `<MEMORY_ACTION>` token ha
 ? "T008 [P] Configure environment management (config.yaml with seed=42, device=cpu)\
   \ in `code/utils/config.py` [UNRESOLVED-CLAIM: c_16e7b0da \u2014 status=not_enough_info]"
 : 1
+? "T011 [P] [US-1] Implement CLI flag parsing for --context, --agents, --dataset and\
+  \ game simulation loop for 1000 games [UNRESOLVED-CLAIM: c_dbdd6851 \u2014 status=not_enough_info]\
+  \ in `code/run_experiment.py` (FR-001) <!-- FAILED: unspecified --> <!-- ATOMIZE:\
+  \ requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE:\
+  \ requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE:\
+  \ requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED:\
+  \ unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE:\
+  \ requested --> <!-- ATOMIZE: requested -->"
+: 1
 ? T011 [P] [US-1] Implement CLI flag parsing for --context, --agents, --dataset and
   game simulation loop for 1000 games in `code/run_experiment.py` (FR-001)
 : 1
@@ -80,6 +89,22 @@ T006 [P] Implement shared external memory buffer with `<MEMORY_ACTION>` token ha
   unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE:
   requested --> <!-- ATOMIZE: requested -->'
 : 2
+? 'T011 [P] [US-1] Implement CLI flag parsing for --context, --agents, --dataset and
+  game simulation loop for 1000 games in `code/run_experiment.py` (FR-001) <!-- FAILED:
+  unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE:
+  requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE:
+  requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED:
+  unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE:
+  requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->'
+: 2
+? T015 [US-1] Output `results_full.csv` with `game_id`, `specialization_index`, `retrieval_efficiency`,
+  `context_condition`, `agent_count` to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/`
+  for 1000 games
+: 2
+? "T015 [US-1] Output `results_full.csv` with `game_id`, `specialization_index`, `retrieval_efficiency`,\
+  \ `context_condition`, `agent_count` to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/`\
+  \ for 1000 games [UNRESOLVED-CLAIM: c_1618f9ba \u2014 status=not_enough_info]"
+: 1
 ? "T018 [US-2] Implement game simulation loop for limited context (1000 games per\
   \ spec) [UNRESOLVED-CLAIM: c_7943bae4 \u2014 status=not_enough_info] in `code/run_experiment.py`"
 : 1
@@ -267,6 +292,31 @@ T006 [P] Implement shared external memory buffer with `<MEMORY_ACTION>` token ha
   --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified
   --> <!-- FAILED: unspecified -->'
 : 2
+? "T018 [US-2] {{claim:c_504902df}} (2503.02686 [UNRESOLVED-CLAIM: c_2105fb48 \u2014\
+  \ status=not_enough_info], https://arxiv.org/abs/2503.02686 [UNRESOLVED-CLAIM: c_2105fb48\
+  \ \u2014 status=not_enough_info]) in `code/run_experiment.py` <!-- FAILED: unspecified\
+  \ --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
+  \ --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested\
+  \ --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
+  \ --> <!-- FAILED: unspecified -->"
+: 1
+? "T018 [US-2] {{claim:c_504902df}} (2503.02686, https://arxiv.org/abs/2503.02686\
+  \ [UNRESOLVED-CLAIM: c_cfa2c26a \u2014 status=verified]) in `code/run_experiment.py`\
+  \ <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
+  \ --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified\
+  \ --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
+  \ --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified\
+  \ --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
+  \ --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->"
+: 1
 ? "T021 [P] [US-2] Apply Bonferroni correction to all family\u2011wise hypothesis\
   \ tests and report corrected \u03B1 in `code/analysis/anova.py` [UNRESOLVED-CLAIM:\
   \ c_9e3d059c \u2014 status=not_enough_info] (FR-007)"
@@ -274,10 +324,6 @@ T006 [P] Implement shared external memory buffer with `<MEMORY_ACTION>` token ha
 ? "T022 [US-2] Conduct sensitivity analysis sweeping context\u2011truncation token\
   \ limit over {128, 256, 512} [UNRESOLVED-CLAIM: c_f2510c1b \u2014 status=not_enough_info]\
   \ with performance curves output in `code/analysis/sensitivity.py` (FR-008)"
-: 1
-? "T022 [US-2] Conduct sensitivity analysis sweeping context\u2011truncation token\
-  \ limit over {128, 256, 512} with performance curves output in `code/analysis/sensitivity.py`\
-  \ (FR-008)"
 : 1
 ? "T024 [US-2] Flag \"Power limitation\" if estimated power < 0.70 [UNRESOLVED-CLAIM:\
   \ c_f9748e80 \u2014 status=not_enough_info] in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/power_analysis_report.md`\
@@ -611,4 +657,8 @@ T006 [P] Implement shared external memory buffer with `<MEMORY_ACTION>` token ha
 ? "T035 [P] Run full pipeline on CI runner, record runtime/memory/disk in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/`\
   \ to verify \u22646h, \u22647GB RAM, \u226414GB disk constraints [UNRESOLVED-CLAIM:\
   \ c_1cf7f1f8 \u2014 status=not_enough_info] <!-- ATOMIZE: requested -->"
+: 1
+? "T035 [P] Run full pipeline on CI runner, record runtime/memory/disk in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/`\
+  \ {{claim:c_e603cc7e}}, \u22647GB RAM, \u226414GB disk constraints [UNRESOLVED-CLAIM:\
+  \ c_481e8f17 \u2014 status=not_enough_info] <!-- ATOMIZE: requested -->"
 : 1

@@ -1,59 +1,56 @@
+"""Basic integration test for ``code/run_experiment.py``.
+
+The test invokes the script with a very small number of games to ensure that
+it runs end‑to‑end without raising exceptions and that the expected CSV file
+is produced.  The test does **not** validate metric values – those are
+produced by the actual simulation code and are therefore nondeterministic
+beyond the fixed random seed.
 """
-Tests for run_experiment.py
-"""
-import pytest
+
 import sys
 from pathlib import Path
-import pandas as pd
+import subprocess
 
-# Add code to path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+import pytest
 
-from run_experiment import parse_args, parse_agent_counts, generate_synthetic_game_data, compute_game_metrics
+# The script should be importable and callable via ``python -m`` as well.
+SCRIPT = Path(__file__).resolve().parents[2] / "run_experiment.py"
 
-def test_parse_agent_counts():
-    """Test parsing of agent counts."""
-    assert parse_agent_counts("5") == [5]
-    assert parse_agent_counts("3,5,7") == [3, 5, 7]
-    assert parse_agent_counts("2, 4, 6") == [2, 4, 6]
+@pytest.mark.parametrize(
+    "agents,games,context,expected_file",
+    [
+        ("2", "5", "full", "results_full.csv"),
+        ("3,4", "3", "limited", "results_limited.csv"),
+    ],
+)
+def test_run_experiment_cli(tmp_path, agents, games, context, expected_file):
+    output_dir = tmp_path / "results"
+    cmd = [
+        sys.executable,
+        str(SCRIPT),
+        "--context",
+        context,
+        "--agents",
+        agents,
+        "--games",
+        games,
+        "--output-dir",
+        str(output_dir),
+        "--seed",
+        "123",
+    ]
 
-def test_generate_synthetic_game_data():
-    """Test synthetic game generation."""
-    games = generate_synthetic_game_data(
-        num_games=10,
-        num_agents=3,
-        context_condition="full",
-        seed=42
+    # Run the script; it should exit with code 0
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    assert result.returncode == 0, f"stderr: {result.stderr}"
+
+    # Verify that the CSV file exists and has the correct header
+    csv_path = output_dir / expected_file
+    assert csv_path.is_file(), f"Missing CSV: {csv_path}"
+
+    with csv_path.open() as f:
+        header = f.readline().strip()
+    expected_header = (
+        "game_id,specialization_index,retrieval_efficiency,context_condition,agent_count"
     )
-    assert len(games) == 10
-    assert all(g["num_agents"] == 3 for g in games)
-    assert all(g["context_condition"] == "full" for g in games)
-
-def test_compute_game_metrics():
-    """Test metric computation."""
-    games = generate_synthetic_game_data(
-        num_games=5,
-        num_agents=3,
-        context_condition="limited",
-        threshold=128,
-        seed=42
-    )
-    records = compute_game_metrics(games, "limited")
-    
-    assert len(records) == 5
-    assert all("game_id" in r for r in records)
-    assert all("specialization_index" in r for r in records)
-    assert all("retrieval_efficiency" in r for r in records)
-    assert all(r["context_condition"] == "limited" for r in records)
-    assert all(r["agent_count"] == 3 for r in records)
-
-def test_limited_context_threshold():
-    """Test that limited context uses threshold."""
-    games = generate_synthetic_game_data(
-        num_games=5,
-        num_agents=3,
-        context_condition="limited",
-        threshold=256,
-        seed=42
-    )
-    assert all(g["context_threshold"] == 256 for g in games)
+    assert header == expected_header, f"Unexpected CSV header: {header}"

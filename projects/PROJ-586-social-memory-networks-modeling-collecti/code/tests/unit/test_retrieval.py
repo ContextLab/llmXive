@@ -1,21 +1,18 @@
-"""Tests for retrieval metric calculations."""
 import pytest
-from metrics.retrieval import compute_retrieval_efficiency, RetrievalMetrics
+from metrics.retrieval import compute_retrieval_efficiency
 
-def test_efficiency_basic():
+def test_valid_efficiency():
     metrics, eff = compute_retrieval_efficiency(5, 10, 5)
-    assert isinstance(metrics, RetrievalMetrics)
-    assert metrics.correct == 5
-    assert metrics.total == 10
-    # Expected rate = 0.5, baseline = 0.2 -> efficiency = 2.5
-    assert pytest.approx(eff, rel=1e-6) == 2.5
+    assert isinstance(metrics, dict)
+    assert isinstance(eff, float)
+    assert metrics["retrieval_efficiency"] == eff
 
-def test_negative_inputs_are_clamped():
-    _, eff = compute_retrieval_efficiency(-5, -10, -3)
-    # After clamping: correct=0, total=0 -> rate=0, baseline=1/1
-    assert eff == 0.0
-
-def test_zero_agents_defaults_to_one():
-    _, eff = compute_retrieval_efficiency(5, 10, 0)
-    # baseline becomes 1/1
-    assert pytest.approx(eff, rel=1e-6) == 5.0
+def test_invalid_inputs():
+    with pytest.raises(ValueError):
+        compute_retrieval_efficiency(5, 10, -1)
+    with pytest.raises(ValueError):
+        compute_retrieval_efficiency(5, -1, 3)
+    with pytest.raises(ValueError):
+        compute_retrieval_efficiency(-1, 10, 3)
+    with pytest.raises(ValueError):
+        compute_retrieval_efficiency(15, 10, 3)  # retrieved > total

@@ -1,16 +1,15 @@
-"""Basic sanity checks for the BaseAgent implementation."""
 import pytest
 from agent.base_agent import BaseAgent, AgentConfig
 
 def test_agent_initialization():
-    cfg = AgentConfig(name="test", model_name="opt-125m")
+    cfg = AgentConfig(model_name="distilbert-base-uncased", max_length=128)
     agent = BaseAgent(cfg)
-    assert agent.config.name == "test"
-    assert agent.config.model_name == "opt-125m"
+    assert agent.config == cfg
 
 def test_agent_generation_is_deterministic():
-    cfg = AgentConfig(name="gen", model_name="opt-125m")
+    cfg = AgentConfig(model_name="distilbert-base-uncased", max_length=128)
     agent = BaseAgent(cfg)
-    out1 = agent.generate("Hello")
-    out2 = agent.generate("Hello")
-    assert out1 == out2  # deterministic with fixed seed
+    # Deterministic generation with fixed seed
+    output1 = agent.generate("test prompt")
+    output2 = agent.generate("test prompt")
+    assert output1 == output2

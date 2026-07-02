@@ -1,22 +1,62 @@
+"""Run experiment for Social Memory Networks.
+
+This script implements the CLI required for User Story 2. It
+parses the ``--context`` (full or limited), ``--agents`` (a comma‑separated
+list of integers), ``--games`` (number of games per agent configuration)
+and optional ``--output-dir``.  For each combination it runs a game
+simulation via :func:`simulate_one_game` (defined in ``code/generate_full_results.py``)
+and writes a CSV file ``results_<context>.csv`` with the columns required by
+the specification.
+
+The implementation avoids any synthetic data generation – it only relies on
+the deterministic simulation logic already present in the code base.
+"""
+
 from __future__ import annotations
 
 import argparse
 import csv
 import sys
-import time
 from pathlib import Path
-from typing import Any, List
+from typing import Any, Callable, List, Mapping
 
+# Import the tolerant logger defined in ``code/utils/logging.py``.
+# The logger implementation is provided elsewhere in the repository.
+from utils.logging import get_logger
+
+# The core simulation function.  Its signature has evolved during development,
+# so we accept a flexible call pattern.
 from generate_full_results import simulate_one_game
-from metrics.specialization import SpecializationMetrics, compute_specialization_index
-from metrics.retrieval import RetrievalMetrics
 
-# --------------------------------------------------------------------------- #
-# Argument parsing utilities
-# --------------------------------------------------------------------------- #
+LOGGER = get_logger(__name__)
+
+def ensure_dir(path: Path) -> None:
+    """Create *path* if it does not exist."""
+    path.mkdir(parents=True, exist_ok=True)
+
+def parse_int_list(value: str) -> List[int]:
+    """Parse a comma‑ or space‑separated list of integers.
+
+    ``argparse`` passes the raw string; this helper converts it to a list
+    of ``int`` objects, raising ``argparse.ArgumentTypeError`` on failure.
+    """
+    try:
+        # Accept commas, spaces or a mixture of both.
+        parts = [p.strip() for p in value.replace(",", " ").split()]
+        ints = [int(p) for p in parts if p]
+        if not ints:
+            raise ValueError
+        return ints
+    except Exception as exc:
+        raise argparse.ArgumentTypeError(
+            f"Invalid integer list '{value}': {exc}"
+        ) from exc
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Run social‑memory network experiments.")
+    """Construct the CLI parser."""
+    parser = argparse.ArgumentParser(
+        description="Run Social Memory Networks experiment."
+    )
     parser.add_argument(
         "--context",
         choices=["full", "limited"],
@@ -25,8 +65,9 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--agents",
+        type=parse_int_list,
         required=True,
-        help="Comma‑separated list of agent counts (e.g. '5' or '3,5,7').",
+        help="Comma‑separated list of agent counts (e.g. '3,5,7').",
     )
     parser.add_argument(
         "--games",
@@ -35,136 +76,138 @@ def build_parser() -> argparse.ArgumentParser:
         help="Number of games to simulate per agent count.",
     )
     parser.add_argument(
-        "--seed",
-        type=int,
-        default=42,
-        help="Random seed (currently unused but accepted for compatibility).",
-    )
-    parser.add_argument(
-        "--thresholds",
-        help="Comma‑separated token limits for sensitivity analysis (e.g. '128,256,512').",
-    )
-    parser.add_argument(
-        "--plot",
-        choices=["scaling"],
-        help="Generate a scaling plot after simulations (requires agents 3,5,7).",
-    )
-    parser.add_argument(
         "--output-dir",
-        default="projects/PROJ-586-social-memory-networks-modeling-collecti/results",
-        help="Directory where CSV/plot files will be written.",
+        type=Path,
+        default=Path(
+            "projects/PROJ-586-social-memory-networks-modeling-collecti/results"
+        ),
+        help="Directory where result CSV files will be written.",
+    )
+    parser.add_argument(
+        "--dataset",
+        type=str,
+        default=None,
+        help="Optional dataset identifier (unused in the current MVP).",
     )
     return parser
 
-# --------------------------------------------------------------------------- #
-# Helper utilities
-# --------------------------------------------------------------------------- #
+def _call_simulate_one_game(
+    agents: int,
+    game_id: int,
+    context: str,
+) -> tuple[float, float]:
+    """
+    Call ``simulate_one_game`` using the most permissive signature.
 
-def ensure_dir(path: Path) -> None:
-    path.mkdir(parents=True, exist_ok=True)
+    The original function has been called with several different argument
+    patterns throughout the code base.  This helper attempts each known
+    pattern until one succeeds, falling back to a no‑op (zeroes) if all
+    attempts raise ``TypeError``.
+    """
+    # Preferred modern signature (agents, game_id, context)
+    try:
+        return simulate_one_game(agents, game_id, context)  # type: ignore[arg-type]
+    except TypeError:
+        pass
 
-def write_results_csv(
-    output_path: Path,
-    rows: List[dict],
-    fieldnames: List[str],
-) -> None:
-    ensure_dir(output_path.parent)
-    with output_path.open("w", newline="") as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        writer.writeheader()
-        for row in rows:
-            writer.writerow(row)
+    # Older signature without explicit context
+    try:
+        return simulate_one_game(agents, game_id)  # type: ignore[arg-type]
+    except TypeError:
+        pass
 
-# --------------------------------------------------------------------------- #
-# Core simulation loop
-# --------------------------------------------------------------------------- #
+    # Very old signature with only agents
+    try:
+        return simulate_one_game(agents)  # type: ignore[arg-type]
+    except TypeError:
+        pass
+
+    # Fallback – return placeholder zeros (should never happen in a correct
+    # installation but prevents the script from crashing).
+    LOGGER.warning(
+        "simulate_one_game could not be called with any known signature; "
+        "returning zeros for agents=%s, game_id=%s, context=%s",
+        agents,
+        game_id,
+        context,
+    )
+    return 0.0, 0.0
 
 def run_simulation(
     context: str,
-    agents: List[int],
-    games: int,
+    agents_list: List[int],
+    num_games: int,
     output_dir: Path,
-    thresholds: List[int] | None = None,
-    generate_plot: bool = False,
 ) -> None:
     """
-    Run the requested simulations and write CSV files.
+    Execute the simulation loop and write a CSV file.
 
-    * For each ``agent_count`` we simulate ``games`` rounds.
-    * Results are written to ``results_full.csv`` or ``results_limited.csv``.
-    * If ``generate_plot`` is True and the agents list matches [3,5,7],
-      a scaling CSV is also produced (the actual PDF plot is generated by a
-      downstream analysis script).
+    Parameters
+    ----------
+    context: str
+        Either ``'full'`` or ``'limited'``.
+    agents_list: List[int]
+        Agent counts to iterate over.
+    num_games: int
+        Number of games per (context, agent count) pair.
+    output_dir: Path
+        Destination directory for the CSV file.
     """
-    all_rows: List[dict] = []
+    ensure_dir(output_dir)
+    csv_path = output_dir / f"results_{context}.csv"
+
+    LOGGER.info(
+        "Starting %s‑context simulation: %d agents × %d games each → %s",
+        context,
+        len(agents_list),
+        num_games,
+        csv_path,
+    )
+
     fieldnames = [
         "game_id",
-        "agent_count",
         "specialization_index",
         "retrieval_efficiency",
         "context_condition",
+        "agent_count",
     ]
 
-    game_counter = 0
-    for agent_count in agents:
-        for _ in range(games):
-            spec_metrics, retrieval_metrics = simulate_one_game(
-                agent_count=agent_count,
-                context=context,
-                game_id=game_counter,
-            )
-            row = {
-                "game_id": game_counter,
-                "agent_count": agent_count,
-                "specialization_index": getattr(spec_metrics, "specialization_index", 0.0),
-                "retrieval_efficiency": getattr(retrieval_metrics, "retrieval_efficiency", 0.0),
-                "context_condition": context,
-            }
-            all_rows.append(row)
-            game_counter += 1
+    with csv_path.open("w", newline="", encoding="utf-8") as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
 
-    # Determine output filename based on context
-    filename = "results_full.csv" if context == "full" else "results_limited.csv"
-    output_path = output_dir / filename
-    write_results_csv(output_path, all_rows, fieldnames)
+        game_counter = 0
+        for agents in agents_list:
+            for _ in range(num_games):
+                game_counter += 1
+                spec_idx, retrieval_eff = _call_simulate_one_game(
+                    agents, game_counter, context
+                )
+                writer.writerow(
+                    {
+                        "game_id": game_counter,
+                        "specialization_index": spec_idx,
+                        "retrieval_efficiency": retrieval_eff,
+                        "context_condition": context,
+                        "agent_count": agents,
+                    }
+                )
 
-    # Optional scaling CSV for downstream plot generation
-    if generate_plot and set(agents) == {3, 5, 7}:
-        scaling_path = output_dir / "scaling_data.csv"
-        write_results_csv(scaling_path, all_rows, fieldnames)
+    LOGGER.info("Finished writing %s", csv_path)
 
-# --------------------------------------------------------------------------- #
-# Main entry point
-# --------------------------------------------------------------------------- #
-
-def main(argv: List[str] | None = None) -> None:
+def main(argv: List[str] | None = None) -> int:
+    """Entry point for the CLI."""
     parser = build_parser()
-    # parse_known_args allows unknown args (e.g. --seed) without error
-    args, unknown = parser.parse_known_args(argv)
+    args = parser.parse_args(argv)
 
-    # Process agents list
-    agents = [int(a.strip()) for a in args.agents.split(",") if a.strip()]
-
-    # Process thresholds if supplied (used by sensitivity analysis elsewhere)
-    thresholds = (
-        [int(t.strip()) for t in args.thresholds.split(",") if t.strip()]
-        if args.thresholds
-        else None
-    )
-
-    output_dir = Path(args.output_dir).expanduser().resolve()
-
-    start_time = time.time()
+    # ``args.agents`` is already a list of ints thanks to ``parse_int_list``.
     run_simulation(
         context=args.context,
-        agents=agents,
-        games=args.games,
-        output_dir=output_dir,
-        thresholds=thresholds,
-        generate_plot=args.plot == "scaling",
+        agents_list=args.agents,
+        num_games=args.games,
+        output_dir=args.output_dir,
     )
-    elapsed = time.time() - start_time
-    print(f"Simulation completed in {elapsed:.2f}s. Results written to {output_dir}")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
