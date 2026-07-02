@@ -1,0 +1,72 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Analysis Output Schema (Cross-Sectional)"
+description: "Schema for the final statistical results and model outputs. Note: Uses Logistic Regression, not Mixed-Effects/Survival."
+type: "object"
+properties:
+  logistic_regression_model:
+    type: "object"
+    description: "Results from the logistic regression."
+    properties:
+      interaction_coefficient:
+        type: "number"
+        description: "Coefficient for the gamification * conscientiousness interaction."
+      interaction_p_value:
+        type: "number"
+        description: "P-value for the interaction term."
+      interaction_ci_lower:
+        type: "number"
+        description: "Lower bound of the 95% confidence interval."
+      interaction_ci_upper:
+        type: "number"
+        description: "Upper bound of the 95% confidence interval."
+      sample_size:
+        type: "integer"
+        description: "Number of observations used in the model."
+    required:
+      - interaction_coefficient
+      - interaction_p_value
+      - interaction_ci_lower
+      - interaction_ci_upper
+      - sample_size
+  bootstrapping:
+    type: "object"
+    description: "Results from the 1,000 bootstrap iterations."
+    properties:
+      effect_size_mean:
+        type: "number"
+        description: "Mean effect size across bootstrap samples."
+      effect_size_ci_lower:
+        type: "number"
+        description: "Lower bound of the 95% bootstrap CI."
+      effect_size_ci_upper:
+        type: "number"
+        description: "Upper bound of the 95% bootstrap CI."
+      iterations:
+        type: "integer"
+        enum: [1000]
+        description: "Number of bootstrap iterations performed."
+    required:
+      - effect_size_mean
+      - effect_size_ci_lower
+      - effect_size_ci_upper
+      - iterations
+  sensitivity_analysis:
+    type: "object"
+    description: "Results from the sensitivity analysis on adherence thresholds."
+    properties:
+      thresholds_tested:
+        type: "array"
+        items:
+          type: "number"
+        description: "List of thresholds tested (e.g., duration cutoffs)."
+      p_value_stability:
+        type: "number"
+        description: "Measure of how stable the p-value is across thresholds."
+    required:
+      - thresholds_tested
+      - p_value_stability
+required:
+  - logistic_regression_model
+  - bootstrapping
+  - sensitivity_analysis
+additionalProperties: false

@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Ready Dataset Schema (Cross-Sectional)"
+description: "Schema for the cleaned and merged dataset used in statistical analysis. Note: This is cross-sectional (one row per user)."
+type: "object"
+properties:
+  user_id:
+    type: "string"
+    description: "Unique anonymized identifier for the user."
+  gamified_binary:
+    type: "integer"
+    enum: [0, 1]
+    description: "Binary flag: 1 if user reported using gamified apps, 0 otherwise."
+  conscientiousness_score:
+    type: "number"
+    description: "Standardized or raw score for Conscientiousness trait."
+  achievement_score:
+    type: ["number", "null"]
+    description: "Score for Need for Achievement (null if not available in dataset)."
+  long_term_adherence:
+    type: "integer"
+    enum: [0, 1]
+    description: "Binary flag: 1 if user reported long-term adherence (e.g., >4 weeks), 0 otherwise."
+  habit_duration:
+    type: "integer"
+    description: "Self-reported duration of habit tracking in weeks."
+  dropout_event:
+    type: "null"
+    description: "Set to null. Not applicable for cross-sectional data."
+required:
+  - user_id
+  - gamified_binary
+  - conscientiousness_score
+  - long_term_adherence
+  - habit_duration
+additionalProperties: true

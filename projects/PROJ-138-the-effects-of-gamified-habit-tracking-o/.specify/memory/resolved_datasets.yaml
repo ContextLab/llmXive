@@ -1,0 +1,65 @@
+resolved_at: '2026-07-02T13:44:03.598606+00:00'
+datasets:
+- intent: MyPersonality
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/holistic-ai/Personality_mypersonality/resolve/main/data/test-00000-of-00001-c96a814948b69df7.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 133482
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/holistic-ai/Personality_mypersonality/resolve/main/data/test-00000-of-00001-c96a814948b69df7.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Quasi-Discrete_Channels_of_Porous_Coordination_Polymers_for_Selective_Multiscenario_CO_sub_2_sub_Recognition/32881432
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opendocs.ids.ac.uk/articles/report/Continental_Overview_of_Renewable_Energy_in_Sub-Saharan_Africa/32873783
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Ag-Substituted_Nanocrystal_Building_Blocks_for_Enhanced_Thermoelectric_Performance_in_Earth-Abundant_Cu_sub_12_sub_Sb_sub_4_sub_S_sub_13_sub_Tetrahedrite/32881423
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Ce_III_-MOFs_with_1D_chain_architectures_and_their_derivatives_as_earth-abundant_electrocatalysts_for_the_acidic_oxygen_evolution_reaction/32881420
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.le.ac.uk/articles/journal_contribution/The_State-of-the-Art_of_Mercury_s_Space_Environment_in_Preparation_for_the_Nominal_Phase_of_the_BepiColombo_Mission/32725980
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8169654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.mdpi.com/2078-2489/11/4/179
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://underline.io/lecture/93793-data-augmented-graph-neural-networks-for-personality-detection-video
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2511.23101
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/wbnsm/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/2j458/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/8uard/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
