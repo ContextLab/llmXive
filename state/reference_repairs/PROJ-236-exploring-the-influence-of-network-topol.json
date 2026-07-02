@@ -1,0 +1,14 @@
+[
+  {
+    "repaired_at": "2026-07-02T15:59:44.406451+00:00",
+    "project": "PROJ-236-exploring-the-influence-of-network-topol",
+    "repairs": [
+      {
+        "dead_url": "https://huggingface.co/datasets/materials/science",
+        "reason": "HTTP 401",
+        "replacement_url": "https://huggingface.co/datasets/bio-datasets/dft23-full/resolve/main/data/test-00000-of-00001-a791a8874f9adf69.parquet",
+        "intent": "materials science HuggingFace: Dataset Collection of DFT calculated properties and structures. Fit : Contains coordinates. Verify specific alloy types match research needs."
+      }
+    ]
+  }
+]

@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CorrelationAnalysis Schema"
+description: "Schema for the statistical analysis results, including power-law fit metrics."
+type: "object"
+properties:
+  metric_name:
+    type: "string"
+    description: "Name of the topological metric (e.g., 'clustering_coefficient')."
+  topology_type:
+    type: "string"
+    description: "Subset of topology or 'all'."
+  slope:
+    type: "number"
+    description: "Regression slope coefficient."
+  intercept:
+    type: "number"
+    description: "Regression intercept."
+  correlation_r:
+    type: "number"
+    description: "Pearson correlation coefficient."
+  p_value_raw:
+    type: "number"
+    description: "Raw p-value before correction."
+  p_value_corrected:
+    type: "number"
+    description: "P-value after FDR or Bonferroni correction."
+  ci_lower:
+    type: "number"
+    description: "Lower bound of the 95% bootstrap confidence interval."
+  ci_upper:
+    type: "number"
+    description: "Upper bound of the 95% bootstrap confidence interval."
+  ci_width:
+    type: "number"
+    description: "Width of the 95% bootstrap confidence interval (ci_upper - ci_lower). Required for SC-004."
+  r_squared:
+    type: "number"
+    description: "R-squared value for the power-law fit between network disorder parameters and conductivity reduction. Required for SC-005."
+required:
+  - metric_name
+  - topology_type
+  - slope
+  - p_value_raw
+  - p_value_corrected
+  - ci_lower
+  - ci_upper
+  - ci_width
+  - r_squared
+additionalProperties: false
