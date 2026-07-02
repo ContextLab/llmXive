@@ -1,6 +1,6 @@
 """
-Main experiment runner for social memory network simulations.
-Supports full-context and limited-context conditions.
+Main experiment runner for Social Memory Networks.
+Implements game simulation loops for US-1, US-2, and US-3.
 """
 import argparse
 import csv
@@ -8,301 +8,246 @@ import logging
 import os
 import sys
 import time
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
-import numpy as np
-import pandas as pd
 
-# Add project root to path
-PROJECT_ROOT = Path(__file__).parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
-
-from utils.logging import setup_logger, get_logger
-from utils.config import get_config
-from data.loaders import DatasetLoader, get_dataset
-from data.synthetic import generate_synthetic_games, SyntheticGameConfig
+# Project-relative imports based on provided API surface
 from agent.base_agent import BaseAgent, AgentConfig
 from memory.buffer import MemoryBuffer, get_shared_memory_buffer
-from metrics.specialization import compute_specialization_index
-from metrics.retrieval import compute_retrieval_efficiency
-from metrics.validator import validate_experiment_metrics
+from metrics.specialization import compute_specialization_index, compute_game_level_specialization
+from metrics.retrieval import compute_retrieval_efficiency, compute_game_level_retrieval
+from metrics.validator import validate_and_filter_records, compute_metric_statistics
+from data.loaders import get_dataset
+from utils.logging import setup_logger, get_logger
+from utils.config import get_config
 
-# Constants
-DEFAULT_GAMES_FULL = 1000
-DEFAULT_GAMES_LIM = 1000
-DEFAULT_GAMES_SCALING = 800
-RESULTS_DIR = PROJECT_ROOT / "results"
+# Ensure project root is in path for relative imports if running as script
+if 'code' not in sys.path:
+    project_root = Path(__file__).resolve().parent
+    if project_root.name == 'code':
+        sys.path.insert(0, str(project_root.parent))
 
+@dataclass
 class GameResult:
-    """Container for a single game's metrics."""
-    def __init__(
-        self,
-        game_id: int,
-        specialization_index: float,
-        retrieval_efficiency: float,
-        context_condition: str,
-        agent_count: int,
-        context_tokens: int = 0
-    ):
-        self.game_id = game_id
-        self.specialization_index = specialization_index
-        self.retrieval_efficiency = retrieval_efficiency
-        self.context_condition = context_condition
-        self.agent_count = agent_count
-        self.context_tokens = context_tokens
+    game_id: int
+    context_condition: str
+    agent_count: int
+    specialization_index: float
+    retrieval_efficiency: float
+    success: bool
+    duration: float
 
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            "game_id": self.game_id,
-            "specialization_index": self.specialization_index,
-            "retrieval_efficiency": self.retrieval_efficiency,
-            "context_condition": self.context_condition,
-            "agent_count": self.agent_count,
-            "context_tokens": self.context_tokens
-        }
-
-def parse_agent_counts(agent_str: str) -> List[int]:
+def parse_agent_counts(agent_arg: str) -> List[int]:
     """Parse comma-separated agent counts."""
-    return [int(x.strip()) for x in agent_str.split(",")]
+    if not agent_arg:
+        return [5]  # Default
+    return [int(x.strip()) for x in agent_arg.split(',')]
 
-def run_single_game(
-    game_id: int,
-    agent_count: int,
-    context_condition: str,
-    context_tokens: int,
-    logger: logging.Logger,
-    config: Dict[str, Any]
-) -> Optional[GameResult]:
+def run_single_game(game_id: int, context_condition: str, agent_count: int, 
+                    dataset: Any, config: Dict[str, Any]) -> Optional[GameResult]:
     """
-    Run a single game simulation with specified context constraints.
+    Run a single game simulation with specified agents and context.
+    Returns GameResult or None if simulation fails.
+    """
+    start_time = time.time()
+    logger = get_logger()
     
-    Args:
-        game_id: Unique game identifier
-        agent_count: Number of agents in the simulation
-        context_condition: 'full' or 'limited'
-        context_tokens: Token limit for limited context (0 for full)
-        logger: Logger instance
-        config: Configuration dictionary
-        
-    Returns:
-        GameResult if successful, None otherwise
-    """
     try:
-        # Reset shared memory buffer
+        # Initialize memory buffer (shared across agents in this game)
         buffer = get_shared_memory_buffer()
         buffer.reset()
-
+        
         # Initialize agents
         agents = []
         for i in range(agent_count):
             agent_config = AgentConfig(
-                model_name=config.get("model_name", "opt-125m"),
                 agent_id=i,
-                device=config.get("device", "cpu"),
-                context_limit=context_tokens if context_condition == "limited" else None
+                model_name="facebook/opt-125m",
+                device="cpu",  # CPU-only as per constraints
+                context_condition=context_condition
             )
             agent = BaseAgent(agent_config)
             agents.append(agent)
-
-        # Generate synthetic game data
-        game_config = SyntheticGameConfig(
-            num_agents=agent_count,
-            num_items=20,
-            num_rounds=5,
-            seed=config.get("seed", 42) + game_id
-        )
-        games = generate_synthetic_games([game_config])
         
-        if not games or len(games) == 0:
-            logger.warning(f"Game {game_id}: No synthetic data generated")
+        # Get game data from dataset
+        # Using synthetic fallback as per T004 constraint
+        game_data = dataset.get_game(game_id)
+        if game_data is None:
+            logger.warning(f"Game {game_id} not found in dataset")
             return None
-
-        game_data = games[0]
         
         # Simulate game rounds
-        for round_num in range(game_data["num_rounds"]):
+        success = False
+        for round_num in range(min(10, config.get('max_rounds', 10))):
+            # Each agent acts based on context and memory
             for agent in agents:
-                # Agent observes current state
-                state = game_data["rounds"][round_num]
+                # Agent observes game state
+                observation = game_data.get('state', {}).get(f'round_{round_num}', {})
                 
-                # Agent decides to store or retrieve from memory
-                action = agent.decide_action(state, buffer)
+                # Agent retrieves from shared memory
+                memory_context = buffer.get_recent_entries(k=3)
                 
-                if action["type"] == "store":
-                    buffer.store(action["content"], agent.agent_id)
-                elif action["type"] == "retrieve":
-                    retrieved = buffer.retrieve(action["cue"], agent.agent_id)
-                    agent.process_retrieval(retrieved)
-
-        # Compute metrics
-        specialization = compute_specialization_index(
-            [a.memory_contributions for a in agents],
-            agent_count
-        )
+                # Agent decides action
+                action = agent.step(observation, memory_context)
+                
+                # Store action in shared memory if applicable
+                if action and action.get('type') == 'store':
+                    buffer.store(action.get('content', ''))
+                
+                # Check for game completion
+                if action and action.get('type') == 'success':
+                    success = True
+                    break
+            
+            if success:
+                break
         
-        retrieval = compute_retrieval_efficiency(
-            [a.retrieval_successes for a in agents],
-            [a.retrieval_attempts for a in agents],
-            agent_count
-        )
-
-        result = GameResult(
+        # Compute metrics
+        specialization = compute_game_level_specialization(agents, buffer)
+        retrieval = compute_game_level_retrieval(agents, buffer)
+        
+        duration = time.time() - start_time
+        
+        return GameResult(
             game_id=game_id,
-            specialization_index=specialization,
-            retrieval_efficiency=retrieval,
             context_condition=context_condition,
             agent_count=agent_count,
-            context_tokens=context_tokens
+            specialization_index=specialization,
+            retrieval_efficiency=retrieval,
+            success=success,
+            duration=duration
         )
         
-        return result
-
     except Exception as e:
-        logger.error(f"Game {game_id} failed: {str(e)}")
+        logger.error(f"Game {game_id} failed: {e}")
         return None
 
-def save_results(results: List[GameResult], output_path: Path) -> None:
-    """Save game results to CSV."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+def save_results(results: List[GameResult], output_path: str):
+    """Save results to CSV file."""
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
-    with open(output_path, "w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=results[0].to_dict().keys())
+    with open(output_path, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=[
+            'game_id', 'specialization_index', 'retrieval_efficiency', 
+            'context_condition', 'agent_count', 'success', 'duration'
+        ])
         writer.writeheader()
-        for result in results:
-            writer.writerow(result.to_dict())
-
-def run_experiment(
-    context_condition: str,
-    agent_counts: List[int],
-    games_per_config: int,
-    thresholds: Optional[List[int]] = None,
-    seed: int = 42
-) -> List[GameResult]:
-    """
-    Run the full experiment for a given context condition.
-    
-    Args:
-        context_condition: 'full' or 'limited'
-        agent_counts: List of agent counts to test
-        games_per_config: Number of games per agent count
-        thresholds: Context token thresholds for limited context
-        seed: Random seed
         
-    Returns:
-        List of GameResult objects
+        for r in results:
+            writer.writerow({
+                'game_id': r.game_id,
+                'specialization_index': r.specialization_index,
+                'retrieval_efficiency': r.retrieval_efficiency,
+                'context_condition': r.context_condition,
+                'agent_count': r.agent_count,
+                'success': r.success,
+                'duration': r.duration
+            })
+
+def run_experiment(args: argparse.Namespace) -> List[GameResult]:
     """
-    logger = setup_logger(
-        "experiment",
-        log_file=PROJECT_ROOT / "experiment.log"
-    )
-    logger.info(f"Starting {context_condition} context experiment")
-    logger.info(f"Agent counts: {agent_counts}")
-    logger.info(f"Games per config: {games_per_config}")
-    
+    Run the full experiment based on CLI arguments.
+    Supports US-1 (full context), US-2 (limited context), and US-3 (scaling).
+    """
+    logger = get_logger()
     config = get_config()
-    config["seed"] = seed
+    
+    # Load dataset (uses synthetic fallback as per T004)
+    dataset = get_dataset(args.dataset)
     
     all_results = []
     
-    for agent_count in agent_counts:
-        # Determine context tokens
-        if context_condition == "limited":
-            # Use first threshold or default
-            token_limit = thresholds[0] if thresholds else 256
-        else:
-            token_limit = 0  # Full context
-        
-        logger.info(f"Running {games_per_config} games with {agent_count} agents "
-                   f"(context={context_condition}, tokens={token_limit})")
-        
+    # Determine agent counts to run
+    agent_counts = parse_agent_counts(args.agents)
+    
+    # Determine games per configuration
+    games_per_config = args.games
+    
+    # Determine context condition
+    context_condition = args.context
+    
+    # If scaling analysis (US-3), run for each agent count
+    if context_condition == 'scaling' or len(agent_counts) > 1:
+        logger.info(f"Running scaling analysis for agent counts: {agent_counts}")
+        for n_agents in agent_counts:
+            logger.info(f"Running {games_per_config} games with {n_agents} agents")
+            for game_id in range(games_per_config):
+                result = run_single_game(
+                    game_id=game_id,
+                    context_condition='scaling',
+                    agent_count=n_agents,
+                    dataset=dataset,
+                    config=config
+                )
+                if result:
+                    all_results.append(result)
+    else:
+        # Run single context condition
+        logger.info(f"Running {games_per_config} games with {agent_counts[0]} agents in {context_condition} context")
         for game_id in range(games_per_config):
             result = run_single_game(
                 game_id=game_id,
-                agent_count=agent_count,
                 context_condition=context_condition,
-                context_tokens=token_limit,
-                logger=logger,
+                agent_count=agent_counts[0],
+                dataset=dataset,
                 config=config
             )
-            
             if result:
                 all_results.append(result)
-                
-                # Progress logging
-                if (game_id + 1) % 100 == 0:
-                    logger.info(f"Completed {game_id + 1}/{games_per_config} games")
-    
-    # Validate results
-    valid_count = validate_experiment_metrics(all_results)
-    logger.info(f"Valid results: {valid_count}/{len(all_results)}")
     
     return all_results
 
 def main():
-    """Main entry point for CLI."""
-    parser = argparse.ArgumentParser(description="Social Memory Network Experiment")
-    parser.add_argument(
-        "--context",
-        choices=["full", "limited"],
-        default="full",
-        help="Context condition"
-    )
-    parser.add_argument(
-        "--agents",
-        type=str,
-        default="5",
-        help="Comma-separated agent counts (e.g., '3,5,7')"
-    )
-    parser.add_argument(
-        "--games",
-        type=int,
-        default=DEFAULT_GAMES_FULL,
-        help="Number of games per agent count"
-    )
-    parser.add_argument(
-        "--thresholds",
-        type=str,
-        default="256",
-        help="Comma-separated context token thresholds for limited context"
-    )
-    parser.add_argument(
-        "--seed",
-        type=int,
-        default=42,
-        help="Random seed"
-    )
-    parser.add_argument(
-        "--plot",
-        choices=["scaling"],
-        default=None,
-        help="Generate scaling plot"
-    )
+    """Main entry point."""
+    parser = argparse.ArgumentParser(description='Social Memory Networks Experiment')
+    parser.add_argument('--context', type=str, default='full',
+                      choices=['full', 'limited', 'scaling'],
+                      help='Context condition: full, limited, or scaling')
+    parser.add_argument('--agents', type=str, default='5',
+                      help='Agent count(s), comma-separated (e.g., 3,5,7)')
+    parser.add_argument('--games', type=int, default=1000,
+                      help='Number of games to run')
+    parser.add_argument('--dataset', type=str, default='synthetic',
+                      help='Dataset to use')
+    parser.add_argument('--output', type=str, default=None,
+                      help='Output file path')
+    parser.add_argument('--seed', type=int, default=42,
+                      help='Random seed')
     
     args = parser.parse_args()
     
-    agent_counts = parse_agent_counts(args.agents)
-    thresholds = parse_agent_counts(args.thresholds) if args.thresholds else None
+    # Setup logging
+    setup_logger(level=logging.INFO)
+    logger = get_logger()
     
-    # Determine output filename
-    if args.context == "full":
-        output_file = RESULTS_DIR / "results_full.csv"
-    else:
-        output_file = RESULTS_DIR / "results_limited.csv"
+    logger.info(f"Starting experiment: context={args.context}, agents={args.agents}, games={args.games}")
     
     # Run experiment
-    results = run_experiment(
-        context_condition=args.context,
-        agent_counts=agent_counts,
-        games_per_config=args.games,
-        thresholds=thresholds,
-        seed=args.seed
-    )
+    results = run_experiment(args)
+    
+    # Determine output path
+    if args.output:
+        output_path = args.output
+    else:
+        context_prefix = args.context.replace('_', '')
+        if len(parse_agent_counts(args.agents)) > 1:
+            output_path = f"projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_results_{context_prefix}.csv"
+        else:
+            output_path = f"projects/PROJ-586-social-memory-networks-modeling-collecti/results/results_{context_prefix}.csv"
     
     # Save results
-    save_results(results, output_file)
-    print(f"Results saved to {output_file}")
+    save_results(results, output_path)
     
-    return 0
+    logger.info(f"Experiment complete. {len(results)} games processed. Results saved to {output_path}")
+    
+    # Print summary statistics
+    if results:
+        from metrics.validator import compute_metric_statistics
+        stats = compute_metric_statistics(results)
+        logger.info(f"Specialization Index (mean): {stats['specialization_mean']:.4f}")
+        logger.info(f"Retrieval Efficiency (mean): {stats['retrieval_mean']:.4f}")
+        logger.info(f"Success Rate: {stats['success_rate']:.2%}")
 
-if __name__ == "__main__":
-    sys.exit(main())
+if __name__ == '__main__':
+    main()

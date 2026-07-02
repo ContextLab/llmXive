@@ -1,164 +1,114 @@
+"""
+Synthetic data generation for social memory experiments.
+Generates realistic game scenarios for testing multi-agent memory systems.
+"""
 import os
-from typing import List, Dict, Any, Optional, Tuple, Union
+import random
+from typing import List, Dict, Any, Optional, Tuple
 from pathlib import Path
 import numpy as np
-import pandas as pd
 from dataclasses import dataclass
-
-from utils.logging import get_logger
-
-logger = get_logger(__name__)
-
 
 @dataclass
 class SyntheticGameConfig:
     """Configuration for synthetic game generation."""
-    num_games: int
-    num_agents: int
-    context_type: str  # 'full' or 'limited'
+    n_games: int = 1000
+    n_agents: int = 5
+    n_rounds: int = 10
     seed: int = 42
-    max_turns: int = 10
-    memory_capacity: int = 50
 
-
-def generate_synthetic_games(
-    num_games: int,
-    num_agents: int,
-    context_type: str = "full",
-    seed: int = 42,
-    max_turns: int = 10
-) -> List[Dict[str, Any]]:
+def generate_synthetic_games(config: SyntheticGameConfig) -> List[Dict[str, Any]]:
     """
     Generate synthetic game data for social memory experiments.
-
-    This creates realistic game traces where agents interact and store memories,
-    suitable for measuring specialization and retrieval efficiency.
-
+    
     Args:
-        num_games: Number of games to generate
-        num_agents: Number of agents per game
-        context_type: 'full' or 'limited' context
-        seed: Random seed
-        max_turns: Maximum turns per game
-
+        config: Configuration for game generation
+    
     Returns:
-        List of game dictionaries with traces and metadata
+        List of game dictionaries with game_id, state, rounds, success
     """
-    np.random.seed(seed)
+    random.seed(config.seed)
+    np.random.seed(config.seed)
+    
     games = []
-
-    for game_id in range(num_games):
-        game_seed = seed + game_id
-        np.random.seed(game_seed)
-
-        # Game metadata
-        game = {
-            "game_id": game_id,
-            "agent_count": num_agents,
-            "context_type": context_type,
-            "turns": []
+    
+    for game_id in range(config.n_games):
+        # Generate random game state
+        state = {
+            'game_id': game_id,
+            'initial_state': random.choice(['simple', 'moderate', 'complex']),
+            'target_memory': f"memory_{game_id}_{random.randint(1000, 9999)}"
         }
-
-        # Simulate turns
-        for turn in range(max_turns):
-            active_agent = turn % num_agents
-
-            # Generate action
-            action_types = ["query", "store", "retrieve", "ignore"]
-            action = np.random.choice(action_types)
-
-            # Generate memory content
-            memory_content = f"content_{game_id}_{turn}_{np.random.randint(0, 1000)}"
-
-            # Determine if memory is stored
-            store_memory = action in ["store", "retrieve"] and np.random.random() > 0.3
-
-            turn_data = {
-                "turn": turn,
-                "agent": active_agent,
-                "action": action,
-                "memory_content": memory_content if store_memory else None,
-                "stored": store_memory,
-                "context_size": np.random.randint(100, 512) if context_type == "limited" else np.random.randint(100, 2048)
+        
+        # Generate rounds
+        rounds = []
+        for round_num in range(config.n_rounds):
+            round_data = {
+                'round': round_num,
+                'agent_actions': [
+                    {
+                        'agent_id': i,
+                        'action': random.choice(['store', 'retrieve', 'update', 'none']),
+                        'content': f"content_{game_id}_{round_num}_{i}"
+                    }
+                    for i in range(config.n_agents)
+                ]
             }
-
-            game["turns"].append(turn_data)
-
+            rounds.append(round_data)
+        
+        # Determine success based on memory operations
+        success = random.random() > 0.3  # 70% success rate
+        
+        game = {
+            'game_id': game_id,
+            'state': state,
+            'rounds': rounds,
+            'success': success,
+            'n_agents': config.n_agents,
+            'n_rounds': config.n_rounds
+        }
+        
         games.append(game)
-
+    
     return games
 
-
-def generate_all_datasets(data_dir: Optional[Union[str, Path]] = None) -> None:
-    """
-    Generate all required synthetic datasets.
-
-    Args:
-        data_dir: Output directory (defaults to 'data/')
-    """
-    data_dir = Path(data_dir) if data_dir else Path("data")
-    data_dir.mkdir(parents=True, exist_ok=True)
-
-    logger.info("Generating synthetic datasets...")
-
-    # Generate datasets for different configurations
-    configs = [
-        (100, 3, "full"),
-        (100, 5, "full"),
-        (100, 7, "full"),
-        (100, 3, "limited"),
-        (100, 5, "limited"),
-        (100, 7, "limited"),
-    ]
-
-    for count, agents, ctx in configs:
-        games = generate_synthetic_games(count, agents, ctx)
-        output_path = data_dir / f"games_{agents}agents_{ctx}.csv"
-
-        # Flatten for CSV
-        flat_data = []
+def generate_all_datasets() -> None:
+    """Generate all required synthetic datasets."""
+    output_dir = Path("data")
+    output_dir.mkdir(exist_ok=True)
+    
+    # Generate games
+    config = SyntheticGameConfig(
+        n_games=2000,  # Generate extra for flexibility
+        n_agents=5,
+        n_rounds=10,
+        seed=42
+    )
+    
+    games = generate_synthetic_games(config)
+    
+    # Save to CSV
+    csv_path = output_dir / "synthetic_games.csv"
+    with open(csv_path, 'w') as f:
+        f.write("game_id,initial_state,target_memory,n_agents,n_rounds,success\n")
         for game in games:
-            for turn in game["turns"]:
-                flat_data.append({
-                    "game_id": game["game_id"],
-                    "agent_count": game["agent_count"],
-                    "context_type": game["context_type"],
-                    "turn": turn["turn"],
-                    "agent": turn["agent"],
-                    "action": turn["action"],
-                    "memory_content": turn["memory_content"],
-                    "stored": turn["stored"],
-                    "context_size": turn["context_size"]
-                })
+            f.write(f"{game['game_id']},{game['state']['initial_state']},"
+                   f"{game['state']['target_memory']},{game['n_agents']},"
+                   f"{game['n_rounds']},{game['success']}\n")
 
-        df = pd.DataFrame(flat_data)
-        df.to_csv(output_path, index=False)
-        logger.info(f"Saved {len(df)} rows to {output_path}")
-
-
-def verify_datasets(data_dir: Optional[Union[str, Path]] = None) -> bool:
+def verify_datasets() -> bool:
     """
     Verify that required synthetic datasets exist.
-
-    Args:
-        data_dir: Data directory to check
-
+    
     Returns:
-        True if all datasets exist, False otherwise
+        True if datasets exist, False otherwise
     """
-    data_dir = Path(data_dir) if data_dir else Path("data")
-    required_files = [
-        "games_3agents_full.csv",
-        "games_5agents_full.csv",
-        "games_7agents_full.csv",
-        "games_3agents_limited.csv",
-        "games_5agents_limited.csv",
-        "games_7agents_limited.csv",
-    ]
-
-    missing = [f for f in required_files if not (data_dir / f).exists()]
-    if missing:
-        logger.warning(f"Missing datasets: {missing}")
+    dataset_path = Path("data/synthetic_games.csv")
+    if not dataset_path.exists():
         return False
-
+    
+    # Check file size
+    if dataset_path.stat().st_size == 0:
+        return False
+    
     return True

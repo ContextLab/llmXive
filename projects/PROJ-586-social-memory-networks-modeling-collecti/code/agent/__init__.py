@@ -1,4 +1,10 @@
-"""Agent package initialization."""
-from .base_agent import BaseAgent, AgentConfig
+"""
+Agent package for the social memory network project.
+"""
 
-__all__ = ['BaseAgent', 'AgentConfig']
+from .base_agent import AgentConfig, BaseAgent
+
+__all__ = [
+    'AgentConfig',
+    'BaseAgent'
+]

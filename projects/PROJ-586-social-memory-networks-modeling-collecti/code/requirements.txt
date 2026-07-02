@@ -1,10 +1,18 @@
-transformers>=4.30.0
+# Core dependencies
 torch>=2.0.0
+transformers>=4.30.0
 numpy>=1.24.0
 pandas>=2.0.0
-pyyaml>=6.0
-matplotlib>=3.7.0
 scipy>=1.10.0
-scikit-learn>=1.3.0
-pytest  # auto-added: imported by run-book but missing from venv
+
+# Utilities
+matplotlib>=3.7.0
+pytest>=7.0.0
+black>=23.0.0
+flake8>=6.0.0
+pre-commit>=3.0.0
+
+# Optional: for statsmodels if available
+# statsmodels>=0.14.0
 statsmodels  # auto-added: imported by run-book but missing from venv
+pyyaml  # auto-added: imported by run-book but missing from venv

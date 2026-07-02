@@ -1,80 +1,64 @@
 """
-Logging configuration for the social memory networks project.
-Provides setup_logger and get_logger functions.
+Logging utilities for the social memory network project.
+Configures timestamped logging to experiment.log.
 """
 import logging
-import sys
+import os
 from pathlib import Path
 from typing import Optional
 
-# Global logger instance cache
-_loggers: dict[str, logging.Logger] = {}
+_logger: Optional[logging.Logger] = None
 
-def setup_logger(
-    name: str = "social_memory",
-    log_file: Optional[Path] = None,
-    level: int = logging.INFO,
-    include_timestamp: bool = True
-) -> logging.Logger:
+def setup_logger(level: int = logging.INFO, log_file: Optional[str] = None) -> logging.Logger:
     """
-    Configure and return a logger with optional file handler.
-
+    Setup the project logger with timestamps.
+    
     Args:
-        name: Logger name
-        log_file: Optional path to log file (relative to project root)
         level: Logging level
-        include_timestamp: Whether to include timestamps in console output
-
+        log_file: Optional path to log file (defaults to experiment.log in project root)
+    
     Returns:
         Configured logger instance
     """
-    if name in _loggers:
-        return _loggers[name]
-
-    logger = logging.getLogger(name)
-    logger.setLevel(level)
-    logger.propagate = False
-
+    global _logger
+    
+    if _logger is not None:
+        return _logger
+    
+    _logger = logging.getLogger('social_memory')
+    _logger.setLevel(level)
+    
     # Clear existing handlers
-    logger.handlers.clear()
-
+    _logger.handlers.clear()
+    
     # Console handler
-    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler = logging.StreamHandler()
     console_handler.setLevel(level)
-
-    if include_timestamp:
-        console_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    console_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    console_handler.setFormatter(console_format)
+    _logger.addHandler(console_handler)
+    
+    # File handler
+    if log_file is None:
+        # Default to project root
+        project_root = Path(__file__).resolve().parent.parent.parent
+        log_file = project_root / 'experiment.log'
     else:
-        console_format = "%(name)s - %(levelname)s - %(message)s"
+        log_file = Path(log_file)
+    
+    log_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    file_handler = logging.FileHandler(log_file)
+    file_handler.setLevel(level)
+    file_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    file_handler.setFormatter(file_format)
+    _logger.addHandler(file_handler)
+    
+    return _logger
 
-    console_formatter = logging.Formatter(console_format, datefmt="%Y-%m-%d %H:%M:%S")
-    console_handler.setFormatter(console_formatter)
-    logger.addHandler(console_handler)
-
-    # File handler if specified
-    if log_file:
-        # Ensure directory exists
-        log_file.parent.mkdir(parents=True, exist_ok=True)
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setLevel(level)
-        file_formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-        file_handler.setFormatter(file_formatter)
-        logger.addHandler(file_handler)
-
-    _loggers[name] = logger
-    return logger
-
-def get_logger(name: str = "social_memory") -> logging.Logger:
-    """
-    Get a logger by name, creating it if it doesn't exist.
-
-    Args:
-        name: Logger name
-
-    Returns:
-        Logger instance
-    """
-    if name not in _loggers:
-        # Create with default settings
-        return setup_logger(name)
-    return _loggers[name]
+def get_logger() -> logging.Logger:
+    """Get the project logger instance."""
+    global _logger
+    if _logger is None:
+        return setup_logger()
+    return _logger
