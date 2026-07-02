@@ -1,0 +1,12 @@
+{
+  "random_seed": 42,
+  "data_dir": "data",
+  "output_dir": "outputs",
+  "log_level": "INFO",
+  "simulation": {
+    "n_replications": 1000,
+    "sample_sizes": [10, 20, 30],
+    "confidence_levels": [0.90, 0.95, 0.99],
+    "bootstrap_resamples": 1000
+  }
+}

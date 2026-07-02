@@ -1,0 +1,246 @@
+- artifact_path: projects/PROJ-263-assessing-the-validity-of-frequentist-co/specs/001-assessing-the-validity-of-frequentist-co/tasks.md
+  attempts: 1
+  canonical: fetch real numeric datasets from UCI Machine Learning Repository
+  claim_id: c_11febeae
+  context: 'T016 [US1] Implement UCI dataset downloader: fetch REAL numeric datasets
+    from UCI Machine Learning Repository via HTTP (FR-001) and save to data/raw/.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_real_numeric_datasets_from_UCI_Machine_Learning_Reposi
+  kind: entity_fact
+  raw_text: The project will fetch REAL numeric datasets from UCI Machine Learning
+    Repository via HTTP.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T10:41:25Z'
+- artifact_path: projects/PROJ-263-assessing-the-validity-of-frequentist-co/specs/001-assessing-the-validity-of-frequentist-co/tasks.md
+  attempts: 1
+  canonical: use Wine, Wine Quality Red, Wine Quality White, Ionosphere, and Heart
+    Disease Cleveland datasets
+  claim_id: c_e662494f
+  context: 'Specific datasets to fetch: Wine, Wine Quality Red, Wine Quality White,
+    Ionosphere, Heart Disease (Cleveland).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_Wine,_Wine_Quality_Red,_Wine_Quality_White,_Ionosphere,
+  kind: entity_fact
+  raw_text: The project will use the Wine, Wine Quality Red, Wine Quality White, Ionosphere,
+    and Heart Disease (Cleveland) datasets.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T10:41:46Z'
+- artifact_path: projects/PROJ-263-assessing-the-validity-of-frequentist-co/specs/001-assessing-the-validity-of-frequentist-co/tasks.md
+  attempts: 1
+  canonical: draw samples of size 10, 20, and 30 with replacement
+  claim_id: c_a1af5436
+  context: 'T021 [US1] Implement sampling logic: draw samples of size n=10, 20, 30
+    *with replacement* from the cleaned UCI dataset array...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The simulation will draw samples of size n=10, n=20, and n=30 with replacement.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T10:42:30Z'
+- artifact_path: projects/PROJ-263-assessing-the-validity-of-frequentist-co/specs/001-assessing-the-validity-of-frequentist-co/tasks.md
+  attempts: 1
+  canonical: use mean of full UCI dataset array as operational ground truth
+  claim_id: c_7aa94f08
+  context: 'T020 [US1] Implement population mean calculator: compute the mean of the
+    FULL UCI DATASET ARRAY for each variable to serve as operational ground truth...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_mean_of_full_UCI_dataset_array_as_operational_ground_tru
+  kind: entity_fact
+  raw_text: The operational ground truth for coverage checks will be the mean of the
+    full UCI dataset array.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T10:42:49Z'
+- artifact_path: projects/PROJ-263-assessing-the-validity-of-frequentist-co/specs/001-assessing-the-validity-of-frequentist-co/tasks.md
+  attempts: 1
+  canonical: flag deviations as practically significant if absolute deviation exceeds
+    1.0%
+  claim_id: c_1f31ceac
+  context: T031 [US2] Implement logic to flag 'practically significant' deviations
+    only if |deviation| > 1.0% (FR-011).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_deviations_as_practically_significant_if_absolute_devia
+  kind: magnitude
+  raw_text: The system will flag deviations as practically significant only if the
+    absolute deviation is greater than 1.0%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T10:43:17Z'
+- artifact_path: projects/PROJ-263-assessing-the-validity-of-frequentist-co/specs/001-assessing-the-validity-of-frequentist-co/tasks.md
+  attempts: 1
+  canonical: optimize simulation runtime to be less than or equal to 6 hours on 2-core
+    CPU
+  claim_id: c_a8827230
+  context: "T044 Profile simulation loop and optimize data loading to ensure runtime\
+    \ \u2264 6 hours on 2-core CPU (SC-002)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Optimize_simulation_runtime_to_be_less_than_or_equal_to_6_ho
+  kind: magnitude
+  raw_text: The simulation runtime will be optimized to be less than or equal to 6
+    hours on a 2-core CPU.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T10:44:04Z'
+- artifact_path: projects/PROJ-263-assessing-the-validity-of-frequentist-co/specs/001-assessing-the-validity-of-frequentist-co/tasks.md
+  attempts: 1
+  canonical: keep memory usage at or below 7 GB RAM during peak execution
+  claim_id: c_4e6347a2
+  context: "T046 Verify memory usage \u2264 7 GB RAM during peak execution (SC-003)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Memory usage will be kept at or below 7 GB RAM during peak execution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T10:44:17Z'
+- artifact_path: projects/PROJ-263-assessing-the-validity-of-frequentist-co/specs/001-assessing-the-validity-of-frequentist-co/tasks.md
+  attempts: 1
+  canonical: 'Fetch specific UCI datasets: Wine, Wine Quality Red, Wine Quality White,
+    Ionosphere, Heart Disease'
+  claim_id: c_9854bfdd
+  context: 'T016 [US1] Implement UCI dataset downloader: fetch REAL numeric datasets
+    from UCI Machine Learning Repository via HTTP (FR-001) and save to data/raw/.
+    Specific datasets to fetch: Wine, Wine Quality Red, Wine Quality White, Ionosphere,
+    Heart Disease (Cleveland).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_specific_UCI_datasets:_Wine,_Wine_Quality_Red,_Wine_Qu
+  kind: entity_fact
+  raw_text: The project will fetch REAL numeric datasets from the UCI Machine Learning
+    Repository, specifically Wine, Wine Quality Red, Wine Quality White, Ionosphere,
+    and Heart Disease (Cleveland).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T10:45:37Z'
+- artifact_path: projects/PROJ-263-assessing-the-validity-of-frequentist-co/specs/001-assessing-the-validity-of-frequentist-co/tasks.md
+  attempts: 1
+  canonical: Sampling sizes n=10, n=20, n=30 with replacement from UCI datasets
+  claim_id: c_37fd5dbd
+  context: 'T021 [US1] Implement sampling logic: draw samples of size n=10, 20, 30
+    *with replacement* from the cleaned UCI dataset array to approximate the super-population
+    distribution for testing the t-interval''s infinite population assumption (FR-010).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The simulation will draw samples of size n=10, n=20, and n=30 with replacement
+    from the cleaned UCI dataset array.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T10:45:56Z'
+- artifact_path: projects/PROJ-263-assessing-the-validity-of-frequentist-co/specs/001-assessing-the-validity-of-frequentist-co/tasks.md
+  attempts: 1
+  canonical: Use full UCI dataset array mean as operational ground truth
+  claim_id: c_9d1d381e
+  context: 'T020 [US1] Implement population mean calculator: compute the mean of the
+    FULL UCI DATASET ARRAY for each variable to serve as operational ground truth
+    (Constitution Principle VII, FR-010) and save to data/processed/population_means.json.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_full_UCI_dataset_array_mean_as_operational_ground_truth
+  kind: entity_fact
+  raw_text: The project uses the mean of the full UCI dataset array as the operational
+    ground truth for coverage checks.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T10:46:15Z'
+- artifact_path: projects/PROJ-263-assessing-the-validity-of-frequentist-co/specs/001-assessing-the-validity-of-frequentist-co/tasks.md
+  attempts: 1
+  canonical: Flag practical significance if absolute deviation > 1.0%
+  claim_id: c_ad51075b
+  context: T031 [US2] Implement logic to flag "practically significant" deviations
+    only if |deviation| > 1.0% (FR-011).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_practical_significance_if_absolute_deviation_%3E_1.0%25
+  kind: magnitude
+  raw_text: Deviations are flagged as 'practically significant' only if the absolute
+    deviation is greater than 1.0%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T10:46:33Z'
+- artifact_path: projects/PROJ-263-assessing-the-validity-of-frequentist-co/specs/001-assessing-the-validity-of-frequentist-co/tasks.md
+  attempts: 1
+  canonical: Simulation runtime <= 6 hours on 2-core CPU
+  claim_id: c_b8de2d65
+  context: "T044 Profile simulation loop and optimize data loading to ensure runtime\
+    \ \u2264 6 hours on 2-core CPU (SC-002)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Simulation_runtime_%3C=_6_hours_on_2-core_CPU
+  kind: magnitude
+  raw_text: The simulation runtime must be less than or equal to 6 hours on a 2-core
+    CPU.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T10:47:15Z'
+- artifact_path: projects/PROJ-263-assessing-the-validity-of-frequentist-co/specs/001-assessing-the-validity-of-frequentist-co/tasks.md
+  attempts: 1
+  canonical: Peak memory usage <= 7 GB RAM
+  claim_id: c_c7cbc970
+  context: "T046 Verify memory usage \u2264 7 GB RAM during peak execution (SC-003)"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_memory_usage_%3C=_7_GB_RAM
+  kind: magnitude
+  raw_text: Memory usage during peak execution must be less than or equal to 7 GB
+    RAM.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T10:47:34Z'

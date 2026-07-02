@@ -1,0 +1,9 @@
+T009 Setup environment configuration management (load random seeds, config paths): 1
+T010 Implement deterministic random seed management (per Principle I) across all modules: 1
+T011 Implement checksum generation for raw data upon creation (per Principle III): 1
+T012 Create base schemas for `data-models/schemas/` (SimulationRun, CoverageRecord, AggregateReport): 1
+? 'T016 [US1] Implement UCI dataset downloader: fetch REAL numeric datasets from UCI
+  Machine Learning Repository via HTTP (FR-001) and save to `data/raw/`. **Specific
+  datasets to fetch**: Wine, Wine Quality Red, Wine Quality White, Ionosphere, Heart
+  Disease (Cleveland).'
+: 1

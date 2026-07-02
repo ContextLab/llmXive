@@ -1,0 +1,10 @@
+# Project Configuration
+project_id: "PROJ-263"
+random_seed: 42
+simulation:
+  n_replications: 1000
+  sample_sizes: [10, 20, 30]
+  confidence_levels: [0.95]
+data:
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"

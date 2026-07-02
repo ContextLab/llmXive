@@ -18,22 +18,22 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: This task list strictly adheres to the Feature Specification (spec.md).
-  
-  The Spec (FR-001, FR-010, Principle VII) MANDATES REAL UCI DATASETS and the 
-  FULL DATASET MEAN as operational ground truth. These tasks enforce the Spec.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: This task list strictly adheres to the Feature Specification (spec.md).
+
+ The Spec (FR-001, FR-010, Principle VII) MANDATES REAL UCI DATASETS and the
+ FULL DATASET MEAN as operational ground truth. These tasks enforce the Spec.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`projects/PROJ-263-assessing-the-validity-of-frequentist-co/`)
-- [ ] T002 Initialize Python 3.11 project with `pandas`, `numpy`, `scipy`, `scikit-learn`, `pyyaml`, `pytest` dependencies
-- [ ] T003 [P] Configure linting (flake8/black) and formatting tools
+- [X] T001 Create project structure per implementation plan (`projects/PROJ-263-assessing-the-validity-of-frequentist-co/`)
+- [X] T002 Initialize Python 3.11 project with `pandas`, `numpy`, `scipy`, `scikit-learn`, `pyyaml`, `pytest` dependencies
+- [X] T003 [P] Configure linting (flake8/black) and formatting tools
 
 ---
 
@@ -43,11 +43,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Setup `data/raw/` and `data/processed/` directories with `.gitkeep`
-- [ ] T005 Create `code/simulation.py` skeleton with Monte Carlo loop structure (depends on T012)
-- [ ] T006 Create `code/coverage.py` skeleton for coverage calculation logic (depends on T012)
-- [ ] T007 Create `code/sensitivity.py` skeleton for sensitivity analysis logic (depends on T012)
-- [ ] T008 Create `code/main.py` orchestration script entry point
+- [X] T004 Setup `data/raw/` and `data/processed/` directories with `.gitkeep`
+- [X] T005 Create `code/simulation.py` skeleton with Monte Carlo loop structure (depends on T012) <!-- ATOMIZE: requested -->
+- [X] T006 Create `code/coverage.py` skeleton for coverage calculation logic (depends on T012)
+- [X] T007 Create `code/sensitivity.py` skeleton for sensitivity analysis logic (depends on T012)
+- [X] T008 Create `code/main.py` orchestration script entry point <!-- ATOMIZE: requested -->
 - [ ] T009 Setup environment configuration management (load random seeds, config paths)
 - [ ] T010 Implement deterministic random seed management (per Principle I) across all modules
 - [ ] T011 Implement checksum generation for raw data upon creation (per Principle III)
@@ -66,19 +66,19 @@
 ### Implementation for User Story 1
 
 - [ ] T016 [US1] Implement UCI dataset downloader: fetch REAL numeric datasets from UCI Machine Learning Repository via HTTP (FR-001) and save to `data/raw/`. **Specific datasets to fetch**: Wine, Wine Quality Red, Wine Quality White, Ionosphere, Heart Disease (Cleveland).
-- [ ] T017 [US1] Implement data loader: parse downloaded UCI datasets and identify continuous numeric variables (FR-002).
+- [~] T017 [US1] Implement data loader: parse downloaded UCI datasets and identify continuous numeric variables (FR-002).
 - [ ] T017.5 [US1] Implement explicit variable type validation: verify selected variables are continuous numeric before simulation begins (FR-002).
-- [ ] T018 [US1] Implement data cleaner: exclude rows with missing values and filter for continuous variables only (FR-002, Edge Cases).
-- [ ] T019 [US1] Implement edge case handler: skip datasets with insufficient row counts, handle categorical variables, and log warnings (Edge Cases).
-- [ ] T020 [US1] Implement population mean calculator: compute the mean of the FULL UCI DATASET ARRAY for each variable to serve as operational ground truth (Constitution Principle VII, FR-010) and save to `data/processed/population_means.json`.
-- [ ] T021 [US1] Implement sampling logic: draw samples of size n=10, 20, 30 *with replacement* from the cleaned UCI dataset array to approximate the super-population distribution for testing the t-interval's infinite population assumption (FR-010).
-- [ ] T022 [US1] Implement t-interval calculation using `scipy.stats.t.ppf` for critical values (FR-005).
-- [ ] T023 [US1] Implement bootstrap percentile interval calculation using A large number of bootstrap resamples and `numpy.random.choice` (FR-005).
-- [ ] T024 [US1] Implement coverage check logic: compare interval bounds against the **mean of the full UCI dataset array** (operational ground truth) (FR-003, Constitution Principle VII).
-- [ ] T025 [US1] Implement the main Monte Carlo loop: A large number of replications per configuration (dataset, n, confidence level) to ensure stable estimation (FR-003).
-- [ ] T026 [US1] Ensure all computations are CPU-only (no CUDA, no GPU libraries) (FR-004).
-- [ ] T027 [US1] Add logging for simulation progress and warnings for skipped configurations (Edge Cases).
-- [ ] T028 [US1] Write raw coverage records to `data/processed/coverage_records.json` with schema: `dataset_id`, `sample_size`, `interval_lower`, `interval_upper`, `contains_mean` (FR-003).
+- [~] T018 [US1] Implement data cleaner: exclude rows with missing values and filter for continuous variables only (FR-002, Edge Cases).
+- [~] T019 [US1] Implement edge case handler: skip datasets with insufficient row counts, handle categorical variables, and log warnings (Edge Cases).
+- [~] T020 [US1] Implement population mean calculator: compute the mean of the FULL UCI DATASET ARRAY for each variable to serve as operational ground truth (Constitution Principle VII, FR-010) and save to `data/processed/population_means.json`.
+- [~] T021 [US1] Implement sampling logic: draw samples of size n=10, 20, 30 *with replacement* from the cleaned UCI dataset array to approximate the super-population distribution for testing the t-interval's infinite population assumption (FR-010).
+- [~] T022 [US1] Implement t-interval calculation using `scipy.stats.t.ppf` for critical values (FR-005).
+- [~] T023 [US1] Implement bootstrap percentile interval calculation using A large number of bootstrap resamples and `numpy.random.choice` (FR-005).
+- [~] T024 [US1] Implement coverage check logic: compare interval bounds against the **mean of the full UCI dataset array** (operational ground truth) (FR-003, Constitution Principle VII).
+- [~] T025 [US1] Implement the main Monte Carlo loop: A large number of replications per configuration (dataset, n, confidence level) to ensure stable estimation (FR-003).
+- [~] T026 [US1] Ensure all computations are CPU-only (no CUDA, no GPU libraries) (FR-004).
+- [~] T027 [US1] Add logging for simulation progress and warnings for skipped configurations (Edge Cases).
+- [~] T028 [US1] Write raw coverage records to `data/processed/coverage_records.json` with schema: `dataset_id`, `sample_size`, `interval_lower`, `interval_upper`, `contains_mean` (FR-003).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -92,10 +92,10 @@
 
 ### Implementation for User Story 2
 
-- [ ] T029 [US2] Implement aggregation logic to calculate mean deviation from nominal coverage across **multiple UCI datasets** (FR-006).
-- [ ] T030 [US2] Implement Bonferroni correction for family-wise error rate when testing significance across datasets (FR-006).
-- [ ] T031 [US2] Implement logic to flag "practically significant" deviations only if |deviation| > 1.0% (FR-011).
-- [ ] T032 [US2] Implement report generation that explicitly states findings are **associational** (FR-007).
+- [~] T029 [US2] Implement aggregation logic to calculate mean deviation from nominal coverage across **multiple UCI datasets** (FR-006).
+- [~] T030 [US2] Implement Bonferroni correction for family-wise error rate when testing significance across datasets (FR-006).
+- [~] T031 [US2] Implement logic to flag "practically significant" deviations only if |deviation| > 1.0% (FR-011).
+- [~] T032 [US2] Implement report generation that explicitly states findings are **associational** (FR-007).
 - [ ] T033 [US2] Generate `outputs/aggregate_report.md` with summary tables and statistical tests, explicitly contrasting the scope of **multiple UCI datasets** against previous synthetic approaches to ensure clarity on generalization.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -157,8 +157,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -207,9 +207,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3 & 4
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3 & 4
 3. Stories complete and integrate independently
 
 ---

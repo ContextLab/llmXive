@@ -1,0 +1,15 @@
+{
+  "dataset": "wine_placeholder",
+  "dataset_path": "data/raw/wine.csv",
+  "population_means_path": "data/processed/population_means.json",
+  "variable": 0,
+  "sample_sizes": [10, 20, 30],
+  "confidence_levels": [0.90, 0.95, 0.99],
+  "fixed_sample_size": 10,
+  "fixed_confidence_level": 0.95,
+  "n_replications": 1000,
+  "seed": 42,
+  "sweep_confidence": true,
+  "sweep_sample_size": true,
+  "timestamp": "2023-01-01T00:00:00Z"
+}
