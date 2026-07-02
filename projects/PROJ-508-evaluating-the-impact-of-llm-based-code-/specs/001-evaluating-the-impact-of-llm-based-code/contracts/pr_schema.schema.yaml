@@ -1,0 +1,70 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: "object"
+title: "Pull Request Analysis Schema"
+description: "Schema for the cleaned PR dataset used in regression analysis."
+required:
+  - pr_id
+  - repo_id
+  - comment_length_chars
+  - iteration_count
+  - revert_frequency
+  - llm_adopted
+  - lines_of_code
+  - contributor_count
+  - repo_stars
+  - repo_fork_count
+  - exclude_from_analysis
+properties:
+  pr_id:
+    type: "integer"
+    description: "Unique identifier for the Pull Request."
+  repo_id:
+    type: "string"
+    description: "Repository identifier (owner/repo)."
+  comment_length_chars:
+    type: "integer"
+    minimum: 0
+    description: "Average length of review comments in characters."
+  iteration_count:
+    type: "integer"
+    minimum: 0
+    description: "Number of commits/iterations in the PR."
+  revert_frequency:
+    type: "integer"
+    minimum: 0
+    description: "Count of reverts within 7 days of merge."
+  llm_adopted:
+    type: "integer"
+    enum:
+      - 0
+      - 1
+    description: "Binary flag: 1 if LLM tools detected, 0 otherwise."
+  lines_of_code:
+    type: "integer"
+    minimum: 0
+    description: "Total lines of code in the repository."
+  contributor_count:
+    type: "integer"
+    minimum: 1
+    description: "Number of unique contributors."
+  domain_complexity:
+    type: "number"
+    description: "Calculated as log10(LOC) + log10(Contributors) + 1. Stored only, NOT used in regression. Optional field."
+  repo_stars:
+    type: "integer"
+    minimum: 0
+    description: "Number of stars on the repository (proxy for maturity)."
+  repo_fork_count:
+    type: "integer"
+    minimum: 0
+    description: "Number of forks on the repository (proxy for maturity)."
+  exclude_from_analysis:
+    type: "boolean"
+    description: "True if PR count < 10, excluding from regression."
+  language_primary:
+    type: "string"
+    description: "Primary programming language."
+  repo_age_days:
+    type: "integer"
+    minimum: 0
+    description: "Age of repository in days."
