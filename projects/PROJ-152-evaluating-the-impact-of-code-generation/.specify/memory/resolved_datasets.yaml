@@ -1,0 +1,66 @@
+resolved_at: '2026-07-02T20:56:24.706552+00:00'
+datasets:
+- intent: ZINB
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Within-Individual_Urinary_Uranium-238_Longitudinal_Data_12_Repeat-Tested_Swiss_CEMET_Patients_2016_2017_/32882261
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ctsnet.figshare.com/articles/media/Normothermic_Treatment_of_an_Aortic_Arch_Aneurysm/32882135
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_i_An_Intercultural_Mixed-Methods_Protocol_for_Analyzing_Support_Systems_for_Women_Experiencing_Violence_i_/32885357
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Rapid_and_Specific_Detection_of_Escherichia_coli_O157_H7_Using_Engineered_Phage_Tailspike_Protein-Based_Magnetic_Assisted_Luminescence_Assay/32885394
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Ultra-compact_and_efficient_standing-wave_electro-optic_modulator_in_lithium_niobate_-_7926509_pdf/32630331
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15817409
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15129757
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8031706
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10951780
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12609337
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21106315
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21106315
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.28459
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ese-journals.unisalento.it/index.php/ejasa/article/download/21594/21113
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.07694
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

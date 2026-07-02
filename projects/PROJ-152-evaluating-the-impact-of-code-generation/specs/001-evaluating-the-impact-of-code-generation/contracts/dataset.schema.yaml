@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "GeneratedSnippet Dataset Schema"
+description: "Schema for the generated code snippets CSV file"
+type: "object"
+properties:
+  snippet_id:
+    type: "string"
+    description: "Unique identifier for the snippet"
+  model_name:
+    type: "string"
+    enum:
+      - "starcoder-7b"
+      - "codegen-2b"
+      - "neox-1.3b"
+    description: "Name of the model used for generation"
+  prompt_id:
+    type: "string"
+    description: "Reference to the prompt used"
+  code:
+    type: "string"
+    description: "The generated code text"
+  loc:
+    type: "integer"
+    description: "Lines of code in the snippet"
+  generation_time:
+    type: "number"
+    description: "Time taken to generate in seconds"
+  status:
+    type: "string"
+    enum:
+      - "success"
+      - "timeout"
+      - "failure"
+    description: "Status of the generation attempt"
+  error_message:
+    type: ["string", "null"]
+    description: "Error message if generation failed"
+required:
+  - snippet_id
+  - model_name
+  - prompt_id
+  - code
+  - loc
+  - generation_time
+  - status
+additionalProperties: false

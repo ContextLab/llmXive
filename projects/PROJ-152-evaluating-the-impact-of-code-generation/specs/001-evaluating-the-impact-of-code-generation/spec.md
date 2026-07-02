@@ -17,7 +17,7 @@ The research pipeline MUST download three code generation models, generate code 
 
 **Acceptance Scenarios**:
 
-1. **Given** three models are downloaded and available locally, **When** the pipeline generates code from 250 prompts and runs static analysis, **Then** a CSV file is produced with ≥750 rows (250 prompts × 3 models) containing model name, prompt text, generated code, and vulnerability findings.
+1. **Given** three models are downloaded and available locally, **When** the pipeline generates code from 250 prompts (A diverse set of CodeXGLUE samples combined with a curated collection of handcrafted examples) and runs static analysis, **Then** a CSV file is produced with ≥750 rows (250 prompts × 3 models) containing model name, prompt text, generated code, and vulnerability findings.
 2. **Given** a prompt from the CodeXGLUE benchmark, **When** it is sent to all three models, **Then** each model produces code within 120 seconds and the pipeline logs any generation failures with the error message.
 3. **Given** generated code is produced, **When** it is piped through Bandit, Semgrep, and CodeQL, **Then** each scanner returns findings with CWE identifiers and severity scores, or logs a scanner error if the language is unsupported.
 
@@ -25,17 +25,18 @@ The research pipeline MUST download three code generation models, generate code 
 
 ### User Story 2 - Compute normalized vulnerability metrics and perform statistical comparison (Priority: P2)
 
-The pipeline MUST compute vulnerability-per-100-LOC and mean severity per model, then apply the Kruskal-Wallis test followed by Dunn's post-hoc with Bonferroni correction if the omnibus test is significant.
+The pipeline MUST compute vulnerability-per-100-LOC and mean severity per model, then apply the Kruskal-Wallis test followed by Dunn's post-hoc with Bonferroni correction if the omnibus test is significant. Additionally, it MUST perform robustness checks for zero-inflated data and control for snippet length.
 
-**Why this priority**: This delivers the core research output—statistically validated differences (or lack thereof) in vulnerability profiles across models. It transforms raw findings into publishable results.
+**Why this priority**: This delivers the core research output—statistically validated differences (or lack thereof) in vulnerability profiles across models. It transforms raw findings into publishable results and ensures methodological rigor against confounding variables.
 
-**Independent Test**: Can be fully tested by feeding a synthetic dataset with known differences in vulnerability density and verifying the statistical tests detect the difference at p < 0.05 with corrected post-hoc significance.
+**Independent Test**: Can be fully tested by feeding a synthetic dataset with known differences in vulnerability density and verifying the statistical tests detect the difference at p < 0.05 with corrected post-hoc significance, and that the ZINB model converges on zero-inflated data.
 
 **Acceptance Scenarios**:
 
-1. **Given** vulnerability findings are collected from all three models, **When** the pipeline computes V/100LOC and mean CVSS severity per model, **Then** summary statistics are output with model name, mean V/100LOC, standard deviation, and mean severity score.
-2. **Given** V/100LOC values are computed across models, **When** the Kruskal-Wallis test is applied, **Then** a p-value is reported and if p < 0.05, Dunn's post-hoc with Bonferroni correction is executed.
-3. **Given** Dunn's post-hoc comparisons are computed, **When** results are aggregated, **Then** pairwise p-values are reported with Bonferroni-adjusted significance thresholds (α = 0.05 / 3 = 0.0167 for 3 pairwise comparisons).
+1. **Given** vulnerability findings are collected from all three models, **When** the pipeline computes V/100LOC and mean ordinal severity rank per model, **Then** summary statistics are output with model name, mean V/100LOC, standard deviation, and mean severity rank.
+2. **Given** V/100LOC values are computed across models, **When** the Kruskal-Wallis test is applied, **Then** a p-value is reported. If p < 0.05, Dunn's post-hoc with Bonferroni correction is executed. If p ≥ 0.05, the system reports the p-value and concludes "no significant difference".
+3. **Given** Dunn's post-hoc comparisons are computed, **When** results are aggregated, **Then** pairwise p-values are reported with Bonferroni-adjusted significance thresholds (α = 0.05 / 3 = 0.0167 for pairwise comparisons).
+4. **Given** the dataset contains ≥20% zero-vulnerability snippets, **When** the robustness check runs, **Then** a Zero-Inflated Negative Binomial (ZINB) regression is executed controlling for snippet length as an offset, and results are compared to the Kruskal-Wallis findings.
 
 ---
 
@@ -67,21 +68,26 @@ The pipeline MUST produce box-plots of vulnerability density per model, heat-map
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download and load three code generation models (StarCoder-Base large-scale, CodeGen-2B, GPT-NeoX-1.3B) into CPU memory without requiring GPU or CUDA (See US-1)
-- **FR-002**: System MUST generate code from a set of prompts (CodeXGLUE + handcrafted) using each model with max tokens = 256 and batch size = 1 (See US-1)
-- **FR-003**: System MUST pipe each generated snippet through Bandit (Python), Semgrep (security-best-practices ruleset), and CodeQL (Java/JavaScript) and record findings with CWE IDs and severity scores (See US-1)
-- **FR-004**: System MUST compute vulnerabilities per 100 lines of code (V/100LOC) and mean CVSS severity per model from the collected findings (See US-2)
-- **FR-005**: System MUST apply Kruskal-Wallis test to V/100LOC across models and if p < 0.05, execute Dunn's post-hoc test with Bonferroni correction (α = 0.0167) (See US-2)
+- **FR-001**: System MUST download and load three code generation models (StarCoder-Base 7B, CodeGen-2B, GPT-NeoX-1.3B) into CPU memory using 4-bit quantization (via bitsandbytes) such that total RAM usage ≤16GB (See US-1)
+- **FR-002**: System MUST generate code from a set of 250 prompts (200 CodeXGLUE + 50 handcrafted) using each model with max tokens = 256 and batch size = 1 (See US-1)
+- **FR-003**: System MUST pipe each generated snippet through Bandit (Python), Semgrep (security-best-practices ruleset), and CodeQL (Java/JavaScript) and record findings with CWE IDs and raw severity labels (See US-1)
+- **FR-003b**: System MUST apply a deterministic mapping function to convert raw scanner severity labels (Bandit, Semgrep, CodeQL) to a standardized ordinal severity rank. based on NIST NVD mappings before computing any aggregate metrics (See US-2)
+- **FR-004**: System MUST compute vulnerabilities per unit of code and mean ordinal severity rank (-5) per model from the collected findings (See US-2)
+- **FR-004b**: System MUST document that the "mean ordinal severity" metric represents a proxy for "risk propensity" rather than absolute CVSS score, and justify this as the only feasible comparative metric given disparate scanner taxonomies (See US-2)
+- **FR-005**: System MUST apply Kruskal-Wallis test to V/100LOC across models. If p < 0.05, execute Dunn's post-hoc test with Bonferroni correction (α = 0.0167). If p ≥ 0.05, report the p-value and conclude "no significant difference" (See US-2)
+- **FR-005b**: System MUST perform a Zero-Inflated Negative Binomial (ZINB) regression as a robustness check if ≥20% of snippets have zero vulnerabilities, controlling for snippet length as an offset term (See US-2)
+- **FR-005c**: System MUST control for snippet length (LOC) as a covariate or offset in all statistical models to prevent confounding between model identity and vulnerability density (See US-2)
 - **FR-006**: System MUST generate a box-plot PNG of vulnerability density per model, a heat-map PNG of CWE distribution per prompt category, and a summary table CSV with statistical results (See US-3)
 - **FR-007**: System MUST log all generation failures, scanner errors, and inference timeouts with model ID, prompt ID, and error message to a failures log file (See US-1)
 - **FR-008**: System MUST apply multiple-comparison correction when running >1 hypothesis test (Bonferroni for Dunn's post-hoc) and report adjusted p-values (See US-2)
+- **FR-009**: System MUST perform a sensitivity analysis sweeping the high-severity cutoff across ordinal ranks and report how the proportion of "high risk" snippets varies across these thresholds (See US-2)
 
 ### Key Entities
 
 - **Prompt**: A natural-language code generation request with attributes: prompt ID, text, source (CodeXGLUE or handcrafted), target language, and category (e.g., database access, HTML rendering)
 - **GeneratedSnippet**: A code artifact with attributes: snippet ID, model name, prompt ID, code text, line count, and generation timestamp
-- **VulnerabilityFinding**: A security issue with attributes: finding ID, snippet ID, scanner name, CWE ID, severity score (0-10), and finding text
-- **ModelSummary**: Aggregated statistics with attributes: model name, total snippets, mean V/100LOC, standard deviation, mean severity, and failure count
+- **VulnerabilityFinding**: A security issue with attributes: finding ID, snippet ID, scanner name, CWE ID, raw severity label, mapped ordinal severity rank (1-5), and finding text
+- **ModelSummary**: Aggregated statistics with attributes: model name, total snippets, mean V/100LOC, standard deviation, mean ordinal severity rank, and failure count
 
 ## Success Criteria *(mandatory)*
 
@@ -93,21 +99,21 @@ The pipeline MUST produce box-plots of vulnerability density per model, heat-map
 
 - **SC-001**: Vulnerability density (V/100LOC) per model is measured against the Kruskal-Wallis omnibus test statistic and p-value to determine whether significant differences exist (See US-2)
 - **SC-002**: Pairwise model differences are measured against Dunn's post-hoc test with Bonferroni correction (α = 0.0167) to control family-wise error rate across 3 comparisons (See US-2)
-- **SC-003**: Vulnerability severity distribution is measured against CVSS-like severity scores from static analyzers to characterize mean severity per model (See US-2)
+- **SC-003**: Vulnerability severity distribution is measured against the mapped ordinal severity rank (1-5) to characterize mean risk propensity per model (See US-2)
 - **SC-004**: CWE frequency per prompt category is measured against the heat-map visualization to identify which prompt categories consistently trigger higher-risk code (See US-3)
-- **SC-005**: Pipeline completion rate is measured against the target of 250 prompts × 3 models = 750 snippets to verify ≥90% successful generation and analysis (See US-1)
+- **SC-005**: Pipeline completion rate is measured against the target of A total of multiple generation attempts across 250 prompts and 3 models. to verify ≥90% successful generation and analysis (See US-1)
 
 ## Assumptions
 
-- The three selected models (StarCoder-Base 7B, CodeGen-2B, GPT-NeoX-1.3B) can be loaded into allocated RAM on CPU-only runners using default precision without bitsandbytes quantization or CUDA requirements
-- The CodeXGLUE benchmark provides a set of valid code generation prompts with sufficient context for security-relevant code to be generated
-- Static analyzers (Bandit, Semgrep, CodeQL) will run within the allocated job budget when processing 750 snippets total
-- Vulnerability severity scores from static analyzers are comparable across scanners for the purpose of mean severity calculation, though absolute calibration may differ
-- The handcrafted prompt set of a substantial number of prompts covers web-application security patterns (database access, HTML rendering, authentication) with ≥5 prompts per category
-- No GPU/CUDA accelerators are available on the GitHub Actions free-tier runner; all model inference uses CPU-only execution
-- The Kruskal-Wallis test is appropriate for non-normally distributed vulnerability density data and has sufficient power with ≥750 observations across 3 groups
-- Any threshold for "high severity" (e.g., CVSS ≥ 7.0) is justified by community-standard CVSS classification and will be subject to sensitivity analysis sweeping thresholds {6.5, 7.0, 7.5} to report how high-severity rates vary across cutoffs
-- Dataset-variable fit: The prompt set contains sufficient context for each predictor (model identity) and outcome (vulnerability findings); no additional covariates are required beyond prompt category for stratified analysis
-- Inference framing: Findings are framed as ASSOCIATIONAL (model identity correlates with vulnerability density) rather than causal, as there is no random assignment of code to models
-- Measurement validity: Static analyzers have known false positive/negative rates; results are interpreted with this limitation acknowledged in the final report
-- Predictor collinearity: Prompt categories are treated as descriptive strata rather than independent predictors; no claims of independent effects are made between correlated categories
+- The three selected models (StarCoder-Base 7B, CodeGen-2B, GPT-NeoX-1.3B) can be loaded into allocated RAM on CPU-only runners using 4-bit quantization without requiring CUDA.
+- The CodeXGLUE benchmark provides a set of valid code generation prompts with sufficient context for security-relevant code to be generated.
+- Static analyzers (Bandit, Semgrep, CodeQL) will run within the allocated job budget when processing snippets total.
+- Vulnerability severity scores from static analyzers can be mapped to a common 1-5 ordinal scale using NIST NVD guidelines, though absolute calibration may differ.
+- The handcrafted prompt set of 50 prompts covers web-application security patterns (database access, HTML rendering, authentication) with ≥5 prompts per category.
+- No GPU/CUDA accelerators are available on the GitHub Actions free-tier runner; all model inference uses CPU-only execution with 4-bit quantization.
+- The Kruskal-Wallis test is appropriate for non-normally distributed vulnerability density data, and the ZINB model will be used if zero-inflation is detected.
+- Any threshold for "high severity" (e.g., ordinal rank ≥ 4) is justified by community-standard classification and will be subject to sensitivity analysis sweeping thresholds {3, 4, 5} to report how high-severity rates vary across cutoffs.
+- Dataset-variable fit: The prompt set contains sufficient context for each predictor (model identity) and outcome (vulnerability findings); snippet length is controlled for as a covariate.
+- Inference framing: Findings are framed as ASSOCIATIONAL (model identity correlates with vulnerability density) rather than causal, as there is no random assignment of code to models.
+- Measurement validity: Static analyzers have known false positive/negative rates; results are interpreted with this limitation acknowledged in the final report.
+- Predictor collinearity: Prompt categories are treated as descriptive strata rather than independent predictors; no claims of independent effects are made between correlated categories.

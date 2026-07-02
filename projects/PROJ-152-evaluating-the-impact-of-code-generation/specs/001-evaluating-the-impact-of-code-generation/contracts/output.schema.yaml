@@ -1,0 +1,31 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StatisticalResults Output Schema"
+description: "Schema for the final statistical results CSV"
+type: "object"
+properties:
+  test_name:
+    type: "string"
+    description: "Name of the statistical test performed"
+  statistic_value:
+    type: "number"
+    description: "The calculated test statistic"
+  p_value:
+    type: "number"
+    description: "The raw p-value"
+  adjusted_p_value:
+    type: ["number", "null"]
+    description: "The Bonferroni-adjusted p-value (null if not applicable)"
+  conclusion:
+    type: "string"
+    enum:
+      - "significant"
+      - "not significant"
+      - "insufficient variance"
+      - "not applicable"
+    description: "Conclusion of the test"
+required:
+  - test_name
+  - statistic_value
+  - p_value
+  - conclusion
+additionalProperties: false
