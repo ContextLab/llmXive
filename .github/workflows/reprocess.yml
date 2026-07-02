@@ -1,16 +1,15 @@
 name: Pipeline — Reprocess ingested code papers (autonomous drain)
 
-# Spec 024: externally-ingested CODE papers are vendored as a git submodule and
-# CPU-adapted (code_adapter) so the execution gate can run them. Each tick this
-# SINGLE job (a) migrates a few stranded code papers paper_review -> paper_ingested
-# and (b) drains paper_ingested via `run --stage` (branch_code: vendor + back-fill
-# + code_adapter -> in_progress). It is a SINGLE job ON PURPOSE: every code paper
-# adds a git submodule (a .gitmodules edit), and concurrent workers committing
-# submodules would collide on .gitmodules in the rebase-push. One serialized job
-# never modifies .gitmodules concurrently, so the commit-and-push rebase is clean
-# (the parallel advance.yml matrix touches OTHER files, so it never conflicts here).
-# Grinds through the ~80 code papers over ~2 days; the advance matrix then runs
-# each one's adapted code through the execution gate + fix-loop.
+# Spec 024 + Reviewed-Preprints ethics change (2026-07-01): externally-ingested
+# papers are NEVER modified. Each tick this SINGLE job (a) migrates a few
+# stranded external papers paper_review -> paper_ingested and (b) drains
+# paper_ingested via `run --stage`, whose PAPER_INGESTED handler now runs
+# finalize_reviewed_preprint: mark the paper a terminal Reviewed Preprint
+# (original bytes + byline preserved), auto-review it once with the LLM panel
+# (incl. the vision figure reviewer — needs poppler below), and spawn a SEPARATE
+# citing llmXive follow-up project. Kept a SINGLE serialized job so the
+# commit-and-push rebase never races itself; the themed preprint PDFs are built
+# by the Paper Compile workflow's sweep (this runner has no TeX Live).
 
 on:
   schedule:
@@ -55,6 +54,10 @@ jobs:
       - uses: actions/setup-python@v6
         with: { python-version: "3.11", cache: pip }
       - run: pip install -e ".[dev]"
+      # poppler-utils: pdf2image's system dep — the Reviewed-Preprint VISION
+      # figure reviewer renders each figure PDF to PNG; without poppler the
+      # figure lens silently skips in CI (reviews lose the figure critique).
+      - run: sudo apt-get update -qq && sudo apt-get install -y -qq poppler-utils
       # GPU-offload lane (#367): pin the working Kaggle combo — a bare
       # `pip install kaggle` pulls kagglesdk 0.1.32 whose wheel drops
       # `competitions.legacy`, breaking `import kaggle` (offload then no-ops).
@@ -65,7 +68,7 @@ jobs:
           MIGRATE_LIMIT: ${{ github.event.inputs.migrate_limit || '5' }}
         run: |
           python -c "import os, re; from llmxive.paper_reprocess.migrate import migrate_unprocessed_external_papers as M; n = int(re.sub(r'\D', '', os.environ.get('MIGRATE_LIMIT','') ) or '5'); print('migrated', len(M(kind='code', limit=n)))"
-      - name: Drain paper_ingested (vendor + back-fill + CPU-adapt -> in_progress)
+      - name: Drain paper_ingested (auto-review -> Reviewed Preprint + citing follow-up)
         env:
           DRAIN_TASKS: ${{ github.event.inputs.drain_tasks || '3' }}
         run: |

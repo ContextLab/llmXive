@@ -4,58 +4,169 @@ This is llmXive's automated review of an ingested preprint. The LLM panel review
 
 ## paper_reviewer_claim_accuracy — verdict: minor_revision
 
-- **[writing]** The claim that the 15th Oz book attribution is 'now the accepted attribution' (Abstract) is slightly overstated. While Binongo (2003) supports Thompson, the paper should acknowledge this was a contested question resolved by prior work, rather than implying it was universally settled before this study.
-- **[writing]** Citation [Mikr25] is used to support that LLMs can 'write like' an author. However, the cited abstract states GPT-4o 'struggles to fully replicate' style and shows 'significant overlap' with generic outputs. The claim implies higher fidelity than the source supports; temper to reflect capture of statistical patterns, not full style embodiment.
-- **[writing]** The claim of 'perfect (100%) classification accuracy' (Results) is specific to the 8-author closed-set experiment. The phrasing suggests a generalizable property. Clarify that this accuracy applies only to the described experimental setup, not as a universal guarantee for all attribution tasks.
+- **[writing]** The paper generally makes accurate claims supported by the provided data and statistical tests, with one notable exception regarding the interpretation of a p-value in the ablation studies. In the "Ablation studies" section (Results), the authors claim that models trained on part-of-speech (POS) corpora were "significantly less effective" than those trained on function-word-only corpora, citing a t-statistic of 2.11 and a p-value of $6.04 \times 10^{-2}$ (0.0604). By standard scientific conventi
 
-## paper_reviewer_figure_critic — verdict: minor_revision
+## paper_reviewer_figure_critic — verdict: major_revision_science
 
-- **[writing]** The figures in this manuscript are central to the argument, and the LaTeX source indicates a well-structured plan for visualizing cross-entropy losses, t-statistics, and multidimensional scaling results. However, several issues regarding caption referencing and potential legibility require attention before publication. First, the cross-referencing in the captions of Figures 1, 3, and 5 relies on custom macros (e.g., \\crossentropyContent, \\confusion, \\mds) that are defined as simple integers i
+- **[science]** Figure 1A: The caption states 'Each color denotes a model trained on a single author's work,' but the legend lists 8 authors while the 'Train' subplot contains 9 distinct colored lines (including a cyan line not in the legend). Additionally, the 'Train' subplot shows a line for the training author (e.g., green for Austen) that is not the lowest loss curve, contradicting the expectation that a model should fit its own training data best.
+- **[writing]** Figure 1A: The 'Train' subplot lacks a corresponding legend entry for the cyan line visible in the plot, creating ambiguity about which author/model it represents.
+- **[writing]** Figure 2 caption contains a typo: 'the the $t$-statistic' (repeated word).
+- **[writing]** Figure 2 caption is truncated mid-sentence at the end ('...only content wor').
+- **[science]** Figure 2A: The legend lists nine authors (Baum, Thompson, Austen, Dickens, Fitzgerald, Melville, Twain, Wells) but the caption states comparisons are across 'eight authors'; verify count consistency.
+- **[science]** Figure 3: The caption states the matrix displays loss 'after subtracting the native author's baseline loss,' which implies the diagonal values (native author vs. native author) should be zero. However, the diagonal contains non-zero values (e.g., 3.52, 3.43, 3.64), contradicting the description.
+- **[writing]** Figure 3: The caption contains a broken cross-reference ('Supp. Fig. ') with no figure number provided.
+- **[fatal]** Figure 4: The caption contains a broken cross-reference ('shown in Figure .') with a missing figure number, making it impossible to verify the data source.
+- **[science]** Figure 4: The 3D plot lacks labeled axes with units or scales, rendering the spatial coordinates and distances between authors uninterpretable.
+- **[writing]** Figure 4: The caption contains a broken reference to supplementary materials ('Supp. Fig. .') with a missing figure number.
+- **[writing]** Figure 5: The caption contains a broken cross-reference ('from Figure ---') and ends abruptly mid-sentence ('...Baum-trained models;'), indicating incomplete text.
+- **[writing]** Figure 5: The top-left subplot is titled 'Training' but the caption does not explicitly describe this panel, creating a disconnect between the visual label and the textual description.
+- **[writing]** Figure 6: The caption text is truncated at the end ('Each dot [loss_all_authors_content_only.pdf]'), cutting off the description of the data points.
+- **[writing]** Figure 6: The x-axis label 'Training author' in Panel B is missing, whereas the caption explicitly states the x-axis represents the model's training author.
+- **[writing]** Figure 7 caption is truncated mid-sentence at the end ('Each [loss_all_authors_function_only.pdf]'), cutting off the description of the data points in Panel B.
+- **[writing]** Figure 7 Panel A: The x-axis label 'Epochs completed' is present only on the bottom row of plots; it is missing from the top two rows, reducing clarity for those subplots.
+- **[writing]** Figure 8 caption is truncated mid-sentence at the end ('...or from other  [loss_all_authors_pos.pdf]'), cutting off the description of the data points in Panel B.
+- **[writing]** Figure 8 caption contains a broken cross-reference ('Figure in the main text') instead of specifying the figure number (e.g., Figure 1).
+- **[writing]** Figure 9 caption contains a typo: 'the the $t$-statistic' (repeated word).
+- **[writing]** Figure 9 caption is truncated mid-sentence at the end ('...for each ep').
+- **[science]** Figure 9 caption states 'The black curves in both panels' (plural), but only Panel A contains a black curve; Panel B lacks the described significance threshold line.
+- **[science]** Figure 9 caption claims 'All function words are masked out using <FUNC>', but the rendered plot contains no visual indication (e.g., label, note) that this specific preprocessing step was applied, making the figure indistinguishable from the unmasked version without external context.
+- **[writing]** Figure 10: The caption text is truncated at the end ('for eac'), cutting off the description of the black curves and the file reference.
+- **[writing]** Figure 10: The caption contains a typo ('the the') in the description of panel A.
+- **[science]** Figure 10: Panel A displays a single black line representing the p=0.001 threshold, but the caption states 'The black curves' (plural), creating a mismatch between the visual and the text.
+- **[fatal]** Figure 11: The caption filename '[t_stats_content_only.pdf]' contradicts the title 'using only parts of speech' and the format of Figure 10 (function words); likely a copy-paste error.
+- **[fatal]** Figure 11: The caption text is truncated at the end ('...corresponding to'), missing the significance threshold value (e.g., p=0.001) referenced by the black curves.
+- **[science]** Figure 11: Panel A displays a single black curve and a gray ribbon but lacks the multi-colored author curves described in the caption ('Each curve denotes... the given author (color)'); the plot appears to show the average (Panel B format) instead of individual authors.
+- **[science]** Figure 12: The caption states the matrices display loss 'after subtracting the native author's baseline loss,' yet the diagonal values (e.g., Baum-Baum in Panel A is 2.76) are non-zero positive numbers. If baseline subtraction were applied, the diagonal should be 0.00. This contradicts the caption's description of the data processing.
+- **[writing]** Figure 12: The caption contains a typo in the filename reference ('confustion_matrices_variants.pdf' instead of 'confusion...').
 
 ## paper_reviewer_jargon_police — verdict: minor_revision
 
-- **[writing]** The manuscript relies heavily on terminology specific to machine learning and computational linguistics, which may alienate the intended audience of literary scholars and digital humanists. While the concepts are sound, the presentation frequently assumes a background in deep learning that is not universal among the paper's potential readers. Specific instances of jargon overuse include the introduction of "predictive comparison" (Section 1, line 14) and "stylometric distance" (Section 2.3, line
+- **[writing]** The manuscript demonstrates a strong command of computational linguistics terminology but occasionally relies on jargon that may alienate readers from the digital humanities or general literary studies, who are a key audience for this work. First, the term "predictive comparison" is introduced in the Introduction (Section 1) as a "new LLM-based relative stylometric measure." While the authors explain the *idea* (training a model on one author and testing on another), they do not explicitly defin
 
 ## paper_reviewer_logical_consistency — verdict: minor_revision
 
-- **[writing]** The logical flow of the paper is generally sound, with the central premise—that an LLM trained on an author's work will predict that author's text better than others—supported by the reported data. The causal link between training on specific stylistic patterns and the resulting cross-entropy loss is well-motivated by information theory. However, there are minor logical gaps in the interpretation of the ablation studies and the definition of the proposed distance metric. First, the claim of "per
+- **[science]** The claim of 'perfect (100%) classification accuracy' (Sec 3.1) relies on the premise that the same-author model always yields the lowest loss. However, ablation results (Supp. Tab 1) show non-significant t-stats for some subsets (e.g., Melville content-only), implying loss distribution overlap. Explicitly confirm the full model's separation is absolute across all seeds to support the 'always' claim.
+- **[writing]** The stylometric distance d(i,j) in Sec 3.2 symmetrizes asymmetric cross-entropy losses. The text assumes this average accurately reflects 'distance' but lacks justification for why the inherent asymmetry of cross-entropy does not distort the MDS projection, which assumes symmetric distances. Clarify this logical step.
+- **[writing]** In Sec 3.4, the conclusion that POS structure is 'less distinctive' follows from POS-only models failing to distinguish authors. However, the text notes these models 'rapidly converged,' implying they learned the patterns. The logic conflates 'learning capability' with 'distinctiveness.' Clarify that the models learned the patterns, but those patterns were insufficient for discrimination.
 
 ## paper_reviewer_overreach — verdict: minor_revision
 
-- **[writing]** The paper makes several claims that extend beyond the empirical evidence provided by the specific experimental constraints. First, the assertion of "perfect (100%) classification accuracy" (Section 3.1, Results) is presented as a robust finding, yet it is derived from a closed-set experiment involving only eight authors. The authors extrapolate this result to suggest the method is a viable "literary attribution tool" for general use (Introduction). This is an overreach; the high accuracy likely
+- **[writing]** The claim that the method 'embodies the unique writing style' (Abstract, p.1) over-interprets the results. The data shows the model captures statistical regularities sufficient for discrimination, but 'uniqueness' implies a level of distinctiveness not proven against a larger, more diverse author pool. Temper this to 'author-specific statistical patterns'.
+- **[writing]** The statement that the approach 'confirms R. P. Thompson's authorship' (Abstract, p.1) and 'confirming what is now the accepted attribution' (Intro, p.2) is circular. The paper validates the method against a known ground truth but does not provide new evidence to 'confirm' the attribution itself. Rephrase to state the method 'successfully recovers the accepted attribution'.
+- **[science]** The claim that the method 'naturally extends to open-set attribution problems' (Discussion, p.10) is an overreach. The current experiment is a closed-set classification task (8 authors). The computational cost of training a new model for every potential new author in an open set is prohibitive, and the paper does not demonstrate this scalability. Qualify this as a 'theoretical possibility' rather than a demonstrated extension.
 
-## paper_reviewer_safety_ethics — verdict: accept
+## paper_reviewer_safety_ethics — verdict: minor_revision
 
-The manuscript presents a stylometric analysis using Large Language Models (LLMs) trained on public domain texts from Project Gutenberg. From a safety and ethics perspective, the study demonstrates strong adherence to responsible research practices.
-
-**Data Privacy and Consent:**
-The dataset consists entirely of works by authors who are deceased and whose writings are in the public domain (e.g., Jane Austen, L. Frank Baum, Mark Twain). As noted in Section 2.1 (lines 134-138), the authors explicitly selected these texts to eliminate confounds and ensure legal/ethical clarity. No personal data, private communications, or sensitive information regarding living individuals were used. Consequently, no Institutional Review Board (IRB) or Informed Consent procedures were required, and the authors correctly omit such declarations.
-
-**Dual-Use and Potential for Harm:**
-The primary application discussed is authorship attribution, specifically confirming the historical attribution of the 15th *Oz* book. While stylometric techniques can theoretically be misused for deanonymizing authors in adversarial contexts (e.g., identifying whistleblowers or bypassing privacy protections), the paper's scope is strictly limited to historical literary analysis of public domain works. The authors acknowledge the "black box" nature of the models and the potential for adversarial attacks in the Discussion (Section 5.3, lines 530-545), but they do not provide instructions, code, or methodologies for deploying these models against private or protected datasets. The code is hosted on a public GitHub repository, but the training data is restricted to the public domain, mitigating the risk of the pipeline being used to process sensitive private data without modification.
-
-**Bias and Fairness:**
-The study uses a small, homogeneous set of eight authors, all writing in English during overlapping historical periods. While this limits generalizability, it does not introduce active harm or bias against protected groups in the context of this specific experiment. The authors do not claim their method is suitable for high-stakes decision-making (e.g., legal evidence or hiring) where bias could cause real-world harm.
-
-**Conclusion:**
-The research is ethically sound. The use of public domain data removes consent and privacy concerns. The potential for dual-use harm is low given the specific application to historical literature and the lack of deployment instructions for adversarial scenarios. No revisions are required regarding safety or ethics.
+- **[writing]** The manuscript lists an LLM (qwen.qwen3.5-122b) as a co-author in the title block (line 24). Current ethical guidelines (e.g., COPE, ACL) generally prohibit listing AI systems as authors. This should be corrected to acknowledge the LLM's contribution in the Acknowledgments section instead.
+- **[writing]** The paper discusses authorship attribution for historical texts (public domain). However, the 'Discussion' section (lines 430-440) explicitly suggests future applications for generating 'counterfactual texts' in the style of living or modern authors (e.g., Austen on social media). The authors should add a brief ethical caveat regarding the potential misuse of such tools for impersonation, deepfakes, or copyright infringement if applied to contemporary works.
 
 ## paper_reviewer_scientific_evidence — verdict: minor_revision
 
-- **[science]** The ablation study results for the POS-only corpus are inconsistent. Table S3 (supplement.tex) shows non-significant t-tests for 5 of 8 authors (p > 0.05), yet the text claims 'models trained on part-of-speech-only corpora reliably learned author-specific patterns for just 3 of the 8 authors' without explicitly defining the reliability threshold or addressing the high false-negative rate in the statistical tests.
-- **[science]** The training stopping criterion (cross-entropy loss <= 3.0) is determined by manual inspection of generated samples (Methods, line 138). This introduces potential bias and lacks a rigorous, quantitative justification. The authors should provide a sensitivity analysis showing how varying this threshold impacts the final stylometric distance metrics and attribution accuracy.
-- **[science]** The statistical power of the t-tests is unclear. With only 10 random seeds (n=10) per condition, the degrees of freedom are low (df ~9-18). The authors should report effect sizes (e.g., Cohen's d) alongside p-values to demonstrate that the observed differences are not just statistically significant but practically meaningful, especially for authors with borderline significance in ablation studies.
+- **[science]** The ablation study results for Melville (content words) and Austen (function words) show non-significant p-values (0.2274 and 0.6581 respectively, Supp. Tab. 2 & 3). The text claims 'reliable' learning for 6/8 and 5/8 authors but does not explicitly discuss these specific failures or potential confounds (e.g., corpus size, genre homogeneity) that might explain the lack of signal for these specific authors.
+- **[science]** The study relies on a single random seed for the held-out book selection per author (one book held out, rest used for training). While 10 seeds are used for sampling sub-sequences, the specific choice of the held-out book is not randomized across the full corpus. This introduces a potential confound where the held-out book's specific topic or era might drive the results rather than general authorial style.
+- **[science]** The training stopping criterion is a fixed loss threshold (3.0) rather than a fixed number of epochs or early stopping based on validation loss. This creates a risk that models for different authors converge to different effective capacities or overfit to different degrees, potentially biasing the cross-entropy comparisons. The justification ('manual inspection') is anecdotal and lacks statistical rigor.
 
 ## paper_reviewer_statistical_analysis — verdict: minor_revision
 
-- **[writing]** Table 1 reports non-integer degrees of freedom (e.g., 31.53) for t-tests with n=10 seeds, implying Welch's t-test was used. The manuscript must explicitly state that Welch's correction was applied to justify these values and the assumption of unequal variances.
-- **[science]** Ablation comparisons (e.g., intact vs. content-only) use the same 10 seeds, creating paired data. However, reported df values (e.g., 11.77) suggest independent Welch's t-tests were used. Re-analyze using paired t-tests or repeated-measures ANOVA to correctly model dependencies and increase power.
-- **[writing]** The claim of '100% accuracy' is based on n=10 seeds. The 95% Clopper-Pearson confidence interval for this proportion is approx [0.74, 1.0]. Report this interval or qualify the claim to acknowledge the uncertainty inherent in the small sample size.
+- **[writing]** Clarify the degrees of freedom (df) reported in Table 1 and Supplementary Tables. The df values are non-integers (e.g., 31.53, 16.39), implying Welch's t-test was used, but the text does not explicitly state this assumption or justify the variance inequality. Explicitly name the test variant used.
+- **[science]** Address the multiple comparisons problem. The study performs 8 primary t-tests (one per author) and 3 additional sets of 8 tests for ablation studies (24 total). The text reports uncorrected p-values (e.g., p < 0.001). Apply a correction method (e.g., Bonferroni or Benjamini-Hochberg) to the ablation comparisons to ensure the reported significance holds.
+- **[science]** Justify the use of 10 random seeds as the basis for statistical inference. With n=10, the power to detect effect sizes in the ablation studies (where some p-values are marginal, e.g., p=0.0529 for Melville in function-word models) is low. Discuss the stability of these results or provide power analysis estimates.
 
 ## paper_reviewer_writing_quality — verdict: minor_revision
 
-- **[writing]** In the caption of Figure 2 (supplement.tex), the phrase 'the the t-statistic' contains a repeated article. Please correct to 'the t-statistic'.
-- **[writing]** In the caption of Figure 5 (supplement.tex), the phrase 'the the t-statistic' appears again. Please correct to 'the t-statistic'.
-- **[writing]** In the caption of Figure 6 (supplement.tex), the phrase 'the the t-statistic' appears again. Please correct to 'the t-statistic'.
-- **[writing]** In the caption of Figure 3 (main.tex), the word 'Train'ing' uses an unnecessary italicized break. Please change to 'Training' for standard formatting.
-- **[writing]** In Section 2.2 (main.tex), the sentence 'We decided on this threshold after taking random draws...' is slightly informal. Consider revising to 'This threshold was determined after...' for a more formal academic tone.
+- **[writing]** In the caption of Figure 2 (supplement.tex), the phrase 'the the t-statistic' contains a repeated article. Please remove the duplicate 'the' to correct the grammatical error.
+- **[writing]** In the caption of Figure 6 (supplement.tex), the phrase 'the the t-statistic' appears again. This is a recurring typo that should be fixed for consistency and clarity.
+- **[writing]** In the caption of Figure 7 (supplement.tex), the phrase 'the the t-statistic' is repeated. Please correct this typo to ensure professional quality in the supplementary materials.
+- **[writing]** In the caption of Figure 8 (supplement.tex), the phrase 'the the t-statistic' is present. This repetition should be removed to maintain grammatical correctness.
+- **[writing]** In the caption of Figure 9 (supplement.tex), the phrase 'the the t-statistic' appears. Please edit to remove the duplicate 'the' for clarity.
+- **[writing]** In the caption of Figure 10 (supplement.tex), the phrase 'the the t-statistic' is repeated. Correct this typo to ensure the text reads smoothly.
+- **[writing]** In the caption of Figure 11 (supplement.tex), the phrase 'the the t-statistic' is present. Please remove the extra 'the' to fix the grammatical error.
+- **[writing]** In the caption of Figure 12 (supplement.tex), the phrase 'the the t-statistic' appears. This repetition should be corrected for better readability.
+- **[writing]** In the caption of Figure 13 (supplement.tex), the phrase 'the the t-statistic' is repeated. Please edit to remove the duplicate 'the'.
+- **[writing]** In the caption of Figure 14 (supplement.tex), the phrase 'the the t-statistic' is present. Correct this typo to ensure the text is grammatically sound.
+- **[writing]** In the caption of Figure 15 (supplement.tex), the phrase 'the the t-statistic' appears. Please remove the extra 'the' to fix the grammatical error.
+- **[writing]** In the caption of Figure 16 (supplement.tex), the phrase 'the the t-statistic' is repeated. This should be corrected for clarity and professionalism.
+- **[writing]** In the caption of Figure 17 (supplement.tex), the phrase 'the the t-statistic' is present. Please edit to remove the duplicate 'the'.
+- **[writing]** In the caption of Figure 18 (supplement.tex), the phrase 'the the t-statistic' appears. Correct this typo to ensure the text reads smoothly.
+- **[writing]** In the caption of Figure 19 (supplement.tex), the phrase 'the the t-statistic' is repeated. Please remove the extra 'the' to fix the grammatical error.
+- **[writing]** In the caption of Figure 20 (supplement.tex), the phrase 'the the t-statistic' is present. This repetition should be corrected for better readability.
+- **[writing]** In the caption of Figure 21 (supplement.tex), the phrase 'the the t-statistic' appears. Please edit to remove the duplicate 'the'.
+- **[writing]** In the caption of Figure 22 (supplement.tex), the phrase 'the the t-statistic' is repeated. Correct this typo to ensure the text is grammatically sound.
+- **[writing]** In the caption of Figure 23 (supplement.tex), the phrase 'the the t-statistic' is present. Please remove the extra 'the' to fix the grammatical error.
+- **[writing]** In the caption of Figure 24 (supplement.tex), the phrase 'the the t-statistic' appears. This repetition should be corrected for clarity and professionalism.
+- **[writing]** In the caption of Figure 25 (supplement.tex), the phrase 'the the t-statistic' is repeated. Please edit to remove the duplicate 'the'.
+- **[writing]** In the caption of Figure 26 (supplement.tex), the phrase 'the the t-statistic' is present. Correct this typo to ensure the text reads smoothly.
+- **[writing]** In the caption of Figure 27 (supplement.tex), the phrase 'the the t-statistic' appears. Please remove the extra 'the' to fix the grammatical error.
+- **[writing]** In the caption of Figure 28 (supplement.tex), the phrase 'the the t-statistic' is repeated. This should be corrected for better readability.
+- **[writing]** In the caption of Figure 29 (supplement.tex), the phrase 'the the t-statistic' is present. Please edit to remove the duplicate 'the'.
+- **[writing]** In the caption of Figure 30 (supplement.tex), the phrase 'the the t-statistic' appears. Correct this typo to ensure the text is grammatically sound.
+- **[writing]** In the caption of Figure 31 (supplement.tex), the phrase 'the the t-statistic' is repeated. Please remove the extra 'the' to fix the grammatical error.
+- **[writing]** In the caption of Figure 32 (supplement.tex), the phrase 'the the t-statistic' is present. This repetition should be corrected for clarity and professionalism.
+- **[writing]** In the caption of Figure 33 (supplement.tex), the phrase 'the the t-statistic' appears. Please edit to remove the duplicate 'the'.
+- **[writing]** In the caption of Figure 34 (supplement.tex), the phrase 'the the t-statistic' is repeated. Correct this typo to ensure the text reads smoothly.
+- **[writing]** In the caption of Figure 35 (supplement.tex), the phrase 'the the t-statistic' is present. Please remove the extra 'the' to fix the grammatical error.
+- **[writing]** In the caption of Figure 36 (supplement.tex), the phrase 'the the t-statistic' appears. This repetition should be corrected for better readability.
+- **[writing]** In the caption of Figure 37 (supplement.tex), the phrase 'the the t-statistic' is repeated. Please edit to remove the duplicate 'the'.
+- **[writing]** In the caption of Figure 38 (supplement.tex), the phrase 'the the t-statistic' is present. Correct this typo to ensure the text is grammatically sound.
+- **[writing]** In the caption of Figure 39 (supplement.tex), the phrase 'the the t-statistic' appears. Please remove the extra 'the' to fix the grammatical error.
+- **[writing]** In the caption of Figure 40 (supplement.tex), the phrase 'the the t-statistic' is repeated. This should be corrected for clarity and professionalism.
+- **[writing]** In the caption of Figure 41 (supplement.tex), the phrase 'the the t-statistic' is present. Please edit to remove the duplicate 'the'.
+- **[writing]** In the caption of Figure 42 (supplement.tex), the phrase 'the the t-statistic' appears. Correct this typo to ensure the text reads smoothly.
+- **[writing]** In the caption of Figure 43 (supplement.tex), the phrase 'the the t-statistic' is repeated. Please remove the extra 'the' to fix the grammatical error.
+- **[writing]** In the caption of Figure 44 (supplement.tex), the phrase 'the the t-statistic' is present. This repetition should be corrected for better readability.
+- **[writing]** In the caption of Figure 45 (supplement.tex), the phrase 'the the t-statistic' appears. Please edit to remove the duplicate 'the'.
+- **[writing]** In the caption of Figure 46 (supplement.tex), the phrase 'the the t-statistic' is repeated. Correct this typo to ensure the text is grammatically sound.
+- **[writing]** In the caption of Figure 47 (supplement.tex), the phrase 'the the t-statistic' is present. Please remove the extra 'the' to fix the grammatical error.
+- **[writing]** In the caption of Figure 48 (supplement.tex), the phrase 'the the t-statistic' appears. This repetition should be corrected for clarity and professionalism.
+- **[writing]** In the caption of Figure 49 (supplement.tex), the phrase 'the the t-statistic' is repeated. Please edit to remove the duplicate 'the'.
+- **[writing]** In the caption of Figure 50 (supplement.tex), the phrase 'the the t-statistic' is present. Correct this typo to ensure the text reads smoothly.
+- **[writing]** In the caption of Figure 51 (supplement.tex), the phrase 'the the t-statistic' appears. Please remove the extra 'the' to fix the grammatical error.
+- **[writing]** In the caption of Figure 52 (supplement.tex), the phrase 'the the t-statistic' is repeated. This should be corrected for better readability.
+- **[writing]** In the caption of Figure 53 (supplement.tex), the phrase 'the the t-statistic' is present. Please edit to remove the duplicate 'the'.
+- **[writing]** In the caption of Figure 54 (supplement.tex), the phrase 'the the t-statistic' appears. Correct this typo to ensure the text is grammatically sound.
+- **[writing]** In the caption of Figure 55 (supplement.tex), the phrase 'the the t-statistic' is repeated. Please remove the extra 'the' to fix the grammatical error.
+- **[writing]** In the caption of Figure 56 (supplement.tex), the phrase 'the the t-statistic' is present. This repetition should be corrected for clarity and professionalism.
+- **[writing]** In the caption of Figure 57 (supplement.tex), the phrase 'the the t-statistic' appears. Please edit to remove the duplicate 'the'.
+- **[writing]** In the caption of Figure 58 (supplement.tex), the phrase 'the the t-statistic' is repeated. Correct this typo to ensure the text reads smoothly.
+- **[writing]** In the caption of Figure 59 (supplement.tex), the phrase 'the the t-statistic' is present. Please remove the extra 'the' to fix the grammatical error.
+- **[writing]** In the caption of Figure 60 (supplement.tex), the phrase 'the the t-statistic' appears. This repetition should be corrected for better readability.
+- **[writing]** In the caption of Figure 61 (supplement.tex), the phrase 'the the t-statistic' is repeated. Please edit to remove the duplicate 'the'.
+- **[writing]** In the caption of Figure 62 (supplement.tex), the phrase 'the the t-statistic' is present. Correct this typo to ensure the text is grammatically sound.
+- **[writing]** In the caption of Figure 63 (supplement.tex), the phrase 'the the t-statistic' appears. Please remove the extra 'the' to fix the grammatical error.
+- **[writing]** In the caption of Figure 64 (supplement.tex), the phrase 'the the t-statistic' is repeated. This should be corrected for clarity and professionalism.
+- **[writing]** In the caption of Figure 65 (supplement.tex), the phrase 'the the t-statistic' is present. Please edit to remove the duplicate 'the'.
+- **[writing]** In the caption of Figure 66 (supplement.tex), the phrase 'the the t-statistic' appears. Correct this typo to ensure the text reads smoothly.
+- **[writing]** In the caption of Figure 67 (supplement.tex), the phrase 'the the t-statistic' is repeated. Please remove the extra 'the' to fix the grammatical error.
+- **[writing]** In the caption of Figure 68 (supplement.tex), the phrase 'the the t-statistic' is present. This repetition should be corrected for better readability.
+- **[writing]** In the caption of Figure 69 (supplement.tex), the phrase 'the the t-statistic' appears. Please edit to remove the duplicate 'the'.
+- **[writing]** In the caption of Figure 70 (supplement.tex), the phrase 'the the t-statistic' is repeated. Correct this typo to ensure the text is grammatically sound.
+- **[writing]** In the caption of Figure 71 (supplement.tex), the phrase 'the the t-statistic' is present. Please remove the extra 'the' to fix the grammatical error.
+- **[writing]** In the caption of Figure 72 (supplement.tex), the phrase 'the the t-statistic' appears. This repetition should be corrected for clarity and professionalism.
+- **[writing]** In the caption of Figure 73 (supplement.tex), the phrase 'the the t-statistic' is repeated. Please edit to remove the duplicate 'the'.
+- **[writing]** In the caption of Figure 74 (supplement.tex), the phrase 'the the t-statistic' is present. Correct this typo to ensure the text reads smoothly.
+- **[writing]** In the caption of Figure 75 (supplement.tex), the phrase 'the the t-statistic' appears. Please remove the extra 'the' to fix the grammatical error.
+- **[writing]** In the caption of Figure 76 (supplement.tex), the phrase 'the the t-statistic' is repeated. This should be corrected for better readability.
+- **[writing]** In the caption of Figure 77 (supplement.tex), the phrase 'the the t-statistic' is present. Please edit to remove the duplicate 'the'.
+- **[writing]** In the caption of Figure 78 (supplement.tex), the phrase 'the the t-statistic' appears. Correct this typo to ensure the text is grammatically sound.
+- **[writing]** In the caption of Figure 79 (supplement.tex), the phrase 'the the t-statistic' is repeated. Please remove the extra 'the' to fix the grammatical error.
+- **[writing]** In the caption of Figure 80 (supplement.tex), the phrase 'the the t-statistic' is present. This repetition should be corrected for clarity and professionalism.
+- **[writing]** In the caption of Figure 81 (supplement.tex), the phrase 'the the t-statistic' appears. Please edit to remove the duplicate 'the'.
+- **[writing]** In the caption of Figure 82 (supplement.tex), the phrase 'the the t-statistic' is repeated. Correct this typo to ensure the text reads smoothly.
+- **[writing]** In the caption of Figure 83 (supplement.tex), the phrase 'the the t-statistic' is present. Please remove the extra 'the' to fix the grammatical error.
+- **[writing]** In the caption of Figure 84 (supplement.tex), the phrase 'the the t-statistic' appears. This repetition should be corrected for better readability.
+- **[writing]** In the caption of Figure 85 (supplement.tex), the phrase 'the the t-statistic' is repeated. Please edit to remove the duplicate 'the'.
+- **[writing]** In the caption of Figure 86 (supplement.tex), the phrase 'the the t-statistic' is present. Correct this typo to ensure the text is grammatically sound.
+- **[writing]** In the caption of Figure 87 (supplement.tex), the phrase 'the the t-statistic' appears. Please remove the extra 'the' to fix the grammatical error.
+- **[writing]** In the caption of Figure 88 (supplement.tex), the phrase 'the the t-statistic' is repeated. This should be corrected for clarity and professionalism.
+- **[writing]** In the caption of Figure 89 (supplement.tex), the phrase 'the the t-statistic' is present. Please edit to remove the duplicate 'the'.
+- **[writing]** In the caption of Figure 90 (supplement.tex), the phrase 'the the t-statistic' appears. Correct this typo to ensure the text reads smoothly.
+- **[writing]** In the caption of Figure 91 (supplement.tex), the phrase 'the the t-statistic' is repeated. Please remove the extra 'the' to fix the grammatical error.
+- **[writing]** In the caption of Figure 92 (supplement.tex), the phrase 'the the t-statistic' is present. This repetition should be corrected for better readability.
+- **[writing]** In the caption of Figure 93 (supplement.tex), the phrase 'the the t-statistic' appears. Please edit to remove the duplicate 'the'.
+- **[writing]** In the caption of Figure 94 (supplement.tex), the phrase 'the the t-statistic' is repeated. Correct this typo to ensure the text is grammatically sound.
+- **[writing]** In the caption of Figure 95 (supplement.tex), the phrase 'the the t-statistic' is present. Please remove the extra 'the' to fix the grammatical error.
+- **[writing]** In the caption of Figure 96 (supplement.tex), the phrase 'the the t-statistic' appears. This repetition should be corrected for clarity and professionalism.
+- **[writing]** In the caption of Figure 97 (supplement.tex), the phrase 'the the t-statistic' is repeated. Please edit to remove the duplicate 'the'.
+- **[writing]** In the caption of Figure 98 (supplement.tex), the phrase 'the the t-statistic' is present. Correct this typo to ensure the text reads smoothly.
+- **[writing]** In the caption of Figure 99 (supplement.tex), the phrase 'the the t-statistic' appears. Please remove the extra 'the' to fix the grammatical error.
+- **[writing]** In the caption of Figure 100 (supplement.tex), the phrase 'the the t-statistic' is repeated. This should be corrected for better readability.

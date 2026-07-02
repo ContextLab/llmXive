@@ -71,6 +71,12 @@ jobs:
             MAX="${INPUT_MAX:-20}"
             python3 scripts/compile_paper.py --all --max "$MAX"
           fi
+      - name: Build missing Reviewed-Preprint PDFs
+        # The reprocess drain runner has no TeX Live, so preprints arrive with
+        # reviews but no themed PDFs; this sweep (which has TeX Live) fills in
+        # missing/stale original-llmxive.pdf + peer-review-llmxive.pdf.
+        run: python3 scripts/build_missing_preprint_pdfs.py --max 10
+
       - name: Commit + push
         id: commit
         # Robust concurrent-safe commit+push (scripts/ci/commit-and-push.sh):
