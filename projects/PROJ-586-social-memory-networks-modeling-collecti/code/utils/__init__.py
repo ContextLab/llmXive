@@ -1,9 +1,12 @@
 """
-Utilities package for the social memory network project.
+Utilities package for the social memory networks project.
 """
 from .logging import setup_logger, get_logger
-from .config import get_config, Config
-from .serialization import (
-    save_json, load_json, save_pickle, load_pickle,
-    save_json_locked, load_json_locked
-)
+from .config import load_config, save_config
+from .serialization import save_json, load_json, save_pickle, load_pickle, save_with_retry
+
+__all__ = [
+    'setup_logger', 'get_logger',
+    'load_config', 'save_config',
+    'save_json', 'load_json', 'save_pickle', 'load_pickle', 'save_with_retry'
+]
