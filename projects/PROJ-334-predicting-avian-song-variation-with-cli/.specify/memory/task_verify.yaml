@@ -1,0 +1,9 @@
+T001a [P] Create directory structure script file (`scripts/create_dirs.sh` or `code/utils.py` function): 1
+? T001b [P] Execute directory structure script to create `code/`, `data/raw/`, `data/processed/`,
+  `output/`, `tests/` with specific paths defined in the script
+: 1
+? 'T002a [P] Create `requirements.txt` with dependencies: `pandas`, `numpy`, `scikit-learn`,
+  `statsmodels`, `seaborn`, `matplotlib`, `scipy`, `geopandas`, `rasterio`, `pytest`'
+: 1
+'T002b Initialize Python 3.11 virtualenv and install dependencies from `requirements.txt` <!-- ATOMIZE: requested -->': 1
+T003 [P] Configure linting (flake8/black) and formatting tools: 1

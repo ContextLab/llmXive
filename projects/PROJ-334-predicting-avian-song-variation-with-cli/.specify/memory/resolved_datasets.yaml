@@ -1,0 +1,208 @@
+resolved_at: '2026-07-02T19:35:49.839798+00:00'
+datasets:
+- intent: EDA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/edanigoben/fr_crawler/resolve/main/classification_test.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/edanigoben/fr_crawler2/resolve/main/classification_test.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/edanigoben/fr-crawle-reduced/resolve/main/data/test-00000-of-00001-4b9e094a1c5bb782.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/edanigoben/fr_crawler/resolve/main/classification_test.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/edanigoben/fr_crawler2/resolve/main/classification_test.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/edanigoben/fr-crawle-reduced/resolve/main/data/test-00000-of-00001-4b9e094a1c5bb782.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/edangx100/celeb-identities/resolve/main/data/train-00000-of-00001-f1f18d9f5663646b.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Triple_Pancake_Bonding_in_Neutral_Conjugated_Dimers_a_Computational_Study/32885218
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Validity_and_Test-Retest_Reliability_of_the_Turkish_Version_of_Spinal_Muscular_Atrophy_Independence_Scale_-_Upper_Limb_Module_A_Comparison_with_Healthy_Peers/32885216
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/From_Waste_to_Resource_Overcoming_Osmotic_Distillation_in_Membrane_Contactors_for_High-Efficiency_Ammonia_Recovery_and_Concentration/32885214
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Calibrated_Model_Criticism_Using_Split_Predictive_Checks/32025350
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/10_top_tips_on_conservative_non-pharmacological_management_in_adults_with_Facioscapulohumeral_muscular_dystrophy_FSHD_/32885177
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7107308
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5534628
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6772597
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14621746
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2673554
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://uregina.scholaris.ca/handle/10294/16027
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21087209
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21087209
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://uregina.scholaris.ca/handle/10294/2084
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.21037530
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+- intent: BEFORE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/genshiai-daichi/med-slm-ja-before-after/resolve/main/data/pairs.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/biglam/bnl_ground_truth_newspapers_before_1878/resolve/main/antiqua.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/liuyanchen1015/MULTI_VALUE_mnli_superlative_before_matrix_head/resolve/main/data/dev_mismatched-00000-of-00001-e494482a871aed7a.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 5289
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/genshiai-daichi/med-slm-ja-before-after/resolve/main/data/pairs.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/biglam/bnl_ground_truth_newspapers_before_1878/resolve/main/antiqua.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/liuyanchen1015/MULTI_VALUE_mnli_superlative_before_matrix_head/resolve/main/data/dev_mismatched-00000-of-00001-e494482a871aed7a.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/liuyanchen1015/MULTI_VALUE_mnli_aint_before_main/resolve/main/data/dev_matched-00000-of-00001-9fa7a76d59561dc1.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/liuyanchen1015/MULTI_VALUE_cola_aint_before_main/resolve/main/data/dev-00000-of-00001-6e87a4f29d4a668b.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Triple_Pancake_Bonding_in_Neutral_Conjugated_Dimers_a_Computational_Study/32885218
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Validity_and_Test-Retest_Reliability_of_the_Turkish_Version_of_Spinal_Muscular_Atrophy_Independence_Scale_-_Upper_Limb_Module_A_Comparison_with_Healthy_Peers/32885216
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/From_Waste_to_Resource_Overcoming_Osmotic_Distillation_in_Membrane_Contactors_for_High-Efficiency_Ammonia_Recovery_and_Concentration/32885214
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Calibrated_Model_Criticism_Using_Split_Predictive_Checks/32025350
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/10_top_tips_on_conservative_non-pharmacological_management_in_adults_with_Facioscapulohumeral_muscular_dystrophy_FSHD_/32885177
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S0033350600803182
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16747143
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S0033350600802498
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S0033350699800432
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S0033350600802292
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://uregina.scholaris.ca/handle/10294/16814
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://uregina.scholaris.ca/handle/10294/8416
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://uregina.scholaris.ca/handle/10294/16201
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://uregina.scholaris.ca/handle/10294/8362
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://uregina.scholaris.ca/handle/10294/16153
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
