@@ -73,10 +73,17 @@ fi
 
 git commit -m "$msg"
 
-for i in 1 2 3 4 5 6 7 8; do
+# Retry budget: a long-running tick (e.g. the reprocess drain, which holds the
+# tree for minutes running review panels) starts its push AFTER many concurrent
+# advance-matrix commits have landed, so a short budget loses every rebase race
+# and DISCARDS the tick's work. Use a generous attempt count with JITTERED,
+# capped backoff so simultaneous runners desync (a fixed schedule makes them
+# collide in lockstep) and each gets many chances to land in a gap.
+ATTEMPTS="${COMMIT_PUSH_ATTEMPTS:-20}"
+for i in $(seq 1 "$ATTEMPTS"); do
   git rebase --abort 2>/dev/null || true   # guarantee a clean, non-conflicted tree
   if ! git fetch origin main --quiet; then
-    echo "fetch failed (attempt $i); retrying" >&2; sleep $((3 * i)); continue
+    echo "fetch failed (attempt $i); retrying" >&2; sleep $((2 + RANDOM % 5)); continue
   fi
   if git rebase -X theirs origin/main >/dev/null 2>&1; then
     if git push origin HEAD:main --quiet; then
@@ -88,10 +95,10 @@ for i in 1 2 3 4 5 6 7 8; do
     git rebase --abort 2>/dev/null || true
   fi
   echo "push attempt $i failed; retrying..." >&2
-  sleep $((3 * i))
+  sleep $((2 + RANDOM % 5))   # 2-6s jitter; desyncs concurrent runners
 done
 
-echo "ERROR: could not push after 8 attempts — this tick's work was NOT persisted." >&2
+echo "ERROR: could not push after ${ATTEMPTS} attempts — this tick's work was NOT persisted." >&2
 echo "origin/main is unchanged (no corruption); the project stays schedulable and a later tick re-does the work." >&2
 emit false
 exit 1
