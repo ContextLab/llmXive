@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-17T09:40:28.474641Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-716-fastcontext-training-efficient-repositor
-last_run_id: 396a7849-860f-4aa9-b192-3ccad639e5c5
+last_run_id: 0e586ff6-7241-4ed2-ab28-ab51a266aed3
 last_run_status: null
 points_paper: {}
 points_research: {}
