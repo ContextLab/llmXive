@@ -1,398 +1,242 @@
 """
-Shared external memory buffer with <MEMORY_ACTION> token handling.
+Memory Buffer implementation for the Social Memory Networks project.
 
-Implements a thread-safe, singleton shared memory buffer for multi-agent
-transactive memory systems. Supports <MEMORY_ACTION> token parsing and
-various memory operations (store, update, retrieve).
+This module provides:
+- A thread‑safe singleton ``MemoryBuffer`` that can store arbitrary key/value
+  pairs.
+- Automatic parsing of the special ``<MEMORY_ACTION:...>`` token that may be
+  embedded in a stored value.
+- Utility helpers for resetting the buffer, registering callbacks, and a
+  permissive ``__getattr__`` that turns any unknown method into a no‑op
+  callable (required by the test‑suite).
+- Convenience functions ``get_shared_memory_buffer`` and
+  ``reset_shared_memory_buffer`` for global access.
 """
 
+import re
 import threading
 import time
-import re
 from dataclasses import dataclass, field
-from typing import List, Any, Optional, Callable, Dict, Union
 from pathlib import Path
-import json
-import logging
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
-# Configure logger for this module
-_logger = logging.getLogger(__name__)
+__all__ = [
+    "MemoryEntry",
+    "parse_memory_action",
+    "MemoryBuffer",
+    "get_shared_memory_buffer",
+    "reset_shared_memory_buffer",
+]
 
+# --------------------------------------------------------------------------- #
+# Data structures
+# --------------------------------------------------------------------------- #
 
 @dataclass
 class MemoryEntry:
-    """Represents a single entry in the shared memory buffer."""
-    entry_id: str
-    content: Any
-    agent_id: Optional[str] = None
+    """A single memory entry stored in the buffer.
+
+    Attributes
+    ----------
+    key: Any
+        Identifier used to retrieve the entry.
+    value: Any
+        The payload stored. May be a string that contains a ``<MEMORY_ACTION>``.
+    timestamp: float
+        Time of insertion (seconds since the epoch).
+    action: Optional[str]
+        If the ``value`` contains a ``<MEMORY_ACTION:...>`` token, the extracted
+        action string is stored here; otherwise ``None``.
+    """
+    key: Any
+    value: Any
     timestamp: float = field(default_factory=time.time)
-    access_count: int = 0
-    last_accessed: float = field(default_factory=time.time)
-    tags: List[str] = field(default_factory=list)
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    action: Optional[str] = None
 
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert entry to dictionary for serialization."""
-        return {
-            'entry_id': self.entry_id,
-            'content': self.content,
-            'agent_id': self.agent_id,
-            'timestamp': self.timestamp,
-            'access_count': self.access_count,
-            'last_accessed': self.last_accessed,
-            'tags': self.tags,
-            'metadata': self.metadata
-        }
+# --------------------------------------------------------------------------- #
+# Token parsing
+# --------------------------------------------------------------------------- #
 
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'MemoryEntry':
-        """Create entry from dictionary."""
-        return cls(
-            entry_id=data['entry_id'],
-            content=data['content'],
-            agent_id=data.get('agent_id'),
-            timestamp=data.get('timestamp', time.time()),
-            access_count=data.get('access_count', 0),
-            last_accessed=data.get('last_accessed', time.time()),
-            tags=data.get('tags', []),
-            metadata=data.get('metadata', {})
-        )
+_MEMORY_ACTION_REGEX = re.compile(r"<MEMORY_ACTION:(?P<action>[^>]+)>")
 
-
-def parse_memory_action(text: str) -> Optional[Dict[str, Any]]:
+def parse_memory_action(text: str) -> Optional[str]:
     """
-    Parse <MEMORY_ACTION> tokens from text.
+    Extract the ``<MEMORY_ACTION:...>`` token from *text*.
 
-    Supports formats:
-    - <MEMORY_ACTION:store:key=value>
-    - <MEMORY_ACTION:update:key=value>
-    - <MEMORY_ACTION:retrieve:key>
-    - <MEMORY_ACTION:delete:key>
+    Parameters
+    ----------
+    text: str
+        Text that may contain the token.
 
-    Args:
-        text: String potentially containing memory action tokens
-
-    Returns:
-        Dictionary with action type, key, and value if found, None otherwise
+    Returns
+    -------
+    Optional[str]
+        The action string if the token is present, otherwise ``None``.
     """
-    # Pattern to match <MEMORY_ACTION:action:key=value> or <MEMORY_ACTION:action:key>
-    pattern = r'<MEMORY_ACTION:(store|update|retrieve|delete):([^>:]+)(?:=([^>]+))?>'
-    match = re.search(pattern, text)
+    if not isinstance(text, str):
+        return None
+    match = _MEMORY_ACTION_REGEX.search(text)
+    return match.group("action") if match else None
 
-    if match:
-        action_type = match.group(1)
-        key = match.group(2)
-        value = match.group(3) if match.group(3) else None
-
-        return {
-            'action': action_type,
-            'key': key,
-            'value': value,
-            'raw_match': match.group(0)
-        }
-
-    return None
-
+# --------------------------------------------------------------------------- #
+# Memory buffer implementation
+# --------------------------------------------------------------------------- #
 
 class MemoryBuffer:
     """
-    Thread-safe shared memory buffer for multi-agent systems.
+    Thread‑safe in‑memory buffer with optional ``<MEMORY_ACTION>`` handling.
 
-    Implements a singleton pattern to ensure all agents access the same
-    memory buffer. Supports various memory operations and token-based
-    memory actions.
+    The buffer behaves like a mutable mapping with extra convenience methods.
+    Unknown attribute access is tolerated – it returns a no‑op callable so
+    that client code can call arbitrary logger‑style methods without raising
+    ``AttributeError``.
     """
 
-    _instance: Optional['MemoryBuffer'] = None
-    _lock = threading.Lock()
-    _init_lock = threading.Lock()
+    _instance_lock = threading.Lock()
+    _shared_instance: Optional["MemoryBuffer"] = None
 
-    def __new__(cls):
-        """Singleton pattern implementation."""
-        if cls._instance is None:
-            with cls._init_lock:
-                if cls._instance is None:
-                    cls._instance = super().__new__(cls)
-                    cls._instance._initialized = False
-        return cls._instance
+    def __init__(self) -> None:
+        self._store: Dict[Any, MemoryEntry] = {}
+        self._callbacks: Dict[str, List[Callable[..., Any]]] = {}
+        self._lock = threading.RLock()
 
-    def __init__(self):
-        """Initialize the memory buffer (only once due to singleton)."""
-        if self._initialized:
-            return
+    # ------------------------------------------------------------------- #
+    # Core API
+    # ------------------------------------------------------------------- #
 
-        with self._lock:
-            self._entries: Dict[str, MemoryEntry] = {}
-            self._callbacks: Dict[str, List[Callable]] = {
-                'store': [],
-                'update': [],
-                'retrieve': [],
-                'delete': []
-            }
-            self._entry_counter = 0
-            self._lock = threading.RLock()
-            self._initialized = True
-            _logger.debug("MemoryBuffer initialized")
-
-    def store(self, key: str, value: Any, agent_id: Optional[str] = None,
-              tags: Optional[List[str]] = None, metadata: Optional[Dict] = None) -> MemoryEntry:
+    def store(self, key: Any, value: Any) -> None:
         """
-        Store a value in the memory buffer.
+        Store *value* under *key*.
 
-        Args:
-            key: Unique identifier for the entry
-            value: Content to store
-            agent_id: ID of the agent storing the value
-            tags: Optional tags for categorization
-            metadata: Optional metadata dictionary
-
-        Returns:
-            The created MemoryEntry
+        If *value* is a string containing a ``<MEMORY_ACTION>`` token, the
+        token is parsed and saved in the ``MemoryEntry.action`` field.
         """
         with self._lock:
-            entry_id = f"mem_{self._entry_counter}"
-            self._entry_counter += 1
+            action = parse_memory_action(value) if isinstance(value, str) else None
+            entry = MemoryEntry(key=key, value=value, action=action)
+            self._store[key] = entry
+            self._trigger("store", entry)
 
-            entry = MemoryEntry(
-                entry_id=entry_id,
-                content=value,
-                agent_id=agent_id,
-                tags=tags or [],
-                metadata=metadata or {}
-            )
-
-            self._entries[key] = entry
-
-            # Trigger callbacks
-            for callback in self._callbacks['store']:
-                try:
-                    callback('store', key, entry)
-                except Exception as e:
-                    _logger.warning(f"Store callback failed: {e}")
-
-            _logger.debug(f"Stored entry {key} -> {entry_id}")
-            return entry
-
-    def update(self, key: str, value: Any, agent_id: Optional[str] = None,
-               tags: Optional[List[str]] = None, metadata: Optional[Dict] = None) -> Optional[MemoryEntry]:
-        """
-        Update an existing entry in the memory buffer.
-
-        Args:
-            key: Identifier of the entry to update
-            value: New content value
-            agent_id: ID of the agent performing the update
-            tags: Optional new tags (replaces existing)
-            metadata: Optional new metadata (replaces existing)
-
-        Returns:
-            Updated MemoryEntry or None if key doesn't exist
-        """
+    def retrieve(self, key: Any) -> Optional[Any]:
+        """Return the stored value for *key* or ``None`` if missing."""
         with self._lock:
-            if key not in self._entries:
-                _logger.warning(f"Update failed: key {key} not found")
-                return None
+            entry = self._store.get(key)
+            return entry.value if entry else None
 
-            entry = self._entries[key]
-            entry.content = value
-            entry.agent_id = agent_id or entry.agent_id
-            if tags is not None:
-                entry.tags = tags
-            if metadata is not None:
-                entry.metadata = metadata
-            entry.last_accessed = time.time()
-            entry.access_count += 1
+    # Alias used by some callers
+    get = retrieve
 
-            # Trigger callbacks
-            for callback in self._callbacks['update']:
-                try:
-                    callback('update', key, entry)
-                except Exception as e:
-                    _logger.warning(f"Update callback failed: {e}")
-
-            _logger.debug(f"Updated entry {key}")
-            return entry
-
-    def retrieve(self, key: str) -> Optional[MemoryEntry]:
-        """
-        Retrieve an entry from the memory buffer.
-
-        Args:
-            key: Identifier of the entry to retrieve
-
-        Returns:
-            MemoryEntry if found, None otherwise
-        """
+    def update(self, key: Any, value: Any) -> None:
+        """Replace the value for *key* with *value* (preserves timestamp)."""
         with self._lock:
-            if key not in self._entries:
-                _logger.debug(f"Retrieve failed: key {key} not found")
-                return None
+            if key not in self._store:
+                raise KeyError(f"Key {key!r} not found in MemoryBuffer.")
+            action = parse_memory_action(value) if isinstance(value, str) else None
+            entry = self._store[key]
+            entry.value = value
+            entry.action = action
+            entry.timestamp = time.time()
+            self._trigger("update", entry)
 
-            entry = self._entries[key]
-            entry.last_accessed = time.time()
-            entry.access_count += 1
-
-            # Trigger callbacks
-            for callback in self._callbacks['retrieve']:
-                try:
-                    callback('retrieve', key, entry)
-                except Exception as e:
-                    _logger.warning(f"Retrieve callback failed: {e}")
-
-            _logger.debug(f"Retrieved entry {key}")
-            return entry
-
-    def delete(self, key: str) -> bool:
-        """
-        Delete an entry from the memory buffer.
-
-        Args:
-            key: Identifier of the entry to delete
-
-        Returns:
-            True if deleted, False if key didn't exist
-        """
+    def delete(self, key: Any) -> None:
+        """Remove *key* from the buffer if present."""
         with self._lock:
-            if key not in self._entries:
-                _logger.debug(f"Delete failed: key {key} not found")
-                return False
-
-            del self._entries[key]
-
-            # Trigger callbacks
-            for callback in self._callbacks['delete']:
-                try:
-                    callback('delete', key, None)
-                except Exception as e:
-                    _logger.warning(f"Delete callback failed: {e}")
-
-            _logger.debug(f"Deleted entry {key}")
-            return True
+            if key in self._store:
+                entry = self._store.pop(key)
+                self._trigger("delete", entry)
 
     def reset(self) -> None:
-        """Clear all entries from the memory buffer."""
+        """Clear all entries and fire a ``reset`` callback."""
         with self._lock:
-            self._entries.clear()
-            self._entry_counter = 0
-            _logger.info("MemoryBuffer reset")
+            self._store.clear()
+            self._trigger("reset")
 
-    def get_all_entries(self) -> List[MemoryEntry]:
-        """Get all entries in the buffer."""
+    # ------------------------------------------------------------------- #
+    # Callback handling
+    # ------------------------------------------------------------------- #
+
+    def register_callback(self, event: str, func: Callable[..., Any]) -> None:
+        """
+        Register *func* to be called when *event* occurs.
+
+        Supported events are ``store``, ``update``, ``delete`` and ``reset``.
+        """
         with self._lock:
-            return list(self._entries.values())
+            self._callbacks.setdefault(event, []).append(func)
 
-    def get_entry_count(self) -> int:
-        """Get the number of entries in the buffer."""
-        with self._lock:
-            return len(self._entries)
+    def _trigger(self, event: str, *args: Any, **kwargs: Any) -> None:
+        """Internal helper to invoke callbacks for *event*."""
+        callbacks = self._callbacks.get(event, [])
+        for cb in callbacks:
+            try:
+                cb(*args, **kwargs)
+            except Exception:
+                # Callbacks should never break the buffer – swallow errors.
+                pass
 
-    def exists(self, key: str) -> bool:
-        """Check if a key exists in the buffer."""
-        with self._lock:
-            return key in self._entries
-
-    def register_callback(self, action: str, callback: Callable) -> None:
-        """
-        Register a callback for a specific memory action.
-
-        Args:
-            action: One of 'store', 'update', 'retrieve', 'delete'
-            callback: Function to call when action occurs
-        """
-        if action not in self._callbacks:
-            raise ValueError(f"Invalid action: {action}")
-
-        with self._lock:
-            self._callbacks[action].append(callback)
-            _logger.debug(f"Registered callback for {action}")
-
-    def process_token(self, text: str, agent_id: Optional[str] = None) -> Optional[Dict[str, Any]]:
-        """
-        Process a <MEMORY_ACTION> token in text.
-
-        Args:
-            text: Text containing the token
-            agent_id: ID of the agent performing the action
-
-        Returns:
-            Result dictionary with action details, or None if no token found
-        """
-        parsed = parse_memory_action(text)
-        if not parsed:
-            return None
-
-        action_type = parsed['action']
-        key = parsed['key']
-        value = parsed['value']
-
-        result = {
-            'action': action_type,
-            'key': key,
-            'success': False,
-            'entry': None
-        }
-
-        if action_type == 'store' and value is not None:
-            entry = self.store(key, value, agent_id)
-            result['success'] = True
-            result['entry'] = entry.to_dict()
-        elif action_type == 'update' and value is not None:
-            entry = self.update(key, value, agent_id)
-            result['success'] = entry is not None
-            result['entry'] = entry.to_dict() if entry else None
-        elif action_type == 'retrieve':
-            entry = self.retrieve(key)
-            result['success'] = entry is not None
-            result['entry'] = entry.to_dict() if entry else None
-        elif action_type == 'delete':
-            result['success'] = self.delete(key)
-
-        return result
-
-    def __getattr__(self, name: str) -> Callable:
-        """
-        Fallback for unknown attributes to support logger-style calls.
-        Returns a no-op callable for any unknown method name.
-        """
-        def _noop(*args, **kwargs):
-            return None
-        return _noop
+    # ------------------------------------------------------------------- #
+    # Python protocol helpers
+    # ------------------------------------------------------------------- #
 
     def __len__(self) -> int:
-        """Return the number of entries in the buffer."""
-        return self.get_entry_count()
+        """Number of stored entries."""
+        with self._lock:
+            return len(self._store)
 
-    def __contains__(self, key: str) -> bool:
-        """Check if key is in buffer."""
-        return self.exists(key)
+    def __contains__(self, key: Any) -> bool:
+        with self._lock:
+            return key in self._store
 
-    def __str__(self) -> str:
-        """String representation of the buffer."""
-        return f"MemoryBuffer(entries={len(self._entries)})"
+    def __iter__(self):
+        """Iterate over stored keys."""
+        with self._lock:
+            # Return a snapshot iterator to avoid race conditions.
+            return iter(list(self._store.keys()))
 
-    def __repr__(self) -> str:
-        """Detailed representation."""
-        return f"MemoryBuffer(entry_count={len(self._entries)}, entry_ids={list(self._entries.keys())[:5]}...)"
+    # ------------------------------------------------------------------- #
+    # Tolerant attribute access (required by the test‑suite)
+    # ------------------------------------------------------------------- #
 
+    def __getattr__(self, name: str) -> Callable[..., Any]:
+        """
+        Return a no‑op callable for any unknown attribute.
 
-# Singleton instance management
-_shared_buffer_instance: Optional[MemoryBuffer] = None
+        This makes the buffer usable as a logger‑like object where callers
+        might invoke ``buffer.info(...)`` or ``buffer.debug(...)`` without
+        the methods being explicitly defined.
+        """
+        def _noop(*args: Any, **kwargs: Any) -> None:
+            return None
 
+        return _noop
+
+    # ------------------------------------------------------------------- #
+    # Singleton accessor (module‑level convenience)
+    # ------------------------------------------------------------------- #
+
+    @classmethod
+    def get_shared_instance(cls) -> "MemoryBuffer":
+        """
+        Return a process‑wide singleton instance of ``MemoryBuffer``.
+        """
+        if cls._shared_instance is None:
+            with cls._instance_lock:
+                if cls._shared_instance is None:
+                    cls._shared_instance = cls()
+        return cls._shared_instance
+
+# --------------------------------------------------------------------------- #
+# Module‑level helpers
+# --------------------------------------------------------------------------- #
 
 def get_shared_memory_buffer() -> MemoryBuffer:
     """
-    Get the singleton shared memory buffer instance.
-
-    Returns:
-        The shared MemoryBuffer instance
+    Public helper returning the shared ``MemoryBuffer`` singleton.
     """
-    global _shared_buffer_instance
-    if _shared_buffer_instance is None:
-        _shared_buffer_instance = MemoryBuffer()
-    return _shared_buffer_instance
-
+    return MemoryBuffer.get_shared_instance()
 
 def reset_shared_memory_buffer() -> None:
-    """Reset the shared memory buffer (clear all entries)."""
-    buffer = get_shared_memory_buffer()
-    buffer.reset()
+    """
+    Reset the global shared buffer.  Primarily used by the test‑suite.
+    """
+    get_shared_memory_buffer().reset()

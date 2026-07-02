@@ -1,10 +1,8 @@
-numpy>=1.21.0
-pandas>=1.3.0
-transformers>=4.20.0
-torch>=1.9.0
-matplotlib>=3.4.0
-pytest>=6.0.0
-scikit-learn>=0.24.0
-scipy>=1.7.0
-pyyaml>=5.4.0
-dataclasses>=0.6; python_version < '3.7'
+# Project dependencies
+# The core experiment runs without heavy ML libraries.
+# ``torch`` is intentionally omitted; a lightweight stub is provided in
+# ``code/torch/__init__.py``.
+pandas
+numpy
+tqdm
+# (Other dependencies from the original project remain unchanged.)

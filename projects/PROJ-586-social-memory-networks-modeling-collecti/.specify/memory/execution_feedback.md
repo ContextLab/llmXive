@@ -25,46 +25,58 @@ The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The pr
 
 - python code/run_experiment.py --context full --agents 5 --games 1000 -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 30, in <module>
-    from metrics.specialization import compute_specialization_index, validate_specialization_index
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/metrics/__init__.py", line 6, in <module>
-    from .retrieval import RetrievalMetrics, compute_retrieval_rate, compute_retrieval_efficiency, compute_game_level_retrieval, validate_retrieval_efficiency
-ImportError: cannot import name 'compute_retrieval_rate' from 'metrics.retrieval' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/metrics/retrieval.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 28, in <module>
+    from agent.base_agent import BaseAgent, AgentConfig
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/agent/__init__.py", line 5, in <module>
+    from .base_agent import AgentConfig, BaseAgent
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/agent/base_agent.py", line 5, in <module>
+    import torch
+ModuleNotFoundError: No module named 'torch'
 - python code/run_experiment.py --context limited --agents 5 --games 1000 -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 30, in <module>
-    from metrics.specialization import compute_specialization_index, validate_specialization_index
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/metrics/__init__.py", line 6, in <module>
-    from .retrieval import RetrievalMetrics, compute_retrieval_rate, compute_retrieval_efficiency, compute_game_level_retrieval, validate_retrieval_efficiency
-ImportError: cannot import name 'compute_retrieval_rate' from 'metrics.retrieval' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/metrics/retrieval.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 28, in <module>
+    from agent.base_agent import BaseAgent, AgentConfig
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/agent/__init__.py", line 5, in <module>
+    from .base_agent import AgentConfig, BaseAgent
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/agent/base_agent.py", line 5, in <module>
+    import torch
+ModuleNotFoundError: No module named 'torch'
 - python code/run_experiment.py --context full --agents 3,5,7 --games 800 --plot scaling -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 30, in <module>
-    from metrics.specialization import compute_specialization_index, validate_specialization_index
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/metrics/__init__.py", line 6, in <module>
-    from .retrieval import RetrievalMetrics, compute_retrieval_rate, compute_retrieval_efficiency, compute_game_level_retrieval, validate_retrieval_efficiency
-ImportError: cannot import name 'compute_retrieval_rate' from 'metrics.retrieval' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/metrics/retrieval.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 28, in <module>
+    from agent.base_agent import BaseAgent, AgentConfig
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/agent/__init__.py", line 5, in <module>
+    from .base_agent import AgentConfig, BaseAgent
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/agent/base_agent.py", line 5, in <module>
+    import torch
+ModuleNotFoundError: No module named 'torch'
 - python code/run_experiment.py --context limited --agents 5 --games 1000 --thresholds 128,256,512 -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 30, in <module>
-    from metrics.specialization import compute_specialization_index, validate_specialization_index
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/metrics/__init__.py", line 6, in <module>
-    from .retrieval import RetrievalMetrics, compute_retrieval_rate, compute_retrieval_efficiency, compute_game_level_retrieval, validate_retrieval_efficiency
-ImportError: cannot import name 'compute_retrieval_rate' from 'metrics.retrieval' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/metrics/retrieval.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 28, in <module>
+    from agent.base_agent import BaseAgent, AgentConfig
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/agent/__init__.py", line 5, in <module>
+    from .base_agent import AgentConfig, BaseAgent
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/agent/base_agent.py", line 5, in <module>
+    import torch
+ModuleNotFoundError: No module named 'torch'
 - python code/run_experiment.py --context full --agents 5 --games 100 --seed 42 -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 30, in <module>
-    from metrics.specialization import compute_specialization_index, validate_specialization_index
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/metrics/__init__.py", line 6, in <module>
-    from .retrieval import RetrievalMetrics, compute_retrieval_rate, compute_retrieval_efficiency, compute_game_level_retrieval, validate_retrieval_efficiency
-ImportError: cannot import name 'compute_retrieval_rate' from 'metrics.retrieval' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/metrics/retrieval.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 28, in <module>
+    from agent.base_agent import BaseAgent, AgentConfig
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/agent/__init__.py", line 5, in <module>
+    from .base_agent import AgentConfig, BaseAgent
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/agent/base_agent.py", line 5, in <module>
+    import torch
+ModuleNotFoundError: No module named 'torch'
 - python code/run_experiment.py --context full --agents 5 --games 100 --seed 42 -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 30, in <module>
-    from metrics.specialization import compute_specialization_index, validate_specialization_index
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/metrics/__init__.py", line 6, in <module>
-    from .retrieval import RetrievalMetrics, compute_retrieval_rate, compute_retrieval_efficiency, compute_game_level_retrieval, validate_retrieval_efficiency
-ImportError: cannot import name 'compute_retrieval_rate' from 'metrics.retrieval' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/metrics/retrieval.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 28, in <module>
+    from agent.base_agent import BaseAgent, AgentConfig
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/agent/__init__.py", line 5, in <module>
+    from .base_agent import AgentConfig, BaseAgent
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/agent/base_agent.py", line 5, in <module>
+    import torch
+ModuleNotFoundError: No module named 'torch'
 
 ## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
 
@@ -95,10 +107,7 @@ Make `__getattr__` in `code/memory/buffer.py` accept ALL of the above.
 
 Whichever you choose, every call site of `MemoryBuffer` across the codebase must stop raising `AttributeError`/`TypeError`.
 
-`MemoryBuffer.reset` call sites (6):
-- code/memory/buffer.py: cls._instance.reset()
-- code/memory/buffer.py: """Alias for reset()."""
-- code/memory/buffer.py: self.reset()
-- code/memory/buffer.py: _shared_buffer.reset()
+`MemoryBuffer.reset` call sites (3):
+- code/memory/buffer.py: buffer.reset()
 - code/tests/unit/test_memory_buffer.py: """Test that reset() clears all entries."""
 - code/tests/unit/test_memory_buffer.py: buffer.reset()
