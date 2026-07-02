@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-09T09:10:21.377456Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-680-socrates-towards-reliable-automated-eval
-last_run_id: 5c6269fd-42a1-435e-bab9-4c68b9758194
+last_run_id: b6552741-a1a0-4fe1-b163-088e36e6c321
 last_run_status: null
 points_paper: {}
 points_research: {}
