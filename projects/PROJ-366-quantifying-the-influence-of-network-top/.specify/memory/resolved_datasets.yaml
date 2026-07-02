@@ -1,0 +1,138 @@
+resolved_at: '2026-07-02T16:40:22.196039+00:00'
+datasets:
+- intent: GNN
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/winfried/gnn_bvp_solver/resolve/main/ElasticityFixedLineGenerator/norm_test_shape/1O2JC0RZQ19OZULQ.gz
+    source: huggingface
+    format: gzip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 165737
+      parsed: true
+  - url: https://huggingface.co/datasets/TuringsSolutions/GNN400ANDPFAF400/resolve/main/GNN400+PFAF400
+      - Sheet1.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/winfried/gnn_bvp_solver/resolve/main/ElasticityFixedLineGenerator/norm_test_shape/1O2JC0RZQ19OZULQ.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/TuringsSolutions/GNN400ANDPFAF400/resolve/main/GNN400+PFAF400
+      - Sheet1.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/dataset/Banco_de_artigos_da_revis_o_bibliom_trica_das_Escalas_EDM_e_EDI/32838446
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Non-ferrous_metalworking_in_Kyivan_Podil_10th_first_half_of_the_13th_century_/32882237
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Photoregulated_Structural_Memory_in_Supramolecular_Polymers/32882254
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Organic_versus_Hybrid_Molecularly_Imprinted_Polymer_Adsorbents_Structure_Selectivity_Trade-Offs_in_Progesterone_Removal_from_Water/32882251
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/In_Situ_Growth_of_an_Amino-Modified_UiO-67_Nanofiber_Membrane_for_SO_sub_2_sub_Adsorption/32882248
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2703306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7803328
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.ijies.org/portfolio-item/B114213020226/
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/6798322
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6785285
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21132635
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21132635
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21131856
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21131856
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21131698
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ThermalSample
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Banco_de_artigos_da_revis_o_bibliom_trica_das_Escalas_EDM_e_EDI/32838446
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Non-ferrous_metalworking_in_Kyivan_Podil_10th_first_half_of_the_13th_century_/32882237
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Photoregulated_Structural_Memory_in_Supramolecular_Polymers/32882254
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Organic_versus_Hybrid_Molecularly_Imprinted_Polymer_Adsorbents_Structure_Selectivity_Trade-Offs_in_Progesterone_Removal_from_Water/32882251
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/In_Situ_Growth_of_an_Amino-Modified_UiO-67_Nanofiber_Membrane_for_SO_sub_2_sub_Adsorption/32882248
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: AtomicGraph
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Banco_de_artigos_da_revis_o_bibliom_trica_das_Escalas_EDM_e_EDI/32838446
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Non-ferrous_metalworking_in_Kyivan_Podil_10th_first_half_of_the_13th_century_/32882237
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Photoregulated_Structural_Memory_in_Supramolecular_Polymers/32882254
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Organic_versus_Hybrid_Molecularly_Imprinted_Polymer_Adsorbents_Structure_Selectivity_Trade-Offs_in_Progesterone_Removal_from_Water/32882251
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/In_Situ_Growth_of_an_Amino-Modified_UiO-67_Nanofiber_Membrane_for_SO_sub_2_sub_Adsorption/32882248
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
