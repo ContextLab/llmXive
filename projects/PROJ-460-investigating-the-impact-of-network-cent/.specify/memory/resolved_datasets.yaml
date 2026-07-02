@@ -1,0 +1,204 @@
+resolved_at: '2026-07-02T17:21:05.624049+00:00'
+datasets:
+- intent: ABIDE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_abideen__NexoNimbus-7B/resolve/main/2024-01-13T15-21-36.768833/details_harness|arc:challenge|25_2024-01-13T15-21-36.768833.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_abideen__NexoNimbus-MoE-2x7B/resolve/main/2024-01-14T07-48-44.681252/details_harness|arc:challenge|25_2024-01-14T07-48-44.681252.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/abideen/lex/resolve/main/data/train-00000-of-00009.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_abideen__NexoNimbus-7B/resolve/main/2024-01-13T15-21-36.768833/details_harness|arc:challenge|25_2024-01-13T15-21-36.768833.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_abideen__NexoNimbus-MoE-2x7B/resolve/main/2024-01-14T07-48-44.681252/details_harness|arc:challenge|25_2024-01-14T07-48-44.681252.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/abideen/lex/resolve/main/data/train-00000-of-00009.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/abideen/lex-0.1/resolve/main/data/train-00000-of-00002.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/abideen/Copilot/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://tandf.figshare.com/articles/journal_contribution/Identification_of_systemic_barriers_facilitators_and_adaptations_to_effective_record-keeping_a_South_African_primary_healthcare_clinic_case_study/32882343
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Bio-inspired_rapid_green_chemical_pretreatment_for_astaxanthin_extraction_utilizing_shrimp_waste_a_Taguchi_optimized_scalable_approach/32882340
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Calibrated_Bayesian_Nonparametric_Tolerance_Intervals/32882339
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Principled_Estimation_and_Prediction_with_Competing_Risks_a_Bayesian_Nonparametric_Approach/32242904
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/A_new_closed-form_analytical_solution_for_PFG_shells_and_honeycomb_sandwich_plates_with_auxetic_cores_i_via_i_the_unified_formulation_and_boundary_discontinuous_Fourier_method/32882337
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S0898122120304454
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15582775
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14544491
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S0377042720301631
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8068739
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repositories.lib.utexas.edu/handle/2152/136801
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://toubkal.imist.ma/handle/123456789/15255
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21105740
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21105740
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://toubkal.imist.ma/handle/123456789/27079
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ASD
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/huggingartists/asdfgfa/resolve/main/datasets.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 3805
+      parsed: true
+  - url: https://huggingface.co/datasets/asdAD222/segment_T/resolve/main/semantic_seg-segmentv1.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 24284
+      parsed: true
+  - url: https://huggingface.co/datasets/asdfdvfbdb/efefw/resolve/main/token_identifier.txt
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 6
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/huggingartists/asdfgfa/resolve/main/datasets.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/asdAD222/segment_T/resolve/main/semantic_seg-segmentv1.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/asdfdvfbdb/efefw/resolve/main/token_identifier.txt
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://tandf.figshare.com/articles/journal_contribution/Crash_severity_determinants_in_Saudi_Arabia_s_Eastern_Province_Evidence_from_logistic_regression_and_neural_networks/32882350
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Vegetation_greening_decouples_terrestrial_carbon_water_cycles_through_contrasting_effects_on_water_availability/32882319
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Identification_of_systemic_barriers_facilitators_and_adaptations_to_effective_record-keeping_a_South_African_primary_healthcare_clinic_case_study/32882343
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Bio-inspired_rapid_green_chemical_pretreatment_for_astaxanthin_extraction_utilizing_shrimp_waste_a_Taguchi_optimized_scalable_approach/32882340
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Calibrated_Bayesian_Nonparametric_Tolerance_Intervals/32882339
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7642049
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7800405
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7642195
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7767267
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7676141
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://uregina.scholaris.ca/handle/10294/14971
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://uregina.scholaris.ca/handle/10294/5735
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://uregina.scholaris.ca/handle/10294/8965
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://pfiet.ru/article/view/5796
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://uregina.scholaris.ca/handle/10294/16009
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Participant Schema"
+description: "Schema for participant metadata and inclusion criteria."
+type: object
+properties:
+  subject_id:
+    type: string
+    description: "Unique identifier for the participant."
+  diagnosis:
+    type: string
+    enum:
+      - "ASD"
+      - "Control"
+    description: "Diagnosis label."
+  age:
+    type: integer
+    minimum: 0
+    description: "Age in years."
+  sex:
+    type: string
+    enum:
+      - "M"
+      - "F"
+    description: "Biological sex."
+  motion_mean_fd:
+    type: number
+    minimum: 0
+    description: "Mean Framewise Displacement."
+  included:
+    type: boolean
+    description: "Whether the participant passed quality control."
+  exclusion_reason:
+    type: ["string", "null"]
+    description: "Reason for exclusion if not included."
+required:
+  - subject_id
+  - diagnosis
+  - age
+  - sex
+  - motion_mean_fd
+  - included
+additionalProperties: false

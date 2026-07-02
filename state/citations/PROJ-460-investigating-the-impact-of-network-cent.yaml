@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 235964ba5f51d84abe7e77daef059416f3d5d6dd27119706193e4d27aa08a7da
+  artifact_path: projects/PROJ-460-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: OpenNeuro
+  kind: url
+  value: https://openneuro.org/datasets/ds0002800`
+  verification_status: verified
+  verified_against_url: https://openneuro.org/datasets/ds0002800
+  verified_at: '2026-07-02T17:36:05.404904Z'

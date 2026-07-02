@@ -1,0 +1,53 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Centrality Output Schema"
+description: "Schema for group comparison results of centrality metrics."
+type: object
+properties:
+  metric_name:
+    type: string
+    enum:
+      - "degree"
+      - "betweenness"
+      - "eigenvector"
+    description: "Name of the centrality metric."
+  roi_index:
+    type: integer
+    minimum: 0
+    maximum: 399
+    description: "Index of the ROI in the Schaefer 400 atlas."
+  roi_name:
+    type: string
+    description: "Name of the brain region."
+  mean_asd:
+    type: number
+    description: "Mean centrality value for ASD group."
+  mean_control:
+    type: number
+    description: "Mean centrality value for Control group."
+  t_statistic:
+    type: number
+    description: "T-statistic from two-sample t-test."
+  p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Raw p-value."
+  q_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "FDR-corrected q-value."
+  significant:
+    type: boolean
+    description: "True if q_value < 0.05."
+required:
+  - metric_name
+  - roi_index
+  - roi_name
+  - mean_asd
+  - mean_control
+  - t_statistic
+  - p_value
+  - q_value
+  - significant
+additionalProperties: false
