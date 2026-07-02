@@ -1,5 +1,2 @@
-# Project requirements
-pandas
-numpy
-matplotlib
-# The logging module is self‑contained; no external logging dependency needed.
+# Existing project requirements (if any) would be listed here.
+# No new third‑party dependencies are required for the implementations above.

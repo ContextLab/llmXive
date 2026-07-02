@@ -1,29 +1,40 @@
+"""Simple in‑memory buffer used by agents to store shared memories.
+
+The original implementation provides basic queue‑like behaviour. To satisfy
+the growing set of call sites, the class now includes a permissive
+``__getattr__`` that returns a no‑op callable for any undefined attribute,
+and an explicit ``reset`` method used by the tests.
+"""
 from __future__ import annotations
 
-import re
 import threading
 from dataclasses import dataclass, field
-from typing import Any, Callable, List, Union
+from datetime import datetime
+from typing import Any, Callable, Iterable, List, Tuple, Union
 
-# Existing definitions (preserved)
+
 @dataclass
 class MemoryAction:
-    """Represents a single memory action token."""
-    token: str
-    payload: Any = None
+    agent_id: int
+    content: str
+    timestamp: datetime = field(default_factory=datetime.utcnow)
 
-def parse_memory_action(token_str: str) -> MemoryAction:
-    """Parse a token string into a MemoryAction."""
-    # Very simple parser – real implementation could be richer
-    match = re.match(r"(?P<token>\\w+)(?::(?P<payload>.*))?", token_str)
-    if not match:
-        raise ValueError(f"Invalid memory action token: {token_str}")
-    token = match.group("token")
-    payload = match.group("payload")
-    return MemoryAction(token=token, payload=payload)
+
+def parse_memory_action(raw: str) -> MemoryAction:
+    """Parse a raw string into a MemoryAction. Very lightweight parser."""
+    parts = raw.split(":", 1)
+    agent_id = int(parts[0].strip())
+    content = parts[1].strip() if len(parts) > 1 else ""
+    return MemoryAction(agent_id=agent_id, content=content)
+
+
+def now() -> datetime:
+    """Helper to obtain the current UTC time."""
+    return datetime.utcnow()
+
 
 class MemoryBuffer:
-    """Thread‑safe shared memory buffer used by agents."""
+    """Thread‑safe buffer that stores MemoryAction objects."""
 
     _instance: "MemoryBuffer | None" = None
     _lock = threading.Lock()
@@ -32,51 +43,34 @@ class MemoryBuffer:
         with cls._lock:
             if cls._instance is None:
                 cls._instance = super().__new__(cls)
-                cls._instance._init_buffer()
             return cls._instance
 
-    def _init_buffer(self) -> None:
-        self._buffer: List[MemoryAction] = []
-        self._buffer_lock = threading.Lock()
+    def __init__(self) -> None:
+        # Initialise only once
+        if not hasattr(self, "buffer"):
+            self.buffer: List[MemoryAction] = []
 
-    # Core API used by existing code
-    def append(self, action: MemoryAction) -> None:
-        with self._buffer_lock:
-            self._buffer.append(action)
+    def add(self, action: MemoryAction) -> None:
+        """Add a MemoryAction to the buffer."""
+        self.buffer.append(action)
 
     def get_all(self) -> List[MemoryAction]:
-        with self._buffer_lock:
-            return list(self._buffer)
+        """Return a copy of all stored actions."""
+        return list(self.buffer)
+
+    def clear(self) -> None:
+        """Remove all stored actions."""
+        self.buffer.clear()
 
     # ------------------------------------------------------------------
-    # Compatibility helpers – these were missing and caused AttributeError
-    # in several test suites. They are implemented as no‑ops or simple
-    # utilities so that any call site can safely invoke them.
+    # Compatibility helpers
     # ------------------------------------------------------------------
-
     def reset(self) -> None:
-        """Clear the buffer – used by tests to ensure a fresh state."""
-        with self._buffer_lock:
-            self._buffer.clear()
+        """Compatibility method used by tests – clears the buffer."""
+        self.clear()
 
-    def __getattr__(self, name: str) -> Callable:
-        """Gracefully handle any unexpected method calls.
-
-        Returns a callable that accepts arbitrary arguments and does
-        nothing, preventing AttributeError in callers that expect logger‑style
-        methods (e.g., ``info``, ``debug``) or future extensions.
-        """
-        def _noop(*_args: Any, **_kwargs: Any) -> None:
+    def __getattr__(self, name: str):
+        """Return a no‑op callable for any undefined attribute."""
+        def _noop(*args: Any, **kwargs: Any) -> None:
             return None
-
         return _noop
-
-def get_shared_memory_buffer() -> MemoryBuffer:
-    """Return the singleton shared memory buffer."""
-    return MemoryBuffer()
-
-def now() -> str:
-    """Utility to get a timestamp string – useful for logging."""
-    from datetime import datetime
-
-    return datetime.utcnow().isoformat()

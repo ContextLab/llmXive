@@ -8,6 +8,7 @@ The gate detected that your reported numbers are NOT real measurements: they are
 2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
 3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
 
+- code/run_experiment.py: self-declared fabricated metric — “…ciency                 # from dummy values – the real implementation in…”
 - code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic data generation for social me…”
 - code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…xperiments.  This module generates controlled synthetic datasets for testing the…”
 - code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…IMPORTANT: This module generates CONTROLLED synthetic data for testing purpose…”
@@ -15,38 +16,103 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…[str, Any]]:     """     Generate synthetic game data for testing th…”
 - code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…ction creates structured synthetic data that mimics the format…”
 - code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…Returns:         List of synthetic game records     """     random.seed(…”
-- code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…00) -> None:     """     Generate all synthetic datasets needed for the…”
-
-## ⚠ REGRESSIONS — your last fix BROKE these (they passed before)
-
-These commands were NOT failing in the previous round and ARE failing now — your last edit broke previously-working code. REVERT or correct whatever change broke each one BEFORE touching anything else; do not trade one passing script for another (that oscillation is what burns the fix-round budget toward escalation):
-
-- `python code/run_experiment.py --context full --agents 5 --games 100 --seed 42`
-- `python code/run_experiment.py --context full --agents 5 --games 100 --seed 42`
-- `python code/run_experiment.py --context limited --agents 5 --games 1000 --thresholds 128,256,512`
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 14 fabricated/simulated-result signal(s) — results are not real measurements: code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic data generation for social me…”; code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…xperiments.  This module generates controlled synthetic datasets for testing the…”; code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…IMPORTANT: This module generates CONTROLLED synthetic data for testing purpose…”; 4 command(s) failed: python code/run_experiment.py --context full --agents 3,5,7 --games 800 --plot scaling (rc=2); python code/run_experiment.py --context limited --agents 5 --games 1000 --thresholds 128,256,512 (rc=2); python code/run_experiment.py --context full --agents 5 --games 100 --seed 42 (rc=2)
+**Summary**: 15 fabricated/simulated-result signal(s) — results are not real measurements: code/run_experiment.py: self-declared fabricated metric — “…ciency                 # from dummy values – the real implementation in…”; code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic data generation for social me…”; code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…xperiments.  This module generates controlled synthetic datasets for testing the…”; 6 command(s) failed: python code/run_experiment.py --context full --agents 5 --games 1000 (rc=1); python code/run_experiment.py --context limited --agents 5 --games 1000 (rc=1); python code/run_experiment.py --context full --agents 3,5,7 --games 800 --plot scaling (rc=1)
 
 ## Failing / missing run-book commands
 
-- python code/run_experiment.py --context full --agents 3,5,7 --games 800 --plot scaling -> rc=2
-    usage: run_experiment.py [-h] --context {full,limited} --agents AGENTS
-                         [--games GAMES] [--output-dir OUTPUT_DIR]
-run_experiment.py: error: unrecognized arguments: --plot scaling
-- python code/run_experiment.py --context limited --agents 5 --games 1000 --thresholds 128,256,512 -> rc=2
-    usage: run_experiment.py [-h] --context {full,limited} --agents AGENTS
-                         [--games GAMES] [--output-dir OUTPUT_DIR]
-run_experiment.py: error: unrecognized arguments: --thresholds 128,256,512
-- python code/run_experiment.py --context full --agents 5 --games 100 --seed 42 -> rc=2
-    usage: run_experiment.py [-h] --context {full,limited} --agents AGENTS
-                         [--games GAMES] [--output-dir OUTPUT_DIR]
-run_experiment.py: error: unrecognized arguments: --seed 42
-- python code/run_experiment.py --context full --agents 5 --games 100 --seed 42 -> rc=2
-    usage: run_experiment.py [-h] --context {full,limited} --agents AGENTS
-                         [--games GAMES] [--output-dir OUTPUT_DIR]
-run_experiment.py: error: unrecognized arguments: --seed 42
+- python code/run_experiment.py --context full --agents 5 --games 1000 -> rc=1
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 275, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 251, in main
+    sims = run_simulation(
+           ^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 98, in run_simulation
+    spec_idx = simulate_one_game(
+               ^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/generate_full_results.py", line 52, in simulate_one_game
+    spec_index = compute_specialization_index(agents)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: compute_specialization_index() missing 1 required positional argument: 'num_agents'
+- python code/run_experiment.py --context limited --agents 5 --games 1000 -> rc=1
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 275, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 251, in main
+    sims = run_simulation(
+           ^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 98, in run_simulation
+    spec_idx = simulate_one_game(
+               ^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/generate_full_results.py", line 52, in simulate_one_game
+    spec_index = compute_specialization_index(agents)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: compute_specialization_index() missing 1 required positional argument: 'num_agents'
+- python code/run_experiment.py --context full --agents 3,5,7 --games 800 --plot scaling -> rc=1
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 275, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 224, in main
+    sims = run_simulation(
+           ^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 98, in run_simulation
+    spec_idx = simulate_one_game(
+               ^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/generate_full_results.py", line 52, in simulate_one_game
+    spec_index = compute_specialization_index(agents)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: compute_specialization_index() missing 1 required positional argument: 'num_agents'
+- python code/run_experiment.py --context limited --agents 5 --games 1000 --thresholds 128,256,512 -> rc=1
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 275, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 251, in main
+    sims = run_simulation(
+           ^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 98, in run_simulation
+    spec_idx = simulate_one_game(
+               ^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/generate_full_results.py", line 52, in simulate_one_game
+    spec_index = compute_specialization_index(agents)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: compute_specialization_index() missing 1 required positional argument: 'num_agents'
+- python code/run_experiment.py --context full --agents 5 --games 100 --seed 42 -> rc=1
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 275, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 251, in main
+    sims = run_simulation(
+           ^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 98, in run_simulation
+    spec_idx = simulate_one_game(
+               ^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/generate_full_results.py", line 52, in simulate_one_game
+    spec_index = compute_specialization_index(agents)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: compute_specialization_index() missing 1 required positional argument: 'num_agents'
+- python code/run_experiment.py --context full --agents 5 --games 100 --seed 42 -> rc=1
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 275, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 251, in main
+    sims = run_simulation(
+           ^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 98, in run_simulation
+    spec_idx = simulate_one_game(
+               ^^^^^^^^^^^^^^^^^^
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/generate_full_results.py", line 52, in simulate_one_game
+    spec_index = compute_specialization_index(agents)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: compute_specialization_index() missing 1 required positional argument: 'num_agents'
 
 ## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
 
@@ -61,10 +127,11 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 Make `__getattr__` in `code/utils/logging.py` accept ALL of the above.
 
-### `compute_retrieval_efficiency` — defined in `code/run_experiment.py`; called 17 way(s):
+### `compute_retrieval_efficiency` — defined in `code/t015_generate_full_results.py`; called 18 way(s):
 
-- code/generate_full_results.py: _, retrieval_efficiency = compute_retrieval_efficiency(
-- code/run_experiment.py: retrieval = compute_retrieval_efficiency(agent_count)
+- code/generate_full_results.py: _, retrieval_eff = compute_retrieval_efficiency(retrieved, total, agents)
+- code/run_experiment.py: _, retrieval = compute_retrieval_efficiency(0, 1, agents)
+- code/t015_generate_full_results.py: retrieval = compute_retrieval_efficiency(agent_count, game_id)
 - code/metrics/tests/test_retrieval.py: metrics, efficiency = compute_retrieval_efficiency(10, 10, 3)
 - code/metrics/tests/test_retrieval.py: metrics, efficiency = compute_retrieval_efficiency(1, 3, 3)
 - code/metrics/tests/test_retrieval.py: metrics, efficiency = compute_retrieval_efficiency(0, 10, 3)
@@ -81,28 +148,42 @@ Make `__getattr__` in `code/utils/logging.py` accept ALL of the above.
 - code/tests/unit/test_retrieval.py: compute_retrieval_efficiency(-1, 10, 3)
 - code/tests/unit/test_retrieval.py: compute_retrieval_efficiency(15, 10, 3)  # retrieved > total
 
-Make `compute_retrieval_efficiency` in `code/run_experiment.py` accept ALL of the above.
+Make `compute_retrieval_efficiency` in `code/t015_generate_full_results.py` accept ALL of the above.
 
-### `get_logger` — defined in `code/utils/logging.py`; called 9 way(s):
+### `compute_specialization_index` — defined in `code/t015_generate_full_results.py`; called 5 way(s):
+
+- code/generate_full_results.py: spec_index = compute_specialization_index(agents)
+- code/t015_generate_full_results.py: spec_idx = compute_specialization_index(agent_count, game_id)
+- code/metrics/tests/test_specialization.py: index, metrics = compute_specialization_index([])
+- code/metrics/tests/test_specialization.py: index, metrics = compute_specialization_index(game_results)
+- code/tests/unit/test_specialization.py: idx = compute_specialization_index([1, 2, 2, 3], num_agents=4)
+
+Make `compute_specialization_index` in `code/t015_generate_full_results.py` accept ALL of the above.
+
+### `get_logger` — defined in `code/utils/logging.py`; called 11 way(s):
 
 - code/run_experiment.py: LOGGER = get_logger(__name__)
+- code/t015_generate_full_results.py: LOGGER = get_logger(__name__)
 - code/run_pipeline_profile.py: logger = get_logger(__name__)
 - code/utils/logging.py: return get_logger().log(op, **kwargs)
 - code/utils/tests/test_logging.py: logger = get_logger(name=logger_name)
 - code/utils/tests/test_logging.py: logger2 = get_logger(name="existing_logger")
 - code/analysis/anova.py: logger = get_logger(__name__)
 - code/analysis/sensitivity.py: logger = get_logger(__name__)
-- code/tests/unit/test_logging.py: logger1 = get_logger("test")
-- code/tests/unit/test_logging.py: logger2 = get_logger()
+- code/tests/unit/test_logging.py: logger1 = get_logger(name="test1")
+- code/tests/unit/test_logging.py: logger2 = get_logger(name="test2")
+- code/tests/unit/test_logging.py: logger = get_logger()
 
 Make `get_logger` in `code/utils/logging.py` accept ALL of the above.
 
-### `simulate_one_game` — defined in `code/generate_full_results.py`; called 8 way(s):
+### `simulate_one_game` — defined in `code/generate_full_results.py`; called 10 way(s):
 
-- code/generate_full_results.py: * ``simulate_one_game(agents, game_id)`` – positional ``agents`` and
-- code/generate_full_results.py: * ``simulate_one_game(agents=3, game_id=42, context="full")`` – keyword
-- code/generate_full_results.py: * ``simulate_one_game(agents)`` – only the agent count.
-- code/generate_full_results.py: * ``simulate_one_game(result)`` – legacy signatures that passed a
+- code/generate_full_results.py: * ``simulate_one_game(agents: int, game_id: int)`` – positional.
+- code/generate_full_results.py: * ``simulate_one_game(agents: int, game_id: int, context: str)`` – positional with context.
+- code/generate_full_results.py: * ``simulate_one_game(agents=..., game_id=..., context=...)`` – keyword args.
+- code/generate_full_results.py: * ``simulate_one_game(agents)`` – only agent count (game_id defaults to 0, context='full').
+- code/generate_full_results.py: * ``simulate_one_game(precomputed_result: dict)`` – legacy path – returns the
+- code/run_experiment.py: spec_idx = simulate_one_game(
 - code/output_full_results.py: specialization_index, retrieval_efficiency = simulate_one_game(
 - code/run_scaling_experiment.py: result = simulate_one_game(agents, game_id)
 - code/analysis/sensitivity.py: result = simulate_one_game(
@@ -126,7 +207,9 @@ Make `simulate_one_game` in `code/generate_full_results.py` accept ALL of the ab
 
 Whichever you choose, every call site of `MemoryBuffer` across the codebase must stop raising `AttributeError`/`TypeError`.
 
-`MemoryBuffer.reset` call sites (1):
+`MemoryBuffer.reset` call sites (3):
+- code/memory/tests/test_buffer.py: buf.reset()
+- code/memory/tests/test_buffer.py: buf1.reset()
 - code/tests/unit/test_memory_buffer.py: buf.reset()
 
 ## ✅ KNOWN-GOOD REFERENCE — a fully tolerant logging module

@@ -8,6 +8,10 @@
     "owner": null
   },
   {
+    "symbol": "compute_specialization_index",
+    "owner": null
+  },
+  {
     "symbol": "get_logger",
     "owner": null
   },

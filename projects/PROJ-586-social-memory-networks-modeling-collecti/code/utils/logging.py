@@ -23,7 +23,7 @@ class ReproducibilityLogger:
 
     Do NOT subclass or delegate to the stdlib ``logging`` module: its
     ``log(level, msg)`` needs an integer level and has no ``to_json`` — that is
-    exactly what keeps breaking. This logger is self‑contained.
+    exactly what keeps breaking. This logger is self-contained.
     """
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
@@ -36,11 +36,10 @@ class ReproducibilityLogger:
         self.entries.append(entry)
         return entry
 
-    # .info/.debug/.warning/.error/.critical/... -> tolerant no‑op
+    # .info/.debug/.warning/.error/.critical/... -> tolerant no-op
     def __getattr__(self, name: str):
-        def _noop(*_args: Any, **_kwargs: Any) -> None:
+        def _noop(*args: Any, **kwargs: Any) -> None:
             return None
-
         return _noop
 
 
@@ -48,11 +47,7 @@ _GLOBAL_LOGGER: ReproducibilityLogger | None = None
 
 
 def get_logger(*args: Any, **kwargs: Any) -> ReproducibilityLogger:
-    """Return a singleton logger instance.
-
-    Accepts any arguments so that callers can pass ``name=...`` or other
-    positional arguments without causing ``TypeError``.
-    """
+    """Return a singleton logger. Accepts any arguments for compatibility."""
     global _GLOBAL_LOGGER
     if _GLOBAL_LOGGER is None:
         _GLOBAL_LOGGER = ReproducibilityLogger(*args, **kwargs)
@@ -60,11 +55,11 @@ def get_logger(*args: Any, **kwargs: Any) -> ReproducibilityLogger:
 
 
 def log_operation(*args: Any, **kwargs: Any) -> Any:
-    """Dual‑purpose helper: can be used as a decorator or as a direct logger.
+    """Dual-purpose: a decorator (@log_operation) OR a direct logging call.
 
-    When used as ``@log_operation`` it returns the wrapped function.
-    When called directly ``log_operation('op', key=val)`` it logs and returns
-    the resulting :class:`LogEntry`.
+    The direct-call path ALWAYS returns a LogEntry (callers use .to_json());
+    decorator use returns the wrapped function. Never return a bare function
+    from the direct-call path.
     """
     if len(args) == 1 and callable(args[0]) and not kwargs:
         func = args[0]

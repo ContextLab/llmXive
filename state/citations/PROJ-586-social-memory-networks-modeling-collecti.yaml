@@ -64,18 +64,7 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/JasonXF/US3D-Enhanced/7f60acedd7f2c766cdc27a1e9e62bcc9c7d3428e/prompt.json?%2Fdatasets%2FJasonXF%2FUS3D-Enhanced%2Fresolve%2Fmain%2Fprompt.json=&etag=%22b1e79c038446025d54f94493aedb58c848fe8d2c%22
   verified_at: '2026-06-26T22:53:36.631629Z'
-- artifact_hash: adaad9e8d76b3392b0efa77007087c2ad332641b61dfcdefbc5f7dcc11e97780
-  artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/results/power_analysis_report.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: '[2202.05773] Visualising Multiplayer Game Spaces'
-  kind: url
-  value: https://arxiv.org/abs/2202.05773
-  verification_status: verified
-  verified_against_url: https://arxiv.org/abs/2202.05773
-  verified_at: '2026-07-02T19:37:30.228672Z'
-- artifact_hash: 37a75a4a9667ddf831b48aa8149f20e9211b50f922325adf2efd3c24c381d69e
+- artifact_hash: 23db7678f439a9f13824222ea812b6ebc7050fd176155c080c1a4495c7ce9eb5
   artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -86,8 +75,8 @@
   value: https://arxiv.org/abs/2203.14669
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/2203.14669
-  verified_at: '2026-07-02T21:39:22.161949Z'
-- artifact_hash: 37a75a4a9667ddf831b48aa8149f20e9211b50f922325adf2efd3c24c381d69e
+  verified_at: '2026-07-02T22:35:07.017513Z'
+- artifact_hash: 23db7678f439a9f13824222ea812b6ebc7050fd176155c080c1a4495c7ce9eb5
   artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -98,4 +87,4 @@
   value: https://arxiv.org/abs/2503.02686
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/2503.02686
-  verified_at: '2026-07-02T21:39:22.161949Z'
+  verified_at: '2026-07-02T22:35:07.017513Z'

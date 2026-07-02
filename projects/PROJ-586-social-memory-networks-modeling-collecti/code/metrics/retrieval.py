@@ -1,68 +1,44 @@
-"""Retrieval metric computation.
-
-The original implementation expected strict argument signatures. This
-version adds a tolerant wrapper ``compute_retrieval_efficiency`` that
-validates inputs but gracefully handles unexpected shapes, allowing the
-rest of the code base to call it uniformly.
-"""
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
-from typing import Tuple, Any, Dict
-
+from typing import Tuple, Any, List
 
 @dataclass
 class RetrievalMetrics:
-    total_cues: int
-    retrieved_cues: int
+    retrieved: int
+    total: int
     baseline: float
-
-
-def compute_retrieval_rate(total_cues: int, retrieved_cues: int) -> float:
-    """Return the raw retrieval rate (cues retrieved / total cues)."""
-    if total_cues <= 0:
-        return 0.0
-    return retrieved_cues / total_cues
-
+    normalized: float
 
 def compute_retrieval_efficiency(
-    total_cues: Any,
-    retrieved_cues: Any,
-    num_agents: Any,
+    retrieved: int,
+    total: int,
+    agents: List[int] | int,
 ) -> Tuple[RetrievalMetrics, float]:
-    """Compute retrieval efficiency with robust validation.
-
-    The function now accepts any types for the three inputs and attempts to
-    coerce them to integers. Invalid or out‑of‑range values result in a
-    ``RetrievalMetrics`` with zeros and an efficiency of 0.0 rather than
-    raising an exception, matching the tolerant contract required by the
-    test suite.
     """
-    try:
-        total = int(total_cues)
-        retrieved = int(retrieved_cues)
-        agents = int(num_agents)
-    except Exception:
-        total, retrieved, agents = 0, 0, 0
+    Compute retrieval efficiency.
 
-    # Guard against nonsensical values.
-    if total < 0:
-        total = 0
-    if retrieved < 0:
-        retrieved = 0
-    if agents <= 0:
-        agents = 1  # avoid division by zero
+    ``retrieved`` and ``total`` are integer counts. ``agents`` may be a list of
+    agent identifiers or an integer count of agents.
+    """
+    if isinstance(agents, int):
+        agent_count = agents
+    else:
+        agent_count = len(agents)
 
-    # Ensure retrieved does not exceed total.
-    retrieved = min(retrieved, total)
-
-    rate = compute_retrieval_rate(total, retrieved)
-    baseline = 1.0 / agents
-    efficiency = rate / baseline if baseline > 0 else 0.0
+    baseline = 1.0 / agent_count if agent_count > 0 else 0.0
+    efficiency = (retrieved / total) if total > 0 else 0.0
+    normalized = efficiency / baseline if baseline > 0 else 0.0
 
     metrics = RetrievalMetrics(
-        total_cues=total,
-        retrieved_cues=retrieved,
+        retrieved=retrieved,
+        total=total,
         baseline=baseline,
+        normalized=normalized,
     )
-    return metrics, float(efficiency)
+    return metrics, efficiency
+
+# Validation helper used elsewhere
+def validate_retrieval_efficiency(eff: float) -> bool:
+    return 0.0 <= eff <= 1.0

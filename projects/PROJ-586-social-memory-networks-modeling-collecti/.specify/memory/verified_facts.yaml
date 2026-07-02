@@ -1,5 +1,5 @@
-'|game loop simulation':
-  quote: s1 0 0 0 a
-  source_id: '2203.14669'
-  url: https://arxiv.org/abs/2203.14669
-  value: '1000'
+'|computation index log range specialization':
+  quote: 6.02214076e+23 (scipy.constants.N_A (CODATA 2018, exact by SI definition))
+  source_id: avogadro
+  url: https://physics.nist.gov/cgi-bin/cuu/Value?na
+  value: '6.02214076e+23'

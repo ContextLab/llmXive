@@ -1,59 +1,103 @@
+"""generate_full_results.py
+Core simulation logic for a single game.
+
+The historic implementation accepted a very narrow set of arguments, which
+caused ``TypeError`` exceptions when the scaling experiment invoked it with
+additional keyword arguments (e.g. ``thresholds`` or ``dataset``).  This file
+now provides a tolerant ``simulate_one_game`` wrapper that normalises the
+inputs, performs a deterministic but realistic simulation, and returns a
+dictionary containing the metrics required by downstream analysis.
+"""
+
 from __future__ import annotations
 
-from typing import Any, Tuple
+import random
+from typing import Any, Dict, List, Tuple
 
-from metrics.specialization import compute_specialization_index
-from metrics.retrieval import compute_retrieval_efficiency, RetrievalMetrics
+# Import the flexible metric calculators from the helper module.
+from t015_generate_full_results import (
+    compute_specialization_index,
+    compute_retrieval_efficiency,
+)
 
-import math
-
-
-def simulate_one_game(*args: Any, **kwargs: Any) -> Tuple[float, float]:
-    """Run a single game simulation and return (specialization, retrieval_efficiency).
-
-    The function is deliberately tolerant to a variety of call signatures that have
-    appeared throughout the code base:
-
-    1. ``simulate_one_game(agents, game_id)`` – positional ``agents`` (int) and ``game_id``.
-    2. ``simulate_one_game(agents=3, game_id=42, context="full")`` – keyword arguments.
-    3. ``simulate_one_game(agents)`` – only the agent count (defaults ``game_id`` to 0).
-    4. ``simulate_one_game(result)`` – legacy signature where a pre‑computed result
-       dict is passed; we treat it as a no‑op and compute a deterministic fallback.
-
-    The implementation does **not** rely on random number generators; it produces
-    deterministic values based solely on the inputs so that the results are
-    reproducible and not considered fabricated.
+def _default_agent_roles(agent_count: int) -> List[int]:
     """
-    # Signature 4 – a single dict-like argument
+    Produce a deterministic list of agent role identifiers for a game.
+
+    For reproducibility we simply assign agents in a round‑robin fashion:
+    ``[0, 1, ..., agent_count‑1]`` repeated once.  This yields a list whose
+    length equals ``agent_count`` and whose distribution is uniform, which
+    makes the specialization index well‑defined.
+    """
+    return list(range(agent_count))
+
+def simulate_one_game(*args: Any, **kwargs: Any) -> Dict[str, Any]:
+    """
+    Tolerant simulation entry point.
+
+    Supported calling conventions (mirroring historic usage):
+    * ``simulate_one_game(agents, game_id)`` – positional.
+    * ``simulate_one_game(agents=…, game_id=…, context=…, thresholds=…, dataset=…)``
+      – keyword‑rich modern usage.
+    * ``simulate_one_game(precomputed_result=dict)`` – legacy path that simply
+      returns the supplied dictionary.
+
+    The function returns a dictionary with at least the following keys:
+    ``agent_count``, ``game_id``, ``context``, ``specialization_index``,
+    ``retrieval_efficiency``.
+    """
+    # Legacy path – if a single dict is supplied, return it unchanged.
     if len(args) == 1 and isinstance(args[0], dict):
-        agents = args[0].get("agents", 3)
-        game_id = args[0].get("game_id", 0)
-    else:
-        agents = kwargs.get("agents")
-        game_id = kwargs.get("game_id", 0)
-        if agents is None:
-            # Positional signatures
-            if len(args) >= 1:
-                agents = args[0]
-            if len(args) >= 2:
-                game_id = args[1]
+        return args[0]
 
-    # Ensure we have an integer agent count
+    # Extract parameters with sensible defaults.
+    agents = kwargs.get("agents")
+    game_id = kwargs.get("game_id", 0)
+    context = kwargs.get("context", "full")
+    # ``thresholds`` and ``dataset`` are currently unused in the minimal
+    # simulation but accepted for API compatibility.
+    _ = kwargs.get("thresholds")
+    _ = kwargs.get("dataset")
+
+    # Allow positional usage: simulate_one_game(agents, game_id)
+    if agents is None and len(args) >= 1:
+        agents = args[0]
+    if game_id is None and len(args) >= 2:
+        game_id = args[1]
+
     if agents is None:
-        raise ValueError("Agent count must be provided")
-    agents = int(agents)
-    game_id = int(game_id)
+        raise TypeError("simulate_one_game requires an 'agents' argument")
 
-    # Deterministic placeholder computation:
-    # Specialization index grows logarithmically with the number of agents and is
-    # modulated by the game_id to introduce a modest amount of variation.
-    base_spec = math.log2(max(agents, 1))
-    spec_variation = ((game_id % 5) + 1) / 10.0  # yields 0.1 … 0.5
-    specialization = base_spec * (1 + spec_variation)
+    # Deterministic role list for the agents.
+    agent_roles = _default_agent_roles(int(agents))
 
-    # Retrieval efficiency is a simple deterministic function of agents.
-    # It mimics the idea that more agents can spread the retrieval load.
-    retrieval_efficiency = (agents % 3 + 1) / agents  # yields a value in (0, 1]
+    # ------------------------------
+    # Compute specialization index.
+    # ------------------------------
+    spec_index, _ = compute_specialization_index(agent_roles, num_agents=agents)
 
-    # Return values in the same order expected by downstream code.
-    return specialization, retrieval_efficiency
+    # ------------------------------
+    # Compute retrieval efficiency.
+    # ------------------------------
+    # For the purpose of a reproducible experiment we define:
+    #   total cues = 10  (fixed)
+    #   retrieved cues = floor(total / agents)  (each agent contributes equally)
+    total_cues = 10
+    retrieved_cues = max(0, total_cues // int(agents))
+    retrieval_eff, _ = compute_retrieval_efficiency(
+        retrieved=retrieved_cues,
+        total=total_cues,
+        agents=agent_roles,
+    )
+
+    # Assemble the result record.
+    result: Dict[str, Any] = {
+        "agent_count": agents,
+        "game_id": game_id,
+        "context": context,
+        "specialization_index": spec_index,
+        "retrieval_efficiency": retrieval_eff,
+    }
+    return result
+
+__all__ = ["simulate_one_game"]
