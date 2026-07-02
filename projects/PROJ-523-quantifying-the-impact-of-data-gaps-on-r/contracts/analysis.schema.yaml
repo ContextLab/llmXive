@@ -1,0 +1,246 @@
+%YAML 1.2
+---
+$schema: http://json-schema.org/draft-07/schema#
+title: Analysis Schema
+description: Defines the data contract for analysis outputs including power spectra, parameter posteriors, and sensitivity studies.
+
+definitions:
+  PowerSpectrum:
+    type: object
+    description: Angular power spectrum (C_l) derived from a CMB map.
+    required:
+      - realization_id
+      - algorithm_name
+      - l_max
+      - ell_values
+      - cl_values
+      - cl_error
+      - has_nan
+      - checksum
+    properties:
+      realization_id:
+        type: integer
+        description: ID of the realization this spectrum belongs to.
+      algorithm_name:
+        type: string
+        description: Name of the gap-filling algorithm applied (e.g., 'harmonic_interp', 'wiener_filter').
+      l_max:
+        type: integer
+        description: Maximum multipole moment (l) included.
+      ell_values:
+        type: array
+        items:
+          type: integer
+        description: List of multipole moments l.
+      cl_values:
+        type: array
+        items:
+          type: number
+        description: List of C_l values corresponding to ell_values.
+      cl_error:
+        type: array
+        items:
+          type: number
+        description: List of uncertainties (sigma) for C_l values.
+      has_nan:
+        type: boolean
+        description: Flag indicating if any NaN values were present or introduced.
+      checksum:
+        type: string
+        description: SHA-256 checksum of the serialized spectrum data.
+
+  ParameterPosterior:
+    type: object
+    description: Estimated cosmological parameters and their confidence intervals derived from the power spectrum.
+    required:
+      - realization_id
+      - algorithm_name
+      - ground_truth
+      - recovered
+      - confidence_intervals
+      - bias_magnitude
+    properties:
+      realization_id:
+        type: integer
+        description: ID of the realization.
+      algorithm_name:
+        type: string
+        description: Algorithm used for gap filling.
+      ground_truth:
+        type: object
+        required:
+          - H0
+          - Omega_m
+          - n_s
+          - tau
+        properties:
+          H0:
+            type: number
+          Omega_m:
+            type: number
+          n_s:
+            type: number
+          tau:
+            type: number
+      recovered:
+        type: object
+        required:
+          - H0
+          - Omega_m
+          - n_s
+          - tau
+        properties:
+          H0:
+            type: number
+          Omega_m:
+            type: number
+          n_s:
+            type: number
+          tau:
+            type: number
+      confidence_intervals:
+        type: object
+        required:
+          - ci_68
+          - ci_95
+        properties:
+          ci_68:
+            type: object
+            description: 68% confidence intervals for each parameter.
+            properties:
+              H0:
+                type: array
+                items:
+                  type: number
+                minItems: 2
+                maxItems: 2
+              Omega_m:
+                type: array
+                items:
+                  type: number
+                minItems: 2
+                maxItems: 2
+              n_s:
+                type: array
+                items:
+                  type: number
+                minItems: 2
+                maxItems: 2
+              tau:
+                type: array
+                items:
+                  type: number
+                minItems: 2
+                maxItems: 2
+          ci_95:
+            type: object
+            description: 95% confidence intervals for each parameter.
+            properties:
+              H0:
+                type: array
+                items:
+                  type: number
+                minItems: 2
+                maxItems: 2
+              Omega_m:
+                type: array
+                items:
+                  type: number
+                minItems: 2
+                maxItems: 2
+              n_s:
+                type: array
+                items:
+                  type: number
+                minItems: 2
+                maxItems: 2
+              tau:
+                type: array
+                items:
+                  type: number
+                minItems: 2
+                maxItems: 2
+      bias_magnitude:
+        type: object
+        description: Absolute difference between recovered and ground truth.
+        properties:
+          H0:
+            type: number
+          Omega_m:
+            type: number
+          n_s:
+            type: number
+          tau:
+            type: number
+
+  SensitivityAnalysis:
+    type: object
+    description: Results of the sensitivity sweep varying alpha and tolerance.
+    required:
+      - alpha
+      - tolerance
+      - bias_variance
+      - significance_change
+      - summary_stats
+    properties:
+      alpha:
+        type: string
+        enum:
+          - low
+          - medium
+          - high
+        description: Sensitivity parameter alpha level.
+      tolerance:
+        type: string
+        enum:
+          - low
+          - medium
+          - high
+        description: Tolerance level for convergence or acceptance.
+      bias_variance:
+        type: number
+        description: Calculated variance of the bias across realizations.
+      significance_change:
+        type: number
+        description: P-value or significance metric for the change in bias.
+      summary_stats:
+        type: object
+        description: Additional summary statistics (mean bias, std dev, etc.).
+        properties:
+          mean_bias:
+            type: number
+          std_dev:
+            type: number
+          n_samples:
+            type: integer
+
+type: object
+properties:
+  schema_version:
+    type: string
+    const: "1.0.0"
+  analysis_results:
+    type: array
+    items:
+      type: object
+      properties:
+        power_spectrum:
+          $ref: '#/definitions/PowerSpectrum'
+        parameter_posterior:
+          $ref: '#/definitions/ParameterPosterior'
+        sensitivity_analysis:
+          $ref: '#/definitions/SensitivityAnalysis'
+  metadata:
+    type: object
+    required:
+      - timestamp
+      - pipeline_version
+    properties:
+      timestamp:
+        type: string
+        format: date-time
+      pipeline_version:
+        type: string
+required:
+  - schema_version
+  - metadata

@@ -1,0 +1,49 @@
+name: CI - Verify Dependencies and Availability
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  verify-dependencies:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f code/requirements.txt ]; then
+            pip install -r code/requirements.txt
+          else
+            echo "Warning: code/requirements.txt not found, installing core deps manually"
+            pip install healpy>=1.15.0 camb numpy scipy statsmodels pyyaml astropy
+          fi
+
+      - name: Verify healpy availability and version
+        run: |
+          python -c "import healpy; print(f'healpy version: {healpy.__version__}'); assert tuple(int(x) for x in healpy.__version__.split('.')[:2]) >= (1, 15), 'healpy version must be >= 1.15.0'"
+
+      - name: Verify camb availability
+        run: |
+          python -c "import camb; print(f'camb version: {camb.__version__}')"
+
+      - name: Verify core scientific stack
+        run: |
+          python -c "import numpy; import scipy; import statsmodels; import yaml; import astropy; print('All core dependencies imported successfully')"
+
+      - name: Run pilot runner to verify basic execution
+        run: |
+          if [ -f code/pipeline/pilot_runner.py ]; then
+            python code/pipeline/pilot_runner.py
+          else
+            echo "Skipping pilot_runner execution as file not found"
+          fi

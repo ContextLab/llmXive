@@ -1,0 +1,8 @@
+healpy>=1.15.0
+camb
+numpy
+scipy
+statsmodels
+pyyaml
+astropy
+pytest

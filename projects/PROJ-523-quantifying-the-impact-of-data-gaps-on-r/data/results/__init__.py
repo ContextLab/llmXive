@@ -1,0 +1,1 @@
+"""Results storage for analysis outputs."""

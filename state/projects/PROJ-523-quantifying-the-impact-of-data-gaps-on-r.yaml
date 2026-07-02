@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-10T09:37:48.502725Z'
-current_stage: analyzed
+current_stage: in_progress
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-523-quantifying-the-impact-of-data-gaps-on-r
-last_run_id: f2216e89-14c7-48c8-aea7-38f76f0d63f9
+last_run_id: c0aee4e7-e683-40c9-82e7-4dfbc8b1ac86
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-523-quantifying-the-impact-of-data-gaps-on-r/specs/001-quantifying-the-impact-of-data-gaps-on-r
 title: Quantifying the Impact of Data Gaps on Reconstructed Cosmic Microwave Background
   Maps
-updated_at: '2026-07-02T15:51:20.281467Z'
+updated_at: '2026-07-02T16:28:04.188112Z'

@@ -1,0 +1,109 @@
+%YAML 1.2
+---
+$schema: http://json-schema.org/draft-07/schema#
+title: Simulation Schema
+description: Defines the data contract for CMB simulation outputs including maps, masks, and gap configurations.
+
+definitions:
+  GapConfig:
+    type: object
+    description: Configuration parameters defining the gap/mask applied to the CMB map.
+    required:
+      - gap_fraction
+      - gap_type
+      - morphology
+      - realization_id
+    properties:
+      gap_fraction:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: The fraction of pixels masked (0.0 to 1.0).
+      gap_type:
+        type: string
+        enum:
+          - random
+          - clustered
+          - point_source
+          - galactic_plane
+          - null_model
+        description: The algorithmic type of gap generation.
+      morphology:
+        type: string
+        description: Specific morphological descriptor (e.g., 'random_uniform', 'fractal_cluster', 'disk').
+      realization_id:
+        type: integer
+        description: Unique identifier for the simulation realization this mask belongs to.
+      seed:
+        type: integer
+        description: Random seed used for mask generation to ensure reproducibility.
+
+  CMBMap:
+    type: object
+    description: A single CMB simulation realization including the map data, mask, and ground truth parameters.
+    required:
+      - realization_id
+      - nside
+      - map_path
+      - mask_path
+      - ground_truth_params
+      - gap_config
+      - checksum
+    properties:
+      realization_id:
+        type: integer
+        description: Unique identifier for this realization.
+      nside:
+        type: integer
+        description: HEALPix Nside resolution parameter.
+      map_path:
+        type: string
+        description: Relative path to the .fits file containing the CMB map.
+      mask_path:
+        type: string
+        description: Relative path to the .fits file containing the gap mask.
+      ground_truth_params:
+        type: object
+        description: Cosmological parameters used to generate the ground truth map.
+        required:
+          - H0
+          - Omega_m
+          - n_s
+          - tau
+          - camb_version
+        properties:
+          H0:
+            type: number
+            description: Hubble constant in km/s/Mpc.
+          Omega_m:
+            type: number
+            description: Matter density parameter.
+          n_s:
+            type: number
+            description: Spectral index.
+          tau:
+            type: number
+            description: Optical depth.
+          camb_version:
+            type: string
+            description: Version of CAMB used for generation.
+      gap_config:
+        $ref: '#/definitions/GapConfig'
+      checksum:
+        type: string
+        description: SHA-256 checksum of the map file for integrity verification.
+      created_at:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of creation.
+
+type: object
+properties:
+  schema_version:
+    type: string
+    const: "1.0.0"
+  metadata:
+    $ref: '#/definitions/CMBMap'
+required:
+  - schema_version
+  - metadata
