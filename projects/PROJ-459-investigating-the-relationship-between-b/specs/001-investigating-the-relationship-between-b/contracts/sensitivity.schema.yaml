@@ -1,0 +1,30 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: SensitivityReportSchema
+description: Schema for the sensitivity analysis of dynamic metrics across window sizes.
+type: object
+properties:
+  metric_name:
+    type: string
+    description: "Name of the dynamic metric."
+  window_sizes_tested:
+    type: array
+    items:
+      type: integer
+    description: "List of window sizes tested (e.g., [20, 30, 40])."
+  icc_value:
+    type: number
+    description: "Intraclass Correlation Coefficient across window sizes."
+    minimum: 0
+    maximum: 1
+  is_stable:
+    type: boolean
+    description: "True if ICC >= 0.7."
+  stability_report:
+    type: string
+    description: "Human-readable summary of the stability analysis."
+required:
+  - metric_name
+  - window_sizes_tested
+  - icc_value
+  - is_stable
+additionalProperties: false

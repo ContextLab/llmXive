@@ -1,0 +1,57 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: CorrelationResultsSchema
+description: Schema for the statistical correlation results between metrics and genres.
+type: object
+properties:
+  metric_name:
+    type: string
+    description: "Name of the network metric."
+  network_type:
+    type: string
+    description: "Network definition."
+    enum:
+      - DMN
+      - Auditory
+      - Salience
+      - Global
+  genre:
+    type: string
+    description: "Musical genre category."
+  spearman_r:
+    type: number
+    description: "Spearman correlation coefficient."
+    minimum: -1
+    maximum: 1
+  p_raw:
+    type: number
+    description: "Raw p-value."
+    minimum: 0
+    maximum: 1
+  p_adjusted:
+    type: number
+    description: "Benjamini-Hochberg adjusted p-value."
+    minimum: 0
+    maximum: 1
+  is_significant:
+    type: boolean
+    description: "True if p_adjusted < 0.05."
+  power_achieved:
+    type: number
+    description: "Achieved statistical power for this test."
+    minimum: 0
+    maximum: 1
+  permutation_count:
+    type: integer
+    description: "Number of permutations used for null distribution (should be >= 1000)."
+    minimum: 1000
+required:
+  - metric_name
+  - network_type
+  - genre
+  - spearman_r
+  - p_raw
+  - p_adjusted
+  - is_significant
+  - power_achieved
+  - permutation_count
+additionalProperties: false

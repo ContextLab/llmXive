@@ -1,0 +1,351 @@
+resolved_at: '2026-07-02T03:57:26.612624+00:00'
+datasets:
+- intent: OpenNeuro
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/clane9/openneuro-fslr64k.arrow/resolve/main/dataset_dict.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 29
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/clane9/openneuro-fslr64k.arrow/resolve/main/dataset_dict.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://tandf.figshare.com/articles/journal_contribution/Trusted_agents_as_knowledge_translation_mechanisms_in_flood_disaster_warning_a_qualitative_study_of_community-embedded_intermediaries_in_Hualien_Taiwan/32869845
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Ti3C2Tx_supercapacitors_with_a_hexagonal_boron_nitride_separator_manufactured_by_spray_coating/32869844
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openaccess.wgtn.ac.nz/articles/conference_contribution/The_Value_of_Library_Work_Analysis_of_a_Social_Media_Post_on_Pay_Equity/32869841
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.mq.edu.au/articles/thesis/REST_in_Neurons_Mechanistic_Insights_into_Cellular_Signalling_Networks_and_Stress_Response/31593406
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Pre-Coordination_Induced_Further_Deamination_to_Create_Inter-Chain_Cross-Linking_in_Carbon_Nitride_for_Enhanced_Photocatalytic_H2O2_Production/32869835
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18476336
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17150815
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2847832
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21032699
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19435085
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openneuro.org/datasets/ds008082/versions/1.0.0
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21113780
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21113780
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21106630
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21106630
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: BOLD
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AmazonScience/bold/resolve/main/gender_prompt_wiki.json
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/lighteval/bold_helm/resolve/main/all/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 32169
+      parsed: true
+  - url: https://huggingface.co/datasets/LofiAmazon/BOLD-Embeddings/resolve/main/data/train-00000-of-00029.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AmazonScience/bold/resolve/main/gender_prompt_wiki.json
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/lighteval/bold_helm/resolve/main/all/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/api/resolve-cache/datasets/jashmehta3300/social-injection-bold/21d113bdc6d2e6131b57bbaf8d50a99aaab04c61/bold_dataset.csv?%2Fdatasets%2Fjashmehta3300%2Fsocial-injection-bold%2Fresolve%2Fmain%2Fbold_dataset.csv=&etag=%22ee47c0c64e5cb3c4641608209f069b94cfacc3ca%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/boldvoice/l2_arctic/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/LofiAmazon/BOLD-Embeddings/resolve/main/data/train-00000-of-00029.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://tandf.figshare.com/articles/journal_contribution/Trusted_agents_as_knowledge_translation_mechanisms_in_flood_disaster_warning_a_qualitative_study_of_community-embedded_intermediaries_in_Hualien_Taiwan/32869845
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Ti3C2Tx_supercapacitors_with_a_hexagonal_boron_nitride_separator_manufactured_by_spray_coating/32869844
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openaccess.wgtn.ac.nz/articles/conference_contribution/The_Value_of_Library_Work_Analysis_of_a_Social_Media_Post_on_Pay_Equity/32869841
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.mq.edu.au/articles/thesis/REST_in_Neurons_Mechanistic_Insights_into_Cellular_Signalling_Networks_and_Stress_Response/31593406
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Pre-Coordination_Induced_Further_Deamination_to_Create_Inter-Chain_Cross-Linking_in_Carbon_Nitride_for_Enhanced_Photocatalytic_H2O2_Production/32869835
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/28843
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/28844
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6466484
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/28835
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7095520
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://spiral.imperial.ac.uk/entities/publication/342f76ca-63db-47ee-a9f2-390a6f601451
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://toubkal.imist.ma/handle/123456789/8337
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dataverse.harvard.edu/citation?persistentId=doi:10.7910/DVN/3C2GUP
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://yareta.unige.ch/archives/99f1e89e-dade-411d-a067-fce80f43ffbe
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://yareta.unige.ch/archives/6d94a006-57e6-4612-8832-fbd22c0c1e47
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: STOMP-R
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/preprint/_b_EVALUASI_USABILITY_APLIKASI_DOMPET_DIGITAL_DANA_MENGGUNAKAN_PENDEKATAN_NIELSEN_MODEL_DAN_PLS-SEM_b_/32869805
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Trusted_agents_as_knowledge_translation_mechanisms_in_flood_disaster_warning_a_qualitative_study_of_community-embedded_intermediaries_in_Hualien_Taiwan/32869845
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Ti3C2Tx_supercapacitors_with_a_hexagonal_boron_nitride_separator_manufactured_by_spray_coating/32869844
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openaccess.wgtn.ac.nz/articles/conference_contribution/The_Value_of_Library_Work_Analysis_of_a_Social_Media_Post_on_Pay_Equity/32869841
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.mq.edu.au/articles/thesis/REST_in_Neurons_Mechanistic_Insights_into_Cellular_Signalling_Networks_and_Stress_Response/31593406
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13441778
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13423964
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16385003
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5161694
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5161702
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.7280/D16688
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.vx0k6djz7
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Is_the_revised_version_of_the_Short_Test_of_Musical_Preferences_a_sound_measure_of_musical_tastes_/29874886
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Is_the_revised_version_of_the_Short_Test_of_Musical_Preferences_a_sound_measure_of_musical_tastes_/29874886/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/qngku/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: TRs
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/yankihue/tr-summarization-choices/resolve/main/data.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/eren23/tr-snli-small/resolve/main/data/train-00000-of-00001-609b957403bac74a.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 36196
+      parsed: true
+  candidates_tried:
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f1839f0/08fc86829170fc5363bf354a4b0afed96cbbd7a008e97b4ce079f059017b4f66?response-content-type=text%2Fcsv&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27TRSAv1.csv%3B+filename%3D%22TRSAv1.csv%22%3B&X-Xet-Cas-Uid=public&Expires=1782968215&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgzOWYwLzA4ZmM4NjgyOTE3MGZjNTM2M2JmMzU0YTRiMGFmZWQ5NmNiYmQ3YTAwOGU5N2I0Y2UwNzlmMDU5MDE3YjRmNjZcXD9yZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3VFJTQXYxLmNzdiUzQitmaWxlbmFtZSUzRCUyMlRSU0F2MS5jc3YlMjIlM0ImWC1YZXQtQ2FzLVVpZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4Mjk2ODIxNX19fV19&Signature=MEUCIQDuss61cE4kYpQuO4qWpyG6dWj4GrUqtxS1N314r3ErLwIgfMnCAdhaueoYPsdc3UAp3~4XqtGF6qi85arbXG7eYgg_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/yankihue/tr-summarization-choices/resolve/main/data.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/eren23/tr-snli-small/resolve/main/data/train-00000-of-00001-609b957403bac74a.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/api/resolve-cache/datasets/Trsa993/Songs-for-transcription/07a6f94e325b5eb043497fc2969e438efc47da43/metadata.csv?%2Fdatasets%2FTrsa993%2FSongs-for-transcription%2Fresolve%2Fmain%2Fmetadata.csv=&etag=%22663da956f4a54b3661c16b47d686225ecf818f88%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://curate.nd.edu/articles/report/Conservation_and_Coexistence_in_the_Andes-Amazon_2025_FLARE_Annual_Conference_Brief_/32635704
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/The_contribution_of_alexithymia_childhood_maltreatment_impulsivity_C-reactive_protein_lipid_profile_and_thyroid_hormones_to_aggression_and_psychological_distress_depression_and_anxiety_in_schizophrenia/32869847
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/_b_EVALUASI_USABILITY_APLIKASI_DOMPET_DIGITAL_DANA_MENGGUNAKAN_PENDEKATAN_NIELSEN_MODEL_DAN_PLS-SEM_b_/32869805
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Trusted_agents_as_knowledge_translation_mechanisms_in_flood_disaster_warning_a_qualitative_study_of_community-embedded_intermediaries_in_Hualien_Taiwan/32869845
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Ti3C2Tx_supercapacitors_with_a_hexagonal_boron_nitride_separator_manufactured_by_spray_coating/32869844
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6579395
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6346809
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.d40vr87
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7140316
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10694723
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/y4vcu/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://toubkal.imist.ma/handle/123456789/25532
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.researchgate.net/doi/10.13140/RG.2.2.26716.35204
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://world.physio/congress-proceeding/effect-bodily-illusions-pain-systematic-review-and-meta-analysis
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://world.physio/congress-proceeding/yoga-individuals-essential-tremor
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

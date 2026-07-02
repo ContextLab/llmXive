@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-08T21:28:51.148742Z'
-current_stage: project_initialized
+current_stage: analyzed
 failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-459-investigating-the-relationship-between-b
-last_run_id: e53b3912-4bda-40d0-8e1a-3dd8149d5621
+last_run_id: d74fe283-a4d9-4878-9206-26a943ddd2b6
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-459-investigating-the-relationship-between-b/specs/001-investigating-the-relationship-between-b
 title: Investigating the Relationship Between Brain Network Dynamics and Musical Genre
   Preference
-updated_at: '2026-06-24T21:09:09.296100Z'
+updated_at: '2026-07-02T04:34:08.865437Z'
