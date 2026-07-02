@@ -1,10 +1,15 @@
-"""Triage entry point for an externally-ingested paper (spec 024).
+"""Intake entry point for an externally-ingested paper (spec 024 + 2026-07-01 ethics).
 
-Called by the ``Stage.PAPER_INGESTED`` graph handler for one project. Classifies
-the paper and dispatches to the code-included or no-code branch, each of which
-transforms the bare ingested project into a normal pipeline project (writing all
-artifacts to disk + returning the project with its new ``current_stage``). The
-caller persists the returned project and commits.
+Called by the ``Stage.PAPER_INGESTED`` graph handler for one project. Ethics
+invariant (2026-07-01): an ingested third-party paper is NEVER modified.
+:func:`reprocess_ingested_paper` marks it a review-only **Reviewed Preprint**
+(writes ``paper/preprint.json`` provenance, preserves the original paper bytes +
+authors, parks it terminal at ``REVIEWED_PREPRINT``);
+:func:`finalize_reviewed_preprint` additionally runs the review-only panel once,
+spawns a SEPARATE citing llmXive follow-up project, and records the follow-up id.
+The caller persists the returned project and commits. The legacy in-place
+``classify``/``branch_code``/``branch_nocode`` modify flow is retired from intake
+(kept only for the one-time migration; see ``docs``/the design spec).
 """
 
 from __future__ import annotations
