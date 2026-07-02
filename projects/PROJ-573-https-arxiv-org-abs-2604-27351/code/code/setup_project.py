@@ -1,91 +1,102 @@
-"""
-Setup script for the Heterogeneous Scientific Foundation Model Collaboration Benchmark project.
-Initializes Python 3.11 environment and installs dependencies.
-"""
 import os
 import sys
 import subprocess
 import venv
 from pathlib import Path
 
-def check_python_version():
-    """Check if Python version is 3.11 or higher."""
-    version = sys.version_info
-    if version.major < 3 or (version.major == 3 and version.minor < 11):
-        print(f"ERROR: Python 3.11+ is required. Current version: {version.major}.{version.minor}")
-        sys.exit(1)
-    print(f"✓ Python version check passed: {version.major}.{version.minor}.{version.micro}")
+def check_python_version(min_version: tuple = (3, 11)) -> bool:
+    """Check if the current Python version meets the minimum requirement."""
+    current_version = sys.version_info[:2]
+    if current_version < min_version:
+        print(f"Error: Python {min_version[0]}.{min_version[1]}+ is required. "
+              f"Found {sys.version_info.major}.{sys.version_info.minor}.")
+        return False
+    print(f"Python version check passed: {sys.version_info.major}.{sys.version_info.minor}")
     return True
 
-def create_venv(venv_path="code/.venv"):
-    """Create a virtual environment in the specified path."""
-    venv_path = Path(venv_path)
-    if venv_path.exists():
-        print(f"✓ Virtual environment already exists at {venv_path}")
-        return venv_path
+def create_venv(venv_path: str = ".venv") -> bool:
+    """Create a virtual environment if it doesn't exist."""
+    venv_dir = Path(venv_path)
+    if venv_dir.exists():
+        print(f"Virtual environment at {venv_path} already exists. Skipping creation.")
+        return True
     
-    print(f"Creating virtual environment at {venv_path}...")
-    venv.create(venv_path, with_pip=True)
-    print(f"✓ Virtual environment created successfully")
-    return venv_path
+    try:
+        print(f"Creating virtual environment at {venv_path}...")
+        venv.create(venv_dir, with_pip=True)
+        print("Virtual environment created successfully.")
+        return True
+    except Exception as e:
+        print(f"Error creating virtual environment: {e}")
+        return False
 
-def install_requirements(venv_path="code/.venv"):
+def install_requirements(requirements_path: str = "requirements.txt") -> bool:
     """Install dependencies from requirements.txt."""
-    venv_path = Path(venv_path)
-    pip_path = venv_path / "bin" / "pip" if os.name != "nt" else venv_path / "Scripts" / "pip"
-    requirements_path = Path("code/requirements.txt")
+    req_file = Path(requirements_path)
+    if not req_file.exists():
+        print(f"Warning: {requirements_path} not found. Skipping dependency installation.")
+        return True
     
-    if not requirements_path.exists():
-        print("WARNING: requirements.txt not found. Skipping dependency installation.")
-        return
+    # Determine the correct pip path
+    if os.name == 'nt':
+        pip_path = req_file.parent / ".venv" / "Scripts" / "pip.exe"
+    else:
+        pip_path = req_file.parent / ".venv" / "bin" / "pip"
     
-    print(f"Installing dependencies from {requirements_path}...")
-    subprocess.run([str(pip_path), "install", "-r", str(requirements_path), "--upgrade"], check=True)
-    print("✓ Dependencies installed successfully")
+    if not pip_path.exists():
+        # Fallback to system pip if venv pip not found (though venv should be active)
+        pip_cmd = ["pip", "install", "-r", str(req_file)]
+    else:
+        pip_cmd = [str(pip_path), "install", "-r", str(req_file)]
+    
+    try:
+        print(f"Installing dependencies from {requirements_path}...")
+        subprocess.check_call(pip_cmd)
+        print("Dependencies installed successfully.")
+        return True
+    except subprocess.CalledProcessError as e:
+        print(f"Error installing dependencies: {e}")
+        return False
 
-def verify_installation(venv_path="code/.venv"):
-    """Verify that the virtual environment is correctly set up."""
-    venv_path = Path(venv_path)
-    python_path = venv_path / "bin" / "python" if os.name != "nt" else venv_path / "Scripts" / "python"
+def verify_installation() -> bool:
+    """Verify that critical packages are installed."""
+    critical_packages = ["numpy", "pandas", "pyyaml"]
+    missing = []
     
-    if not python_path.exists():
-        print(f"ERROR: Python executable not found at {python_path}")
+    for package in critical_packages:
+        try:
+            __import__(package)
+        except ImportError:
+            missing.append(package)
+    
+    if missing:
+        print(f"Warning: Missing critical packages: {', '.join(missing)}")
         return False
     
-    result = subprocess.run([str(python_path), "--version"], capture_output=True, text=True)
-    print(f"✓ Verified Python executable: {result.stdout.strip()}")
+    print("Critical packages verification passed.")
     return True
 
 def main():
-    """Main setup function."""
-    print("=" * 60)
-    print("Heterogeneous Scientific Foundation Model Collaboration Benchmark")
-    print("Setup Script")
-    print("=" * 60)
+    """Main entry point for project setup."""
+    print("Starting project setup...")
     
-    # Check Python version
-    if not check_python_version():
+    # 1. Check Python version
+    if not check_python_version((3, 11)):
         sys.exit(1)
     
-    # Create virtual environment
-    venv_path = create_venv()
-    
-    # Install requirements
-    install_requirements(venv_path)
-    
-    # Verify installation
-    if verify_installation(venv_path):
-        print("\n" + "=" * 60)
-        print("✓ Setup completed successfully!")
-        print("=" * 60)
-        print(f"\nTo activate the virtual environment, run:")
-        if os.name == "nt":
-            print(f"  {venv_path}\\Scripts\\activate")
-        else:
-            print(f"  source {venv_path}/bin/activate")
-    else:
-        print("\nERROR: Setup failed. Please check the logs above.")
+    # 2. Create virtual environment
+    if not create_venv():
         sys.exit(1)
+    
+    # 3. Install requirements
+    if not install_requirements():
+        sys.exit(1)
+    
+    # 4. Verify installation
+    if not verify_installation():
+        print("Warning: Some critical packages might be missing.")
+    
+    print("Project setup completed.")
 
 if __name__ == "__main__":
     main()
