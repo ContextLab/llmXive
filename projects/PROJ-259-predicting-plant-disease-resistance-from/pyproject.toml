@@ -1,0 +1,80 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-plant-disease"
+version = "0.1.0"
+description = "Predicting plant disease resistance from multi-omics data"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas==2.0.3",
+    "numpy==1.24.3",
+    "scikit-learn==1.3.0",
+    "statsmodels==0.14.0",
+    "pyyaml==6.0.1",
+    "requests==2.31.0",
+]
+
+[tool.black]
+# Black formatting configuration (matches .flake8 ignore settings)
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | \.eggs
+    | \.cache
+)/
+'''
+
+[tool.isort]
+# Import sorting configuration (compatible with Black)
+profile = "black"
+line_length = 88
+known_first_party = ["code"]
+known_local_folder = ["tests"]
+skip = [
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".tox",
+    ".venv",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    ".eggs",
+    ".cache"
+]
+
+[tool.pytest.ini_options]
+# Pytest configuration for running tests
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+
+[tool.mypy]
+# Type checking configuration
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+ignore_missing_imports = true
+exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    ".eggs"
+]

@@ -1,0 +1,88 @@
+# Pre-commit hooks configuration for automated code quality checks
+# Install with: pre-commit install
+# Run manually: pre-commit run --all-files
+fail_fast: false
+minimum_pre_commit_version: 2.16.0
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        name: Trim Trailing Whitespace
+        description: Trims trailing whitespace.
+        entry: trailing-whitespace-fixer
+        language: python
+        types: [text]
+        stages: [commit]
+      - id: end-of-file-fixer
+        name: Fix End of Files
+        description: Ensures that a file is either empty or ends with one newline.
+        entry: end-of-file-fixer
+        language: python
+        types: [text]
+        stages: [commit]
+      - id: check-yaml
+        name: Check YAML
+        description: Attempts to load all yaml files to verify syntax.
+        entry: check-yaml
+        language: python
+        types: [yaml]
+        stages: [commit]
+      - id: check-json
+        name: Check JSON
+        description: Attempts to load all json files to verify syntax.
+        entry: check-json
+        language: python
+        types: [json]
+        stages: [commit]
+      - id: check-merge-conflict
+        name: Check for merge conflicts
+        description: Check for files that contain merge conflict strings.
+        entry: check-merge-conflict
+        language: python
+        types: [text]
+        stages: [commit]
+      - id: detect-private-key
+        name: Detect Private Key
+        description: Checks for the existence of private keys.
+        entry: detect-private-key
+        language: python
+        types: [text]
+        stages: [commit]
+
+  - repo: https://github.com/psf/black
+    rev: 23.12.1
+    hooks:
+      - id: black
+        name: Black
+        description: "Black: The uncompromising Python code formatter"
+        entry: black
+        language: python
+        types: [python]
+        stages: [commit]
+        args: [--line-length=88]
+
+  - repo: https://github.com/pycqa/flake8
+    rev: 7.0.0
+    hooks:
+      - id: flake8
+        name: Flake8
+        description: "Flake8: a wrapper around PyFlakes, Pycodestyle and McCabe"
+        entry: flake8
+        language: python
+        types: [python]
+        stages: [commit]
+        additional_dependencies: []
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        name: isort
+        description: "isort: A Python utility to sort imports"
+        entry: isort
+        language: python
+        types: [python]
+        stages: [commit]
+        args: [--profile, black]

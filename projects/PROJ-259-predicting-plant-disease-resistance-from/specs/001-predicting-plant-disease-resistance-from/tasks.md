@@ -20,32 +20,32 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure. Tasks are now atomic for parallel execution.
 
-- [ ] T001 Create project directory tree: `code/`, `data/`, `data/raw`, `data/processed`, `artifacts/`, `artifacts/models`, `artifacts/reports`, `artifacts/figures`, `tests/`
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` containing pinned versions: `pandas==2.0.3`, `numpy==1.24.3`, `scikit-learn==1.3.0`, `statsmodels==0.14.0`, `pyyaml==6.0.1`, `requests==2.31.0`
-- [ ] T003 [P] Configure linting (`.flake8` or `pyproject.toml` for black) and formatting tools
+- [X] T001 Create project directory tree: `code/`, `data/`, `data/raw`, `data/processed`, `artifacts/`, `artifacts/models`, `artifacts/reports`, `artifacts/figures`, `tests/`
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` containing pinned versions: `pandas==2.0.3`, `numpy==1.24.3`, `scikit-learn==1.3.0`, `statsmodels==0.14.0`, `pyyaml==6.0.1`, `requests==2.31.0`
+- [X] T003 [P] Configure linting (`.flake8` or `pyproject.toml` for black) and formatting tools
 
 ---
 
@@ -55,17 +55,17 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Implement `code/utils/exceptions.py` with `EX_DATA_INTEGRITY (02)` and `EX_POWER_INSUFFICIENT (03)` custom classes
-- [ ] T005 Create `code/config.py` for loading environment variables and default paths
-- [ ] T006 [P] Setup Dockerfile bundling Python 3.11, `fastp`, `bcftools`, and project dependencies
-- [ ] T006b [P] Add inline comments to `Dockerfile` explaining build steps and dependencies
-- [ ] T006c [P] Add Docker build/run commands and usage instructions to `README.md` to satisfy FR-006 documentation requirements
+- [X] T004 Implement `code/utils/exceptions.py` with `EX_DATA_INTEGRITY (02)` and `EX_POWER_INSUFFICIENT (03)` custom classes
+- [X] T005 Create `code/config.py` for loading environment variables and default paths
+- [X] T006 [P] Setup Dockerfile bundling Python 3.11, `fastp`, `bcftools`, and project dependencies
+- [X] T006b [P] Add inline comments to `Dockerfile` explaining build steps and dependencies
+- [X] T006c [P] Add Docker build/run commands and usage instructions to `README.md` to satisfy FR-006 documentation requirements
 - [ ] T007 Implement `code/utils/logging.py` for structured logging of pipeline steps and sample exclusions
-- [ ] T008 Create `data/data_manifest.yaml` schema and loader in `code/data/manifest.py`
+- [X] T008 Create `data/data_manifest.yaml` schema and loader in `code/data/manifest.py`
 - [ ] T009 Implement `code/data/generate_synthetic.py` to create ~150 paired samples with injected signal structure: **[deferred] SNPs, metabolites**, **binary phenotype (balanced split)**, effect size=0.1, noise distribution=normal(0,1), SNP-metabolite correlation=0.5, seed=42 for reproducibility
 - [ ] T010 Implement `code/data/download.py` to attempt NCBI SRA/MetaboLights fetch using query "plant AND disease resistance AND (SNP OR metabolite)" with accession list from `data_manifest.yaml`; if **no results found OR HTTP 404/403 after 3 retries**, trigger immediate fallback to synthetic generation (**Simulation Mode ONLY**); bypass halt logic in T019 only if `source == SIMULATED`
-- [ ] T011 Implement `code/data/preprocess.py` wrappers for `fastp` (variant calling via `bcftools`) and MetaboAnalyst-compatible normalization; explicitly generate aligned feature tables by matching sample IDs across modalities using **exact string match**; if IDs do not match, **drop both samples** and log to `data/processed/exclusion_log.csv` with columns: `sample_id`, `missing_modality`, `timestamp` as mandated by FR-001
-- [ ] T012 Implement `code/utils/stats.py` with Benjamini-Hochberg correction and Variance Inflation Factor (VIF) calculation
+- [~] T011 Implement `code/data/preprocess.py` wrappers for `fastp` (variant calling via `bcftools`) and MetaboAnalyst-compatible normalization; explicitly generate aligned feature tables by matching sample IDs across modalities using **exact string match**; if IDs do not match, **drop both samples** and log to `data/processed/exclusion_log.csv` with columns: `sample_id`, `missing_modality`, `timestamp` as mandated by FR-001
+- [~] T012 Implement `code/utils/stats.py` with Benjamini-Hochberg correction and Variance Inflation Factor (VIF) calculation
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -81,19 +81,19 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation. [P] indicates parallel execution of test suites, NOT parallel implementation with code.**
 
-- [ ] T013 [P] [US1] Contract test for data alignment in `tests/test_data.py` (verify matching sample IDs across modalities)
-- [ ] T014 [P] [US1] Integration test for full pipeline run in `tests/test_pipeline.py` (verify runtime < 6h, RAM < 7GB)
+- [~] T013 [P] [US1] Contract test for data alignment in `tests/test_data.py` (verify matching sample IDs across modalities)
+- [~] T014 [P] [US1] Integration test for full pipeline run in `tests/test_pipeline.py` (verify runtime < 6h, RAM < 7GB)
 
 ### Implementation for User Story 1
 
-- [ ] T015 [US1] Implement `code/data/split.py` for stratified sampling based on resistance phenotype (FR-009); **split proportions: [deferred] training, [deferred] hold-out** (resolving spec "[deferred]" via plan.md authority); strictly reserve hold-out set from all training/selection steps
-- [ ] T016 [US1] Implement `code/analysis/feature_selection.py` with LASSO/RF and sensitivity sweep over thresholds {0.01, 0.05, 0.1}; **run 3 independent iterations per threshold** to calculate selection frequency; output `selection_frequency.csv` with columns: `feature_id`, `threshold`, `frequency` (aggregated across 3 runs per threshold) (FR-003)
-- [ ] T017 [US1] Implement `code/analysis/modeling.py` for Elastic-Net (continuous) or Gradient-Boosting (categorical) with 5-fold CV (FR-004)
-- [ ] T017b [US1] Implement logic in `code/analysis/modeling.py` to generate and train a null model baseline (**random labels**) and compare performance against the primary model; **ensure results are included in `metrics.json`** (FR-004)
-- [ ] T018 [US1] Implement `code/analysis/validation.py` for **null model baseline comparison on training/CV folds ONLY**; **DO NOT run permutation testing on hold-out set here** (defer to T033) (FR-005)
-- [ ] T019 [US1] Implement `code/main.py` CLI entry point orchestrating: Fetch -> Preprocess -> Split -> Select -> Train -> Validate; **include logic to check data integrity**: read `source_type` from `data_manifest.yaml`; if `source_type != SIMULATED` and (aligned samples < 100 OR missing modalities), halt with `EX_DATA_INTEGRITY (02)`; if `source_type != SIMULATED` and (samples < 100), halt with `EX_POWER_INSUFFICIENT (03)`; **bypass halt ONLY if `source_type == SIMULATED`** (Simulation Mode exception per plan.md); handle contradictory FR-007/FR-008 by prioritizing FR-008 (Power) then FR-007 (Integrity) with unified error message
-- [ ] T022 [US1] Generate `artifacts/reports/metrics.json` containing CV accuracy, AUC/R², null model comparison, and **permutation p-value (from hold-out set, see T033)**
-- [ ] T023 [US1] Generate `artifacts/reports/selection_frequency.csv` listing feature IDs, thresholds, and selection frequency (FR-003)
+- [~] T015 [US1] Implement `code/data/split.py` for stratified sampling based on resistance phenotype (FR-009); **split proportions: [deferred] training, [deferred] hold-out** (resolving spec "[deferred]" via plan.md authority); strictly reserve hold-out set from all training/selection steps
+- [~] T016 [US1] Implement `code/analysis/feature_selection.py` with LASSO/RF and sensitivity sweep over thresholds {0.01, 0.05, 0.1}; **run 3 independent iterations per threshold ** to calculate selection frequency; output `selection_frequency.csv` with columns: `feature_id`, `threshold`, `frequency` (aggregated across 3 runs per threshold) (FR-003)
+- [~] T017 [US1] Implement `code/analysis/modeling.py` for Elastic-Net (continuous) or Gradient-Boosting (categorical) with 5-fold CV (FR-004)
+- [~] T017b [US1] Implement logic in `code/analysis/modeling.py` to generate and train a null model baseline (**random labels**) and compare performance against the primary model; **ensure results are included in `metrics.json`** (FR-004)
+- [~] T018 [US1] Implement `code/analysis/validation.py` for **null model baseline comparison on training/CV folds ONLY**; **DO NOT run permutation testing on hold-out set here** (defer to T033) (FR-005)
+- [~] T019 [US1] Implement `code/main.py` CLI entry point orchestrating: Fetch -> Preprocess -> Split -> Select -> Train -> Validate; **include logic to check data integrity**: read `source_type` from `data_manifest.yaml`; if `source_type != SIMULATED` and (aligned samples < 100 OR missing modalities), halt with `EX_DATA_INTEGRITY (02)`; if `source_type != SIMULATED` and (samples < 100), halt with `EX_POWER_INSUFFICIENT (03)`; **bypass halt ONLY if `source_type == SIMULATED`** (Simulation Mode exception per plan.md); handle contradictory FR-007/FR-008 by prioritizing FR-008 (Power) then FR-007 (Integrity) with unified error message
+- [~] T022 [US1] Generate `artifacts/reports/metrics.json` containing CV accuracy, AUC/R², null model comparison, and **permutation p-value (from hold-out set, see T033)** <!-- FAILED: unspecified -->
+- [~] T023 [US1] Generate `artifacts/reports/selection_frequency.csv` listing feature IDs, thresholds, and selection frequency (FR-003)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -107,16 +107,16 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T024 [P] [US2] Unit test for BH-adjusted p-value calculation in `tests/test_stats.py`
-- [ ] T025 [P] [US2] Contract test for `top_features.csv` schema in `tests/test_reports.py`
+- [~] T024 [P] [US2] Unit test for BH-adjusted p-value calculation in `tests/test_stats.py`
+- [~] T025 [P] [US2] Contract test for `top_features.csv` schema in `tests/test_reports.py`
 
 ### Implementation for User Story 2
 
-- [ ] T026 [P] [US2] Extend `code/analysis/feature_selection.py` to calculate effect-size coefficients for selected features
-- [ ] T027 [US2] Implement `code/analysis/biomarker_report.py` to generate `artifacts/reports/top_features.csv` with p-values and effect sizes
-- [ ] T028 [US2] Implement logic to filter and rank features based on selection frequency and BH-adjusted p < 0.05
-- [ ] T028b [US2] Implement logic to count and verify that **at least 10 SNPs and 10 metabolites** remain significant **across the entire sensitivity sweep (defined as intersection of significant features across all three thresholds)**; **if count < 10, write `success_status: FAILED` to `artifacts/reports/success_criteria.json` and log a warning** (SC-002)
-- [ ] T029 [US2] Add VIF flagging logic in `code/analysis/validation.py` to flag features with VIF > 5 (FR-005)
+- [~] T026 [P] [US2] Extend `code/analysis/feature_selection.py` to calculate effect-size coefficients for selected features
+- [~] T027 [US2] Implement `code/analysis/biomarker_report.py` to generate `artifacts/reports/top_features.csv` with p-values and effect sizes
+- [~] T028 [US2] Implement logic to filter and rank features based on selection frequency and BH-adjusted p < 0.05 <!-- ATOMIZE: requested -->
+- [~] T028b [US2] Implement logic to count and verify that **at least 10 SNPs and 10 metabolites** remain significant **across the entire sensitivity sweep (defined as intersection of significant features across all three thresholds)**; **if count < 10, write `success_status: FAILED` to `artifacts/reports/success_criteria.json` and log a warning** (SC-002)
+- [~] T029 [US2] Add VIF flagging logic in `code/analysis/validation.py` to flag features with VIF > 5 (FR-005)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -130,16 +130,16 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T030 [P] [US3] Integration test for hold-out evaluation in `tests/test_validation.py`
+- [~] T030 [P] [US3] Integration test for hold-out evaluation in `tests/test_validation.py`
 
 ### Implementation for User Story 3
 
-- [ ] T031 [P] [US3] Extend `code/data/split.py` to strictly reserve the hold-out set from training/selection (FR-009)
-- [ ] T031b [US3] Implement a validation check in `code/data/split.py` to assert that the hold-out set is never used in feature selection or training steps (strict reservation)
-- [ ] T032 [US3] Implement `code/analysis/validation.py` logic to evaluate the trained model on the independent hold-out set
-- [ ] T033 [US3] Implement permutation testing (**n=1000**, **shuffling phenotype labels**, metric: **accuracy/AUC**) specifically on the **independent hold-out test set** to generate **model-level p-value**; output to `artifacts/reports/holdout_metrics.json` (FR-005, SC-003)
-- [ ] T034 [US3] Generate `artifacts/reports/holdout_metrics.json` with final accuracy/AUC/R² and permutation p-value
-- [ ] T035 [US3] Implement logic to compare hold-out performance against the ≥ 75% target and log a warning to `artifacts/reports/validation.log` if target is not met (as a hypothesis, not a hard halt)
+- [~] T031 [P] [US3] Extend `code/data/split.py` to strictly reserve the hold-out set from training/selection (FR-009) <!-- FAILED: unspecified -->
+- [~] T031b [US3] Implement a validation check in `code/data/split.py` to assert that the hold-out set is never used in feature selection or training steps (strict reservation)
+- [~] T032 [US3] Implement `code/analysis/validation.py` logic to evaluate the trained model on the independent hold-out set
+- [~] T033 [US3] Implement permutation testing (**n=1000**, **shuffling phenotype labels**, metric: **accuracy/AUC**) specifically on the **independent hold-out test set** to generate **model-level p-value**; output to `artifacts/reports/holdout_metrics.json` (FR-005, SC-003)
+- [~] T034 [US3] Generate `artifacts/reports/holdout_metrics.json` with final accuracy/AUC/R² and permutation p-value
+- [~] T035 [US3] Implement logic to compare hold-out performance against the ≥ 75% target and log a warning to `artifacts/reports/validation.log` if target is not met (as a hypothesis, not a hard halt)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -149,8 +149,8 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T036 [P] Documentation updates in `docs/` and `README.md` including Docker usage
-- [ ] T037 Code cleanup and refactoring of `code/analysis/` modules
+- [~] T036 [P] Documentation updates in `docs/` and `README.md` including Docker usage
+- [~] T037 Code cleanup and refactoring of `code/analysis/` modules
 - [ ] T038 Performance optimization to ensure runtime ≤ 6h and RAM ≤ 7GB on CI
 - [ ] T038b [P] Implement runtime/memory measurement script in `code/utils/measure_resources.py` to log peak usage
 - [ ] T038c [P] Update CI workflow to execute measurement script and log results against FR-006 constraints
@@ -167,8 +167,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -244,9 +244,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---
