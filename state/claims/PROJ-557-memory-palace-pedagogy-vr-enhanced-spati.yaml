@@ -1,0 +1,148 @@
+- artifact_path: projects/PROJ-557-memory-palace-pedagogy-vr-enhanced-spati/specs/001-memory-palace-pedagogy-vr-enhanced-spati/tasks.md
+  attempts: 1
+  canonical: Pupil Labs Reading dataset ds004041 lacks simplified text
+  claim_id: c_e525e502
+  context: Create data model schema... explicitly define simplified_text attribute
+    as nullable to reflect dataset limitations... Create data/metadata.yaml entry
+    to flag that the source dataset lacks simplified text for all passages
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pupil_Labs_Reading_dataset_ds004041_lacks_simplified_text
+  kind: entity_fact
+  raw_text: The source dataset lacks simplified text for all passages.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T15:07:41Z'
+- artifact_path: projects/PROJ-557-memory-palace-pedagogy-vr-enhanced-spati/specs/001-memory-palace-pedagogy-vr-enhanced-spati/tasks.md
+  attempts: 1
+  canonical: Dataset ds004041 Pupil Labs Reading used
+  claim_id: c_a790258c
+  context: Implement data download script in code/download.py using openneuro-py to
+    fetch ds004041 (Pupil Labs Reading) to data/raw/
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_ds004041_Pupil_Labs_Reading_used
+  kind: entity_fact
+  raw_text: The dataset used is ds004041 (Pupil Labs Reading).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T15:07:57Z'
+- artifact_path: projects/PROJ-557-memory-palace-pedagogy-vr-enhanced-spati/specs/001-memory-palace-pedagogy-vr-enhanced-spati/tasks.md
+  attempts: 1
+  canonical: Permutation test uses 10000 shuffles
+  claim_id: c_83b8b10a
+  context: Unit test for permutation test logic (10,000 shuffles) in tests/unit/test_analysis.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test logic uses 10,000 shuffles.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T15:08:17Z'
+- artifact_path: projects/PROJ-557-memory-palace-pedagogy-vr-enhanced-spati/specs/001-memory-palace-pedagogy-vr-enhanced-spati/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime less than or equal to 30 minutes
+  claim_id: c_a74246c8
+  context: "Add integration test in tests/integration/test_us3_analysis.py that asserts\
+    \ total pipeline runtime \u2264 30 minutes"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_runtime_less_than_or_equal_to_30_minutes
+  kind: magnitude
+  raw_text: The integration test asserts total pipeline runtime is less than or equal
+    to 30 minutes.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T15:08:40Z'
+- artifact_path: projects/PROJ-557-memory-palace-pedagogy-vr-enhanced-spati/specs/001-memory-palace-pedagogy-vr-enhanced-spati/tasks.md
+  attempts: 1
+  canonical: LME model formula Recall ~ Adaptation*PassageType + (1|Participant)
+  claim_id: c_ce29eec3
+  context: 'Implement analysis.py function: fit_lme_model using formula Recall ~ Adaptation*PassageType
+    + (1|Participant) (statsmodels)'
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: Participant)
+    relation: ''
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/LME_model_formula_Recall_~_Adaptation*PassageType_+_(1_Parti
+    source_value: https://en.wikipedia.org/wiki/LME_model_formula_Recall_~_Adaptation*PassageType_+_(1_Parti
+    subject: LME model formula Recall ~ Adaptation*PassageType + (1
+  kind: relational
+  raw_text: The analysis uses a linear mixed-effects model with the formula Recall
+    ~ Adaptation*PassageType + (1|Participant).
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T15:09:33Z'
+- artifact_path: projects/PROJ-557-memory-palace-pedagogy-vr-enhanced-spati/specs/001-memory-palace-pedagogy-vr-enhanced-spati/tasks.md
+  attempts: 1
+  canonical: Preprocessing uses 4Hz low-pass filter
+  claim_id: c_d6957cf9
+  context: Unit test for blink removal and 4Hz low-pass filtering in tests/unit/test_preprocessing.py
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Preprocessing_uses_4Hz_low-pass_filter
+  kind: entity_fact
+  raw_text: The preprocessing includes a 4Hz low-pass filter.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T15:10:13Z'
+- artifact_path: projects/PROJ-557-memory-palace-pedagogy-vr-enhanced-spati/specs/001-memory-palace-pedagogy-vr-enhanced-spati/tasks.md
+  attempts: 1
+  canonical: Outliers defined as windows greater than 3 standard deviations from mean
+  claim_id: c_fe56fd7f
+  context: 'Implement outlier handling in cli_engine.py: flag windows > 3 SD from
+    mean for exclusion'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Outliers_defined_as_windows_greater_than_3_standard_deviatio
+  kind: magnitude
+  raw_text: Outlier handling flags windows greater than 3 standard deviations from
+    the mean for exclusion.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T15:10:37Z'
+- artifact_path: projects/PROJ-557-memory-palace-pedagogy-vr-enhanced-spati/specs/001-memory-palace-pedagogy-vr-enhanced-spati/tasks.md
+  attempts: 1
+  canonical: High-load window threshold is 0.5 standard deviations
+  claim_id: c_2efc65b4
+  context: Verify CLI mean/variance and 0.5 SD segmentation logic... identify_high_load_windows
+    (threshold defined by a statistically significant standard deviation deviation)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The high-load window threshold is defined by a 0.5 standard deviation
+    deviation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T15:10:55Z'

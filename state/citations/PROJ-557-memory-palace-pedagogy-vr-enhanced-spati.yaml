@@ -1,0 +1,11 @@
+- artifact_hash: 30e174a3f7fd0444e643cac8af9e59a6166b1a4d144bffc99106539771852965
+  artifact_path: projects/PROJ-557-memory-palace-pedagogy-vr-enhanced-spati/specs/001-memory-palace-pedagogy-vr-enhanced-spati/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/openneuro/ds004041/resolve/main/data/pupil_data.parquet`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/openneuro/ds004041/resolve/main/data/pupil_data.parquet
+  verified_at: '2026-07-02T14:45:22.022984Z'

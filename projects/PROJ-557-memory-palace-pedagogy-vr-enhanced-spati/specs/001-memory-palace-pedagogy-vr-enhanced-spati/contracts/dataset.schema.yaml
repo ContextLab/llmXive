@@ -1,0 +1,31 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Schema for Pupil Labs Reading Analysis"
+type: object
+description: "Schema for the derived participant-level dataset used in the LME analysis."
+required:
+  - participant_id
+  - passage_type
+  - proportion_high_load
+  - recall_score
+properties:
+  participant_id:
+    type: string
+    description: "Unique identifier for the participant from the source dataset."
+  passage_type:
+    type: string
+    enum:
+      - "abstract"
+      - "concrete"
+    description: "Classification of the passage content."
+  proportion_high_load:
+    type: number
+    description: "Aggregated metric: proportion of time windows where CLI > 0.5 SD."
+  recall_score:
+    type: number
+    description: "Delayed recall score for the participant."
+  n_windows_total:
+    type: integer
+    description: "Total number of 2-second windows processed for the participant."
+  n_windows_high_load:
+    type: integer
+    description: "Number of windows where CLI > 0.5 SD."
