@@ -883,6 +883,25 @@ a:hover { color: var(--accent-2); }
   word-break: break-all;
   line-height: 1.3;
 }
+/* Reviewed-Preprint viewer toggles: an .ad-row rendered as a <button> that
+   swaps the featured PDF pane in-modal (paper <-> review report). Reset the
+   native button chrome so it matches the anchor/div rows; .active marks the
+   PDF currently shown in the pane. */
+.artifact-dialog .ad-row.ad-pdf-toggle {
+  width: 100%;
+  background: transparent;
+  font: inherit;
+  text-align: left;
+}
+.artifact-dialog .ad-row.ad-pdf-toggle.active {
+  background: var(--accent-tint);
+  border-color: var(--accent-soft);
+  color: var(--accent);
+}
+.artifact-dialog .ad-row.ad-pdf-toggle.active .ad-row-icon {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
 
 .artifact-dialog .ad-citation {
   display: flex; gap: 8px; margin-bottom: 6px;
