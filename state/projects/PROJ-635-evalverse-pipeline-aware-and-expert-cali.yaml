@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-28T09:17:03.505175Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-635-evalverse-pipeline-aware-and-expert-cali
-last_run_id: bb2ed69b-22e4-4f7f-b807-917c37b2044d
+last_run_id: a9eafb37-bc3f-4b63-992a-95e0f4b0796d
 last_run_status: null
 points_paper: {}
 points_research: {}

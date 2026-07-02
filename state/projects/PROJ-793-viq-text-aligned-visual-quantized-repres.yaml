@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-27T08:58:04.637963Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-793-viq-text-aligned-visual-quantized-repres
-last_run_id: 430e7f1a-9040-4cd8-85ca-8180a76134fe
+last_run_id: 75057205-8c3c-477e-a1d2-4c336cef4dbb
 last_run_status: null
 points_paper: {}
 points_research: {}
