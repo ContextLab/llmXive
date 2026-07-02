@@ -1,14 +1,7 @@
-last_used: eric-kandel
-last_used_at: '2026-07-02T03:12:29.732378+00:00'
-last_outcome: target_missing
+last_used: freeman-dyson
+last_used_at: '2026-07-02T05:26:36.945912+00:00'
+last_outcome: committed
 history:
-- slug: freeman-dyson
-  started_at: '2026-06-21T20:57:58.935231+00:00'
-  ended_at: '2026-06-21T21:30:37.685088+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-628-foundation-protocol-a-coordination-layer/paper/reviews/freeman-dyson-simulated__2026-06-21__paper.md
 - slug: geoffrey-west
   started_at: '2026-06-21T21:30:37.685088+00:00'
   ended_at: '2026-06-21T22:02:00.965516+00:00'
@@ -1204,3 +1197,10 @@ history:
   ended_at: '2026-07-02T03:12:29.732378+00:00'
   outcome: target_missing
   action: comment
+- slug: freeman-dyson
+  started_at: '2026-07-02T03:12:29.732378+00:00'
+  ended_at: '2026-07-02T05:26:36.945912+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-105-statistical-analysis-of-publicly-availab/reviews/research/freeman-dyson-simulated__2026-07-02__research.md
