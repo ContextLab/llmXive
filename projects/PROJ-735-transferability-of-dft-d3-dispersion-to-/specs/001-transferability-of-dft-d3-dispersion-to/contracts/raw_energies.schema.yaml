@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Raw Energies Schema"
+description: "Schema for the raw_energies.csv output file containing DFT-D3 calculation results."
+type: "object"
+properties:
+  pair_id:
+    type: "string"
+    description: "Unique identifier for the ion pair."
+  reference_energy:
+    type: "number"
+    description: "CCSD(T)/CBS reference energy in kcal/mol."
+  dft_total_energy:
+    type: "number"
+    description: "Total DFT-D3 energy in kcal/mol."
+  d3_dispersion_energy:
+    type: "number"
+    description: "D3 dispersion correction term in kcal/mol."
+  bsse_correction:
+    type: "number"
+    description: "Counterpoise correction for BSSE in kcal/mol."
+  corrected_energy:
+    type: "number"
+    description: "Final energy after D3 and BSSE corrections."
+  signed_error:
+    type: "number"
+    description: "Difference between corrected_energy and reference_energy."
+  status:
+    type: "string"
+    enum:
+      - "success"
+      - "failed"
+      - "skipped"
+    description: "Status of the calculation."
+  failure_reason:
+    type:
+      - "string"
+      - "null"
+    description: "Reason for failure, if applicable."
+required:
+  - pair_id
+  - reference_energy
+  - dft_total_energy
+  - d3_dispersion_energy
+  - corrected_energy
+  - signed_error
+  - status
+additionalProperties: false

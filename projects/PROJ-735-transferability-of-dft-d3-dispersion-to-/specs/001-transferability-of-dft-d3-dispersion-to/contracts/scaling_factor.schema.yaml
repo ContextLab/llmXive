@@ -1,0 +1,44 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Scaling Factor Schema"
+description: "Schema for the scaling_factor.txt output file."
+type: "object"
+properties:
+  scaling_factor:
+    type: "number"
+    description: "Scalar s > 0 that minimizes MAE of D3 term."
+    minimum: 0.01
+  p_value:
+    type: "number"
+    description: "P-value from bootstrap CI test for null hypothesis s = 1.0 (if CI excludes 1.0, p < 0.05)."
+  mae_before:
+    type: "number"
+    description: "MAE before scaling."
+  mae_after:
+    type: "number"
+    description: "MAE after applying scaling factor."
+  ci_lower:
+    type: "number"
+    description: "Lower bound of 95% bootstrap CI for s."
+  ci_upper:
+    type: "number"
+    description: "Upper bound of 95% bootstrap CI for s."
+  n_bootstrap:
+    type: "integer"
+    description: "Number of bootstrap replicates used."
+  n_training:
+    type: "integer"
+    description: "Number of samples in training set."
+  n_validation:
+    type: "integer"
+    description: "Number of samples in validation set."
+required:
+  - scaling_factor
+  - p_value
+  - mae_before
+  - mae_after
+  - ci_lower
+  - ci_upper
+  - n_bootstrap
+  - n_training
+  - n_validation
+additionalProperties: false

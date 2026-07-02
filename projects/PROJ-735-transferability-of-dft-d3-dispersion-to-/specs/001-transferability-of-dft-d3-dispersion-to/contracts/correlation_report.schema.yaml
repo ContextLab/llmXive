@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Correlation Report Schema"
+description: "Schema for the correlation_report.md data content (JSON representation)."
+type: "object"
+properties:
+  correlations:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        test_name:
+          type: "string"
+          description: "e.g., 'D3 vs Density', 'Error vs Viscosity'"
+        method:
+          type: "string"
+          enum:
+            - "Pearson"
+            - "Spearman"
+          description: "Correlation method used."
+        coefficient:
+          type: "number"
+          description: "Correlation coefficient (R or rho)."
+        p_value:
+          type: "number"
+          description: "Raw p-value."
+        p_value_bonferroni:
+          type: "number"
+          description: "Bonferroni-adjusted p-value."
+        ci_lower:
+          type: "number"
+          description: "Lower bound of 95% bootstrap CI."
+        ci_upper:
+          type: "number"
+          description: "Upper bound of 95% bootstrap CI."
+        n:
+          type: "integer"
+          description: "Number of samples used."
+      required:
+        - test_name
+        - method
+        - coefficient
+        - p_value
+        - p_value_bonferroni
+        - ci_lower
+        - ci_upper
+        - n
+required:
+  - correlations
+additionalProperties: false

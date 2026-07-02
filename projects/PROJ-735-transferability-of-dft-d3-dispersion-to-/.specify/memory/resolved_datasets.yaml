@@ -1,147 +1,26 @@
-resolved_at: '2026-06-30T00:47:06.315268+00:00'
+resolved_at: '2026-07-02T09:31:22.073188+00:00'
 datasets:
-- intent: CSV
-  status: verified
-  candidates:
-  - url: https://huggingface.co/datasets/nateraw/dummy-csv-dataset/resolve/main/data.csv
-    source: huggingface
-    format: csv
-    relevance: 1.0
-    sample_check:
-      downloaded_bytes: 31
-      parsed: true
-  candidates_tried:
-  - url: https://us.aws.cdn.hf.co/xet-bridge-us/681d8185cab567891deec21a/3f16cda3c324546bc557374e15858d10ab9388b9cc692511ce53758cc6242e85?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27danbooru_tags.csv%3B+filename%3D%22danbooru_tags.csv%22%3B&X-Xet-Cas-Uid=public&response-content-type=text%2Fcsv&user_id=public&Expires=1782783703&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjgxZDgxODVjYWI1Njc4OTFkZWVjMjFhLzNmMTZjZGEzYzMyNDU0NmJjNTU3Mzc0ZTE1ODU4ZDEwYWI5Mzg4YjljYzY5MjUxMWNlNTM3NThjYzYyNDJlODVcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGFuYm9vcnVfdGFncy5jc3YlM0IrZmlsZW5hbWUlM0QlMjJkYW5ib29ydV90YWdzLmNzdiUyMiUzQiZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyNzgzNzAzfX19XX0_&Signature=MEUCICg01kuRQxfkDijoHnH5ZvyZttL-hrwS~1YxpTSf3o~IAiEAqhagXXbGoxIFAX4czj-vXKM3KQHtXwgYePYxNTtwGCw_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-    source: huggingface
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://huggingface.co/datasets/nateraw/dummy-csv-dataset/resolve/main/data.csv
-    source: huggingface
-    status: verified
-    format: csv
-  - url: https://figshare.com/articles/conference_contribution/THEMATIC_GROUPS_OF_THE_VOCABULARY_IN_THE_WORKS_OF_SHOYIM_SHERNAZAR/32830316
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/___________/32830313
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/The_behavior_preferences_of_tongue-rolling/32830301
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://opal.latrobe.edu.au/articles/report/What_Keeps_Teachers_in_Hard-to-Staff_Schools_Evidence_from_school_leaders_and_the_research_literature/32737725
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/EXPRESSION_OF_SITUATIONS_RELATED_TO_CHILDREN_S_SPEECH_DEFICIENCIES_IN_TEXTS_INTENDED_FOR_CHILDREN_S_AUDIENCE/32830304
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19566985
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/6334972
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/6144837
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3681161
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/6557219
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://datadryad.org/dataset/doi:10.5061/dryad.hx3ffbgkx
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21050256
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21050256
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15731809
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/14551919
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
 - intent: DFT
-  status: verified
-  candidates:
-  - url: https://huggingface.co/datasets/bio-datasets/dft23-full/resolve/main/data/test-00000-of-00001-a791a8874f9adf69.parquet
-    source: huggingface
-    format: parquet
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 180247
-      parsed: true
-  - url: https://huggingface.co/datasets/sdmattpotter/dftest61523/resolve/main/data/train-00000-of-00001-17dbf6e61ca73a23.parquet
-    source: huggingface
-    format: parquet
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  - url: https://huggingface.co/datasets/sdmattpotter/dftest61623/resolve/main/data/train-00000-of-00001-17dbf6e61ca73a23.parquet
-    source: huggingface
-    format: parquet
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
+  status: unresolved
+  candidates: []
   candidates_tried:
-  - url: https://huggingface.co/datasets/bio-datasets/dft23-full/resolve/main/data/test-00000-of-00001-a791a8874f9adf69.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/sdmattpotter/dftest61523/resolve/main/data/train-00000-of-00001-17dbf6e61ca73a23.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/sdmattpotter/dftest61623/resolve/main/data/train-00000-of-00001-17dbf6e61ca73a23.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: "https://huggingface.co/datasets/youngwoo3283/df_transportation_keyword/resolve/main/df_\uAD50\
-      \uD1B5.csv"
-    source: huggingface
-    status: verified
-    format: csv
-  - url: https://huggingface.co/api/resolve-cache/datasets/youngwoo3283/df_text_generation_20k/a7593f2818c220c3b12d23877708bb4487e29232/df_text_generateion_20k.csv?%2Fdatasets%2Fyoungwoo3283%2Fdf_text_generation_20k%2Fresolve%2Fmain%2Fdf_text_generateion_20k.csv=&etag=%229ff9a2b9e7682fdb9c25dbfa6ac91cb66bade221%22
-    source: huggingface
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/THEMATIC_GROUPS_OF_THE_VOCABULARY_IN_THE_WORKS_OF_SHOYIM_SHERNAZAR/32830316
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_The_effects_of_in_vitro_LPS_stimulation_on_the_PBMC_transcriptome_of_beef_steers_with_negative_or_positive_residual_average_daily_gain_xlsx/32874914
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/___________/32830313
+  - url: https://ore.exeter.ac.uk/articles/journal_contribution/A_systematic_review_of_hormonal_changes_their_effects_on_and_associations_with_cognitive_performance_within_defence_and_security_personnel/32874008
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/The_behavior_preferences_of_tongue-rolling/32830301
+  - url: https://repository.lboro.ac.uk/articles/journal_contribution/Managing_employee_voice_as_an_organizational_capability_an_integrative_process_model/32825840
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opal.latrobe.edu.au/articles/report/What_Keeps_Teachers_in_Hard-to-Staff_Schools_Evidence_from_school_leaders_and_the_research_literature/32737725
+  - url: https://ore.exeter.ac.uk/articles/conference_contribution/Robust_Incomplete-Modality_Alignment_for_Ophthalmic_Disease_Grading_and_Diagnosis_via_Labeled_Optimal_Transport/30454391
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/EXPRESSION_OF_SITUATIONS_RELATED_TO_CHILDREN_S_SPEECH_DEFICIENCIES_IN_TEXTS_INTENDED_FOR_CHILDREN_S_AUDIENCE/32830304
+  - url: https://figshare.com/articles/dataset/soure_data_for_the_paper_titled_b_Observation_of_polaritonic_flat-band_bound_states_in_the_continuum_in_a_2D_magnet_b_/32833733
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -165,238 +44,47 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://yareta.unige.ch/archives/aad79a5b-b1f6-426c-87af-1bd7272ef6b8
+  - url: https://doi.org/10.3929/ethz-c-000800459
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://usiena-air.unisi.it//handle/11365/1127348
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://yareta.unige.ch/archives/daaedf50-c18a-4ba5-af37-a7014e251b20
+  - url: https://air.unimi.it/handle/2434/215538
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://yareta.unige.ch/archives/acbacbe5-61ae-4c6f-828c-98bf0a716d0a
+  - url: https://air.unimi.it/handle/2434/150083
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://yareta.unige.ch/archives/e1a9341c-65d2-4fed-b197-603296804ba0
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://yareta.unige.ch/archives/bc5e33cc-302c-43bd-b445-d28488f2afbb
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-- intent: FR-001
-  status: unresolved
-  candidates: []
-  candidates_tried:
-  - url: https://figshare.com/articles/conference_contribution/STYLISTIC_AND_PRAGMATIC_POSSIBILITIES_OF_SIROJIDDIN_SAYYID_S_WORKS/32830322
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/THEMATIC_GROUPS_OF_THE_VOCABULARY_IN_THE_WORKS_OF_SHOYIM_SHERNAZAR/32830316
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/___________/32830313
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/The_behavior_preferences_of_tongue-rolling/32830301
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://opal.latrobe.edu.au/articles/report/What_Keeps_Teachers_in_Hard-to-Staff_Schools_Evidence_from_school_leaders_and_the_research_literature/32737725
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/17936025
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19059431
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10337909
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5604131
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10173526
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15485834
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/16828200
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20358997
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20358997
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20635248
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-- intent: MUST
-  status: verified
-  candidates:
-  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
-    source: huggingface
-    format: parquet
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
-    source: huggingface
-    format: parquet
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 190547
-      parsed: true
-  candidates_tried:
-  - url: https://huggingface.co/datasets/Mustafaege/qwen3.5-toolcalling-v2/resolve/main/data/test-00000-of-00001.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://figshare.com/articles/conference_contribution/STYLISTIC_AND_PRAGMATIC_POSSIBILITIES_OF_SIROJIDDIN_SAYYID_S_WORKS/32830322
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/THEMATIC_GROUPS_OF_THE_VOCABULARY_IN_THE_WORKS_OF_SHOYIM_SHERNAZAR/32830316
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/___________/32830313
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/The_behavior_preferences_of_tongue-rolling/32830301
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://opal.latrobe.edu.au/articles/report/What_Keeps_Teachers_in_Hard-to-Staff_Schools_Evidence_from_school_leaders_and_the_research_literature/32737725
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5746416
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/16954306
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/8056637
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15420758
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19980220
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20283357
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20739282
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20739282
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20843366
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20843366
+  - url: https://air.unimi.it/handle/2434/215539
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
 - intent: CCSD
-  status: verified
-  candidates:
-  - url: https://huggingface.co/datasets/colabfit/sGDML_Aspirin_ccsd_NC2018_test/resolve/main/co/co_0.parquet
-    source: huggingface
-    format: parquet
-    relevance: 1.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  - url: https://huggingface.co/datasets/colabfit/sGDML_Aspirin_ccsd_NC2018_train/resolve/main/co/co_0.parquet
-    source: huggingface
-    format: parquet
-    relevance: 1.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  - url: https://huggingface.co/datasets/0x404/ccs_dataset/resolve/main/data/eval-00000-of-00001.parquet
-    source: huggingface
-    format: parquet
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
+  status: unresolved
+  candidates: []
   candidates_tried:
-  - url: https://huggingface.co/datasets/0x404/ccs_dataset/resolve/main/data/eval-00000-of-00001.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/rsh-raj/ccs-dataset-2/resolve/main/dataset_train.csv
-    source: huggingface
-    status: verified
-    format: csv
-  - url: https://huggingface.co/datasets/colabfit/sGDML_Aspirin_ccsd_NC2018_test/resolve/main/co/co_0.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/colabfit/sGDML_Aspirin_ccsd_NC2018_train/resolve/main/co/co_0.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/colabfit/sGDML_Benzene_ccsdt_NC2018_test/resolve/main/co/co_0.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://figshare.com/articles/conference_contribution/DEVELOPING_LINGUOCULTURAL_COMPETENCE_THROUGH_DIGITAL_TECHNOLOGIES_IN_PHILOLOGICAL_EDUCATION/32830325
+  - url: https://acs.figshare.com/articles/journal_contribution/Multicentered_p_s_p_Antibonding_Interaction_Induces_Strong_Anharmonicity_and_High_Thermoelectric_Performance_in_Complex_Metal_Chalcohalide_Tl_sub_5_sub_Te_sub_2_sub_I/32875012
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/STYLISTIC_AND_PRAGMATIC_POSSIBILITIES_OF_SIROJIDDIN_SAYYID_S_WORKS/32830322
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_An_open-source_framework_for_physiologically-based_pharmacokinetic_modeling_of_kinetics_in_the_female_reproductive_tract_pdf/32875007
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/THEMATIC_GROUPS_OF_THE_VOCABULARY_IN_THE_WORKS_OF_SHOYIM_SHERNAZAR/32830316
+  - url: https://acs.figshare.com/articles/journal_contribution/Interface_Coordination_Nucleation_of_Copper_Nanoclusters_on_Covalent_Organic_Frameworks_for_Electrocatalytic_Ammonia_Synthesis/32875003
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/___________/32830313
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_The_effects_of_in_vitro_LPS_stimulation_on_the_PBMC_transcriptome_of_beef_steers_with_negative_or_positive_residual_average_daily_gain_xlsx/32874914
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/The_behavior_preferences_of_tongue-rolling/32830301
+  - url: https://ore.exeter.ac.uk/articles/journal_contribution/A_systematic_review_of_hormonal_changes_their_effects_on_and_associations_with_cognitive_performance_within_defence_and_security_personnel/32874008
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -420,80 +108,47 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://elib.uni-stuttgart.de/items/1b55a893-45f7-40d8-aeb6-88c215adf6d4
+  - url: https://toubkal.imist.ma/handle/123456789/6676
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21032567
+  - url: https://www.canal-u.tv/chaines/ccsd/parlons-science-ouverte-14-openwashing-ou-la-suversion-de-l-open-dans-la-publication
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21032567
+  - url: https://arxiv.org/abs/2606.31625
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20818623
+  - url: https://arxiv.org/abs/2606.31117
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20818623
+  - url: https://arxiv.org/abs/2606.30551
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
 - intent: CBS
-  status: verified
-  candidates:
-  - url: https://huggingface.co/datasets/Liudmil/cb_seedsmz/resolve/main/cb_seedsmz.jsonl
-    source: huggingface
-    format: jsonl
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 35390
-      parsed: true
-  - url: https://huggingface.co/datasets/Mohit1Kulkarni/10th-CBSE-science-Dataset/resolve/main/Validation.jsonl
-    source: huggingface
-    format: jsonl
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 13582
-      parsed: true
-  - url: https://huggingface.co/datasets/deepinv/CBSD68/resolve/main/CBSD68.tar.gz
-    source: huggingface
-    format: gzip
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
+  status: unresolved
+  candidates: []
   candidates_tried:
-  - url: https://huggingface.co/datasets/Liudmil/cb_seedsmz/resolve/main/cb_seedsmz.jsonl
-    source: huggingface
-    status: verified
-    format: jsonl
-  - url: https://huggingface.co/datasets/Mohit1Kulkarni/10th-CBSE-science-Dataset/resolve/main/Validation.jsonl
-    source: huggingface
-    status: verified
-    format: jsonl
-  - url: https://huggingface.co/datasets/deepinv/CBSD68/resolve/main/CBSD68.tar.gz
-    source: huggingface
-    status: verified
-    format: gzip
-  - url: https://figshare.com/articles/conference_contribution/DEVELOPING_LINGUOCULTURAL_COMPETENCE_THROUGH_DIGITAL_TECHNOLOGIES_IN_PHILOLOGICAL_EDUCATION/32830325
+  - url: https://acs.figshare.com/articles/journal_contribution/Bound_Phenolics_Enhance_the_Antidepressant-Like_Effect_of_Triticale_Bran_Insoluble_Dietary_Fiber_in_Obese_Mice_Evidence_for_the_Involvement_of_Immune_Regulation_and_Microbiota_Modulation/32875039
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/STYLISTIC_AND_PRAGMATIC_POSSIBILITIES_OF_SIROJIDDIN_SAYYID_S_WORKS/32830322
+  - url: https://acs.figshare.com/articles/journal_contribution/Multicentered_p_s_p_Antibonding_Interaction_Induces_Strong_Anharmonicity_and_High_Thermoelectric_Performance_in_Complex_Metal_Chalcohalide_Tl_sub_5_sub_Te_sub_2_sub_I/32875012
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/THEMATIC_GROUPS_OF_THE_VOCABULARY_IN_THE_WORKS_OF_SHOYIM_SHERNAZAR/32830316
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_An_open-source_framework_for_physiologically-based_pharmacokinetic_modeling_of_kinetics_in_the_female_reproductive_tract_pdf/32875007
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/___________/32830313
+  - url: https://acs.figshare.com/articles/journal_contribution/Interface_Coordination_Nucleation_of_Copper_Nanoclusters_on_Covalent_Organic_Frameworks_for_Electrocatalytic_Ammonia_Synthesis/32875003
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/The_behavior_preferences_of_tongue-rolling/32830301
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_The_effects_of_in_vitro_LPS_stimulation_on_the_PBMC_transcriptome_of_beef_steers_with_negative_or_positive_residual_average_daily_gain_xlsx/32874914
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -501,10 +156,6 @@ datasets:
     source: zenodo
     status: unreachable
     reason: 'reachability failed: HTTP 500'
-  - url: https://zenodo.org/records/7534047
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/7836062
     source: zenodo
     status: wrong_format
@@ -513,182 +164,106 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/4268308
+  - url: https://zenodo.org/records/7534047
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21039495
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21039495
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21039489
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21039489
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://www.gbif.org/dataset/9236fad5-b80c-4630-86e0-b289812c2016
-    source: datacite
-    status: wrong_format
-    reason: HTTP 403
-- intent: US-1
-  status: verified
-  candidates:
-  - url: https://huggingface.co/datasets/AMLGentex/us_100K_difficult/resolve/main/tx_log.csv
-    source: huggingface
-    format: csv
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  - url: https://huggingface.co/datasets/AMLGentex/us_100K_easy/resolve/main/tx_log.csv
-    source: huggingface
-    format: csv
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  candidates_tried:
-  - url: https://huggingface.co/datasets/AMLGentex/us_100K_difficult/resolve/main/tx_log.csv
-    source: huggingface
-    status: verified
-    format: csv
-  - url: https://huggingface.co/datasets/AMLGentex/us_100K_easy/resolve/main/tx_log.csv
-    source: huggingface
-    status: verified
-    format: csv
-  - url: https://figshare.com/articles/conference_contribution/THE_FORMATION_OF_SPEECH_COMMUNICATION_IN_LOGICAL_AND_LINGUISTIC_PROCESSES/32830328
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/DEVELOPING_LINGUOCULTURAL_COMPETENCE_THROUGH_DIGITAL_TECHNOLOGIES_IN_PHILOLOGICAL_EDUCATION/32830325
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/STYLISTIC_AND_PRAGMATIC_POSSIBILITIES_OF_SIROJIDDIN_SAYYID_S_WORKS/32830322
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/THEMATIC_GROUPS_OF_THE_VOCABULARY_IN_THE_WORKS_OF_SHOYIM_SHERNAZAR/32830316
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/___________/32830313
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/18190973
+  - url: https://zenodo.org/records/6351755
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7325859
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5216923
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3558197
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: http://reproduct-endo.com/article/view/290227
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21051124
+  - url: https://air.unimi.it/handle/2434/170506
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21051124
+  - url: https://osf.io/a74tu/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21051123
+  - url: https://osf.io/723fa/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21051123
+  - url: https://arxiv.org/abs/2607.00156
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21051118
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-- intent: FR-013
-  status: unresolved
-  candidates: []
-  candidates_tried:
-  - url: https://figshare.com/articles/conference_contribution/THE_FORMATION_OF_SPEECH_COMMUNICATION_IN_LOGICAL_AND_LINGUISTIC_PROCESSES/32830328
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/DEVELOPING_LINGUOCULTURAL_COMPETENCE_THROUGH_DIGITAL_TECHNOLOGIES_IN_PHILOLOGICAL_EDUCATION/32830325
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/STYLISTIC_AND_PRAGMATIC_POSSIBILITIES_OF_SIROJIDDIN_SAYYID_S_WORKS/32830322
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/THEMATIC_GROUPS_OF_THE_VOCABULARY_IN_THE_WORKS_OF_SHOYIM_SHERNAZAR/32830316
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/___________/32830313
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10118243
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10338631
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10336705
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10312545
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10382340
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20635248
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20615161
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20470525
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.5281/zenodo.20469943
-    source: datacite
-    status: unreachable
-    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''zenodo.org'',
-      port=443): Read timed out. (read timeout=20.0)'
-  - url: https://zenodo.org/records/20453648
+  - url: https://zenodo.org/records/21109871
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
 - intent: XYZ
-  status: unresolved
-  candidates: []
-  candidates_tried: []
+  status: verified
+  candidates:
+  - url: https://www.openml.org/data/get_csv/4644292/XYZ.csv
+    source: openml
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://figshare.com/articles/software/Code_underpinning_Defining_Nominal_Orderings_and_Orientations_for_Branches_in_Power_Network_Test_Cases_by_Seriating_the_Line_Outage_Distribution_Factors_Matrix_/32874701
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Bound_Phenolics_Enhance_the_Antidepressant-Like_Effect_of_Triticale_Bran_Insoluble_Dietary_Fiber_in_Obese_Mice_Evidence_for_the_Involvement_of_Immune_Regulation_and_Microbiota_Modulation/32875039
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Multicentered_p_s_p_Antibonding_Interaction_Induces_Strong_Anharmonicity_and_High_Thermoelectric_Performance_in_Complex_Metal_Chalcohalide_Tl_sub_5_sub_Te_sub_2_sub_I/32875012
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_An_open-source_framework_for_physiologically-based_pharmacokinetic_modeling_of_kinetics_in_the_female_reproductive_tract_pdf/32875007
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Interface_Coordination_Nucleation_of_Copper_Nanoclusters_on_Covalent_Organic_Frameworks_for_Electrocatalytic_Ammonia_Synthesis/32875003
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15336206
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7700690
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4147002
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2574198
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2575938
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21128060
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21128060
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/dvr46/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.scidb.cn/detail?dataSetId=68ecbd6922d842bc9928d6678e85bca9
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21122108
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.openml.org/data/get_csv/4644292/XYZ.csv
+    source: openml
+    status: verified
+    format: csv

@@ -1,4 +1,4 @@
-- artifact_hash: 0d83491f9e2748bca148d6bf3a200f403a7422dd785b04d32d46de4e268e5fdb
+- artifact_hash: e34a6c3ce1690b7a8f1202dc2daefa7c52966a8507bf4dddabcb4b7f19a1c0da
   artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/specs/001-transferability-of-dft-d3-dispersion-to/spec.md
   cite_id: c-001
   cited_authors: []
@@ -6,10 +6,10 @@
   fetched_title: null
   kind: url
   value: https://webbook.nist.gov/cgi/cbook.cgi`
-  verification_status: mismatch
-  verified_against_url: https://webbook.nist.gov/cgi/cbook.cgi%60
-  verified_at: '2026-06-30T00:41:27.146167Z'
-- artifact_hash: 0d83491f9e2748bca148d6bf3a200f403a7422dd785b04d32d46de4e268e5fdb
+  verification_status: unreachable
+  verified_against_url: https://webbook.nist.gov/cgi/cbook.cgi
+  verified_at: '2026-07-02T10:11:25.208222Z'
+- artifact_hash: e34a6c3ce1690b7a8f1202dc2daefa7c52966a8507bf4dddabcb4b7f19a1c0da
   artifact_path: projects/PROJ-735-transferability-of-dft-d3-dispersion-to-/specs/001-transferability-of-dft-d3-dispersion-to/spec.md
   cite_id: c-002
   cited_authors: []
@@ -19,4 +19,4 @@
   value: 10.5281/zenodo.1234567
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.1234567
-  verified_at: '2026-06-30T00:41:27.146167Z'
+  verified_at: '2026-07-02T10:11:25.208222Z'
