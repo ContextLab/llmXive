@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Generated Test Schema
+description: Schema for LLM-generated test code artifacts
+type: object
+required:
+  - project_id
+  - test_code
+  - generation_metadata
+properties:
+  project_id:
+    type: string
+    description: Unique identifier for the project
+  test_code:
+    type: string
+    description: The generated Java test code content
+  generation_metadata:
+    type: object
+    required:
+      - model_name
+      - prompt_hash
+      - timestamp
+    properties:
+      model_name:
+        type: string
+        description: Name of the model used for generation
+      prompt_hash:
+        type: string
+        description: SHA-256 hash of the input prompt
+      timestamp:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of generation
+      token_count:
+        type: integer
+        minimum: 0
+        description: Number of tokens generated
+      fallback_used:
+        type: boolean
+        description: Whether the default template fallback was used
+additionalProperties: false

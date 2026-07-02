@@ -1,0 +1,17 @@
+? 'T031 [P] Run `quickstart.md` validation (execute all commands, verify exit code
+  0 for each) in `projects/PROJ-586-social-memory-networks-modeling-collecti/code/`
+  <!-- ATOMIZE: requested -->'
+: 1
+? 'T031 [P] Run `quickstart.md` validation (execute all commands, verify exit code
+  0 for each) in `projects/PROJ-586-social-memory-networks-modeling-collecti/code/`
+  <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->'
+: 1
+? 'T031 [P] Run `quickstart.md` validation (execute all commands, verify exit code
+  0 for each) in `projects/PROJ-586-social-memory-networks-modeling-collecti/code/`
+  <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  -->'
+: 1
+? "T035 [P] Run full pipeline on CI runner, record runtime/memory/disk in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/`\
+  \ to verify \u22646h, \u22647GB RAM, \u226414GB disk constraints <!-- ATOMIZE: requested\
+  \ -->"
+: 1

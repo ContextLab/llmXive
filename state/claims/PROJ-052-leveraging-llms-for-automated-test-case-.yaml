@@ -1,0 +1,350 @@
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: Defects4J parquet data version 1.0 hosted at defects4j/defects4j-parquet
+    on HuggingFace
+  claim_id: c_b05a5996
+  context: T006 [P] Implement code/data_loader.py to fetch Defects4J parquet data
+    from verified HuggingFace URL defects4j/defects4j-parquet file v1.0.parquet and
+    cache to data/defects4j_v1.0.parquet.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/data_loader.py to fetch Defects4J parquet data from verified
+    HuggingFace URL defects4j/defects4j-parquet file v1.0.parquet and cache to data/defects4j_v1.0.parquet.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T01:37:21Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: Phi-2 model used for test generation with seed 42 and temperature 0
+  claim_id: c_42c832db
+  context: T016 [US1] Implement generate_test_code in code/llm_generator.py using
+    Phi-2 with deterministic settings (seed=42, temp=0).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement generate_test_code in code/llm_generator.py using Phi-2 with
+    deterministic settings (seed=42, temp=0).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T01:39:29Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: Default test template used for prompts shorter than 20 characters
+  claim_id: c_14b99abb
+  context: 'T018 [US1] Implement error handling for ambiguous inputs: If prompt length
+    < 20 chars, load data/templates/default_test.java (class DefaultBugFixTest) and
+    return it as a syntactic fallback, acknowledging it may result in low coverage.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If prompt length < 20 chars, load data/templates/default_test.java (class
+    DefaultBugFixTest) and return it as a syntactic fallback.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T01:39:29Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: Fetch Defects4J parquet data from HuggingFace URL defects4j/defects4j-parquet
+    file v1.0.parquet
+  claim_id: c_ad0ac107
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T006 [P] Implement code/data_loader.py
+    to fetch Defects4J parquet data from verified HuggingFace URL ''defects4j/defects4j-parquet''
+    file ''v1.0.parquet'' and cache to ''data/defects4j_v1.0.parquet''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/data_loader.py to fetch Defects4J parquet data from verified
+    HuggingFace URL 'defects4j/defects4j-parquet' file 'v1.0.parquet' and cache to
+    'data/defects4j_v1.0.parquet'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T01:45:28Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: Defects4J parquet data fetched from HuggingFace URL defects4j/defects4j-parquet
+    file v1.0.parquet
+  claim_id: c_38446f1c
+  context: T006 [P] Implement code/data_loader.py to fetch Defects4J parquet data
+    from verified HuggingFace URL defects4j/defects4j-parquet file v1.0.parquet and
+    cache to data/defects4j_v1.0.parquet.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/data_loader.py to fetch Defects4J parquet data from verified
+    HuggingFace URL defects4j/defects4j-parquet file v1.0.parquet
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T01:50:40Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: SHA-256 hash computed for data/defects4j_v1.0.parquet
+  claim_id: c_ecd766c3
+  context: T006b [P] Implement checksum recording in code/data_loader.py to compute
+    SHA-256 hash of data/defects4j_v1.0.parquet and store in project state, satisfying
+    Constitution Principle III.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement checksum recording in code/data_loader.py to compute SHA-256
+    hash of data/defects4j_v1.0.parquet
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T01:51:17Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: Q4_K_M quantization format and 7GB RAM constraint verified in code/llm_generator.py
+  claim_id: c_1b1f1d6d
+  context: T007b [P] Implement and verify Q4_K_M quantization format and 7GB RAM constraint
+    logic in code/llm_generator.py loading phase to satisfy FR-002.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Q4_K_M_quantization_format_and_7GB_RAM_constraint_verified_i
+  kind: entity_fact
+  raw_text: Implement and verify Q4_K_M quantization format and 7GB RAM constraint
+    logic in code/llm_generator.py loading phase
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T01:52:14Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: Phi-2 used with seed 42 and temperature 0
+  claim_id: c_30f1ab20
+  context: T016 [US1] Implement generate_test_code in code/llm_generator.py using
+    Phi-2 with deterministic settings (seed=42, temp=0).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Phi-2 with deterministic settings (seed=42, temp=0)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T01:52:36Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: Default template loaded when prompt length is less than 20 characters
+  claim_id: c_7060b15f
+  context: 'T018 [US1] Implement error handling for ambiguous inputs: If prompt length
+    < 20 chars, load data/templates/default_test.java (class DefaultBugFixTest) and
+    return it as a syntactic fallback, acknowledging it may result in low coverage.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Default_template_loaded_when_prompt_length_is_less_than_20_c
+  kind: magnitude
+  raw_text: If prompt length is less than 20 chars, load data/templates/default_test.java
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T01:53:24Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: Compilation/execution retry loop set to 3 attempts
+  claim_id: c_d6a2566c
+  context: T023b [US2] Implement retry loop logic in code/test_executor.py to execute
+    compilation/execution up to 3 attempts before marking as failed, satisfying FR-006.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute compilation/execution up to 3 attempts before marking as failed
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T01:54:26Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 2
+  canonical: 95% confidence intervals computed for mean ratio
+  claim_id: c_3ee1ae36
+  context: T037a [US3] Implement calculate_confidence_intervals in code/analyzer.py
+    to compute 95% confidence intervals for the mean ratio, as required by the Plan's
+    'Statistical Interpretation Note'.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement calculate_confidence_intervals in code/analyzer.py to compute
+    95% confidence intervals for the mean ratio, as required by the Plan's 'Statistical
+    Interpretation Note'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T01:54:26Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: Warning issued if sample size is less than 30
+  claim_id: c_5a934b1e
+  context: 'T038 [US3] Implement logic to handle small sample sizes: If N < 30, prepend
+    the report with a warning block: ''WARNING: Sample size (N={N}) < 30. Results
+    are exploratory.'', satisfying FR-010/US-3.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Warning_issued_if_sample_size_is_less_than_30
+  kind: magnitude
+  raw_text: If N < 30, prepend the report with a warning block
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T01:55:55Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: Tasks run on CPU-only free-tier CI with 6 hour max runtime
+  claim_id: c_a374d89b
+  context: 'Critical Constraint: All tasks must run on CPU-only free-tier CI with
+    limited cores, constrained RAM, and a 6h max runtime. No GPU, no 8-bit quantization
+    requiring CUDA, no large model training.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All tasks must run on CPU-only free-tier CI with limited cores, constrained
+    RAM, and a 6h max runtime
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T01:56:33Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: fetch defects4j parquet from defects4j/defects4j-parquet v1.0.parquet
+  claim_id: c_60af7105
+  context: T006 [P] Implement `code/data_loader.py` to fetch Defects4J parquet data
+    from verified HuggingFace URL `defects4j/defects4j-parquet` file `v1.0.parquet`
+    and cache to `data/defects4j_v1.0.parquet`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/data_loader.py` to fetch Defects4J parquet data from verified
+    HuggingFace URL `defects4j/defects4j-parquet` file `v1.0.parquet`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T02:01:44Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: compute sha256 hash of defects4j parquet file
+  claim_id: c_f2308a95
+  context: T006b [P] Implement checksum recording in `code/data_loader.py` to compute
+    SHA-256 hash of `data/defects4j_v1.0.parquet` and store in project state, satisfying
+    Constitution Principle III.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute SHA-256 hash of `data/defects4j_v1.0.parquet`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T02:02:37Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: Fetch Defects4J parquet data from HuggingFace URL defects4j/defects4j-parquet
+    v1.0.parquet
+  claim_id: c_52d25f36
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T006 [P] Implement code/data_loader.py
+    to fetch Defects4J parquet data from verified HuggingFace URL defects4j/defects4j-parquet
+    file v1.0.parquet and cache to data/defects4j_v1.0.parquet.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/data_loader.py to fetch Defects4J parquet data from verified
+    HuggingFace URL defects4j/defects4j-parquet file v1.0.parquet and cache to data/defects4j_v1.0.parquet.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T02:05:11Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: Default test template fallback triggers when prompt length is less than
+    20 characters
+  claim_id: c_6638c80e
+  context: 'Phase 3: User Story 1 - T018 [US1] Implement error handling for ambiguous
+    inputs: If prompt length < 20 chars, load data/templates/default_test.java (class
+    DefaultBugFixTest) and return it as a syntactic fallback, acknowledging it may
+    result in low coverage.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Default_test_template_fallback_triggers_when_prompt_length_i
+  kind: magnitude
+  raw_text: If prompt length < 20 chars, load data/templates/default_test.java (class
+    DefaultBugFixTest) and return it as a syntactic fallback.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T02:06:07Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: Confidence intervals computed at 95% level for mean ratio
+  claim_id: c_69636d4d
+  context: 'Phase 5: User Story 3 - T037a [US3] Implement calculate_confidence_intervals
+    in code/analyzer.py to compute 95% confidence intervals for the mean ratio, as
+    required by the Plan''s ''Statistical Interpretation Note''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement calculate_confidence_intervals in code/analyzer.py to compute
+    95% confidence intervals for the mean ratio.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T02:06:07Z'
+- artifact_path: projects/PROJ-052-leveraging-llms-for-automated-test-case-/specs/001-leveraging-llms-for-automated-test-case/tasks.md
+  attempts: 1
+  canonical: Project tasks have a maximum runtime of 6 hours on CPU-only free-tier
+    CI
+  claim_id: c_70303e16
+  context: 'Notes - Critical Constraint: All tasks must run on CPU-only free-tier
+    CI with limited cores, constrained RAM, and a 6h max runtime. No GPU, no 8-bit
+    quantization requiring CUDA, no large model training.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All tasks must run on CPU-only free-tier CI with limited cores, constrained
+    RAM, and a 6h max runtime.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T02:06:07Z'

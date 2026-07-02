@@ -16,3 +16,205 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-06-28T20:54:40Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/research.md
+  attempts: 1
+  canonical: Infrastructure scales sublinearly with exponent 0.85 in cities and companies
+  claim_id: c_692b36d3
+  context: Geoffrey West's research on cities and companies reveals that most quantitative
+    measures follow power-law relationships. Infrastructure scales sublinearly (roughly
+    N^0.85)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Infrastructure scales sublinearly (roughly N^0.85)\u2014you don't need\
+    \ twice the infrastructure when population doubles; you need about 85% more."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T01:32:18Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/research.md
+  attempts: 1
+  canonical: Eric Kandel demonstrated short-term memory requires protein modification
+    and long-term memory requires gene expression in Aplysia
+  claim_id: c_7e5c5575
+  context: Eric Kandel's work on Aplysia demonstrated that short-term memory requires
+    only modification of existing proteins, while long-term memory demands gene expression
+    and new protein synthesis (CREB-mediated transcription).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Eric_Kandel_demonstrated_short-term_memory_requires_protein
+  kind: entity_fact
+  raw_text: Eric Kandel's work on Aplysia demonstrated that short-term memory requires
+    only modification of existing proteins, while long-term memory demands gene expression
+    and new protein synthesis (CREB-mediated transcription).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T01:36:31Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/research.md
+  attempts: 1
+  canonical: Specialization index ranges from 0 to log2 of N_agents
+  claim_id: c_96b58111
+  context: "Just as cities develop specialized districts, do agent populations develop\
+    \ specialized memory domains? We compute a specialization index ranging from 0\
+    \ (no specialization) to log\u2082(N_agents) (perfect specialization) to quantify\
+    \ this phenomenon."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "We compute a specialization index ranging from 0 (no specialization)\
+    \ to log\u2082(N_agents) (perfect specialization) to quantify this phenomenon."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T01:39:16Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/research.md
+  attempts: 1
+  canonical: Geoffrey West work suggests infrastructure needs 85% more resources when
+    population doubles
+  claim_id: c_1ef4fe63
+  context: 'Geoffrey West''s work on scaling laws in cities and companies suggests
+    that networked systems often exhibit sublinear scaling: as population doubles,
+    infrastructure needs only ~85% more resources.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Geoffrey West's work on scaling laws in cities and companies suggests
+    that as population doubles, infrastructure needs only ~85% more resources.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T01:51:12Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/research.md
+  attempts: 1
+  canonical: Eric Kandel research on Aplysia shows short-term memory involves protein
+    modification
+  claim_id: c_aed6ef01
+  context: Eric Kandel's research on Aplysia demonstrates that short-term memory involves
+    modification of existing proteins, while long-term memory requires gene expression
+    and new protein synthesis.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Eric_Kandel_research_on_Aplysia_shows_short-term_memory_invo
+  kind: entity_fact
+  raw_text: Eric Kandel's research on Aplysia demonstrates that short-term memory
+    involves modification of existing proteins.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T01:52:16Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/research.md
+  attempts: 1
+  canonical: Eric Kandel research on Aplysia shows long-term memory requires gene
+    expression and new protein synthesis
+  claim_id: c_da8bb967
+  context: Eric Kandel's research on Aplysia demonstrates that short-term memory involves
+    modification of existing proteins, while long-term memory requires gene expression
+    and new protein synthesis.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Eric_Kandel_research_on_Aplysia_shows_long-term_memory_requi
+  kind: entity_fact
+  raw_text: Eric Kandel's research on Aplysia demonstrates that long-term memory requires
+    gene expression and new protein synthesis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T01:52:46Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/research.md
+  attempts: 2
+  canonical: Research project plans 1000 games for power analysis to ensure 0.70 power
+  claim_id: c_61b836aa
+  context: "Power Analysis: Ensure N=1000 games provides \u22650.70 power to detect\
+    \ effect sizes"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The research project plans to use 1000 games for power analysis to ensure
+    0.70 power to detect effect sizes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T01:53:52Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/research.md
+  attempts: 3
+  canonical: Experiment tests context window limits of 128, 256, and 512 tokens
+  claim_id: c_e992b9b5
+  context: We test robustness by limiting agent context windows to 128, 256, and 512
+    tokens, measuring how metrics degrade under information constraints.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The experiment will test context window limits of 128, 256, and 512 tokens.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T01:54:51Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/research.md
+  attempts: 3
+  canonical: Experiment investigates group sizes of 3, 5, and 7 agents
+  claim_id: c_f59cefb0
+  context: We investigate how collective remembering scales with group size (3, 5,
+    7 agents), testing for power-law relationships.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The experiment will investigate group sizes of 3, 5, and 7 agents.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T01:56:31Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/research.md
+  attempts: 1
+  canonical: Experiments run on 2 CPU and 7GB RAM
+  claim_id: c_61710131
+  context: All experiments run on CPU-only infrastructure (2 CPU, ~7GB RAM), limiting
+    model size to opt-125m in float32 precision.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All experiments run on CPU-only infrastructure with 2 CPU and approximately
+    7GB RAM.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T01:57:04Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/research.md
+  attempts: 1
+  canonical: Model size limited to opt-125m in float32
+  claim_id: c_1f654fc7
+  context: All experiments run on CPU-only infrastructure (2 CPU, ~7GB RAM), limiting
+    model size to opt-125m in float32 precision.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model size is limited to opt-125m in float32 precision.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T01:57:41Z'

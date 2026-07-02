@@ -1,0 +1,24 @@
+# Core dependencies for llmXive project
+# Pinned versions for reproducibility
+
+# LLM Inference (CPU-optimized)
+llama-cpp-python==0.2.90
+
+# Data Processing
+pandas==2.2.2
+pyarrow==16.1.0
+
+# Statistical Analysis
+scipy==1.13.1
+
+# Template and Config
+jinja2==3.1.4
+pyyaml==6.0.1
+jsonschema==4.22.0
+
+# Testing
+pytest==8.2.2
+
+# Linting and Formatting
+ruff==0.4.8
+black==24.4.2

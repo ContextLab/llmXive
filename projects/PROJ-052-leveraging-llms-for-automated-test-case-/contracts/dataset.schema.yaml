@@ -1,0 +1,32 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Dataset Schema
+description: Schema for the Defects4J dataset artifact
+type: object
+required:
+  - project_id
+  - version
+  - bug_description
+  - source_file
+  - changed_lines
+properties:
+  project_id:
+    type: string
+    description: Unique identifier for the project
+  version:
+    type: string
+    description: Version of the project
+  bug_description:
+    type: string
+    description: Natural language description of the bug
+  source_file:
+    type: string
+    description: Path to the source file containing the bug
+  changed_lines:
+    type: array
+    items:
+      type: integer
+    description: List of line numbers that were changed in the fix
+  checksum:
+    type: string
+    description: SHA-256 checksum of the raw data source
+additionalProperties: false

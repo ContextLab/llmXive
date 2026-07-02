@@ -20,33 +20,33 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan: Create directories `code/`, `specs/`, `data/`, `contracts/`, `tests/unit/`, `tests/integration/` and create empty `__init__.py` files in `code/`, `tests/`, `tests/unit/`, and `tests/integration/`.
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (pinned versions: `llama-cpp-python`, `pandas`, `scipy`, `jinja2`, `pyyaml`, `jsonschema`, `pytest`)
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
-- [ ] T004 Create `contracts/` directory and initialize valid YAML skeleton schema files (`dataset.schema.yaml`, `coverage.schema.yaml`, `generated_test.schema.yaml`, `analysis_result.schema.yaml`) with root keys and types defined in `data-model.md`.
+- [X] T001 Create project structure per implementation plan: Create directories `code/`, `specs/`, `data/`, `contracts/`, `tests/unit/`, `tests/integration/` and create empty `__init__.py` files in `code/`, `tests/`, `tests/unit/`, and `tests/integration/`.
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (pinned versions: `llama-cpp-python`, `pandas`, `scipy`, `jinja2`, `pyyaml`, `jsonschema`, `pytest`)
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [X] T004 Create `contracts/` directory and initialize valid YAML skeleton schema files (`dataset.schema.yaml`, `coverage.schema.yaml`, `generated_test.schema.yaml`, `analysis_result.schema.yaml`) with root keys and types defined in `data-model.md`.
 
 ---
 
@@ -56,13 +56,14 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 Implement `code/config.py` to load environment variables (sample limits, timeouts, model paths) and enforce a runtime limit.
-- [ ] T006 Implement `code/data_loader.py` skeleton with functions to fetch Defects4J parquet data from verified HuggingFace URL `defects4j/defects4j-parquet` file `v1.0.parquet` and cache to `data/`.
-- [ ] T025 [P] Implement `extract_changed_lines` in `code/data_loader.py` to parse Defects4J commit diffs for precise coverage mapping (Prerequisite for T024).
-- [ ] T007 Implement `code/llm_generator.py` skeleton with a compact, CPU-optimized small language model loading logic using `llama-cpp-python`.
-- [ ] T007b [P] Implement and verify Q4_K_M quantization format and 7GB RAM constraint logic in `code/llm_generator.py` loading phase to satisfy FR-002.
-- [ ] T008 Implement `code/test_executor.py` skeleton with Java LTS subprocess wrappers, JaCoCo instrumentation setup, and timeout logic.
-- [ ] T009 Implement `code/analyzer.py` skeleton with imports for `scipy.stats` (Shapiro-Wilk, Wilcoxon, t-test) and power analysis utilities
+- [X] T005 Implement `code/config.py` to load environment variables (sample limits, timeouts, model paths) and enforce a runtime limit.
+- [X] T006 [P] Implement `code/data_loader.py` to fetch Defects4J parquet data from verified HuggingFace URL `defects4j/defects4j-parquet` file `v1.0.parquet` and cache to `data/defects4j_v1.0.parquet`.
+- [ ] T006b [P] Implement checksum recording in `code/data_loader.py` to compute SHA-256 hash of `data/defects4j_v1.0.parquet` and store in project state, satisfying Constitution Principle III.
+- [~] T025 [P] Implement `extract_changed_lines` in `code/data_loader.py` to parse Defects4J commit diffs from the cached parquet file and output `data/changed_lines.json` (a set of line integers per project), which is a prerequisite for T024 and T026.
+- [~] T007 Implement `code/llm_generator.py` skeleton with a compact, CPU-optimized small language model loading logic using `llama-cpp-python`.
+- [~] T007b [P] Implement and verify Q4_K_M quantization format and 7GB RAM constraint logic in `code/llm_generator.py` loading phase to satisfy FR-002.
+- [~] T008 Implement `code/test_executor.py` skeleton with Java LTS subprocess wrappers, JaCoCo instrumentation setup, and timeout logic.
+- [~] T009 Implement `code/analyzer.py` skeleton with imports for `scipy.stats` (Shapiro-Wilk, Wilcoxon, t-test) and power analysis utilities
 - [ ] T010 Implement `code/validate_schemas.py` to validate all output artifacts against `contracts/` schemas before analysis proceeds
 - [ ] T011a [P] Implement `main.py` orchestration logic for hard stop when cumulative execution time exceeds a predefined threshold.
 - [ ] T011b [P] Implement `main.py` orchestration logic for hard stop when sample count reaches the configured limit (FR-007).
@@ -77,6 +78,15 @@
 
 **Independent Test**: Run the generation script on a fixed subset of requirements; verify output directory contains valid Java files that compile without syntax errors.
 
+### Implementation for User Story 1
+
+- [ ] T015 [US1] Implement `extract_bug_fix_description` in `code/data_loader.py` to parse Defects4J metadata, format as prompt per FR-001, and return the prompt string.
+- [ ] T016 [US1] Implement `generate_test_code` in `code/llm_generator.py` using Phi-2 with deterministic settings (seed=42, temp=0).
+- [ ] T017 [US1] Implement `validate_syntax` in `code/llm_generator.py` using `javac` to check generated `.java` files for syntax errors.
+- [ ] T018 [US1] Implement error handling for ambiguous inputs: If prompt length < 20 chars, load `data/templates/default_test.java` (class `DefaultBugFixTest`) and return it as a syntactic fallback, acknowledging it may result in low coverage.
+- [ ] T018b [US1] Implement logging and metric tracking in `code/llm_generator.py` to record WARNING for default template usage and count it in SC-005 metrics.
+- [ ] T019 [US1] Implement memory monitoring in `code/llm_generator.py` to ensure no OOM on a limited-core runner with constrained memory.
+
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
@@ -85,15 +95,7 @@
 - [ ] T013 [P] [US1] Unit test in `tests/unit/test_llm_load.py::test_phi_loads_within_7gb_ram` verifying that Phi-2 loading does not exceed 7GB RAM on CPU.
 - [ ] T014 [P] [US1] Integration test in `tests/integration/test_gen_single.py::test_generate_single_valid_java` verifying that a known bug description produces a syntactically valid Java file.
 
-**STOP: Do not proceed to implementation tasks until T012, T013, and T014 are defined and failing.**
-
-### Implementation for User Story 1
-
-- [ ] T015 [US1] Implement `extract_bug_fix_description` in `code/data_loader.py` to parse Defects4J metadata, format as prompt per FR-001, and return the prompt string.
-- [ ] T016 [US1] Implement `generate_test_code` in `code/llm_generator.py` using Phi-2 with deterministic settings (seed=42, temp=0).
-- [ ] T017 [US1] Implement `validate_syntax` in `code/llm_generator.py` using `javac` to check generated `.java` files for syntax errors.
-- [ ] T018 [US1] Implement error handling for ambiguous descriptions: If prompt length < 20 chars, log WARNING and return a default JUnit template class named `DefaultTest`, satisfying FR-001 and Edge Cases.
-- [ ] T019 [US1] Implement memory monitoring in `code/llm_generator.py` to ensure no OOM on a limited-core runner with constrained memory.
+**STOP**: Verify T012, T013, T014 are defined and failing before proceeding to next phases.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -105,21 +107,25 @@
 
 **Independent Test**: Run execution pipeline on pre-generated tests; verify `coverage_metrics.csv` is produced with columns `project_id`, `test_type`, `coverage_percentage`.
 
+### Implementation for User Story 2
+
+- [ ] T023 [US2] Implement `compile_test` in `code/test_executor.py` using `javac` with a configurable timeout threshold.
+- [ ] T023b [US2] Implement retry loop logic in `code/test_executor.py` to execute compilation/execution up to 3 attempts before marking as failed, satisfying FR-006.
+- [ ] T024 [US2] Implement `run_with_jacoco` in `code/test_executor.py` to instrument target classes and execute tests, capturing line-level coverage on changed lines only (consumes `data/changed_lines.json` from T025).
+- [ ] T026 [US2] Implement `calculate_coverage_ratio` in `code/test_executor.py` to calculate coverage percentage on the specific changed lines only (as defined by the Plan's Strict Pairing Unit), consuming parsed changed lines set from T025 and line-level coverage from T024.
+- [ ] T027 [US2] Implement `generate_coverage_csv` in `code/test_executor.py` to write `data/coverage_metrics.csv` with `project_id`, `test_type`, `coverage_percentage`.
+- [ ] T028a [US2] Implement logic to extract specific compilation error strings from `test_executor` logs or JaCoCo output for failed tests.
+- [ ] T028b [US2] Implement logic to update `data/coverage_metrics.csv` row for failed tests, setting `coverage_percentage` to null, `status` to 'failed_to_compile' (per FR-003), and `error_msg` to the extracted string from T028a.
+- [ ] T029a [US2] Implement `parse_assertions` in `code/test_executor.py` using regex to count assertions in generated Java files.
+- [ ] T029b [US2] Implement `calculate_assertion_density` in `code/test_executor.py` to aggregate assertion counts per line of code for generated tests.
+
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [ ] T020 [P] [US2] Unit test in `tests/unit/test_jacoco_parser.py::test_parse_jacoco_xml_returns_coverage` verifying XML parsing returns correct coverage percentages.
 - [ ] T021 [P] [US2] Unit test in `tests/unit/test_timeout_retry.py::test_retry_logic_retries__times` verifying the retry loop executes exactly 3 attempts before failure.
 - [ ] T022 [P] [US2] Integration test in `tests/integration/test_exec_coverage.py::test_run_with_jacoco_returns_coverage` verifying a generated test runs and returns coverage data.
 
-### Implementation for User Story 2
-
-- [ ] T023 [US2] Implement `compile_test` in `code/test_executor.py` using `javac` with a configurable timeout threshold.
-- [ ] T023b [US2] Implement retry loop logic in `code/test_executor.py` to execute compilation/execution up to 3 attempts before marking as failed, satisfying FR-006.
-- [ ] T024 [US2] Implement `run_with_jacoco` in `code/test_executor.py` to instrument target classes and execute tests, capturing line-level coverage on changed lines only.
-- [ ] T026 [US2] Implement `calculate_coverage_ratio` in `code/test_executor.py` to calculate coverage percentage on the specific changed lines only (overriding generic FR-004 text per Plan's scientific validity requirement).
-- [ ] T027 [US2] Implement `generate_coverage_csv` in `code/test_executor.py` to write `data/coverage_metrics.csv` with `project_id`, `test_type`, `coverage_percentage`.
-- [ ] T028 [US2] Implement logic to mark tests as `[deferred]`: Update `data/coverage_metrics.csv` row for failed tests, setting `coverage_percentage` to null, `status` to 'deferred', and capturing/logging the specific compilation error string, satisfying FR-003/US-2.
-- [ ] T029 [US2] Implement `calculate_assertion_density` in `code/test_executor.py` to count assertions per line of code for generated tests.
+**STOP**: Verify T020, T021, T022 are defined and failing before proceeding to next phases.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -131,21 +137,24 @@
 
 **Independent Test**: Provide `coverage_metrics.csv`; verify output includes p-value, test type, mean difference, and conclusion statement.
 
+### Implementation for User Story 3
+
+- [ ] T033 [US3] Implement `check_normality` in `code/analyzer.py` using Shapiro-Wilk test on coverage differences.
+- [ ] T034 [US3] Implement `run_statistical_test` in `code/analyzer.py`: if normality holds (p ≥ 0.05 per Spec US-3/FR-008), run paired t-test; else run Wilcoxon signed-rank.
+- [ ] T035 [US3] Implement `calculate_effect_size` in `code/analyzer.py` (Cohen's d or Rank-biserial correlation).
+- [ ] T036 [US3] Implement `run_power_analysis` in `code/analyzer.py` to calculate required N and report achieved power *only* as a descriptive limitation metric, not for validation.
+- [ ] T037a [US3] Implement `calculate_confidence_intervals` in `code/analyzer.py` to compute 95% confidence intervals for the mean ratio, as required by the Plan's 'Statistical Interpretation Note'.
+- [ ] T037 [US3] Implement `generate_final_report` in `code/report_generator.py` to output Markdown/JSON with p-value, ratio, test type, hypothesis benchmark (40-60%) comparison (as descriptive), confidence intervals, and conclusion.
+- [ ] T038 [US3] Implement logic to handle small sample sizes: If N < 30, prepend the report with a warning block: "WARNING: Sample size (N={N}) < 30. Results are exploratory.", satisfying FR-010/US-3.
+- [ ] T039 [US3] Integrate `validate_schemas.py` to ensure `data/analysis_results.json` conforms to `contracts/analysis_result.schema.yaml` after T037 generates the artifact.
+
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [ ] T030 [P] [US3] Unit test in `tests/unit/test_normality.py::test_shapiro_wilk_returns_p_value` verifying Shapiro-Wilk returns a valid p-value.
 - [ ] T031 [P] [US3] Unit test in `tests/unit/test_test_selection.py::test_select_wilcoxon_when_p_le_010` verifying that if p <= 0.10, Wilcoxon is selected.
 - [ ] T032 [P] [US3] Unit test in `tests/unit/test_power_analysis.py::test_power_analysis_returns_power_value` verifying power analysis calculation returns a valid power value.
 
-### Implementation for User Story 3
-
-- [ ] T033 [US3] Implement `check_normality` in `code/analyzer.py` using Shapiro-Wilk test on coverage differences.
-- [ ] T034 [US3] Implement `run_statistical_test` in `code/analyzer.py`: if normality holds (p > 0.10 per Plan's Methodological Rigor to avoid Type I errors), run paired t-test; else run Wilcoxon signed-rank.
-- [ ] T035 [US3] Implement `calculate_effect_size` in `code/analyzer.py` (Cohen's d or Rank-biserial correlation).
-- [ ] T036 [US3] Implement `run_power_analysis` in `code/analyzer.py` to calculate required N and report achieved power.
-- [ ] T037 [US3] Implement `generate_final_report` in `code/report_generator.py` to output Markdown/JSON with p-value, ratio, test type, hypothesis benchmark (40-60%) comparison, and conclusion.
-- [ ] T038 [US3] Implement logic to handle small sample sizes: If N < 30, prepend the report with a warning block: "WARNING: Sample size (N={N}) < 30. Results are exploratory.", satisfying FR-010/US-3.
-- [ ] T039 [US3] Integrate `validate_schemas.py` to ensure `data/analysis_results.json` conforms to `contracts/analysis_result.schema.yaml` after T037 generates the artifact.
+**STOP**: Verify T030, T031, T032 are defined and failing before proceeding to next phases.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -175,8 +184,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -187,7 +196,7 @@
 
 ### Within Each User Story
 
-- Tests (if included) MUST be written and FAIL before implementation
+- Implementation tasks MUST be written and completed BEFORE Test tasks (TDD process: write test code, run test after implementation)
 - Models/Utilities before Services
 - Services before Endpoints/Report Generation
 - Core implementation before integration
@@ -241,9 +250,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Generation)
-   - Developer B: User Story 2 (Execution/Coverage)
-   - Developer C: User Story 3 (Analysis/Reporting)
+ - Developer A: User Story 1 (Generation)
+ - Developer B: User Story 2 (Execution/Coverage)
+ - Developer C: User Story 3 (Analysis/Reporting)
 3. Stories complete and integrate independently
 
 ---
@@ -257,4 +266,4 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All tasks must run on CPU-only free-tier CI with limited cores, 7GB RAM, and a 6h max runtime. No GPU, no 8-bit quantization requiring CUDA, no large model training.
+- **Critical Constraint**: All tasks must run on CPU-only free-tier CI with limited cores, constrained RAM, and a 6h max runtime. No GPU, no 8-bit quantization requiring CUDA, no large model training.

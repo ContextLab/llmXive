@@ -66,7 +66,7 @@ As a researcher, I want the system to perform a statistical test on the coverage
 ### Functional Requirements
 
 - **FR-001**: System MUST extract bug fix descriptions from the Defects4J issue tracker data and format them as prompts for the LLM, acknowledging that these represent fix specifications rather than feature requirements. (See US-1)
-- **FR-002**: System MUST load the quantized 2.7B parameter Phi-2 model using `llama.cpp` and ensure it operates within 7GB RAM constraints without requiring GPU acceleration. (See US-1)
+- **FR-002**: System MUST load the quantized Phi-2 model of moderate parameter scale. using `llama.cpp` and ensure it operates within 7GB RAM constraints without requiring GPU acceleration. (See US-1)
 - **FR-003**: System MUST compile and execute generated JUnit test code against the target source code within a bounded timeout of 30 seconds per test to prevent infinite loops. (See US-2)
 - **FR-004**: System MUST calculate code coverage for generated tests and baseline manual tests using JaCoCo and output a structured CSV file named `coverage_metrics.csv`. (See US-2)
 - **FR-005**: System MUST perform a statistical test on the coverage metrics (paired t-test if normality holds, otherwise Wilcoxon signed-rank) and generate a final report containing the p-value and the ratio of generated-to-manual coverage. (See US-3)
@@ -99,7 +99,7 @@ As a researcher, I want the system to perform a statistical test on the coverage
 ## Assumptions
 
 - The Defects4J dataset contains bug fix descriptions that are sufficiently detailed to serve as inputs for test generation, though they represent fix specifications rather than feature requirements.
-- The `llama.cpp` implementation of the Phi-2 model can be quantized to fit within 7GB RAM while maintaining acceptable inference speed on a 2-core CPU. (Constitution Mandate: Phi-2 is the required model).
+- The `llama.cpp` implementation of the Phi-2 model can be quantized to fit within 7GB RAM while maintaining acceptable inference speed on a multi-core CPU. (Constitution Mandate: Phi-2 is the required model).
 - The JaCoCo coverage agent can successfully instrument the generated test classes and the target source code within the Maven/Gradle build environment of the GitHub Actions runner.
 - The sample size is the intended experimental design limit, but the system supports configuration; a power analysis will be performed post-hoc to validate sufficiency.
 - The GitHub Actions free-tier runner provides sufficient disk space to store the Defects4J dataset, the model weights, and the build artifacts for the configured sample size.

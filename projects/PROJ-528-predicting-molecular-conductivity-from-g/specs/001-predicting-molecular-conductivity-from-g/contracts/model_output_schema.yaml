@@ -1,0 +1,85 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Training Results"
+description: "Schema for the JSON output of the model training pipeline."
+type: object
+required:
+  - runs
+properties:
+  runs:
+    type: array
+    description: "List of model training runs."
+    items:
+      type: object
+      required:
+        - run_id
+        - model_type
+        - r2_test
+        - mae_test
+        - r2_cv_mean
+        - r2_cv_std
+        - outlier_threshold
+      properties:
+        run_id:
+          type: string
+          description: "Unique identifier for the run."
+        model_type:
+          type: string
+          enum:
+            - RandomForest
+            - GradientBoosting
+          description: "Type of model trained."
+        r2_test:
+          type: number
+          description: "R-squared score on the test set."
+        mae_test:
+          type: number
+          description: "Mean Absolute Error on the test set."
+        r2_cv_mean:
+          type: number
+          description: "Mean R-squared from 5-fold cross-validation."
+        r2_cv_std:
+          type: number
+          description: "Standard deviation of R-squared from 5-fold cross-validation."
+        outlier_threshold:
+          type: number
+          description: "Standard deviation multiplier used for outlier exclusion (e.g., 3.0)."
+        feature_importance:
+          type: array
+          description: "List of feature importance scores."
+          items:
+            type: object
+            required:
+              - feature_name
+              - importance_score
+            properties:
+              feature_name:
+                type: string
+              importance_score:
+                type: number
+        correlations:
+          type: array
+          description: "Feature-conductivity correlations with adjusted p-values."
+          items:
+            type: object
+            required:
+              - feature_name
+              - correlation_coefficient
+              - p_value_raw
+              - p_value_adjusted
+            properties:
+              feature_name:
+                type: string
+              correlation_coefficient:
+                type: number
+              p_value_raw:
+                type: number
+              p_value_adjusted:
+                type: number
+                description: "Benjamini-Hochberg adjusted p-value."
+        target_type:
+          type: string
+          enum:
+            - conductivity
+            - homo_lumo_gap
+          description: "Type of target variable used for this run."
+additionalProperties: false
