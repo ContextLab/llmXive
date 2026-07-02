@@ -55,7 +55,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 [P] Implement dataset loaders with synthetic fallback only (no Hanabi/CoQA URLs as verified sources unavailable) in `code/data/loaders.py` and `code/data/synthetic.py` (FR-011)
+- [X] T004 [P] Implement dataset loaders with synthetic fallback only (no {{claim:c_68d8b446}}) in `code/data/loaders.py` and `code/data/synthetic.py` (FR-011)
 - [X] T005 [P] Implement base Agent abstraction using CPU-only `transformers` (opt-125m, float32 precision) in `code/agent/base_agent.py` (FR-002)
 - [X] T006 [P] Implement shared external memory buffer with `<MEMORY_ACTION>` token handling in `code/memory/buffer.py` (FR-003) <!-- FAILED: unspecified -->
 - [X] T007 [P] Configure error logging with timestamps to `experiment.log` in `code/utils/logging.py` (FR-010)

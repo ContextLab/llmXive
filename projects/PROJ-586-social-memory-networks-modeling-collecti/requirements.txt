@@ -1,8 +1,9 @@
 # Project dependencies
-# The core experiment runs without heavy ML libraries.
-# ``torch`` is intentionally omitted; a lightweight stub is provided in
-# ``code/torch/__init__.py``.
-pandas
-numpy
-tqdm
-# (Other dependencies from the original project remain unchanged.)
+transformers>=4.30.0
+pandas>=2.0.0
+numpy>=1.24.0
+scipy>=1.10.0
+statsmodels>=0.14.0
+matplotlib>=3.7.0
+# Added for CI performance measurement (standard library used, no extra deps) 
+# No new third‑party packages required for the metrics script.

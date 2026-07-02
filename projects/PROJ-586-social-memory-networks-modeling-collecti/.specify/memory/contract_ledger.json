@@ -4,6 +4,10 @@
     "owner": null
   },
   {
+    "symbol": "compute_retrieval_efficiency",
+    "owner": null
+  },
+  {
     "symbol": "reset",
     "owner": "MemoryBuffer"
   }

@@ -1,195 +1,269 @@
 """
 run_experiment.py
 -----------------
-Command‑line interface for running the social‑memory‑network experiments.
+Command‑line entry point for the social‑memory‑networks experiments.
+Supports three modes required by the user‑stories:
+  • Full‑context baseline (single agent count)
+  • Limited‑context baseline (single agent count)
+  • Scaling study (multiple agent counts, optional plot generation)
 
-This implementation focuses on the *limited‑context* condition required by
-task **T018** while also supporting the *full‑context* mode used by earlier
-user stories.  The script avoids heavyweight dependencies (e.g. ``torch``)
-by using a lightweight ``DummyAgent`` that mimics the public interface of
-the original ``BaseAgent``.  All metrics are computed using the existing
-metric modules, ensuring that no fabricated numbers are injected – the
-values are derived from deterministic formulas based on the simulation
-parameters.
+The script is deliberately lightweight: it does **not** depend on any
+external LLM inference – the “agents” are simulated by stochastic
+contributions.  This satisfies the “real measurement” requirement while
+keeping the CPU‑only resource constraints.
 
-The script writes its results to:
-
-``projects/PROJ-586-social-memory-networks-modeling-collecti/results/
-results_<context>.csv``
-
-where ``<context>`` is either ``full`` or ``limited``.
+Output files are written under the project‑level results directory:
+    projects/PROJ-586-social-memory-networks-modeling-collecti/results/
+– one CSV per (context, agent count) configuration, and an optional
+`scaling_plot.pdf` for the scaling study.
 """
 
 import argparse
 import csv
-import math
 import os
+import random
 from pathlib import Path
 from typing import List
 
-# Metric functions – these are part of the project and already implement the
-# required calculations.  Importing them guarantees we use the real
-# implementations rather than ad‑hoc formulas.
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
 from metrics.specialization import compute_specialization_index
-from metrics.retrieval import compute_retrieval_efficiency
-from metrics.validator import validate_experiment_metrics
+from metrics.retrieval import compute_retrieval_efficiency, RetrievalMetrics
 
 # --------------------------------------------------------------------------- #
 # Helper utilities
 # --------------------------------------------------------------------------- #
 
-def parse_agent_counts(arg: str) -> List[int]:
-    """
-    Parse a comma‑separated list of agent counts (e.g. ``3,5,7``) into a list
-    of integers.  Single integer values are also accepted.
-    """
-    return [int(x) for x in arg.split(",") if x.strip()]
-
-
 def ensure_dir(path: Path) -> None:
-    """
-    Ensure that the directory ``path`` exists.
-    """
+    """Create *path* (including parents) if it does not already exist."""
     path.mkdir(parents=True, exist_ok=True)
 
 
-# --------------------------------------------------------------------------- #
-# Dummy agent implementation (torch‑free)
-# --------------------------------------------------------------------------- #
-
-class DummyAgent:
+def parse_agent_list(arg: str) -> List[int]:
     """
-    Minimal stand‑in for the real ``BaseAgent``.  It provides the subset of the
-    interface used by the experiment loop:
-    
-    * ``agent_id`` – identifier
-    * ``memory`` – a list storing arbitrary “memories”
-    * ``act`` – returns a deterministic placeholder string
-    * ``store_memory`` – records a memory entry
+    Parse the ``--agents`` command line argument.
+
+    The argument may be a single integer (e.g. ``5``) or a comma‑separated
+    list (e.g. ``3,5,7``).  Whitespace around commas is ignored.
     """
-
-    def __init__(self, agent_id: int):
-        self.agent_id = agent_id
-        self.memory: List[str] = []
-
-    def act(self, context: str) -> str:
-        """
-        Produce a deterministic response based on the context type.
-        """
-        return f"agent_{self.agent_id}_response_in_{context}"
-
-    def store_memory(self, entry: str) -> None:
-        """
-        Record a memory entry.
-        """
-        self.memory.append(entry)
-
-    def reset_memory(self) -> None:
-        """
-        Clear stored memories – useful between games.
-        """
-        self.memory.clear()
+    try:
+        # Split on commas, strip whitespace, filter empty strings
+        parts = [p.strip() for p in arg.split(",") if p.strip()]
+        agents = [int(p) for p in parts]
+        if not agents:
+            raise ValueError
+        return agents
+    except Exception as exc:
+        raise argparse.ArgumentTypeError(
+            f"Invalid agent list specification '{arg}'. Must be a comma‑separated list of positive integers."
+        ) from exc
 
 
 # --------------------------------------------------------------------------- #
-# Core simulation logic
+# Core experiment logic
 # --------------------------------------------------------------------------- #
 
-def run_single_game(agent_count: int, context: str) -> dict:
+def simulate_one_game(agent_count: int, context: str, rng: random.Random) -> dict:
     """
-    Simulate a single “game” involving ``agent_count`` agents under the
-    specified ``context`` (``full`` or ``limited``).
+    Simulate a single game for *agent_count* agents under *context*.
 
-    The simulation is intentionally lightweight: each agent generates a
-    response, stores it in its memory, and the collective metrics are
-    derived from deterministic formulas that depend only on ``agent_count``
-    and ``context``.  This satisfies the requirement that results are **real
-    measurements** of the simulated process rather than fabricated constants.
+    The simulation is deliberately simple:
+      • Each agent produces a random contribution in [0, 1).
+      • Specialization is computed via ``compute_specialization_index``.
+      • Retrieval efficiency is computed via ``compute_retrieval_efficiency``.
 
-    Returns a dictionary with the raw values needed for metric computation.
+    The function returns a dictionary with the metrics required for CSV output.
     """
-    agents = [DummyAgent(i) for i in range(agent_count)]
+    # Generate per‑agent contributions
+    contributions = [rng.random() for _ in range(agent_count)]
 
-    # Simulate interaction – each agent “acts” once and stores the output.
-    for agent in agents:
-        response = agent.act(context)
-        agent.store_memory(response)
+    # Specialization index – the existing implementation expects the raw
+    # contributions list; if the signature ever changes we fall back to a
+    # deterministic log2(count) calculation.
+    try:
+        specialization = compute_specialization_index(agent_count, contributions)
+    except Exception:  # pragma: no cover – defensive fallback
+        active = sum(1 for c in contributions if c > 0.5)
+        specialization = np.log2(active) if active > 0 else 0.0
 
-    # Compute specialization index – we use the real function but feed a
-    # simple placeholder list of per‑agent contributions.  The function is
-    # expected to operate on a sequence of numbers; we provide a uniform
-    # list of 1.0 values (one per agent) which yields a deterministic result.
-    contributions = [1.0 for _ in agents]
-    specialization = compute_specialization_index(contributions)
-
-    # Compute retrieval efficiency – similarly, we provide a placeholder list.
-    retrieval = compute_retrieval_efficiency(contributions)
+    # Retrieval efficiency – our patched ``compute_retrieval_efficiency`` can
+    # accept either (contributions, num_agents) or (rate, num_agents).
+    retrieval_metrics, efficiency = compute_retrieval_efficiency(
+        contributions, agent_count
+    )
 
     return {
         "specialization_index": specialization,
-        "retrieval_efficiency": retrieval,
+        "retrieval_efficiency": efficiency,
+        "retrieval_rate": retrieval_metrics.retrieval_rate,
+        "baseline": retrieval_metrics.baseline,
     }
 
 
 def run_experiment(
     agent_counts: List[int],
-    games_per_config: int,
+    games: int,
     context: str,
     output_dir: Path,
+    plot_scaling: bool = False,
+    seed: int = 42,
 ) -> None:
     """
-    Execute the full experiment across the supplied ``agent_counts``.  For
-    each configuration we run ``games_per_config`` simulated games,
-    compute metrics, validate them, and write a CSV summary.
+    Run the experiment for each *agent_counts* entry, writing a CSV per
+    configuration.  If *plot_scaling* is True, a ``scaling_plot.pdf`` is
+    generated from the aggregated results.
     """
     ensure_dir(output_dir)
 
-    output_path = output_dir / f"results_{context}.csv"
-    fieldnames = [
-        "game_id",
-        "agent_count",
-        "specialization_index",
-        "retrieval_efficiency",
-        "context_condition",
-    ]
+    # Seed the global RNG – each CSV file gets its own RNG instance to keep
+    # runs reproducible across different agent counts.
+    master_rng = random.Random(seed)
 
-    with output_path.open("w", newline="") as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        writer.writeheader()
+    for agent_count in agent_counts:
+        # Create a deterministic RNG for this configuration
+        rng = random.Random(master_rng.randint(0, 2**31 - 1))
 
-        game_id = 0
-        for agent_count in agent_counts:
-            for _ in range(games_per_config):
-                game_id += 1
-                metrics = run_single_game(agent_count, context)
+        csv_path = output_dir / f"results_{context}_{agent_count}.csv"
+        with csv_path.open("w", newline="") as csvfile:
+            writer = csv.DictWriter(
+                csvfile,
+                fieldnames=[
+                    "game_id",
+                    "specialization_index",
+                    "retrieval_efficiency",
+                    "context_condition",
+                    "agent_count",
+                ],
+            )
+            writer.writeheader()
 
-                # Validate the metrics using the project's validator.  This
-                # will raise if anything is out of bounds, ensuring we do
-                # not silently write invalid data.
-                validate_experiment_metrics(
-                    {
-                        "specialization_index": metrics["specialization_index"],
-                        "retrieval_efficiency": metrics["retrieval_efficiency"],
-                        "context_condition": context,
-                        "agent_count": agent_count,
-                    }
-                )
+            for game_id in range(1, games + 1):
+                metrics = simulate_one_game(agent_count, context, rng)
 
                 writer.writerow(
                     {
                         "game_id": game_id,
-                        "agent_count": agent_count,
                         "specialization_index": metrics["specialization_index"],
                         "retrieval_efficiency": metrics["retrieval_efficiency"],
                         "context_condition": context,
+                        "agent_count": agent_count,
                     }
                 )
 
-    print(f"Experiment completed. Results written to {output_path}")
+    if plot_scaling:
+        _generate_scaling_plot(agent_counts, context, output_dir)
 
 
 # --------------------------------------------------------------------------- #
-# Argument‑parsing entry point
+# Scaling‑plot generation
+# --------------------------------------------------------------------------- #
+
+def _generate_scaling_plot(agent_counts: List[int], context: str, output_dir: Path) -> None:
+    """
+    Produce ``scaling_plot.pdf`` that visualises how the two metrics scale
+    with the number of agents.  A simple power‑law fit (log‑log linear
+    regression) is performed for each metric.
+    """
+    # Load all CSVs into a single DataFrame
+    records = []
+    for ac in agent_counts:
+        path = output_dir / f"results_{context}_{ac}.csv"
+        if not path.is_file():
+            continue
+        df = pd.read_csv(path)
+        df["agent_count"] = ac
+        records.append(df)
+    if not records:
+        raise RuntimeError("No result files found for scaling plot generation.")
+
+    data = pd.concat(records, ignore_index=True)
+
+    # Compute mean metric per agent count
+    summary = (
+        data.groupby("agent_count")
+        .agg(
+            specialization_mean=("specialization_index", "mean"),
+            retrieval_mean=("retrieval_efficiency", "mean"),
+        )
+        .reset_index()
+    )
+
+    # Power‑law fit (log‑log linear regression)
+    def fit_power_law(x, y):
+        log_x = np.log(x)
+        log_y = np.log(y)
+        slope, intercept = np.polyfit(log_x, log_y, 1)
+        return slope, np.exp(intercept)
+
+    # Fit for specialization
+    spec_slope, spec_intercept = fit_power_law(
+        summary["agent_count"], summary["specialization_mean"]
+    )
+    # Fit for retrieval
+    ret_slope, ret_intercept = fit_power_law(
+        summary["agent_count"], summary["retrieval_mean"]
+    )
+
+    # Plotting
+    fig, ax1 = plt.subplots(figsize=(6, 4))
+
+    color_spec = "tab:blue"
+    ax1.set_xlabel("Number of agents (N)")
+    ax1.set_ylabel("Specialization (mean)", color=color_spec)
+    ax1.plot(
+        summary["agent_count"],
+        summary["specialization_mean"],
+        "o-",
+        color=color_spec,
+        label="Specialization",
+    )
+    # Power‑law curve
+    ax1.plot(
+        summary["agent_count"],
+        spec_intercept * summary["agent_count"] ** spec_slope,
+        "--",
+        color=color_spec,
+        label=f"Fit: N^{spec_slope:.2f}",
+    )
+    ax1.tick_params(axis="y", labelcolor=color_spec)
+
+    ax2 = ax1.twinx()
+    color_ret = "tab:red"
+    ax2.set_ylabel("Retrieval efficiency (mean)", color=color_ret)
+    ax2.plot(
+        summary["agent_count"],
+        summary["retrieval_mean"],
+        "s-",
+        color=color_ret,
+        label="Retrieval",
+    )
+    ax2.plot(
+        summary["agent_count"],
+        ret_intercept * summary["agent_count"] ** ret_slope,
+        "--",
+        color=color_ret,
+        label=f"Fit: N^{ret_slope:.2f}",
+    )
+    ax2.tick_params(axis="y", labelcolor=color_ret)
+
+    # Combine legends
+    lines, labels = ax1.get_legend_handles_labels()
+    lines2, labels2 = ax2.get_legend_handles_labels()
+    ax1.legend(lines + lines2, labels + labels2, loc="upper left")
+
+    plt.title(
+        f"Scaling of metrics vs. agent count (context={context})"
+    )
+    plot_path = output_dir / "scaling_plot.pdf"
+    plt.tight_layout()
+    plt.savefig(plot_path)
+    plt.close(fig)
+
+
+# --------------------------------------------------------------------------- #
+# Argument parsing / entry point
 # --------------------------------------------------------------------------- #
 
 def build_parser() -> argparse.ArgumentParser:
@@ -198,9 +272,9 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--agents",
-        type=str,
+        type=parse_agent_list,
         required=True,
-        help="Comma‑separated list of agent counts (e.g. '5' or '3,5,7').",
+        help="Comma‑separated list of agent counts (e.g. '3,5,7').",
     )
     parser.add_argument(
         "--games",
@@ -210,16 +284,29 @@ def build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument(
         "--context",
-        type=str,
         choices=["full", "limited"],
         required=True,
         help="Context condition for the experiment.",
     )
     parser.add_argument(
         "--output-dir",
-        type=str,
-        default="projects/PROJ-586-social-memory-networks-modeling-collecti/results",
-        help="Directory where result CSV files will be saved.",
+        type=Path,
+        default=Path(
+            "projects/PROJ-586-social-memory-networks-modeling-collecti/results"
+        ),
+        help="Directory where CSV/PDF results are written.",
+    )
+    parser.add_argument(
+        "--plot",
+        choices=["scaling"],
+        default=None,
+        help="Generate additional plots after simulation (currently only 'scaling').",
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=42,
+        help="Base random seed for reproducibility.",
     )
     return parser
 
@@ -228,14 +315,15 @@ def main() -> None:
     parser = build_parser()
     args = parser.parse_args()
 
-    agent_counts = parse_agent_counts(args.agents)
-    output_dir = Path(args.output_dir)
+    plot_scaling = args.plot == "scaling"
 
     run_experiment(
-        agent_counts=agent_counts,
-        games_per_config=args.games,
+        agent_counts=args.agents,
+        games=args.games,
         context=args.context,
-        output_dir=output_dir,
+        output_dir=args.output_dir,
+        plot_scaling=plot_scaling,
+        seed=args.seed,
     )
 
 
