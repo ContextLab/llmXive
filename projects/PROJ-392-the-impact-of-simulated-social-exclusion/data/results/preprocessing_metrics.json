@@ -1,0 +1,34 @@
+{
+  "datasets": {
+    "ds000246": {
+      "batches": 1,
+      "results": [
+        {
+          "processed": [],
+          "failed": [],
+          "skipped": [],
+          "start_time": "2024-01-01T00:00:00",
+          "end_time": "2024-01-01T00:00:00"
+        }
+      ]
+    },
+    "ds004738": {
+      "batches": 1,
+      "results": [
+        {
+          "processed": [],
+          "failed": [],
+          "skipped": [],
+          "start_time": "2024-01-01T00:00:00",
+          "end_time": "2024-01-01T00:00:00"
+        }
+      ]
+    }
+  },
+  "summary": {
+    "total_subjects": 0,
+    "processed": 0,
+    "failed": 0,
+    "skipped": 0
+  }
+}

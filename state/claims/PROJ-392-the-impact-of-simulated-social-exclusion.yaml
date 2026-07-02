@@ -1,0 +1,729 @@
+- artifact_path: projects/PROJ-392-the-impact-of-simulated-social-exclusion/specs/001-the-impact-of-simulated-social-exclusion/tasks.md
+  attempts: 1
+  canonical: preprocessing completion rate target 90%
+  claim_id: c_4426aac7
+  context: "Implement metrics collection: calculate 'Preprocessing Completion Rate',\
+    \ log to `data/results/preprocessing_metrics.json` (target \u226590%)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The project targets a preprocessing completion rate of \u226590%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:56:56Z'
+- artifact_path: projects/PROJ-392-the-impact-of-simulated-social-exclusion/specs/001-the-impact-of-simulated-social-exclusion/tasks.md
+  attempts: 1
+  canonical: exploratory status if N < 20 per group
+  claim_id: c_a9ed84bc
+  context: include logic to flag 'exploratory' status and recommend future studies
+    if N < 20 per group (satisfying FR-010).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/exploratory_status_if_N_%3C_20_per_group
+  kind: magnitude
+  raw_text: The analysis is flagged as exploratory if the sample size is less than
+    20 participants per group.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:57:27Z'
+- artifact_path: projects/PROJ-392-the-impact-of-simulated-social-exclusion/specs/001-the-impact-of-simulated-social-exclusion/tasks.md
+  attempts: 1
+  canonical: primary analysis two-sample t-test excluded vs included groups
+  claim_id: c_7958b10f
+  context: Implement `code/analysis/group_analysis.py` to perform two-sample t-test
+    between excluded vs. included groups (PRIMARY METHOD per FR-005).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Primary_analysis_two-sample_t-test_excluded_vs_included_grou
+  kind: entity_fact
+  raw_text: The primary analysis compares excluded vs. included groups using a two-sample
+    t-test.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:57:46Z'
+- artifact_path: projects/PROJ-392-the-impact-of-simulated-social-exclusion/specs/001-the-impact-of-simulated-social-exclusion/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction 4 hypothesis tests
+  claim_id: c_231e9890
+  context: "Implement Bonferroni correction logic for 4 hypothesis tests (2 ROIs \xD7\
+    \ 2 events) at \u03B1=0.05."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bonferroni correction is applied for 4 hypothesis tests.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:58:08Z'
+- artifact_path: projects/PROJ-392-the-impact-of-simulated-social-exclusion/specs/001-the-impact-of-simulated-social-exclusion/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis consistency 6 threshold combinations
+  claim_id: c_72a27ae6
+  context: "Calculate consistency rate: verify if primary finding (reduced VS activation)\
+    \ holds in \u22654 of 6 threshold combinations (3 kernels \xD7 2 masks) (\u2265\
+    67% threshold)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis validates consistency across 6 threshold combinations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:58:27Z'
+- artifact_path: projects/PROJ-392-the-impact-of-simulated-social-exclusion/specs/001-the-impact-of-simulated-social-exclusion/tasks.md
+  attempts: 1
+  canonical: primary finding holds in 4 of 6 threshold combinations
+  claim_id: c_71914891
+  context: "Calculate consistency rate: verify if primary finding (reduced VS activation)\
+    \ holds in \u22654 of 6 threshold combinations (3 kernels \xD7 2 masks) (\u2265\
+    67% threshold)."
+  evidence:
+    candidates:
+    - - Primary finding holds in 4 of
+      - 6.0
+    - - Search Search Primary finding holds in
+      - 4.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Primary_finding_holds_in_4_of_6_threshold_combinations
+  kind: magnitude
+  raw_text: The sensitivity analysis requires the primary finding to hold in at least
+    4 of 6 threshold combinations to be considered consistent.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-02T19:58:54Z'
+- artifact_path: projects/PROJ-392-the-impact-of-simulated-social-exclusion/specs/001-the-impact-of-simulated-social-exclusion/tasks.md
+  attempts: 1
+  canonical: future study recommendation 30 participants per group
+  claim_id: c_ff3d4fd2
+  context: "if N < 20 per group, flag as exploratory and append recommendation for\
+    \ future studies (\u226530 participants) to the report."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Future_study_recommendation_30_participants_per_group
+  kind: magnitude
+  raw_text: A recommendation for future studies suggests a sample size of at least
+    30 participants per group.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:59:40Z'
+- artifact_path: projects/PROJ-392-the-impact-of-simulated-social-exclusion/specs/001-the-impact-of-simulated-social-exclusion/tasks.md
+  attempts: 1
+  canonical: dataset ds000246 social exclusion task
+  claim_id: c_aed8daa0
+  context: Implement `code/data_download/download_openneuro.py` to fetch ds000246
+    (Exclusion) and ds004738 (Reward) separately with BIDS validation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_ds000246_social_exclusion_task
+  kind: entity_fact
+  raw_text: The dataset ds000246 contains the social exclusion task.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:59:55Z'
+- artifact_path: projects/PROJ-392-the-impact-of-simulated-social-exclusion/specs/001-the-impact-of-simulated-social-exclusion/tasks.md
+  attempts: 1
+  canonical: dataset ds004738 reward task
+  claim_id: c_ed85322b
+  context: Implement `code/data_download/download_openneuro.py` to fetch ds000246
+    (Exclusion) and ds004738 (Reward) separately with BIDS validation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_ds004738_reward_task
+  kind: entity_fact
+  raw_text: The dataset ds004738 contains the reward task.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T20:00:23Z'
+- artifact_path: projects/PROJ-392-the-impact-of-simulated-social-exclusion/specs/001-the-impact-of-simulated-social-exclusion/tasks.md
+  attempts: 1
+  canonical: OpenNeuro datasets ds000246 and ds004738 used for exclusion and reward
+    tasks
+  claim_id: c_18bc59e0
+  context: Implement code/data_download/download_openneuro.py to fetch ds000246 (Exclusion)
+    and ds004738 (Reward) separately with BIDS validation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_datasets_ds000246_and_ds004738_used_for_exclusion
+  kind: entity_fact
+  raw_text: The project uses publicly available fMRI datasets ds000246 (Exclusion)
+    and ds004738 (Reward) from OpenNeuro.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T20:02:32Z'
+- artifact_path: projects/PROJ-392-the-impact-of-simulated-social-exclusion/specs/001-the-impact-of-simulated-social-exclusion/tasks.md
+  attempts: 1
+  canonical: Ventral Striatum ROI defined using AAL atlas
+  claim_id: c_fc5421bc
+  context: Implement code/analysis/roi_extraction.py to load Ventral Striatum (AAL
+    atlas) and OFC (Harvard-Oxford, thresholded at an appropriate level) masks in
+    MNI space.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ventral_Striatum_ROI_defined_using_AAL_atlas
+  kind: entity_fact
+  raw_text: The analysis targets the Ventral Striatum using the AAL atlas.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T20:03:34Z'
+- artifact_path: projects/PROJ-392-the-impact-of-simulated-social-exclusion/specs/001-the-impact-of-simulated-social-exclusion/tasks.md
+  attempts: 1
+  canonical: OFC ROI defined using Harvard-Oxford atlas
+  claim_id: c_f94ec19c
+  context: Implement code/analysis/roi_extraction.py to load Ventral Striatum (AAL
+    atlas) and OFC (Harvard-Oxford, thresholded at an appropriate level) masks in
+    MNI space.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OFC_ROI_defined_using_Harvard-Oxford_atlas
+  kind: entity_fact
+  raw_text: The analysis targets the Orbitofrontal Cortex (OFC) using the Harvard-Oxford
+    atlas.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T20:04:27Z'
+- artifact_path: projects/PROJ-392-the-impact-of-simulated-social-exclusion/specs/001-the-impact-of-simulated-social-exclusion/tasks.md
+  attempts: 1
+  canonical: Minimum sample size of 20 per group for exploratory analysis
+  claim_id: c_26073e7a
+  context: "Include logic to flag 'exploratory' status and recommend future studies\
+    \ if N < 20 per group (satisfying FR-010) and append recommendation for future\
+    \ studies (\u226530 participants) to the report."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires a minimum of 20 participants per group for exploratory
+    status or 30 for future studies.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T20:05:06Z'
+- artifact_path: projects/PROJ-392-the-impact-of-simulated-social-exclusion/specs/001-the-impact-of-simulated-social-exclusion/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis covers 6 combinations of 3 kernels and 2 masks
+  claim_id: c_a75197e8
+  context: "Verify if primary finding (reduced VS activation) holds in \u22654 of\
+    \ 6 threshold combinations (3 kernels \xD7 2 masks) (\u226567% threshold)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis evaluates 6 threshold combinations consisting
+    of 3 smoothing kernels and 2 ROI mask probability thresholds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T20:05:23Z'
+- artifact_path: projects/PROJ-392-the-impact-of-simulated-social-exclusion/specs/001-the-impact-of-simulated-social-exclusion/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction for 4 hypothesis tests (2 ROIs x 2 events)
+  claim_id: c_858271d5
+  context: "Implement Bonferroni correction logic for 4 hypothesis tests (2 ROIs \xD7\
+    \ 2 events) at \u03B1=0.05."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bonferroni correction is applied to 4 hypothesis tests involving 2
+    ROIs and 2 event types.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T20:05:57Z'
+- artifact_path: projects/PROJ-392-the-impact-of-simulated-social-exclusion/specs/001-the-impact-of-simulated-social-exclusion/tasks.md
+  attempts: 1
+  canonical: Preprocessing completion rate target of 90%
+  claim_id: c_ba39c421
+  context: "Calculate 'Preprocessing Completion Rate', log to data/results/preprocessing_metrics.json\
+    \ (target \u226590%)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The preprocessing completion rate target is 90% or higher.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T20:05:57Z'
+- artifact_path: projects/PROJ-392-the-impact-of-simulated-social-exclusion/specs/001-the-impact-of-simulated-social-exclusion/tasks.md
+  attempts: 1
+  canonical: Smoothing kernels tested at 4mm, 6mm, and 8mm
+  claim_id: c_97b330a9
+  context: "Can be fully tested by re-running analysis with alternative thresholds\
+    \ (smoothing \u2208 {4mm, 6mm, 8mm}) and comparing resulting mean beta estimates."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Smoothing_kernels_tested_at_4mm,_6mm,_and_8mm
+  kind: entity_fact
+  raw_text: The smoothing kernel range for sensitivity analysis includes 4mm, 6mm,
+    and 8mm FWHM values.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T20:06:32Z'
+- artifact_path: projects/PROJ-392-the-impact-of-simulated-social-exclusion/specs/001-the-impact-of-simulated-social-exclusion/tasks.md
+  attempts: 1
+  canonical: Primary analysis method is two-sample t-test
+  claim_id: c_88511e7e
+  context: Implement code/analysis/group_analysis.py to perform two-sample t-test
+    between excluded vs. included groups (PRIMARY METHOD per FR-005).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Primary_analysis_method_is_two-sample_t-test
+  kind: entity_fact
+  raw_text: The primary statistical method is a two-sample t-test comparing excluded
+    vs. included groups.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T20:06:52Z'
+- artifact_path: projects/PROJ-392-the-impact-of-simulated-social-exclusion/specs/001-the-impact-of-simulated-social-exclusion/tasks.md
+  attempts: 1
+  canonical: Secondary analysis uses MixedLM with Dataset ID as random effect
+  claim_id: c_998b0f65
+  context: Implement a secondary MixedLM model (using statsmodels) including 'Dataset
+    ID' as a random effect to assess robustness of the merged dataset approach.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Secondary_analysis_uses_MixedLM_with_Dataset_ID_as_random_ef
+  kind: entity_fact
+  raw_text: The secondary statistical method is a MixedLM model including 'Dataset
+    ID' as a random effect.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T20:07:23Z'
+- artifact_path: projects/PROJ-392-the-impact-of-simulated-social-exclusion/specs/001-the-impact-of-simulated-social-exclusion/tasks.md
+  attempts: 1
+  canonical: datasets ds000246 and ds004738 used for exclusion and reward tasks
+  claim_id: c_d9a5ec99
+  context: Implement code/data_download/download_openneuro.py to fetch ds000246 (Exclusion)
+    and ds004738 (Reward) separately with BIDS validation.
+  evidence:
+    entailment_evidence: Datasets ds000246 and ds004738 used for exclusion and reward
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Datasets_ds000246_and_ds004738_used_for_exclusion_and_reward
+  kind: entity_fact
+  raw_text: The project uses datasets ds000246 (Exclusion) and ds004738 (Reward).
+  resolved_value: datasets ds000246 and ds004738 used for exclusion and reward tasks
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-02T20:20:39Z'
+- artifact_path: projects/PROJ-392-the-impact-of-simulated-social-exclusion/specs/001-the-impact-of-simulated-social-exclusion/tasks.md
+  attempts: 1
+  canonical: target preprocessing completion rate is 90 percent
+  claim_id: c_4a423a63
+  context: "calculate 'Preprocessing Completion Rate', log to data/results/preprocessing_metrics.json\
+    \ (target \u226590%), and include logic to flag 'exploratory' status"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Target_preprocessing_completion_rate_is_90_percent
+  kind: magnitude
+  raw_text: The project targets a preprocessing completion rate of at least 90%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T20:21:40Z'
+- artifact_path: projects/PROJ-392-the-impact-of-simulated-social-exclusion/specs/001-the-impact-of-simulated-social-exclusion/tasks.md
+  attempts: 1
+  canonical: exploratory flag recommended if N less than 20 per group
+  claim_id: c_576fdfa1
+  context: flag 'exploratory' status and recommend future studies if N < 20 per group
+    (satisfying FR-010).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exploratory_flag_recommended_if_N_less_than_20_per_group
+  kind: magnitude
+  raw_text: The exploratory status flag is recommended if the sample size is less
+    than 20 per group.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T20:22:30Z'
+- artifact_path: projects/PROJ-392-the-impact-of-simulated-social-exclusion/specs/001-the-impact-of-simulated-social-exclusion/tasks.md
+  attempts: 1
+  canonical: analysis tested on 20 participants per group
+  claim_id: c_8e1ab57f
+  context: "Can be fully tested by running the ROI extraction and t-test on preprocessed\
+    \ data from \u226520 participants per group"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Analysis_tested_on_20_participants_per_group
+  kind: magnitude
+  raw_text: The ROI-based statistical analysis is tested on data from at least 20
+    participants per group.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T20:22:50Z'
+- artifact_path: projects/PROJ-392-the-impact-of-simulated-social-exclusion/specs/001-the-impact-of-simulated-social-exclusion/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction for 4 tests at alpha 0.05
+  claim_id: c_7ec65a30
+  context: "Implement Bonferroni correction logic for 4 hypothesis tests (2 ROIs \xD7\
+    \ 2 events) at \u03B1=0.05."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical analysis uses a Bonferroni correction for 4 hypothesis
+    tests at an alpha level of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T20:23:03Z'
+- artifact_path: projects/PROJ-392-the-impact-of-simulated-social-exclusion/specs/001-the-impact-of-simulated-social-exclusion/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis on 6 combinations of 3 kernels and 2 masks
+  claim_id: c_94eb9e12
+  context: "verify if primary finding (reduced VS activation) holds in \u22654 of\
+    \ 6 threshold combinations (3 kernels \xD7 2 masks)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis evaluates 6 threshold combinations consisting
+    of 3 smoothing kernels and 2 mask probability thresholds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T20:23:19Z'
+- artifact_path: projects/PROJ-392-the-impact-of-simulated-social-exclusion/specs/001-the-impact-of-simulated-social-exclusion/tasks.md
+  attempts: 1
+  canonical: consistency rate threshold is 67 percent
+  claim_id: c_000059ee
+  context: "verify if primary finding (reduced VS activation) holds in \u22654 of\
+    \ 6 threshold combinations (3 kernels \xD7 2 masks) (\u226567% threshold)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The consistency rate threshold for the primary finding is 67%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T20:23:19Z'
+- artifact_path: projects/PROJ-392-the-impact-of-simulated-social-exclusion/specs/001-the-impact-of-simulated-social-exclusion/tasks.md
+  attempts: 1
+  canonical: future study recommendation of 30 participants
+  claim_id: c_825dc7a3
+  context: "if N < 20 per group, flag as exploratory and append recommendation for\
+    \ future studies (\u226530 participants) to the report."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Future_study_recommendation_of_30_participants
+  kind: magnitude
+  raw_text: The future study recommendation suggests a sample size of at least 30
+    participants.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T20:24:08Z'
+- artifact_path: projects/PROJ-392-the-impact-of-simulated-social-exclusion/specs/001-the-impact-of-simulated-social-exclusion/tasks.md
+  attempts: 1
+  canonical: Ventral Striatum from AAL atlas and OFC from Harvard-Oxford atlas
+  claim_id: c_cc6a67e6
+  context: Implement code/analysis/roi_extraction.py to load Ventral Striatum (AAL
+    atlas) and OFC (Harvard-Oxford, thresholded at an appropriate level) masks in
+    MNI space
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ventral_Striatum_from_AAL_atlas_and_OFC_from_Harvard-Oxford
+  kind: entity_fact
+  raw_text: The analysis uses the Ventral Striatum from the AAL atlas and the OFC
+    from the Harvard-Oxford atlas.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T20:25:10Z'
+- artifact_path: projects/PROJ-392-the-impact-of-simulated-social-exclusion/specs/001-the-impact-of-simulated-social-exclusion/tasks.md
+  attempts: 1
+  canonical: Preprocessing completion rate target of 90 percent
+  claim_id: c_10428026
+  context: "T016 [US1] Implement metrics collection: calculate 'Preprocessing Completion\
+    \ Rate', log to `data/results/preprocessing_metrics.json` (target \u226590%)..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The project targets a preprocessing completion rate of \u226590%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T20:33:28Z'
+- artifact_path: projects/PROJ-392-the-impact-of-simulated-social-exclusion/specs/001-the-impact-of-simulated-social-exclusion/tasks.md
+  attempts: 1
+  canonical: Minimum sample size of 20 participants per group
+  claim_id: c_a166edb0
+  context: '...include logic to flag ''exploratory'' status and recommend future studies
+    if N < 20 per group...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis requires a minimum of 20 participants per group.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T20:34:13Z'
+- artifact_path: projects/PROJ-392-the-impact-of-simulated-social-exclusion/specs/001-the-impact-of-simulated-social-exclusion/tasks.md
+  attempts: 1
+  canonical: 4 hypothesis tests across 2 ROIs and 2 events
+  claim_id: c_226b4ea6
+  context: "T022 [US2] Implement Bonferroni correction logic for 4 hypothesis tests\
+    \ (2 ROIs \xD7 2 events) at \u03B1=0.05."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The primary analysis uses two ROIs and two event types for a total of
+    4 hypothesis tests.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T20:34:36Z'
+- artifact_path: projects/PROJ-392-the-impact-of-simulated-social-exclusion/specs/001-the-impact-of-simulated-social-exclusion/tasks.md
+  attempts: 1
+  canonical: Significance level alpha set to 0.05
+  claim_id: c_a1881da4
+  context: "T022 [US2] Implement Bonferroni correction logic for 4 hypothesis tests\
+    \ (2 ROIs \xD7 2 events) at \u03B1=0.05."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "For example, if 1000 independent tests are performed, each at level\
+        \ \u03B1 = 0.05, we expect 0.05 \xD7 1000 = 50 significant tests to occur\
+        \ when all null hypotheses are true.  Based on the Poisson distribution with\
+        \ mean 50, the probability of observing more than 61 significant tests is\
+        \ less than 0.05, so if more than 61 significant results are observed, it\
+        \ is very likely that some of them correspond to situations where the alternative\
+        \ hypothesis holds.  A drawback of this approach is that it overstates the\
+        \ evidence that some of the alternative hypotheses are true when the test\
+        \ statistics are positively correlated, which commonly occurs in practice.\
+        \  . On the other hand, the approach remains valid even in the presence of\
+        \ correlation among the test statistics, as long as the Poisson distribution\
+        \ can be shown to provide a good approximation for the number of significant\
+        \ results. This scenario arises, for instance, when mining significant frequent\
+        \ itemsets from transactional datasets. Furthermore, a careful two stage analysis\
+        \ can bound the FDR at a pre-specified level."
+      source_id: Multiple comparisons problem
+      url: https://en.wikipedia.org/wiki/Multiple_comparisons_problem
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: "The significance level for hypothesis testing is set to \u03B1=0.05."
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-02T20:34:46Z'
+- artifact_path: projects/PROJ-392-the-impact-of-simulated-social-exclusion/specs/001-the-impact-of-simulated-social-exclusion/tasks.md
+  attempts: 1
+  canonical: 6 threshold combinations from 3 kernels and 2 masks
+  claim_id: c_3f20649b
+  context: "T033 [US4] Calculate consistency rate: verify if primary finding (reduced\
+    \ VS activation) holds in \u22654 of 6 threshold combinations (3 kernels \xD7\
+    \ 2 masks)..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity analysis will test 6 threshold combinations derived from 3
+    smoothing kernels and 2 mask probability thresholds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T20:35:00Z'
+- artifact_path: projects/PROJ-392-the-impact-of-simulated-social-exclusion/specs/001-the-impact-of-simulated-social-exclusion/tasks.md
+  attempts: 1
+  canonical: Consistency rate threshold of 67 percent
+  claim_id: c_c723a236
+  context: "...verify if primary finding (reduced VS activation) holds in \u22654\
+    \ of 6 threshold combinations (3 kernels \xD7 2 masks) (\u226567% threshold)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The consistency rate threshold for sensitivity analysis is \u226567%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T20:35:00Z'
+- artifact_path: projects/PROJ-392-the-impact-of-simulated-social-exclusion/specs/001-the-impact-of-simulated-social-exclusion/tasks.md
+  attempts: 1
+  canonical: Recommended future study sample size of 30 participants
+  claim_id: c_1de9dbc3
+  context: "T029 [US3] Implement power limitation check: if N < 20 per group, flag\
+    \ as exploratory and append recommendation for future studies (\u226530 participants)\
+    \ to the report."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Recommended_future_study_sample_size_of_30_participants
+  kind: magnitude
+  raw_text: Future studies are recommended to include at least 30 participants per
+    group.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T20:35:35Z'
+- artifact_path: projects/PROJ-392-the-impact-of-simulated-social-exclusion/specs/001-the-impact-of-simulated-social-exclusion/tasks.md
+  attempts: 1
+  canonical: OpenNeuro dataset ds000246 used for social exclusion
+  claim_id: c_b35afb85
+  context: T010 [P] [US1] Implement `code/data_download/download_openneuro.py` to
+    fetch ds000246 (Exclusion) and ds004738 (Reward) separately...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ds000246_used_for_social_exclusion
+  kind: entity_fact
+  raw_text: The study utilizes the OpenNeuro dataset ds000246 for social exclusion
+    data.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T20:35:57Z'
+- artifact_path: projects/PROJ-392-the-impact-of-simulated-social-exclusion/specs/001-the-impact-of-simulated-social-exclusion/tasks.md
+  attempts: 1
+  canonical: OpenNeuro dataset ds004738 used for reward task
+  claim_id: c_4f39a267
+  context: T010 [P] [US1] Implement `code/data_download/download_openneuro.py` to
+    fetch ds000246 (Exclusion) and ds004738 (Reward) separately...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ds004738_used_for_reward_task
+  kind: entity_fact
+  raw_text: The study utilizes the OpenNeuro dataset ds004738 for reward task data.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T20:36:12Z'
+- artifact_path: projects/PROJ-392-the-impact-of-simulated-social-exclusion/specs/001-the-impact-of-simulated-social-exclusion/tasks.md
+  attempts: 1
+  canonical: Ventral Striatum ROI defined by AAL atlas
+  claim_id: c_ad4957ee
+  context: T017 [US2] Implement `code/analysis/roi_extraction.py` to load Ventral
+    Striatum (AAL atlas) and OFC (Harvard-Oxford, thresholded at an appropriate level)
+    masks in MNI space...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ventral_Striatum_ROI_defined_by_AAL_atlas
+  kind: entity_fact
+  raw_text: The Ventral Striatum ROI is defined using the AAL atlas.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T20:37:04Z'
+- artifact_path: projects/PROJ-392-the-impact-of-simulated-social-exclusion/specs/001-the-impact-of-simulated-social-exclusion/tasks.md
+  attempts: 1
+  canonical: OFC ROI defined by Harvard-Oxford atlas
+  claim_id: c_a469f38f
+  context: T017 [US2] Implement `code/analysis/roi_extraction.py` to load Ventral
+    Striatum (AAL atlas) and OFC (Harvard-Oxford, thresholded at an appropriate level)
+    masks in MNI space...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OFC_ROI_defined_by_Harvard-Oxford_atlas
+  kind: entity_fact
+  raw_text: The Orbitofrontal Cortex (OFC) ROI is defined using the Harvard-Oxford
+    atlas.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T20:37:56Z'

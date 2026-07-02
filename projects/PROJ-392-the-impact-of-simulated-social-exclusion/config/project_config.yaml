@@ -1,0 +1,66 @@
+# Project Configuration for Social Exclusion and Reward fMRI Study
+project_id: "PROJ-392-the-impact-of-simulated-social-exclusion"
+version: "1.0.0"
+
+# Dataset IDs
+datasets:
+  - ds000246  # Social exclusion task
+  - ds004738  # Reward task
+
+# ROI Definitions
+rois:
+  ventral_striatum:
+    atlas: "AAL"
+    name: "Ventral Striatum"
+    coordinates: [10, 10, -8]
+  ofc:
+    atlas: "Harvard-Oxford"
+    name: "Orbitofrontal Cortex"
+    threshold: 0.25
+
+# Path Configuration
+paths:
+  raw_fmri_dir: "data/raw-fmri"
+  processed_fmri_dir: "data/processed-fmri"
+  behavioral_dir: "data/behavioral"
+  results_dir: "data/results"
+  working_dir: "data/working"
+
+# Preprocessing Parameters
+preprocessing:
+  slice_timing: true
+  realign: true
+  normalize: "MNI152NLin2009cAsym"
+  smoothing_fwhm: 6.0
+  high_pass_filter: 0.008
+  confounds:
+    - "trans_x"
+    - "trans_y"
+    - "trans_z"
+    - "rot_x"
+    - "rot_y"
+    - "rot_z"
+    - "global_signal"
+    - "csf"
+    - "white_matter"
+
+# Analysis Parameters
+analysis:
+  alpha_level: 0.05
+  correction_method: "bonferroni"
+  min_sample_size: 20
+  smoothing_kernels: [4, 6, 8]  # mm
+  roi_prob_thresholds: [0.2, 0.5]
+
+# fMRIPrep Configuration
+fmriprep:
+  docker_image: "nipreps/fmriprep:latest"
+  mem_limit: "4G"
+  nthreads: 4
+  output_spaces: ["MNI152NLin2009cAsym"]
+  ignore: ["fieldmaps"]
+
+# Logging
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(levelname)s - %(message)s"

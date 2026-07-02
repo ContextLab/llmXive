@@ -1,0 +1,32 @@
+# Project Configuration for PROJ-392
+# Social Exclusion and Reward Neural Responses
+
+datasets:
+  exclusion: "ds000246"
+  reward: "ds004738"
+
+rois:
+  - "Ventral Striatum"
+  - "OFC"
+
+roi_coords:
+  "Ventral Striatum":
+    x: 10.0
+    y: 10.0
+    z: -5.0
+  "OFC":
+    x: 0.0
+    y: 40.0
+    z: -15.0
+
+paths:
+  raw_fmri: "data/raw-fmri"
+  processed_fmri: "data/processed-fmri"
+  behavioral: "data/behavioral"
+  results: "data/results"
+
+analysis:
+  smoothing_fwhm: 6.0
+  alpha: 0.05
+  smoothing_kernels: [4.0, 6.0, 8.0]
+  roi_prob_thresholds: [0.2, 0.5]

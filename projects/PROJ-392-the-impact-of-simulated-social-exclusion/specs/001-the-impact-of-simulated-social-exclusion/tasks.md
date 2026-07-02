@@ -20,34 +20,34 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create `projects/PROJ-392-the-impact-of-simulated-social-exclusion/` root directory and `code/`, `data/`, `tests/` subdirectories.
-- [ ] T001b [P] Create `data/raw-fmri`, `data/processed-fmri`, `data/behavioral`, `data/results` subdirectories.
-- [ ] T001c [P] Create `code/data_download`, `code/manipulation`, `code/preprocess`, `code/analysis`, `code/visualization`, `code/utils`, `code/pipeline` subdirectories.
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (nibabel, numpy, pandas, scikit-learn, scipy, matplotlib, nilearn, nipype, pybids, pyyaml, statsmodels). **Note**: Do NOT include `fmriprep` in this list; create a `docker-compose.yml` or wrapper script in T012 to invoke the Docker image.
-- [ ] T003 [P] Configure linting (flake8/black) and formatting tools in `code/`
+- [X] T001a [P] Create `projects/PROJ-392-the-impact-of-simulated-social-exclusion/` root directory and `code/`, `data/`, `tests/` subdirectories.
+- [X] T001b [P] Create `data/raw-fmri`, `data/processed-fmri`, `data/behavioral`, `data/results` subdirectories.
+- [X] T001c [P] Create `code/data_download`, `code/manipulation`, `code/preprocess`, `code/analysis`, `code/visualization`, `code/utils`, `code/pipeline` subdirectories.
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (nibabel, numpy, pandas, scikit-learn, scipy, matplotlib, nilearn, nipype, pybids, pyyaml, statsmodels). **Note**: Do NOT include `fmriprep` in this list; create a `docker-compose.yml` or wrapper script in T012 to invoke the Docker image.
+- [X] T003 [P] Configure linting (flake8/black) and formatting tools in `code/`
 
 ---
 
@@ -57,12 +57,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Setup directory structure: `data/raw-fmri`, `data/processed-fmri`, `data/behavioral`, `data/results`, `code/manipulation`, `code/utils`
-- [ ] T005 Implement `code/utils/checksums.py` for data integrity verification
+- [X] T004 Setup directory structure: `data/raw-fmri`, `data/processed-fmri`, `data/behavioral`, `data/results`, `code/manipulation`, `code/utils`
+- [X] T005 Implement `code/utils/checksums.py` for data integrity verification
 - [ ] T006 Implement `code/utils/provenance.py` for machine-readable YAML sidecar generation
 - [ ] T007 Create base configuration loader for dataset IDs (ds000246, ds004738) and ROI coordinates (AAL, Harvard-Oxford)
-- [ ] T008 Setup `code/pipeline/run_pipeline.py` orchestration skeleton with error handling and logging
-- [ ] T009 Implement `code/utils/framing_validator.py` to scan reports for causal verbs (satisfying FR-009)
+- [X] T008 Setup `code/pipeline/run_pipeline.py` orchestration skeleton with error handling and logging
+- [X] T009 Implement `code/utils/framing_validator.py` to scan reports for causal verbs (satisfying FR-009)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,14 +76,14 @@
 
 ### Implementation for User Story 1
 
-- [ ] T010 [P] [US1] Implement `code/data_download/download_openneuro.py` to fetch ds000246 (Exclusion) and ds004738 (Reward) separately with BIDS validation. **Do not** attempt to merge here.
-- [ ] T010b [US1] Implement `code/data_download/harmonize_datasets.py` to execute the 'Merged Dataset Strategy': map participant IDs across datasets, align condition labels, and apply confound controls (e.g., adding 'Dataset ID' as a covariate tag) to prepare for analysis. (Addresses FR-001 and Plan's Critical Design Pivot).
-- [ ] T011 [P] [US1] Implement `code/manipulation/generate_condition_labels.py` to extract exclusion/inclusion labels from `participants.tsv` or task JSON for each dataset.
-- [ ] T012 [US1] Implement `code/preprocess/cpu_fmriprep_wrapper.py` invoking fMRIPrep (docker: `nipreps/fmriprep:latest`) with a configurable thread count suitable for CPU-only execution. **Note**: This task creates the wrapper script; `fmriprep` is not installed via pip.
-- [ ] T013 [US1] Implement `code/preprocess/run_preprocessing.py` to handle chunked processing (batches of subjects) and generate preprocessed NIfTI images (slice-timing corrected, realigned, normalized to MNI, smoothed with an appropriate spatial kernel) with failure logging.
-- [ ] T014 [US1] Implement logic to harmonize and label data from merged exclusion and reward datasets: create a unified metadata file linking participants to their exclusion/inclusion group and task run type (BLOCKING DEPENDENCY FOR T018).
-- [ ] T015 [US1] Implement provenance generation: create YAML sidecars for every preprocessed file recording pipeline version and parameters (satisfying Constitution Principle VI).
-- [ ] T016 [US1] Implement metrics collection: calculate 'Preprocessing Completion Rate', log to `data/results/preprocessing_metrics.json` (target ≥90%), and include logic to flag 'exploratory' status and recommend future studies if N < 20 per group (satisfying FR-010).
+- [X] T010 [P] [US1] Implement `code/data_download/download_openneuro.py` to fetch ds000246 (Exclusion) and ds004738 (Reward) separately with BIDS validation. **Do not** attempt to merge here.
+- [~] T010b [US1] Implement `code/data_download/harmonize_datasets.py` to execute the 'Merged Dataset Strategy': map participant IDs across datasets, align condition labels, and apply confound controls (e.g., adding 'Dataset ID' as a covariate tag) to prepare for analysis. (Addresses FR-001 and Plan's Critical Design Pivot).
+- [~] T011 [P] [US1] Implement `code/manipulation/generate_condition_labels.py` to extract exclusion/inclusion labels from `participants.tsv` or task JSON for each dataset.
+- [~] T012 [US1] Implement `code/preprocess/cpu_fmriprep_wrapper.py` invoking fMRIPrep (docker: `nipreps/fmriprep:latest`) with a configurable thread count suitable for CPU-only execution. **Note**: This task creates the wrapper script; `fmriprep` is not installed via pip.
+- [~] T013 [US1] Implement `code/preprocess/run_preprocessing.py` to handle chunked processing (batches of subjects) and generate preprocessed NIfTI images (slice-timing corrected, realigned, normalized to MNI, smoothed with an appropriate spatial kernel) with failure logging.
+- [~] T014 [US1] Implement logic to harmonize and label data from merged exclusion and reward datasets: create a unified metadata file linking participants to their exclusion/inclusion group and task run type (BLOCKING DEPENDENCY FOR T018).
+- [~] T015 [US1] Implement provenance generation: create YAML sidecars for every preprocessed file recording pipeline version and parameters (satisfying Constitution Principle VI).
+- [~] T016 [US1] Implement metrics collection: calculate 'Preprocessing Completion Rate', log to `data/results/preprocessing_metrics.json` (target ≥90%), and include logic to flag 'exploratory' status and recommend future studies if N < 20 per group (satisfying FR-010).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (Data downloaded, harmonized, preprocessed, and labeled). **T014 must be complete before T018 can execute.**
 
@@ -97,10 +97,10 @@
 
 ### Implementation for User Story 2
 
-- [ ] T017 [US2] Implement `code/analysis/roi_extraction.py` to load Ventral Striatum (AAL atlas) and OFC (Harvard-Oxford, thresholded at an appropriate level) masks in MNI space (DEPENDS ON T013/T014).
-- [ ] T018 [US2] Implement first-level GLM execution using Nilearn with autoregressive pre-whitening for temporal autocorrelation (DEPENDS ON T013/T014).
-- [ ] T019 [US2] Implement extraction of beta estimates for 'reward anticipation' and 'reward receipt' events per participant.
-- [ ] T020 [US2] Store extracted betas in structured format: `data/results/beta_estimates.csv` (columns: participant_id, group, roi, event_type, beta_value).
+- [~] T017 [US2] Implement `code/analysis/roi_extraction.py` to load Ventral Striatum (AAL atlas) and OFC (Harvard-Oxford, thresholded at an appropriate level) masks in MNI space (DEPENDS ON T013/T014).
+- [~] T018 [US2] Implement first-level GLM execution using Nilearn with autoregressive pre-whitening for temporal autocorrelation (DEPENDS ON T013/T014).
+- [~] T019 [US2] Implement extraction of beta estimates for 'reward anticipation' and 'reward receipt' events per participant.
+- [~] T020 [US2] Store extracted betas in structured format: `data/results/beta_estimates.csv` (columns: participant_id, group, roi, event_type, beta_value).
 - [ ] T021 [US2] Implement `code/analysis/group_analysis.py` to perform two-sample t-test between excluded vs. included groups (PRIMARY METHOD per FR-005).
 - [ ] T022 [US2] Implement Bonferroni correction logic for 4 hypothesis tests (2 ROIs × 2 events) at α=0.05.
 - [ ] T023a [US2] Implement the primary two-sample t-test logic in `code/analysis/group_analysis.py` to compare groups, satisfying FR-005 and SC-001.
@@ -168,8 +168,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -236,9 +236,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Data/Preprocess)
-   - Developer B: User Story 2 (Analysis)
-   - Developer C: User Story 3 (Visualization/Reporting)
+ - Developer A: User Story 1 (Data/Preprocess)
+ - Developer B: User Story 2 (Analysis)
+ - Developer C: User Story 3 (Visualization/Reporting)
 3. Stories complete and integrate independently
 
 ---

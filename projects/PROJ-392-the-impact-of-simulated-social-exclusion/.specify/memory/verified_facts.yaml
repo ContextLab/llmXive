@@ -1,0 +1,18 @@
+'|hypothesi level set significance testing':
+  quote: "For example, if 1000 independent tests are performed, each at level \u03B1\
+    \ = 0.05, we expect 0.05 \xD7 1000 = 50 significant tests to occur when all null\
+    \ hypotheses are true.  Based on the Poisson distribution with mean 50, the probability\
+    \ of observing more than 61 significant tests is less than 0.05, so if more than\
+    \ 61 significant results are observed, it is very likely that some of them correspond\
+    \ to situations where the alternative hypothesis holds.  A drawback of this approach\
+    \ is that it overstates the evidence that some of the alternative hypotheses are\
+    \ true when the test statistics are positively correlated, which commonly occurs\
+    \ in practice.  . On the other hand, the approach remains valid even in the presence\
+    \ of correlation among the test statistics, as long as the Poisson distribution\
+    \ can be shown to provide a good approximation for the number of significant results.\
+    \ This scenario arises, for instance, when mining significant frequent itemsets\
+    \ from transactional datasets. Furthermore, a careful two stage analysis can bound\
+    \ the FDR at a pre-specified level."
+  source_id: Multiple comparisons problem
+  url: https://en.wikipedia.org/wiki/Multiple_comparisons_problem
+  value: '0.05'
