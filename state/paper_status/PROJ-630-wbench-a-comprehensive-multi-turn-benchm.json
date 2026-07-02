@@ -1,14 +1,10 @@
 {
-  "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm/paper/pdf/2605.25874.pdf",
+  "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-630-wbench-a-comprehensive-multi-turn-benchm/paper/pdf/main-llmxive.pdf",
   "audit": null,
   "repair_rounds": 0,
-  "llmxive_compile_attempts": 1,
-  "status": "fallback_original",
-  "failure": {
-    "stage": "compile",
-    "reason": "lualatex failed:\nLibrary (tcolorbox): 'tcbexternal.code.tex' version '6.2.0'\n) (/usr/share/texlive/texmf-dist/tex/latex/tcolorbox/tcbmagazine.code.tex\nLibrary (tcolorbox): 'tcbmagazine.code.tex' version '6.2.0'\n) (/usr/share/texlive/texmf-dist/tex/latex/tcolorbox/tcbvignette.code.tex\nLibrary (tcolorbox): 'tcbvignette.code.tex' version '6.2.0'\n\n(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik\nzlibraryfadings.code.tex\n(/usr/share/texlive/texmf-dist/tex/generic/pgf/libraries/pgflibraryfadings.code\n.tex))) (/usr/share/texlive/texmf-dist/tex/latex/tcolorbox/tcbposter.code.tex\nLibrary (tcolorbox): 'tcbposter.code.tex' version '6.2.0'\n))\n\n! LaTeX Error: File `soul.sty' not found.\n\nType X to quit or <RETURN> to proceed,\nor enter new name. (Default extension: sty)\n\nEnter file name: \n! Emergency stop.\n<read *> \n   \nl.32 \\usepackage\n              [capitalize]{cleveref}\n 1391 words of node memory still in use:\n   29 hlist, 1 vlist, 14 rule, 1 dir, 4 kern, 1 glyph, 80",
-    "log_excerpt": "lualatex failed:\nLibrary (tcolorbox): 'tcbexternal.code.tex' version '6.2.0'\n) (/usr/share/texlive/texmf-dist/tex/latex/tcolorbox/tcbmagazine.code.tex\nLibrary (tcolorbox): 'tcbmagazine.code.tex' version '6.2.0'\n) (/usr/share/texlive/texmf-dist/tex/latex/tcolorbox/tcbvignette.code.tex\nLibrary (tcolorbox): 'tcbvignette.code.tex' version '6.2.0'\n\n(/usr/share/texlive/texmf-dist/tex/generic/pgf/frontendlayer/tikz/libraries/tik\nzlibraryfadings.code.tex\n(/usr/share/texlive/texmf-dist/tex/generic/pgf/libraries/pgflibraryfadings.code\n.tex))) (/usr/share/texlive/texmf-dist/tex/latex/tcolorbox/tcbposter.code.tex\nLibrary (tcolorbox): 'tcbposter.code.tex' version '6.2.0'\n))\n\n! LaTeX Error: File `soul.sty' not found.\n\nType X to quit or <RETURN> to proceed,\nor enter new name. (Default extension: sty)\n\nEnter file name: \n! Emergency stop.\n<read *> \n   \nl.32 \\usepackage\n              [capitalize]{cleveref}\n 1391 words of node memory still in use:\n   29 hlist, 1 vlist, 14 rule, 1 dir, 4 kern, 1 glyph, 80 attribute, 79 glue_sp\nec, 80 attribute_list, 2 write, 24 pdf_literal, 26 pdf_colorstack nodes\n   avail lists: 1:1,2:14,3:1,5:5,7:5,8:2\n!  ==> Fatal error occurred, no output PDF file produced!\nTranscript written on main-llmxive.log."
-  },
+  "llmxive_compile_attempts": 0,
+  "status": "restyled_unaudited",
+  "failure": null,
   "paper_id": "PROJ-630-wbench-a-comprehensive-multi-turn-benchm",
-  "updated_at": "2026-06-12T12:51:14.351605+00:00"
+  "updated_at": "2026-07-02T05:23:24.379295+00:00"
 }

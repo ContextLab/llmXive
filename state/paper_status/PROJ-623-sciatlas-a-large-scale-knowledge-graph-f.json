@@ -1,14 +1,10 @@
 {
-  "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f/paper/pdf/2605.22878.pdf",
+  "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-623-sciatlas-a-large-scale-knowledge-graph-f/paper/pdf/main-llmxive.pdf",
   "audit": null,
   "repair_rounds": 0,
-  "llmxive_compile_attempts": 1,
-  "status": "fallback_original",
-  "failure": {
-    "stage": "compile",
-    "reason": "lualatex failed:\n(/usr/share/texlive/texmf-dist/tex/latex/tools/longtable.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/multirow/multirow.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/makecell/makecell.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/algorithms/algorithm.sty\n(/usr/share/texlive/texmf-dist/tex/latex/base/ifthen.sty))\n(/usr/share/texlive/texmf-dist/tex/latex/algorithmicx/algpseudocode.sty\n(/usr/share/texlive/texmf-dist/tex/latex/algorithmicx/algorithmicx.sty\nDocument Style algorithmicx 1.2 - a greatly improved `algorithmic' style\n)\nDocument Style - pseudocode environments for use with the `algorithmicx' style\n) (/usr/share/texlive/texmf-dist/tex/latex/caption/subcaption.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/wrapfig/wrapfig.sty)\n\n! LaTeX Error: File `soul.sty' not found.\n\nType X to quit or <RETURN> to proceed,\nor enter new name. (Default extension: sty)\n\nEnter file name: \n! Emergency stop.\n<read *> \n   \nl.36 \\usepackage\n              [normalem]{ulem}\n 631 words of no",
-    "log_excerpt": "lualatex failed:\n(/usr/share/texlive/texmf-dist/tex/latex/tools/longtable.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/multirow/multirow.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/makecell/makecell.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/algorithms/algorithm.sty\n(/usr/share/texlive/texmf-dist/tex/latex/base/ifthen.sty))\n(/usr/share/texlive/texmf-dist/tex/latex/algorithmicx/algpseudocode.sty\n(/usr/share/texlive/texmf-dist/tex/latex/algorithmicx/algorithmicx.sty\nDocument Style algorithmicx 1.2 - a greatly improved `algorithmic' style\n)\nDocument Style - pseudocode environments for use with the `algorithmicx' style\n) (/usr/share/texlive/texmf-dist/tex/latex/caption/subcaption.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/wrapfig/wrapfig.sty)\n\n! LaTeX Error: File `soul.sty' not found.\n\nType X to quit or <RETURN> to proceed,\nor enter new name. (Default extension: sty)\n\nEnter file name: \n! Emergency stop.\n<read *> \n   \nl.36 \\usepackage\n              [normalem]{ulem}\n 631 words of node memory still in use:\n   5 hlist, 1 vlist, 2 rule, 1 dir, 4 kern, 1 glyph, 8 attribute, 83 glue_spec,\n 8 attribute_list, 2 write, 2 pdf_colorstack nodes\n   avail lists: 1:1,2:24,3:1,5:2,7:5,8:2\n!  ==> Fatal error occurred, no output PDF file produced!\nTranscript written on main-llmxive.log."
-  },
+  "llmxive_compile_attempts": 0,
+  "status": "restyled_unaudited",
+  "failure": null,
   "paper_id": "PROJ-623-sciatlas-a-large-scale-knowledge-graph-f",
-  "updated_at": "2026-06-12T12:51:01.148923+00:00"
+  "updated_at": "2026-07-02T05:21:46.638724+00:00"
 }

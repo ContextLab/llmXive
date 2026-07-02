@@ -1,5 +1,5 @@
 {
-  "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-602-https-arxiv-org-abs-2605-18661/paper/pdf/2605.18661.pdf",
+  "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-602-https-arxiv-org-abs-2605-18661/paper/pdf/original.pdf",
   "audit": {
     "passed": false,
     "defects": [
@@ -14,7 +14,7 @@
     "audited_at": "2026-06-11T03:07:49.949842+00:00"
   },
   "repair_rounds": 1,
-  "llmxive_compile_attempts": 1,
+  "llmxive_compile_attempts": 2,
   "status": "fallback_original",
   "failure": {
     "stage": "compile",
@@ -22,5 +22,5 @@
     "log_excerpt": "lualatex failed:\n\nPackage natbib Warning: Citation `aiideabench2025' on page 11 undefined on inpu\nt line 653.\n\n\nPackage natbib Warning: Citation `guo2025ideabench' on page 11 undefined on inp\nut line 655.\n\n\nPackage natbib Warning: Citation `hindsight2026' on page 11 undefined on input \nline 655.\n\n\nLaTeX Warning: Reference `LastPage' on page 11 undefined on input line 656.\n\n[11]\n\nLaTeX Font Warning: Font shape `TU/FontAwesome(0)/bx/n' undefined\n(Font)              using `TU/FontAwesome(0)/m/n' instead on input line 692.\n\n\nluaotfload | resolve : sequence of 3 lookups yielded nothing appropriate.\n! Font \\TU/FontAwesome(0)/m/n/10=FontAwesome:mode=node;language=dflt;+tlig; at \n10pt not loadable: metric data not found or bad.\n<to be read again> \nrelax \nl.692 }\n     \n! error:  (pdf backend): invalid font identifier when asking 'fontsize'\n!  ==> Fatal error occurred, no output PDF file produced!"
   },
   "paper_id": "PROJ-602-https-arxiv-org-abs-2605-18661",
-  "updated_at": "2026-07-02T03:49:54.799628+00:00"
+  "updated_at": "2026-07-02T05:19:15.241020+00:00"
 }

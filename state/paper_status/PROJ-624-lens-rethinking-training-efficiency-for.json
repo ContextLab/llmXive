@@ -1,13 +1,10 @@
 {
-  "pdf": "projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/pdf/main-llmxive.pdf",
-  "audit": {
-    "passed": true,
-    "defects": [],
-    "audited_at": "2026-06-11T03:08:43.154516+00:00"
-  },
+  "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-624-lens-rethinking-training-efficiency-for/paper/pdf/main-llmxive.pdf",
+  "audit": null,
   "repair_rounds": 0,
-  "status": "audited",
+  "llmxive_compile_attempts": 0,
+  "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-624-lens-rethinking-training-efficiency-for",
-  "updated_at": "2026-06-11T03:08:43.154531+00:00"
+  "updated_at": "2026-07-02T05:22:01.441254+00:00"
 }

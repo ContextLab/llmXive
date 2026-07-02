@@ -1,0 +1,108 @@
+\contentsline {section}{\numberline {1}Introduction}{1}{section.1}%
+\contentsline {section}{\numberline {2}Related Work}{3}{section.2}%
+\contentsline {paragraph}{Personal Assistant Benchmarks.}{3}{paragraph*.1}%
+\contentsline {paragraph}{Memory Agent Benchmarks.}{3}{paragraph*.2}%
+\contentsline {paragraph}{Proactive Evaluation.}{3}{paragraph*.3}%
+\contentsline {section}{\numberline {3}Benchmark}{4}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Evaluated Agent System}{4}{subsection.3.1}%
+\contentsline {paragraph}{Agent paradigm.}{4}{paragraph*.5}%
+\contentsline {paragraph}{Sessions.}{4}{paragraph*.6}%
+\contentsline {paragraph}{Tools and skills.}{5}{paragraph*.7}%
+\contentsline {subsection}{\numberline {3.2}User Agent}{5}{subsection.3.2}%
+\contentsline {paragraph}{User roles.}{5}{paragraph*.8}%
+\contentsline {paragraph}{Episodes.}{5}{paragraph*.9}%
+\contentsline {paragraph}{Workflow-grounded task design.}{5}{paragraph*.10}%
+\contentsline {paragraph}{Dependency structure.}{5}{paragraph*.11}%
+\contentsline {subsection}{\numberline {3.3}Task Formulation}{6}{subsection.3.3}%
+\contentsline {paragraph}{Initial request.}{6}{paragraph*.12}%
+\contentsline {paragraph}{Hidden intents.}{6}{paragraph*.13}%
+\contentsline {paragraph}{Checklist.}{6}{paragraph*.14}%
+\contentsline {paragraph}{Graders.}{6}{paragraph*.15}%
+\contentsline {subsection}{\numberline {3.4}Session Interaction and Intent Tracking}{6}{subsection.3.4}%
+\contentsline {paragraph}{Interaction process.}{6}{paragraph*.17}%
+\contentsline {paragraph}{Intent status assignment.}{7}{paragraph*.18}%
+\contentsline {paragraph}{Session termination.}{7}{paragraph*.19}%
+\contentsline {subsection}{\numberline {3.5}Evaluation Protocol}{8}{subsection.3.5}%
+\contentsline {paragraph}{Proactivity.}{8}{paragraph*.20}%
+\contentsline {paragraph}{Completeness.}{8}{paragraph*.21}%
+\contentsline {paragraph}{Metric relationship.}{8}{paragraph*.22}%
+\contentsline {section}{\numberline {4}Experiments}{8}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Setup}{9}{subsection.4.1}%
+\contentsline {paragraph}{Model Setup.}{9}{paragraph*.23}%
+\contentsline {paragraph}{Environment Setup.}{9}{paragraph*.24}%
+\contentsline {subsection}{\numberline {4.2}Main Results}{9}{subsection.4.2}%
+\contentsline {paragraph}{Model trends.}{9}{paragraph*.26}%
+\contentsline {paragraph}{Domain trends.}{10}{paragraph*.27}%
+\contentsline {subsection}{\numberline {4.3}Analysis}{10}{subsection.4.3}%
+\contentsline {paragraph}{Performance by task type.}{10}{paragraph*.29}%
+\contentsline {paragraph}{Distinguishing proactivity from completeness.}{11}{paragraph*.30}%
+\contentsline {paragraph}{Turn count and interaction cost.}{12}{paragraph*.32}%
+\contentsline {paragraph}{Prior interactions support proactive intent resolution.}{12}{paragraph*.34}%
+\contentsline {paragraph}{More experiments.}{13}{paragraph*.35}%
+\contentsline {section}{\numberline {5}Conclusions}{13}{section.5}%
+\contentsline {section}{\numberline {6}Limitations}{13}{section.6}%
+\contentsline {part}{Appendix}{17}{part*.36}%
+\ttl@starttoc {appendix@1}
+\contentsline {section}{\numberline {A}Benchmark Statistics}{18}{appendix.A}%
+\contentsline {subsection}{\numberline {A.1}Task and Grader Statistics}{18}{subsection.A.1}%
+\contentsline {subsection}{\numberline {A.2}Tool and Skill Statistics}{18}{subsection.A.2}%
+\contentsline {subsection}{\numberline {A.3}Taxonomy of Benchmark Tasks}{24}{subsection.A.3}%
+\contentsline {section}{\numberline {B}User Agent Protocol}{26}{appendix.B}%
+\contentsline {subsection}{\numberline {B.1}Overview}{26}{subsection.B.1}%
+\contentsline {subsection}{\numberline {B.2}Two-Stage Intent Assignment}{26}{subsection.B.2}%
+\contentsline {subsection}{\numberline {B.3}Session Termination}{30}{subsection.B.3}%
+\contentsline {section}{\numberline {C}Detailed Evaluation Protocol}{30}{appendix.C}%
+\contentsline {subsection}{\numberline {C.1}Overview}{30}{subsection.C.1}%
+\contentsline {subsection}{\numberline {C.2}Proactivity Evaluation}{30}{subsection.C.2}%
+\contentsline {subsection}{\numberline {C.3}Checklist Based Completeness Evaluation}{31}{subsection.C.3}%
+\contentsline {subsection}{\numberline {C.4}Tool Records}{31}{subsection.C.4}%
+\contentsline {subsection}{\numberline {C.5}LLM Rubric Evaluation}{31}{subsection.C.5}%
+\contentsline {subsection}{\numberline {C.6}Rule Based Tool Scoring}{32}{subsection.C.6}%
+\contentsline {section}{\numberline {D}Reproducibility and Runtime Settings}{33}{appendix.D}%
+\contentsline {paragraph}{Execution environment.}{33}{paragraph*.38}%
+\contentsline {paragraph}{Agent scaffold and app environments.}{34}{paragraph*.39}%
+\contentsline {paragraph}{Model access.}{34}{paragraph*.40}%
+\contentsline {section}{\numberline {E}Societal Impacts}{34}{appendix.E}%
+\contentsline {section}{\numberline {F}Experiments}{34}{appendix.F}%
+\contentsline {subsection}{\numberline {F.1}Reliability of Judgment Based Evaluation}{34}{subsection.F.1}%
+\contentsline {subsection}{\numberline {F.2}Terminal Status of Hidden Intents}{35}{subsection.F.2}%
+\contentsline {subsection}{\numberline {F.3}Task-Type Breakdown of Performance}{36}{subsection.F.3}%
+\contentsline {subsection}{\numberline {F.4}Failure Analysis}{36}{subsection.F.4}%
+\contentsline {paragraph}{Ignoring recoverable prior context.}{37}{paragraph*.44}%
+\contentsline {paragraph}{Completing the visible request while missing hidden requirements.}{37}{paragraph*.45}%
+\contentsline {paragraph}{Failing to ask targeted clarifications.}{37}{paragraph*.46}%
+\contentsline {paragraph}{Using tools without verifying the required artifact.}{38}{paragraph*.47}%
+\contentsline {section}{\numberline {G}Task Format}{38}{appendix.G}%
+\contentsline {section}{\numberline {H}Discussion}{38}{appendix.H}%
+\contentsline {subsection}{\numberline {H.1}Metric Relationship}{38}{subsection.H.1}%
+\contentsline {subsection}{\numberline {H.2}Hidden Intents and Checklists}{39}{subsection.H.2}%
+\contentsline {paragraph}{Hidden intents.}{39}{paragraph*.48}%
+\contentsline {paragraph}{Checklists.}{39}{paragraph*.49}%
+\contentsline {section}{\numberline {I}Benchmark Construction and Annotation}{39}{appendix.I}%
+\contentsline {subsection}{\numberline {I.1}Task Sources and Workflow Collection}{39}{subsection.I.1}%
+\contentsline {paragraph}{Workflow sources.}{39}{paragraph*.50}%
+\contentsline {paragraph}{Selection criteria.}{39}{paragraph*.51}%
+\contentsline {paragraph}{Data sanitization.}{40}{paragraph*.52}%
+\contentsline {subsection}{\numberline {I.2}Task Construction Procedure}{40}{subsection.I.2}%
+\contentsline {paragraph}{Task goal selection.}{40}{paragraph*.53}%
+\contentsline {paragraph}{Task specification.}{40}{paragraph*.54}%
+\contentsline {paragraph}{Intent and checklist annotation.}{40}{paragraph*.55}%
+\contentsline {paragraph}{Feasibility validation.}{40}{paragraph*.56}%
+\contentsline {subsection}{\numberline {I.3}Annotation Guidelines}{41}{subsection.I.3}%
+\contentsline {paragraph}{Initial requests.}{41}{paragraph*.57}%
+\contentsline {paragraph}{Hidden intents.}{41}{paragraph*.59}%
+\contentsline {paragraph}{Checklists and graders.}{41}{paragraph*.61}%
+\contentsline {subsection}{\numberline {I.4}Quality Control}{42}{subsection.I.4}%
+\contentsline {section}{\numberline {J}Case Study}{42}{appendix.J}%
+\contentsline {subsection}{\numberline {J.1}Hidden Intents}{42}{subsection.J.1}%
+\contentsline {paragraph}{Failure case: Researcher -- Claude 4.6 Opus.}{42}{paragraph*.63}%
+\contentsline {paragraph}{Contrast case: Researcher -- DeepSeek V3.2 and Claude 4.6 Opus.}{45}{paragraph*.66}%
+\contentsline {paragraph}{Success case: Marketer -- GPT-5.4.}{45}{paragraph*.71}%
+\contentsline {paragraph}{Success case: Pharmacist -- Kimi K2.5.}{46}{paragraph*.74}%
+\contentsline {subsection}{\numberline {J.2}Checklist}{48}{subsection.J.2}%
+\contentsline {paragraph}{Success case: Law Trainee -- GPT-5.4.}{48}{paragraph*.77}%
+\contentsline {paragraph}{Failure case: Law Trainee -- Kimi K2.5.}{48}{paragraph*.78}%
+\contentsline {subsection}{\numberline {J.3}Cross-Session Dependency Design}{52}{subsection.J.3}%
+\contentsline {paragraph}{Success case: Researcher -- Claude 4.6 Opus.}{52}{paragraph*.82}%
+\contentsline {paragraph}{Failure case: Researcher -- Kimi K2.5.}{55}{paragraph*.83}%
+\contentsfinish 
