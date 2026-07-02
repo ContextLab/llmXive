@@ -1,0 +1,61 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Schema for Impurity Clustering Segregation"
+description: "Schema for the final merged dataset used in regression modeling."
+type: "object"
+properties:
+  gb_id:
+    type: "string"
+    description: "Unique identifier for the grain boundary configuration."
+  material_id:
+    type: "string"
+    description: "Source material identifier from OQMD/MP."
+  impurity_species:
+    type: "string"
+    description: "Element symbol of the impurity (e.g., 'C', 'S')."
+  rfd_peak_value:
+    type: "number"
+    description: "Peak value of the Radial Distribution Function."
+  pair_corr_value:
+    type: "number"
+    description: "Pair correlation statistic value."
+  voronoi_neighbor_count:
+    type: "integer"
+    description: "Number of neighbors within the first coordination shell."
+  segregation_energy_eV:
+    type: "number"
+    description: "Calculated segregation energy in electron-volts (eV)."
+    minimum: -10.0
+    maximum: 10.0
+  simulation_method:
+    type: "string"
+    enum:
+      - "EAM"
+      - "DFT"
+      - "Surrogate"
+    description: "Method used to calculate energy."
+  gb_plane_h:
+    type: "integer"
+    description: "Miller index h for GB plane."
+  gb_plane_k:
+    type: "integer"
+    description: "Miller index k for GB plane."
+  gb_plane_l:
+    type: "integer"
+    description: "Miller index l for GB plane."
+  misorientation_angle:
+    type: "number"
+    description: "Misorientation angle in degrees."
+required:
+  - gb_id
+  - material_id
+  - impurity_species
+  - rfd_peak_value
+  - pair_corr_value
+  - voronoi_neighbor_count
+  - segregation_energy_eV
+  - simulation_method
+  - gb_plane_h
+  - gb_plane_k
+  - gb_plane_l
+  - misorientation_angle
+additionalProperties: false

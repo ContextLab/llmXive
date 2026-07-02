@@ -1,0 +1,415 @@
+resolved_at: '2026-07-02T14:12:54.338171+00:00'
+datasets:
+- intent: OQMD
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/kjappelbaum/chemnlp-oqmd/resolve/main/targets.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/materials-toolkits/oqmd/resolve/main/oqmd.tar.gz
+    source: huggingface
+    format: gzip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/jablonkagroup/oqmd/resolve/main/completion_0/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/kjappelbaum/chemnlp-oqmd/resolve/main/targets.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/materials-toolkits/oqmd/resolve/main/oqmd.tar.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/api/resolve-cache/datasets/chenebuah/oqmd/817946484b34c34fb4f15f99aea46837647f5b25/data%2Foqmd_data.csv?%2Fdatasets%2Fchenebuah%2Foqmd%2Fresolve%2Fmain%2Fdata%2Foqmd_data.csv=&etag=%2293db93dd7ed55e87a549b916aaa2720956d20028%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/jablonkagroup/oqmd/resolve/main/completion_0/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/colabfit/JARVIS_CFID_OQMD/resolve/main/co/co_0.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Enhanced_Lipidomics_via_False-Positive_Filtering_and_Multilevel_Interpretation_Reveals_Six_Mediators_Linking_Intravenous_Omega_3_Lipid_Emulsions_to_Neuropathic_Pain_Modulation/32881536
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Topologically_Programmed_Dual-Channel_Covalent_Organic_Frameworks_Decouple_Gas_and_Ion_Fluxes_for_Acidic_CO_sub_2_sub_Electroreduction/32881533
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Probing_Molecular_Structural_Changes_of_Buried_Interfaces_between_Polyethylene_and_Nylon_in_Polymer_Thin_Films_after_Stretching/32881527
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Ambitious_Co-scaling_of_Carbon_Dioxide_Removal_and_Decarbonization_Delivers_Better_Climate_Outcomes_Than_Strategies_That_Prioritize_Efforts_in_One_Domain/32881524
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Ordinary_Supporters_in_Contemporary_Armenian_Football_b_/31101595
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3966736
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7118055
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10028980
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7124330
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7373089
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.14088
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20456970
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20456970
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.20322680
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+  - url: https://arxiv.org/abs/2605.27229
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: LOOCV
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://repository.mmu.ac.uk/articles/thesis/Prenatal_Stress_Attachment_and_the_Regulation_of_HPA_axis_Autonomic_and_Immune_Systems_functioning_in_the_mother-infant_dyad/32881538
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/qRT-PCR_RAW_DATA/32881001
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Enhanced_Lipidomics_via_False-Positive_Filtering_and_Multilevel_Interpretation_Reveals_Six_Mediators_Linking_Intravenous_Omega_3_Lipid_Emulsions_to_Neuropathic_Pain_Modulation/32881536
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Topologically_Programmed_Dual-Channel_Covalent_Organic_Frameworks_Decouple_Gas_and_Ion_Fluxes_for_Acidic_CO_sub_2_sub_Electroreduction/32881533
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Probing_Molecular_Structural_Changes_of_Buried_Interfaces_between_Polyethylene_and_Nylon_in_Polymer_Thin_Films_after_Stretching/32881527
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4317158
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5733366
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19546367
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15319409
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18375139
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://publica.fraunhofer.de/entities/publication/ebf17d6f-6729-422d-99ff-8ee96be6b808
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/j8mg6/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18894072
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21070363
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21070363
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: RMSE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/arjunashok/medical-5day-zeroshot-freshexps-test-plot_with_rmsesort/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/arjunashok/medical-5day-zeroshot-freshexps-test-no-context-plot_with_rmsesort_noctx/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/arjunashok/medical-5day-zeroshot-freshexps-test-plot_with_rmsesort/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/arjunashok/medical-5day-zeroshot-freshexps-test-no-context-plot_with_rmsesort_noctx/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/68edd46259f14f21c698aa28/f44f703ecd57d1ddffab68ea166dffcb818f02a0274566ab4651239ed85fffff?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27dataset_list.json%3B+filename%3D%22dataset_list.json%22%3B&user_id=public&X-Xet-Cas-Uid=public&response-content-type=application%2Fjson&Expires=1783005055&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjhlZGQ0NjI1OWYxNGYyMWM2OThhYTI4L2Y0NGY3MDNlY2Q1N2QxZGRmZmFiNjhlYTE2NmRmZmNiODE4ZjAyYTAyNzQ1NjZhYjQ2NTEyMzllZDg1ZmZmZmZcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGF0YXNldF9saXN0Lmpzb24lM0IrZmlsZW5hbWUlM0QlMjJkYXRhc2V0X2xpc3QuanNvbiUyMiUzQiZ1c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODMwMDUwNTV9fX1dfQ__&Signature=MEQCIHR7DQiKKz9UB0U30xJMoxavliNCL~O41WWuC-7Q1P8CAiBcz-4HjgMj5yPIjCKm~EEGZxAE8m7Nxd2bvyJX1acn8w__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.mmu.ac.uk/articles/thesis/Prenatal_Stress_Attachment_and_the_Regulation_of_HPA_axis_Autonomic_and_Immune_Systems_functioning_in_the_mother-infant_dyad/32881538
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/qRT-PCR_RAW_DATA/32881001
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Enhanced_Lipidomics_via_False-Positive_Filtering_and_Multilevel_Interpretation_Reveals_Six_Mediators_Linking_Intravenous_Omega_3_Lipid_Emulsions_to_Neuropathic_Pain_Modulation/32881536
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Topologically_Programmed_Dual-Channel_Covalent_Organic_Frameworks_Decouple_Gas_and_Ion_Fluxes_for_Acidic_CO_sub_2_sub_Electroreduction/32881533
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Probing_Molecular_Structural_Changes_of_Buried_Interfaces_between_Polyethylene_and_Nylon_in_Polymer_Thin_Films_after_Stretching/32881527
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20325172
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17593144
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17750460
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10972798
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10964593
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://fair.unifg.it//handle/11369/382362
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://epub.uni-bayreuth.de/id/eprint/9459/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21132809
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21132809
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21132765
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-only
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://repository.mmu.ac.uk/articles/thesis/Prenatal_Stress_Attachment_and_the_Regulation_of_HPA_axis_Autonomic_and_Immune_Systems_functioning_in_the_mother-infant_dyad/32881538
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/qRT-PCR_RAW_DATA/32881001
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Enhanced_Lipidomics_via_False-Positive_Filtering_and_Multilevel_Interpretation_Reveals_Six_Mediators_Linking_Intravenous_Omega_3_Lipid_Emulsions_to_Neuropathic_Pain_Modulation/32881536
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Topologically_Programmed_Dual-Channel_Covalent_Organic_Frameworks_Decouple_Gas_and_Ion_Fluxes_for_Acidic_CO_sub_2_sub_Electroreduction/32881533
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Probing_Molecular_Structural_Changes_of_Buried_Interfaces_between_Polyethylene_and_Nylon_in_Polymer_Thin_Films_after_Stretching/32881527
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.11591/eei.v9i2.1972
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''beei.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://zenodo.org/records/6127654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20820977
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20820977
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.15167/tigano-danilo_phd2018-04-20
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''iris.unige.it'',
+      port=443): Max retries exceeded with url: /handle/11567/929442 (Caused by ConnectTimeoutError(<HTTPSConnection(host=''iris.unige.it'',
+      port=443) at 0x7f324dc47110>, ''Connection to iris.unige.it timed out. (connect
+      timeout=20.0)''))'
+  - url: https://drops.dagstuhl.de/entities/document/10.4230/DARTS.12.2.9
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://drops.dagstuhl.de/entities/document/10.4230/DARTS.12.2.4
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: RandomForest
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/RandomForest8/sciERC/resolve/main/dev.json
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 103316
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/RandomForest8/sciERC/resolve/main/dev.json
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://repository.mmu.ac.uk/articles/thesis/Prenatal_Stress_Attachment_and_the_Regulation_of_HPA_axis_Autonomic_and_Immune_Systems_functioning_in_the_mother-infant_dyad/32881538
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/qRT-PCR_RAW_DATA/32881001
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Enhanced_Lipidomics_via_False-Positive_Filtering_and_Multilevel_Interpretation_Reveals_Six_Mediators_Linking_Intravenous_Omega_3_Lipid_Emulsions_to_Neuropathic_Pain_Modulation/32881536
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Topologically_Programmed_Dual-Channel_Covalent_Organic_Frameworks_Decouple_Gas_and_Ion_Fluxes_for_Acidic_CO_sub_2_sub_Electroreduction/32881533
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Probing_Molecular_Structural_Changes_of_Buried_Interfaces_between_Polyethylene_and_Nylon_in_Polymer_Thin_Films_after_Stretching/32881527
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4459839
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5838122
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10419006
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14799772
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3934498
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20698934
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20698934
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.jdfn2z3rt
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.20771813
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+  - url: https://zenodo.org/records/21070784
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

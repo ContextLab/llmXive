@@ -1,0 +1,70 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+description: "Schema for the metrics and sensitivity analysis results."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    description: "Type of regression model used (e.g., 'RandomForest')."
+  cross_validation_method:
+    type: "string"
+    enum:
+      - "5-fold"
+      - "LOOCV"
+    description: "Cross-validation strategy used."
+  metrics:
+    type: "object"
+    properties:
+      r_squared:
+        type: "number"
+        description: "Coefficient of determination."
+      rmse:
+        type: "number"
+        description: "Root Mean Square Error."
+      p_values:
+        type: "array"
+        items:
+          type: "number"
+        description: "Adjusted p-values for coefficients."
+      vif_scores:
+        type: "object"
+        additionalProperties:
+          type: "number"
+        description: "Variance Inflation Factor for each predictor."
+      sample_size:
+        type: "integer"
+        description: "Number of samples used in training."
+    required:
+      - r_squared
+      - rmse
+      - p_values
+      - vif_scores
+      - sample_size
+  sensitivity_analysis:
+    type: "object"
+    properties:
+      parameter_name:
+        type: "string"
+        description: "Name of the swept parameter (e.g., 'regularization_strength')."
+      threshold_values:
+        type: "array"
+        items:
+          type: "number"
+        description: "List of threshold values tested."
+      rmse_variance:
+        type: "number"
+        description: "Variance of RMSE across the sweep."
+      r_squared_stability:
+        type: "number"
+        description: "Standard deviation of R² across the sweep."
+    required:
+      - parameter_name
+      - threshold_values
+      - rmse_variance
+      - r_squared_stability
+required:
+  - model_type
+  - cross_validation_method
+  - metrics
+  - sensitivity_analysis
+additionalProperties: false
