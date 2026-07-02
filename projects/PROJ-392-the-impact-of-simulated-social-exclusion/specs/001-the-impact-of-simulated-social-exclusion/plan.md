@@ -1,29 +1,25 @@
-# Implementation Plan: 001-social-exclusion-reward-neural
+# Implementation Plan: The Impact of Simulated Social Exclusion on Neural Responses to Reward
 
-**Branch**: `001-social-exclusion-reward-neural` | **Date**: 2024-01-15 | **Spec**: `specs/001-social-exclusion-reward-neural/spec.md`
-**Input**: Feature specification from `specs/001-social-exclusion-reward-neural/spec.md`
+**Branch**: `001-social-exclusion-reward-neural` | **Date**: 2024-01-15 | **Spec**: `spec.md`
+**Input**: Feature specification from `/specs/001-social-exclusion-reward-neural/spec.md`
 
 ## Summary
 
-This feature implements a CPU-tractable fMRI analysis pipeline to investigate the association between simulated social exclusion (Cyberball paradigm) and subsequent neural responses to reward (ventral striatum, OFC). The system downloads BIDS-formatted datasets (OpenNeuro), preprocesses them using CPU-optimized methods (Nilearn/AFNI), extracts ROI beta estimates for specific contrasts, performs second-level mixed-effects modeling with FWE correction, and generates sensitivity analyses and visualizations. 
+This feature implements a computational neuroscience pipeline to investigate whether simulated social exclusion (via Cyberball) modulates neural activity in reward regions (ventral striatum, OFC) during subsequent reward anticipation. The approach involves downloading BIDS-formatted fMRI data, performing CPU-tractable preprocessing (slice timing, realignment, normalization, smoothing), extracting ROI beta estimates, and conducting second-level mixed-effects analysis with Bonferroni correction. 
 
-**Critical Feasibility Note**: The original spec assumed a single dataset containing both Cyberball and a subsequent reward task (e.g., MID). No such dataset exists in OpenNeuro (The dataset is Cyberball only.; The dataset is Cyberball only; The dataset is MID only.). To proceed, this plan adopts a **Feasibility Pivot**: 
-1. **Primary Path**: Analyze the neural correlates of the *exclusion task itself* (e.g., anticipation of social feedback) if the dataset contains such a component.
-2. **Secondary Path (Simulation)**: If the dataset lacks a reward task, the pipeline will generate **synthetic reward task data** (simulated BOLD responses) to demonstrate the analysis pipeline, clearly labeling these as simulations.
-3. **Alternative Path**: If a combined dataset is found later, the pipeline will switch to the interaction contrast.
-
-All processing is constrained to run on GitHub Actions free-tier runners (vCPU, 7 GB RAM) without GPU acceleration.
+**Critical Design Pivot**: Since no single verified public dataset contains both the Cyberball exclusion paradigm and a subsequent reward task in the same subjects, this plan implements a **Merged Dataset Strategy**. We will merge a verified Exclusion dataset (e.g., ds000246) with a verified Reward dataset (e.g., ds004738 or similar), applying strict confound controls and meta-analytic techniques to handle inter-dataset variability. Synthetic data is **not** used for primary analysis or validation, as it would render the scientific question untestable.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `nibabel`, `nilearn` (v0.10+), `scikit-learn`, `pandas`, `numpy`, `matplotlib`, `seaborn`, `scipy`, `openneuro-py`.  
-**Storage**: Local filesystem (`data/raw-fmri/`, `data/processed-fmri/`, `data/behavioral/`). No external database.  
-**Testing**: `pytest` (contract tests against YAML schemas, unit tests for statistical logic).  
-**Target Platform**: Linux (GitHub Actions free-tier runner).  
-**Project Type**: Computational research pipeline (CLI).  
-**Performance Goals**: Preprocessing ≤4 hours for N=10-15 (downsampled) on CPU-only runner; Total runtime ≤6 hours; Memory ≤7 GB.  
-**Constraints**: No GPU/CUDA; No large LLM inference; Chunked processing for memory management; Strict BIDS compliance; **Downsampling to 4mm** if memory >6GB.
+**Primary Dependencies**: `nibabel`, `numpy`, `pandas`, `scikit-learn`, `scipy`, `matplotlib`, `pandas`, `bids-validator` (via `pybids`), `fmriprep` (CPU-compatible invocation), `nipype` (for pipeline orchestration), `nilearn` (for GLM and visualization).  
+**Storage**: Local filesystem (`data/raw-fmri`, `data/processed-fmri`, `data/behavioral`, `data/results`).  
+**Testing**: `pytest` (unit tests for data extraction, integration tests for pipeline execution on sample data).  
+**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, 7 GB RAM).  
+**Project Type**: Research pipeline / Computational Neuroscience.  
+**Performance Goals**: Preprocessing ≤4 hours for ≤20 participants; Total runtime ≤6 hours.  
+**Constraints**: No GPU; No CUDA; Memory usage <7 GB; Disk usage <14 GB; All code must be reproducible on fresh runner.  
+**Scale/Scope**: Merged datasets (Exclusion + Reward); ≤20 participants per group for initial validation.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -31,15 +27,15 @@ All processing is constrained to run on GitHub Actions free-tier runners (vCPU, 
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Compliance Status | Implementation Strategy |
+| Principle | Status | Implementation Strategy |
 | :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | All random seeds pinned in `code/`. External datasets fetched via deterministic OpenNeuro CLI (`openneuro-py`). `requirements.txt` pins versions. |
-| **II. Verified Accuracy** | **PASS** | Citations in `research.md` will be validated against the "Verified datasets" block. No invented URLs. |
-| **III. Data Hygiene** | **PASS** | Raw data stored in `data/raw-fmri/` with checksums. Derived data in `data/processed-fmri/`. No in-place modifications. PII scan via `Repository-Hygiene Agent`. |
-| **IV. Single Source of Truth** | **PASS** | All figures/stats in `paper/` trace to `data/` rows and `code/` blocks. No hand-typed numbers. |
-| **V. Versioning Discipline** | **PASS** | Content hashes for artifacts. `state/` updated on artifact changes. |
-| **VI. Neuroimaging Data Integrity** | **PASS** | Raw scans preserved in `data/raw-fmri/`. Preprocessing scripts in `code/preprocess/` produce `data/processed-fmri/`. Provenance files record pipeline versions. |
-| **VII. Behavioral Manipulation Standardization** | **PASS** | **Replication Strategy**: A deterministic script `code/manipulation/cyberball.py` is generated to **replicate** the original paradigm parameters for documentation and transparency. It does not generate the data but verifies the original study's timing if metadata is available. Behavioral data is extracted from BIDS `participants.tsv` or `task-*.tsv`, checksummed, and stored in `data/behavioral/`. If missing, the system flags the group label as a 'proxy variable'. |
+| **I. Reproducibility** | ✅ PASS | All scripts in `code/` will use pinned `requirements.txt`. Random seeds will be set in `code/preprocess` and `code/analysis`. External data fetched via `datasets.load_dataset` or `requests` to verified URLs. |
+| **II. Verified Accuracy** | ✅ PASS | Citations in `research.md` and `paper/` will be validated against the "Verified datasets" block in the user message. No fabricated URLs. A 'Verified Accuracy Gate' step is added to the pipeline flow. |
+| **III. Data Hygiene** | ✅ PASS | Raw data stored in `data/raw-fmri` unaltered. Checksums recorded in `state/`. Derivations in `data/processed-fmri` with provenance logs. |
+| **IV. Single Source of Truth** | ✅ PASS | All figures/stats in reports will be generated programmatically from `data/results` (CSV/JSON), not hand-typed. |
+| **V. Versioning Discipline** | ✅ PASS | Artifacts will be hashed; `state/` updated on change. |
+| **VI. Neuroimaging Data Integrity** | ✅ PASS | Raw scans in `data/raw-fmri/`; preprocessing in `code/preprocess/`; derived files in `data/processed-fmri/`. **Machine-readable provenance files (YAML/JSON sidecars)** are generated for every preprocessed file. |
+| **VII. Behavioral Manipulation Standardization** | ✅ PASS | Exclusion condition labels extracted from `participants.tsv` or task JSON; linked via participant ID. **A `code/manipulation/` directory is added** to store deterministic manipulation scripts and logs. |
 
 ## Project Structure
 
@@ -52,7 +48,7 @@ specs/001-social-exclusion-reward-neural/
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output
+└── tasks.md             # Phase 2 output (NOT created by /speckit-plan)
 ```
 
 ### Source Code (repository root)
@@ -61,89 +57,112 @@ specs/001-social-exclusion-reward-neural/
 projects/PROJ-392-the-impact-of-simulated-social-exclusion/
 ├── code/
 │   ├── __init__.py
-│   ├── main.py              # Entry point for pipeline execution
-│   ├── download.py          # Dataset acquisition (OpenNeuro via openneuro-py)
-│   ├── preprocess.py        # CPU-tractable preprocessing (Nilearn/AFNI)
-│   ├── roi_extraction.py    # Beta extraction from AAL/Harvard-Oxford
-│   ├── analysis.py          # Second-level mixed-effects, FWE correction, sensitivity
-│   ├── viz.py               # Plotting (bar plots, SPM overlays)
-│   ├── manipulation/        # Replication scripts for documentation
-│   │   └── cyberball.py     # Replicates original paradigm parameters
-│   └── utils.py             # Logging, checksumming, BIDS helpers
+│   ├── requirements.txt
+│   ├── data_download/
+│   │   └── download_openneuro.py
+│   ├── manipulation/       # [NEW] For behavioral manipulation scripts/logs
+│   │   ├── __init__.py
+│   │   └── generate_condition_labels.py
+│   ├── preprocess/
+│   │   ├── __init__.py
+│   │   ├── cpu_fmriprep_wrapper.py
+│   │   └── run_preprocessing.py
+│   ├── analysis/
+│   │   ├── __init__.py
+│   │   ├── roi_extraction.py
+│   │   ├── group_analysis.py
+│   │   └── sensitivity_analysis.py
+│   ├── visualization/
+│   │   ├── __init__.py
+│   │   └── plot_results.py
+│   ├── utils/
+│   │   ├── checksums.py
+│   │   ├── provenance.py
+│   │   └── framing_validator.py
+│   └── pipeline/
+│       └── run_pipeline.py
 ├── data/
-│   ├── raw-fmri/            # Downloaded raw BIDS data
-│   ├── processed-fmri/      # Preprocessed NIfTI + GLM estimates
-│   ├── behavioral/          # Condition labels, distress scores (checksummed)
-│   └── synthetic/           # (Optional) Synthetic reward task data if needed
-├── tests/
-│   ├── contract/            # Schema validation tests
-│   ├── integration/         # Full pipeline tests (sample data)
-│   └── unit/                # Statistical logic tests
-├── docs/
-│   └── paper/               # Generated reports and visualizations
-└── requirements.txt
+│   ├── raw-fmri/
+│   ├── processed-fmri/
+│   ├── behavioral/
+│   └── results/
+├── specs/001-social-exclusion-reward-neural/
+└── tests/
+    ├── unit/
+    └── integration/
 ```
 
-**Structure Decision**: Single project structure (Option 1) selected. The pipeline is linear (Download -> Preprocess -> Analyze -> Visualize) and does not require separate frontend/backend services. All logic resides in `code/` for reproducibility and version control. `data/behavioral/` is explicitly included.
+**Structure Decision**: Single project structure selected. The pipeline is linear (Download → Preprocess → Analyze → Visualize) and fits within a single Python environment. `code/` is organized by functional stage to ensure modularity and testability. **Added `code/manipulation/` and `code/utils/framing_validator.py` to address Constitution and SC requirements.**
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 | :--- | :--- | :--- |
-| **Chunked Processing** | fMRIPrep/Nipype can exceed 7 GB RAM on full datasets. | Processing all participants at once risks OOM crashes on GitHub Actions free tier. |
-| **Downsampling** | High resolution may exceed 7GB RAM on 2 vCPU. | Full 3mm processing is infeasible; A minimum threshold is established for ROI analysis.. |
-| **Sensitivity Analysis Loop** | Must test multiple threshold combinations (smoothing × 3 ROI radii). | Single-run analysis fails SC-003 (robustness check) and risks methodological rejection. |
-| **CPU-Only Constraints** | No GPU available on free tier. | GPU-dependent libraries (e.g., `torch` with CUDA) would prevent execution; CPU-tractable alternatives (Nilearn/AFNI) are required. |
-| **Feasibility Pivot** | No single dataset contains both Cyberball and Reward tasks. | The original design is impossible; the plan must pivot to simulation or single-task analysis. |
-
+| **N/A** | The scope is constrained to CPU-tractable methods and a single dataset (or merged datasets). No complex microservices or distributed computing is required. | N/A |
 
 ## Implementation Phases
 
-### Phase 0: Data Acquisition & Feasibility Check
-- **Task 0.1**: Download raw BIDS dataset (ds000246) via `openneuro-py`.
-- **Task 0.2**: Verify dataset contents (Cyberball task only? Missing reward task?).
-- **Task 0.3**: If reward task is missing, generate **synthetic reward task data** (simulated BOLD) or flag as **blocking issue** and halt.
-- **Task 0.4**: Checksum raw data and record in `data/raw-fmri/`.
+### Phase 0: Data Acquisition & Verification
+- **Task 0.1**: Download verified Exclusion dataset (e.g., ds000246) and verified Reward dataset (e.g., ds004738) from OpenNeuro.
+- **Task 0.2**: Verify dataset contents (Cyberball/MID tasks) and BIDS compliance.
+- **Task 0.3**: **Verified Accuracy Gate**: Run Reference-Validator Agent to check all dataset citations against the "Verified datasets" block.
 
-### Phase 0.5: Design Verification
-- **Task 0.5**: Inspect BIDS task files to determine if the design is **within-subject** (each participant does both exclusion and inclusion) or **between-subject**.
-- **Task 0.6**: Select statistical model: Mixed-effects (within-subject) or Independent t-test (between-subject).
+### Phase 1: Preprocessing & Confound Control
+- **Task 1.1**: Run CPU-tractable preprocessing (slice timing, realignment, normalization, smoothing).
+  - **Constraint**: `fmriprep` invoked with `--nthreads 2 --mem-mb 6000` to respect 7GB RAM limit.
+  - **Batching**: Process participants in batches.
+- **Task 1.2**: **Provenance Generation**: Create machine-readable YAML sidecars for each preprocessed file recording pipeline version and parameters.
+- **Task 1.3**: **Metrics Collection**: Calculate and log 'Preprocessing Completion Rate' (target ≥90%) to `data/results/preprocessing_metrics.json`.
+- **Task 1.4**: **Merging & Confound Adjustment**: Harmonize datasets. If merging separate datasets, add 'Dataset ID' as a random effect in the mixed-effects model or match demographics.
 
-### Phase 1: Preprocessing (CPU-Optimized)
-- **Task 1.1**: Slice timing correction.
-- **Task 1.2**: Realignment (motion correction).
-- **Task 1.3**: Normalization to MNI space (using `nilearn.image.resample_img` with **4mm** isotropic resolution if memory >6GB).
-- **Task 1.4**: Smoothing: 6mm FWHM (primary), with sensitivity analysis at 4mm and 8mm.
-- **Task 1.5**: **Memory Management**: Process participants in manageable batches.. Monitor RAM; if >6GB, downsample to 4mm.
-- **Task 1.6**: Log **Preprocessing Completion Rate** (Success/Total) for SC-004.
+### Phase 2: First-Level & ROI Analysis
+- **Task 2.1**: Run First-Level GLM with AR(1) pre-whitening for temporal autocorrelation.
+- **Task 2.2**: Extract beta estimates from ROIs (Ventral Striatum, OFC) for Anticipation and Receipt events.
+- **Task 2.3**: Store results in `data/results/beta_estimates.csv`.
 
-### Phase 2: ROI Definition & Extraction
-- **Task 2.1**: Define ROIs: Ventral Striatum (AAL), OFC (Harvard-Oxford).
-- **Task 2.2**: Extract beta estimates for 'Reward > Neutral' (receipt) and 'Anticipation > Baseline' (anticipation).
-- **Task 2.3**: Store in `data/extracted/` (CSV/Parquet).
+### Phase 3: Second-Level Analysis & Visualization
+- **Task 3.1**: Run Second-Level Mixed-Effects Analysis (Two-sample t-test / ANOVA) with Bonferroni correction.
+- **Task 3.2**: **SPM Overlay Generation**: Generate statistical parametric maps overlaid on MNI template brain (satisfying FR-007).
+- **Task 3.3**: Generate ROI bar plots with error bars and p-value annotations.
 
-### Phase 2.5: Behavioral Validation (FR-011)
-- **Task 2.5.1**: Extract distress scores or condition labels from `data/behavioral/`.
-- **Task 2.5.2**: If behavioral data exists, validate the manipulation (e.g., distress > threshold).
-- **Task 2.5.3**: If missing, flag group label as 'proxy variable' and log limitation.
+### Phase 4: Reporting & Validation
+- **Task 4.1**: **Power & Sample Size Reporting**: Generate 'Power Limitations Report' documenting N, power estimates, and recommendation for future studies (≥30 participants) if N < 20 (satisfying FR-010).
+- **Task 4.2**: **Framing Validation**: Run `framing_validator.py` to scan final report for causal verbs and ensure associational language (satisfying SC-005).
+- **Task 4.3**: Compile final summary report.
 
-### Phase 3: Statistical Analysis
-- **Task 3.1**: Compute the interaction contrast: (Exclusion_Reward - Exclusion_Neutral) - (Inclusion_Reward - Inclusion_Neutral).
-- **Task 3.2**: Perform second-level mixed-effects model (or paired t-test) with FWE correction (SVC).
-- **Task 3.3**: Calculate Cohen's d and 95% CI.
+### Phase 5: Sensitivity Analysis
+- **Task 5.1**: Sweep smoothing kernels (multiple scales) and report consistency of findings.
+- **Task 5.2**: Generate sensitivity table and report.
 
-### Phase 4: Sensitivity Analysis
-- **Task 4.1**: Sweep smoothing (multiple kernel widths) × ROI radius (8, 10, 12 mm).
-- **Task 4.2**: Calculate **Effect Size Stability** (Cohen's d within 20% of primary) and **Direction Stability**.
-- **Task 4.3**: Report consistency rate (≥6/9 combinations).
+## Risk Management
 
-### Phase 5: Visualization & Reporting
-- **Task 5.1**: Generate bar plots (mean ± SEM) with p-value annotations.
-- **Task 5.2**: Generate SPM overlays on MNI template.
-- **Task 5.3**: Compile summary report.
-- **Task 5.4**: **Framing Accuracy Check** (SC-005): Scan report for causal verbs; ensure associational language.
-- **Task 5.5**: **Future Recommendations** (FR-010): Generate text recommending ≥30 participants per group.
+| Risk | Mitigation |
+| :--- | :--- |
+| **No single dataset contains both tasks** | **Primary Design**: Merged Dataset Strategy with confound controls. **Fallback**: If no compatible datasets exist, the study is paused or pivots to a meta-analysis of separate studies. **Synthetic data is NOT used.** |
+| **Memory overflow on CPU** | Batch processing (subjects), `--mem-mb 6000` flags, and downsampled resolution if necessary. |
+| **Inter-dataset variability (scanner differences)** | Include 'Dataset ID' as a random effect in the mixed-effects model. |
+| **Power limitations (N < 20)** | Explicitly flag as exploratory; generate Power Limitations Report (Task 4.1). |
+| **Causal misinterpretation** | Framing Validation script (Task 4.2) and explicit associational language in all outputs. |
 
-## Constitution Check (Detailed)
+## Performance & Feasibility
 
-- **Principle VII**: The script `code/manipulation/cyberball.py` is a **replication** of the original paradigm for transparency. It does not generate the data but documents the timing parameters. Behavioral data is extracted from BIDS, checksummed, and stored in `data/behavioral/`.
+- **Runtime**: Preprocessing ≤4 hours (20 subjects, CPU-only). Total pipeline ≤6 hours.
+- **Memory**: <7 GB (via `--mem-mb 6000` and batching).
+- **Disk**: <14 GB (via selective storage of preprocessed data and results).
+- **GPU**: None required. All methods are CPU-tractable.
+
+## Dependencies
+
+- `python>=3.11`
+- `nibabel>=5.0.0`
+- `numpy>=1.24.0`
+- `pandas>=2.0.0`
+- `scikit-learn>=1.2.0`
+- `scipy>=1.10.0`
+- `matplotlib>=3.7.0`
+- `nilearn>=0.10.0` (for GLM and visualization)
+- `fmriprep>=23.0.0` (CPU-compatible)
+- `nipype>=1.8.0`
+- `pytest>=7.0.0`
+- `pybids>=0.16.0`
+- `pyyaml>=6.0.0`

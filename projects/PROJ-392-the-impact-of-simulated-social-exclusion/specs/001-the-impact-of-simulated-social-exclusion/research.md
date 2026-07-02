@@ -1,4 +1,4 @@
-# Research: 001-social-exclusion-reward-neural
+# Research: The Impact of Simulated Social Exclusion on Neural Responses to Reward
 
 ## Problem Statement
 
@@ -6,93 +6,90 @@ Does brief simulated social exclusion (via Cyberball) modulate neural activity i
 
 ## Dataset Strategy
 
-The analysis relies on publicly available fMRI datasets containing social exclusion (Cyberball) and reward tasks.
+The analysis requires a dataset containing:
+1. **Social Exclusion Paradigm**: Cyberball or similar ostracism task with explicit "Excluded" vs. "Included" conditions.
+2. **Reward Task**: Monetary Incentive Delay (MID) or similar task with distinct "Anticipation" and "Receipt" events.
+3. **fMRI Data**: BIDS-compliant NIfTI images and JSON metadata.
+4. **Behavioral Data**: Condition labels for each participant.
 
-**Selected Dataset**: OpenNeuro `ds000246` (Cyberball) or `ds003195` (Cyberball).  
-**Access Method**: Download via `openneuro-py` (CLI) to ensure raw BIDS NIfTI data is retrieved.
+### Verified Datasets
 
-**Verified Datasets Reference**:
-- **OpenNeuro (ds000246)**: Contains Cyberball social exclusion paradigm. **Note**: This dataset does **not** contain a subsequent Monetary Incentive Delay (MID) reward task.
-- **OpenNeuro (ds001742)**: Contains MID reward task. **Note**: This dataset does **not** contain Cyberball.
-- **Feasibility Pivot**: Since no single dataset contains both tasks, the plan will:
-  1. **Primary**: Analyze the neural correlates of the *exclusion task itself* (e.g., anticipation of social feedback) if present.
-  2. **Secondary**: If the exclusion task lacks a reward component, the pipeline will generate **synthetic reward task data** (simulated BOLD responses) to demonstrate the analysis pipeline, clearly labeling these as simulations.
-  3. **Alternative**: If a combined dataset is found later, the pipeline will switch to the interaction contrast.
+Based on the provided "Verified datasets" block, **NO single verified dataset currently listed contains the specific combination of Social Exclusion (Cyberball) + Reward Task fMRI data required for this study.**
 
-**Dataset Fit Verification**:
-- **Variables Needed**:
-  - *Predictor*: Group (Excluded vs. Inclusion) - derived from task condition.
-  - *Outcome*: Beta estimates for 'Reward > Neutral' (receipt) and 'Anticipation > Baseline' (anticipation).
-- **Fit Check**: ds000246 contains Cyberball but **lacks** a subsequent reward task. The plan acknowledges this mismatch and proceeds with the **Feasibility Pivot** (synthetic data or single-task analysis).
+- **OpenNeuro (parquet)**: `
+ - *Status*: This is a processed/parquet representation of OpenNeuro data. It does not explicitly confirm the presence of both Cyberball and MID tasks in the same subjects with group labels.
+- **NIfTI (gzip)**: `
+ - *Status*: Contains lung cancer radiomics data, not social neuroscience.
+- **MNI (parquet)**: `
+ - *Status*: MNIST digit recognition, irrelevant.
+- **Other datasets**: BOLD, GLM, FWHM, MID, etc., listed in the block are either text-based, generic embeddings, or unrelated to the specific fMRI paradigm required.
 
-**Power Limitation**:
-- If the dataset contains <10 participants per group, the system will flag a power limitation and frame results as exploratory.
-- Target: ≥20 participants per group (N≥40 total) for adequate power.
+### Critical Gap & Mitigation: Merged Dataset Strategy
+
+**Gap**: The "Verified datasets" block does **not** contain a verified source for a dataset with both Cyberball and MID tasks in the same subjects. The spec assumes `ds000246` or `ds003195` are available, but these are **not** in the verified list as dual-task datasets.
+
+**Mitigation Strategy**:
+1. **Pivot to Merged Datasets**: The plan will attempt to merge two separate, verified datasets:
+ - **Exclusion Dataset**: e.g., `ds000246` (if verified to contain Cyberball) or another verified exclusion dataset.
+ - **Reward Dataset**: e.g., `ds004738` (or similar verified reward dataset).
+2. **Confound Control**: To address inter-dataset variability (scanners, populations), the analysis will:
+ - Include 'Dataset ID' as a **random effect** in the second-level mixed-effects model.
+ - Match demographics (age, sex) between datasets where possible.
+ - Explicitly acknowledge the limitations of this approach in the final report.
+3. **No Synthetic Data**: **Synthetic data is NOT used** for primary analysis or validation. Generating synthetic data to mimic the hypothesis would be tautological and scientifically invalid. If no compatible real datasets are found, the study is paused or pivots to a meta-analysis of separate studies.
+
+*Note: If the implementation agent finds a valid OpenNeuro dataset ID (e.g., ds000246) via external search not captured in this block, it must update the `research.md` and `plan.md` before execution. For this plan, we assume the "Verified datasets" block is the sole source of truth and proceed with the Merged Dataset Strategy.*
 
 ## Methodological Approach
 
-### 1. Data Acquisition & Preprocessing (FR-001, FR-002)
-- **Download**: Fetch BIDS dataset via `openneuro-py`.
-- **Preprocessing**:
-  - Slice timing correction.
-  - Realignment (motion correction).
-  - Normalization to MNI space (using `nilearn.image.resample_img` with **4mm** isotropic resolution if memory >6GB).
-  - Smoothing: a standard full-width at half-maximum (primary), with sensitivity analysis at alternative kernel widths.
-  - **Constraint**: CPU-only execution. Use `nilearn` with explicit memory management (chunked processing).
-  - **Memory Management**: Process participants in batches. Monitor RAM; if >6GB, downsample to 4mm.
+### 1. Preprocessing (CPU-Tractable)
+- **Tool**: `fmriprep` (CPU-only mode) or `nipype` wrappers for FSL/SPM equivalents if `fmriprep` fails memory constraints.
+- **Steps**:
+ 1. Slice Timing Correction.
+ 2. Realignment (Motion Correction).
+ 3. Coregistration to T1.
+ 4. Normalization to MNI152 space (non-linear).
+ 5. Smoothing: Gaussian kernel with a primary full-width at half-maximum (FWHM) suitable for the expected spatial scale, with sensitivity analysis at narrower and wider kernel widths.
+- **Constraint**: Process participants in batches of 5 to stay within 7 GB RAM. Use `--nthreads <N> --mem-mb 6000` flags, where N represents a configurable number of threads.
 
-### 2. Design Verification (Phase 0.5)
-- **Task**: Inspect BIDS task files to determine if the design is **within-subject** (each participant does both exclusion and inclusion) or **between-subject**.
-- **Model Selection**:
-  - If **within-subject**: Use **Mixed-Effects Model** (or Paired t-test) with subject as a random effect.
-  - If **between-subject**: Use **Independent t-test**.
-- **Rationale**: Using an independent t-test on within-subject data violates independence assumptions.
+### 2. First-Level GLM
+- **Model**: Standard GLM with regressors for:
+ - Reward Anticipation (cue).
+ - Reward Receipt (outcome).
+ - Motion parameters (6).
+ - **Temporal Autocorrelation**: AR(1) pre-whitening to account for fMRI noise structure.
+ - High-pass filter.
+- **Output**: Beta maps for Anticipation and Receipt per participant.
 
-### 3. ROI Definition & Extraction (FR-003, FR-004)
+### 3. ROI Extraction
 - **ROIs**:
-  - **Ventral Striatum**: Defined by AAL atlas (coordinates in MNI space).
-  - **Orbitofrontal Cortex (OFC)**: Defined by Harvard-Oxford atlas.
-- **Contrasts**:
-  - 'Reward > Neutral' (Receipt).
-  - 'Anticipation > Baseline' (Anticipation).
-- **Extraction**: Extract mean beta values from ROIs for each participant and event type.
+ - Ventral Striatum (VS): AAL atlas mask.
+ - Orbitofrontal Cortex (OFC): Harvard-Oxford atlas mask.
+- **Method**: Extract mean beta value within the mask for each event type.
 
-### 4. Statistical Analysis (FR-005, FR-006, SC-001, SC-002)
-- **Model**: 
-  - **Within-Subject**: Mixed-effects model with fixed effect of Condition (Exclusion vs. Inclusion) and random effect of Subject.
-  - **Between-Subject**: Independent t-test.
-- **Interaction Contrast**: The primary analysis will model the interaction: (Exclusion_Reward - Exclusion_Neutral) - (Inclusion_Reward - Inclusion_Neutral) to isolate the modulation effect.
-- **Correction**: Family-wise error rate (FWE) control via Small Volume Correction (SVC) for 4 tests (2 ROIs × 2 event types).
-- **Effect Size**: Cohen's d.
-- **Causal Framing**: Since the Cyberball manipulation is **experimentally randomized** within the task, the primary analysis can frame results as **causal** regarding the *task manipulation's* effect (e.g., "Exclusion causes reduced activation"). However, generalization to real-world exclusion is limited. The 'associational' constraint is removed for the primary task effect.
+### 4. Second-Level Analysis
+- **Test**: Two-sample t-test (Excluded vs. Included) for each ROI × Event combination.
+- **Correction**: Bonferroni correction ($\alpha = 0.05 / 4 = 0.0125$).
+- **Effect Size**: Cohen's $d$.
+- **Framing**: Associational ("Exclusion is associated with reduced activation").
+- **Confound Control**: Include 'Dataset ID' as a random effect if datasets are merged.
 
-### 5. Sensitivity Analysis (FR-008, SC-003)
-- **Sweep**: Smoothing (4, 6, 8 mm) × ROI Radius (8, 10, 12 mm).
-- **Consistency Metric**: 
-  - **Effect Size Stability**: Cohen's d within 20% of the primary estimate.
-  - **Direction Stability**: Sign of beta difference matches the primary analysis.
-  - **Significance**: Not required for consistency (to avoid false negatives in underpowered studies).
-- **Threshold**: ≥6 of 9 combinations must show stable effect size and direction.
+### 5. Sensitivity Analysis
+- **Variables**: Smoothing (4, 6, 8mm); ROI mask probability thresholds (if applicable).
+- **Metric**: Consistency of direction and significance of the primary finding across threshold combinations.
 
-### 6. Behavioral Validation (FR-011)
-- **Task**: Extract distress scores or condition labels from `data/behavioral/`.
-- **Validation**: If behavioral data exists, validate the manipulation (e.g., distress > threshold).
-- **Proxy Flag**: If missing, flag group label as 'proxy variable' and log limitation.
+## Statistical Rigor & Power
 
-### 7. Visualization & Reporting (FR-007, FR-009, SC-004, SC-005)
-- **Outputs**:
-  - Bar plots (mean ± SEM) with p-value annotations.
-  - SPM overlays on MNI template.
-  - Summary report with sample size, means, t-stats, effect sizes, FWE p-values.
-- **Framing Accuracy Check**: Scan report for causal verbs; ensure associational language where appropriate (e.g., for cross-dataset comparisons).
-- **Future Recommendations**: Generate text recommending ≥30 participants per group.
+- **Multiple Comparisons**: Bonferroni correction explicitly applied for 4 tests (2 ROIs × 2 events).
+- **Power**: Target $N \ge 20$ per group for [deferred] power to detect medium effect ($d=0.5$). If $N < 20$, results are exploratory and a 'Power Limitations Report' is generated.
+- **Causal Inference**: Since the data is observational (public dataset) or merged, claims are framed as **associational**. The experimental manipulation (Cyberball) is acknowledged, but the neural outcome is treated as an association.
+- **Collinearity**: Motion parameters included as nuisance regressors. Temporal autocorrelation modeled via AR(1).
 
-## Assumptions & Limitations
+## Risks & Assumptions
 
-- **Dataset Availability**: Assumes `ds000246` or `ds003195` are accessible via OpenNeuro CLI.
-- **Dataset Mismatch**: Acknowledges that ds000246 lacks a reward task. The plan proceeds with **synthetic data** or **single-task analysis** as a feasibility pivot.
-- **Behavioral Data**: Assumes condition labels are present. If missing, system flags as 'proxy variable'.
-- **Motion**: Assumes no participant motion exceeds standard thresholds.
-- **Power**: Assumes ≥10 participants per group. If <20 per group, results are exploratory.
-- **Causality**: The Cyberball manipulation is **experimentally randomized** within the task, allowing for causal inference regarding the *task effect*. Generalization to real-world exclusion is limited.
-- **Compute**: Preprocessing may require downsampling to a coarse resolution to fit available RAM on a limited CPU configuration.
+- **Risk**: No compatible datasets found. **Mitigation**: Study paused or pivots to meta-analysis. No synthetic data.
+- **Risk**: Inter-dataset variability swamps effect. **Mitigation**: Random effects model; explicit limitation reporting.
+- **Risk**: Memory overflow on CPU. **Mitigation**: Batch processing, downsampled resolution if necessary.
+- **Assumption**: OpenNeuro datasets (if found) are BIDS-compliant.
+- **Assumption**: 6mm smoothing is appropriate for ROI analysis.
+- **Assumption**: Merging separate datasets is methodologically valid with appropriate confound controls.

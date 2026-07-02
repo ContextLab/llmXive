@@ -1,0 +1,81 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Metadata Schema"
+description: "Schema for validating metadata of downloaded/generated fMRI datasets."
+type: "object"
+properties:
+  dataset_id:
+    type: "string"
+    description: "Unique identifier for the dataset (e.g., 'ds000246' or 'ds004738')."
+  source_url:
+    type: "string"
+    format: "uri"
+    description: "URL of the verified source. If synthetic, use 'synthetic' (but synthetic is not allowed)."
+  format:
+    type: "string"
+    enum:
+      - "BIDS"
+    description: "Format of the dataset. Synthetic data is not allowed."
+  participants:
+    type: "object"
+    properties:
+      total_count:
+        type: "integer"
+        minimum: 1
+      excluded_count:
+        type: "integer"
+        minimum: 0
+      included_count:
+        type: "integer"
+        minimum: 0
+    required:
+      - total_count
+      - excluded_count
+      - included_count
+  tasks:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        task_name:
+          type: "string"
+        task_type:
+          type: "string"
+          enum:
+            - "social_exclusion"
+            - "reward"
+            - "mixed"
+        events:
+          type: "array"
+          items:
+            type: "string"
+      required:
+        - task_name
+        - task_type
+  checksum:
+    type: "string"
+    description: "SHA-256 checksum of the raw data archive."
+  created_at:
+    type: "string"
+    format: "date-time"
+  version:
+    type: "string"
+    description: "Version of the dataset or synthetic generator."
+  is_merged:
+    type: "boolean"
+    description: "True if this dataset is a merge of separate exclusion and reward datasets."
+  confound_controls:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of confound control methods used (e.g., 'random_effect_dataset_id')."
+required:
+  - dataset_id
+  - source_url
+  - format
+  - participants
+  - tasks
+  - checksum
+  - created_at
+  - version
+  - is_merged
+additionalProperties: false

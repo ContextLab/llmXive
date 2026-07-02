@@ -1,58 +1,99 @@
-# Data Model: 001-social-exclusion-reward-neural
+# Data Model: The Impact of Simulated Social Exclusion on Neural Responses to Reward
+
+## Overview
+
+This document defines the data structures used throughout the pipeline, from raw download to final statistical output. All data is stored in `data/` with checksums.
 
 ## Entity Definitions
 
 ### Participant
-- **id**: String (unique identifier, e.g., "sub-001")
-- **group**: Enum ["excluded", "included"]
-- **behavioral_labels**: Dictionary (optional, e.g., `{"distress_score": 3.5}`)
-- **motion_params**: Dictionary (optional, e.g., `{"trans_x": 0.5, "rot_z": 0.2}`)
-- **validation_status**: Enum ["validated", "proxy", "missing"] (Status of behavioral manipulation check)
+Represents a single subject in the study.
+-   `participant_id`: string (e.g., "sub-01")
+-   `group`: string ("excluded" | "included")
+-   `dataset_id`: string (e.g., "ds000246" or "ds004738" for merged datasets)
+-   `condition_label`: string (e.g., "Cyberball_Excluded")
+-   `motion_max`: float (max translation in mm)
+-   `excluded_from_analysis`: boolean (if motion > 3mm or missing data)
 
-### ROI
-- **name**: String (e.g., "ventral_striatum", "orbitofrontal_cortex")
-- **atlas_source**: String (e.g., "AAL", "Harvard-Oxford")
-- **mni_coordinates**: List[float] (x, y, z in mm)
-- **radius_mm**: Float (e.g., 10.0)
+### ROI (Region of Interest)
+Represents a brain region mask.
+-   `roi_name`: string ("ventral_striatum" | "orbitofrontal_cortex")
+-   `atlas_source`: string ("AAL" | "Harvard-Oxford")
+-   `mni_coords`: object {x: float, y: float, z: float}
+-   `mask_path`: string (relative path to NIfTI mask)
 
-### Analysis Result
-- **roi_name**: String
-- **event_type**: Enum ["anticipation", "receipt"]
-- **group_comparison**: String (e.g., "excluded_vs_included")
-- **t_statistic**: Float
-- **p_value_fwe**: Float
-- **cohen_d**: Float
-- **cluster_coordinates**: List[float] (x, y, z)
-- **significance**: Boolean
-- **framing_check**: Enum ["pass", "fail"] (Result of causal verb scan)
+### Beta Estimate
+First-level GLM result for a participant in an ROI.
+-   `participant_id`: string
+-   `dataset_id`: string (for merged datasets)
+-   `roi_name`: string
+-   `event_type`: string ("anticipation" | "receipt")
+-   `beta_value`: float
+-   `t_stat`: float (optional, from GLM)
+
+### Group Analysis Result
+Second-level statistical output.
+-   `roi_name`: string
+-   `event_type`: string
+-   `group_excluded_mean`: float
+-   `group_included_mean`: float
+-   `t_statistic`: float
+-   `p_value_uncorrected`: float
+-   `p_value_corrected`: float (Bonferroni)
+-   `cohens_d`: float
+-   `n_excluded`: int
+-   `n_included`: int
+-   `dataset_id_effect`: float (if merged, random effect estimate)
 
 ### Sensitivity Result
-- **smoothing_mm**: Float
-- **roi_radius_mm**: Float
-- **beta_difference**: Float
-- **p_value**: Float
-- **consistent_with_primary**: Boolean
-- **effect_size_stability**: Float (Ratio of current d to primary d)
+Output of threshold sweeps.
+-   `smoothing_mm`: int
+-   `roi_mask_prob`: float (if applicable)
+-   `beta_excluded`: float
+-   `beta_included`: float
+-   `significant`: boolean
+-   `consistent_with_primary`: boolean
 
-### Preprocessing Metric
-- **participant_id**: String
-- **status**: Enum ["success", "failed", "skipped"]
-- **memory_peak_mb**: Float
-- **resolution_mm**: Float (e.g., 3.0 or 4.0)
+### Preprocessing Metrics
+Output of preprocessing phase.
+-   `total_participants`: int
+-   `completed_participants`: int
+-   `failed_participants`: int
+-   `completion_rate`: float (target ≥0.90)
+-   `provenance_files_generated`: int
+
+### Power Limitations Report
+Output of power analysis phase.
+-   `n_per_group`: int
+-   `power_estimate`: float
+-   `is_exploratory`: boolean
+-   `recommendation`: string (e.g., "Future studies with ≥30 participants per group")
+
+## File Formats
+
+### `data/raw-fmri/`
+-   **Format**: BIDS (NIfTI + JSON + TSV)
+-   **Checksum**: SHA-256 recorded in `state/`.
+
+### `data/processed-fmri/`
+-   **Format**: NIfTI (preprocessed)
+-   **Naming**: `sub-{id}_space-MNI152_res-2mm_desc-preproc_bold.nii.gz`
+-   **Sidecars**: `sub-{id}_space-MNI152_res-2mm_desc-preproc_bold.yaml` (Provenance)
+
+### `data/results/`
+-   **Format**: CSV / JSON
+-   **Files**:
+    -   `beta_estimates.csv`: Aggregated first-level betas.
+    -   `group_analysis.json`: Second-level stats.
+    -   `sensitivity_analysis.csv`: Threshold sweep results.
+    -   `preprocessing_metrics.json`: Completion rate and provenance count.
+    -   `power_limitations_report.json`: Power analysis and recommendations.
 
 ## Data Flow
 
-1. **Raw Data**: `data/raw-fmri/` (BIDS format: NIfTI, JSON, TSV).
-2. **Processed Data**: `data/processed-fmri/` (Preprocessed NIfTI, GLM estimates).
-3. **Extracted Data**: `data/extracted/` (CSV/Parquet: Participant ID, Group, ROI, Beta Value).
-4. **Behavioral Data**: `data/behavioral/` (Checksummed condition labels, distress scores).
-5. **Synthetic Data**: `data/synthetic/` (Optional: Simulated reward task data).
-6. **Analysis Output**: `data/results/` (JSON/Parquet: T-statistics, p-values, effect sizes).
-7. **Visualizations**: `docs/paper/figures/` (PNG/SVG: Bar plots, SPM overlays).
-
-## Storage Constraints
-
-- **Raw Data**: ≤14 GB (compressed).
-- **Processed Data**: ≤10 GB (preprocessed NIfTI + GLM estimates).
-- **Total Disk**: ≤14 GB (GitHub Actions limit).
-- **Memory**: ≤7 GB (chunked processing, downsampling if >6GB).
+1.  **Download**: Raw BIDS data → `data/raw-fmri/`
+2.  **Preprocess**: Raw → `data/processed-fmri/` + Provenance Sidecars
+3.  **Extract**: Preprocessed + ROI Masks → `data/results/beta_estimates.csv`
+4.  **Analyze**: Beta Estimates → `data/results/group_analysis.json`
+5.  **Sensitivity**: Variations of Preprocess/Extract → `data/results/sensitivity_analysis.csv`
+6.  **Report**: Generate `preprocessing_metrics.json` and `power_limitations_report.json`

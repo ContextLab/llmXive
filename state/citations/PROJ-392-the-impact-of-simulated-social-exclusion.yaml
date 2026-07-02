@@ -1,1 +1,33 @@
-[]
+- artifact_hash: 75b040ae1de409e7f68d86c7845af697f397b6cf10860c51a9a0914cdaeb2a0e
+  artifact_path: projects/PROJ-392-the-impact-of-simulated-social-exclusion/specs/001-the-impact-of-simulated-social-exclusion/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: test-00000-of-00016.parquet
+  kind: url
+  value: https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/69139de16b08753a3093614c/1dd24a67ad2f62b2c2998529497114bf6a86a2af800f88ffdf81dd9fd9e8812d?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00016.parquet%3B+filename%3D%22test-00000-of-00016.parquet%22%3B&user_id=public&Expires=1783023118&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjkxMzlkZTE2YjA4NzUzYTMwOTM2MTRjLzFkZDI0YTY3YWQyZjYyYjJjMjk5ODUyOTQ5NzExNGJmNmE4NmEyYWY4MDBmODhmZmRmODFkZDlmZDllODgxMmRcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAxNi5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAxNi5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODMwMjMxMTh9fX1dfQ__&Signature=MEUCIQDstpRaK12zbgLFHd-M4DZg41rGZIepVCUUxBraEhf%7EbgIgOKIWFinZPqmN0Dy-WJH6KzHM7SjfaJrSHOJkKLlrOgw_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-02T19:11:58.151265Z'
+- artifact_hash: 75b040ae1de409e7f68d86c7845af697f397b6cf10860c51a9a0914cdaeb2a0e
+  artifact_path: projects/PROJ-392-the-impact-of-simulated-social-exclusion/specs/001-the-impact-of-simulated-social-exclusion/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: image.nii.gz
+  kind: url
+  value: https://huggingface.co/datasets/farrell236/NSCLC-Radiomics-NIFTI/resolve/main/NSCLC-Radiomics-NIFTI/LUNG1-001/image.nii.gz`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/645558baa473375be576f248/24a81da69aca2f22bacbfe33fe3c4e821d56c1e2fe822d34d9c70289a96c1a66?user_id=public&response-content-type=application%2Fgzip&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27image.nii.gz%3B+filename%3D%22image.nii.gz%22%3B&X-Xet-Cas-Uid=public&Expires=1783023138&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ1NTU4YmFhNDczMzc1YmU1NzZmMjQ4LzI0YTgxZGE2OWFjYTJmMjJiYWNiZmUzM2ZlM2M0ZTgyMWQ1NmMxZTJmZTgyMmQzNGQ5YzcwMjg5YTk2YzFhNjZcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZnemlwJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdpbWFnZS5uaWkuZ3olM0IrZmlsZW5hbWUlM0QlMjJpbWFnZS5uaWkuZ3olMjIlM0ImWC1YZXQtQ2FzLVVpZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzAyMzEzOH19fV19&Signature=MEUCIBIildgkUdYTr4iHn-Df7JxvPWo7rRLFjRZnYnhogzgMAiEAqrv-S7eub8zwoDDi3-WQM74%7EQeroyOMumPmUwUAalto_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-02T19:11:58.151265Z'
+- artifact_hash: 75b040ae1de409e7f68d86c7845af697f397b6cf10860c51a9a0914cdaeb2a0e
+  artifact_path: projects/PROJ-392-the-impact-of-simulated-social-exclusion/specs/001-the-impact-of-simulated-social-exclusion/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: "ylecun/mnist \xB7 Datasets at Hugging Face"
+  kind: url
+  value: https://huggingface.co/datasets/ylecun/mnist/...`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/datasets/ylecun/mnist
+  verified_at: '2026-07-02T19:11:58.151265Z'

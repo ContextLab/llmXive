@@ -1,4 +1,4 @@
-resolved_at: '2026-07-02T18:36:32.077626+00:00'
+resolved_at: '2026-07-02T19:01:52.190723+00:00'
 datasets:
 - intent: OpenNeuro
   status: verified
@@ -26,23 +26,23 @@ datasets:
     source: huggingface
     status: verified
     format: json
-  - url: https://midwestern.figshare.com/articles/poster/Occupational_Therapy_Outcomes_in_a_Community_Agency_for_People_Experiencing_Homelessness/32882321
+  - url: https://figshare.com/articles/dataset/Dataset_for_Need_or_Loyalty_Political_Alignment_and_Federal_Grants_and_Transfers_to_Malaysian_States_2018_to_2024_A_State-Year_Panel_Analysis_with_Small-Cluster_Bootstrap_Inference_/32885102
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/_b_Study_of_the_Antileischmaniasis_Activity_Cytotoxicity_and_Mutagenicity_by_the_ims_Test_Method_of_a_Highly_Efficient_Antimicrobial_Preparation_of_the_Piperidine_Series_AIP-1_Synthesis_of_its_Inclusion_Complexes_with_-Cyclodextrin_b_/32884826
+  - url: https://figshare.com/articles/figure/Drinks_and_beverages_wholesale_suppliers/32885111
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://midwestern.figshare.com/articles/poster/Occupational_therapists_Perceptions_and_Recommendations_Related_to_Assessing_Long_COVID_Clients/32882336
+  - url: https://figshare.com/articles/dataset/_b_Associations_between_community_engagement_human_flourishing_and_mental_illness_symptoms_b_/32885093
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Hybrid_immunity_from_bivalent_vaccination_and_prior_infection_enhances_humoral_and_innate_protection_against_Omicron_XBB_1_16_and_EG_5_1_1_variants_in_Japan_pdf/32885063
+  - url: https://data.lib.vt.edu/articles/dataset/Data_and_Code_associated_with_Modeling_and_Expert_Evaluation_of_Competency_Dependency_Relationships_for_Human-Robot_Collaboration_Training_in_Construction_/32837123
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Supporting_Materials/32885039
+  - url: https://figshare.com/articles/dataset/LPS_LMR_dta/29263562
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -58,11 +58,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21032699
+  - url: https://zenodo.org/records/19435085
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19435085
+  - url: https://zenodo.org/records/21032699
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -90,27 +90,31 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://midwestern.figshare.com/articles/poster/Occupational_Therapy_Outcomes_in_a_Community_Agency_for_People_Experiencing_Homelessness/32882321
+  - url: https://figshare.com/articles/dataset/Dataset_for_Need_or_Loyalty_Political_Alignment_and_Federal_Grants_and_Transfers_to_Malaysian_States_2018_to_2024_A_State-Year_Panel_Analysis_with_Small-Cluster_Bootstrap_Inference_/32885102
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/_b_Study_of_the_Antileischmaniasis_Activity_Cytotoxicity_and_Mutagenicity_by_the_ims_Test_Method_of_a_Highly_Efficient_Antimicrobial_Preparation_of_the_Piperidine_Series_AIP-1_Synthesis_of_its_Inclusion_Complexes_with_-Cyclodextrin_b_/32884826
+  - url: https://figshare.com/articles/figure/Drinks_and_beverages_wholesale_suppliers/32885111
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://midwestern.figshare.com/articles/poster/Occupational_therapists_Perceptions_and_Recommendations_Related_to_Assessing_Long_COVID_Clients/32882336
+  - url: https://figshare.com/articles/dataset/_b_Associations_between_community_engagement_human_flourishing_and_mental_illness_symptoms_b_/32885093
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Hybrid_immunity_from_bivalent_vaccination_and_prior_infection_enhances_humoral_and_innate_protection_against_Omicron_XBB_1_16_and_EG_5_1_1_variants_in_Japan_pdf/32885063
+  - url: https://data.lib.vt.edu/articles/dataset/Data_and_Code_associated_with_Modeling_and_Expert_Evaluation_of_Competency_Dependency_Relationships_for_Human-Robot_Collaboration_Training_in_Construction_/32837123
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Supporting_Materials/32885039
+  - url: https://figshare.com/articles/dataset/LPS_LMR_dta/29263562
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/5524642
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3810211
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -122,11 +126,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3810211
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15115020
+  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -195,23 +195,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/Direction_and_orientation_preferences_in_mouse_superior_colliculus_and_its_retinal_inputs_exhibit_a_topography_of_cardinal_biases_atop_locally_mixed_tuning/30927041
+  - url: https://figshare.com/articles/dataset/Dataset_for_Need_or_Loyalty_Political_Alignment_and_Federal_Grants_and_Transfers_to_Malaysian_States_2018_to_2024_A_State-Year_Panel_Analysis_with_Small-Cluster_Bootstrap_Inference_/32885102
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Genes_near_tRNA_are_enriched_in_transnational_machinery/31707256
+  - url: https://figshare.com/articles/figure/Drinks_and_beverages_wholesale_suppliers/32885111
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://midwestern.figshare.com/articles/poster/Occupational_Therapy_Outcomes_in_a_Community_Agency_for_People_Experiencing_Homelessness/32882321
+  - url: https://figshare.com/articles/dataset/_b_Associations_between_community_engagement_human_flourishing_and_mental_illness_symptoms_b_/32885093
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/_b_Study_of_the_Antileischmaniasis_Activity_Cytotoxicity_and_Mutagenicity_by_the_ims_Test_Method_of_a_Highly_Efficient_Antimicrobial_Preparation_of_the_Piperidine_Series_AIP-1_Synthesis_of_its_Inclusion_Complexes_with_-Cyclodextrin_b_/32884826
+  - url: https://data.lib.vt.edu/articles/dataset/Data_and_Code_associated_with_Modeling_and_Expert_Evaluation_of_Competency_Dependency_Relationships_for_Human-Robot_Collaboration_Training_in_Construction_/32837123
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://midwestern.figshare.com/articles/poster/Occupational_therapists_Perceptions_and_Recommendations_Related_to_Assessing_Long_COVID_Clients/32882336
+  - url: https://figshare.com/articles/dataset/LPS_LMR_dta/29263562
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -235,7 +235,15 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21138350
+  - url: https://zenodo.org/records/21139506
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21021303
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21021303
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -243,15 +251,7 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21137292
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21137292
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21136396
+  - url: https://zenodo.org/records/21138350
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -300,23 +300,23 @@ datasets:
     source: huggingface
     status: verified
     format: jsonl
-  - url: https://figshare.com/articles/dataset/Direction_and_orientation_preferences_in_mouse_superior_colliculus_and_its_retinal_inputs_exhibit_a_topography_of_cardinal_biases_atop_locally_mixed_tuning/30927041
+  - url: https://figshare.com/articles/dataset/Dataset_for_Need_or_Loyalty_Political_Alignment_and_Federal_Grants_and_Transfers_to_Malaysian_States_2018_to_2024_A_State-Year_Panel_Analysis_with_Small-Cluster_Bootstrap_Inference_/32885102
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Genes_near_tRNA_are_enriched_in_transnational_machinery/31707256
+  - url: https://figshare.com/articles/figure/Drinks_and_beverages_wholesale_suppliers/32885111
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://midwestern.figshare.com/articles/poster/Occupational_Therapy_Outcomes_in_a_Community_Agency_for_People_Experiencing_Homelessness/32882321
+  - url: https://figshare.com/articles/dataset/_b_Associations_between_community_engagement_human_flourishing_and_mental_illness_symptoms_b_/32885093
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/_b_Study_of_the_Antileischmaniasis_Activity_Cytotoxicity_and_Mutagenicity_by_the_ims_Test_Method_of_a_Highly_Efficient_Antimicrobial_Preparation_of_the_Piperidine_Series_AIP-1_Synthesis_of_its_Inclusion_Complexes_with_-Cyclodextrin_b_/32884826
+  - url: https://data.lib.vt.edu/articles/dataset/Data_and_Code_associated_with_Modeling_and_Expert_Evaluation_of_Competency_Dependency_Relationships_for_Human-Robot_Collaboration_Training_in_Construction_/32837123
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://midwestern.figshare.com/articles/poster/Occupational_therapists_Perceptions_and_Recommendations_Related_to_Assessing_Long_COVID_Clients/32882336
+  - url: https://figshare.com/articles/dataset/LPS_LMR_dta/29263562
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -336,7 +336,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/14705524
+  - url: https://zenodo.org/records/14705514
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -375,31 +375,31 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://acs.figshare.com/articles/journal_contribution/Nonadditive_Charge_Transport_in_Bacterial_Cellulose_Titanate_Nanotube_Composites_under_Controlled_Dehydration_Probed_by_Rapid_Temperature_Cycling/32885080
+  - url: https://figshare.com/articles/dataset/Dataset_for_Need_or_Loyalty_Political_Alignment_and_Federal_Grants_and_Transfers_to_Malaysian_States_2018_to_2024_A_State-Year_Panel_Analysis_with_Small-Cluster_Bootstrap_Inference_/32885102
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Direction_and_orientation_preferences_in_mouse_superior_colliculus_and_its_retinal_inputs_exhibit_a_topography_of_cardinal_biases_atop_locally_mixed_tuning/30927041
+  - url: https://figshare.com/articles/figure/Drinks_and_beverages_wholesale_suppliers/32885111
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Genes_near_tRNA_are_enriched_in_transnational_machinery/31707256
+  - url: https://figshare.com/articles/dataset/_b_Associations_between_community_engagement_human_flourishing_and_mental_illness_symptoms_b_/32885093
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://midwestern.figshare.com/articles/poster/Occupational_Therapy_Outcomes_in_a_Community_Agency_for_People_Experiencing_Homelessness/32882321
+  - url: https://data.lib.vt.edu/articles/dataset/Data_and_Code_associated_with_Modeling_and_Expert_Evaluation_of_Competency_Dependency_Relationships_for_Human-Robot_Collaboration_Training_in_Construction_/32837123
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/_b_Study_of_the_Antileischmaniasis_Activity_Cytotoxicity_and_Mutagenicity_by_the_ims_Test_Method_of_a_Highly_Efficient_Antimicrobial_Preparation_of_the_Piperidine_Series_AIP-1_Synthesis_of_its_Inclusion_Complexes_with_-Cyclodextrin_b_/32884826
+  - url: https://figshare.com/articles/dataset/LPS_LMR_dta/29263562
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10199277
+  - url: https://zenodo.org/records/14352943
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/17854610
+  - url: https://zenodo.org/records/3810211
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -407,12 +407,20 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/14352943
+  - url: https://zenodo.org/records/5951740
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/6127654
     source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21138823
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21138823
+    source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/21137012
@@ -424,14 +432,6 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://uregina.scholaris.ca/handle/10294/16485
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20820977
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20820977
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -480,23 +480,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://acs.figshare.com/articles/journal_contribution/Using_Chemical_Heterogeneity_Physical_Clustering_and_Cross-Linking_to_Control_Penetrant_Activated_Motion_in_Dense_Polymer_Materials/32885084
+  - url: https://figshare.com/articles/dataset/Dataset_for_Need_or_Loyalty_Political_Alignment_and_Federal_Grants_and_Transfers_to_Malaysian_States_2018_to_2024_A_State-Year_Panel_Analysis_with_Small-Cluster_Bootstrap_Inference_/32885102
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Effects_of_Chemical_Composition_and_Controlled_Cooling_on_the_Phase_Transition_in_Coconut_Oil_Bio-Phase_Change_Materials/32885081
+  - url: https://figshare.com/articles/figure/Drinks_and_beverages_wholesale_suppliers/32885111
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Nonadditive_Charge_Transport_in_Bacterial_Cellulose_Titanate_Nanotube_Composites_under_Controlled_Dehydration_Probed_by_Rapid_Temperature_Cycling/32885080
+  - url: https://figshare.com/articles/dataset/_b_Associations_between_community_engagement_human_flourishing_and_mental_illness_symptoms_b_/32885093
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Direction_and_orientation_preferences_in_mouse_superior_colliculus_and_its_retinal_inputs_exhibit_a_topography_of_cardinal_biases_atop_locally_mixed_tuning/30927041
+  - url: https://data.lib.vt.edu/articles/dataset/Data_and_Code_associated_with_Modeling_and_Expert_Evaluation_of_Competency_Dependency_Relationships_for_Human-Robot_Collaboration_Training_in_Construction_/32837123
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Genes_near_tRNA_are_enriched_in_transnational_machinery/31707256
+  - url: https://figshare.com/articles/dataset/LPS_LMR_dta/29263562
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -512,11 +512,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20276984
+  - url: https://zenodo.org/records/18404923
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/18404923
+  - url: https://zenodo.org/records/12820807
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -566,23 +566,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://acs.figshare.com/articles/journal_contribution/Growth-Coupled_Assembly_of_Hydrogen-Bonded_Organic_Framework_Membranes_on_Cell_Surfaces/32885087
+  - url: https://figshare.com/articles/dataset/Dataset_for_Need_or_Loyalty_Political_Alignment_and_Federal_Grants_and_Transfers_to_Malaysian_States_2018_to_2024_A_State-Year_Panel_Analysis_with_Small-Cluster_Bootstrap_Inference_/32885102
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Using_Chemical_Heterogeneity_Physical_Clustering_and_Cross-Linking_to_Control_Penetrant_Activated_Motion_in_Dense_Polymer_Materials/32885084
+  - url: https://figshare.com/articles/figure/Drinks_and_beverages_wholesale_suppliers/32885111
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Effects_of_Chemical_Composition_and_Controlled_Cooling_on_the_Phase_Transition_in_Coconut_Oil_Bio-Phase_Change_Materials/32885081
+  - url: https://figshare.com/articles/dataset/_b_Associations_between_community_engagement_human_flourishing_and_mental_illness_symptoms_b_/32885093
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Nonadditive_Charge_Transport_in_Bacterial_Cellulose_Titanate_Nanotube_Composites_under_Controlled_Dehydration_Probed_by_Rapid_Temperature_Cycling/32885080
+  - url: https://data.lib.vt.edu/articles/dataset/Data_and_Code_associated_with_Modeling_and_Expert_Evaluation_of_Competency_Dependency_Relationships_for_Human-Robot_Collaboration_Training_in_Construction_/32837123
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Direction_and_orientation_preferences_in_mouse_superior_colliculus_and_its_retinal_inputs_exhibit_a_topography_of_cardinal_biases_atop_locally_mixed_tuning/30927041
+  - url: https://figshare.com/articles/dataset/LPS_LMR_dta/29263562
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -598,11 +598,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/14857335
+  - url: https://zenodo.org/records/3823451
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3823451
+  - url: https://zenodo.org/records/14857335
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -630,23 +630,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://acs.figshare.com/articles/journal_contribution/How_Metal_IV_Phosphonate_Local_Structure_Drives_Radiolytic_Stability_in_Sorbents_with_Novel_Minor_Actinide-Lanthanide_Selectivity/32885090
+  - url: https://figshare.com/articles/dataset/Dataset_for_Need_or_Loyalty_Political_Alignment_and_Federal_Grants_and_Transfers_to_Malaysian_States_2018_to_2024_A_State-Year_Panel_Analysis_with_Small-Cluster_Bootstrap_Inference_/32885102
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Growth-Coupled_Assembly_of_Hydrogen-Bonded_Organic_Framework_Membranes_on_Cell_Surfaces/32885087
+  - url: https://figshare.com/articles/figure/Drinks_and_beverages_wholesale_suppliers/32885111
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Using_Chemical_Heterogeneity_Physical_Clustering_and_Cross-Linking_to_Control_Penetrant_Activated_Motion_in_Dense_Polymer_Materials/32885084
+  - url: https://figshare.com/articles/dataset/_b_Associations_between_community_engagement_human_flourishing_and_mental_illness_symptoms_b_/32885093
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Effects_of_Chemical_Composition_and_Controlled_Cooling_on_the_Phase_Transition_in_Coconut_Oil_Bio-Phase_Change_Materials/32885081
+  - url: https://data.lib.vt.edu/articles/dataset/Data_and_Code_associated_with_Modeling_and_Expert_Evaluation_of_Competency_Dependency_Relationships_for_Human-Robot_Collaboration_Training_in_Construction_/32837123
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Nonadditive_Charge_Transport_in_Bacterial_Cellulose_Titanate_Nanotube_Composites_under_Controlled_Dehydration_Probed_by_Rapid_Temperature_Cycling/32885080
+  - url: https://figshare.com/articles/dataset/LPS_LMR_dta/29263562
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -686,11 +686,112 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21128548
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
 - intent: MID
-  status: unresolved
-  candidates: []
-  candidates_tried: []
-- intent: WARNING
-  status: unresolved
-  candidates: []
-  candidates_tried: []
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/breadlicker45/bread-midi-dataset/resolve/main/bread-midi-dataset.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/peteromallet/high-quality-midjouney-srefs/resolve/main/chunk_000.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 22636
+      parsed: true
+  - url: https://huggingface.co/datasets/asigalov61/Lyrics-MIDI-Dataset/resolve/main/Lyrics-MIDI-Dataset-CC-BY-NC-SA.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/breadlicker45/bread-midi-dataset/resolve/main/bread-midi-dataset.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/peteromallet/high-quality-midjouney-srefs/resolve/main/chunk_000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/asigalov61/Lyrics-MIDI-Dataset/resolve/main/Lyrics-MIDI-Dataset-CC-BY-NC-SA.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/projectlosangeles/Discover-MIDI-Dataset/resolve/main/Discover-MIDI-Dataset-Sample-Search-Results-CC-BY-NC-SA.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/Photoroom/midjourney-v6-recap/resolve/main/train_000.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Dataset_for_Need_or_Loyalty_Political_Alignment_and_Federal_Grants_and_Transfers_to_Malaysian_States_2018_to_2024_A_State-Year_Panel_Analysis_with_Small-Cluster_Bootstrap_Inference_/32885102
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Drinks_and_beverages_wholesale_suppliers/32885111
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_Associations_between_community_engagement_human_flourishing_and_mental_illness_symptoms_b_/32885093
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.lib.vt.edu/articles/dataset/Data_and_Code_associated_with_Modeling_and_Expert_Evaluation_of_Competency_Dependency_Relationships_for_Human-Robot_Collaboration_Training_in_Construction_/32837123
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/LPS_LMR_dta/29263562
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13342006
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18743614
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10556765
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6478574
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16778671
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/A_comparative_study_of_climacteric_symptoms_among_two_populations_of_mid-aged_women/19316597/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Reoperation_rates_for_stress_urinary_incontinence_and_pelvic_organ_prolapse_in_women_after_undergoing_Mid-Urethral_sling_with_or_without_concomitant_colporrhaphy_in_academic_centers_within_the_United_States/20087741
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Reoperation_rates_for_stress_urinary_incontinence_and_pelvic_organ_prolapse_in_women_after_undergoing_Mid-Urethral_sling_with_or_without_concomitant_colporrhaphy_in_academic_centers_within_the_United_States/20087741/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.checklistbank.org/dataset/51856/imports/23?__goaway_challenge=cookie&__goaway_id=39a5d32c76232beb2a79199d47c8c17e
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/21139504
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

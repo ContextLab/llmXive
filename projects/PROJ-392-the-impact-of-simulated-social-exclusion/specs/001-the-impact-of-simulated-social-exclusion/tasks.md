@@ -5,7 +5,7 @@
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each user story.
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -20,23 +20,34 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-## Phase 0: Feasibility Check & Design Verification (CRITICAL)
-
-**Purpose**: Verify data availability and statistical design before proceeding. This phase resolves the "Feasibility Pivot" mandated by the plan.
-
-- [ ] T008 [P] [US0] **Design Verification**: Inspect BIDS task files (`participants.tsv`, `task-*.tsv`) to determine if the design is **within-subject** (each participant does both exclusion and inclusion) or **between-subject**. Output: `data/design_type.json` (value: "within" or "between").
-- [ ] T009 [P] [US0] **Feasibility Check**: Download `ds000246` (or specified dataset) header only. Verify if it contains BOTH social exclusion AND reward tasks. Output: `data/feasibility_status.json` (value: "combined" or "missing_reward").
-- [ ] T010 [P] [US0] **Synthetic Data Generation (Feasibility Pivot)**: **IF** T009 reports "missing_reward", implement `code/synthetic_data.py` to generate **deterministic synthetic reward task data** (simulated BOLD responses with known beta differences) that mimics the statistical properties required for downstream analysis. Output: `data/synthetic/reward_task.nii.gz` and `data/synthetic/behavioral.csv`. **Verification**: Ensure synthetic data produces expected beta differences (e.g., exclusion < inclusion) to validate the pivot.
-
----
+<!-- 
+  ============================================================================
+  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+  
+  The /speckit-tasks command MUST replace these with actual tasks based on:
+  - User stories from spec.md (with their priorities P1, P2, P3...)
+  - Feature requirements from plan.md
+  - Entities from data-model.md
+  - Endpoints from contracts/
+  
+  Tasks MUST be organized by user story so each story can be:
+  - Implemented independently
+  - Tested independently
+  - Delivered as an MVP increment
+  
+  DO NOT keep these sample tasks in the generated tasks.md file.
+  ============================================================================
+-->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure at **repository root**: `code/`, `data/raw-fmri/`, `data/processed-fmri/`, `data/behavioral/`, `data/synthetic/`, `data/extracted/`, `tests/`, `docs/`, `docs/paper/`, `docs/paper/figures/`.
-- [ ] T002 [P] Initialize Python 3.11 project with `code/requirements.txt`. **Content must include**: `nilearn>=0.10`, `nibabel`, `scikit-learn`, `pandas`, `openneuro-py`, `matplotlib`, `seaborn`, `scipy`, `numpy`, `pytest`.
-- [ ] T003 [P] [US1] Configure linting (ruff/flake8) and formatting (black) tools.
+- [ ] T001a [P] Create `projects/PROJ-392-the-impact-of-simulated-social-exclusion/` root directory and `code/`, `data/`, `tests/` subdirectories.
+- [ ] T001b [P] Create `data/raw-fmri`, `data/processed-fmri`, `data/behavioral`, `data/results` subdirectories.
+- [ ] T001c [P] Create `code/data_download`, `code/manipulation`, `code/preprocess`, `code/analysis`, `code/visualization`, `code/utils`, `code/pipeline` subdirectories.
+- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (nibabel, numpy, pandas, scikit-learn, scipy, matplotlib, nilearn, nipype, pybids, pyyaml, statsmodels). **Note**: Do NOT include `fmriprep` in this list; create a `docker-compose.yml` or wrapper script in T012 to invoke the Docker image.
+- [ ] T003 [P] Configure linting (flake8/black) and formatting tools in `code/`
 
 ---
 
@@ -46,11 +57,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Setup BIDS-compliant directory structure (`data/raw-fmri/`, `data/processed-fmri/`, `data/behavioral/`, `data/synthetic/`).
-- [ ] T005 [P] [US1] Implement memory monitoring and chunked processing utility in `code/utils.py` (monitor RAM, trigger downsampling to 4mm if >6GB). **Verification**: Run a script that triggers the 6GB threshold and logs a warning.
-- [ ] T006 [P] Create base data models/entities in `code/models.py`: `Participant` (attrs: id, group, betas), `ROI` (attrs: name, atlas, coords), `AnalysisResult` (attrs: roi, event, t, p, d).
-- [ ] T007 [P] Setup logging infrastructure to record preprocessing success/failure rates for SC-004.
-- [ ] T008 [P] Configure environment variables for OpenNeuro API keys and dataset IDs.
+- [ ] T004 Setup directory structure: `data/raw-fmri`, `data/processed-fmri`, `data/behavioral`, `data/results`, `code/manipulation`, `code/utils`
+- [ ] T005 Implement `code/utils/checksums.py` for data integrity verification
+- [ ] T006 Implement `code/utils/provenance.py` for machine-readable YAML sidecar generation
+- [ ] T007 Create base configuration loader for dataset IDs (ds000246, ds004738) and ROI coordinates (AAL, Harvard-Oxford)
+- [ ] T008 Setup `code/pipeline/run_pipeline.py` orchestration skeleton with error handling and logging
+- [ ] T009 Implement `code/utils/framing_validator.py` to scan reports for causal verbs (satisfying FR-009)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -58,97 +70,192 @@
 
 ## Phase 3: User Story 1 - Data Acquisition and Preprocessing Pipeline (Priority: P1) 🎯 MVP
 
-**Goal**: Download and preprocess fMRI data from OpenNeuro (ds000246) using CPU-tractable methods, or use synthetic data if T010 was triggered.
+**Goal**: Download publicly available fMRI datasets containing social exclusion and reward tasks, and preprocess them using CPU-tractable methods. **Critical**: Since no single dataset contains both tasks, this phase implements a 'Merged Dataset Strategy' to harmonize separate datasets.
 
-**Independent Test**: Can be fully tested by downloading ds000246 (or using synthetic data), running the Preprocessing Module on CPU, and verifying output BOLD images and first-level GLM estimates are generated without GPU resources.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T009 [P] [US1] Contract test for dataset download in `tests/contract/test_download.py` (verify BIDS structure).
-- [ ] T010 [P] [US1] Integration test for preprocessing pipeline on a single subject in `tests/integration/test_preprocess.py` (verify <7GB RAM usage).
+**Independent Test**: Can be fully tested by downloading the individual datasets (ds000246, ds004738), running the harmonization logic, preprocessing on CPU, and verifying output BOLD images and first-level GLM estimates are generated without GPU resources.
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Implement `code/download.py` to fetch ds000246 via `openneuro-py` and verify checksums. Output: `data/raw-fmri/`.
-- [ ] T016 [US1] **Gating Step**: Check if reward task runs exist in downloaded data. **IF** no reward runs exist (and T010 not run), halt with error: 'Error: Missing condition labels. Dataset must contain a "condition" column...'. **IF** T010 was triggered, proceed with synthetic data.
-- [ ] T012 [US1] Implement `code/preprocess.py` with slice-timing correction and realignment (Nilearn/AFNI CPU mode). **Output**: `data/processed-fmri/sub-*/func/sub-*_slice_realigned.nii.gz`.
-- [ ] T013 [US1] Implement normalization to MNI space in `code/preprocess.py` (resample to 4mm if memory >6GB). **Verification**: Verify output file exists in `data/processed-fmri/` with MNI header.
-- [ ] T014 [US1] Implement smoothing at mm FWHM in `code/preprocess.py` (with hooks for 4mm/8mm sensitivity).
-- [ ] T015 [US1] Implement chunked batch processing in `code/preprocess.py` to handle N=40 within 4 hours.
-- [ ] T017 [US1] Add error handling for missing condition labels (halt with specific error message).
-- [ ] T018 [US1] Log preprocessing completion rate (Success/Total) to `data/logs/preprocess_status.json`.
+- [ ] T010 [P] [US1] Implement `code/data_download/download_openneuro.py` to fetch ds000246 (Exclusion) and ds004738 (Reward) separately with BIDS validation. **Do not** attempt to merge here.
+- [ ] T010b [US1] Implement `code/data_download/harmonize_datasets.py` to execute the 'Merged Dataset Strategy': map participant IDs across datasets, align condition labels, and apply confound controls (e.g., adding 'Dataset ID' as a covariate tag) to prepare for analysis. (Addresses FR-001 and Plan's Critical Design Pivot).
+- [ ] T011 [P] [US1] Implement `code/manipulation/generate_condition_labels.py` to extract exclusion/inclusion labels from `participants.tsv` or task JSON for each dataset.
+- [ ] T012 [US1] Implement `code/preprocess/cpu_fmriprep_wrapper.py` invoking fMRIPrep (docker: `nipreps/fmriprep:latest`) with a configurable thread count suitable for CPU-only execution. **Note**: This task creates the wrapper script; `fmriprep` is not installed via pip.
+- [ ] T013 [US1] Implement `code/preprocess/run_preprocessing.py` to handle chunked processing (batches of subjects) and generate preprocessed NIfTI images (slice-timing corrected, realigned, normalized to MNI, smoothed with an appropriate spatial kernel) with failure logging.
+- [ ] T014 [US1] Implement logic to harmonize and label data from merged exclusion and reward datasets: create a unified metadata file linking participants to their exclusion/inclusion group and task run type (BLOCKING DEPENDENCY FOR T018).
+- [ ] T015 [US1] Implement provenance generation: create YAML sidecars for every preprocessed file recording pipeline version and parameters (satisfying Constitution Principle VI).
+- [ ] T016 [US1] Implement metrics collection: calculate 'Preprocessing Completion Rate', log to `data/results/preprocessing_metrics.json` (target ≥90%), and include logic to flag 'exploratory' status and recommend future studies if N < 20 per group (satisfying FR-010).
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (Data downloaded, harmonized, preprocessed, and labeled). **T014 must be complete before T018 can execute.**
 
 ---
 
 ## Phase 4: User Story 2 - ROI-Based Statistical Analysis (Priority: P1)
 
-**Goal**: Extract beta estimates from ROIs and perform second-level mixed-effects analysis. **Depends on Phase 3 completion.**
+**Goal**: Extract beta estimates from predefined ROIs and perform second-level mixed-effects analysis comparing excluded vs. included groups.
 
-**Independent Test**: Can be fully tested by running the ROI extraction and t-test on preprocessed data from ≥10 participants per group, producing statistically valid group-level effect estimates.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T019 [P] [US2] Unit test for ROI mask generation (AAL/Harvard-Oxford) in `tests/unit/test_roi.py`.
-- [ ] T020 [P] [US2] Contract test for statistical output schema (t-stat, p-value, Cohen's d) in `tests/contract/test_stats.py`.
+**Independent Test**: Can be fully tested by running the ROI extraction and t-test on preprocessed data from ≥20 participants per group, producing statistically valid group-level effect estimates.
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Implement ROI definition in `code/roi_extraction.py`: Ventral Striatum (AAL, MNI: +/, 8, -4) and OFC (Harvard-Oxford, Prob>50%). **Output**: Mask files in `data/extracted/`.
-- [ ] T022 [US2] Implement beta extraction for 'Reward > Neutral' and 'Anticipation > Baseline' contrasts. **Output**: `data/extracted/roi_betas.csv` (participant_id, group, roi, event_type, beta_value).
-- [ ] T023 [US2] Store extracted betas in `data/extracted/roi_betas.csv`.
-- [ ] T024 [US2] Implement behavioral manipulation check in `code/analysis.py` (extract distress scores from `data/behavioral/`). **Output**: `data/behavioral/distress_scores.csv`. **Logic**: if mean_distress < threshold: flag 'proxy variable'.
-- [ ] T025 [US2] Implement logic to flag 'proxy variable' if behavioral data is missing (FR-011).
-- [ ] T026 [US2] Implement second-level statistical model in `code/analysis.py`: **SELECT** model based on T008 output (within-subject: paired t-test/interaction; between-subject: two-sample t-test). Compare ROI activation between excluded vs. included groups.
-- [ ] T027 [US2] Implement Small Volume Correction (SVC) for FWE correction (p<0.05) in `code/analysis.py`.
-- [ ] T028 [US2] Calculate Cohen's d and 95% CI for all ROI/event combinations.
-- [ ] T029 [US2] Implement multiple-comparison correction for the set of statistical tests (2 ROIs × 2 events) with explicit method naming.
-- [ ] T030 [US2] Implement power check: **IF** n<10 per group, output exact string: 'WARNING: Power limitation detected (n<20). Results framed as exploratory.' and trigger 'exploratory' framing in report.
+- [ ] T017 [US2] Implement `code/analysis/roi_extraction.py` to load Ventral Striatum (AAL atlas) and OFC (Harvard-Oxford, thresholded at an appropriate level) masks in MNI space (DEPENDS ON T013/T014).
+- [ ] T018 [US2] Implement first-level GLM execution using Nilearn with autoregressive pre-whitening for temporal autocorrelation (DEPENDS ON T013/T014).
+- [ ] T019 [US2] Implement extraction of beta estimates for 'reward anticipation' and 'reward receipt' events per participant.
+- [ ] T020 [US2] Store extracted betas in structured format: `data/results/beta_estimates.csv` (columns: participant_id, group, roi, event_type, beta_value).
+- [ ] T021 [US2] Implement `code/analysis/group_analysis.py` to perform two-sample t-test between excluded vs. included groups (PRIMARY METHOD per FR-005).
+- [ ] T022 [US2] Implement Bonferroni correction logic for 4 hypothesis tests (2 ROIs × 2 events) at α=0.05.
+- [ ] T023a [US2] Implement the primary two-sample t-test logic in `code/analysis/group_analysis.py` to compare groups, satisfying FR-005 and SC-001.
+- [ ] T023b [US2] Implement a secondary MixedLM model (using `statsmodels`) including 'Dataset ID' as a random effect to assess robustness of the merged dataset approach (Plan's design pivot), distinct from the primary t-test.
+- [ ] T024 [US2] Generate summary statistics: mean activation, SD, t-statistic, Cohen's d, and Bonferroni-corrected p-values for each ROI/Event combination (from T023a).
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently (Data processed and statistical results generated).
 
 ---
 
 ## Phase 5: User Story 3 - Result Visualization and Reporting (Priority: P2)
 
-**Goal**: Generate interpretable visualizations and a summary report with associational framing. **Depends on Phase 4 completion.**
+**Goal**: Generate interpretable visualizations and a summary report framing results as associational.
 
 **Independent Test**: Can be fully tested by generating figures from completed analysis outputs and verifying they display group differences with appropriate statistical annotations.
 
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T031 [P] [US3] Visual regression test for bar plot generation in `tests/unit/test_viz.py`.
-- [ ] T032 [P] [US3] Contract test for report framing (scan for causal verbs) in `tests/contract/test_report_framing.py`.
-
 ### Implementation for User Story 3
 
-- [ ] T033 [US3] Implement bar plot generation (mean ± SEM) with p-value annotations in `code/viz.py`. **Output**: `docs/paper/figures/bar_plot_vs.png`. **Format**: p<0.05, **p<0.01.
-- [ ] T034 [US3] Implement SPM overlay generation on MNI template in `code/viz.py` (cluster coords + peak t-values).
-- [ ] T035 [US3] Implement summary report compilation in `docs/paper/report.md` (sample size, means, stats, interpretation).
-- [ ] T036 [US3] Implement framing accuracy check: scan report for causal verbs and replace with associational language (FR-009).
-- [ ] T037 [US3] Add future recommendations section (FR-010) suggesting ≥30 participants per group.
-- [ ] T038 [US3] Save all figures to `docs/paper/figures/` with descriptive filenames.
+- [ ] T025 [US3] Implement `code/visualization/plot_results.py` to generate ROI bar plots with mean ± SEM error bars and p-value annotations (*p<0.05, **p<0.01) (DEPENDS ON T021/T024).
+- [ ] T026 [US3] Implement SPM overlay generation: overlay significant clusters on MNI template brain with coordinates (x,y,z) and peak t-values (DEPENDS ON T021/T024).
+- [ ] T027 [US3] Implement report compilation: generate `data/results/summary_report.md` including sample size, ROI means, t-stats, effect sizes, and corrected p-values.
+- [ ] T028 [US3] Integrate `code/utils/framing_validator.py` to scan the summary report for causal verbs (lexicon: 'causes', 'leads to', 'results in', 'induces', 'forces') and enforce associational language (e.g., "association between" vs "causes").
+- [ ] T029 [US3] Implement power limitation check: if N < 20 per group, flag as exploratory and append recommendation for future studies (≥30 participants) to the report.
 
-**Checkpoint**: All user stories should now be independently functional
+**Checkpoint**: All user stories should now be independently functional (Analysis complete, visualized, and reported).
 
 ---
 
-## Phase 6: User Story 4 - Sensitivity Analysis for Threshold Justification (Priority: P3)
+## Phase 6: User Story 4 - Sensitivity Analysis (Priority: P3)
 
-**Goal**: Perform sensitivity analysis sweeping smoothing and ROI radius thresholds. **Depends on Phase 5 completion.**
+**Goal**: Perform sensitivity analysis sweeping key decision thresholds to demonstrate robustness.
 
-**Independent Test**: Can be fully tested by re-running analysis with alternative thresholds and comparing resulting activation maps.
-
-### Tests for User Story 4 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T039 [P] [US4] Unit test for consistency calculation logic in `tests/unit/test_sensitivity.py`.
+**Independent Test**: Can be fully tested by re-running analysis with alternative thresholds (smoothing ∈ {4mm, 6mm, 8mm}) and comparing resulting mean beta estimates.
 
 ### Implementation for User Story 4
 
-- [ ] T040 [US4] Implement sensitivity loop in `code/analysis.py` (smoothing ∈ {mm, 6mm, 8mm}, ROI radius ∈ {mm, 10mm, 12mm}). **Output**: `data/extracted/sensitivity_table.csv`.
-- [ ] T041 [US4] Generate table of mean beta values and p-values for all threshold combinations.
-- [ ] T042 [US4] Implement consistency logic: check if **beta difference sign** (Group A - Group B) and significance (p<0.05) are preserved in ≥6/9 cases.
-- [ ] T043 [US4] Append sensitivity results and consistency rate to `docs/paper/report.md`.
+- [ ] T030 [P] [US4] Implement `code/analysis/sensitivity_analysis.py` to iterate over smoothing kernels across a range of FWHM values.
+- [ ] T030b [P] [US4] Implement logic to iterate over ROI mask probability thresholds [low, high] and generate corresponding masks for sensitivity analysis. (Satisfies FR-008 with concrete values).
+- [ ] T031 [US4] Re-run ROI extraction and group analysis via a parameterized analysis wrapper function for each smoothing kernel and mask probability combination (DEPENDS ON Phase 4 completion).
+- [ ] T032 [US4] Generate a consistency table in `data/results/sensitivity_analysis.csv` showing beta values and t-statistics across threshold combinations.
+- [ ] T033 [US4] Calculate consistency rate: verify if primary finding (reduced VS activation) holds in ≥4 of 6 threshold combinations (3 kernels × 2 masks) (≥67% threshold).
+- [ ] T034 [US4] Append sensitivity analysis results and consistency conclusion to `data/results/summary_report.md`.
 
-**Checkpoint**: Sensitivity analysis complete; robustness verified.
+**Checkpoint**: Sensitivity analysis complete and reported.
+
+---
+
+## Phase 7: Polish & Cross-Cutting Concerns
+
+**Purpose**: Improvements that affect multiple user stories
+
+- [ ] T035 [P] Documentation updates in `docs/` (README, quickstart.md)
+- [ ] T036a [P] Refactor `code/analysis/group_analysis.py` to ensure cyclomatic complexity < 10 and improve modularity.
+- [ ] T036b [P] Run static analysis (flake8/mypy) on all `code/` files and fix reported issues.
+- [ ] T037 [P] Run `pytest` unit tests: `tests/unit/test_roi_extraction.py`, `tests/unit/test_group_analysis.py` in `tests/unit/`.
+- [ ] T038 [P] Run integration test `tests/integration/test_pipeline.py` on a small subset of data to verify end-to-end flow.
+- [ ] T039 Run quickstart.md validation to ensure reproducibility on a fresh runner.
+
+---
+
+## Dependencies & Execution Order
+
+### Phase Dependencies
+
+- **Setup (Phase 1)**: No dependencies - can start immediately
+- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
+- **User Stories (Phase 3+)**: All depend on Foundational phase completion
+  - User stories can then proceed in parallel (if staffed)
+  - Or sequentially in priority order (P1 → P2 → P3)
+- **Polish (Final Phase)**: Depends on all desired user stories being complete
+
+### User Story Dependencies
+
+- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
+- **User Story 2 (P1)**: Can start after Foundational (Phase 2) - Depends on US1 output (preprocessed data)
+- **User Story 3 (P2)**: Can start after US2 completion - Depends on US2 output (beta estimates/stats)
+- **User Story 4 (P3)**: Can start after US2 completion - Depends on US2 logic for re-runs
+
+### Within Each User Story
+
+- Tests (if included) MUST be written and FAIL before implementation
+- Models before services
+- Services before endpoints
+- Core implementation before integration
+- Story complete before moving to next priority
+
+### Parallel Opportunities
+
+- All Setup tasks marked [P] can run in parallel
+- All Foundational tasks marked [P] can run in parallel (within Phase 2)
+- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
+- All tests for a user story marked [P] can run in parallel
+- Models within a story marked [P] can run in parallel
+- Different user stories can be worked on in parallel by different team members
+
+---
+
+## Parallel Example: User Story 1
+
+```bash
+# Launch all tests for User Story 1 together (if tests requested):
+Task: "Contract test for [endpoint] in tests/contract/test_[name].py"
+Task: "Integration test for [user journey] in tests/integration/test_[name].py"
+
+# Launch all models for User Story 1 together:
+Task: "Create [Entity1] model in src/models/[entity1].py"
+Task: "Create [Entity2] model in src/models/[entity2].py"
+```
+
+---
+
+## Implementation Strategy
+
+### MVP First (User Story 1 Only)
+
+1. Complete Phase 1: Setup
+2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
+3. Complete Phase 3: User Story 1
+4. **STOP and VALIDATE**: Test User Story 1 independently
+5. Deploy/demo if ready
+
+### Incremental Delivery
+
+1. Complete Setup + Foundational → Foundation ready
+2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
+3. Add User Story 2 → Test independently → Deploy/Demo
+4. Add User Story 3 → Test independently → Deploy/Demo
+5. Each story adds value without breaking previous stories
+
+### Parallel Team Strategy
+
+With multiple developers:
+
+1. Team completes Setup + Foundational together
+2. Once Foundational is done:
+   - Developer A: User Story 1 (Data/Preprocess)
+   - Developer B: User Story 2 (Analysis)
+   - Developer C: User Story 3 (Visualization/Reporting)
+3. Stories complete and integrate independently
+
+---
+
+## Notes
+
+- [P] tasks = different files, no dependencies
+- [Story] label maps task to specific user story for traceability
+- Each user story should be independently completable and testable
+- Verify tests fail before implementing
+- Commit after each task or logical group
+- Stop at any checkpoint to validate story independently
+- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- **Critical**: All preprocessing tasks MUST respect a constrained CPU, RAM, and time budget (no GPU, no 8-bit models).
+- **Critical**: No synthetic data is used for primary analysis; only real OpenNeuro datasets.
+- **Critical**: T014 (harmonization) is a blocking dependency for T018 (GLM).
+- **Critical**: T031 uses a parameterized wrapper, not static task re-execution.
+- **Critical**: T033 validates against 6 combinations (3 kernels × 2 masks) with ≥4/6 threshold.
+- **Critical**: T023a implements the Spec-mandated t-test; T023b implements the Plan's MixedLM as a robustness check.
+- **Critical**: T030b uses concrete values [[deferred], [deferred]] for mask probability thresholds.

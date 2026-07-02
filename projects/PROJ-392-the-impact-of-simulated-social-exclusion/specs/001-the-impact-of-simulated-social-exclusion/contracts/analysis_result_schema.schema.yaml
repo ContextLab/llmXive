@@ -1,0 +1,99 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Group Analysis Result Schema"
+description: "Schema for second-level statistical analysis results."
+type: "object"
+properties:
+  analysis_id:
+    type: "string"
+    description: "Unique ID for this analysis run."
+  roi_name:
+    type: "string"
+    enum:
+      - "ventral_striatum"
+      - "orbitofrontal_cortex"
+    description: "Name of the ROI analyzed."
+  event_type:
+    type: "string"
+    enum:
+      - "anticipation"
+      - "receipt"
+    description: "Type of reward event."
+  group_stats:
+    type: "object"
+    properties:
+      excluded:
+        type: "object"
+        properties:
+          mean_beta:
+            type: "number"
+          std_beta:
+            type: "number"
+          n:
+            type: "integer"
+        required:
+          - mean_beta
+          - std_beta
+          - n
+      included:
+        type: "object"
+        properties:
+          mean_beta:
+            type: "number"
+          std_beta:
+            type: "number"
+          n:
+            type: "integer"
+        required:
+          - mean_beta
+          - std_beta
+          - n
+  statistical_test:
+    type: "object"
+    properties:
+      test_type:
+        type: "string"
+        const: "two_sample_t_test"
+      t_statistic:
+        type: "number"
+      p_value_uncorrected:
+        type: "number"
+        minimum: 0
+        maximum: 1
+      p_value_corrected:
+        type: "number"
+        minimum: 0
+        maximum: 1
+        description: "Bonferroni corrected p-value."
+      correction_method:
+        type: "string"
+        const: "bonferroni"
+      effect_size:
+        type: "object"
+        properties:
+          cohen_d:
+            type: "number"
+        required:
+          - cohen_d
+    required:
+      - test_type
+      - t_statistic
+      - p_value_uncorrected
+      - p_value_corrected
+      - correction_method
+      - effect_size
+  framing:
+    type: "string"
+    const: "associational"
+    description: "Must be 'associational' to comply with FR-009."
+  dataset_id_effect:
+    type: "number"
+    nullable: true
+    description: "Random effect estimate for dataset ID if datasets are merged."
+required:
+  - analysis_id
+  - roi_name
+  - event_type
+  - group_stats
+  - statistical_test
+  - framing
+additionalProperties: false
