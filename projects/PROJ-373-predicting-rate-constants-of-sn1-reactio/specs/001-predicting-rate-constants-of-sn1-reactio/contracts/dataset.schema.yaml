@@ -1,0 +1,71 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Processed SN1 Dataset Schema"
+description: "Schema for the cleaned and processed SN1 reaction dataset used for training."
+type: object
+properties:
+  metadata:
+    type: object
+    properties:
+      source:
+        type: string
+        description: "Verified source URL (e.g., DTS-SN1)"
+      processed_at:
+        type: string
+        format: date-time
+        description: "ISO 8601 timestamp of processing"
+      checksum:
+        type: string
+        description: "SHA256 checksum of the raw source file"
+    required:
+      - source
+      - processed_at
+      - checksum
+  columns:
+    type: array
+    items:
+      type: string
+    description: "List of column names in the dataset"
+  sample_row:
+    type: object
+    properties:
+      smiles:
+        type: string
+        description: "Canonical SMILES string"
+      substrate_class:
+        type: string
+        enum:
+          - secondary
+          - tertiary
+        description: "Inferred or labeled substrate class"
+      rate_constant:
+        type: number
+        description: "Experimental rate constant (s^-1)"
+      temperature:
+        type: number
+        description: "Temperature in Kelvin"
+      steric_index:
+        type: number
+        description: "Calculated steric hindrance index"
+      gasteiger_charges:
+        type: array
+        items:
+          type: number
+        description: "Gasteiger partial charges per atom"
+      topological_indices:
+        type: object
+        properties:
+          wiener:
+            type: number
+          zagreb:
+            type: number
+        description: "Topological indices"
+    required:
+      - smiles
+      - substrate_class
+      - rate_constant
+      - steric_index
+      - gasteiger_charges
+required:
+  - metadata
+  - columns
+  - sample_row

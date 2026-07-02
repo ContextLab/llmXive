@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Exclusion Report Schema"
+description: "Schema for the log of excluded rows during data cleaning."
+type: object
+properties:
+  total_rows_processed:
+    type: integer
+  total_rows_excluded:
+    type: integer
+  exclusion_rate:
+    type: number
+    description: "Fraction of rows excluded (must be < 0.05 for SC-005)"
+  exclusions:
+    type: array
+    items:
+      type: object
+      properties:
+        row_id:
+          type: string
+        reason_code:
+          type: string
+          enum:
+            - invalid_smiles
+            - ambiguous_structure
+            - gasteiger_convergence_failed
+            - primary_substrate
+            - steric_hindrance_high
+            - missing_rate_constant
+            - missing_substrate_class
+          description: "Code indicating why the row was excluded"
+        details:
+          type: string
+          description: "Human-readable details of the error"
+      required:
+        - row_id
+        - reason_code
+        - details
+required:
+  - total_rows_processed
+  - total_rows_excluded
+  - exclusion_rate
+  - exclusions

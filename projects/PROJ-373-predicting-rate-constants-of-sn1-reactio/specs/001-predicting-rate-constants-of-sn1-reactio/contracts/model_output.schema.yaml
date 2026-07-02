@@ -1,0 +1,70 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+description: "Schema for the final model performance metrics and configuration."
+type: object
+properties:
+  model_id:
+    type: string
+    description: "Unique identifier for the trained model"
+  hyperparameters:
+    type: object
+    properties:
+      learning_rate:
+        type: number
+        description: "Learning rate used"
+      hidden_dim:
+        type: integer
+        description: "Hidden dimension of MPNN"
+      dropout:
+        type: number
+        description: "Dropout rate"
+      layers:
+        type: integer
+        description: "Number of MPNN layers (must be 4)"
+    required:
+      - learning_rate
+      - hidden_dim
+      - dropout
+      - layers
+  metrics:
+    type: object
+    properties:
+      train_r2:
+        type: number
+      train_mae:
+        type: number
+      val_r2:
+        type: number
+      val_mae:
+        type: number
+      test_r2:
+        type: number
+      test_mae:
+        type: number
+    required:
+      - train_r2
+      - train_mae
+      - val_r2
+      - val_mae
+      - test_r2
+      - test_mae
+  baseline_comparison:
+    type: object
+    properties:
+      linear_baseline_r2:
+        type: number
+      improvement_p_value:
+        type: number
+        description: "P-value from bootstrap comparison (p < 0.05 required)"
+    required:
+      - linear_baseline_r2
+      - improvement_p_value
+  runtime_seconds:
+    type: number
+    description: "Total training time in seconds"
+required:
+  - model_id
+  - hyperparameters
+  - metrics
+  - baseline_comparison
+  - runtime_seconds
