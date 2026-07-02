@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-10T09:16:06.664332Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-687-swe-explore-benchmarking-how-coding-agen
-last_run_id: f460d0ef-cc55-4a37-975f-8f024d88db01
+last_run_id: 58afa681-37d7-47fa-990e-93b1829fe38d
 last_run_status: null
 points_paper: {}
 points_research: {}
