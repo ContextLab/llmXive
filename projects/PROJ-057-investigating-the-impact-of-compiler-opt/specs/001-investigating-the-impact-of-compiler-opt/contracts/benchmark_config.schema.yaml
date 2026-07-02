@@ -1,0 +1,60 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Benchmark Configuration Schema
+description: Defines the schema for a single benchmark configuration (compiler + flags + kernel).
+type: object
+required:
+  - config_id
+  - compiler
+  - optimization_level
+  - flags
+  - kernel_type
+  - tensor_shape
+properties:
+  config_id:
+    type: string
+    description: "Unique identifier for this configuration (e.g., 'gcc-O3-ffast-math-matmul')"
+    pattern: "^[a-z0-9-]+$"
+  compiler:
+    type: string
+    enum:
+      - gcc
+      - clang
+    description: "The compiler used for compilation."
+  version:
+    type: string
+    description: "Version string of the compiler (e.g., '11.4.0')."
+  optimization_level:
+    type: string
+    enum:
+      - "-O0"
+      - "-O1"
+      - "-O2"
+      - "-O3"
+      - "-Os"
+    description: "The base optimization level."
+  flags:
+    type: array
+    items:
+      type: string
+    description: "Additional compiler flags (e.g., ['-ffast-math', '-march=native'])."
+    minItems: 0
+  kernel_type:
+    type: string
+    enum:
+      - matmul
+      - softmax
+      - layernorm
+    description: "The type of kernel being benchmarked."
+  tensor_shape:
+    type: array
+    items:
+      type: integer
+    minItems: 2
+    maxItems: 2
+    description: "Dimensions of the synthetic input tensor (e.g., [512, 512])."
+  seed:
+    type: integer
+    description: "Random seed used for tensor generation (42-46)."
+    minimum: 42
+    maximum: 46
+

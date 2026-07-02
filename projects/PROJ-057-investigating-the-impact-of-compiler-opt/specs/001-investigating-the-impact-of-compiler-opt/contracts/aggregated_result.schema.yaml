@@ -1,0 +1,59 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Aggregated Result Schema
+description: Defines the schema for aggregated statistics per configuration (aggregated across 5 seeds and [deferred] iterations).
+type: object
+required:
+  - config_id
+  - median_latency_ns
+  - p95_latency_ns
+  - cv
+  - mean_l2_error
+  - max_l2_error
+  - max_absolute_diff
+  - n_iterations
+  - n_blocks
+  - stability_pass
+  - is_frontier
+properties:
+  config_id:
+    type: string
+    description: "Foreign key to the Benchmark Configuration."
+  median_latency_ns:
+    type: number
+    minimum: 0
+    description: "Median latency across all iterations and seeds."
+  p95_latency_ns:
+    type: number
+    minimum: 0
+    description: "95th percentile latency."
+  cv:
+    type: number
+    minimum: 0
+    description: "Coefficient of Variation (stddev / mean)."
+  mean_l2_error:
+    type: number
+    minimum: 0
+    description: "Mean L2 relative error across 5 seeds."
+  max_l2_error:
+    type: number
+    minimum: 0
+    description: "Maximum L2 relative error observed across 5 seeds."
+  max_absolute_diff:
+    type: number
+    minimum: 0
+    description: "Maximum absolute difference observed across 5 seeds."
+  n_iterations:
+    type: integer
+    minimum: 10000
+ description: "Total number of iterations performed per seed (fixed at [deferred])."
+  n_blocks:
+    type: integer
+    minimum: 100
+ description: "Number of blocks used for statistical analysis ([deferred] / 100 = 100)."
+  stability_pass:
+    type: boolean
+    description: "True if max_l2_error <= 1e-5."
+  is_frontier:
+    type: boolean
+    description: "True if this configuration is on the Pareto frontier (calculated on ALL points, including unstable ones)."
+    default: false

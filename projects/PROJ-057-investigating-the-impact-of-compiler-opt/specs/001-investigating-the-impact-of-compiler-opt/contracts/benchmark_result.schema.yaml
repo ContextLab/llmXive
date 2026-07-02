@@ -1,0 +1,51 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Benchmark Result Schema
+description: Defines the schema for a single benchmark run result.
+type: object
+required:
+  - run_id
+  - config_id
+  - iteration
+  - latency_ns
+  - status
+  - seed
+properties:
+  run_id:
+    type: string
+    format: uuid
+    description: "Unique UUID for this specific run."
+  config_id:
+    type: string
+    description: "Foreign key to the Benchmark Configuration."
+  iteration:
+    type: integer
+    minimum: 1
+    maximum: 10000
+    description: "The iteration number within the batch (fixed 1-10,000)."
+  latency_ns:
+    type: integer
+    minimum: 0
+    description: "Execution time in nanoseconds."
+  status:
+    type: string
+    enum:
+      - success
+      - nan
+      - timeout
+      - error
+    description: "Status of the execution."
+  seed:
+    type: integer
+    minimum: 42
+    maximum: 46
+    description: "The random seed used for this specific data set."
+  output_checksum:
+    type: string
+    pattern: "^[a-f0-9]{64}$"
+    description: "SHA256 checksum of the output tensor (for stability verification)."
+    nullable: true
+  timestamp:
+    type: string
+    format: date-time
+    description: "ISO 8601 timestamp of the run."
+
