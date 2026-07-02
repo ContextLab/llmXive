@@ -1,0 +1,62 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Aligned Event Schema"
+description: "Schema for the unified solar-geomagnetic event dataset."
+type: object
+properties:
+  storm_id:
+    type: string
+    description: "Unique identifier for the geomagnetic storm event."
+  flare_id:
+    type: ["string", "null"]
+    description: "Unique identifier for the associated flare (null if no match)."
+  cme_id:
+    type: ["string", "null"]
+    description: "Unique identifier for the associated CME (null if no match)."
+  storm_timestamp:
+    type: string
+    format: date-time
+    description: "ISO 8601 timestamp of the Dst minimum."
+  dst_min:
+    type: number
+    description: "Minimum Dst index in nT."
+  flare_flux_wm2:
+    type: ["number", "null"]
+    description: "X-ray peak flux in W/m² (null if no flare)."
+  flare_log10_flux:
+    type: ["number", "null"]
+    description: "Log10 transformed flux (null if no flare)."
+  cme_speed_kms:
+    type: ["number", "null"]
+    description: "CME speed in km/s (null if no CME or speed unavailable)."
+  time_diff_hours:
+    type: number
+    description: "Time difference between solar event and storm minimum in hours."
+  window_valid:
+    type: boolean
+    description: "True if time_diff_hours <= 72."
+  missing_flare_flag:
+    type: boolean
+    description: "True if flare data is missing for this storm."
+  missing_cme_flag:
+    type: boolean
+    description: "True if CME data is missing for this storm."
+  is_severe:
+    type: boolean
+    description: "True if dst_min <= -100 nT."
+  is_recurrent:
+    type: boolean
+    description: "True if the Dst index did not recover to > -20 nT for at least 24 hours prior to this minimum (physical recovery criterion)."
+  source_manifest_ref:
+    type: string
+    description: "Reference to the source record in data/source_manifest.yaml."
+required:
+  - storm_id
+  - storm_timestamp
+  - dst_min
+  - time_diff_hours
+  - window_valid
+  - missing_flare_flag
+  - missing_cme_flag
+  - is_severe
+  - is_recurrent
+  - source_manifest_ref
