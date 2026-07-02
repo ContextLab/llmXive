@@ -25,7 +25,7 @@ The research team MUST be able to download resting-state EEG data from the OpenN
 
 ### User Story 2 - Affective Correlation Analysis (Priority: P2)
 
-The research team MUST be able to extract temporal microstate features (mean duration, occurrence rate, coverage, transition probability for each of 4 classes), collect self-reported valence/arousal scores from associated questionnaires (PANAS, SAM), and compute Pearson/Spearman correlations between microstate features and affective scores with Bonferroni correction for multiple comparisons.
+The research team MUST be able to extract temporal microstate features (mean duration, occurrence rate, coverage, transition probability for each microstate class), collect self-reported valence/arousal scores from associated questionnaires (PANAS, SAM), and compute Pearson/Spearman correlations between microstate features and affective scores with Bonferroni correction for multiple comparisons.
 
 **Why this priority**: This directly addresses the research question about whether microstate dynamics vary with affective dimensions. Without this analysis, the project cannot produce evidence on the relationship.
 

@@ -1,0 +1,4 @@
+? 'T007 [P] Implement logging infrastructure in `code/utils.py` to track exclusion
+  logs. **Output**: `data/logs/exclusion.log`.'
+: 2
+T009 [P] [US1] Unit test for bandpass filter design (1-40Hz) in `tests/unit/test_preprocessing.py`: 1

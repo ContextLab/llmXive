@@ -17,7 +17,7 @@ This project implements a CPU-tractable pipeline to download resting-state EEG d
 **Testing**: `pytest` (unit tests for pipeline steps, integration tests for end-to-end flow)  
 **Target Platform**: Linux (GitHub Actions runner)  
 **Project Type**: Computational research pipeline / CLI  
-**Performance Goals**: Complete preprocessing and analysis within 6 hours on 2 CPU cores; peak RAM < 7 GB.  
+**Performance Goals**: Complete preprocessing and analysis within 6 hours on CPU cores; peak RAM < 7 GB.  
 **Constraints**: No GPU/CUDA; no deep learning training; strict dataset-variable fit verification before analysis; CPU-only K-means and statistical tests.  
 **Scale/Scope**: Processing of OpenNeuro datasets ds and ds (sampled if necessary to fit RAM); analysis of a variable number of subjects depending on data availability.
 
@@ -95,7 +95,7 @@ projects/PROJ-456-decoding-affective-state-from-resting-st/
 3.  **Checksum**: Record SHA-256 hashes in `state/` and `data/raw/`.
 
 ### Phase 1: Preprocessing & Data Validation
-1.  **Preprocess**: Bandpass (low-frequency cutoff to 40Hz), ICA (remove ocular/muscle), Re-reference (average).
+1.  **Preprocess**: Bandpass (low-frequency cutoff to a specified threshold), ICA (remove ocular/muscle), Re-reference (average).
 2.  **Validate**: Check for ≥80% questionnaire completion rate per subject (FR-012). Exclude non-compliant subjects.
 
 ### Phase 2: Microstate Segmentation (Template-Based)
@@ -122,7 +122,7 @@ projects/PROJ-456-decoding-affective-state-from-resting-st/
 
 ## Compute Feasibility
 
--   **Hardware**: 2 CPU cores, 7 GB RAM, 14 GB disk.
+-   **Hardware**: 2 CPU cores, 7 GB RAM, GB disk.
 -   **Strategy**:
     -   Data loaded in chunks or sampled if full dataset exceeds RAM.
     -   No GPU usage.

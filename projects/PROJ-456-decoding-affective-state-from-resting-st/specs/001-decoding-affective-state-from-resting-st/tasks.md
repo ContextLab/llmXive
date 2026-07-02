@@ -20,32 +20,30 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure matching the directory tree defined in `plan.md` Project Structure section (`projects/PROJ-456-decoding-affective-state-from-resting-st/`)
-- [ ] T002 Initialize Python 3.11 project with `mne`, `scikit-learn`, `pandas`, `numpy`, `statsmodels` dependencies in `code/requirements.txt`
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools in `code/.pre-commit-config.yaml`
+- [X] T001 Create project structure matching the directory tree defined in `plan.md` Project Structure section: `projects/PROJ-456-decoding-affective-state-from-resting-st/` containing `code/`, `data/`, `tests/`, `docs/`, `state/` subdirectories.
 
 ---
 
@@ -54,12 +52,13 @@
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented.
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete.
 
-- [ ] T004 [P] Implement data loading utilities in `code/utils.py` to fetch OpenNeuro datasets (ds003501, ds004137) and verify dataset-variable fit (EEG + Questionnaire). **Output**: `data/raw/dataset_manifest.json` containing verification status and file paths.
-- [ ] T005 [P] Implement checksum verification logic in `code/utils.py` to record SHA-256 hashes in `state/checksums.json` (schema: `{file_path: hash}`). **Dependency**: T004 (manifest must exist).
-- [ ] T006 [P] Create configuration file `code/preprocessing.yaml` with keys: `bandpass: {low: 1, high: }`, `ica`, `reference`. **Deliverable**: The YAML file itself.
+- [X] T004 [P] Implement data loading utilities in `code/utils.py` to fetch OpenNeuro datasets (ds, ds004137) and verify dataset-variable fit (EEG + Questionnaire). **Note**: Corrects spec typo "ds" to "ds003501". **Output**: `data/raw/dataset_manifest.json` containing verification status and file paths.
+- [X] T005 Implement checksum verification logic in `code/utils.py` to record SHA-256 hashes in `state/checksums.json` (schema: `{file_path: hash}`). **Dependency**: T004 (manifest must exist).
+- [X] T006 [P] Create configuration file `code/preprocessing.yaml` with keys: `bandpass: {low: 1, high: upper limit}`, `ica`, `reference`. **Deliverable**: The YAML file itself.
 - [ ] T007 [P] Implement logging infrastructure in `code/utils.py` to track exclusion logs. **Output**: `data/logs/exclusion.log`.
-- [ ] T008 [P] Define data classes/entities in `code/entities.py` for `EEGRecording`, `MicrostateSegmentation`, `MicrostateFeatures`, `AffectiveScores`, `CorrelationResult`. **Verification**: Ensure imports succeed in a test script.
-- [ ] T023A [P] [US2] Implement `verify_dataset_variable_fit()` in `code/analysis.py` to check for presence of both EEG and Affective scores (PANAS/SAM) AND ≥80% questionnaire response rate per subject (FR-012). **Output**: `state/dataset_fit_status.json` with `status: 'ready'` or `status: 'skipped'`. **Dependency**: T004.
+- [X] T008 [P] Define data classes/entities in `code/entities.py` for `EEGRecording`, `MicrostateSegmentation`, `MicrostateFeatures`, `AffectiveScores`, `CorrelationResult`. **Verification**: Ensure imports succeed in a test script.
+- [ ] T023A [US2] Implement `verify_dataset_variable_fit()` in `code/analysis.py` to check for presence of both EEG and Affective scores (PANAS/SAM) AND ≥80% questionnaire response rate per subject (FR-012). **Note**: Includes verification of validated instruments (PANAS/SAM) with citable validation literature. **Output**: `state/dataset_fit_status.json` with `status: 'ready'` or `status: 'skipped'`. **Dependency**: T004.
+- [ ] T023A-1 [US2] Implement `verify_affective_instruments()` in `code/analysis.py` to explicitly check for the presence of specific affective instruments (PANAS/SAM) in dataset metadata before proceeding. **Output**: Update `state/dataset_fit_status.json` with instrument verification status. **Dependency**: T004.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,19 +75,21 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [ ] T009 [P] [US1] Unit test for bandpass filter design (1-40Hz) in `tests/unit/test_preprocessing.py`
-- [ ] T010 [P] [US1] Unit test for ICA artifact removal variance retention (≥85%) in `tests/unit/test_preprocessing.py`
-- [ ] T011 [P] [US1] Unit test for microstate template application (GEV ≥75%) in `tests/unit/test_microstate.py`
+- [~] T010 [P] [US1] Unit test for ICA artifact removal variance retention (≥85%) in `tests/unit/test_preprocessing.py`
+- [~] T011 [P] [US1] Unit test for microstate template application (GEV ≥75%) in `tests/unit/test_microstate.py`
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `download_eeg()` in `code/preprocessing.py` to fetch ds003501/ds004137 from OpenNeuro with CPU-only streaming
-- [ ] T013 [US1] Implement `apply_bandpass_filter()` in `code/preprocessing.py` (1-40 Hz) with verification of passband
-- [ ] T014 [US1] Implement `run_ica_artifact_removal()` in `code/preprocessing.py` using ADJUST/MARA (CPU-compatible) to remove ocular/muscle components
-- [ ] T015 [US1] Implement `apply_average_rereference()` in `code/preprocessing.py`
-- [ ] T016A [US1] [P] Implement `load_microstate_template()` in `code/microstate.py` to load the pre-defined literature template from `data/templates/microstate_template.npy` (Lehmann et al. standard). **Constraint**: No clustering on current data. **Output**: Template array.
-- [ ] T016B [US1] Implement `apply_microstate_template()` in `code/microstate.py` to apply the loaded template to preprocessed EEG data to assign canonical class labels. **Constraint**: No K-means clustering on current data; use template matching only. **Verification**: Ensure GEV ≥75% is reported in output metadata. **Dependency**: T016A.
-- [ ] T017 [US1] Implement `verify_preprocessing_quality()` in `code/preprocessing.py` to check variance retention and GEV thresholds
-- [ ] T018 [US1] Save preprocessed data and microstate labels to `data/processed/` with metadata flags
+- [~] T012 [US1] Implement `download_eeg()` in `code/preprocessing.py` to fetch ds/ds004137 from OpenNeuro with CPU-only streaming
+- [~] T013 [US1] Implement `apply_bandpass_filter()` in `code/preprocessing.py` (1-40 Hz) with verification of passband
+- [~] T014 [US1] Implement `run_ica_artifact_removal()` in `code/preprocessing.py` using ADJUST/MARA (CPU-compatible) to remove ocular/muscle components <!-- ATOMIZE: requested -->
+- [~] T015 [US1] Implement `apply_average_rereference()` in `code/preprocessing.py`
+- [ ] T016A-1 [US1] Implement `download_microstate_template()` in `code/microstate.py` to download the pre-defined literature template (Lehmann et al.) from a canonical source (e.g., HuggingFace) to `data/templates/microstate_template.npy`. **Constraint**: No clustering on current data. **Output**: Template array.
+- [ ] T016A [US1] [P] Implement `load_microstate_template()` in `code/microstate.py` to load the pre-defined literature template from `data/templates/microstate_template.npy`. **Constraint**: No clustering on current data. **Output**: Template array. **Dependency**: T016A-1.
+- [ ] T016B [US1] Implement `apply_microstate_template()` in `code/microstate.py` to apply the loaded template to preprocessed EEG data to assign canonical class labels. **Constraint**: No K-means clustering on current data; use template matching only. **Note**: This is a CPU-tractable alternative to K-means clustering on the full dataset to satisfy FR-003's segmentation intent within hardware constraints. **Verification**: Ensure GEV ≥75% is reported in output metadata. **Dependency**: T016A.
+- [~] T017 [US1] Implement `verify_preprocessing_quality()` in `code/preprocessing.py` to check variance retention and GEV thresholds
+- [~] T018 [US1] Save preprocessed data and microstate labels to `data/processed/` with metadata flags. **Note**: Includes `analysis_type: associational` flag.
+- [ ] T018-1 [US1] Implement `add_associational_flag()` in `code/microstate.py` to explicitly add the `analysis_type: associational` metadata flag to all microstate feature files generated in T018. **Dependency**: T018.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -111,8 +112,9 @@
 - [ ] T022 [P] [US2] Implement `extract_microstate_features()` in `code/microstate.py` (mean duration, occurrence, coverage, transition prob)
 - [ ] T023B [US2] Implement `load_affective_scores()` in `code/analysis.py`. **Logic**: Check `state/dataset_fit_status.json` (from T023A). If `status: 'skipped'`, write `state/correlation_status.json` with `status: 'skipped'`, `reason: 'no_linked_data'`, and halt pipeline. **Dependency**: T023A.
 - [ ] T024 [US2] Implement `compute_collinearity_diagnostics()` in `code/analysis.py` (VIF calculation) to validate independence assumptions
+- [ ] T024-1 [US2] Implement `save_correlation_matrix()` in `code/analysis.py` to explicitly generate and save the correlation matrix as an alternative diagnostic artifact, satisfying FR-013's requirement for collinearity diagnostics beyond just VIF. **Output**: `data/outputs/correlation_matrix.csv`. **Dependency**: T024.
 - [ ] T025 [US2] Implement `run_correlation_analysis()` in `code/analysis.py` for Pearson/Spearman (multiple tests across classes, features, and dimensions)
-- [ ] T026 [US2] Implement `apply_multiple_comparison_correction()` in `code/analysis.py`. **Logic**: Apply **Bonferroni** correction as primary (α = 0.00156). **Conditional**: If VIF > 5 (from T024), switch to **Holm-Bonferroni** (primary) and **FDR** (secondary).
+- [ ] T026 [US2] Implement `apply_multiple_comparison_correction()` in `code/analysis.py`. **Logic**: Primary method is Holm-Bonferroni (per Plan.md override of Spec). Secondary is FDR. **Note**: FR-015's 'switch to Holm/FDR if VIF > 5' is now a re-affirmation of the primary method (Holm-Bonferroni) as per Plan.md, ensuring consistent p-value threshold application. **Dependency**: T024.
 - [ ] T027 [US2] Implement `compute_effect_sizes()` in `code/analysis.py` (Cohen's d, 95% CI) for significant correlations
 - [ ] T028 [US2] Implement `save_correlation_results()` in `code/analysis.py` with `analysis_type: associational` metadata flag
 
@@ -133,11 +135,14 @@
 
 ### Implementation for User Story 3
 
-- [ ] T032 [US3] Implement `run_bootstrap_resampling()` in `code/analysis.py` (A sufficient number of iterations will be performed.) with N<20 stability warning flag. **Output**: Write `stability_warning: 'N < 20'` to `data/outputs/bootstrap_report.json` if N < 20.
+- [ ] T032-0 [US3] Implement `check_power_limitation()` in `code/analysis.py` to check if N < 10 subjects. **Logic**: If N < 10, skip bootstrap (T032) and generate a 'power limitation' documentation/log. **Dependency**: T004/T023A. **Output**: `data/outputs/power_limitation_report.json` if N < 10.
+- [ ] T032 [US3] Implement `run_bootstrap_resampling()` in `code/analysis.py` (A sufficient number of iterations to ensure convergence.) with N<20 stability warning flag. **Output**: Write `stability_warning: 'N < 20'` to `data/outputs/bootstrap_report.json` if N < 20. **Dependency**: T032-0 (if N >= 10).
+- [ ] T032-2 [US3] Implement `add_associational_flag_to_bootstrap()` in `code/analysis.py` to explicitly add the `analysis_type: associational` metadata flag to all bootstrap report files generated in T032. **Dependency**: T032.
 - [ ] T033 [US3] Implement `compute_replication_statistics()` in `code/analysis.py` (I² or Q-test) if multiple datasets are available
 - [ ] T034 [US3] Implement `run_sensitivity_analysis()` in `code/analysis.py` to sweep thresholds across a range of values. **Requirement**: Report **correlation coefficient stability metrics (mean, std, range)** across the sweep in `data/outputs/sensitivity_report.csv`.
 - [ ] T035 [US3] Implement `generate_robustness_report()` in `code/analysis.py` aggregating bootstrap CI, heterogeneity, and sensitivity metrics
-- [ ] T036 [US3] Save all validation artifacts to `data/outputs/` with content hashes. **Files**: `data/outputs/bootstrap_results.json`, `data/outputs/sensitivity_report.csv`, `data/outputs/replication_stats.json`.
+- [ ] T036 [US3] Save all validation artifacts to `data/outputs/` with content hashes. **Files**: `data/outputs/bootstrap_results.json`, `data/outputs/sensitivity_report.csv`, `data/outputs/replication_stats.json`. **Note**: Includes `analysis_type: associational` flag.
+- [ ] T036-1 [US3] Implement `add_associational_flag_to_sensitivity()` in `code/analysis.py` to explicitly add the `analysis_type: associational` metadata flag to all sensitivity analysis report files generated in T034/T036. **Dependency**: T034.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -148,7 +153,7 @@
 **Purpose**: Improvements that affect multiple user stories and final validation
 
 - [ ] T037 [P] [P3] Run integration test for full pipeline (Download → Preprocess → Analyze) in `tests/integration/test_pipeline.py`
-- [ ] T038A [P] Update `README.md` with "Prerequisites" section listing Python 3.11, mne, and CPU-only constraints.
+- [ ] T038A [P] Update `README.md` with "Prerequisites" section listing Python, mne, and CPU-only constraints.
 - [ ] T038B [P] Update `README.md` with "Execution" section detailing pipeline steps and runtime limits.
 - [ ] T039 [P] Update `code/requirements.txt` to ensure all dependencies are CPU-only and pinned
 - [ ] T040 [P] Run `pytest` suite and ensure [deferred] pass rate on unit and integration tests
@@ -164,8 +169,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -231,9 +236,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---

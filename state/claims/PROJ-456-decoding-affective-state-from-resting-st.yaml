@@ -1,0 +1,35 @@
+- artifact_path: projects/PROJ-456-decoding-affective-state-from-resting-st/README.md
+  attempts: 1
+  canonical: OpenNeuro datasets ds003501 and ds004137 used as data sources
+  claim_id: c_f420b8be
+  context: Data Sources section lists OpenNeuro datasets ds003501 and ds004137.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_datasets_ds003501_and_ds004137_used_as_data_source
+  kind: entity_fact
+  raw_text: The project uses OpenNeuro datasets ds003501 and ds004137.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T04:08:09Z'
+- artifact_path: projects/PROJ-456-decoding-affective-state-from-resting-st/README.md
+  attempts: 1
+  canonical: Microstate templates sourced from Lehmann et al.
+  claim_id: c_f0ac8ad3
+  context: Data Sources section mentions microstate templates from literature (Lehmann
+    et al.).
+  evidence:
+    entailment_evidence: Microstate templates sourced from Lehmann et al.
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Microstate_templates_sourced_from_Lehmann_et_al.
+  kind: entity_fact
+  raw_text: Microstate templates are from literature by Lehmann et al.
+  resolved_value: Microstate templates sourced from Lehmann et al.
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-02T04:08:19Z'

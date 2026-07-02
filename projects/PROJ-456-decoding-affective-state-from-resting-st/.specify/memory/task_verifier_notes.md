@@ -1,0 +1,6 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T007 [P] Implement logging infrastructure in `code/utils.py` to track exclusion logs. **Output**: `data/logs/exclusion.log`.** — The provided `code/utils.py` only shows imports and a comment hinting at logging, but no actual logger configuration or functions that write exclusion entries to `data/logs/exclusion.log`. While the log file exists, there is no evidence in the shown code that the required logging infrastructure was implemented. The missing logger setup and usage must be added to `utils.py`.
+- **T009 [P] [US1] Unit test for bandpass filter design (1-40Hz) in `tests/unit/test_preprocessing.py`** — No test file `tests/unit/test_preprocessing.py` containing a unit test that verifies a 1‑40 Hz band‑pass filter design is present; the evidence provided contains only the task description and no actual code or test artifact. The required unit test is missing.

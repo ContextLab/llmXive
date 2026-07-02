@@ -1,0 +1,54 @@
+# Preprocessing Configuration for EEG Microstate Analysis
+# Project: PROJ-456-decoding-affective-state-from-resting-st
+# Task: T006 - Configuration definition
+
+# Bandpass filter settings (Hz)
+# Applied to raw EEG data to remove slow drifts and high-frequency noise
+bandpass:
+  low: 1.0
+  high: 40.0
+  filter_type: "butter"
+  order: 4
+  l_trans_bandwidth: 1.0
+  h_trans_bandwidth: 1.0
+
+# Independent Component Analysis (ICA) settings
+# Used for artifact removal (ocular, muscular)
+ica:
+  method: "fastica"
+  n_components: 0.95  # Retain 95% of variance
+  max_iter: 500
+  random_state: 42
+  algorithm: "parallel"
+  # Component rejection criteria (automated or manual selection)
+  rejection:
+    min_correlation: 0.7
+    max_eeg_correlation: 0.5
+    min_eog_correlation: 0.8
+
+# Re-referencing configuration
+# Average reference is standard for microstate analysis to ensure topographical neutrality
+reference:
+  type: "average"
+  # If average reference is not feasible (e.g., mastoid channels present), use these:
+  # type: "mastoids"
+  # mastoid_channels: ["M1", "M2"]
+  
+# Additional preprocessing parameters
+preprocessing:
+  # Resampling frequency (Hz)
+  sfreq: 250
+  # Bad channel detection threshold
+  bad_channel_threshold: 0.99
+  # Epoching parameters (if needed for specific analyses)
+  epoch:
+    tmin: -0.2
+    tmax: 0.8
+    baseline: null
+    
+# Microstate template configuration
+# Path to literature-based template (Lehmann et al.) to avoid clustering on current data
+microstate_template:
+  source: "data/templates/microstate_template.npy"
+  expected_gev: 0.75  # Minimum Global Explained Variance expected
+  n_classes: 4  # Canonical microstate classes (A, B, C, D)
