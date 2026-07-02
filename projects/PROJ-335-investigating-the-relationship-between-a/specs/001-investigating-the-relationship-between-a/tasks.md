@@ -43,8 +43,8 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (mkdir -p code data/raw data/processed data/metrics data/results tests/unit tests/integration tests/contract)
-- [ ] T002 Initialize Python project with pinned dependencies (mne, numpy, scipy, pandas, scikit-learn, statsmodels, pyyaml) in `code/requirements.txt`
+- [ ] T001 Create project structure per implementation plan by executing `mkdir -p code data/raw data/processed data/metrics data/results tests/unit tests/integration tests/contract docs`
+- [ ] T002 Initialize Python project with pinned dependencies by installing `mne`, `numpy`, `scipy`, `pandas`, `scikit-learn`, `statsmodels`, `pyyaml` and running `pip freeze > code/requirements.txt`
 - [ ] T003 [P] Configure linting and formatting tools (ruff/black) and pre-commit hooks in `code/.pre-commit-config.yaml`
 
 ---
@@ -55,13 +55,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Create `code/config.yaml` defining MNE parameters (filter 1-40Hz, alpha 8-12Hz), random seeds, and dataset IDs (ds000248)
+- [ ] T004 Create `code/config.yaml` defining MNE parameters (filter bandpass range, alpha band range), random seeds, and dataset IDs (ds000248)
 - [ ] T005 [P] Implement base data validation utility in `code/utils/validation.py` to check for required columns (EEG channels, k-scores/d') and halt with specific error codes (FR-006)
 - [ ] T006 [P] Setup BIDS-compliant directory structure in `data/raw` and metadata handling for OpenNeuro downloads
 - [ ] T007a [P] Create base data model for `EEG Dataset`, `Alpha Power Metric`, and `PLV Metric` in `code/models/eeg_dataset.py`, `code/models/alpha_power.py`, `code/models/plv_metric.py`
 - [ ] T007b [P] Create base data model for `Working Memory Capacity` in `code/models/wm_capacity.py` (Key Entity from Spec)
 - [ ] T008 Configure logging infrastructure to output structured logs to `data/results/` and console
-- [ ] T009 Implement CPU-only execution guard in `code/entrypoint.sh` to ensure no GPU/CUDA calls are attempted and memory limits are monitored
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -78,16 +77,16 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [ ] T010 [P] [US1] Unit test for dataset validation logic in `tests/unit/test_validation.py` (tests validation utility from T005 for missing behavioral measures)
-- [ ] T011 [P] [US1] Integration test for full download and preprocessing pipeline in `tests/integration/test_download_preprocess.py`
+- [ ] T011 [US1] Integration test for full download and preprocessing pipeline in `tests/integration/test_download_preprocess.py` (Depends on T012-T018 completion)
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement `code/_download_preprocess.py` to fetch ds000248 from OpenNeuro and save to `data/raw/`
-- [ ] T013 [US1] Implement bandpass filtering within a standard frequency range and re-referencing to average mastoids in `code/01_download_preprocess.py`
+- [ ] T012 [P] [US1] Implement `code/01_download_preprocess.py` to fetch ds000248 from OpenNeuro and save to `data/raw/`
+- [ ] T013 [US1] Implement bandpass filtering (1-40 Hz) and re-reference to average mastoids in `code/01_download_preprocess.py`
 - [ ] T014 [US1] Implement ICA artifact removal in `code/01_download_preprocess.py` using MNE-Python
 - [ ] T015 [US1] Implement trial epoching aligned to task events and extraction of behavioral performance scores (k-scores/d') in `code/01_download_preprocess.py`
-- [ ] T016 [US1] Add validation logic to exit with a failure code if required variables (channels, k-scores) are missing., logging 'ERROR: Missing behavioral measures...'
-- [ ] T017 [US1] Add power analysis check: if N < 30, halt with 'INSUFFICIENT POWER' message; if N=30-52, log warning, set flag, and continue with acknowledged limitation; otherwise proceed
+- [ ] T016 [US1] Add validation logic to exit with a failure code if required variables (channels, k-scores) are missing, invoking the utility from T005, and logging 'ERROR: Missing behavioral measures...'
+- [ ] T017 [US1] Add power analysis check to `code/01_download_preprocess.py`: if N < 30, halt with 'INSUFFICIENT POWER' message; if N=30-52, log warning, write `data/results/power_status.json` with keys `n_count` and `status` set to 'LIMITED', and continue; otherwise proceed.
 - [ ] T018 [US1] Save preprocessed epochs to `data/processed/` in HDF5/npz format
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -98,7 +97,7 @@
 
 **Goal**: Compute alpha-band power from frontal/parietal electrodes and pairwise phase-locking values (PLV) between frontal-parietal sites during delay periods.
 
-**Independent Test**: Verify that (1) alpha power is extracted from F3, F4, Fz, P3, P4, Pz, (2) PLV is computed via Hilbert transform for frontal-parietal pairs, and (3) metrics are stored per participant.
+**Independent Test**: Verify that () alpha power is extracted from F3, F4, Fz, P3, P4, Pz, (2) PLV is computed via Hilbert transform for frontal-parietal pairs, and (3) metrics are stored per participant.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
@@ -132,11 +131,12 @@
 ### Implementation for User Story 3
 
 - [ ] T029 [P] [US3] Implement Variance Inflation Factor (VIF) calculation in `code/03_correlation_analysis.py`; if VIF > 5, flag collinearity and prepare PCA components
-- [ ] T030 [US3] Implement Partial Correlation (controlling for other metric); IF VIF > 5 switch to PCA components and report joint variance (SEM is descriptive only, do NOT claim independent effects); else run Partial Correlation/SEM for independent effects
-- [ ] T031 [US3] Implement FDR (Benjamini-Hochberg) correction for multiple tests (electrodes × metrics) in `code/03_correlation_analysis.py`; do NOT implement Cluster-Based Permutation (rejected per Plan Complexity Tracking)
-- [ ] T032 [US3] Implement Leave-One-Subject-Out (LOSO) cross-validation (Subject-Level only) for correlation model in `code/03_correlation_analysis.py` [FR-008]
+- [ ] T030 [US3] Implement correlation logic: IF VIF > 5, implement PCA components and report joint variance (descriptive only, do NOT claim independent effects); IF VIF <= 5, implement Partial Correlation (controlling for other metric) to disentangle shared variance.
+- [ ] T031 [US3] Implement FDR (Benjamini-Hochberg) correction for multiple tests (electrodes × metrics) in `code/03_correlation_analysis.py`; include a comment referencing `plan.md` Complexity Tracking section which explicitly rejects Cluster-Based Permutation Testing for discrete electrode-metric pairs.
+- [ ] T031a [US3] Verify Cluster-Based Permutation is NOT implemented by checking for absence of specific libraries/functions in `code/03_correlation_analysis.py` and ensuring the code comment from T031 is present.
+- [ ] T032 [US3] Implement Leave-One-Subject-Out (LOSO) cross-validation (Subject-Level only, replacing trial-level per Plan) for correlation model in `code/03_correlation_analysis.py` [FR-008]; note that split-half reliability is handled in T033.
 - [ ] T033 [US3] Implement split-half reliability analysis and output robustness metrics in `code/03_correlation_analysis.py`
-- [ ] T034 [US3] Compare correlation coefficients to |r| ≥ 0.3 threshold and reliability to ≥0.7 threshold; output JSON to `data/results/threshold_results.json` with keys `threshold_status`, `reliability_status`
+- [ ] T034 [US3] Compare correlation coefficients to |r| ≥ 0.3 threshold and reliability to ≥0.7 threshold; output JSON to `data/results/threshold_results.json` with keys `threshold_status` (PASS/FAIL), `reliability_status` (PASS/LOW), `r_value`, and `reliability_coeff`.
 - [ ] T035 [US3] Generate final report in `data/results/analysis_report.md` summarizing findings, limitations, and associational nature
 
 **Checkpoint**: All user stories should now be independently functional
@@ -147,11 +147,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T036 [P] Documentation updates in `docs/` including `quickstart.md` with run instructions
-- [ ] T037 Code cleanup and refactoring of `code/` scripts
-- [ ] T038 Performance optimization: ensure memory usage stays < 7 GB during preprocessing (sample reduction if needed)
-- [ ] T039 [P] Additional unit tests for edge cases (e.g., N < 30, missing electrodes) in `tests/unit/`
-- [ ] T040 Run `quickstart.md` validation to ensure full pipeline executes on GitHub Actions free tier
+- [ ] T036a [P] Documentation updates: Create `docs/quickstart.md` with run instructions
+- [ ] T036b [P] Documentation updates: Create `docs/api.md` with script parameter descriptions
+- [ ] T037 Run linter (ruff) and fix all violations in `code/` scripts to ensure clean code state
+- [ ] T038 [P] Additional unit tests for edge cases (e.g., N < 30, missing electrodes) in `tests/unit/`
+- [ ] T039 [P] Run `quickstart.md` validation to ensure full pipeline executes on GitHub Actions free tier
 
 ---
 
@@ -196,7 +196,7 @@
 ```bash
 # Launch all tests for User Story 1 together (if tests requested):
 Task: "Unit test for dataset validation logic in tests/unit/test_validation.py"
-Task: "Integration test for full download and preprocessing pipeline in tests/integration/test_download_preprocess.py"
+Task: "Integration test for full download and preprocessing pipeline in tests/integration/test_download_preprocess.py" (Note: T011 depends on implementation)
 
 # Launch all models for User Story 1 together:
 Task: "Implement dataset fetching in code/01_download_preprocess.py"

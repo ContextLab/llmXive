@@ -17,9 +17,9 @@ This feature implements a reproducible neurophysiological analysis pipeline to i
 **Testing**: `pytest` (unit tests for preprocessing steps, integration tests for full pipeline)  
 **Target Platform**: Linux (GitHub Actions Free Runner: 2 CPU, 7 GB RAM, No GPU)  
 **Project Type**: Research Pipeline / CLI Tool  
-**Performance Goals**: Complete preprocessing and analysis within 6 hours; memory usage < 7 GB (safety margin 8 GB).  
+**Performance Goals**: Complete preprocessing and analysis within 6 hours; memory usage < 7 GB (safety margin GB).  
 **Constraints**: No GPU/CUDA; no large model training; strict validation of dataset variables before processing; strict handling of collinearity.  
-**Scale/Scope**: Single dataset analysis (N ~30-50 participants); A large-scale set of trials ranging from thousands to tens of thousands will be conducted.
+**Scale/Scope**: Single dataset analysis (N ~-50 participants); A large-scale set of trials ranging from thousands to tens of thousands will be conducted.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -94,12 +94,12 @@ tests/
 
 ## Statistical Rigor & Power Analysis
 
-- **Correction Method**: False Discovery Rate (FDR, Benjamini-Hochberg) is mandated for the 12 discrete tests. Cluster-Based Permutation is explicitly rejected as it requires a continuous spatio-temporal field, which is not present in a set of 12 pre-defined electrode-metric pairs.
-- **Power Justification**: A power analysis (G*Power) indicates that for a partial correlation (f2=0.09, alpha=0.05, power=0.80, 2 predictors), a sample size of N=52 is ideal. Given the constraint of available datasets (N ~30-50), the pipeline will halt if N < 30 with the message: "INSUFFICIENT POWER: N < 30. Redesign required (e.g., data aggregation or power analysis)". For N=30-52, the study will proceed but acknowledge the power limitation in the final report.
+- **Correction Method**: False Discovery Rate (FDR, Benjamini-Hochberg) is mandated for the discrete tests.. Cluster-Based Permutation is explicitly rejected as it requires a continuous spatio-temporal field, which is not present in a set of 12 pre-defined electrode-metric pairs.
+- **Power Justification**: A power analysis (G*Power) indicates that for a partial correlation (f2=0.09, alpha=0.05, power=0.80, predictors), a sample size of N=52 is ideal. Given the constraint of available datasets (N ~30-50), the pipeline will halt if N < 30 with the message: "INSUFFICIENT POWER: N < 30. Redesign required (e.g., data aggregation or power analysis)". For N=30-52, the study will proceed but acknowledge the power limitation in the final report.
 - **Collinearity**: If VIF > 5, PCA will be performed for descriptive purposes only. The primary hypothesis of "independent effects" will be abandoned in favor of reporting the joint variance explained by the PCA component.
 
 ## Success Criteria Verification Logic
 
-- **SC-001 (|r| ≥ 0.3)**: The `code/03_correlation_analysis.py` script will compute the correlation coefficient and explicitly compare it to 0.3. The output JSON will include a `threshold_status` field: "PASS" if |r| ≥ 0.3, "FAIL" otherwise.
+- **SC-001 (|r| ≥ 0.3)**: The `code/_correlation_analysis.py` script will compute the correlation coefficient and explicitly compare it to 0.3. The output JSON will include a `threshold_status` field: "PASS" if |r| ≥ 0.3, "FAIL" otherwise.
 - **SC-002 (Reliability ≥ 0.7)**: The split-half reliability coefficient will be computed. If the result is < 0.7, the pipeline will log a warning, set a `reliability_status` flag to "LOW", and continue (unless configured to halt).
 - **FR-008 (Cross-Validation)**: Implemented as Leave-One-Subject-Out (LOSO) cross-validation for the correlation model to ensure robustness across subjects. This replaces the scientifically invalid trial-level requirement.

@@ -1,60 +1,77 @@
-# Quickstart: Statistical Analysis of Publicly Available Bird Migration Patterns and Climate Change
+# Quickstart: Bird Migration and Climate Analysis
 
 ## Prerequisites
 
-*   Python 3.11+
-*   `pip`
-*   Access to the verified dataset URLs (for testing only) or local synthetic data generation.
+- Python 3.11+  
+- Git  
+- At least **10 GB** free disk space (for raw data, synthetic generation, and processing).  
 
 ## Installation
 
-1.  Clone the repository and navigate to the project directory.
-2.  Create a virtual environment and install dependencies:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    pip install -r requirements.txt
-    ```
-    *Note: `requirements.txt` includes `geomstats` for Riemannian analysis and `statsmodels` for GAMMs.*
+```bash
+# 1. Clone the repository (or navigate to the project root)
+git clone <repository-url>
+cd <repo-root>
+
+# 2. Create a virtual environment
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
+
+# 3. Install dependencies (pinned versions)
+pip install -r requirements.txt
+```
 
 ## Running the Pipeline
 
-The pipeline is executed via `src/analysis/run_pipeline.py`.
+The pipeline supports two mutually exclusive modes:
 
-### 1. Download & Preprocess (Test Mode)
-Run with the `--test` flag to use **synthetic data** (since full EBD/PRISM URLs are not verified) instead of the full data.
+### 1. Synthetic‑Data Mode (default, CI testing)
+
 ```bash
-python src/analysis/run_pipeline.py --test --seed 42
+python -m src.cli.run_pipeline --mode synthetic --seed 42
 ```
-*   **Output**: `data/processed/test_sample.parquet`
-*   **Expected**: A small dataset with grid-aligned phenology and climate metrics, using tail-preserving stratified sampling.
 
-### 2. Model Fitting
-Once data is prepared, run the GAMM fitting:
+- Generates `data/raw/synthetic_ebird.csv` and `data/raw/synthetic_climate.parquet` that conform to `contracts/dataset.schema.yaml`.  
+- Executes the full preprocessing → modeling → permutation testing → trajectory analysis workflow.  
+- **No scientific conclusions** are drawn; this run only validates that the code works and that all contract tests pass.
+
+### 2. Real‑Data Mode (scientific analysis)
+
 ```bash
-python src/models/gamm_fit.py --input data/processed/test_sample.parquet --output results/gamm_results.json
+python -m src.cli.run_pipeline --mode real
 ```
-*   **Note**: This step uses a **Unified Spatial Model** (default spatial smooth) to avoid data snooping.
 
-### 3. Trajectory Analysis
-Analyze route shifts:
+- **Requires** the official eBird Basic Dataset (2020‑2024) at `data/raw/ebird/ebird_2020_2024.csv` and NOAA/PRISM climate data at `data/raw/climate/prism_2020_2024.parquet`.  
+- The pipeline will abort with a clear error if either file is missing.  
+- When present, the full analysis (preprocessing, Unified Spatial Model fitting, full 10,000‑shuffle permutation tests, route‑shift analysis) is executed and results are written to `data/processed/`.
+
+## Validation
+
+- **Contract tests**:  
+
 ```bash
-python src/models/trajectory.py --input results/gamm_results.json --output results/trajectories.json
+pytest tests/contract/test_schemas.py
 ```
-*   **Note**: This step uses `geomstats` and propagates centroid uncertainty.
 
-## Verification
+- **CI runtime check** (GitHub Actions free tier):  
 
-Run the test suite to ensure data integrity and schema compliance:
 ```bash
-pytest tests/
+# In .github/workflows/ci.yml the job `validate_quickstart` runs:
+pytest tests/integration/test_quickstart.py
 ```
-*   **Contract Tests**: Verify that output files match `contracts/*.schema.yaml`.
-*   **Unit Tests**: Validate grid aggregation logic, missing data handling, and **tail-preserving sampling**.
+
+  The job asserts total runtime < 4 h and that all contract tests succeed.
+
+## Expected Output Files
+
+- `data/processed/phenology_metrics.csv` – aggregated phenology with `sample_weight`.  
+- `data/processed/model_results.parquet` – GAMM coefficients, p‑values, convergence flags, GP metadata.  
+- `data/processed/trajectory_shifts.parquet` – route‑shift statistics and 95 % confidence intervals.  
+- `logs/pipeline.log` – detailed execution log (including any “insufficient data” markings, convergence warnings, Moran’s I diagnostics, and early‑stop flags).
 
 ## Troubleshooting
 
-*   **Memory Error**: The synthetic datasets are small. If running on full data, ensure you have sufficient RAM or reduce the `--sample-rate` argument.
-*   **Convergence Failure**: If GAMM fails to converge, check for collinearity in `results/diagnostics.csv`.
-*   **Missing Data**: The pipeline automatically flags cells with "insufficient data" in the output logs.
-*   **Riemannian Errors**: Ensure `geomstats` is installed and compatible with your numpy version.
+- **MemoryError**: Ensure at least 6 GB RAM is available; the pipeline uses chunked I/O.  
+- **Convergence Warning**: Some species may fail to converge; they are logged and skipped.  
+- **Missing Real Data**: If you intend to run real‑data mode, place the required files under `data/raw/ebird/` and `data/raw/climate/`. The pipeline will automatically detect them.  
+- **Synthetic vs Real Mode Confusion**: The `--mode` flag is required; omitting it defaults to `synthetic`.  

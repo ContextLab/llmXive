@@ -60,7 +60,7 @@ The researcher conducts partial correlation analyses (controlling for collineari
 - What happens when an OpenNeuro dataset lacks behavioral performance measures (k-scores or d') needed for working memory capacity calculation? (Handled by FR-006 and US-1 halt)
 - How does the system handle EEG datasets with insufficient trial counts (<20 trials per condition) for reliable alpha power estimation? (Handled by FR-002 validation)
 - What if alpha-band power and PLV are definitionally related (collinearity), making independent predictive effects impossible to claim? (Handled by FR-009: VIF check and PCA fallback)
-- How does the system behave if the 6-hour GitHub Actions runner limit is exceeded during preprocessing? (Handled by Assumption: sample reduction with ≥20 trials per condition)
+- How does the system behave if the -hour GitHub Actions runner limit is exceeded during preprocessing? (Handled by Assumption: sample reduction with ≥20 trials per condition)
 
 ## Requirements *(mandatory)*
 

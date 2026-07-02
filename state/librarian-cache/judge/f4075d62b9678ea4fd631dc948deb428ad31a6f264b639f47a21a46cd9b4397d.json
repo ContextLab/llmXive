@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2303.12869",
+  "judged_at": "2026-07-02T12:51:56Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating the impact of code ownership on llm code understanding computer science",
+  "rationale": "The paper focuses on the architecture and training of a model for code-text generation (Java), which is a distinct task from investigating the impact of \"code ownership\" (a social/organizational construct) on LLM understanding. It does not measure code ownership, study the specific mechanism of ownership effects, or provide a baseline for that variable, failing to meet any of the inclusion criteria (a-f) while sharing only the broad domain of \"code and LLMs.\"",
+  "relevant": false
+}

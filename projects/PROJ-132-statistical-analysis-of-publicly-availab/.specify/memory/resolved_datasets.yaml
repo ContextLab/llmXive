@@ -1,91 +1,5 @@
-resolved_at: '2026-07-01T03:59:58.605774+00:00'
+resolved_at: '2026-07-02T12:56:46.686449+00:00'
 datasets:
-- intent: MUST
-  status: verified
-  candidates:
-  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
-    source: huggingface
-    format: parquet
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 190547
-      parsed: true
-  - url: https://huggingface.co/datasets/enimai/MuST-C-fr/resolve/main/test.csv
-    source: huggingface
-    format: csv
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  candidates_tried:
-  - url: https://huggingface.co/datasets/kudo-research/mustc-en-es-text-only/resolve/main/data/dev-00000-of-00001.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/enimai/MuST-C-fr/resolve/main/test.csv
-    source: huggingface
-    status: verified
-    format: csv
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/Informal_peer_support_for_rural_doctors/32842559
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Ontogenesis_Part_3/32842532
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Cardiovascular_and_Psychoemotional_Changes_among_Completers_of_a_Medical_Student_Cohort_with_High_Loss_to_Follow-up_during_COVID-19/32804294
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Myrmecochory_and_environmental_factors_in_different_landscapes/30494867
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/Investigation_of_the_RSV_FCGRII2A_and_the_RSV_hospitalization_in_infants/32842520
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5746416
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/16954306
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15420758
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/8056637
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/18961168
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21093245
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21093245
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://osf.io/62t7m/
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20952123
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20952123
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
 - intent: EBD
   status: verified
   candidates:
@@ -127,35 +41,31 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/Informal_peer_support_for_rural_doctors/32842559
+  - url: https://hammer.purdue.edu/articles/thesis/From_Federation_to_Personalization_Trust_Topology_and_Heterogeneity_in_Collaborative_Machine_Learning/32795793
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Ontogenesis_Part_3/32842532
+  - url: https://figshare.com/articles/preprint/The_Trinity-Infinity_Framework_A_Novel_Conceptual_Model_and_Its_Applications_in_Game_Theory_Mathematical_Logic_and_Mechanical_Engineering/32836205
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Cardiovascular_and_Psychoemotional_Changes_among_Completers_of_a_Medical_Student_Cohort_with_High_Loss_to_Follow-up_during_COVID-19/32804294
+  - url: https://figshare.com/articles/figure/_b_All-in-one_micro-_and_nanoscale_MOFs_for_combined_chemo-radionuclide_therapy_of_breast_cancer_b_/32875673
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Myrmecochory_and_environmental_factors_in_different_landscapes/30494867
+  - url: https://figshare.com/articles/journal_contribution/Advancements_in_Vertical_Axis_Wind_Turbine_Technologies_A_Comprehensive_Review/32881037
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/Investigation_of_the_RSV_FCGRII2A_and_the_RSV_hospitalization_in_infants/32842520
+  - url: https://repository.lboro.ac.uk/articles/journal_contribution/Dietary_nitrate_supplementation_does_not_improve_resistance_exercise_performance_in_resistance-trained_women/32824832
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7305352
-    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/7293485
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7293499
+  - url: https://zenodo.org/records/7305352
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -163,27 +73,31 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/11106188
+  - url: https://zenodo.org/records/7293499
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://ba.e-pics.ethz.ch/#detail-asset=784e45e7-569b-428b-8210-aa4dbdaafc9b
+  - url: https://zenodo.org/records/11106256
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/7qktc/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://ba.e-pics.ethz.ch/#detail-asset=c2235e50-90d3-4341-9c19-96b7d9d4d070
+  - url: https://osf.io/qz5kp/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://world.physio/congress-proceeding/study-skeletal-muscle-function-pathomechanisms-duchenne-muscular-dystrophy-dmd
+  - url: https://osf.io/pjern/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://world.physio/congress-proceeding/synthesis-evidence-based-documents-management-patients-suspected-or-confirmed
+  - url: https://zeitgeschichte-digital.de/doks/frontdoor/index/index/docId/3049
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://discover.ub.uni-muenchen.de/collection/4a285fb1-abf5-4aa1-9a65-2c2e59982c16
+  - url: https://www.e-manuscripta.ch/doi/10.7891/e-manuscripta-198977
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -232,23 +146,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/Experimental_investigation_on_shape_segregation_of_3D_printed_particles_using_an_Freeman_FT4_rheometer/32842565
+  - url: https://figshare.com/articles/dataset/2018_Snapshot_Items/32880938
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/Informal_peer_support_for_rural_doctors/32842559
+  - url: https://hammer.purdue.edu/articles/thesis/From_Federation_to_Personalization_Trust_Topology_and_Heterogeneity_in_Collaborative_Machine_Learning/32795793
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Ontogenesis_Part_3/32842532
+  - url: https://figshare.com/articles/preprint/The_Trinity-Infinity_Framework_A_Novel_Conceptual_Model_and_Its_Applications_in_Game_Theory_Mathematical_Logic_and_Mechanical_Engineering/32836205
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Cardiovascular_and_Psychoemotional_Changes_among_Completers_of_a_Medical_Student_Cohort_with_High_Loss_to_Follow-up_during_COVID-19/32804294
+  - url: https://figshare.com/articles/figure/_b_All-in-one_micro-_and_nanoscale_MOFs_for_combined_chemo-radionuclide_therapy_of_breast_cancer_b_/32875673
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Myrmecochory_and_environmental_factors_in_different_landscapes/30494867
+  - url: https://figshare.com/articles/journal_contribution/Advancements_in_Vertical_Axis_Wind_Turbine_Technologies_A_Comprehensive_Review/32881037
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -268,27 +182,27 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zookeys.pensoft.net/article/34317/element/2/119/
+  - url: https://zenodo.org/records/3989941
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21091637
+  - url: https://www.ncei.noaa.gov/access/metadata/landing-page/bin/iso?id=gov.noaa.nodc:CRW-5km-HeatStressProducts
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21091637
+  - url: https://www.ncei.noaa.gov/access/metadata/landing-page/bin/iso?id=gov.noaa.nodc:0316117
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://www.ncei.noaa.gov/access/paleo-search/study/44940
+  - url: https://www.ncei.noaa.gov/access/metadata/landing-page/bin/iso?id=gov.noaa.nodc:0315737
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://datadryad.org/dataset/doi:10.5061/dryad.vq83bk47v
+  - url: https://www.ncei.noaa.gov/access/metadata/landing-page/bin/iso?id=gov.noaa.nodc:0315552
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://www.marine-geo.org/doi/10.1594/IEDA/100253
+  - url: https://www.ncei.noaa.gov/access/metadata/landing-page/bin/iso?id=gov.noaa.nodc:0314901
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -337,23 +251,23 @@ datasets:
     source: huggingface
     status: verified
     format: json
-  - url: https://figshare.com/articles/figure/Template_Absorption_of_Prompt_Conditions_An_Observational_Figure_of_Core-Condition_Drift_in_AI_Image_Generation/32720805
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_7_Fuzheng_Huayu_tablets_reduces_the_risk_of_further_decompensation_after_the_first_decompensation_in_patients_with_HBV-related_cirrhosis_protocol_for_a_randomized_double-blind_placebo-controlled_multicenter_trial_pdf/32881103
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/Experimental_investigation_on_shape_segregation_of_3D_printed_particles_using_an_Freeman_FT4_rheometer/32842565
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_3_Fuzheng_Huayu_tablets_reduces_the_risk_of_further_decompensation_after_the_first_decompensation_in_patients_with_HBV-related_cirrhosis_protocol_for_a_randomized_double-blind_placebo-controlled_multicenter_trial_docx/32881106
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/Informal_peer_support_for_rural_doctors/32842559
+  - url: https://figshare.com/articles/journal_contribution/Wind_Turbine_Optimization_by_Blade_Element_Momentum_Method_and_Particle_Swarm_Optimization_Technique/32881073
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Ontogenesis_Part_3/32842532
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_4_Fuzheng_Huayu_tablets_reduces_the_risk_of_further_decompensation_after_the_first_decompensation_in_patients_with_HBV-related_cirrhosis_protocol_for_a_randomized_double-blind_placebo-controlled_multicenter_trial_docx/32881094
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Cardiovascular_and_Psychoemotional_Changes_among_Completers_of_a_Medical_Student_Cohort_with_High_Loss_to_Follow-up_during_COVID-19/32804294
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_2_Fuzheng_Huayu_tablets_reduces_the_risk_of_further_decompensation_after_the_first_decompensation_in_patients_with_HBV-related_cirrhosis_protocol_for_a_randomized_double-blind_placebo-controlled_multicenter_trial_doc/32881097
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -377,23 +291,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21088300
+  - url: https://osf.io/6jpfg/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21088300
+  - url: https://fair.unifg.it//handle/11369/382355
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21088216
+  - url: https://osf.io/v3wfp/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21088216
+  - url: https://osf.io/xzt6n/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2606.31626
+  - url: https://osf.io/jdv54/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -438,23 +352,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/figure/Template_Absorption_of_Prompt_Conditions_An_Observational_Figure_of_Core-Condition_Drift_in_AI_Image_Generation/32720805
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_7_Fuzheng_Huayu_tablets_reduces_the_risk_of_further_decompensation_after_the_first_decompensation_in_patients_with_HBV-related_cirrhosis_protocol_for_a_randomized_double-blind_placebo-controlled_multicenter_trial_pdf/32881103
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/Experimental_investigation_on_shape_segregation_of_3D_printed_particles_using_an_Freeman_FT4_rheometer/32842565
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_3_Fuzheng_Huayu_tablets_reduces_the_risk_of_further_decompensation_after_the_first_decompensation_in_patients_with_HBV-related_cirrhosis_protocol_for_a_randomized_double-blind_placebo-controlled_multicenter_trial_docx/32881106
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/Informal_peer_support_for_rural_doctors/32842559
+  - url: https://figshare.com/articles/journal_contribution/Wind_Turbine_Optimization_by_Blade_Element_Momentum_Method_and_Particle_Swarm_Optimization_Technique/32881073
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Ontogenesis_Part_3/32842532
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_4_Fuzheng_Huayu_tablets_reduces_the_risk_of_further_decompensation_after_the_first_decompensation_in_patients_with_HBV-related_cirrhosis_protocol_for_a_randomized_double-blind_placebo-controlled_multicenter_trial_docx/32881094
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Cardiovascular_and_Psychoemotional_Changes_among_Completers_of_a_Medical_Student_Cohort_with_High_Loss_to_Follow-up_during_COVID-19/32804294
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_2_Fuzheng_Huayu_tablets_reduces_the_risk_of_further_decompensation_after_the_first_decompensation_in_patients_with_HBV-related_cirrhosis_protocol_for_a_randomized_double-blind_placebo-controlled_multicenter_trial_doc/32881097
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -474,7 +388,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7796206
+  - url: https://zenodo.org/records/13273494
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -531,39 +445,39 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://huggingface.co/datasets/ai-conferences/CVPR2026/resolve/main/data/train-00000-of-00001.parquet
-    source: huggingface
-    status: verified
-    format: parquet
   - url: https://huggingface.co/datasets/ctu-aic/csfever/resolve/main/data/test.jsonl
     source: huggingface
     status: verified
     format: jsonl
-  - url: https://figshare.com/articles/dataset/Coupled_Run/32842202
+  - url: https://huggingface.co/api/resolve-cache/datasets/ctu-aic/csfever_nli/69d0247380ab01c39f2920974a1736e92fe45783/data%2Fdev.jsonl?%2Fdatasets%2Fctu-aic%2Fcsfever_nli%2Fresolve%2Fmain%2Fdata%2Fdev.jsonl=&etag=%22047ef15d1410b74c8cf2dbb5285bbeab6321932b%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_7_Fuzheng_Huayu_tablets_reduces_the_risk_of_further_decompensation_after_the_first_decompensation_in_patients_with_HBV-related_cirrhosis_protocol_for_a_randomized_double-blind_placebo-controlled_multicenter_trial_pdf/32881103
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Template_Absorption_of_Prompt_Conditions_An_Observational_Figure_of_Core-Condition_Drift_in_AI_Image_Generation/32720805
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_3_Fuzheng_Huayu_tablets_reduces_the_risk_of_further_decompensation_after_the_first_decompensation_in_patients_with_HBV-related_cirrhosis_protocol_for_a_randomized_double-blind_placebo-controlled_multicenter_trial_docx/32881106
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/Experimental_investigation_on_shape_segregation_of_3D_printed_particles_using_an_Freeman_FT4_rheometer/32842565
+  - url: https://figshare.com/articles/journal_contribution/Wind_Turbine_Optimization_by_Blade_Element_Momentum_Method_and_Particle_Swarm_Optimization_Technique/32881073
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/Informal_peer_support_for_rural_doctors/32842559
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_4_Fuzheng_Huayu_tablets_reduces_the_risk_of_further_decompensation_after_the_first_decompensation_in_patients_with_HBV-related_cirrhosis_protocol_for_a_randomized_double-blind_placebo-controlled_multicenter_trial_docx/32881094
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/Ontogenesis_Part_3/32842532
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_2_Fuzheng_Huayu_tablets_reduces_the_risk_of_further_decompensation_after_the_first_decompensation_in_patients_with_HBV-related_cirrhosis_protocol_for_a_randomized_double-blind_placebo-controlled_multicenter_trial_doc/32881097
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7684550
-    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://checklist.pensoft.net/articles.php?id=20205
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7684550
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -575,27 +489,27 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/1244240
+  - url: https://zenodo.org/records/15449758
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21092660
+  - url: https://zenodo.org/records/21101620
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21092660
+  - url: https://zenodo.org/records/21101620
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2606.30839
+  - url: https://www.zora.uzh.ch/handle/20.500.14742/248093
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2606.30816
+  - url: https://zenodo.org/records/21125276
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21088997
+  - url: https://zenodo.org/records/21125276
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -644,23 +558,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/How_community_sport_and_recreation_affect_the_health_and_wellbeing_of_Indigenous_people_A_qualitative_systematic_review_and_meta-aggregation/32842568
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_7_Fuzheng_Huayu_tablets_reduces_the_risk_of_further_decompensation_after_the_first_decompensation_in_patients_with_HBV-related_cirrhosis_protocol_for_a_randomized_double-blind_placebo-controlled_multicenter_trial_pdf/32881103
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Coupled_Run/32842202
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_3_Fuzheng_Huayu_tablets_reduces_the_risk_of_further_decompensation_after_the_first_decompensation_in_patients_with_HBV-related_cirrhosis_protocol_for_a_randomized_double-blind_placebo-controlled_multicenter_trial_docx/32881106
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Template_Absorption_of_Prompt_Conditions_An_Observational_Figure_of_Core-Condition_Drift_in_AI_Image_Generation/32720805
+  - url: https://figshare.com/articles/journal_contribution/Wind_Turbine_Optimization_by_Blade_Element_Momentum_Method_and_Particle_Swarm_Optimization_Technique/32881073
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/Experimental_investigation_on_shape_segregation_of_3D_printed_particles_using_an_Freeman_FT4_rheometer/32842565
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_4_Fuzheng_Huayu_tablets_reduces_the_risk_of_further_decompensation_after_the_first_decompensation_in_patients_with_HBV-related_cirrhosis_protocol_for_a_randomized_double-blind_placebo-controlled_multicenter_trial_docx/32881094
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/Informal_peer_support_for_rural_doctors/32842559
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_2_Fuzheng_Huayu_tablets_reduces_the_risk_of_further_decompensation_after_the_first_decompensation_in_patients_with_HBV-related_cirrhosis_protocol_for_a_randomized_double-blind_placebo-controlled_multicenter_trial_doc/32881097
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -680,103 +594,27 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/6646333
+  - url: https://zenodo.org/records/10254142
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2606.30375
+  - url: https://tandf.figshare.com/articles/journal_contribution/Long-term_molecular_embedding_of_early_life_adversity_leukocyte_DNA_methylation_and_gene_expression_associations_from_childhood_to_young_adulthood/32813205/1
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2312.00305
+  - url: https://tandf.figshare.com/articles/dataset/Long-term_molecular_embedding_of_early_life_adversity_leukocyte_DNA_methylation_and_gene_expression_associations_from_childhood_to_young_adulthood/32813205
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2606.31954
+  - url: https://tandf.figshare.com/articles/dataset/Long-term_molecular_embedding_of_early_life_adversity_leukocyte_DNA_methylation_and_gene_expression_associations_from_childhood_to_young_adulthood/32813205/2
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21089390
+  - url: https://zenodo.org/records/21128268
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21089390
+  - url: https://zenodo.org/records/21128268
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-- intent: FR-001
-  status: unresolved
-  candidates: []
-  candidates_tried:
-  - url: https://figshare.com/articles/dataset/Dataset_for_Systematic_Review_and_Meta-analysis_on_Tell-Play-Do_Technique_comprising_1_Full_list_of_512_screened_titles_and_abstracts2_Full_list_of_full_texts_sought_for_retrieval3_Raw_data_extracted_from_the_included_articles_and_formatted/32842541
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/How_community_sport_and_recreation_affect_the_health_and_wellbeing_of_Indigenous_people_A_qualitative_systematic_review_and_meta-aggregation/32842568
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Coupled_Run/32842202
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/figure/Template_Absorption_of_Prompt_Conditions_An_Observational_Figure_of_Core-Condition_Drift_in_AI_Image_Generation/32720805
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/Experimental_investigation_on_shape_segregation_of_3D_printed_particles_using_an_Freeman_FT4_rheometer/32842565
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/17936025
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19059431
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10337909
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5604131
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/6373741
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15485834
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/16828200
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20358997
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20358997
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20635248
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-- intent: US-1
-  status: unresolved
-  candidates: []
-  candidates_tried: []
-- intent: SC-001
-  status: unresolved
-  candidates: []
-  candidates_tried: []
-- intent: US-2
-  status: unresolved
-  candidates: []
-  candidates_tried: []

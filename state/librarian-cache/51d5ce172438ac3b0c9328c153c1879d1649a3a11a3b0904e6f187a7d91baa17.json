@@ -1,0 +1,705 @@
+{
+  "fetched_at": "2026-07-02T12:52:04Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "Investigating the Impact of Code Ownership on LLM Code Understanding",
+      "target_n": 5
+    },
+    "duration_seconds": 71.511,
+    "ended_at": "2026-07-02T12:52:04Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "developer familiarity and large language model code generation"
+        ],
+        [
+          2,
+          "impact of code authorship on LLM code comprehension"
+        ],
+        [
+          3,
+          "relationship between code ownership patterns and LLM performance"
+        ],
+        [
+          4,
+          "LLM code understanding bias towards original authors"
+        ],
+        [
+          5,
+          "effect of developer context on large language model code analysis"
+        ],
+        [
+          6,
+          "code provenance influence on AI code understanding"
+        ],
+        [
+          7,
+          "large language models and code authorship attribution"
+        ],
+        [
+          8,
+          "role of developer history in LLM code reasoning"
+        ],
+        [
+          9,
+          "code ownership metrics and LLM code quality assessment"
+        ],
+        [
+          10,
+          "LLM code comprehension with limited developer context"
+        ],
+        [
+          11,
+          "impact of code contributor diversity on LLM understanding"
+        ],
+        [
+          12,
+          "code authorship signals in large language model training"
+        ],
+        [
+          13,
+          "developer-specific coding styles and LLM code prediction"
+        ],
+        [
+          14,
+          "LLM performance on code with known ownership history"
+        ],
+        [
+          15,
+          "correlation between code ownership and LLM code repair success"
+        ],
+        [
+          16,
+          "large language models and code authorship bias in generation"
+        ],
+        [
+          17,
+          "influence of code contribution patterns on LLM code analysis"
+        ],
+        [
+          18,
+          "code ownership as a feature for LLM code understanding"
+        ],
+        [
+          19,
+          "LLM code comprehension in multi-developer repositories"
+        ],
+        [
+          20,
+          "effect of code author identity on large language model outputs"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Investigating the Impact of Code Ownership on LLM Code Understanding computer science": 0,
+        "developer familiarity and large language model code generation": 4
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "developer attribution repository provenance code comprehension",
+      "Git blame commit history version control LLM",
+      "code authorship heterogeneity model generalization",
+      "code understanding benchmark evaluation accuracy metrics",
+      "training data contamination memorization code ownership"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1106.6159"
+      ]
+    },
+    "per_query_hit_count": {
+      "Git blame commit history version control LLM": 3,
+      "Investigating the Impact of Code Ownership on LLM Code Understanding computer science": 3,
+      "code authorship heterogeneity model generalization": 2,
+      "code understanding benchmark evaluation accuracy metrics": 3,
+      "developer attribution repository provenance code comprehension": 3,
+      "training data contamination memorization code ownership": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": true,
+      "rejected_count": 6,
+      "rejections": [
+        {
+          "primary_pointer": "2508.08322",
+          "rationale": "The paper focuses on \"context engineering\" and multi-agent workflows to improve LLM performance on complex codebases, but it does not measure, analyze, or discuss \"code ownership\" (e.g., developer attribution, ownership metrics, or the impact of ownership structures) as a variable affecting LLM understanding. It addresses a different mechanism (context retrieval and agent orchestration) rather than the specific construct of code ownership requested by the user.",
+          "title": "Context Engineering for Multi-Agent LLM Code Assistants Using Elicit, NotebookLM, ChatGPT, and Claude Code"
+        },
+        {
+          "primary_pointer": "1106.6159",
+          "rationale": "The paper focuses on general software quality metrics (Lines of Code, execution time, object-oriented concepts) and does not measure \"code ownership\" (a social/organizational construct) nor its specific impact on \"LLM code understanding\" (a machine learning performance metric). It fails to satisfy any inclusion criteria (a-f) as it lacks the necessary variables, domain (LLMs), or mechanism to be considered relevant prior work for this specific intersection.",
+          "title": "Understanding Code Patterns - Analysis, Interpretation & Measurement"
+        },
+        {
+          "primary_pointer": "2306.08568",
+          "rationale": "The paper focuses on improving Code LLM performance through instruction fine-tuning (Evol-Instruct) and benchmarking on standard code generation tasks, but it does not measure, analyze, or discuss \"code ownership\" (e.g., developer attribution, repository contribution patterns, or ownership metrics) as an independent variable affecting model understanding. It fails to satisfy any inclusion criteria (a-f) because it addresses a different mechanism (fine-tuning efficacy) rather than the specific co",
+          "title": "WizardCoder: Empowering Code Large Language Models with Evol-Instruct"
+        },
+        {
+          "primary_pointer": "2303.12869",
+          "rationale": "The paper focuses on the architecture and training of a model for code-text generation (Java), which is a distinct task from investigating the impact of \"code ownership\" (a social/organizational construct) on LLM understanding. It does not measure code ownership, study the specific mechanism of ownership effects, or provide a baseline for that variable, failing to meet any of the inclusion criteria (a-f) while sharing only the broad domain of \"code and LLMs.\"",
+          "title": "JaCoText: A Pretrained Model for Java Code-Text Generation"
+        },
+        {
+          "primary_pointer": "2402.11651",
+          "rationale": "The paper focuses on fine-tuning strategies for LLM agents using negative examples (failed trajectories) to improve reasoning and tool use, which is unrelated to the user's specific question about \"code ownership\" (a software engineering construct regarding team responsibility and code familiarity) and its impact on code understanding. The paper does not measure code ownership, study the specific mechanism of ownership on comprehension, or address the domain of software maintenance dynamics, fai",
+          "title": "Learning From Failure: Integrating Negative Examples when Fine-tuning Large Language Models as Agents"
+        },
+        {
+          "primary_pointer": "2304.12244",
+          "rationale": "The paper focuses on instruction-following capabilities and data generation techniques (Evol-Instruct) for LLMs, which does not measure code ownership, code understanding, or the specific mechanism linking ownership to model performance. It fails to satisfy any inclusion criteria (a-f) as it addresses a different research problem (instruction tuning) rather than the user's specific domain of code ownership impact.",
+          "title": "WizardLM: Empowering large pre-trained language models to follow complex instructions"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-02T12:50:52Z",
+    "term_input": {
+      "normalized": "investigating the impact of code ownership on llm code understanding computer science",
+      "raw": "Investigating the Impact of Code Ownership on LLM Code Understanding computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Pretrained transformer-based models have shown high performance in natural language generation task. However, a new wave of interest has surged: automatic programming language generation. This task consists of translating natural language instructions to a programming code. Despite the fact that well-known pretrained models on language generation have achieved good performance in learning programming languages, effort is still needed in automatic code generation. In this paper, we introduce JaCoText, a model based on Transformers neural network. It aims to generate java source code from natural language text. JaCoText leverages advantages of both natural language and code generation models. More specifically, we study some findings from the state of the art and use them to (1) initialize our model from powerful pretrained models, (2) explore additional pretraining on our java dataset, (3) carry out experiments combining the unimodal and bimodal data in the training, and (4) scale the input and output length during the fine-tuning of the model. Conducted experiments on CONCODE dataset show that JaCoText achieves new state-of-the-art results.",
+          "claimed_authors": [
+            "Jessica López Espejel",
+            "Mahaman Sanoussi Yahaya Alassan",
+            "Walid Dahhane",
+            "El Hassane Ettifouri"
+          ],
+          "claimed_title": "JaCoText: A Pretrained Model for Java Code-Text Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.12869"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Investigating the Impact of Code Ownership on LLM Code Understanding computer sc', candidate_title='JaCoText: A Pretrained Model for Java Code-Text Generation')",
+        "failed_at": "2026-07-02T12:51:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present an analytic provenance data repository that can be used to study human analysis activity, thought processes, and software interaction with visual analysis tools during exploratory data analysis. We conducted a series of user studies involving exploratory data analysis scenario with textual and cyber security data. Interactions logs, think-alouds, videos and all coded data in this study are available online for research purposes. Analysis sessions are segmented in multiple sub-task steps based on user think-alouds, video and audios captured during the studies. These analytic provenance datasets can be used for research involving tools and techniques for analyzing interaction logs and analysis history. By providing high-quality coded data along with interaction logs, it is possible to compare algorithmic data processing techniques to the ground-truth records of analysis history.",
+          "claimed_authors": [
+            "Sina Mohseni",
+            "Andrew Pachuilo",
+            "Ehsanul Haque Nirjhar",
+            "Rhema Linder",
+            "Alyssa Pena",
+            "Eric D. Ragan"
+          ],
+          "claimed_title": "Analytic Provenance Datasets: A Data Repository of Human Analysis Activity and Interaction Logs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1801.05076"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Impact of Code Ownership on LLM Code Understanding computer sc', candidate_title='Analytic Provenance Datasets: A Data Repository of Human Analysis Activity and Interaction Logs')",
+        "failed_at": "2026-07-02T12:51:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Provenance data from astronomical pipelines are instrumental in establishing trust and reproducibility in the data processing and products. In addition, astronomers can query their provenance to answer questions routed in areas such as anomaly detection, recommendation, and prediction. The next generation of astronomical survey telescopes such as the Vera Rubin Observatory or Square Kilometre Array, are capable of producing peta to exabyte scale data, thereby amplifying the importance of even small improvements to the efficiency of provenance storage or querying. In order to determine how astronomers should store and query their provenance data, this paper reports on a comparison between the turtle and JSON provenance serialisations. The triple store Apache Jena Fuseki and the graph database system Neo4j were selected as representative database management systems (DBMS) for turtle and JSON, respectively. Simulated provenance data was uploaded to and queried over each DBMS and the metrics measured for comparison were the accuracy and timing of the queries as well as the data upload times. It was found that both serialisations are competent for this purpose, and both have similar query accuracy. The turtle provenance was found to be more efficient at storing and uploading the data. Regarding queries, for small datasets ($<$5MB) and simple information retrieval queries, the turtle serialisation was also found to be more efficient. However, queries for JSON serialised provenance were found to be more efficient for more complex queries which involved matching patterns across the DBMS, this effect scaled with the size of the queried provenance.",
+          "claimed_authors": [
+            "Michael A. C. Johnson",
+            "Marcus Paradies",
+            "Hans-Rainer Klöckner",
+            "Albina Muzafarova",
+            "Kristen Lackeos",
+            "David J. Champion",
+            "Marta Dembska",
+            "Sirko Schindler"
+          ],
+          "claimed_title": "Evaluation of Provenance Serialisations for Astronomical Provenance",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.14290"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Impact of Code Ownership on LLM Code Understanding computer sc', candidate_title='Evaluation of Provenance Serialisations for Astronomical Provenance')",
+        "failed_at": "2026-07-02T12:51:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Organizations and teams collect and acquire data from various sources, such as social interactions, financial transactions, sensor data, and genome sequencers. Different teams in an organization as well as different data scientists within a team are interested in extracting a variety of insights which require combining and collaboratively analyzing datasets in diverse ways. DataHub is a system that aims to provide robust version control and provenance management for such a scenario. To be truly useful for collaborative data science, one also needs the ability to specify queries and analysis tasks over the versioning and the provenance information in a unified manner. In this paper, we present an initial design of our query language, called VQuel, that aims to support such unified querying over both types of information, as well as the intermediate and final results of analyses. We also discuss some of the key language design and implementation challenges moving forward.",
+          "claimed_authors": [
+            "Amit Chavan",
+            "Silu Huang",
+            "Amol Deshpande",
+            "Aaron Elmore",
+            "Samuel Madden",
+            "Aditya Parameswaran"
+          ],
+          "claimed_title": "Towards a unified query language for provenance and versioning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1506.04815"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Investigating the Impact of Code Ownership on LLM Code Understanding computer sc', candidate_title='Towards a unified query language for provenance and versioning')",
+        "failed_at": "2026-07-02T12:51:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a novel framework that integrates Large Language Models (LLMs) into the Git bisect process for semantic fault localization. Traditional bisect assumes deterministic predicates and binary failure states assumptions often violated in modern software development due to flaky tests, nonmonotonic regressions, and semantic divergence from upstream repositories. Our system augments bisect traversal with structured chain of thought reasoning, enabling commit by commit analysis under noisy conditions. We evaluate multiple open source and proprietary LLMs for their suitability and fine tune DeepSeekCoderV2 using QLoRA on a curated dataset of semantically labeled diffs. We adopt a weak supervision workflow to reduce annotation overhead, incorporating human in the loop corrections and self consistency filtering. Experiments across multiple open source projects show a 6.4 point absolute gain in success rate from 74.2 to 80.6 percent, leading to significantly fewer failed traversals and by experiment up to 2x reduction in average bisect time. We conclude with discussions on temporal reasoning, prompt design, and finetuning strategies tailored for commit level behavior analysis.",
+          "claimed_authors": [
+            "Yujing Wang",
+            "Weize Hong"
+          ],
+          "claimed_title": "Time Travel: LLM-Assisted Semantic Behavior Localization with Git Bisect",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.18854"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Investigating the Impact of Code Ownership on LLM Code Understanding computer sc', candidate_title='Time Travel: LLM-Assisted Semantic Behavior Localization with Git Bisect')",
+        "failed_at": "2026-07-02T12:51:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we present a quasi infinite horizon nonlinear model predictive control (MPC) scheme for tracking of generic reference trajectories. This scheme is applicable to nonlinear systems, which are locally incrementally stabilizable. For such systems, we provide a reference generic offline procedure to compute an incrementally stabilizing feedback with a continuously parameterized quadratic quasi infinite horizon terminal cost. As a result we get a nonlinear reference tracking MPC scheme with a valid terminal cost for general reachable reference trajectories without increasing the online computational complexity. As a corollary, the terminal cost can also be used to design nonlinear MPC schemes that reliably operate under online changing conditions, including unreachable reference signals. The practicality of this approach is demonstrated with a benchmark example.\n  This paper is an extended version of the accepted paper [1], and contains additional details regarding \\textit{robust} trajectory tracking (App.~B), continuous-time dynamics (App.~C), output tracking stage costs (App.~D) and the connection to incremental system properties (App.~A).",
+          "claimed_authors": [
+            "Johannes Köhler",
+            "Matthias A. Müller",
+            "Frank Allgöwer"
+          ],
+          "claimed_title": "A nonlinear model predictive control framework using reference generic terminal ingredients -- extended version",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1909.12765"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Impact of Code Ownership on LLM Code Understanding computer sc', candidate_title='A nonlinear model predictive control framework using reference generic terminal ingredients -- extended version')",
+        "failed_at": "2026-07-02T12:51:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) drive significant financial innovations, yet their high-concurrency deployment is severely bottlenecked by KV cache memory overhead, which inflates infrastructure costs and throttles scalability. To address this, we propose YouZhi-LLM, a highly efficient financial LLM empowered by a comprehensive structural transition and training pipeline natively built on the Huawei Ascend ecosystem. At its algorithmic core, YouZhi-LLM features a layer-adaptive GQA-to-MLA transition framework that dynamically assigns per-layer FreqFold sizes, maximizing KV-cache compression while minimizing perplexity degradation. To recover representation capacity and inject domain expertise, the Ascend-based training pipeline seamlessly integrates generalized knowledge distillation with financial-specific supervised fine-tuning. Evaluations demonstrate the superiority of this systematic approach, with the adaptive transition reducing perplexity degradation by up to 35% over uniform baselines. Crucially, when evaluated on Ascend NPUs via vLLM-Ascend, the massive KV-cache reduction translates directly into deployment efficiency. Compared to their respective base models, YouZhi-7B yields a 12.3% improvement in average financial benchmark score alongside a 2.69$\\times$ increase in maximum concurrency; similarly, YouZhi-14B achieves a 7.0% accuracy gain and a 2.43$\\times$ concurrency boost, establishing a new paradigm for cost-effective, high-throughput financial inference.",
+          "claimed_authors": [
+            " PSBC LLM Team",
+            " Huawei LLM Team",
+            "Ruihan Long",
+            "Junjie Wu",
+            "Tianan Zhang",
+            "Duo Zhang",
+            "Yaozong Wu",
+            "Jinbin Fu",
+            "Chang Liu",
+            "Zhentao Tang",
+            "Wenshuang Yang",
+            "Xin Wang",
+            "Zhihao Song",
+            "Ning Huang",
+            "Wenjing Xu",
+            "Shuai Zong",
+            "Shupei Sun",
+            "Sen Wang",
+            "Jing Hu",
+            "Bin Wang",
+            "Xinyu Wang",
+            "Junkui Ju",
+            "Zequn Ding",
+            "Jie Ran",
+            "Man Luo",
+            "Shixiong Kai",
+            "Linkai Hou",
+            "Kaichao Liang",
+            "Hu Zhao",
+            "Yang Zhao",
+            "Shucheng Lin",
+            "Wei Yu",
+            "Chenghan Jiang",
+            "Jingjing Ding",
+            "Jiahui Zhang",
+            "Tian Jin",
+            "Yuhang Zhang",
+            "Dong Guo",
+            "Wei Sun",
+            "Jun Xie",
+            "Jianwei Li",
+            "Lei Cao",
+            "Pei Li",
+            "Jiabin Li",
+            "Jia Yuan",
+            "Rui Yuan",
+            "Jing Zhu",
+            "Mingxuan Yuan",
+            "Zhangcheng Lv",
+            "Xin Jiang",
+            "Xiuhong Fei",
+            "Xiaozhe Ren",
+            "Yulong Li",
+            "Zhipeng Zhang",
+            "Hang Wang",
+            "Zhaohui Xu",
+            "Rui Zhao",
+            "Yibo He",
+            "Xinzhuang Niu"
+          ],
+          "claimed_title": "YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.05868"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Investigating the Impact of Code Ownership on LLM Code Understanding computer sc', candidate_title='YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition')",
+        "failed_at": "2026-07-02T12:51:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Program authorship attribution has implications for the privacy of programmers who wish to contribute code anonymously. While previous work has shown that complete files that are individually authored can be attributed, we show here for the first time that accounts belonging to open source contributors containing short, incomplete, and typically uncompilable fragments can also be effectively attributed.\n  We propose a technique for authorship attribution of contributor accounts containing small source code samples, such as those that can be obtained from version control systems or other direct comparison of sequential versions. We show that while application of previous methods to individual small source code samples yields an accuracy of about 73% for 106 programmers as a baseline, by ensembling and averaging the classification probabilities of a sufficiently large set of samples belonging to the same author we achieve 99% accuracy for assigning the set of samples to the correct author. Through these results, we demonstrate that attribution is an important threat to privacy for programmers even in real-world collaborative environments such as GitHub. Additionally, we propose the use of calibration curves to identify samples by unknown and previously unencountered authors in the open world setting. We show that we can also use these calibration curves in the case that we do not have linking information and thus are forced to classify individual samples directly. This is because the calibration curves allow us to identify which samples are more likely to have been correctly attributed. Using such a curve can help an analyst choose a cut-off point which will prevent most misclassifications, at the cost of causing the rejection of some of the more dubious correct attributions.",
+          "claimed_authors": [
+            "Edwin Dauber",
+            "Aylin Caliskan",
+            "Richard Harang",
+            "Gregory Shearer",
+            "Michael Weisman",
+            "Frederica Nelson",
+            "Rachel Greenstadt"
+          ],
+          "claimed_title": "Git Blame Who?: Stylistic Authorship Attribution of Small, Incomplete Source Code Fragments",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1701.05681"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Investigating the Impact of Code Ownership on LLM Code Understanding computer sc', candidate_title='Git Blame Who?: Stylistic Authorship Attribution of Small, Incomplete Source Code Fragments')",
+        "failed_at": "2026-07-02T12:51:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The decline of single authorship in peer-reviewed journals within the current collaboration-oriented knowledge production framework has prompted deeper reflection on the shifting power structures in academic systems. This paper aims to explore the underlying institutional logic and evaluation mechanisms contributing to the marginalization of single-author research in the management field. It further investigates how the discourse of collaborative advantage conceals structural power redistribution and ideological disembedding. Through an analysis of authorship data from top-tier journals, a critical reading of institutional incentive texts, and an empirical review of authorial configurations, the study building on the work of Harzing, Wuchty, and Lariviere constructs a three-dimensional causal chain: collaboration incentives, responsibility dilution, and originality weakening. Findings suggest that single authorship is not explicitly excluded but is gradually sidelined from central publication channels by funding policies, review practices, and performance metrics. Independent thought is thus structurally marginalized within institutionalized collaboration. The paper advocates for a paradigm shift from instrumental rationality to value-based rationality and calls for the restoration of legitimacy and public value for independent research through reforms in evaluation frameworks, journal governance, and research ethics, aiming to safeguard academic diversity and intellectual autonomy.",
+          "claimed_authors": [
+            "Wei Meng"
+          ],
+          "claimed_title": "Algorithmic Evaluation and the Marginalization of Single Authorship in Management Science",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2508.00842"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Investigating the Impact of Code Ownership on LLM Code Understanding computer sc', candidate_title='Algorithmic Evaluation and the Marginalization of Single Authorship in Management Science')",
+        "failed_at": "2026-07-02T12:51:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Research in interpretable machine learning proposes different computational and human subject approaches to evaluate model saliency explanations. These approaches measure different qualities of explanations to achieve diverse goals in designing interpretable machine learning systems. In this paper, we propose a human attention benchmark for image and text domains using multi-layer human attention masks aggregated from multiple human annotators. We then present an evaluation study to evaluate model saliency explanations obtained using Grad-cam and LIME techniques. We demonstrate our benchmark's utility for quantitative evaluation of model explanations by comparing it with human subjective ratings and ground-truth single-layer segmentation masks evaluations. Our study results show that our threshold agnostic evaluation method with the human attention baseline is more effective than single-layer object segmentation masks to ground truth. Our experiments also reveal user biases in the subjective rating of model saliency explanations.",
+          "claimed_authors": [
+            "Sina Mohseni",
+            "Jeremy E. Block",
+            "Eric D. Ragan"
+          ],
+          "claimed_title": "A Human-Grounded Evaluation Benchmark for Local Explanations of Machine Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1801.05075"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Impact of Code Ownership on LLM Code Understanding computer sc', candidate_title='A Human-Grounded Evaluation Benchmark for Local Explanations of Machine Learning')",
+        "failed_at": "2026-07-02T12:51:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "With the rapid development of Large Language Models (LLMs), a large number of machine learning models have been developed to assist programming tasks including the generation of program code from natural language input. However, how to evaluate such LLMs for this task is still an open problem despite of the great amount of research efforts that have been made and reported to evaluate and compare them. This paper provides a critical review of the existing work on the testing and evaluation of these tools with a focus on two key aspects: the benchmarks and the metrics used in the evaluations. Based on the review, further research directions are discussed.",
+          "claimed_authors": [
+            "Debalina Ghosh Paul",
+            "Hong Zhu",
+            "Ian Bayley"
+          ],
+          "claimed_title": "Benchmarks and Metrics for Evaluations of Code Generation: A Critical Review",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.12655"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Investigating the Impact of Code Ownership on LLM Code Understanding computer sc', candidate_title='Benchmarks and Metrics for Evaluations of Code Generation: A Critical Review')",
+        "failed_at": "2026-07-02T12:51:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Generative models have revolutionized multiple domains, yet their application to tabular data remains underexplored. Evaluating generative models for tabular data presents unique challenges due to structural complexity, large-scale variability, and mixed data types, making it difficult to intuitively capture intricate patterns. Existing evaluation metrics offer only partial insights, lacking a comprehensive measure of generative performance. To address this limitation, we propose three novel evaluation metrics: FAED, FPCAD, and RFIS. Our extensive experimental analysis, conducted on three standard network intrusion detection datasets, compares these metrics with established evaluation methods such as Fidelity, Utility, TSTR, and TRTS. Our results demonstrate that FAED effectively captures generative modeling issues overlooked by existing metrics. While FPCAD exhibits promising performance, further refinements are necessary to enhance its reliability. Our proposed framework provides a robust and practical approach for assessing generative models in tabular data applications.",
+          "claimed_authors": [
+            "Dayananda Herurkar",
+            "Ahmad Ali",
+            "Andreas Dengel"
+          ],
+          "claimed_title": "Evaluating Generative Models for Tabular Data: Novel Metrics and Benchmarking",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.20900"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Impact of Code Ownership on LLM Code Understanding computer sc', candidate_title='Evaluating Generative Models for Tabular Data: Novel Metrics and Benchmarking')",
+        "failed_at": "2026-07-02T12:51:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "CDD, or Contamination Detection via output Distribution, identifies data contamination by measuring the peakedness of a model's sampled outputs. We study the conditions under which this approach succeeds and fails on small language models ranging from 70M to 410M parameters. Using controlled contamination experiments on GSM8K, HumanEval, and MATH, we find that CDD's effectiveness depends critically on whether fine-tuning produces verbatim memorization. In the majority of conditions we test, CDD performs at chance level even when the data is verifiably contaminated and detectable by simpler methods. We show that probability-based methods, specifically perplexity and Min-k\\% Prob, outperform CDD in all conditions where any method exceeds chance, suggesting that CDD's peakedness-based approach is insufficient for contamination detection in small language models. Our code is available at https://github.com/Sela-Omer/Contamination-Detection-Small-LM",
+          "claimed_authors": [
+            "Omer Sela"
+          ],
+          "claimed_title": "No Memorization, No Detection: Output Distribution-Based Contamination Detection in Small Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.03203"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='Investigating the Impact of Code Ownership on LLM Code Understanding computer sc', candidate_title='No Memorization, No Detection: Output Distribution-Based Contamination Detection in Small Language Models')",
+        "failed_at": "2026-07-02T12:51:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Impact of Code Ownership on LLM Code Understanding computer sc', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-07-02T12:51:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Investigating the Impact of Code Ownership on LLM Code Understanding computer sc', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-07-02T12:51:25Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Muhammad Haseeb"
+          ],
+          "title": "Context Engineering for Multi-Agent LLM Code Assistants Using Elicit, NotebookLM, ChatGPT, and Claude Code",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2508.08322",
+        "summary": "Large Language Models (LLMs) have shown promise in automating code generation and software engineering tasks, yet they often struggle with complex, multi-file projects due to context limitations and knowledge gaps. We propose a novel context engineering workflow that combines multiple AI components: an Intent Translator (GPT-5) for clarifying user requirements, an Elicit-powered semantic literature retrieval for injecting domain knowledge, NotebookLM-based document synthesis for contextual understanding, and a Claude Code multi-agent system for code generation and validation. Our integrated approach leverages intent clarification, retrieval-augmented generation, and specialized sub-agents orchestrated via Claude's agent framework. We demonstrate that this method significantly improves the accuracy and reliability of code assistants in real-world repositories, yielding higher single-shot success rates and better adherence to project context than baseline single-agent approaches. Qualitative results on a large Next.js codebase show the multi-agent system effectively plans, edits, and tests complex features with minimal human intervention. We compare our system with recent frameworks like CodePlan, MASAI, and HyperAgent, highlighting how targeted context injection and agent role decomposition lead to state-of-the-art performance. Finally, we discuss the implications for deploying LLM-based coding assistants in production, along with lessons learned on context management and future research directions.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2508.08322",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-02T12:51:24Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jitesh Dundas"
+          ],
+          "title": "Understanding Code Patterns - Analysis, Interpretation & Measurement",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2011
+        },
+        "primary_pointer": "1106.6159",
+        "summary": "This research paper aims to find, analyze and understand code patterns in any software system and measure its quality by defining standards and proposing a formula for the same. Every code that is written can be divided into different code segments, each having its own impact on the overall system. We can analyze these code segments to get the code quality. The measures used in this paper include Lines of Code, Number of calls made by a module, Execution time, the system knowledge of user and developers, the use of generalization, inheritance, reusability and other object-oriented concepts. The entire software code is divided into code snippets, based on the logic that they implement. Each of these code snippets has an impact. This measure is called Impact Factor and is valued by the software developer and/or other system stakeholders. Efficiency = (Code Area / Execution Time) * Qr",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1106.6159",
+          "http_status": 200,
+          "pdf_sample_score": 0.2745,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-02T12:51:25Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ziyang Luo",
+            "Can Xu",
+            "Pu Zhao",
+            "Qingfeng Sun",
+            "Xiubo Geng",
+            "Wenxiang Hu",
+            "Chongyang Tao",
+            "Jing Ma",
+            "Qingwei Lin",
+            "Daxin Jiang"
+          ],
+          "title": "WizardCoder: Empowering Code Large Language Models with Evol-Instruct",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2306.08568",
+        "summary": "Code Large Language Models (Code LLMs), such as StarCoder, have demonstrated exceptional performance in code-related tasks. However, most existing models are solely pre-trained on extensive raw code data without instruction fine-tuning. In this paper, we introduce WizardCoder, which empowers Code LLMs with complex instruction fine-tuning, by adapting the Evol-Instruct method to the domain of code. Through comprehensive experiments on four prominent code generation benchmarks, namely HumanEval, HumanEval+, MBPP, and DS-1000, we unveil the exceptional capabilities of our model. It surpasses all other open-source Code LLMs by a substantial margin. Moreover, our model even outperforms the largest closed LLMs, Anthropic's Claude and Google's Bard, on HumanEval and HumanEval+. Our code, model weights, and data are public at https://github.com/nlpxucan/WizardLM",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2306.08568",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.7143,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-02T12:51:36Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jessica López Espejel",
+            "Mahaman Sanoussi Yahaya Alassan",
+            "Walid Dahhane",
+            "El Hassane Ettifouri"
+          ],
+          "title": "JaCoText: A Pretrained Model for Java Code-Text Generation",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2303.12869",
+        "summary": "Pretrained transformer-based models have shown high performance in natural language generation task. However, a new wave of interest has surged: automatic programming language generation. This task consists of translating natural language instructions to a programming code. Despite the fact that well-known pretrained models on language generation have achieved good performance in learning programming languages, effort is still needed in automatic code generation. In this paper, we introduce JaCoText, a model based on Transformers neural network. It aims to generate java source code from natural language text. JaCoText leverages advantages of both natural language and code generation models. More specifically, we study some findings from the state of the art and use them to (1) initialize our model from powerful pretrained models, (2) explore additional pretraining on our java dataset, (3) carry out experiments combining the unimodal and bimodal data in the training, and (4) scale the input and output length during the fine-tuning of the model. Conducted experiments on CONCODE dataset show that JaCoText achieves new state-of-the-art results.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2303.12869",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5714,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-02T12:51:36Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Renxi Wang",
+            "Haonan Li",
+            "Xudong Han",
+            "Yixuan Zhang",
+            "Timothy Baldwin"
+          ],
+          "title": "Learning From Failure: Integrating Negative Examples when Fine-tuning Large Language Models as Agents",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2402.11651",
+        "summary": "Large language models (LLMs) have achieved success in acting as agents, which interact with environments through tools such as search engines. However, LLMs are optimized for language generation instead of tool use during training or alignment, limiting their effectiveness as agents. To resolve this problem, previous work has first collected interaction trajectories between LLMs and environments, using only trajectories that successfully finished the task to fine-tune smaller models, making fine-tuning data scarce and acquiring it both difficult and costly. Discarding failed trajectories also leads to significant wastage of data and resources and limits the possible optimization paths during fine-tuning. In this paper, we argue that unsuccessful trajectories offer valuable insights, and LLMs can learn from these trajectories through appropriate quality control and fine-tuning strategies. By simply adding a prefix or suffix that tells the model whether to generate a successful trajectory during training, we improve model performance by a large margin on mathematical reasoning, multi-hop question answering, and strategic question answering tasks. We further analyze the inference results and find that our method provides a better trade-off between valuable information and errors in unsuccessful trajectories. To our knowledge, we are the first to demonstrate the value of negative trajectories and their application in agent-tunning scenarios. Our findings offer guidance for developing better agent-tuning methods and low-resource data usage techniques.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2402.11651",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5714,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-02T12:51:37Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Can Xu",
+            "Qingfeng Sun",
+            "Kai Zheng",
+            "Xiubo Geng",
+            "Pu Zhao",
+            "Jiazhan Feng",
+            "Chongyang Tao",
+            "Qingwei Lin",
+            "Daxin Jiang"
+          ],
+          "title": "WizardLM: Empowering large pre-trained language models to follow complex instructions",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2304.12244",
+        "summary": "Training large language models (LLMs) with open-domain instruction following data brings colossal success. However, manually creating such instruction data is very time-consuming and labor-intensive. Moreover, humans may struggle to produce high-complexity instructions. In this paper, we show an avenue for creating large amounts of instruction data with varying levels of complexity using LLM instead of humans. Starting with an initial set of instructions, we use our proposed Evol-Instruct to rewrite them step by step into more complex instructions. Then, we mix all generated instruction data to fine-tune LLaMA. We call the resulting model WizardLM. Human evaluations on a complexity-balanced test bed and Vicuna's testset show that instructions from Evol-Instruct are superior to human-created ones. By analyzing the human evaluation results of the high complexity part, we demonstrate that outputs from our WizardLM are preferred to outputs from OpenAI ChatGPT. In GPT-4 automatic evaluation, WizardLM achieves more than 90\\% capacity of ChatGPT on 17 out of 29 skills. Even though WizardLM still lags behind ChatGPT in some aspects, our findings suggest that fine-tuning with AI-evolved instructions is a promising direction for enhancing LLMs. Our code and data are public at https://github.com/nlpxucan/WizardLM",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2304.12244",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5714,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-02T12:51:37Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "investigating the impact of code ownership on llm code understanding computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}
