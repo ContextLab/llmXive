@@ -1,0 +1,97 @@
+- artifact_path: projects/PROJ-046-the-relationship-between-sleep-chronotyp/code/measurements.md
+  attempts: 1
+  canonical: MEQ consists of 19 items
+  claim_id: c_52a0e0b8
+  context: The MEQ consists of 19 items. Each item contributes a weighted score based
+    on the response selected.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Adolescent sleep is typically poor in duration and quality. Sleep duration\
+        \ and quality reduce to suboptimal levels, and sleep duration variability\
+        \ and latency increases during adolescence. Sleep recommendations suggest\
+        \ that adolescents (12-19) should obtain 6\u201312 hours of sleep per night.\
+        \ Additionally, there is a shift in the body's circadian rhythm such that\
+        \ sleep and wake timings become later during adolescence. Technology, social\
+        \ factors, and physical development are thought to contribute to poor sleep\
+        \ during this time. Poor sleep duration and quality in adolescents has been\
+        \ linked with altered brain functioning and development, poor mental and physical\
+        \ health, as well as higher rates of disease and mortality. The concerns surrounding\
+        \ poor sleep during adolescence has garnered significant public attention,\
+        \ especially concerning policies related to school start times. Many evidences\
+        \ suggest that sleep contributes positively to attention, behavior, and academic\
+        \ achievement for adolescents."
+      source_id: Adolescent sleep
+      url: https://en.wikipedia.org/wiki/Adolescent_sleep
+      value: '19'
+    filled: true
+  kind: numeric
+  raw_text: The MEQ consists of 19 items.
+  resolved_value: '19'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-02T15:39:16Z'
+- artifact_path: projects/PROJ-046-the-relationship-between-sleep-chronotyp/code/measurements.md
+  attempts: 1
+  canonical: MEQ total score ranges from 16 to 86
+  claim_id: c_bbc1775e
+  context: Each item contributes a weighted score based on the response selected.
+    The total score ranges from 16 to 86.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The total MEQ score ranges from 16 to 86.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T15:39:44Z'
+- artifact_path: projects/PROJ-046-the-relationship-between-sleep-chronotyp/code/measurements.md
+  attempts: 1
+  canonical: MFQ consists of 13 items
+  claim_id: c_093eff89
+  context: The MFQ consists of 13 items. Responses are on a 4-point Likert scale (1-4).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MFQ consists of 13 items.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T15:40:05Z'
+- artifact_path: projects/PROJ-046-the-relationship-between-sleep-chronotyp/code/measurements.md
+  attempts: 1
+  canonical: MFQ uses 4-point Likert scale 1 to 4
+  claim_id: c_46ad6a85
+  context: The MFQ consists of 13 items. Responses are on a 4-point Likert scale (1-4).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MFQ responses use a 4-point Likert scale ranging from 1 to 4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T15:40:22Z'
+- artifact_path: projects/PROJ-046-the-relationship-between-sleep-chronotyp/code/measurements.md
+  attempts: 1
+  canonical: MFQ total score ranges from 13 to 52
+  claim_id: c_f8b9222c
+  context: 'MFQ Range: 13 to 52. Any value outside this range is invalid.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MFQ total score ranges from 13 to 52.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T15:40:47Z'

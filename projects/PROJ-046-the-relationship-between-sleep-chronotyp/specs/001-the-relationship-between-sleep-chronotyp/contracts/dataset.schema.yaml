@@ -1,0 +1,78 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ParticipantRecord"
+description: "Schema for the cleaned and classified participant data used in ANCOVA."
+type: object
+properties:
+  participant_id:
+    type: string
+    description: "Unique identifier for the participant."
+  meq_score:
+    type: number
+    description: "Morningness-Eveningness Questionnaire score."
+    minimum: 16
+    maximum: 86
+  chronotype:
+    type: string
+    description: "Derived chronotype label."
+    enum:
+      - "morning"
+      - "intermediate"
+      - "evening"
+      - "NA"
+  mfq_care:
+    type: number
+    description: "Moral Foundations Care subscale score."
+    minimum: 0
+    maximum: 100
+  mfq_fairness:
+    type: number
+    description: "Moral Foundations Fairness subscale score."
+    minimum: 0
+    maximum: 100
+  mfq_loyalty:
+    type: number
+    description: "Moral Foundations Loyalty subscale score."
+    minimum: 0
+    maximum: 100
+  mfq_authority:
+    type: number
+    description: "Moral Foundations Authority subscale score."
+    minimum: 0
+    maximum: 100
+  mfq_sanctity:
+    type: number
+    description: "Moral Foundations Sanctity subscale score."
+    minimum: 0
+    maximum: 100
+  psqi:
+    type: number
+    description: "Pittsburgh Sleep Quality Index."
+    minimum: 0
+    maximum: 21
+  acute_sleepiness:
+    type: number
+    description: "Acute sleepiness rating (e.g., 0-10 scale)."
+  age:
+    type: integer
+    description: "Age in years."
+    minimum: 18
+  sex:
+    type: string
+    description: "Biological sex."
+  exclusion_reason:
+    type: ["string", "null"]
+    description: "Reason for exclusion if applicable."
+required:
+  - participant_id
+  - meq_score
+  - chronotype
+  - mfq_care
+  - mfq_fairness
+  - mfq_loyalty
+  - mfq_authority
+  - mfq_sanctity
+  - psqi
+  - acute_sleepiness
+  - age
+  - sex
+additionalProperties: false

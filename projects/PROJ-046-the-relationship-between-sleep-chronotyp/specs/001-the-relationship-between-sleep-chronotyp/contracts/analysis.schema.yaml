@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AnalysisResult"
+description: "Schema for the statistical analysis output (ANCOVA, effect sizes)."
+type: object
+properties:
+  subscale:
+    type: string
+    description: "Name of the MFQ subscale analyzed."
+    enum:
+      - "care"
+      - "fairness"
+      - "loyalty"
+      - "authority"
+      - "sanctity"
+  f_statistic:
+    type: number
+    description: "F-statistic from the ANCOVA model."
+  p_value_raw:
+    type: number
+    description: "Raw p-value from the ANCOVA."
+    minimum: 0
+    maximum: 1
+  p_value_adjusted:
+    type: number
+    description: "Bonferroni-adjusted p-value."
+    minimum: 0
+    maximum: 1
+  significant:
+    type: boolean
+    description: "True if p_value_adjusted < 0.01."
+  effect_size_cohens_d:
+    type: ["number", "null"]
+    description: "Cohen's d for significant contrasts."
+  ci_lower:
+    type: ["number", "null"]
+    description: "Lower bound of 95% CI for effect size."
+  ci_upper:
+    type: ["number", "null"]
+    description: "Upper bound of 95% CI for effect size."
+required:
+  - subscale
+  - f_statistic
+  - p_value_raw
+  - p_value_adjusted
+  - significant
+additionalProperties: false

@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-30T17:38:04.358881Z'
-current_stage: clarified
+current_stage: in_progress
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-046-the-relationship-between-sleep-chronotyp
-last_run_id: 56fd3066-746f-4d2e-9390-1407fb72db52
+last_run_id: 3339c77c-5ffe-4716-bbcf-79fc423be568
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-046-the-relationship-between-sleep-chronotyp/specs/001-the-relationship-between-sleep-chronotyp
 title: The Relationship Between Sleep Chronotype and Moral Judgement
-updated_at: '2026-06-30T10:19:42.357136Z'
+updated_at: '2026-07-02T15:46:12.927589Z'

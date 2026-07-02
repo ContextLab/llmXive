@@ -1,0 +1,388 @@
+resolved_at: '2026-07-02T15:05:03.744592+00:00'
+datasets:
+- intent: ANCOVA
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/preprint/_b_From_an_Evolutionary_Perspective_Using_Psychological_Knowledge_to_Deduce_A_Hypothesis_on_the_Process_of_Protective_Instincts_Evolving_into_Suicidal_Psychological_Mechanisms_b_/32881667
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Dimensional_Mapping_of_Post-COVID_Epigenetic_Ageing_Biology_onto_MDD_Symptom_Profiles_Suggests_Distinct_Pathway_Modules_with_Implications_for_Precision_Long_COVID_Care/32881844
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Pain_Navigator_Posters_for_display_in_GP_surgery/32861147
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Software_Tools_Ecosystem_Project_STEP_/32881619
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/__/32881664
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10549231
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8190644
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19263008
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7842203
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10219200
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/39nbr/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/twxvk/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/xnpgy/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/nz4th/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/ujht4/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: PSQI
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Cenangiaceae_6-gene_phylogeny_concatenated_and_separate_genes/32881847
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/_b_From_an_Evolutionary_Perspective_Using_Psychological_Knowledge_to_Deduce_A_Hypothesis_on_the_Process_of_Protective_Instincts_Evolving_into_Suicidal_Psychological_Mechanisms_b_/32881667
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Dimensional_Mapping_of_Post-COVID_Epigenetic_Ageing_Biology_onto_MDD_Symptom_Profiles_Suggests_Distinct_Pathway_Modules_with_Implications_for_Precision_Long_COVID_Care/32881844
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Pain_Navigator_Posters_for_display_in_GP_surgery/32861147
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Software_Tools_Ecosystem_Project_STEP_/32881619
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17310620
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://academic.oup.com/sleep/article-lookup/doi/10.1093/sleep/29.11.1503
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/7102907
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://link.springer.com/article/10.5664/jcsm.4936
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijphs.iaescore.com/index.php/IJPHS/article/view/23396
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/ehp23/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/8vzrj/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/qfnmd/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.mmu.ac.uk/articles/dataset/Objective_and_Subjective_Measures_of_Sleep_in_men_with_Muscular_Dystrophy/32616468
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/v4qxc/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: OSF
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/cjziems/osf_loglikelihood/resolve/main/inconclusive/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/SreekarB/OSFData/resolve/main/FC_graph_covariate_data.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 727
+      parsed: true
+  - url: https://huggingface.co/datasets/SreekarB/OSFData1/resolve/main/FC_graph_covariate_data.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 727
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/SreekarB/OSFData/resolve/main/FC_graph_covariate_data.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/SreekarB/OSFData1/resolve/main/FC_graph_covariate_data.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/cjziems/osf_loglikelihood/resolve/main/inconclusive/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Cenangiaceae_6-gene_phylogeny_concatenated_and_separate_genes/32881847
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/_b_From_an_Evolutionary_Perspective_Using_Psychological_Knowledge_to_Deduce_A_Hypothesis_on_the_Process_of_Protective_Instincts_Evolving_into_Suicidal_Psychological_Mechanisms_b_/32881667
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Dimensional_Mapping_of_Post-COVID_Epigenetic_Ageing_Biology_onto_MDD_Symptom_Profiles_Suggests_Distinct_Pathway_Modules_with_Implications_for_Precision_Long_COVID_Care/32881844
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Pain_Navigator_Posters_for_display_in_GP_surgery/32861147
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Software_Tools_Ecosystem_Project_STEP_/32881619
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8356815
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8208834
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3554292
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7032367
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10821345
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/cbghj/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/7rywz/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/eu7ar/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/253kj/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/xgcsd/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MFQ
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/lukebruhns/identity-refusal-mfq2/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/lukebruhns/identity-refusal-mfq2/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/A_High-Throughput_Platform_for_Measuring_and_Predicting_Vitrification_Behavior_in_Multicomponent_Aqueous_Solutions/32881854
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/A_High-Throughput_Platform_for_Measuring_and_Predicting_Vitrification_Behavior_in_Multicomponent_Aqueous_Solutions/32881851
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Morphological_Effects_of_UV-C_LED_Exposure_of_Early_Stages_of_i_Sitophilus_i_spp_/32221011
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ore.exeter.ac.uk/articles/chapter/Affective_doubt_and_antagonistic_politics/30051991
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Cenangiaceae_6-gene_phylogeny_concatenated_and_separate_genes/32881847
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17507780
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10700440
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17560283
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17045203
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18109606
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/bt9nh/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/xmau9/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/9nke7/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://sanad.iau.ir/Journal/jzvj/Article/1209056
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.mmu.ac.uk/articles/thesis/A_study_examining_Behavioural_Activation_BA_/32483073
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MEQ
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/lighteval/me_q_sum/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 214786
+      parsed: true
+  - url: https://huggingface.co/datasets/albertvillanova/meqsum/resolve/main/MeQSum.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/lighteval/me_q_sum/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/albertvillanova/meqsum/resolve/main/MeQSum.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/A_High-Throughput_Platform_for_Measuring_and_Predicting_Vitrification_Behavior_in_Multicomponent_Aqueous_Solutions/32881854
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/A_High-Throughput_Platform_for_Measuring_and_Predicting_Vitrification_Behavior_in_Multicomponent_Aqueous_Solutions/32881851
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/Morphological_Effects_of_UV-C_LED_Exposure_of_Early_Stages_of_i_Sitophilus_i_spp_/32221011
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ore.exeter.ac.uk/articles/chapter/Affective_doubt_and_antagonistic_politics/30051991
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Cenangiaceae_6-gene_phylogeny_concatenated_and_separate_genes/32881847
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19861992
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15670705
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijmra.in/v4i11/33.php
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/998664
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5688797
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://karger.figshare.com/articles/dataset/Supplementary_Material_for_Dialysis_Disequilibrium_Syndrome_A_Severe_Case_with_Neurologic_Recovery_A_Case_Report/32875892
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://karger.figshare.com/articles/dataset/Supplementary_Material_for_Dialysis_Disequilibrium_Syndrome_A_Severe_Case_with_Neurologic_Recovery_A_Case_Report/32875892/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://toubkal.imist.ma/handle/123456789/6054
+    source: datacite
+    status: wrong_format
+    reason: HTTP 500
+  - url: https://toubkal.imist.ma/handle/123456789/37232
+    source: datacite
+    status: wrong_format
+    reason: HTTP 500
+  - url: https://zenodo.org/records/21109592
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
