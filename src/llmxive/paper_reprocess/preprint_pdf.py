@@ -279,9 +279,16 @@ def prepend_cover_to_pdf(cover_pdf: Path, original_pdf: Path, out_path: Path) ->
 # --------------------------------------------------------------------------- #
 import re as _re
 
-# Inline tokens, in precedence order (code first so ** inside `code` is literal).
+# Inline tokens, in precedence order. Code first (so ** inside `code` is
+# literal); then LaTeX math spans (``$...$``, ``$$...$$``, ``\(..\)``, ``\[..\]``)
+# so their contents pass through VERBATIM and compile as math instead of being
+# escaped into literal source; then markdown emphasis/links.
 _MD_INLINE_RE = _re.compile(
     r"(?P<code>`[^`]+`)"
+    r"|(?P<mathdd>\$\$[^$]+?\$\$)"
+    r"|(?P<mathbrk>\\\[.+?\\\])"
+    r"|(?P<mathpar>\\\(.+?\\\))"
+    r"|(?P<math>\$[^$]+?\$)"
     r"|(?P<bold>\*\*(?:[^*]|\*(?!\*))+\*\*)"
     r"|(?P<bolddunderscore>__[^_]+__)"
     r"|(?P<italic>(?<![\*\w])\*(?!\s)[^*\n]+?\*(?!\*))"
@@ -289,22 +296,36 @@ _MD_INLINE_RE = _re.compile(
 )
 
 
-def _md_inline(text: str) -> str:
-    """Convert inline markdown (bold/italic/code/links) to LaTeX, tex-escaping
+def _md_inline(text: str, *, render_math: bool = True) -> str:
+    """Convert inline markdown (bold/italic/code/links/math) to LaTeX, tex-escaping
     every literal run so the review prose renders as formatted text, not raw
-    ``**...**`` / backtick source."""
+    ``**...**`` / backtick source. LaTeX math spans pass through verbatim when
+    ``render_math`` (the caller falls back to ``False`` if math breaks the
+    compile, so the math shows as literal text rather than failing the report)."""
     out: list[str] = []
     pos = 0
     for m in _MD_INLINE_RE.finditer(text):
         out.append(tex_escape(text[pos:m.start()]))
         if m.group("code"):
             out.append(rf"\texttt{{{tex_escape(m.group('code')[1:-1], smart_quotes=False)}}}")
+        elif m.group("mathdd") or m.group("mathbrk") or m.group("mathpar"):
+            # Explicitly delimited math ($$..$$, \[..\], \(..\)) -> verbatim.
+            frag = m.group(0)
+            out.append(frag if render_math else tex_escape(frag))
+        elif m.group("math"):
+            # Single-$ inline math is ambiguous: reviewers sometimes quote a paper's
+            # UNBALANCED $, which would pull a whole prose clause into math mode. If
+            # the span reads like prose (a space-delimited 4+ letter word), keep it
+            # literal; otherwise render it as math.
+            frag = m.group(0)
+            is_prose = bool(_re.search(r"\s[a-z]{4,}[\s,.;:]", frag[1:-1]))
+            out.append(frag if (render_math and not is_prose) else tex_escape(frag))
         elif m.group("bold"):
-            out.append(rf"\textbf{{{_md_inline(m.group('bold')[2:-2])}}}")
+            out.append(rf"\textbf{{{_md_inline(m.group('bold')[2:-2], render_math=render_math)}}}")
         elif m.group("bolddunderscore"):
-            out.append(rf"\textbf{{{_md_inline(m.group('bolddunderscore')[2:-2])}}}")
+            out.append(rf"\textbf{{{_md_inline(m.group('bolddunderscore')[2:-2], render_math=render_math)}}}")
         elif m.group("italic"):
-            out.append(rf"\textit{{{_md_inline(m.group('italic')[1:-1])}}}")
+            out.append(rf"\textit{{{_md_inline(m.group('italic')[1:-1], render_math=render_math)}}}")
         elif m.group("link"):
             lm = _re.match(r"\[([^\]]+)\]\(([^)\s]+)\)", m.group("link"))
             out.append(rf"{tex_escape(lm.group(1))} (\texttt{{{tex_escape(lm.group(2))}}})")
@@ -313,16 +334,16 @@ def _md_inline(text: str) -> str:
     return "".join(out)
 
 
-def _markdown_to_latex(md: str) -> str:
+def _markdown_to_latex(md: str, *, render_math: bool = True) -> str:
     """Convert a markdown block (headers, bullet/numbered lists, paragraphs,
-    inline emphasis/code) into llmxive.cls-safe LaTeX. Deterministic, no deps."""
+    inline emphasis/code/math) into llmxive.cls-safe LaTeX. Deterministic, no deps."""
     out: list[str] = []
     para: list[str] = []
     list_open: str | None = None
 
     def flush_para() -> None:
         if para:
-            out.append(_md_inline(" ".join(para).strip()))
+            out.append(_md_inline(" ".join(para).strip(), render_math=render_math))
             out.append("")
             para.clear()
 
@@ -346,7 +367,7 @@ def _markdown_to_latex(md: str) -> str:
         if hm:
             flush_para()
             close_list()
-            out.append(rf"\subsection*{{{_md_inline(hm.group(2))}}}")
+            out.append(rf"\subsection*{{{_md_inline(hm.group(2), render_math=render_math)}}}")
         elif ul or ol:
             flush_para()
             want = "itemize" if ul else "enumerate"
@@ -355,7 +376,7 @@ def _markdown_to_latex(md: str) -> str:
                 out.append(rf"\begin{{{want}}}")
                 list_open = want
             body = ul.group(1) if ul else ol.group(2)
-            out.append(rf"\item {_md_inline(body)}")
+            out.append(rf"\item {_md_inline(body, render_math=render_math)}")
         else:
             close_list()
             para.append(stripped)
@@ -448,18 +469,23 @@ def _prompt_url(reviewer_name: str) -> str:
     return f"{_LLMXIVE_URL}/blob/main/agents/prompts/{str(reviewer_name or '').strip()}.md"
 
 
-def build_peer_review_tex(project: Project, records: list, *, action_items_md: str = "") -> str:
+def build_peer_review_tex(
+    project: Project, records: list, *, action_items_md: str = "", render_math: bool = True
+) -> str:
     """Render the reviewers' feedback + action items as an llmxive.cls doc.
 
     Deliberately shows NO per-reviewer accept/reject verdict: a Reviewed Preprint
     is advisory feedback only, so surfacing an internal verdict would contradict
     the report's own "nothing is accepted or rejected" statement. The review body
-    is markdown and is converted to LaTeX so it renders formatted, not as source.
+    is markdown and is converted to LaTeX so it renders formatted, not as source;
+    ``$...$`` math renders as math when ``render_math`` (the builder retries with
+    ``render_math=False`` if a stray/undefined macro breaks the compile).
     """
     title = tex_escape(f"llmXive Automated Review of {project.title}")
     ordered = sorted(records, key=lambda r: r.reviewer_name)
     lines = [
         r"\documentclass{llmxive}",
+        r"\usepackage{amsmath,amssymb}",
         r"\usepackage{hyperref}",
         rf"\title{{{title}}}",
         r"\author{llmXive automated review panel}",
@@ -532,7 +558,7 @@ def build_peer_review_tex(project: Project, records: list, *, action_items_md: s
         )
         feedback = (getattr(rec, "feedback", "") or "").strip()
         if feedback:
-            lines.append(_markdown_to_latex(feedback[:12000]))
+            lines.append(_markdown_to_latex(feedback[:12000], render_math=render_math))
         items = getattr(rec, "action_items", None) or []
         if items:
             lines.append(r"\noindent\textbf{Action items.}")
@@ -541,7 +567,7 @@ def build_peer_review_tex(project: Project, records: list, *, action_items_md: s
                 sev = getattr(getattr(item, "severity", ""), "value", getattr(item, "severity", ""))
                 lines.append(
                     rf"\item \textbf{{[{tex_escape(str(sev))}]}} "
-                    rf"{_md_inline((item.text or '').strip())}"
+                    rf"{_md_inline((item.text or '').strip(), render_math=render_math)}"
                 )
             lines.append(r"\end{itemize}")
     lines.append(r"\end{document}")
@@ -603,12 +629,30 @@ def build_preprint_pdfs(
         out["original"] = original_target
 
         # --- peer-review report ------------------------------------------- #
+        # Render the reviewers' ``$...$`` math as math; if a stray or
+        # paper-defined (undefined-here) macro makes lualatex fail, retry once
+        # with the math shown as literal text so a single bad expression never
+        # costs the whole report.
         records = reviews_store.list_for(project.id, stage="paper", repo_root=repo)
-        review_tex = build_peer_review_tex(project, records)
-        review_pdf = render_llmxive_pdf(
-            review_tex, work / "review", repo_root=repo, basename="review",
-            source_date_epoch=epoch,
-        )
+        import logging as _logging
+
+        review_pdf = None
+        for attempt, render_math in enumerate((True, False)):
+            review_tex = build_peer_review_tex(project, records, render_math=render_math)
+            try:
+                review_pdf = render_llmxive_pdf(
+                    review_tex, work / f"review{attempt}", repo_root=repo,
+                    basename="review", source_date_epoch=epoch,
+                )
+                break
+            except Exception as exc:
+                if render_math:
+                    _logging.getLogger(__name__).warning(
+                        "peer-review math compile failed for %s; retrying with math "
+                        "as literal text: %s", project.id, exc,
+                    )
+                    continue
+                raise
         review_target = pdf_dir / review_name
         shutil.copy2(review_pdf, review_target)
         out["peer_review"] = review_target

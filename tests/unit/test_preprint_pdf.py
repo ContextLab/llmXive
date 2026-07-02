@@ -129,6 +129,32 @@ def test_build_peer_review_tex_renders_reviewers() -> None:
     # Prominent, human-not-checked disclaimer at the top.
     assert "not checked by any human" in tex
     assert "errors, misreadings, and inaccuracies are likely" in tex
+
+
+def test_build_peer_review_tex_renders_math() -> None:
+    from types import SimpleNamespace
+
+    rec = SimpleNamespace(
+        reviewer_name="paper_reviewer_statistical_analysis",
+        verdict="minor_revision",
+        model_name="qwen.qwen3.5-122b",
+        feedback=(
+            r"The bound $\Delta_{\cos} \in [0.02, 0.05]$ is tight; also "
+            r"$$E = mc^2$$ and \(a_i\)."
+        ),
+        action_items=[],
+    )
+    proj = SimpleNamespace(title="P", id="PROJ-x")
+    tex = build_peer_review_tex(proj, [rec])
+    # LaTeX math passes through verbatim (rendered as math), not escaped.
+    assert r"$\Delta_{\cos} \in [0.02, 0.05]$" in tex
+    assert r"$$E = mc^2$$" in tex
+    assert r"\(a_i\)" in tex
+    assert r"\usepackage{amsmath,amssymb}" in tex
+    # The compile-fallback (render_math=False) escapes the math to literal text.
+    tex_fallback = build_peer_review_tex(proj, [rec], render_math=False)
+    assert r"$\Delta" not in tex_fallback
+    assert r"\$" in tex_fallback
     # A Reviewed Preprint is advisory only — NO accept/reject verdict is shown,
     # so the report never contradicts its own "nothing is accepted or rejected".
     assert "Verdict" not in tex
