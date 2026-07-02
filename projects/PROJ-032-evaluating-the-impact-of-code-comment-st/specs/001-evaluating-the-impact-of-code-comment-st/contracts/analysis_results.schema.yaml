@@ -1,0 +1,78 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Results Schema"
+description: "Schema for the regression analysis output (data/processed/results.json)"
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    description: "Type of regression model used (e.g., 'MultipleLinearRegression')"
+  predictors:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of predictor variable names"
+  coefficients:
+    type: "object"
+    description: "Map of predictor names to coefficient values"
+    additionalProperties:
+      type: "number"
+  p_values:
+    type: "object"
+    description: "Map of predictor names to raw p-values"
+    additionalProperties:
+      type: "number"
+      minimum: 0
+      maximum: 1
+  corrected_p_values:
+    type: "object"
+    description: "Map of predictor names to FDR-corrected p-values"
+    additionalProperties:
+      type: "number"
+      minimum: 0
+      maximum: 1
+  is_significant:
+    type: "boolean"
+    description: "True if any predictor has corrected p < 0.05"
+  sensitivity_analysis:
+    type: "array"
+    description: "Results for different significance thresholds (0.01, 0.05, 0.1)"
+    items:
+      type: "object"
+      properties:
+        threshold:
+          type: "number"
+        significant_count:
+          type: "integer"
+      required:
+        - threshold
+        - significant_count
+  framing:
+    type: "string"
+    description: "Must be 'associational'"
+    enum:
+      - "associational"
+  power_analysis:
+    type: "object"
+    description: "Power analysis results"
+    properties:
+      sample_size:
+        type: "integer"
+      effect_size_detected:
+        type: "string"
+        description: "e.g., 'medium', 'small', 'none'"
+      power:
+        type: "number"
+      minimum_detectable_effect_size:
+        type: "number"
+      description: "String describing the power calculation"
+required:
+  - model_type
+  - predictors
+  - coefficients
+  - p_values
+  - corrected_p_values
+  - is_significant
+  - sensitivity_analysis
+  - framing
+  - power_analysis
+additionalProperties: false
