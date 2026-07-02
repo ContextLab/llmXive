@@ -1,22 +1,20 @@
-# Domino Adaptation: CPU-Scaled Causal Decoupling Demo
+# Domino Adaptation: Causal Decoupling Analysis
 
-## Goal
-Reproduce the core quantitative claim of **Domino**: that decoupling causal modeling from drafting (via a parallel backbone + lightweight causal head) yields better draft quality than a purely parallel approach, with minimal overhead.
+This adaptation reproduces the **core scientific claim** of the Domino paper: that decoupling causal modeling from autoregressive drafting improves draft quality (acceptance rate) compared to a pure parallel baseline, even with a lightweight correction head.
 
-## Simplifications vs. Original Paper
-- **No LLMs**: The original uses Qwen3 (8B+) with GPU kernels. This adaptation uses **scikit-learn** on a tiny, real text dataset (WikiText-2 sample) to simulate the "drafting" logic.
-- **Proxy Models**:
-  - *Parallel Backbone*: A simple `CountVectorizer` + `LogisticRegression` (fitted on bigrams) representing a non-causal, parallel probability estimator.
-  - *Domino Head*: A lightweight `MLPClassifier` (1 hidden layer) that takes the parallel draft probabilities + prefix context embeddings to refine the prediction.
-- **Dataset**: Uses a **subsampled (200 samples)** version of the **WikiText-2** dataset (via `datasets` library). No synthetic data.
-- **Metric**: **Top-1 Accuracy** on the next-token prediction task (proxy for "draft acceptance rate").
-- **Compute**: Runs entirely on CPU. No CUDA, no Transformers, no SGLang.
+## Approximations & Scaling
 
-## Artifacts
-- `data/results.csv`: Comparison of "Parallel Only" vs. "Domino (Parallel + Causal Head)" accuracy.
-- `figures/accuracy_comparison.png`: Bar chart of the results.
+Since the original paper trains and evaluates on massive LLMs (Qwen3-8B) with GPU-heavy kernels, this adaptation scales down to a **CPU-tractable simulation** of the *mechanism*:
 
-## How to Run
-```bash
-python code/domino_cpu_demo.py
-```
+1.  **Proxy Model**: Replaces the 8B LLM with a **tiny 3-layer Transformer** (or even a simple statistical proxy) running on CPU.
+2.  **Dataset**: Uses a **small sample (N=100)** of the `c4` or `wikitext` dataset (real text, not synthetic) to measure token prediction.
+3.  **Methodology**:
+    *   **Baseline**: Simulates a "Parallel Drafter" (predicts next $k$ tokens independently).
+    *   **Domino**: Simulates the "Parallel Backbone + Domino Head" (corrects independent predictions using a lightweight prefix-aware module).
+    *   **Metric**: Measures **Acceptance Rate** (how many draft tokens match the "Target" model's greedy output) for both methods.
+4.  **Hardware**: Runs entirely on CPU using `torch` (no CUDA required).
+5.  **Goal**: Demonstrate that the "Domino" correction step yields a higher acceptance rate than the raw parallel draft, validating the paper's decoupling hypothesis without requiring 8GB+ VRAM.
+
+## Output
+- `data/acceptance_rates.csv`: Comparison of Acceptance Rates between Baseline and Domino.
+- `figures/acceptance_comparison.png`: Visual comparison of the results.

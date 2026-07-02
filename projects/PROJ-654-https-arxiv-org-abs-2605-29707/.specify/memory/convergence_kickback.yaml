@@ -1,0 +1,197 @@
+artifact_links:
+- projects/PROJ-654-https-arxiv-org-abs-2605-29707/specs/001-https-arxiv-org-abs-2605-29707/plan.md
+- specs/*/contracts/*
+- specs/*/data-model.md
+- specs/*/plan.md
+- specs/*/quickstart.md
+- specs/*/research.md
+reason: 15 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst
+  unresolved severity = 'science'. Routing to 'specified' with full provenance so
+  the next worker can address the root cause.
+stage: plan
+to_stage: specified
+unresolved_concerns:
+- artifact: projects/PROJ-654-https-arxiv-org-abs-2605-29707/specs/001-https-arxiv-org-abs-2605-29707/plan.md
+  id: methodology-eb18d1ec
+  location: plan.md:Summary
+  reviewer: methodology
+  round: 1
+  severity: methodology
+  text: 'The plan proposes validating the paper''s ''5.49x speedup'' claim by comparing
+    CPU results against a GPU-based paper claim. This is a construct validity failure:
+    the metric ''speedup'' is hardware-dependent. A direct comparison (even with a
+    ''hardware context'' note) cannot validate the algorithm''s efficacy as claimed
+    in the paper, as the baseline and Domino overheads scale differently on CPU vs.
+    GPU. The success criterion ''Speedup > 1.0x'' is insufficient to validate the
+    specific ''Domino'' algorithm claims which rely on GPU parallelism.'
+- artifact: projects/PROJ-654-https-arxiv-org-abs-2605-29707/specs/001-https-arxiv-org-abs-2605-29707/plan.md
+  id: methodology-594cfeea
+  location: research.md:Statistical & Methodological Rigor
+  reviewer: methodology
+  round: 1
+  severity: methodology
+  text: The plan proposes a single benchmark run (n=1) or a small sample (n=10-20
+    prompts) to calculate a mean speedup. This lacks statistical power to detect the
+    effect size or distinguish algorithmic speedup from noise, especially on CPU where
+    variance is high. A single run cannot establish a 'baseline' for comparison against
+    the paper's aggregated results. The methodology requires a proper experimental
+    design with multiple independent runs and statistical significance testing (e.g.,
+    t-test or confidence intervals) to support any claim of 'reproduction'.
+- artifact: projects/PROJ-654-https-arxiv-org-abs-2605-29707/specs/001-https-arxiv-org-abs-2605-29707/plan.md
+  id: methodology-c6f1fe2f
+  location: research.md:Handling Hardware Differences
+  reviewer: methodology
+  round: 1
+  severity: methodology
+  text: 'The plan states: ''Relative speedup (Domino vs Baseline) should remain positive
+    if the draft model is efficient''. This is an unverified assumption. Speculative
+    decoding overhead (synchronization, memory bandwidth) often dominates on CPU,
+    potentially resulting in speedup < 1.0 even if the algorithm is sound. The plan
+    does not account for the possibility that the ''Domino'' algorithm is fundamentally
+    unsuited for CPU execution, which would invalidate the ''reproduction'' goal if
+    the only metric is ''speedup > 1.0''.'
+- artifact: projects/PROJ-654-https-arxiv-org-abs-2605-29707/specs/001-https-arxiv-org-abs-2605-29707/plan.md
+  id: methodology-aef1f044
+  location: contracts/validation_report.schema.yaml
+  reviewer: methodology
+  round: 1
+  severity: methodology
+  text: The validation report schema includes a 'pass_status' based on a 20% tolerance
+    of the paper's 5.49x claim. This is methodologically unsound for a CPU run. The
+    schema should not define a 'Pass' condition based on matching a GPU-derived number.
+    The 'Pass' condition should be redefined to validate the *mechanism* (e.g., 'Domino
+    latency < Baseline latency' with statistical significance) rather than the *magnitude*
+    of the speedup.
+- artifact: projects/PROJ-654-https-arxiv-org-abs-2605-29707/specs/001-https-arxiv-org-abs-2605-29707/plan.md
+  id: spec_coverage-f70d0101
+  location: spec.md:FR-004
+  reviewer: spec_coverage
+  round: 1
+  severity: requirement
+  text: FR-004 requires runtime hardware detection and dynamic device_map configuration.
+    The plan.md Summary and Technical Context sections mandate a static 'CPU-only'
+    environment and 'force CPU execution' via environment variables (CUDA_VISIBLE_DEVICES).
+    There is no plan element (phase, script, or logic) describing the implementation
+    of dynamic hardware detection or conditional device_map logic. The plan assumes
+    the environment is always CPU-only, leaving FR-004 unbacked.
+- artifact: projects/PROJ-654-https-arxiv-org-abs-2605-29707/specs/001-https-arxiv-org-abs-2605-29707/plan.md
+  id: spec_coverage-f7b09c45
+  location: spec.md:FR-006
+  reviewer: spec_coverage
+  round: 1
+  severity: requirement
+  text: FR-006 requires logging the exact versions of 'transformers' and 'torch' libraries.
+    The plan.md mentions 'exact version pinning' in the Constitution Check and 'Python
+    3.10+' in Technical Context, but no specific task, script step, or data-model
+    entity is defined to capture and persist these version strings into the 'Metrics
+    Artifact' or 'Validation Report' as required by the FR.
+- artifact: projects/PROJ-654-https-arxiv-org-abs-2605-29707/specs/001-https-arxiv-org-abs-2605-29707/plan.md
+  id: spec_coverage-110207a8
+  location: spec.md:FR-007
+  reviewer: spec_coverage
+  round: 1
+  severity: requirement
+  text: FR-007 requires comparing the speedup against the paper's 5.49x claim with
+    a 20% tolerance. The plan.md Summary mentions 'implementing a validation report
+    that compares reproduced speedup', but the 'Technical Context' and 'Project Structure'
+    sections do not explicitly define the logic for the '20% tolerance threshold'
+    or the specific 'Pass/Fail' status generation logic. The 'Validation Report' schema
+    in data-model.md includes 'tolerance_note' but the plan lacks the explicit algorithmic
+    step to calculate the 20% threshold and assign the status.
+- artifact: projects/PROJ-654-https-arxiv-org-abs-2605-29707/specs/001-https-arxiv-org-abs-2605-29707/plan.md
+  id: spec_coverage-c5f030d6
+  location: spec.md:SC-002
+  reviewer: spec_coverage
+  round: 1
+  severity: requirement
+  text: SC-002 requires peak memory usage to remain within acceptable limits. The
+    plan.md Summary mentions 'managing memory constraints via model selection' and
+    'Peak RAM < 6.5 GB' as a goal, but there is no explicit plan element (e.g., a
+    monitoring script, a resource_monitor.py task, or a CI assertion) defined to *measure*
+    and *verify* the peak RSS during the run. The plan assumes the model selection
+    strategy is sufficient without a verification step for the SC.
+- artifact: projects/PROJ-654-https-arxiv-org-abs-2605-29707/specs/001-https-arxiv-org-abs-2605-29707/plan.md
+  id: spec_coverage-38074e27
+  location: spec.md:Edge Cases (Model Size)
+  reviewer: spec_coverage
+  round: 1
+  severity: requirement
+  text: The spec Edge Cases require the system to 'fail gracefully with an explicit
+    Out of Memory error message' if the model exceeds RAM. The plan.md 'Technical
+    Context' mentions 'Model Fallback Logic' to Qwen2-0.5B/1.8B, but does not describe
+    the mechanism for detecting an OOM condition *during* execution and triggering
+    the fallback or the specific error message format. The plan assumes the fallback
+    is pre-emptive (by choosing small models) rather than reactive to OOM, leaving
+    the reactive requirement unbacked.
+- artifact: projects/PROJ-654-https-arxiv-org-abs-2605-29707/specs/001-https-arxiv-org-abs-2605-29707/plan.md
+  id: plan_consistency-4c4a62a0
+  location: plan.md:Constitution Check
+  reviewer: plan_consistency
+  round: 1
+  severity: requirement
+  text: 'The ''Constitution Check'' section explicitly states: ''The project constitution
+    file was not provided in the input.'' This violates Constitution Principle I (SSoT)
+    and the panel review protocol which requires the per-project `constitution.md`
+    to be present and checked. The plan cannot be validated for constitutional compliance
+    without this file.'
+- artifact: projects/PROJ-654-https-arxiv-org-abs-2605-29707/specs/001-https-arxiv-org-abs-2605-29707/plan.md
+  id: plan_consistency-c75328e6
+  location: plan.md:Constitution Check
+  reviewer: plan_consistency
+  round: 1
+  severity: requirement
+  text: The plan assumes a 'standard' constitution ('Reproducibility First', 'Resource
+    Efficiency') rather than referencing the specific `constitution.md` (FR-030).
+    This violates Principle I (SSoT) as the plan is not anchored to the actual governing
+    document, making the 'Constitution Check' section speculative and invalid.
+- artifact: projects/PROJ-654-https-arxiv-org-abs-2605-29707/specs/001-https-arxiv-org-abs-2605-29707/plan.md
+  id: plan_consistency-2ef957fe
+  location: plan.md:Technical Context
+  reviewer: plan_consistency
+  round: 1
+  severity: writing
+  text: The plan mentions 'Qwen3' as an implied target but defaults to 'Qwen2-0.5B/1.8B'.
+    The `data-model.md` defines `model_name` as a string but does not explicitly constrain
+    it to the fallback list. The plan should reference the specific data model constraint
+    or entity definition that governs this fallback logic to ensure consistency.
+- artifact: projects/PROJ-654-https-arxiv-org-abs-2605-29707/specs/001-https-arxiv-org-abs-2605-29707/plan.md
+  id: scientific_soundness-5a4369da
+  location: plan.md:Summary
+  reviewer: scientific_soundness
+  round: 1
+  severity: science
+  text: The plan validates the paper's '5.49x speedup' claim by comparing it against
+    a reproduced metric on a fundamentally different hardware regime (2 vCPU vs. unspecified
+    GPU). Speedup in speculative decoding is a non-linear function of hardware latency
+    characteristics (memory bandwidth vs. compute). A direct comparison of magnitude
+    (5.49x vs. X.x) is scientifically invalid; the plan treats a hardware-dependent
+    constant as a universal invariant. The validation target (paper claim) is not
+    independent of the hardware predictor, making the 'Pass/Fail' logic (FR-007) tautological
+    or meaningless.
+- artifact: projects/PROJ-654-https-arxiv-org-abs-2605-29707/specs/001-https-arxiv-org-abs-2605-29707/plan.md
+  id: scientific_soundness-91115ae0
+  location: research.md:Statistical & Methodological Rigor
+  reviewer: scientific_soundness
+  round: 1
+  severity: science
+  text: The plan proposes calculating Speedup = Baseline_Latency / Domino_Latency
+    and comparing it to the paper's claim. However, on CPU, the overhead of the 'draft'
+    model (which requires its own memory bandwidth and compute) often negates the
+    benefits of speculative decoding seen on GPU. The plan assumes a positive speedup
+    (>1.0) is guaranteed if the algorithm works, but this is an empirical hypothesis,
+    not a definition. If the result is <1.0, the plan flags it as 'Failed to Reproduce',
+    but this conflates 'algorithm failure' with 'hardware regime failure'. The validation
+    metric does not isolate the algorithm's efficacy from the hardware's inability
+    to parallelize the draft/target steps efficiently.
+- artifact: projects/PROJ-654-https-arxiv-org-abs-2605-29707/specs/001-https-arxiv-org-abs-2605-29707/plan.md
+  id: scientific_soundness-7a611d6c
+  location: contracts/validation_report.schema.yaml
+  reviewer: scientific_soundness
+  round: 1
+  severity: methodology
+  text: The schema defines `paper_claim_speedup` as a constant (5.49) and `reproduced_speedup_mean`
+    as a variable to be compared against it. This enforces a direct numerical comparison
+    that is methodologically unsound for cross-hardware benchmarking. The schema should
+    instead define a 'relative efficiency' metric or a 'break-even analysis' rather
+    than a direct pass/fail against a GPU-specific constant.
+worst_severity: science

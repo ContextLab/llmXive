@@ -1,8 +1,8 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: Dataset Contract Schema
-description: >
-  Schema contract for dataset metadata required by the llmXive benchmark pipeline.
-  Validates dataset registration before processing.
+title: Dataset Schema
+description: |
+  Schema for dataset metadata contracts in the Heterogeneous Scientific Foundation Model Collaboration Benchmark.
+  Used to validate dataset registration and integrity tracking.
 type: object
 required:
   - name
@@ -13,56 +13,51 @@ required:
 properties:
   name:
     type: string
-    description: Unique identifier for the dataset (e.g., 'UCI_HAR', 'DROP')
-    pattern: '^[A-Za-z0-9_-]+$'
+    description: Unique identifier for the dataset (e.g., 'UCI_HAR', 'DROP').
+    minLength: 1
   url:
     type: string
-    description: Source URL or HuggingFace dataset ID for retrieval
+    description: Source URL or HuggingFace dataset ID.
     format: uri
   variables:
     type: array
-    description: List of variable names included in the dataset
+    description: List of variable names present in the dataset.
     items:
       type: string
     minItems: 1
   size_mb:
     type: number
-    description: Size of the dataset in megabytes
+    description: Size of the dataset in megabytes (estimated or actual).
     minimum: 0
   checksum:
     type: string
-    description: SHA-256 checksum of the downloaded dataset archive
+    description: SHA-256 checksum of the dataset archive or directory to ensure integrity.
     pattern: '^[a-f0-9]{64}$'
-  modalities:
-    type: array
-    description: (Optional) List of data modalities covered by this dataset
-    items:
-      type: string
-      enum:
-        - time-series
-        - tabular
-        - text
-        - image
-        - audio
-    default: []
-  source_type:
+  modality:
     type: string
-    description: (Optional) Type of source (e.g., 'huggingface', 'url', 'local')
+    description: Primary data modality (e.g., 'time-series', 'tabular', 'text').
     enum:
-      - huggingface
-      - url
-      - local
-    default: url
-  verified_at:
+      - time-series
+      - tabular
+      - text
+      - image
+      - mixed
+    default: tabular
+  version:
     type: string
-    format: date-time
-    description: (Optional) Timestamp of the last verification check
-  status:
+    description: Dataset version string (e.g., '1.0.0').
+    default: '1.0.0'
+  verification_status:
     type: string
-    description: (Optional) Current status of the dataset verification
+    description: Status of dataset verification against research requirements.
     enum:
       - pending
       - verified
       - failed
+      - skipped
     default: pending
+  metadata:
+    type: object
+    description: Additional optional metadata (e.g., license, citation).
+    additionalProperties: true
 additionalProperties: false

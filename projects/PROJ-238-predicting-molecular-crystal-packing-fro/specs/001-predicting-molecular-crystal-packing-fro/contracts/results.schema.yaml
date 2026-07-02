@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Results Schema"
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    description: "Type of model (RandomForest, GradientBoosting, MeanBaseline, Control_NoVolume)"
+  hyperparameters:
+    type: "object"
+    description: "Hyperparameters used for training"
+  r_squared:
+    type: "number"
+    description: "R² score on the test set"
+  mae:
+    type: "number"
+    description: "Mean Absolute Error"
+  rmse:
+    type: "number"
+    description: "Root Mean Squared Error"
+  p_value_vs_baseline:
+    type: "number"
+    description: "P-value from paired t-test against baseline"
+  bonferroni_corrected_p:
+    type: "number"
+    description: "P-value after Bonferroni correction"
+  feature_importance:
+    type: "array"
+    items:
+      type: "number"
+    description: "Permutation Importance scores for each feature"
+  sensitivity_analysis:
+    type: "object"
+    properties:
+      lofo_r_squared_drops:
+        type: "object"
+        description: "Map of feature name to R² drop when removed"
+    required:
+      - lofo_r_squared_drops
+required:
+  - model_type
+  - r_squared
+  - mae
+  - rmse
+  - p_value_vs_baseline
+  - bonferroni_corrected_p
+additionalProperties: false

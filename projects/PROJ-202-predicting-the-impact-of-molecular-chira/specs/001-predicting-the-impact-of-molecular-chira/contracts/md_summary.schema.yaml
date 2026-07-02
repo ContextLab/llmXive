@@ -1,0 +1,27 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MD Summary Schema"
+description: "Schema for validating MD simulation output CSV"
+type: "object"
+properties:
+  complex_id:
+    type: "string"
+    description: "Unique identifier for the ligand-receptor complex"
+  simulation_time_ps:
+    type: "integer"
+    description: "Simulation duration in picoseconds"
+  avg_rmsd:
+    type: "number"
+    description: "Average RMSD over the simulation"
+  h_bond_count:
+    type: "integer"
+    description: "Number of hydrogen bonds formed"
+  hydrophobic_count:
+    type: "integer"
+    description: "Number of hydrophobic contacts formed"
+required:
+  - complex_id
+  - simulation_time_ps
+  - avg_rmsd
+  - h_bond_count
+  - hydrophobic_count
+additionalProperties: false

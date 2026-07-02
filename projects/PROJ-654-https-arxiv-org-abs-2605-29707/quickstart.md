@@ -1,24 +1,21 @@
-# Domino CPU Adaptation Quickstart
+# Domino Adaptation Quickstart
 
-This guide runs the CPU-scaled adaptation of the **Domino** paper. It reproduces the core finding: **decoupling causal modeling from a parallel draft backbone improves draft quality** (measured here as next-token prediction accuracy on a small text sample).
+This guide runs the scaled-down CPU adaptation of the Domino paper.
+It reproduces the core finding: **Decoupling causal modeling (Domino Head) improves draft acceptance rates** compared to a naive parallel baseline.
 
 ## Prerequisites
-- Python 3.9+
-- `pip install datasets scikit-learn pandas matplotlib numpy tqdm`
+- Python 3.8+
+- `pip install torch transformers datasets matplotlib pandas tqdm rich`
 
-## Run Command
-Execute the following single command to run the full experiment:
+## Run Commands
+Execute the following commands in order:
 
 ```bash
-python code/domino_cpu_demo.py
+python code/run_domino_analysis.py
 ```
 
-## Expected Output
-1. **Console**: Logs showing the training of the "Parallel Backbone" and "Domino Head", followed by their accuracy scores.
-2. **`data/results.csv`**: A CSV file containing the accuracy metrics for both methods.
-3. **`figures/accuracy_comparison.png`**: A bar chart comparing the performance.
-
-## Interpretation
-- **Parallel Backbone**: Represents a drafter that ignores token order (fast but low quality).
-- **Domino Head**: Represents the paper's innovation—a lightweight module that adds causal context to the parallel draft.
-- **Result**: The Domino Head should show higher accuracy, validating the paper's claim that causal refinement is necessary even with parallel drafting.
+This script will:
+1. Load a small subset of real text (WikiText-2 or snippets).
+2. Initialize a tiny target model (DistilGPT2) and draft simulators.
+3. Simulate Parallel vs. Domino drafting and verification.
+4. Output `data/acceptance_rates.csv`, `data/summary.json`, and `figures/acceptance_comparison.png`.

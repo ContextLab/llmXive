@@ -1,0 +1,60 @@
+artifact_links:
+- projects/PROJ-599-mmskills-towards-multimodal-skills-for-g/specs/001-mmskills-towards-multimodal-skills-for-g/tasks.md
+- specs/*/tasks.md
+reason: 4 concern(s) remained unresolved after 3 round(s) at stage 'tasked'; worst
+  unresolved severity = 'requirement'. Routing to 'clarified' with full provenance
+  so the next worker can address the root cause.
+stage: tasks
+to_stage: clarified
+unresolved_concerns:
+- artifact: projects/PROJ-599-mmskills-towards-multimodal-skills-for-g/specs/001-mmskills-towards-multimodal-skills-for-g/tasks.md
+  id: coverage-64338ac9
+  location: tasks.md:Phase 3
+  reviewer: coverage
+  round: 1
+  severity: writing
+  text: Task T017 ('Add memory profiling logic...') is tagged [US-1] and references
+    SC-004. However, the Plan's 'Project Structure' explicitly places 'Memory Profiling
+    (psutil)' in `src/mmskills/evaluator.py`, while T017 assigns it to `src/mmskills/agent.py`.
+    This creates a conflict in component responsibility. A task is needed to resolve
+    this location conflict (either move T017 to `evaluator.py` or update the Plan)
+    to ensure the SC-004 measurement is implemented in the correct module.
+- artifact: projects/PROJ-599-mmskills-towards-multimodal-skills-for-g/specs/001-mmskills-towards-multimodal-skills-for-g/tasks.md
+  id: ordering-6f72cf1e
+  location: tasks.md:Phase 4 (T023)
+  reviewer: ordering
+  round: 1
+  severity: requirement
+  text: T023 implements `Agent.execute_step()`. This task depends on the `Agent` class
+    being fully initialized (T015) and the `SkillPackage` being loaded (T020). T020
+    is in Phase 4, same as T023. However, T023 calls `Agent.execute_step()` which
+    logically requires the `Agent` to be instantiated. The dependency on T015 is satisfied
+    (Phase 2), but the dependency on T020 (loading the plan) is implicit. T023 should
+    explicitly depend on T020 or be ordered after it within the phase.
+- artifact: projects/PROJ-599-mmskills-towards-multimodal-skills-for-g/specs/001-mmskills-towards-multimodal-skills-for-g/tasks.md
+  id: ordering-f688ca71
+  location: tasks.md:Phase 5 (T027)
+  reviewer: ordering
+  round: 1
+  severity: requirement
+  text: T027 (Implement data fetcher) is in Phase 5, but T029 (run_subset) calls `Agent.execute_step()`
+    which requires the data to be fetched. T027 must precede T029. Currently, T027
+    is listed before T029, which is correct, but T027 depends on the `evaluator.py`
+    skeleton (T008) which is in Phase 2. The ordering is technically valid but T027
+    should be moved to Phase 4 (Foundational for US3) or T029 should be explicitly
+    blocked until T027 is done. The current grouping in Phase 5 implies T027 is a
+    'polish' task, but it is a hard prerequisite for T029.
+- artifact: projects/PROJ-599-mmskills-towards-multimodal-skills-for-g/specs/001-mmskills-towards-multimodal-skills-for-g/tasks.md
+  id: ordering-e922457d
+  location: tasks.md:Phase 5 (T028)
+  reviewer: ordering
+  round: 1
+  severity: requirement
+  text: T028 implements `BenchmarkRunner.run_task()` wrapped with `timeout_decorator`.
+    T009 (timeout_decorator) is in Phase 2. T028 depends on T009. However, T028 also
+    depends on `Agent.execute_step()` (T023) which is in Phase 4. T028 is in Phase
+    5. This is a valid ordering (Phase 2 -> Phase 4 -> Phase 5), but the task description
+    in T028 implies it wraps the execution of a task, which requires the task logic
+    (T023) to be ready. The ordering is correct, but the dependency chain is long
+    and should be verified.
+worst_severity: requirement

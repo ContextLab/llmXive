@@ -1,0 +1,5 @@
+# Ruff configuration for llmXive project
+# This file is kept for IDE compatibility, though main config is in pyproject.toml
+extend = "../pyproject.toml"
+line-length = 88
+target-version = "py311"

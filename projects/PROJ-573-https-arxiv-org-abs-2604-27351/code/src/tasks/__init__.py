@@ -1,3 +1,3 @@
 """
-Task modules
+Task definitions and runners.
 """

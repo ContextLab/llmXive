@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "NEO-ov Prediction Artifact"
+description: "Schema for the JSON artifact containing model predictions and ground truth comparisons."
+type: array
+items:
+  type: object
+  required:
+    - question_id
+    - question
+    - prediction
+    - ground_truth
+    - is_correct
+    - confidence_score
+  properties:
+    question_id:
+      type: string
+      description: "Unique identifier for the question."
+    question:
+      type: string
+      description: "The input question text."
+    prediction:
+      type: string
+      description: "The model's generated answer text."
+      minLength: 1
+    ground_truth:
+      type: string
+      description: "The ground truth answer."
+    is_correct:
+      type: boolean
+      description: "True if prediction matches ground truth (case-insensitive, normalized)."
+    confidence_score:
+      type: number
+      format: float
+      minimum: 0.0
+      maximum: 1.0
+      description: "Model's confidence score (if available, else 0.0)."
+    category:
+      type: string
+      description: "The category of the question."
+    processing_time_ms:
+      type: integer
+      description: "Time taken to process this sample in milliseconds."
+  additionalProperties: false

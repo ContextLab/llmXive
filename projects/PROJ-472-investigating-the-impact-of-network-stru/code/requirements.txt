@@ -1,0 +1,27 @@
+# Core dependencies
+numpy>=1.24.0
+pandas>=2.0.0
+scipy>=1.10.0
+matplotlib>=3.7.0
+
+# Network analysis
+networkx>=3.1
+bctpy>=0.6
+
+# Power law fitting
+powerlaw>=1.5
+
+# Simulation and EEG
+mne>=1.5.0
+
+# Utilities
+python-dotenv>=1.0.0
+tqdm>=4.65.0
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
+
+# Linting/Formatting
+ruff>=0.1.0
+black>=23.0.0

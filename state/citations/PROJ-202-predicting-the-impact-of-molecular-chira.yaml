@@ -1,1 +1,22 @@
-[]
+- artifact_hash: d61d254cef4abaed9971fcc0f8b9edc2c123fc9dab1052be3bf896ba21071fda
+  artifact_path: projects/PROJ-202-predicting-the-impact-of-molecular-chira/specs/001-predicting-the-impact-of-molecular-chira/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: AlphaFold Protein Structure Database
+  kind: url
+  value: https://alphafold.ebi.ac.uk/`
+  verification_status: verified
+  verified_against_url: https://alphafold.ebi.ac.uk/
+  verified_at: '2026-07-01T21:53:51.389053Z'
+- artifact_hash: d61d254cef4abaed9971fcc0f8b9edc2c123fc9dab1052be3bf896ba21071fda
+  artifact_path: projects/PROJ-202-predicting-the-impact-of-molecular-chira/specs/001-predicting-the-impact-of-molecular-chira/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: pdbbind.parquet
+  kind: url
+  value: https://huggingface.co/datasets/jglaser/pdbbind_complexes/resolve/main/data/pdbbind.parquet`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/623f8610a3e12d59ef27bfd9/dcbf5c572370777f83b777190b4f311df91b4d44c7daf1acc0cc4ac5b2914331?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27pdbbind.parquet%3B+filename%3D%22pdbbind.parquet%22%3B&user_id=public&Expires=1782946431&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIzZjg2MTBhM2UxMmQ1OWVmMjdiZmQ5L2RjYmY1YzU3MjM3MDc3N2Y4M2I3NzcxOTBiNGYzMTFkZjkxYjRkNDRjN2RhZjFhY2MwY2M0YWM1YjI5MTQzMzFcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3cGRiYmluZC5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIycGRiYmluZC5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODI5NDY0MzF9fX1dfQ__&Signature=MEQCIGbthIkNc97mcTaMSkBF1dVenW54xfk6jwrsCaAi%7EhHtAiBFrhPLtHEAH9rQGorpn6QAk2x4IG%7ExU3psdLRNTvg-%7Eg__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-01T21:53:51.389053Z'

@@ -1,0 +1,375 @@
+- artifact_path: projects/PROJ-202-predicting-the-impact-of-molecular-chira/specs/001-predicting-the-impact-of-molecular-chira/tasks.md
+  attempts: 1
+  canonical: Pipeline downloads 10 enantiomeric pairs and 5 receptors, runs AutoDock
+    Vina, outputs binding affinities within 2 hours on CPU-only runner
+  claim_id: c_36821557
+  context: 'Independent Test: The pipeline downloads a fixed subset of molecules (10
+    enantiomeric pairs) and receptors (5), runs AutoDock Vina, and outputs a CSV of
+    binding affinities within 2 hours on a CPU-only runner.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline downloads a fixed subset of molecules (10 enantiomeric pairs)
+    and receptors (5), runs AutoDock Vina, and outputs a CSV of binding affinities
+    within 2 hours on a CPU-only runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T22:18:07Z'
+- artifact_path: projects/PROJ-202-predicting-the-impact-of-molecular-chira/specs/001-predicting-the-impact-of-molecular-chira/tasks.md
+  attempts: 1
+  canonical: System runs 1ns MD simulations on top 10 ligand-receptor complexes using
+    implicit solvent, outputs interaction fingerprints within 3 hours
+  claim_id: c_2a82fe89
+  context: 'Independent Test: For the top 10 ranked ligand-receptor complexes, the
+    system runs 1ns MD simulations using implicit solvent and outputs interaction
+    fingerprint matrices within 3 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For the top 10 ranked ligand-receptor complexes, the system runs 1ns MD
+    simulations using implicit solvent and outputs interaction fingerprint matrices
+    within 3 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T22:18:31Z'
+- artifact_path: projects/PROJ-202-predicting-the-impact-of-molecular-chira/specs/001-predicting-the-impact-of-molecular-chira/tasks.md
+  attempts: 1
+  canonical: Analysis script performs paired Wilcoxon tests on docking scores and
+    Spearman correlations with sensory ratings, outputs p-values and effect sizes
+  claim_id: c_547140ac
+  context: 'Independent Test: The analysis script performs paired Wilcoxon tests on
+    docking scores and Spearman correlations with sensory ratings, outputting p-values
+    and effect sizes.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Analysis_script_performs_paired_Wilcoxon_tests_on_docking_sc
+  kind: entity_fact
+  raw_text: The analysis script performs paired Wilcoxon tests on docking scores and
+    Spearman correlations with sensory ratings, outputting p-values and effect sizes.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T22:19:06Z'
+- artifact_path: projects/PROJ-202-predicting-the-impact-of-molecular-chira/specs/001-predicting-the-impact-of-molecular-chira/tasks.md
+  attempts: 1
+  canonical: Analysis excludes pairs if FlavorDB coverage is less than 50%
+  claim_id: c_82c9f7e5
+  context: Handle missing FlavorDB ratings by excluding pairs (FR-011 fallback logic
+    if <50% coverage).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Analysis_excludes_pairs_if_FlavorDB_coverage_is_less_than_50
+  kind: magnitude
+  raw_text: The analysis script handles missing FlavorDB ratings by excluding pairs
+    if coverage is less than 50%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T22:20:07Z'
+- artifact_path: projects/PROJ-202-predicting-the-impact-of-molecular-chira/specs/001-predicting-the-impact-of-molecular-chira/tasks.md
+  attempts: 1
+  canonical: Analysis implements bootstrapped resampling with 10,000 iterations for
+    95% confidence intervals
+  claim_id: c_e6a3fb0c
+  context: Implement bootstrapped resampling with 10,000 iterations (Constitution
+    VII) to obtain 95% confidence intervals for effect sizes (FR-010).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis script implements bootstrapped resampling with 10,000 iterations
+    to obtain 95% confidence intervals for effect sizes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T22:20:25Z'
+- artifact_path: projects/PROJ-202-predicting-the-impact-of-molecular-chira/specs/001-predicting-the-impact-of-molecular-chira/tasks.md
+  attempts: 1
+  canonical: Total pipeline runtime less than 6 hours on 2 CPU, 7GB RAM free-tier
+    runner
+  claim_id: c_4f73b8bf
+  context: Validate total pipeline runtime < 6 hours on free-tier runner (2 CPU, 7GB
+    RAM)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_pipeline_runtime_less_than_6_hours_on_2_CPU,_7GB_RAM_f
+  kind: magnitude
+  raw_text: The total pipeline runtime must be less than 6 hours on a free-tier runner
+    with 2 CPU cores and 7GB RAM.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T22:21:46Z'
+- artifact_path: projects/PROJ-202-predicting-the-impact-of-molecular-chira/specs/001-predicting-the-impact-of-molecular-chira/tasks.md
+  attempts: 1
+  canonical: MD simulations run on 2 CPU cores and complete within 3 hours
+  claim_id: c_bb28c45e
+  context: Implement code/04_md_refinement.py to run simulations on 2 CPU cores and
+    ensure completion within 3 hours total (FR-004).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The MD simulations must run on 2 CPU cores and ensure completion within
+    3 hours total.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T22:22:03Z'
+- artifact_path: projects/PROJ-202-predicting-the-impact-of-molecular-chira/specs/001-predicting-the-impact-of-molecular-chira/tasks.md
+  attempts: 1
+  canonical: MD simulations do not exceed 7GB RAM
+  claim_id: c_701654a7
+  context: Add validation to ensure MD simulations do not exceed RAM limits and handle
+    crashes gracefully.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MD_simulations_do_not_exceed_7GB_RAM
+  kind: entity_fact
+  raw_text: The MD simulations must not exceed 7GB RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T22:22:30Z'
+- artifact_path: projects/PROJ-202-predicting-the-impact-of-molecular-chira/specs/001-predicting-the-impact-of-molecular-chira/tasks.md
+  attempts: 1
+  canonical: Docking pipeline fetches up to 20 enantiomeric SMILES and 5 AlphaFold
+    PDBs
+  claim_id: c_39a4c3fa
+  context: "Implement code/01_download_data.py: Fetch \u226420 enantiomeric SMILES\
+    \ from FlavorDB/ChEMBL and \u22645 AlphaFold PDBs."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The docking pipeline fetches up to 20 enantiomeric SMILES from FlavorDB/ChEMBL
+    and up to 5 AlphaFold PDBs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T22:22:58Z'
+- artifact_path: projects/PROJ-202-predicting-the-impact-of-molecular-chira/specs/001-predicting-the-impact-of-molecular-chira/tasks.md
+  attempts: 1
+  canonical: Receptors filtered based on pLDDT >= 70 in binding pocket
+  claim_id: c_e18e4661
+  context: "Filter receptors based on pLDDT \u2265 70 in the binding pocket region\
+    \ (residues within 6.0 \xC5 of ligand COM)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Receptors_filtered_based_on_pLDDT_%3E=_70_in_binding_pocket
+  kind: magnitude
+  raw_text: Receptors are filtered based on pLDDT greater than or equal to 70 in the
+    binding pocket region.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T22:23:18Z'
+- artifact_path: projects/PROJ-202-predicting-the-impact-of-molecular-chira/specs/001-predicting-the-impact-of-molecular-chira/tasks.md
+  attempts: 1
+  canonical: "Binding pocket defined as residues within 6.0 \xC5 of ligand center\
+    \ of mass"
+  claim_id: c_ea04a9db
+  context: "Filter receptors based on pLDDT \u2265 70 in the binding pocket region\
+    \ (residues within 6.0 \xC5 of ligand COM)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Binding_pocket_defined_as_residues_within_6.0_%C3%85_of_ligand_ce
+  kind: entity_fact
+  raw_text: "The binding pocket region is defined as residues within 6.0 \xC5 of the\
+    \ ligand center of mass."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T22:23:37Z'
+- artifact_path: projects/PROJ-202-predicting-the-impact-of-molecular-chira/specs/001-predicting-the-impact-of-molecular-chira/tasks.md
+  attempts: 1
+  canonical: Baseline docking threshold 0.5 kcal/mol with sensitivity range 0.4, 0.5,
+    0.6 kcal/mol
+  claim_id: c_f5942205
+  context: Log the baseline threshold (0.5 kcal/mol) and note the sensitivity analysis
+    range {0.4, 0.5, 0.6} from FR-007.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline docking threshold is 0.5 kcal/mol with a sensitivity analysis
+    range of 0.4, 0.5, and 0.6 kcal/mol.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T22:24:02Z'
+- artifact_path: projects/PROJ-202-predicting-the-impact-of-molecular-chira/specs/001-predicting-the-impact-of-molecular-chira/tasks.md
+  attempts: 1
+  canonical: System ranks and selects top 5 ligand-receptor pairs by docking score
+  claim_id: c_bcdafbff
+  context: Rank and select top 5 ligand-receptor pairs by docking score and save to
+    data/processed/top_5_pairs.csv to produce the artifact required for T016 (validation).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system ranks and selects the top 5 ligand-receptor pairs by docking
+    score.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T22:24:37Z'
+- artifact_path: projects/PROJ-202-predicting-the-impact-of-molecular-chira/specs/001-predicting-the-impact-of-molecular-chira/tasks.md
+  attempts: 1
+  canonical: Receptor preparation uses raw AlphaFold PDBs processed with RDKit and
+    OpenMM
+  claim_id: c_2b2a509f
+  context: Implement receptor preparation logic to fetch raw AlphaFold PDB structures
+    and process them using RDKit/OpenMM for CPU-tractability.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Receptor_preparation_uses_raw_AlphaFold_PDBs_processed_with
+  kind: entity_fact
+  raw_text: The receptor preparation logic uses raw AlphaFold PDB structures processed
+    with RDKit and OpenMM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T22:24:53Z'
+- artifact_path: projects/PROJ-202-predicting-the-impact-of-molecular-chira/specs/001-predicting-the-impact-of-molecular-chira/tasks.md
+  attempts: 1
+  canonical: Pipeline processes 10 enantiomeric pairs and 5 receptors in under 2 hours
+    on CPU-only hardware
+  claim_id: c_6a489f2b
+  context: 'Independent Test: The pipeline downloads a fixed subset of molecules (10
+    enantiomeric pairs) and receptors (5), runs AutoDock Vina, and outputs a CSV of
+    binding affinities within 2 hours on a CPU-only runner.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline downloads a fixed subset of molecules (10 enantiomeric pairs)
+    and receptors (5), runs AutoDock Vina, and outputs a CSV of binding affinities
+    within 2 hours on a CPU-only runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T22:26:29Z'
+- artifact_path: projects/PROJ-202-predicting-the-impact-of-molecular-chira/specs/001-predicting-the-impact-of-molecular-chira/tasks.md
+  attempts: 1
+  canonical: 1ns MD simulations on 10 complexes complete within 3 hours
+  claim_id: c_bdd4af4c
+  context: 'Independent Test: For the top 10 ranked ligand-receptor complexes, the
+    system runs 1ns MD simulations using implicit solvent and outputs interaction
+    fingerprint matrices within 3 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system runs 1ns MD simulations using implicit solvent and outputs
+    interaction fingerprint matrices within 3 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T22:26:41Z'
+- artifact_path: projects/PROJ-202-predicting-the-impact-of-molecular-chira/specs/001-predicting-the-impact-of-molecular-chira/tasks.md
+  attempts: 1
+  canonical: Analysis performs paired Wilcoxon tests and Spearman correlations on
+    docking scores and sensory ratings
+  claim_id: c_04dbe0e0
+  context: 'Independent Test: The analysis script performs paired Wilcoxon tests on
+    docking scores and Spearman correlations with sensory ratings, outputting p-values
+    and effect sizes.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Analysis_performs_paired_Wilcoxon_tests_and_Spearman_correla
+  kind: entity_fact
+  raw_text: The analysis script performs paired Wilcoxon tests on docking scores and
+    Spearman correlations with sensory ratings, outputting p-values and effect sizes.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T22:26:43Z'
+- artifact_path: projects/PROJ-202-predicting-the-impact-of-molecular-chira/specs/001-predicting-the-impact-of-molecular-chira/tasks.md
+  attempts: 1
+  canonical: Simulations run on 2 CPU cores within 3 hours
+  claim_id: c_0b247a88
+  context: Implement code/04_md_refinement.py to run simulations on 2 CPU cores and
+    ensure completion within 3 hours total (FR-004).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system runs simulations on 2 CPU cores and ensure completion within
+    3 hours total.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T22:27:01Z'
+- artifact_path: projects/PROJ-202-predicting-the-impact-of-molecular-chira/specs/001-predicting-the-impact-of-molecular-chira/tasks.md
+  attempts: 1
+  canonical: Bootstrapped resampling uses 10,000 iterations for 95% confidence intervals
+  claim_id: c_e2f8943a
+  context: Implement bootstrapped resampling with 10,000 iterations (Constitution
+    VII) to obtain 95% confidence intervals for effect sizes (FR-010).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement bootstrapped resampling with 10,000 iterations (Constitution
+    VII) to obtain 95% confidence intervals for effect sizes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T22:27:21Z'
+- artifact_path: projects/PROJ-202-predicting-the-impact-of-molecular-chira/specs/001-predicting-the-impact-of-molecular-chira/tasks.md
+  attempts: 1
+  canonical: Total pipeline runtime under 6 hours on 2 CPU 7GB RAM hardware
+  claim_id: c_ee6c5bb1
+  context: Validate total pipeline runtime < 6 hours on free-tier runner (2 CPU, 7GB
+    RAM).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Validate total pipeline runtime < 6 hours on free-tier runner (2 CPU,
+    7GB RAM).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T22:27:21Z'

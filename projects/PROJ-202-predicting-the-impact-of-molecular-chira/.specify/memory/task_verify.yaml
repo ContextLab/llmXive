@@ -1,0 +1,6 @@
+? T001a Create project directory structure per implementation plan (`projects/PROJ-202-predicting-the-impact-of-molecular-chira/`)
+: 1
+T001c Create `.gitkeep` files in `data/raw`, `data/processed`, `data/interim`, `code`, `tests`: 1
+T002 [P] Initialize Python 3.11 virtualenv and install dependencies from `code/requirements.txt`: 1
+T003 [P] Configure linting (ruff/flake8) and formatting (black) tools: 1
+T004 [P] Setup data directory structure (`data/raw`, `data/processed`, `data/interim`) with `.gitkeep`: 1

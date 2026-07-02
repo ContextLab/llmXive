@@ -1,104 +1,126 @@
-# Feature Specification: Evaluating Code Generation Impact on Code Smell Frequency
+# Specification: Evaluating the Impact of Code Generation on Code Smell Frequency
 
-**Feature Branch**: `001-code-smell-comparison`  
-**Created**: 2024-05-21  
-**Status**: Draft  
-**Input**: User description: "Evaluating the Impact of Code Generation on Code Smell Frequency"
+## Overview
+This document defines the requirements for a study comparing code smell frequencies between human-written code and LLM-generated code. The study employs a **Balanced Blocked Design** to ensure statistical validity.
 
-## User Scenarios & Testing *(mandatory)*
+## Deviation Log
+- **Sample Size Adjustment**: The original spec requested ≥1000 human samples and ≥50 LLM samples. Per `plan.md` and `methodology-f30244be`, this has been updated to a **Balanced Blocked Design** of 150 human samples and 150 LLM samples (3 per repo × 50 repos) to ensure repository-level matching and statistical power within resource constraints.
+- **Statistical Method**: The original spec suggested Shapiro-Wilk followed by Mann-Whitney U or Welch's t-test. Per `plan.md` and `methodology-f30244be`, this has been updated to use a **Blocked Permutation Test** (stratified by repository) to properly handle the blocked experimental design and avoid pseudoreplication.
+- **Feature Rejection**: FR-007 (Automated PR generation) has been REJECTED and replaced by the Balanced Blocked Design methodology.
 
-### User Story 1 - Data Collection & Sample Preparation (Priority: P1)
+## 1. Functional Requirements
 
-The researcher MUST be able to collect a balanced dataset of human-written and LLM-generated code samples from equivalent contexts to enable comparison.
+### FR-001: Human Sample Collection
+**Target**: Collect **150 human-written code samples** (3 per repository × 50 repositories).
+**Criteria**:
+- Repositories must be public, have ≥100 stars, and ≥5 years of history.
+- Samples must be "fresh" functions (introduced in a single commit, no prior history).
+- Languages: Python and Java.
 
-**Why this priority**: This is the foundational step; without valid, comparable samples, no analysis can occur. It directly addresses the research question's need for "equivalent software contexts."
+### FR-002: LLM Sample Generation
+**Target**: Generate **150 LLM-generated code samples** (3 per task × 50 tasks).
+**Criteria**:
+- Tasks derived from the same Issue/PR descriptions used for human samples.
+- Generated using HuggingFace Inference API (or equivalent) with strict timeout/backoff.
+- Languages: Python and Java.
 
-**Independent Test**: Can be fully tested by verifying the existence of a structured directory containing a representative collection of human function samples and a corresponding set of LLM function samples., with metadata logging the source repository, Issue/PR ID, and task ID.
+### FR-003: Static Analysis
+**Target**: Run PMD CLI on all valid samples.
+**Criteria**:
+- Analyze for 4 specific smells: Long Method, Duplicated Code, Feature Envy, Long Parameter List.
+- Enforce per-file timeout (2 min) and memory limit (2 GB).
 
-**Acceptance Scenarios**:
+### FR-004: Data Validation
+**Target**: Verify syntax validity of ≥95% of samples.
+**Criteria**:
+- Generate `data/intermediate/validation_report.json`.
+- Exclude invalid samples from analysis.
 
-1. **Given** a list of 50 public GitHub repositories, **When** the system executes the collection script, **Then** it identifies commits that introduced specific functions (via `git log --diff-filter=A`) associated with target Issues/PRs, extracting ≥ 20 such functions per repository (total ≥ 1000 human functions).
-2. **Given** 50 standard programming tasks derived from the same Issue/PR descriptions, **When** the system queries the LLM API, **Then** it implements a 60s timeout and exponential backoff with max 3 retries per task to ensure completion or graceful failure.
-3. **Given** the collected samples, **When** the system validates the dataset, **Then** it confirms ≥ 95% of samples (≥ 947 human, ≥ 47 LLM) are syntactically valid Python or Java files.
+### FR-005: Statistical Analysis
+**Target**: Compare smell frequencies using a **Blocked Permutation Test**.
+**Criteria**:
+- Stratification: Repository ID.
+- Correction: Bonferroni for family-wise error rate (α ≤ 0.05).
+- Effect Size: Cohen's d (or permutation equivalent).
 
----
+### FR-006: Reporting
+**Target**: Generate `reports/final_study_report.md`.
+**Criteria**:
+- Include statistical tables, effect sizes, and box plots.
+- Use associational language only (no causal claims).
+- Explicitly state the observational nature of the study.
 
-### User Story 2 - Static Analysis Execution (Priority: P2)
+### FR-007: [REJECTED] Automated PR Generation
+**Rationale**: Replaced by Balanced Blocked Design to avoid statistical artifacts and ensure repository-level matching.
 
-The researcher MUST be able to run static analysis tools on all code samples to extract code smell metrics without exceeding CI resource limits.
+## 2. Statistical Comparison (SC)
 
-**Why this priority**: This transforms raw code into measurable data (smell frequencies). It is critical for the methodology but secondary to data collection.
+### SC-001: Total Sample Size
+**Target**: **300 total samples** (150 human + 150 LLM).
+**Rationale**: Ensures balanced design across 50 repositories (3 samples per source per repo).
 
-**Independent Test**: Can be fully tested by running the analysis pipeline on a subset of samples and verifying the output JSON contains smell counts for all four target categories (Long Method, Duplicated Code, Feature Envy, Long Parameter List) and a tool-validity flag.
+### SC-002: Statistical Test
+**Method**: **Blocked Permutation Test** (stratified by repository).
+**Rationale**:
+- Accounts for repository-level variance (blocking factor).
+- Non-parametric; robust to non-normality and zero-inflation.
+- Avoids assumptions required by t-tests or Mann-Whitney U in blocked designs.
 
-**Acceptance Scenarios**:
+### SC-003: Threshold Sensitivity
+**Target**: Sweep "Long Method" thresholds ∈ {100, 150, 200} lines.
+**Rationale**: Verify robustness of results against arbitrary threshold choices.
 
-1. **Given** a valid code sample file, **When** the static analysis tool runs, **Then** it completes within 2 minutes per file on a CPU-only runner.
-2. **Given** the full dataset (1050 functions), **When** the analysis runs in parallel with 20 concurrent jobs, **Then** total execution time does not exceed 2 hours.
-3. **Given** memory constraints, **When** the tool processes a file, **Then** it does not consume more than 2 GB of RAM per process.
+## 3. User Stories
 
----
+### US-1: Data Collection
+**As a** researcher, **I want** to collect 150 human and 150 LLM code samples from 50 matched repositories, **so that** I have a balanced dataset for statistical comparison.
+**Acceptance Criteria**:
+- `data/raw/human_samples` contains 150 valid files with metadata.
+- `data/raw/llm_samples` contains 150 valid files with metadata.
+- `data/raw/manifest.csv` links all samples to repository and issue IDs.
 
-### User Story 3 - Statistical Comparison & Reporting (Priority: P3)
+### US-2: Static Analysis
+**As a** researcher, **I want** to run PMD on all samples to extract smell metrics, **so that** I can quantify code quality differences.
+**Acceptance Criteria**:
+- `data/intermediate/analysis_results.json` contains smell counts for all 4 categories.
+- `data/intermediate/tool_validity_status.json` confirms false-positive rate ≤ 5%.
 
-The researcher MUST be able to generate a final report that compares smell frequencies between sources using appropriate statistical methods and visualizations.
+### US-3: Statistical Comparison
+**As a** researcher, **I want** to compare smell frequencies using a **Blocked Permutation Test**, **so that** I can determine if LLM-generated code has significantly different smell profiles.
+**Acceptance Criteria**:
+- **Scenario 1**: The system runs a Blocked Permutation Test stratified by repository.
+ - **Given** smell metrics for 300 samples grouped by repository.
+ - **When** the analysis is executed.
+ - **Then** the output includes p-values corrected via Bonferroni and effect sizes.
+ - **Note**: This replaces the previous "Shapiro-Wilk → Mann-Whitney U" workflow. Reference `methodology-f30244be`.
+- **Scenario 2**: The system generates a final report with associational language.
+ - **Given** the statistical results.
+ - **When** the report is generated.
+ - **Then** the report explicitly states the study is observational and avoids causal claims.
 
-**Why this priority**: This delivers the research outcome (the answer to the question). It relies on US-1 and US-2 being complete.
+## 4. Data Models
 
-**Independent Test**: Can be fully tested by generating the final PDF/Markdown report and verifying it contains the required statistical tables, effect sizes, continuous metric analysis, and visualizations without causal language.
+### CodeSample
+- `source_type`: "human" | "llm"
+- `repository_id`: string
+- `issue_id`: string
+- `task_id`: string
+- `language`: "python" | "java"
+- `file_path`: string
+- `function_name`: string
+- `is_fresh_commit`: boolean
 
-**Acceptance Scenarios**:
+### SmellMetric
+- `sample_id`: string
+- `smell_type`: "Long Method" | "Duplicated Code" | "Feature Envy" | "Long Parameter List"
+- `count`: integer
+- `threshold_used`: float (for continuous metrics)
+- `continuous_metric_value`: float (e.g., cyclomatic complexity)
 
-1. **Given** the smell frequency metrics, **When** the statistical module runs, **Then** it performs a Shapiro-Wilk test (α=0.05); if p < 0.05, it uses Mann-Whitney U; otherwise, it uses Welch's t-test.
-2. **Given** multiple hypothesis tests (4 smell types), **When** the p-values are calculated, **Then** they are adjusted using Bonferroni correction to control family-wise error rate ≤ 0.05.
-3. **Given** the final results, **When** the report is rendered, **Then** it includes box plots comparing distributions, continuous metric (cyclomatic complexity) comparisons, and explicitly states findings as "associational" rather than causal.
-
----
-
-### Edge Cases
-
-- What happens when a GitHub repository is archived or deleted during collection? (System skips and logs failure; requires ≥ 95% success rate).
-- How does system handle LLM API rate limits or timeouts? (System implements exponential backoff with a bounded number of retries per task).
-- What happens if static analysis fails on a specific file (e.g., syntax error in LLM output)? (System logs the error and excludes the file from analysis, tracking exclusion rate).
-- How does system handle non-normal distribution of smell counts? (System defaults to Mann-Whitney U test rather than t-test).
-
-## Requirements *(mandatory)*
-
-### Functional Requirements
-
-- **FR-001**: System MUST collect ≥ 1000 human-written code samples (functions/methods) by identifying commits that introduced specific functions (via `git log --diff-filter=A`) associated with target Issues/PRs in 50 public GitHub repositories (≥ 100 stars, ≥ 5 years history), ensuring "fresh" implementations comparable to LLM generations. (See US-1)
-- **FR-002**: System MUST generate ≥ 50 LLM code samples using a public API (e.g., HuggingFace Inference API) for tasks derived from the *same* Issue/PR descriptions used to select human commits, ensuring functional equivalence. (See US-1)
-- **FR-003**: System MUST execute static analysis using PMD or SonarQube CLI on CPU-only runners, enforcing a constrained memory limit per process to fit the compute box.. (See US-2)
-- **FR-004**: System MUST apply statistical methods robust to unequal group sizes (specifically Welch's t-test or Permutation Test with a sufficient number of iterations to ensure stable p-value estimation) and multiple-comparison correction (Bonferroni) to maintain family-wise error rate ≤ 0.05 across the 4 smell categories. (See US-3)
-- **FR-005**: System MUST enforce a sensitivity analysis on the "Long Method" threshold, sweeping values ∈ {100, 150, 200} lines AND compare results against continuous metrics (cyclomatic complexity) to verify result stability against cutoff justification. (See US-3)
-- **FR-006**: System MUST format all output findings using associational language (e.g., "associated with", "correlated with") rather than causal claims, reflecting the observational study design. (See US-3)
-- **FR-007**: System MUST implement a stratified subsampling or bootstrapping procedure to handle the sample size imbalance in the primary statistical comparison. (See US-3)
-- **FR-008**: System MUST perform a static analysis tool validity check on a known "clean" LLM-generated set to measure false-positive rates; if >5% false positives, the analysis is flagged as invalid. (See US-2)
-
-### Key Entities
-
-- **CodeSample**: Represents a single unit of code (human or LLM), attributes: `source_type`, `repository_id`, `issue_id`, `task_id`, `language`, `file_path`, `function_name`, `is_fresh_commit`.
-- **SmellMetric**: Represents the output of static analysis, attributes: `sample_id`, `smell_type` (Long Method, Duplicated, etc.), `count`, `threshold_used`, `continuous_metric_value`.
-- **StatResult**: Represents the comparison outcome, attributes: `smell_type`, `p_value`, `effect_size`, `confidence_interval`, `correction_method`, `test_method_used`.
-
-## Success Criteria *(mandatory)*
-
-### Measurable Outcomes
-
-> Planning docs state *what* will be measured and the *source/reference* it is
-> measured against; defer specific empirical values (counts, dataset sizes,
-> measured quantities, percentages) to the implementation/research phase.
-
-- **SC-001**: Dataset completeness is measured against the target of 1050 total samples (1000 human + 50 LLM), requiring ≥ 95% availability (min 947 human, 47 LLM). (See US-1)
-- **SC-002**: Analysis success rate is measured against the total number of submitted files, requiring ≥ 90% successful metric extraction without crashes. (See US-2)
-- **SC-003**: Statistical validity is measured against the requirement for corrected p-values, effect sizes (Cohen's d or equivalent), and explicit handling of unequal group sizes. (See US-3)
-- **SC-004**: Compute feasibility is measured against the CI runner limits, requiring total job duration ≤ 2 hours and peak RAM ≤ 7 GB (system aggregate) with per-process limit ≤ 2 GB. (See US-2)
-- **SC-005**: Threshold robustness is measured against the sensitivity sweep results, requiring the primary finding (significant vs. non-significant) to remain stable across a range of thresholds AND continuous metric analysis.. (See US-3)
-
-## Assumptions
-
-- [Assumption about data source]: Public GitHub repositories selected will remain accessible during the collection window (≥ 95% uptime).
-- [Assumption about LLM API]: The external LLM API (e.g., HuggingFace) will remain available and within free-tier limits for a limited number of inference requests.
-- [Assumption about static analysis]: Standard PMD/SonarQube defaults for code smell detection (e.g., typical thresholds for Long Method) are accepted as community-standard baselines., subject to the validity check in FR-008.
-- [Assumption about inference framing]: The study design is observational; therefore, all results are interpreted as associations between generation source and smell frequency, not causal effects of the LLM.
-- [Assumption about compute]: The GitHub Actions free-tier runner (multiple CPU cores, ample RAM) is sufficient for the specified sample size using CPU-tractable static analysis tools with 20 concurrent jobs.
+### StatResult
+- `smell_type`: string
+- `p_value`: float
+- `effect_size`: float
+- `confidence_interval`: tuple(float, float)
+- `correction_method`: string (e.g., "Bonferroni")
+- `test_method_used`: string (e.g., "Blocked Permutation Test")

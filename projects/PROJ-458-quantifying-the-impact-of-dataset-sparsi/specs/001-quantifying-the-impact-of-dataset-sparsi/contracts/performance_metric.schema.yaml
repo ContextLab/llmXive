@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PerformanceMetric Schema"
+description: "Schema for model evaluation metrics."
+type: object
+properties:
+  run_id:
+    type: string
+    description: "Unique identifier for the training run."
+  model_type:
+    type: string
+    enum:
+      - "GPR"
+      - "RF"
+    description: "Type of machine learning model."
+  subset_id:
+    type: string
+    description: "Reference to the sparsity subset used."
+  test_set_id:
+    type: string
+    description: "Reference to the fixed test set used for evaluation."
+  seed:
+    type: integer
+    description: "Random seed used."
+  metric_type:
+    type: string
+    enum:
+      - "RMSE"
+      - "MAE"
+      - "CalibrationSlope"
+      - "PredictiveVariance"
+    description: "Type of metric reported."
+  value:
+    type: number
+    description: "The metric value."
+  std_dev:
+    type: number
+    description: "Standard deviation across cross-validation folds."
+  fold_count:
+    type: integer
+    description: "Number of folds used (e.g., 5)."
+required:
+  - run_id
+  - model_type
+  - subset_id
+  - test_set_id
+  - seed
+  - metric_type
+  - value
+  - std_dev
+  - fold_count
+additionalProperties: false

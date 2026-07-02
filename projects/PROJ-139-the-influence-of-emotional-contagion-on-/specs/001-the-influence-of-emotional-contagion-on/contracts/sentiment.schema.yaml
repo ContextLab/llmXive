@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Sentiment Analysis Schema"
+description: "Schema for VADER sentiment scores and contagion metrics."
+type: "object"
+properties:
+  thread_id:
+    type: "string"
+    description: "Reference to the thread."
+  seed_sentiment_mean:
+    type: "number"
+    minimum: -1.0
+    maximum: 1.0
+    description: "Mean VADER compound score of the 3 seed posts."
+  contagion_index:
+    type: "number"
+    minimum: -1.0
+    maximum: 1.0
+    description: "Pearson correlation between Seed Sentiment and Slope of Reply Trajectory."
+  n_replies_used:
+    type: "integer"
+    minimum: 5
+    maximum: 5
+    description: "Number of replies used in contagion calculation (fixed at 5)."
+  p_value:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "P-value for the contagion correlation."
+required:
+  - thread_id
+  - seed_sentiment_mean
+  - contagion_index
+  - n_replies_used
+  - p_value
+additionalProperties: false

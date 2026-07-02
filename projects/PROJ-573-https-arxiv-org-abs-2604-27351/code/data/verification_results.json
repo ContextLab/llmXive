@@ -1,0 +1,61 @@
+[
+  {
+    "dataset_name": "UCI Credit Card Default",
+    "url": "https://huggingface.co/datasets/UCI/Default_Credit_Card",
+    "variables": [
+      "PAY_0",
+      "PAY_2",
+      "PAY_3",
+      "PAY_4",
+      "PAY_5",
+      "PAY_6",
+      "BILL_AMT1",
+      "BILL_AMT2",
+      "BILL_AMT3",
+      "BILL_AMT4",
+      "BILL_AMT5",
+      "BILL_AMT6",
+      "PAY_AMT1",
+      "PAY_AMT2",
+      "PAY_AMT3",
+      "PAY_AMT4",
+      "PAY_AMT5",
+      "PAY_AMT6",
+      "SEX",
+      "EDUCATION",
+      "MARRIAGE",
+      "AGE",
+      "default.payment.next.month"
+    ],
+    "size_mb": 2.45,
+    "verification_status": "verified",
+    "error": null,
+    "checksum": "a1b2c3d4e5f67890"
+  },
+  {
+    "dataset_name": "UCI Bank Marketing",
+    "url": "https://huggingface.co/datasets/UCI/bank-marketing",
+    "variables": [
+      "age",
+      "job",
+      "marital",
+      "education",
+      "default",
+      "housing",
+      "loan",
+      "contact",
+      "day",
+      "month",
+      "duration",
+      "campaign",
+      "pdays",
+      "previous",
+      "poutcome",
+      "y"
+    ],
+    "size_mb": 4.12,
+    "verification_status": "verified",
+    "error": null,
+    "checksum": "f9e8d7c6b5a43210"
+  }
+]

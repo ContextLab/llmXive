@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1908.05886",
+  "judged_at": "2026-07-01T21:37:05Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of processing temperature on the grain size of rolled aluminum alloys materials science",
+  "rationale": "The paper investigates the relationship between annealing temperature and grain size in Zinc Oxide (ZnO) thin films, which is a distinct material system and processing method (sol-gel) from the user's specific question regarding rolled Aluminum Alloys. While it shares the general mechanism of temperature affecting grain size, it fails the \"off-domain entirely\" rejection rule because the material class (ceramic oxide vs. metal alloy) and the specific processing context (thin film deposition vs. r",
+  "relevant": false
+}

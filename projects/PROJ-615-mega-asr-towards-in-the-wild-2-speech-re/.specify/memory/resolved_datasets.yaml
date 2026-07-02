@@ -1,0 +1,713 @@
+resolved_at: '2026-07-01T19:21:51.665715+00:00'
+datasets:
+- intent: CPU-compatible
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/figure/Data_and_subfigures_for_Extended_Data_Figure_2_-_Illustrative_example_of_daily_diel_cycle_calculations_for_streamflow_during_positive_snowmelt_and_negative_ET_regimes_/31163890
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/The_many_kinds_of_sexual_abuse_of_young_children/32866598
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Perceived_vulnerability_to_AIDS_among_rural_black_South_African_children_a_pilot_study/32866553
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Short_communication_occupational_stress_and_burnout_among_South_African_medical_practitioners/32866571
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Data_and_subfigures_for_Extended_Data_Figure_3_-_Sample_hourly_time_series_and_corresponding_diel_cycle_indices_for_streamflow_groundwater_and_soil_moisture_in_snowmelt_and_ET-dominated_periods/31164106
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3810211
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12770771
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21107296
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20988950
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20988950
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17106263
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17106263
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: WER
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/wertyworld/taser_1_00/resolve/main/data/metadata_test.csv.gz
+    source: huggingface
+    format: gzip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 3869
+      parsed: true
+  - url: https://huggingface.co/datasets/liuyanchen1015/MULTI_VALUE_mnli_were_was/resolve/main/data/dev_matched-00000-of-00001-add11730ca2fc69c.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 64083
+      parsed: true
+  - url: https://huggingface.co/datasets/liuyanchen1015/MULTI_VALUE_mnli_wasnt_werent/resolve/main/data/dev_matched-00000-of-00001-f32dacbc08f00101.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 13319
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/wertyworld/taser_1_00/resolve/main/data/metadata_test.csv.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/liuyanchen1015/MULTI_VALUE_mnli_were_was/resolve/main/data/dev_matched-00000-of-00001-add11730ca2fc69c.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/liuyanchen1015/MULTI_VALUE_mnli_wasnt_werent/resolve/main/data/dev_matched-00000-of-00001-f32dacbc08f00101.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/liuyanchen1015/MULTI_VALUE_mnli_conditional_were_was/resolve/main/data/dev_matched-00000-of-00001-a6cb6ea73807bda5.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/preprint/_b_ARCHITECTURAL_AND_URBAN_STRATEGY_FOR_DEVELOPING_GLAMPINGS_AS_ECOTOURISM_b_/32866460
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Data_and_subfigures_for_Extended_Data_Figure_4_-_Time_series_data_of_streamflow_groundwater_and_soil_moisture_on_Snodgrass_catchment/31161982
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Data_and_subfigures_for_Extended_Data_Figure_2_-_Illustrative_example_of_daily_diel_cycle_calculations_for_streamflow_during_positive_snowmelt_and_negative_ET_regimes_/31163890
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/The_many_kinds_of_sexual_abuse_of_young_children/32866598
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Perceived_vulnerability_to_AIDS_among_rural_black_South_African_children_a_pilot_study/32866553
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6830858
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10835225
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7568276
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10293011
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3744549
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20584192
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20584192
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ejournals.uni-muenster.de/zpth/article/view/9784
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://jahrbuch-wkg.de/ojs/index.php/jwkg/article/view/149062
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dspace.ub.uni-siegen.de/entities/publication/c0743244-4786-4b14-bb1c-2d7d247e4b10
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: VOiCES
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/deepghs/fgo_voices_jp/resolve/main/table.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/zhifeixie/Voices-in-the-Wild-2M/resolve/main/data/distortion-00000-of-00057.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/deepghs/fgo_voices_jp/resolve/main/table.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/api/resolve-cache/datasets/Slait/russia_voices/215d799f529bfe8815063064246b5c09e4b380d6/RU_Female_abramova_oljga.txt?%2Fdatasets%2FSlait%2Frussia_voices%2Fresolve%2Fmain%2FRU_Female_abramova_oljga.txt=&etag=%22517ad003114fa28b34cbf0a8a304702fd0c86edc%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/dsfsi-anv/za-african-next-voices/resolve/main/nbl/dev-00000-of-00005.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/zhifeixie/Voices-in-the-Wild-2M/resolve/main/data/distortion-00000-of-00057.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/preprint/_b_ARCHITECTURAL_AND_URBAN_STRATEGY_FOR_DEVELOPING_GLAMPINGS_AS_ECOTOURISM_b_/32866460
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Data_and_subfigures_for_Extended_Data_Figure_4_-_Time_series_data_of_streamflow_groundwater_and_soil_moisture_on_Snodgrass_catchment/31161982
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Data_and_subfigures_for_Extended_Data_Figure_2_-_Illustrative_example_of_daily_diel_cycle_calculations_for_streamflow_during_positive_snowmelt_and_negative_ET_regimes_/31163890
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/The_many_kinds_of_sexual_abuse_of_young_children/32866598
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Perceived_vulnerability_to_AIDS_among_rural_black_South_African_children_a_pilot_study/32866553
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11175397
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7490627
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.academypublication.com/issues/past/tpls/vol04/11/01.pdf
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14097558
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.tandfonline.com/doi/full/10.1071/MU928047a
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://repository.mmu.ac.uk/articles/report/Voices_of_the_Future_Bridging_the_gap_between_evidence_and_action/32484261
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.mmu.ac.uk/articles/report/PEAs_in_Pods_A_showcase_of_co-production_of_community_based_public_engagement_featuring_the_voices_of_community_members_and_public_engagement_ambassadors/32549889
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.mmu.ac.uk/articles/report/Excluded_by_Design_Research_on_disabled_women_s_employment_in_Scotland/32551146
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.mmu.ac.uk/articles/report/Degree_Apprenticeship_Voices_from_the_Frontline_-_Impact_Policy_and_Good_Practice_Guide_2024/32548857
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.mmu.ac.uk/articles/dataset/Manchester_Voices/32616426
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: R4-B-F
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Cross-Country_Panel_Data_on_Economic_Development_Digital_Economy_Energy_Indicators_and_CO2_Emissions_2010_2023_/32866163
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/_b_ARCHITECTURAL_AND_URBAN_STRATEGY_FOR_DEVELOPING_GLAMPINGS_AS_ECOTOURISM_b_/32866460
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Data_and_subfigures_for_Extended_Data_Figure_4_-_Time_series_data_of_streamflow_groundwater_and_soil_moisture_on_Snodgrass_catchment/31161982
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Data_and_subfigures_for_Extended_Data_Figure_2_-_Illustrative_example_of_daily_diel_cycle_calculations_for_streamflow_during_positive_snowmelt_and_negative_ET_regimes_/31163890
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/The_many_kinds_of_sexual_abuse_of_young_children/32866598
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5726331
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13183894
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13182844
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13182768
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13183215
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21111992
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21111992
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/75hsw/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21078604
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21071448
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: NOIZEUS
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Prummn/Noizeus/resolve/main/noizeus.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Prummn/output_mini-enc-align-RL-voice1-noizeus1-8gpu-bs6_8_12_from6k/resolve/main/logging.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 27961
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Prummn/Noizeus/resolve/main/noizeus.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/Prummn/output_mini-enc-align-RL-voice1-noizeus1-8gpu-bs6_8_12_from6k/resolve/main/logging.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://figshare.com/articles/dataset/Cross-Country_Panel_Data_on_Economic_Development_Digital_Economy_Energy_Indicators_and_CO2_Emissions_2010_2023_/32866163
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/_b_ARCHITECTURAL_AND_URBAN_STRATEGY_FOR_DEVELOPING_GLAMPINGS_AS_ECOTOURISM_b_/32866460
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Data_and_subfigures_for_Extended_Data_Figure_4_-_Time_series_data_of_streamflow_groundwater_and_soil_moisture_on_Snodgrass_catchment/31161982
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Data_and_subfigures_for_Extended_Data_Figure_2_-_Illustrative_example_of_daily_diel_cycle_calculations_for_streamflow_during_positive_snowmelt_and_negative_ET_regimes_/31163890
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/The_many_kinds_of_sexual_abuse_of_young_children/32866598
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13947444
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijece.iaescore.com/index.php/IJECE/article/view/28866
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijict.iaescore.com/index.php/IJICT/article/view/20575
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1469522
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijict.iaescore.com/index.php/IJICT/article/view/8445
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2605.19833
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2411.11312
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13947444
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13947444
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2303.17829
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ASR
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Alvenir/alvenir_asr_da_eval/resolve/main/oss/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/nguyenvulebinh/asr-alignment/resolve/main/commonvoice/train-00000-of-00044.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/SKNahin/open-large-bengali-asr-data/resolve/main/data/commonvoice-00000-of-00054.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Alvenir/alvenir_asr_da_eval/resolve/main/oss/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/joagonzalez/asr-interviews-full/resolve/main/data/train-00000-of-00002-af7062f5e7834dc6.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/nguyenvulebinh/asr-alignment/resolve/main/commonvoice/train-00000-of-00044.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/SKNahin/open-large-bengali-asr-data/resolve/main/data/commonvoice-00000-of-00054.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/japanese-asr/en_asr.mls/resolve/main/subset_0/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/A_revision_of_the_biostratigraphy_and_systematics_of_oreodonts_Superfamily_Merycoidodontoidea_in_the_John_Day_region_of_Oregon/29374427
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Cross-Country_Panel_Data_on_Economic_Development_Digital_Economy_Energy_Indicators_and_CO2_Emissions_2010_2023_/32866163
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/_b_ARCHITECTURAL_AND_URBAN_STRATEGY_FOR_DEVELOPING_GLAMPINGS_AS_ECOTOURISM_b_/32866460
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Data_and_subfigures_for_Extended_Data_Figure_4_-_Time_series_data_of_streamflow_groundwater_and_soil_moisture_on_Snodgrass_catchment/31161982
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Data_and_subfigures_for_Extended_Data_Figure_2_-_Illustrative_example_of_daily_diel_cycle_calculations_for_streamflow_during_positive_snowmelt_and_negative_ET_regimes_/31163890
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20655521
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7016746
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20406453
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20433741
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20226410
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21106612
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21106612
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21106819
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21106819
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21106280
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: AudioSample
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Isaacgv/audio-sampler/resolve/main/data/test-00000-of-00001-6e4f0ee51d1a5708.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 78093
+      parsed: true
+  - url: https://huggingface.co/datasets/kamilakesbi/audio_samples/resolve/main/data/train-00000-of-00002.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Sunining/audio_sampleV2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Isaacgv/audio-sampler/resolve/main/data/test-00000-of-00001-6e4f0ee51d1a5708.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/kamilakesbi/audio_samples/resolve/main/data/train-00000-of-00002.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Sunining/audio_sampleV2/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Sunining/audio_sampleV3/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Sunining/audio_sampleV4/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/A_revision_of_the_biostratigraphy_and_systematics_of_oreodonts_Superfamily_Merycoidodontoidea_in_the_John_Day_region_of_Oregon/29374427
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Cross-Country_Panel_Data_on_Economic_Development_Digital_Economy_Energy_Indicators_and_CO2_Emissions_2010_2023_/32866163
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/_b_ARCHITECTURAL_AND_URBAN_STRATEGY_FOR_DEVELOPING_GLAMPINGS_AS_ECOTOURISM_b_/32866460
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Data_and_subfigures_for_Extended_Data_Figure_4_-_Time_series_data_of_streamflow_groundwater_and_soil_moisture_on_Snodgrass_catchment/31161982
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Data_and_subfigures_for_Extended_Data_Figure_2_-_Illustrative_example_of_daily_diel_cycle_calculations_for_streamflow_during_positive_snowmelt_and_negative_ET_regimes_/31163890
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8170077
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repositum.tuwien.at/handle/20.500.12708/81214
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://utheses.univie.ac.at/detail/40953
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: WAV
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/mohamed-illiyas/wav2vec-malayalam-data/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/mohamed-illiyas/wav2vec-malayalam-data/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/A_revision_of_the_biostratigraphy_and_systematics_of_oreodonts_Superfamily_Merycoidodontoidea_in_the_John_Day_region_of_Oregon/29374427
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Cross-Country_Panel_Data_on_Economic_Development_Digital_Economy_Energy_Indicators_and_CO2_Emissions_2010_2023_/32866163
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/_b_ARCHITECTURAL_AND_URBAN_STRATEGY_FOR_DEVELOPING_GLAMPINGS_AS_ECOTOURISM_b_/32866460
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Data_and_subfigures_for_Extended_Data_Figure_4_-_Time_series_data_of_streamflow_groundwater_and_soil_moisture_on_Snodgrass_catchment/31161982
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Data_and_subfigures_for_Extended_Data_Figure_2_-_Illustrative_example_of_daily_diel_cycle_calculations_for_streamflow_during_positive_snowmelt_and_negative_ET_regimes_/31163890
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.6kv00
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8141079
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7052981
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5217057
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/846469
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21093741
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21111670
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21111670
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21105762
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21105762
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MP3
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/arnepeine/6k_mp3/resolve/main/data/train-00000-of-00001-ab9695995a42d14b.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/yusufagung29/pengadilan_dataset_mp3_aug_preparedaa/resolve/main/data/test-00000-of-00001-ba7d560f500e41ac.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/danjacobellis/musdb_mp3/resolve/main/data/test-00000-of-00001-5bda3ded10f4397a.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 3180
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/arnepeine/6k_mp3/resolve/main/data/train-00000-of-00001-ab9695995a42d14b.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/yusufagung29/pengadilan_dataset_mp3_aug_preparedaa/resolve/main/data/test-00000-of-00001-ba7d560f500e41ac.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/danjacobellis/musdb_mp3/resolve/main/data/test-00000-of-00001-5bda3ded10f4397a.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/A_revision_of_the_biostratigraphy_and_systematics_of_oreodonts_Superfamily_Merycoidodontoidea_in_the_John_Day_region_of_Oregon/29374427
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Cross-Country_Panel_Data_on_Economic_Development_Digital_Economy_Energy_Indicators_and_CO2_Emissions_2010_2023_/32866163
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content

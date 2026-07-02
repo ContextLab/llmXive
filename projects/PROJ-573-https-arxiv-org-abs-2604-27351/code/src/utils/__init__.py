@@ -1,3 +1,3 @@
 """
-Utility modules
+Utility modules for the benchmark.
 """

@@ -1,0 +1,155 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CMB-LSS Statistical Results Schema"
+description: "Schema for the statistical output of the CMB anomaly vs LSS simulation pipeline. Note: p-values are diagnostic metrics (N=1), not inferential."
+type: object
+properties:
+  metadata:
+    type: object
+    properties:
+      run_id:
+        type: string
+        description: "Unique identifier for the simulation run."
+      timestamp:
+        type: string
+        format: date-time
+        description: "ISO 8601 timestamp of the run."
+      cosmology:
+        type: object
+        properties:
+          Omega_m:
+            type: number
+            description: "Matter density parameter."
+          Omega_Lambda:
+            type: number
+            description: "Dark energy density parameter."
+          H0:
+            type: number
+            description: "Hubble constant in km/s/Mpc."
+          sigma8:
+            type: number
+            description: "RMS matter fluctuation on 8 h^-1 Mpc scales."
+      simulation_config:
+        type: object
+        properties:
+          box_size:
+            type: number
+            description: "Box size in Mpc/h (e.g., 250)."
+          num_particles:
+            type: integer
+            description: "Number of particles (e.g., 128^3)."
+          redshift:
+            type: number
+            description: "Redshift of the snapshot (should be 0.0)."
+          injection_method:
+            type: string
+            enum: ["Phase-Injected", "Standard"]
+            description: "Method used to generate anomaly ICs."
+    required:
+      - run_id
+      - timestamp
+      - cosmology
+      - simulation_config
+  results:
+    type: object
+    properties:
+      power_spectrum_delta:
+        type: object
+        properties:
+          k_values:
+            type: array
+            items:
+              type: number
+            description: "Wavenumber bins."
+          delta_P_k:
+            type: array
+            items:
+              type: number
+            description: "Delta (Anomaly - Control) power spectrum values."
+          ks_test:
+            type: object
+            properties:
+              statistic:
+                type: number
+              p_value:
+                type: number
+              correction_method:
+                type: string
+                enum: ["Bonferroni", "Benjamini-Hochberg"]
+              interpretation:
+                type: string
+                description: "Diagnostic Metric (N=1) or Associational."
+            required:
+              - statistic
+              - p_value
+              - correction_method
+          chi_squared_test:
+            type: object
+            properties:
+              statistic:
+                type: number
+              p_value:
+                type: number
+              correction_method:
+                type: string
+                enum: ["Bonferroni", "Benjamini-Hochberg"]
+              interpretation:
+                type: string
+                description: "Diagnostic Metric (N=1) or Associational."
+            required:
+              - statistic
+              - p_value
+              - correction_method
+      void_distribution_delta:
+        type: object
+        properties:
+          radius_bins:
+            type: array
+            items:
+              type: number
+            description: "Void radius bins."
+          delta_counts:
+            type: array
+            items:
+              type: integer
+            description: "Delta (Anomaly - Control) void counts."
+          chi_squared_test:
+            type: object
+            properties:
+              statistic:
+                type: number
+              p_value:
+                type: number
+              correction_method:
+                type: string
+                enum: ["Bonferroni", "Benjamini-Hochberg"]
+              interpretation:
+                type: string
+                description: "Diagnostic Metric (N=1) or Associational."
+            required:
+              - statistic
+              - p_value
+              - correction_method
+    required:
+      - power_spectrum_delta
+      - void_distribution_delta
+  classification:
+    type: string
+    enum: ["associational"]
+    description: "Must be 'associational' as per FR-007."
+  limitations:
+    type: object
+    properties:
+      finite_volume_confound:
+        type: boolean
+        description: "True if the box cannot contain the full wavelength of the anomaly."
+      power_limitation:
+        type: string
+        description: "Description of N=1 power limitation."
+    required:
+      - finite_volume_confound
+      - power_limitation
+required:
+  - metadata
+  - results
+  - classification
+  - limitations

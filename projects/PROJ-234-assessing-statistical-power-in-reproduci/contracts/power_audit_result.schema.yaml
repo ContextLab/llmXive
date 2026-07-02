@@ -1,0 +1,60 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: PowerAuditResult
+description: >
+  Schema for the result of a statistical power audit for a single dataset.
+  Defines the structure for power_audit_results.json.
+type: object
+required:
+  - dataset_id
+  - observed_power
+  - mdes
+  - threshold_met
+  - status
+properties:
+  dataset_id:
+    type: integer
+    description: Unique identifier of the OpenML dataset.
+  observed_power:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: >
+      The calculated observed statistical power for the study.
+      Computed based on sample size, effect size, and alpha.
+  mdes:
+    type: number
+    minimum: 0.0
+    description: >
+      Minimum Detectable Effect Size (MDES) at the specified power threshold (default 0.8).
+  threshold_met:
+    type: boolean
+    description: >
+      True if observed_power >= 0.8, False otherwise.
+  status:
+    type: string
+    enum:
+      - success
+      - low_power
+      - insufficient_data
+      - error
+    description: >
+      Status of the power calculation.
+      'success' if power >= 0.8, 'low_power' if < 0.8,
+      'insufficient_data' if parameters were missing, 'error' if calculation failed.
+  details:
+    type: object
+    description: Optional additional details about the calculation.
+    properties:
+      alpha:
+        type: number
+        description: Alpha level used for calculation (default 0.05).
+      effect_size:
+        type: number
+        description: The effect size used for the calculation.
+      sample_size:
+        type: integer
+        description: The sample size used for the calculation.
+      metric_type:
+        type: string
+        description: Type of metric used (e.g., "Cohen's d", "F").
+additionalProperties: false

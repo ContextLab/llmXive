@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1803.03214",
+  "judged_at": "2026-07-01T21:37:02Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of processing temperature on the grain size of rolled aluminum alloys materials science",
+  "rationale": "This paper satisfies criteria (a) and (d) as it provides the foundational theoretical framework (disconnection kinetics) for understanding grain boundary migration, which is the primary physical mechanism governing grain size evolution during thermal processing of polycrystalline materials like aluminum alloys. Although it is a general review rather than a specific study on aluminum, it establishes the canonical mechanism linking temperature-driven kinetics to microstructural evolution that any ",
+  "relevant": true
+}

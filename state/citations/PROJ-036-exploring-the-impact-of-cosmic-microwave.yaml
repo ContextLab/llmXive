@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 3b53de29bf307a73859ca50f1a5dc96c270de9378eafd26beb81f8404fd74be5
+  artifact_path: projects/PROJ-036-exploring-the-impact-of-cosmic-microwave/specs/001-exploring-the-impact-of-cosmic-microwave/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://pla.esac.esa.int/pla/aio/product?action=DISPLAY&archive=planck&product=COM_CMB_IQU-Commander_R3.00.fits.gz`
+  verification_status: mismatch
+  verified_against_url: https://pla.esac.esa.int/pla/aio/product?action=DISPLAY&archive=planck&product=COM_CMB_IQU-Commander_R3.00.fits.gz
+  verified_at: '2026-07-01T22:59:03.121712Z'

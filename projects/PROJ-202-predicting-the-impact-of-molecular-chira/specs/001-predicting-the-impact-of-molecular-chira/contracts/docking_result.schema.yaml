@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Docking Result Schema"
+type: "object"
+properties:
+  complex_id:
+    type: "string"
+    description: "Unique ID for ligand-receptor pair"
+  ligand_id:
+    type: "string"
+    description: "Compound ID"
+  receptor_id:
+    type: "string"
+    description: "Receptor model ID"
+  binding_affinity:
+    type: "number"
+    description: "Binding affinity in kcal/mol (negative = favorable)"
+  rmsd:
+    type: "number"
+    description: "RMSD in Ångströms (pose quality)"
+  threshold_applied:
+    type: "number"
+    description: "Threshold value used for stereoselectivity classification"
+  stereoselective:
+    type: "boolean"
+    description: "True if |Δaffinity| ≥ threshold_applied"
+  validation_score:
+    type: ["number", "null"]
+    description: "Score from SMINA/PLANTS validation (if available)"
+required:
+  - complex_id
+  - ligand_id
+  - receptor_id
+  - binding_affinity
+  - rmsd
+  - threshold_applied
+  - stereoselective
+additionalProperties: false

@@ -1,8 +1,3 @@
-? 'T001 [P] Verify time-series dataset availability (UCI_HAR) via `datasets.load_dataset(''UCI_HAR'')`;
-  create `src/research/verify_timeseries.py` script; document in research.md section
-  "Dataset Verification" with fields: dataset_name, url, variables (list), size_mb,
-  verification_status (FR-001, Phase 0.1)'
-: 1
 ? "T001 [P] Verify time-series dataset availability (UCI_HAR) via `datasets.load_dataset('UCI_HAR')`;\
   \ create `src/research/verify_timeseries.py` script; document in research.md section\
   \ \"Dataset Verification\" with fields: dataset_name, url, variables (list), size_mb,\
@@ -14,11 +9,6 @@
   \ `src/research/verify_tabular.py` script; document in research.md section \"Dataset\
   \ Verification\" with fields: dataset_name, url, variables (list), size_mb, verification_status\
   \ (FR-001, Phase 0.1)"
-: 1
-? 'T002 [P] Verify tabular dataset availability (selected UCI sets) via HuggingFace
-  datasets; create `src/research/verify_tabular.py` script; document in research.md
-  section "Dataset Verification" with fields: dataset_name, url, variables (list),
-  size_mb, verification_status (FR-001, Phase 0.1)'
 : 1
 ? "T002 [P] Verify tabular dataset availability (selected UCI sets) via HuggingFace\
   \ datasets; create `src/research/verify_tabular.py` script; document in research.md\
@@ -109,6 +99,18 @@
   \ (boolean) (FR-002, SC-002, Phase 0.5)"
 : 1
 ? "T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM\
+  \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_0ff440fc \u2014 status=not_enough_info];\
+  \ create `src/research/verify_models.py` script; document in research.md section\
+  \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
+  \ (boolean) (FR-002, SC-002, Phase 0.5)"
+: 1
+? "T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM\
+  \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_202335c6 \u2014 status=not_enough_info];\
+  \ create `src/research/verify_models.py` script; document in research.md section\
+  \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
+  \ (boolean) (FR-002, SC-002, Phase 0.5)"
+: 1
+? "T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM\
   \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_23f1879a \u2014 status=not_enough_info];\
   \ create `src/research/verify_models.py` script; document in research.md section\
   \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
@@ -133,7 +135,19 @@
   \ (boolean) (FR-002, SC-002, Phase 0.5)"
 : 1
 ? "T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM\
+  \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_75e97e5c \u2014 status=not_enough_info];\
+  \ create `src/research/verify_models.py` script; document in research.md section\
+  \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
+  \ (boolean) (FR-002, SC-002, Phase 0.5)"
+: 1
+? "T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM\
   \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_78dcd9b2 \u2014 status=not_enough_info];\
+  \ create `src/research/verify_models.py` script; document in research.md section\
+  \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
+  \ (boolean) (FR-002, SC-002, Phase 0.5)"
+: 2
+? "T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM\
+  \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_93ce84ee \u2014 status=not_enough_info];\
   \ create `src/research/verify_models.py` script; document in research.md section\
   \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
   \ (boolean) (FR-002, SC-002, Phase 0.5)"
@@ -144,6 +158,12 @@
   \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
   \ (boolean) [UNRESOLVED-CLAIM: c_674e7f12 \u2014 status=not_enough_info] (FR-002,\
   \ SC-002, Phase 0.5)"
+: 1
+? "T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM\
+  \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_93dcb29e \u2014 status=not_enough_info];\
+  \ create `src/research/verify_models.py` script; document in research.md section\
+  \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
+  \ (boolean) (FR-002, SC-002, Phase 0.5)"
 : 1
 ? "T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM\
   \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_a4b272a4 \u2014 status=not_enough_info];\
@@ -164,6 +184,12 @@
   \ (boolean) (FR-002, SC-002, Phase 0.5)"
 : 1
 ? "T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM\
+  \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_b36b447a \u2014 status=not_enough_info];\
+  \ create `src/research/verify_models.py` script; document in research.md section\
+  \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
+  \ (boolean) (FR-002, SC-002, Phase 0.5)"
+: 1
+? "T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM\
   \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_c7c6ae25 \u2014 status=not_enough_info];\
   \ create `src/research/verify_models.py` script; document in research.md section\
   \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
@@ -176,13 +202,13 @@
   \ (boolean) (FR-002, SC-002, Phase 0.5)"
 : 1
 ? "T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM\
-  \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_d1791c3b \u2014 status=not_enough_info];\
+  \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_d8c6ec75 \u2014 status=not_enough_info];\
   \ create `src/research/verify_models.py` script; document in research.md section\
   \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
   \ (boolean) (FR-002, SC-002, Phase 0.5)"
-: 2
+: 1
 ? "T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM\
-  \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_d8c6ec75 \u2014 status=not_enough_info];\
+  \ via HuggingFace model cards [UNRESOLVED-CLAIM: c_d9760c68 \u2014 status=not_enough_info];\
   \ create `src/research/verify_models.py` script; document in research.md section\
   \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
   \ (boolean) (FR-002, SC-002, Phase 0.5)"
@@ -205,18 +231,23 @@
   \ \"Model Verification\" with fields: model_name, hf_id, size_mb, cpu_tractable\
   \ (boolean) (FR-002, SC-002, Phase 0.5)"
 : 1
-? 'T006 Verify model weights <1 GB for TimeSeries-Transformer, TabPFN, distilled LLM
-  via HuggingFace model cards; create `src/research/verify_models.py` script; document
-  in research.md section "Model Verification" with fields: model_name, hf_id, size_mb,
-  cpu_tractable (boolean) (FR-002, SC-002, Phase 0.5)'
-: 1
 ? "T006a Implement Reference-Validator Agent in `src/validators/reference_validator.py`\
   \ with title-token-overlap \u2265 0.7 [UNRESOLVED-CLAIM: c_0d8fe0be \u2014 status=not_enough_info]\
   \ check before contributing review points; add blocking gate for Constitution II\
   \ compliance (Constitution II, Plan Gap)"
 : 1
 ? "T006a Implement Reference-Validator Agent in `src/validators/reference_validator.py`\
+  \ with title-token-overlap \u2265 0.7 [UNRESOLVED-CLAIM: c_359463c6 \u2014 status=not_enough_info]\
+  \ check before contributing review points; add blocking gate for Constitution II\
+  \ compliance (Constitution II, Plan Gap)"
+: 1
+? "T006a Implement Reference-Validator Agent in `src/validators/reference_validator.py`\
   \ with title-token-overlap \u2265 0.7 [UNRESOLVED-CLAIM: c_7e5196f0 \u2014 status=not_enough_info]\
+  \ check before contributing review points; add blocking gate for Constitution II\
+  \ compliance (Constitution II, Plan Gap)"
+: 1
+? "T006a Implement Reference-Validator Agent in `src/validators/reference_validator.py`\
+  \ with title-token-overlap \u2265 0.7 [UNRESOLVED-CLAIM: c_92e2f7f6 \u2014 status=not_enough_info]\
   \ check before contributing review points; add blocking gate for Constitution II\
   \ compliance (Constitution II, Plan Gap)"
 : 1
@@ -252,6 +283,11 @@
 : 1
 ? "T006a Implement Reference-Validator Agent in `src/validators/reference_validator.py`\
   \ with title-token-overlap \u2265 0.7 check before contributing review points [UNRESOLVED-CLAIM:\
+  \ c_4971e5de \u2014 status=not_enough_info]; add blocking gate for Constitution\
+  \ II compliance (Constitution II, Plan Gap)"
+: 1
+? "T006a Implement Reference-Validator Agent in `src/validators/reference_validator.py`\
+  \ with title-token-overlap \u2265 0.7 check before contributing review points [UNRESOLVED-CLAIM:\
   \ c_5b89c1f7 \u2014 status=not_enough_info]; add blocking gate for Constitution\
   \ II compliance (Constitution II, Plan Gap)"
 : 1
@@ -260,12 +296,19 @@
   \ c_bb5d85cf \u2014 status=not_enough_info]; add blocking gate for Constitution\
   \ II compliance (Constitution II, Plan Gap)"
 : 1
+? "T006a Implement Reference-Validator Agent in `src/validators/reference_validator.py`\
+  \ with title-token-overlap \u2265 0.7 check before contributing review points; add\
+  \ blocking gate for Constitution II compliance (Constitution II, Plan Gap)"
+: 2
 "T008 Initialize Python 3.11 [UNRESOLVED-CLAIM: c_31b68441 \u2014 status=not_enough_info] project with {{claim:c_9da78e09}}": 1
 "T008 Initialize Python 3.11 [UNRESOLVED-CLAIM: c_92679e95 \u2014 status=not_enough_info] project with {{claim:c_9da78e09}}": 1
+"T008 Initialize Python 3.11 [UNRESOLVED-CLAIM: c_d0b1d988 \u2014 status=not_enough_info] project with {{claim:c_9da78e09}}": 1
 "T008 Initialize Python 3.11 [UNRESOLVED-CLAIM: c_f21aed3b \u2014 status=not_enough_info] project with {{claim:c_9da78e09}}": 1
 "T008 Initialize Python 3.11 project [UNRESOLVED-CLAIM: c_07dfde9b \u2014 status=not_enough_info] with {{claim:c_9da78e09}}": 1
+"T008 Initialize Python 3.11 project [UNRESOLVED-CLAIM: c_1f2d82d4 \u2014 status=not_enough_info] with {{claim:c_9da78e09}}": 1
 "T008 Initialize Python 3.11 project [UNRESOLVED-CLAIM: c_5b5fd135 \u2014 status=not_enough_info] with {{claim:c_9da78e09}}": 1
 "T008 Initialize Python 3.11 project [UNRESOLVED-CLAIM: c_b468013a \u2014 status=not_enough_info] with {{claim:c_9da78e09}}": 1
+T008 Initialize Python 3.11 project with {{claim:c_9da78e09}}: 1
 ? "T009 [P] Configure linting and formatting tools: ruff.toml (line-length=88 [UNRESOLVED-CLAIM:\
   \ c_894bffc9 \u2014 status=not_enough_info], target-version=py311) and pyproject.toml\
   \ (black config) in repository root"
@@ -280,6 +323,10 @@
   \ c_5f64b587 \u2014 status=not_enough_info]) and pyproject.toml (black config) in\
   \ repository root"
 : 1
+? "T009 [P] Configure linting and formatting tools: ruff.toml (line-length=88 [UNRESOLVED-CLAIM:\
+  \ c_e16e7fc7 \u2014 status=not_enough_info], target-version=py311) and pyproject.toml\
+  \ (black config) in repository root"
+: 1
 ? "T009 [P] Configure linting and formatting tools: ruff.toml (line-length=88, target-version=py311)\
   \ [UNRESOLVED-CLAIM: c_09293d6f \u2014 status=not_enough_info] and pyproject.toml\
   \ (black config) in repository root"
@@ -288,9 +335,15 @@
   \ [UNRESOLVED-CLAIM: c_3e5fd4de \u2014 status=not_enough_info] and pyproject.toml\
   \ (black config) in repository root"
 : 1
+? 'T009 [P] Configure linting and formatting tools: ruff.toml (line-length=88, target-version=py311)
+  and pyproject.toml (black config) in repository root'
+: 1
 ? "T010 [P] Create dataset schema contract in contracts/dataset.schema.yaml with required\
   \ fields (name, url, variables, size_mb, checksum [UNRESOLVED-CLAIM: c_c8b13512\
   \ \u2014 status=not_enough_info])"
+: 1
+? T010 [P] Create dataset schema contract in contracts/dataset.schema.yaml with required
+  fields (name, url, variables, size_mb, checksum)
 : 1
 T011 [P] Create task schema contract in contracts/task.schema.yaml with required fields ({{claim:c_6a929bb3}}): 1
 ? T013 [P] Create modality_model schema contract in contracts/modality_model.schema.yaml
@@ -309,6 +362,10 @@ T011 [P] Create task schema contract in contracts/task.schema.yaml with required
 ? "T017 Create checksum tracking infrastructure in state/projects/PROJ-573-https-arxiv-org-abs-2604-27351.yaml\
   \ artifact_hashes map with sha256 format [UNRESOLVED-CLAIM: c_bfdee63e \u2014 status=not_enough_info]\
   \ (Constitution III)"
+: 1
+? T017 Create checksum tracking infrastructure in state/projects/PROJ-573-https-arxiv-org-abs-2604-27351.yaml
+  artifact_hashes map with {{claim:c_85592f95}} (Wikidata Q50376371, https://www.wikidata.org/wiki/Q50376371)
+  (Constitution III)
 : 1
 ? "T018 Update state/projects/PROJ-573-https-arxiv-org-abs-2604-27351 [UNRESOLVED-CLAIM:\
   \ c_0819e929 \u2014 status=not_enough_info].yaml updated_at timestamp on any artifact\
@@ -373,6 +430,11 @@ T011 [P] Create task schema contract in contracts/task.schema.yaml with required
   \ c_e77c9091 \u2014 status=not_enough_info] -> result; raise TimeoutError if exceeded;\
   \ depends on T016 complete"
 : 1
+? "T026 [US1] Implement metrics computation (F1, MAPE) in src/evaluation/metrics.py\
+  \ [UNRESOLVED-CLAIM: c_1675d947 \u2014 status=not_enough_info] (FR-004); function\
+  \ signatures: compute_f1(y_true, y_pred) -> float, compute_mape(y_true, y_pred)\
+  \ -> float; handle edge cases (division by zero, empty arrays)"
+: 1
 ? "T027 [US1] Implement statistical tests in src/evaluation/statistical_tests.py (FR-007,\
   \ FR-014, FR-011); MUST include: paired t-test (scipy.stats.ttest_rel), Wilcoxon\
   \ signed-rank with {{claim:c_7c3d210d}} and 95% CI as PRIMARY outcome (document\
@@ -434,6 +496,12 @@ T011 [P] Create task schema contract in contracts/task.schema.yaml with required
   \ size as PRIMARY outcome with 95% CI; function signatures: generate_csv_report(results,\
   \ output_path), generate_pdf_report(results, output_path)"
 : 1
+? "T028 [US1] Implement report generator in src/evaluation/report_generator.py (FR-007);\
+  \ MUST verify report includes (a) t-statistic, (b) p-value, (c) bootstrap CI ({{claim:c_8176747a}}),\
+  \ (d) Wilcoxon effect size as PRIMARY outcome with 95% CI [UNRESOLVED-CLAIM: c_1066d643\
+  \ \u2014 status=not_enough_info]; function signatures: generate_csv_report(results,\
+  \ output_path), generate_pdf_report(results, output_path)"
+: 1
 ? "T029 [US1] Create run_benchmark.py main entry point in src/benchmark/run_benchmark.py\
   \ (FR-001, FR-006, FR-010); CLI arguments: --config (default default.yaml), --mode\
   \ (heterogeneous|unified), --seeds (5) [UNRESOLVED-CLAIM: c_1deb9e69 \u2014 status=not_enough_info];\
@@ -454,6 +522,11 @@ T011 [P] Create task schema contract in contracts/task.schema.yaml with required
   \ (300) [UNRESOLVED-CLAIM: c_cd0220c9 \u2014 status=not_enough_info], {{claim:c_340e25bd}}\
   \ (Wikipedia: Bootstrapping (statistics), https://en.wikipedia.org/wiki/Bootstrapping_(statistics))"
 : 1
+? 'T032 [US1] Create StatisticalSummary persistence in data/statistical_summary.yaml
+  (Constitution IV); YAML structure: task_results (list of {task_id, accuracy, condition,
+  timestamp }), aggregate_stats (mean_accuracy_diff, p_value, effect_size, ci_lower,
+  ci_upper); schema reference: contracts/results.schema.yaml'
+: 1
 ? 'T035 [P] [US2] Implement modality-specific model wrapper for time-series in src/models/timeseries_model.py
   (FR-002); use CPU-tractable TimeSeries-Transformer (< 1 GB); class TimeSeriesModel
   with methods: load_model(model_id), predict(input_data), get_embedding(input_data);
@@ -467,6 +540,18 @@ T011 [P] Create task schema contract in contracts/task.schema.yaml with required
 ? 'T037 [P] [US2] Implement modality-specific model wrapper for text in src/models/text_model.py
   (FR-002); use distilled LLM (< 1 GB); class TextModel with methods: load_model(model_id),
   predict(input_data), get_embedding(input_data); handle CPU-only inference'
+: 1
+? 'T040 [US2] Create timeseries.yaml modality config in src/benchmark/config/modalities/timeseries.yaml
+  (FR-008); required keys: model_id, model_type, max_memory_gb, inference_script;
+  depends on T017, T018 complete; update state/artifact_hashes after config changes'
+: 1
+? 'T041 [US2] Create tabular.yaml modality config in src/benchmark/config/modalities/tabular.yaml
+  (FR-008); required keys: model_id, model_type, max_memory_gb, inference_script;
+  depends on T017, T018 complete; update state/artifact_hashes after config changes'
+: 1
+? 'T042 [US2] Create text.yaml modality config in src/benchmark/config/modalities/text.yaml
+  (FR-008); required keys: model_id, model_type, max_memory_gb, inference_script;
+  depends on T017, T018 complete; update state/artifact_hashes after config changes'
 : 1
 ? 'T047 [US3] Implement time-series to text conversion logic in src/models/translation.py
   (US-3 Scenario 1); deterministic schema: "Mean heart rate = X bpm, max = Y bpm,

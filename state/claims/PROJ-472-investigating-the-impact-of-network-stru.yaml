@@ -1,0 +1,108 @@
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Independent test requires 10 participants with synthetic EEG and dMRI
+    from OpenNeuro sub-001 to sub-010
+  claim_id: c_b74245b4
+  context: 'Independent Test: Can be fully tested by successfully downloading a subset
+    of dMRI data from OpenNeuro (sub-001 to sub-010), preprocessing it to adjacency
+    matrices, and generating synthetic EEG time-series for at least 10 participants
+    with matching subject identifiers.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Independent_test_requires_10_participants_with_synthetic_EEG
+  kind: magnitude
+  raw_text: The independent test requires successfully downloading a subset of dMRI
+    data from OpenNeuro (sub-001 to sub-010), preprocessing it to adjacency matrices,
+    and generating synthetic EEG time-series for at least 10 participants with matching
+    subject identifiers.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T19:07:23Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Pipeline applies HCP-MMP1.0 parcellation to OpenNeuro data
+  claim_id: c_412d3104
+  context: 'Note: This is a staged simplification due to HCP data availability; FR-001''s
+    HCP requirement is adapted by applying HCP-MMP1.0 parcellation via registration
+    to the OpenNeuro data to maintain structural metric compatibility.'
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The pipeline applies HCP-MMP1.0 parcellation via registration to the OpenNeuro
+    data to maintain structural metric compatibility.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-01T19:07:23Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Quality control excludes participants with SNR less than 5dB in simulated
+    data
+  claim_id: c_0de5bf77
+  context: 'Define ''removed channels'' as channels with SNR < 5dB in simulated data.
+    Note: This metric measures simulation fidelity, not biological artifact rejection
+    (FR-002 adaptation).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Quality_control_excludes_participants_with_SNR_less_than_5dB
+  kind: magnitude
+  raw_text: Quality control excludes participants with SNR < 5dB in simulated data.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T19:07:49Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Target runtime is 6 hours or less on CPU-only runner for 10 subjects
+  claim_id: c_3cd13700
+  context: "Profile `code/analysis/stats.py` and optimize the permutation loop using\
+    \ multiprocessing to ensure total runtime \u2264 6 hours on CPU-only runner for\
+    \ **N=10 subjects** (SC-006)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project targets a total runtime of 6 hours or less on a CPU-only runner
+    for N=10 subjects.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T19:08:06Z'
+- artifact_path: projects/PROJ-472-investigating-the-impact-of-network-stru/specs/001-investigating-the-impact-of-network-stru/tasks.md
+  attempts: 1
+  canonical: Null Result Protocol halts analysis if fewer than 10 usable subjects
+    remain after QC
+  claim_id: c_9bd9c2de
+  context: 'Implement the ''Null Result Protocol'' in `code/main.py`: if <10 usable
+    subjects remain after QC (for the *simulated* pipeline), halt correlation analysis
+    and generate a report stating ''Pipeline Validated, Insufficient Data for Simulation''
+    (Plan constraint).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Null_Result_Protocol_halts_analysis_if_fewer_than_10_usable
+  kind: magnitude
+  raw_text: The Null Result Protocol halts correlation analysis if fewer than 10 usable
+    subjects remain after quality control.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-01T19:08:29Z'

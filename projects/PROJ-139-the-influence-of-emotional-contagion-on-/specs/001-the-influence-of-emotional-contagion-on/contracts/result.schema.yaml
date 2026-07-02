@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Decision Quality Result Schema"
+description: "Schema for final decision quality metrics and model outputs."
+type: "object"
+properties:
+  thread_id:
+    type: "string"
+    description: "Reference to the thread."
+  agreement_proportion:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Proportion of replies aligning with the Seed Post sentiment direction."
+  shannon_entropy:
+    type: "number"
+    minimum: 0.0
+    description: "Shannon entropy of sentiment diversity. Lower values indicate higher consensus (low diversity); higher values indicate polarization/diversity. Hypothesis: Contagion Index negatively correlates with this value."
+  external_validation_score:
+    type: ["number", "null"]
+    description: "Ground truth match score (null if no ground truth available). 1.0 if match, 0.0 if mismatch."
+  time_to_decision:
+    type: "number"
+    minimum: 0.0
+    description: "Seconds from first seed post to decision point."
+  thread_length:
+    type: "integer"
+    minimum: 0
+    description: "Total number of comments."
+  glmm_coefficient:
+    type: ["number", "null"]
+    description: "GLMM fixed effect coefficient for contagion (null if model failed)."
+  glmm_p_value:
+    type: ["number", "null"]
+    description: "Wald test p-value (null if model failed)."
+  is_significant_after_fdr:
+    type: ["boolean", "null"]
+    description: "Significance after Benjamini-Hochberg correction."
+  fp_rate:
+    type: ["number", "null"]
+    description: "False Positive rate relative to ground truth (null if no ground truth)."
+  fn_rate:
+    type: ["number", "null"]
+    description: "False Negative rate relative to ground truth (null if no ground truth)."
+required:
+  - thread_id
+  - agreement_proportion
+  - shannon_entropy
+  - external_validation_score
+  - time_to_decision
+  - thread_length
+additionalProperties: false

@@ -1,0 +1,482 @@
+resolved_at: '2026-07-01T20:08:05.676013+00:00'
+datasets:
+- intent: Defects4J
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/chathuranga-jayanath/defects4j-context-5-len-10000-prompt-3/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/chathuranga-jayanath/defects4j-context-5-len-all-prompt-3/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/echodrift/adapt_defects4j/resolve/main/adapt_defects4j.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/chathuranga-jayanath/defects4j-context-5-len-10000-prompt-3/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/chathuranga-jayanath/defects4j-context-5-len-all-prompt-3/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/echodrift/adapt_defects4j/resolve/main/adapt_defects4j.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/echodrift/adapt_defects4j_prompt/resolve/main/adapt_defects4j.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/echodrift/defects4j_sketch_code/resolve/main/rambo_defects4j_sketch_fixed_re.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/conference_contribution/OPEN_SOURCE_AND_SCHOLARSHIP_IN_THE_KNOWLEDGE_ECONOMY_ADVANCING_COLLABORATIVE_RESEARCH_AND_INCLUSIVE_LEARNING_THROUGH_LIBRARIES/32867048
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Lysozyme-Loaded_Rough_Calcium_Alginate_Hydrogel_Film_for_Antibacterial_Wound_Dressing/32867070
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://agdatacommons.nal.usda.gov/articles/dataset/Data_from_2025_mesocosm_study_evaluating_possible_enhancement_treatments_of_native_biodiversity_on_nutrient_removal_in_agricultural_treatment_wetlands/30906488
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Energy_Transfer-Enabled_Diradical_Carbonylative_Cyclization_of_Bicyclo_1_1_0_butanes_with_CO_and_Alkenes_Alkynes/32867067
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://agdatacommons.nal.usda.gov/articles/dataset/Data_from_2024_mesocosm_study_evaluating_possible_enhancement_treatments_of_native_biodiversity_on_nutrient_removal_in_agricultural_treatment_wetlands/30905912
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7922699
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15274979
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2706506
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17634840
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14792450
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21059954
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21059954
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.20954621
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+  - url: https://zenodo.org/records/20847819
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20847819
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: JUnit
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/ArashMarandi/java_junit_test_dataset/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 8733
+      parsed: true
+  - url: https://huggingface.co/datasets/DCAgent/exp_rpt_stack-junit/resolve/main/tasks.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/DCAgent/exp_rpt_stack-junit-v2-test/resolve/main/tasks.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 110957
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ArashMarandi/java_junit_test_dataset/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/DCAgent/exp_rpt_stack-junit/resolve/main/tasks.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/DCAgent/exp_rpt_stack-junit-v2-test/resolve/main/tasks.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/DCAgent/exp_rpt_nemotron-junit/resolve/main/tasks.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/conference_contribution/OPEN_SOURCE_AND_SCHOLARSHIP_IN_THE_KNOWLEDGE_ECONOMY_ADVANCING_COLLABORATIVE_RESEARCH_AND_INCLUSIVE_LEARNING_THROUGH_LIBRARIES/32867048
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Lysozyme-Loaded_Rough_Calcium_Alginate_Hydrogel_Film_for_Antibacterial_Wound_Dressing/32867070
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://agdatacommons.nal.usda.gov/articles/dataset/Data_from_2025_mesocosm_study_evaluating_possible_enhancement_treatments_of_native_biodiversity_on_nutrient_removal_in_agricultural_treatment_wetlands/30906488
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Energy_Transfer-Enabled_Diradical_Carbonylative_Cyclization_of_Bicyclo_1_1_0_butanes_with_CO_and_Alkenes_Alkynes/32867067
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://agdatacommons.nal.usda.gov/articles/dataset/Data_from_2024_mesocosm_study_evaluating_possible_enhancement_treatments_of_native_biodiversity_on_nutrient_removal_in_agricultural_treatment_wetlands/30905912
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8052444
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/47668
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1482013
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S0164121222000516
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4993261
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20031732
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20031732
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20826240
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20826240
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20941684
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-optimized
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/conference_contribution/OPEN_SOURCE_AND_SCHOLARSHIP_IN_THE_KNOWLEDGE_ECONOMY_ADVANCING_COLLABORATIVE_RESEARCH_AND_INCLUSIVE_LEARNING_THROUGH_LIBRARIES/32867048
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Lysozyme-Loaded_Rough_Calcium_Alginate_Hydrogel_Film_for_Antibacterial_Wound_Dressing/32867070
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://agdatacommons.nal.usda.gov/articles/dataset/Data_from_2025_mesocosm_study_evaluating_possible_enhancement_treatments_of_native_biodiversity_on_nutrient_removal_in_agricultural_treatment_wetlands/30906488
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Energy_Transfer-Enabled_Diradical_Carbonylative_Cyclization_of_Bicyclo_1_1_0_butanes_with_CO_and_Alkenes_Alkynes/32867067
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://agdatacommons.nal.usda.gov/articles/dataset/Data_from_2024_mesocosm_study_evaluating_possible_enhancement_treatments_of_native_biodiversity_on_nutrient_removal_in_agricultural_treatment_wetlands/30905912
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/803257
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1136109
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1331998
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21102176
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21102176
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2603.16428
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21069914
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21069914
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: LLMs
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Naomibas/llm-system-prompts-benchmark/resolve/main/hundred_system_prompts.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 29724
+      parsed: true
+  - url: https://huggingface.co/datasets/Wutaghost/LLMscore-ICLR-OpenReview/resolve/main/metadata/ICLR_2023/paper_text_manifest.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/amay01/llm-sgd-dst8-training-data/resolve/main/data/train-00000-of-00001-2fcf9ada14c42dbd.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Naomibas/llm-system-prompts-benchmark/resolve/main/hundred_system_prompts.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/Wutaghost/LLMscore-ICLR-OpenReview/resolve/main/metadata/ICLR_2023/paper_text_manifest.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/api/resolve-cache/datasets/LLMs/Alpaca-ShareGPT/3ce5ab8a32bd22941946da41b52ed5e75cac5e27/alpaca_sharedgpt_data.json?%2Fdatasets%2FLLMs%2FAlpaca-ShareGPT%2Fresolve%2Fmain%2Falpaca_sharedgpt_data.json=&etag=%22742f407359778e823a48a62f2c70eb15ab534eb5%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/amay01/llm-sgd-dst8-training-data/resolve/main/data/train-00000-of-00001-2fcf9ada14c42dbd.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/amay01/llm-sgd-dst8-split-training-data/resolve/main/data/train-00000-of-00001-10ea3ec7eda7cbf2.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/conference_contribution/OPEN_SOURCE_AND_SCHOLARSHIP_IN_THE_KNOWLEDGE_ECONOMY_ADVANCING_COLLABORATIVE_RESEARCH_AND_INCLUSIVE_LEARNING_THROUGH_LIBRARIES/32867048
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Lysozyme-Loaded_Rough_Calcium_Alginate_Hydrogel_Film_for_Antibacterial_Wound_Dressing/32867070
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://agdatacommons.nal.usda.gov/articles/dataset/Data_from_2025_mesocosm_study_evaluating_possible_enhancement_treatments_of_native_biodiversity_on_nutrient_removal_in_agricultural_treatment_wetlands/30906488
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Energy_Transfer-Enabled_Diradical_Carbonylative_Cyclization_of_Bicyclo_1_1_0_butanes_with_CO_and_Alkenes_Alkynes/32867067
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://agdatacommons.nal.usda.gov/articles/dataset/Data_from_2024_mesocosm_study_evaluating_possible_enhancement_treatments_of_native_biodiversity_on_nutrient_removal_in_agricultural_treatment_wetlands/30905912
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14791389
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13686615
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11659425
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13686834
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11670392
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Large_Language_Models_Exhibit_High_Performance_as_Computable_Phenotypes_for_Pediatric_Asthma_Exacerbation_Detection_in_a_Retrospective_Observational_Study_of_Emergency_Medical_Services_Encounters/32579411/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/A_clause-based_framework_for_evaluating_AI-assisted_SOP_generation_in_an_ISO-aligned_clinical_laboratory_a_proof-of-concept_study/32592091/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/A_clause-based_framework_for_evaluating_AI-assisted_SOP_generation_in_an_ISO-aligned_clinical_laboratory_a_proof-of-concept_study/32592091
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/6hb78/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21111681
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: LLM-generated
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/hon9kon9ize/38k-zh-yue-translation-llm-generated/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/badrex/royal_society_corpus_LLM_generated_metadata/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/artnitolog/llm-generated-texts/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/dshihk/llm-generated-essay/76ee958b32e22d4596e14e526b4208e4b1b8a523/test.csv?%2Fdatasets%2Fdshihk%2Fllm-generated-essay%2Fresolve%2Fmain%2Ftest.csv=&etag=%22a9b10b7b1b5def378359183c2058a1cb29563c9c%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/hon9kon9ize/38k-zh-yue-translation-llm-generated/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/beimnet777/LLM_generated_Amharic_QA_for_Family_Code_of_Ethiopia/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/badrex/royal_society_corpus_LLM_generated_metadata/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/artnitolog/llm-generated-texts/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/conference_contribution/OPEN_SOURCE_AND_SCHOLARSHIP_IN_THE_KNOWLEDGE_ECONOMY_ADVANCING_COLLABORATIVE_RESEARCH_AND_INCLUSIVE_LEARNING_THROUGH_LIBRARIES/32867048
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Lysozyme-Loaded_Rough_Calcium_Alginate_Hydrogel_Film_for_Antibacterial_Wound_Dressing/32867070
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://agdatacommons.nal.usda.gov/articles/dataset/Data_from_2025_mesocosm_study_evaluating_possible_enhancement_treatments_of_native_biodiversity_on_nutrient_removal_in_agricultural_treatment_wetlands/30906488
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Energy_Transfer-Enabled_Diradical_Carbonylative_Cyclization_of_Bicyclo_1_1_0_butanes_with_CO_and_Alkenes_Alkynes/32867067
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://agdatacommons.nal.usda.gov/articles/dataset/Data_from_2024_mesocosm_study_evaluating_possible_enhancement_treatments_of_native_biodiversity_on_nutrient_removal_in_agricultural_treatment_wetlands/30905912
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18657875
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18022086
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17738426
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18169626
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20683800
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21112669
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21112669
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15199120
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15317373
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21110111
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

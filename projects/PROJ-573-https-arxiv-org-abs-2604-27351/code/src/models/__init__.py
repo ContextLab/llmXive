@@ -1,3 +1,3 @@
 """
-Model modules
+Model wrappers and routing logic.
 """

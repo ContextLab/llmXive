@@ -1,0 +1,21 @@
+[lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "T20", "PIE", "COM", "SIM"]
+ignore = ["E501", "E731"]
+fixable = ["ALL"]
+unfixable = []
+
+[lint.per-file-ignores]
+"tests/*" = ["S101", "ARG"]
+"code/utils/*" = ["T201"]
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[lint.isort]
+known-first-party = ["utils", "01_data_collection", "02_static_analysis", "03_statistical_analysis", "04_reporting"]
+
+[lint.flake8-bugbear]
+extend-immutable-calls = ["fastapi.Depends", "fastapi.Query"]

@@ -1,3 +1,3 @@
 """
-Benchmark modules
+Benchmark execution modules.
 """

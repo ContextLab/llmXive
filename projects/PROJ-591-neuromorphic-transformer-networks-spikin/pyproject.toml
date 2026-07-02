@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "neuromorphic-transformer-spiking"
+version = "0.1.0"
+description = "Spiking Neural Dynamics in Transformer Architectures"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "torch",
+    "snnTorch",
+    "codecarbon",
+    "datasets",
+    "scikit-learn",
+    "pandas",
+    "numpy",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py39', 'py310', 'py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.ruff]
+# Explicitly point to the ruff config file created in code/
+# If running from root, we assume ruff is configured via pyproject.toml or a local .ruff.toml
+# Here we define the rules inline for immediate validity if .ruff.toml is ignored by some runners
+lint.select = [
+    "E", "W", "F", "I", "B", "C4", "UP"
+]
+lint.ignore = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["code/tests"]
+python_files = ["test_*.py"]
+addopts = "-v"

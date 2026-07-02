@@ -1,0 +1,58 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Coverage Metrics Schema"
+description: "Schema for the aggregated coverage metrics comparing generated vs. manual tests on changed lines."
+type: "object"
+properties:
+  project_id:
+    type: "string"
+    description: "Project identifier matching the source dataset."
+  test_type:
+    type: "string"
+    enum:
+      - "generated"
+      - "manual"
+    description: "Indicates if the coverage is from LLM-generated tests or baseline manual tests."
+  line_coverage_percent:
+    type: "number"
+    minimum: 0
+    maximum: 100
+    description: "Percentage of lines covered by the test suite."
+  branch_coverage_percent:
+    type: "number"
+    minimum: 0
+    maximum: 100
+    description: "Percentage of branches covered."
+  assertion_count:
+    type: "integer"
+    minimum: 0
+    description: "Total number of assertions in the test suite."
+  line_count:
+    type: "integer"
+    minimum: 0
+    description: "Total lines of code in the test suite."
+  changed_lines_coverage:
+    type: "number"
+    minimum: 0
+    maximum: 100
+    description: "Percentage of specific changed lines covered by the test suite."
+  compile_status:
+    type: "string"
+    enum:
+      - "success"
+      - "failed"
+    description: "Whether the test code compiled successfully."
+  execution_status:
+    type: "string"
+    enum:
+      - "passed"
+      - "failed"
+      - "timeout"
+      - "skipped"
+    description: "Result of the test execution."
+required:
+  - project_id
+  - test_type
+  - line_coverage_percent
+  - changed_lines_coverage
+  - compile_status
+  - execution_status

@@ -1,86 +1,35 @@
 # Default benchmark configuration
-# Matches requirements from tasks.md T030
+# Matches T030 requirements and supports T008 initialization
 
-# List of datasets to use for benchmarking
 datasets:
   - name: UCI_HAR
-    url: "UCI_HAR"
-    modality: timeseries
+    url: "https://huggingface.co/datasets/UCI_HAR"
+    variables: ["accelerometer", "gyroscope", "activity_label"]
   - name: DROP
-    url: "DROP"
-    modality: text
-  - name: MUST
-    url: "MUST"
-    modality: text
-  - name: UCI_Adult
-    url: "UCI_Adult"
-    modality: tabular
-
-# Modalities to benchmark
+    url: "https://huggingface.co/datasets/drop"
+    variables: ["question", "passage", "answer"]
+  
 modalities:
-  - timeseries
-  - tabular
-  - text
+  - type: timeseries
+    model_id: "time_series_transformer_small"
+  - type: tabular
+    model_id: "tabpfn_base"
+  - type: text
+    model_id: "distilbert_base"
 
-# Number of random seeds for reproducibility
 seeds: 5
-
-# Timeout per task in seconds (5 minutes)
 timeout_per_task: 300
 
-# Bootstrapping configuration for statistical analysis
-# Reference: Wikipedia: Bootstrapping (statistics)
-bootstrapping:
-  enabled: true
+# Bootstrap configuration for statistical analysis (FR-007, FR-014)
+statistical_analysis:
+  method: "bootstrap"
   n_iterations: 1000
   confidence_level: 0.95
-
-# Task definitions reference
+  
 tasks:
-  - T001
-  - T002
-  - T003
-  - T004
-  - T005
-  - T006
-  - T007
-  - T008
-  - T009
-  - T010
-  - T011
-  - T012
-  - T013
-  - T014
-  - T015
-  - T016
-  - T017
-  - T018
-  - T019
-  - T020
-
-# Execution mode options
-mode_options:
-  - heterogeneous
-  - unified
-
-# Default mode if not specified
-default_mode: heterogeneous
-
-# Model configuration references
-model_configs:
-  timeseries:
-    model_id: "timeseries_transformer_cpu"
-    max_memory_gb: 1
-  tabular:
-    model_id: "tabPFN_cpu"
-    max_memory_gb: 1
-  text:
-    model_id: "distilbert_cpu"
-    max_memory_gb: 1
-
-# Output configuration
-output:
-  csv_report: true
-  pdf_report: true
-  statistical_summary: true
-  output_dir: "data/results"
+  - "T022"
+  - "T026"
+  - "T027"
+  
+# Execution mode default
+default_mode: "heterogeneous"

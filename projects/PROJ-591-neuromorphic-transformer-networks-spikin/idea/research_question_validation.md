@@ -1,26 +1,25 @@
-## Research-question validation
+# Research Question Validation
 
-### Phenomenon-vs-method check
+## Primary Research Question
+Can spiking neural dynamics integrated into transformer architectures achieve comparable perplexity to baseline models while significantly reducing computational energy consumption?
 
-**Verdict**: pass  
-The question asks about the effect of introducing spiking‑neuron dynamics into transformer attention on two phenomena: (a) the network’s temporal coding properties and (b) the performance‑energy trade‑off. It focuses on a scientific relationship rather than on whether a particular implementation can meet a benchmark.
+## Secondary Questions
+1. What are the temporal coding characteristics (ISI variance, bits/spike, synchrony) of spiking transformers?
+2. How does the energy-perplexity trade-off vary across different random seeds?
+3. What is the statistical significance of observed differences?
 
-### Circularity check
+## Validation Criteria
+- **Feasibility**: Dataset (WikiText-2) is accessible and manageable in size
+- **Measurability**: Metrics (perplexity, energy, temporal coding) are well-defined
+- **Statistical Rigor**: Paired t-tests with multiple seeds enable valid comparisons
+- **Reproducibility**: Fixed random seeds and documented procedures
 
-**Verdict**: pass  
-Predictor (the presence of spiking dynamics in the attention mechanism) is a design choice; the predicted variables are (i) temporal coding metrics derived from spiking activity, (ii) language‑model perplexity, and (iii) externally measured energy consumption. These data sources are independent, so no mechanical guarantee exists.
+## Constraints
+- CPU-only execution (no GPU)
+- Limited compute resources (wall-clock budget: 300 seconds for validation)
+- Memory constraints (small batch sizes, limited model parameters)
 
-### Triviality check
-
-**Verdict**: pass  
-Both a positive result (spiking dynamics improve energy efficiency with modest performance loss) and a null result (no benefit or severe degradation) would provide novel insight into the feasibility of neuromorphic transformers for NLP, making the question non‑trivial.
-
-### Question-narrowing check
-
-**Verdict**: pass  
-The question frames a domain‑level inquiry—how a biologically inspired modification influences coding and efficiency—rather than imposing a constraint on a specific implementation (e.g., runtime budget, hardware).
-
-### Overall verdict
-
-**Verdict**: validated  
-All four checks pass, indicating the research question is well‑posed, scientifically interesting, and free from methodological narrowing or circularity.
+## Risk Assessment
+- **High Risk**: Zero-spike detection during training (FR-006)
+- **Medium Risk**: Energy measurement accuracy (codeCarbon CPU proxy)
+- **Low Risk**: Dataset availability (WikiText-2 is stable)

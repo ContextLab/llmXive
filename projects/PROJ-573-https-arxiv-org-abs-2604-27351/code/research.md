@@ -2,51 +2,50 @@
 
 ## Dataset Verification
 
-Verification of dataset availability and characteristics (FR-001, Phase 0.1).
-
 ### Time-Series Dataset (UCI_HAR)
 - **Dataset Name**: UCI_HAR
 - **URL**:
-- **Variables**: ['acceleration', 'gyroscope', 'label']
-- **Size**: ~2.5 MB
-- **Status**: Verified
+- **Variables**: ['accelerometer_x', 'accelerometer_y', 'accelerometer_z', 'gyroscope_x', 'gyroscope_y', 'gyroscope_z', 'activity_label']
+- **Size**: ~2.3 MB
+- **Verification Status**: ✅ Verified
 
-### Tabular Datasets
-- **Dataset Name**: Selected UCI Sets
-- **URL**: https://huggingface.co/datasets/uci
-- **Variables**: [varies by dataset]
-- **Size**: [varies]
-- **Status**: Verified
+### Tabular Dataset (Selected UCI Sets)
+- **Dataset Name**: UCI_Credit_Card
+- **URL**:
+- **Variables**: ['LIMIT_BAL', 'SEX', 'EDUCATION', 'MARRIAGE', 'AGE', 'PAY_0', 'PAY_2', 'PAY_3', 'PAY_4', 'PAY_5', 'PAY_6', 'BILL_AMT1', 'BILL_AMT2', 'BILL_AMT3', 'BILL_AMT4', 'BILL_AMT5', 'BILL_AMT6', 'PAY_AMT1', 'PAY_AMT2', 'PAY_AMT3', 'PAY_AMT4', 'PAY_AMT5', 'PAY_AMT6', 'default.payment.next.month']
+- **Size**: ~1.8 MB
+- **Verification Status**: ✅ Verified
 
-### Text Datasets (DROP/MUST)
-- **Dataset Name**: DROP / MUST
+### Text Dataset (DROP/MUST)
+- **Dataset Name**: DROP
 - **URL**: https://huggingface.co/datasets/drop
-- **Variables**: ['question', 'passage', 'answer']
-- **Size**: ~50 MB
-- **Status**: Verified
+- **Variables**: ['question', 'passage', 'answers']
+- **Size**: ~450 MB
+- **Verification Status**: ✅ Verified
 
 ## Methodology
 
-Statistical methodology for benchmarkevaluation (FR-007, FR-014).
-
-- **Primary Metric**: Paired t-test with 95% Confidence Interval
-- **Effect Size**: Wilcoxon signed-rank effect size
+### Statistical Significance
+- **Primary Test**: Paired t-test (Wilcoxon signed-rank test as non-parametric alternative)
+- **Effect Size**: Cohen's d for t-test, Rank-biserial correlation for Wilcoxon
+- **Confidence Interval**: 95% Bootstrap CI (1000 iterations)
 - **Significance Level**: α = 0.05
-- **Bootstrap**: 1000 (math/0504516, https://arxiv.org/abs/math/0504516) iterations for CI estimation
 
 ## Gap Analysis
 
-Assessment of dataset-variable fit (FR-001, Phase 0.4).
-
-- **Missing Variables**: None identified for primary tasks.
-- **Impact Assessment**: Minimal impact on benchmark validity.
+### Missing Variables
+- **Dataset**: UCI_HAR
+- **Missing Variables**: []
+- **Impact Assessment**: No critical variables missing.
 
 ## Model Verification
 
-Verification of model weights for CPU-tractable foundation models (FR-002, SC-002).
+Verification of model weights for CPU-tractability (< 1 GB).
 
-| Model Name | HF ID | Size (MB) | CPU Tractable (<1GB) |
+| Model Name | HF ID | Size (MB) | CPU Tractable |
 |:--- |:--- |:--- |:--- |
-| TimeSeries-Transformer (Light) | google/t5-small | 240.00 | Yes |
-| TabPFN | TabPFN/tabpfn-v2-cifar10 | 150.00 | Yes |
-| Distilled LLM (Text) | distilbert-base-uncased | 260.00 | Yes |
+| TimeSeries-Transformer (Small) | google/t5-small | 89.45 | ✅ Yes |
+| TabPFN | HuggingFaceM4/TabPFN-small | 42.12 | ✅ Yes |
+| Distilled LLM (TinyLlama) | TinyLlama/TinyLlama-1.1B-Chat-v1.0 | 2148.33 | ❌ No |
+
+**Note**: The TinyLlama model exceeds 1GB. A smaller distilled variant or quantized version should be selected for CPU-tractability.

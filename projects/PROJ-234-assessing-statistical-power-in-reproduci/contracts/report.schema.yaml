@@ -1,0 +1,140 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Audit Report Schema
+description: Schema for the final audit report JSON structure used by the pipeline.
+type: object
+required:
+  - report_id
+  - generated_at
+  - dataset_summary
+  - extraction_stats
+  - sensitivity_delta
+  - power_results
+  - mdes_results
+  - success_metrics
+  - disclaimer
+properties:
+  report_id:
+    type: string
+    description: Unique identifier for the report generation run.
+  generated_at:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of report generation.
+  dataset_summary:
+    type: object
+    description: Summary of the datasets included in the analysis.
+    required:
+      - total_datasets
+      - datasets_with_params
+      - datasets_unparseable
+    properties:
+      total_datasets:
+        type: integer
+        minimum: 0
+      datasets_with_params:
+        type: integer
+        minimum: 0
+      datasets_unparseable:
+        type: integer
+        minimum: 0
+  extraction_stats:
+    type: object
+    description: Statistics from the publication parsing phase.
+    required:
+      - success_rate
+      - failure_reasons
+    properties:
+      success_rate:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+      failure_reasons:
+        type: object
+        additionalProperties:
+          type: integer
+        description: Counts of failure reasons (e.g., paywalled, unparseable).
+  sensitivity_delta:
+    type: object
+    description: Comparison of full-text vs full-text+abstract success rates.
+    required:
+      - full_text_rate
+      - combined_rate
+      - delta
+    properties:
+      full_text_rate:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+      combined_rate:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+      delta:
+        type: number
+        description: Difference between combined and full-text rates.
+  power_results:
+    type: object
+    description: Aggregated observed power results.
+    required:
+      - total_computed
+      - below_threshold_count
+      - threshold_value
+    properties:
+      total_computed:
+        type: integer
+        minimum: 0
+      below_threshold_count:
+        type: integer
+        minimum: 0
+      threshold_value:
+        type: number
+        description: The power threshold used (e.g., 0.8).
+  mdes_results:
+    type: object
+    description: Aggregated Minimum Detectable Effect Size results.
+    required:
+      - total_computed
+      - above_threshold_count
+      - threshold_value
+      - summary_stats
+    properties:
+      total_computed:
+        type: integer
+        minimum: 0
+      above_threshold_count:
+        type: integer
+        minimum: 0
+      threshold_value:
+        type: number
+        description: The MDES threshold used (e.g., 0.2).
+      summary_stats:
+        type: object
+        required:
+          - median
+          - iqr
+        properties:
+          median:
+            type: number
+          iqr:
+            type: number
+            description: Interquartile range.
+  success_metrics:
+    type: object
+    description: Key success metrics derived from the analysis.
+    required:
+      - observed_power_below_threshold
+      - mdes_above_threshold
+    properties:
+      observed_power_below_threshold:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: Fraction of studies with observed power < 0.8.
+      mdes_above_threshold:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: Fraction of studies with MDES > 0.2.
+  disclaimer:
+    type: string
+    description: Mandatory disclaimer text regarding observed power.

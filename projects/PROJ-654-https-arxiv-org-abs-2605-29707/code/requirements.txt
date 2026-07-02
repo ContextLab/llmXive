@@ -1,8 +1,9 @@
 torch
-numpy
-matplotlib
+transformers
 datasets
+matplotlib
+pandas
 tqdm
-loguru
-pandas  # auto-added: imported by run-book but missing from venv
+rich
+numpy
 scikit-learn  # auto-added: imported by run-book but missing from venv

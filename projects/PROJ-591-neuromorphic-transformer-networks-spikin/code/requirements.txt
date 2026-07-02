@@ -1,0 +1,15 @@
+# Core ML Frameworks
+torch>=2.0.0
+snnTorch>=0.9.0
+codecarbon>=2.0.0
+
+# Data Handling & Processing
+datasets>=2.14.0
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Analysis & Statistics
+scikit-learn>=1.3.0
+
+# Utilities (optional but standard)
+pyyaml>=6.0

@@ -112,9 +112,6 @@
 [submodule "projects/PROJ-780-openthoughts-agent-data-recipes-for-agen/external/OpenThoughts-Agent"]
 	path = projects/PROJ-780-openthoughts-agent-data-recipes-for-agen/external/OpenThoughts-Agent
 	url = https://github.com/open-thoughts/OpenThoughts-Agent
-[submodule "projects/PROJ-654-https-arxiv-org-abs-2605-29707/external/Domino"]
-	path = projects/PROJ-654-https-arxiv-org-abs-2605-29707/external/Domino
-	url = https://github.com/jianuo-huang/Domino
 [submodule "projects/PROJ-738-efficientrollout-system-aware-self-specu/external/EfficientRollout"]
 	path = projects/PROJ-738-efficientrollout-system-aware-self-specu/external/EfficientRollout
 	url = https://github.com/furiosa-ai/EfficientRollout
@@ -169,9 +166,6 @@
 [submodule "projects/PROJ-576-sana-wm-efficient-minute-scale-world-mod/external/Sana"]
 	path = projects/PROJ-576-sana-wm-efficient-minute-scale-world-mod/external/Sana
 	url = https://github.com/NVlabs/Sana
-[submodule "projects/PROJ-599-mmskills-towards-multimodal-skills-for-g/external/MMSkills"]
-	path = projects/PROJ-599-mmskills-towards-multimodal-skills-for-g/external/MMSkills
-	url = https://github.com/DeepExperience/MMSkills
 [submodule "projects/PROJ-782-mobileforge-annotation-free-adaptation-f/external/MobileForge"]
 	path = projects/PROJ-782-mobileforge-annotation-free-adaptation-f/external/MobileForge
 	url = https://github.com/kwai/MobileForge
@@ -199,3 +193,15 @@
 [submodule "projects/PROJ-792-are-we-ready-for-an-agent-native-memory/external/awesome-agent-memory"]
 	path = projects/PROJ-792-are-we-ready-for-an-agent-native-memory/external/awesome-agent-memory
 	url = https://github.com/OpenDataBox/awesome-agent-memory
+[submodule "projects/PROJ-615-mega-asr-towards-in-the-wild-2-speech-re/external/Voices-in-the-Wild-Bench"]
+	path = projects/PROJ-615-mega-asr-towards-in-the-wild-2-speech-re/external/Voices-in-the-Wild-Bench
+	url = https://github.com/xzf-thu/Voices-in-the-Wild-Bench
+[submodule "projects/PROJ-638-https-arxiv-org-abs-2605-28820/external/NEO"]
+	path = projects/PROJ-638-https-arxiv-org-abs-2605-28820/external/NEO
+	url = https://github.com/EvolvingLMMs-Lab/NEO
+[submodule "projects/PROJ-599-mmskills-towards-multimodal-skills-for-g/external/MMSkills"]
+	path = projects/PROJ-599-mmskills-towards-multimodal-skills-for-g/external/MMSkills
+	url = https://github.com/DeepExperience/MMSkills
+[submodule "projects/PROJ-654-https-arxiv-org-abs-2605-29707/external/Domino"]
+	path = projects/PROJ-654-https-arxiv-org-abs-2605-29707/external/Domino
+	url = https://github.com/jianuo-huang/Domino

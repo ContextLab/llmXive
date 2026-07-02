@@ -1,0 +1,7 @@
+librosa  # auto-added: imported by run-book but missing from venv
+matplotlib  # auto-added: imported by run-book but missing from venv
+numpy  # auto-added: imported by run-book but missing from venv
+pandas  # auto-added: imported by run-book but missing from venv
+torch  # auto-added: imported by run-book but missing from venv
+transformers  # auto-added: imported by run-book but missing from venv
+voices_in_the_wild_bench  # auto-added: imported by run-book but missing from venv

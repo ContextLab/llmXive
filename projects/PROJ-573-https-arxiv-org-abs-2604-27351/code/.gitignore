@@ -20,7 +20,7 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual Environment
+# Virtual environments
 .venv/
 venv/
 ENV/
@@ -31,24 +31,18 @@ env/
 .vscode/
 *.swp
 *.swo
-*~
 
-# Data and State (tracked separately)
-data/raw/
-data/processed/
+# Data and state (tracked separately)
+data/
 state/
 results/
-
-# Logs
-*.log
-logs/
-
-# OS
-.DS_Store
-Thumbs.db
+figures/
 
 # Testing
 .pytest_cache/
 .coverage
 htmlcov/
-.hypothesis/
+
+# OS
+.DS_Store
+Thumbs.db
