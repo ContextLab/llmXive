@@ -1,0 +1,66 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Processed Molecular Descriptor Dataset"
+description: "Schema for the processed dataset containing SMILES, descriptors, and target values."
+type: object
+properties:
+  molecules:
+    type: array
+    items:
+      type: object
+      required:
+        - smiles
+        - molecular_weight
+        - target_value
+        - target_type
+        - descriptors
+      properties:
+        smiles:
+          type: string
+          description: "Canonical SMILES string of the molecule."
+        molecular_weight:
+          type: number
+          description: "Molecular weight in g/mol."
+        target_value:
+          type: number
+          description: "Log-transformed conductivity, HOMO-LUMO gap, or raw target value."
+        target_type:
+          type: string
+          enum:
+            - conductivity
+            - homo_lumo_gap
+          description: "Type of target variable used."
+        descriptors:
+          type: object
+          description: "Map of descriptor names to numeric values."
+          additionalProperties:
+            type: number
+          required:
+            - aromatic_ring_count
+            - conjugation_path_length
+            - average_path_length
+            - ring_count
+            - degree_distribution_std
+            - vif_score
+          properties:
+            aromatic_ring_count:
+              type: number
+              description: "Count of aromatic rings in the molecule."
+            conjugation_path_length:
+              type: number
+              description: "Length of the longest simple path in the conjugated subgraph."
+            average_path_length:
+              type: number
+              description: "Average shortest path length between all node pairs."
+            ring_count:
+              type: number
+              description: "Total number of rings in the molecular graph."
+            degree_distribution_std:
+              type: number
+              description: "Standard deviation of node degrees."
+            vif_score:
+              type: number
+              description: "Variance Inflation Factor for the feature set."
+    minItems: 1
+required:
+  - molecules
+additionalProperties: false
