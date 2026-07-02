@@ -1,0 +1,13 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Configuration Schema"
+description: "Schema for data/config/dataset_ids.json"
+type: object
+properties:
+  dataset_ids:
+    type: array
+    items:
+      type: string
+    description: "List of dataset identifiers to retrieve. Must match verified sources or trigger synthetic generation."
+required:
+  - dataset_ids
+additionalProperties: false

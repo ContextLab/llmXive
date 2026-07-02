@@ -1,0 +1,33 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Feature Table Schema"
+description: "Schema for processed 16S rRNA feature tables (counts per sample)"
+type: object
+properties:
+  sample_ids:
+    type: array
+    items:
+      type: string
+    description: "Unique identifiers for each sample."
+  taxon_ids:
+    type: array
+    items:
+      type: string
+    description: "Unique identifiers for each taxon (OTU/ASV)."
+  counts:
+    type: array
+    items:
+      type: array
+      items:
+        type: integer
+        minimum: 0
+    description: "2D array of counts [samples x taxa]."
+  subsampling_depth:
+    type: integer
+    minimum: 1
+    description: "The depth to which all samples were subsampled (e.g., 5000)."
+required:
+  - sample_ids
+  - taxon_ids
+  - counts
+  - subsampling_depth
+additionalProperties: false

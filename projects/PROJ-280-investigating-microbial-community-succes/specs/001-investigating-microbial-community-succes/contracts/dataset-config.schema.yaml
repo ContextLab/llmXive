@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Configuration Schema"
+description: "Schema for data/config/dataset_ids.json"
+type: object
+required:
+  - datasets
+properties:
+  datasets:
+    type: array
+    minItems: 1
+    items:
+      type: object
+      required:
+        - accession_id
+        - source
+        - expected_samples
+        - has_n_removal
+        - has_p_removal
+      properties:
+        accession_id:
+          type: string
+          description: "NCBI SRA or Zenodo accession identifier"
+        source:
+          type: string
+          enum:
+            - ncbi_sra
+            - zenodo
+          description: "Data source repository"
+        expected_samples:
+          type: integer
+          minimum: 1
+          description: "Estimated number of samples in dataset"
+        has_n_removal:
+          type: boolean
+          description: "Dataset includes nitrogen removal metrics"
+        has_p_removal:
+          type: boolean
+          description: "Dataset includes phosphorus removal metrics"
+      additionalProperties: false
+additionalProperties: false

@@ -1,0 +1,60 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Feature Table Schema"
+description: "Schema for processed 16S feature tables"
+type: object
+required:
+  - sample_ids
+  - taxon_ids
+  - counts
+properties:
+  sample_ids:
+    type: array
+    minItems: 10
+    items:
+      type: string
+      description: "Unique sample identifier"
+  taxon_ids:
+    type: array
+    minItems: 1
+    items:
+      type: string
+      description: "Unique taxon identifier (OTU/ASV)"
+  counts:
+    type: object
+    description: "Mapping of sample_id to taxon_id to integer count"
+    additionalProperties:
+      type: object
+      additionalProperties:
+        type: integer
+        minimum: 0
+  metadata:
+    type: object
+    description: "Sample-level metadata"
+    additionalProperties:
+      type: object
+      properties:
+        wetland_stage:
+          type: string
+          enum:
+            - early
+            - intermediate
+            - mature
+        n_removal_rate:
+          type: number
+        p_removal_rate:
+          type: number
+        read_depth:
+          type: integer
+          minimum: 5000
+        location:
+          type: string
+        dataset_source:
+          type: string
+      required:
+        - wetland_stage
+        - n_removal_rate
+        - p_removal_rate
+        - read_depth
+        - location
+        - dataset_source
+additionalProperties: false

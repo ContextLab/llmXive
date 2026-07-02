@@ -18,7 +18,7 @@ The research pipeline MUST successfully retrieve pre-processed 16S rRNA feature 
 **Acceptance Scenarios**:
 
 1. **Given** a list of public dataset identifiers from `data/config/dataset_ids.json`, **When** the retrieval script executes, **Then** feature tables and metadata files are saved to `data/raw/` with ≥95% of requested datasets successfully downloaded.
-2. **Given** downloaded datasets, **When** filtering is applied for constructed wetlands with nutrient removal data, **Then** ≥10 samples with both 16S data and N/P removal rates are retained for analysis.
+2. **Given** downloaded datasets, **When** filtering is applied for constructed wetlands with nutrient removal data, **Then** ≥30 samples with both 16S data and N/P removal rates are retained, with ≥10 samples per wetland establishment stage (early, intermediate, mature).
 3. **Given** samples exceeding a sufficient number of reads per sample, **When** subsampling is applied, **Then** all samples are subsampled to a uniform read depth and no sample is discarded due to low initial depth.
 
 ---
@@ -49,9 +49,9 @@ The research pipeline MUST construct microbial co-occurrence networks using Spea
 
 **Acceptance Scenarios**:
 
-1. **Given** ≥15 samples with taxa abundance data, **When** co-occurrence network is constructed, **Then** edges are retained only for Spearman |ρ|≥0.6 with p≤0.01 after multiple-comparison correction.
+1. **Given** ≥15 samples with taxa abundance data, **When** co-occurrence network is constructed, **Then** edges are retained only for Spearman |ρ|≥0.6 with p≤0.01 after multiple-comparison correction; if the number of samples (n) is less than the number of taxa (p), the system MUST flag the network as 'under-determined'.
 2. **Given** a constructed network, **When** modularity is calculated, **Then** the signed delta (Δmodularity) between early vs. mature stages is reported.
-3. **Given** taxon abundance and nutrient removal data, **When** correlation analysis is run, **Then** all taxa with |r|≥0.5 and p≤0.05 are identified as potentially predictive of N/P removal efficiency.
+3. **Given** taxon abundance and nutrient removal data, **When** correlation analysis is run, **Then** the system reports the list of taxa meeting criteria (|r|≥0.5, p≤0.05), or explicitly states that no taxa met criteria.
 
 ---
 
@@ -68,7 +68,7 @@ The research pipeline MUST construct microbial co-occurrence networks using Spea
 
 - **FR-001**: System MUST retrieve pre-processed 16S rRNA feature tables and metadata from NCBI SRA or Zenodo repositories via HTTP download (See US-001)
 - **FR-002**: System MUST filter datasets to constructed wetlands with reported nitrogen and phosphorus removal performance metrics (See US-001)
-- **FR-003**: System MUST subsample all samples to [deferred] reads per sample to fit memory constraints (See US-001)
+- **FR-003**: System MUST subsample all samples to a uniform, sufficient read depth per sample to fit memory constraints (See US-001)
 - **FR-004**: System MUST calculate alpha diversity (Shannon, Simpson) and beta diversity (Bray-Curtis) for all samples (See US-002)
 - **FR-005**: System MUST apply PERMANOVA to test for significant differences in community composition between wetland establishment stages (See US-002)
 - **FR-006**: System MUST construct co-occurrence networks using Spearman correlations with edge retention threshold |ρ|≥0.6, p≤0.01 (See US-003)
@@ -77,7 +77,7 @@ The research pipeline MUST construct microbial co-occurrence networks using Spea
 - **FR-009**: System MUST apply Benjamini-Hochberg FDR correction for multiple hypothesis tests (See US-002, US-003)
 - **FR-010**: System MUST calculate variance inflation factor (VIF) for predictor taxa and flag collinearity when VIF>5 (See US-003)
 - **FR-011**: System MUST validate the existence and schema of `data/config/dataset_ids.json` before attempting retrieval, logging an error if the file is missing or malformed (See US-001)
-- **FR-012**: System MUST perform cross-validation (e.g., k-fold, k=5) on the taxa-nutrient correlation model to validate predictive power and avoid circularity (See US-003)
+- **FR-012**: System MUST perform cross-validation (k=3) on the taxa-nutrient correlation model to validate predictive power and avoid circularity (See US-003)
 - **FR-013**: System MUST perform a sensitivity analysis on the network construction threshold (sweeping |ρ| across a range of moderate to high magnitudes) and report the stability of modularity changes; if sample size (n) < number of taxa (p), the system MUST flag the network as 'under-determined' (See US-003)
 - **FR-014**: System MUST perform a power analysis (or report sample size constraints) before running PERMANOVA; if power <0.8 or n < 10 per group, the system MUST flag the result as 'underpowered' (See US-002)
 - **FR-015**: System MUST perform a sensitivity analysis on subsampling depth (low, medium, high) to verify that alpha diversity rankings are robust to the choice of depth (See US-001)
@@ -98,12 +98,12 @@ The research pipeline MUST construct microbial co-occurrence networks using Spea
 > measured against; defer specific empirical values (counts, dataset sizes,
 > measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: Number of samples with both 16S data and nutrient removal metrics is measured against the minimum threshold of a sufficient sample size required for statistical power (See US-001)
-- **SC-002**: Alpha diversity index completeness (Shannon, Simpson computed for all retained samples) is measured against % target (See US-002)
+- **SC-001**: Number of samples with both 16S data and nutrient removal metrics is measured against the result of a power analysis targeting effect size R²=0.15 at α=0.05 (See US-001)
+- **SC-002**: Alpha diversity index completeness (Shannon, Simpson computed for all retained samples) is measured against ≥95% target (See US-002)
 - **SC-003**: PERMANOVA effect size (R²) and adjusted p-value are measured against statistical significance threshold (p≤0.05, FDR-corrected); if underpowered, the flag is reported (See US-002)
 - **SC-004**: Network modularity difference between early vs. mature stages is measured as the signed delta (Δmodularity); if under-determined, the flag is reported (See US-003)
 - **SC-005**: Number of taxa with |r|≥0.5 and p≤0.05 correlating with nutrient removal is measured against the list of all significant taxa identified via cross-validation (See US-003)
-- **SC-006**: Multiple-comparison correction coverage (percentage of hypothesis tests with FDR-adjusted p-values) is measured against Target maximum performance (See US-002, US-003)
+- **SC-006**: Multiple-comparison correction coverage (percentage of hypothesis tests with FDR-adjusted p-values) is measured against All tests (See US-002, US-003)
 
 ## Assumptions
 
@@ -116,6 +116,6 @@ The research pipeline MUST construct microbial co-occurrence networks using Spea
 
 The research question, method, and references remain as specified in the original planning document, with the specific low-level empirical value removed to maintain the document's planning-level scope.).
 - No GPU or CUDA acceleration is required; scikit-bio, pandas, scipy, and networkx are CPU-tractable.
-- Sample sizes from available public datasets are sufficient for PERMANOVA and regression analyses (≥10 samples minimum), subject to the power analysis in FR-014.
+- Sample sizes from available public datasets are sufficient for PERMANOVA and regression analyses (≥10 samples per stage, total ≥30), subject to the power analysis in FR-014.
 - No new field sampling or wetland construction is required; all data is from existing public repositories.
 - Network modularity change (Δmodularity) is a valid metric for assessing ecological succession stability, subject to the under-determined check in FR-013.

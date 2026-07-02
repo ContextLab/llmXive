@@ -1,4 +1,4 @@
-resolved_at: '2026-07-02T17:06:50.611502+00:00'
+resolved_at: '2026-07-02T18:52:40.024480+00:00'
 datasets:
 - intent: NCBI
   status: verified
@@ -15,23 +15,23 @@ datasets:
     source: huggingface
     status: verified
     format: zip
-  - url: https://acs.figshare.com/articles/journal_contribution/Physicochemical_Nutritional_Microbial_Sensory_and_Antinutritional_Evaluation_of_Tomato_Ketchup_Fortified_with_Chlorella_vulgaris_Protein_Isolates/32882307
+  - url: https://figshare.com/articles/dataset/_b_Associations_between_community_engagement_human_flourishing_and_mental_illness_symptoms_b_/32885093
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Trion_Mediated_Sequential_Charge_Separation_in_Functionalized_CsPbBr_sub_3_sub_AgInS_sub_2_sub_Hybrid_Nanocrystals/32882304
+  - url: https://data.lib.vt.edu/articles/dataset/Data_and_Code_associated_with_Modeling_and_Expert_Evaluation_of_Competency_Dependency_Relationships_for_Human-Robot_Collaboration_Training_in_Construction_/32837123
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/How_Soft_Are_Your_Gas_Mixtures_Effects_of_Modifier_Gas_Types_on_the_Dissociation_of_Labile_Ions_in_Differential_Mobility_Spectrometry/32882302
+  - url: https://figshare.com/articles/dataset/LPS_LMR_dta/29263562
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/World_Sensorium_Using_the_Senses_to_Teach_the_History_of_Exploration/32882299
+  - url: https://figshare.com/articles/dataset/Data_for_Effects_of_Hypoxia_on_the_Olfactory_System_of_Threespine_Stickleback_Gasterosteus_aculeatus_Tigert_and_Porteus/32840345
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Separating_neighborhood_structural_information_from_morphological_effects_in_DBH_variation_in_even-aged_plantation_forests/32882296
+  - url: https://acs.figshare.com/articles/journal_contribution/How_Metal_IV_Phosphonate_Local_Structure_Drives_Radiolytic_Stability_in_Sorbents_with_Novel_Minor_Actinide-Lanthanide_Selectivity/32885090
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -51,11 +51,19 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3236561
+  - url: https://zenodo.org/records/1804302
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21134500
+  - url: https://zenodo.org/records/21039302
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21039302
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.9s4mw6mxk
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -63,15 +71,7 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://air.unimi.it/handle/2434/168877
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15335716
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15335716
+  - url: https://zenodo.org/records/21134500
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -116,23 +116,23 @@ datasets:
     source: huggingface
     status: verified
     format: json
-  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Multi-omics_and_synthetic_microbial_ecology_for_engineering_climate-resilient_phytobiomes_in_cold-arid_agroecosystems_current_advances_and_future_perspectives_docx/32882309
+  - url: https://figshare.com/articles/figure/Drinks_and_beverages_wholesale_suppliers/32885111
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Physicochemical_Nutritional_Microbial_Sensory_and_Antinutritional_Evaluation_of_Tomato_Ketchup_Fortified_with_Chlorella_vulgaris_Protein_Isolates/32882307
+  - url: https://figshare.com/articles/dataset/_b_Associations_between_community_engagement_human_flourishing_and_mental_illness_symptoms_b_/32885093
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Trion_Mediated_Sequential_Charge_Separation_in_Functionalized_CsPbBr_sub_3_sub_AgInS_sub_2_sub_Hybrid_Nanocrystals/32882304
+  - url: https://data.lib.vt.edu/articles/dataset/Data_and_Code_associated_with_Modeling_and_Expert_Evaluation_of_Competency_Dependency_Relationships_for_Human-Robot_Collaboration_Training_in_Construction_/32837123
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/How_Soft_Are_Your_Gas_Mixtures_Effects_of_Modifier_Gas_Types_on_the_Dissociation_of_Labile_Ions_in_Differential_Mobility_Spectrometry/32882302
+  - url: https://figshare.com/articles/dataset/LPS_LMR_dta/29263562
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/World_Sensorium_Using_the_Senses_to_Teach_the_History_of_Exploration/32882299
+  - url: https://figshare.com/articles/dataset/Data_for_Effects_of_Hypoxia_on_the_Olfactory_System_of_Threespine_Stickleback_Gasterosteus_aculeatus_Tigert_and_Porteus/32840345
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -144,18 +144,22 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/13147493
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/3919017
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/16421444
+  - url: https://zenodo.org/records/17281851
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13147493
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.9s4mw6mxk
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/21133264
     source: datacite
     status: wrong_format
@@ -169,10 +173,6 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/21133165
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21133529
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -221,23 +221,23 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://acs.figshare.com/articles/journal_contribution/Iridium-Catalyzed_Enantioselective_C4-Alkylation_of_Indoles_with_Olefins_and_Styrenes/32882313
+  - url: https://figshare.com/articles/dataset/Dataset_for_Need_or_Loyalty_Political_Alignment_and_Federal_Grants_and_Transfers_to_Malaysian_States_2018_to_2024_A_State-Year_Panel_Analysis_with_Small-Cluster_Bootstrap_Inference_/32885102
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Multi-omics_and_synthetic_microbial_ecology_for_engineering_climate-resilient_phytobiomes_in_cold-arid_agroecosystems_current_advances_and_future_perspectives_docx/32882309
+  - url: https://figshare.com/articles/figure/Drinks_and_beverages_wholesale_suppliers/32885111
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Physicochemical_Nutritional_Microbial_Sensory_and_Antinutritional_Evaluation_of_Tomato_Ketchup_Fortified_with_Chlorella_vulgaris_Protein_Isolates/32882307
+  - url: https://figshare.com/articles/dataset/_b_Associations_between_community_engagement_human_flourishing_and_mental_illness_symptoms_b_/32885093
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Trion_Mediated_Sequential_Charge_Separation_in_Functionalized_CsPbBr_sub_3_sub_AgInS_sub_2_sub_Hybrid_Nanocrystals/32882304
+  - url: https://data.lib.vt.edu/articles/dataset/Data_and_Code_associated_with_Modeling_and_Expert_Evaluation_of_Competency_Dependency_Relationships_for_Human-Robot_Collaboration_Training_in_Construction_/32837123
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/How_Soft_Are_Your_Gas_Mixtures_Effects_of_Modifier_Gas_Types_on_the_Dissociation_of_Labile_Ions_in_Differential_Mobility_Spectrometry/32882302
+  - url: https://figshare.com/articles/dataset/LPS_LMR_dta/29263562
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -249,15 +249,15 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3365578
+  - url: https://zenodo.org/records/5336216
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3367816
+  - url: https://zenodo.org/records/5336182
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5336157
+  - url: https://zenodo.org/records/3380311
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -265,23 +265,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://acs.figshare.com/articles/journal_contribution/Iridium-Catalyzed_Enantioselective_C4-Alkylation_of_Indoles_with_Olefins_and_Styrenes/32882313
+  - url: https://figshare.com/articles/dataset/Dataset_for_Need_or_Loyalty_Political_Alignment_and_Federal_Grants_and_Transfers_to_Malaysian_States_2018_to_2024_A_State-Year_Panel_Analysis_with_Small-Cluster_Bootstrap_Inference_/32885102
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Multi-omics_and_synthetic_microbial_ecology_for_engineering_climate-resilient_phytobiomes_in_cold-arid_agroecosystems_current_advances_and_future_perspectives_docx/32882309
+  - url: https://figshare.com/articles/figure/Drinks_and_beverages_wholesale_suppliers/32885111
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Physicochemical_Nutritional_Microbial_Sensory_and_Antinutritional_Evaluation_of_Tomato_Ketchup_Fortified_with_Chlorella_vulgaris_Protein_Isolates/32882307
+  - url: https://figshare.com/articles/dataset/_b_Associations_between_community_engagement_human_flourishing_and_mental_illness_symptoms_b_/32885093
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Trion_Mediated_Sequential_Charge_Separation_in_Functionalized_CsPbBr_sub_3_sub_AgInS_sub_2_sub_Hybrid_Nanocrystals/32882304
+  - url: https://data.lib.vt.edu/articles/dataset/Data_and_Code_associated_with_Modeling_and_Expert_Evaluation_of_Competency_Dependency_Relationships_for_Human-Robot_Collaboration_Training_in_Construction_/32837123
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/How_Soft_Are_Your_Gas_Mixtures_Effects_of_Modifier_Gas_Types_on_the_Dissociation_of_Labile_Ions_in_Differential_Mobility_Spectrometry/32882302
+  - url: https://figshare.com/articles/dataset/LPS_LMR_dta/29263562
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -293,15 +293,15 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://bdj.pensoft.net/article/60245/element/5/6256299/
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/14881142
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://mbmg.pensoft.net/article/152948/element/5/32/
+  - url: https://bdj.pensoft.net/article/60245/element/5/6256299/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16892669
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -329,23 +329,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://acs.figshare.com/articles/journal_contribution/Intracellular_Nanopharmacology_of_Trastuzumab_Deruxtecan_Reveals_Lysosome-Centered_Organelle_Vulnerabilities_in_HER2-Positive_Breast_Cancer_Cells/32882315
+  - url: https://figshare.com/articles/dataset/Dataset_for_Need_or_Loyalty_Political_Alignment_and_Federal_Grants_and_Transfers_to_Malaysian_States_2018_to_2024_A_State-Year_Panel_Analysis_with_Small-Cluster_Bootstrap_Inference_/32885102
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Iridium-Catalyzed_Enantioselective_C4-Alkylation_of_Indoles_with_Olefins_and_Styrenes/32882313
+  - url: https://figshare.com/articles/figure/Drinks_and_beverages_wholesale_suppliers/32885111
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Multi-omics_and_synthetic_microbial_ecology_for_engineering_climate-resilient_phytobiomes_in_cold-arid_agroecosystems_current_advances_and_future_perspectives_docx/32882309
+  - url: https://figshare.com/articles/dataset/_b_Associations_between_community_engagement_human_flourishing_and_mental_illness_symptoms_b_/32885093
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Physicochemical_Nutritional_Microbial_Sensory_and_Antinutritional_Evaluation_of_Tomato_Ketchup_Fortified_with_Chlorella_vulgaris_Protein_Isolates/32882307
+  - url: https://data.lib.vt.edu/articles/dataset/Data_and_Code_associated_with_Modeling_and_Expert_Evaluation_of_Competency_Dependency_Relationships_for_Human-Robot_Collaboration_Training_in_Construction_/32837123
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Trion_Mediated_Sequential_Charge_Separation_in_Functionalized_CsPbBr_sub_3_sub_AgInS_sub_2_sub_Hybrid_Nanocrystals/32882304
+  - url: https://figshare.com/articles/dataset/LPS_LMR_dta/29263562
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -369,6 +369,14 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21138798
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21138798
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/21135654
     source: datacite
     status: wrong_format
@@ -378,14 +386,6 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/21135381
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19856659
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/19856659
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

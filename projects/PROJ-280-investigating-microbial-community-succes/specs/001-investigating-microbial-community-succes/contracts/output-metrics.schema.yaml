@@ -1,0 +1,122 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Output Metrics Schema"
+description: "Schema for diversity, network, and correlation results"
+type: object
+required:
+  - diversity_metrics
+  - permanova_results
+  - network_metrics
+  - correlation_results
+  - fdr_coverage
+properties:
+  diversity_metrics:
+    type: object
+    description: "Alpha and beta diversity metrics"
+    additionalProperties:
+      type: object
+      properties:
+        shannon:
+          type: number
+        simpson:
+          type: number
+        bray_curtis:
+          type: number
+      required:
+        - shannon
+        - simpson
+  permanova_results:
+    type: object
+    description: "PERMANOVA test results"
+    properties:
+      p_value:
+        type: number
+      r_squared:
+        type: number
+      f_statistic:
+        type: number
+      is_underpowered:
+        type: boolean
+      fdr_adjusted_p:
+        type: number
+    required:
+      - p_value
+      - r_squared
+      - is_underpowered
+  network_metrics:
+    type: object
+    description: "Network construction metrics"
+    properties:
+      modularity:
+        type: number
+      delta_modularity:
+        type: number
+      edge_count:
+        type: integer
+      is_under_determined:
+        type: boolean
+      threshold_sensitivity:
+        type: array
+        items:
+          type: object
+          properties:
+            threshold:
+              type: number
+            modularity:
+              type: number
+      stability_score:
+        type: number
+    required:
+      - modularity
+      - is_under_determined
+  correlation_results:
+    type: array
+    description: "Taxon-nutrient correlation results (exploratory)"
+    items:
+      type: object
+      properties:
+        taxon_id:
+          type: string
+        nutrient:
+          type: string
+          enum:
+            - n_removal
+            - p_removal
+        correlation_coefficient:
+          type: number
+        p_value:
+          type: number
+        fdr_adjusted_p:
+          type: number
+        vif:
+          type: number
+        is_significant:
+          type: boolean
+        is_collinear:
+          type: boolean
+        model_type:
+          type: string
+          enum:
+            - spearman
+            - ols
+      required:
+        - taxon_id
+        - nutrient
+        - correlation_coefficient
+        - p_value
+        - is_significant
+        - model_type
+  fdr_coverage:
+    type: object
+    description: "Multiple-comparison correction coverage"
+    properties:
+      total_tests:
+        type: integer
+      adjusted_tests:
+        type: integer
+      coverage_percentage:
+        type: number
+    required:
+      - total_tests
+      - adjusted_tests
+      - coverage_percentage
+additionalProperties: false

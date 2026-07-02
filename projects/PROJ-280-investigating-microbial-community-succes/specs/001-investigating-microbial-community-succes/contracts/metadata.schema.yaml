@@ -1,0 +1,34 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Sample Metadata Schema"
+description: "Schema for sample metadata including wetland stage and nutrient removal rates"
+type: object
+properties:
+  sample_id:
+    type: string
+    description: "Unique identifier matching the feature table."
+  wetland_stage:
+    type: string
+    enum:
+      - "early"
+      - "intermediate"
+      - "mature"
+    description: "Establishment phase of the wetland."
+  n_removal_rate:
+    type: number
+    description: "Nitrogen removal rate (e.g., mg/L/day)."
+  p_removal_rate:
+    type: number
+    description: "Phosphorus removal rate (e.g., mg/L/day)."
+  location:
+    type: string
+    description: "Geographic location of the wetland."
+  dataset_source:
+    type: string
+    description: "Source of the dataset (e.g., 'synthetic', 'NCBI', 'Zenodo')."
+required:
+  - sample_id
+  - wetland_stage
+  - n_removal_rate
+  - p_removal_rate
+  - dataset_source
+additionalProperties: false

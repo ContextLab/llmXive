@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Network Output Schema"
+description: "Schema for co-occurrence network edges and metrics"
+type: object
+properties:
+  is_under_determined:
+    type: boolean
+    description: "True if n_samples < n_taxa."
+  modularity:
+    type: number
+    description: "Calculated modularity score for the network."
+  edges:
+    type: array
+    items:
+      type: object
+      properties:
+        source_taxon:
+          type: string
+        target_taxon:
+          type: string
+        correlation:
+          type: number
+          description: "Spearman correlation coefficient (ρ)."
+        p_value:
+          type: number
+          description: "Raw p-value for the correlation."
+        fdr_adjusted_p:
+          type: number
+          description: "Benjamini-Hochberg adjusted p-value."
+      required:
+        - source_taxon
+        - target_taxon
+        - correlation
+        - p_value
+        - fdr_adjusted_p
+    description: "List of significant edges."
+required:
+  - is_under_determined
+  - modularity
+  - edges
+additionalProperties: false
