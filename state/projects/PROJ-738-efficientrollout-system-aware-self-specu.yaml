@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-19T11:34:41.585022Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-738-efficientrollout-system-aware-self-specu
-last_run_id: 129aa252-db50-4b69-89db-341b1158700b
+last_run_id: 045a047c-d5a7-4656-b21a-83c29886f76a
 last_run_status: null
 points_paper: {}
 points_research: {}
