@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Sensitivity Analysis Result Schema"
+description: "Schema for validating sensitivity analysis results across threshold combinations."
+type: "object"
+properties:
+  smoothing_mm:
+    type: "number"
+    description: "Smoothing kernel size used (e.g., 4, 6, 8)."
+  roi_radius_mm:
+    type: "number"
+    description: "ROI radius used (e.g., 8, 10, 12)."
+  beta_difference:
+    type: "number"
+    description: "Difference in mean beta values between groups."
+  p_value:
+    type: "number"
+    description: "P-value for this specific threshold combination."
+  significant:
+    type: "boolean"
+    description: "True if p_value < 0.05."
+  direction_matches_primary:
+    type: "boolean"
+    description: "True if the sign of beta_difference matches the primary analysis."
+  consistent_with_primary:
+    type: "boolean"
+    description: "True if both significant and direction matches (legacy) OR effect size stable."
+  effect_size_stability:
+    type: "number"
+    description: "Ratio of current Cohen's d to primary Cohen's d (should be within 0.8-1.2)."
+required:
+  - "smoothing_mm"
+  - "roi_radius_mm"
+  - "beta_difference"
+  - "p_value"
+  - "consistent_with_primary"
+  - "effect_size_stability"

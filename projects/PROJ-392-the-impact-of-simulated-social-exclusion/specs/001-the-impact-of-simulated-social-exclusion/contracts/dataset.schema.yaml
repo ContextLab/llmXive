@@ -1,0 +1,73 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Manifest Schema"
+description: "Schema for validating the manifest of downloaded and processed fMRI datasets."
+type: "object"
+properties:
+  dataset_id:
+    type: "string"
+    description: "OpenNeuro dataset ID (e.g., ds000246)."
+  participants:
+    type: "array"
+    description: "List of participant records."
+    items:
+      type: "object"
+      properties:
+        participant_id:
+          type: "string"
+          description: "Unique participant identifier (e.g., sub-001)."
+        group:
+          type: "string"
+          enum:
+            - "excluded"
+            - "included"
+          description: "Group assignment based on Cyberball condition."
+        condition_label:
+          type: "string"
+          description: "Original condition label from BIDS (e.g., 'exclusion', 'inclusion')."
+        motion_exceeded:
+          type: "boolean"
+          description: "True if motion parameters exceeded 3mm/3° threshold."
+        processed_successfully:
+          type: "boolean"
+          description: "True if preprocessing completed without errors."
+        preprocessing_resolution_mm:
+          type: "number"
+          description: "Resolution used for this participant (e.g., 3.0 or 4.0)."
+        memory_peak_mb:
+          type: "number"
+          description: "Peak memory usage during preprocessing (MB)."
+      required:
+        - "participant_id"
+        - "group"
+        - "processed_successfully"
+  preprocessing_params:
+    type: "object"
+    description: "Parameters used for preprocessing."
+    properties:
+      smoothing_fwhm_mm:
+        type: "number"
+        description: "Smoothing kernel size in mm."
+      normalization_target:
+        type: "string"
+        description: "Template used for normalization (e.g., 'MNI152')."
+      resolution_mm:
+        type: "number"
+        description: "Resolution used (e.g., 3.0 or 4.0)."
+    required:
+      - "smoothing_fwhm_mm"
+      - "normalization_target"
+  checksums:
+    type: "object"
+    description: "Checksums for raw and processed data files."
+    additionalProperties:
+      type: "string"
+      description: "SHA256 hash of the file."
+  preprocessing_completion_rate:
+    type: "number"
+    description: "Percentage of participants successfully processed (SC-004)."
+required:
+  - "dataset_id"
+  - "participants"
+  - "preprocessing_params"
+  - "checksums"
+  - "preprocessing_completion_rate"
