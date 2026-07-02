@@ -1,1 +1,55 @@
-[]
+- artifact_hash: 4364274c66300c041c73e5e8d759129221ce29db1f2068f6ff681193b7a585a9
+  artifact_path: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Installation | DeepSource Docs
+  kind: url
+  value: https://deepsource.com/docs/cli`
+  verification_status: verified
+  verified_against_url: https://deepsource.com/docs/developers/cli/installation
+  verified_at: '2026-07-02T10:50:12.271071Z'
+- artifact_hash: bb3b141515ef4cfe9b761c08f6bba7bab6a51accd97f32b7ddcf7ffe3edf729e
+  artifact_path: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: api.github.com
+  kind: url
+  value: https://api.github.com`
+  verification_status: verified
+  verified_against_url: https://api.github.com
+  verified_at: '2026-07-02T10:50:35.274178Z'
+- artifact_hash: bb3b141515ef4cfe9b761c08f6bba7bab6a51accd97f32b7ddcf7ffe3edf729e
+  artifact_path: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: Home | Sonar Documentation
+  kind: url
+  value: https://docs.sonarqube.org/latest/`
+  verification_status: verified
+  verified_against_url: https://docs.sonarsource.com/
+  verified_at: '2026-07-02T10:50:35.274178Z'
+- artifact_hash: bb3b141515ef4cfe9b761c08f6bba7bab6a51accd97f32b7ddcf7ffe3edf729e
+  artifact_path: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: Installation | DeepSource Docs
+  kind: url
+  value: https://deepsource.com/docs/cli`
+  verification_status: verified
+  verified_against_url: https://deepsource.com/docs/developers/cli/installation
+  verified_at: '2026-07-02T10:50:35.274178Z'
+- artifact_hash: bb3b141515ef4cfe9b761c08f6bba7bab6a51accd97f32b7ddcf7ffe3edf729e
+  artifact_path: projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/research.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: What is Qlty? - Qlty Docs
+  kind: url
+  value: https://docs.codeclimate.com/`
+  verification_status: verified
+  verified_against_url: https://docs.qlty.sh/what-is-qlty
+  verified_at: '2026-07-02T10:50:35.274178Z'

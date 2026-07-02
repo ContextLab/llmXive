@@ -9,7 +9,7 @@
 
 ### User Story 1 - Data Collection and Tool Execution Pipeline (Priority: P1)
 
-A researcher can retrieve 30–40 open-source repositories from GitHub, clone them, and execute static analysis tools (SonarQube Scanner, DeepSource CLI, CodeClimate Engine) to generate structured issue reports for each repository.
+A researcher can retrieve a set of open-source repositories from GitHub., clone them, and execute static analysis tools (SonarQube Scanner, DeepSource CLI, CodeClimate Engine) to generate structured issue reports for each repository.
 
 **Why this priority**: This is the foundational data acquisition step without which no comparison or metrics can be computed. All downstream analysis depends on this pipeline completing successfully.
 
@@ -39,7 +39,7 @@ A researcher can extract defect annotations from merged pull-request review comm
 
 ### User Story 3 - Metrics Computation and Statistical Analysis (Priority: P3)
 
-A researcher can compute precision, recall, and F1 scores for each tool across defect categories, perform paired Wilcoxon signed-rank tests comparing tool performance, and fit mixed-effects regression models to identify project characteristic influences.
+A researcher can compute precision, recall, and F1 scores for each tool across defect categories, perform paired Wilcoxon signed-rank tests comparing tool performance, and fit fixed-effects regression models to identify project characteristic influences.
 
 **Why this priority**: This delivers the final research output—quantitative evidence of tool effectiveness and modulating factors. It enables the research question to be answered.
 
@@ -48,7 +48,7 @@ A researcher can compute precision, recall, and F1 scores for each tool across d
 **Acceptance Scenarios**:
 
 1. **Given** aligned tool issues and human annotations for 30+ repositories, **When** the metrics computation script runs, **Then** per-tool precision, recall, and F1 scores are calculated for security, bug, and style categories
-2. **Given** per-project tool performance metrics, **When** statistical tests execute, **Then** Wilcoxon signed-rank p-values and mixed-effects regression coefficients are output with p<0.05 significance thresholds applied
+2. **Given** per-project tool performance metrics, **When** statistical tests execute, **Then** permutation-based p-values and fixed-effects regression coefficients are output with p<0.05 significance thresholds applied
 
 ---
 
@@ -56,7 +56,7 @@ A researcher can compute precision, recall, and F1 scores for each tool across d
 
 - What happens when a repository has no merged pull requests in the target commit range? → The pipeline must skip that repository and log the exclusion reason
 - How does the system handle repositories where tool execution fails (e.g., incompatible dependencies)? → The pipeline must retry up to 2 times, then mark the repository as failed and continue with remaining repos
-- What happens when file/line alignment between tool output and PR comments is ambiguous (e.g., multiple issues on same line)? → The alignment algorithm must use a 5-line tolerance window and flag ambiguous matches for manual review
+- What happens when file/line alignment between tool output and PR comments is ambiguous (e.g., multiple issues on same line)? → The alignment algorithm must use a tolerance window of appropriate length and flag ambiguous matches for manual review
 
 ## Requirements *(mandatory)*
 
@@ -65,13 +65,15 @@ A researcher can compute precision, recall, and F1 scores for each tool across d
 - **FR-001**: System MUST retrieve 30–40 public GitHub repositories stratified by language (Java, Python, JavaScript, Go) and activity level (commits within 1 year) (See US-1)
 - **FR-002**: System MUST apply OSS PESTO criteria (open-source license, CI status, issue-tracker availability) to filter repositories before cloning (See US-1)
 - **FR-003**: System MUST execute SonarQube Scanner, DeepSource CLI, and CodeClimate Engine on each cloned repository and capture JSON reports (See US-1)
-- **FR-004**: System MUST parse merged pull-request review comments to extract defect annotations (bug, security, style) using keyword heuristics with manual validation (See US-2)
-- **FR-005**: System MUST align tool-reported issues with human-review annotations by file and line number with ≥90% matching accuracy (See US-2)
+- **FR-004**: System MUST parse merged pull-request review comments to extract defect annotations (bug, security, style) using keyword heuristics, then perform expert manual validation on a [deferred] stratified random sample of extracted annotations to establish ground truth (See US-2)
+- **FR-005**: System MUST align tool-reported issues with human-review annotations using AST-based or diff-based semantic alignment (or ±5 line tolerance if AST unavailable) and output a validation status report for the aligned pairs (See US-2)
 - **FR-006**: System MUST compute precision, recall, and F1 scores for each tool across all defect categories (See US-3)
 - **FR-007**: System MUST perform Wilcoxon signed-rank tests comparing tool performance within the same project (See US-3)
-- **FR-008**: System MUST fit mixed-effects regression models with tool, language, and project size as fixed effects and project ID as random effect (See US-3)
+- **FR-008**: System MUST perform permutation-based significance tests and fit fixed-effects regression models with tool, language, and project size as fixed effects (See US-3)
 - **FR-009**: System MUST apply family-wise error correction when running multiple hypothesis tests (See US-3)
 - **FR-010**: System MUST save all metrics, regression tables, and plots as CSV/PNG artifacts for workflow upload (See US-3)
+- **FR-011**: System MUST calculate Cohen's κ inter-rater reliability on the expert-validated subset and report the value (See US-2)
+- **FR-012**: System MUST perform a sensitivity analysis on the keyword heuristic threshold by sweeping the cutoff over a range of small values and reporting the variation in false-positive rates (See US-2)
 
 ### Key Entities
 
@@ -86,20 +88,20 @@ A researcher can compute precision, recall, and F1 scores for each tool across d
 
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: Per-tool precision and recall metrics are measured against the human-review baseline derived from PR annotations (See US-3)
+- **SC-001**: Per-tool precision and recall metrics are measured against the expert-validated ground truth derived from the [deferred] stratified random sample (See US-3)
 - **SC-002**: Statistical significance of tool differences is measured against p<0.05 threshold with Bonferroni correction applied for multiple comparisons (See US-3)
-- **SC-003**: Pipeline runtime is measured against the specified GitHub Actions free-tier budget constraint (See US-1)
-- **SC-004**: Memory usage is measured against the available RAM limit during concurrent tool execution (See US-1)
-- **SC-005**: Alignment accuracy is measured against a [deferred] manually validated sample of human annotations (See US-2)
+- **SC-003**: Pipeline runtime is measured against a threshold of ≤ 5.5 hours (See US-1)
+- **SC-004**: Memory usage is measured against a peak threshold of ≤ 6 GB (See US-1)
+- **SC-005**: Alignment accuracy is measured against a stratified random sample of ≥500 expert-validated annotations using line-range intersection, and the resulting accuracy must be ≥90% (See US-2)
 - **SC-006**: Mixed-effects model fit is measured against project characteristic influence coefficients (See US-3)
 
 ## Assumptions
 
-- GitHub REST API rate limits will not prevent retrieval of PR comments for 30–40 repositories within the 6-hour budget (sufficient request capacity available for authenticated users)
+- GitHub REST API rate limits will not prevent retrieval of PR comments for a representative sample of repositories within the 6-hour budget. (sufficient request capacity available for authenticated users)
 - Static analysis tools (SonarQube Scanner, DeepSource CLI, CodeClimate Engine) can be executed via Docker containers or binary releases on CPU-only GitHub Actions runners without GPU dependencies
-- Keyword heuristics for defect annotation extraction (e.g., "bug", "security", "style" in PR comments) will capture ≥70% of relevant human-review findings; remaining cases will be flagged for manual review
+- Keyword heuristics for defect annotation extraction (e.g., "bug", "security", "style" in PR comments) will capture relevant human-review findings, subject to expert validation of a [deferred] stratified random sample; the heuristic threshold sensitivity is analyzed via FR-012
 - Repository codebases will fit within 7 GB RAM during concurrent analysis; if a repository exceeds this, it will be excluded and logged as a resource constraint failure
 - The observational nature of this study (no randomization of tool usage) means all findings will be framed as associational rather than causal relationships
-- Sample size of 30–40 repositories provides adequate statistical power for Wilcoxon signed-rank tests; power analysis will be deferred pending pilot results
+- A sample size of repositories provides adequate statistical power. for permutation-based tests and fixed-effects regression; random-effects models are avoided to prevent overfitting
 - No post-task psychological variables (e.g., anxiety, rumination) are required since this study focuses on code quality metrics rather than human factors
 - Project characteristics (language, size, activity) are definitionally independent predictors; collinearity diagnostics will be included in the regression analysis to confirm this assumption

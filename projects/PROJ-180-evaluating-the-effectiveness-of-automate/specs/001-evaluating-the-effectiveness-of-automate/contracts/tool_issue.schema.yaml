@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Tool Issue
+description: "Schema for static analysis tool issue reports"
+type: object
+properties:
+  tool_name:
+    type: string
+    description: "Name of the static analysis tool (SonarQube, DeepSource, CodeClimate)"
+  issue_id:
+    type: string
+    description: "Unique identifier for the issue"
+  issue_type:
+    type: string
+    enum:
+      - bug
+      - security
+      - style
+    description: "Category of the detected issue"
+  severity:
+    type: string
+    enum:
+      - Critical
+      - Major
+      - Minor
+      - Info
+    description: "Severity level of the issue"
+  file_path:
+    type: string
+    description: "Relative file path within the repository"
+  line_number:
+    type: integer
+    minimum: 1
+    description: "Line number where the issue was detected"
+  description:
+    type: string
+    description: "Human-readable description of the issue"
+  repository_id:
+    type: string
+    description: "Foreign key to the repository"
+required:
+  - tool_name
+  - issue_id
+  - issue_type
+  - severity
+  - file_path
+  - line_number
+  - description
+  - repository_id
+additionalProperties: false
