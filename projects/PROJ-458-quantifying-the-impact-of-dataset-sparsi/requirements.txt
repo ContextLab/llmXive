@@ -1,0 +1,4 @@
+# Task T001: Initial requirements stub.
+# Specific versions for pymatgen, matminer, scikit-learn, statsmodels, pandas, numpy, matplotlib, requests
+# will be added in Task T002 as per the plan.
+# Currently empty to allow T002 to populate it with pinned versions.

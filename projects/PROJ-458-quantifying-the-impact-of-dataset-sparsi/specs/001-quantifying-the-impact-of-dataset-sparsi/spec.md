@@ -35,7 +35,7 @@ As a researcher, I want to train Gaussian Process and Random Forest models acros
 
 1. **Given** the full dataset, **When** stratified random sampling (using k-means clustering on elemental fingerprints) is applied, **Then** 7 subsets ([deferred], [deferred], [deferred], [deferred], [deferred], [deferred], [deferred]) are created preserving chemical space distribution (elemental histogram correlation coefficient ≥ 0.95) for each level.
 2. **Given** a subset, **When** training GPR and Random Forest models, **Then** training completes within 60 minutes per subset on a GitHub Actions 2-core runner.
-3. **Given** model training, **When** cross-validation (5-fold) is executed, **Then** RMSE and MAE metrics are logged for each fold without CUDA errors.
+3. **Given** model training, **When** cross-validation (k-fold) is executed, **Then** RMSE and MAE metrics are logged for each fold without CUDA errors.
 
 ---
 
@@ -67,13 +67,13 @@ As a researcher, I want to generate learning curves and perform ANOVA tests, so 
 
 - **FR-001**: System MUST download Materials Project formation energy data via public API and filter for entries with DFT-computed values (See US-1).
 - **FR-002**: System MUST generate elemental composition descriptors (atomic number, electronegativity, atomic radius averages) using matminer (See US-1).
-- **FR-003**: System MUST create 7 stratified random subsamples representing [deferred], [deferred], [deferred], [deferred], [deferred], [deferred], and [deferred] of the full dataset using k-means clustering on elemental fingerprints to preserve chemical space coverage (See US-2).
+- **FR-003**: System MUST create multiple stratified random subsamples representing [deferred], [deferred], [deferred], [deferred], [deferred], [deferred], and [deferred] of the full dataset using k-means clustering on elemental fingerprints to preserve chemical space coverage (See US-2).
 - **FR-004**: System MUST train Gaussian Process Regression (RBF kernel) and Random Forest (ensemble of decision trees) models using CPU-only execution (No GPU/CUDA) (See US-2).
-- **FR-005**: System MUST perform Multiple-fold cross-validation with 3 independent random seeds per sparsity level and record RMSE, MAE, and predictive variance for uncertainty calibration (See US-2).
+- **FR-005**: System MUST perform Multiple-fold cross-validation with multiple independent random seeds per sparsity level and record RMSE, MAE, and predictive variance for uncertainty calibration (See US-2).
 - **FR-006**: System MUST apply Repeated Measures ANOVA with Tukey post-hoc test to determine statistical significance (p < 0.05) of performance differences across sparsity levels, accounting for the nested nature of the subsets (See US-3).
 - **FR-007**: System MUST perform sensitivity analysis on sparsity boundaries by verifying trend stability (slope variance < 10%) across adjacent levels (e.g., 5% vs 10%) to justify threshold selection (See US-3).
 - **FR-008**: System MUST report findings as associational evidence regarding data density and model reliability, avoiding causal claims (See US-3).
-- **FR-009**: System MUST partition a fixed, independent test set (a proportion of the full dataset) at the start of the pipeline and use this SAME test set to evaluate all 7 training sparsity levels to prevent circular dependency (See US-2).
+- **FR-009**: System MUST partition a fixed, independent test set (a proportion of the full dataset) at the start of the pipeline and use this SAME test set to evaluate all training sparsity levels to prevent circular dependency (See US-2).
 - **FR-010**: System MUST utilize Mixed-Effects Modeling or Repeated Measures ANOVA to handle the correlation between nested sparsity levels, ensuring statistical validity of p-values (See US-3).
 
 ### Key Entities *(include if feature involves data)*
@@ -94,7 +94,7 @@ As a researcher, I want to generate learning curves and perform ANOVA tests, so 
 - **SC-001**: RMSE and MAE error rates are measured against the FIXED held-out test set ([deferred] of full data) for each sparsity level (See US-3).
 - **SC-002**: Learning curve completeness is measured against the requirement to plot all 7 sparsity levels with error bars (See US-3).
 - **SC-003**: Statistical significance is measured against the p < 0.05 threshold using Repeated Measures ANOVA with Tukey correction (See US-3).
-- **SC-004**: Compute feasibility is measured against the GitHub Actions free-tier limit and 7 GB RAM constraint (See US-2).
+- **SC-004**: Compute feasibility is measured against the GitHub Actions free-tier limit and GB RAM constraint (See US-2).
 
 ## Assumptions
 

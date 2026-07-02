@@ -1,6 +1,6 @@
 # Tasks: Quantify Dataset Sparsity Impact
 
-**Input**: Design documents from `/specs/001-quantify-sparsity-impact/`
+**Input**: Design documents from `/specs/001-quantifying-the-impact-of-dataset-sparsity/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
@@ -20,23 +20,23 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
@@ -44,23 +44,8 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure: `mkdir -p code/utils data/raw data/processed data/results data/metadata tests/unit tests/integration docs`
-- [ ] T002 Create `code/requirements.txt` with pinned versions: `pymatgen==2024.5.10`, `matminer==0.9.2`, `scikit-learn==1.5.0`, `statsmodels==0.14.2`, `pandas==2.2.2`, `numpy==1.26.4`, `matplotlib==3.9.0`, `requests==2.32.3`
-- [ ] T003 [P] Create `code/.pre-commit-config.yaml` with hooks for `ruff` and `black`
-
----
-
-## Phase 1.5: Spec Correction (Critical Fixes)
-
-**Purpose**: Update spec.md to resolve contradictions and ambiguities before implementation begins.
-
-- [ ] T009 [Spec] Update `spec.md` FR-003 to replace "[deferred]" placeholders with explicit percentages: [deferred], [deferred], [deferred], [deferred], [deferred], [deferred], [deferred]
-- [ ] T010 [Spec] Update `spec.md` FR-006 and SC-003 to mandate "Linear Mixed-Effects Modeling (LMM)" instead of "Repeated Measures ANOVA"
-- [ ] T011 [Spec] Update `spec.md` SC-001 to include "Predictive Variance" and "Calibration Slope" as required metrics alongside RMSE/MAE
-- [ ] T012 [Spec] Update `spec.md` Assumptions to acknowledge requirement for `MP_API_KEY` (remove "no authentication barriers")
-- [ ] T013 [Spec] Update `spec.md` FR-003 to explicitly define the "30k Representative Stratified Sample (RSS)" baseline instead of "full dataset"
-- [ ] T014 [Spec] Update `spec.md` FR-007 to include explicit "slope variance < 10%" metric for trend stability
-
-**Checkpoint**: Spec is now consistent with plan and tasks.
+- [X] T002 Create `code/requirements.txt` with pinned versions for all dependencies (pymatgen, matminer, scikit-learn, statsmodels, pandas, numpy, matplotlib, requests). Note: Specific versions are defined in the Plan's "Technical Context" section.
+- [X] T003 [P] Create `code/.pre-commit-config.yaml` with hooks for `ruff` and `black`
 
 ---
 
@@ -70,15 +55,27 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T015 Implement `code/utils/logging.py` with `get_logger()` returning a JSON formatter that writes to `data/results/`
-- [ ] T016 [P] Implement `code/utils/cpu_constraints.py` with `enforce_memory_limit` to enforce a configurable memory constraint. and `chunked_iterator()` functions. Note: While file creation is parallel-safe, this utility is a blocking prerequisite for all memory-intensive tasks (T035, T039).
+- [X] T015 Implement `code/utils/logging.py` with `get_logger()` returning a JSON formatter that writes to `data/results/`
+- [ ] T016 Implement `code/utils/cpu_constraints.py` with `enforce_memory_limit` to enforce a configurable memory constraint and `chunked_iterator()` function. Note: This utility is a blocking prerequisite for all memory-intensive tasks (T035, T039).
 - [ ] T017 [P] Implement `code/utils/contract_validator.py` with `validate_schema(data, schema_path)` returning bool and error handling
-- [ ] T018 Create base `MaterialEntry` data class (fields: id, composition, formation_energy, descriptors) and `SparsitySubset` data class (fields: level, seed, percentage, checksum) in `code/utils/data_models.py`
-- [ ] T019 Setup environment configuration: Create `code/.env.example` with `MP_API_KEY=placeholder` and `code/config.py` with `load_env()` that raises error if `MP_API_KEY` missing
-- [ ] T020 [P] [US2] Implement `code/test_split.py` to partition [deferred] of the full pool into a **Fixed Test Set** (`data/processed/test_set.csv`) using random seed 42, immediately after ingestion (FR-009, Plan Phase 0.5)
-- [ ] T021 [P] [US2] Verify test set independence and log metadata (row count, checksum) to `data/metadata/test_set_metadata.json` (FR-009)
+- [X] T018 Create base `MaterialEntry` data class (fields: id, composition, formation_energy, descriptors) and `SparsitySubset` data class (fields: level, seed, percentage, checksum) in `code/utils/data_models.py`
+- [X] T019 Setup environment configuration: Create `code/.env.example` with `MP_API_KEY=placeholder` and `code/config.py` with `load_env()` that raises error if `MP_API_KEY` missing. Note: The spec's Assumption regarding 'no authentication barriers' is incorrect; this task implements the required API key configuration per the Plan.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+
+---
+
+## Phase 1.6: Kickback & Spec Alignment
+
+**Purpose**: Generate formal artifacts documenting deviations between Spec and Plan. These tasks do NOT modify spec.md directly, preserving the "Single Source of Truth" principle.
+
+- [~] T010 [Kickback] Generate `docs/kickback_log.md` entry for FR-003: Log the deviation where the Plan defines a 'Representative Stratified Sample (RSS)' baseline while the Spec uses '[deferred]' full dataset terminology.
+- [~] T011 [Kickback] Generate `docs/kickback_log.md` entry for Assumptions: Log the deviation where the Plan requires `MP_API_KEY` while the Spec assumes 'no authentication barriers'.
+- [~] T012 [Kickback] Generate `docs/kickback_log.md` entry for FR-006: Log the deviation where the Plan mandates 'Linear Mixed-Effects Modeling (LMM)' while the Spec mandates 'Repeated Measures ANOVA' due to nested data structure.
+- [~] T013 [Kickback] Generate `docs/kickback_log.md` entry for SC-001: Log the deviation where the Plan includes 'Predictive Variance' and 'Calibration Slope' metrics which are not explicitly listed in the Spec's SC-001.
+- [~] T014 [Kickback] Generate `docs/kickback_log.md` entry for FR-007: Log the deviation where the Plan specifies a 'slope variance < 10% ' threshold for sensitivity analysis, whereas the Spec's FR-007 lacks this explicit metric. Note: Implementation of this check is handled by T047.
+
+**Checkpoint**: Kickback log generated; Spec deviations formally recorded for next phase.
 
 ---
 
@@ -86,22 +83,24 @@
 
 **Goal**: Download, filter, and engineer features for the Materials Project dataset to create a valid input pool.
 
-**Independent Test**: Execute `code/data_ingestion.py` and verify `data/processed/full_pool.csv` contains >150,000 rows with non-null formation energy and feature vectors.
+**Independent Test**: Execute `code/data_ingestion.py` and verify `data/processed/full_pool_final.csv` contains >150,000 rows with non-null formation energy and feature vectors.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T022 [P] [US1] Unit test `test_api_backoff_retries_on_rate_limit` in `tests/unit/test_data_ingestion.py`
-- [ ] T023 [P] [US1] Integration test `test_full_ingestion_pipeline` in `tests/integration/test_ingestion.py`
+- [~] T022 [P] [US1] Unit test `test_api_backoff_retries_on_rate_limit` in `tests/unit/test_data_ingestion.py`
+- [~] T023 [P] [US1] Integration test `test_full_ingestion_pipeline` in `tests/integration/test_ingestion.py`
 
 ### Implementation for User Story 1
 
-- [ ] T024 [US1] Implement `code/data_ingestion.py` to download a substantial volume of entries via Materials Project API (using `MP_API_KEY`), with exponential backoff (limited retry attempts), outputting raw data to `data/raw/full_pool.csv` with columns: `material_id`, `composition`, `formation_energy`, `dft_computed`
-- [ ] T025 [US1] Implement filtering logic in `code/data_ingestion.py` to retain only rows where `formation_energy` is not null and `dft_computed` is True, saving to `data/processed/filtered_pool.csv`
-- [ ] T026 [US1] Implement descriptor generation in `code/data_ingestion.py` using `matminer` `ElementalPropertyFeatureExtractor` with properties: `atomic_number`, `electronegativity`, `atomic_radius`, outputting to `data/processed/full_pool.csv`
-- [ ] T027 [US1] Implement imputation logic in `code/data_ingestion.py` to mean-fill missing numeric descriptors; drop rows with >50% missing values and log count to `data/results/ingestion_log.json`
-- [ ] T028 [US1] Save cleaned full pool to `data/processed/full_pool.csv` with SHA-256 checksum generation (write to `data/processed/full_pool.csv.sha256`) (Constitution III)
+- [~] T024 [US1] Implement `code/data_ingestion.py` to download a substantial corpus of entries via Materials Project API. (using `MP_API_KEY`), with exponential backoff (limited retry attempts), outputting raw data to `data/raw/raw_pool.csv` with columns: `material_id`, `composition`, `formation_energy`, `dft_computed`.
+- [~] T025 [US1] Implement filtering logic in `code/data_ingestion.py` to retain only rows where `formation_energy` is not null and `dft_computed` is True, saving to `data/processed/filtered_pool.csv`.
+- [~] T026 [US1] Implement descriptor generation in `code/data_ingestion.py` using `matminer` `ElementalPropertyFeatureExtractor` with properties: `atomic_number`, `electronegativity`, `atomic_radius`, outputting to `data/processed/descriptors_pool.csv`.
+- [~] T027 [US1] Implement imputation logic in `code/data_ingestion.py` to mean-fill missing numeric descriptors; drop rows with >50% missing values and log count to `data/results/ingestion_log.json`. Output final dataset to `data/processed/full_pool_final.csv`. <!-- FAILED: unspecified -->
+- [~] T028 [US1] Save cleaned full pool to `data/processed/full_pool_final.csv` with SHA-256 checksum generation (write to `data/processed/full_pool_final.csv.sha256`) (Constitution III)
+- [~] T020 [US1] [P] Implement `code/test_split.py` to partition a subset of the `full_pool_final.csv` into a **Fixed Test Set** for model evaluation, following the research question and method outlined in prior work [Citation]. (`data/processed/test_set.csv`) using a fixed random seed. (FR-009, Plan Phase 0.5). Note: This task now correctly depends on T027.
+- [~] T021 [US1] [P] Verify test set independence and log metadata (row count, checksum) to `data/metadata/test_set_metadata.json` (FR-009)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -115,18 +114,18 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T029 [P] [US2] Contract test `test_test_set_independence` in `tests/contract/test_split.py`
-- [ ] T030 [P] [US2] Integration test `test_gpr_training_on_30k_subset` in `tests/integration/test_training.py`
+- [~] T029 [P] [US2] Contract test `test_test_set_independence` in `tests/contract/test_split.py`
+- [~] T030 [P] [US2] Integration test `test_gpr_training_on_30k_subset` in `tests/integration/test_training.py`
 
 ### Implementation for User Story 2
 
-- [ ] T031 [US2] Implement `code/sparsity_generation.py` to cap the training pool at a Representative Stratified Sample (RSS) from the available training pool. using stratified random sampling based on formation_energy bins. Note: This is a feasibility override (Plan Phase 1.1) required for CPU-only execution.
-- [ ] T032 [US2] Implement K-Means clustering on elemental fingerprints in `code/sparsity_generation.py` to generate 7 stratified subsets ([deferred], [deferred], [deferred], [deferred], [deferred], [deferred], [deferred] of the 30k pool) preserving chemical space (FR-003)
+- [ ] T031 [US2] Implement `code/sparsity_generation.py` to cap the training pool at a Representative Stratified Sample (RSS) by reading the baseline size from `config.RSS_SIZE` (resolving the '[deferred]' placeholder from the Plan). Implement stratified random sampling based on formation_energy bins. (Plan Phase 1.1).
+- [ ] T032 [US2] Implement K-Means clustering on elemental fingerprints in `code/sparsity_generation.py` to generate multiple stratified subsets ([deferred], [deferred], [deferred], [deferred], [deferred], [deferred], [deferred] of the RSS pool) preserving chemical space (FR-003)
 - [ ] T033 [US2] Implement stratification validation in `code/validate_stratification.py` using Jensen-Shannon divergence (threshold < 0.05) and KS-test (p > 0.05); block training if thresholds exceeded (Plan Phase 1.3)
 - [ ] T034 [US2] Generate `data/metadata/sparsity_<level>_<seed>.json` for each subset containing keys: `seed`, `percentage`, `criteria`, `checksum` (Constitution VII)
-- [ ] T035 [US2] Implement `code/model_training.py` to train GPR (RBF kernel, `normalize_y=True`, `max_iter_predict=1000`) and Random Forest models (n_estimators=100) on CPU only. Note: Implements Linear Mixed-Effects Modeling (LMM) instead of ANOVA to satisfy statistical validity constraints for nested data (FR-010).
+- [ ] T035 [US2] Implement `code/model_training.py` to train GPR (RBF kernel, `normalize_y=True`, `max_iter_predict=1000`) and Random Forest models (n_estimators=100) on CPU only. Implement Linear Mixed-Effects Modeling (LMM) using `statsmodels.MixedLM` for statistical analysis as per Plan 'Note on Spec Contradictions' (FR-010).
 - [ ] T036 [US2] Implement k-fold Cross-Validation with multiple independent seeds per sparsity level in `code/model_training.py` (FR-005)
-- [ ] T037 [US2] Implement evaluation logic in `code/model_training.py` to score all models against the **Fixed Test Set** (not training subsets) and calculate RMSE, MAE, Predictive Variance, Calibration Slope. Note: Includes Predictive Variance and Calibration Slope per Constitution Principle VI and FR-005.
+- [ ] T037 [US2] Implement evaluation logic in `code/model_training.py` to score all models against the **Fixed Test Set** (not training subsets) and calculate RMSE, MAE, Predictive Variance, Calibration Slope. Note: Includes Predictive Variance and Calibration Slope per Constitution Principle VI and FR-005, exceeding SC-001.
 - [ ] T038 [US2] Log metrics to `data/results/metrics.csv` with columns: `sparsity_level`, `model`, `seed`, `rmse`, `mae`, `variance`, `calibration_slope` (FR-005, SC-001)
 - [ ] T039 [US2] Implement chunked processing in `code/model_training.py` with dynamic chunk size to handle OOM errors on large subsets (Edge Case)
 
@@ -148,11 +147,11 @@
 ### Implementation for User Story 3
 
 - [ ] T042 [US3] Implement `code/statistical_analysis.py` to generate learning curves (error vs. dataset size) with error bars using `matplotlib` (FR-006, SC-002)
-- [ ] T043 [US3] Implement Linear Mixed-Effects Modeling (LMM) using `statsmodels.MixedLM` with formula `error ~ sparsity_level + (1|seed)` to handle nested sparsity levels (FR-010, Plan Note on ANOVA)
+- [ ] T043 [US3] Implement Linear Mixed-Effects Modeling (LMM) using `statsmodels.MixedLM` with formula `error ~ sparsity_level + (1|seed)` to handle nested sparsity levels. Note: This implements the Plan's approved deviation from FR-006 (ANOVA) due to nested data structure.
 - [ ] T044 [US3] Apply Tukey post-hoc test to report p-values for differences between sparsity levels (threshold p < 0.05) (FR-006, SC-003)
 - [ ] T045 [US3] Implement uncertainty calibration in `code/statistical_analysis.py` to generate calibration slope and predicted vs. squared residuals plots (Constitution VI, FR-005)
 - [ ] T046 [US3] Save calibration reports to `data/results/calibration/` as JSON files containing slope and residuals comparison (Constitution VI)
-- [ ] T047 [US3] Implement sensitivity analysis in `code/statistical_analysis.py` to verify elbow point stability (slope variance < 10%) across adjacent levels (FR-007, SC-003)
+- [ ] T047 [US3] Implement sensitivity analysis in `code/statistical_analysis.py` to verify elbow point stability (slope variance < 10%) across adjacent levels. Note: This implements the <10% threshold from the Plan, exceeding FR-007's ambiguous requirement.
 - [ ] T048 [US3] Generate final report `data/results/final_report.md` summarizing findings as associational evidence, avoiding causal claims (FR-008)
 - [ ] T049 [US3] Add validation step in `code/statistical_analysis.py` to assert all random seeds are set to specific values before execution (Constitution I)
 
@@ -176,11 +175,11 @@
 ### Phase Dependencies
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
-- **Spec Correction (Phase 1.5)**: Depends on Setup - BLOCKS all subsequent work until spec is fixed
-- **Foundational (Phase 2)**: Depends on Spec Correction - BLOCKS all user stories
+- **Kickback (Phase 1.6)**: Depends on Setup - Must be completed before Foundational to ensure spec deviations are recorded.
+- **Foundational (Phase 2)**: Depends on Kickback - BLOCKS all subsequent work until foundation is ready and spec deviations are logged.
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -227,7 +226,7 @@ Task: "Implement descriptor generation using matminer"
 ### MVP First (User Story 1 Only)
 
 1. Complete Phase 1: Setup
-2. Complete Phase 1.5: Spec Correction (CRITICAL - fixes contradictions)
+2. Complete Phase 1.6: Kickback (Record spec deviations)
 3. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
 4. Complete Phase 3: User Story 1
 5. **STOP and VALIDATE**: Test User Story 1 independently
@@ -235,7 +234,7 @@ Task: "Implement descriptor generation using matminer"
 
 ### Incremental Delivery
 
-1. Complete Setup + Spec Correction + Foundational → Foundation ready
+1. Complete Setup + Kickback + Foundational → Foundation ready
 2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
 3. Add User Story 2 → Test independently → Deploy/Demo
 4. Add User Story 3 → Test independently → Deploy/Demo
@@ -245,11 +244,11 @@ Task: "Implement descriptor generation using matminer"
 
 With multiple developers:
 
-1. Team completes Setup + Spec Correction + Foundational together
+1. Team completes Setup + Kickback + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---
@@ -263,3 +262,4 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- **Spec Deviations**: Where the Plan mandates a deviation from the Spec (e.g., LMM vs ANOVA, RSS vs Full), the task implements the Plan's authority and notes the deviation. A formal `docs/kickback_log.md` is generated in Phase 1.6 to document these deviations for the next phase, ensuring the Spec is not retroactively rewritten by code tasks.

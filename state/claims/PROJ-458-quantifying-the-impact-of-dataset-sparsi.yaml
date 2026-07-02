@@ -1,0 +1,341 @@
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: full_pool_final.csv contains more than 150000 rows with non-null formation
+    energy and feature vectors
+  claim_id: c_82eddeae
+  context: 'Independent Test: Execute `code/data_ingestion.py` and verify `data/processed/full_pool_final.csv`
+    contains >150,000 rows with non-null formation energy and feature vectors.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_pool_final.csv_contains_more_than_150000_rows_with_non-
+  kind: magnitude
+  raw_text: Execute code/data_ingestion.py and verify data/processed/full_pool_final.csv
+    contains >150,000 rows with non-null formation energy and feature vectors.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T09:53:23Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: Elbow point stability requires slope variance less than 10% across adjacent
+    levels
+  claim_id: c_4183e3cd
+  context: 'Implement sensitivity analysis in `code/statistical_analysis.py` to verify
+    elbow point stability (slope variance < 10%) across adjacent levels. Note: This
+    implements the <10% threshold from the Plan, exceeding FR-007''s ambiguous requirement.'
+  evidence:
+    candidates:
+    - - ''
+      - 25.0
+    - - ''
+      - 10.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Elbow_point_stability_requires_slope_variance_less_than_10%25
+  kind: magnitude
+  raw_text: Implement sensitivity analysis in code/statistical_analysis.py to verify
+    elbow point stability (slope variance < 10%) across adjacent levels.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-02T09:53:53Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: full_pool_final.csv contains more than 150,000 rows with non-null formation
+    energy
+  claim_id: c_72ecdaec
+  context: 'Independent Test: Execute `code/data_ingestion.py` and verify `data/processed/full_pool_final.csv`
+    contains >150,000 rows with non-null formation energy and feature vectors.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_pool_final.csv_contains_more_than_150,000_rows_with_non
+  kind: magnitude
+  raw_text: Execute `code/data_ingestion.py` and verify `data/processed/full_pool_final.csv`
+    contains >150,000 rows with non-null formation energy and feature vectors.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T09:54:26Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: drop rows with more than 50% missing values
+  claim_id: c_bb0e988f
+  context: Implement imputation logic in `code/data_ingestion.py` to mean-fill missing
+    numeric descriptors; drop rows with >50% missing values and log count to `data/results/ingestion_log.json`.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Drop_rows_with_more_than_50%25_missing_values
+  kind: magnitude
+  raw_text: drop rows with >50% missing values
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T09:54:50Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: slope variance less than 10% across adjacent levels
+  claim_id: c_5953f8f3
+  context: Implement sensitivity analysis in `code/statistical_analysis.py` to verify
+    elbow point stability (slope variance < 10%) across adjacent levels.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Slope_variance_less_than_10%25_across_adjacent_levels
+  kind: magnitude
+  raw_text: slope variance < 10%
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T09:55:13Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: full_pool_final.csv contains more than 150,000 rows
+  claim_id: c_86ed67b6
+  context: 'Independent Test: Execute `code/data_ingestion.py` and verify `data/processed/full_pool_final.csv`
+    contains >150,000 rows with non-null formation energy and feature vectors.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_pool_final.csv_contains_more_than_150,000_rows
+  kind: magnitude
+  raw_text: Execute `code/data_ingestion.py` and verify `data/processed/full_pool_final.csv`
+    contains >150,000 rows with non-null formation energy and feature vectors.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T09:56:15Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/docs/kickback_log.md
+  attempts: 1
+  canonical: Materials Project dataset contains over 150,000 entries
+  claim_id: c_abb7dc74
+  context: 'The original Feature Specification refers to a ''Full Dataset'' baseline.
+    The Research Plan mandates the use of a Representative Stratified Sample (RSS)
+    as the baseline for sparsity analysis. Justification: Processing the full Materials
+    Project dataset (>150k entries) with high-dimensional descriptors and repeated
+    k-fold cross-validation exceeds the allocated runtime and memory budget for the
+    MVP phase.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Processing the full Materials Project dataset (>150k entries) with high-dimensional
+    descriptors and repeated k-fold cross-validation exceeds the allocated runtime
+    and memory budget for the MVP phase.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T09:57:13Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: full_pool_final.csv contains greater than 150,000 rows with non-null
+    formation energy
+  claim_id: c_2bd0bedf
+  context: 'Independent Test for User Story 1: Execute `code/data_ingestion.py` and
+    verify `data/processed/full_pool_final.csv` contains >150,000 rows with non-null
+    formation energy and feature vectors.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_pool_final.csv_contains_greater_than_150,000_rows_with
+  kind: magnitude
+  raw_text: Execute `code/data_ingestion.py` and verify `data/processed/full_pool_final.csv`
+    contains >150,000 rows with non-null formation energy and feature vectors.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T09:58:57Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: full_pool_final.csv contains >150,000 rows with non-null formation energy
+  claim_id: c_eee746b0
+  context: 'Independent Test: Execute code/data_ingestion.py and verify data/processed/full_pool_final.csv
+    contains >150,000 rows with non-null formation energy and feature vectors.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute code/data_ingestion.py and verify data/processed/full_pool_final.csv
+    contains >150,000 rows with non-null formation energy and feature vectors.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T10:01:20Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: final pool contains over 150000 rows with non-null formation energy
+  claim_id: c_d1d0763c
+  context: 'Independent Test: Execute code/data_ingestion.py and verify data/processed/full_pool_final.csv
+    contains >150,000 rows with non-null formation energy and feature vectors.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute code/data_ingestion.py and verify data/processed/full_pool_final.csv
+    contains >150,000 rows with non-null formation energy and feature vectors.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T10:02:17Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: elbow point stability verified with slope variance less than 10% across
+    adjacent levels
+  claim_id: c_fe0c4eff
+  context: 'T047 [US3] Implement sensitivity analysis in code/statistical_analysis.py
+    to verify elbow point stability (slope variance < 10%) across adjacent levels.
+    Note: This implements the <10% threshold from the Plan, exceeding FR-007''s ambiguous
+    requirement.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Elbow_point_stability_verified_with_slope_variance_less_than
+  kind: magnitude
+  raw_text: Implement sensitivity analysis in code/statistical_analysis.py to verify
+    elbow point stability (slope variance < 10%) across adjacent levels.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T10:02:19Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: full_pool_final.csv contains greater than 150,000 rows
+  claim_id: c_0cba43b1
+  context: 'Independent Test: Execute code/data_ingestion.py and verify data/processed/full_pool_final.csv
+    contains >150,000 rows with non-null formation energy and feature vectors.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_pool_final.csv_contains_greater_than_150,000_rows
+  kind: magnitude
+  raw_text: Execute code/data_ingestion.py and verify data/processed/full_pool_final.csv
+    contains >150,000 rows with non-null formation energy and feature vectors.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T10:03:59Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: full_pool_final.csv contains greater than 150000 rows with non-null formation
+    energy and feature vectors
+  claim_id: c_51c6359d
+  context: 'Independent Test: Execute code/data_ingestion.py and verify data/processed/full_pool_final.csv
+    contains >150,000 rows with non-null formation energy and feature vectors.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_pool_final.csv_contains_greater_than_150000_rows_with_n
+  kind: magnitude
+  raw_text: Execute code/data_ingestion.py and verify data/processed/full_pool_final.csv
+    contains >150,000 rows with non-null formation energy and feature vectors.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T10:04:47Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: generate multiple stratified subsets preserving chemical space using
+    K-Means clustering
+  claim_id: c_f07716df
+  context: Implement K-Means clustering on elemental fingerprints in code/sparsity_generation.py
+    to generate multiple stratified subsets ([deferred], [deferred], [deferred], [deferred],
+    [deferred], [deferred], [deferred] of the RSS pool) preserving chemical space
+    (FR-003)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_multiple_stratified_subsets_preserving_chemical_spa
+  kind: entity_fact
+  raw_text: Implement K-Means clustering on elemental fingerprints in code/sparsity_generation.py
+    to generate multiple stratified subsets ([deferred], [deferred], [deferred], [deferred],
+    [deferred], [deferred], [deferred] of the RSS pool) preserving chemical space
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T10:07:22Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: k-fold cross-validation uses multiple independent seeds per sparsity
+    level
+  claim_id: c_f5309c2a
+  context: Implement k-fold Cross-Validation with multiple independent seeds per sparsity
+    level in code/model_training.py (FR-005)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/K-fold_cross-validation_uses_multiple_independent_seeds_per
+  kind: entity_fact
+  raw_text: Implement k-fold Cross-Validation with multiple independent seeds per
+    sparsity level in code/model_training.py
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T10:09:17Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: elbow point stability verified with slope variance less than 10 percent
+    across adjacent levels
+  claim_id: c_61f6851a
+  context: 'Implement sensitivity analysis in code/statistical_analysis.py to verify
+    elbow point stability (slope variance < 10%) across adjacent levels. Note: This
+    implements the <10% threshold from the Plan, exceeding FR-007''s ambiguous requirement.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Elbow_point_stability_verified_with_slope_variance_less_than
+  kind: magnitude
+  raw_text: Implement sensitivity analysis in code/statistical_analysis.py to verify
+    elbow point stability (slope variance < 10%) across adjacent levels.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T10:09:18Z'
+- artifact_path: projects/PROJ-458-quantifying-the-impact-of-dataset-sparsi/specs/001-quantifying-the-impact-of-dataset-sparsi/tasks.md
+  attempts: 1
+  canonical: full_pool_final.csv contains more than 150000 rows
+  claim_id: c_f4efec99
+  context: 'Independent Test: Execute `code/data_ingestion.py` and verify `data/processed/full_pool_final.csv`
+    contains >150,000 rows with non-null formation energy and feature vectors.'
+  evidence:
+    entailment_evidence: Full pool final.csv contains more than 150000 rows
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Full_pool_final.csv_contains_more_than_150000_rows
+  kind: magnitude
+  raw_text: Verify `data/processed/full_pool_final.csv` contains >150,000 rows with
+    non-null formation energy and feature vectors.
+  resolved_value: full_pool_final.csv contains more than 150000 rows
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-02T10:11:22Z'
