@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-30T10:42:32.085981Z'
-current_stage: specified
+current_stage: analyzed
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-032-evaluating-the-impact-of-code-comment-st
-last_run_id: d9cc76c7-bdf8-4f33-be1d-c88e581062df
+last_run_id: 8f825988-d434-4057-b597-eb4e7750857c
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-032-evaluating-the-impact-of-code-comment-st/specs/001-evaluating-the-impact-of-code-comment-st
 title: Evaluating the Impact of Code Comment Style on Maintainability
-updated_at: '2026-06-26T06:05:40.191906Z'
+updated_at: '2026-07-02T00:56:40.825746Z'

@@ -1,1 +1,44 @@
-[]
+- artifact_hash: cbc28e647b1aeb2596ee5149dfb2e64598943fee9048a5220dcb5e1000c6c37c
+  artifact_path: projects/PROJ-032-evaluating-the-impact-of-code-comment-st/specs/001-evaluating-the-impact-of-code-comment-st/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub \xB7 Change is constant. GitHub keeps you ahead. \xB7 GitHub"
+  kind: url
+  value: https://github.com/
+  verification_status: verified
+  verified_against_url: https://github.com/
+  verified_at: '2026-07-02T00:15:15.373101Z'
+- artifact_hash: cb6b8b3b6c85e26272dcc9ff64ec5bd15ea9ca93cd20ae4084f970bc24f26d8a
+  artifact_path: projects/PROJ-032-evaluating-the-impact-of-code-comment-st/specs/001-evaluating-the-impact-of-code-comment-st/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "GitHub \xB7 Change is constant. GitHub keeps you ahead. \xB7 GitHub"
+  kind: url
+  value: https://github.com/
+  verification_status: verified
+  verified_against_url: https://github.com/
+  verified_at: '2026-07-02T00:27:39.466592Z'
+- artifact_hash: a66ed338f5bb5cb96b81d0119822b1f705f45979865ced278a713205587947eb
+  artifact_path: projects/PROJ-032-evaluating-the-impact-of-code-comment-st/specs/001-evaluating-the-impact-of-code-comment-st/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: schema#
+  kind: url
+  value: http://json-schema.org/draft-07/schema#
+  verification_status: verified
+  verified_against_url: https://json-schema.org/draft-07/schema
+  verified_at: '2026-07-02T00:56:13.435839Z'
+- artifact_hash: a66ed338f5bb5cb96b81d0119822b1f705f45979865ced278a713205587947eb
+  artifact_path: projects/PROJ-032-evaluating-the-impact-of-code-comment-st/specs/001-evaluating-the-impact-of-code-comment-st/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://raw.githubusercontent.com/.../top-python-repos.csv`
+  verification_status: unreachable
+  verified_against_url: https://raw.githubusercontent.com/.../top-python-repos.csv
+  verified_at: '2026-07-02T00:56:13.435839Z'

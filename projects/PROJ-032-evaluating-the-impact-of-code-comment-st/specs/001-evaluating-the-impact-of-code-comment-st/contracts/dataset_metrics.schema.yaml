@@ -1,0 +1,71 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Repository Metrics Schema"
+description: "Schema for the processed metrics dataset (data/processed/metrics.csv)"
+type: "object"
+properties:
+  repo_id:
+    type: "string"
+    description: "Unique identifier for the repository (owner/repo)"
+  comment_density:
+    type: "number"
+    description: "Ratio of comment lines to code lines"
+    minimum: 0
+    maximum: 1
+  avg_readability:
+    type: "number"
+    description: "Mean Flesch-Kincaid readability score"
+  readability_std_dev:
+    type: "number"
+    description: "Standard deviation of readability scores (style consistency)"
+  avg_sentiment:
+    type: "number"
+    description: "Mean sentiment polarity (-1 to 1)"
+    minimum: -1
+    maximum: 1
+  sentiment_variance:
+    type: "number"
+    description: "Variance of sentiment polarity (style consistency)"
+  total_churn:
+    type: "integer"
+    description: "Total lines changed across all commits"
+    minimum: 0
+  code_quality_degradation_rate:
+    type: "number"
+    description: "Ratio of sampled commits with pylint error-level warnings"
+    minimum: 0
+    maximum: 1
+  issue_bug_rate:
+    type: ["number", "null"]
+    description: "Ratio of commits fixing issues labeled 'bug' (if available)"
+    minimum: 0
+    maximum: 1
+  total_lines_of_code:
+    type: "integer"
+    description: "Total lines of code"
+    minimum: 0
+  project_age_years:
+    type: "number"
+    description: "Age of the project in years"
+    minimum: 0
+  contributor_count:
+    type: "integer"
+    description: "Number of unique contributors"
+    minimum: 1
+  avg_complexity:
+    type: "number"
+    description: "Average cyclomatic complexity per function"
+    minimum: 1
+required:
+  - repo_id
+  - comment_density
+  - avg_readability
+  - readability_std_dev
+  - avg_sentiment
+  - sentiment_variance
+  - total_churn
+  - code_quality_degradation_rate
+  - total_lines_of_code
+  - project_age_years
+  - contributor_count
+  - avg_complexity
+additionalProperties: false
