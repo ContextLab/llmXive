@@ -1,0 +1,75 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Input Data Schema"
+description: "Schema for raw input files required for the microbiome-cognition analysis."
+type: object
+properties:
+  microbiome_counts:
+    type: object
+    description: "Microbiome OTU/ASV count table."
+    properties:
+      participant_id:
+        type: string
+        description: "Unique identifier for the participant."
+      otu_columns:
+        type: array
+        items:
+          type: string
+        description: "List of OTU/ASV column names (e.g., OTU_001)."
+    required:
+      - participant_id
+      - otu_columns
+    additionalProperties: true
+  cognitive_data:
+    type: object
+    description: "Cognitive test scores."
+    properties:
+      participant_id:
+        type: string
+        description: "Unique identifier for the participant."
+      fluid_intelligence_score:
+        type: number
+        description: "Fluid intelligence score from UK Biobank."
+    required:
+      - participant_id
+      - fluid_intelligence_score
+  demographics:
+    type: object
+    description: "Demographic covariates."
+    properties:
+      participant_id:
+        type: string
+        description: "Unique identifier for the participant."
+      age:
+        type: number
+        description: "Age of the participant."
+      sex:
+        type: integer
+        description: "Sex (0, 1, 2 or M, F)."
+      bmi:
+        type: number
+        description: "Body Mass Index."
+    required:
+      - participant_id
+      - age
+      - sex
+      - bmi
+  dietary_data:
+    type: object
+    description: "Raw dietary data for DQS calculation (Optional)."
+    properties:
+      participant_id:
+        type: string
+        description: "Unique identifier for the participant."
+      dietary_items:
+        type: array
+        items:
+          type: string
+        description: "List of dietary item columns."
+    required:
+      - participant_id
+    additionalProperties: true
+required:
+  - microbiome_counts
+  - cognitive_data
+  - demographics
+additionalProperties: false

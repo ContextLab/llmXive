@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Processed Data Schema"
+description: "Schema for the cleaned and transformed analysis dataset."
+type: object
+properties:
+  participant_id:
+    type: string
+    description: "Unique identifier for the participant."
+  age:
+    type: number
+    description: "Age (imputed with Median if missing)."
+  sex:
+    type: integer
+    description: "Sex (imputed with Mode if missing)."
+  bmi:
+    type: number
+    description: "BMI (imputed with Median if missing)."
+  dietary_quality_score:
+    type: number
+    description: "Calculated DQS (imputed with Median if missing)."
+  shannon_index:
+    type: number
+    description: "Alpha diversity (Shannon index) calculated on RAW counts."
+  fluid_intelligence_score:
+    type: number
+    description: "Fluid intelligence score."
+  clr_otu_001:
+    type: number
+    description: "CLR-transformed count for OTU_001 (Secondary Path only)."
+  # Additional CLR columns for other OTUs
+required:
+  - participant_id
+  - age
+  - sex
+  - bmi
+  - dietary_quality_score
+  - shannon_index
+  - fluid_intelligence_score
+additionalProperties: true

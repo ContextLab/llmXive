@@ -1,0 +1,212 @@
+resolved_at: '2026-07-02T09:36:02.926235+00:00'
+datasets:
+- intent: BMI
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/karan451/BMI-labeled-faced/resolve/main/archive/Final_Dataset.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/NurlanAliyevofficial/Brain-tumor-effect-of-bloodpressure-sugarlevel-and-BMI-ON-ITS-PRESSENCE/resolve/main/Health_Dataset_Brain
+      _Tumor.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 1459
+      parsed: true
+  - url: https://huggingface.co/datasets/minhthong/flashdeal_data_BMI_historical_signal/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 12335
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/karan451/BMI-labeled-faced/resolve/main/archive/Final_Dataset.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/NurlanAliyevofficial/Brain-tumor-effect-of-bloodpressure-sugarlevel-and-BMI-ON-ITS-PRESSENCE/resolve/main/Health_Dataset_Brain
+      _Tumor.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/minhthong/flashdeal_data_BMI_historical_signal/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/The_BGM909_and_POP909_Datasets_for_Music_Generation/32874089
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Evaluasi_kegunaan_google_chrome/32874236
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/KSA_Adult_Diaper_Market_Expands_with_Rising_Demand_from_60_Plus_Population_Segment/32874848
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/Code_underpinning_Defining_Nominal_Orderings_and_Orientations_for_Branches_in_Power_Network_Test_Cases_by_Seriating_the_Line_Outage_Distribution_Factors_Matrix_/32874701
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Bound_Phenolics_Enhance_the_Antidepressant-Like_Effect_of_Triticale_Bran_Insoluble_Dietary_Fiber_in_Obese_Mice_Evidence_for_the_Involvement_of_Immune_Regulation_and_Microbiota_Modulation/32875039
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.11591/eei.v11i3.3779
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''beei.org'',
+      port=443): Max retries exceeded with url: /index.php/EEI/article/view/3779 (Caused
+      by ConnectTimeoutError(<HTTPSConnection(host=''beei.org'', port=443) at 0x7fc5cc670810>,
+      ''Connection to beei.org timed out. (connect timeout=20.0)''))'
+  - url: https://doi.org/10.11591/eei.v9i6.2319
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''beei.org'',
+      port=443): Max retries exceeded with url: /index.php/EEI/article/view/2319 (Caused
+      by ConnectTimeoutError(<HTTPSConnection(host=''beei.org'', port=443) at 0x7fc5cc4dd950>,
+      ''Connection to beei.org timed out. (connect timeout=20.0)''))'
+  - url: https://zenodo.org/records/8074384
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijpeds.iaescore.com/index.php/IJPEDS/article/view/16396
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6646128
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21128853
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21128853
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21128917
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21128917
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://usiena-air.unisi.it//handle/11365/1133350
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: DQS
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/HHS-Official/dqs-visits-to-physician-offices-hospital-outpatien/resolve/main/data/dataset.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/HHS-Official/dqs-cholesterol-in-adults-age-20-and-older-by-sele/resolve/main/data/dataset.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 247556
+      parsed: true
+  - url: https://huggingface.co/datasets/HHS-Official/dqs-drug-overdose-death-rates-by-drug-type-sex-age/resolve/main/data/dataset.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/HHS-Official/dqs-visits-to-physician-offices-hospital-outpatien/resolve/main/data/dataset.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/HHS-Official/dqs-cholesterol-in-adults-age-20-and-older-by-sele/resolve/main/data/dataset.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/api/resolve-cache/datasets/HHS-Official/dqs-estimate-of-emergency-department-visits-in-the/1b840ff35705943e7a3edc7d6632a13ba74a167c/data%2Fdataset.csv?%2Fdatasets%2FHHS-Official%2Fdqs-estimate-of-emergency-department-visits-in-the%2Fresolve%2Fmain%2Fdata%2Fdataset.csv=&etag=%225b7818a8b811afcc20c898775496856bac35cfd5%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/HHS-Official/dqs-drug-overdose-death-rates-by-drug-type-sex-age/resolve/main/data/dataset.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/HHS-Official/dqs-nhanes-select-chronic-conditions-prevalence-es/resolve/main/data/dataset.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/dataset/The_BGM909_and_POP909_Datasets_for_Music_Generation/32874089
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/Evaluasi_kegunaan_google_chrome/32874236
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/KSA_Adult_Diaper_Market_Expands_with_Rising_Demand_from_60_Plus_Population_Segment/32874848
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/Code_underpinning_Defining_Nominal_Orderings_and_Orientations_for_Branches_in_Power_Network_Test_Cases_by_Seriating_the_Line_Outage_Distribution_Factors_Matrix_/32874701
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Bound_Phenolics_Enhance_the_Antidepressant-Like_Effect_of_Triticale_Bran_Insoluble_Dietary_Fiber_in_Obese_Mice_Evidence_for_the_Involvement_of_Immune_Regulation_and_Microbiota_Modulation/32875039
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15825668
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14586204
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20635279
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8125005
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7056987
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21103026
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21103026
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://world.physio/congress-proceeding/which-early-child-and-family-factors-predict-later-mastery-motivation-young
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://serwiss.bib.hs-hannover.de/frontdoor/index/index/docId/3929
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20675896
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

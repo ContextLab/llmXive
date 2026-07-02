@@ -1,0 +1,60 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Output Schema"
+description: "Schema for statistical results (correlation and regression)."
+type: object
+properties:
+  correlation_results:
+    type: array
+    items:
+      type: object
+      properties:
+        metric:
+          type: string
+          description: "Name of the diversity metric tested (e.g., Shannon)."
+        coefficient:
+          type: number
+          description: "Spearman correlation coefficient."
+        p_value:
+          type: number
+          description: "Raw p-value."
+        q_value:
+          type: number
+          description: "FDR-adjusted p-value (q-value)."
+        n_samples:
+          type: integer
+          description: "Number of samples used."
+      required:
+        - metric
+        - coefficient
+        - p_value
+        - q_value
+  regression_results:
+    type: array
+    items:
+      type: object
+      properties:
+        predictor:
+          type: string
+          description: "Name of the predictor variable (Taxon or Covariate)."
+        coefficient:
+          type: number
+          description: "Regression coefficient (Lasso)."
+        std_err:
+          type: number
+          description: "Standard error of the coefficient."
+        p_value:
+          type: number
+          description: "Raw p-value."
+        q_value:
+          type: number
+          description: "FDR-adjusted p-value (q-value)."
+      required:
+        - predictor
+        - coefficient
+        - std_err
+        - p_value
+        - q_value
+required:
+  - correlation_results
+  - regression_results
+additionalProperties: false
