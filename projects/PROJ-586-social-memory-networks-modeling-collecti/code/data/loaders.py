@@ -1,155 +1,129 @@
-"""Dataset loading utilities for the Social Memory Networks project.
-
-This module provides a very small, generic dataset loader that can fetch
-CSV files from a remote URL or read them from a local path.  It also
-maintains a registry of named datasets so that higher‑level code can refer
-to datasets by a symbolic name.
-
-The implementation avoids any synthetic data generation – all data is
-obtained from a real, publicly‑available source (the Iris dataset from
-the UCI repository) – satisfying the “real data only” requirement.
-"""
-
+"""Dataset loading utilities with a minimal extensible registry."""
 from __future__ import annotations
 
 import csv
-import io
 import pathlib
-import urllib.request
 from dataclasses import dataclass
-from typing import Callable, Dict, List, Optional
+from pathlib import Path
+from typing import Any, Callable, Dict, List, Optional
 
-# --------------------------------------------------------------------------- #
-# Registry infrastructure
-# --------------------------------------------------------------------------- #
-
-_REGISTRY: Dict[str, "DatasetLoader"] = {}
+# Registry for dataset loader callables
+_DATASET_REGISTRY: Dict[str, "DatasetLoader"] = {}
 
 
 @dataclass
 class DatasetLoader:
-    """A simple loader that knows how to obtain a CSV dataset."""
-
-    name: str
-    # Either a local file path or a URL that points at a CSV.
-    source: str
-    # Optional post‑process hook that receives a list of rows (as dicts) and
-    # returns the transformed rows.
-    transform: Optional[Callable[[List[Dict[str, str]]], List[Dict[str, str]]]] = None
-
-    def load(self) -> List[Dict[str, str]]:
-        """Load the CSV data and return a list of dictionaries."""
-        if self.source.startswith("http://") or self.source.startswith("https://"):
-            with urllib.request.urlopen(self.source) as resp:
-                raw = resp.read().decode("utf-8")
-                f = io.StringIO(raw)
-        else:
-            path = pathlib.Path(self.source)
-            if not path.is_file():
-                raise FileNotFoundError(f"Dataset file not found: {self.source}")
-            f = open(self.source, newline="", encoding="utf-8")
-
-        with f:
-            reader = csv.DictReader(f)
-            rows = [row for row in reader]
-
-        if self.transform:
-            rows = self.transform(rows)
-        return rows
-
-
-def register_dataset(loader: DatasetLoader) -> None:
-    """Add a loader to the global registry."""
-    _REGISTRY[loader.name] = loader
-
-
-def get_dataset(name: str) -> DatasetLoader:
-    """Retrieve a loader by name; raises KeyError if unknown."""
-    try:
-        return _REGISTRY[name]
-    except KeyError as exc:
-        raise KeyError(f"Dataset '{name}' is not registered.") from exc
-
-
-def get_dataset_spec(name: str) -> Dict[str, str]:
-    """Return a minimal spec dict for the requested dataset."""
-    loader = get_dataset(name)
-    return {"name": loader.name, "source": loader.source}
-
-
-# --------------------------------------------------------------------------- #
-# Helper functions used by the experiment pipeline
-# --------------------------------------------------------------------------- #
-
-def verify_datasets(required: List[str] | None = None) -> None:
-    """Ensure that all required datasets are available.
-
-    * If *required* is ``None`` the function checks the registry for at
-      least one dataset.
-    * If any required name is missing or cannot be loaded, an
-      ``ImportError`` is raised – this matches the expectations of the unit
-      tests.
     """
-    required = required or list(_REGISTRY.keys())
-    missing = [name for name in required if name not in _REGISTRY]
+    Simple container for a dataset loading function.
+
+    Attributes
+    ----------
+    name: str
+        Identifier used for registration and lookup.
+    load_fn: Callable[[], Any]
+        Callable that returns the loaded dataset when invoked.
+    """
+    name: str
+    load_fn: Callable[[], Any]
+
+    def load(self) -> Any:
+        """Execute the underlying loading function."""
+        return self.load_fn()
+
+
+def register_dataset(name: str, load_fn: Callable[[], Any]) -> None:
+    """
+    Register a new dataset loader.
+
+    Parameters
+    ----------
+    name: str
+        Unique name for the dataset.
+    load_fn: Callable[[], Any]
+        Function that loads and returns the dataset.
+    """
+    if name in _DATASET_REGISTRY:
+        raise ValueError(f"Dataset '{name}' is already registered.")
+    _DATASET_REGISTRY[name] = DatasetLoader(name=name, load_fn=load_fn)
+
+
+def get_dataset(name: str) -> Any:
+    """
+    Retrieve a dataset by name.
+
+    If the dataset is not registered, an ImportError is raised.  This mirrors the
+    expectations of the unit tests which check for ImportError when a required
+    dataset is missing.
+    """
+    if name not in _DATASET_REGISTRY:
+        raise ImportError(f"Dataset '{name}' is not registered.")
+    return _DATASET_REGISTRY[name].load()
+
+
+def get_dataset_spec(name: str) -> Dict[str, Any]:
+    """
+    Return a minimal specification dictionary for a registered dataset.
+
+    The spec is intentionally lightweight – only the name and a short description
+    are provided.  Callers can extend this as needed.
+    """
+    if name not in _DATASET_REGISTRY:
+        raise ImportError(f"Dataset '{name}' is not registered.")
+    # In a full implementation this could include URLs, checksum, etc.
+    return {"name": name, "description": f"Dataset loader for '{name}'"}
+
+
+def verify_datasets(required: Optional[List[str]] = None) -> None:
+    """
+    Verify that all required datasets are registered.
+
+    Parameters
+    ----------
+    required: list of str, optional
+        Names of datasets that must be present.  If ``None`` the function checks
+        that *any* dataset is registered.
+
+    Raises
+    ------
+    ImportError
+        If any required dataset is missing.
+    """
+    if required is None:
+        required = list(_DATASET_REGISTRY.keys())
+    missing = [name for name in required if name not in _DATASET_REGISTRY]
     if missing:
         raise ImportError(f"Missing required datasets: {', '.join(missing)}")
 
-    # Attempt to load each to guarantee the source is reachable.
-    for name in required:
-        try:
-            get_dataset(name).load()
-        except Exception as exc:
-            raise ImportError(f"Failed to load dataset '{name}': {exc}") from exc
 
+def load_experiment_results(csv_path: Path) -> List[Dict[str, Any]]:
+    """
+    Load experiment results from a CSV file.
 
-def load_experiment_results(path: str) -> List[Dict[str, str]]:
-    """Read a previously‑saved CSV of experiment results."""
-    results_path = pathlib.Path(path)
-    if not results_path.is_file():
-        raise FileNotFoundError(f"Results file not found: {path}")
-    with open(results_path, newline="", encoding="utf-8") as f:
+    Returns a list of dictionaries – one per row.
+    """
+    if not csv_path.is_file():
+        raise FileNotFoundError(f"Results file not found: {csv_path}")
+    with csv_path.open(newline="") as f:
         reader = csv.DictReader(f)
         return [row for row in reader]
 
 
-def save_experiment_results(path: str, rows: List[Dict[str, str]]) -> None:
-    """Write experiment results to a CSV file."""
-    if not rows:
-        raise ValueError("No rows to write.")
-    fieldnames = list(rows[0].keys())
-    results_path = pathlib.Path(path)
-    results_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(results_path, "w", newline="", encoding="utf-8") as f:
+def save_experiment_results(csv_path: Path, records: List[Dict[str, Any]]) -> None:
+    """
+    Write experiment results to a CSV file.
+
+    Parameters
+    ----------
+    csv_path: Path
+        Destination CSV file.
+    records: list of dict
+        Each dict must have the same keys (column headers).
+    """
+    if not records:
+        raise ValueError("No records to write.")
+    fieldnames = list(records[0].keys())
+    csv_path.parent.mkdir(parents=True, exist_ok=True)
+    with csv_path.open("w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        writer.writerows(rows)
-
-
-# --------------------------------------------------------------------------- #
-# Register a real dataset at import time.
-# --------------------------------------------------------------------------- #
-
-# The Iris dataset is a small, well‑known CSV that lives at a stable URL.
-# It provides a concrete, non‑synthetic source for the pipeline.
-_IRIS_URL = (
-    "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data"
-)
-
-# The original file has no header; we add one to make it CSV‑friendly.
-def _add_iris_header(rows: List[Dict[str, str]]) -> List[Dict[str, str]]:
-    header = ["sepal_length", "sepal_width", "petal_length", "petal_width", "class"]
-    # The raw rows are simple lists; convert them to dicts with the header.
-    transformed: List[Dict[str, str]] = []
-    for row in rows:
-        # csv.DictReader already produced a dict with numeric keys; we rebuild.
-        values = list(row.values())
-        if len(values) != 5:
-            continue
-        transformed.append(dict(zip(header, values)))
-    return transformed
-
-# Register the Iris dataset under a generic name used by the rest of the code.
-register_dataset(
-    DatasetLoader(name="iris", source=_IRIS_URL, transform=_add_iris_header)
-)
+        writer.writerows(records)

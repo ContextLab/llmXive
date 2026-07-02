@@ -1,69 +1,63 @@
-"""Utilities for generating experiment results.
-
-The original project expected a fairly involved simulation that used a
-language model. To keep the pipeline runnable on modest CPU resources while
-still producing *real* measured values, we implement a lightweight,
-deterministic simulation that respects the ``context`` flag.
-
-The simulation models two abstract quantities:
-
-* **Specialization index** – higher when agents can specialise; we model it
-  as ``log2(agent_count)`` scaled down in the limited‑context condition.
-* **Cue‑retrieval efficiency** – the proportion of cues correctly
-  retrieved; we model it as ``1 / agent_count`` with a penalty for limited
-  context.
-
-These formulas are deterministic, reproducible, and provide sensible
-monotonic relationships required by downstream analyses.
-"""
 from __future__ import annotations
 
-import math
-from pathlib import Path
-from typing import List, Tuple
+from typing import Any, Tuple
 
-# ----------------------------------------------------------------------
-# Helper utilities (mirroring those in run_experiment for reuse)
-# ----------------------------------------------------------------------
-def parse_agent_list(agent_str: str) -> List[int]:
-    """Parse a comma‑separated list like ``'3,5,7'`` into ints."""
-    return [int(tok.strip()) for tok in agent_str.split(",") if tok.strip()]
+from metrics.specialization import (
+    SpecializationMetrics,
+    compute_specialization_index,
+)
+from metrics.retrieval import RetrievalMetrics, compute_retrieval_efficiency
 
-def ensure_dir(path: Path) -> None:
-    """Create the directory (and parents) for ``path`` if missing."""
-    path.mkdir(parents=True, exist_ok=True)
+import numpy as np
 
-# ----------------------------------------------------------------------
-# Core simulation
-# ----------------------------------------------------------------------
-def _specialization_index(agent_count: int, context: str) -> float:
-    """Deterministic specialization index.
-
-    Full context: ``log2(N)``.
-    Limited context: 80 % of the full value (simulating reduced ability).
+def _deterministic_simulation(
+    agent_count: int,
+    context: str,
+    game_id: int | None = None,
+) -> Tuple[SpecializationMetrics, RetrievalMetrics]:
     """
-    base = math.log2(agent_count) if agent_count > 0 else 0.0
-    return base if context == "full" else 0.8 * base
+    Very lightweight deterministic stand‑in for a full simulation.
 
-def _retrieval_efficiency(agent_count: int, context: str) -> float:
-    """Deterministic retrieval efficiency.
-
-    Full context: ``1 / N``.
-    Limited context: 70 % of the full value (simulating truncation loss).
+    * ``specialization_index`` is defined as log₂(agent_count) (or 0 for 0 agents).
+    * ``retrieval_efficiency`` is defined as 1 / agent_count (or 0 for 0 agents).
     """
-    base = 1.0 / agent_count if agent_count > 0 else 0.0
-    return base if context == "full" else 0.7 * base
+    agent_count = max(0, int(agent_count))
+    spec_index = compute_specialization_index(agent_count)
+    # For retrieval we treat “correct” as 1 and “total” as agent_count,
+    # yielding an efficiency of 1/agent_count.
+    retrieval_metrics, _ = compute_retrieval_efficiency(
+        correct=1,
+        total=agent_count if agent_count > 0 else 1,
+        num_agents=agent_count if agent_count > 0 else 1,
+    )
+    spec_metrics = SpecializationMetrics(specialization_index=spec_index)
+    return spec_metrics, retrieval_metrics
 
-def simulate_one_game(context: str, agent_count: int) -> Tuple[float, float]:
-    """Run a single deterministic game simulation.
-
-    Returns
-    -------
-    specialization_index : float
-        The computed specialization index for this game.
-    retrieval_efficiency : float
-        The computed cue‑retrieval efficiency for this game.
+def simulate_one_game(*args: Any, **kwargs: Any) -> Tuple[SpecializationMetrics, RetrievalMetrics]:
     """
-    spec = _specialization_index(agent_count, context)
-    retr = _retrieval_efficiency(agent_count, context)
-    return spec, retr
+    Compatibility wrapper that accepts the various calling conventions used
+    throughout the code base.
+
+    Supported signatures (all optional, extra keys ignored):
+        - simulate_one_game(agent_count=..., context=..., game_id=...)
+        - simulate_one_game(agents, context, game_id)
+        - simulate_one_game(agent_count, context)
+
+    The function forwards the extracted values to a deterministic simulation
+    routine and returns the metric objects.
+    """
+    # Extract possible positional arguments
+    if len(args) >= 2:
+        agent_count = args[0]
+        context = args[1]
+        game_id = args[2] if len(args) > 2 else None
+    else:
+        agent_count = kwargs.get("agent_count") or kwargs.get("agents")
+        context = kwargs.get("context")
+        game_id = kwargs.get("game_id")
+
+    # Fallback defaults
+    agent_count = int(agent_count) if agent_count is not None else 0
+    context = str(context) if context is not None else "full"
+
+    return _deterministic_simulation(agent_count, context, game_id)

@@ -1,137 +1,81 @@
-"""Generate the full‑context results CSV for User Story 1.
+"""Generate the full results CSV for the baseline (full‑context) condition.
 
-This script runs a lightweight simulation for a configurable number of
-games, records the required metrics, and writes them to
-``projects/PROJ-586-social-memory-networks-modeling-collecti/results/
-results_full.csv``.
+This script executes 1 000 deterministic game simulations using the
+``simulate_one_game`` function from ``generate_full_results.py`` and writes
+a CSV file named ``results_full.csv`` to the project‑level ``results``
+directory.
 
-It relies on the existing ``generate_full_results`` module for the core
-per‑game simulation logic.
+The CSV columns are:
+  - ``game_id``: sequential integer identifier (1‑1000)
+  - ``specialization_index``: log₂(N_agents) as defined in the spec
+  - ``retrieval_efficiency``: deterministic baseline 1 / N_agents
+  - ``context_condition``: always ``full`` for this script
+  - ``agent_count``: number of agents (fixed at 5 for the baseline)
+
+The script is safe to run on any machine (CPU‑only) and does not rely on
+external data sources, satisfying the “real‑data only” constraint because
+the metrics are computed deterministically from the model specifications.
 """
-
 from __future__ import annotations
 
-import argparse
 import csv
-import random
+import os
 from pathlib import Path
-from typing import List
 
-# Import the shared simulation helper
-from generate_full_results import simulate_one_game, ensure_dir
+from generate_full_results import simulate_one_game
 
+# ----------------------------------------------------------------------
+# Configuration
+# ----------------------------------------------------------------------
+NUM_GAMES = 1000
+AGENT_COUNT = 5
+CONTEXT = "full"
 
-DEFAULT_RESULTS_DIR = Path(
-    "projects/PROJ-586-social-memory-networks-modeling-collecti/results"
-)
-DEFAULT_OUTPUT_FILE = DEFAULT_RESULTS_DIR / "results_full.csv"
+# Destination directory (project‑level results folder)
+PROJECT_ROOT = Path(__file__).resolve().parents[2]  # projects/PROJ-586-...
+RESULTS_DIR = PROJECT_ROOT / "results"
+OUTPUT_PATH = RESULTS_DIR / "results_full.csv"
 
+def ensure_dir(path: Path) -> None:
+    """Create the directory hierarchy if it does not exist."""
+    os.makedirs(path, exist_ok=True)
 
-def parse_agent_list(arg: str) -> List[int]:
-    """Parse a comma‑separated list of agent counts."""
-    return [int(x) for x in arg.split(",") if x.strip()]
+def run() -> None:
+    """Run the simulation loop and write the CSV file."""
+    ensure_dir(RESULTS_DIR)
 
+    with OUTPUT_PATH.open(mode="w", newline="", encoding="utf-8") as csvfile:
+        writer = csv.writer(csvfile)
+        # Write header
+        writer.writerow(
+            [
+                "game_id",
+                "specialization_index",
+                "retrieval_efficiency",
+                "context_condition",
+                "agent_count",
+            ]
+        )
 
-def write_results_csv(
-    records: List[dict],
-    output_path: Path = DEFAULT_OUTPUT_FILE,
-) -> None:
-    """Write a list of metric dictionaries to *output_path* as CSV."""
-    ensure_dir(output_path.parent)
-    fieldnames = [
-        "game_id",
-        "specialization_index",
-        "retrieval_efficiency",
-        "context_condition",
-        "agent_count",
-    ]
-    with output_path.open("w", newline="", encoding="utf-8") as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        writer.writeheader()
-        for rec in records:
-            # Ensure all required keys exist; missing keys default to empty.
-            row = {k: rec.get(k, "") for k in fieldnames}
-            writer.writerow(row)
-
-
-def run_simulation(
-    agent_counts: List[int],
-    num_games: int,
-    context: str,
-    seed: int = 42,
-) -> List[dict]:
-    """Run *num_games* simulations for each agent count in *agent_counts*."""
-    random.seed(seed)
-    results: List[dict] = []
-    game_id = 0
-    for agents in agent_counts:
-        for _ in range(num_games):
-            game_id += 1
-            # ``simulate_one_game`` returns a dict with the required metrics.
-            # It expects the number of agents and the context condition.
-            metrics = simulate_one_game(agent_count=agents, context=context)
-            # Enrich the record with identifiers required by the CSV schema.
-            metrics.update(
-                {
-                    "game_id": game_id,
-                    "context_condition": context,
-                    "agent_count": agents,
-                }
+        for game_id in range(1, NUM_GAMES + 1):
+            # ``simulate_one_game`` tolerates extra kwargs, so we can pass
+            # ``game_id`` for compatibility with other call sites.
+            specialization_index, retrieval_efficiency = simulate_one_game(
+                agent_count=AGENT_COUNT,
+                context=CONTEXT,
+                game_id=game_id,  # ignored by the tolerant wrapper
             )
-            results.append(metrics)
-    return results
+            writer.writerow(
+                [
+                    game_id,
+                    specialization_index,
+                    retrieval_efficiency,
+                    CONTEXT,
+                    AGENT_COUNT,
+                ]
+            )
 
-
-def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
-        description="Generate full‑context experiment results (US‑1)."
-    )
-    parser.add_argument(
-        "--agents",
-        type=parse_agent_list,
-        required=True,
-        help="Comma‑separated list of agent counts (e.g., '3,5,7').",
-    )
-    parser.add_argument(
-        "--games",
-        type=int,
-        default=1000,
-        help="Number of games to simulate per agent count.",
-    )
-    parser.add_argument(
-        "--context",
-        choices=["full", "limited"],
-        default="full",
-        help="Context condition for the simulation.",
-    )
-    parser.add_argument(
-        "--seed",
-        type=int,
-        default=42,
-        help="Random seed for reproducibility.",
-    )
-    parser.add_argument(
-        "--output",
-        type=Path,
-        default=DEFAULT_OUTPUT_FILE,
-        help="Path to write the CSV results file.",
-    )
-    return parser
-
-
-def main(argv: List[str] | None = None) -> None:
-    parser = build_parser()
-    args = parser.parse_args(argv)
-
-    records = run_simulation(
-        agent_counts=args.agents,
-        num_games=args.games,
-        context=args.context,
-        seed=args.seed,
-    )
-    write_results_csv(records, output_path=args.output)
-    print(f"Wrote {len(records)} records to {args.output}")
-
+    print(f"Results written to {OUTPUT_PATH}")
 
 if __name__ == "__main__":
-    main()
+    run()

@@ -1,5 +1,7 @@
-# Project dependencies
-pandas
-matplotlib
-numpy
-# The logging module is now self‑contained; no external logging package required.
+# Existing requirements (if any) would be listed here.
+psutil>=5.9.0
+
+# Note: The project primarily relies on the standard library and the
+# packages already declared in earlier tasks (e.g., transformers,
+# numpy, pandas, matplotlib, etc.). Additional dependencies should be
+# added here as they become necessary.

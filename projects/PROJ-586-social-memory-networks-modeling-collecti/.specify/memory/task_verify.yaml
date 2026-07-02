@@ -267,18 +267,6 @@ T006 [P] Implement shared external memory buffer with `<MEMORY_ACTION>` token ha
   --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified
   --> <!-- FAILED: unspecified -->'
 : 2
-? 'T018 [US-2] Implement game simulation loop for limited context (1000 games per
-  spec) in `code/run_experiment.py` <!-- FAILED: unspecified --> <!-- FAILED: unspecified
-  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
-  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
-  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
-  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
-  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified
-  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified
-  --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified
-  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
-  -->'
-: 1
 ? "T021 [P] [US-2] Apply Bonferroni correction to all family\u2011wise hypothesis\
   \ tests and report corrected \u03B1 in `code/analysis/anova.py` [UNRESOLVED-CLAIM:\
   \ c_9e3d059c \u2014 status=not_enough_info] (FR-007)"
@@ -294,9 +282,6 @@ T006 [P] Implement shared external memory buffer with `<MEMORY_ACTION>` token ha
 ? "T024 [US-2] Flag \"Power limitation\" if estimated power < 0.70 [UNRESOLVED-CLAIM:\
   \ c_f9748e80 \u2014 status=not_enough_info] in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/power_analysis_report.md`\
   \ (SC-004)"
-: 1
-? T024 [US-2] Flag "Power limitation" if estimated power < 0.70 in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/power_analysis_report.md`
-  (SC-004)
 : 1
 ? T027 [US-3] Implement game simulation for agent counts 3, 5, 7 (800 games per config
   per spec US-3) in `code/run_experiment.py`
@@ -627,7 +612,3 @@ T006 [P] Implement shared external memory buffer with `<MEMORY_ACTION>` token ha
   \ to verify \u22646h, \u22647GB RAM, \u226414GB disk constraints [UNRESOLVED-CLAIM:\
   \ c_1cf7f1f8 \u2014 status=not_enough_info] <!-- ATOMIZE: requested -->"
 : 1
-? "T035 [P] Run full pipeline on CI runner, record runtime/memory/disk in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/`\
-  \ {{claim:c_e603cc7e}}, \u22647GB RAM, \u226414GB disk constraints <!-- ATOMIZE:\
-  \ requested -->"
-: 2

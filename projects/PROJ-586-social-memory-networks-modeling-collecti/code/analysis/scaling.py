@@ -1,107 +1,114 @@
 """Scaling analysis utilities.
 
-The ``generate_scaling_plot`` function reads the per‑agent CSV files produced
-by ``run_experiment.py`` (for the scaling user story) and fits a simple
-power‑law (y = a * x^b) to each metric across the three agent counts.
-The resulting curves are plotted and saved as a PDF.
+This module provides a high‑level function ``generate_scaling_plot`` that
+fits a power‑law relationship between the number of agents and each metric
+(specialization index and retrieval efficiency) and produces a PDF plot.
+
+The implementation is deliberately tolerant: it accepts any DataFrame that
+contains the columns ``agent_count``, ``specialization_index`` and
+``retrieval_efficiency``.  Missing columns raise a clear ``ValueError``.
 """
 
 from __future__ import annotations
 
 import pathlib
-from pathlib import Path
+from typing import Any
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from scipy.optimize import curve_fit
 
+__all__ = ["generate_scaling_plot"]
 
 def _power_law(x: np.ndarray, a: float, b: float) -> np.ndarray:
-    """Power‑law function a * x^b."""
+    """Simple power‑law function ``y = a * x ** b``."""
     return a * np.power(x, b)
 
+def _fit_power_law(x: np.ndarray, y: np.ndarray) -> tuple[float, float]:
+    """Fit ``y = a * x ** b`` using non‑linear least squares."""
+    # Provide sensible initial guesses to aid convergence.
+    popt, _ = curve_fit(_power_law, x, y, p0=(1.0, 0.5))
+    a, b = popt
+    return a, b
 
 def generate_scaling_plot(
-    results_dir: Path | str,
-    output_path: Path | str,
+    df: pd.DataFrame,
+    *,
+    output_path: pathlib.Path | str = "scaling_plot.pdf",
 ) -> None:
-    """Generate a scaling PDF plot for specialization index and retrieval efficiency.
+    """Create a scaling plot with power‑law fits.
 
     Parameters
     ----------
-    results_dir:
-        Directory containing ``results_scaling_<agent_count>.csv`` files.
-    output_path:
-        Destination PDF file for the plot.
+    df :
+        DataFrame containing at least the columns
+        ``agent_count``, ``specialization_index`` and
+        ``retrieval_efficiency``.
+    output_path :
+        Destination path for the generated PDF.
+
+    The function writes ``output_path`` and returns ``None``.
     """
-    results_dir = Path(results_dir)
-    output_path = Path(output_path)
+    required = {"agent_count", "specialization_index", "retrieval_efficiency"}
+    missing = required - set(df.columns)
+    if missing:
+        raise ValueError(f"DataFrame missing required columns: {missing}")
 
-    # Load all CSVs that match the naming convention.
-    csv_files = sorted(results_dir.glob("results_scaling_*.csv"))
-    if not csv_files:
-        raise FileNotFoundError(f"No scaling result CSVs found in {results_dir}")
+    # Ensure numeric types.
+    df = df.astype(
+        {
+            "agent_count": float,
+            "specialization_index": float,
+            "retrieval_efficiency": float,
+        }
+    )
 
-    # Aggregate data per metric.
-    data = {
-        "agent_count": [],
-        "specialization_index": [],
-        "retrieval_efficiency": [],
-    }
-    for csv_file in csv_files:
-        df = pd.read_csv(csv_file)
-        # All rows have the same agent_count; take the first.
-        agent_cnt = int(df["agent_count"].iloc[0])
-        data["agent_count"].append(agent_cnt)
-        data["specialization_index"].append(df["specialization_index"].mean())
-        data["retrieval_efficiency"].append(df["retrieval_efficiency"].mean())
+    # Aggregate by agent count (mean metric per count).
+    agg = df.groupby("agent_count", as_index=False).mean()
 
-    # Convert to numpy arrays for fitting.
-    x = np.array(data["agent_count"], dtype=float)
-    spec_y = np.array(data["specialization_index"], dtype=float)
-    retr_y = np.array(data["retrieval_efficiency"], dtype=float)
+    agent_counts = agg["agent_count"].to_numpy()
+    spec_vals = agg["specialization_index"].to_numpy()
+    retrieval_vals = agg["retrieval_efficiency"].to_numpy()
 
     # Fit power‑law curves.
-    spec_params, _ = curve_fit(_power_law, x, spec_y, p0=(1.0, 0.5))
-    retr_params, _ = curve_fit(_power_law, x, retr_y, p0=(1.0, 0.5))
+    a_spec, b_spec = _fit_power_law(agent_counts, spec_vals)
+    a_ret, b_ret = _fit_power_law(agent_counts, retrieval_vals)
 
     # Plotting.
-    fig, ax1 = plt.subplots(figsize=(8, 5))
-
-    ax1.set_xlabel("Number of agents")
-    ax1.set_ylabel("Specialization index", color="tab:blue")
-    ax1.scatter(x, spec_y, color="tab:blue", label="Specialization (data)")
-    ax1.plot(
-        x,
-        _power_law(x, *spec_params),
+    plt.figure(figsize=(8, 6))
+    plt.scatter(agent_counts, spec_vals, color="tab:blue", label="Specialization")
+    plt.plot(
+        agent_counts,
+        _power_law(agent_counts, a_spec, b_spec),
         color="tab:blue",
         linestyle="--",
-        label=f"Fit: a·N^b (b={spec_params[1]:.2f})",
+        label=f"Spec fit: $y = {a_spec:.2f}·x^{{{b_spec:.2f}}}$",
     )
-    ax1.tick_params(axis="y", labelcolor="tab:blue")
 
-    ax2 = ax1.twinx()
-    ax2.set_ylabel("Retrieval efficiency", color="tab:red")
-    ax2.scatter(x, retr_y, color="tab:red", label="Retrieval (data)")
-    ax2.plot(
-        x,
-        _power_law(x, *retr_params),
-        color="tab:red",
+    plt.scatter(
+        agent_counts,
+        retrieval_vals,
+        color="tab:orange",
+        label="Retrieval Efficiency",
+    )
+    plt.plot(
+        agent_counts,
+        _power_law(agent_counts, a_ret, b_ret),
+        color="tab:orange",
         linestyle="--",
-        label=f"Fit: a·N^b (b={retr_params[1]:.2f})",
+        label=f"Ret fit: $y = {a_ret:.2f}·x^{{{b_ret:.2f}}}$",
     )
-    ax2.tick_params(axis="y", labelcolor="tab:red")
 
-    # Combine legends.
-    lines, labels = ax1.get_legend_handles_labels()
-    lines2, labels2 = ax2.get_legend_handles_labels()
-    ax1.legend(lines + lines2, labels + labels2, loc="upper left")
+    plt.title("Scaling of Metrics vs. Agent Count")
+    plt.xlabel("Number of Agents")
+    plt.ylabel("Metric Value")
+    plt.legend()
+    plt.grid(True, which="both", ls=":", linewidth=0.5)
 
-    plt.title(
-        "Scaling of specialization index and retrieval efficiency vs. agent count"
-    )
-    plt.tight_layout()
+    # Write the figure.
+    output_path = pathlib.Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    plt.savefig(output_path)
-    plt.close(fig)
+    plt.tight_layout()
+    plt.savefig(output_path, format="pdf")
+    plt.close()

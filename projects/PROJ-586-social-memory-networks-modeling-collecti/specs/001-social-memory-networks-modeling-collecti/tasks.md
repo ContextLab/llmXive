@@ -103,13 +103,13 @@
 
 ### Implementation for User Story 2
 
-- [ ] T018 [US-2] Implement game simulation loop for limited context (1000 games per spec) in `code/run_experiment.py` <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T018 [US-2] Implement game simulation loop for limited context (1000 games per spec) in `code/run_experiment.py` <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
 - [X] T019 [US-2] Output `results_limited.csv` with same metrics to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/`
 - [X] T020 [P] [US-2] Implement two‑way independent‑samples ANOVA with factors Context × Metric (single ANOVA, not separate) in `code/analysis/anova.py` (FR-006)
 - [X] T021 [P] [US-2] Apply Bonferroni correction to all family‑wise hypothesis tests and report corrected α in `code/analysis/anova.py` (FR-007)
 - [ ] T022 [US-2] Conduct sensitivity analysis sweeping context‑truncation token limit over {128, 256, 512} with performance curves output in `code/analysis/sensitivity.py` (FR-008)
 - [X] T023 [US-2] Generate power‑analysis report estimating detectable effect size (N=1000 games per spec FR-009) in `code/analysis/power.py`
-- [ ] T024 [US-2] Flag "Power limitation" if estimated power < 0.70 in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/power_analysis_report.md` (SC-004)
+- [X] T024 [US-2] Flag "Power limitation" if estimated power < 0.70 in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/power_analysis_report.md` (SC-004)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -130,7 +130,7 @@
 
 - [X] T027 [US-3] Implement game simulation for agent counts 3, 5, 7 (800 games per config per spec US-3) in `code/run_experiment.py` <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified -->
 - [X] T028 [P] [US-3] Implement power-law fitting for metric trends vs. agent count (3, 5, 7) in `code/analysis/scaling.py` (US-3)
-- [X] T029 [P] [US-3] {{claim:c_9aceca76}} (Wikidata Q26876, https://www.wikidata.org/wiki/Q26876)
+- [X] T029 [P] [US-3] {{claim:c_30d0e391}}
 - [X] T030 [US-3] Generate `scaling_plot.pdf` with fitted power‑law curves and explicit note that 3 data points limit power‑law reliability in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_plot.pdf`
 
 **Checkpoint**: All user stories should now be independently functional
@@ -145,7 +145,7 @@
 - [X] T032 [P] Remove all 8-bit/4-bit quantization imports, verify no CUDA imports in all Python files (compute feasibility)
 - [X] T033 [P] Implement file-locking with fcntl and add conflict retry logic in `code/utils/serialization.py` (FR-012)
 - [X] T034 [P] Update `research.md` with reviewer feedback integration notes (Turing, Rockmore, Kahneman, Krakauer, Kandel, West)
-- [ ] T035 [P] Run full pipeline on CI runner, record runtime/memory/disk in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/` {{claim:c_e603cc7e}}, ≤7GB RAM, ≤14GB disk constraints <!-- ATOMIZE: requested -->
+- [X] T035 [P] Run full pipeline on CI runner, record runtime/memory/disk in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/` {{claim:c_e603cc7e}}, ≤7GB RAM, ≤14GB disk constraints <!-- ATOMIZE: requested -->
 
 ---
 
@@ -247,9 +247,9 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Compute Constraint**: All tasks MUST run on CPU-only CI (2 CPU, ~7GB RAM, NO GPU). Use small models (e.g., opt-125m) in float32.
+- **Compute Constraint**: {{claim:c_823da0d2}}
 - **Game Counts**: US-1/US-2 = 1000 games per condition (spec requirement); US-3 = 800 games per configuration
-- **Dataset Constraint**: Dataset Constraint: Hanabi/CoQA have NO verified URLs; use synthetic fallback only [UNRESOLVED-CLAIM: c_1abc5c14 — status=not_enough_info]
+- **Dataset Constraint**: Dataset Constraint: {{claim:c_08b0effc}}
 - **ANOVA Design**: Single two-way ANOVA with Context × Metric interaction (FR-006), NOT separate ANOVAs
 - **Power Analysis**: N=1000 games (FR-009 spec requirement)
 - **Reviewer Feedback**: Phases 6-11 from prior draft removed (not in original spec); addressed in T034

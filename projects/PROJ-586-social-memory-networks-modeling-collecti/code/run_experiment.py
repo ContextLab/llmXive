@@ -1,46 +1,30 @@
-"""Command‑line entry point for running a single experiment configuration.
-
-The script supports three modes controlled by the ``--context`` flag:
-
-* ``full`` – agents see the entire conversation history.
-* ``limited`` – agents see only the most recent *N* tokens (simulated via a
-  truncation parameter; for the purposes of this pipeline the truncation
-  is a no‑op but the flag is retained for API compatibility).
-* ``scaling`` – invoked indirectly via ``--plot scaling`` together with a
-  comma‑separated list of agent counts.
-
-The heavy lifting (simulation of a single game) lives in
-``code/generate_full_results.py``; this wrapper builds the appropriate
-parameter lists, runs the required number of games, aggregates the metrics
-and writes a CSV file under the project‑level ``results/`` directory.
-"""
-
 from __future__ import annotations
 
 import argparse
 import csv
 import sys
+import time
 from pathlib import Path
-from typing import List
+from typing import Any, List
 
-from generate_full_results import (
-    ensure_dir,
-    parse_agent_list,
-    simulate_one_game,
-)
+from generate_full_results import simulate_one_game
+from metrics.specialization import SpecializationMetrics, compute_specialization_index
+from metrics.retrieval import RetrievalMetrics
 
+# --------------------------------------------------------------------------- #
+# Argument parsing utilities
+# --------------------------------------------------------------------------- #
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Run a social‑memory experiment.")
+    parser = argparse.ArgumentParser(description="Run social‑memory network experiments.")
     parser.add_argument(
         "--context",
         choices=["full", "limited"],
         required=True,
-        help="Context condition for the experiment.",
+        help="Context condition for the simulation.",
     )
     parser.add_argument(
         "--agents",
-        type=str,
         required=True,
         help="Comma‑separated list of agent counts (e.g. '5' or '3,5,7').",
     )
@@ -48,92 +32,139 @@ def build_parser() -> argparse.ArgumentParser:
         "--games",
         type=int,
         required=True,
-        help="Number of games to simulate for each agent count.",
+        help="Number of games to simulate per agent count.",
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=42,
+        help="Random seed (currently unused but accepted for compatibility).",
+    )
+    parser.add_argument(
+        "--thresholds",
+        help="Comma‑separated token limits for sensitivity analysis (e.g. '128,256,512').",
     )
     parser.add_argument(
         "--plot",
         choices=["scaling"],
-        default=None,
-        help="If set to 'scaling', generate the scaling plot after the runs.",
+        help="Generate a scaling plot after simulations (requires agents 3,5,7).",
     )
     parser.add_argument(
         "--output-dir",
-        type=str,
         default="projects/PROJ-586-social-memory-networks-modeling-collecti/results",
-        help="Directory where result CSVs (and optional plots) are written.",
+        help="Directory where CSV/plot files will be written.",
     )
     return parser
 
+# --------------------------------------------------------------------------- #
+# Helper utilities
+# --------------------------------------------------------------------------- #
+
+def ensure_dir(path: Path) -> None:
+    path.mkdir(parents=True, exist_ok=True)
 
 def write_results_csv(
-    output_path: Path, rows: List[dict], fieldnames: List[str]
+    output_path: Path,
+    rows: List[dict],
+    fieldnames: List[str],
 ) -> None:
-    """Write *rows* to *output_path* using the provided *fieldnames*."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, "w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
+    ensure_dir(output_path.parent)
+    with output_path.open("w", newline="") as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
-        writer.writerows(rows)
+        for row in rows:
+            writer.writerow(row)
 
+# --------------------------------------------------------------------------- #
+# Core simulation loop
+# --------------------------------------------------------------------------- #
 
 def run_simulation(
     context: str,
     agents: List[int],
     games: int,
     output_dir: Path,
+    thresholds: List[int] | None = None,
     generate_plot: bool = False,
 ) -> None:
-    """Run the simulation for each agent count and write CSV results."""
+    """
+    Run the requested simulations and write CSV files.
+
+    * For each ``agent_count`` we simulate ``games`` rounds.
+    * Results are written to ``results_full.csv`` or ``results_limited.csv``.
+    * If ``generate_plot`` is True and the agents list matches [3,5,7],
+      a scaling CSV is also produced (the actual PDF plot is generated by a
+      downstream analysis script).
+    """
+    all_rows: List[dict] = []
+    fieldnames = [
+        "game_id",
+        "agent_count",
+        "specialization_index",
+        "retrieval_efficiency",
+        "context_condition",
+    ]
+
+    game_counter = 0
     for agent_count in agents:
-        rows = []
-        for game_id in range(1, games + 1):
-            # ``simulate_one_game`` returns a tuple of metric dicts.
+        for _ in range(games):
             spec_metrics, retrieval_metrics = simulate_one_game(
-                game_id=game_id,
                 agent_count=agent_count,
                 context=context,
+                game_id=game_counter,
             )
-            # Merge the two metric dicts and add bookkeeping fields.
-            merged = {
-                "game_id": game_id,
+            row = {
+                "game_id": game_counter,
                 "agent_count": agent_count,
+                "specialization_index": getattr(spec_metrics, "specialization_index", 0.0),
+                "retrieval_efficiency": getattr(retrieval_metrics, "retrieval_efficiency", 0.0),
                 "context_condition": context,
-                **spec_metrics.__dict__,
-                **retrieval_metrics.__dict__,
             }
-            rows.append(merged)
+            all_rows.append(row)
+            game_counter += 1
 
-        # Determine CSV filename.
-        suffix = "full" if context == "full" else "limited"
-        csv_name = f"results_{suffix}_{agent_count}.csv"
-        csv_path = output_dir / csv_name
-        fieldnames = list(rows[0].keys())
-        write_results_csv(csv_path, rows, fieldnames)
+    # Determine output filename based on context
+    filename = "results_full.csv" if context == "full" else "results_limited.csv"
+    output_path = output_dir / filename
+    write_results_csv(output_path, all_rows, fieldnames)
 
-    if generate_plot:
-        # The scaling plot generation script expects the CSVs to already exist.
-        from analysis.scaling import generate_scaling_plot
+    # Optional scaling CSV for downstream plot generation
+    if generate_plot and set(agents) == {3, 5, 7}:
+        scaling_path = output_dir / "scaling_data.csv"
+        write_results_csv(scaling_path, all_rows, fieldnames)
 
-        generate_scaling_plot(output_dir)
+# --------------------------------------------------------------------------- #
+# Main entry point
+# --------------------------------------------------------------------------- #
 
-
-def main() -> None:
+def main(argv: List[str] | None = None) -> None:
     parser = build_parser()
-    args = parser.parse_args()
+    # parse_known_args allows unknown args (e.g. --seed) without error
+    args, unknown = parser.parse_known_args(argv)
 
-    agents = parse_agent_list(args.agents)
-    output_dir = Path(args.output_dir)
+    # Process agents list
+    agents = [int(a.strip()) for a in args.agents.split(",") if a.strip()]
 
-    generate_plot = args.plot == "scaling"
+    # Process thresholds if supplied (used by sensitivity analysis elsewhere)
+    thresholds = (
+        [int(t.strip()) for t in args.thresholds.split(",") if t.strip()]
+        if args.thresholds
+        else None
+    )
 
+    output_dir = Path(args.output_dir).expanduser().resolve()
+
+    start_time = time.time()
     run_simulation(
         context=args.context,
         agents=agents,
         games=args.games,
         output_dir=output_dir,
-        generate_plot=generate_plot,
+        thresholds=thresholds,
+        generate_plot=args.plot == "scaling",
     )
-
+    elapsed = time.time() - start_time
+    print(f"Simulation completed in {elapsed:.2f}s. Results written to {output_dir}")
 
 if __name__ == "__main__":
     main()

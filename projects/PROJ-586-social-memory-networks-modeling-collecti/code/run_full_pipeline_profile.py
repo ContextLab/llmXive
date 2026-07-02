@@ -1,20 +1,12 @@
-"""Run the complete experiment pipeline while profiling runtime, memory and disk usage.
+"""Run the full experiment pipeline and record resource usage.
 
-The script orchestrates the three experiment configurations required by the
-project:
+This script is the entry point for task **T035**.  It executes the full
+pipeline (by delegating to ``run_full_pipeline.main``), measures wall‑clock
+time, peak memory consumption and the size of the results directory, and
+writes those measurements to the project ``results`` folder.
 
-* Full‑context simulation (default)
-* Limited‑context simulation
-* Scaling analysis across agent counts (3, 5, 7)
-
-After each sub‑run the script records:
-
-* Wall‑clock time (seconds)
-* Peak resident memory (MiB)
-* Disk usage of the project directory (MiB)
-
-All measurements are written to a CSV file in the project‑level
-``results/`` directory so that the CI job can inspect them.
+The implementation relies only on the Python standard library, keeping the
+CI environment lightweight.
 """
 
 from __future__ import annotations
@@ -23,153 +15,111 @@ import argparse
 import json
 import os
 import shutil
-import subprocess
-import sys
 import time
 from pathlib import Path
-from typing import List, Tuple
 
-# --------------------------------------------------------------------------- #
-# Helper utilities
-# --------------------------------------------------------------------------- #
+# Import the existing pipeline entry point.
+from run_full_pipeline import main as run_pipeline_main
+
+__all__ = ["get_memory_usage_mb", "get_disk_usage_mb", "run_and_profile", "build_parser", "main"]
+
 
 def get_memory_usage_mb() -> float:
-    """Return the current resident set size (RSS) in megabytes."""
-    # ``resource`` is Unix‑only; fall back to ``psutil`` if available.
+    """Return the current process memory usage in megabytes.
+
+    On Unix we can read ``/proc/self/status``; on other platforms we fall back
+    to ``resource.getrusage`` which reports memory in kilobytes.
+    """
+    try:
+        # Linux /proc
+        with open("/proc/self/status", "r", encoding="utf-8") as f:
+            for line in f:
+                if line.startswith("VmRSS:"):
+                    parts = line.split()
+                    # VmRSS value is in kB
+                    kb = int(parts[1])
+                    return kb / 1024.0
+    except FileNotFoundError:
+        pass
+
     try:
         import resource
-
-        usage = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-        # On Linux ru_maxrss is in KiB, on macOS it is in bytes.
-        if sys.platform.startswith("linux"):
-            return usage / 1024.0
-        return usage / (1024.0 * 1024.0)
+        usage = resource.getrusage(resource.RUSAGE_SELF)
+        # ru_maxrss is in kilobytes on Linux, bytes on macOS
+        factor = 1 / 1024.0 if os.uname().sysname == "Linux" else 1 / (1024.0 * 1024.0)
+        return usage.ru_maxrss * factor
     except Exception:
-        try:
-            import psutil
-
-            process = psutil.Process(os.getpid())
-            return process.memory_info().rss / (1024.0 * 1024.0)
-        except Exception:
-            # As a last resort return 0 – the caller can still record runtime.
-            return 0.0
+        return 0.0
 
 
 def get_disk_usage_mb(path: Path) -> float:
-    """Return the total disk usage (in MiB) of *path*."""
-    usage = shutil.disk_usage(str(path))
-    total_bytes = usage.total
+    """Return the total size of ``path`` (including sub‑directories) in MB."""
+    total_bytes = 0
+    for root, dirs, files in os.walk(path):
+        for f in files:
+            fp = os.path.join(root, f)
+            try:
+                total_bytes += os.path.getsize(fp)
+            except OSError:
+                pass
     return total_bytes / (1024.0 * 1024.0)
 
 
-def run_experiment_script(args: List[str]) -> Tuple[float, float]:
-    """Run ``code/run_experiment.py`` with *args* and return (runtime, mem)."""
+def run_and_profile(output_dir: Path) -> dict:
+    """Execute the full pipeline and collect resource statistics.
+
+    The function returns a dictionary with ``runtime_s``, ``memory_mb`` and
+    ``disk_mb`` keys.
+    """
     start = time.time()
-    # Use the same Python interpreter that is executing this script.
-    cmd = [sys.executable, "code/run_experiment.py"] + args
-    subprocess.run(cmd, check=True)
-    elapsed = time.time() - start
-    mem = get_memory_usage_mb()
-    return elapsed, mem
+    # Run the full experiment pipeline.
+    run_pipeline_main()
+    end = time.time()
 
+    runtime_s = end - start
+    memory_mb = get_memory_usage_mb()
+    disk_mb = get_disk_usage_mb(output_dir)
 
-# --------------------------------------------------------------------------- #
-# Main orchestration
-# --------------------------------------------------------------------------- #
-
-def run_full_pipeline() -> List[dict]:
-    """Execute all experiment configurations and collect profiling data."""
-    results: List[dict] = []
-
-    # 1. Full‑context baseline (5 agents, 1000 games)
-    elapsed, mem = run_experiment_script(
-        ["--context", "full", "--agents", "5", "--games", "1000"]
-    )
-    results.append(
-        {
-            "step": "full_context",
-            "runtime_seconds": round(elapsed, 2),
-            "peak_memory_mb": round(mem, 2),
-        }
-    )
-
-    # 2. Limited‑context baseline (5 agents, 1000 games)
-    elapsed, mem = run_experiment_script(
-        ["--context", "limited", "--agents", "5", "--games", "1000"]
-    )
-    results.append(
-        {
-            "step": "limited_context",
-            "runtime_seconds": round(elapsed, 2),
-            "peak_memory_mb": round(mem, 2),
-        }
-    )
-
-    # 3. Scaling analysis (agent counts 3,5,7; 800 games each)
-    elapsed, mem = run_experiment_script(
-        [
-            "--context",
-            "full",
-            "--agents",
-            "3,5,7",
-            "--games",
-            "800",
-            "--plot",
-            "scaling",
-        ]
-    )
-    results.append(
-        {
-            "step": "scaling_analysis",
-            "runtime_seconds": round(elapsed, 2),
-            "peak_memory_mb": round(mem, 2),
-        }
-    )
-
-    # Record overall disk usage once at the end.
-    project_root = Path(__file__).parents[1]  # projects/PROJ-586-...
-    disk_mb = round(get_disk_usage_mb(project_root), 2)
-    for entry in results:
-        entry["disk_usage_mb"] = disk_mb
-
-    return results
-
-
-def save_results_csv(results: List[dict], output_path: Path) -> None:
-    """Write the profiling data to ``results/profile_summary.csv``."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    fieldnames = ["step", "runtime_seconds", "peak_memory_mb", "disk_usage_mb"]
-    with open(output_path, "w", newline="", encoding="utf-8") as f:
-        import csv
-
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(results)
+    return {
+        "runtime_s": runtime_s,
+        "memory_mb": memory_mb,
+        "disk_mb": disk_mb,
+    }
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Run the full experiment pipeline and record resource usage."
+        description="Run the full pipeline and record runtime/memory/disk usage."
     )
     parser.add_argument(
-        "--output",
-        type=str,
-        default="projects/PROJ-586-social-memory-networks-modeling-collecti/results/profile_summary.csv",
-        help="Path to the CSV file that will contain the profiling summary.",
+        "--output-dir",
+        type=Path,
+        default=Path(__file__).parents[2] / "results",
+        help="Directory where resource usage files will be written.",
     )
     return parser
 
 
 def main() -> None:
+    """Entry point for the CI runner."""
     parser = build_parser()
     args = parser.parse_args()
-    results = run_full_pipeline()
-    save_results_csv(results, Path(args.output))
-    # Also emit a JSON version for easier downstream consumption.
-    json_path = Path(str(args.output)).with_suffix(".json")
-    json_path.parent.mkdir(parents=True, exist_ok=True)
-    json_path.write_text(json.dumps(results, indent=2))
-    print(f"Profiling results written to {args.output} (and {json_path})")
+
+    # Ensure the output directory exists.
+    args.output_dir.mkdir(parents=True, exist_ok=True)
+
+    stats = run_and_profile(args.output_dir)
+
+    # Write each statistic to its own file for easy downstream consumption.
+    (args.output_dir / "runtime_seconds.txt").write_text(f"{stats['runtime_s']:.2f}\\n")
+    (args.output_dir / "memory_mb.txt").write_text(f"{stats['memory_mb']:.2f}\\n")
+    (args.output_dir / "disk_mb.txt").write_text(f"{stats['disk_mb']:.2f}\\n")
+
+    # Also emit a combined JSON summary (convenient for CI logs).
+    summary_path = args.output_dir / "resource_usage.json"
+    summary_path.write_text(json.dumps(stats, indent=2))
+
+    print(f"Resource usage written to {args.output_dir}")
 
 
 if __name__ == "__main__":

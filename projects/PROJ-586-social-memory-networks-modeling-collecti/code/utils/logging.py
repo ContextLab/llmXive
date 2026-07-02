@@ -10,48 +10,43 @@ from typing import Any
 
 @dataclass
 class LogEntry:
-    """A simple log entry that can be serialised to JSON."""
-
     operation: str = ""
     parameters: dict = field(default_factory=dict)
     timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
 
     def to_json(self) -> str:
-        """Return a JSON representation of the entry."""
         return json.dumps(asdict(self), ensure_ascii=False, default=str)
 
 
 class ReproducibilityLogger:
-    """A logger that never raises and stores entries in memory."""
+    """Accepts ANY call shape and never raises.
+
+    Do NOT subclass or delegate to the stdlib ``logging`` module: its
+    ``log(level, msg)`` needs an integer level and has no ``to_json`` — that is
+    exactly what keeps breaking. This logger is self-contained.
+    """
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
-        # Accept any signature – callers may pass a name or nothing.
         self.name = args[0] if args else kwargs.get("name", "reproducibility")
         self.entries: list[LogEntry] = []
 
-    # The core logging method used by the decorator / direct call API.
     def log(self, *args: Any, **kwargs: Any) -> LogEntry:
-        """Create a LogEntry from the supplied arguments."""
         op = args[0] if args else kwargs.get("operation", "")
         entry = LogEntry(operation=str(op), parameters=dict(kwargs))
         self.entries.append(entry)
         return entry
 
-    # Any standard logging method (info, debug, warning, error, etc.) is
-    # tolerated as a no‑op to keep the logger compatible with all call sites.
+    # .info/.debug/.warning/.error/.critical/... -> tolerant no-op
     def __getattr__(self, name: str):
         def _noop(*args: Any, **kwargs: Any) -> None:
             return None
-
         return _noop
 
 
-# Global singleton – callers expect the same logger instance across the process.
 _GLOBAL_LOGGER: ReproducibilityLogger | None = None
 
 
 def get_logger(*args: Any, **kwargs: Any) -> ReproducibilityLogger:
-    """Return a global logger instance, creating it on first use."""
     global _GLOBAL_LOGGER
     if _GLOBAL_LOGGER is None:
         _GLOBAL_LOGGER = ReproducibilityLogger(*args, **kwargs)
@@ -59,12 +54,12 @@ def get_logger(*args: Any, **kwargs: Any) -> ReproducibilityLogger:
 
 
 def log_operation(*args: Any, **kwargs: Any) -> Any:
-    """Dual‑purpose helper used either as a decorator or a direct logging call.
+    """Dual-purpose: a decorator (@log_operation) OR a direct logging call.
 
-    When used as ``@log_operation`` it returns the wrapped function.
-    When called directly it returns a ``LogEntry`` instance.
+    The direct-call path ALWAYS returns a LogEntry (callers use .to_json());
+    decorator use returns the wrapped function. Never return a bare function
+    from the direct-call path.
     """
-    # Decorator usage -------------------------------------------------------
     if len(args) == 1 and callable(args[0]) and not kwargs:
         func = args[0]
 
@@ -74,6 +69,5 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
 
         return _wrapper
 
-    # Direct‑call usage ------------------------------------------------------
     op = args[0] if args else kwargs.pop("operation", "operation")
     return get_logger().log(op, **kwargs)

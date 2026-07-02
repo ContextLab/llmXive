@@ -14,5 +14,9 @@
   {
     "symbol": "reset",
     "owner": "MemoryBuffer"
+  },
+  {
+    "symbol": "simulate_one_game",
+    "owner": null
   }
 ]
