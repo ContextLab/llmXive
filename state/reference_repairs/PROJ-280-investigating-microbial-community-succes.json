@@ -1,0 +1,14 @@
+[
+  {
+    "repaired_at": "2026-07-02T17:10:57.689387+00:00",
+    "project": "PROJ-280-investigating-microbial-community-succes",
+    "repairs": [
+      {
+        "dead_url": "https://huggingface.co/datasets/mychen76/invoices-and-receipts_ocr_v1/resolve/main/test-00000-of-00001-af2d92d1cee28514.parquet",
+        "reason": "HTTP 404",
+        "replacement_url": "https://huggingface.co/datasets/kabir5297/EnglishLM_Chars_removed/resolve/main/data/train-00000-of-00002-d3dee04a5702d7fc.parquet",
+        "intent": "mychen76 invoices and receipts ocr test 00000 of HuggingFace REMOVED URL unreachable HTTP 404 . This dataset is not used."
+      }
+    ]
+  }
+]
