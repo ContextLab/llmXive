@@ -1,48 +1,80 @@
+"""
+Logging configuration for the social memory networks project.
+Provides setup_logger and get_logger functions.
+"""
 import logging
-import time
+import sys
 from pathlib import Path
 from typing import Optional
 
-def setup_experiment_logging(log_path: str = "experiment.log") -> logging.Logger:
+# Global logger instance cache
+_loggers: dict[str, logging.Logger] = {}
+
+def setup_logger(
+    name: str = "social_memory",
+    log_file: Optional[Path] = None,
+    level: int = logging.INFO,
+    include_timestamp: bool = True
+) -> logging.Logger:
     """
-    Configure error logging with timestamps to the specified log file.
+    Configure and return a logger with optional file handler.
+
+    Args:
+        name: Logger name
+        log_file: Optional path to log file (relative to project root)
+        level: Logging level
+        include_timestamp: Whether to include timestamps in console output
+
+    Returns:
+        Configured logger instance
     """
-    # Ensure directory exists
-    Path(log_path).parent.mkdir(parents=True, exist_ok=True)
-    
-    # Create logger
-    logger = logging.getLogger("experiment")
-    logger.setLevel(logging.INFO)
-    
+    if name in _loggers:
+        return _loggers[name]
+
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
+    logger.propagate = False
+
     # Clear existing handlers
     logger.handlers.clear()
-    
-    # File handler with timestamp
-    file_handler = logging.FileHandler(log_path)
-    file_handler.setLevel(logging.INFO)
-    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-    file_handler.setFormatter(formatter)
-    logger.addHandler(file_handler)
-    
+
     # Console handler
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.INFO)
-    console_handler.setFormatter(formatter)
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(level)
+
+    if include_timestamp:
+        console_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    else:
+        console_format = "%(name)s - %(levelname)s - %(message)s"
+
+    console_formatter = logging.Formatter(console_format, datefmt="%Y-%m-%d %H:%M:%S")
+    console_handler.setFormatter(console_formatter)
     logger.addHandler(console_handler)
-    
+
+    # File handler if specified
+    if log_file:
+        # Ensure directory exists
+        log_file.parent.mkdir(parents=True, exist_ok=True)
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setLevel(level)
+        file_formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+        file_handler.setFormatter(file_formatter)
+        logger.addHandler(file_handler)
+
+    _loggers[name] = logger
     return logger
 
-def log_error(logger: logging.Logger, message: str, exception: Optional[Exception] = None):
-    """Log an error with optional exception details."""
-    if exception:
-        logger.error(f"{message}: {str(exception)}")
-    else:
-        logger.error(message)
+def get_logger(name: str = "social_memory") -> logging.Logger:
+    """
+    Get a logger by name, creating it if it doesn't exist.
 
-def log_info(logger: logging.Logger, message: str):
-    """Log an informational message."""
-    logger.info(message)
+    Args:
+        name: Logger name
 
-def log_warning(logger: logging.Logger, message: str):
-    """Log a warning message."""
-    logger.warning(message)
+    Returns:
+        Logger instance
+    """
+    if name not in _loggers:
+        # Create with default settings
+        return setup_logger(name)
+    return _loggers[name]

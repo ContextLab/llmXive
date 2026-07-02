@@ -1,117 +1,137 @@
+"""
+Shared memory buffer implementation with <MEMORY_ACTION> token handling.
+"""
 import threading
-from dataclasses import dataclass, field
-from typing import List, Any, Optional, Callable
 import time
+from dataclasses import dataclass, field
+from typing import List, Any, Optional, Callable, Dict
 import re
 
 @dataclass
 class MemoryEntry:
-    """A single entry in the shared memory buffer."""
+    """A single entry in the memory buffer."""
     timestamp: float
     agent_id: str
-    action_type: str  # 'store', 'retrieve', 'update'
-    content: str
-    cue: Optional[str] = None
-    success: bool = True
+    action_type: str
+    content: Any
+    metadata: Dict[str, Any] = field(default_factory=dict)
 
-def parse_memory_action(text: str) -> Optional[dict]:
+def parse_memory_action(text: str) -> Optional[Dict[str, Any]]:
     """
-    Parse a <MEMORY_ACTION> token string into a structured dict.
-    Expected format: <MEMORY_ACTION type="store" cue="..." content="...">
+    Parse a <MEMORY_ACTION> token from text.
+
+    Args:
+        text: Text containing potential memory action
+
+    Returns:
+        Parsed action dict or None if not found
     """
-    pattern = r'<MEMORY_ACTION\s+type="(\w+)"\s+cue="([^"]*)"\s+content="([^"]*)">'
-    match = re.match(pattern, text)
+    pattern = r'<MEMORY_ACTION\s+type="([^"]+)"\s+content="([^"]*)"\s*(metadata="([^"]*)")?\s*>'
+    match = re.search(pattern, text)
     if match:
-        return {
+        action = {
             'type': match.group(1),
-            'cue': match.group(2),
-            'content': match.group(3)
+            'content': match.group(2),
+            'metadata': {}
         }
+        if match.group(4):
+            try:
+                import json
+                action['metadata'] = json.loads(match.group(4))
+            except (json.JSONDecodeError, TypeError):
+                action['metadata'] = {}
+        return action
     return None
 
 class MemoryBuffer:
     """
-    Shared external memory buffer for multi-agent transactive memory.
-    Implements a thread-safe queue of memory entries with <MEMORY_ACTION> token handling.
+    Thread-safe shared memory buffer for multi-agent systems.
+    Supports <MEMORY_ACTION> token handling.
     """
-    def __init__(self, max_entries: int = 10000):
+
+    _instance: Optional['MemoryBuffer'] = None
+    _lock = threading.Lock()
+
+    def __init__(self):
         self._entries: List[MemoryEntry] = []
+        self._callbacks: Dict[str, List[Callable]] = {}
         self._lock = threading.RLock()
-        self._max_entries = max_entries
-        self._callbacks: List[Callable[[MemoryEntry], None]] = []
 
-    def add_entry(self, agent_id: str, action_type: str, content: str, cue: Optional[str] = None) -> MemoryEntry:
-        """Add a new memory entry to the buffer."""
+    def store(self, agent_id: str, action_type: str, content: Any, metadata: Optional[Dict] = None) -> MemoryEntry:
+        """Store a memory entry."""
+        entry = MemoryEntry(
+            timestamp=time.time(),
+            agent_id=agent_id,
+            action_type=action_type,
+            content=content,
+            metadata=metadata or {}
+        )
         with self._lock:
-            entry = MemoryEntry(
-                timestamp=time.time(),
-                agent_id=agent_id,
-                action_type=action_type,
-                content=content,
-                cue=cue,
-                success=True
-            )
-            if len(self._entries) >= self._max_entries:
-                self._entries.pop(0)
             self._entries.append(entry)
-            for cb in self._callbacks:
-                try:
-                    cb(entry)
-                except Exception:
-                    pass
-            return entry
+            self._notify_callbacks(action_type, entry)
+        return entry
 
-    def get_entries(self, agent_id: Optional[str] = None, limit: Optional[int] = None) -> List[MemoryEntry]:
-        """Retrieve entries, optionally filtered by agent_id."""
+    def retrieve(self, agent_id: Optional[str] = None, action_type: Optional[str] = None, limit: int = 100) -> List[MemoryEntry]:
+        """Retrieve memory entries with optional filters."""
         with self._lock:
-            entries = self._entries
-            if agent_id:
-                entries = [e for e in entries if e.agent_id == agent_id]
-            if limit:
-                entries = entries[-limit:]
-            return list(entries)
+            results = self._entries.copy()
 
-    def search_by_cue(self, cue: str) -> List[MemoryEntry]:
-        """Retrieve entries matching a specific cue."""
-        with self._lock:
-            return [e for e in self._entries if e.cue == cue]
+        if agent_id:
+            results = [e for e in results if e.agent_id == agent_id]
+        if action_type:
+            results = [e for e in results if e.action_type == action_type]
 
-    def reset(self):
-        """Clear all entries from the buffer."""
+        return results[-limit:]
+
+    def clear(self):
+        """Clear all entries."""
         with self._lock:
             self._entries.clear()
 
-    def register_callback(self, callback: Callable[[MemoryEntry], None]):
-        """Register a callback to be called on new entries."""
+    def reset(self):
+        """Reset the buffer (alias for clear)."""
+        self.clear()
+
+    def register_callback(self, action_type: str, callback: Callable[[MemoryEntry], None]):
+        """Register a callback for a specific action type."""
         with self._lock:
-            self._callbacks.append(callback)
+            if action_type not in self._callbacks:
+                self._callbacks[action_type] = []
+            self._callbacks[action_type].append(callback)
+
+    def _notify_callbacks(self, action_type: str, entry: MemoryEntry):
+        """Notify all callbacks for an action type."""
+        with self._lock:
+            callbacks = self._callbacks.get(action_type, []).copy()
+
+        for callback in callbacks:
+            try:
+                callback(entry)
+            except Exception:
+                pass  # Don't let callback errors break the buffer
+
+    def __len__(self) -> int:
+        with self._lock:
+            return len(self._entries)
 
     def __getattr__(self, name: str):
         """
-        Tolerant fallback for logger-style calls or unknown attributes.
-        Returns a no-op callable to prevent AttributeError on dynamic calls.
+        Fallback for unknown attributes to support logger-style calls.
+        Returns a no-op callable for any unknown method name.
         """
         def _noop(*args, **kwargs):
             return None
         return _noop
 
-# Singleton pattern for shared memory buffer
-_shared_buffer_instance: Optional[MemoryBuffer] = None
-_buffer_lock = threading.Lock()
-
-def get_shared_memory_buffer(max_entries: int = 10000) -> MemoryBuffer:
-    """Get the singleton shared memory buffer instance."""
-    global _shared_buffer_instance
-    if _shared_buffer_instance is None:
-        with _buffer_lock:
-            if _shared_buffer_instance is None:
-                _shared_buffer_instance = MemoryBuffer(max_entries=max_entries)
-    return _shared_buffer_instance
+def get_shared_memory_buffer() -> MemoryBuffer:
+    """Get or create the shared memory buffer instance."""
+    if MemoryBuffer._instance is None:
+        with MemoryBuffer._lock:
+            if MemoryBuffer._instance is None:
+                MemoryBuffer._instance = MemoryBuffer()
+    return MemoryBuffer._instance
 
 def reset_shared_memory_buffer():
-    """Reset the singleton shared memory buffer."""
-    global _shared_buffer_instance
-    with _buffer_lock:
-        if _shared_buffer_instance is not None:
-            _shared_buffer_instance.reset()
-            _shared_buffer_instance = None
+    """Reset the shared memory buffer."""
+    if MemoryBuffer._instance is not None:
+        MemoryBuffer._instance.reset()
