@@ -1,0 +1,10 @@
+{
+  "x_min": 15.0,
+  "alpha": 1.85,
+  "ks_statistic": 0.042,
+  "grid_stats": {
+    "min": 5.0,
+    "max": 120.0,
+    "points_evaluated": 50
+  }
+}

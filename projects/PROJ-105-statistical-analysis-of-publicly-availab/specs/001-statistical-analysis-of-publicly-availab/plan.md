@@ -148,4 +148,4 @@ data/
     -   For the final fitted dataset, use **memory-mapped arrays (memmap)** to avoid loading the entire ~M row dataset into RAM at once.
     -   If the filtered dataset still exceeds 6.5 GB, the pipeline will process the tail estimation in chunks or use a subsample for the Hill estimator (with a note on reduced power), but will not crash.
 -   **CPU**: All `scipy` and `numpy` operations are CPU-bound. No GPU libraries used.
--   **Time**: MLE fitting for multiple distributions on ~10M rows is computationally intensive. We will limit the Hill estimator stability search to a small window and use vectorized operations. A hard timeout of 3500 seconds is implemented in `main.py`. If exceeded, the pipeline logs a warning and exits with `sc_005_result: "FAIL"`.
+-   **Time**: MLE fitting for multiple distributions on a large-scale dataset is computationally intensive. We will limit the Hill estimator stability search to a small window and use vectorized operations. A hard timeout of 3500 seconds is implemented in `main.py`. If exceeded, the pipeline logs a warning and exits with `sc_005_result: "FAIL"`.

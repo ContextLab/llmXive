@@ -1,0 +1,67 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: DelayRecord
+description: >
+  Represents a single flight delay record after preprocessing.
+  Fields defined in data-model.md for the Flight Delay Analysis project.
+type: object
+required:
+  - flight_id
+  - year
+  - month
+  - day
+  - carrier
+  - origin
+  - dest
+  - total_delay
+  - is_data_error
+  - is_anomaly
+properties:
+  flight_id:
+    type: string
+    description: Unique identifier for the flight (e.g., carrier + flight_number + date)
+  year:
+    type: integer
+    minimum: 2000
+    maximum: 2099
+    description: Year of the flight
+  month:
+    type: integer
+    minimum: 1
+    maximum: 12
+    description: Month of the flight
+  day:
+    type: integer
+    minimum: 1
+    maximum: 31
+    description: Day of the month
+  carrier:
+    type: string
+    pattern: '^[A-Z0-9]{2,4}$'
+    description: Airline carrier code
+  origin:
+    type: string
+    pattern: '^[A-Z]{3}$'
+    description: Origin airport code (IATA)
+  dest:
+    type: string
+    pattern: '^[A-Z]{3}$'
+    description: Destination airport code (IATA)
+  total_delay:
+    type: number
+    description: Total delay in minutes (ArrDelay + DepDelay). Can be 0 or positive.
+    minimum: 0
+  is_data_error:
+    type: boolean
+    description: True if delay > 10,000 minutes (data error flag)
+  is_anomaly:
+    type: boolean
+    description: True if delay > 1,440 minutes (24 hours) but <= 10,000
+  arr_delay:
+    type: number
+    description: Arrival delay in minutes (may be negative in raw data, but 0 here if missing)
+    minimum: 0
+  dep_delay:
+    type: number
+    description: Departure delay in minutes (may be negative in raw data, but 0 here if missing)
+    minimum: 0
+additionalProperties: false

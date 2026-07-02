@@ -1,0 +1,82 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: TailIndexEstimate
+description: >
+  Represents the estimated tail index (alpha) and related statistics
+  derived from the Hill estimator or similar heavy-tail diagnostics.
+  This entity is used to quantify the heaviness of the tail in flight delay distributions.
+type: object
+required:
+  - tail_index
+  - standard_error
+  - confidence_interval
+  - n_observations
+  - k_used
+  - estimation_method
+  - timestamp
+properties:
+  tail_index:
+    type: number
+    description: >
+      The estimated tail index (alpha). Values < 2 indicate heavy tails
+      (infinite variance). Values < 1 indicate infinite mean.
+      For a Pareto distribution, alpha > 0.
+    minimum: 0
+  standard_error:
+    type: number
+    description: >
+      The standard error of the tail index estimate, typically derived
+      via asymptotic theory or bootstrapping.
+    minimum: 0
+  confidence_interval:
+    type: object
+    description: 95% confidence interval for the tail index estimate.
+    required:
+      - lower
+      - upper
+    properties:
+      lower:
+        type: number
+      upper:
+        type: number
+  n_observations:
+    type: integer
+    description: Total number of observations (flight delays) used in the dataset.
+    minimum: 1
+  k_used:
+    type: integer
+    description: >
+      The number of upper order statistics (k) used for the Hill estimator.
+      This represents the threshold count above which the tail behavior is analyzed.
+    minimum: 1
+  estimation_method:
+    type: string
+    description: The method used to estimate the tail index.
+    enum:
+      - "Hill"
+      - "Pickands"
+      - "Dekkers"
+      - "MaximumLikelihood"
+      - "KSMinimization"
+  threshold_value:
+    type: number
+    description: >
+      The actual delay value (x_min) corresponding to the k-th largest observation.
+      Optional if k_used is provided, but recommended for reproducibility.
+    minimum: 0
+  stability_metric:
+    type: number
+    description: >
+      A metric indicating the stability of the estimate (e.g., variance over a sliding window).
+      Lower values indicate a more stable estimate.
+    minimum: 0
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of when the estimation was performed.
+  source_file:
+    type: string
+    description: Path to the input data file used for this estimation.
+  notes:
+    type: string
+    description: Optional notes regarding data quality or estimation caveats.
+additionalProperties: false

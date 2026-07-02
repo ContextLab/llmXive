@@ -1,0 +1,60 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: DistributionModel
+description: >
+  Represents a fitted statistical distribution model and its metrics.
+  Fields defined in data-model.md for the Flight Delay Analysis project.
+type: object
+required:
+  - model_name
+  - parameters
+  - metrics
+properties:
+  model_name:
+    type: string
+    enum:
+      - Exponential
+      - Gamma
+      - Log-Normal
+      - Weibull
+      - Pareto
+    description: Name of the fitted distribution
+  parameters:
+    type: object
+    description: Fitted parameters of the distribution (keys depend on model)
+    additionalProperties:
+      type: number
+  metrics:
+    type: object
+    description: Goodness-of-fit metrics
+    required:
+      - AIC
+      - BIC
+      - KS_statistic
+      - AD_statistic
+    properties:
+      AIC:
+        type: number
+        description: Akaike Information Criterion
+      BIC:
+        type: number
+        description: Bayesian Information Criterion
+      KS_statistic:
+        type: number
+        description: Kolmogorov-Smirnov statistic
+      AD_statistic:
+        type: number
+        description: Anderson-Darling statistic
+  fit_success:
+    type: boolean
+    description: Whether the MLE fitting converged successfully
+  data_subset:
+    type: string
+    enum:
+      - full
+      - tail
+    description: Whether fitted on full data or tail subset (delay >= x_min)
+  x_min:
+    type: number
+    nullable: true
+    description: Threshold used for tail fitting (only relevant if data_subset is 'tail')
+additionalProperties: false
