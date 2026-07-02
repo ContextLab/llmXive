@@ -1,0 +1,31 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Correlation Result Schema"
+description: "Schema for individual correlation results or distributional test results"
+type: "object"
+properties:
+  taxon_name:
+    type: "string"
+    description: "Genus name"
+  statistic:
+    type: "number"
+    description: "Spearman's rho or U-statistic"
+  p_value:
+    type: "number"
+    description: "Uncorrected p-value"
+  q_value:
+    type: "number"
+    description: "FDR-corrected q-value"
+  is_significant:
+    type: "boolean"
+    description: "Whether q<0.1"
+  perm_test_passed:
+    type: "boolean"
+    description: "Whether observed statistic exceeds 95th percentile of null"
+required:
+  - taxon_name
+  - statistic
+  - p_value
+  - q_value
+  - is_significant
+  - perm_test_passed
+additionalProperties: false

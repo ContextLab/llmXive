@@ -1,0 +1,123 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Output Schema"
+description: "Schema for matched pairs, distribution groups, and analysis results"
+type: "object"
+properties:
+  matched_pairs:
+    type: "array"
+    description: "List of matched individual pairs (if Path A)"
+    items:
+      type: "object"
+      properties:
+        pair_id:
+          type: "string"
+          description: "Unique identifier for the pair"
+        agp_subject_id:
+          type: "string"
+          description: "AGP subject ID"
+        eeg_subject_id:
+          type: "string"
+          description: "EEG subject ID"
+        age_diff:
+          type: "number"
+          description: "Absolute difference in age"
+        bmi_diff:
+          type: "number"
+          description: "Absolute difference in BMI"
+        alpha_power:
+          type: "number"
+          description: "EEG subject's alpha power"
+        clr_abundances:
+          type: "object"
+          additionalProperties:
+            type: "number"
+            description: "CLR-transformed abundances for each genus"
+      required:
+        - pair_id
+        - agp_subject_id
+        - eeg_subject_id
+        - alpha_power
+        - clr_abundances
+      additionalProperties: false
+  distribution_groups:
+    type: "array"
+    description: "List of groups for distributional tests (if Path B)"
+    items:
+      type: "object"
+      properties:
+        group_id:
+          type: "string"
+          description: "Unique identifier (e.g., 'High_Bacteroides')"
+        taxon_name:
+          type: "string"
+          description: "Taxon used for grouping"
+        abundance_level:
+          type: "string"
+          description: "High or Low"
+        alpha_powers:
+          type: "array"
+          items:
+            type: "number"
+          description: "List of alpha power values in this group"
+      required:
+        - group_id
+        - taxon_name
+        - abundance_level
+        - alpha_powers
+      additionalProperties: false
+  analysis_results:
+    type: "object"
+    properties:
+      analysis_type:
+        type: "string"
+        description: "Individual_Correlation or Distributional_Test"
+      valid_pairs_count:
+        type: "integer"
+        description: "Number of matched pairs (if Path A)"
+      group_sizes:
+        type: "object"
+        additionalProperties:
+          type: "integer"
+        description: "Size of each group (if Path B)"
+      correlation_results:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            taxon_name:
+              type: "string"
+              description: "Genus name"
+            statistic:
+              type: "number"
+              description: "Spearman's rho or U-statistic"
+            p_value:
+              type: "number"
+              description: "Uncorrected p-value"
+            q_value:
+              type: "number"
+              description: "FDR-corrected q-value"
+            is_significant:
+              type: "boolean"
+              description: "Whether q<0.1"
+            perm_test_passed:
+              type: "boolean"
+              description: "Whether observed statistic exceeds 95th percentile of null"
+          required:
+            - taxon_name
+            - statistic
+            - p_value
+            - q_value
+            - is_significant
+            - perm_test_passed
+          additionalProperties: false
+      assoc_disclaimer:
+        type: "string"
+        description: "Associational disclaimer text"
+      required:
+        - analysis_type
+        - correlation_results
+        - assoc_disclaimer
+    additionalProperties: false
+required:
+  - analysis_results
+additionalProperties: false

@@ -1,0 +1,370 @@
+resolved_at: '2026-07-02T08:15:20.233620+00:00'
+datasets:
+- intent: EEG
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/neurofusion/eeg-restingstate/resolve/main/events.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 2963
+      parsed: true
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_train/resolve/main/data/train-00000-of-00048-3d720ad254981f90.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_eval/resolve/main/data/train-00000-of-00007-78d1928c4e4c8738.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/neurofusion/eeg-restingstate/resolve/main/events.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_train/resolve/main/data/train-00000-of-00048-3d720ad254981f90.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_eval/resolve/main/data/train-00000-of-00007-78d1928c4e4c8738.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_dev/resolve/main/data/train-00000-of-00007-78d1928c4e4c8738.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Geochronological_geochemical_isotopic_mineral-chemical_and_numerical_modeling_data_for_the_Shiqiao_pluton_South_China/32726037
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Structural_Basis_of_Hemoglobin_Amyloid_Fibrils_Revealed_by_cryo-EM_and_Molecular_Dynamics_Simulations/32873743
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/The_Influences_of_Sediment_Load_on_the_Biodiversity_of_Algal_Turfs_in_Coral_Reef_Ecosystems_through_Environmental_DNA_Analysis/32873740
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/The_Influences_of_Sediment_Load_on_the_Biodiversity_of_Algal_Turfs_in_Coral_Reef_Ecosystems_through_Environmental_DNA_Analysis/32873737
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Rashba-Related_Spin-Selective_Effect_in_2D_Chiral_Perovskites_with_Achiral_Organic_Cation_Spacers/32873734
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3236138
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10909103
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16906198
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://open-research-europe.ec.europa.eu/articles/2-5/v2
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://open-research-europe.ec.europa.eu/articles/2-5/v1
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21128118
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21128118
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.13016/qopz-ezjh
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''drum.lib.umd.edu'',
+      port=443): Max retries exceeded with url: /handle/1903/35726 (Caused by ConnectTimeoutError(<HTTPSConnection(host=''drum.lib.umd.edu'',
+      port=443) at 0x7ffb0ff81690>, ''Connection to drum.lib.umd.edu timed out. (connect
+      timeout=20.0)''))'
+  - url: https://www.repository.cam.ac.uk/handle/1810/405641
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/155486
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: OpenNeuro
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/clane9/openneuro-fslr64k.arrow/resolve/main/dataset_dict.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 29
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/clane9/openneuro-fslr64k.arrow/resolve/main/dataset_dict.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://figshare.com/articles/dataset/Geochronological_geochemical_isotopic_mineral-chemical_and_numerical_modeling_data_for_the_Shiqiao_pluton_South_China/32726037
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Structural_Basis_of_Hemoglobin_Amyloid_Fibrils_Revealed_by_cryo-EM_and_Molecular_Dynamics_Simulations/32873743
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/The_Influences_of_Sediment_Load_on_the_Biodiversity_of_Algal_Turfs_in_Coral_Reef_Ecosystems_through_Environmental_DNA_Analysis/32873740
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/The_Influences_of_Sediment_Load_on_the_Biodiversity_of_Algal_Turfs_in_Coral_Reef_Ecosystems_through_Environmental_DNA_Analysis/32873737
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Rashba-Related_Spin-Selective_Effect_in_2D_Chiral_Perovskites_with_Achiral_Organic_Cation_Spacers/32873734
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18476336
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17150815
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2847832
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21032699
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17185931
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openneuro.org/datasets/ds008083/versions/1.0.0
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ww2.nemar.org/dataset/on002893
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ww2.nemar.org/dataset/on002893?v=v1.0.0
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openneuro.org/datasets/ds008082/versions/1.0.0
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21113780
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: BMI
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/karan451/BMI-labeled-faced/resolve/main/archive/Final_Dataset.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/NurlanAliyevofficial/Brain-tumor-effect-of-bloodpressure-sugarlevel-and-BMI-ON-ITS-PRESSENCE/resolve/main/Health_Dataset_Brain
+      _Tumor.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 1459
+      parsed: true
+  - url: https://huggingface.co/datasets/minhthong/flashdeal_data_BMI_historical_signal/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 12335
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/karan451/BMI-labeled-faced/resolve/main/archive/Final_Dataset.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/NurlanAliyevofficial/Brain-tumor-effect-of-bloodpressure-sugarlevel-and-BMI-ON-ITS-PRESSENCE/resolve/main/Health_Dataset_Brain
+      _Tumor.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/minhthong/flashdeal_data_BMI_historical_signal/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Geochronological_geochemical_isotopic_mineral-chemical_and_numerical_modeling_data_for_the_Shiqiao_pluton_South_China/32726037
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Structural_Basis_of_Hemoglobin_Amyloid_Fibrils_Revealed_by_cryo-EM_and_Molecular_Dynamics_Simulations/32873743
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/The_Influences_of_Sediment_Load_on_the_Biodiversity_of_Algal_Turfs_in_Coral_Reef_Ecosystems_through_Environmental_DNA_Analysis/32873740
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/The_Influences_of_Sediment_Load_on_the_Biodiversity_of_Algal_Turfs_in_Coral_Reef_Ecosystems_through_Environmental_DNA_Analysis/32873737
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Rashba-Related_Spin-Selective_Effect_in_2D_Chiral_Perovskites_with_Achiral_Organic_Cation_Spacers/32873734
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://beei.org/index.php/EEI/article/view/3779
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://beei.org/index.php/EEI/article/view/2319
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8074384
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijpeds.iaescore.com/index.php/IJPEDS/article/view/16396
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6646128
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.13016/gdr1-b8he
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''drum.lib.umd.edu'',
+      port=443): Max retries exceeded with url: /handle/1903/35600 (Caused by ConnectTimeoutError(<HTTPSConnection(host=''drum.lib.umd.edu'',
+      port=443) at 0x7ffb0ff821d0>, ''Connection to drum.lib.umd.edu timed out. (connect
+      timeout=20.0)''))'
+  - url: https://usiena-air.unisi.it//handle/11365/1133350
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://fair.unifg.it//handle/11369/369200
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19440421
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19440421
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CLR-transformed
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://repository.lboro.ac.uk/articles/report/SMETER_Expert_meeting_to_discuss_Energy_Estimation_for_HTC_validation/32860439
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Four-Tier_Contour_Concept_Test_4TCCT_/32873663
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Geochronological_geochemical_isotopic_mineral-chemical_and_numerical_modeling_data_for_the_Shiqiao_pluton_South_China/32726037
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Structural_Basis_of_Hemoglobin_Amyloid_Fibrils_Revealed_by_cryo-EM_and_Molecular_Dynamics_Simulations/32873743
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/The_Influences_of_Sediment_Load_on_the_Biodiversity_of_Algal_Turfs_in_Coral_Reef_Ecosystems_through_Environmental_DNA_Analysis/32873740
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4876304
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20148197
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7590831
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17559735
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7705922
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.s7h44j1ms
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20437633
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20437633
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.bvq83bkmd
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.47d7wm3qp
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FDR
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: FDR-corrected
+  status: unresolved
+  candidates: []
+  candidates_tried: []
+- intent: AGP
+  status: unresolved
+  candidates: []
+  candidates_tried: []

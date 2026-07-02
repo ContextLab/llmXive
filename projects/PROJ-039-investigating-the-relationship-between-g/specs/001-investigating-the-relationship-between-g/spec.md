@@ -110,5 +110,5 @@ The pipeline must generate publication-ready visualizations showing correlation 
 - The 20 taxa with the highest mean relative abundance across the whole dataset represent sufficient coverage of the microbiome for exploratory association testing.
 - A pseudocount of 0.5 is appropriate for CLR transformation of sparse microbiome data (community-standard practice).
 - The Benjamini-Hochberg FDR correction with q<0.1 threshold is justified as a balance between type-I and type-II error control for exploratory research.
-- Permutation testing with 1000 iterations provides adequate null distribution resolution for p-value estimation.
+- Permutation testing with a sufficient number of iterations provides adequate null distribution resolution for p-value estimation.
 - All statistical findings must be framed as associational (not causal) since this is an observational study without random assignment.
