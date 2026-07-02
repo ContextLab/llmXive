@@ -1,21 +1,10 @@
 {
-  "pdf": "projects/PROJ-656-crafter-a-multi-agent-harness-for-editab/paper/pdf/main-llmxive.pdf",
-  "audit": {
-    "passed": false,
-    "defects": [
-      {
-        "kind": "section_number_gap",
-        "evidence": "expected section 6, saw section 80",
-        "class": "unsupported_construct",
-        "recommendation": "check for stray \\setcounter or \\section* in source",
-        "page": 32
-      }
-    ],
-    "audited_at": "2026-06-11T03:09:43.585899+00:00"
-  },
+  "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-656-crafter-a-multi-agent-harness-for-editab/paper/pdf/main-llmxive.pdf",
+  "audit": null,
   "repair_rounds": 1,
+  "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-656-crafter-a-multi-agent-harness-for-editab",
-  "updated_at": "2026-06-11T03:09:43.610979+00:00"
+  "updated_at": "2026-07-02T08:08:19.960370+00:00"
 }

@@ -1,0 +1,87 @@
+\contentsline {section}{\numberline {1}Introduction}{2}{section.1}%
+\contentsline {section}{\numberline {2}Methodology}{3}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Preliminary}{3}{subsection.2.1}%
+\contentsline {paragraph}{Trajectory.}{3}{paragraph*.3}%
+\contentsline {paragraph}{Context.}{3}{paragraph*.4}%
+\contentsline {subsection}{\numberline {2.2}Observation Masking}{3}{subsection.2.2}%
+\contentsline {paragraph}{Stale observations.}{3}{paragraph*.5}%
+\contentsline {paragraph}{Masking.}{4}{paragraph*.6}%
+\contentsline {paragraph}{Why this formulation.}{4}{paragraph*.7}%
+\contentsline {subsection}{\numberline {2.3}Scaffold}{4}{subsection.2.3}%
+\contentsline {paragraph}{Page pool.}{4}{paragraph*.8}%
+\contentsline {paragraph}{Tools.}{5}{paragraph*.9}%
+\contentsline {section}{\numberline {3}Experiment Setup}{5}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Benchmarks}{5}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Baselines}{5}{subsection.3.2}%
+\contentsline {paragraph}{Models.}{5}{paragraph*.10}%
+\contentsline {paragraph}{Retrievers.}{5}{paragraph*.11}%
+\contentsline {subsection}{\numberline {3.3}Scaffold Reliability}{6}{subsection.3.3}%
+\contentsline {paragraph}{Higher baseline accuracy.}{6}{paragraph*.13}%
+\contentsline {section}{\numberline {4}Main Results}{6}{section.4}%
+\contentsline {paragraph}{Three regimes.}{6}{paragraph*.15}%
+\contentsline {paragraph}{Mismatch, not size.}{7}{paragraph*.16}%
+\contentsline {paragraph}{Live web amplifies the collapse.}{7}{paragraph*.17}%
+\contentsline {section}{\numberline {5}Research Findings}{7}{section.5}%
+\contentsline {subsection}{\numberline {5.1}The Trade-Off: Where Comes the Gain and What Does it Cost?}{7}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}Regression Probe: CM Helps When Signal is Sparse}{8}{subsection.5.2}%
+\contentsline {subsection}{\numberline {5.3}Why Does Masking Work? Attention and Behaviour Evidence}{9}{subsection.5.3}%
+\contentsline {subsubsection}{\numberline {5.3.1}Attention Evidence: Reasoning over Observations}{9}{subsubsection.5.3.1}%
+\contentsline {paragraph}{Reasoning, not observations, carries attention mass.}{9}{paragraph*.21}%
+\contentsline {paragraph}{Attention concentrates at the edges.}{9}{paragraph*.22}%
+\contentsline {subsubsection}{\numberline {5.3.2}Where Do Agents Re-open?}{10}{subsubsection.5.3.2}%
+\contentsline {paragraph}{What staleness means.}{10}{paragraph*.24}%
+\contentsline {subsection}{\numberline {5.4}Ablation Studies}{10}{subsection.5.4}%
+\contentsline {paragraph}{Absolute URLs and error retention reduce tool-call errors.}{10}{paragraph*.26}%
+\contentsline {section}{\numberline {6}Related Work}{11}{section.6}%
+\contentsline {paragraph}{Long-horizon Agentic Search.}{11}{paragraph*.27}%
+\contentsline {paragraph}{Context Management for Autonomous Agents.}{11}{paragraph*.28}%
+\contentsline {section}{\numberline {7}Conclusion}{11}{section.7}%
+\contentsline {paragraph}{Context management is a regime-dependent tool, not a default.}{11}{paragraph*.29}%
+\ttl@starttoc {appendix@1}
+\contentsline {section}{\numberline {A}More Related Work}{18}{appendix.A}%
+\contentsline {paragraph}{Long-horizon Agentic Interaction.}{18}{paragraph*.30}%
+\contentsline {paragraph}{Deep Agentic Search.}{18}{paragraph*.31}%
+\contentsline {paragraph}{Context Management for Autonomous Agents.}{19}{paragraph*.32}%
+\contentsline {section}{\numberline {B}Evaluation Details}{19}{appendix.B}%
+\contentsline {subsection}{\numberline {B.1}Benchmarks}{19}{subsection.B.1}%
+\contentsline {subsection}{\numberline {B.2}Retrievers}{20}{subsection.B.2}%
+\contentsline {subsection}{\numberline {B.3}Compared Baselines}{20}{subsection.B.3}%
+\contentsline {section}{\numberline {C}Experiment Settings}{21}{appendix.C}%
+\contentsline {paragraph}{Model serving.}{21}{paragraph*.33}%
+\contentsline {paragraph}{Tool-call formatting.}{21}{paragraph*.34}%
+\contentsline {paragraph}{Generation configuration.}{21}{paragraph*.35}%
+\contentsline {paragraph}{Human Audit Evaluation.}{21}{paragraph*.36}%
+\contentsline {section}{\numberline {D}Regression Probe: Experimental Setup}{21}{appendix.D}%
+\contentsline {subsection}{\numberline {D.1}BrowseComp-Plus traces and labels}{22}{subsection.D.1}%
+\contentsline {subsection}{\numberline {D.2}Prefix sampling}{22}{subsection.D.2}%
+\contentsline {subsection}{\numberline {D.3}Input features}{22}{subsection.D.3}%
+\contentsline {subsection}{\numberline {D.4}Regression model and two-dimensional projection}{22}{subsection.D.4}%
+\contentsline {subsection}{\numberline {D.5}AUC computation}{23}{subsection.D.5}%
+\contentsline {subsection}{\numberline {D.6}Live-web xBench proxy}{23}{subsection.D.6}%
+\contentsline {section}{\numberline {E}Attention Analysis: Experimental Setup}{24}{appendix.E}%
+\contentsline {subsection}{\numberline {E.1}Models and trajectories}{24}{subsection.E.1}%
+\contentsline {subsection}{\numberline {E.2}Capturing query/key tensors with hooked vLLM}{24}{subsection.E.2}%
+\contentsline {subsection}{\numberline {E.3}Per-turn attention scores}{25}{subsection.E.3}%
+\contentsline {subsection}{\numberline {E.4}Per-trajectory heatmap}{25}{subsection.E.4}%
+\contentsline {subsection}{\numberline {E.5}Aggregated decay curves}{25}{subsection.E.5}%
+\contentsline {paragraph}{Aggregation sample sizes.}{26}{paragraph*.37}%
+\contentsline {section}{\numberline {F}Prompt Templates}{26}{appendix.F}%
+\contentsline {subsection}{\numberline {F.1}System Prompt}{26}{subsection.F.1}%
+\contentsline {subsection}{\numberline {F.2}User Prompt}{26}{subsection.F.2}%
+\contentsline {subsection}{\numberline {F.3}Tool Prompts}{27}{subsection.F.3}%
+\contentsline {subsection}{\numberline {F.4}Parallel Tool-Call Instruction}{27}{subsection.F.4}%
+\contentsline {subsection}{\numberline {F.5}LLM-as-Judge Prompt}{28}{subsection.F.5}%
+\contentsline {section}{\numberline {G}More Experiment Results}{28}{appendix.G}%
+\contentsline {subsection}{\numberline {G.1}Main Result Analysis}{28}{subsection.G.1}%
+\contentsline {paragraph}{Three regimes from one table.}{28}{paragraph*.38}%
+\contentsline {paragraph}{Mismatch, not size, selects the regime.}{29}{paragraph*.39}%
+\contentsline {paragraph}{Masking buys recall with extra tool calls, not fewer.}{29}{paragraph*.40}%
+\contentsline {paragraph}{The regime boundary is set by base accuracy, and transfers across benchmarks.}{29}{paragraph*.41}%
+\contentsline {paragraph}{Why 4B gains less on GAIA than on BrowseComp-Plus.}{30}{paragraph*.42}%
+\contentsline {section}{\numberline {H}Case Study}{30}{appendix.H}%
+\contentsline {subsection}{\numberline {H.1}Case: Parallel Tool Use on BrowseComp-Plus}{30}{subsection.H.1}%
+\contentsline {subsection}{\numberline {H.2}Case: Tongyi-DeepResearch-30B-A3B --- Parallel Search in Array Query}{33}{subsection.H.2}%
+\contentsline {subsection}{\numberline {H.3}Case: xBench-DeepSearch --- GPT-OSS-120B}{36}{subsection.H.3}%
+\contentsline {subsection}{\numberline {H.4}Case: BrowseComp-Plus --- CM Impairs (OFF correct $\to $ CM ON wrong)}{38}{subsection.H.4}%
+\contentsline {subsection}{\numberline {H.5}Case: BrowseComp-Plus --- CM Improves (CM OFF wrong $\to $ CM ON correct)}{42}{subsection.H.5}%
+\contentsfinish 

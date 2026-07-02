@@ -1,14 +1,10 @@
 {
-  "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-647-mellum2-technical-report/paper/pdf/2605.31268.pdf",
+  "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-647-mellum2-technical-report/paper/pdf/main-llmxive.pdf",
   "audit": null,
   "repair_rounds": 0,
-  "llmxive_compile_attempts": 1,
-  "status": "fallback_original",
-  "failure": {
-    "stage": "compile",
-    "reason": "lualatex failed:\n                                                  \nl.2306 ...nce\\citeauthor*}{\\bibsentence\\citeauthor}}\n                                                  \n) (/usr/share/texlive/texmf-dist/tex/latex/biblatex/bbx/numeric-comp.bbx\n(/usr/share/texlive/texmf-dist/tex/latex/biblatex/bbx/numeric.bbx\n(/usr/share/texlive/texmf-dist/tex/latex/biblatex/bbx/standard.bbx)))\n(/usr/share/texlive/texmf-dist/tex/latex/biblatex/cbx/numeric-comp.cbx)\n(/usr/share/texlive/texmf-dist/tex/latex/biblatex/biblatex.cfg)\n(/usr/share/texlive/texmf-dist/tex/latex/biblatex/blx-case-expl3.sty))\n(/usr/share/texlive/texmf-dist/tex/latex/psnfss/pifont.sty\n(/usr/share/texlive/texmf-dist/tex/latex/psnfss/upzd.fd)\n(/usr/share/texlive/texmf-dist/tex/latex/psnfss/upsy.fd))\n\n! LaTeX Error: File `ulem.sty' not found.\n\nType X to quit or <RETURN> to proceed,\nor enter new name. (Default extension: sty)\n\nEnter file name: \n! Emergency stop.\n<read *> \n   \nl.43 \n    \n 741 words of node memory still in use:\n   5 hlis",
-    "log_excerpt": "lualatex failed:\n                                                  \nl.2306 ...nce\\citeauthor*}{\\bibsentence\\citeauthor}}\n                                                  \n) (/usr/share/texlive/texmf-dist/tex/latex/biblatex/bbx/numeric-comp.bbx\n(/usr/share/texlive/texmf-dist/tex/latex/biblatex/bbx/numeric.bbx\n(/usr/share/texlive/texmf-dist/tex/latex/biblatex/bbx/standard.bbx)))\n(/usr/share/texlive/texmf-dist/tex/latex/biblatex/cbx/numeric-comp.cbx)\n(/usr/share/texlive/texmf-dist/tex/latex/biblatex/biblatex.cfg)\n(/usr/share/texlive/texmf-dist/tex/latex/biblatex/blx-case-expl3.sty))\n(/usr/share/texlive/texmf-dist/tex/latex/psnfss/pifont.sty\n(/usr/share/texlive/texmf-dist/tex/latex/psnfss/upzd.fd)\n(/usr/share/texlive/texmf-dist/tex/latex/psnfss/upsy.fd))\n\n! LaTeX Error: File `ulem.sty' not found.\n\nType X to quit or <RETURN> to proceed,\nor enter new name. (Default extension: sty)\n\nEnter file name: \n! Emergency stop.\n<read *> \n   \nl.43 \n    \n 741 words of node memory still in use:\n   5 hlist, 1 vlist, 2 rule, 1 dir, 4 kern, 1 glyph, 8 attribute, 105 glue_spec\n, 8 attribute_list, 2 write, 2 pdf_colorstack nodes\n   avail lists: 1:1,2:32,3:2,4:2,5:4,7:5,8:2,9:2\n!  ==> Fatal error occurred, no output PDF file produced!\nTranscript written on main-llmxive.log."
-  },
+  "llmxive_compile_attempts": 0,
+  "status": "restyled_unaudited",
+  "failure": null,
   "paper_id": "PROJ-647-mellum2-technical-report",
-  "updated_at": "2026-06-12T12:52:01.321365+00:00"
+  "updated_at": "2026-07-02T08:06:05.205503+00:00"
 }

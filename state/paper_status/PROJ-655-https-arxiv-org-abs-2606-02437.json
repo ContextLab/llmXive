@@ -1,10 +1,10 @@
 {
-  "pdf": "/Users/jmanning/llmXive/projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/pdf/main-llmxive.pdf",
+  "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-655-https-arxiv-org-abs-2606-02437/paper/pdf/main-llmxive.pdf",
   "audit": null,
   "repair_rounds": 0,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-655-https-arxiv-org-abs-2606-02437",
-  "updated_at": "2026-06-12T14:48:59.524646+00:00"
+  "updated_at": "2026-07-02T08:08:07.602503+00:00"
 }
