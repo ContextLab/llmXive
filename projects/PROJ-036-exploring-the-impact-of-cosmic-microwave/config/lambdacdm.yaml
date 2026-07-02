@@ -1,0 +1,24 @@
+# Standard Lambda-CDM Cosmology Parameters
+# Based on Planck 2018 results (TT,TE,EE+lowE+lensing)
+cosmology:
+  h: 0.6766
+  omega_b: 0.04897
+  omega_c: 0.1323
+  omega_m: 0.3112
+  omega_lambda: 0.6888
+  omega_r: 0.000092
+  n_s: 0.9665
+  A_s: 2.101e-9
+  sigma_8: 0.8111
+  tau: 0.054
+  N_eff: 3.046
+  m_nu: 0.06  # eV, minimal neutrino mass
+
+# Simulation parameters for control run
+simulation:
+  box_size: 250  # Mpc/h
+  n_particles: 128
+  redshift_start: 50
+  redshift_end: 0
+  solver: "p3m"
+  softening: 1.0  # kpc/h

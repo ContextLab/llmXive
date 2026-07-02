@@ -1,0 +1,26 @@
+[project]
+name = "llmXive-proj-036"
+version = "0.1.0"
+description = "Exploring the Impact of Cosmic Microwave Background Anomalies on Early Universe Simulations"
+requires-python = ">=3.11"
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \\.eggs
+  | \\.git
+  | \\.hg
+  | \\.mypy_cache
+  | \\.tox
+  | \\.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.ruff]
+# This section is managed by ruff.toml, but we keep this for compatibility

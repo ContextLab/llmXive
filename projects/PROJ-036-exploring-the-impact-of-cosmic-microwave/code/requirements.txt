@@ -1,0 +1,11 @@
+numpy
+scipy
+astropy
+healpy
+camb
+nbodykit
+fitsio
+requests
+pytest
+ruff
+black

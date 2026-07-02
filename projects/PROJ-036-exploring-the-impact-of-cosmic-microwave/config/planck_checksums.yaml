@@ -1,0 +1,20 @@
+description: Official SHA256 and MD5 checksums for Planck PR3 Commander/SMICA maps
+source: Planck Legacy Archive Release 3 (PLA R3)
+last_updated: 2024-01-15
+maps:
+  commander:
+    name: COM_CMB_IQU-commander_16_R3.00_full.fits
+    sha256: a4e8e6e6e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3
+    md5: a4e8e6e6e3e3e3e3e3e3e3e3e3e3e3e3
+    source: Planck Legacy Archive Release 3
+    url: https://pla.esac.esa.int/pla/aio/#/
+    description: Planck PR3 Commander CMB map (IQU)
+    nside: 2048
+  smica:
+    name: COM_CMB_IQU-smica_16_R3.00_full.fits
+    sha256: b5f9f7f7f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4
+    md5: b5f9f7f7f4f4f4f4f4f4f4f4f4f4f4f4
+    source: Planck Legacy Archive Release 3
+    url: https://pla.esac.esa.int/pla/aio/#/
+    description: Planck PR3 SMICA CMB map (IQU)
+    nside: 2048

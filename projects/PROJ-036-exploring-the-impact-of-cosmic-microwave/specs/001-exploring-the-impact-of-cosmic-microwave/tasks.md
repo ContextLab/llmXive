@@ -20,32 +20,32 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`code/`, `data/`, `state/`, `contracts/`)
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (numpy, scipy, astropy, healpy, camb, nbodykit, fitsio, requests, pytest)
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [X] T001 Create project structure per implementation plan (`code/`, `data/`, `state/`, `contracts/`)
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (numpy, scipy, astropy, healpy, camb, nbodykit, fitsio, requests, pytest)
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
 
@@ -57,10 +57,10 @@
 
 Examples of foundational tasks (adjust based on your project):
 
-- [ ] T004 Create versioning utility (`code/utils/versioning.py`) to calculate SHA256 hashes for all artifacts and update `state/projects/PROJ-036-exploring-the-impact-of-cosmic-microwave/artifact_hashes.yaml` (extract project ID from config)
-- [ ] T005 [P] Implement citation validation utility (`code/utils/validate_citations.py`) to check `research.md` URLs against verified datasets
-- [ ] T006 [P] Setup environment configuration management (load `config/lambdacdm.yaml` and `config/anomaly.yaml`)
-- [ ] T007 Create base cosmology constants module (`code/utils/cosmology.py`)
+- [X] T004 Create versioning utility (`code/utils/versioning.py`) to calculate SHA256 hashes for all artifacts and update `state/projects/PROJ-036-exploring-the-impact-of-cosmic-microwave/artifact_hashes.yaml` (extract project ID from config)
+- [X] T005 [P] Implement citation validation utility (`code/utils/validate_citations.py`) to check `research.md` URLs against verified datasets <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [X] T006 [P] Setup environment configuration management (load `config/lambdacdm.yaml` and `config/anomaly.yaml`)
+- [X] T007 Create base cosmology constants module (`code/utils/cosmology.py`)
 - [ ] T008 Configure error handling and logging infrastructure (ensure memory/disk limits are monitored)
 - [ ] T009 Create schema validation contract (`contracts/cmb_lss_schema.schema.yaml`) for statistical outputs
 
@@ -78,23 +78,30 @@ Examples of foundational tasks (adjust based on your project):
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Contract test for data download integrity in `code/tests/test_data_validation.py` (function: `test_download_checksums_match` asserts that the calculated SHA256 hash of the downloaded file matches the value in config/planck_checksums.yaml)
+- [ ] T010 [P] [US1] Contract test for data download integrity in `code/tests/test_data_validation.py` (function: `test_download_checksums_match` asserts that the calculated SHA256 hash of the downloaded file matches the value in config/planck_checksums.yaml) <!-- FAILED: unspecified -->
 - [ ] T011 [P] [US1] Integration test for Planck map loading and masking in `code/tests/test_data_validation.py` (function: `test_chunked_map_loading_and_mask` asserts Nside ≥ 256 and galactic mask application without OOM)
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement data downloader in `code/01_data_download.py` (handles retries, backoff, and checksum validation using values from config/planck_checksums.yaml)
-- [ ] T012b [US1] Pre-populate `config/planck_checksums.yaml` with official SHA256 hashes for Planck PR3 Commander/SMICA maps (manual step or script to fetch from verified source)
-- [ ] T013b [US1] Implement chunked FITS streaming loader in `code/utils/io.py` to process full-sky map data without OOM on constrained memory resources
+- [~] T012 [US1] Implement data downloader in `code/01_data_download.py` (handles retries, backoff, and checksum validation using values from config/planck_checksums.yaml)
+- [~] T012b [US1] Pre-populate `config/planck_checksums.yaml` with official SHA256 hashes for Planck PR3 Commander/SMICA maps (manual step or script to fetch from verified source)
+- [~] T013b [US1] Implement chunked FITS streaming loader in `code/utils/io.py` to process full-sky map data without OOM on constrained memory resources
 
 The research question remains: Can full-sky map data be processed without out-of-memory errors on constrained memory resources?
 The method remains: Optimization of memory allocation and streaming algorithms for large-scale sky surveys.
 References: [DOI/arXiv/author-year]
-- [ ] T013 [US1] Implement FITS header validation in `code/utils/io.py` (assert Nside ≥ 256, validate that downloaded maps contain known Cold Spot and low-quadrupole regions using coordinates from config/anomaly.yaml)
-- [ ] T014 [US1] Implement galactic mask application (|b| > 5°) in `code/01_data_download.py`
-- [ ] T014b [US1] Validate galactic mask application in `code/tests/test_data_validation.py` (function: `test_mask_application` asserts that the mask correctly removes pixels with |b| ≤ 5°)
-- [ ] T015 [US1] Integrate with versioning utility to hash raw data in `data/raw/`
-- [ ] T016 [US1] Add error handling for network failures and corrupted files
+- [~] T013 [US1] Implement FITS header validation in `code/utils/io.py` (assert Nside ≥ 256, validate that downloaded maps contain known Cold Spot and low-quadrupole regions using coordinates from config/anomaly.yaml) <!-- SKIPPED: YAML+regex parse failed (while scanning a simple key
+ in "<unicode string>", line 8, column 1:
+ The implementation uses `astropy...
+ ^
+could not find expected ':'
+ in "<unicode string>", line 8, column 243:
+... hs and real configuration files.
+ ^) -->
+- [~] T014 [US1] Implement galactic mask application (|b| > 5°) in `code/01_data_download.py`
+- [~] T014b [US1] Validate galactic mask application in `code/tests/test_data_validation.py` (function: `test_mask_application` asserts that the mask correctly removes pixels with |b| ≤ 5°)
+- [~] T015 [US1] Integrate with versioning utility to hash raw data in `data/raw/`
+- [~] T016 [US1] Add error handling for network failures and corrupted files
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -108,7 +115,7 @@ References: [DOI/arXiv/author-year]
 
 ### Tests for User Story 2 (MANDATORY) ⚠️
 
-- [ ] T018 [P] [US2] Contract test for power spectrum modification in `code/tests/test_power_spectrum.py` (function: `test_phase_injected_mode` asserts deviation at ℓ ≤ 30 is logged)
+- [~] T018 [P] [US2] Contract test for power spectrum modification in `code/tests/test_power_spectrum.py` (function: `test_phase_injected_mode` asserts deviation at ℓ ≤ 30 is logged)
 - [ ] T019 [P] [US2] Integration test for IC file generation in `code/tests/test_power_spectrum.py` (function: `test_ic_file_format` asserts GADGET-2/nbodykit format compliance and file size < 50 MB for ³ configuration)
 
 ### Implementation for User Story 2
@@ -171,8 +178,8 @@ References: [DOI/arXiv/author-year]
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -238,9 +245,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---

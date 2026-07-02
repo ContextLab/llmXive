@@ -1,0 +1,18 @@
+? 'T005 [P] Implement citation validation utility (`code/utils/validate_citations.py`)
+  to check `research.md` URLs against verified datasets <!-- ATOMIZE: requested -->'
+: 1
+? 'T005 [P] Implement citation validation utility (`code/utils/validate_citations.py`)
+  to check `research.md` URLs against verified datasets <!-- ATOMIZE: requested -->
+  <!-- ATOMIZE: requested -->'
+: 1
+T008 Configure error handling and logging infrastructure (ensure memory/disk limits are monitored): 1
+T009 Create schema validation contract (`contracts/cmb_lss_schema.schema.yaml`) for statistical outputs: 1
+? 'T010 [P] [US1] Contract test for data download integrity in `code/tests/test_data_validation.py`
+  (function: `test_download_checksums_match` asserts that the calculated SHA256 hash
+  of the downloaded file matches the value in config/planck_checksums.yaml) <!-- FAILED:
+  unspecified -->'
+: 1
+? "T011 [P] [US1] Integration test for Planck map loading and masking in `code/tests/test_data_validation.py`\
+  \ (function: `test_chunked_map_loading_and_mask` asserts Nside \u2265 256 and galactic\
+  \ mask application without OOM)"
+: 1

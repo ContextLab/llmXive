@@ -1,0 +1,33 @@
+# CMB Anomaly Configuration
+# Parameters for modifying initial conditions based on observed anomalies
+anomaly_type: "cold_spot_phase_injection"
+
+# Cold Spot parameters (approximate location from Planck)
+cold_spot:
+  galactic_l: 209.0  # degrees
+  galactic_b: -57.0  # degrees
+  radius_deg: 5.0
+  temperature_deviation: -150  # micro-Kelvin relative to mean
+
+# Phase injection mode parameters
+phase_injection:
+  enabled: true
+  target_multipoles: [2, 3, 4, 5, 6, 7, 8, 9, 10]
+  coupling_strength: 0.15
+  mode_coupling_approximation: "planck_2018_p7"
+
+# Low quadrupole suppression
+low_quadrupole:
+  enabled: true
+  l_max: 30
+  suppression_factor: 0.85
+
+# Modified simulation parameters
+simulation:
+  box_size: 250  # Mpc/h (same as control for comparison)
+  n_particles: 128
+  redshift_start: 50
+  redshift_end: 0
+  solver: "p3m"
+  softening: 1.0  # kpc/h
+  anomaly_seed: 42  # For reproducibility

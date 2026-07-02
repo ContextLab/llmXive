@@ -1,0 +1,19 @@
+- artifact_path: projects/PROJ-036-exploring-the-impact-of-cosmic-microwave/specs/001-exploring-the-impact-of-cosmic-microwave/tasks.md
+  attempts: 1
+  canonical: Phase-Injected Mode strategy uses mode-coupling approximation from Planck
+    2018 Results Paper VII
+  claim_id: c_37df7d4d
+  context: Implement Phase-Injected Mode strategy in code/02_power_spectrum.py (injects
+    the Cold Spot phase mode into the standard power spectrum using the mode-coupling
+    approximation defined in Planck 2018 Results Paper VII)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The method injects the Cold Spot phase mode into the standard power spectrum
+    using the mode-coupling approximation defined in Planck 2018 Results Paper VII.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T04:15:56Z'
