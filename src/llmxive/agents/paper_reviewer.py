@@ -51,6 +51,18 @@ _FORMAT_REMINDER = (
     "`---`, followed by the markdown review body."
 )
 
+# YAML-error retries specifically: the #1 cause is an unquoted free-text value
+# (an action_item `text` or `feedback`) that contains a colon, quote, bracket,
+# or a code snippet, which breaks the YAML mapping. Tell the model to quote them.
+_YAML_REMINDER = (
+    "Your YAML frontmatter failed to parse. The usual cause is an unquoted "
+    "value containing a colon, quote, bracket, backslash, or code snippet. "
+    "Re-issue the review and wrap EVERY `text:` and `feedback:` value in "
+    "DOUBLE QUOTES, escaping any internal double-quote as \\\". Keep the exact "
+    "same content — only fix the quoting. Example: "
+    "`text: \"line 17 has a bug: 'm[j] <- m[j] + x'; fix the index.\"`"
+)
+
 
 def _read_optional(path: Path) -> str:
     return path.read_text(encoding="utf-8") if path.exists() else ""
@@ -570,18 +582,57 @@ class PaperReviewerAgent(Agent):
             )
             intake_block = (
                 "# Paper provenance — IMPORTANT context\n\n"
-                "This is an arXiv-submitted paper ingested verbatim from the "
-                "public archive. The llmXive pipeline did NOT generate it; you "
-                "are reviewing a third-party manuscript. The paper's authors "
-                "are listed below; the submitter field is the llmXive intake "
-                "agent that filed it, not an author.\n\n"
-                f"- arXiv URL: {arxiv_url}\n"
+                "This is a third-party manuscript ingested verbatim from a public "
+                "archive (e.g. arXiv). The llmXive pipeline did NOT generate it; "
+                "you are peer-reviewing a PUBLISHED preprint by outside authors. "
+                "The paper's authors are listed below; the "
+                "submitter field is the llmXive intake agent that filed it, "
+                "not an author.\n\n"
+                f"- Source URL: {arxiv_url}\n"
                 f"- Paper authors: {authors}\n"
                 f"- Title (as recorded by intake): {meta.get('title', '(none)')}\n"
                 f"- Submitter (intake actor): {meta.get('submitter', '(unknown)')}\n\n"
-                "Focus your review on the paper itself — claims, methodology, "
-                "figures, evidence — not on the speckit/plan/tasks artifacts "
-                "that don't exist for arXiv-ingested papers.\n\n"
+                "## How to review a third-party preprint (read carefully)\n\n"
+                "1. **Judge the SCIENCE, not the packaging.** Assess the novelty and "
+                "importance of the research question, the soundness and "
+                "appropriateness of the methodology, whether the claims are actually "
+                "supported by the evidence, threats to validity, statistical rigor, "
+                "and plausible alternative explanations. A few deep, well-reasoned "
+                "observations are far more valuable than a long list of minor ones.\n"
+                "2. **External code/data is NORMAL and sufficient.** Authors "
+                "routinely host code/data in an EXTERNAL repository or archive "
+                "(a GitHub/GitLab/OSF/Zenodo/DOI link, often in a 'Data & code "
+                "availability' section). A provided link IS availability — do NOT "
+                "flag externally-linked code or data as 'missing', do NOT demand it "
+                "be bundled into the submission, and do NOT treat the absence of "
+                "bundled scripts / requirements.txt / Dockerfiles as a defect. You "
+                "are reviewing their science, not llmXive's reproducibility "
+                "engineering.\n"
+                "3. **You cannot see the figure images.** You are given the LaTeX "
+                "source, a text summary of the compiled PDF, and figure filenames — "
+                "but NOT the rendered figures. Therefore do NOT claim that a numeric "
+                "value (a t-statistic, p-value, effect size, CI, etc.) is 'missing' "
+                "when it would normally be shown inside a figure or plot; assume "
+                "such values may be present in figures you cannot see.\n"
+                "4. **Do NOT nitpick formatting, LaTeX, typography, or house "
+                "style.** This paper was written for another venue. Specifically, "
+                "do NOT report: LaTeX SOURCE syntax (``\\label``/``\\ref``/"
+                "``\\cite`` spacing or naming, a space inside a ``\\label``, "
+                "compilation warnings), TYPOGRAPHY (en-dash vs hyphen vs double-"
+                "hyphen, spacing before punctuation, quote style), citation-"
+                "format style, or section-numbering. Report a WRITING issue only "
+                "when it genuinely impairs a reader's understanding of the PROSE "
+                "(ambiguous sentence, undefined term, grammatical error that "
+                "changes meaning). Ignore the speckit/plan/tasks artifacts (they "
+                "don't exist for ingested papers). Do NOT list the SAME issue "
+                "multiple times for different locations — raise it once.\n"
+                "5. **It is fine — and expected — to find the paper sound.** If the "
+                "science holds up, say so plainly and keep the action items to the "
+                "genuinely substantive ones (or none).\n"
+                "6. **Keep each action item concise.** One specific, actionable "
+                "point per item, phrased in a sentence or two and kept UNDER 500 "
+                "characters. Put extended reasoning, evidence, and context in the "
+                "review body — not inside an individual action-item's text.\n\n"
             )
         user = (
             f"# project_id\n{ctx.project_id}\n\n"
@@ -620,7 +671,7 @@ class PaperReviewerAgent(Agent):
         except yaml.YAMLError as exc:
             raise MalformedResponseError(
                 f"paper_reviewer: frontmatter is not valid YAML ({exc})",
-                format_reminder=_FORMAT_REMINDER,
+                format_reminder=_YAML_REMINDER,
             ) from exc
         body = match.group("body").strip()
         if not isinstance(front, dict):

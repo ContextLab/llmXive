@@ -109,13 +109,21 @@ def _stub_chat(monkeypatch: pytest.MonkeyPatch) -> None:
 def test_panel_names_are_the_paper_reviewers(tmp_repo: tuple[Path, Project]) -> None:
     repo, _ = tmp_repo
     names = paper_reviewer_agent_names(repo)
-    # The generic reviewer + the specialist lenses, all real registry entries.
-    assert "paper_reviewer" in names
+    # The science specialist lenses, all real registry entries.
     assert "paper_reviewer_claim_accuracy" in names
     assert "paper_reviewer_overreach" in names
+    assert "paper_reviewer_scientific_evidence" in names
     # No research-side or non-reviewer entries leak in.
-    assert all(n == "paper_reviewer" or n.startswith("paper_reviewer_") for n in names)
-    assert len(names) >= 7
+    assert all(n.startswith("paper_reviewer_") for n in names)
+    assert len(names) >= 6
+    # EXCLUDED for preprints: reproducibility-packaging / house-formatting lenses
+    # (mis-fire on third-party papers), the blind text figure_critic (replaced by
+    # the vision reviewer), and the flaky generic holistic paper_reviewer.
+    assert "paper_reviewer" not in names
+    assert "paper_reviewer_code_quality_paper" not in names
+    assert "paper_reviewer_data_quality_paper" not in names
+    assert "paper_reviewer_text_formatting" not in names
+    assert "paper_reviewer_figure_critic" not in names
 
 
 def test_run_preprint_review_writes_records_and_action_items(

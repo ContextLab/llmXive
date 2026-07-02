@@ -49,18 +49,45 @@ class PreprintReviewResult:
     num_action_items: int = 0
 
 
-def paper_reviewer_agent_names(repo_root: Path) -> list[str]:
-    """The paper-review panel: every ``paper_reviewer*`` registry entry.
+# Lenses excluded from the TEXT panel for preprints:
+#  - code_quality/data_quality/text_formatting assess an llmXive-authored paper's
+#    REPRODUCIBILITY PACKAGING / house FORMATTING — inappropriate for a
+#    third-party preprint whose code/data live in an external repo and whose
+#    formatting targets another venue (they produced the false-FATAL "no bundled
+#    code" / formatting-nitpick reviews);
+#  - figure_critic is replaced by a VISION reviewer (``preprint_figures``) that
+#    actually SEES the rendered figures — the text lens only had filenames +
+#    captions and guessed;
+#  - the generic (un-suffixed) ``paper_reviewer`` is the HOLISTIC lens — the most
+#    open-ended task, on which the reasoning model reliably drops the required
+#    YAML frontmatter (fails 3/4 audit papers). The 8 science specialists +
+#    vision figures cover the paper comprehensively, so the flaky holistic
+#    summary is dropped rather than emitting nothing.
+_PREPRINT_EXCLUDED_LENSES = frozenset({
+    "paper_reviewer",  # generic holistic — unreliable frontmatter; specialists cover it
+    "paper_reviewer_code_quality_paper",
+    "paper_reviewer_data_quality_paper",
+    "paper_reviewer_text_formatting",
+    "paper_reviewer_figure_critic",
+})
 
-    Includes the generic ``paper_reviewer`` (a holistic summary review) plus the
-    specialist lenses — the SAME set the graph dispatches on a project's first
-    review round. Ordered as the registry lists them (deterministic)."""
+
+def paper_reviewer_agent_names(repo_root: Path) -> list[str]:
+    """The preprint review panel: the SUBSTANTIVE ``paper_reviewer*`` lenses.
+
+    Includes the generic ``paper_reviewer`` (holistic) plus the science-focused
+    specialists (claim accuracy, logical consistency, statistics, evidence,
+    figures, overreach, safety/ethics, writing) — but EXCLUDES the
+    reproducibility-packaging / house-formatting lenses
+    (:data:`_PREPRINT_EXCLUDED_LENSES`), which mis-fire on a third-party paper.
+    Ordered as the registry lists them (deterministic)."""
     from llmxive.agents import registry as registry_loader
 
     return [
         n
         for n in registry_loader.list_names(repo_root=repo_root)
-        if n == "paper_reviewer" or n.startswith("paper_reviewer_")
+        if (n == "paper_reviewer" or n.startswith("paper_reviewer_"))
+        and n not in _PREPRINT_EXCLUDED_LENSES
     ]
 
 
@@ -122,6 +149,19 @@ def run_preprint_review(
         except Exception as exc:  # one lens must not sink the panel
             log.warning("preprint review: reviewer %r failed: %s", an, exc)
             result.reviewers_failed.append(an)
+
+    # Figure lens = a VISION reviewer that actually SEES the rendered figures
+    # (the text panel's figure_critic only had filenames + captions). Best-effort:
+    # a missing vision model / render failure just skips it. Run only when the
+    # panel wasn't explicitly narrowed (agent_names) to a subset.
+    if agent_names is None:
+        try:
+            from llmxive.paper_reprocess.preprint_figures import vision_figure_review
+
+            if vision_figure_review(project, repo_root=repo) is not None:
+                result.reviewers_run.append("paper_reviewer_figure_critic")
+        except Exception as exc:  # vision lens is best-effort
+            log.warning("preprint review: vision figure review failed: %s", exc)
 
     path, count = consolidate_action_items(project, repo_root=repo)
     result.action_items_path = path
