@@ -401,32 +401,29 @@
       html += '<div style="font-size:11px; color:var(--muted); margin-bottom:6px;">' +
         escapeHtml(pp.ingestion_statement) + '</div>';
     }
-    // Prefer the same-origin mirror ONLY when the PDF was actually mirrored
-    // (pages.yml skips PDFs > 15 MB → same-origin 404s); otherwise link to the
-    // GitHub blob, which always renders. `mirrored` is false on legacy payloads
-    // → default to the safe GitHub link there too.
-    const viewable = (pdf) => {
-      if (!pdf) return null;
-      if (pdf.mirrored) return _toSameOriginPdf(pdf.repo_path) || pdf.github_url;
-      return pdf.github_url || pdf.raw_url || null;
-    };
     if (pp.source_url) {
       html += row('<i class="fa-solid fa-arrow-up-right-from-square"></i>', 'Original source', pp.source_url, '');
     }
-    // NB: no "View original (with llmXive cover)" row — the cover PDF IS the
-    // featured pane, and "Original source" already links the upstream preprint.
-    if (pp.peer_review_pdf) {
-      // The automated-review report is the headline artifact of a Reviewed
-      // Preprint — give it a distinct, prominent row (accent border + label).
-      const rurl = viewable(pp.peer_review_pdf);
-      html += (rurl
-        ? '<a class="ad-row" href="' + escapeHtml(rurl) + '" target="_blank" rel="noopener"'
-        : '<div class="ad-row"') +
-        ' style="border-left:3px solid var(--accent,#10b981); background:rgba(16,185,129,.06);">' +
-        '<span class="ad-row-icon"><i class="fa-solid fa-file-pen"></i></span>' +
-        '<span class="ad-row-label" style="font-weight:600;">Read the automated-review report (PDF)</span>' +
-        '<span class="ad-row-meta">peer-review-llmxive.pdf</span>' +
-        (rurl ? '</a>' : '</div>');
+    // Viewer toggles: swap the main pane between the llmXive paper PDF and the
+    // automated-review report — both render IN the modal (no new tab). The paper
+    // is the default pane, so its toggle starts active. Handlers wired in open().
+    if (pp.original_pdf || pp.peer_review_pdf) {
+      const toggle = (role, icon, label, meta, active, accent) =>
+        '<button type="button" class="ad-row ad-pdf-toggle' + (active ? ' active' : '') +
+        '" data-pdf-role="' + role + '"' +
+        (accent ? ' style="border-left:3px solid var(--accent,#10b981);"' : '') + '>' +
+        '<span class="ad-row-icon">' + icon + '</span>' +
+        '<span class="ad-row-label"' + (accent ? ' style="font-weight:600;"' : '') + '>' +
+        escapeHtml(label) + '</span>' +
+        '<span class="ad-row-meta">' + escapeHtml(meta) + '</span></button>';
+      if (pp.original_pdf) {
+        html += toggle('original', '<i class="fa-regular fa-file-pdf"></i>',
+          'Paper (llmXive PDF)', 'original-llmxive.pdf', true, false);
+      }
+      if (pp.peer_review_pdf) {
+        html += toggle('review', '<i class="fa-solid fa-file-pen"></i>',
+          'Automated-review report', 'peer-review-llmxive.pdf', false, true);
+      }
     }
     if (pp.followup_project_id) {
       // Clickable: opens the follow-up project's modal directly (it's a normal
@@ -545,6 +542,42 @@
   // text artifact (Markdown rendered, LaTeX/JSON/YAML shown as formatted
   // source), else a clear placeholder. NEVER an <embed> pointing at a PDF that
   // doesn't exist.
+  // Candidate URLs for a payload PDF descriptor ({repo_path, raw_url,
+  // github_url, mirrored}). Same-origin is offered ONLY when the PDF was
+  // actually mirrored (pages.yml skips PDFs > 15 MB → same-origin 404s).
+  function _pdfUrls(pdf) {
+    if (!pdf) return { sameOriginUrl: null, rawUrl: null, ghUrl: null };
+    return {
+      sameOriginUrl: pdf.mirrored ? _toSameOriginPdf(pdf.repo_path) : null,
+      rawUrl: pdf.raw_url || null,
+      ghUrl: pdf.github_url || null,
+    };
+  }
+
+  // Render a PDF (given its candidate URLs) into a pane: native <embed> of the
+  // same-origin mirror when available, else a pdf.js render of the raw bytes,
+  // else a links panel. Shared by the featured pane and the preprint viewer
+  // toggles so both render IN the modal (never a new tab).
+  function _renderPdfInto(pdfEl, urls) {
+    pdfEl.replaceChildren();
+    const sameOriginUrl = urls.sameOriginUrl, rawUrl = urls.rawUrl, ghUrl = urls.ghUrl;
+    const linksPanel =
+      '<div class="ad-pdf-empty"><div>Couldn’t render this PDF inline.<br/>' +
+      (ghUrl ? '<a class="btn primary" style="margin-top:12px;" href="' + escapeHtml(ghUrl) + '" target="_blank" rel="noopener"><i class="fa-brands fa-github"></i> View on GitHub</a> ' : '') +
+      (rawUrl ? '<a class="btn" style="margin-top:12px;" href="' + escapeHtml(rawUrl) + '" target="_blank" rel="noopener"><i class="fa-solid fa-download"></i> Download PDF</a>' : '') +
+      '</div></div>';
+    if (!sameOriginUrl) {
+      if (rawUrl) _renderPdfViaJs(pdfEl, rawUrl, linksPanel);
+      else pdfEl.insertAdjacentHTML("beforeend", linksPanel);
+      return;
+    }
+    pdfEl.insertAdjacentHTML("beforeend", '<embed type="application/pdf" src="' + escapeHtml(sameOriginUrl) + '" />');
+    setTimeout(() => {
+      const embed = pdfEl.querySelector("embed");
+      if (embed && !embed.clientHeight) _renderPdfViaJs(pdfEl, sameOriginUrl, linksPanel);
+    }, 1500);
+  }
+
   function _renderArtifactPane(pdfEl, project) {
     pdfEl.replaceChildren();
     const ca = _resolveArtifact(project);
@@ -584,30 +617,11 @@
       const repoPath = ca.repo_path
         || (authoritative ? "" : (project.artifact_links || {}).paper_pdf)
         || "";
-      const sameOriginUrl = _toSameOriginPdf(repoPath);
-      const rawUrl = ca.raw_url || raw((project.artifact_links || {}).paper_pdf);
-      const ghUrl = ca.github_url || blob((project.artifact_links || {}).paper_pdf);
-      const linksPanel =
-        '<div class="ad-pdf-empty"><div>Couldn’t render this PDF inline.<br/>' +
-        (ghUrl ? '<a class="btn primary" style="margin-top:12px;" href="' + escapeHtml(ghUrl) + '" target="_blank" rel="noopener"><i class="fa-brands fa-github"></i> View on GitHub</a> ' : '') +
-        (rawUrl ? '<a class="btn" style="margin-top:12px;" href="' + escapeHtml(rawUrl) + '" target="_blank" rel="noopener"><i class="fa-solid fa-download"></i> Download PDF</a>' : '') +
-        '</div></div>';
-      if (!sameOriginUrl) {
-        // Oversized / un-mirrored: render the raw bytes with pdf.js, degrading
-        // to working links if that fails or there is no raw URL.
-        if (rawUrl) _renderPdfViaJs(pdfEl, rawUrl, linksPanel);
-        else pdfEl.insertAdjacentHTML("beforeend", linksPanel);
-        return;
-      }
-      pdfEl.insertAdjacentHTML("beforeend", '<embed type="application/pdf" src="' + escapeHtml(sameOriginUrl) + '" />');
-      setTimeout(() => {
-        const embed = pdfEl.querySelector("embed");
-        if (embed && !embed.clientHeight) {
-          // Native embed didn't lay out (browser without a PDF plugin): fall
-          // back to a pdf.js render of the same-origin bytes.
-          _renderPdfViaJs(pdfEl, sameOriginUrl, linksPanel);
-        }
-      }, 1500);
+      _renderPdfInto(pdfEl, {
+        sameOriginUrl: _toSameOriginPdf(repoPath),
+        rawUrl: ca.raw_url || raw((project.artifact_links || {}).paper_pdf),
+        ghUrl: ca.github_url || blob((project.artifact_links || {}).paper_pdf),
+      });
       return;
     }
 
@@ -695,6 +709,21 @@
         const idx = parseInt(row.getAttribute("data-review-idx"), 10);
         const review = (project.reviews || [])[idx];
         if (review) _renderReviewInMainPane(bd.querySelector(".ad-pdf"), project, review);
+      });
+    });
+
+    // Reviewed-Preprint viewer toggles: swap the main pane between the paper PDF
+    // and the automated-review report, both rendered IN the modal. Clicking
+    // "Paper (llmXive PDF)" returns to the default view.
+    const toggles = list.querySelectorAll(".ad-pdf-toggle");
+    toggles.forEach(btn => {
+      btn.addEventListener("click", () => {
+        const pp = project.preprint || {};
+        const pdf = btn.getAttribute("data-pdf-role") === "review"
+          ? pp.peer_review_pdf : pp.original_pdf;
+        if (!pdf) return;
+        _renderPdfInto(bd.querySelector(".ad-pdf"), _pdfUrls(pdf));
+        toggles.forEach(b => b.classList.toggle("active", b === btn));
       });
     });
 
