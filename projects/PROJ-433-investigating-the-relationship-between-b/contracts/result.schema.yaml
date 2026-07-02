@@ -1,0 +1,73 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Analysis Result Schema
+description: Schema for statistical analysis results and permutation tests.
+type: object
+required:
+  - analysis_id
+  - timestamp
+  - metric_name
+  - behavior_name
+  - correlation
+  - p_value
+  - adjusted_p_value
+  - effect_size
+  - n_subjects
+properties:
+  analysis_id:
+    type: string
+    description: Unique identifier for the analysis run.
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of analysis execution.
+  metric_name:
+    type: string
+    description: Name of the network metric (e.g., "transition_count").
+  behavior_name:
+    type: string
+    description: Name of the behavioral measure (e.g., "DSST_score").
+  correlation:
+    type: number
+    description: Spearman correlation coefficient.
+  p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: Raw p-value from the correlation test.
+  adjusted_p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: Bonferroni-corrected p-value.
+  effect_size:
+    type: number
+    description: Cohen's r effect size.
+  n_subjects:
+    type: integer
+    minimum: 2
+    description: Number of subjects included in the analysis.
+  permutation:
+    type: object
+    description: Optional permutation test results.
+    required:
+      - n_permutations
+      - observed_statistic
+      - p_value_perm
+    properties:
+      n_permutations:
+        type: integer
+        minimum: 1
+        description: Number of permutations performed.
+      observed_statistic:
+        type: number
+        description: Observed correlation statistic.
+      p_value_perm:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: P-value derived from the permutation distribution.
+      null_distribution:
+        type: array
+        items:
+          type: number
+        description: Array of correlation values from permuted data.

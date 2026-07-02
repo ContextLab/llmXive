@@ -1,0 +1,15 @@
+# Development dependencies for llmXive project
+# Linting, formatting, and testing tools
+
+# Linting
+ruff==0.1.6
+
+# Formatting
+black[jupyter]==23.12.1
+
+# Testing (already in main requirements but explicit here for dev)
+pytest==7.4.3
+pytest-cov==4.1.0
+
+# Type checking (optional but recommended)
+mypy==1.7.1

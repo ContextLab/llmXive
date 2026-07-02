@@ -1,0 +1,50 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: HCP Dataset Schema
+description: Schema for raw and preprocessed HCP fMRI and behavioral dataset artifacts.
+type: object
+required:
+  - dataset_id
+  - version
+  - subjects
+  - acquisition_date
+  - source
+properties:
+  dataset_id:
+    type: string
+    description: Unique identifier for the dataset instance.
+  version:
+    type: string
+    description: Semantic version of the dataset format (e.g., "1.0.0").
+  acquisition_date:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of data acquisition or download.
+  source:
+    type: string
+    description: Origin of the data (e.g., "HCP 1200 Release").
+  subjects:
+    type: array
+    description: List of subject records included in the dataset.
+    items:
+      type: object
+      required:
+        - subject_id
+        - fMRI_path
+        - behavioral_path
+      properties:
+        subject_id:
+          type: string
+          description: Unique subject identifier (e.g., "100307").
+        fMRI_path:
+          type: string
+          description: Relative path to the preprocessed fMRI NIfTI file.
+        behavioral_path:
+          type: string
+          description: Relative path to the behavioral data CSV/JSON.
+        qc_status:
+          type: string
+          enum: [PASS, FAIL, PENDING]
+          description: Quality control status after preprocessing.
+        exclusion_reason:
+          type: ["null", "string"]
+          description: Reason for exclusion if QC status is FAIL.

@@ -1,0 +1,16 @@
+# Black configuration for llmXive project
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.venv
+  | venv
+  | __pycache__
+  | build
+  | dist
+  | data
+)/
+'''

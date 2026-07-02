@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Correlation Result"
+description: "Schema for the statistical correlation results between metrics and behavior."
+type: object
+properties:
+  metric_name:
+    type: string
+    description: "Name of the network metric (e.g., 'transition_count')."
+  behavior_name:
+    type: string
+    description: "Name of the behavioral measure (e.g., 'dsst_score')."
+  rho:
+    type: number
+    description: "Spearman correlation coefficient."
+  p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Raw p-value."
+  p_adjusted:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Bonferroni-adjusted p-value."
+  effect_size:
+    type: number
+    description: "Cohen's r effect size."
+  significant:
+    type: boolean
+    description: "True if p_adjusted < 0.05."
+  permutation_p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "P-value from permutation testing (1000 shuffles)."
+required:
+  - metric_name
+  - behavior_name
+  - rho
+  - p_value
+  - p_adjusted
+  - effect_size
+  - significant
+  - permutation_p_value
+additionalProperties: false

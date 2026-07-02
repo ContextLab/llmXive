@@ -1,0 +1,35 @@
+# Ruff configuration for llmXive project
+# Linter rules and formatting settings
+
+[lint]
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
+select = ["E", "F", "I", "W", "UP"]
+
+# Ignore specific rules if necessary
+ignore = []
+
+# Allow autofix for all enabled rules (if `--fix` is provided)
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude standard directories
+exclude = [
+    ".git",
+    ".venv",
+    "venv",
+    "__pycache__",
+    "build",
+    "dist",
+    "data",
+]
+
+# Same as Black's default line length
+line-length = 88
+
+# Assume Python 3.11 (matching venv requirement)
+target-version = "py311"
+
+[lint.isort]
+# Force single line imports for consistency
+force-single-line = true
+known-first-party = ["setup_project", "setup_venv", "utils", "download", "preprocess", "metrics", "analysis", "viz", "models"]

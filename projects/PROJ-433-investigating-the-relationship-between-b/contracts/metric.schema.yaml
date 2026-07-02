@@ -1,0 +1,44 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Network Metric Schema
+description: Schema for computed network reconfigurability metrics per subject.
+type: object
+required:
+  - subject_id
+  - transition_count
+  - window_size
+  - step_size
+  - algorithm
+  - seed
+properties:
+  subject_id:
+    type: string
+    description: Unique subject identifier.
+  transition_count:
+    type: integer
+    minimum: 0
+    description: Number of community state transitions detected.
+  window_size:
+    type: integer
+    description: Size of the sliding window in time points.
+  step_size:
+    type: integer
+    description: Step size for sliding window in time points.
+  algorithm:
+    type: string
+    enum: [louvain, leiden]
+    description: Community detection algorithm used.
+  seed:
+    type: integer
+    description: Random seed used for reproducibility.
+  resolution_parameter:
+    type: number
+    minimum: 0
+    description: Resolution parameter for community detection.
+  num_communities:
+    type: integer
+    minimum: 1
+    description: Number of detected communities in the average partition.
+  computation_time_seconds:
+    type: number
+    minimum: 0
+    description: Wall-clock time taken for computation.

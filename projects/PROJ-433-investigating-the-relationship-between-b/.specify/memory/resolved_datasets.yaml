@@ -1,0 +1,208 @@
+resolved_at: '2026-07-02T10:33:33.910218+00:00'
+datasets:
+- intent: HCP
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/7eu7d7/HCP-Diffusion-datas/resolve/main/Lexica.art.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ramandeepsaha/hcp/resolve/main/train.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/jonxuxu/HCP-flat/resolve/main/data/train-00000-of-00001-ecc38ed386fa0d8c.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/7eu7d7/HCP-Diffusion-datas/resolve/main/Lexica.art.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ramandeepsaha/hcp/resolve/main/train.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/jonxuxu/HCP-flat/resolve/main/data/train-00000-of-00001-ecc38ed386fa0d8c.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/atta00/cpt-hcpcs-codes/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Kavi1622/Synthetic_hcp/resolve/main/8_slot.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://repository.lboro.ac.uk/articles/poster/The_association_between_body_mass_index_and_perioperative_outcomes_by_ethnicity_and_socioeconomic_status/32836142
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://preprints.opticaopen.org/articles/preprint/ZNet_Fast_and_reliable_physics-informed_deep_learning_for_quantitative_phase_imaging_via_residual_phase_correction/32832941
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.le.ac.uk/articles/journal_contribution/The_anti-corruption_campaign_and_the_intergenerational_transmission_of_bureaucratic_employment_Evidence_from_China/32687154
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ore.exeter.ac.uk/articles/chapter/Digital_deathlessness_emotions_and_AI_griefbots_in_pathological_grief/32866448
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Wooden_Flooring_Engineered_Wood_Flooring_Choice_of_Interior_Designers/32877104
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5607652
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15581959
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S1053811922006656
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7736031
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4643074
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/qm49a/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10817203
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10817203
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/d6fxy/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/fny2h/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: DSST
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/8590567A/DS_Store/resolve/main/LC.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/9642647W/DS_Store/resolve/main/PE_v4.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/kjngansgfa/ds_stga9x8r08/resolve/main/train.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 2364
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/8590567A/DS_Store/resolve/main/LC.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/9642647W/DS_Store/resolve/main/PE_v4.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/kjngansgfa/ds_stga9x8r08/resolve/main/train.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Tairooonz/DS_STRIX_IA/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Historical_occurrences_of_lynx_i_Lynx_i_spp_in_Iberia/31048885
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.lboro.ac.uk/articles/poster/The_association_between_body_mass_index_and_perioperative_outcomes_by_ethnicity_and_socioeconomic_status/32836142
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://preprints.opticaopen.org/articles/preprint/ZNet_Fast_and_reliable_physics-informed_deep_learning_for_quantitative_phase_imaging_via_residual_phase_correction/32832941
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.le.ac.uk/articles/journal_contribution/The_anti-corruption_campaign_and_the_intergenerational_transmission_of_bureaucratic_employment_Evidence_from_China/32687154
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ore.exeter.ac.uk/articles/chapter/Digital_deathlessness_emotions_and_AI_griefbots_in_pathological_grief/32866448
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10182998
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10198367
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S0002916522026521
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://alz-journals.onlinelibrary.wiley.com/doi/10.1002/alz.70846
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/19044184
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://world.physio/congress-proceeding/functional-performance-improvement-after-four-weeks-gapp-geriatric-activation
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://world.physio/congress-proceeding/mind-geriatric-activation-program-pellenberg-gapp-it-increases-functional
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21042765
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21042765
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21042346
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

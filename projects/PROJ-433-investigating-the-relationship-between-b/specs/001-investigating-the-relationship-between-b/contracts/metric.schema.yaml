@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Reconfigurability Metric"
+description: "Schema for the computed network reconfigurability metrics (community transitions)."
+type: object
+properties:
+  subject_id:
+    type: string
+    description: "Subject ID matching the dataset."
+  transition_count:
+    type: integer
+    minimum: 0
+    description: "Number of community state transitions detected."
+  window_duration_sec:
+    type: integer
+    description: "Sliding window duration in seconds (e.g., 30)."
+  step_size_sec:
+    type: integer
+    description: "Step size in seconds (e.g., 5)."
+  algorithm:
+    type: string
+    const: "louvain"
+    description: "Community detection algorithm used."
+  seed:
+    type: integer
+    description: "Random seed used for reproducibility."
+  qc_passed:
+    type: boolean
+    description: "True if motion was below threshold and algorithm converged."
+required:
+  - subject_id
+  - transition_count
+  - window_duration_sec
+  - step_size_sec
+  - algorithm
+  - seed
+  - qc_passed
+additionalProperties: false
