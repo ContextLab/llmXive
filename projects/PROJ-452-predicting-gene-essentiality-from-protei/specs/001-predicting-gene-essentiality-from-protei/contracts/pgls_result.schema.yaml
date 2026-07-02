@@ -1,0 +1,34 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PGLSResult"
+description: "Schema for Phylogenetic Generalized Least Squares comparison result."
+type: "object"
+properties:
+  comparison_id:
+    type: "string"
+    description: "Unique identifier for the comparison (e.g., 'human_vs_yeast')."
+  statistic:
+    type: "number"
+    description: "The PGLS test statistic (t-statistic)."
+  p_value_raw:
+    type: "number"
+    description: "Unadjusted p-value."
+  p_value_adj:
+    type: "number"
+    description: "Benjamini-Hochberg adjusted p-value."
+  phylogenetic_signal_lambda:
+    type: "number"
+    description: "Estimated phylogenetic signal (lambda). May be null if not computed."
+  status:
+    type: "string"
+    enum:
+      - "success"
+      - "skipped_low_power"
+      - "skipped_no_tree"
+    description: "Status of the PGLS execution."
+required:
+  - comparison_id
+  - statistic
+  - p_value_raw
+  - p_value_adj
+  - status
+additionalProperties: false

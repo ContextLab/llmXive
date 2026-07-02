@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CorrelationResult"
+description: "Schema for a single correlation result between a centrality metric and essentiality labels."
+type: "object"
+properties:
+  organism_id:
+    type: "string"
+    description: "Identifier for the organism (e.g., '9606')."
+  metric_type:
+    type: "string"
+    enum:
+      - "degree_centrality"
+      - "betweenness_centrality"
+      - "eigenvector_centrality"
+    description: "The centrality metric used."
+  confidence_threshold:
+    type: "integer"
+    description: "STRING confidence score threshold used (e.g., 700)."
+  spearman_rho:
+    type: "number"
+    description: "Spearman's rank correlation coefficient."
+  p_value:
+    type: "number"
+    description: "Raw p-value for the correlation."
+  sample_size:
+    type: "integer"
+    description: "Number of genes included in the analysis."
+  mapping_coverage_percent:
+    type: "number"
+    description: "Percentage of essential genes successfully mapped between STRING and DEG."
+  null_distribution_mean:
+    type: "number"
+    description: "Mean correlation from label permutation null distribution."
+  null_distribution_p_value:
+    type: "number"
+    description: "Empirical p-value against the label permutation null distribution."
+  is_low_power:
+    type: "boolean"
+    description: "True if sample size < 30."
+required:
+  - organism_id
+  - metric_type
+  - confidence_threshold
+  - spearman_rho
+  - p_value
+  - sample_size
+  - mapping_coverage_percent
+  - null_distribution_mean
+  - null_distribution_p_value
+  - is_low_power
+additionalProperties: false

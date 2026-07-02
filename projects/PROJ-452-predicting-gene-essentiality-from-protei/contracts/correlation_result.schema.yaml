@@ -1,0 +1,80 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Correlation Result
+description: Schema for Spearman correlation results between network centrality and gene essentiality.
+type: object
+required:
+  - organism
+  - network_source
+  - confidence_threshold
+  - centrality_metrics
+  - metadata
+properties:
+  organism:
+    type: string
+    description: Organism identifier (e.g., 'S. cerevisiae')
+  network_source:
+    type: string
+    description: Source of the PPI network (e.g., 'STRING')
+  confidence_threshold:
+    type: integer
+    description: Minimum confidence score used for filtering edges
+  centrality_metrics:
+    type: object
+    description: Correlation results for each centrality metric
+    additionalProperties:
+      type: object
+      required:
+        - spearman_rho
+        - spearman_pvalue
+        - sample_size
+      properties:
+        spearman_rho:
+          type: number
+          description: Spearman's rank correlation coefficient
+        spearman_pvalue:
+          type: number
+          description: P-value for the correlation test
+        empirical_p_value:
+          type: number
+          description: Empirical p-value from null distribution (optional)
+          nullable: true
+        sample_size:
+          type: integer
+          description: Number of genes in the analysis
+        null_distribution_summary:
+          type: object
+          description: Summary statistics of the null distribution (optional)
+          nullable: true
+          properties:
+            mean:
+              type: number
+            std:
+              type: number
+            min:
+              type: number
+            max:
+              type: number
+  metadata:
+    type: object
+    required:
+      - timestamp
+      - pipeline_version
+    properties:
+      timestamp:
+        type: string
+        format: date-time
+      pipeline_version:
+        type: string
+      mapping_coverage_percent:
+        type: number
+        description: Percentage of genes successfully mapped
+      network_stats:
+        type: object
+        nullable: true
+        properties:
+          nodes:
+            type: integer
+          edges:
+            type: integer
+          density:
+            type: number

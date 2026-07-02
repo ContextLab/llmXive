@@ -1,0 +1,67 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: PGLS Result
+description: Schema for Phylogenetic Generalized Least Squares comparison results.
+type: object
+required:
+  - analysis_type
+  - organisms_compared
+  - tree_source
+  - results
+  - metadata
+properties:
+  analysis_type:
+    type: string
+    enum:
+      - fisher_z_pgl
+  organisms_compared:
+    type: array
+    items:
+      type: string
+    minItems: 2
+  tree_source:
+    type: string
+    description: Source of the phylogenetic tree (e.g., 'OpenTree')
+  results:
+    type: object
+    description: Results for each centrality metric compared
+    additionalProperties:
+      type: object
+      required:
+        - pgls_statistic
+        - p_value
+        - adjusted_p_value
+        - method
+      properties:
+        pgls_statistic:
+          type: number
+          description: PGLS test statistic (t or z)
+        p_value:
+          type: number
+          description: Raw p-value from the test
+        adjusted_p_value:
+          type: number
+          description: P-value adjusted for multiple comparisons (Benjamini-Hochberg)
+        method:
+          type: string
+          description: Statistical method used (e.g., 'pgls')
+        correlation_difference:
+          type: number
+          description: Difference in Fisher-transformed correlations
+  metadata:
+    type: object
+    required:
+      - timestamp
+      - effective_sample_size
+    properties:
+      timestamp:
+        type: string
+        format: date-time
+      effective_sample_size:
+        type: integer
+        description: Number of organisms included in the analysis
+      power_warning:
+        type: boolean
+        description: True if sample size was insufficient for reliable inference
+      tree_nodes:
+        type: integer
+        description: Number of nodes in the phylogenetic tree used

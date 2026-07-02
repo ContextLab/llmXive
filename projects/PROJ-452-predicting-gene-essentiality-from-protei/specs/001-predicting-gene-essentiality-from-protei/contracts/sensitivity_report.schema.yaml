@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SensitivityReport"
+description: "Schema for the sensitivity analysis report across confidence thresholds."
+type: "object"
+properties:
+  organism_id:
+    type: "string"
+    description: "Organism identifier."
+  metric_type:
+    type: "string"
+    description: "Centrality metric analyzed."
+  results:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        threshold:
+          type: "integer"
+        rho:
+          type: "number"
+        p_value:
+          type: "number"
+        edge_count:
+          type: "integer"
+      required:
+        - threshold
+        - rho
+        - p_value
+        - edge_count
+    description: "List of results for each threshold."
+  stability_delta:
+    type: "number"
+    description: "Maximum absolute difference in rho across thresholds (|Δρ|)."
+required:
+  - organism_id
+  - metric_type
+  - results
+  - stability_delta
+additionalProperties: false

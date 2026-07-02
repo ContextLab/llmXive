@@ -1,0 +1,272 @@
+resolved_at: '2026-07-02T21:48:23.119794+00:00'
+datasets:
+- intent: PGLS
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://acs.figshare.com/articles/journal_contribution/Chiral_Benzimidazole_Manganese_Catalysts_for_Asymmetric_Transfer_Hydrogenation_of_3_Substituted_2H_1_4-Benzoxazines/32885584
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Multifunctional_Magnetic_Microvesicle_for_Enhanced_Chemodynamic_Therapy_and_Immune_Activation_against_Bacterial_Infections/32885581
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_i_Electrical_Grid_Stability_Simulated_Data_i_set/32885567
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/K38_Succinylation_of_CsrA_Regulates_Biofilm_Formation_in_Pseudomonas_fluorescens_PF08_by_Modulating_c_di-GMP_Levels/32885578
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/HCMI_snRNAseq_data_metadata/28410485
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7491866
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18523485
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10942573
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14290885
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.08c4c
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rs.figshare.com/articles/journal_contribution/Information_on_phylogenetic_comparative_analyses_from_Evolutionary_associations_among_pollen_scopa_structure_floral_breadth_and_eusociality_in_Halictidae_Hymenoptera_Apoidea_/32881479/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rs.figshare.com/articles/journal_contribution/Information_on_phylogenetic_comparative_analyses_from_Evolutionary_associations_among_pollen_scopa_structure_floral_breadth_and_eusociality_in_Halictidae_Hymenoptera_Apoidea_/32881479
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rs.figshare.com/articles/dataset/Full_statistical_outputs_for_phylogenetic_comparative_analyses_from_Evolutionary_associations_among_pollen_scopa_structure_floral_breadth_and_eusociality_in_Halictidae_Hymenoptera_Apoidea_/32881473/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rs.figshare.com/articles/dataset/Full_statistical_outputs_for_phylogenetic_comparative_analyses_from_Evolutionary_associations_among_pollen_scopa_structure_floral_breadth_and_eusociality_in_Halictidae_Hymenoptera_Apoidea_/32881473
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21094823
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: STRING
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/polinaeterna/test_string_to_dict/resolve/main/data/train-00000-of-00001-3e7bb60eb6e19f8c.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 1301
+      parsed: true
+  - url: https://huggingface.co/datasets/StringFellow/fusion-dw/resolve/main/inbound_to.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/yuanchuan/annotated_reference_strings/resolve/main/en/crossref-part-00001.jsonl.gz
+    source: huggingface
+    format: gzip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/StringFellow/fusion-dw/resolve/main/inbound_to.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/yuanchuan/annotated_reference_strings/resolve/main/en/crossref-part-00001.jsonl.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/api/resolve-cache/datasets/fernanda-dionello/good-reads-string/bfc723a1831e441b95d5604a266ab939b48dd4f2/raw%2Fgoodreads_train_reduced_final_string.csv?%2Fdatasets%2Ffernanda-dionello%2Fgood-reads-string%2Fresolve%2Fmain%2Fraw%2Fgoodreads_train_reduced_final_string.csv=&etag=%22c73a849d6bee90ff7edc77892efdd820d5bc4131%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/polinaeterna/test_string_to_dict/resolve/main/data/train-00000-of-00001-3e7bb60eb6e19f8c.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Chiral_Benzimidazole_Manganese_Catalysts_for_Asymmetric_Transfer_Hydrogenation_of_3_Substituted_2H_1_4-Benzoxazines/32885584
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Multifunctional_Magnetic_Microvesicle_for_Enhanced_Chemodynamic_Therapy_and_Immune_Activation_against_Bacterial_Infections/32885581
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_i_Electrical_Grid_Stability_Simulated_Data_i_set/32885567
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/K38_Succinylation_of_CsrA_Regulates_Biofilm_Formation_in_Pseudomonas_fluorescens_PF08_by_Modulating_c_di-GMP_Levels/32885578
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/HCMI_snRNAseq_data_metadata/28410485
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20053474
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17214381
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7268770
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6362200
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3257730
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21142812
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21142812
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21142155
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21142155
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21142118
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: DEG
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/severo/degit-test-repo/resolve/main/file.txt
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 24
+      parsed: true
+  - url: https://huggingface.co/datasets/liuyanchen1015/MULTI_VALUE_mnli_zero_degree/resolve/main/data/dev_matched-00000-of-00001-4b8f269c90b5580d.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 38938
+      parsed: true
+  - url: https://huggingface.co/datasets/liuyanchen1015/MULTI_VALUE_mnli_degree_adj_for_adv/resolve/main/data/dev_matched-00000-of-00001-89edf6250a073410.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 16574
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/CharlesChen2023/awesome-degraded-segmentation/7ae876574a8b7a6552843f4eb89c6ceb4b00bf7c/assets%2Fbibtex%2F10231043.txt?%2Fdatasets%2FCharlesChen2023%2Fawesome-degraded-segmentation%2Fresolve%2Fmain%2Fassets%2Fbibtex%2F10231043.txt=&etag=%226a5d07aafb90f75c22920026c77a9eed33f1e1dd%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/severo/degit-test-repo/resolve/main/file.txt
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/liuyanchen1015/MULTI_VALUE_mnli_zero_degree/resolve/main/data/dev_matched-00000-of-00001-4b8f269c90b5580d.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/liuyanchen1015/MULTI_VALUE_mnli_degree_adj_for_adv/resolve/main/data/dev_matched-00000-of-00001-89edf6250a073410.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/liuyanchen1015/MULTI_VALUE_cola_degree_adj_for_adv/resolve/main/data/dev-00000-of-00001-87ccc8f6638afa5a.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Chiral_Benzimidazole_Manganese_Catalysts_for_Asymmetric_Transfer_Hydrogenation_of_3_Substituted_2H_1_4-Benzoxazines/32885584
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Multifunctional_Magnetic_Microvesicle_for_Enhanced_Chemodynamic_Therapy_and_Immune_Activation_against_Bacterial_Infections/32885581
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_i_Electrical_Grid_Stability_Simulated_Data_i_set/32885567
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/K38_Succinylation_of_CsrA_Regulates_Biofilm_Formation_in_Pseudomonas_fluorescens_PF08_by_Modulating_c_di-GMP_Levels/32885578
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/HCMI_snRNAseq_data_metadata/28410485
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7621411
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16289727
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16372653
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7018833
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10815461
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://uregina.scholaris.ca/handle/10294/14360
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21137568
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21137568
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21134717
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21134717
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
