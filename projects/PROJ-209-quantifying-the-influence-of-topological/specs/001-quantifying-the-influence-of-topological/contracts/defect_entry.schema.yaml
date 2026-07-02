@@ -1,0 +1,58 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "DefectEntry"
+description: "Schema for a single defect entry from the simulated or external dataset."
+type: "object"
+properties:
+  defect_id:
+    type: "string"
+    description: "Unique identifier for the defect entry."
+  defect_type:
+    type: "string"
+    enum: ["dislocation", "grain_boundary", "vacancy", "substitution"]
+    description: "Type of topological defect."
+  defect_density:
+    type: ["number", "null"]
+    description: "Defect density as a fraction of atoms (must be > 0 if present)."
+  tilt_angle:
+    type: ["number", "null"]
+    description: "Geometric descriptor: tilt angle in degrees."
+  conductivity_raw:
+    type: ["number", "null"]
+    description: "Raw electronic conductivity (S/m)."
+  elastic_tensor:
+    type: ["array", "null"]
+    items:
+      type: "number"
+    description: "Flattened 6x6 elastic tensor components."
+  fracture_energy:
+    type: ["number", "null"]
+    description: "Fracture energy (J/m²)."
+  pristine_ref_conductivity:
+    type: ["number", "null"]
+    description: "Reference conductivity for pristine material (computed with same potential)."
+  pristine_ref_modulus:
+    type: ["number", "null"]
+    description: "Reference Young's modulus for pristine material (computed with same potential)."
+  pristine_ref_strength:
+    type: ["number", "null"]
+    description: "Reference fracture strength for pristine material (computed with same potential)."
+  synthesis_method:
+    type: ["string", "null"]
+    description: "Method of creation (optional)."
+  grain_size:
+    type: ["number", "null"]
+    description: "Average grain size (optional, > 0)."
+  missing_flags:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of flags indicating missing data (e.g., 'fracture_energy_missing')."
+  source:
+    type: "string"
+    enum: ["simulation", "external"]
+    description: "Source of the data."
+required:
+  - defect_id
+  - defect_type
+  - source
+additionalProperties: false

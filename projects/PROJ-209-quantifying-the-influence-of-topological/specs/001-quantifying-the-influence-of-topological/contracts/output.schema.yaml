@@ -1,0 +1,68 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelOutput"
+description: "Schema for model evaluation and inference results"
+type: "object"
+properties:
+  model_id:
+    type: "string"
+    description: "Unique identifier for the model"
+  target_property:
+    type: "string"
+    enum: ["conductivity", "youngs_modulus", "fracture_strength"]
+    description: "The property being modeled"
+  r2_score:
+    type: "number"
+    description: "Coefficient of determination on test set"
+  mape:
+    type: "number"
+    description: "Mean Absolute Percentage Error"
+  cv_std:
+    type: "number"
+    description: "Standard deviation of R² across 5 folds"
+  feature_importance:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        feature:
+          type: "string"
+        importance:
+          type: "number"
+        p_value:
+          type: "number"
+        fdr_adjusted_p:
+          type: "number"
+      required:
+        - feature
+        - importance
+        - p_value
+        - fdr_adjusted_p
+  sensitivity_analysis:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        threshold:
+          type: "number"
+        fpr:
+          type: "number"
+        fnr:
+          type: "number"
+      required:
+        - threshold
+        - fpr
+        - fnr
+  validation_status:
+    type: "string"
+    enum: ["NO_EXTERNAL_DATA", "SYNTHETIC_FALLBACK", "EXTERNAL_VALIDATED"]
+    description: "Status of external validation."
+required:
+  - model_id
+  - target_property
+  - r2_score
+  - mape
+  - cv_std
+  - feature_importance
+  - sensitivity_analysis
+  - validation_status
+additionalProperties: false

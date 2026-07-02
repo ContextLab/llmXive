@@ -1,0 +1,54 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "DefectEntry"
+description: "Schema for the defect dataset (real or synthetic)"
+type: "object"
+properties:
+  id:
+    type: "string"
+    description: "Unique identifier for the entry"
+  material:
+    type: "string"
+    enum: ["graphene", "MoS2"]
+    description: "Material type"
+  defect_type:
+    type: "string"
+    enum: ["dislocation", "grain_boundary", "vacancy", "substitution"]
+    description: "Type of topological defect"
+  defect_density:
+    type: "number"
+    minimum: 0.001
+    maximum: 0.1
+    description: "Fraction of atoms affected by the defect"
+  tilt_angle:
+    type: "number"
+    minimum: 0
+    maximum: 360
+    description: "Grain boundary tilt angle in degrees"
+  synthesis_method:
+    type: ["string", "null"]
+    description: "Method of creation"
+  youngs_modulus_raw:
+    type: "number"
+    minimum: 0
+    description: "Young's modulus (GPa)"
+  conductivity_raw:
+    type: "number"
+    minimum: 0
+    description: "Electronic conductivity in S/m"
+  fracture_energy_raw:
+    type: "number"
+    minimum: 0
+    description: "Fracture energy (J/m²)"
+  status:
+    type: "string"
+    enum: ["valid", "missing_fracture", "timeout"]
+    description: "Data quality flag"
+required:
+  - id
+  - material
+  - defect_type
+  - defect_density
+  - conductivity_raw
+  - youngs_modulus_raw
+  - status
+additionalProperties: false

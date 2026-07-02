@@ -1,0 +1,62 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelOutput"
+description: "Schema for model predictions and evaluation metrics."
+type: "object"
+properties:
+  model_id:
+    type: "string"
+    description: "Unique identifier for the model instance."
+  target_property:
+    type: "string"
+    enum: ["conductivity", "youngs_modulus", "fracture_strength"]
+    description: "The property being predicted."
+  hyperparameters:
+    type: "object"
+    description: "JSON object containing n_estimators, max_depth, etc."
+  seed:
+    type: "integer"
+    description: "Random seed used for reproducibility."
+  performance_metrics:
+    type: "object"
+    properties:
+      r_squared:
+        type: "number"
+      mape:
+        type: "number"
+      cv_std:
+        type: "number"
+        description: "Standard deviation of R² across k=5 folds."
+    required:
+      - r_squared
+      - mape
+      - cv_std
+  predictions:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        entry_id:
+          type: "string"
+        actual_value:
+          type: "number"
+        predicted_value:
+          type: "number"
+        residual:
+          type: "number"
+      required:
+        - entry_id
+        - actual_value
+        - predicted_value
+        - residual
+  collinearity_method:
+    type: "string"
+    description: "Method used to handle collinearity (e.g., 'Ridge', 'Exclusion')."
+required:
+  - model_id
+  - target_property
+  - hyperparameters
+  - seed
+  - performance_metrics
+  - predictions
+  - collinearity_method
+additionalProperties: false
