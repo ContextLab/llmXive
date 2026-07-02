@@ -1,0 +1,2 @@
+# This directory is for state artifacts, logs, and hashes.
+# The logging_config.py will create a 'logs' subdirectory automatically.

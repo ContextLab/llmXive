@@ -1,0 +1,36 @@
+# Example configuration file for emotional contagion study
+# Copy this file to config.yaml and fill in your values
+
+api_keys:
+  # Reddit API credentials (required for Reddit API fallback)
+  reddit_client_id: "your_reddit_client_id"
+  reddit_client_secret: "your_reddit_client_secret"
+  reddit_user_agent: "emotional-contagion-study/1.0 by your_username"
+  
+  # Pushshift API URL (optional, defaults to public endpoint)
+  pushshift_api_url: "https://api.pushshift.io/reddit/search/comment/"
+  
+  # HuggingFace token (optional, for dataset access)
+  huggingface_token: "your_huggingface_token"
+  
+  # Internet Archive credentials (optional)
+  internet_archive_key: "your_internet_archive_key"
+
+paths:
+  # All paths are relative to the project root if not specified
+  # project_root: "/path/to/project/root"
+  # raw_data_dir: "data/raw"
+  # processed_data_dir: "data/processed"
+  # annotations_dir: "data/raw/annotations"
+  # figures_dir: "figures"
+  # state_dir: "state"
+  # logs_dir: "logs"
+  # contracts_dir: "code/contracts"
+  pass
+
+# Application settings
+debug_mode: false
+log_level: "INFO"
+max_workers: 4
+timeout_seconds: 30
+retry_attempts: 3

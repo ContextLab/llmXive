@@ -1,0 +1,73 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Sentiment Analysis Schema
+description: Schema for sentiment scores and validation data.
+type: object
+required:
+  - comment_id
+  - thread_id
+  - text
+  - vader_scores
+properties:
+  comment_id:
+    type: string
+    description: Unique identifier for the comment.
+  thread_id:
+    type: string
+    description: ID of the parent thread.
+  text:
+    type: string
+    description: The raw text of the comment.
+  author:
+    type: string
+    description: Author of the comment.
+  created_utc:
+    type: number
+    description: Unix timestamp.
+  vader_scores:
+    type: object
+    description: VADER sentiment analysis results.
+    required:
+      - neg
+      - neu
+      - pos
+      - compound
+    properties:
+      neg:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: Proportion of text that falls in the negative category.
+      neu:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: Proportion of text that falls in the neutral category.
+      pos:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: Proportion of text that falls in the positive category.
+      compound:
+        type: number
+        minimum: -1
+        maximum: 1
+        description: Normalized, weighted composite score.
+  human_label:
+    type: ["string", "null"]
+    description: Human-annotated sentiment label (if available).
+  textblob_scores:
+    type: ["object", "null"]
+    description: Alternative sentiment scores (TextBlob) if computed.
+    properties:
+      polarity:
+        type: number
+        minimum: -1
+        maximum: 1
+      subjectivity:
+        type: number
+        minimum: 0
+        maximum: 1
+  validation_status:
+    type: string
+    enum: [pending, valid, invalid]
+    description: Status of the comment against the validation corpus.

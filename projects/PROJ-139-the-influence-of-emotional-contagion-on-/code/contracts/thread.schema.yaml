@@ -1,0 +1,83 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Thread Schema
+description: Schema for Reddit/Forum thread data including seed posts and replies.
+type: object
+required:
+  - thread_id
+  - subreddit
+  - site
+  - title
+  - created_utc
+  - seed_posts
+  - all_comments
+properties:
+  thread_id:
+    type: string
+    description: Unique identifier for the thread (e.g., Reddit post ID).
+  subreddit:
+    type: string
+    description: Name of the subreddit or forum section.
+  site:
+    type: string
+    description: Source platform (e.g., 'reddit', 'stackexchange').
+  title:
+    type: string
+    description: Title of the seed post.
+  author:
+    type: string
+    description: Author of the thread seed post.
+  created_utc:
+    type: number
+    description: Unix timestamp of thread creation.
+  url:
+    type: string
+    format: uri
+    description: URL to the thread.
+  seed_posts:
+    type: array
+    description: List of the first N top-level posts used as seeds.
+    minItems: 3
+    items:
+      $ref: '#/definitions/post'
+  all_comments:
+    type: array
+    description: List of all comments in the thread (including replies).
+    items:
+      $ref: '#/definitions/post'
+  metadata:
+    type: object
+    description: Additional metadata about the extraction process.
+    properties:
+      extraction_timestamp:
+        type: number
+      source_origin:
+        type: string
+        enum: [pushshift, reddit_api, huggingface, internet_archive]
+  exclusion_reason:
+    type: ["string", "null"]
+    description: If the thread was excluded, the reason code (e.g., 'SEED_INSUFFICIENT').
+definitions:
+  post:
+    type: object
+    required:
+      - comment_id
+      - author
+      - body
+      - created_utc
+      - parent_id
+    properties:
+      comment_id:
+        type: string
+      author:
+        type: string
+      body:
+        type: string
+      created_utc:
+        type: number
+      parent_id:
+        type: string
+      score:
+        type: integer
+      depth:
+        type: integer
+        description: Depth in the thread hierarchy (0 for top-level).

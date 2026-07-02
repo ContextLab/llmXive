@@ -1,0 +1,25 @@
+{
+  "api_keys": {
+    "pushshift_api_key": null,
+    "reddit_client_id": null,
+    "reddit_client_secret": null,
+    "reddit_user_agent": "llmXive-emotional-contagion:1.0"
+  },
+  "dataset_paths": {
+    "raw_dir": "data/raw",
+    "processed_dir": "data/processed",
+    "annotations_file": "data/raw/annotations.json",
+    "exclusions_log": "data/processed/exclusions.log",
+    "vader_validation_report": "data/processed/vader_validation_report.json",
+    "valid_threads_file": "data/processed/valid_threads.csv",
+    "sensitivity_analysis_file": "data/processed/sensitivity_analysis.csv",
+    "final_report": "docs/paper.md"
+  },
+  "debug_mode": false,
+  "random_seed": 42,
+  "max_threads": 500,
+  "min_replies_for_contagion": 5,
+  "min_seeds_for_thread": 3,
+  "sentiment_threshold": 0.05,
+  "kappa_threshold": 0.6
+}
