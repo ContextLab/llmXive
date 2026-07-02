@@ -1,1 +1,33 @@
-[]
+- artifact_hash: e7cd618f4e8bc46e16dc20cdbfec0c6f4ad255fe057d224cb7e1a359a1f09330
+  artifact_path: projects/PROJ-335-investigating-the-relationship-between-a/specs/001-investigating-the-relationship-between-a/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: OpenNeuro
+  kind: url
+  value: https://openneuro.org/datasets/ds000248`
+  verification_status: verified
+  verified_against_url: https://openneuro.org/datasets/ds000248
+  verified_at: '2026-07-02T12:04:34.150990Z'
+- artifact_hash: e7cd618f4e8bc46e16dc20cdbfec0c6f4ad255fe057d224cb7e1a359a1f09330
+  artifact_path: projects/PROJ-335-investigating-the-relationship-between-a/specs/001-investigating-the-relationship-between-a/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: OpenNeuro
+  kind: url
+  value: https://openneuro.org/datasets/ds003474`
+  verification_status: verified
+  verified_against_url: https://openneuro.org/datasets/ds003474
+  verified_at: '2026-07-02T12:04:34.150990Z'
+- artifact_hash: e7cd618f4e8bc46e16dc20cdbfec0c6f4ad255fe057d224cb7e1a359a1f09330
+  artifact_path: projects/PROJ-335-investigating-the-relationship-between-a/specs/001-investigating-the-relationship-between-a/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: "neurofusion/eeg-restingstate \xB7 Datasets at Hugging Face"
+  kind: url
+  value: https://huggingface.co/datasets/neurofusion/eeg-restingstate`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/datasets/neurofusion/eeg-restingstate
+  verified_at: '2026-07-02T12:04:34.150990Z'

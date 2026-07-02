@@ -1,0 +1,743 @@
+resolved_at: '2026-07-02T11:33:56.487411+00:00'
+datasets:
+- intent: EEG
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/neurofusion/eeg-restingstate/resolve/main/events.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 2963
+      parsed: true
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_train/resolve/main/data/train-00000-of-00048-3d720ad254981f90.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_eval/resolve/main/data/train-00000-of-00007-78d1928c4e4c8738.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/neurofusion/eeg-restingstate/resolve/main/events.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_train/resolve/main/data/train-00000-of-00048-3d720ad254981f90.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_eval/resolve/main/data/train-00000-of-00007-78d1928c4e4c8738.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/JLB-JLB/seizure_eeg_dev/resolve/main/data/train-00000-of-00007-78d1928c4e4c8738.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Esophageal_submucosal_gland_duct_adenoma_a_case_report_and_pooled_analysis_of_demographic_differences_between_eastern_and_western_populations_docx/32880104
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/_b_Code_forSpatiotemporal_analysis_of_the_b_b_photovoltaic_b_b_potential_in_North_Africa_from_1941_to_2020_b_/32865923
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/_b_Using_FIRM_to_Assess_Risk_b_/32745921
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dataset_-_Pure_and_mixed_conifer-beech_forests_litter_types_and_drought_shape_fungal_community_composition_and_decomposition_strategies_but_not_litter_decomposition_rates_/32877926
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://crick.figshare.com/articles/journal_contribution/Boundary_constraints_can_determine_pattern_emergence_/32879831
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3236138
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10909103
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16906198
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://open-research-europe.ec.europa.eu/articles/2-5/v2
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://open-research-europe.ec.europa.eu/articles/2-5/v1
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/ykp9w/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/pqn5e/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/569zv/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://brainlife.io/app/6a3d1be376d8d577a7d72be4
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/jbrsa/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: OpenNeuro
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/clane9/openneuro-fslr64k.arrow/resolve/main/dataset_dict.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 29
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/clane9/openneuro-fslr64k.arrow/resolve/main/dataset_dict.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Esophageal_submucosal_gland_duct_adenoma_a_case_report_and_pooled_analysis_of_demographic_differences_between_eastern_and_western_populations_docx/32880104
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/_b_Code_forSpatiotemporal_analysis_of_the_b_b_photovoltaic_b_b_potential_in_North_Africa_from_1941_to_2020_b_/32865923
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/_b_Using_FIRM_to_Assess_Risk_b_/32745921
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Dataset_-_Pure_and_mixed_conifer-beech_forests_litter_types_and_drought_shape_fungal_community_composition_and_decomposition_strategies_but_not_litter_decomposition_rates_/32877926
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://crick.figshare.com/articles/journal_contribution/Boundary_constraints_can_determine_pattern_emergence_/32879831
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18476336
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17150815
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2847832
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21032699
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19435085
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openneuro.org/datasets/ds008083/versions/1.0.0
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ww2.nemar.org/dataset/on002893
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ww2.nemar.org/dataset/on002893?v=v1.0.0
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openneuro.org/datasets/ds008082/versions/1.0.0
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21113780
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MNE-Python
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://data.dtu.dk/articles/dataset/X-ray_diffraction_patterns_for_H-rich_clasts_in_Black_Beauty_meteorite/31305316
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Physical_Model_Experimental_Data_for_Ice-Cored_Moraine_Slopes/30391030
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Esophageal_submucosal_gland_duct_adenoma_a_case_report_and_pooled_analysis_of_demographic_differences_between_eastern_and_western_populations_docx/32880104
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/software/_b_Code_forSpatiotemporal_analysis_of_the_b_b_photovoltaic_b_b_potential_in_North_Africa_from_1941_to_2020_b_/32865923
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/_b_Using_FIRM_to_Assess_Risk_b_/32745921
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19666955
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3891836
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20309409
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14008696
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7602381
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21113780
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21113780
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21101696
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21101696
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21024989
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ICA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Icannos/gpt4all-formatted-dolly-15k-multilingual/resolve/main/data/de-00000-of-00001-5ee5278187666bb6.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ecnu-icalk/educhat-sft-002-data-osm/resolve/main/MIX_BELLE.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Icannos/gpt4all-formatted-dolly-15k-multilingual/resolve/main/data/de-00000-of-00001-5ee5278187666bb6.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ecnu-icalk/educhat-sft-002-data-osm/resolve/main/MIX_BELLE.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/api/resolve-cache/datasets/Icannos/chess_studies/64b57c397dfbb32078c816869616c0a8473c0311/lichess_studies.csv?%2Fdatasets%2FIcannos%2Fchess_studies%2Fresolve%2Fmain%2Flichess_studies.csv=&etag=%224d3172e97c56b69821a64ada487b43ca24d91c78%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.dtu.dk/articles/dataset/X-ray_CT_reconstruction_of_Black_Beauty_meteorite/31292965
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://manara.qnl.qa/articles/report/_b_Positions_of_Power_b_Gulf_Islands_and_the_Logic_of_Influence_at_Hormuz/32852234
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.dtu.dk/articles/dataset/Segmentation_of_XCT_and_NCT_of_Martian_meteorite_Black_Beauty/31305397
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.dtu.dk/articles/dataset/Neutron_CT_reconstruction_of_Black_Beauty_meteorite/31305256
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.dtu.dk/articles/dataset/X-ray_diffraction_patterns_for_H-rich_clasts_in_Black_Beauty_meteorite/31305316
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3408507
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ieeexplore.ieee.org/document/6943768/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6967838
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4423653
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12605881
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.17170/kobra-2026022411945
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''kobra.uni-kassel.de'',
+      port=443): Max retries exceeded with url: /handle/123456789/201810226907 (Caused
+      by ConnectTimeoutError(<HTTPSConnection(host=''kobra.uni-kassel.de'', port=443)
+      at 0x7f1c29f9fe90>, ''Connection to kobra.uni-kassel.de timed out. (connect
+      timeout=20.0)''))'
+  - url: https://repod.icm.edu.pl/dataset.xhtml?persistentId=doi:10.18150/ZN1XRD
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://cyberleninka.ru/article/n/otsenka-effektivnosti-ekstraintrakranialnogo-mikroanastomoza-u-patsientov-s-simptomnoy-okklyuziey-vnutrenney-sonnoy-arterii-i
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/58tjv/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/mjpqn/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ERROR
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Chat-Error/short-stories/resolve/main/data/literotica-2021.12-processed/literotica-anal.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Cyberfish/text_error_correction/resolve/main/reuters/cats.txt
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 220821
+      parsed: true
+  - url: https://huggingface.co/datasets/dvilasuero/ag_news_error_analysis/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 86124
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/JetBrains-Research/jupyter-errors-dataset/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Chat-Error/short-stories/resolve/main/data/literotica-2021.12-processed/literotica-anal.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/Cyberfish/text_error_correction/resolve/main/reuters/cats.txt
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/dvilasuero/ag_news_error_analysis/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/mideind/icelandic-error-corpus-IceEC/resolve/main/test.json
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://manara.qnl.qa/articles/report/_p_dir_rtl_b___b____p_p_p_/32853035
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.dtu.dk/articles/dataset/X-ray_diffraction_CT_reconstruction_of_Martian_meteorite_Black_Beauty/31306372
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Phylogeny_of_Leucopruina_b_b_and_related_species_generated_by_ML_analysis_based_on_ITS_sequences/32880134
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.dtu.dk/articles/dataset/X-ray_CT_reconstruction_of_Black_Beauty_meteorite/31292965
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://manara.qnl.qa/articles/report/_b_Positions_of_Power_b_Gulf_Islands_and_the_Logic_of_Influence_at_Hormuz/32852234
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10152339
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10152717
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13619737
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5101083
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7898439
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/6f7jk/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.3929/ethz-b-000710867
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://zenodo.org/records/20746242
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20746242
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21131359
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: AND
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Andyrasika/cat_kingdom/resolve/main/data/train-00000-of-00001-c6ddc870796e4f24.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 230721
+      parsed: true
+  - url: https://huggingface.co/datasets/mychen76/invoices-and-receipts_ocr_v1/resolve/main/data/test-00000-of-00001-af2d92d1cee28514.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/K-and-K/knights-and-knaves/resolve/main/test/people2_num100.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 146016
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Andyrasika/cat_kingdom/resolve/main/data/train-00000-of-00001-c6ddc870796e4f24.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/mychen76/invoices-and-receipts_ocr_v1/resolve/main/data/test-00000-of-00001-af2d92d1cee28514.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/K-and-K/knights-and-knaves/resolve/main/test/people2_num100.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/Bektemir96az96/Uzbek_and_Russian_Phishing_dataset/resolve/main/phishing_legitimate_dataset.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/active-vision-lab/oxford-day-and-night/resolve/main/aria/scene_durations.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://manara.qnl.qa/articles/report/_p_dir_rtl_b___b____p_p_p_/32853035
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.dtu.dk/articles/dataset/X-ray_diffraction_CT_reconstruction_of_Martian_meteorite_Black_Beauty/31306372
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Phylogeny_of_Leucopruina_b_b_and_related_species_generated_by_ML_analysis_based_on_ITS_sequences/32880134
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.dtu.dk/articles/dataset/X-ray_CT_reconstruction_of_Black_Beauty_meteorite/31292965
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://manara.qnl.qa/articles/report/_b_Positions_of_Power_b_Gulf_Islands_and_the_Logic_of_Influence_at_Hormuz/32852234
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7714657
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://link.springer.com/article/10.1007/BF01977446
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17432343
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18199961
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5464359
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: INSUFFICIENT
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/shktty/MultiR_Conv_Insufficient/resolve/main/data/MultiR_Conv_Insufficient-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 83929
+      parsed: true
+  - url: https://huggingface.co/datasets/electricsheepafrica/africa-who-prevalence-of-insufficient-physical-activity-among-adults-ncdpaa/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 32689
+      parsed: true
+  - url: https://huggingface.co/datasets/electricsheepafrica/africa-who-prevalence-of-insufficient-physical-activity-among-adults-ncdpac/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 32541
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/shktty/MultiR_Conv_Insufficient/resolve/main/data/MultiR_Conv_Insufficient-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/api/resolve-cache/datasets/electricsheepafrica/insufficient-physical-activity-among-adults-aged-18-yearsby-sex-for-african-countries/c5e75910ac81304be877243be0cc12387c3e5524/insufficient-physical-activity-among-adults-aged-18-yearsby-sex.csv?%2Fdatasets%2Felectricsheepafrica%2Finsufficient-physical-activity-among-adults-aged-18-yearsby-sex-for-african-countries%2Fresolve%2Fmain%2Finsufficient-physical-activity-among-adults-aged-18-yearsby-sex.csv=&etag=%22577a148aa2825621342ac80f0fa769bfcb39c995%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/api/resolve-cache/datasets/electricsheepafrica/insufficient-physical-activity-among-adults-aged-18-plus-africa/2737b709cffee3e3b6b017a28230f2237c4be6f2/insufficient-physical-activity-among-adults-aged-1.csv?%2Fdatasets%2Felectricsheepafrica%2Finsufficient-physical-activity-among-adults-aged-18-plus-africa%2Fresolve%2Fmain%2Finsufficient-physical-activity-among-adults-aged-1.csv=&etag=%22577a148aa2825621342ac80f0fa769bfcb39c995%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/electricsheepafrica/africa-who-prevalence-of-insufficient-physical-activity-among-adults-ncdpaa/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/electricsheepafrica/africa-who-prevalence-of-insufficient-physical-activity-among-adults-ncdpac/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://manara.qnl.qa/articles/report/_p_dir_rtl_b___b____p_p_p_/32853035
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.dtu.dk/articles/dataset/X-ray_diffraction_CT_reconstruction_of_Martian_meteorite_Black_Beauty/31306372
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Phylogeny_of_Leucopruina_b_b_and_related_species_generated_by_ML_analysis_based_on_ITS_sequences/32880134
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.dtu.dk/articles/dataset/X-ray_CT_reconstruction_of_Black_Beauty_meteorite/31292965
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://manara.qnl.qa/articles/report/_b_Positions_of_Power_b_Gulf_Islands_and_the_Logic_of_Influence_at_Hormuz/32852234
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15079551
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16728749
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6989380
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8051062
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.scientificamerican.com/article/insufficient-supply-of-lime/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21131019
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21131019
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/p6cq2/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21130889
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21130889
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: POWER
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/microsoft/GridSFM_US_power_grid/resolve/main/04h/alabama_ac_results.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 128690
+      parsed: true
+  - url: https://huggingface.co/datasets/noahgift/social-power-nba/resolve/main/nba_2017_players_with_salary_wiki_twitter.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 51688
+      parsed: true
+  - url: https://huggingface.co/datasets/AndreCNF/us-coal-power-emissions-sentinel2/resolve/main/daily_emissions_facility_aggregation.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/microsoft/GridSFM_US_power_grid/resolve/main/04h/alabama_ac_results.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/noahgift/social-power-nba/resolve/main/nba_2017_players_with_salary_wiki_twitter.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/powerpuffpomelo/mello_test/resolve/main/wmt14_en2de_cased_bin.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/AndreCNF/us-coal-power-emissions-sentinel2/resolve/main/daily_emissions_facility_aggregation.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://manara.qnl.qa/articles/report/_p_dir_rtl_b___b____p_p_p_/32853035
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.dtu.dk/articles/dataset/X-ray_diffraction_CT_reconstruction_of_Martian_meteorite_Black_Beauty/31306372
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Phylogeny_of_Leucopruina_b_b_and_related_species_generated_by_ML_analysis_based_on_ITS_sequences/32880134
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.dtu.dk/articles/dataset/X-ray_CT_reconstruction_of_Black_Beauty_meteorite/31292965
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://manara.qnl.qa/articles/report/_b_Positions_of_Power_b_Gulf_Islands_and_the_Logic_of_Influence_at_Hormuz/32852234
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.nature.com/articles/025483b0
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17058397
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15770379
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14679068
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.1109/ISGTEUROPE56780.2023.10407549.
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+  - url: https://elib.spbstu.ru/dl/3/2025/vr/vr25-5083.pdf/info
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21131044
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21131044
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://elib.spbstu.ru/dl/3/2025/vr/vr25-4070.pdf/info
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/gbvnh/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

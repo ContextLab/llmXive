@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Correlation Results Schema"
+description: "Schema for final correlation statistics between EEG metrics and WM capacity."
+type: "object"
+properties:
+  metric_type:
+    type: "string"
+    description: "Type of metric analyzed."
+    enum: ["power", "plv", "pca_component"]
+  electrode_or_pair:
+    type: "string"
+    description: "Electrode or electrode pair identifier."
+  correlation_coefficient:
+    type: "number"
+    description: "Pearson or Spearman correlation coefficient."
+  p_value:
+    type: "number"
+    description: "Uncorrected p-value."
+  ci_lower:
+    type: "number"
+    description: "Lower bound of 95% confidence interval."
+  ci_upper:
+    type: "number"
+    description: "Upper bound of 95% confidence interval."
+  corrected_p:
+    type: "number"
+    description: "p-value after FDR correction."
+  significance:
+    type: "boolean"
+    description: "True if corrected_p <= 0.05."
+  threshold_status:
+    type: "string"
+    description: "Pass/Fail status against |r| >= 0.3 threshold."
+    enum: ["PASS", "FAIL"]
+  vif_flag:
+    type: "boolean"
+    description: "True if VIF > 5 was detected and PCA was used."
+required:
+  - metric_type
+  - electrode_or_pair
+  - correlation_coefficient
+  - p_value
+  - ci_lower
+  - ci_upper
+  - corrected_p
+  - significance
+  - threshold_status
+additionalProperties: false

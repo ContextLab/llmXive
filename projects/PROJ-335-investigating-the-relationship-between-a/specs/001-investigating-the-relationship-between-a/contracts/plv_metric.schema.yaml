@@ -1,0 +1,31 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Phase-Locking Value (PLV) Metric Schema"
+description: "Schema for pairwise phase-locking values between frontal-parietal electrodes."
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique identifier for the participant."
+  pair_id:
+    type: "string"
+    description: "Electrode pair identifier (e.g., Fz-Pz, F3-P3)."
+    pattern: "^[FP][0-9]?-?[FP][0-9]?$"
+  condition:
+    type: "string"
+    description: "Experimental condition."
+  plv_value:
+    type: "number"
+    description: "Phase-locking value (0.0 to 1.0)."
+    minimum: 0.0
+    maximum: 1.0
+  frequency_band:
+    type: "string"
+    description: "Frequency band identifier."
+    const: "alpha_8_12"
+required:
+  - subject_id
+  - pair_id
+  - condition
+  - plv_value
+  - frequency_band
+additionalProperties: false
