@@ -25,7 +25,7 @@ The system MUST present an approved IRB Informed Consent form to participants be
 
 ### User Story 1 - Participant Survey Data Collection (Priority: P1)
 
-Participants can access the study survey, view 4 stimulus webpages with randomized presentation order (from a specific Latin square set), and submit credibility and professionalism ratings for each stimulus.
+Participants can access the study survey, view multiple stimulus webpages with randomized presentation order (from a specific Latin square set), and submit credibility and professionalism ratings for each stimulus.
 
 **Why this priority**: This is the foundational data collection layer. Without reliable stimulus delivery and rating capture, no analysis is possible. All downstream functionality depends on this working.
 
@@ -83,14 +83,14 @@ The system can run mixed‑effects models with participant‑level covariates (a
 ### Functional Requirements
 
 - **FR-000**: System MUST present an IRB-approved Informed Consent form and capture explicit participant acceptance before allowing access to the survey (See US-0)
-- **FR-001**: System MUST deliver 4 stimulus webpages with randomized presentation order per participant using a Latin square design. The system MUST select from exactly these 4 specific sequences to control for order effects: (1) Professional → Minimalist → Low-Quality → Neutral, (2) Minimalist → Low-Quality → Neutral → Professional, (3) Low-Quality → Neutral → Professional → Minimalist, (4) Neutral → Professional → Minimalist → Low-Quality (See US-1)
-- **FR-002**: System MUST collect 7‑point Likert ratings for perceived credibility and professionalism for each of the 4 stimuli (See US-1)
+- **FR-001**: System MUST deliver multiple stimulus webpages with randomized presentation order per participant using a Latin square design. The system MUST select from exactly these specific sequences to control for order effects: (1) Professional → Minimalist → Low-Quality → Neutral, (2) Minimalist → Low-Quality → Neutral → Professional, (3) Low-Quality → Neutral → Professional → Minimalist, (4) Neutral → Professional → Minimalist → Low-Quality (See US-1)
+- **FR-002**: System MUST collect Likert ratings for perceived credibility and professionalism for each of the 4 stimuli (See US-1)
 - **FR-003**: System MUST export collected data as CSV with participant ID, stimulus condition, ratings, timestamp, and device/browser metadata (See US-1)
 - **FR-004**: System MUST perform repeated‑measures ANOVA with design condition as within‑subject factor on credibility ratings (See US-2)
-- **FR-005**: System MUST apply Bonferroni correction for all 6 pairwise comparisons with p<0.05 significance threshold, but ONLY IF the ANOVA main effect is significant (p < 0.05) (See US-2)
+- **FR-005**: System MUST apply Bonferroni correction for all pairwise comparisons with p<0.05 significance threshold, but ONLY IF the ANOVA main effect is significant (p < 0.05) (See US-2)
 - **FR-006**: System MUST compute effect sizes (partial η²) for ANOVA and Cohen's d for pairwise comparisons (See US-2)
 - **FR-007**: System MUST run mixed‑effects model with participant‑level covariates: age (continuous, years) and education (ordinal categorical: High School, Bachelor's, Master's, PhD) as robustness check (See US-3)
-- **FR-008**: System MUST validate that exactly 8 ratings (4 credibility + 4 professionalism) are present before allowing survey submission (See US-1)
+- **FR-008**: The system MUST validate that the complete set of required ratings (covering both credibility and professionalism dimensions) is present before allowing survey submission. (See US-1)
 
 ### Key Entities *(include if feature involves data)*
 
@@ -121,5 +121,5 @@ The system can run mixed‑effects models with participant‑level covariates (a
 - Latin square randomization of stimulus presentation order is methodologically essential to control for sequence effects in a within-subjects design.
 - All analysis methods are CPU‑tractable (classical statistics, no GPU required).
 - Data preprocessing removes incomplete entries (<8 ratings) and duplicate IP submissions (IP data collected strictly for fraud prevention and data hygiene).
-- GitHub Actions free‑tier runner provides sufficient resources (2 CPU cores, ~7 GB RAM, 14 GB disk, 6‑hour timeout).
+- GitHub Actions free‑tier runner provides sufficient resources (multiple CPU cores, ~7 GB RAM, 14 GB disk, 6‑hour timeout).
 - Device info (user agent, screen resolution) is collected strictly for debugging and data hygiene, not as a research variable.

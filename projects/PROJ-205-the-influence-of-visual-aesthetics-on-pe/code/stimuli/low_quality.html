@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Information Page</title>
+    <style>
+        /* Low Quality / Broken CSS Design */
+        body {
+            font-family: "Comic Sans MS", "Chalkboard SE", sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            line-height: 1.1;
+        }
+
+        /* Mismatched container styling */
+        .container {
+            width: 95%;
+            margin: 10px auto;
+            background-color: #ffffff;
+            border: 5px dashed #ff0000;
+            padding: 10px;
+            box-shadow: 10px 10px 0px #00ff00;
+            overflow: hidden;
+        }
+
+        /* Cluttered header */
+        header {
+            background-color: #ffff00;
+            color: #ff00ff;
+            font-family: "Times New Roman", serif;
+            font-size: 18px;
+            text-align: center;
+            padding: 5px;
+            border-bottom: 3px dotted blue;
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            font-size: 24px;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+        }
+
+        /* Broken typography */
+        .content {
+            font-family: "Verdana", sans-serif;
+            font-size: 11px;
+            text-align: justify;
+            color: #444444;
+            background-color: #f9f9f9;
+            padding: 5px;
+        }
+
+        .content p {
+            margin: 2px 0;
+            padding: 0;
+        }
+
+        /* Inconsistent list styling */
+        ul {
+            list-style-type: square;
+            color: red;
+            font-size: 10px;
+            margin-left: 20px;
+        }
+
+        li {
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: blue;
+        }
+
+        /* Ugly button styling */
+        .action-btn {
+            background-color: orange;
+            color: white;
+            border: 2px solid black;
+            padding: 5px 10px;
+            font-family: "Courier New", monospace;
+            font-size: 12px;
+            cursor: pointer;
+            margin-top: 10px;
+            float: right;
+        }
+
+        .action-btn:hover {
+            background-color: red;
+            color: yellow;
+        }
+
+        /* Footer clutter */
+        footer {
+            clear: both;
+            text-align: center;
+            font-size: 9px;
+            color: gray;
+            margin-top: 20px;
+            border-top: 1px solid black;
+            padding-top: 5px;
+        }
+
+        /* Random inline styles simulation via classes */
+        .highlight-bad {
+            background-color: yellow;
+            text-decoration: underline;
+            color: red;
+        }
+
+        .bad-spacing {
+            letter-spacing: 5px;
+            word-spacing: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Important Information For You!!!</h1>
+        </header>
+
+        <div class="content">
+            <p class="bad-spacing">Below you will find details about the topic. Please read carefully.</p>
+            
+            <p>
+                Recent studies suggest that the way information is presented can significantly affect how people perceive its credibility. 
+                Visual design, layout, and typography all play a crucial role in this process.
+            </p>
+
+            <p class="highlight-bad">
+                <strong>Key Findings:</strong>
+            </p>
+
+            <ul>
+                <li>Professional layouts increase trust.</li>
+                <li>Cluttered designs reduce perceived credibility.</li>
+                <li>Font choice matters significantly.</li>
+                <li>Color schemes influence emotional response.</li>
+            </ul>
+
+            <p>
+                In this study, we will present you with four different versions of the same text content.
+                Each version will have a different visual design. Your task is to rate how credible
+                and professional each version appears to you.
+            </p>
+
+            <p class="bad-spacing">
+                Please proceed to the next section to begin the rating task.
+            </p>
+        </div>
+
+        <footer>
+            &copy; 2024 Research Study | Confidential | Do Not Distribute
+        </footer>
+    </div>
+</body>
+</html>

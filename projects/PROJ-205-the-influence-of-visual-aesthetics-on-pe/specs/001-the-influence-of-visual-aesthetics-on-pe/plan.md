@@ -13,7 +13,7 @@ This feature implements a within-subjects randomized experiment to determine if 
 **Primary Dependencies**: `streamlit` (survey delivery), `pandas`, `numpy`, `scipy`, `statsmodels` (analysis), `pyyaml` (contracts)  
 **Storage**: CSV files (local filesystem in `data/`), JSON logs for session metadata  
 **Testing**: `pytest` (unit/integration), manual simulation for survey flow  
-**Target Platform**: GitHub Actions Free Tier (Linux, 2 CPU, ~7 GB RAM), Browser-based client (no JS framework dependencies beyond Streamlit/HTML5)  
+**Target Platform**: GitHub Actions Free Tier (Linux, multiple CPU, ~7 GB RAM), Browser-based client (no JS framework dependencies beyond Streamlit/HTML5)  
 **Project Type**: Web-based data collection + Computational Analysis Pipeline  
 **Performance Goals**: Analysis pipeline < 30 mins on CPU; Survey latency < 2s per page load  
 **Constraints**: No GPU; Data < 5MB; No PII storage; IRB Consent mandatory before data capture  
