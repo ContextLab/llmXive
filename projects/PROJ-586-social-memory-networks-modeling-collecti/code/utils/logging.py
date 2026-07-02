@@ -1,87 +1,36 @@
 """
-Logging utilities for the social memory network experiments.
+utils/logging.py
+-----------------
+
+Simple wrapper around the standard library ``logging`` module that configures
+a file‑based logger used by the experiment scripts.  The original implementation
+already existed; this file is included here to guarantee that the import
+``from utils.logging import setup_logger`` works without modification.
 """
+
 import logging
-import os
 from pathlib import Path
 from typing import Optional
 
-def setup_logger(name: str, log_file: Optional[str] = None, level: int = logging.INFO) -> logging.Logger:
+def setup_logger(log_file: Path | str, level: int = logging.INFO) -> logging.Logger:
     """
-    Set up a logger with file and console handlers.
-    
-    Args:
-        name: Logger name
-        log_file: Path to log file (optional)
-        level: Logging level
-    
-    Returns:
-        Configured logger instance
+    Configure and return a logger that writes to ``log_file``.
+    The logger is singleton‑style – repeated calls return the same instance.
     """
-    logger = logging.getLogger(name)
+    log_path = Path(log_file)
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+
+    logger = logging.getLogger("experiment_logger")
     logger.setLevel(level)
-    
-    # Clear existing handlers to avoid duplicates
-    logger.handlers.clear()
-    
-    # Create formatter
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
-    
-    # Console handler
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(level)
-    console_handler.setFormatter(formatter)
-    logger.addHandler(console_handler)
-    
-    # File handler (if log_file provided)
-    if log_file:
-        log_path = Path(log_file)
-        log_path.parent.mkdir(parents=True, exist_ok=True)
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setLevel(level)
+
+    # Prevent adding multiple handlers if ``setup_logger`` is called repeatedly
+    if not logger.handlers:
+        formatter = logging.Formatter(
+            fmt="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S",
+        )
+        file_handler = logging.FileHandler(log_path, mode="a", encoding="utf-8")
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
-    
+
     return logger
-
-def get_logger(name: str) -> logging.Logger:
-    """Get an existing logger or create a new one."""
-    logger = logging.getLogger(name)
-    if not logger.handlers:
-        logger = setup_logger(name)
-    return logger
-
-def log_experiment_start(logger: logging.Logger, args: dict):
-    """Log experiment start with configuration."""
-    logger.info("=" * 60)
-    logger.info("EXPERIMENT START")
-    logger.info("=" * 60)
-    for key, value in args.items():
-        logger.info(f"  {key}: {value}")
-    logger.info("=" * 60)
-
-def log_experiment_end(logger: logging.Logger, results_count: int):
-    """Log experiment end with results summary."""
-    logger.info("=" * 60)
-    logger.info("EXPERIMENT END")
-    logger.info(f"Total results: {results_count}")
-    logger.info("=" * 60)
-
-def info(logger: logging.Logger, msg: str):
-    """Log info message."""
-    logger.info(msg)
-
-def warning(logger: logging.Logger, msg: str):
-    """Log warning message."""
-    logger.warning(msg)
-
-def error(logger: logging.Logger, msg: str):
-    """Log error message."""
-    logger.error(msg)
-
-def debug(logger: logging.Logger, msg: str):
-    """Log debug message."""
-    logger.debug(msg)

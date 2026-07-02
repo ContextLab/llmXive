@@ -1,9 +1,3 @@
-"""
-Synthetic dataset generation for social memory network experiments.
-
-This module generates realistic synthetic game data for testing and validation.
-Per spec FR-004, synthetic data is used as real datasets (Hanabi/CoQA) are unavailable.
-"""
 import os
 from typing import List, Dict, Any, Optional, Tuple, Union
 from pathlib import Path
@@ -13,149 +7,112 @@ from dataclasses import dataclass
 
 @dataclass
 class SyntheticGameConfig:
-    """Configuration for synthetic game generation."""
-    num_games: int = 1000
-    num_agents: int = 5
-    context_condition: str = "full"
-    seed: int = 42
-    threshold: Optional[int] = None
-    min_facts: int = 10
-    max_facts: int = 50
-    domains: List[str] = None
+    num_games: int
+    agent_count: int
+    context_condition: str
+    seed: int
+    max_items: int = 100
+    max_actions_per_game: int = 50
 
-def generate_synthetic_games(
-    num_games: int,
-    num_agents: int,
-    context_condition: str,
-    seed: int,
-    threshold: Optional[int] = None,
-    min_facts: int = 10,
-    max_facts: int = 50,
-    domains: Optional[List[str]] = None
-) -> List[Dict[str, Any]]:
+def generate_synthetic_games(config: SyntheticGameConfig) -> List[Dict[str, Any]]:
     """
     Generate synthetic game data for social memory experiments.
     
-    Args:
-        num_games: Number of games to generate
-        num_agents: Number of agents in each game
-        context_condition: "full" or "limited"
-        seed: Random seed for reproducibility
-        threshold: Token threshold for limited context (optional)
-        min_facts: Minimum number of facts per game
-        max_facts: Maximum number of facts per game
-        domains: List of domain categories (default: standard set)
-    
-    Returns:
-        List of game dictionaries with facts and memory traces
+    This function creates deterministic, reproducible game data based on the seed.
+    It simulates agent interactions with a shared memory buffer.
     """
-    if domains is None:
-        domains = ["science", "history", "art", "technology", "geography"]
-    
-    np.random.seed(seed)
+    np.random.seed(config.seed)
+    random.seed(config.seed)
     
     games = []
-    
-    for game_id in range(num_games):
-        # Generate facts for this game
-        num_facts = np.random.randint(min_facts, max_facts + 1)
-        facts = []
+    for i in range(config.num_games):
+        game_seed = config.seed + i
+        np.random.seed(game_seed)
+        random.seed(game_seed)
         
-        for i in range(num_facts):
-            fact_id = f"fact_{game_id}_{i}"
-            domain = np.random.choice(domains)
-            fact_content = f"{domain} fact {i} from game {game_id}"
-            
-            facts.append({
-                "id": fact_id,
-                "domain": domain,
-                "content": fact_content,
-                "assigned_agent": np.random.randint(0, num_agents)
+        # Generate game structure
+        num_items = min(config.max_items, config.agent_count * 10)
+        num_actions = min(config.max_actions_per_game, config.agent_count * 20)
+        
+        # Create items
+        items = []
+        for j in range(num_items):
+            items.append({
+                'id': j,
+                'type': np.random.choice(['fact', 'event', 'concept']),
+                'value': np.random.rand(),
+                'agent_owner': np.random.randint(0, config.agent_count)
             })
         
-        # Create memory traces for each agent
-        memory_traces = {i: [] for i in range(num_agents)}
+        # Create actions
+        actions = []
+        base_prob = 0.7 if config.context_condition == 'full' else 0.4
         
-        # Determine retention rate based on context condition
-        if context_condition == "full":
-            retention_rate = 0.9
-        else:
-            # Limited context: lower retention, depends on threshold
-            if threshold:
-                retention_rate = max(0.3, 0.6 - (threshold / 2000.0))
-            else:
-                retention_rate = 0.4
-            retention_rate = min(retention_rate, 0.5)
-        
-        # Assign facts to agents' memory
-        for fact in facts:
-            assigned = fact["assigned_agent"]
-            memory_traces[assigned].append(fact)
+        for j in range(num_actions):
+            action_type = np.random.choice(['store', 'retrieve', 'update'], p=[0.4, 0.4, 0.2])
+            agent_id = np.random.randint(0, config.agent_count)
             
-            # Other agents may also remember with some probability
-            for other_agent in range(num_agents):
-                if other_agent != assigned:
-                    if np.random.random() < retention_rate * 0.3:
-                        memory_traces[other_agent].append(fact)
+            if action_type == 'retrieve':
+                success_prob = base_prob * (1 - 0.1 * config.agent_count / 10)
+                success = np.random.rand() < max(0.1, success_prob)
+            else:
+                success = True
+            
+            actions.append({
+                'id': j,
+                'type': action_type,
+                'agent_id': agent_id,
+                'success': success,
+                'timestamp': j * 0.1
+            })
         
         games.append({
-            "game_id": game_id,
-            "facts": facts,
-            "memory_traces": memory_traces,
-            "context_condition": context_condition,
-            "num_agents": num_agents,
-            "threshold": threshold
+            'game_id': i,
+            'agent_count': config.agent_count,
+            'context_condition': config.context_condition,
+            'seed': game_seed,
+            'items': items,
+            'actions': actions
         })
     
     return games
 
-def generate_all_datasets(
-    num_games: int,
-    num_agents: int,
-    context_condition: str,
-    seed: int,
-    threshold: Optional[int] = None,
-    output_dir: Optional[str] = None
-) -> List[Dict[str, Any]]:
+def generate_all_datasets(output_dir: str = 'data/synthetic') -> Dict[str, str]:
     """
-    Generate all synthetic datasets and save to disk.
+    Generate all synthetic datasets needed for experiments.
     
-    Args:
-        num_games: Number of games to generate
-        num_agents: Number of agents
-        context_condition: "full" or "limited"
-        seed: Random seed
-        threshold: Token threshold for limited context
-        output_dir: Directory to save datasets (optional)
-    
-    Returns:
-        List of generated game dictionaries
+    Returns a dictionary mapping dataset names to file paths.
     """
-    games = generate_synthetic_games(
-        num_games=num_games,
-        num_agents=num_agents,
-        context_condition=context_condition,
-        seed=seed,
-        threshold=threshold
-    )
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
     
-    if output_dir:
-        output_path = Path(output_dir)
-        output_path.mkdir(parents=True, exist_ok=True)
-        
-        # Save as CSV (simplified representation)
-        df_data = []
-        for game in games:
-            for fact in game["facts"]:
-                df_data.append({
-                    "game_id": game["game_id"],
-                    "fact_id": fact["id"],
-                    "domain": fact["domain"],
-                    "assigned_agent": fact["assigned_agent"]
-                })
-        
-        df = pd.DataFrame(df_data)
-        filename = f"synthetic_{context_condition}_agents{num_agents}.csv"
-        df.to_csv(output_path / filename, index=False)
+    configs = [
+        SyntheticGameConfig(100, 3, 'full', 42),
+        SyntheticGameConfig(100, 5, 'full', 42),
+        SyntheticGameConfig(100, 7, 'full', 42),
+        SyntheticGameConfig(100, 3, 'limited', 42),
+        SyntheticGameConfig(100, 5, 'limited', 42),
+        SyntheticGameConfig(100, 7, 'limited', 42),
+    ]
     
-    return games
+    file_paths = {}
+    for config in configs:
+        games = generate_synthetic_games(config)
+        filename = f"synthetic_{config.context_condition}_agents{config.agent_count}.csv"
+        filepath = output_path / filename
+        
+        df = pd.DataFrame([{
+            'game_id': g['game_id'],
+            'agent_count': g['agent_count'],
+            'context_condition': g['context_condition'],
+            'seed': g['seed'],
+            'num_items': len(g['items']),
+            'num_actions': len(g['actions'])
+        } for g in games])
+        
+        df.to_csv(filepath, index=False)
+        file_paths[f"{config.context_condition}_{config.agent_count}"] = str(filepath)
+    
+    return file_paths
+
+import random
