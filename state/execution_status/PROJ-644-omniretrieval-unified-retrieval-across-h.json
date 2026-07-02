@@ -1,0 +1,15 @@
+{
+  "project_id": "PROJ-644-omniretrieval-unified-retrieval-across-h",
+  "ok": false,
+  "reason": "5 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/README.md: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026k calls are made.  2.  **Synthetic Data**:     -   The original\u2026\u201d; code/omniretrieval_adapter.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026s retrieval quality. 2.  Synthetic Data: Generates 500 queries m\u2026\u201d; code/omniretrieval_adapter.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026is_correct: bool  # --- Synthetic Data Generation --- # Simulat\u2026\u201d; 1 command(s) failed: python code/omniretrieval_adapter.py (rc=1)",
+  "artifacts": [
+    "data/omniretrieval_results.csv",
+    "figures/accuracy_comparison.png"
+  ],
+  "failures": [
+    "python code/omniretrieval_adapter.py -> rc=1\n    strategy: Unified (OmniRetrieval)...\n  -> Accuracy: 7.20%\nRunning strategy: Single Source: Search...\n  -> Accuracy: 3.60%\nRunning strategy: Single Source: SQL...\n  -> Accuracy: 2.80%\nRunning strategy: Single Source: SPARQL...\n  -> Accuracy: 1.60%\nRunning strategy: Single Source: Cypher...\n  -> Accuracy: 1.20%\nResults saved to data/omniretrieval_results.csv\nPlot saved to figures/accuracy_comparison.png\n\nSimulation Complete.\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-644-omniretrieval-unified-retrie"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "updated_at": "2026-07-02T00:41:25Z"
+}
