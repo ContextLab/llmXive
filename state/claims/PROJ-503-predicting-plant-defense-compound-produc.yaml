@@ -1,0 +1,195 @@
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/research.md
+  attempts: 1
+  canonical: 45 control and 45 herbivore-treated Arabidopsis thaliana samples
+  claim_id: c_80656b00
+  context: Arabidopsis thaliana Herbivore-Stress Studies data availability details.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Samples: 45 (Control) + 45 (Herbivore-treated)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T18:09:40Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/research.md
+  attempts: 1
+  canonical: 38 control and 38 herbivore-treated Solanum lycopersicum samples
+  claim_id: c_65d40cc1
+  context: Solanum lycopersicum Herbivore-Stress Studies data availability details.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Samples: 38 (Control) + 38 (Herbivore-treated)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T18:09:40Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/research.md
+  attempts: 1
+  canonical: 142 annotated metabolite compounds in defense metabolite profiles
+  claim_id: c_1c284d46
+  context: Defense Metabolite Profiles data availability details.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Metabolites: 142 annotated compounds'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T18:10:27Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/research.md
+  attempts: 1
+  canonical: 45 terpenoids, 28 alkaloids, and 69 phenylpropanoids annotated
+  claim_id: c_28233cd5
+  context: Breakdown of the 142 annotated metabolite compounds.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Classes: Terpenoids (45), Alkaloids (28), Phenylpropanoids (69)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T18:11:14Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/research.md
+  attempts: 1
+  canonical: 83 metabolite samples matched to expression samples
+  claim_id: c_3c1eb5a1
+  context: Defense Metabolite Profiles data availability details.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Samples: 83 matched to expression samples'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T18:11:47Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/research.md
+  attempts: 1
+  canonical: 96.2 percent of samples successfully paired (83 out of 86)
+  claim_id: c_4c9057f0
+  context: Sample-Level Pairing Analysis results.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Result: 96.2% (83/86 samples successfully paired)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T18:11:47Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/research.md
+  attempts: 1
+  canonical: 86 total expression samples
+  claim_id: c_da27a600
+  context: Sample-Level Pairing Analysis details.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Total expression samples: 86'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T18:12:16Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/research.md
+  attempts: 1
+  canonical: 85 total metabolite samples
+  claim_id: c_2ae106ad
+  context: Sample-Level Pairing Analysis details.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Total metabolite samples: 85'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T18:12:35Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/research.md
+  attempts: 1
+  canonical: 83 successfully paired samples
+  claim_id: c_8918e877
+  context: Sample-Level Pairing Analysis details.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Successfully paired: 83'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T18:14:08Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/research.md
+  attempts: 1
+  canonical: 3 unpaired samples logged
+  claim_id: c_a66dcc49
+  context: Sample-Level Pairing Analysis details.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Unpaired (log to logs/data_pairing.json): 3'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T18:14:19Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/research.md
+  attempts: 1
+  canonical: 99.4 percent validation rate (82 out of 83 files passed)
+  claim_id: c_97c8d11b
+  context: Data Integrity Checks results.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Validation Rate: 99.4% (82/83 files passed)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T18:14:20Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/research.md
+  attempts: 1
+  canonical: 12 percent of metabolomics dataset peaks remain unannotated
+  claim_id: c_0e08e6d2
+  context: Known Limitations and Edge Cases regarding Metabolite Annotation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 12% of detected peaks in the metabolomics dataset remain unannotated
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T18:14:20Z'
+- artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/research.md
+  attempts: 1
+  canonical: Approximately 8 percent of Solanum genes lack direct Arabidopsis orthologs
+  claim_id: c_70e4af5f
+  context: Known Limitations and Edge Cases regarding Ortholog Mapping.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Approximately 8% of Solanum genes lack direct Arabidopsis orthologs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T18:14:20Z'

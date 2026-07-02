@@ -6,7 +6,7 @@ failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-503-predicting-plant-defense-compound-produc
-last_run_id: 8ffb5475-0b61-4860-adbc-3093392f96ea
+last_run_id: f0a046b6-37cf-4c7c-b35c-32204b3bf065
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc
 title: Predicting Plant Defense Compound Production from Publicly Available Genomic
   and Transcriptomic Data
-updated_at: '2026-07-02T17:57:18.400461Z'
+updated_at: '2026-07-02T17:59:12.620594Z'
