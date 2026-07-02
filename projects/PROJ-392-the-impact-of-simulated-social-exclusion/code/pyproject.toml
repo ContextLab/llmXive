@@ -1,5 +1,16 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-proj-392"
+version = "0.1.0"
+description = "Impact of Simulated Social Exclusion on Neural Responses to Reward"
+requires-python = ">=3.11"
+dependencies = []
+
 [tool.black]
-line-length = 100
+line-length = 88
 target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
@@ -13,10 +24,19 @@ exclude = '''
   | buck-out
   | build
   | dist
+  | data
+  | figures
 )/
 '''
 
 [tool.isort]
 profile = "black"
-line_length = 100
-known_first_party = ["utils", "config", "pipeline", "data_download", "manipulation", "preprocess", "analysis", "visualization"]
+line_length = 88
+known_first_party = ["utils", "data_download", "manipulation", "preprocess", "analysis", "visualization", "pipeline"]
+skip = ["data", "figures", ".git", "__pycache__"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"

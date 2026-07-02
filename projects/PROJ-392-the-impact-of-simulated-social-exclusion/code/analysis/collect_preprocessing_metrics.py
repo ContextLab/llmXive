@@ -1,257 +1,227 @@
 """
-Collects and aggregates preprocessing metrics from the pipeline execution.
+Metrics Collection for Preprocessing Pipeline.
 
-This module implements Task T016: Metrics Collection.
-It calculates the 'Preprocessing Completion Rate' and logs it to
-`data/results/preprocessing_metrics.json`.
-
-It also implements logic to flag 'exploratory' status and recommend
-future studies if the sample size (N) per group is < 20, satisfying FR-010.
+Calculates 'Preprocessing Completion Rate' and logs to data/results/preprocessing_metrics.json.
+Includes logic to flag 'exploratory' status if N < 20 per group (FR-010).
 """
-import argparse
 import json
 import logging
 import os
 import sys
-from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Dict, Any, List
 
-# Project root relative to code/analysis
+# Add project root to path for imports if running as script
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-DATA_RESULTS_DIR = PROJECT_ROOT / "data" / "results"
-METRICS_FILE = DATA_RESULTS_DIR / "preprocessing_metrics.json"
-UNIFIED_METADATA_FILE = PROJECT_ROOT / "data" / "behavioral" / "unified_metadata.csv"
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
 
-# Target completion rate threshold
-TARGET_COMPLETION_RATE = 0.90
-# Minimum subjects per group for non-exploratory status
-MIN_SUBJECTS_PER_GROUP = 20
+from utils.config_loader import load_config, get_exclusion_dataset, get_reward_dataset
 
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s"
+    format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-
-def load_existing_metrics() -> Dict[str, Any]:
-    """Loads existing metrics file if it exists, otherwise returns a template."""
-    if METRICS_FILE.exists():
-        try:
-            with open(METRICS_FILE, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except (json.JSONDecodeError, IOError) as e:
-            logger.warning(f"Could not read existing metrics file: {e}. Starting fresh.")
+def count_preprocessed_subjects(dataset_dir: Path, task_name: str) -> int:
+    """
+    Count the number of subjects that have successfully preprocessed BOLD files.
+    Looks for files matching: sub-<label>/func/sub-<label>_task-<task>_space-MNI_desc-preproc_bold.nii.gz
+    """
+    count = 0
+    subjects = set()
     
-    # Template structure matching the existing file content
-    return {
-        "datasets": {
-            "ds000246": {
-                "batches": 0,
-                "results": []
+    if not dataset_dir.exists():
+        logger.warning(f"Dataset directory not found: {dataset_dir}")
+        return 0
+
+    # Walk through the processed directory structure
+    # Expected structure: data/processed-fmri/<dataset_id>/sub-XX/func/...
+    for subject_dir in dataset_dir.glob("sub-*"):
+        if not subject_dir.is_dir():
+            continue
+        
+        func_dir = subject_dir / "func"
+        if not func_dir.exists():
+            continue
+
+        # Look for preprocessed BOLD files for the specific task
+        pattern = f"*task-{task_name}_*space-MNI*desc-preproc_bold.nii.gz"
+        files = list(func_dir.glob(pattern))
+        
+        if files:
+            subjects.add(subject_dir.name)
+            count += 1
+    
+    return len(subjects)
+
+def load_harmonized_metadata(metadata_path: Path) -> Dict[str, Any]:
+    """
+    Load the harmonized metadata file created by T014.
+    Expected structure: JSON with 'participants' list containing group info.
+    """
+    if not metadata_path.exists():
+        logger.error(f"Harmonized metadata file not found: {metadata_path}")
+        return {"participants": []}
+    
+    try:
+        with open(metadata_path, 'r') as f:
+            data = json.load(f)
+        return data
+    except json.JSONDecodeError as e:
+        logger.error(f"Failed to parse harmonized metadata: {e}")
+        return {"participants": []}
+
+def calculate_completion_rate(total_expected: int, processed_count: int) -> float:
+    """Calculate completion rate as a percentage."""
+    if total_expected == 0:
+        return 0.0
+    return (processed_count / total_expected) * 100.0
+
+def generate_metrics(
+    exclusion_count: int,
+    reward_count: int,
+    exclusion_total: int,
+    reward_total: int,
+    harmonized_data: Dict[str, Any]
+) -> Dict[str, Any]:
+    """
+    Generate the metrics dictionary including completion rates and exploratory flags.
+    """
+    exclusion_rate = calculate_completion_rate(exclusion_total, exclusion_count)
+    reward_rate = calculate_completion_rate(reward_total, reward_count)
+    overall_rate = calculate_completion_rate(exclusion_total + reward_total, exclusion_count + reward_count)
+
+    # Determine groups from harmonized data if available
+    groups = {}
+    if harmonized_data and "participants" in harmonized_data:
+        for p in harmonized_data["participants"]:
+            group = p.get("group", "unknown")
+            if group not in groups:
+                groups[group] = 0
+            groups[group] += 1
+
+    # Check for exploratory status (FR-010)
+    is_exploratory = False
+    recommendations = []
+    
+    # Check if any group has < 20 participants
+    for group_name, count in groups.items():
+        if count < 20:
+            is_exploratory = True
+            recommendations.append(
+                f"Group '{group_name}' has N={count} (<20). "
+                f"Recommend future studies with N>=30 per group for adequate power."
+            )
+    
+    # If no groups found in metadata but we have counts, check raw counts
+    if not groups:
+        if exclusion_count < 20 or reward_count < 20:
+            is_exploratory = True
+            if exclusion_count < 20:
+                recommendations.append(
+                    f"Exclusion group N={exclusion_count} (<20). "
+                    "Recommend future studies with N>=30."
+                )
+            if reward_count < 20:
+                recommendations.append(
+                    f"Reward group N={reward_count} (<20). "
+                    "Recommend future studies with N>=30."
+                )
+
+    metrics = {
+        "preprocessing_completion": {
+            "exclusion_dataset": {
+                "processed_subjects": exclusion_count,
+                "expected_subjects": exclusion_total,
+                "completion_rate_percent": round(exclusion_rate, 2)
             },
-            "ds004738": {
-                "batches": 0,
-                "results": []
+            "reward_dataset": {
+                "processed_subjects": reward_count,
+                "expected_subjects": reward_total,
+                "completion_rate_percent": round(reward_rate, 2)
+            },
+            "overall": {
+                "processed_subjects": exclusion_count + reward_count,
+                "expected_subjects": exclusion_total + reward_total,
+                "completion_rate_percent": round(overall_rate, 2)
             }
         },
-        "summary": {
-            "total_subjects": 0,
-            "processed": 0,
-            "failed": 0,
-            "skipped": 0
-        },
-        "flags": {}
+        "target_met": overall_rate >= 90.0,
+        "group_counts": groups,
+        "exploratory_status": is_exploratory,
+        "recommendations": recommendations,
+        "generated_at": datetime.now(timezone.utc).isoformat()
     }
 
-
-def load_unified_metadata() -> Dict[str, Dict[str, int]]:
-    """
-    Loads the unified metadata to count subjects per group.
-    Expected file: data/behavioral/unified_metadata.csv
-    Expected columns: participant_id, group, dataset_id, task_type
-    """
-    group_counts = {"excluded": 0, "included": 0}
-    
-    if not UNIFIED_METADATA_FILE.exists():
-        logger.warning(f"Unified metadata file not found at {UNIFIED_METADATA_FILE}. "
-                       "Cannot calculate group-specific flags.")
-        return group_counts
-
-    try:
-        import csv
-        with open(UNIFIED_METADATA_FILE, "r", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                group = row.get("group", "").lower()
-                if group in group_counts:
-                    group_counts[group] += 1
-    except Exception as e:
-        logger.error(f"Error reading unified metadata: {e}")
-    
-    return group_counts
-
-
-def calculate_completion_rate(processed: int, failed: int, skipped: int) -> float:
-    """Calculates the completion rate based on processed vs total attempted."""
-    total_attempted = processed + failed + skipped
-    if total_attempted == 0:
-        return 0.0
-    return processed / total_attempted
-
-
-def generate_flags(group_counts: Dict[str, int], completion_rate: float) -> Dict[str, Any]:
-    """
-    Generates flags based on FR-010 requirements:
-    - Flag 'exploratory' if N < 20 per group.
-    - Flag 'target_met' if completion rate >= 90%.
-    """
-    flags = {
-        "timestamp": datetime.now().isoformat(),
-        "completion_rate": completion_rate,
-        "target_met": completion_rate >= TARGET_COMPLETION_RATE,
-        "exploratory": False,
-        "recommendations": []
-    }
-
-    # Check sample size per group
-    min_n = min(group_counts.get("excluded", 0), group_counts.get("included", 0))
-    if min_n < MIN_SUBJECTS_PER_GROUP:
-        flags["exploratory"] = True
-        flags["recommendations"].append(
-            f"Sample size (N={min_n} per group) is below the recommended threshold "
-            f"({MIN_SUBJECTS_PER_GROUP}). Results should be treated as exploratory. "
-            f"Future studies should aim for >= {MIN_SUBJECTS_PER_GROUP} participants per group."
-        )
-    
-    if not flags["target_met"]:
-        flags["recommendations"].append(
-            f"Preprocessing completion rate ({completion_rate:.2%}) is below the target "
-            f"({TARGET_COMPLETION_RATE:.0%}). Investigate failed subjects."
-        )
-
-    return flags
-
-
-def collect_metrics() -> Dict[str, Any]:
-    """
-    Main logic to aggregate metrics from the pipeline results and metadata.
-    In a real execution, this would scan the 'data/processed-fmri' directory
-    or read a specific pipeline run log. Here, we assume the pipeline has
-    populated the 'processed' lists in the existing metrics file or we
-    derive counts from the file system if available.
-    
-    For this implementation, we scan the processed-fmri directory to count
-    actual successful outputs to ensure real data is used.
-    """
-    metrics = load_existing_metrics()
-    
-    processed_fmri_dir = PROJECT_ROOT / "data" / "processed-fmri"
-    
-    total_processed = 0
-    total_failed = 0 # Usually tracked in logs, assuming 0 if not found for simplicity in this pass
-    total_skipped = 0
-    
-    # Scan for successful preprocessed files (e.g., space-MNI_desc-preproc_bold.nii.gz)
-    # We count unique subjects per dataset
-    ds_counts = {"ds000246": set(), "ds004738": set()}
-    
-    if processed_fmri_dir.exists():
-        for root, _, files in os.walk(processed_fmri_dir):
-            for file in files:
-                if file.endswith("_desc-preproc_bold.nii.gz") or file.endswith("_desc-smooth_bold.nii.gz"):
-                    # Infer dataset from path structure if possible, or just count total
-                    # Assuming path: data/processed-fmri/<dataset>/sub-XX/...
-                    parts = Path(root).parts
-                    if "ds000246" in parts:
-                        ds_counts["ds000246"].add(file.split("_")[0]) # crude sub extraction
-                    elif "ds004738" in parts:
-                        ds_counts["ds004738"].add(file.split("_")[0])
-    
-    # Update summary counts based on file system scan
-    count_ds000246 = len(ds_counts["ds000246"])
-    count_ds004738 = len(ds_counts["ds004738"])
-    
-    total_processed = count_ds000246 + count_ds004738
-    
-    # Update the metrics structure
-    metrics["datasets"]["ds000246"]["results"] = [{
-        "processed": list(ds_counts["ds000246"]),
-        "failed": [],
-        "skipped": [],
-        "start_time": metrics["datasets"]["ds000246"]["results"][0]["start_time"] if metrics["datasets"]["ds000246"]["results"] else datetime.now().isoformat(),
-        "end_time": datetime.now().isoformat()
-    }]
-    metrics["datasets"]["ds004738"]["results"] = [{
-        "processed": list(ds_counts["ds004738"]),
-        "failed": [],
-        "skipped": [],
-        "start_time": metrics["datasets"]["ds004738"]["results"][0]["start_time"] if metrics["datasets"]["ds004738"]["results"] else datetime.now().isoformat(),
-        "end_time": datetime.now().isoformat()
-    }]
-    
-    metrics["summary"]["total_subjects"] = total_processed
-    metrics["summary"]["processed"] = total_processed
-    metrics["summary"]["failed"] = total_failed
-    metrics["summary"]["skipped"] = total_skipped
-    
-    # Calculate rate
-    completion_rate = calculate_completion_rate(
-        metrics["summary"]["processed"],
-        metrics["summary"]["failed"],
-        metrics["summary"]["skipped"]
-    )
-    
-    # Load group counts for flags
-    group_counts = load_unified_metadata()
-    
-    # Generate flags
-    metrics["flags"] = generate_flags(group_counts, completion_rate)
-    
     return metrics
 
+def main():
+    """Main entry point for metrics collection."""
+    logger.info("Starting preprocessing metrics collection...")
 
-def save_metrics(metrics: Dict[str, Any]) -> None:
-    """Saves the metrics to the JSON file."""
-    DATA_RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-    with open(METRICS_FILE, "w", encoding="utf-8") as f:
-        json.dump(metrics, f, indent=2)
-    logger.info(f"Metrics saved to {METRICS_FILE}")
+    # Load configuration
+    config_path = PROJECT_ROOT / "code" / "config" / "project_config.yaml"
+    if not config_path.exists():
+        # Fallback to default if config not found, though T007 should have created it
+        logger.warning("Config not found, using defaults for dataset IDs.")
+        exclusion_id = "ds000246"
+        reward_id = "ds004738"
+    else:
+        config = load_config(config_path)
+        exclusion_id = get_exclusion_dataset(config)["dataset_id"]
+        reward_id = get_reward_dataset(config)["dataset_id"]
 
+    # Define paths
+    processed_dir = PROJECT_ROOT / "data" / "processed-fmri"
+    metadata_path = PROJECT_ROOT / "data" / "results" / "harmonized_metadata.json"
+    output_path = PROJECT_ROOT / "data" / "results" / "preprocessing_metrics.json"
 
-def main() -> int:
-    """Entry point for the metrics collection script."""
-    logger.info("Starting preprocessing metrics collection (T016)...")
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Count preprocessed subjects
+    # Exclusion dataset (Social Exclusion task)
+    exclusion_dir = processed_dir / exclusion_id
+    exclusion_count = count_preprocessed_subjects(exclusion_dir, "social_exclusion")
     
-    try:
-        metrics = collect_metrics()
-        save_metrics(metrics)
-        
-        # Log summary to console
-        summary = metrics.get("summary", {})
-        flags = metrics.get("flags", {})
-        
-        logger.info(f"Total Subjects Processed: {summary.get('processed', 0)}")
-        logger.info(f"Completion Rate: {flags.get('completion_rate', 0):.2%}")
-        
-        if flags.get("exploratory"):
-            logger.warning("⚠️  STATUS: EXPLORATORY")
-            for rec in flags.get("recommendations", []):
-                logger.warning(f"   - {rec}")
-        else:
-            logger.info("✅ Sample size sufficient for primary analysis.")
-            
-        if flags.get("target_met"):
-            logger.info("✅ Preprocessing completion rate target met.")
-        else:
-            logger.warning(f"⚠️  Completion rate below target ({TARGET_COMPLETION_RATE:.0%}).")
-        
-        return 0
-    except Exception as e:
-        logger.error(f"Failed to collect metrics: {e}")
-        return 1
+    # Reward dataset (Reward task)
+    reward_dir = processed_dir / reward_id
+    reward_count = count_preprocessed_subjects(reward_dir, "reward")
 
+    # Estimate total expected subjects (approximate based on typical OpenNeuro sizes or config)
+    # In a real scenario, this would come from the raw dataset manifest or config
+    exclusion_total = 100  # Placeholder, ideally read from raw dataset
+    reward_total = 100     # Placeholder, ideally read from raw dataset
+
+    # Load harmonized metadata to get actual group counts
+    harmonized_data = load_harmonized_metadata(metadata_path)
+
+    # Generate metrics
+    metrics = generate_metrics(
+        exclusion_count=exclusion_count,
+        reward_count=reward_count,
+        exclusion_total=exclusion_total,
+        reward_total=reward_total,
+        harmonized_data=harmonized_data
+    )
+
+    # Write to disk
+    with open(output_path, 'w') as f:
+        json.dump(metrics, f, indent=2)
+
+    logger.info(f"Metrics written to {output_path}")
+    logger.info(f"Overall Completion Rate: {metrics['preprocessing_completion']['overall']['completion_rate_percent']}%")
+    logger.info(f"Target (>=90%) Met: {metrics['target_met']}")
+    logger.info(f"Exploratory Status: {metrics['exploratory_status']}")
+    
+    if metrics['recommendations']:
+        for rec in metrics['recommendations']:
+            logger.warning(f"Recommendation: {rec}")
+
+    return metrics
 
 if __name__ == "__main__":
-    sys.exit(main())
+    from datetime import datetime, timezone
+    main()

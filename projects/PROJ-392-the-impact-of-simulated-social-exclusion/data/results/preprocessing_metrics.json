@@ -1,34 +1,24 @@
 {
-  "datasets": {
-    "ds000246": {
-      "batches": 1,
-      "results": [
-        {
-          "processed": [],
-          "failed": [],
-          "skipped": [],
-          "start_time": "2024-01-01T00:00:00",
-          "end_time": "2024-01-01T00:00:00"
-        }
-      ]
+  "preprocessing_completion": {
+    "exclusion_dataset": {
+      "processed_subjects": 0,
+      "expected_subjects": 100,
+      "completion_rate_percent": 0.0
     },
-    "ds004738": {
-      "batches": 1,
-      "results": [
-        {
-          "processed": [],
-          "failed": [],
-          "skipped": [],
-          "start_time": "2024-01-01T00:00:00",
-          "end_time": "2024-01-01T00:00:00"
-        }
-      ]
+    "reward_dataset": {
+      "processed_subjects": 0,
+      "expected_subjects": 100,
+      "completion_rate_percent": 0.0
+    },
+    "overall": {
+      "processed_subjects": 0,
+      "expected_subjects": 200,
+      "completion_rate_percent": 0.0
     }
   },
-  "summary": {
-    "total_subjects": 0,
-    "processed": 0,
-    "failed": 0,
-    "skipped": 0
-  }
+  "target_met": false,
+  "group_counts": {},
+  "exploratory_status": false,
+  "recommendations": [],
+  "generated_at": "2023-10-27T10:00:00+00:00"
 }

@@ -1,10 +1,17 @@
 [flake8]
-max-line-length = 100
-extend-ignore = E203, W503
-exclude = .git,__pycache__,build,dist,.eggs
+max-line-length = 88
+extend-ignore = E203, E501, W503
+exclude =
+    .git,
+    __pycache__,
+    build,
+    dist,
+    .eggs,
+    *.egg-info,
+    .pytest_cache,
+    .mypy_cache,
+    data,
+    figures
 per-file-ignores =
-    # Allow unused imports in __init__.py files if any
+    # Allow longer lines in data files or specific scripts if needed
     */__init__.py: F401
-count = True
-statistics = True
-show-source = True

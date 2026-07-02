@@ -1,0 +1,67 @@
+version: "1.0.0"
+description: "Configuration for Social Exclusion and Reward Neural Response Study"
+datasets:
+  - id: ds000246
+    name: Social Exclusion Task (Cyberball)
+    type: exclusion
+    base_url: https://openneuro.org/datasets
+    task_label: social_exclusion
+    description: fMRI dataset containing social exclusion (Cyberball) task
+  - id: ds004738
+    name: Reward Processing Task
+    type: reward
+    base_url: https://openneuro.org/datasets
+    task_label: reward
+    description: fMRI dataset containing monetary reward anticipation and receipt tasks
+rois:
+  - name: Ventral Striatum
+    atlas: AAL
+    coordinates:
+      - 10.0
+      - 10.0
+      - -8.0
+    threshold: null
+    mask_path: data/masks/aal_ventral_striatum.nii.gz
+    description: Primary ROI for reward processing, defined in AAL atlas
+  - name: Orbitofrontal Cortex
+    atlas: Harvard-Oxford
+    coordinates:
+      - 0.0
+      - 40.0
+      - -15.0
+    threshold: 25.0
+    mask_path: data/masks/ho_orbitofrontal.nii.gz
+    description: Secondary ROI for reward valuation, Harvard-Oxford atlas, 25% threshold
+  - name: Dorsolateral Prefrontal Cortex
+    atlas: Harvard-Oxford
+    coordinates:
+      - 40.0
+      - 35.0
+      - 25.0
+    threshold: 25.0
+    mask_path: data/masks/ho_dlpfc.nii.gz
+    description: Control ROI for cognitive control processes
+  - name: Anterior Cingulate Cortex
+    atlas: AAL
+    coordinates:
+      - 0.0
+      - 20.0
+      - 30.0
+    threshold: null
+    mask_path: data/masks/aal_acc.nii.gz
+    description: ROI for conflict monitoring and error processing
+analysis:
+  alpha: 0.05
+  bonferroni_correction: true
+  smoothing_kernel_mm: 6
+  highpass_cutoff_hz: 0.008
+  temporal_autocorrelation_model: AR(1)
+  min_participants_per_group: 20
+  power_threshold: 0.8
+paths:
+  raw_data: data/raw-fmri
+  processed_data: data/processed-fmri
+  behavioral_data: data/behavioral
+  results: data/results
+  masks: data/masks
+  figures: figures

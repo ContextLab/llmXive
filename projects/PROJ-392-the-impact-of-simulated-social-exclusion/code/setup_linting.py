@@ -1,43 +1,68 @@
-import os
+"""
+Script to configure linting (flake8, black) and formatting tools (isort)
+for the project. Creates configuration files and installs dev dependencies.
+"""
+import subprocess
 import sys
+import os
 from pathlib import Path
 
-def ensure_code_dir() -> Path:
-    """Ensure the code directory exists."""
-    code_dir = Path("code")
-    code_dir.mkdir(exist_ok=True)
-    return code_dir
 
-def write_flake8_config() -> None:
-    """Write .flake8 configuration file."""
+def install_dev_dependencies():
+    """Install flake8, black, and isort as development dependencies."""
+    print("Installing linting and formatting dependencies...")
+    packages = ["flake8", "black", "isort", "pyflakes"]
+    cmd = [sys.executable, "-m", "pip", "install", "--upgrade"] + packages
+    try:
+        subprocess.run(cmd, check=True)
+        print("Dependencies installed successfully.")
+        return True
+    except subprocess.CalledProcessError as e:
+        print(f"Failed to install dependencies: {e}")
+        return False
+
+
+def create_flake8_config(project_root: Path):
+    """Create a .flake8 configuration file."""
     config_content = """[flake8]
 max-line-length = 88
 extend-ignore = E203, W503
 exclude =
     .git,
     __pycache__,
+    .venv,
+    venv,
     build,
     dist,
     .eggs,
     *.egg-info
-max-complexity = 10
+per-file-ignores =
+    # Allow unused imports in __init__.py for public API exposure
+    */__init__.py:F401
 """
-    path = Path(".flake8")
-    path.write_text(config_content)
-    print(f"Created {path}")
+    config_path = project_root / ".flake8"
+    with open(config_path, "w", encoding="utf-8") as f:
+        f.write(config_content)
+    print(f"Created .flake8 config at {config_path}")
 
-def write_pyproject_config() -> None:
-    """Write pyproject.toml with Black configuration."""
-    config_content = """[tool.black]
+
+def create_black_config(project_root: Path):
+    """Create a pyproject.toml with Black configuration if not exists."""
+    pyproject_path = project_root / "pyproject.toml"
+    
+    black_section = """
+[tool.black]
 line-length = 88
 target-version = ['py311']
 include = '\\.pyi?$'
 exclude = '''
 /(
-    \\.git
-  | \\.mypy_cache
-  | \\.tox
-  | \\.venv
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | venv
   | _build
   | buck-out
   | build
@@ -45,67 +70,72 @@ exclude = '''
 )/
 '''
 """
-    path = Path("pyproject.toml")
-    # Append to existing if exists, otherwise create
-    if path.exists():
-        current = path.read_text()
-        if "[tool.black]" not in current:
-            path.write_text(current + "\n" + config_content)
+    
+    # Check if file exists and has [tool.black]
+    if pyproject_path.exists():
+        content = pyproject_path.read_text(encoding="utf-8")
+        if "[tool.black]" in content:
+            print("Black configuration already exists in pyproject.toml")
+            return
         else:
-            print(f"{path} already contains Black config, skipping.")
+            with open(pyproject_path, "a", encoding="utf-8") as f:
+                f.write(black_section)
     else:
-        path.write_text(config_content)
-        print(f"Created {path}")
+        with open(pyproject_path, "w", encoding="utf-8") as f:
+            f.write("[project]\nname = \"llmXive-project\"\nversion = \"0.1.0\"\n" + black_section)
+    
+    print(f"Created/updated Black config in {pyproject_path}")
 
-def write_editorconfig() -> None:
-    """Write .editorconfig file."""
-    config_content = """root = true
 
-[*]
-indent_style = space
-indent_size = 4
-end_of_line = lf
-charset = utf-8
-trim_trailing_whitespace = true
-insert_final_newline = true
-
-[*.{py,md}]
-indent_size = 4
-
-[*.toml]
-indent_size = 2
+def create_isort_config(project_root: Path):
+    """Create a pyproject.toml section for isort if not exists."""
+    pyproject_path = project_root / "pyproject.toml"
+    
+    isort_section = """
+[tool.isort]
+profile = "black"
+line_length = 88
+skip_gitignore = true
+known_first_party = ["utils", "data_download", "manipulation", "preprocess", "analysis", "visualization", "pipeline"]
 """
-    path = Path(".editorconfig")
-    path.write_text(config_content)
-    print(f"Created {path}")
+    
+    if pyproject_path.exists():
+        content = pyproject_path.read_text(encoding="utf-8")
+        if "[tool.isort]" in content:
+            print("isort configuration already exists in pyproject.toml")
+            return
+        else:
+            with open(pyproject_path, "a", encoding="utf-8") as f:
+                f.write(isort_section)
+    else:
+        with open(pyproject_path, "w", encoding="utf-8") as f:
+            f.write("[project]\nname = \"llmXive-project\"\nversion = \"0.1.0\"\n" + isort_section)
+    
+    print(f"Created/updated isort config in {pyproject_path}")
 
-def write_precommit_config() -> None:
-    """Write .pre-commit-config.yaml."""
-    config_content = """repos:
-  - repo: https://github.com/psf/black
-    rev: 24.3.0
-    hooks:
-- id: black
-  language_version: python3.11
-  - repo: https://github.com/pycqa/flake8
-    rev: 7.0.0
-    hooks:
-- id: flake8
-  args: [--config=.flake8]
-"""
-    path = Path(".pre-commit-config.yaml")
-    path.write_text(config_content)
-    print(f"Created {path}")
 
-def main() -> None:
-    """Main entry point for linting setup."""
-    print("Setting up linting and formatting tools...")
-    ensure_code_dir()
-    write_flake8_config()
-    write_pyproject_config()
-    write_editorconfig()
-    write_precommit_config()
-    print("Linting configuration complete.")
+def main():
+    """Main entry point for setup_linting script."""
+    # Determine project root (parent of 'code' directory)
+    current_file = Path(__file__).resolve()
+    code_dir = current_file.parent
+    project_root = code_dir.parent
+    
+    print(f"Project root detected at: {project_root}")
+    
+    if not install_dev_dependencies():
+        print("Aborting: dependency installation failed.")
+        sys.exit(1)
+    
+    create_flake8_config(project_root)
+    create_black_config(project_root)
+    create_isort_config(project_root)
+    
+    print("\nLinting and formatting tools configured successfully.")
+    print("Run 'python code/setup_linting.py' again to re-verify.")
+    print("To format code: black code/")
+    print("To check linting: flake8 code/")
+
 
 if __name__ == "__main__":
     main()

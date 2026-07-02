@@ -1,9 +1,10 @@
 """
 Preprocessing orchestration script for fMRI data.
 
-This script handles chunked processing (batches of subjects) and generates
-preprocessed NIfTI images using the CPU-compatible fMRIPrep wrapper.
-It includes failure logging and progress tracking.
+Handles chunked processing of subjects (batches) to manage CPU/RAM constraints.
+Invokes the cpu_fmriprep_wrapper for each subject and generates preprocessed NIfTI
+images with slice-timing correction, realignment, normalization to MNI, and smoothing.
+Includes failure logging and progress tracking.
 """
 import argparse
 import json
@@ -11,305 +12,267 @@ import logging
 import os
 import sys
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 
-# Import from project modules
-from config.loader import get_config, get_path, ensure_paths_exist
-from preprocess.cpu_fmriprep_wrapper import run_fmriprep, build_fmriprep_command
-from utils.provenance import generate_provenance_record, write_provenance_sidecar
+# Import from sibling modules based on provided API surface
+from utils.config_loader import load_config, get_dataset_by_id
+from utils.provenance import generate_provenance_sidecar
+from preprocess.cpu_fmriprep_wrapper import run_fmriprep, check_docker_installed
 
 # Configure logging
+LOG_DIR = Path("data/results")
+LOG_DIR.mkdir(parents=True, exist_ok=True)
+LOG_FILE = LOG_DIR / f"preprocessing_run_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('data/results/preprocessing_log.txt', mode='w')
+        logging.FileHandler(LOG_FILE),
+        logging.StreamHandler(sys.stdout)
     ]
 )
 logger = logging.getLogger(__name__)
 
-def get_subject_list(raw_data_dir: Path) -> List[str]:
+def get_subjects_for_dataset(dataset_id: str) -> List[str]:
     """
-    Extract list of participant IDs from the raw BIDS dataset.
-    
-    Args:
-        raw_data_dir: Path to the raw BIDS dataset directory.
-        
-    Returns:
-        List of participant IDs (e.g., ['sub-01', 'sub-02']).
+    Retrieve list of subject IDs for a given dataset from the raw data directory.
+    Assumes BIDS structure: data/raw-fmri/<dataset_id>/sub-<label>/
     """
-    if not raw_data_dir.exists():
-        raise FileNotFoundError(f"Raw data directory not found: {raw_data_dir}")
+    raw_base = Path("data/raw-fmri") / dataset_id
+    if not raw_base.exists():
+        logger.warning(f"Raw data directory not found for {dataset_id}: {raw_base}")
+        return []
     
-    # Look for participant subdirectories
     subjects = []
-    for item in raw_data_dir.iterdir():
-        if item.is_dir() and item.name.startswith('sub-'):
-            subjects.append(item.name)
+    for item in raw_base.iterdir():
+        if item.is_dir() and item.name.startswith("sub-"):
+            subject_id = item.name.replace("sub-", "")
+            subjects.append(subject_id)
     
-    if not subjects:
-        logger.warning(f"No subject directories found in {raw_data_dir}")
-    
+    logger.info(f"Found {len(subjects)} subjects in {dataset_id}")
     return sorted(subjects)
 
 def process_subject_batch(
-    subject_ids: List[str],
-    raw_bids_dir: Path,
-    processed_dir: Path,
     dataset_id: str,
-    working_dir: Optional[Path] = None
+    subject_ids: List[str],
+    output_dir: Path,
+    smoothing_fwhm: int = 6,
+    n_threads: int = 4
 ) -> Dict[str, Any]:
     """
-    Process a batch of subjects through fMRIPrep.
+    Process a batch of subjects through the fMRIPrep wrapper.
     
     Args:
-        subject_ids: List of subject IDs to process.
-        raw_bids_dir: Path to raw BIDS dataset.
-        processed_dir: Path to output processed data directory.
-        dataset_id: Identifier for the dataset (e.g., 'ds000246').
-        working_dir: Optional working directory for intermediate files.
-        
+        dataset_id: OpenNeuro dataset ID (e.g., ds000246)
+        subject_ids: List of subject labels to process
+        output_dir: Directory to write preprocessed outputs
+        smoothing_fwhm: Smoothing kernel in mm (default 6mm)
+        n_threads: Number of CPU threads for fMRIPrep
+    
     Returns:
-        Dictionary with processing results and metrics.
+        Dictionary with success/failure counts and details
     """
     results = {
-        'processed': [],
-        'failed': [],
-        'skipped': [],
-        'start_time': datetime.now().isoformat(),
-        'end_time': None
+        "total": len(subject_ids),
+        "success": 0,
+        "failed": 0,
+        "details": []
     }
     
-    processed_dir.mkdir(parents=True, exist_ok=True)
+    # Ensure output directory exists
+    output_dir.mkdir(parents=True, exist_ok=True)
     
     for subject_id in subject_ids:
-        subject_start = time.time()
-        logger.info(f"Processing {subject_id}...")
-        
+        start_time = time.time()
         try:
-            # Determine input and output paths
-            input_dir = raw_bids_dir / subject_id
-            output_dir = processed_dir / dataset_id / subject_id
-            output_dir.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Processing {dataset_id}:sub-{subject_id}")
             
-            # Check if already processed (idempotency)
-            nifti_files = list(output_dir.glob('func/*.nii.gz'))
-            if nifti_files:
-                logger.info(f"Skipping {subject_id} - already processed")
-                results['skipped'].append({
-                    'subject': subject_id,
-                    'reason': 'already_processed',
-                    'time_elapsed': time.time() - subject_start
-                })
-                continue
-            
-            # Run fMRIPrep
-            success, message = run_fmriprep(
-                input_bids=str(raw_bids_dir),
-                output_dir=str(processed_dir),
-                subject=subject_id,
+            # Run preprocessing via wrapper
+            success, output_paths = run_fmriprep(
                 dataset_id=dataset_id,
-                working_dir=str(working_dir) if working_dir else None
+                subject_id=subject_id,
+                output_dir=str(output_dir),
+                smoothing_fwhm=smoothing_fwhm,
+                n_threads=n_threads
             )
             
+            elapsed = time.time() - start_time
+            
             if success:
-                # Verify output
-                actual_output = processed_dir / dataset_id / subject_id / 'func'
-                if actual_output.exists() and list(actual_output.glob('*.nii.gz')):
-                    results['processed'].append({
-                        'subject': subject_id,
-                        'status': 'success',
-                        'time_elapsed': time.time() - subject_start
-                    })
-                    
-                    # Generate provenance sidecar
-                    provenance = generate_provenance_record(
-                        pipeline='fmriprep_cpu_wrapper',
-                        version='1.0',
-                        input_files=[str(input_dir)],
-                        output_files=[str(actual_output)],
-                        parameters={
-                            'dataset_id': dataset_id,
-                            'slice_timing': True,
-                            'realign': True,
-                            'normalize': 'MNI152NLin2009cAsym',
-                            'smoothing': '6mm'
-                        }
-                    )
-                    write_provenance_sidecar(
-                        output_dir / 'provenance.json',
-                        provenance
-                    )
-                    logger.info(f"Successfully processed {subject_id}")
-                else:
-                    raise RuntimeError("Output NIfTI files not found after fMRIPrep")
+                results["success"] += 1
+                # Generate provenance sidecar
+                for path in output_paths:
+                    if path.exists():
+                        generate_provenance_sidecar(
+                            input_path=path,
+                            pipeline_name="fmriprep_cpu",
+                            parameters={
+                                "smoothing_fwhm": smoothing_fwhm,
+                                "n_threads": n_threads,
+                                "dataset_id": dataset_id,
+                                "subject_id": subject_id
+                            }
+                        )
+                logger.info(f"Completed {dataset_id}:sub-{subject_id} in {elapsed:.2f}s")
             else:
-                raise RuntimeError(f"fMRIPrep failed: {message}")
+                results["failed"] += 1
+                results["details"].append({
+                    "subject_id": subject_id,
+                    "status": "failed",
+                    "error": "fmriprep_wrapper returned failure"
+                })
+                logger.error(f"Failed {dataset_id}:sub-{subject_id}")
                 
         except Exception as e:
-            logger.error(f"Failed to process {subject_id}: {str(e)}")
-            results['failed'].append({
-                'subject': subject_id,
-                'error': str(e),
-                'time_elapsed': time.time() - subject_start
+            results["failed"] += 1
+            elapsed = time.time() - start_time
+            results["details"].append({
+                "subject_id": subject_id,
+                "status": "exception",
+                "error": str(e)
             })
+            logger.exception(f"Exception processing {dataset_id}:sub-{subject_id}: {e}")
     
-    results['end_time'] = datetime.now().isoformat()
     return results
 
-def chunk_subjects(subject_ids: List[str], chunk_size: int = 4) -> List[List[str]]:
+def run_preprocessing(
+    dataset_ids: List[str],
+    batch_size: int = 5,
+    smoothing_fwhm: int = 6,
+    n_threads: int = 4
+) -> Dict[str, Any]:
     """
-    Split subject list into chunks for batch processing.
+    Main entry point for chunked preprocessing across multiple datasets.
     
     Args:
-        subject_ids: List of subject IDs.
-        chunk_size: Number of subjects per batch.
-        
+        dataset_ids: List of dataset IDs to process
+        batch_size: Number of subjects to process in parallel batches
+        smoothing_fwhm: Smoothing kernel size in mm
+        n_threads: CPU threads per fMRIPrep instance
+    
     Returns:
-        List of subject batches.
+        Aggregated results dictionary
     """
-    return [
-        subject_ids[i:i + chunk_size] 
-        for i in range(0, len(subject_ids), chunk_size)
-    ]
+    if not check_docker_installed():
+        logger.error("Docker is not installed or not running. Aborting.")
+        return {"error": "Docker not available"}
+    
+    overall_results = {
+        "datasets": {},
+        "summary": {
+            "total_subjects": 0,
+            "total_success": 0,
+            "total_failed": 0
+        }
+    }
+    
+    for dataset_id in dataset_ids:
+        logger.info(f"Starting preprocessing for dataset: {dataset_id}")
+        
+        subjects = get_subjects_for_dataset(dataset_id)
+        if not subjects:
+            logger.warning(f"No subjects found for {dataset_id}, skipping.")
+            continue
+        
+        # Chunk subjects into batches
+        batches = [subjects[i:i + batch_size] for i in range(0, len(subjects), batch_size)]
+        logger.info(f"Processing {len(subjects)} subjects in {len(batches)} batches")
+        
+        dataset_results = {
+            "batches_processed": 0,
+            "subject_results": []
+        }
+        
+        for batch_idx, batch in enumerate(batches):
+            logger.info(f"Processing batch {batch_idx + 1}/{len(batches)} for {dataset_id}")
+            
+            output_subdir = Path("data/processed-fmri") / dataset_id
+            batch_result = process_subject_batch(
+                dataset_id=dataset_id,
+                subject_ids=batch,
+                output_dir=output_subdir,
+                smoothing_fwhm=smoothing_fwhm,
+                n_threads=n_threads
+            )
+            
+            dataset_results["subject_results"].append(batch_result)
+            dataset_results["batches_processed"] += 1
+          
+            overall_results["summary"]["total_subjects"] += batch_result["total"]
+            overall_results["summary"]["total_success"] += batch_result["success"]
+            overall_results["summary"]["total_failed"] += batch_result["failed"]
+        
+        overall_results["datasets"][dataset_id] = dataset_results
+    
+    return overall_results
 
 def main():
-    """Main entry point for preprocessing pipeline."""
     parser = argparse.ArgumentParser(
-        description='Run fMRI preprocessing on BIDS datasets'
+        description="Run fMRI preprocessing pipeline with chunked subject processing."
     )
     parser.add_argument(
-        '--config',
-        type=str,
-        default='config/project_config.yaml',
-        help='Path to configuration file'
+        "--datasets",
+        nargs="+",
+        default=["ds000246", "ds004738"],
+        help="List of OpenNeuro dataset IDs to process (default: ds000246 ds004738)"
     )
     parser.add_argument(
-        '--dataset',
-        type=str,
-        default=None,
-        help='Specific dataset ID to process (e.g., ds000246)'
+        "--batch-size",
+        type=int,
+        default=5,
+        help="Number of subjects to process in each batch (default: 5)"
     )
     parser.add_argument(
-        '--chunk-size',
+        "--smoothing-fwhm",
+        type=int,
+        default=6,
+        help="Smoothing kernel size in mm (default: 6)"
+    )
+    parser.add_argument(
+        "--n-threads",
         type=int,
         default=4,
-        help='Number of subjects per processing batch'
+        help="Number of CPU threads for fMRIPrep (default: 4)"
     )
     parser.add_argument(
-        '--working-dir',
+        "--output-dir",
         type=str,
-        default='data/working',
-        help='Working directory for intermediate files'
+        default="data/processed-fmri",
+        help="Base output directory for preprocessed data"
     )
     
     args = parser.parse_args()
     
-    # Load configuration
-    try:
-        config = get_config(args.config)
-    except Exception as e:
-        logger.error(f"Failed to load config: {e}")
-        sys.exit(1)
+    logger.info(f"Starting preprocessing pipeline with args: {vars(args)}")
     
-    # Ensure paths exist
-    ensure_paths_exist(config)
+    results = run_preprocessing(
+        dataset_ids=args.datasets,
+        batch_size=args.batch_size,
+        smoothing_fwhm=args.smoothing_fwhm,
+        n_threads=args.n_threads
+    )
     
-    # Get paths
-    raw_dir = Path(get_path(config, 'raw_fmri_dir'))
-    processed_dir = Path(get_path(config, 'processed_fmri_dir'))
-    working_dir = Path(args.working_dir)
-    working_dir.mkdir(parents=True, exist_ok=True)
+    # Write results summary to JSON
+    summary_path = Path("data/results/preprocessing_summary.json")
+    with open(summary_path, "w") as f:
+        json.dump(results, f, indent=2, default=str)
     
-    # Determine datasets to process
-    datasets = []
-    if args.dataset:
-        datasets = [args.dataset]
-    else:
-        datasets = get_all_dataset_ids(config)
-    
-    logger.info(f"Processing datasets: {datasets}")
-    
-    overall_results = {
-        'datasets': {},
-        'summary': {
-            'total_subjects': 0,
-            'processed': 0,
-            'failed': 0,
-            'skipped': 0
-        }
-    }
-    
-    for dataset_id in datasets:
-        logger.info(f"Processing dataset: {dataset_id}")
-        
-        # Get dataset-specific paths
-        dataset_raw_dir = raw_dir / dataset_id
-        
-        if not dataset_raw_dir.exists():
-            logger.warning(f"Dataset directory not found: {dataset_raw_dir}")
-            continue
-        
-        # Get subjects
-        subjects = get_subject_list(dataset_raw_dir)
-        if not subjects:
-            logger.warning(f"No subjects found in {dataset_raw_dir}")
-            continue
-        
-        logger.info(f"Found {len(subjects)} subjects in {dataset_id}")
-        
-        # Chunk and process
-        chunks = chunk_subjects(subjects, args.chunk_size)
-        dataset_results = []
-        
-        for i, chunk in enumerate(chunks):
-            logger.info(f"Processing chunk {i+1}/{len(chunks)} ({len(chunk)} subjects)")
-            result = process_subject_batch(
-                subject_ids=chunk,
-                raw_bids_dir=dataset_raw_dir,
-                processed_dir=processed_dir,
-                dataset_id=dataset_id,
-                working_dir=working_dir
-            )
-            dataset_results.append(result)
-        
-        # Aggregate results for this dataset
-        overall_results['datasets'][dataset_id] = {
-            'batches': len(chunks),
-            'results': dataset_results
-        }
-        
-        # Update summary
-        for res in dataset_results:
-            overall_results['summary']['processed'] += len(res['processed'])
-            overall_results['summary']['failed'] += len(res['failed'])
-            overall_results['summary']['skipped'] += len(res['skipped'])
-            overall_results['summary']['total_subjects'] += len(res['processed']) + len(res['failed']) + len(res['skipped'])
-    
-    # Write final metrics
-    metrics_path = Path(get_path(config, 'results_dir')) / 'preprocessing_metrics.json'
-    metrics_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(metrics_path, 'w') as f:
-        json.dump(overall_results, f, indent=2)
-    
-    logger.info(f"Preprocessing complete. Metrics saved to {metrics_path}")
+    logger.info(f"Preprocessing complete. Summary written to {summary_path}")
     
     # Print summary
-    summary = overall_results['summary']
-    logger.info(f"Total subjects: {summary['total_subjects']}")
-    logger.info(f"Processed: {summary['processed']}")
-    logger.info(f"Failed: {summary['failed']}")
-    logger.info(f"Skipped: {summary['skipped']}")
+    total = results["summary"]["total_subjects"]
+    success = results["summary"]["total_success"]
+    failed = results["summary"]["total_failed"]
+    rate = (success / total * 100) if total > 0 else 0
     
-    if summary['failed'] > 0:
-        logger.warning(f"{summary['failed']} subjects failed processing")
-        sys.exit(1)
+    logger.info(f"Pipeline Summary: {success}/{total} subjects successful ({rate:.1f}%)")
+    if failed > 0:
+        logger.warning(f"{failed} subjects failed processing. Check logs for details.")
     
-    return 0
+    return 0 if failed == 0 else 1
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

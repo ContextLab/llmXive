@@ -1,2 +1,2 @@
-T006 Implement `code/utils/provenance.py` for machine-readable YAML sidecar generation: 1
-T007 Create base configuration loader for dataset IDs (ds000246, ds004738) and ROI coordinates (AAL, Harvard-Oxford): 1
+T006 Implement `code/utils/provenance.py` for machine-readable YAML sidecar generation: 2
+T007 Create base configuration loader for dataset IDs (ds000246, ds004738) and ROI coordinates (AAL, Harvard-Oxford): 2

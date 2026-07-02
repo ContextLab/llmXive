@@ -1,175 +1,151 @@
 """
-Checksums module for data integrity verification.
+Checksum utilities for data integrity verification.
 
-This module provides functions to compute and verify SHA-256 checksums
-for files within the project's data directories. It is used to ensure
-that downloaded and processed data files have not been corrupted or
-modified unexpectedly.
+This module provides functions to generate and verify MD5/SHA256 checksums
+for files in the project's data directories. It is used to ensure that
+downloaded and processed data files have not been corrupted or altered.
 """
 
 import hashlib
 import json
 import os
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, Optional, Tuple
 
 
-def compute_sha256(file_path: Path, chunk_size: int = 8192) -> str:
+def compute_file_checksum(
+    file_path: str | Path, algorithm: str = "sha256", chunk_size: int = 8192
+) -> str:
     """
-    Compute the SHA-256 checksum of a file.
+    Compute the checksum of a file using the specified algorithm.
 
     Args:
         file_path: Path to the file to checksum.
-        chunk_size: Size of chunks to read at a time (default 8KB).
+        algorithm: Hash algorithm to use ('md5', 'sha256', 'sha512').
+        chunk_size: Size of chunks to read at a time.
 
     Returns:
-        Hexadecimal string of the SHA-256 hash.
+        Hexadecimal string of the file's checksum.
 
     Raises:
         FileNotFoundError: If the file does not exist.
-        PermissionError: If the file cannot be read.
+        ValueError: If an unsupported algorithm is specified.
     """
+    file_path = Path(file_path)
     if not file_path.exists():
         raise FileNotFoundError(f"File not found: {file_path}")
 
-    sha256_hash = hashlib.sha256()
+    hash_obj = hashlib.new(algorithm)
+
     with open(file_path, "rb") as f:
-        for chunk in iter(lambda: f.read(chunk_size), b""):
-            sha256_hash.update(chunk)
-    return sha256_hash.hexdigest()
+        while chunk := f.read(chunk_size):
+            hash_obj.update(chunk)
+
+    return hash_obj.hexdigest()
 
 
-def generate_checksums(
-    data_dir: Path,
-    file_patterns: Optional[List[str]] = None,
-    output_path: Optional[Path] = None
+def generate_checksum_manifest(
+    data_dir: str | Path,
+    output_path: str | Path | None = None,
+    algorithm: str = "sha256",
+    extensions: list[str] | None = None,
 ) -> Dict[str, str]:
     """
-    Generate checksums for all files in a directory (optionally filtered).
+    Generate a manifest of checksums for all files in a directory.
 
     Args:
         data_dir: Root directory to scan for files.
-        file_patterns: Optional list of glob patterns to filter files.
-                       If None, all files are included.
-        output_path: Optional path to save the checksums as JSON.
+        output_path: Optional path to write the manifest as JSON.
+        algorithm: Hash algorithm to use.
+        extensions: Optional list of file extensions to include (e.g., ['.nii.gz', '.tsv']).
+                   If None, all files are included.
 
     Returns:
-        Dictionary mapping relative file paths to their SHA-256 checksums.
+        Dictionary mapping relative file paths to their checksums.
     """
-    checksums = {}
-
+    data_dir = Path(data_dir)
     if not data_dir.exists():
-        raise FileNotFoundError(f"Data directory not found: {data_dir}")
+        raise FileNotFoundError(f"Directory not found: {data_dir}")
 
-    if file_patterns is None:
-        file_patterns = ["**/*"]
+    manifest = {}
 
-    for pattern in file_patterns:
-        for file_path in data_dir.glob(pattern):
-            if file_path.is_file():
-                rel_path = file_path.relative_to(data_dir)
-                try:
-                    checksum = compute_sha256(file_path)
-                    checksums[str(rel_path)] = checksum
-                except (PermissionError, OSError) as e:
-                    # Log warning but continue with other files
-                    print(f"Warning: Could not read {file_path}: {e}")
+    for file_path in data_dir.rglob("*"):
+        if file_path.is_file():
+            if extensions:
+                if file_path.suffix not in extensions:
+                    continue
+
+            rel_path = str(file_path.relative_to(data_dir))
+            checksum = compute_file_checksum(file_path, algorithm)
+            manifest[rel_path] = checksum
 
     if output_path:
+        output_path = Path(output_path)
         output_path.parent.mkdir(parents=True, exist_ok=True)
         with open(output_path, "w", encoding="utf-8") as f:
-            json.dump(checksums, f, indent=2)
+            json.dump(manifest, f, indent=2)
 
-    return checksums
+    return manifest
 
 
 def verify_checksums(
-    data_dir: Path,
-    checksums: Dict[str, str],
-    strict: bool = False
-) -> Tuple[bool, List[str]]:
+    data_dir: str | Path,
+    manifest_path: str | Path,
+    algorithm: str = "sha256",
+) -> Tuple[bool, Dict[str, str]]:
     """
-    Verify files against a dictionary of expected checksums.
+    Verify file checksums against a stored manifest.
 
     Args:
         data_dir: Root directory where files are located.
-        checksums: Dictionary mapping relative file paths to expected checksums.
-        strict: If True, return False if any file is missing or mismatched.
-                If False, only return the list of errors.
+        manifest_path: Path to the JSON manifest file.
+        algorithm: Hash algorithm used in the manifest.
 
     Returns:
-        Tuple of (all_passed, list_of_error_messages).
+        Tuple of (all_valid: bool, failed_files: Dict[rel_path, reason]).
+        failed_files maps relative paths to error messages (e.g., "mismatch", "missing").
     """
-    errors = []
+    data_dir = Path(data_dir)
+    manifest_path = Path(manifest_path)
 
-    for rel_path, expected_checksum in checksums.items():
+    if not manifest_path.exists():
+        raise FileNotFoundError(f"Manifest not found: {manifest_path}")
+
+    with open(manifest_path, "r", encoding="utf-8") as f:
+        manifest = json.load(f)
+
+    failed_files = {}
+
+    for rel_path, expected_checksum in manifest.items():
         file_path = data_dir / rel_path
 
         if not file_path.exists():
-            errors.append(f"Missing file: {rel_path}")
+            failed_files[rel_path] = "missing"
             continue
 
         try:
-            actual_checksum = compute_sha256(file_path)
+            actual_checksum = compute_file_checksum(file_path, algorithm)
             if actual_checksum != expected_checksum:
-                errors.append(
-                    f"Checksum mismatch: {rel_path}\n"
-                    f"  Expected: {expected_checksum}\n"
-                    f"  Actual:   {actual_checksum}"
-                )
-        except (PermissionError, OSError) as e:
-            errors.append(f"Error reading {rel_path}: {e}")
+                failed_files[rel_path] = "mismatch"
+        except Exception as e:
+            failed_files[rel_path] = f"error: {str(e)}"
 
-    all_passed = len(errors) == 0
-    return all_passed, errors
+    return len(failed_files) == 0, failed_files
 
 
-def main():
+def verify_single_file(
+    file_path: str | Path, expected_checksum: str, algorithm: str = "sha256"
+) -> bool:
     """
-    Command-line entry point for checksum operations.
+    Verify a single file's checksum against an expected value.
 
-    Usage:
-        python code/utils/checksums.py generate <data_dir> [output_file]
-        python code/utils/checksums.py verify <data_dir> <checksum_file>
+    Args:
+        file_path: Path to the file.
+        expected_checksum: Expected hexadecimal checksum string.
+        algorithm: Hash algorithm to use.
+
+    Returns:
+        True if checksums match, False otherwise.
     """
-    import sys
-
-    if len(sys.argv) < 3:
-        print("Usage:")
-        print("  generate <data_dir> [output_file]")
-        print("  verify <data_dir> <checksum_file>")
-        sys.exit(1)
-
-    command = sys.argv[1]
-    data_dir = Path(sys.argv[2])
-
-    if command == "generate":
-        output_file = Path(sys.argv[3]) if len(sys.argv) > 3 else data_dir / "checksums.json"
-        checksums = generate_checksums(data_dir, output_path=output_file)
-        print(f"Generated checksums for {len(checksums)} files.")
-        print(f"Saved to: {output_file}")
-
-    elif command == "verify":
-        checksum_file = Path(sys.argv[3])
-        if not checksum_file.exists():
-            print(f"Error: Checksum file not found: {checksum_file}")
-            sys.exit(1)
-
-        with open(checksum_file, "r", encoding="utf-8") as f:
-            checksums = json.load(f)
-
-        passed, errors = verify_checksums(data_dir, checksums)
-        if passed:
-            print("All checksums verified successfully.")
-        else:
-            print(f"Verification failed with {len(errors)} errors:")
-            for error in errors:
-                print(f"  - {error}")
-            sys.exit(1)
-    else:
-        print(f"Unknown command: {command}")
-        sys.exit(1)
-
-
-if __name__ == "__main__":
-    main()
+    actual_checksum = compute_file_checksum(file_path, algorithm)
+    return actual_checksum.lower() == expected_checksum.lower()

@@ -1,0 +1,9 @@
+# This is a template for the provenance manifest structure.
+# Actual manifests are generated dynamically by `generate_provenance_manifest`.
+manifest_version: "1.0"
+generated_at: "YYYY-MM-DDTHH:MM:SS.ssssss+00:00"
+pipeline:
+  name: "pipeline_name"
+  version: "x.y.z"
+total_runs: 0
+runs: []

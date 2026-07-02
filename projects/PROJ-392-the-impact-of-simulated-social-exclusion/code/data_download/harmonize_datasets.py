@@ -1,279 +1,241 @@
-"""
-Harmonize downloaded OpenNeuro datasets (ds000246 and ds004738).
-
-This script implements the 'Merged Dataset Strategy' required for the
-analysis of social exclusion and reward. It performs the following:
-1. Loads participant metadata from both downloaded datasets.
-2. Maps participant IDs to a unified naming convention.
-3. Aligns condition labels (Exclusion vs Inclusion, Reward vs No-Reward).
-4. Generates a unified metadata CSV including 'dataset_id' as a covariate tag.
-5. Validates the merged structure against the project's configuration.
-"""
-
 import argparse
-import csv
 import json
 import logging
 import os
 import sys
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Tuple
 
-# Add project root to path to allow imports from sibling modules
-project_root = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(project_root))
+import pandas as pd
+import numpy as np
 
-from config.loader import get_config, get_dataset_id, get_all_dataset_ids
+# Import from sibling utils to ensure config consistency
+from utils.config_loader import load_config, get_dataset_by_id
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Constants for dataset mapping
-# ds000246: Social Exclusion (Cyberball)
-# ds004738: Reward Processing (Monetary Incentive Delay / similar)
-DATASET_CONFIG = {
-    "ds000246": {
-        "name": "social_exclusion",
-        "task_label": "exclusion",
-        "condition_map": {
-            "exclusion": "exclusion",
-            "inclusion": "inclusion"
-        },
-        "prefix": "exc"
-    },
-    "ds004738": {
-        "name": "reward_task",
-        "task_label": "reward",
-        "condition_map": {
-            "win": "reward_receipt",
-            "loss": "no_reward",
-            "anticipation": "reward_ant"
-        },
-        "prefix": "rew"
+
+def load_dataset_metadata(dataset_root: Path) -> Dict[str, Any]:
+    """
+    Load dataset metadata (dataset_description.json) and participants.tsv.
+    Returns a dictionary containing dataset info and participant data.
+    """
+    if not dataset_root.exists():
+        raise FileNotFoundError(f"Dataset root not found: {dataset_root}")
+
+    # Load dataset_description.json
+    desc_file = dataset_root / "dataset_description.json"
+    if not desc_file.exists():
+        raise FileNotFoundError(f"dataset_description.json not found in {dataset_root}")
+
+    with open(desc_file, 'r') as f:
+        dataset_desc = json.load(f)
+
+    # Load participants.tsv
+    participants_file = dataset_root / "participants.tsv"
+    if not participants_file.exists():
+        raise FileNotFoundError(f"participants.tsv not found in {dataset_root}")
+
+    participants_df = pd.read_csv(participants_file, sep='\t')
+
+    return {
+        "name": dataset_desc.get("Name", "Unknown"),
+        "id": dataset_desc.get("ID", dataset_root.name),
+        "description": dataset_desc,
+        "participants": participants_df
     }
-}
 
-def load_participants_tsv(file_path: Path) -> List[Dict[str, str]]:
-    """Load a participants.tsv file and return a list of dicts."""
-    if not file_path.exists():
-        raise FileNotFoundError(f"Participants file not found: {file_path}")
+
+def load_task_events(dataset_root: Path, task_name: str) -> pd.DataFrame:
+    """
+    Load events.tsv for a specific task from the dataset.
+    """
+    # Find events.tsv files for the task
+    # Standard BIDS path: sub-<label>/func/sub-<label>_<task-<task_label>>_events.tsv
+    events_files = list(dataset_root.glob(f"sub-*/func/*task-{task_name}*events.tsv"))
+
+    if not events_files:
+        logger.warning(f"No events.tsv found for task '{task_name}' in {dataset_root}")
+        return pd.DataFrame()
+
+    # Combine events from all subjects for this task
+    all_events = []
+    for ef in events_files:
+        subject_id = ef.parent.name.split('_')[0]  # sub-<label>
+        df = pd.read_csv(ef, sep='\t')
+        df['subject_id'] = subject_id
+        df['source_file'] = str(ef.relative_to(dataset_root))
+        all_events.append(df)
+
+    if all_events:
+        return pd.concat(all_events, ignore_index=True)
+    return pd.DataFrame()
+
+
+def map_conditions(metadata: Dict[str, Any], dataset_type: str) -> pd.DataFrame:
+    """
+    Map raw condition labels to standardized 'exclusion', 'inclusion', or 'reward' groups.
+    Returns a DataFrame with participant_id, original_label, mapped_group.
+    """
+    participants = metadata["participants"]
+    if participants.empty:
+        return pd.DataFrame(columns=["participant_id", "original_label", "mapped_group"])
+
+    # Heuristic mapping based on common OpenNeuro dataset conventions
+    # For ds000246 (Cyberball): conditions usually 'exclude', 'include', 'neutral'
+    # For ds004738 (Reward): conditions usually 'reward', 'loss', 'neutral' or similar
     
-    participants = []
-    with open(file_path, 'r', encoding='utf-8') as f:
-        reader = csv.DictReader(f, delimiter='\t')
-        for row in reader:
-            participants.append(row)
-    return participants
-
-def load_events_json(file_path: Path) -> List[Dict[str, Any]]:
-    """Load events.json or task-specific JSON if available, fallback to empty."""
-    if not file_path.exists():
-        return []
+    mapped_rows = []
     
-    try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except json.JSONDecodeError:
-        logger.warning(f"Could not parse JSON in {file_path}, skipping events metadata.")
-        return []
-
-def harmonize_participant_id(participant_id: str, dataset_id: str, prefix: str) -> str:
-    """
-    Create a unified participant ID.
-    Format: {prefix}_{original_id}
-    """
-    # Clean the original ID (remove 'sub-' prefix if present)
-    clean_id = participant_id.replace("sub-", "").replace("-", "_")
-    return f"{prefix}_{clean_id}"
-
-def align_condition_labels(
-    condition: str, 
-    dataset_id: str, 
-    task_label: str
-) -> Optional[str]:
-    """
-    Map raw condition labels to a unified schema.
-    Returns None if the condition cannot be mapped.
-    """
-    config = DATASET_CONFIG.get(dataset_id)
-    if not config:
-        return None
-
-    # Normalize input
-    condition_lower = condition.lower()
+    # Get unique condition labels from participants or events if available
+    # We assume the 'participants.tsv' might have a 'group' or 'condition' column,
+    # or we derive it from the task events if the metadata includes task info.
+    # Since this is a harmonization step, we look for standard columns first.
     
-    # Check direct mapping
-    if condition_lower in config["condition_map"]:
-        return config["condition_map"][condition_lower]
-    
-    # Fuzzy matching for common variations
-    if "exclude" in condition_lower and dataset_id == "ds000246":
-        return "exclusion"
-    if "include" in condition_lower and dataset_id == "ds000246":
-        return "inclusion"
-    if "anticip" in condition_lower and dataset_id == "ds004738":
-        return "reward_ant"
-    if "win" in condition_lower and dataset_id == "ds004738":
-        return "reward_receipt"
-    if "loss" in condition_lower and dataset_id == "ds004738":
-        return "no_reward"
+    condition_col = None
+    for col in ['condition', 'group', 'task_condition', 'task_label']:
+        if col in participants.columns:
+            condition_col = col
+            break
 
-    logger.warning(f"Could not map condition '{condition}' for dataset {dataset_id}")
-    return None
-
-def harmonize_datasets(
-    raw_data_dir: Path, 
-    output_dir: Path, 
-    config_path: Optional[Path] = None
-) -> Path:
-    """
-    Main harmonization logic.
-    
-    1. Iterates through configured datasets (ds000246, ds004738).
-    2. Reads participant metadata.
-    3. Generates a unified metadata CSV.
-    4. Writes the output to data/processed-fmri/harmonized_metadata.csv
-    """
-    if not output_dir.exists():
-        output_dir.mkdir(parents=True, exist_ok=True)
-
-    config = get_config(config_path) if config_path else {}
-    all_dataset_ids = get_all_dataset_ids() # Should return ['ds000246', 'ds004738']
-
-    harmonized_records = []
-
-    for ds_id in all_dataset_ids:
-        ds_config = DATASET_CONFIG.get(ds_id)
-        if not ds_config:
-            logger.warning(f"No config found for dataset {ds_id}, skipping.")
-            continue
-
-        logger.info(f"Processing dataset: {ds_id} ({ds_config['name']})")
-        
-        # Locate dataset root in raw_data_dir
-        # Expected structure: raw_data_dir/dsXXXXXX/
-        ds_root = raw_data_dir / ds_id
-        if not ds_root.exists():
-            # Try finding directory that starts with the ID if exact match fails
-            candidates = [d for d in raw_data_dir.iterdir() if d.name.startswith(ds_id)]
-            if candidates:
-                ds_root = candidates[0]
-            else:
-                logger.error(f"Dataset directory not found: {ds_root}")
-                continue
-
-        participants_file = ds_root / "participants.tsv"
-        if not participants_file.exists():
-            logger.error(f"participants.tsv missing in {ds_root}")
-            continue
-
-        participants = load_participants_tsv(participants_file)
-        
-        # Add dataset-specific metadata
-        for p in participants:
-            pid = p.get('participant_id', p.get('sub', ''))
-            if not pid:
-                continue
-
-            unified_pid = harmonize_participant_id(pid, ds_id, ds_config["prefix"])
+    if condition_col:
+        for _, row in participants.iterrows():
+            pid = row['participant_id']
+            raw_label = str(row[condition_col]).strip()
             
-            # Determine group/condition based on task design
-            # For ds000246, we might need to look at task JSON to determine group assignment
-            # For ds004738, similar logic. 
-            # Since we don't have the full behavioral data here yet, we assume 
-            # the 'participant_id' in the CSV implies inclusion in the study.
-            # We will create a 'group' column based on the dataset type for now,
-            # and refine with task-specific labels in T011/T014.
+            mapped_group = "unknown"
+            if dataset_type == "exclusion":
+                if any(x in raw_label.lower() for x in ['exclude', 'exclusion']):
+                    mapped_group = "exclusion"
+                elif any(x in raw_label.lower() for x in ['include', 'inclusion', 'control']):
+                    mapped_group = "inclusion"
+            elif dataset_type == "reward":
+                # For reward tasks, we map to 'reward' or 'neutral' based on task type
+                # But T014 specifically asks to link to exclusion/inclusion group.
+                # Since ds004738 is purely reward, we might need to map participants
+                # to a 'neutral' or 'reward' group, or if the study design implies
+                # a social context, map accordingly. 
+                # However, the task says: "linking participants to their exclusion/inclusion group".
+                # If the dataset doesn't have exclusion, we must map based on the task design.
+                # For ds004738 (Reward), typically all participants are in a 'reward' context.
+                # We will map them to 'reward_task' to distinguish from 'exclusion_task'.
+                # The analysis later (T018) will compare Exclusion vs Inclusion groups.
+                # If a dataset is purely reward, it might be used as a control or
+                # the 'inclusion' condition might be inferred if the study had a social component.
+                # Given the prompt "merged exclusion and reward datasets", we assume
+                # ds000246 provides Exclusion/Inclusion, and ds004738 provides Reward data
+                # (potentially for a different analysis or as a control).
+                # For the specific requirement "linking participants to their exclusion/inclusion group",
+                # we map ds004738 participants to a 'reward' group if they don't fit exclusion/inclusion.
+                
+                if any(x in raw_label.lower() for x in ['reward', 'win']):
+                    mapped_group = "reward"
+                elif any(x in raw_label.lower() for x in ['loss', 'neutral']):
+                    mapped_group = "neutral"
+                else:
+                    mapped_group = "reward" # Default for reward dataset
             
-            # Strategy: 
-            # ds000246 -> Group: 'social' (Exclusion/Inclusion)
-            # ds004738 -> Group: 'reward' (Win/Loss)
-            # Later tasks will split these further.
-            
-            group_label = ds_config["name"]
-            
-            record = {
-                "unified_participant_id": unified_pid,
-                "original_participant_id": pid,
-                "dataset_id": ds_id,
-                "dataset_name": ds_config["name"],
-                "task_label": ds_config["task_label"],
-                "group": group_label,
-                "covariate_dataset_id": ds_id  # Explicit tag for GLM confounds
-            }
-            
-            harmonized_records.append(record)
-
-    # Write output
-    output_file = output_dir / "harmonized_metadata.csv"
-    logger.info(f"Writing harmonized metadata to {output_file}")
-    
-    if harmonized_records:
-        fieldnames = harmonized_records[0].keys()
-        with open(output_file, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
-            writer.writeheader()
-            writer.writerows(harmonized_records)
+            mapped_rows.append({
+                "participant_id": pid,
+                "original_label": raw_label,
+                "mapped_group": mapped_group,
+                "dataset_type": dataset_type
+            })
     else:
-        logger.error("No records were harmonized. Output file not created.")
-        raise ValueError("Harmonization failed: No records processed.")
+        # Fallback: If no condition column, assume all are 'inclusion' for exclusion dataset
+        # and 'reward' for reward dataset, based on the dataset's primary purpose.
+        for _, row in participants.iterrows():
+            pid = row['participant_id']
+            if dataset_type == "exclusion":
+                mapped_group = "inclusion" # Default assumption if no label found
+            elif dataset_type == "reward":
+                mapped_group = "reward"
+            else:
+                mapped_group = "unknown"
+            
+            mapped_rows.append({
+                "participant_id": pid,
+                "original_label": "default",
+                "mapped_group": mapped_group,
+                "dataset_type": dataset_type
+            })
 
-    return output_file
+    return pd.DataFrame(mapped_rows)
+
+
+def harmonize_datasets(exclusion_root: Path, reward_root: Path, output_path: Path) -> Path:
+    """
+    Harmonize data from exclusion and reward datasets.
+    Creates a unified metadata file linking participants to their group and task type.
+    
+    This function:
+    1. Loads metadata from both datasets.
+    2. Maps conditions to standardized groups.
+    3. Merges into a single DataFrame.
+    4. Saves to a unified CSV/TSV file.
+    """
+    logger.info(f"Starting harmonization of {exclusion_root} and {reward_root}")
+    
+    # Load metadata
+    exc_meta = load_dataset_metadata(exclusion_root)
+    reward_meta = load_dataset_metadata(reward_root)
+    
+    # Map conditions
+    exc_mapped = map_conditions(exc_meta, "exclusion")
+    reward_mapped = map_conditions(reward_meta, "reward")
+    
+    # Concatenate
+    unified_df = pd.concat([exc_mapped, reward_mapped], ignore_index=True)
+    
+    # Add dataset ID column for provenance (FR-001 compliance)
+    unified_df['source_dataset'] = [
+        exc_meta['id'] if row['dataset_type'] == 'exclusion' else reward_meta['id']
+        for _, row in unified_df.iterrows()
+    ]
+    
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Save to TSV (standard for tabular data)
+    unified_df.to_csv(output_path, sep='\t', index=False)
+    
+    logger.info(f"Harmonized metadata saved to {output_path}")
+    logger.info(f"Total participants: {len(unified_df)}")
+    logger.info(f"Group distribution:\n{unified_df['mapped_group'].value_counts()}")
+    
+    return output_path
+
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Harmonize OpenNeuro datasets for merged analysis."
-    )
-    parser.add_argument(
-        "--raw-data", 
-        type=Path, 
-        default=project_root / "data" / "raw-fmri",
-        help="Path to the raw data directory containing ds000246 and ds004738."
-    )
-    parser.add_argument(
-        "--output-dir", 
-        type=Path, 
-        default=project_root / "data" / "processed-fmri",
-        help="Path to write the harmonized metadata."
-    )
-    parser.add_argument(
-        "--config", 
-        type=Path, 
-        default=project_root / "code" / "config" / "config.yaml",
-        help="Path to the configuration file."
-    )
-
+    parser = argparse.ArgumentParser(description="Harmonize exclusion and reward datasets")
+    parser.add_argument("--exclusion-root", type=str, required=True, help="Path to exclusion dataset root (e.g., ds000246)")
+    parser.add_argument("--reward-root", type=str, required=True, help="Path to reward dataset root (e.g., ds004738)")
+    parser.add_argument("--output", type=str, default="data/behavioral/harmonized_metadata.tsv", help="Output file path")
+    
     args = parser.parse_args()
-
+    
+    exclusion_root = Path(args.exclusion_root)
+    reward_root = Path(args.reward_root)
+    output_path = Path(args.output)
+    
+    if not exclusion_root.exists():
+        logger.error(f"Exclusion root not found: {exclusion_root}")
+        sys.exit(1)
+    if not reward_root.exists():
+        logger.error(f"Reward root not found: {reward_root}")
+        sys.exit(1)
+        
     try:
-        output_path = harmonize_datasets(
-            raw_data_dir=args.raw_data,
-            output_dir=args.output_dir,
-            config_path=args.config
-        )
-        logger.info(f"Successfully harmonized datasets. Output: {output_path}")
-        
-        # Generate provenance sidecar for this step
-        from utils.provenance import generate_provenance_record, write_provenance_sidecar
-        provenance = generate_provenance_record(
-            step="harmonize_datasets",
-            input_paths=[str(args.raw_data)],
-            output_paths=[str(output_path)],
-            parameters={
-                "datasets": list(DATASET_CONFIG.keys()),
-                "config": str(args.config)
-            }
-        )
-        write_provenance_sidecar(provenance, output_path)
-        
-        return 0
+        harmonize_datasets(exclusion_root, reward_root, output_path)
+        logger.info("Harmonization completed successfully.")
     except Exception as e:
         logger.error(f"Harmonization failed: {e}")
-        return 1
+        sys.exit(1)
+
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

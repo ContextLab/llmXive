@@ -43,7 +43,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001a [P] Create `projects/PROJ-392-the-impact-of-simulated-social-exclusion/` root directory and `code/`, `data/`, `tests/` subdirectories.
+- [X] T001a [P] Create `projects/PROJ-392-the-impact-of-simulated-social-exclusion/` root directory and `code/`, `data/`, `tests/` subdirectories. <!-- FAILED: unspecified -->
 - [X] T001b [P] Create `data/raw-fmri`, `data/processed-fmri`, `data/behavioral`, `data/results` subdirectories.
 - [X] T001c [P] Create `code/data_download`, `code/manipulation`, `code/preprocess`, `code/analysis`, `code/visualization`, `code/utils`, `code/pipeline` subdirectories.
 - [X] T002 Initialize Python 3.11 project with `requirements.txt` (nibabel, numpy, pandas, scikit-learn, scipy, matplotlib, nilearn, nipype, pybids, pyyaml, statsmodels). **Note**: Do NOT include `fmriprep` in this list; create a `docker-compose.yml` or wrapper script in T012 to invoke the Docker image.
@@ -62,7 +62,7 @@
 - [ ] T006 Implement `code/utils/provenance.py` for machine-readable YAML sidecar generation
 - [ ] T007 Create base configuration loader for dataset IDs (ds000246, ds004738) and ROI coordinates (AAL, Harvard-Oxford)
 - [X] T008 Setup `code/pipeline/run_pipeline.py` orchestration skeleton with error handling and logging
-- [X] T009 Implement `code/utils/framing_validator.py` to scan reports for causal verbs (satisfying FR-009)
+- [~] T009 Implement `code/utils/framing_validator.py` to scan reports for causal verbs (satisfying FR-009)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,7 +76,7 @@
 
 ### Implementation for User Story 1
 
-- [X] T010 [P] [US1] Implement `code/data_download/download_openneuro.py` to fetch ds000246 (Exclusion) and ds004738 (Reward) separately with BIDS validation. **Do not** attempt to merge here.
+- [~] T010 [P] [US1] Implement `code/data_download/download_openneuro.py` to fetch ds000246 (Exclusion) and ds004738 (Reward) separately with BIDS validation. **Do not** attempt to merge here.
 - [~] T010b [US1] Implement `code/data_download/harmonize_datasets.py` to execute the 'Merged Dataset Strategy': map participant IDs across datasets, align condition labels, and apply confound controls (e.g., adding 'Dataset ID' as a covariate tag) to prepare for analysis. (Addresses FR-001 and Plan's Critical Design Pivot).
 - [~] T011 [P] [US1] Implement `code/manipulation/generate_condition_labels.py` to extract exclusion/inclusion labels from `participants.tsv` or task JSON for each dataset.
 - [~] T012 [US1] Implement `code/preprocess/cpu_fmriprep_wrapper.py` invoking fMRIPrep (docker: `nipreps/fmriprep:latest`) with a configurable thread count suitable for CPU-only execution. **Note**: This task creates the wrapper script; `fmriprep` is not installed via pip.
@@ -101,9 +101,9 @@
 - [~] T018 [US2] Implement first-level GLM execution using Nilearn with autoregressive pre-whitening for temporal autocorrelation (DEPENDS ON T013/T014).
 - [~] T019 [US2] Implement extraction of beta estimates for 'reward anticipation' and 'reward receipt' events per participant.
 - [~] T020 [US2] Store extracted betas in structured format: `data/results/beta_estimates.csv` (columns: participant_id, group, roi, event_type, beta_value).
-- [ ] T021 [US2] Implement `code/analysis/group_analysis.py` to perform two-sample t-test between excluded vs. included groups (PRIMARY METHOD per FR-005).
-- [ ] T022 [US2] Implement Bonferroni correction logic for 4 hypothesis tests (2 ROIs × 2 events) at α=0.05.
-- [ ] T023a [US2] Implement the primary two-sample t-test logic in `code/analysis/group_analysis.py` to compare groups, satisfying FR-005 and SC-001.
+- [~] T021 [US2] Implement `code/analysis/group_analysis.py` to perform two-sample t-test between excluded vs. included groups (PRIMARY METHOD per FR-005).
+- [~] T022 [US2] Implement Bonferroni correction logic for 4 hypothesis tests (2 ROIs × 2 events) at α=0.05.
+- [~] T023a [US2] Implement the primary two-sample t-test logic in `code/analysis/group_analysis.py` to compare groups, satisfying FR-005 and SC-001.
 - [ ] T023b [US2] Implement a secondary MixedLM model (using `statsmodels`) including 'Dataset ID' as a random effect to assess robustness of the merged dataset approach (Plan's design pivot), distinct from the primary t-test.
 - [ ] T024 [US2] Generate summary statistics: mean activation, SD, t-statistic, Cohen's d, and Bonferroni-corrected p-values for each ROI/Event combination (from T023a).
 

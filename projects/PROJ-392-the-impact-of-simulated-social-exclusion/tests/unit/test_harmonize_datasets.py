@@ -1,113 +1,149 @@
 """
-Unit tests for harmonize_datasets.py.
+Unit tests for code/data_download/harmonize_datasets.py
 
-These tests verify the logic of mapping participant IDs, aligning condition labels,
-and generating the unified metadata structure without requiring the full dataset.
+These tests verify the harmonization logic without requiring real data downloads.
 """
-import csv
+
 import json
 import os
-import sys
 import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock
 
-# Add project root to path
-project_root = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(project_root))
+import pandas as pd
+import pytest
 
-from code.data_download.harmonize_datasets import (
-    harmonize_participant_id,
-    align_condition_labels,
-    harmonize_datasets,
-    DATASET_CONFIG
-)
+# Import the function to test
+# Adjust import path based on project structure
+try:
+    from code.data_download.harmonize_datasets import (
+        harmonize_datasets, 
+        map_conditions, 
+        load_dataset_metadata,
+        DATASET_IDS
+    )
+except ImportError:
+    # Fallback for different execution contexts
+    import sys
+    sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+    from data_download.harmonize_datasets import (
+        harmonize_datasets, 
+        map_conditions, 
+        load_dataset_metadata,
+        DATASET_IDS
+    )
 
-def test_harmonize_participant_id():
-    """Test that participant IDs are correctly prefixed."""
-    # Test with 'sub-' prefix
-    result = harmonize_participant_id("sub-01", "ds000246", "exc")
-    assert result == "exc_01", f"Expected 'exc_01', got '{result}'"
+
+@pytest.fixture
+def temp_data_dir():
+    """Create a temporary directory structure simulating raw-fmri."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        base = Path(tmpdir)
+        
+        # Create ds000246 (Exclusion)
+        ds_excl = base / 'ds000246'
+        ds_excl.mkdir()
+        (ds_excl / 'participants.tsv').write_text(
+            "participant_id\tage\tsex\n"
+            "1\t25\tF\n"
+            "2\t30\tM\n"
+        )
+        func_dir = ds_excl / 'sub-1' / 'func'
+        func_dir.mkdir(parents=True)
+        (func_dir / 'task-exclusion_events.tsv').write_text(
+            "onset\tduration\ttrial_type\n"
+            "0\t2\texclusion\n"
+            "5\t2\tinclusion\n"
+        )
+        
+        # Create ds004738 (Reward)
+        ds_rew = base / 'ds004738'
+        ds_rew.mkdir()
+        (ds_rew / 'participants.tsv').write_text(
+            "participant_id\tage\tsex\n"
+            "1\t22\tF\n"
+            "2\t28\tM\n"
+        )
+        func_dir_rew = ds_rew / 'sub-1' / 'func'
+        func_dir_rew.mkdir(parents=True)
+        (func_dir_rew / 'task-reward_events.tsv').write_text(
+            "onset\tduration\ttrial_type\n"
+            "0\t2\treward\n"
+            "5\t2\tanticipation\n"
+            "10\t2\tneutral\n"
+        )
+        
+        yield base
+
+@pytest.fixture
+def temp_output_dir():
+    """Create a temporary output directory."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield Path(tmpdir)
+
+def test_map_conditions():
+    """Test condition label mapping."""
+    assert map_conditions('exclusion', 'ds000246') == 'social_exclusion'
+    assert map_conditions('inclusion', 'ds000246') == 'social_inclusion'
+    assert map_conditions('reward', 'ds004738') == 'reward_receipt'
+    assert map_conditions('anticipation', 'ds004738') == 'reward_anticipation'
+    assert map_conditions('NEUTRAL', 'ds004738') == 'neutral'
+    assert map_conditions('unknown_label', 'ds000246') == 'unknown'
+
+def test_harmonize_datasets_creates_files(temp_data_dir, temp_output_dir):
+    """Test that harmonize_datasets creates the expected output files."""
+    harmonize_datasets(temp_data_dir, temp_output_dir)
     
-    # Test without 'sub-' prefix
-    result = harmonize_participant_id("01", "ds004738", "rew")
-    assert result == "rew_01", f"Expected 'rew_01', got '{result}'"
-    
-    # Test with hyphens
-    result = harmonize_participant_id("sub-01-02", "ds000246", "exc")
-    assert result == "exc_01_02", f"Expected 'exc_01_02', got '{result}'"
+    assert (temp_output_dir / 'participants_harmonized.tsv').exists()
+    assert (temp_output_dir / 'condition_mapping_summary.json').exists()
 
-def test_align_condition_labels():
-    """Test condition mapping for both datasets."""
-    # ds000246 (Exclusion)
-    assert align_condition_labels("exclusion", "ds000246", "exclusion") == "exclusion"
-    assert align_condition_labels("inclusion", "ds000246", "exclusion") == "inclusion"
-    assert align_condition_labels("Exclude", "ds000246", "exclusion") == "exclusion" # Case insensitive
+def test_harmonize_datasets_content(temp_data_dir, temp_output_dir):
+    """Test the content of the harmonized file."""
+    harmonize_datasets(temp_data_dir, temp_output_dir)
     
-    # ds004738 (Reward)
-    assert align_condition_labels("win", "ds004738", "reward") == "reward_receipt"
-    assert align_condition_labels("loss", "ds004738", "reward") == "no_reward"
-    assert align_condition_labels("anticipation", "ds004738", "reward") == "reward_ant"
+    df = pd.read_csv(temp_output_dir / 'participants_harmonized.tsv', sep='\t')
     
-    # Unknown condition
-    assert align_condition_labels("unknown", "ds000246", "exclusion") is None
+    # Check columns
+    required_cols = ['participant_id', 'source_dataset', 'task_type', 'group', 'primary_condition', 'dataset_covariate']
+    assert all(col in df.columns for col in required_cols)
+    
+    # Check row count (2 from each dataset)
+    assert len(df) == 4
+    
+    # Check dataset distribution
+    assert df['source_dataset'].value_counts()['ds000246'] == 2
+    assert df['source_dataset'].value_counts()['ds004738'] == 2
+    
+    # Check condition mapping
+    assert all(df[df['source_dataset'] == 'ds000246']['primary_condition'] == 'social_exclusion')
+    assert all(df[df['source_dataset'] == 'ds004738']['primary_condition'] == 'reward_receipt')
+    
+    # Check covariate tag
+    assert all(df['dataset_covariate'].isin(['ds000246', 'ds004738']))
 
-def test_harmonize_datasets_integration():
-    """Test the full harmonization pipeline with mock data."""
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        tmp_path = Path(tmp_dir)
-        
-        # Create mock directory structure
-        raw_dir = tmp_path / "raw-fmri"
-        raw_dir.mkdir()
-        
-        # Mock ds000246
-        ds1_dir = raw_dir / "ds000246"
-        ds1_dir.mkdir()
-        participants1 = ds1_dir / "participants.tsv"
-        participants1.write_text("participant_id\tage\tsex\nsub-01\t25\tF\nsub-02\t30\tM\n")
-        
-        # Mock ds004738
-        ds2_dir = raw_dir / "ds004738"
-        ds2_dir.mkdir()
-        participants2 = ds2_dir / "participants.tsv"
-        participants2.write_text("participant_id\tage\tsex\nsub-03\t22\tF\nsub-04\t28\tM\n")
-        
-        # Create output directory
-        out_dir = tmp_path / "processed-fmri"
-        out_dir.mkdir()
-        
-        # Mock config loader to return known IDs
-        with patch('code.data_download.harmonize_datasets.get_all_dataset_ids') as mock_get_ids:
-            mock_get_ids.return_value = ["ds000246", "ds004738"]
-            with patch('code.data_download.harmonize_datasets.get_config') as mock_get_config:
-                mock_get_config.return_value = {}
-                
-                output_file = harmonize_datasets(raw_dir, out_dir)
-                
-                assert output_file.exists(), "Output file was not created"
-                
-                # Verify content
-                with open(output_file, 'r', newline='') as f:
-                    reader = csv.DictReader(f)
-                    rows = list(reader)
-                
-                assert len(rows) == 4, f"Expected 4 rows, got {len(rows)}"
-                
-                # Check specific mappings
-                ids = [r['unified_participant_id'] for r in rows]
-                assert "exc_01" in ids
-                assert "exc_02" in ids
-                assert "rew_03" in ids
-                assert "rew_04" in ids
-                
-                # Check covariate tag
-                for row in rows:
-                    assert 'dataset_id' in row
-                    assert row['covariate_dataset_id'] in ['ds000246', 'ds004738']
+def test_harmonize_datasets_missing_dir(temp_output_dir):
+    """Test behavior when input directory is missing."""
+    with pytest.raises(SystemExit) as exc_info:
+        harmonize_datasets(Path('/nonexistent/path'), temp_output_dir)
+    assert exc_info.value.code == 1
 
-if __name__ == "__main__":
-    test_harmonize_participant_id()
-    test_align_condition_labels()
-    test_harmonize_datasets_integration()
-    print("All tests passed.")
+def test_condition_mapping_summary(temp_data_dir, temp_output_dir):
+    """Test that condition mapping summary is generated correctly."""
+    harmonize_datasets(temp_data_dir, temp_output_dir)
+    
+    with open(temp_output_dir / 'condition_mapping_summary.json') as f:
+        mapping = json.load(f)
+    
+    assert isinstance(mapping, list)
+    assert len(mapping) > 0
+    
+    # Check structure
+    first_item = mapping[0]
+    assert 'dataset_id' in first_item
+    assert 'original_label' in first_item
+    assert 'mapped_label' in first_item
+    
+    # Check specific mappings
+    mapped_labels = [m['mapped_label'] for m in mapping]
+    assert 'social_exclusion' in mapped_labels
+    assert 'reward_receipt' in mapped_labels
+    assert 'reward_anticipation' in mapped_labels
