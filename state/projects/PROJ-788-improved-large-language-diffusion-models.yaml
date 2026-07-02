@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-26T09:08:44.882707Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-788-improved-large-language-diffusion-models
-last_run_id: edadd084-60e1-4ca8-8aec-ed177568c80b
+last_run_id: d128f52b-b270-4498-8140-d12657a18982
 last_run_status: null
 points_paper: {}
 points_research: {}
