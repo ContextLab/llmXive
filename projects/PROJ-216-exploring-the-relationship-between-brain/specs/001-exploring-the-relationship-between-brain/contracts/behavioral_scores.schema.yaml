@@ -1,0 +1,30 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Behavioral Scores Schema
+description: Schema for Fluid Intelligence scores and metadata (Pivot from Musical Creativity).
+type: object
+properties:
+  subject_id:
+    type: string
+    description: Unique identifier for the subject.
+  score_value:
+    type: number
+    description: The Fluid Intelligence score value.
+  source_type:
+    type: string
+    description: Type of cognitive test.
+    enum:
+      - Fluid_Intelligence
+      - NIH_Toolbox
+  sub_scales:
+    type: array
+    description: List of sub-scale names if available.
+    items:
+      type: string
+  missing:
+    type: boolean
+    description: True if the score was not found for this subject.
+required:
+  - subject_id
+  - source_type
+  - missing
+additionalProperties: false

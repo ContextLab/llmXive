@@ -1,0 +1,36 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Graph Metrics Schema
+description: Schema for computed graph theoretical metrics from fMRI data.
+type: object
+properties:
+  subject_id:
+    type: string
+    description: Unique identifier for the subject (e.g., sub-001).
+  metric_name:
+    type: string
+    description: Name of the graph metric.
+    enum:
+      - global_efficiency
+      - modularity
+      - clustering_coefficient
+  value:
+    type: number
+    description: The computed value of the metric.
+  atlas:
+    type: string
+    description: Atlas used for parcellation.
+    const: Schaefer200
+  confidence_interval_lower:
+    type: number
+    description: Lower bound of the 95% confidence interval.
+  confidence_interval_upper:
+    type: number
+    description: Upper bound of the 95% confidence interval.
+required:
+  - subject_id
+  - metric_name
+  - value
+  - atlas
+  - confidence_interval_lower
+  - confidence_interval_upper
+additionalProperties: false

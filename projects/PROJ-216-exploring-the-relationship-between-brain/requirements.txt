@@ -1,0 +1,13 @@
+nibabel
+nilearn
+networkx
+scikit-learn
+pandas
+numpy
+openneuro-py
+dipy
+ruff
+black
+pytest
+requests
+urllib3

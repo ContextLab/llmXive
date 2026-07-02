@@ -1,0 +1,33 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Preprocessing Log Schema
+description: Schema for logging preprocessing steps and exclusions.
+type: object
+properties:
+  subject_id:
+    type: string
+    description: Unique identifier for the subject.
+  dataset_source:
+    type: string
+    description: OpenNeuro dataset ID (e.g., ds000224).
+  status:
+    type: string
+    description: Status of preprocessing.
+    enum:
+      - success
+      - excluded_motion
+      - excluded_missing_fluid_intelligence
+      - error
+  motion_threshold_mm:
+    type: number
+    description: Motion threshold used (default 3.0).
+  actual_motion_mm:
+    type: number
+    description: Actual maximum motion observed.
+  error_message:
+    type: string
+    description: Error message if status is error.
+required:
+  - subject_id
+  - dataset_source
+  - status
+additionalProperties: false

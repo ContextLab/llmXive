@@ -1,0 +1,711 @@
+resolved_at: '2026-07-02T06:59:25.901189+00:00'
+datasets:
+- intent: OpenNeuro
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/clane9/openneuro-fslr64k.arrow/resolve/main/dataset_dict.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 29
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/clane9/openneuro-fslr64k.arrow/resolve/main/dataset_dict.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://figshare.com/articles/figure/_07033307887_College_of_Nursing_Sciences_Diocesan_Hospital_Amichi_07033307887_proudly_announces_that_the_2026_2027_Admission_Application_form_is_out_and_currently_on_sale_/32872271
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Tables_supporting_the_Manuscript_An_Interpretable_and_Optimized_Attention-Driven_LSTM_Framework_for_Email_Sentiment_Classification/32872241
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Acute_overfeeding_impairs_meal-stimulated_adipose_tissue_microvascular_blood_flow_in_healthy_adults_independent_of_changes_in_adiposity/32872262
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Interfacial_Active-Oxygen_Transport_in_Inverse_CuO_sub_x_sub_Perovskite_Catalysts_for_Low-Temperature_CO_Oxidation/32872266
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Modulus-Mediated_Random_Rough_Surface_A_New_Strategy_for_Fibrous_Membrane_Pressure_Sensor_Sensitivity_Enhancement/32872265
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18476336
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17150815
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2847832
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21032699
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17185931
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ww2.nemar.org/dataset/on002893
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ww2.nemar.org/dataset/on002893?v=v1.0.0
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openneuro.org/datasets/ds008082/versions/1.0.0
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21113780
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21113780
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FSL
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/hariknguyen2419/FSL_datasets/resolve/main/CUB_200_2011.zip
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/SEACrowd/fsl_105/resolve/main/requirements.txt
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 15
+      parsed: true
+  - url: https://huggingface.co/datasets/xixu-me/fsl-product-classification/resolve/main/dataset_infos.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 1515
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/hariknguyen2419/FSL_datasets/resolve/main/CUB_200_2011.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/SEACrowd/fsl_105/resolve/main/requirements.txt
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/api/resolve-cache/datasets/jialucode/FSL_ECG_QA_Dataset/3d4098c0299ce8d09dab87a9401726bc931121a3/data%2Fprocessed_test_30k.json?%2Fdatasets%2Fjialucode%2FFSL_ECG_QA_Dataset%2Fresolve%2Fmain%2Fdata%2Fprocessed_test_30k.json=&etag=%22f87cad05fa396d16ccc0ec5649e57c12d65773fd%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/xixu-me/fsl-product-classification/resolve/main/dataset_infos.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/figure/_07033307887_College_of_Nursing_Sciences_Diocesan_Hospital_Amichi_07033307887_proudly_announces_that_the_2026_2027_Admission_Application_form_is_out_and_currently_on_sale_/32872271
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Tables_supporting_the_Manuscript_An_Interpretable_and_Optimized_Attention-Driven_LSTM_Framework_for_Email_Sentiment_Classification/32872241
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Acute_overfeeding_impairs_meal-stimulated_adipose_tissue_microvascular_blood_flow_in_healthy_adults_independent_of_changes_in_adiposity/32872262
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Interfacial_Active-Oxygen_Transport_in_Inverse_CuO_sub_x_sub_Perovskite_Catalysts_for_Low-Temperature_CO_Oxidation/32872266
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Modulus-Mediated_Random_Rough_Surface_A_New_Strategy_for_Fibrous_Membrane_Pressure_Sensor_Sensitivity_Enhancement/32872265
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5513104
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3600531
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10130324
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10130326
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13280111
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21126330
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21126330
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21125438
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/yq8v2/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://toubkal.imist.ma/handle/123456789/11687
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: AFNI
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Adieee5/afnilawd/resolve/main/train.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Adieee5/afnilawd/resolve/main/train.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/figure/_07033307887_College_of_Nursing_Sciences_Diocesan_Hospital_Amichi_07033307887_proudly_announces_that_the_2026_2027_Admission_Application_form_is_out_and_currently_on_sale_/32872271
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Tables_supporting_the_Manuscript_An_Interpretable_and_Optimized_Attention-Driven_LSTM_Framework_for_Email_Sentiment_Classification/32872241
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Acute_overfeeding_impairs_meal-stimulated_adipose_tissue_microvascular_blood_flow_in_healthy_adults_independent_of_changes_in_adiposity/32872262
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Interfacial_Active-Oxygen_Transport_in_Inverse_CuO_sub_x_sub_Perovskite_Catalysts_for_Low-Temperature_CO_Oxidation/32872266
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Modulus-Mediated_Random_Rough_Surface_A_New_Strategy_for_Fibrous_Membrane_Pressure_Sensor_Sensitivity_Enhancement/32872265
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18228150
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17382494
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3514295
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.59890/ijist.v1i3.485
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+  - url: https://e-journal.antispublisher.id/index.php/IJAIFD/article/view/119
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20999856
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20999856
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datacommons.princeton.edu/challenge?destination=%2Fdiscovery%2Fcatalog%2Fdoi-10-34770-p47x-7w29
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20807598
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20807598
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: BOLD
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AmazonScience/bold/resolve/main/gender_prompt_wiki.json
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/lighteval/bold_helm/resolve/main/all/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 32169
+      parsed: true
+  - url: https://huggingface.co/datasets/LofiAmazon/BOLD-Embeddings/resolve/main/data/train-00000-of-00029.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AmazonScience/bold/resolve/main/gender_prompt_wiki.json
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/lighteval/bold_helm/resolve/main/all/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/api/resolve-cache/datasets/jashmehta3300/social-injection-bold/21d113bdc6d2e6131b57bbaf8d50a99aaab04c61/bold_dataset.csv?%2Fdatasets%2Fjashmehta3300%2Fsocial-injection-bold%2Fresolve%2Fmain%2Fbold_dataset.csv=&etag=%22ee47c0c64e5cb3c4641608209f069b94cfacc3ca%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/boldvoice/l2_arctic/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/LofiAmazon/BOLD-Embeddings/resolve/main/data/train-00000-of-00029.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/figure/_07033307887_College_of_Nursing_Sciences_Diocesan_Hospital_Amichi_07033307887_proudly_announces_that_the_2026_2027_Admission_Application_form_is_out_and_currently_on_sale_/32872271
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Tables_supporting_the_Manuscript_An_Interpretable_and_Optimized_Attention-Driven_LSTM_Framework_for_Email_Sentiment_Classification/32872241
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Acute_overfeeding_impairs_meal-stimulated_adipose_tissue_microvascular_blood_flow_in_healthy_adults_independent_of_changes_in_adiposity/32872262
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Interfacial_Active-Oxygen_Transport_in_Inverse_CuO_sub_x_sub_Perovskite_Catalysts_for_Low-Temperature_CO_Oxidation/32872266
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Modulus-Mediated_Random_Rough_Surface_A_New_Strategy_for_Fibrous_Membrane_Pressure_Sensor_Sensitivity_Enhancement/32872265
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/28843
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7105076
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7095520
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17571607
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16465278
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21124192
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21124192
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/kepny/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/93nym/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15390489
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: NIfTI
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/farrell236/NSCLC-Radiomics-NIFTI/resolve/main/NSCLC-Radiomics-NIFTI/LUNG1-001/image.nii.gz
+    source: huggingface
+    format: gzip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/TobiasPitters/test-nifti/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 2210
+      parsed: true
+  - url: https://huggingface.co/datasets/TobiasPitters/test-nifti-unzipped/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/farrell236/NSCLC-Radiomics-NIFTI/resolve/main/NSCLC-Radiomics-NIFTI/LUNG1-001/image.nii.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/TobiasPitters/test-nifti/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/TobiasPitters/test-nifti-unzipped/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/nwirandx/3d-mnist-nifti/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/TobiasPitters/nifti-nitest-extracted/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/figure/_07033307887_College_of_Nursing_Sciences_Diocesan_Hospital_Amichi_07033307887_proudly_announces_that_the_2026_2027_Admission_Application_form_is_out_and_currently_on_sale_/32872271
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Tables_supporting_the_Manuscript_An_Interpretable_and_Optimized_Attention-Driven_LSTM_Framework_for_Email_Sentiment_Classification/32872241
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Acute_overfeeding_impairs_meal-stimulated_adipose_tissue_microvascular_blood_flow_in_healthy_adults_independent_of_changes_in_adiposity/32872262
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Interfacial_Active-Oxygen_Transport_in_Inverse_CuO_sub_x_sub_Perovskite_Catalysts_for_Low-Temperature_CO_Oxidation/32872266
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Modulus-Mediated_Random_Rough_Surface_A_New_Strategy_for_Fibrous_Membrane_Pressure_Sensor_Sensitivity_Enhancement/32872265
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4563667
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14889690
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4940072
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18404923
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3732250
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.kulib.kyoto-u.ac.jp/handle/2433/301268
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21029538
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21029538
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.scidb.cn/detail?dataSetId=b9bff422884e4abc85de6ffb18f17b1a
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20151689
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: TTCT
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/figure/_07033307887_College_of_Nursing_Sciences_Diocesan_Hospital_Amichi_07033307887_proudly_announces_that_the_2026_2027_Admission_Application_form_is_out_and_currently_on_sale_/32872271
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Tables_supporting_the_Manuscript_An_Interpretable_and_Optimized_Attention-Driven_LSTM_Framework_for_Email_Sentiment_Classification/32872241
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Acute_overfeeding_impairs_meal-stimulated_adipose_tissue_microvascular_blood_flow_in_healthy_adults_independent_of_changes_in_adiposity/32872262
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Interfacial_Active-Oxygen_Transport_in_Inverse_CuO_sub_x_sub_Perovskite_Catalysts_for_Low-Temperature_CO_Oxidation/32872266
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Modulus-Mediated_Random_Rough_Surface_A_New_Strategy_for_Fibrous_Membrane_Pressure_Sensor_Sensitivity_Enhancement/32872265
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18823772
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6323426
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14796260
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.asianinstituteofresearch.org/EQRarchives/Teaching-English-through-Drama-to-Tribal-Students-of-Undergraduate-Level-at-Remote-Area-of-South-Gujarat-Region-in-India-
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20020605
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/ghwjm/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://world.physio/congress-proceeding/figure-8-walk-test-sample-elderly-people-knee-replacement-does-setting
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/r58ty/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://journals.sagepub.com/doi/full/10.1177/00169862211012964#supplementary-materials
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://mcgill.scholaris.ca/handle/20.500.14905/134581
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: AUT
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/nvidia/PhysicalAI-Autonomous-Vehicle-Cosmos-Drive-Dreams/resolve/main/cosmos_synthetic/single_view/caption.tar.gz
+    source: huggingface
+    format: gzip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/nvidia/PhysicalAI-WorldModel-Synthetic-Autonomous-Driving-Scenarios/resolve/main/emergency/emergency_20260214_005811_011922/description/front_tele.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 1398
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/nvidia/PhysicalAI-Autonomous-Vehicles/resolve/main/calibration/camera_intrinsics.offline/camera_intrinsics.offline.chunk_0000.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/nvidia/PhysicalAI-Autonomous-Vehicles-NuRec/resolve/main/clip_ratings_26.04.csv
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/nvidia/PhysicalAI-Autonomous-Vehicle-Cosmos-Drive-Dreams/resolve/main/cosmos_synthetic/single_view/caption.tar.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/nvidia/PhysicalAI-WorldModel-Synthetic-Autonomous-Driving-Scenarios/resolve/main/emergency/emergency_20260214_005811_011922/description/front_tele.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://figshare.com/articles/figure/_07033307887_College_of_Nursing_Sciences_Diocesan_Hospital_Amichi_07033307887_proudly_announces_that_the_2026_2027_Admission_Application_form_is_out_and_currently_on_sale_/32872271
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Tables_supporting_the_Manuscript_An_Interpretable_and_Optimized_Attention-Driven_LSTM_Framework_for_Email_Sentiment_Classification/32872241
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Acute_overfeeding_impairs_meal-stimulated_adipose_tissue_microvascular_blood_flow_in_healthy_adults_independent_of_changes_in_adiposity/32872262
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Interfacial_Active-Oxygen_Transport_in_Inverse_CuO_sub_x_sub_Perovskite_Catalysts_for_Low-Temperature_CO_Oxidation/32872266
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Modulus-Mediated_Random_Rough_Surface_A_New_Strategy_for_Fibrous_Membrane_Pressure_Sensor_Sensitivity_Enhancement/32872265
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3490602
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19683658
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4739743
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://jamanetwork.com/article.aspx?doi=10.1001/jama.1898.02440670061017
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/19688753
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.gbif.org/occurrence/download/0008523-260623161305970
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/21111111
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21111111
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.gbif.org/dataset/113a68a5-41da-4ee7-99b5-09e55708faa4
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.gbif.org/occurrence/download/0008229-260623161305970
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+- intent: CPU-only
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/figure/_07033307887_College_of_Nursing_Sciences_Diocesan_Hospital_Amichi_07033307887_proudly_announces_that_the_2026_2027_Admission_Application_form_is_out_and_currently_on_sale_/32872271
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Tables_supporting_the_Manuscript_An_Interpretable_and_Optimized_Attention-Driven_LSTM_Framework_for_Email_Sentiment_Classification/32872241
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Acute_overfeeding_impairs_meal-stimulated_adipose_tissue_microvascular_blood_flow_in_healthy_adults_independent_of_changes_in_adiposity/32872262
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Interfacial_Active-Oxygen_Transport_in_Inverse_CuO_sub_x_sub_Perovskite_Catalysts_for_Low-Temperature_CO_Oxidation/32872266
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Modulus-Mediated_Random_Rough_Surface_A_New_Strategy_for_Fibrous_Membrane_Pressure_Sensor_Sensitivity_Enhancement/32872265
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://beei.org/index.php/EEI/article/view/1972
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6127654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_1_of_Technical_architecture_for_integrating_vision-language_models_with_DICOM_viewers/32870656/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_1_of_Technical_architecture_for_integrating_vision-language_models_with_DICOM_viewers/32870656
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/jme27/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2308.03722
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.00760
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
