@@ -1,104 +1,95 @@
 # Feature Specification: Evaluating the Impact of LLM-Based Code Completion on Developer Cognitive Load
 
-**Feature Branch**: `001-evaluating-llm-cognitive-load`  
+**Feature Branch**: `001-evaluating-the-impact-of-llm-based-code-completion`  
 **Created**: 2026-06-25  
 **Status**: Draft  
 **Input**: User description: "Evaluating the Impact of LLM-Based Code Completion on Developer Cognitive Load"
 
 ## User Scenarios & Testing
 
-### User Story 1 - Data Acquisition and Preprocessing Pipeline (Priority: P1)
+### User Story 1 - Data Ingestion and LLM Adoption Classification (Priority: P1)
 
-The research pipeline must successfully ingest public GitHub Pull Request (PR) metadata from a curated list of repositories, identifying which projects utilize LLM code completion tools and extracting the specific code review metrics (comment length, iteration count, revert frequency) required for analysis.
+The system must identify a corpus of GitHub repositories with documented LLM code completion tool usage and extract their pull request metadata to establish the independent variable (LLM adoption) and dependent variables (cognitive load proxies).
 
-**Why this priority**: This is the foundational step; without reliable data extraction and the ability to distinguish LLM-adopting projects from control groups, no statistical analysis can occur. It delivers the raw dataset necessary for the entire study.
+**Why this priority**: Without a validated dataset linking specific repositories to LLM tool usage and their corresponding review metrics, no analysis can be performed. This is the foundational data layer for the entire study.
 
-**Independent Test**: Can be fully tested by running the data ingestion script against a fixed, small subset of 5 known repositories (3 with LLM config, 2 without) and verifying that the output CSV contains the correct number of rows, the binary `llm_adopted` flag is correctly set, and the numeric metrics are populated without nulls. The test must confirm that repositories with <10 PRs are ingested into the raw dataset but flagged for exclusion from the analysis subset.
+**Independent Test**: The system can be tested by running the ingestion script against a known subset of repositories (some with `.cursorrules` or copilot configs, others without) and verifying that the output CSV correctly flags the LLM adoption status and contains non-empty rows for review comment length, iteration counts, review thread depth, and revert frequencies.
 
 **Acceptance Scenarios**:
 
-1. **Given** a list of 5 repository URLs where 3 have `.cursorrules` or `copilot` config, **When** the pipeline runs, **Then** the output dataset must contain 3 rows marked `llm_adopted=true` and 2 rows marked `llm_adopted=false`.
-2. **Given** a repository with PRs containing varying comment lengths, **When** the pipeline extracts data, **Then** the `comment_length_chars` column must contain integer values ≥ 0 for every PR row.
-3. **Given** a repository with no PRs, **When** the pipeline runs, **Then** it must log a warning and skip the repository rather than crashing the entire job.
-4. **Given** a repository with < 10 PRs, **When** the pipeline runs, **Then** the repository is included in the raw dataset but marked with `exclude_from_analysis=true`.
-
----
+1. **Given** a list of 50 target repositories with public access, **When** the ingestion script executes, **Then** it produces a master dataset where every row includes a binary `llm_adoption_flag`, `avg_comment_length`, `iteration_count`, `review_thread_depth`, and `revert_frequency`.
+2. **Given** a repository with a `.cursorrules` file in the root directory, **When** the ingestion script processes it, **Then** the `llm_adoption_flag` is set to `1` (True).
+3. **Given** a repository with no LLM configuration files or documentation mentions, **When** the ingestion script processes it, **Then** the `llm_adoption_flag` is set to `0` (False).
+4. **Given** a repository where ≥5% of commit messages contain "Copilot" or "LLM", **When** the ingestion script processes it, **Then** the `llm_adoption_flag` is set to `1` (True) to capture IDE plugin usage without config files.
 
 ### User Story 2 - Statistical Analysis and Hypothesis Testing (Priority: P2)
 
-The system must execute a propensity score matching (PSM) procedure to balance covariates between LLM-adopted and control groups, followed by a linear regression analysis to test the null hypothesis that LLM tool usage has no effect on cognitive load proxies, controlling for project size, team size, and domain complexity, and output the regression coefficients with 95% confidence intervals.
+The system must compute regression models to test the association between LLM adoption and cognitive load proxies, controlling for project size, team size, and domain complexity, while applying multiple-comparison corrections.
 
-**Why this priority**: This is the core research activity that directly answers the research question. It transforms raw data into evidence regarding the relationship between LLM usage and cognitive load proxies, while mitigating selection bias.
+**Why this priority**: This transforms the raw data into the research findings. It directly addresses the research question by quantifying the relationship between the predictor and outcomes.
 
-**Independent Test**: Can be fully tested by running the analysis script on the preprocessed dataset from User Story 1 and verifying that: (1) the PSM step produces matched pairs with a standardized mean difference < 0.1 for all covariates, (2) the output JSON includes a regression table with coefficients, p-values, and confidence intervals for the `llm_adopted` variable, and (3) the script completes within the 6-hour CPU limit (asserting duration ≤ 6 hours).
-
-**Acceptance Scenarios**:
-
-1. **Given** a dataset with >100 PRs, **When** the regression model runs, **Then** the output must include a coefficient estimate and p-value for the `llm_adopted` predictor.
-2. **Given** a dataset where `lines_of_code` varies significantly, **When** the model runs, **Then** `lines_of_code` must be included as a control variable in the regression equation.
-3. **Given** a model that fails to converge (e.g., due to multicollinearity), **When** the script runs, **Then** it must automatically switch to Ridge Regression and log the switch, preventing the generation of invalid results.
-
----
-
-### User Story 3 - Sensitivity Analysis and Reporting (Priority: P3)
-
-The system must perform a sensitivity analysis by varying key thresholds (e.g., minimum PR size) and stratifying the analysis by programming language and repository age, generating a summary report visualizing how the effect size of LLM usage changes across these variations, ensuring the findings are robust.
-
-**Why this priority**: This addresses the methodological soundness requirement for threshold justification and sensitivity. It ensures the results are not artifacts of arbitrary data choices or confounding variables, increasing the validity of the research.
-
-**Independent Test**: Can be fully tested by running the sensitivity module with a predefined set of 3 alternative parameter values and verifying that the output includes a plot or table showing the variation in the primary effect size metric across language and age strata.
+**Independent Test**: The system can be tested by running the analysis script on a synthetic dataset where the correlation between `llm_adoption_flag` and `avg_comment_length` is hardcoded to a known value (e.g., 0.5). The output must report a statistically significant coefficient matching the synthetic input within a 95% confidence interval.
 
 **Acceptance Scenarios**:
 
-1. **Given** the primary regression result, **When** the sensitivity analysis runs with a ±10% variation in the `min_pr_lines` threshold, **Then** the output must report the new effect size for each variation.
-2. **Given** the analysis results, **When** the report is generated, **Then** it must include a visual comparison (e.g., a line plot or table) of the primary coefficient across all tested sensitivity scenarios (including language and age strata).
-3. **Given** a scenario where the effect size flips sign across thresholds, **When** the report is generated, **Then** it must flag this instability with a "High Sensitivity" warning in the summary.
+1. **Given** the master dataset with ≥ 40 valid repository entries, **When** the analysis script runs, **Then** it outputs a regression table showing coefficients, standard errors, and p-values for the `llm_adoption_flag` predictor across all cognitive load proxies (comment length, iteration count, thread depth, revert frequency).
+2. **Given** that four hypothesis tests are performed (one for each proxy), **When** the analysis script completes, **Then** it applies a Bonferroni correction (or equivalent family-wise error rate control) and reports adjusted p-values.
+3. **Given** a regression model, **When** the script executes, **Then** it outputs a sensitivity analysis report showing how the headline effect size varies when the `iteration_count` threshold is swept across values {1, 2, 3}.
+
+### User Story 3 - Visualization and Reporting (Priority: P3)
+
+The system must generate publication-ready visualizations (effect size plots with 95% confidence intervals) and a summary report detailing the findings, limitations, and sensitivity analysis results.
+
+**Why this priority**: This delivers the final artifact for the research community, making the results interpretable and transparent regarding the study's constraints and robustness.
+
+**Independent Test**: The system can be tested by verifying that the generated PDF/HTML report contains a forest plot of effect sizes and that the text explicitly states the null hypothesis rejection status for each proxy based on the corrected p-values.
+
+**Acceptance Scenarios**:
+
+1. **Given** the statistical analysis results, **When** the reporting module runs, **Then** it generates a figure showing the effect size of LLM adoption on `avg_comment_length` with error bars representing the 95% confidence interval.
+2. **Given** the sensitivity analysis data, **When** the reporting module runs, **Then** it includes a table or plot demonstrating the variation in false-positive rates or effect estimates across the tested threshold sweep.
+3. **Given** the final dataset, **When** the report is generated, **Then** it explicitly frames all findings as "associational" rather than causal, citing the observational nature of the data.
 
 ### Edge Cases
 
-- What happens if a repository's configuration file is ambiguous (e.g., mentions "AI" but not a specific LLM tool)? The system must default to `llm_adopted=false` and log the specific file content for manual review.
-- How does the system handle repositories with < 10 PRs? The system must ingest them into the raw dataset but exclude them from the regression analysis to prevent statistical noise from dominating the results.
-- What if the GitHub API rate limit is hit during data extraction? The system must implement a retry mechanism with exponential backoff (a limited number of attempts) before failing the specific repository fetch.
-- What constitutes a 'revert'? A PR is counted as a revert if it was merged and subsequently reverted (merged a revert PR) within 7 days of the original merge.
+- **What happens when** a repository has LLM configuration files but no pull requests in the last 12 months? The system must exclude such repositories from the analysis to avoid zero-variance outcomes in the dependent variables.
+- **How does the system handle** repositories where the LLM configuration is ambiguous (e.g., a generic `config.json` without clear tool naming)? The system must default to `llm_adoption_flag = 0` and log the repository ID for manual review, ensuring no false positives inflate the treatment group.
+- **What happens when** the GitHub API rate limit is hit during data ingestion? The system must implement a retry mechanism with exponential backoff, attempting up to 5 retries with a 60-second delay between attempts before failing the job.
 
 ## Requirements
 
 ### Functional Requirements
 
-- **FR-001**: The system MUST download PR metadata from GitHub for a curated list of ≥ 50 repositories, extracting `comment_length`, `iteration_count`, and `revert_frequency` (See US-1).
-- **FR-002**: The system MUST identify LLM adoption by scanning repository roots for `.cursorrules`, `copilot` config files, OR scanning PR commit messages and comments for case-insensitive keywords ('copilot', 'cursor', 'codium', 'tabnine'), assigning a binary `llm_adopted` flag (See US-1).
-- **FR-003**: The system MUST execute a linear regression model with `llm_adopted` as the predictor and cognitive load proxies as outcomes, controlling for `lines_of_code`, `contributor_count`, and `domain_complexity` (defined as log10(lines_of_code) + log10(contributor_count) + 1) (See US-2).
-- **FR-004**: The system MUST calculate and report 95% confidence intervals for all regression coefficients to assess statistical significance (See US-2).
-- **FR-005**: The system MUST perform a sensitivity analysis sweeping at least 3 distinct values for data inclusion thresholds AND stratifying the analysis by the top 3 programming languages and repository age (median split), reporting the variation in the primary effect size (See US-3).
-- **FR-006**: The system MUST perform Propensity Score Matching (PSM) to balance covariates between LLM-adopted and control groups before regression, ensuring a standardized mean difference < 0.1 for all covariates (See US-2).
-- **FR-007**: The system MUST validate the theoretical link between proxies and cognitive load by reporting the correlation between `iteration_count` and `lines_of_code` to assess construct validity (See Assumptions).
-- **FR-008**: The system MUST check Variance Inflation Factors (VIF) for all control variables; if any VIF ≥ 5, the system MUST automatically switch to Ridge Regression with alpha=1.0 and log the switch (See US-2).
+- **FR-001**: The system MUST identify repositories with LLM code completion tools by parsing configuration files (e.g., `.cursorrules`, `copilot` config) and explicit documentation mentions. A mention is defined as a string match for "Copilot" or "LLM" within 500 characters of the phrase in `README.md` or `CONTRIBUTING.md`. Additionally, if ≥5% of commit messages in the last 12 months contain "Copilot" or "LLM", the system MUST classify the repository as `1` (adopted) to capture IDE plugin usage without config files. Otherwise, it classifies as `0` (See User Story 1).
+- **FR-002**: The system MUST extract pull request metadata including comment length (characters), review thread depth (max nested comments), revert frequency, and iteration count. The `iteration_count` is derived as the count of push events between PR open and merge, EXCLUDING any push event where the commit message contains "Copilot" OR the diff size is < 100 lines (to exclude auto-generated/accept-only updates). This ensures the metric captures human review iterations distinct from LLM output (See User Story 1).
+- **FR-003**: The system MUST perform linear regression analysis with `llm_adoption_flag` as the independent variable and the cognitive load proxies (comment length, iteration count, review thread depth, revert frequency) as dependent variables. The model MUST control for project size (lines of code), team size (contributor count), and domain complexity. Domain complexity is defined as the sum of unique programming languages detected in the repo and the count of top-level dependencies (from `package.json`, `requirements.txt`, `go.mod`, etc.; default to 0 if no manifest exists) (See User Story 2).
+- **FR-004**: The system MUST apply a multiple-comparison correction (e.g., Bonferroni) to the p-values of the hypothesis tests to control the family-wise error rate (See User Story 2).
+- **FR-005**: The system MUST execute a sensitivity analysis sweeping the `iteration_count` definition threshold over the set {1, 2, 3} and report the resulting variation in effect estimates (See User Story 2).
+- **FR-006**: The system MUST generate a final report containing effect size plots with 95% confidence intervals and a textual summary explicitly framing findings as associational (See User Story 3).
 
 ### Key Entities
 
-- **Repository**: Represents a GitHub project, attributes include `repo_id`, `llm_adopted` (binary), `lines_of_code`, `contributor_count`, `domain_complexity` (calculated).
-- **PullRequest**: Represents a single PR, attributes include `pr_id`, `comment_length_chars`, `iteration_count`, `revert_frequency` (count of merged PRs reverted within 7 days), `repo_id` (foreign key), `exclude_from_analysis` (boolean).
-- **AnalysisResult**: Represents the output of the statistical model, attributes include `coefficient`, `p_value`, `confidence_interval`, `sensitivity_flags`, `matching_quality_score`.
+- **Repository**: Represents a GitHub project, characterized by `repo_id`, `llm_adoption_flag`, `lines_of_code`, `contributor_count`, and `domain_complexity`.
+- **PullRequest**: Represents a single pull request within a repository, characterized by `pr_id`, `comment_length`, `iteration_count`, `review_thread_depth`, and `reverted` (boolean).
+- **AnalysisResult**: Represents the output of the statistical test, characterized by `coefficient`, `standard_error`, `p_value`, `adjusted_p_value`, and `confidence_interval`.
 
 ## Success Criteria
 
 ### Measurable Outcomes
 
-> Planning docs state *what* will be measured and the *source/reference* it is
-> measured against; defer specific empirical values (counts, dataset sizes,
-> measured quantities, percentages) to the implementation/research phase.
+> Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: The primary effect size (regression coefficient for `llm_adopted`) is measured against the null hypothesis value of 0.0 to determine statistical significance (See US-2).
-- **SC-002**: The stability of the primary effect size is measured against the variation observed in the sensitivity analysis across multiple distinct threshold settings and language/age strata. (See US-3).
-- **SC-003**: The computational feasibility is measured against the constraint of completing the full analysis (ingestion, PSM, regression, sensitivity) within 6 hours on a 2-core CPU runner (See US-2).
-- **SC-004**: The data coverage is measured against the requirement to successfully process ≥ 80% of the target curated list (defined in `target_repos.json`) without critical errors (HTTP 4xx/5xx after 3 retries or timeout > 60s) (See US-1).
-- **SC-005**: The validity of the matching process is measured against the requirement that the standardized mean difference for all covariates is < 0.1 after Propensity Score Matching (See US-2).
+- **SC-001**: The dataset validity is measured against the requirement that every included repository has ≥ 10 pull requests in the last 12 months relative to the data ingestion date to ensure statistical power for proxy calculation (See User Story 1).
+- **SC-002**: The statistical validity is measured against the requirement that the regression model includes control variables for project size, team size, and domain complexity (defined as unique languages + dependency count) to isolate the effect of LLM adoption (See User Story 2).
+- **SC-003**: The methodological rigor is measured against the requirement that a multiple-comparison correction is applied to the p-values of the hypothesis tests to prevent Type I error inflation (See User Story 2).
+- **SC-004**: The robustness is measured against the requirement that the sensitivity analysis sweeps the `iteration_count` threshold over at least 3 distinct values and reports the variation in effect size (See User Story 2).
+- **SC-005**: The interpretability is measured against the requirement that the final report explicitly states that findings are associational and not causal, referencing the observational study design (See User Story 3).
 
 ## Assumptions
 
-- The public GitHub API rate limits are sufficient to extract the required metadata for the curated list within the 6-hour window.
-- **Theoretical Framework**: The definition of "cognitive load" is proxied by code review metrics (comment length, iteration count, revert frequency) based on established Software Engineering research (e.g., iteration count as a proxy for review friction/effort). Self-report scales (NASA-TLX) and physiological proxies are out of scope for this public-data study.
-- The presence of `.cursorrules`, `copilot` config files, OR commit messages containing specific LLM keywords is a reliable indicator of active LLM code completion usage in the professional workflow.
-- The dataset fits within the RAM and disk constraints of the free-tier GitHub Actions runner without requiring chunking or external storage.
-- The analysis is observational; therefore, all reported relationships will be framed as associational, not causal, despite the use of PSM to reduce selection bias.
-- The 'target curated list' is defined in a separate `target_repos.json` file.
+- **Dataset-variable fit**: The GitHub API public data contains sufficient metadata (comment text, update timestamps, merge/revert status) to derive the required cognitive load proxies (comment length, iteration count, review thread depth, revert frequency). If a repository lacks sufficient PR history, it will be excluded.
+- **Inference framing**: Since the study relies on observational data (no random assignment of LLM tools), all conclusions regarding the relationship between LLM adoption and cognitive load proxies will be framed strictly as associational, not causal.
+- **Compute feasibility**: The analysis will run on a CPU-only environment (GitHub Actions free tier) using Python's `scikit-learn` and `statsmodels` libraries on a sampled dataset of ≤ 50 repositories, ensuring the total runtime does not exceed 6 hours and memory usage stays within 7 GB.
+- **Threshold justification**: The `iteration_count` threshold (defining what constitutes an "iteration") is set to a default of 1 update cycle for the primary analysis, justified by the standard definition of a PR update in GitHub's event model (See GitHub PR Event Documentation). A sensitivity analysis will sweep this value to {2, 3} to test robustness.
+- **Measurement validity**: The proxies (comment length, iteration count, review thread depth, revert frequency) are assumed to be valid operationalizations of "cognitive load" in professional workflows, based on the theoretical bridge that "review friction" and "iteration patterns" reflect the cognitive effort required to process and integrate code changes. This acknowledges that self-report scales (e.g., NASA-TLX) are not available in public metadata, and these proxies serve as observable behavioral correlates of cognitive load.
+- **Predictor collinearity**: The control variables (lines of code, contributor count) are assumed to be distinct from the LLM adoption flag, but a collinearity diagnostic (Variance Inflation Factor) will be computed to ensure no definitionally related predictors distort the regression coefficients.

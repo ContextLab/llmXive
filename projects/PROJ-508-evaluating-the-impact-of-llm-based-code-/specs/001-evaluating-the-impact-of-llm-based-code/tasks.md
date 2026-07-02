@@ -1,6 +1,6 @@
 # Tasks: Evaluating the Impact of LLM-Based Code Completion on Developer Cognitive Load
 
-**Input**: Design documents from `/specs/001-evaluating-llm-cognitive-load/`  
+**Input**: Design documents from `/specs/001-evaluating-the-impact-of-llm-based-code-completion/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
@@ -20,23 +20,32 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
+<!-- 
+  ============================================================================
+  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+  
+  The /speckit-tasks command MUST replace these with actual tasks based on:
+  - User stories from spec.md (with their priorities P1, P2, P3...)
+  - Feature requirements from plan.md
+  - Entities from data-model.md
+  - Endpoints from contracts/
+  
+  Tasks MUST be organized by user story so each story can be:
+  - Implemented independently
+  - Tested independently
+  - Delivered as an MVP increment
+  
+  DO NOT keep these sample tasks in the generated tasks.md file.
+  ============================================================================
+-->
+
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project directory tree: `mkdir -p code data/raw data/processed results tests` (ensures all required folders exist).
-- [ ] T002 Initialize Python 3.11 project and create `requirements.txt` containing pinned versions:
-  ```
-  pandas==2.2.2
-  numpy==1.26.4
-  scikit-learn==1.5.0
-  statsmodels==0.14.2
-  linearmodels==5.3
-  requests==2.32.3
-  aiohttp==3.9.5
-  pyyaml==6.0.1
-  ```
-- [ ] T003 [P] Configure linting with `flake8` and formatting with `black` (add config files `.flake8` and `pyproject.toml`).
+- [ ] T001 Create directory `projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/data/raw/`
+- [ ] T002 Create directory `projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/data/derived/`
+- [ ] T003 Create directory `projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/docs/output/`
 
 ---
 
@@ -46,86 +55,49 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Verify and initialize data directory structure (`data/raw/`, `data/processed/`, `results/`) by ensuring directories exist and creating `.gitkeep` files to preserve them in version control.
-- [ ] T005 [P] Implement utility module `code/utils.py` with function:
-  ```python
-  def exponential_backoff(retries: int, base: float = 1.0, factor: float = 2.0, max_delay: float = 30.0) -> float:
-      """Return delay in seconds for given retry count."""
-      """Catch requests.exceptions.HTTPError, requests.exceptions.Timeout, and requests.exceptions.ConnectionError."""
-  ```
-- [ ] T006 Create base data schemas in `code/schemas.py` using Pydantic:
-  ```python
-  class Repository(BaseModel):
-      repo_id: int
-      name: str
-      llm_adopted: bool
-      lines_of_code: int
-      contributor_count: int
-      repo_stars: int
-      repo_fork_count: int
-      language: str
-      age_days: int
-      domain_complexity: float  # log10(LOC)+log10(contrib)+1
-
-  class PullRequest(BaseModel):
-      pr_id: int
-      repo_id: int
-      comment_length_chars: int
-      iteration_count: int
-      revert_frequency: int
-      exclude_from_analysis: bool = False
-  ```
-- [ ] T007 Configure environment configuration management by creating `code/config.py` that loads `target_repos.json` (JSON list of repo URLs) and reads `GITHUB_TOKEN` from environment variables.
-- [ ] T008 Setup logging infrastructure to record timestamps, API request/response metadata, and write a `data/manifest.json` (including endpoint URLs, request parameters, collection timestamp, and SHA256 checksums of raw JSON files).
-
-**Spec Kickback Tasks (Spec Amendments)**  
-These tasks update the specification before any conflicting implementation occurs.
-
-- [ ] T050 [SpecKickback] Amend FR‑003 in `spec.md` to **remove** `domain_complexity` as a required control variable (replace with a note that it is stored for reporting only). Place this amendment before any analysis tasks.
-- [ ] T051 [SpecKickback] Amend US‑2 in `spec.md` to permit a **Linear Mixed‑Effects Model (LMM)** with a random intercept for `repo_id` as the primary analysis technique, replacing the original plain linear regression requirement.
-
-- [ ] T052 Compute a quantitative `proxy_validity_score` based on correlations from T019/T020:
-  ```
-  score = (abs(corr_iteration_loc) + (abs(corr_revert_iter) if revert_valid else 0)) / (1 if revert_valid else 0.5)
-  ```
-  Store the score in `results/validity.json` under key `proxy_validity_score`.
-
-- [ ] T053 Build the regression model formula dynamically in `code/analysis.py`:
-  * Always include `llm_adopted`, `lines_of_code`, `contributor_count`, `repo_stars`, `repo_fork_count`.
-  * Include `revert_frequency` **only if** `revert_valid` (from T020) is `True`.
-  * Exclude `domain_complexity` (per T050).
-  * Return the formula string for downstream modeling tasks.
-
-- [ ] T054 If any VIF ≥ 5, switch from the LMM to an **OLS Ridge Regression** (no random effect) using `sklearn.linear_model.Ridge(alpha=1.0)`. Log the switch in `results/regression.json` under `model_type`.
+- [ ] T004 Initialize Python 3.11 project with `requirements.txt` dependencies: `pandas`, `requests`, `scikit-learn`, `statsmodels`, `matplotlib`, `seaborn`, `pyyaml`, `scipy`
+- [ ] T005 [P] Configure linting (ruff) and formatting (black) tools
+- [ ] T006 [P] Implement `code/utils/github_client.py` with exponential backoff retry logic (a limited number of retries with a fixed delay)
+- [ ] T007 [P] Create `code/utils/metrics.py` for cognitive load proxy calculation (NO Copilot exclusion logic)
+- [ ] T008 Create `code/utils/config.py` for environment variables and API key handling
+- [ ] T009 Setup `pytest` configuration and basic test scaffolding in `tests/`
+- [ ] T010 Implement `code/utils/data_validation.py` for PII scanning and schema validation
+- [ ] T000 **Spec Override Documentation**: Create/update `docs/methodological_notes.md` to formally document the override of FR-002 (iteration_count exclusion) and the authorization of GLMM/ZINB models (FR-003 update). This task ensures the Spec's contradictions are explicitly acknowledged and traced. **MUST be completed before T016, T030, T031.**
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
 ---
 
-## Phase 3: User Story 1 - Data Acquisition and Preprocessing Pipeline (Priority: P1) 🎯 MVP
+## Phase 3: User Story 1 - Data Ingestion and LLM Adoption Classification (Priority: P1) 🎯 MVP
 
-**Goal**: Ingest public GitHub PR metadata, identify LLM adoption, and extract code review metrics.
+**Goal**: Identify a corpus of GitHub repositories, classify LLM adoption, and extract PR metadata to establish the independent variable and dependent variables.
 
-**Independent Test**: Run ingestion script against a fixed subset of repositories (several LLM, 2 control) and verify output CSV structure, `llm_adopted` flags, and handling of edge cases (empty repos, <10 PRs).
+**Independent Test**: The system can be tested by running the ingestion script against a known subset of repositories (some with `.cursorrules`, others without) and verifying that the output CSV correctly flags the LLM adoption status and contains non-empty rows for review metrics.
+
+### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+
+> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+
+- [ ] T011 [P] [US1] Unit test for `.cursorrules` detection in `tests/test_ingest.py`
+- [ ] T012 [P] [US1] Unit test for commit message "Copilot" frequency calculation in `tests/test_ingest.py`
+- [ ] T013 [P] [US1] Integration test for GitHub API retry logic in `tests/test_github_client.py`
 
 ### Implementation for User Story 1
 
-- [ ] T009 [US1] Implement `code/ingest.py` to fetch PR metadata for repos listed in `target_repos.json` using the GitHub REST API (authenticated via token). Store raw JSON per repository in `data/raw/`.
-- [ ] T010 [US1] Implement LLM adoption detection in `code/ingest.py`:
-  * Scan repository root for `.cursorrules` or any file named `copilot` (case‑insensitive) containing the word `copilot`.
-  * Scan **PR commit messages**, **PR review comments**, and **PR body descriptions** for case‑insensitive keywords: `copilot`, `cursor`, `codium`, `tabnine`.
-  * Set `llm_adopted = True` if any of the above are found; otherwise `False`. Log ambiguous cases.
-- [ ] T011 [US1] Extract metrics per PR:
-  * `comment_length_chars`: total characters across all review comments.
-  * `iteration_count`: count of distinct commit‑comment cycles (a commit followed by a non‑empty comment block counts as one iteration).
-  * `revert_frequency`: count of merged PRs that have a subsequent merged revert PR within 7 days (detected via `merged_at` timestamps and `revert` label detection).
-- [ ] T012 [US1] Implement rate‑limit handling with exponential backoff (using `code/utils.exponential_backoff`) – A limited number of retries per request will be permitted..
-- [ ] T013 [US1] Store raw JSON dumps in `data/raw/` and generate `data/manifest.json` (per T008) recording API endpoint, parameters, timestamp, and SHA256 checksum.
-- [ ] T014 [US1] Calculate derived metrics:
-  * `domain_complexity = log10(lines_of_code) + log10(contributor_count) + 1` (stored for reporting only).
-  * `exclude_from_analysis = True` if the repository has < 10 PRs; otherwise `False`.
-- [ ] T015 [US1] Implement coverage check (SC‑004): compute `coverage_rate = successful_repos / total_repos` and abort pipeline with a clear error if `< 0.80`. Write `coverage_rate` to `results/validity.json`.
-- [ ] T016 [US1] If total processed data size exceeds a large threshold, perform stratified sampling by `llm_adopted` (preserving the original ratio) to fit within RAM while ensuring at least 10 repositories per group; abort if this cannot be satisfied.
+- [ ] T014 [US1] Implement `code/ingest.py` to fetch repository list and metadata (PRs, commits, config files)
+- [ ] T015 [US1] Implement `llm_adoption_flag` logic in `code/ingest.py`:
+  - Check for `.cursorrules` or `copilot` config files
+  - Check `README.md`/`CONTRIBUTING.md` for "Copilot"/"LLM" mentions (500 char window)
+  - Check commit messages for ≥5% "Copilot"/"LLM" frequency
+- [ ] T016 [US1] Implement `iteration_count` logic in `code/utils/metrics.py` **[FR-002-OVERRIDE]**:
+  - **CRITICAL**: Count TOTAL push events between PR open and merge (NO exclusions for "Copilot" or small diffs).
+  - **Rationale**: Per Plan.md "Spec Conflict Resolution" and documented in T000, FR-002's exclusion rule is overridden to prevent circular bias.
+- [ ] T017 [US1] Implement extraction of `avg_comment_length`, `review_thread_depth`, and `revert_frequency`
+- [ ] T018 [US1] Implement logic to exclude repositories with <10 PRs in last 12 months (SC-001)
+- [ ] T019 [US1] Implement `code/ingest.py` to log "ambiguous LLM signal" warnings for repos with generic configs (e.g., `config.json` without tool naming) to support sensitivity analysis (Moved from Phase 6)
+- [ ] T020 [US1] Implement domain complexity calculation (unique languages + dependency count from manifests)
+- [ ] T021 [US1] Generate `data/derived/master_dataset.csv` with all required columns
+- [ ] T022 [US1] Generate `data/manifest.json` with API endpoints, parameters, and timestamps
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -133,94 +105,92 @@ These tasks update the specification before any conflicting implementation occur
 
 ## Phase 4: User Story 2 - Statistical Analysis and Hypothesis Testing (Priority: P2)
 
-**Goal**: Execute Propensity Score Matching, construct validity checks, and run the primary regression analysis.
+**Goal**: Compute regression models to test the association between LLM adoption and cognitive load proxies, controlling for confounders, applying multiple-comparison corrections, and performing sensitivity analysis.
 
-**Independent Test**: Run analysis on preprocessed data; verify PSM SMD < 0.1, regression output includes coefficients/CIs, and VIF check triggers Ridge fallback when needed.
+**Independent Test**: The system can be tested by running the analysis script on a synthetic dataset where the correlation is hardcoded; the output must report a statistically significant coefficient matching the synthetic input.
+
+### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
+
+- [ ] T023 [P] [US2] Unit test for Bonferroni correction logic in `tests/test_analysis.py`
+- [ ] T024 [P] [US2] Unit test for VIF calculation in `tests/test_analysis.py`
+- [ ] T025 [P] [US2] Unit test for sensitivity analysis sweep logic in `tests/test_analysis.py`
 
 ### Implementation for User Story 2
 
-- [ ] T017 [US2] Implement Propensity Score Matching (PSM) in `code/analysis.py`:
-  * Fit a logistic regression (`sklearn.linear_model.LogisticRegression`) on covariates `lines_of_code`, `contributor_count`, `repo_stars`, `repo_fork_count`.
-  * Perform nearest-neighbor matching with caliper 0.2.
-  * Produce a matched dataset and store it as `data/processed/matched.csv`.
-- [ ] T018 [US2] Verify PSM balance: compute Standardized Mean Difference (SMD) for each covariate; assert all SMD < 0.1. Log results in `results/validity.json`.
-- [ ] T019 [US2] Implement Construct Validity Check (FR‑007):
-  * Compute Pearson correlation between `iteration_count` and `lines_of_code` (store as `corr_iteration_loc` with p‑value).
-  * Compute Pearson correlation between `revert_frequency` and `iteration_count` (store as `corr_revert_iter` with p‑value).
-  * Write both correlations to `results/validity.json`.
-- [ ] T020 [US2] Implement Construct Validity Gate:
-  * If `corr_revert_iter` has p > 0.05, set `revert_valid = False`; otherwise `True`. Record `revert_valid` in `results/validity.json`.
-- [ ] T021 [US2] Implement Linear Mixed‑Effects Model (LMM) in `code/analysis.py` using `linearmodels.PanelOLS` (REML) with random intercept for `repo_id`. Retrieve the formula string from T053 to ensure correct inclusion/exclusion of variables.
-- [ ] T022 [US2] **(Spec Kickback Compliant)** Exclude `domain_complexity` from the regression formula as mandated by spec amendment T050. Reference T050 for justification.
-- [ ] T023 [US2] Perform VIF check on all fixed‑effect predictors; if any VIF ≥ 5, invoke task T054 to switch to OLS Ridge Regression (no random effect) and log the change.
-- [ ] T024 [US2] Conduct hypothesis test on the `llm_adopted` coefficient against the null hypothesis value 0.0 (two‑tailed t‑test). Record p‑value and significance.
-- [ ] T025 [US2] Output `results/regression.json` containing:
-  * `coefficient_llm`, `p_value`, `ci_lower`, `ci_upper`
-  * `model_type` (`LMM` or `Ridge`)
-  * `theoretical_limitations` (populated later in Phase 6)
-  * any VIF warnings or fallback notes.
+- [ ] T026 [US2] Implement `code/analyze.py` to load `data/derived/master_dataset.csv`
+- [ ] T027 [US2] Implement Linear Regression models for each cognitive load proxy (comment length, iteration count, thread depth, revert frequency)
+- [ ] T028 [US2] Implement control variable adjustment: Project size (LOC), Team size (contributors), Domain complexity
+- [ ] T029 [US2] **Spec Update**: Update `spec.md` (FR-003) to explicitly authorize Mixed-Effects Models (GLMM) and Zero-Inflated Negative Binomial (ZINB) models as per Plan.md "Critical Methodological Update". **MUST be completed before T030/T031.**
+- [ ] T030 [US2] Implement Variance Inflation Factor (VIF) check; flag if >5.0
+- [ ] T031 [US2] Implement Multiple-Comparison Correction (Bonferroni) for p-values (FR-004)
+- [ ] T032 [US2] Implement Sensitivity Analysis: Sweep `iteration_count` threshold over {1, 2, 3} and record effect estimates
+- [ ] T033 [US2] Implement Mixed-Effects Model (GLMM) with random intercepts for repositories **[Plan.md Update]**:
+  - **Rationale**: Per Plan.md and T029, GLMM is adopted to account for hierarchical data structure.
+- [ ] T034 [US2] Implement Zero-Inflated Negative Binomial (ZINB) or Hurdle models for zero-inflated outcomes (reverts/iterations) **[Plan.md Update]**:
+  - **Rationale**: Per Plan.md and T029, ZINB is adopted for zero-inflated outcomes.
+- [ ] T035 [US2] Generate `data/derived/analysis_results.json` containing coefficients, SEs, p-values, adjusted p-values, and CI
+- [ ] T036 [US2] Generate `data/derived/sensitivity_analysis.json` with threshold sweep results
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
 ---
 
-## Phase 5: User Story 3 - Sensitivity Analysis and Reporting (Priority: P3)
+## Phase 5: User Story 3 - Visualization and Reporting (Priority: P3)
 
-**Goal**: Perform sensitivity analysis on thresholds and stratification, generating robustness reports.
+**Goal**: Generate publication-ready visualizations and a summary report detailing findings, limitations, and sensitivity analysis.
 
-**Independent Test**: Run sensitivity module with 3 alternative parameter values; verify output includes plots/tables of effect size variation and instability flags.
+**Independent Test**: The generated report must contain a forest plot of effect sizes and explicitly state the null hypothesis rejection status based on corrected p-values.
+
+### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
+
+- [ ] T037 [P] [US3] Unit test for plot generation (matplotlib/seaborn) in `tests/test_report.py`
+- [ ] T038 [P] [US3] Unit test for report text generation (associational framing) in `tests/test_report.py`
 
 ### Implementation for User Story 3
 
-- [ ] T026 [US3] Implement sensitivity analysis in `code/analysis.py`:
-  * Baseline `min_pr_lines` is defined in `code/config.py` as a configurable threshold..
-  * Sweep thresholds at, 100, and 110 lines (±10% of baseline).
-- [ ] T027 [US3] Implement stratification logic:
-  * Identify top programming languages by repo count.
-  * Split repositories into “young” vs “old” using median `age_days`.
-  * Run the regression (via T021/T054) for each language‑age stratum and each threshold.
-- [ ] T028 [US3] Generate `results/sensitivity.json` summarizing the `llm_adopted` effect size (coefficient) for every scenario.
-- [ ] T029 [US3] Instability detection: if the coefficient sign flips across any scenario, set `high_sensitivity = True` and record a warning in `results/sensitivity.json`.
-- [ ] T030 [US3] Generate a line plot saved as `results/effect_size_plot.png`:
-  * X‑axis: threshold variant (90, 100, 110).
-  * Y‑axis: `llm_adopted` coefficient.
-  * Separate lines for each language‑age stratum, with legend.
-- [ ] T031 [US3] Compile final results by aggregating `results/regression.json`, `results/validity.json`, and `results/sensitivity.json` into a single `results/final_report.json`.
+- [ ] T039 [US3] Implement `code/report.py` to load analysis results
+- [ ] T040 [US3] Generate Forest Plot of effect sizes with confidence intervals for all proxies
+- [ ] T041 [US3] Generate Sensitivity Analysis plot/table showing effect variation across thresholds
+- [ ] T042 [US3] Implement text generation for the report:
+  - Explicitly frame findings as "associational" (not causal)
+  - Reference observational study design
+  - State null hypothesis rejection status per corrected p-value
+- [ ] T043 [US3] **Spec Update**: Update `spec.md` (User Story 3 / SC-005) to explicitly mandate the inclusion of "Theoretical Grounding" (Holland's work) and "Data Gap" (NASA-TLX) sections in the final report. **MUST be completed before T044-T046.**
 
 **Checkpoint**: All user stories should now be independently functional
 
 ---
 
-## Phase 6: Revision & Research Integrity (Addressing Prior Reviews)
+## Phase 6: Reviewer Revision - Operationalization & Context (Priority: P1)
 
-**Goal**: Document theoretical limitations, proxy validity, and ensure output schemas reflect all required fields.
+**Goal**: Address reviewer concerns regarding the under-specified operationalization of "cognitive load" and the need for historical/theoretical grounding.
 
-### Implementation for Revision Concerns
+**Independent Test**: The report must include a section on distributed cognition and explicitly acknowledge the limitations of proxy-only metrics vs. self-report/physiological measures.
 
-- [ ] T032 [US3] Update `results/regression.json` schema to include a string field `theoretical_limitations` describing the “Adoption Culture vs. Usage” attenuation bias.
-- [ ] T033 [US3] In `code/analysis.py`, log the theoretical framework statement:
-  * “Cognitive load is proxied by review friction (iteration count, revert frequency) per SE literature; self‑report measures are out of scope for a public‑API study.”
-- [ ] T034 [US3] Add a note in `results/sensitivity.json` under `limitations` acknowledging that the study measures individual review friction rather than emergent team problem‑solving dynamics.
-- [ ] T035 [US3] Ensure `results/validity.json` includes the `proxy_validity_score` computed in T052.
-- [ ] T036 [P] Documentation updates in `README.md` (include theoretical limitations section referencing T032‑T034).
-- [ ] T037 Code cleanup and refactoring (remove dead code, enforce type hints).
-- [ ] T038 [P] Refactor `code/ingest.py` to use asynchronous HTTP requests with `aiohttp` and an async request pool to reduce total I/O time, helping meet the runtime budget.
-- [ ] T039 [P] Add unit tests in `tests/test_analysis.py`:
-  * `test_metric_iteration_count`
-  * `test_metric_revert_frequency`
-  * `test_correlation_computation`
-  * `test_model_formula_construction` (verifies T053 behavior)
-- [ ] T040 Run `quickstart.md` validation script to ensure end‑to‑end reproducibility.
+### Implementation for Reviewer Revision
+
+- [ ] T044 [US3] **Data Gap**: Add a task to `code/report.py` to include a warning in `docs/output/final_report.pdf` that NASA-TLX/physiological data was not available (Per Plan.md "Reviewer Revision" section and T043).
+- [ ] T045 [US3] **Theoretical Grounding**: Add a "Theoretical Context" section to `code/report.py` that:
+  - Cites Holland's work on adaptive systems and distributed cognition (Per Plan.md "Reviewer Revision" section and T043).
+  - Discusses the phenomenon vs. method distinction.
+  - Frames the study as capturing "emergent interaction patterns" rather than just individual offloading.
+- [ ] T046 [US3] **Limitations Section**: Enhance `docs/output/final_report.pdf` to explicitly discuss the "under-specified operationalization" of cognitive load AND the study's "underpowered" nature for small effects (Per Plan.md "Summary" and "Reviewer Revision" sections and T043).
+- [ ] T047 [US2] **Sensitivity Check**: Implement the sensitivity analysis logic in `code/analyze.py` to test robustness when excluding repositories with ambiguous LLM signals (Depends on T019 logging).
+
+**Checkpoint**: Reviewer concerns regarding operationalization and theoretical context are addressed.
 
 ---
 
-## Phase N: Polish & Cross‑Cutting Concerns
+## Phase N: Polish & Cross-Cutting Concerns
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T041 [P] Performance optimization: profile the pipeline and cache GitHub API responses locally to avoid redundant calls (cache stored in `data/cache/`).
-- [ ] T042 Additional integration tests for the full pipeline (`tests/integration/test_pipeline.py`).
-- [ ] T043 Ensure all scripts respect the 2‑core CPU limit (use `joblib` with `n_jobs=2` where applicable).
+- [ ] T048 [P] Documentation updates in `docs/` (README, usage instructions)
+- [ ] T049 Code cleanup and refactoring
+- [ ] T050 Performance optimization (ensure runtime < 6h on 2 CPU cores)
+- [ ] T051 [P] Run `pytest` suite and ensure [deferred] pass rate
+- [ ] T052 [P] Run quickstart.md validation
+- [ ] T053 [P] Verify `state/projects/PROJ-508-evaluating-the-impact-of-llm-based-code-.yaml` artifact hashes are updated
 
 ---
 
@@ -228,27 +198,52 @@ These tasks update the specification before any conflicting implementation occur
 
 ### Phase Dependencies
 
-- **Setup (Phase 1)**: No dependencies – can start immediately.
-- **Foundational (Phase 2)**: Depends on Setup – BLOCKS all user stories.
-- **Spec Kickback (Phase 2)**: Must run before any analysis tasks (T021‑T025).
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion.
-  - User stories can proceed in parallel after Foundational.
-- **Polish (Final Phase)**: Depends on all desired user stories being complete.
+- **Setup (Phase 1)**: No dependencies - can start immediately
+- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
+- **User Stories (Phase 3+)**: All depend on Foundational phase completion
+  - User stories can then proceed in parallel (if staffed)
+  - Or sequentially in priority order (P1 → P2 → P3)
+- **Review Revision (Phase 6)**: Depends on US1 (Data) and US3 (Report) completion
+- **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
 
-- **User Story 1 (P1)**: Starts after Foundational; no dependencies on other stories.
-- **User Story 2 (P2)**: Requires completion of User Story 1 (data ingestion) and spec amendments (T050, T051) before analysis.
-- **User Story 3 (P3)**: Requires analysis results from User Story 2 (regression output) before sensitivity runs.
-- **Revision Concerns (Phase 6)**: Depends on final results (T031) to document limitations.
+- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
+- **User Story 2 (P2)**: Depends on US1 completion (requires `master_dataset.csv`)
+- **User Story 3 (P3)**: Depends on US2 completion (requires `analysis_results.json`)
+- **Phase 6 (Revision)**: Depends on US1, US2, and US3 completion (requires final data and draft report)
+
+### Within Each User Story
+
+- Tests (if included) MUST be written and FAIL before implementation
+- Models/Utilities before services
+- Services before endpoints/reporting
+- Core implementation before integration
+- Story complete before moving to next priority
 
 ### Parallel Opportunities
 
-- All Setup tasks marked [P] can run in parallel.
-- All Foundational tasks marked [P] can run in parallel (within Phase 2).
-- Once Foundational is complete, all user stories can start in parallel (if staffed).
-- All tests for a user story marked [P] can run in parallel.
-- Different user stories can be worked on in parallel by different team members.
+- All Setup tasks marked [P] can run in parallel
+- All Foundational tasks marked [P] can run in parallel (within Phase 2)
+- Once Foundational phase completes, US1, US2, and US3 can start in parallel if data flow is managed (US1 must finish before US2/3 can run)
+- All tests for a user story marked [P] can run in parallel
+- Different user stories can be worked on in parallel by different team members (once dependencies are met)
+
+---
+
+## Parallel Example: User Story 1
+
+```bash
+# Launch all tests for User Story 1 together (if tests requested):
+Task: "Unit test for .cursorrules detection in tests/test_ingest.py"
+Task: "Unit test for commit message Copilot frequency calculation in tests/test_ingest.py"
+Task: "Integration test for GitHub API retry logic in tests/test_github_client.py"
+
+# Launch all models for User Story 1 together:
+Task: "Implement code/ingest.py to fetch repository list and metadata"
+Task: "Implement llm_adoption_flag logic in code/ingest.py"
+Task: "Implement iteration_count logic in code/utils/metrics.py"
+```
 
 ---
 
@@ -256,33 +251,45 @@ These tasks update the specification before any conflicting implementation occur
 
 ### MVP First (User Story 1 Only)
 
-1. Complete Phase 1: Setup.
-2. Complete Phase 2 (including spec kickback tasks T050‑T054).
-3. Complete Phase 3: User Story 1.
-4. **STOP and VALIDATE**: Run User Story 1 independent test suite.
-5. Deploy/demo if ready.
+1. Complete Phase 1: Setup
+2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
+3. Complete Phase 3: User Story 1
+4. **STOP and VALIDATE**: Test User Story 1 independently (verify data ingestion and flagging)
+5. Deploy/demo if ready
 
 ### Incremental Delivery
 
-1. Setup + Foundational → Foundation ready.
-2. Add User Story 1 → Test → Deploy/Demo (MVP!).
-3. Add User Story 2 → Test → Deploy/Demo.
-4. Add User Story 3 → Test → Deploy/Demo.
-5. Each story adds value without breaking previous stories.
+1. Complete Setup + Foundational → Foundation ready
+2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
+3. Add User Story 2 → Test independently → Deploy/Demo
+4. Add User Story 3 → Test independently → Deploy/Demo
+5. Add Phase 6 (Revision) → Address reviewer concerns
+6. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
 
-- Team completes Setup + Foundational together.
-- After Foundational:
-  - Developer A: User Story 1 (Ingestion).
-  - Developer B: User Story 2 (Analysis).
-  - Developer C: User Story 3 (Sensitivity).
+With multiple developers:
+
+1. Team completes Setup + Foundational together
+2. Once Foundational is done:
+   - Developer A: User Story 1 (Data Ingestion)
+   - Developer B: User Story 2 (Analysis) - *Must wait for US1 data*
+   - Developer C: User Story 3 (Reporting) - *Must wait for US2 results*
+3. Stories complete and integrate independently
 
 ---
 
 ## Notes
 
-- All analysis runs on CPU‑only GitHub Actions runner (2 cores, ≤ 7 GB RAM) within 6 hours.
-- No GPU or 8‑bit model loading.
-- Real GitHub API data only; no fabricated inputs.
-- All proxy limitations (adoption culture vs. usage intensity) are explicitly documented in Phase 6 artifacts.
+- [P] tasks = different files, no dependencies
+- [Story] label maps task to specific user story for traceability
+- Each user story should be independently completable and testable
+- Verify tests fail before implementing
+- Commit after each task or logical group
+- Stop at any checkpoint to validate story independently
+- **CRITICAL**: Do NOT exclude "Copilot" commits from `iteration_count` (Per Plan.md "Spec Conflict Resolution" - FR-002 Override, documented in T000)
+- **CRITICAL**: Ensure all tasks run on CPU-only CI (no GPU, no 8-bit/4-bit models)
+- **CRITICAL**: Ensure real data is used; no fabrication of metrics or datasets
+- **CRITICAL**: Address reviewer concerns about cognitive load operationalization in Phase 6 (T044-T046)
+- **CRITICAL**: GLMM and ZINB models are authorized by Plan.md "Critical Methodological Update" and T029 (Spec Update), overriding Spec FR-003.
+- **CRITICAL**: Theoretical Grounding and Data Gap sections are authorized by T043 (Spec Update).

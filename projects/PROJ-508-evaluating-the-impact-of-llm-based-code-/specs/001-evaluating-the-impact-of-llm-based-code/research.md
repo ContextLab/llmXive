@@ -1,90 +1,97 @@
 # Research: Evaluating the Impact of LLM-Based Code Completion on Developer Cognitive Load
 
-## Problem Statement & Operationalization
-
-The study investigates whether the **adoption culture** of LLM code completion tools is associated with changes in developer cognitive load, operationalized via public code review metrics.
-- **Independent Variable**: `llm_adopted` (Binary: 1 if repo has `.cursorrules`, `copilot` config, or LLM keywords in commit messages; 0 otherwise).
-  - *Limitation*: This is a proxy for "tool presence" or "adoption culture," not "usage intensity." Measurement error (misclassification) will likely cause **attenuation bias** (biasing coefficients toward zero), potentially leading to a false negative. Results are interpreted as the association between tool presence and review metrics, representing a lower-bound estimate.
-- **Dependent Variables (Proxies)**:
-  - `comment_length_chars`: Average length of review comments (proxy for communication effort).
-  - `iteration_count`: Number of commits/edits per PR (proxy for review friction).
-  - `revert_frequency`: Frequency of reverts within 7 days (proxy for quality/stability).
-  - *Validity Check*: The study will only interpret `revert_frequency` as a cognitive load proxy if it shows a significant correlation with `iteration_count` (FR-007). If not, it will be excluded from the primary regression model. `revert_frequency` is theoretically a quality metric, not a direct cognitive load metric; its inclusion as a proxy is conditional on empirical validation.
-- **Covariates**: `lines_of_code`, `contributor_count`, `repo_stars`, `repo_fork_count` (as proxies for team maturity/expertise).
-  - *Note*: `domain_complexity` is **excluded** from the regression model to avoid mathematical collinearity with `lines_of_code` and `contributor_count`.
+## Research Question
+Does the adoption of LLM-based code completion tools correlate with changes in developer cognitive load proxies (review comment length, iteration count, review thread depth, and revert frequency) in open-source software projects?
 
 ## Dataset Strategy
 
-The study requires a curated list of repositories (≥50) with PR metadata.
-- **Primary Data Source**: GitHub Public API (programmatic fetching).
-  - *Rationale*: No single verified dataset exists that contains both the specific LLM adoption flags (config files/keywords) and the granular PR metrics (iteration count, revert frequency) for a curated list of mixed LLM/non-LLM projects.
-  - *Constraint*: The `# Verified datasets` block contains PR samples (e.g., `prs-v2-sample`) but lacks the specific LLM configuration context and the curated control/treatment split required for this specific hypothesis. Therefore, the pipeline must fetch raw data from GitHub to construct the dataset dynamically.
-- **Fallback/Sample Data**: For testing the pipeline locally or on CI without hitting rate limits, a small subset of the verified `prs-v2-sample` (HuggingFace) may be used to validate schema compliance, but the primary analysis will rely on the live API fetch from the `target_repos.json` list.
+### Primary Data Source
+The study relies on public GitHub repository metadata. The "Verified datasets" block indicates a specific CPU-only dataset for a different task (MixSub-LLaMA), which is **not** suitable for this study as it lacks repository-level PR metadata, LLM configuration files, or developer interaction logs.
 
-**Dataset Fit Check**:
-- The verified PR datasets (e.g., `loubnabnl/prs-v2-sample`) contain PR metadata but **do not** contain the `llm_adopted` flag (derived from repo config) or the specific `revert_frequency` logic (requires cross-referencing merge/revert events).
-- *Action*: The implementation will **not** use the verified HuggingFace PR datasets for the primary analysis. It will use the GitHub API to fetch the specific repositories listed in `target_repos.json`. The verified datasets are cited here only to confirm that no suitable pre-processed alternative exists.
+Therefore, the data source is **GitHub Public API** (v3), accessed directly via the `code/ingest.py` script.
+- **Source**: GitHub REST API (` Name or service not known)"))])
+- **Access Method**: Programmatic requests with exponential backoff (as per Edge Cases in spec).
+- **Scope**: A curated list of ~50 repositories known or suspected to use LLM tools (identified via `.cursorrules`, `copilot` configs, or commit message patterns) and a matched control group.
 
-## Statistical Methodology
+### Variable Verification & Fit
+The plan confirms the dataset-variable fit for the required metrics:
+1. **LLM Adoption Flag**: Derivable from:
+ - File existence: `.cursorrules`, `copilot` config files (checked via `GET /repos/{owner}/{repo}/contents`).
+ - Commit messages: Scanning last 12 months of commits for "Copilot" or "LLM" keywords (checked via `GET /repos/{owner}/{repo}/commits`).
+ - Documentation: Scanning `README.md` and `CONTRIBUTING.md` for mentions (checked via `GET /repos/{owner}/{repo}/contents`).
+2. **Cognitive Load Proxies**: Derivable from PR metadata:
+ - *Comment Length*: Sum of characters in PR review comments (`GET /repos/{owner}/{repo}/pulls/{pull_number}/comments`).
+ - *Iteration Count*: **Total count of push events** to the PR branch between open and merge. **Note**: We explicitly **DO NOT** exclude commits with "Copilot" or small diffs to avoid circular logic bias (see Plan Spec Conflict Resolution).
+ - *Review Thread Depth*: Max nesting of comments in review threads (`GET /repos/{owner}/{repo}/pulls/{pull_number}/comments`).
+ - *Revert Frequency*: Count of PRs marked as "merged" but subsequently reverted (checked via commit message patterns or PR status).
+3. **Control Variables**:
+ - *Project Size*: Total lines of code (derived from `GET /repos/{owner}/{repo}/contents` tree or `GET /repos/{owner}/{repo}/stats/code_frequency`).
+ - *Team Size*: Count of unique contributors (`GET /repos/{owner}/{repo}/contributors`).
+ - *Domain Complexity*: Count of unique languages + top-level dependencies (parsed from `package.json`, `requirements.txt`, etc., retrieved via `GET /repos/{owner}/{repo}/contents`).
 
-### 1. Propensity Score Matching (PSM)
-- **Goal**: Balance covariates (`lines_of_code`, `contributor_count`, `repo_stars`, `repo_fork_count`) between `llm_adopted=1` and `llm_adopted=0` groups.
-- **Method**: Logistic regression to estimate propensity scores. Nearest-neighbor matching (1:1) without replacement.
-- **Success Criterion**: Standardized Mean Difference (SMD) < 0.1 for all covariates post-matching (FR-006, SC-005).
-- **Fallback**: If exact matching fails due to small sample size, use matching with caliper.
-- **Limitation**: PSM cannot balance on unobserved confounders.
+**Dataset Limitation Note**: The study relies on *observational* data. There is no random assignment of LLM tools. Therefore, the analysis will strictly frame results as **associational**, not causal.
 
-### 2. Linear Mixed-Effects Model (LMM)
-- **Model**: `outcome ~ llm_adopted + lines_of_code + contributor_count + repo_stars + repo_fork_count + (1|repo_id)`
-- **Rationale**: Accounts for the nested structure (PRs within Repositories) to prevent pseudoreplication (Scientific Soundness concern). `repo_id` is a random intercept.
-- **Collinearity**: `domain_complexity` is **excluded** from the model to avoid perfect collinearity with `lines_of_code` and `contributor_count`.
-- **Multicollinearity Check**: Calculate VIF on fixed effects. If VIF ≥ 5, log warning and consider Ridge LMM (if supported) or report instability.
-- **Output**: Coefficients, p-values, 95% Confidence Intervals (FR-004, SC-001).
+## Methodology
 
-### 3. Construct Validity Gate (FR-007)
-- Calculate correlation between `iteration_count` and `lines_of_code`.
-- Calculate correlation between `revert_frequency` and `iteration_count`.
-- **Decision**: If `revert_frequency` correlation with `iteration_count` is weak (p > 0.05), the study will explicitly state that `revert_frequency` is not a valid proxy for cognitive load in this context and exclude it from the primary regression results.
+### Phase 1: Data Ingestion & Classification (FR-001, FR-002 Override)
+1. **Repository Selection**: Select ~50 repositories, ensuring each has ≥10 PRs in the last 12 months (SC-001).
+2. **LLM Flagging**:
+ - Scan for config files (`.cursorrules`, `copilot`).
+ - Scan commit messages (≥5% threshold for "Copilot"/"LLM").
+ - Scan documentation.
+ - *Decision*: If any condition is met, `llm_adoption_flag = 1`. Else `0`.
+3. **Metric Extraction**:
+ - For each PR in the last 12 months:
+ - Extract comment text (calculate length).
+ - **Extract iteration count**: Count **ALL** push events to the PR branch. **Do not exclude** commits with "Copilot" or small diffs (critical to avoid circular bias).
+ - Extract review threads (calculate depth).
+ - Check for revert events.
+ - *Filtering*: Exclude repositories with <10 PRs in the last 12 months (SC-001).
 
-### 4. Sensitivity Analysis
-- **Thresholds**: Vary `min_pr_lines` (e.g., 10, 20, 30).
-- **Stratification**: Split by top 3 languages (Python, JS, Java) and repository age (median split).
-- **Robustness**: Report effect size variation. Flag "High Sensitivity" if sign flips (FR-005, SC-002).
+### Phase 2: Statistical Analysis (FR-003, FR-004, FR-005)
+1. **Model Specification**:
+ - **Hierarchical Structure**: Use **Mixed-Effects Models (GLMM)** with random intercepts for `repo_id` to account for PRs nested within repos (addressing ecological fallacy).
+ - **Outcome Distribution**: Perform Shapiro-Wilk tests on residuals.
+ - If data is **zero-inflated** (common for `revert_frequency` and `iteration_count`): Fit a **Zero-Inflated Negative Binomial (ZINB)** model or a **Hurdle model**.
+ - If not zero-inflated but non-normal: Fit a standard **Negative Binomial GLMM**.
+ - If normal: Use Linear Mixed Model (LMM).
+ - **Predictors**: $Y = \beta_0 + \beta_1 \cdot \text{LLM\_Flag} + \beta_2 \cdot \text{LOC} + \beta_3 \cdot \text{Contributors} + \beta_4 \cdot \text{Complexity} + \text{Random}(repo) + \epsilon$
+ - $Y$ iterates over: `avg_comment_length`, `iteration_count`, `review_thread_depth`, `revert_frequency`.
+2. **Collinearity Check & Handling**:
+ - Calculate Variance Inflation Factor (VIF) for predictors.
+ - **Threshold**: If VIF > 5.0, specifically between `lines_of_code` and `domain_complexity` (which are likely correlated as different transformations of project scale), **replace both variables with a single PCA-derived 'Project Scale' factor**. This preserves the signal while eliminating multicollinearity, rather than simply dropping one variable which might lose the domain complexity signal.
+3. **Multiple Comparison Correction (FR-004)**:
+ - Apply Bonferroni correction to the p-values of the four hypothesis tests ($\alpha_{adj} = \alpha / 4$).
+4. **Sensitivity Analysis (FR-005)**:
+ - Sweep `iteration_count` definition threshold over {1, 2, 3} updates (using the **non-excluded** count).
+ - Report the variation in the coefficient $\beta_1$ for the primary outcome.
+5. **Misclassification Sensitivity Analysis**:
+ - Vary the `llm_adoption_flag` definition (e.g., require BOTH config file AND commit keywords vs. EITHER) to bound the potential bias from measurement error.
 
-## Unobserved Confounders & Limitations
+### Phase 3: Reporting (FR-006)
+1. Generate a forest plot of effect sizes ($\beta_1$) with 95% CIs for all four proxies.
+2. Generate a sensitivity analysis table/plot.
+3. Draft the report text, explicitly stating the **associational** nature of findings (SC-005).
 
--   **Developer Expertise**: High-seniority teams are more likely to adopt new tools (LLMs) AND are likely to have lower cognitive load (faster reviews, fewer reverts) regardless of the tool. This is a critical unobserved confounder. PSM cannot balance it. The study **cannot claim causality**; results are framed as **associational**.
--   **Measurement Error**: The binary `llm_adopted` flag is a noisy proxy for actual usage intensity. This will likely bias the estimated effect toward zero (attenuation bias).
--   **Proxy Validity**: `revert_frequency` is a measure of quality/stability, not cognitive load. Its inclusion as a proxy is conditional on empirical validation (FR-007).
+## Decision Rationale & Rigor
 
-## Compute Feasibility & Constraints
+### Power Analysis Justification
+With a sample size of N=50 repositories and 3 control variables, the study has approximately **[deferred] power to detect a large effect size (Cohen's f^2 >= 0.35)** at $\alpha = 0.05$. The study is **underpowered** for small-to-moderate effects (f^2 < 0.15). Therefore, the study is framed as an **exploratory signal detection** phase. Results are interpreted as effect estimates with wide confidence intervals for small effects, rather than definitive rejections of the null hypothesis for small effects. This justification aligns with the constraints of the GitHub API and computational budget while maintaining scientific rigor.
 
-- **Hardware**: GitHub Actions Free Tier (2 CPU, 7GB RAM).
-- **Strategy**:
-  - Data fetched in chunks with exponential backoff to avoid API limits.
-  - Dataframes kept in memory; if size exceeds 6GB, use **Stratified Sampling** by `llm_adopted` to ensure balance.
-  - No GPU-intensive models. `statsmodels` and `linearmodels` are CPU-optimized.
-  - Runtime target: < 6 hours (SC-003).
-- **Libraries**: `pandas`, `scikit-learn` (for PSM), `statsmodels` (for LMM/VIF), `requests`, `linearmodels`.
+### Why this dataset?
+The GitHub Public API is the only viable source for the required variables (PR comments, commit history, config files) at the scale of this study. No pre-packaged dataset (like the verified MixSub dataset) contains the specific "LLM adoption flag" derived from config files or the granular PR review metrics required.
 
-## References & Citations
+### Statistical Rigor (Addressing Panel Concerns)
+- **Hierarchical Data**: Mixed-Effects Models (GLMM) with random intercepts for repos are used to account for the nested structure (PRs within repos), avoiding ecological fallacy.
+- **Zero-Inflation**: Explicit use of Zero-Inflated Negative Binomial (ZINB) or Hurdle models for outcomes with excess zeros (reverts, iterations), preventing biased estimates from standard GLMMs.
+- **Multiple Comparisons**: Bonferroni correction is explicitly planned for the four dependent variables to control Family-Wise Error Rate (FWER).
+- **Collinearity**: VIF diagnostics will be run with a threshold of 5.0. If exceeded, specifically between LOC and domain complexity, a PCA-derived 'Project Scale' factor will replace both variables to preserve signal without multicollinearity.
+- **Measurement Error**: A sensitivity analysis varying the adoption threshold (config vs. keywords) is included to bound the bias from non-differential misclassification.
+- **Causal Framing**: The plan strictly avoids causal language. The observational nature is highlighted.
+- **Measurement Validity**: The proxies (comment length, iteration count) are standard behavioral correlates of cognitive load in software engineering literature. The plan acknowledges this is an operationalization, not a direct psychometric measure (like NASA-TLX), due to data constraints.
 
-- **Dataset**: GitHub Public API (Programmatic). No static URL.
-- **Methodology**:
-  - Propensity Score Matching: Rosenbaum & Rubin (1983).
-  - Cognitive Load Proxies: Standard SE metrics (iteration count as friction).
-  - Mixed-Effects Models: Pinheiro & Bates (2000).
-- **Verified Datasets (for schema validation only)**:
-  - `loubnabnl/prs-v2-sample`: https://huggingface.co/datasets/loubnabnl/prs-v2-sample/resolve/main/data/train-00000-of-00001-a3494cf8c0712e34.parquet
-
-## Decision Log
-
-| Decision | Rationale |
-| :--- | :--- |
-| **Use GitHub API vs. Pre-packaged Dataset** | No verified dataset contains the specific `llm_adopted` flag derived from config files. API fetch is necessary to operationalize the independent variable. |
-| **Linear Mixed-Effects Model (LMM)** | Required to handle nested data (PRs within Repos) and prevent pseudoreplication (Scientific Soundness concern). |
-| **Exclusion of `domain_complexity`** | Required to avoid mathematical collinearity (Scientific Soundness concern). The spec (FR-003) is flagged for kickback to remove this requirement. |
-| **Construct Validity Gate** | Required to ensure `revert_frequency` is a valid proxy for cognitive load (FR-007). If invalid, it is excluded from the primary model. |
-| **Stratified Sampling** | Required to ensure both treatment and control groups are represented if sampling is necessary for memory constraints. |
-| **Observational Framing** | Despite PSM and LMM, the study cannot claim causality due to unobserved confounders (e.g., Developer Expertise). Results will be framed as "associational" to align with the observational nature of the data (Assumption). |
-| **Exclude Repos < 10 PRs** | To prevent statistical noise from dominating the regression (US-1, Edge Cases). |
+### Compute Feasibility
+- **Hardware**: CPU-only (GitHub Actions free tier).
+- **Libraries**: `scikit-learn`, `statsmodels`, and `scipy` are lightweight and CPU-optimized.
+- **Data Volume**: ~50 repos × ~20 PRs/repo = ~1000 PRs. Data size < 100MB.
+- **Runtime**: Ingestion (API calls) may take several hours due to rate limits (handled by backoff). Analysis and reporting < 30 minutes. Total well within 6-hour limit.

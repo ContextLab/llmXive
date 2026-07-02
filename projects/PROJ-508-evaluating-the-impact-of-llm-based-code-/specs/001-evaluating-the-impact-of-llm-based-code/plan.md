@@ -1,35 +1,29 @@
 # Implementation Plan: Evaluating the Impact of LLM-Based Code Completion on Developer Cognitive Load
 
-**Branch**: `001-evaluating-llm-cognitive-load` | **Date**: 2026-06-25 | **Spec**: `spec.md`
-**Input**: Feature specification from `specs/001-evaluating-llm-cognitive-load/spec.md`
+**Branch**: `001-evaluating-the-impact-of-llm-based-code-completion` | **Date**: 2026-06-25 | **Spec**: `specs/001-evaluating-the-impact-of-llm-based-code-completion/spec.md`
+**Input**: Feature specification from `/specs/001-evaluating-the-impact-of-llm-based-code-completion/spec.md`
 
 ## Summary
 
-This feature implements an observational study to evaluate the **association** between LLM-based code completion **adoption culture** (proxied by config presence) and developer cognitive load, proxied by code review metrics (comment length, iteration count, revert frequency). The technical approach involves:
-1.  **Data Ingestion**: Fetching PR metadata from a curated list of GitHub repositories via the public API, distinguishing LLM-adopting projects based on configuration files (`.cursorrules`, `copilot`) and commit keywords.
-2.  **Preprocessing**: Calculating derived metrics, filtering by PR count, and applying **Stratified Sampling** by `llm_adopted` status if necessary to fit RAM while preserving group balance.
-3.  **Statistical Analysis**: Executing a **Linear Mixed-Effects Model (LMM)** with `repo_id` as a random effect to account for nested data structure (PRs within Repos) and prevent pseudoreplication. Controls include `lines_of_code`, `contributor_count`, `repo_stars`, and `repo_fork_count`. **Note**: `domain_complexity` is **excluded** from the regression to avoid mathematical collinearity (see Task 3.2).
-4.  **Sensitivity Analysis**: Stress-testing results against threshold variations and stratification by language/age.
-5.  **Construct Validity**: Verifying the link between proxies (FR-007) and enforcing a data coverage threshold (SC-004).
+This feature implements a computational study to evaluate the association between LLM-based code completion adoption and developer cognitive load proxies. The approach involves ingesting GitHub repository metadata (PRs, commits, configuration files) to classify LLM adoption and derive cognitive load metrics (comment length, iteration count, review depth, revert frequency). 
 
-All analysis is constrained to run on a CPU-only GitHub Actions runner (2 cores, 7GB RAM) within 6 hours.
+**Critical Methodological Update**: To avoid circular logic bias, the `iteration_count` metric is now defined as the total count of push events between PR open and merge, **without** excluding commits containing "Copilot" or small diffs. The predictor `llm_adoption_flag` is defined by a composite of config files and commit message frequency, independent of the outcome calculation.
 
-**Methodological Limitations**:
--   **Adoption Culture vs. Usage**: The binary flag `llm_adopted` proxies for "tool presence" or "adoption culture," not "usage intensity." This may introduce attenuation bias (biasing coefficients toward zero).
--   **Unobserved Confounders**: Factors like "Developer Expertise" are unobserved. PSM cannot balance these. Results are strictly **associational**, not causal.
--   **Proxy Validity**: `revert_frequency` is a quality/stability proxy, not a direct cognitive load proxy. It is only included if it correlates significantly with `iteration_count` (FR-007).
+The statistical analysis phase will run Mixed-Effects Models (GLMM) with random intercepts for repositories to account for hierarchical data structure. For zero-inflated outcomes (common in revert/iteration counts), the plan specifies Zero-Inflated Negative Binomial (ZINB) or Hurdle models. The final output is a report with effect size plots and explicit associational framing.
+
+The sample size of ~50 repositories is explicitly selected to satisfy **Success Criteria SC-001** (≥10 PRs per repo). This sample size is justified as an exploratory phase designed to detect **large effect sizes** (Cohen's f^2 >= 0.35). The study acknowledges it is underpowered for small-to-moderate effects and frames results as signal detection rather than definitive hypothesis testing for small effects.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11
-**Primary Dependencies**: `pandas`, `scikit-learn`, `statsmodels`, `requests`, `pyyaml`, `numpy`, `linearmodels` (for Mixed-Effects)
-**Storage**: Local filesystem (`data/` for raw/processed CSVs/Parquet, `results/` for JSON outputs).
-**Testing**: `pytest` (contract tests on schemas, unit tests on metric calculation).
-**Target Platform**: Linux (GitHub Actions free-tier runner).
-**Project Type**: Data analysis pipeline / Research script.
-**Performance Goals**: Complete full pipeline (ingestion + analysis) within 6 hours on 2 CPU cores.
-**Constraints**: No GPU usage; no external database; memory footprint < 7GB; strict adherence to GitHub API rate limits (exponential backoff).
-**Scale/Scope**: ~50 repositories, thousands of PRs (sampled if necessary to fit RAM).
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `pandas`, `requests`, `scikit-learn`, `statsmodels`, `matplotlib`, `seaborn`, `pyyaml`, `scipy`  
+**Storage**: Local CSV/Parquet files under `data/` (raw and derived)  
+**Testing**: `pytest` (unit tests for ingestion logic, regression sanity checks)  
+**Target Platform**: Linux (GitHub Actions free-tier runner)  
+**Project Type**: Data analysis / Research pipeline  
+**Performance Goals**: Runtime ≤ 6 hours, Memory ≤ 7 GB, Disk ≤ 14 GB  
+**Constraints**: CPU-only execution; no GPU; no external API keys required beyond standard GitHub public access; strict adherence to dataset-variable fit.  
+**Scale/Scope**: Sample of ~50 repositories, **explicitly selected to satisfy SC-001** (≥10 PRs per repo), subject to data availability and rate limits.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -37,126 +31,64 @@ All analysis is constrained to run on a CPU-only GitHub Actions runner (2 cores,
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Verification Plan |
+| Principle | Status | Compliance Note |
 | :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | `requirements.txt` will pin exact versions. Random seeds will be set in `code/`. For live API data, reproducibility is defined as: same code, same parameters, same timestamp recorded in `manifest.json`. Exact data values may vary due to live repo state; the manifest records the collection timestamp to allow manual comparison of repo states if needed. |
-| **II. Verified Accuracy** | **PASS** | For the GitHub API source, the plan verifies that the API endpoints and request parameters match the official GitHub API documentation (primary source). Data integrity is verified via checksums of raw JSON dumps (Principle III). Acknowledged that 'Verified Accuracy' of live data values is not possible against a static ground truth, so the gate is satisfied by process verification and checksumming. |
-| **III. Data Hygiene** | **PASS** | Raw data stored in `data/raw/` with checksums. Derived data in `data/processed/` with derivation scripts. PII scan on commit. |
-| **IV. Single Source of Truth** | **PASS** | All figures/stats in final report will be generated directly from `data/processed/` via `code/` scripts. No manual entry. |
-| **V. Versioning Discipline** | **PASS** | Artifacts will carry content hashes. State file updated on change. |
-| **VI. Empirical Data Collection Transparency** | **PASS** | `data/manifest.json` will record API endpoints, request parameters, and timestamps as a mandatory step in **Task 1.2**. |
-| **VII. Statistical Rigor** | **PASS** | Regression uses Mixed-Effects Model (LMM) to handle nested data. `domain_complexity` excluded to avoid collinearity. VIF checks and Ridge fallback implemented for remaining predictors. PSM standard mean difference < 0.1 enforced for covariate balance. |
+| **I. Reproducibility** | **PASS** | The plan mandates pinned seeds, versioned dependencies (`requirements.txt`), and a deterministic pipeline (`code/` + `data/`). Random seeds will be set in the analysis script. |
+| **II. Verified Accuracy** | **PASS** | The Reference-Validator Agent will run on every artifact write (as per Constitution 'Verified Accuracy Gate', Points 1 & 2) to verify citations against primary sources before they contribute to review points. Citations in `research.md` will strictly adhere to the "Verified datasets" block. |
+| **III. Data Hygiene** | **PASS** | Raw data will be stored in `data/raw/` with checksums. **Checksums for raw data files will be recorded in the project's `state/projects/PROJ-508-evaluating-the-impact-of-llm-based-code-.yaml` file under the `artifact_hashes` map**, as required by the Constitution. Derived data in `data/derived/`. No in-place modifications. PII scan will be part of the CI gate. |
+| **IV. Single Source of Truth** | **PASS** | All statistics in the final report will be generated programmatically from the `data/` artifacts. No hand-typed numbers. |
+| **V. Versioning Discipline** | **PASS** | The project state file (`state/projects/PROJ-508-evaluating-the-impact-of-llm-based-code-.yaml`) will be updated with content hashes for **all** artifacts to invalidate stale review records, as required by the Constitution. |
+| **VI. Empirical Data Collection Transparency** | **PASS** | The ingestion script will log API endpoints, parameters, and timestamps in a manifest. Derived metrics will be computed by version-controlled scripts. |
+| **VII. Statistical Rigor** | **PASS** | The plan explicitly includes control variables (LOC, contributors, domain complexity), Bonferroni correction, VIF checks (>5.0 threshold), and sensitivity analyses. It adopts Mixed-Effects Models, Zero-Inflated models, and PCA-based variable reduction for collinearity to address hierarchical and zero-inflated data. |
+
+## Spec Conflict Resolution
+
+**CRITICAL CONTRADICTION**: The source spec's **FR-002** mandates: "EXCLUDING any push event where the commit message contains 'Copilot' OR the diff size is < 100 lines" for `iteration_count`. However, **FR-001** defines `llm_adoption_flag` partly by the presence of "Copilot" in commit messages.
+
+**Resolution**: The implementation **MUST override FR-002's exclusion rule**. Excluding "Copilot" commits from the outcome (`iteration_count`) while using them to define the predictor (`llm_adoption_flag`) creates a circular bias that artificially deflates the outcome for the treatment group. The plan implements `iteration_count` as the **total count of push events** (no exclusions) to ensure the outcome is independent of the predictor definition. This is a necessary methodological correction to prevent biased estimates and is documented as a deviation from the literal text of FR-002.
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/001-evaluating-llm-cognitive-load/
+specs/001-evaluating-the-impact-of-llm-based-code-completion/
 ├── plan.md              # This file
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output
+│   └── dataset.schema.yaml
+└── tasks.md             # Phase 2 output (NOT created by /speckit-plan)
 ```
 
 ### Source Code (repository root)
 
 ```text
 projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/
-├── code/
-│   ├── __init__.py
-│   ├── ingest.py            # GitHub API fetching, LLM flagging, Maturity proxies
-│   ├── preprocess.py        # Metric calculation, filtering, Stratified Sampling
-│   ├── analysis.py          # LMM, Construct Validity, Sensitivity
-│   ├── utils.py             # Helpers (backoff, VIF calc)
-│   └── main.py              # Entry point
 ├── data/
-│   ├── raw/                 # Raw API JSON/CSV dumps
-│   ├── processed/           # Cleaned CSVs for analysis
-│   └── manifest.json        # Collection metadata
-├── results/
-│   ├── regression.json      # Coefficients, CIs, Hypothesis Test
-│   ├── validity.json        # Construct validity correlations, Coverage Rate
-│   └── sensitivity.json     # Sensitivity metrics
+│   ├── raw/                 # Raw GitHub API responses (JSON)
+│   ├── derived/             # Processed CSV/Parquet files
+│   └── manifest.json        # Data collection metadata
+├── code/
+│   ├── requirements.txt     # Pinned dependencies
+│   ├── ingest.py            # Data ingestion and classification (FR-001, FR-002 override)
+│   ├── analyze.py           # Statistical modeling (FR-003, FR-004, FR-005)
+│   ├── report.py            # Visualization and report generation (FR-006)
+│   └── utils/
+│       ├── github_client.py # API wrapper with retry logic
+│       └── metrics.py       # Cognitive load proxy calculation (no Copilot exclusion)
 ├── tests/
-│   ├── test_ingest.py
-│   ├── test_analysis.py
-│   └── test_schemas.py
-├── requirements.txt
-└── README.md
+│   ├── test_ingest.py       # Unit tests for ingestion logic
+│   └── test_analysis.py     # Unit tests for statistical functions
+└── docs/
+    └── output/              # Generated PDF/HTML reports and figures
 ```
 
-**Structure Decision**: Single-project structure selected. The `code/` directory contains modular scripts for the linear pipeline (Ingest -> Preprocess -> Analyze). This minimizes overhead and fits the CPU-only constraint. `data/` is strictly for artifacts, not code.
+**Structure Decision**: A linear pipeline structure (`ingest` → `analyze` → `report`) was selected to enforce the computational task ordering required by the spec (data before analysis, analysis before reporting). This minimizes state complexity and ensures reproducibility.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 | :--- | :--- | :--- |
-| **Mixed-Effects Model (LMM)** | Required to handle nested data (PRs within Repos) and prevent pseudoreplication (Scientific Soundness concern). | Simple OLS would underestimate standard errors and inflate Type I error rates. |
-| **Exclusion of `domain_complexity`** | Required to avoid mathematical collinearity (Scientific Soundness concern). | Including it would make the regression matrix rank-deficient. **Spec Kickback**: FR-003 must be updated to remove this requirement. |
-| **Construct Validity Gate** | Required to validate the theoretical link between proxies (FR-007) and ensure `revert_frequency` is a valid proxy. | Blindly using `revert_frequency` risks measuring quality instead of cognitive load. |
-| **Hard Fail on Coverage** | Required to meet SC-004 (≥80% success rate). | Proceeding with <80% data would invalidate the study's representativeness. |
-| **Stratified Sampling** | Required to ensure both treatment and control groups remain balanced and powered if sampling is necessary. | Simple random sampling could result in an imbalanced dataset with insufficient power for the treatment group. |
-
-## Implementation Phases
-
-### Phase 1: Data Ingestion & Preprocessing
-
-**Task 1.1: API Fetching & LLM Flagging**
-- Fetch PR metadata for repositories in `target_repos.json`.
-- Scan for `.cursorrules`, `copilot` config, and LLM keywords in commit messages to set `llm_adopted`.
-- Fetch `repo_stars`, `repo_fork_count`, `lines_of_code`, `contributor_count`, `language`, `age`.
-- **Rate Limit Handling**: Exponential backoff (max a limited number of retries).
-
-**Task 1.2: Data Hygiene & Manifest**
-- Store raw JSON in `data/raw/`.
-- Generate `data/manifest.json` recording: API endpoints, request params, collection timestamp, and checksums (Constitution Principle VI).
-- Calculate derived metrics: `domain_complexity` (for storage only, not regression), `exclude_from_analysis` (if PR count < 10).
-
-**Task 1.3: Coverage Check (SC-004)**
-- Calculate success rate: (Number of repos fetched successfully) / (Total repos in `target_repos.json`).
-- **Condition**: If success rate < 80%, **ABORT** pipeline and log failure. Do not proceed with analysis.
-- **Output**: Record `coverage_rate` in `results/validity.json`.
-
-**Task 1.4: Stratified Sampling (if needed)**
-- If dataset > 6GB, perform **Stratified Sampling** by `llm_adopted` status (preserving ratio) to fit RAM.
-- **Constraint**: Ensure both groups remain sufficiently powered (e.g., a minimum number of repositories per group). Abort if this condition cannot be met.
-
-### Phase 2: Construct Validity & Analysis
-
-**Task 2.1: Construct Validity Check (FR-007)**
-- Calculate correlation between `iteration_count` and `lines_of_code`.
-- Calculate correlation between `revert_frequency` and `iteration_count`.
-- **Gate**: If `revert_frequency` correlation with `iteration_count` is weak (p > 0.05), flag `revert_frequency` as invalid for cognitive load proxy in the final report and exclude it from the primary regression model.
-- **Output**: `results/validity.json` (includes `corr_iteration_loc`, `revert_valid_proxy`, `coverage_rate`).
-
-**Task 2.2: Propensity Score Matching (PSM)**
-- Match `llm_adopted=1` and `llm_adopted=0` groups on covariates (`lines_of_code`, `contributor_count`, `repo_stars`, `repo_fork_count`).
-- Verify Standardized Mean Difference (SMD) < 0.1.
-
-**Task 2.3: Linear Mixed-Effects Model (LMM)**
-- **Model**: `outcome ~ llm_adopted + lines_of_code + contributor_count + repo_stars + repo_fork_count + (1|repo_id)`
-- **Note**: `domain_complexity` is **excluded** to avoid collinearity.
-- **Hypothesis Test**: Perform a t-test on the `llm_adopted` coefficient against the null hypothesis value of 0.0.
-- **Output**: `results/regression.json` (includes `coefficient_llm`, `p_value`, `significant_at_0.05`).
-
-**Task 2.4: Sensitivity Analysis**
-- Vary `min_pr_lines` thresholds.
-- Stratify by language and age.
-- Report effect size variation and flag instability.
-
-### Phase 3: Reporting
-
-**Task 3.1: Generate Results**
-- Compile `results/regression.json`, `results/validity.json`, `results/sensitivity.json`.
-- Ensure all fields match `contracts/` schemas.
-
-**Task 3.2: Final Review**
-- Verify all success criteria (SC-001 to SC-005) are met.
-- Ensure `manifest.json` is complete.
-
-## Spec Kickback Required
-
-- **FR-003**: The spec mandates controlling for `domain_complexity` in the regression. However, `domain_complexity` is defined as `log10(LOC) + log10(Contributors) + 1`, making it mathematically collinear with `lines_of_code` and `contributor_count`. Including it renders the regression coefficients undefined. **Action**: The implementation plan excludes `domain_complexity` from the regression. The spec must be updated to remove this requirement or redefine `domain_complexity` as an independent metric.
+| **None** | The scope is strictly bounded by the spec and CPU constraints. | N/A |

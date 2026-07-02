@@ -1,71 +1,58 @@
 # Data Model: Evaluating the Impact of LLM-Based Code Completion on Developer Cognitive Load
 
-## Entities & Attributes
+## Overview
+This document defines the data structures used for ingestion, storage, and analysis. All data flows from the GitHub API into raw JSON, is transformed into CSV/Parquet, and then consumed by the analysis engine.
 
-### 1. Repository (Aggregated Level)
-Represents a GitHub project. Used for LLM adoption flagging, control variables, and maturity proxies.
+## Entity Definitions
 
-| Attribute | Type | Description | Source |
-| :--- | :--- | :--- | :--- |
-| `repo_id` | String | Unique identifier (e.g., `owner/repo`) | GitHub API |
-| `llm_adopted` | Boolean | 1 if config/keywords found, 0 otherwise | `code/ingest.py` |
-| `lines_of_code` | Integer | Total LOC (snapshot) | GitHub API |
-| `contributor_count` | Integer | Number of unique contributors | GitHub API |
-| `domain_complexity` | Float | `log10(LOC) + log10(Contributors) + 1` | Derived (Stored only, NOT used in regression) |
-| `language_primary` | String | Primary programming language | GitHub API |
-| `repo_age_days` | Integer | Days since first commit | GitHub API |
-| `repo_stars` | Integer | Number of stars (proxy for maturity/expertise) | GitHub API |
-| `repo_fork_count` | Integer | Number of forks (proxy for maturity/expertise) | GitHub API |
-| `exclude_from_analysis` | Boolean | True if PR count < 10 | Derived |
+### 1. Repository (Unit of Analysis)
+Aggregated data per repository.
+-   `repo_id` (string): Unique identifier (e.g., `owner/repo`).
+-   `llm_adoption_flag` (integer): Binary (0 or 1).
+-   `lines_of_code` (integer): Total LOC.
+-   `contributor_count` (integer): Number of unique contributors.
+-   `domain_complexity` (integer): Sum of unique languages + dependency count.
+-   `pr_count_12m` (integer): Number of PRs in last 12 months.
+-   `project_scale_pca` (float, optional): PCA-derived factor replacing LOC and domain_complexity if VIF > 5.0.
 
-### 2. PullRequest (Transaction Level)
-Represents a single Pull Request. Used for outcome variables.
+### 2. PullRequest (Observation Unit)
+Individual PR metrics.
+-   `pr_id` (string): Unique PR identifier.
+-   `repo_id` (string): Foreign key to Repository.
+-   `avg_comment_length` (float): Mean character length of review comments.
+-   `iteration_count` (integer): Number of human review iterations (excluding auto-commits). **Note**: This is the total push count, no exclusions.
+-   `review_thread_depth` (integer): Max nesting depth of review threads.
+-   `reverted` (boolean): Whether the PR was reverted.
 
-| Attribute | Type | Description | Source |
-| :--- | :--- | :--- | :--- |
-| `pr_id` | Integer | GitHub PR number | GitHub API |
-| `repo_id` | String | Foreign Key to Repository | GitHub API |
-| `comment_length_chars` | Integer | Average length of review comments | Derived (from comments) |
-| `iteration_count` | Integer | Number of commits in PR | GitHub API |
-| `revert_frequency` | Integer | Count of reverts within 7 days | Derived (cross-ref PRs) |
-| `merge_date` | DateTime | Timestamp of merge | GitHub API |
-| `exclude_from_analysis` | Boolean | Inherited from Repository | Derived |
-
-### 3. AnalysisResult (Output Level)
-Represents the output of the statistical model.
-
-| Attribute | Type | Description | Source |
-| :--- | :--- | :--- | :--- |
-| `model_type` | String | "LMM" or "Ridge LMM" | `code/analysis.py` |
-| `coefficient_llm` | Float | $\beta_1$ for `llm_adopted` | Regression |
-| `p_value` | Float | p-value for $\beta_1$ | Regression |
-| `ci_lower` | Float | Lower bound of 95% CI | Regression |
-| `ci_upper` | Float | Upper bound of 95% CI | Regression |
-| `significant_at_0.05` | Boolean | True if p-value < 0.05 (SC-001) | Derived |
-| `vif_max` | Float | Max VIF observed | VIF Check |
-| `smd_max` | Float | Max Standardized Mean Difference | PSM Check |
-
-### 4. ValidityResult (Output Level)
-Represents the output of the construct validity check (FR-007).
-
-| Attribute | Type | Description | Source |
-| :--- | :--- | :--- | :--- |
-| `corr_iteration_loc` | Float | Correlation between iteration_count and lines_of_code | Derived |
-| `corr_revert_iteration` | Float | Correlation between revert_frequency and iteration_count | Derived |
-| `revert_valid_proxy` | Boolean | True if `corr_revert_iteration` is significant (p < 0.05) | Derived |
+### 3. AnalysisResult (Output)
+Results of the regression models.
+-   `dependent_variable` (string): Name of the proxy (e.g., `avg_comment_length`).
+-   `coefficient` (float): $\beta_1$ for `llm_adoption_flag`.
+-   `standard_error` (float): SE of the coefficient.
+-   `p_value` (float): Raw p-value.
+-   `adjusted_p_value` (float): Bonferroni-corrected p-value.
+-   `ci_lower` (float): 95% CI lower bound.
+-   `ci_upper` (float): 95% CI upper bound.
 
 ## Data Flow
 
-1.  **Ingest**: `GitHub API` -> `data/raw/repo_prs.json` (Raw JSON).
-2.  **Preprocess**: `data/raw/repo_prs.json` -> `data/processed/cleaned_prs.csv` (Derived metrics, filtering, Stratified Sampling).
-3.  **Validate**: `data/processed/cleaned_prs.csv` -> `results/validity.json` (Construct validity check).
-4.  **Analyze**: `data/processed/cleaned_prs.csv` -> `results/regression.json` (LMM outputs).
-5.  **Sensitivity**: `data/processed/cleaned_prs.csv` + `params` -> `results/sensitivity.json`.
+1.  **Raw Ingestion**:
+    -   Source: GitHub API.
+    -   Format: JSON files in `data/raw/`.
+    -   Content: Full API responses for repos, PRs, commits, comments.
+2.  **Derived Processing**:
+    -   Script: `code/ingest.py`.
+    -   Output: `data/derived/master_dataset.csv`.
+    -   Logic: Aggregates PR metrics per repo, calculates control variables, applies LLM flagging logic.
+3.  **Analysis Output**:
+    -   Script: `code/analyze.py`.
+    -   Output: `data/derived/regression_results.csv`, `data/derived/sensitivity_results.csv`.
+4.  **Reporting**:
+    -   Script: `code/report.py`.
+    -   Output: Figures (PNG/SVG) and text report (PDF/HTML).
 
-## Constraints & Rules
-
-- **Non-Null**: `comment_length_chars`, `iteration_count` must be ≥ 0.
-- **Exclusion**: Any PR from a repo with `exclude_from_analysis=true` is dropped before regression.
-- **Privacy**: No user emails or names stored; only `repo_id` and `pr_id`.
-- **Collinearity**: `domain_complexity` is stored but **NOT** used as a predictor in the regression model.
-- **Validity**: If `revert_valid_proxy` is False, `revert_frequency` is excluded from the primary regression model.
+## Assumptions & Constraints
+-   **Missing Data**: Repositories with <10 PRs in 12 months are excluded (SC-001).
+-   **Rate Limits**: API calls are throttled; data ingestion may be partial if limits are hit (retry logic implemented).
+-   **PII**: No personal names or emails are stored; only public metadata.
+-   **Collinearity**: If VIF > 5.0 between LOC and domain_complexity, both are replaced by `project_scale_pca`.

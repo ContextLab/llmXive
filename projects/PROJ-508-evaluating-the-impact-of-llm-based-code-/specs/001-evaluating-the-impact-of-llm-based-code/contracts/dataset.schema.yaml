@@ -1,0 +1,63 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Master Dataset Schema
+description: Schema for the derived master dataset containing repository-level metrics and LLM adoption flags.
+type: object
+properties:
+  repo_id:
+    type: string
+    description: Unique repository identifier (owner/repo).
+  llm_adoption_flag:
+    type: integer
+    description: Binary flag (0 or 1) indicating LLM code completion adoption.
+    enum:
+      - 0
+      - 1
+  lines_of_code:
+    type: integer
+    description: Total lines of code in the repository.
+    minimum: 0
+  contributor_count:
+    type: integer
+    description: Number of unique contributors.
+    minimum: 1
+  domain_complexity:
+    type: integer
+    description: Sum of unique programming languages and top-level dependencies.
+    minimum: 0
+  pr_count_12m:
+    type: integer
+    description: Number of pull requests in the last 12 months.
+    minimum: 10
+  avg_comment_length:
+    type: number
+    description: Average character length of review comments.
+    minimum: 0
+  iteration_count:
+    type: integer
+    description: Average human review iteration count per PR (total push count, no exclusions).
+    minimum: 0
+  review_thread_depth:
+    type: integer
+    description: Maximum nesting depth of review threads.
+    minimum: 1
+  revert_frequency:
+    type: number
+    description: Frequency of reverted PRs.
+    minimum: 0
+    maximum: 1
+  project_scale_pca:
+    type: number
+    description: PCA-derived factor replacing LOC and domain_complexity if VIF > 5.0.
+    nullable: true
+required:
+  - repo_id
+  - llm_adoption_flag
+  - lines_of_code
+  - contributor_count
+  - domain_complexity
+  - pr_count_12m
+  - avg_comment_length
+  - iteration_count
+  - review_thread_depth
+  - revert_frequency
+additionalProperties: false
