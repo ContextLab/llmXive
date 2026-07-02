@@ -1,13 +1,10 @@
 {
-  "pdf": "projects/PROJ-599-mmskills-towards-multimodal-skills-for-g/paper/pdf/main-llmxive.pdf",
-  "audit": {
-    "passed": true,
-    "defects": [],
-    "audited_at": "2026-06-11T03:07:40.250847+00:00"
-  },
+  "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-599-mmskills-towards-multimodal-skills-for-g/paper/pdf/main-llmxive.pdf",
+  "audit": null,
   "repair_rounds": 0,
-  "status": "audited",
+  "llmxive_compile_attempts": 0,
+  "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-599-mmskills-towards-multimodal-skills-for-g",
-  "updated_at": "2026-06-11T03:07:40.250867+00:00"
+  "updated_at": "2026-07-02T03:49:11.855926+00:00"
 }
