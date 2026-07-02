@@ -30,6 +30,21 @@ _CLS_REL = "papers/.style/llmxive.cls"
 # --------------------------------------------------------------------------- #
 # LaTeX escaping (deterministic, no network)
 # --------------------------------------------------------------------------- #
+# Non-printable control characters (BEL, NUL, etc.) that lualatex REJECTS with
+# "Text line contains an invalid character" — an LLM occasionally emits one (seen:
+# ^^G / 0x07 in a review body), which fails the whole compile. Stripped from all
+# text and math. Tab (0x09), newline (0x0a), carriage return (0x0d) are kept.
+_CTRL_TABLE = {
+    c: None
+    for c in (*range(0x00, 0x09), 0x0B, 0x0C, *range(0x0E, 0x20), 0x7F)
+}
+
+
+def strip_control_chars(text: str) -> str:
+    """Drop control characters lualatex can't typeset (keeps tab/newline/CR)."""
+    return str(text).translate(_CTRL_TABLE)
+
+
 def tex_escape(text: str, *, smart_quotes: bool = True) -> str:
     """Escape LaTeX special characters so metadata/prose renders literally.
 
@@ -40,6 +55,7 @@ def tex_escape(text: str, *, smart_quotes: bool = True) -> str:
     """
     if not text:
         return ""
+    text = strip_control_chars(text)
     replacements = {
         "\\": r"\textbackslash{}",
         "&": r"\&",
@@ -302,6 +318,7 @@ def _md_inline(text: str, *, render_math: bool = True) -> str:
     ``**...**`` / backtick source. LaTeX math spans pass through verbatim when
     ``render_math`` (the caller falls back to ``False`` if math breaks the
     compile, so the math shows as literal text rather than failing the report)."""
+    text = strip_control_chars(text)  # math passes verbatim; strip BEL/NUL first
     out: list[str] = []
     pos = 0
     for m in _MD_INLINE_RE.finditer(text):

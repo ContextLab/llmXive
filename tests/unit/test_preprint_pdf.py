@@ -155,6 +155,28 @@ def test_build_peer_review_tex_renders_math() -> None:
     tex_fallback = build_peer_review_tex(proj, [rec], render_math=False)
     assert r"$\Delta" not in tex_fallback
     assert r"\$" in tex_fallback
+
+
+def test_control_chars_stripped_from_review() -> None:
+    """A stray control character (e.g. BEL 0x07) in an LLM review body must be
+    stripped — lualatex rejects it with "invalid character" and fails the whole
+    report (seen: PROJ-647)."""
+    from types import SimpleNamespace
+
+    from llmxive.paper_reprocess.preprint_pdf import strip_control_chars
+
+    assert strip_control_chars("ho_t\x07 and\x00 params\x1f") == "ho_t and params"
+    assert strip_control_chars("keep\ttab\nand\r\n") == "keep\ttab\nand\r\n"
+    rec = SimpleNamespace(
+        reviewer_name="paper_reviewer_writing_quality",
+        verdict="minor_revision",
+        model_name="qwen.qwen3.5-122b",
+        feedback="A claim about \x07 parameters $x_i$ is unclear.",
+        action_items=[SimpleNamespace(text="Fix \x07 wording.", severity="writing")],
+    )
+    proj = SimpleNamespace(title="P", id="PROJ-y")
+    tex = build_peer_review_tex(proj, [rec])
+    assert "\x07" not in tex and "\x00" not in tex
     # A Reviewed Preprint is advisory only — NO accept/reject verdict is shown,
     # so the report never contradicts its own "nothing is accepted or rejected".
     assert "Verdict" not in tex

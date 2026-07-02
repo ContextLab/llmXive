@@ -174,6 +174,39 @@ class TestHasLlmxivePdf:
         assert cp._has_llmxive_pdf(tmp_path) is False
 
 
+class TestThirdPartyPreprintExclusion:
+    """A third-party Reviewed Preprint (or raw intake) must NEVER be restyled by
+    the --all sweep — restyling re-typesets someone else's paper (a modification)
+    and produces a bogus main-llmxive.pdf instead of the cover-prepended
+    original-llmxive.pdf the preprint builder makes."""
+
+    def _state(self, repo: Path, pid: str, stage: str) -> None:
+        d = repo / "state" / "projects"
+        d.mkdir(parents=True, exist_ok=True)
+        (d / f"{pid}.yaml").write_text(
+            f"id: {pid}\ncurrent_stage: {stage}\n", encoding="utf-8"
+        )
+
+    def test_reviewed_preprint_excluded(self, cp, tmp_path: Path, monkeypatch) -> None:
+        monkeypatch.setattr(cp, "REPO", tmp_path)
+        self._state(tmp_path, "PROJ-1-x", "reviewed_preprint")
+        assert cp._is_third_party_preprint(tmp_path / "projects" / "PROJ-1-x") is True
+
+    def test_paper_ingested_excluded(self, cp, tmp_path: Path, monkeypatch) -> None:
+        monkeypatch.setattr(cp, "REPO", tmp_path)
+        self._state(tmp_path, "PROJ-2-x", "paper_ingested")
+        assert cp._is_third_party_preprint(tmp_path / "projects" / "PROJ-2-x") is True
+
+    def test_authored_paper_not_excluded(self, cp, tmp_path: Path, monkeypatch) -> None:
+        monkeypatch.setattr(cp, "REPO", tmp_path)
+        self._state(tmp_path, "PROJ-3-x", "posted")
+        assert cp._is_third_party_preprint(tmp_path / "projects" / "PROJ-3-x") is False
+
+    def test_missing_state_not_excluded(self, cp, tmp_path: Path, monkeypatch) -> None:
+        monkeypatch.setattr(cp, "REPO", tmp_path)
+        assert cp._is_third_party_preprint(tmp_path / "projects" / "PROJ-9-x") is False
+
+
 class TestUnreadablePdfRegex:
     def test_matches_dewrapped_message(self, cp) -> None:
         # TeX wraps the message mid-word across lines; the caller de-wraps.

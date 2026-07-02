@@ -127,6 +127,26 @@ def _has_llmxive_pdf(project: Path) -> bool:
     return b"%%EOF" in data[-1024:] and len(data) > 4096
 
 
+def _is_third_party_preprint(project: Path) -> bool:
+    """True for a Reviewed Preprint (or a raw intake awaiting review).
+
+    These are THIRD-PARTY papers: llmXive must never restyle or recompile them
+    (that re-typesets the work = a modification, violating the no-modify
+    invariant, and produces a bogus ``main-llmxive.pdf``). Their themed PDFs
+    (``original-llmxive.pdf`` = cover prepended to the untouched original, plus
+    ``peer-review-llmxive.pdf``) are built by ``build_missing_preprint_pdfs.py``
+    / ``finalize_reviewed_preprint``, never here.
+    """
+    sf = REPO / "state" / "projects" / f"{project.name}.yaml"
+    try:
+        text = sf.read_text(encoding="utf-8")
+    except OSError:
+        return False
+    m = re.search(r"^current_stage:\s*(\S+)", text, re.M)
+    stage = m.group(1).strip().strip("\"'") if m else ""
+    return stage in ("reviewed_preprint", "paper_ingested")
+
+
 def _llmxive_attempts(project: Path) -> int:
     """Read the persisted failed-restyle attempt count from paper_status."""
     try:
@@ -569,7 +589,9 @@ def main(argv: list[str] | None = None) -> int:
         # fallback permanent (PROJ-669/671 class).
         targets = [
             p for p in all_projects
-            if (p / "paper" / "source").is_dir() and not _has_llmxive_pdf(p)
+            if (p / "paper" / "source").is_dir()
+            and not _is_third_party_preprint(p)  # never restyle a third-party paper
+            and not _has_llmxive_pdf(p)
         ]
         if args.max:
             targets = targets[: args.max]
