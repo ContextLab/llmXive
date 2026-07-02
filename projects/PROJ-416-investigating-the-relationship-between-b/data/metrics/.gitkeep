@@ -1,0 +1,2 @@
+# This file ensures the data/metrics directory is tracked by git.
+# Final aggregated metrics (CSV, JSON) and plots go here.

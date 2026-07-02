@@ -1,0 +1,21 @@
+# Raw data from external sources (OpenNeuro, etc.)
+# These files are large and should not be committed to git.
+raw/*
+!raw/.gitkeep
+
+# Processed data (intermediate results)
+# Keep only final aggregated metrics in data/metrics/
+processed/*
+!processed/.gitkeep
+
+# Exclude temporary files and caches
+*.nii.gz
+*.nii
+*.tsv
+*.json
+*cache*
+.DS_Store
+Thumbs.db
+
+# Allow .gitkeep files to ensure directories exist
+!*/.gitkeep

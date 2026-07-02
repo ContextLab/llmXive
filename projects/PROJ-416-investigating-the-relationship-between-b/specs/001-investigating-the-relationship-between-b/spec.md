@@ -52,7 +52,7 @@ As a researcher, I need to perform ANCOVA analysis modeling Post-treatment score
 1. **Given** baseline network metrics and corresponding Pre/Post treatment scores, **When** the ANCOVA analysis executes, **Then** regression coefficients, p-values (with multiple comparison correction), and effect sizes are produced for each network metric tested, controlling for baseline severity
 2. **Given** multiple hypothesis tests (e.g., modularity + global efficiency + local efficiency), **When** correction is applied, **Then** Bonferroni or FDR-corrected p-values are reported alongside uncorrected values
 3. **Given** significant associations (p<0.05), **When** diagnostic plots are generated, **Then** scatter plots with regression lines and residual diagnostics are produced and saved
-4. **Given** decision cutoffs (motion threshold, p-value), **When** the sensitivity analysis executes, **Then** the system sweeps cutoffs over a concrete set (motion: {mm, 3mm}; p-value: {, 0.05, 0.1}) and reports variation in outcome rates
+4. **Given** decision cutoffs (motion threshold, p-value), **When** the sensitivity analysis executes, **Then** the system sweeps cutoffs over a concrete set (motion: {mm, 3mm}; p-value: {,, 0.1}) and reports variation in outcome rates
 
 ---
 
@@ -101,13 +101,13 @@ As a researcher, I need to perform ANCOVA analysis modeling Post-treatment score
 - **SC-003**: Network metric computation is measured against mathematical bounds: Modularity Q must be non-negative.; Global/Local Efficiency must be ≥ 0 and finite. Any NaN or out-of-bound value triggers exclusion (See US-2)
 - **SC-004**: Statistical power is measured against a G*Power (or equivalent) calculation with α=0.05, effect size f²=0.15, and target power ≥ 0.8; the report MUST include the calculated minimum N required (See US-3)
 - **SC-005**: Association framing is measured against the dataset metadata JSON: the system checks `metadata.study_design` for the string 'randomized' OR `metadata.randomized` for boolean true; if neither exists, findings are framed as associational (See US-3)
-- **SC-006**: Threshold sensitivity is measured against variation in outcome rates across swept cutoff values (motion: {2mm, 3mm}; p-value: {, 0.05, 0.1}) (See US-3)
+- **SC-006**: Threshold sensitivity is measured against variation in outcome rates across swept cutoff values (motion: {small, 3mm}; p-value: {, 0.05, 0.1}) (See US-3)
 
 ## Assumptions
 
 - Public dataset (e.g., OpenNeuro) contains both resting-state fMRI data AND accompanying clinical anxiety scale scores for pre/post treatment measurement. **Verification**: FR-011 ensures this is checked before execution; if not found, the pipeline halts.
 - If the dataset plausibly lacks required variables (e.g., post-task anxiety/rumination but only trait/personality measures), this will be flagged as `The system MUST verify the presence of both resting-state fMRI data and paired clinical anxiety scale scores (pre- and post-treatment) in the target dataset. If the dataset lacks either variable, the pipeline MUST halt with a fatal error and log the specific missing variable. The system defaults to using the OpenNeuro dataset (or equivalent verified anxiety disorder cohort) which contains both data types; if a different dataset is specified, a validation check runs before preprocessing to confirm variable availability.`
-- Analysis runs on CPU-only hardware (2 cores, ~7 GB RAM, ~14 GB disk, NO GPU, ≤6 h per job)
+- Analysis runs on CPU-only hardware (Multiple cores, ~7 GB RAM, ~14 GB disk, NO GPU, ≤6 h per job)
 - No GPU/CUDA/accelerators required; no 8-bit or 4-bit quantization, no device_map="cuda", no mixed-precision/GPU training
 - Data is sampled/subset to fit within typical RAM and disk constraints.; the 6-hour window applies to the processed subset, not the entire raw dataset.
 - Classical statistics (linear regression, correlation) and scikit-learn on modest data are used; no deep neural network training from scratch

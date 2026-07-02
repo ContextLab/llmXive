@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-brain-network-dynamics"
+version = "0.1.0"
+description = "Investigating the relationship between brain network dynamics and VR therapy response"
+requires-python = ">=3.10"
+dependencies = [
+    "nibabel",
+    "nilearn",
+    "scikit-learn",
+    "networkx",
+    "pandas",
+    "numpy",
+    "matplotlib",
+    "scipy",
+    "pytest",
+    "python-dotenv",
+    "statsmodels",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py310']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | data
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+known_first_party = ["code", "utils", "analysis", "data"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"

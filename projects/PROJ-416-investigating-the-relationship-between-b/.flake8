@@ -1,0 +1,19 @@
+[flake8]
+max-line-length = 88
+extend-ignore = E203, W503
+exclude = 
+    .git,
+    __pycache__,
+    .venv,
+    env,
+    data/raw/*,
+    data/processed/*,
+    data/metrics/*,
+    reports/*,
+    build,
+    dist
+per-file-ignores =
+    # Allow wildcard imports for specific data loading modules if needed
+    code/data/__init__.py:F401
+    code/analysis/__init__.py:F401
+    tests/*:D100,D101,D102,D103

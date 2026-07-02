@@ -1,0 +1,18 @@
+# Set the default behavior for line endings
+* text=auto
+
+# Force specific file types to use LF
+*.sh text eol=lf
+*.py text eol=lf
+*.toml text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+
+# Binary data files
+*.nii binary
+*.nii.gz binary
+*.bval binary
+*.bvec binary
+*.json binary
+*.csv text eol=lf
+*.tsv text eol=lf
