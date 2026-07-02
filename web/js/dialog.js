@@ -413,9 +413,8 @@
     if (pp.source_url) {
       html += row('<i class="fa-solid fa-arrow-up-right-from-square"></i>', 'Original source', pp.source_url, '');
     }
-    if (pp.original_pdf) {
-      html += row('<i class="fa-regular fa-file-pdf"></i>', 'View original (with llmXive cover)', viewable(pp.original_pdf), 'original-llmxive.pdf');
-    }
+    // NB: no "View original (with llmXive cover)" row — the cover PDF IS the
+    // featured pane, and "Original source" already links the upstream preprint.
     if (pp.peer_review_pdf) {
       // The automated-review report is the headline artifact of a Reviewed
       // Preprint — give it a distinct, prominent row (accent border + label).
@@ -515,10 +514,18 @@
     // embeds the raw URL, which fails the clientHeight check and degrades to a
     // working "Download PDF" button instead of a same-origin 404.
     const pp = project.preprint;
-    if (pp && pp.original_pdf) {
-      const op = pp.original_pdf;
-      return { type: "pdf", repo_path: op.mirrored ? op.repo_path : null,
-               github_url: op.github_url, raw_url: op.raw_url };
+    if (pp) {
+      if (pp.original_pdf) {
+        const op = pp.original_pdf;
+        return { type: "pdf", repo_path: op.mirrored ? op.repo_path : null,
+                 github_url: op.github_url, raw_url: op.raw_url };
+      }
+      // Cover PDF (original-llmxive.pdf) not built yet — the drain runner has no
+      // TeX Live, so a freshly reviewed preprint can arrive before the Paper
+      // Compile sweep builds it. The featured pane must always be the llmXive
+      // cover version, so show a "generating" state — NEVER the raw LaTeX/YAML
+      // source and NEVER the un-covered arXiv original.
+      return { type: "preprint_pending", repo_path: null, github_url: null, raw_url: null };
     }
     const ca = project.current_artifact;
     if (ca && ca.type && ca.type !== "none") return ca;
@@ -548,6 +555,19 @@
       ? '<div class="ad-art-foot"><a class="btn" href="' + escapeHtml(url) + '" target="_blank" rel="noopener">' +
         '<i class="fa-brands fa-github"></i> ' + (label || "View on GitHub") + '</a></div>'
       : "";
+
+    if (ca.type === "preprint_pending") {
+      // Reviewed Preprint whose llmXive-cover PDF hasn't been built yet. The
+      // review is already done (see the sidebar); the cover PDF follows on the
+      // next Paper Compile sweep.
+      pdfEl.insertAdjacentHTML("beforeend",
+        '<div class="ad-pdf-empty"><div>' +
+        '<i class="fa-regular fa-file-pdf" style="font-size:28px; opacity:.5;"></i><br/>' +
+        'The llmXive-cover PDF for this preprint is being generated.<br/>' +
+        '<span style="color:var(--muted); font-size:12px;">The automated review is complete — see the sidebar. Check back shortly for the paper.</span>' +
+        '</div></div>');
+      return;
+    }
 
     if (ca.type === "pdf") {
       // The featured pane is always a RENDERED PDF. Two paths:
