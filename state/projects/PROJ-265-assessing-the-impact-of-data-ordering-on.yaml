@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-04T17:53:10.682198Z'
-current_stage: project_initialized
+current_stage: specified
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-265-assessing-the-impact-of-data-ordering-on
-last_run_id: 00b3c822-9990-49f3-9d96-a9518159a822
+last_run_id: 1f448c1c-78ce-487f-bbb9-fd46c31659c8
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-265-assessing-the-impact-of-data-ordering-on/specs/001-assessing-the-impact-of-data-ordering-on
 title: Assessing the Impact of Data Ordering on Bootstrapping Results
-updated_at: '2026-06-24T22:11:21.431852Z'
+updated_at: '2026-07-02T12:09:27.494216Z'

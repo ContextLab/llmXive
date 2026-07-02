@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Coverage Metrics Schema"
+description: "Schema for the primary output artifact: results/coverage_metrics.csv. Supports both synthetic (coverage) and real-world (ci_width_ratio) metrics."
+type: "object"
+properties:
+  phi_level:
+    type: "number"
+    description: "The autoregressive coefficient phi (0.0 to 0.9) or bin label for real data."
+  condition:
+    type: "string"
+    description: "The condition of the data (ordered or shuffled)"
+    enum:
+      - "ordered"
+      - "shuffled"
+  coverage_probability:
+    type: "number"
+    description: "Empirical coverage probability (0.0 to 1.0). NaN for real data."
+    minimum: 0.0
+    maximum: 1.0
+  ci_width_ratio:
+    type: "number"
+    description: "Ratio of Ordered CI Width to Shuffled CI Width. NaN for synthetic data."
+    minimum: 0.0
+  n_trials:
+    type: "integer"
+    description: "Number of simulation trials"
+    minimum: 1
+  mcnemar_p_value:
+    type: "number"
+    description: "P-value from McNemar's test (aggregate counts)"
+    minimum: 0.0
+    maximum: 1.0
+  z_test_p_value:
+    type: "number"
+    description: "P-value from Two-Proportion Z-Test"
+    minimum: 0.0
+    maximum: 1.0
+  significance:
+    type: "boolean"
+    description: "True if p-value < 0.05"
+required:
+  - phi_level
+  - condition
+  - n_trials
+  - mcnemar_p_value
+  - z_test_p_value
+  - significance
+additionalProperties: false

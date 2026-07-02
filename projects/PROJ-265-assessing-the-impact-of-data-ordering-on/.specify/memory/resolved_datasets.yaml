@@ -1,0 +1,195 @@
+resolved_at: '2026-07-02T11:39:07.312186+00:00'
+datasets:
+- intent: McNemar
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://aubh.figshare.com/articles/thesis/_b_The_Beauty_of_Conflict_in_Team_Innovation_How_Constructive_Disagreement_Psychological_Safety_and_Team_Reflexivity_Drive_Innovation_in_Hotels_and_Resorts_in_the_Kingdom_of_Bahrain_b_/32879909
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Topology-Informed_Design_Rules_for_Deconstructable_Thermoset_Copolymer_Networks/32880221
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://manara.qnl.qa/articles/report/_p_dir_rtl_b___b____p_p_p_/32853035
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.dtu.dk/articles/dataset/X-ray_diffraction_CT_reconstruction_of_Martian_meteorite_Black_Beauty/31306372
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Phylogeny_of_Leucopruina_b_b_and_related_species_generated_by_ML_analysis_based_on_ITS_sequences/32880134
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3526809
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18631054
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6491277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19654752
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21102156
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20778519
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20778519
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.00968
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21120125
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21120125
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: UCI
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/udayl/UCI_HAR/resolve/main/csv_files/test.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/jlh/uci-shopper/resolve/main/data/train-00000-of-00001-3316810f8df41d3a.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ucinlp/drop/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ucinlp/drop/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ucirvine/reuters21578/resolve/main/data/reuters21578.tar.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/ucirvine/sms_spam/resolve/main/plain_text/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/udayl/UCI_HAR/resolve/main/csv_files/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/jlh/uci-shopper/resolve/main/data/train-00000-of-00001-3316810f8df41d3a.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://aubh.figshare.com/articles/thesis/_b_The_Beauty_of_Conflict_in_Team_Innovation_How_Constructive_Disagreement_Psychological_Safety_and_Team_Reflexivity_Drive_Innovation_in_Hotels_and_Resorts_in_the_Kingdom_of_Bahrain_b_/32879909
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Topology-Informed_Design_Rules_for_Deconstructable_Thermoset_Copolymer_Networks/32880221
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://manara.qnl.qa/articles/report/_p_dir_rtl_b___b____p_p_p_/32853035
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.dtu.dk/articles/dataset/X-ray_diffraction_CT_reconstruction_of_Martian_meteorite_Black_Beauty/31306372
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Phylogeny_of_Leucopruina_b_b_and_related_species_generated_by_ML_analysis_based_on_ITS_sequences/32880134
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7950533
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/61452
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10685355
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4432825
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6592391
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.lboro.ac.uk/articles/poster/CHORD_Counterfactuals_via_Higher-Order_Relational_Derivatives/32837243/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.lboro.ac.uk/articles/poster/CHORD_Counterfactuals_via_Higher-Order_Relational_Derivatives/32837243/2
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://repository.lboro.ac.uk/articles/poster/CHORD_Counterfactuals_via_Higher-Order_Relational_Derivatives/32837243
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.34740/kaggle/dsv/17581231
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+  - url: https://zenodo.org/records/21126582
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: DataSegment
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://aubh.figshare.com/articles/thesis/_b_The_Beauty_of_Conflict_in_Team_Innovation_How_Constructive_Disagreement_Psychological_Safety_and_Team_Reflexivity_Drive_Innovation_in_Hotels_and_Resorts_in_the_Kingdom_of_Bahrain_b_/32879909
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Topology-Informed_Design_Rules_for_Deconstructable_Thermoset_Copolymer_Networks/32880221
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://manara.qnl.qa/articles/report/_p_dir_rtl_b___b____p_p_p_/32853035
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.dtu.dk/articles/dataset/X-ray_diffraction_CT_reconstruction_of_Martian_meteorite_Black_Beauty/31306372
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Phylogeny_of_Leucopruina_b_b_and_related_species_generated_by_ML_analysis_based_on_ITS_sequences/32880134
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
