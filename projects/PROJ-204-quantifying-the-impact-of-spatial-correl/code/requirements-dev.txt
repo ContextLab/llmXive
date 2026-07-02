@@ -1,0 +1,13 @@
+# Development and Tooling Dependencies
+# Generated for PROJ-204-quantifying-the-impact-of-spatial-correl
+# Task T003: Linting and Formatting Configuration
+
+# Linting and Formatting
+ruff>=0.1.0
+black>=23.0.0
+isort>=5.12.0
+
+# Testing (if not already in main requirements)
+pytest>=7.0.0
+pytest-cov>=4.0.0
+pytest-xdist>=3.0.0
