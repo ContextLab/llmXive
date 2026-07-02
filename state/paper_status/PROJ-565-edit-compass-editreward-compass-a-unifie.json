@@ -14,5 +14,5 @@
     "log_excerpt": "llmxive restyle failed 3x \u2014 serving the arXiv fallback; reset llmxive_compile_attempts in state/paper_status/ after fixing the source"
   },
   "paper_id": "PROJ-565-edit-compass-editreward-compass-a-unifie",
-  "updated_at": "2026-07-02T16:37:56.564017+00:00"
+  "updated_at": "2026-07-02T17:37:29.808661+00:00"
 }
