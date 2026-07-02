@@ -75,9 +75,21 @@
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/2202.05773
   verified_at: '2026-07-02T19:37:30.228672Z'
-- artifact_hash: 411da9bf0752c23e449076030d88a9e4aa16bc212a1f1785d34759372b52cdfa
+- artifact_hash: 37a75a4a9667ddf831b48aa8149f20e9211b50f922325adf2efd3c24c381d69e
   artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2203.14669] Dynamic Structure in Four-strategy Game: Theory and
+    Experiment'
+  kind: url
+  value: https://arxiv.org/abs/2203.14669
+  verification_status: verified
+  verified_against_url: https://arxiv.org/abs/2203.14669
+  verified_at: '2026-07-02T21:39:22.161949Z'
+- artifact_hash: 37a75a4a9667ddf831b48aa8149f20e9211b50f922325adf2efd3c24c381d69e
+  artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: '[2503.02686] Seeding for Success: Skill and Stochasticity in Tabletop
@@ -86,4 +98,4 @@
   value: https://arxiv.org/abs/2503.02686
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/2503.02686
-  verified_at: '2026-07-02T20:55:14.183687Z'
+  verified_at: '2026-07-02T21:39:22.161949Z'

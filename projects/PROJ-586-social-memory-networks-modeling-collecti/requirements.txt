@@ -1,7 +1,5 @@
 # Project requirements
-# Core dependencies
-transformers>=4.40.0
-numpy
 pandas
+numpy
 matplotlib
-# No additional dependencies added for T015.
+# The logging module is self‑contained; no external logging dependency needed.

@@ -17,17 +17,36 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…Returns:         List of synthetic game records     """     random.seed(…”
 - code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…00) -> None:     """     Generate all synthetic datasets needed for the…”
 
+## ⚠ REGRESSIONS — your last fix BROKE these (they passed before)
+
+These commands were NOT failing in the previous round and ARE failing now — your last edit broke previously-working code. REVERT or correct whatever change broke each one BEFORE touching anything else; do not trade one passing script for another (that oscillation is what burns the fix-round budget toward escalation):
+
+- `python code/run_experiment.py --context full --agents 5 --games 100 --seed 42`
+- `python code/run_experiment.py --context full --agents 5 --games 100 --seed 42`
+- `python code/run_experiment.py --context limited --agents 5 --games 1000 --thresholds 128,256,512`
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 15 fabricated/simulated-result signal(s) — results are not real measurements: code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic data generation for social me…”; code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…xperiments.  This module generates controlled synthetic datasets for testing the…”; code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…IMPORTANT: This module generates CONTROLLED synthetic data for testing purpose…”; 1 command(s) failed: python code/run_experiment.py --context full --agents 3,5,7 --games 800 --plot scaling (rc=2)
+**Summary**: 14 fabricated/simulated-result signal(s) — results are not real measurements: code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic data generation for social me…”; code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…xperiments.  This module generates controlled synthetic datasets for testing the…”; code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…IMPORTANT: This module generates CONTROLLED synthetic data for testing purpose…”; 4 command(s) failed: python code/run_experiment.py --context full --agents 3,5,7 --games 800 --plot scaling (rc=2); python code/run_experiment.py --context limited --agents 5 --games 1000 --thresholds 128,256,512 (rc=2); python code/run_experiment.py --context full --agents 5 --games 100 --seed 42 (rc=2)
 
 ## Failing / missing run-book commands
 
 - python code/run_experiment.py --context full --agents 3,5,7 --games 800 --plot scaling -> rc=2
-    usage: run_experiment.py [-h] --context {full,limited} --agents AGENTS --games
-                         GAMES [--output-dir OUTPUT_DIR] [--dataset DATASET]
-                         [--thresholds THRESHOLDS] [--seed SEED]
-run_experiment.py: error: argument --agents: invalid int value: '3,5,7'
+    usage: run_experiment.py [-h] --context {full,limited} --agents AGENTS
+                         [--games GAMES] [--output-dir OUTPUT_DIR]
+run_experiment.py: error: unrecognized arguments: --plot scaling
+- python code/run_experiment.py --context limited --agents 5 --games 1000 --thresholds 128,256,512 -> rc=2
+    usage: run_experiment.py [-h] --context {full,limited} --agents AGENTS
+                         [--games GAMES] [--output-dir OUTPUT_DIR]
+run_experiment.py: error: unrecognized arguments: --thresholds 128,256,512
+- python code/run_experiment.py --context full --agents 5 --games 100 --seed 42 -> rc=2
+    usage: run_experiment.py [-h] --context {full,limited} --agents AGENTS
+                         [--games GAMES] [--output-dir OUTPUT_DIR]
+run_experiment.py: error: unrecognized arguments: --seed 42
+- python code/run_experiment.py --context full --agents 5 --games 100 --seed 42 -> rc=2
+    usage: run_experiment.py [-h] --context {full,limited} --agents AGENTS
+                         [--games GAMES] [--output-dir OUTPUT_DIR]
+run_experiment.py: error: unrecognized arguments: --seed 42
 
 ## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
 
@@ -42,9 +61,10 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 Make `__getattr__` in `code/utils/logging.py` accept ALL of the above.
 
-### `compute_retrieval_efficiency` — defined in `code/metrics/retrieval.py`; called 16 way(s):
+### `compute_retrieval_efficiency` — defined in `code/run_experiment.py`; called 17 way(s):
 
-- code/generate_full_results.py: _, efficiency = compute_retrieval_efficiency(
+- code/generate_full_results.py: _, retrieval_efficiency = compute_retrieval_efficiency(
+- code/run_experiment.py: retrieval = compute_retrieval_efficiency(agent_count)
 - code/metrics/tests/test_retrieval.py: metrics, efficiency = compute_retrieval_efficiency(10, 10, 3)
 - code/metrics/tests/test_retrieval.py: metrics, efficiency = compute_retrieval_efficiency(1, 3, 3)
 - code/metrics/tests/test_retrieval.py: metrics, efficiency = compute_retrieval_efficiency(0, 10, 3)
@@ -61,7 +81,7 @@ Make `__getattr__` in `code/utils/logging.py` accept ALL of the above.
 - code/tests/unit/test_retrieval.py: compute_retrieval_efficiency(-1, 10, 3)
 - code/tests/unit/test_retrieval.py: compute_retrieval_efficiency(15, 10, 3)  # retrieved > total
 
-Make `compute_retrieval_efficiency` in `code/metrics/retrieval.py` accept ALL of the above.
+Make `compute_retrieval_efficiency` in `code/run_experiment.py` accept ALL of the above.
 
 ### `get_logger` — defined in `code/utils/logging.py`; called 9 way(s):
 
@@ -77,12 +97,14 @@ Make `compute_retrieval_efficiency` in `code/metrics/retrieval.py` accept ALL of
 
 Make `get_logger` in `code/utils/logging.py` accept ALL of the above.
 
-### `simulate_one_game` — defined in `code/generate_full_results.py`; called 6 way(s):
+### `simulate_one_game` — defined in `code/generate_full_results.py`; called 8 way(s):
 
-- code/run_experiment.py: spec_metrics, retrieval_metrics = simulate_one_game(
+- code/generate_full_results.py: * ``simulate_one_game(agents, game_id)`` – positional ``agents`` and
+- code/generate_full_results.py: * ``simulate_one_game(agents=3, game_id=42, context="full")`` – keyword
+- code/generate_full_results.py: * ``simulate_one_game(agents)`` – only the agent count.
+- code/generate_full_results.py: * ``simulate_one_game(result)`` – legacy signatures that passed a
 - code/output_full_results.py: specialization_index, retrieval_efficiency = simulate_one_game(
 - code/run_scaling_experiment.py: result = simulate_one_game(agents, game_id)
-- code/t015_generate_full_results.py: specialization_index, retrieval_efficiency = simulate_one_game(
 - code/analysis/sensitivity.py: result = simulate_one_game(
 - code/analysis/sensitivity.py: result = simulate_one_game(agents, game_id)
 

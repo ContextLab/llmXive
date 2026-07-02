@@ -96,11 +96,11 @@ T006 [P] Implement shared external memory buffer with `<MEMORY_ACTION>` token ha
   requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED:
   unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE:
   requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->'
-: 2
-? T015 [US-1] Output `results_full.csv` with `game_id`, `specialization_index`, `retrieval_efficiency`,
-  `context_condition`, `agent_count` to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/`
-  for 1000 games
-: 2
+: 1
+? "T012 [P] [US-1] Implement specialization index computation (0 to log\u2082(N_agents))\
+  \ [UNRESOLVED-CLAIM: c_f4ad6d2c \u2014 status=not_enough_info] in `code/metrics/specialization.py`\
+  \ (FR-004)"
+: 1
 ? "T015 [US-1] Output `results_full.csv` with `game_id`, `specialization_index`, `retrieval_efficiency`,\
   \ `context_condition`, `agent_count` to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/`\
   \ for 1000 games [UNRESOLVED-CLAIM: c_1618f9ba \u2014 status=not_enough_info]"
@@ -317,6 +317,18 @@ T006 [P] Implement shared external memory buffer with `<MEMORY_ACTION>` token ha
   \ --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
   \ --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->"
 : 1
+? "T018 [US-2] {{claim:c_504902df}} (2503.02686, https://arxiv.org/abs/2503.02686)\
+  \ [UNRESOLVED-CLAIM: c_5d1a4f4c \u2014 status=verified] in `code/run_experiment.py`\
+  \ <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
+  \ --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified\
+  \ --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
+  \ --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified\
+  \ --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
+  \ --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->"
+: 1
 ? "T021 [P] [US-2] Apply Bonferroni correction to all family\u2011wise hypothesis\
   \ tests and report corrected \u03B1 in `code/analysis/anova.py` [UNRESOLVED-CLAIM:\
   \ c_9e3d059c \u2014 status=not_enough_info] (FR-007)"
@@ -328,6 +340,9 @@ T006 [P] Implement shared external memory buffer with `<MEMORY_ACTION>` token ha
 ? "T024 [US-2] Flag \"Power limitation\" if estimated power < 0.70 [UNRESOLVED-CLAIM:\
   \ c_f9748e80 \u2014 status=not_enough_info] in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/power_analysis_report.md`\
   \ (SC-004)"
+: 1
+? T024 [US-2] Flag "Power limitation" if estimated power < 0.70 in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/power_analysis_report.md`
+  (SC-004)
 : 1
 ? T027 [US-3] Implement game simulation for agent counts 3, 5, 7 (800 games per config
   per spec US-3) in `code/run_experiment.py`
@@ -361,6 +376,9 @@ T006 [P] Implement shared external memory buffer with `<MEMORY_ACTION>` token ha
 ? "T029 [P] [US-3] {{claim:c_9aceca76}} [UNRESOLVED-CLAIM: c_824a75ef \u2014 status=not_enough_info]\
   \ (Wikidata Q26876, https://www.wikidata.org/wiki/Q26876)"
 : 1
+? "T030 [US-3] Generate `scaling_plot.pdf` with fitted power\u2011law curves and explicit\
+  \ note that 3 data points limit power\u2011law reliability in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_plot.pdf`"
+: 2
 ? 'T031 [P] Run `quickstart.md` validation (execute all commands, verify exit code
   0 for each) in `projects/PROJ-586-social-memory-networks-modeling-collecti/code/`
   <!-- ATOMIZE: requested -->'

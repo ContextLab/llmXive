@@ -7,30 +7,80 @@ fits a power‑law relationship between the number of agents and each metric
 The implementation is deliberately tolerant: it accepts any DataFrame that
 contains the columns ``agent_count``, ``specialization_index`` and
 ``retrieval_efficiency``.  Missing columns raise a clear ``ValueError``.
+In addition to the point estimates of the power‑law exponents, the function
+now computes and displays 95 % confidence intervals derived from the
+covariance matrix returned by ``scipy.optimize.curve_fit``.
 """
 
 from __future__ import annotations
 
 import pathlib
-from typing import Any
+from typing import Any, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from scipy.optimize import curve_fit
 
-__all__ = ["generate_scaling_plot"]
+__all__ = [
+    "generate_scaling_plot",
+    "fit_power_law_with_ci",
+]
 
 def _power_law(x: np.ndarray, a: float, b: float) -> np.ndarray:
     """Simple power‑law function ``y = a * x ** b``."""
     return a * np.power(x, b)
 
-def _fit_power_law(x: np.ndarray, y: np.ndarray) -> tuple[float, float]:
-    """Fit ``y = a * x ** b`` using non‑linear least squares."""
-    # Provide sensible initial guesses to aid convergence.
+
+def _fit_power_law(x: np.ndarray, y: np.ndarray) -> Tuple[float, float]:
+    """Fit ``y = a * x ** b`` using non‑linear least squares.
+
+    Returns the point estimates (a, b).  This helper is kept for backward
+    compatibility with parts of the code that only need the estimates.
+    """
     popt, _ = curve_fit(_power_law, x, y, p0=(1.0, 0.5))
     a, b = popt
     return a, b
+
+
+def fit_power_law_with_ci(
+    x: np.ndarray, y: np.ndarray, confidence: float = 0.95
+) -> Tuple[float, float, Tuple[float, float], Tuple[float, float]]:
+    """Fit a power‑law and return parameters with confidence intervals.
+
+    Parameters
+    ----------
+    x, y :
+        Data vectors to which the power‑law ``y = a * x ** b`` will be fit.
+    confidence :
+        Desired confidence level (default 0.95).
+
+    Returns
+    -------
+    a, b :
+        Point estimates of the amplitude and exponent.
+    ci_a, ci_b :
+        Two‑element tuples giving the lower and upper bounds of the
+        confidence interval for ``a`` and ``b`` respectively.
+    """
+    # Perform the fit; curve_fit also returns the covariance matrix.
+    popt, pcov = curve_fit(_power_law, x, y, p0=(1.0, 0.5))
+
+    a, b = popt
+    # Extract standard errors (sqrt of diagonal of covariance matrix).
+    perr = np.sqrt(np.diag(pcov))
+
+    # Compute the z‑score for the two‑tailed confidence interval.
+    # For large sample sizes the normal approximation is fine.
+    from scipy.stats import norm
+
+    z = norm.ppf(0.5 + confidence / 2.0)
+
+    ci_a = (a - z * perr[0], a + z * perr[0])
+    ci_b = (b - z * perr[1], b + z * perr[1])
+
+    return a, b, ci_a, ci_b
+
 
 def generate_scaling_plot(
     df: pd.DataFrame,
@@ -71,9 +121,13 @@ def generate_scaling_plot(
     spec_vals = agg["specialization_index"].to_numpy()
     retrieval_vals = agg["retrieval_efficiency"].to_numpy()
 
-    # Fit power‑law curves.
-    a_spec, b_spec = _fit_power_law(agent_counts, spec_vals)
-    a_ret, b_ret = _fit_power_law(agent_counts, retrieval_vals)
+    # Fit power‑law curves with confidence intervals.
+    a_spec, b_spec, ci_a_spec, ci_b_spec = fit_power_law_with_ci(
+        agent_counts, spec_vals
+    )
+    a_ret, b_ret, ci_a_ret, ci_b_ret = fit_power_law_with_ci(
+        agent_counts, retrieval_vals
+    )
 
     # Plotting.
     plt.figure(figsize=(8, 6))
@@ -83,7 +137,10 @@ def generate_scaling_plot(
         _power_law(agent_counts, a_spec, b_spec),
         color="tab:blue",
         linestyle="--",
-        label=f"Spec fit: $y = {a_spec:.2f}·x^{{{b_spec:.2f}}}$",
+        label=(
+            f"Spec fit: $y = {a_spec:.2f}·x^{{{b_spec:.2f}}}$\n"
+            f"95% CI for $b$: [{ci_b_spec[0]:.2f}, {ci_b_spec[1]:.2f}]"
+        ),
     )
 
     plt.scatter(
@@ -97,7 +154,10 @@ def generate_scaling_plot(
         _power_law(agent_counts, a_ret, b_ret),
         color="tab:orange",
         linestyle="--",
-        label=f"Ret fit: $y = {a_ret:.2f}·x^{{{b_ret:.2f}}}$",
+        label=(
+            f"Ret fit: $y = {a_ret:.2f}·x^{{{b_ret:.2f}}}$\n"
+            f"95% CI for $b$: [{ci_b_ret[0]:.2f}, {ci_b_ret[1]:.2f}]"
+        ),
     )
 
     plt.title("Scaling of Metrics vs. Agent Count")
