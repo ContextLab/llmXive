@@ -130,8 +130,8 @@
 
 - [X] T027 [US-3] Implement game simulation for agent counts 3, 5, 7 (800 games per config per spec US-3) in `code/run_experiment.py`
 - [X] T028 [P] [US-3] Implement power-law fitting for metric trends vs. agent count (3, 5, 7) in `code/analysis/scaling.py` (US-3)
-- [ ] T029 [P] [US-3] Calculate 95% confidence interval for exponent β and note sub‑linearity (β < 1) in `code/analysis/scaling.py`
-- [ ] T030 [US-3] Generate `scaling_plot.pdf` with fitted power‑law curves and explicit note that 3 data points limit power‑law reliability in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_plot.pdf`
+- [X] T029 [P] [US-3] Calculate 95% confidence interval for exponent β and note sub‑linearity (β < 1) in `code/analysis/scaling.py`
+- [X] T030 [US-3] Generate `scaling_plot.pdf` with fitted power‑law curves and explicit note that 3 data points limit power‑law reliability in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_plot.pdf`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -141,11 +141,11 @@
 
 **Purpose**: Improvements that affect multiple user stories and address remaining requirements
 
-- [ ] T031 [P] Run `quickstart.md` validation (execute all commands, verify exit code 0 for each) in `projects/PROJ-586-social-memory-networks-modeling-collecti/code/`
-- [ ] T032 [P] Remove all 8-bit/4-bit quantization imports, verify no CUDA imports in all Python files (compute feasibility)
-- [ ] T033 [P] Implement file-locking with fcntl and add conflict retry logic in `code/utils/serialization.py` (FR-012)
-- [ ] T034 [P] Update `research.md` with reviewer feedback integration notes (Turing, Rockmore, Kahneman, Krakauer, Kandel, West)
-- [ ] T035 [P] Run full pipeline on CI runner, record runtime/memory/disk in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/` to verify ≤6h, ≤7GB RAM, ≤14GB disk constraints
+- [ ] T031 [P] Run `quickstart.md` validation (execute all commands, verify exit code 0 for each) in `projects/PROJ-586-social-memory-networks-modeling-collecti/code/` <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [X] T032 [P] Remove all 8-bit/4-bit quantization imports, verify no CUDA imports in all Python files (compute feasibility)
+- [X] T033 [P] Implement file-locking with fcntl and add conflict retry logic in `code/utils/serialization.py` (FR-012)
+- [X] T034 [P] Update `research.md` with reviewer feedback integration notes (Turing, Rockmore, Kahneman, Krakauer, Kandel, West)
+- [ ] T035 [P] Run full pipeline on CI runner, record runtime/memory/disk in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/` to verify ≤6h, ≤7GB RAM, ≤14GB disk constraints <!-- ATOMIZE: requested -->
 
 ---
 

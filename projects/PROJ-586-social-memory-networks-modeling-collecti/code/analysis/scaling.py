@@ -1,483 +1,479 @@
-"""
-Scaling Analysis Module
-
-Implements power-law fitting for metric trends vs. agent count.
-Fits models of the form: y = α * N^β where N is agent count.
-
-This addresses US-3: Scaling Analysis Across Agent Populations
-"""
-
 import argparse
 import sys
 from pathlib import Path
 import numpy as np
 import pandas as pd
 from typing import Dict, Any, Optional, Tuple, List
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, field
 import json
-
-# scipy for curve fitting
+import scipy.stats as stats
 from scipy.optimize import curve_fit
-from scipy import stats
 
-# Import from project modules
+# Ensure the path to parent code directory is available for imports if running standalone
+# In a standard project run, this is handled by the environment setup.
+if __name__ == "__main__" and "code" not in sys.path:
+    code_root = Path(__file__).resolve().parent.parent
+    if code_root.name == "code":
+        sys.path.insert(0, str(code_root))
+
+from metrics.specialization import compute_specialization_index
+from metrics.retrieval import compute_retrieval_efficiency
 from data.loaders import load_experiment_results
 from utils.logging import get_logger
 
 logger = get_logger(__name__)
 
+
 @dataclass
 class PowerLawFitResult:
-    """Result of power-law fitting for a single metric."""
-    metric_name: str
-    alpha: float  # coefficient
-    beta: float   # exponent
+    """Result of a power-law fit y = a * x^beta."""
+    alpha: float  # Pre-factor 'a'
+    beta: float   # Exponent 'beta'
     r_squared: float
+    standard_error: float
+    ci_lower: float  # 95% CI lower bound for beta
+    ci_upper: float  # 95% CI upper bound for beta
+    is_sublinear: bool  # True if beta < 1 (and CI confirms)
+    n_points: int
     p_value: float
-    std_err_beta: float
-    ci_lower_beta: float
-    ci_upper_beta: float
-    sublinear: bool  # True if β < 1
-    
+
+
 @dataclass
 class ScalingAnalysisResult:
-    """Complete scaling analysis result."""
+    """Container for the full scaling analysis results."""
     agent_counts: List[int]
-    metrics_summary: Dict[str, Any]
-    power_law_fits: Dict[str, PowerLawFitResult]
-    overall_scaling_factor: float
-    
-def power_law_function(N: np.ndarray, alpha: float, beta: float) -> np.ndarray:
+    specialization_means: List[float]
+    specialization_stds: List[float]
+    retrieval_means: List[float]
+    retrieval_stds: List[float]
+    specialization_fit: Optional[PowerLawFitResult]
+    retrieval_fit: Optional[PowerLawFitResult]
+    notes: List[str] = field(default_factory=list)
+
+
+def power_law_function(x: np.ndarray, a: float, b: float) -> np.ndarray:
     """
-    Power-law function: y = α * N^β
+    Power law function: y = a * x^b
     
     Args:
-        N: Agent counts
-        alpha: Coefficient
-        beta: Exponent
-    
+        x: Independent variable (agent count)
+        a: Pre-factor
+        b: Exponent
+        
     Returns:
-        Fitted values
+        y: Dependent variable value
     """
-    return alpha * np.power(N, beta)
+    return a * np.power(x, b)
 
-def fit_power_law(
-    agent_counts: np.ndarray,
-    metric_values: np.ndarray,
-    confidence_level: float = 0.95
-) -> Tuple[PowerLawFitResult, Dict[str, Any]]:
+
+def fit_power_law(x: np.ndarray, y: np.ndarray) -> PowerLawFitResult:
     """
-    Fit a power-law model to metric trends across agent counts.
+    Fit a power law y = a * x^b to data using log-log linear regression.
+    
+    This method transforms the power law to a linear form:
+    log(y) = log(a) + b * log(x)
+    
+    We then perform linear regression on the log-transformed data to estimate
+    'b' (the exponent) and its confidence interval.
     
     Args:
-        agent_counts: Array of agent counts (N)
-        metric_values: Array of metric values for each agent count
-        confidence_level: Confidence level for CI (default 0.95)
-    
+        x: Independent variable values (must be > 0)
+        y: Dependent variable values (must be > 0)
+        
     Returns:
-        Tuple of (PowerLawFitResult, fit diagnostics dict)
+        PowerLawFitResult containing fitted parameters and statistics
     """
-    if len(agent_counts) < 2:
-        raise ValueError("Need at least 2 data points for power-law fitting")
+    if len(x) < 2:
+        raise ValueError("Need at least 2 data points to fit a power law")
+        
+    # Filter out non-positive values to allow log transformation
+    mask = (x > 0) & (y > 0)
+    x_filtered = x[mask]
+    y_filtered = y[mask]
     
-    # Initial guesses: alpha ≈ mean metric value, beta ≈ 0.8 (sublinear)
-    initial_alpha = np.mean(metric_values)
-    initial_beta = 0.8
+    if len(x_filtered) < 2:
+        raise ValueError("Need at least 2 positive data points to fit a power law")
+        
+    # Log-transform the data
+    log_x = np.log(x_filtered)
+    log_y = np.log(y_filtered)
     
-    try:
-        # Fit the power-law model
-        popt, pcov = curve_fit(
-            power_law_function,
-            agent_counts,
-            metric_values,
-            p0=[initial_alpha, initial_beta],
-            maxfev=5000
-        )
+    # Perform linear regression: log(y) = intercept + slope * log(x)
+    # slope corresponds to beta, intercept corresponds to log(a)
+    slope, intercept, r_value, p_value, std_err = stats.linregress(log_x, log_y)
+    
+    # Calculate the exponent beta and its standard error
+    beta = slope
+    beta_se = std_err
+    
+    # Calculate 95% confidence interval for beta
+    # Using t-distribution for small sample sizes
+    n = len(x_filtered)
+    dof = n - 2
+    if dof <= 0:
+        raise ValueError("Not enough degrees of freedom for confidence interval")
         
-        alpha, beta = popt
-        alpha_err, beta_err = np.sqrt(np.diag(pcov))
-        
-        # Calculate R-squared
-        y_pred = power_law_function(agent_counts, alpha, beta)
-        ss_res = np.sum((metric_values - y_pred) ** 2)
-        ss_tot = np.sum((metric_values - np.mean(metric_values)) ** 2)
-        r_squared = 1 - (ss_res / ss_tot) if ss_tot > 0 else 0.0
-        
-        # Calculate p-value for beta (test H0: beta = 0)
-        t_stat = beta / beta_err if beta_err > 0 else 0
-        p_value = 2 * (1 - stats.t.cdf(abs(t_stat), len(agent_counts) - 2))
-        
-        # Calculate confidence interval for beta
-        degrees_of_freedom = len(agent_counts) - 2
-        t_critical = stats.t.ppf((1 + confidence_level) / 2, degrees_of_freedom)
-        ci_lower_beta = beta - t_critical * beta_err
-        ci_upper_beta = beta + t_critical * beta_err
-        
-        # Check for sublinearity (β < 1)
-        sublinear = beta < 1
-        
-        fit_result = PowerLawFitResult(
-            metric_name="",  # Will be set by caller
-            alpha=alpha,
-            beta=beta,
-            r_squared=r_squared,
-            p_value=p_value,
-            std_err_beta=beta_err,
-            ci_lower_beta=ci_lower_beta,
-            ci_upper_beta=ci_upper_beta,
-            sublinear=sublinear
-        )
-        
-        diagnostics = {
-            'n_points': len(agent_counts),
-            'converged': True,
-            'initial_guess': [initial_alpha, initial_beta],
-            'final_params': [alpha, beta],
-        }
-        
-        return fit_result, diagnostics
-        
-    except Exception as e:
-        logger.warning(f"Power-law fitting failed: {e}")
-        
-        # Return NaN result on failure
-        fit_result = PowerLawFitResult(
-            metric_name="",
-            alpha=np.nan,
-            beta=np.nan,
-            r_squared=np.nan,
-            p_value=np.nan,
-            std_err_beta=np.nan,
-            ci_lower_beta=np.nan,
-            ci_upper_beta=np.nan,
-            sublinear=False
-        )
-        
-        diagnostics = {
-            'n_points': len(agent_counts),
-            'converged': False,
-            'error': str(e),
-        }
-        
-        return fit_result, diagnostics
+    t_critical = stats.t.ppf(0.975, dof)
+    ci_lower = beta - t_critical * beta_se
+    ci_upper = beta + t_critical * beta_se
+    
+    # Determine if the fit is sublinear (beta < 1)
+    # We consider it sublinear if the upper bound of the 95% CI is < 1
+    is_sublinear = ci_upper < 1.0
+    
+    # Calculate R-squared
+    r_squared = r_value ** 2
+    
+    # Calculate pre-factor a
+    alpha = np.exp(intercept)
+    
+    return PowerLawFitResult(
+        alpha=alpha,
+        beta=beta,
+        r_squared=r_squared,
+        standard_error=beta_se,
+        ci_lower=ci_lower,
+        ci_upper=ci_upper,
+        is_sublinear=is_sublinear,
+        n_points=n,
+        p_value=p_value
+    )
 
-def load_scaling_data(
-    results_dir: Path,
-    agent_counts: List[int] = [3, 5, 7]
-) -> pd.DataFrame:
+
+def load_scaling_data(results_dir: Path) -> pd.DataFrame:
     """
     Load and aggregate scaling experiment results.
     
     Args:
-        results_dir: Directory containing experiment results
-        agent_counts: List of agent counts to include
-    
+        results_dir: Directory containing experiment result CSV files
+        
     Returns:
-        DataFrame with agent_count, metric_name, and metric_value columns
+        DataFrame with columns: game_id, agent_count, specialization_index, retrieval_efficiency
     """
-    all_data = []
+    # Look for scaling experiment results
+    scaling_files = list(results_dir.glob("results_scaling_*.csv"))
     
-    for n_agents in agent_counts:
-        result_file = results_dir / f"results_n{n_agents}.csv"
-        if result_file.exists():
-            df = pd.read_csv(result_file)
-            df['agent_count'] = n_agents
-            all_data.append(df)
-            logger.info(f"Loaded {len(df)} results for {n_agents} agents")
+    if not scaling_files:
+        # Try generic scaling results file
+        generic_file = results_dir / "results_scaling.csv"
+        if generic_file.exists():
+            scaling_files = [generic_file]
         else:
-            logger.warning(f"Result file not found: {result_file}")
+            # Fallback: try to find any results file with agent_count
+            all_results = list(results_dir.glob("results_*.csv"))
+            for f in all_results:
+                try:
+                    df = pd.read_csv(f)
+                    if 'agent_count' in df.columns:
+                        scaling_files = [f]
+                        break
+                except Exception:
+                    continue
+            
+            if not scaling_files:
+                raise FileNotFoundError(
+                    f"No scaling result files found in {results_dir}. "
+                    "Expected files like 'results_scaling_*.csv' or a file with 'agent_count' column."
+                )
     
-    if not all_data:
-        raise FileNotFoundError("No scaling experiment results found")
+    # Load and combine results
+    dfs = []
+    for file_path in scaling_files:
+        try:
+            df = pd.read_csv(file_path)
+            dfs.append(df)
+        except Exception as e:
+            logger.warning(f"Failed to load {file_path}: {e}")
     
-    combined_df = pd.concat(all_data, ignore_index=True)
+    if not dfs:
+        raise FileNotFoundError("Could not load any scaling result files")
+        
+    combined_df = pd.concat(dfs, ignore_index=True)
+    
+    # Ensure required columns exist
+    required_cols = ['agent_count', 'specialization_index', 'retrieval_efficiency']
+    missing_cols = [col for col in required_cols if col not in combined_df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required columns in result files: {missing_cols}")
+        
     return combined_df
 
-def aggregate_metrics_by_agent_count(
-    df: pd.DataFrame,
-    metric_columns: List[str] = ['specialization_index', 'retrieval_efficiency']
-) -> Dict[str, Dict[int, List[float]]]:
-    """
-    Aggregate metric values by agent count.
-    
-    Args:
-        df: DataFrame with experiment results
-        metric_columns: Columns containing metric values
-    
-    Returns:
-        Nested dict: {metric_name: {agent_count: [values]}}
-    """
-    aggregated = {metric: {} for metric in metric_columns}
-    
-    for metric in metric_columns:
-        if metric not in df.columns:
-            logger.warning(f"Metric column '{metric}' not found in data")
-            continue
-        
-        for n_agents in df['agent_count'].unique():
-            subset = df[df['agent_count'] == n_agents]
-            values = subset[metric].dropna().tolist()
-            aggregated[metric][int(n_agents)] = values
-    
-    return aggregated
 
-def run_scaling_analysis(
-    results_dir: Path,
-    agent_counts: List[int] = [3, 5, 7],
-    metric_columns: List[str] = ['specialization_index', 'retrieval_efficiency'],
-    confidence_level: float = 0.95
-) -> ScalingAnalysisResult:
+def aggregate_metrics_by_agent_count(df: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """
-    Run complete scaling analysis with power-law fitting.
+    Aggregate metrics by agent count.
     
     Args:
-        results_dir: Directory containing experiment results
-        agent_counts: Agent counts to analyze
-        metric_columns: Metrics to analyze
-        confidence_level: Confidence level for CI
-    
+        df: DataFrame with agent_count, specialization_index, retrieval_efficiency
+        
     Returns:
-        ScalingAnalysisResult with all fitting results
+        Tuple of (agent_counts, spec_means, spec_stds, retrieval_means, retrieval_stds, counts)
     """
-    logger.info(f"Running scaling analysis for agent counts: {agent_counts}")
+    grouped = df.groupby('agent_count').agg({
+        'specialization_index': ['mean', 'std', 'count'],
+        'retrieval_efficiency': ['mean', 'std']
+    }).reset_index()
     
-    # Load data
-    df = load_scaling_data(results_dir, agent_counts)
-    logger.info(f"Loaded {len(df)} game results")
+    # Flatten column names
+    grouped.columns = ['agent_count', 'spec_mean', 'spec_std', 'spec_count', 'retrieval_mean', 'retrieval_std']
     
-    # Aggregate metrics
-    aggregated = aggregate_metrics_by_agent_count(df, metric_columns)
+    agent_counts = grouped['agent_count'].values.astype(int)
+    spec_means = grouped['spec_mean'].values
+    spec_stds = grouped['spec_std'].values
+    retrieval_means = grouped['retrieval_mean'].values
+    retrieval_stds = grouped['retrieval_std'].values
+    counts = grouped['spec_count'].values
     
-    # Fit power laws
-    power_law_fits = {}
-    metrics_summary = {}
+    return agent_counts, spec_means, spec_stds, retrieval_means, retrieval_stds, counts
+
+
+def run_scaling_analysis(results_dir: Path) -> ScalingAnalysisResult:
+    """
+    Run full scaling analysis on experiment results.
     
-    for metric in metric_columns:
-        if metric not in aggregated:
-            continue
+    Args:
+        results_dir: Directory containing experiment result CSV files
         
-        agent_counts_arr = np.array(sorted(aggregated[metric].keys()))
-        metric_means = []
-        metric_stds = []
-        
-        for n in agent_counts_arr:
-            values = aggregated[metric][n]
-            if len(values) > 0:
-                metric_means.append(np.mean(values))
-                metric_stds.append(np.std(values))
+    Returns:
+        ScalingAnalysisResult with fitted power laws and statistics
+    """
+    logger.info(f"Loading scaling data from {results_dir}")
+    df = load_scaling_data(results_dir)
+    
+    logger.info(f"Loaded {len(df)} records")
+    
+    agent_counts, spec_means, spec_stds, retrieval_means, retrieval_stds, counts = aggregate_metrics_by_agent_count(df)
+    
+    logger.info(f"Aggregated data for {len(agent_counts)} agent counts: {list(agent_counts)}")
+    
+    notes = []
+    
+    # Fit power law to specialization index
+    specialization_fit = None
+    if len(agent_counts) >= 2:
+        try:
+            logger.info("Fitting power law to specialization index...")
+            specialization_fit = fit_power_law(agent_counts, spec_means)
+            
+            notes.append(
+                f"Specialization scaling: beta = {specialization_fit.beta:.4f} "
+                f"(95% CI: [{specialization_fit.ci_lower:.4f}, {specialization_fit.ci_upper:.4f}])"
+            )
+            
+            if specialization_fit.is_sublinear:
+                notes.append(
+                    f"Specialization index shows SUBLINEAR scaling (beta < 1) with 95% confidence. "
+                    f"Exponent beta = {specialization_fit.beta:.4f} indicates efficiency gains as agent count increases."
+                )
             else:
-                metric_means.append(np.nan)
-                metric_stds.append(np.nan)
-        
-        metric_means = np.array(metric_means)
-        metric_stds = np.array(metric_stds)
-        
-        # Fit power law to means
-        fit_result, diagnostics = fit_power_law(
-            agent_counts_arr, metric_means, confidence_level
+                notes.append(
+                    f"Specialization index does NOT show statistically significant sublinear scaling. "
+                    f"95% CI [{specialization_fit.ci_lower:.4f}, {specialization_fit.ci_upper:.4f}] includes or exceeds 1.0."
+                )
+                
+        except Exception as e:
+            logger.error(f"Failed to fit specialization power law: {e}")
+            notes.append(f"Failed to fit specialization power law: {e}")
+    
+    # Fit power law to retrieval efficiency
+    retrieval_fit = None
+    if len(agent_counts) >= 2:
+        try:
+            logger.info("Fitting power law to retrieval efficiency...")
+            retrieval_fit = fit_power_law(agent_counts, retrieval_means)
+            
+            notes.append(
+                f"Retrieval scaling: beta = {retrieval_fit.beta:.4f} "
+                f"(95% CI: [{retrieval_fit.ci_lower:.4f}, {retrieval_fit.ci_upper:.4f}])"
+            )
+            
+            if retrieval_fit.is_sublinear:
+                notes.append(
+                    f"Retrieval efficiency shows SUBLINEAR scaling (beta < 1) with 95% confidence."
+                )
+            else:
+                notes.append(
+                    f"Retrieval efficiency does NOT show statistically significant sublinear scaling."
+                )
+                
+        except Exception as e:
+            logger.error(f"Failed to fit retrieval power law: {e}")
+            notes.append(f"Failed to fit retrieval power law: {e}")
+    
+    # Add note about limited data points
+    if len(agent_counts) <= 3:
+        notes.append(
+            f"WARNING: Only {len(agent_counts)} data points available for power-law fitting. "
+            f"Power-law fits with few points have limited statistical reliability. "
+            f"Results should be interpreted with caution and validated with additional agent counts."
         )
-        fit_result.metric_name = metric
-        
-        power_law_fits[metric] = fit_result
-        
-        metrics_summary[metric] = {
-            'means': metric_means.tolist(),
-            'stds': metric_stds.tolist(),
-            'n_per_count': [len(aggregated[metric][n]) for n in agent_counts_arr],
-            'fit_r_squared': fit_result.r_squared,
-            'fit_beta': fit_result.beta,
-            'fit_alpha': fit_result.alpha,
-            'sublinear': fit_result.sublinear,
-            'ci_lower': fit_result.ci_lower_beta,
-            'ci_upper': fit_result.ci_upper_beta,
-            'p_value': fit_result.p_value
-        }
-        
-        # Log sublinearity finding
-        if not np.isnan(fit_result.beta):
-            if fit_result.sublinear:
-                logger.info(f"  {metric}: Sublinear scaling (β={fit_result.beta:.3f} < 1)")
-            else:
-                logger.info(f"  {metric}: Linear or superlinear scaling (β={fit_result.beta:.3f})")
     
-    # Calculate overall scaling factor (average beta across metrics)
-    betas = [fit.beta for fit in power_law_fits.values() if not np.isnan(fit.beta)]
-    overall_scaling_factor = np.mean(betas) if betas else np.nan
-    
-    result = ScalingAnalysisResult(
-        agent_counts=agent_counts,
-        metrics_summary=metrics_summary,
-        power_law_fits=power_law_fits,
-        overall_scaling_factor=overall_scaling_factor
+    return ScalingAnalysisResult(
+        agent_counts=list(agent_counts),
+        specialization_means=list(spec_means),
+        specialization_stds=list(spec_stds),
+        retrieval_means=list(retrieval_means),
+        retrieval_stds=list(retrieval_stds),
+        specialization_fit=specialization_fit,
+        retrieval_fit=retrieval_fit,
+        notes=notes
     )
-    
-    logger.info(f"Scaling analysis complete. Overall scaling factor: {overall_scaling_factor:.3f}")
-    return result
 
-def generate_scaling_plot(
-    result: ScalingAnalysisResult,
-    output_path: Path
-) -> Path:
+
+def generate_scaling_plot(result: ScalingAnalysisResult, output_path: Path) -> None:
     """
-    Generate scaling plot PDF with fitted power-law curves.
+    Generate a scaling plot with fitted power-law curves.
     
     Args:
-        result: Scaling analysis result
-        output_path: Path for output PDF
-    
-    Returns:
-        Path to generated PDF
+        result: ScalingAnalysisResult from run_scaling_analysis
+        output_path: Path to save the plot PDF
     """
     import matplotlib
     matplotlib.use('Agg')  # Non-interactive backend
     import matplotlib.pyplot as plt
     
-    # Create figure with subplots for each metric
-    metrics = list(result.power_law_fits.keys())
-    n_metrics = len(metrics)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    if n_metrics == 0:
-        logger.warning("No metrics to plot")
-        return output_path
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
     
-    fig, axes = plt.subplots(1, n_metrics, figsize=(6 * n_metrics, 5))
-    if n_metrics == 1:
-        axes = [axes]
+    x = np.array(result.agent_counts)
     
-    for i, metric in enumerate(metrics):
-        ax = axes[i]
-        fit = result.power_law_fits[metric]
-        
-        # Plot data points with error bars
-        means = result.metrics_summary[metric]['means']
-        stds = result.metrics_summary[metric]['stds']
-        
-        ax.errorbar(
-            result.agent_counts,
-            means,
-            yerr=stds,
-            fmt='o',
-            capsize=5,
-            label='Experimental data',
-            markersize=8,
-            alpha=0.7
-        )
-        
-        # Plot fitted power-law curve
-        N_fit = np.linspace(min(result.agent_counts), max(result.agent_counts), 100)
-        y_fit = power_law_function(N_fit, fit.alpha, fit.beta)
-        ax.plot(N_fit, y_fit, 'r-', linewidth=2, label=f'Power-law fit (β={fit.beta:.3f})')
-        
-        # Add annotation
-        annotation = (
-            f"β = {fit.beta:.3f}\n"
-            f"95% CI: [{fit.ci_lower_beta:.3f}, {fit.ci_upper_beta:.3f}]\n"
-            f"R² = {fit.r_squared:.3f}\n"
-            f"Sublinear: {'Yes' if fit.sublinear else 'No'}\n"
-            f"(Note: Only 3 data points)"
-        )
-        
-        ax.annotate(
-            annotation,
-            xy=(0.02, 0.98),
-            xycoords='axes fraction',
-            fontsize=9,
-            verticalalignment='top',
-            bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5)
-        )
-        
-        ax.set_xlabel('Number of Agents (N)')
-        ax.set_ylabel(metric.replace('_', ' ').title())
-        ax.set_title(f'{metric.replace("_", " ").title()} Scaling')
-        ax.legend()
-        ax.grid(True, alpha=0.3)
-        
-        # Set log scale for x-axis to better visualize power law
-        ax.set_xscale('log')
+    # Plot Specialization Index
+    ax1.errorbar(
+        x, 
+        result.specialization_means, 
+        yerr=result.specialization_stds,
+        fmt='o', 
+        capsize=5, 
+        label='Measured',
+        color='blue'
+    )
     
-    # Add overall note about 3-point limitation
+    if result.specialization_fit:
+        # Generate smooth curve for power law fit
+        x_fit = np.linspace(min(x), max(x), 100)
+        y_fit = result.specialization_fit.alpha * np.power(x_fit, result.specialization_fit.beta)
+        ax1.plot(x_fit, y_fit, 'r-', label=f'Power-law fit (β={result.specialization_fit.beta:.2f})')
+        
+        # Add annotation for sublinearity
+        if result.specialization_fit.is_sublinear:
+            ax1.annotate(
+                f'Sublinear (β < 1)\n95% CI: [{result.specialization_fit.ci_lower:.2f}, {result.specialization_fit.ci_upper:.2f}]',
+                xy=(0.05, 0.95),
+                xycoords='axes fraction',
+                fontsize=9,
+                verticalalignment='top',
+                bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+            )
+    
+    ax1.set_xlabel('Number of Agents')
+    ax1.set_ylabel('Specialization Index')
+    ax1.set_title('Specialization Index Scaling')
+    ax1.legend()
+    ax1.grid(True, alpha=0.3)
+    
+    # Plot Retrieval Efficiency
+    ax2.errorbar(
+        x, 
+        result.retrieval_means, 
+        yerr=result.retrieval_stds,
+        fmt='o', 
+        capsize=5, 
+        label='Measured',
+        color='green'
+    )
+    
+    if result.retrieval_fit:
+        x_fit = np.linspace(min(x), max(x), 100)
+        y_fit = result.retrieval_fit.alpha * np.power(x_fit, result.retrieval_fit.beta)
+        ax2.plot(x_fit, y_fit, 'r-', label=f'Power-law fit (β={result.retrieval_fit.beta:.2f})')
+        
+        if result.retrieval_fit.is_sublinear:
+            ax2.annotate(
+                f'Sublinear (β < 1)\n95% CI: [{result.retrieval_fit.ci_lower:.2f}, {result.retrieval_fit.ci_upper:.2f}]',
+                xy=(0.05, 0.95),
+                xycoords='axes fraction',
+                fontsize=9,
+                verticalalignment='top',
+                bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+            )
+    
+    ax2.set_xlabel('Number of Agents')
+    ax2.set_ylabel('Retrieval Efficiency')
+    ax2.set_title('Retrieval Efficiency Scaling')
+    ax2.legend()
+    ax2.grid(True, alpha=0.3)
+    
+    # Add overall note about data points
     fig.suptitle(
-        'Scaling Analysis: Power-Law Fitting for Collective Memory Metrics\n'
-        '(Caution: Only 3 agent counts limit power-law reliability)',
+        f'Scaling Analysis: Collective Remembering in Multi-Agent Systems\n'
+        f'Note: Based on {len(x)} agent counts. Power-law fits with few points have limited reliability.',
         fontsize=12,
         y=1.02
     )
     
     plt.tight_layout()
-    plt.savefig(output_path, dpi=150, bbox_inches='tight')
+    plt.savefig(output_path, dpi=150)
     plt.close()
     
-    logger.info(f"Scaling plot saved to {output_path}")
-    return output_path
+    logger.info(f"Saved scaling plot to {output_path}")
+
 
 def main():
-    """Main entry point for scaling analysis CLI."""
-    parser = argparse.ArgumentParser(
-        description='Scaling analysis for multi-agent memory networks'
-    )
-    parser.add_argument(
-        '--results-dir',
-        type=Path,
-        default=Path('results'),
-        help='Directory containing experiment results'
-    )
-    parser.add_argument(
-        '--agent-counts',
-        type=int,
-        nargs='+',
-        default=[3, 5, 7],
-        help='Agent counts to analyze'
-    )
-    parser.add_argument(
-        '--metrics',
-        type=str,
-        nargs='+',
-        default=['specialization_index', 'retrieval_efficiency'],
-        help='Metrics to analyze'
-    )
-    parser.add_argument(
-        '--output',
-        type=Path,
-        default=Path('scaling_plot.pdf'),
-        help='Output PDF path'
-    )
-    parser.add_argument(
-        '--confidence',
-        type=float,
-        default=0.95,
-        help='Confidence level for CI'
-    )
+    """Main entry point for scaling analysis."""
+    parser = argparse.ArgumentParser(description='Run scaling analysis on multi-agent experiment results')
+    parser.add_argument('--results-dir', type=str, default='results',
+                      help='Directory containing experiment result CSV files')
+    parser.add_argument('--output-dir', type=str, default='results',
+                      help='Directory to save analysis results and plots')
     
     args = parser.parse_args()
     
-    # Ensure results directory exists
-    if not args.results_dir.exists():
-        logger.error(f"Results directory not found: {args.results_dir}")
-        return 1
+    results_dir = Path(args.results_dir)
+    output_dir = Path(args.output_dir)
     
-    # Run analysis
-    result = run_scaling_analysis(
-        args.results_dir,
-        args.agent_counts,
-        args.metrics,
-        args.confidence
-    )
+    if not results_dir.exists():
+        logger.error(f"Results directory does not exist: {results_dir}")
+        sys.exit(1)
     
-    # Generate plot
-    generate_scaling_plot(result, args.output)
-    
-    # Generate summary report
-    summary_path = args.output.parent / 'scaling_analysis_summary.json'
-    with open(summary_path, 'w') as f:
-        json.dump({
+    try:
+        logger.info("Running scaling analysis...")
+        result = run_scaling_analysis(results_dir)
+        
+        # Save results as JSON
+        results_json = {
             'agent_counts': result.agent_counts,
-            'metrics_summary': result.metrics_summary,
-            'overall_scaling_factor': result.overall_scaling_factor,
-            'power_law_fits': {k: asdict(v) for k, v in result.power_law_fits.items()}
-        }, f, indent=2, default=str)
-    
-    logger.info(f"Summary saved to {summary_path}")
-    return 0
+            'specialization_means': result.specialization_means,
+            'specialization_stds': result.specialization_stds,
+            'retrieval_means': result.retrieval_means,
+            'retrieval_stds': result.retrieval_stds,
+            'specialization_fit': vars(result.specialization_fit) if result.specialization_fit else None,
+            'retrieval_fit': vars(result.retrieval_fit) if result.retrieval_fit else None,
+            'notes': result.notes
+        }
+        
+        output_json_path = output_dir / 'scaling_analysis_results.json'
+        with open(output_json_path, 'w') as f:
+            json.dump(results_json, f, indent=2)
+        logger.info(f"Saved results to {output_json_path}")
+        
+        # Generate plot
+        plot_path = output_dir / 'scaling_plot.pdf'
+        generate_scaling_plot(result, plot_path)
+        
+        # Print summary
+        print("\n=== Scaling Analysis Summary ===")
+        for note in result.notes:
+            print(f"  - {note}")
+        print(f"\nResults saved to: {output_json_path}")
+        print(f"Plot saved to: {plot_path}")
+        
+    except Exception as e:
+        logger.error(f"Scaling analysis failed: {e}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
 
-if __name__ == '__main__':
-    sys.exit(main())
+
+if __name__ == "__main__":
+    main()
