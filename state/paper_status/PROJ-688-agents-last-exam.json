@@ -10,5 +10,5 @@
     "log_excerpt": "llmxive restyle failed 3x \u2014 serving the arXiv fallback; reset llmxive_compile_attempts in state/paper_status/ after fixing the source"
   },
   "paper_id": "PROJ-688-agents-last-exam",
-  "updated_at": "2026-07-02T18:34:10.583823+00:00"
+  "updated_at": "2026-07-02T19:07:32.566721+00:00"
 }
