@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-18T11:25:24.544246Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-732-learning-from-the-self-future-on-policy
-last_run_id: c795a68f-ed10-4d77-928f-e50f127079b6
+last_run_id: ad1ab6ba-ac9b-42b4-a2f4-8e5e8af35208
 last_run_status: null
 points_paper: {}
 points_research: {}

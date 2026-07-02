@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-19T11:34:43.616856Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-739-guava-an-effective-and-universal-harness
-last_run_id: 441769b7-4956-40b0-867e-904a2e2ac941
+last_run_id: 61fb1586-6894-4984-b114-dfc3fee93c0f
 last_run_status: null
 points_paper: {}
 points_research: {}
