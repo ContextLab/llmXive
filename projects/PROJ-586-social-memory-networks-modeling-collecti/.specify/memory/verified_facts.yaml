@@ -1,5 +1,5 @@
-'|computation index log range specialization':
-  quote: 6.02214076e+23 (scipy.constants.N_A (CODATA 2018, exact by SI definition))
-  source_id: avogadro
-  url: https://physics.nist.gov/cgi-bin/cuu/Value?na
-  value: '6.02214076e+23'
+'|game':
+  quote: enables our approach of measuring the win rate over 1000
+  source_id: '2503.02686'
+  url: https://arxiv.org/abs/2503.02686
+  value: '1000'

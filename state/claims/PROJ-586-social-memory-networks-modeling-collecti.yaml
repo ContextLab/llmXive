@@ -5008,24 +5008,6 @@
   updated_at: '2026-07-02T22:12:41Z'
 - artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   attempts: 1
-  canonical: "context\u2011truncation token limits 128 256 512"
-  claim_id: c_301f7bf3
-  context: "sensitivity analysis sweeping context\u2011truncation token limit over\
-    \ {128, 256, 512} with performance curves output in `code/analysis/sensitivity.py`\
-    \ (FR-008)"
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "sensitivity analysis sweeping context\u2011truncation token limit over\
-    \ {128, 256, 512}"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-02T22:13:51Z'
-- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
-  attempts: 1
   canonical: sensitivity analysis over token limits 128 256 512
   claim_id: c_c98192f0
   context: "T022 [US-2] sensitivity analysis sweeping context\u2011truncation token\
@@ -5612,3 +5594,670 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-02T22:35:21Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: "context\u2011truncation token limits of 128, 256, and 512 in sensitivity\
+    \ analysis"
+  claim_id: c_d8a5a7d3
+  context: "User Story 2 includes a sensitivity analysis that varies the context\u2011\
+    truncation token limit."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "sensitivity analysis sweeping context\u2011truncation token limit over\
+    \ {128, 256, 512}"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:51:04Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis token limits 128, 256, 512
+  claim_id: c_f84a3217
+  context: "sensitivity analysis sweeping context\u2011truncation token limit over\
+    \ {128, 256, 512} with performance curves output in code/analysis/sensitivity.py"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Sensitivity analysis sweeping context\u2011truncation token limit over\
+    \ {128, 256, 512}."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:53:44Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps token limit over 128, 256, 512
+  claim_id: c_f46f9645
+  context: "User Story 2 includes task T022: sensitivity analysis sweeping context\u2011\
+    truncation token limit over {128, 256, 512} with performance curves output in\
+    \ code/analysis/sensitivity.py."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "sensitivity analysis sweeping context\u2011truncation token limit over\
+    \ {128, 256, 512} with performance curves output"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:54:31Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 2
+  canonical: "context\u2011truncation token limits 128 256 512"
+  claim_id: c_301f7bf3
+  context: "sensitivity analysis sweeping context\u2011truncation token limit over\
+    \ {128, 256, 512} with performance curves output in `code/analysis/sensitivity.py`\
+    \ (FR-008)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "sensitivity analysis sweeping context\u2011truncation token limit over\
+    \ {128, 256, 512}"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:55:21Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: power analysis N=1000 games
+  claim_id: c_18e1398c
+  context: "Generate power\u2011analysis report estimating detectable effect size\
+    \ (N=1000 games per spec FR-009) in `code/analysis/power.py`"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Power analysis report estimates detectable effect size with N=1000 games
+    per spec
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:55:40Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: arXiv:2203.14669
+  claim_id: c_92075fde
+  context: Implement CLI flag parsing for --context, --agents, --dataset and {{claim:c_b7311021}}
+    (2203.14669, https://arxiv.org/abs/2203.14669) in `code/run_experiment.py`
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: Reference to arXiv:2203.14669 (https://arxiv.org/abs/2203.14669)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:55:43Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: arXiv:2503.02686
+  claim_id: c_346d6e01
+  context: Implement {{claim:c_504902df}} (2503.02686, https://arxiv.org/abs/2503.02686)
+    in `code/run_experiment.py`
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Reference to arXiv:2503.02686 (https://arxiv.org/abs/2503.02686)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-02T22:55:46Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: results_full.csv generated for 1000 games
+  claim_id: c_6dc354ad
+  context: "Goal: Obtain baseline measurements of specialization and cue\u2011retrieval\
+    \ efficiency when agents have full context. Output `results_full.csv` ... for\
+    \ 1000 games."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Output `results_full.csv` with `game_id`, `specialization_index`, `retrieval_efficiency`,
+    `context_condition`, `agent_count` to ... for 1000 games
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:56:46Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis token limits 128, 256, 512
+  claim_id: c_6836fd7f
+  context: "Implement sensitivity analysis sweeping context\u2011truncation token\
+    \ limit over {128, 256, 512} with performance curves output in `code/analysis/sensitivity.py`."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "sensitivity analysis sweeping context\u2011truncation token limit over\
+    \ {128, 256, 512}"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:56:47Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: power analysis uses N=1000 games
+  claim_id: c_9e17126b
+  context: "Generate power\u2011analysis report estimating detectable effect size\
+    \ (N=1000 games per spec FR\u2011009) in `code/analysis/power.py`"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Power\u2011analysis report estimating detectable effect size (N=1000\
+    \ games per spec FR\u2011009)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:58:37Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: simulate agent counts 3, 5, 7 with 800 games per configuration
+  claim_id: c_446ad66a
+  context: "Implement game simulation for agent counts 3, 5, 7 (800 games per config\
+    \ per spec US\u20113) in `code/run_experiment.py`"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement game simulation for agent counts 3, 5, 7 (800 games per config\
+    \ per spec US\u20113)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:58:56Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: results_full.csv generated for 1000 games
+  claim_id: c_354c7274
+  context: '- [X] T015 [US-1] Output `results_full.csv` with `game_id`, `specialization_index`,
+    `retrieval_efficiency`, `context_condition`, `agent_count` to `projects/.../results/`
+    for 1000 games'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Output `results_full.csv` ... for 1000 games
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T23:00:57Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: 1000 games for full-context baseline measurement
+  claim_id: c_3a9f6a00
+  context: Phase 3 specifies that the baseline experiment should generate a CSV summary
+    for 1000 games.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Output `results_full.csv` with `game_id`, `specialization_index`, `retrieval_efficiency`,
+    `context_condition`, `agent_count` to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/`
+    for 1000 games
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T23:04:12Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis over token limits 128, 256, 512
+  claim_id: c_8f9bb70d
+  context: "Phase 4 includes a sensitivity analysis that varies the context\u2011\
+    truncation token limit across three values."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Sensitivity analysis sweeping context\u2011truncation token limit over\
+    \ {128, 256, 512}"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T23:04:13Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: at least 95 percent of games produce metrics
+  claim_id: c_36c67b64
+  context: The metrics validator is required to ensure that the majority of simulated
+    games generate metric values.
+  evidence:
+    entailment_evidence: At least 95 percent of games produce metrics
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/At_least_95_percent_of_games_produce_metrics
+  kind: magnitude
+  raw_text: "Validation logic: \u226595% games produce metrics"
+  resolved_value: at least 95 percent of games produce metrics
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-02T23:05:16Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis uses token limits 128, 256, and 512
+  claim_id: c_a386cdf4
+  context: "User Story 2 includes a sensitivity analysis that varies the context\u2011\
+    truncation token limit."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Sensitivity analysis sweeping context\u2011truncation token limit over\
+    \ {128, 256, 512}"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T23:05:17Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: context truncation token limits 128, 256, 512
+  claim_id: c_7f456b23
+  context: "Implement sensitivity analysis sweeping context\u2011truncation token\
+    \ limit over {128, 256, 512} with performance curves output in `code/analysis/sensitivity.py`"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "sensitivity analysis sweeping context\u2011truncation token limit over\
+    \ {128, 256, 512}"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T23:07:12Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: output results_full.csv for 1000 games
+  claim_id: c_fcc6f95c
+  context: "Phase 3: User Story 1 - Baseline Transactive\u2011Memory Measurement ...\
+    \ Output `results_full.csv` ... for 1000 games"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Output `results_full.csv` with `game_id`, `specialization_index`, `retrieval_efficiency`,
+    `context_condition`, `agent_count` to the results directory for 1000 games
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T23:15:18Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis token limits 128, 256, 512
+  claim_id: c_6f183553
+  context: "Phase 4: User Story 2 ... sensitivity analysis sweeping context\u2011\
+    truncation token limit over {128, 256, 512}"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "sensitivity analysis sweeping context\u2011truncation token limit over\
+    \ {128, 256, 512}"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T23:15:20Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: configuration with seed=42 and device=cpu
+  claim_id: c_7a32d21c
+  context: Configure environment management (config.yaml with seed=42, device=cpu)
+    in `code/utils/config.py`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: seed=42, device=cpu
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T23:19:09Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: at least 95% of games produce metrics
+  claim_id: c_59c6865f
+  context: "Implement validation logic for metrics (\u226595% games produce metrics,\
+    \ SC-001) in `code/metrics/validator.py`"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/At_least_95%25_of_games_produce_metrics
+  kind: magnitude
+  raw_text: "\u226595% games produce metrics"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T23:20:43Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: 1000 games per condition
+  claim_id: c_10d5c9c0
+  context: Output `results_full.csv` with `game_id`, `specialization_index`, `retrieval_efficiency`,
+    `context_condition`, `agent_count` to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/`
+    for 1000 games
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: enables our approach of measuring the win rate over 1000
+      source_id: '2503.02686'
+      url: https://arxiv.org/abs/2503.02686
+      value: '1000'
+    filled: true
+  kind: numeric
+  raw_text: 1000 games
+  resolved_value: '1000'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-02T23:21:25Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: context truncation token limits of 128, 256, and 512
+  claim_id: c_994b3815
+  context: "sensitivity analysis sweeping context\u2011truncation token limit over\
+    \ {128, 256, 512} with performance curves"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "context\u2011truncation token limit over {128, 256, 512}"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T23:26:01Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: 3 data points limit power-law fitting reliability
+  claim_id: c_c882f334
+  context: "Generate `scaling_plot.pdf` with fitted power\u2011law curves and explicit\
+    \ note that 3 data points limit power\u2011law reliability"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "3 data points limit power\u2011law reliability"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T23:26:02Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: at least 95 percent of games produce valid metrics
+  claim_id: c_4a35e380
+  context: "Implement validation logic for metrics (\u226595% games produce metrics,\
+    \ SC-001)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/At_least_95_percent_of_games_produce_valid_metrics
+  kind: magnitude
+  raw_text: "\u226595% games produce metrics"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T23:26:09Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 2
+  canonical: opt-125m model with float32 precision
+  claim_id: c_0006c4d9
+  context: Implement base Agent abstraction using CPU-only `transformers` (opt-125m,
+    float32 precision)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: opt-125m, float32 precision
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T23:27:03Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 2
+  canonical: configuration with seed 42 and CPU device
+  claim_id: c_7086de3b
+  context: Configure environment management (config.yaml with seed=42, device=cpu)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: seed=42, device=cpu
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T23:27:04Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: context truncation token limits of 128, 256, and 512
+  claim_id: c_c9e6d442
+  context: "sensitivity analysis sweeping context\u2011truncation token limit over\
+    \ {128, 256, 512} with performance curves output"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "context\u2011truncation token limit over {128, 256, 512}"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T23:27:05Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 2
+  canonical: 3 data points limit the reliability of power-law fitting
+  claim_id: c_a8ba6ae9
+  context: "Generate `scaling_plot.pdf` with fitted power\u2011law curves and explicit\
+    \ note that 3 data points limit power\u2011law reliability"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "3 data points limit power\u2011law reliability"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T23:27:06Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: at least 95 percent of games should produce metrics
+  claim_id: c_abd8fc7c
+  context: "Implement validation logic for metrics (\u226595% games produce metrics,\
+    \ SC-001)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/At_least_95_percent_of_games_should_produce_metrics
+  kind: magnitude
+  raw_text: "\u226595% games produce metrics"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T23:27:08Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: specialization index ranges from 0 to log base 2 of number of agents
+  claim_id: c_d5596a5a
+  context: "Implement specialization index computation (0 to log\u2082(N_agents))\
+    \ in `code/metrics/specialization.py`"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "0 to log\u2082(N_agents)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T23:32:46Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: at least 95 percent of games produce valid metrics
+  claim_id: c_32ae0975
+  context: "Implement validation logic for metrics (\u226595% games produce metrics,\
+    \ SC-001) in `code/metrics/validator.py`"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/At_least_95_percent_of_games_produce_valid_metrics
+  kind: magnitude
+  raw_text: "\u226595% games produce metrics"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T23:32:52Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis sweeping context truncation token limits at 128,
+    256, and 512
+  claim_id: c_e745874d
+  context: "sensitivity analysis sweeping context\u2011truncation token limit over\
+    \ {128, 256, 512} with performance curves output in `code/analysis/sensitivity.py`"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "context\u2011truncation token limit over {128, 256, 512}"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T23:32:53Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: three data points limit the reliability of power-law fitting
+  claim_id: c_112b7229
+  context: "Generate `scaling_plot.pdf` with fitted power\u2011law curves and explicit\
+    \ note that 3 data points limit power\u2011law reliability"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "3 data points limit power\u2011law reliability"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T23:32:54Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 3
+  canonical: opt-125m model with float32 precision
+  claim_id: c_dcbac46f
+  context: Implement base Agent abstraction using CPU-only `transformers` (opt-125m,
+    float32 precision) in `code/agent/base_agent.py`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: opt-125m, float32 precision
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T23:33:20Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 2
+  canonical: configuration with seed 42 and CPU device
+  claim_id: c_0978d997
+  context: Configure environment management (config.yaml with seed=42, device=cpu)
+    in `code/utils/config.py`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: seed=42, device=cpu
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T23:33:21Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 2
+  canonical: context truncation token limits of 128, 256, and 512
+  claim_id: c_eb12be4e
+  context: "sensitivity analysis sweeping context\u2011truncation token limit over\
+    \ {128, 256, 512} with performance curves output in `code/analysis/sensitivity.py`"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "context\u2011truncation token limit over {128, 256, 512}"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T23:33:22Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 2
+  canonical: "specialization index ranges from 0 to log\u2082(N_agents)"
+  claim_id: c_a5f19dab
+  context: "Implement specialization index computation (0 to log\u2082(N_agents))\
+    \ in `code/metrics/specialization.py`"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "specialization index computation (0 to log\u2082(N_agents))"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T23:33:23Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: at least 95 percent of games produce metrics
+  claim_id: c_44909028
+  context: "Implement validation logic for metrics (\u226595% games produce metrics,\
+    \ SC-001) in `code/metrics/validator.py`"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/At_least_95_percent_of_games_produce_metrics
+  kind: magnitude
+  raw_text: "\u226595% games produce metrics"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T23:33:28Z'

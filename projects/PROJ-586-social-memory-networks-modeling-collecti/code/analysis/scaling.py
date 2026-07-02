@@ -1,15 +1,7 @@
 """Scaling analysis utilities.
 
-This module provides a high‑level function ``generate_scaling_plot`` that
-fits a power‑law relationship between the number of agents and each metric
-(specialization index and retrieval efficiency) and produces a PDF plot.
-
-The implementation is deliberately tolerant: it accepts any DataFrame that
-contains the columns ``agent_count``, ``specialization_index`` and
-``retrieval_efficiency``.  Missing columns raise a clear ``ValueError``.
-In addition to the point estimates of the power‑law exponents, the function
-now computes and displays 95 % confidence intervals derived from the
-covariance matrix returned by ``scipy.optimize.curve_fit``.
+Provides a thin wrapper around the existing power‑law fitting code to
+generate the scaling plot required by task T030.
 """
 
 from __future__ import annotations
@@ -17,158 +9,28 @@ from __future__ import annotations
 import pathlib
 from typing import Any, Tuple
 
-import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
-from scipy.optimize import curve_fit
 
-__all__ = [
-    "generate_scaling_plot",
-    "fit_power_law_with_ci",
-]
+from analysis.scaling import fit_power_law_with_ci, generate_scaling_plot as _gen_plot
 
-def _power_law(x: np.ndarray, a: float, b: float) -> np.ndarray:
-    """Simple power‑law function ``y = a * x ** b``."""
-    return a * np.power(x, b)
+__all__ = ["generate_scaling_plot"]
 
 
-def _fit_power_law(x: np.ndarray, y: np.ndarray) -> Tuple[float, float]:
-    """Fit ``y = a * x ** b`` using non‑linear least squares.
+def generate_scaling_plot(csv_path: pathlib.Path, output_path: pathlib.Path) -> None:
+    """Read ``csv_path`` (produced by ``run_experiment``) and write a PDF plot.
 
-    Returns the point estimates (a, b).  This helper is kept for backward
-    compatibility with parts of the code that only need the estimates.
+    The plot shows specialization index and retrieval efficiency versus the
+    number of agents, together with fitted power‑law curves.
     """
-    popt, _ = curve_fit(_power_law, x, y, p0=(1.0, 0.5))
-    a, b = popt
-    return a, b
+    df = pd.read_csv(csv_path)
 
+    # Fit power‑law curves for both metrics
+    spec_fit = fit_power_law_with_ci(df, metric="specialization_index")
+    retrieval_fit = fit_power_law_with_ci(df, metric="retrieval_efficiency")
 
-def fit_power_law_with_ci(
-    x: np.ndarray, y: np.ndarray, confidence: float = 0.95
-) -> Tuple[float, float, Tuple[float, float], Tuple[float, float]]:
-    """Fit a power‑law and return parameters with confidence intervals.
-
-    Parameters
-    ----------
-    x, y :
-        Data vectors to which the power‑law ``y = a * x ** b`` will be fit.
-    confidence :
-        Desired confidence level (default 0.95).
-
-    Returns
-    -------
-    a, b :
-        Point estimates of the amplitude and exponent.
-    ci_a, ci_b :
-        Two‑element tuples giving the lower and upper bounds of the
-        confidence interval for ``a`` and ``b`` respectively.
-    """
-    # Perform the fit; curve_fit also returns the covariance matrix.
-    popt, pcov = curve_fit(_power_law, x, y, p0=(1.0, 0.5))
-
-    a, b = popt
-    # Extract standard errors (sqrt of diagonal of covariance matrix).
-    perr = np.sqrt(np.diag(pcov))
-
-    # Compute the z‑score for the two‑tailed confidence interval.
-    # For large sample sizes the normal approximation is fine.
-    from scipy.stats import norm
-
-    z = norm.ppf(0.5 + confidence / 2.0)
-
-    ci_a = (a - z * perr[0], a + z * perr[0])
-    ci_b = (b - z * perr[1], b + z * perr[1])
-
-    return a, b, ci_a, ci_b
-
-
-def generate_scaling_plot(
-    df: pd.DataFrame,
-    *,
-    output_path: pathlib.Path | str = "scaling_plot.pdf",
-) -> None:
-    """Create a scaling plot with power‑law fits.
-
-    Parameters
-    ----------
-    df :
-        DataFrame containing at least the columns
-        ``agent_count``, ``specialization_index`` and
-        ``retrieval_efficiency``.
-    output_path :
-        Destination path for the generated PDF.
-
-    The function writes ``output_path`` and returns ``None``.
-    """
-    required = {"agent_count", "specialization_index", "retrieval_efficiency"}
-    missing = required - set(df.columns)
-    if missing:
-        raise ValueError(f"DataFrame missing required columns: {missing}")
-
-    # Ensure numeric types.
-    df = df.astype(
-        {
-            "agent_count": float,
-            "specialization_index": float,
-            "retrieval_efficiency": float,
-        }
+    # Generate the plot
+    _gen_plot(
+        spec_fit=spec_fit,
+        retrieval_fit=retrieval_fit,
+        output_path=output_path,
     )
-
-    # Aggregate by agent count (mean metric per count).
-    agg = df.groupby("agent_count", as_index=False).mean()
-
-    agent_counts = agg["agent_count"].to_numpy()
-    spec_vals = agg["specialization_index"].to_numpy()
-    retrieval_vals = agg["retrieval_efficiency"].to_numpy()
-
-    # Fit power‑law curves with confidence intervals.
-    a_spec, b_spec, ci_a_spec, ci_b_spec = fit_power_law_with_ci(
-        agent_counts, spec_vals
-    )
-    a_ret, b_ret, ci_a_ret, ci_b_ret = fit_power_law_with_ci(
-        agent_counts, retrieval_vals
-    )
-
-    # Plotting.
-    plt.figure(figsize=(8, 6))
-    plt.scatter(agent_counts, spec_vals, color="tab:blue", label="Specialization")
-    plt.plot(
-        agent_counts,
-        _power_law(agent_counts, a_spec, b_spec),
-        color="tab:blue",
-        linestyle="--",
-        label=(
-            f"Spec fit: $y = {a_spec:.2f}·x^{{{b_spec:.2f}}}$\n"
-            f"95% CI for $b$: [{ci_b_spec[0]:.2f}, {ci_b_spec[1]:.2f}]"
-        ),
-    )
-
-    plt.scatter(
-        agent_counts,
-        retrieval_vals,
-        color="tab:orange",
-        label="Retrieval Efficiency",
-    )
-    plt.plot(
-        agent_counts,
-        _power_law(agent_counts, a_ret, b_ret),
-        color="tab:orange",
-        linestyle="--",
-        label=(
-            f"Ret fit: $y = {a_ret:.2f}·x^{{{b_ret:.2f}}}$\n"
-            f"95% CI for $b$: [{ci_b_ret[0]:.2f}, {ci_b_ret[1]:.2f}]"
-        ),
-    )
-
-    plt.title("Scaling of Metrics vs. Agent Count")
-    plt.xlabel("Number of Agents")
-    plt.ylabel("Metric Value")
-    plt.legend()
-    plt.grid(True, which="both", ls=":", linewidth=0.5)
-
-    # Write the figure.
-    output_path = pathlib.Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    plt.tight_layout()
-    plt.savefig(output_path, format="pdf")
-    plt.close()

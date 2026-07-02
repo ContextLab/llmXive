@@ -64,7 +64,7 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/JasonXF/US3D-Enhanced/7f60acedd7f2c766cdc27a1e9e62bcc9c7d3428e/prompt.json?%2Fdatasets%2FJasonXF%2FUS3D-Enhanced%2Fresolve%2Fmain%2Fprompt.json=&etag=%22b1e79c038446025d54f94493aedb58c848fe8d2c%22
   verified_at: '2026-06-26T22:53:36.631629Z'
-- artifact_hash: 23db7678f439a9f13824222ea812b6ebc7050fd176155c080c1a4495c7ce9eb5
+- artifact_hash: b17c70861fdee4d0a628cc26202ecbc9f600a2a5773bd743121b4ffe6dda087f
   artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -75,8 +75,8 @@
   value: https://arxiv.org/abs/2203.14669
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/2203.14669
-  verified_at: '2026-07-02T22:35:07.017513Z'
-- artifact_hash: 23db7678f439a9f13824222ea812b6ebc7050fd176155c080c1a4495c7ce9eb5
+  verified_at: '2026-07-02T23:33:32.779553Z'
+- artifact_hash: b17c70861fdee4d0a628cc26202ecbc9f600a2a5773bd743121b4ffe6dda087f
   artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -87,4 +87,4 @@
   value: https://arxiv.org/abs/2503.02686
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/2503.02686
-  verified_at: '2026-07-02T22:35:07.017513Z'
+  verified_at: '2026-07-02T23:33:32.779553Z'

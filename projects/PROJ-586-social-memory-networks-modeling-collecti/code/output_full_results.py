@@ -1,104 +1,69 @@
-"""
-Script to generate the full‑context experiment results for User Story 1.
-
-The script runs 1 000 simulated games using the existing ``simulate_one_game``
-helper (implemented in ``generate_full_results.py``) and writes a CSV file
-``results_full.csv`` to the project's ``results`` directory.
-
-The CSV columns are:
-    - game_id
-    - specialization_index
-    - retrieval_efficiency
-    - context_condition
-    - agent_count
-
-The implementation relies only on standard‑library modules and the public
-API of the project, so it works on the CPU‑only CI environment.
-"""
-
+"""Output full results to CSV file."""
 from __future__ import annotations
 
 import csv
 from pathlib import Path
 from typing import List, Dict
+from generate_full_results import simulate_one_game
+from utils.logging import get_logger
 
-# Import helpers from the existing module.  These are part of the public
-# interface defined in ``code/generate_full_results.py``.
-from generate_full_results import (
-    ensure_dir,
-    simulate_one_game,
-    parse_agent_list,
-)
 
-# ----------------------------------------------------------------------
-# Configuration
-# ----------------------------------------------------------------------
-NUM_GAMES = 1000
-AGENT_COUNTS = [3, 5, 7]          # Example agent counts used in the paper.
-CONTEXT_CONDITION = "full"
-OUTPUT_PATH = Path(
-    "projects/PROJ-586-social-memory-networks-modeling-collecti/results/"
-    "results_full.csv"
-)
+def main():
+    """Generate results_full.csv with game metrics."""
+    logger = get_logger(__name__)
 
-# ----------------------------------------------------------------------
-# Helper utilities
-# ----------------------------------------------------------------------
-def _run_simulation(agent_count: int) -> List[Dict[str, object]]:
-    """
-    Run ``NUM_GAMES`` simulations for a given ``agent_count`` and return a
-    list of dictionaries ready to be written to CSV.
-    """
-    rows: List[Dict[str, object]] = []
-    for game_id in range(1, NUM_GAMES + 1):
-        # ``simulate_one_game`` is expected to return a tuple:
-        #   (specialization_index, retrieval_efficiency)
-        # The exact signature is defined in ``generate_full_results.py``.
-        specialization_index, retrieval_efficiency = simulate_one_game(
-            game_id=game_id,
-            agent_count=agent_count,
-            context=CONTEXT_CONDITION,
-        )
-        rows.append(
-            {
-                "game_id": game_id,
-                "specialization_index": specialization_index,
-                "retrieval_efficiency": retrieval_efficiency,
-                "context_condition": CONTEXT_CONDITION,
-                "agent_count": agent_count,
-            }
-        )
-    return rows
+    # Ensure output directory exists
+    output_dir = Path("projects/PROJ-586-social-memory-networks-modeling-collecti/results")
+    output_dir.mkdir(parents=True, exist_ok=True)
 
-# ----------------------------------------------------------------------
-# Main entry point
-# ----------------------------------------------------------------------
-def main() -> None:
-    """
-    Execute the experiment and write the CSV file.
-    """
-    # Ensure the target directory exists.
-    ensure_dir(OUTPUT_PATH.parent)
+    output_file = output_dir / "results_full.csv"
 
-    # Collect rows for each requested agent count.
-    all_rows: List[Dict[str, object]] = []
-    for count in AGENT_COUNTS:
-        all_rows.extend(_run_simulation(count))
+    # Simulation parameters (from spec: 1000 games per condition)
+    num_games = 1000
+    agent_counts = [5]  # US-1 baseline: 5 agents
+    context_condition = "full"
 
-    # Write CSV.
-    fieldnames = [
-        "game_id",
-        "specialization_index",
-        "retrieval_efficiency",
-        "context_condition",
-        "agent_count",
-    ]
-    with OUTPUT_PATH.open("w", newline="", encoding="utf-8") as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(all_rows)
+    results: List[Dict] = []
 
-    print(f"✅ Results written to {OUTPUT_PATH}")
+    # Run simulations
+    for game_id in range(num_games):
+        for agent_count in agent_counts:
+            try:
+                spec_idx, ret_eff = simulate_one_game(
+                    agent_count=agent_count,
+                    game_id=game_id,
+                    context=context_condition
+                )
+                results.append({
+                    "game_id": game_id,
+                    "specialization_index": spec_idx,
+                    "retrieval_efficiency": ret_eff,
+                    "context_condition": context_condition,
+                    "agent_count": agent_count,
+                })
+            except Exception as e:
+                logger.error(f"Error in game {game_id}: {e}")
+                continue
+
+    # Write results to CSV
+    if results:
+        fieldnames = [
+            "game_id",
+            "specialization_index",
+            "retrieval_efficiency",
+            "context_condition",
+            "agent_count",
+        ]
+        with open(output_file, "w", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(results)
+        logger.info(f"Results written to {output_file}")
+        print(f"Results written to {output_file}")
+    else:
+        logger.error("No results generated")
+        print("ERROR: No results generated", file=__import__("sys").stderr)
+
 
 if __name__ == "__main__":
     main()
