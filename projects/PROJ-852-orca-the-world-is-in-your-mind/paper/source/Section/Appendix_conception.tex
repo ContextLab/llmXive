@@ -1,0 +1,29 @@
+% ========================================================
+% ---------------- Appendix: Conception ------------------
+% ========================================================
+\section{Orca Conception}\label{sec:appendix_conception}
+\setnavsection{sec:appendix_conception}
+
+\renewcommand{\thefigure}{A\arabic{figure}}
+\renewcommand{\theHfigure}{A\arabic{figure}}
+\setcounter{figure}{0}
+
+\renewcommand{\thetable}{A\arabic{table}}
+\renewcommand{\theHtable}{A\arabic{table}}
+\setcounter{table}{0}
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=1\linewidth]{figs/appendix/Orca-Conception.pdf}
+    \caption{\textbf{Conceptual illustration of Orca}. Existing models are often organized around passive task-driven prediction, including next-token, next-frame, and next-action prediction. Orca shifts the modeling target toward next-state prediction, where multimodal world signals are used to learn a unified world latent. Unconscious learning captures dense natural dynamics from continuous observation, while conscious learning captures meaningful state transitions guided by language, events, and intentions. The learned world latent supports downstream readouts to language, vision, and action.}
+    \label{fig:orca_conception}
+\end{figure}
+
+Figure~\ref{fig:orca_conception} summarizes the philosophy behind Orca. We view the development of foundation models as a transition from \textit{passive task-driven models} to an \textit{active world learner}. Existing paradigms are often centered around the output they predict: language models perform next-token prediction for semantic understanding, image and video generation models perform next-frame prediction for visual dynamics, and embodied models perform next-action prediction for action affordance. Although these paradigms produce strong task-level capabilities, their modeling targets remain tied to specific modalities.
+
+Orca instead treats the latent state of the world as the central object of modeling. Language, vision, and action are regarded as different observations or readouts of the same underlying world state. This motivates our shift from \textit{next-token}, \textit{next-frame}, and \textit{next-action prediction} to \textbf{\textit{next state prediction}}. The goal is to learn an internal world representation that can support understanding, prediction, and intervention across different downstream interfaces.
+
+This idea is realized through two complementary learning modes. \textbf{Unconscious learning} absorbs natural dynamics from continuous visual experience, allowing the model to learn dense state transitions and physical regularities without explicit task labels. \textbf{Conscious learning} introduces language, events, instructions, and questions as semantic conditions, allowing the model to learn meaningful state transitions associated with causal explanations and task intentions. Together, they allow Orca to internalize the world as a predictive latent representation.
+
+Once learned, this world latent can be read out through different interfaces: to language for explanation and reasoning, to vision for prediction and imagination, and to action for intervention.
+

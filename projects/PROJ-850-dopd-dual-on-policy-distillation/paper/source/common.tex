@@ -1,0 +1,153 @@
+% \usepackage[utf8]{inputenc} % allow utf-8 input
+% \usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+% \usepackage{times}
+\usepackage{latexsym}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{microtype}
+\usepackage{inconsolata}
+\usepackage{graphicx}
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{stackengine}
+\usepackage{microtype}      % microtypography
+\usepackage{colortbl}
+\usepackage{xcolor}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{mathrsfs}
+% \usepackage[ruled]{algorithm2e}
+\usepackage{pifont}
+\usepackage{MnSymbol}
+\usepackage{balance}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{xcolor}
+% \usepackage{minted}
+\usepackage{natbib}
+\usepackage{multicol}
+% 设置代码样式
+
+% \usepackage{arydshln}
+\AtBeginDocument{%
+  \providecommand\BibTeX{{%
+    \normalfont B\kern-0.5em{\scshape i\kern-0.25em b}\kern-0.8em\TeX}}}
+
+\makeatletter
+\DeclareRobustCommand\onedot{\futurelet\@let@token\@onedot}
+\def\@onedot{\ifx\@let@token.\else.\null\fi}
+\newcommand{\eg}{\emph{e.g\@\onedot}}
+\newcommand{\etc}{\emph{etc\@\onedot}}
+\newcommand{\etal}{\emph{et~al\@\onedot}}
+\newcommand{\ie}{\emph{i.e\@\onedot}}
+\newcommand{\wrt}{\emph{w.r.t\@\onedot}}
+\newcommand{\versus}{\texorpdfstring{\emph{vs\@\onedot}}{vs.}}
+\newcommand{\viceversa}{\emph{vice versa}}
+\newcommand{\subto}{\emph{s.t\@\onedot}}
+\newcommand{\numero}[1]{No\@.\ {#1}}
+\newcommand{\numeros}[1]{Nos\@.\ {#1}}
+
+\usepackage{setspace}
+\usepackage{mathtools}
+
+% \usepackage{cleveref}
+\usepackage{multirow,booktabs}
+\usepackage{subcaption}
+
+\DeclarePairedDelimiter{\parens}{\lparen}{\rparen}
+\DeclarePairedDelimiter{\angles}{\langle}{\rangle}
+\DeclarePairedDelimiter{\bracks}{[}{]}
+\DeclarePairedDelimiter{\braces}{\{}{\}}
+\DeclarePairedDelimiter{\verts}{\lvert}{\rvert}
+\DeclarePairedDelimiter{\norm}{\lVert}{\rVert}
+
+\newcommand{\inputset}{\mathcal{X}}
+\newcommand{\outputset}{\mathcal{Y}}
+\newcommand{\cleanset}{\mathcal{D}_\textrm{clean}}
+\newcommand{\testset}{\mathcal{D}_\textrm{test}}
+\newcommand{\trainset}{\mathcal{D}_\textrm{train}}
+\newcommand{\ueset}{\mathcal{D}_\textrm{ue}}
+\newcommand{\sampledist}{\mathcal{S}}
+\newcommand{\augdist}{\mathcal{A}}
+\newcommand{\uniform}[1]{\mathcal{U}\parens{{#1}}}
+\newcommand{\bx}{{\boldsymbol{x}}}
+\newcommand{\bxadv}{{\hat\bx}}
+\newcommand{\bdadv}{{\hat{\boldsymbol\delta}}}
+\newcommand{\by}{{\boldsymbol{y}}}
+\newcommand{\bz}{{\boldsymbol{z}}}
+\newcommand{\btheta}{{\boldsymbol{\theta}}}
+\newcommand{\bdelta}{{\boldsymbol{\delta}}}
+\newcommand{\transform}{\mathcal{T}}
+\newcommand{\expect}{\mathbb{E}}
+\newcommand{\dist}[2]{%
+    \operatorname{d}\left({#1},{#2}\right)}
+
+\newcommand{\textlnorm}[1]{\( \ell_{#1} \)-norm}
+\newcommand{\lnorm}[2]{{\norm{#2}}_{#1}}
+\newcommand{\tabpm}[2]{{#1}\( \pm \){\scriptsize#2}}
+\newcommand{\bDelta}{\color{blue} \Delta}
+\newcommand{\gaia}{\textit{GAIA}}
+\newcommand{\browsecomp}{\textit{BrowseComp}}
+\newcommand{\owo}[1]{\textsc{OAgents}}
+
+
+% \setlist[itemize]{topsep=0pt,leftmargin=10pt,parsep=-4pt,partopsep=-2pt}
+
+\newcommand{\hlsecondarytab}[1]{\colorbox{red!10}{#1}}
+\newcommand{\hlprimarytab}[1]{\colorbox{green!20}{#1}}
+
+
+\newcommand{\okmark}{\textbf{\textcolor[rgb]{0.55,0.71,0.0}{\ensuremath{\checkmark}}}}
+\newcommand{\ngmark}{\textbf{\textcolor[rgb]{0.9,0.17,0.31}{\ding{55}}}}
+
+\definecolor{lightgreen}{RGB}{144, 238, 144} 
+\definecolor{lightred}{RGB}{255, 105, 97}   
+
+\newcommand{\roundbox}[2]{%
+  \tikz[baseline=(text.base), inner sep=0pt]{
+    \node[
+      fill=#1,
+      text=black,
+      minimum height=1.2em,
+      rounded corners=3pt,
+      inner xsep=4pt,
+      inner ysep=1pt
+    ] (text) {\small #2};
+  }%
+}
+
+\newcommand{\uag}[1]{%
+  \roundbox{lightgreen}{%
+    \scalebox{0.7}{\textcolor{black}{$\uparrow$}}%
+    \small\,#1%
+  }%
+}
+
+\newcommand{\dab}[1]{%
+  \roundbox{lightred}{%
+    \scalebox{0.7}{\textcolor{black}{$\downarrow$}}%
+    \small\,#1%
+  }%
+}
+
+\newcommand{\fixme}[2][]{\todo[color=yellow,size=\scriptsize,fancyline,caption={},#1]{#2}}
+\newcommand{\note}[4][]{\todo[author=#2,color=#3,size=\scriptsize,fancyline,caption={},#1]{#4}}
+\newcommand{\chunshu}[2][]{\note[#1]{chunshu}{green}{#2}\xspace}
+\newcommand{\Chunshu}[2]{\chunshu[inline,#1]{#2}}
+\newcommand{\issue}[1]{\textcolor{red!60}{#1}}
+\newcommand{\fakeparagraph}[1]{\vspace{1mm}\noindent\textbf{#1.}}
+
+\newtcolorbox{promptbox}[2][Prompt]{
+colback=black!5!white,
+arc=5pt, 
+boxrule=0.5pt,
+fonttitle=\bfseries,
+title=#1, 
+before upper={\small}, fontupper=\fontfamily{ptm}\selectfont,
+colframe=#2, % 使用传递的参数来设定 colframe
+}
+\definecolor{ogreen}{RGB}{34, 139, 34}

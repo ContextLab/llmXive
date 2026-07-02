@@ -1,0 +1,164 @@
+% ========================================================
+% ---------------------- Training ------------------------
+% ========================================================
+
+\section{Training}\label{sec:training}
+\setnavsection{sec:training}
+
+Orca is trained in two stages. The \textbf{\textit{pre-training}} stage learns the world latent through large-scale visual and language data. In the \textbf{\textit{downstream post-training}} stage, the Orca's backbone is frozen. Only modality-specific readout modules are trainable to obtain language, vision, and action information. 
+
+\subsection{Pre-Training}\label{sec:pretraining}
+
+
+\subsubsection{Pre-Training Recipe}
+\label{sec:pretraining_recipe}
+
+Orca pre-training instantiates world-state modeling with three objectives: \textit{1) observation-only state transition}, \textit{2) event-conditioned state transition}, and \textit{3) VQA response generation}. The two state-transition objectives are implemented through a set of learnable query vectors, while \textit{3) VQA response generation} is optimized through the language modeling (LM) head of the backbone. 
+
+
+
+\paragraph{Learning Objectives.}
+We instantiate pre-training with the three objectives. \textit{1) observation-only state transition} and \textit{2) event-conditioned state transition} are implemented with learnable queries in the input of the VLM backbone. The input is: \textit{<visual token>, <Query 1>, <Instruction>, <Query 2>}. \textit{Note that all learnable queries are trained from scratch.} The specific implementations are shown in \textbf{Appendix~\ref{sec:appendix_pretraining_query_implementation}}.
+
+\vspace{-1ex}
+\begin{enumerate}[leftmargin=1.35em, itemsep=0.35em, topsep=0.35em, parsep=0em]
+    \item[] \textbf{\textit{1) Observation-only state transition.}} This objective forms \textit{unconscious learning}. Given \(v_t\), Orca takes \(v_t\) together with the \textit{<Query 1>} \(q_1\). The last-layer hidden state of \(q_1\) is passed through two layers of MLP to predict $\hat{v}^l_{t+1}$. The ground truth $v^l_{t+1}$ is obtained through the frozen vision encoder. Continuous videos provide dense supervision, allowing the model to capture naturally occurring world dynamics such as motion, occlusion, object interaction, and scene changes.
+  
+    \item[] \textbf{\textit{2) Event-conditioned state transition.}} This objective forms \textit{conscious learning} with language. Given \(v_t\), \textit{<Query 1>} \(q_1\), $e_{t+\Delta}$, and \textit{<Query 2>} \(q_2\), the last-layer hidden state of \(q_2\) is passed through the two layers of MLP to predict $\hat{v}^l_{t+\Delta}$. The ground truth $v^l_{t+\Delta}$ is also obtained through the frozen vision encoder. $e_{t+\Delta}$ describes an event, a task intention, or a causal premise. 
+
+    \item[] \textbf{\textit{3) VQA response generation.}} This objective provides another path for common sense in \textit{conscious learning}. Given $V$ and $l_q$, Orca produces $l_a$ with the standard next-token prediction loss.
+\end{enumerate}
+
+The first two objectives are supervised in the latent space of the vision encoder. This design focuses on pre-training for state modeling rather than pixel-level reconstruction. The last objective uses the LM head. Given $V$ and $l_q$, the LM head predicts $l_a$ with the standard next-token prediction loss. 
+
+
+
+\paragraph{Training Components.}
+
+The full pre-training loss combines the three components as:
+\begin{equation}\label{eq:total_loss}
+\mathcal{L}=\lambda_{\mathrm{obs}}\mathcal{L}_{\mathrm{obs}}
++\lambda_{\mathrm{evt}}\mathcal{L}_{\mathrm{evt}}
++\lambda_{\mathrm{vqa}}\mathcal{L}_{\mathrm{vqa}},
+\end{equation}
+where, $\lambda_{\mathrm{obs}}$, $\lambda_{\mathrm{evt}}$, and $\lambda_{\mathrm{vqa}}$ are weighting coefficients that balance the contributions of the two objectives. Here, \(\mathcal{L}_{\mathrm{obs}}\) corresponds to \textit{unconscious learning} from naturally occurring visual transition.
+\(\mathcal{L}_{\mathrm{evt}}\) and \(\mathcal{L}_{\mathrm{vqa}}\) correspond to \textit{conscious learning} through language-specified transitions and common sense. 
+$\mathcal{L}_{\mathrm{evt}}$ uses the ground truth latent of a frame $v^l_{t+\Delta}$ in the adjacent event to perform teacher forcing on the predicted latent $\hat{v}^l_{t+\Delta}$ under the constraint of $e_{t+\Delta}$.
+$\mathcal{L}_{\mathrm{vqa}}$ represents the standard VQA loss. 
+Given a visual information $V$ and a question $l_q$, Orca learns to produce the target response $l_a$. The details of the sampling ratio, loss coefficients, and optimization settings are provided in \textbf{Appendix~\ref{sec:appendix_pretraining_settings}}.
+
+
+
+\subsubsection{Pre-Training Data}
+\label{sec:pretraining_data}
+
+
+
+
+\paragraph{Data Organization.}
+The three collections provide complementary supervision for learning world states and their transitions. The pre-training data is shown in Figure~\ref{fig:data_sankey}. 
+
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=1\linewidth]{figs/training/data_sankey.pdf} 
+    \caption{\textbf{Overview of pre-training data.}
+    Orca's pre-training data includes video, event, and VQA data. \textbf{\textit{A. Video Data}} supports \textit{1) Observation-only state transition}, \textbf{\textit{A. Video Data}} and \textbf{\textit{B. Event Data}} support \textit{2) Event-conditioned state transition}, and \textbf{\textit{C. VQA Data}} supports \textit{3) VQA response generation}.} % 
+    \label{fig:data_sankey}
+\end{figure}
+
+
+
+\vspace{-1ex}
+\begin{enumerate}[
+    leftmargin=1.35em,
+    itemsep=0.35em,
+    topsep=0.35em,
+    parsep=0em
+]
+    \item[] 
+    \textit{\textbf{A. Video Data}} is built from visual signals and covers four types of real-world observations: \textit{{ego-centric interaction}}, \textit{{exo-centric manipulation}}, {\textit{action-free robot execution}}, and {\textit{natural dynamics}}. {\textit{Ego-centric interaction}} captures first-views experience during physical interaction, {\textit{exo-centric manipulation}} provides third-views of object-centered changes, {\textit{action-free robot execution}} records embodied action in robotic environments, and {\textit{natural dynamics}} describes naturally evolving scenes. These data support \textit{1) observation-only state transition} and \textit{2) event-conditioned state transition}.
+
+    \item[] 
+    \textit{\textbf{B. Event data}} is derived from \textit{\textbf{A. Video Data}} through multi-level event segmentation and language annotation. {\textit{Coarse events}} describe the main steps of a temporal process, while {\textit{fine-grained events}} capture the shorter state transitions within each step. Each segmented event is paired with a caption that specifies the transition. This data supports \textit{2) event-conditioned state transition}.
+
+    \item[]
+    \textit{\textbf{C. VQA Data}} is constructed from language signals and video data, which teaches Orca to describe and interpret observed world states. This collection supports \textit{3) VQA response generation}.
+\end{enumerate}
+\vspace{-1ex}
+
+Across these collections, data construction is grounded in the real world. The video data is built from real-world videos, while event and VQA data are constructed on top of these observations to describe state transition, physical relations, spatial configurations, behavioral intentions, and causal consequences. The existing data includes 125K hours of general video data, 160M of event annotations, and 11.5M of general VQA data. In this version, only one-tenth of the video data are used. The remaining data will be used in Orca's subsequent version iterations.
+
+
+\subsection{Downstream Post-Training} \label{sec:downstream_readout}
+After pre-training, Orca is connected to downstream readout interfaces for language, vision, and action. \textbf{\textit{Note that our goal is to explore, in essence, whether the learned latent is effective for downstream tasks. So, Orca's backbone is always frozen, and only the corresponding readout modules are trainable.}} In other words, if Orca is intended to support vision tasks, it only trains the downstream image modules; if it is intended to serve embodied tasks, it only trains the action modules. Through these readouts, Orca exposes the latent as text, image, and action. Figure~\ref{fig:downstream_readout_architecture} provides an overview of the readout architectures. 
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=0.93\linewidth]{figs/training/readout.pdf}
+    \caption{\textbf{Downstream readout architectures.} \textit{To language} reuses the \textit{LM head} for text readout. \textit{To vision} only trains an \textit{MLP adaptor} and \textit{LoRA} on top of a frozen \textit{SD3.5} to readout images. \textit{To action} trains an \textit{MLP adaptor} and a DiT-based \textit{Action Expert} from scratch. \textit{Action Expert} receives the latent, robot proprioception state, and noisy action to generate action chunks. The specific settings are shown in \textbf{Appendix \ref{sec:appendix_downstream_readout_settings}}.} \label{fig:downstream_readout_architecture}
+\end{figure}
+
+
+\subsubsection{To Language: Text Generation} \label{sec:downstream_language} 
+
+As shown in Figure~\ref{fig:downstream_readout_architecture}(a).
+Given a visual observation and an instruction, Orca produces the response through \textit{LM head}, without attaching an additional decoder. It expresses Orca's latent in natural language.
+
+
+
+
+
+\subsubsection{To Vision: Image Prediction}
+\label{sec:downstream_vision} 
+
+\paragraph{Vision Readout Recipe.} 
+
+As shown in Figure~\ref{fig:downstream_readout_architecture}(b), the vision readout maps the latent to a pixel-level image. Since Orca focuses on the encoder, the decoder uses a pre-trained model to show the effectiveness of latent.
+The latent is passed through an \textit{MLP adaptor} and then used as a path input of a \textit{Stable Diffusion 3.5}~\citep{sd35}. The ground truth image with Gaussian noise is fed into another path of SD3.5 through a frozen VAE. The final predicted image is obtained through multi-step denoising. During this module training, only the \textit{MLP adaptor} and the \textit{LoRA} parameters are trainable. 
+% 
+
+
+\paragraph{Image Prediction Data.}
+This readout training uses paired current and target frames sampled from \textit{A. Video Data} in Figure \ref{fig:data_sankey}. Given the image and an instruction, Orca first produces the latent of the target frame using frozen Orca, and then the latent is input into the image readout module to obtain the image.
+
+
+\subsubsection{To Action: Action Generation} 
+\label{sec:downstream_action} 
+
+\paragraph{Action Readout Recipe.} 
+As shown in Figure~\ref{fig:downstream_readout_architecture}(c). 
+The \textit{Action Expert} is a DiT-based model with flow-matching loss, and it is trained from scratch. \textit{Action Expert} receives the \textit{noisy action} with \textit{time embedding} and the \textit{proprioception}. The latent of $q_1$ is processed by the \textit{MLP adaptor} and input as a condition into the \textit{Action Expert}. Through multi-step denoising, the final \textit{Action Chunk} used to control the robot manipulation is obtained.
+During this module training, only the \textit{MLP adaptor} and \textit{Action Expert} are trainable. 
+
+
+\paragraph{Embodied Action Data.} 
+This readout training uses action-labeled data consisting of 5 tasks collected by the dual-arm wheeled humanoid robot. Note that \textit{Action Expert} has only seen 200 trajectories, instructions, visual information, and proprioception for each task. The details are shown in \textbf{Section \ref{sec:evaluation_toA}}.
+
+
+
+\subsection{Infrastructures}
+\label{sec:pretraining_infrastructures}
+
+Orca's infra uses the self-developed FlagScale~\citep{flagscale} and makes the following improvements:
+
+
+\vspace{-1ex}
+\begin{enumerate}[
+    leftmargin=1.35em,
+    itemsep=0.35em,
+    topsep=0.35em,
+    parsep=0em
+]
+    \item[] \textbf{\textit{1) FlagScale training framework.}} 
+    We use FlagScale and rebuild the Orca training with FSDP2, enabling more flexible parameter sharding, better memory control, and stable training.
+    
+    \item[] \textbf{\textit{2) Memory-efficient loss and recompute.}}
+    We adopt Chunked Cross-Entropy Loss to avoid materializing full logits during loss computation, and further apply activation recomputation to trade moderate computation overhead for substantial memory savings, enabling larger batch sizes.
+    
+    \item[] \textbf{\textit{3) Communication scheduling.}}
+    We introduce forward/backward pre-fetching to overlap FSDP all-gather communication with computation, and remove unnecessary FSDP sharding for visual blocks.
+\end{enumerate}
+
+
+With these optimizations, training throughput increases from 0.66 to 2.91 Samples/Sec/GPU, achieving approximately a 4.4$\times$ acceleration compared to the StarVLA \citep{StarVLA} commonly used in the embodied community. Optimization details and results are shown in \textbf{Appendix~\ref{sec:appendix_infrastructure}}.

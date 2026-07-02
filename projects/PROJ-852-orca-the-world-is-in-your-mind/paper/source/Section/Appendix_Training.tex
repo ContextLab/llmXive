@@ -1,0 +1,287 @@
+% ========================================================
+% ------------- Appendix: Training Settings --------------
+% ========================================================
+\section{Training Settings}
+\setnavsection{sec:appendix_training}
+\label{sec:appendix_training}
+
+\renewcommand{\thefigure}{C\arabic{figure}}
+\renewcommand{\theHfigure}{C\arabic{figure}}
+\setcounter{figure}{0}
+
+\renewcommand{\thetable}{C\arabic{table}}
+\renewcommand{\theHtable}{C\arabic{table}}
+\setcounter{table}{0}
+
+\renewcommand{\theequation}{C-\arabic{equation}}
+\renewcommand{\theHequation}{C-\arabic{equation}}
+\setcounter{equation}{0}
+
+This appendix provides implementation details for the training procedure described in \textbf{Section~\ref{sec:training}}. 
+
+
+
+% ---------------------------------------------------------
+\subsection{Pre-Training Settings}
+\label{sec:appendix_pretraining_settings}
+
+
+\subsubsection{Pre-Training Objective Definitions}
+\label{sec:appendix_pretraining_objective}
+This section specifies the loss definitions used for Orca pre-training. The pre-training objective contains three terms: \textit{1) observation-only state transition} \(\mathcal{L}_{\mathrm{obs}}\), \textit{2) event-conditioned state transition} \(\mathcal{L}_{\mathrm{evt}}\), and \textit{3) VQA response generation} \(\mathcal{L}_{\mathrm{vqa}}\). 
+\textit{1) observation-only state transition} and \textit{2) event-conditioned state transition} are supervised by visual latent extracted by the frozen vision encoder from the VLM backbone, and \textit{3) VQA response generation} is supervised with the standard next-token prediction. For the first two state transitions, Orca matches the predicted latent to the ground truth latent extracted by the frozen vision encoder. \(\hat{v}^l\) and \(v^l\) denote the predicted and ground truth latent at the visual-token positions. We use the latent matching: 
+
+\vspace{-2ex}
+\begin{equation}\label{eq:appendix_latent_matching} 
+\ell_{\mathrm{lat}}(\hat{v}^l,v^l) = 0.1\,\|\hat{v}^l-v^l\|_2^2 + 0.9 \left( 1- \frac{\langle \hat{v}^l, v^l\rangle} {\|\hat{v}^l\|_2\|v^l\|_2} \right). 
+\end{equation}
+
+\begin{enumerate}[
+    leftmargin=1.35em,
+    itemsep=0.35em,
+    topsep=0.35em,
+    parsep=0em
+]
+    \item[] \textit{\textbf{1) Observation-only state transition.}} \(v^l_{t+1}\) is the latent of the next frame. The loss is:
+\end{enumerate}
+
+
+\begin{equation} 
+\mathcal{L}_{\mathrm{obs}} = \mathbb{E} \left[ \ell_{\mathrm{lat}} \left( \hat{v}^l_{t+1}, v^l_{t+1} \right) \right]. \label{eq:appendix_obs_loss} 
+\end{equation}
+
+\vspace{-2ex}
+\begin{enumerate}[
+    leftmargin=1.35em,
+    itemsep=0.35em,
+    topsep=0.35em,
+    parsep=0em
+]
+    \item[] \textit{\textbf{2) Event-conditioned state transition.}} The language specifies whether the current state should be mapped toward an adjacent (earlier or later) event state. Accordingly, Orca predicts the visual latent in the previous event selected by the \textit{previous-event condition} and the visual latent in the next event selected by the \textit{next-event condition}. The event-conditioned loss averages the latent-matching from the two transition directions:
+\end{enumerate}
+
+\vspace{-2ex}
+\begin{equation} 
+\mathcal{L}_{\mathrm{evt}} = \frac{1}{2} \mathbb{E} \left[ \ell_{\mathrm{lat}} \left( \hat{v}^l_{\mathrm{prev}}, v^l_{\mathrm{prev}} \right) + \ell_{\mathrm{lat}} \left( \hat{v}^l_{\mathrm{next}}, v^l_{\mathrm{next}} \right) \right]. 
+\label{eq:appendix_event_loss}
+\end{equation} 
+
+\begin{enumerate}[
+    leftmargin=1.35em,
+    itemsep=0.35em,
+    topsep=0.35em,
+    parsep=0em
+]
+    \item[] \textit{\textbf{3) VQA response generation.}} Orca uses the language modeling head to predict the target answer with the standard next-token prediction loss. This term is denoted as \(\mathcal{L}_{\mathrm{vqa}}\).
+\end{enumerate}
+
+The final Orca's pre-training objective is: $\mathcal{L}_{\mathrm{pre}} = 0.1\,\mathcal{L}_{\mathrm{obs}} + 0.5\,\mathcal{L}_{\mathrm{evt}} + 0.4\,\mathcal{L}_{\mathrm{vqa}}$. At the data-sampling level, Orca mixes state transition samples and VQA samples with an approximate ratio of \(5:1\).
+
+
+\subsubsection{Query-Based Implementation} \label{sec:appendix_pretraining_query_implementation} 
+We provide the implementation details of the query-based training described in \textbf{Section~\ref{sec:pretraining_recipe}}. \textit{Note that all queries are trained from scratch}. The implementation of queries is shown in Figure \ref{fig:query}.
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=1\linewidth]{figs/appendix/query.pdf}
+    \caption{\textbf{The implementation of Queries.}}
+    \label{fig:query}
+\end{figure}
+
+\begin{enumerate}[
+    leftmargin=1.35em,
+    itemsep=0.35em,
+    topsep=0.35em,
+    parsep=0em
+]
+    \item[] \textit{\textbf{1) Observation-only state transition.}} Given the current observation \(v_t\) and \textit{<Query 1>} \(q_1\), Orca predicts the latent \(\hat{v}^l_{t+1}\) of a temporally next frame. The last-layer hidden state of \(q_1\) is passed to the \textit{visual transition head} (two-layer MLP), and the ground truth latent \(v^l_{t+1}\) is obtained by the frozen vision encoder of VLM backbone. 
+    \item[] \textit{\textbf{2) Event-conditioned State Transition.}} Given \(v_t\), \(q_1\), an instruction \(e_{t+\Delta}\), and the \textit{<Query 2>} \(q_2\), Orca predicts the latent \(\hat{v}^l_{t+\Delta}\) of random frame in the instruction-specified target event. \(e_{t+\Delta}\) specifies the transition direction and target event, while \(q_2\) reads out the corresponding instruction-conditioned predictive state. The previous-event \(\mathcal{L}_{\mathrm{prev}}\) and next-event directions \(\mathcal{L}_{\mathrm{next}}\), which are calculated \(\mathcal{L}_{\mathrm{evt}}\) in Equation~\ref{eq:appendix_event_loss}. 
+\end{enumerate}
+
+
+\subsubsection{Pre-Training Hyperparameters} \label{sec:appendix_pretraining_hparams} 
+Table~\ref{tab:appendix_pretraining_hparams} reports the main pre-training hyperparameters. The table groups the model-scale settings, optimization settings, and objective-specific settings.
+
+
+\begin{table}[!htbp]
+\centering
+% \small
+\caption{\textbf{Orca pre-training hyperparameters.}} 
+\label{tab:appendix_pretraining_hparams} 
+% \setlength{\tabcolsep}{6pt} 
+% \renewcommand{\arraystretch}{1.12} 
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{lcc} 
+\toprule[1pt] 
+\textbf{Hyperparameter} & \textbf{Orca-4B} & \textbf{Orca-0.8B} \\ 
+\midrule 
+    Base VLM & Qwen3.5-4B & Qwen3.5-0.8B \\ 
+    Backbone hidden size \(H\) & 2560 & 1024 \\ 
+    Training resources & 32 nodes / 256 GPUs & 32 nodes / 256 GPUs \\
+    State-transition per-GPU batch size & 8 & 8 \\ 
+    State-transition gradient accumulation & 2 & 2 \\
+    VQA per-GPU batch size & 4 & 4 \\
+    Training steps & 10,844 & 10,844 \\ 
+    Approximate video hours & 12.5K h & 12.5K h \\ 
+    Maximum sequence length & 1024 & 1024 \\ 
+
+    \midrule 
+    Optimizer & AdamW & AdamW \\
+    Base VLM learning rate & \(3.5\times 10^{-5}\) & \(3.5\times 10^{-5}\) \\ 
+    Visual head & 
+    2$\times$MLP, \(2560\!\rightarrow\!20480\!\rightarrow\!2560\) &
+    2$\times$MLP, \(1024\!\rightarrow\!8192\!\rightarrow\!1024\) \\
+    Visual head learning rate & \(1.2\times 10^{-4}\) & \(1.2\times 10^{-4}\) \\ 
+    Visual encoder / ViT & Frozen & Frozen \\
+    LLM & Trainable & Trainable \\
+    Adam betas & \([0.9, 0.95]\) & \([0.9, 0.95]\) \\ 
+    Weight decay & \(1\times 10^{-8}\) & \(1\times 10^{-8}\) \\ 
+    Scheduler & Cosine with minimum LR & Cosine with minimum LR \\ 
+    Warmup steps & 200 & 200 \\ 
+    Minimum learning rate & \(1\times 10^{-6}\) & \(1\times 10^{-6}\) \\
+    
+    \midrule 
+    Latent matching loss & 
+    \(0.1\,\mathrm{MSE}+0.9\,\mathrm{Cosine}\) &
+    \(0.1\,\mathrm{MSE}+0.9\,\mathrm{Cosine}\) \\
+    Observation-only coefficient \(\mathcal{L}_{\mathrm{obs}}\) & 0.1 & 0.1 \\ 
+    Event-conditioned coefficient \(\mathcal{L}_{\mathrm{evt}}\) & 0.5 & 0.5 \\
+    VQA coefficient \(\mathcal{L}_{\mathrm{vqa}}\) & 0.4 & 0.4 \\
+    Number of queries & 256 & 256 \\
+    \bottomrule[1pt] 
+\end{tabular}%
+}
+\end{table}
+
+
+
+
+% ---------------------------------------------------------
+\subsection{Downstream Readout Post-Training Settings}
+\label{sec:appendix_downstream_readout_settings}
+
+This section provides implementation details for the downstream readout training described in \textbf{Section~\ref{sec:downstream_readout}}. The overall readout architecture is illustrated in Figure~\ref{fig:downstream_readout_architecture}. Here, we further detail the implementation of the language readout, the SD3.5-based vision readout, and the DiT-based action readout.
+
+\subsubsection{Language Readout}
+\label{sec:appendix_language_readout}
+
+
+The language readout does not introduce an additional trainable module.
+It reuses the language modeling head of the VLM backbone as its interface. Given a visual observation and an instruction, Orca produces the response autoregressively with the LM head. This readout exposes the learned latent through natural language and is used for VQA, event-level interpretation, and causal explanation.
+
+
+
+\subsubsection{Vision Readout}
+\label{sec:appendix_vision_readout}
+
+The vision readout maps Orca's predicted visual latent state into image space. We instantiate this readout with a pretrained \textit{Stable Diffusion 3.5} decoder~\citep{sd35}. During readout training, the \textit{VAE} and \textit{MMDiT} weights of SD3.5 are kept frozen, while the \textit{MLP adaptor} and \textit{LoRA}~\citep{lora} attached to the decoder attention projections are trainable. The learned latent is fed into one path of \textit{MMDiT} after passing through an \textit{MLP adaptor}; the target image is denoised, fed into a frozen \textit{VAE}, and then fed into another path of \textit{MMDiT}. Finally, the predicted image is obtained through a multi-step denoise.
+
+
+
+
+\paragraph{Settings.}
+The architecture of the \textit{MLP adaptor} and the main training settings of the \textit{SD3.5} vision readout are summarized in Table~\ref{tab:appendix_vision_readout_settings}. The \textit{MLP adaptor} projects Orca's visual-state latent into the \textit{SD3.5} joint conditioning space, including token-level conditions and an auxiliary pooled condition. During decoder training, the target image is resized to \(768\times768\).
+
+
+
+\begin{table}[!htbp] 
+\centering 
+% \small
+\caption{\textbf{The vision readout settings.}} \label{tab:appendix_vision_readout_settings} 
+% \setlength{\tabcolsep}{5pt} 
+% \renewcommand{\arraystretch}{1.12} 
+\begin{tabular}{ll} 
+\toprule[1pt]
+\textbf{Item} & \textbf{Settings} \\ 
+\midrule
+\rowcolor[rgb]{ .949, .949, .949} \multicolumn{2}{l}{\textit{Architecture}} \\
+Base image decoder & Stable Diffusion 3.5 MMDiT \\ 
+Condition input & Orca's latent, \((64, 2560)\) \\ 
+Input projection & LayerNorm (2560), Linear (2560 \(\rightarrow\) 4096) \\
+Residual MLP blocks & 4 blocks \\ 
+Block width & 4096 \(\rightarrow\) 16384 \(\rightarrow\) 4096 \\ 
+Output normalization & LayerNorm (4096) \\ 
+Pooled branch & Mean pooling and two-layer MLP to 2048 \\ 
+LoRA target modules & Attention projections \\ 
+Trainable adaptor parameters & 556.9M \\ 
+\midrule \rowcolor[rgb]{ .949, .949, .949} \multicolumn{2}{l}{\textit{Training}} \\ 
+Frozen modules & SD3.5 VAE and MMDiT weights \\ 
+Trainable modules & MLP adaptor and LoRA parameters \\ 
+Target image size & \(768 \times 768\) \\ 
+Global batch size & 512 \\ 
+Training steps & 200,000 \\ 
+Optimizer & AdamW \\ 
+Adaptor learning rate & \(1 \times 10^{-4}\) \\ 
+LoRA learning rate & \(5 \times 10^{-5}\) \\ 
+Weight decay & 0.01 \\ 
+Scheduler & OneCycleLR with cosine annealing \\ 
+LoRA rank / alpha / dropout & 32 / 32 / 0.05 \\ 
+\bottomrule[1pt] 
+\end{tabular} 
+\end{table}
+
+
+
+
+
+
+\subsubsection{Action Readout}
+\label{sec:appendix_action_readout}
+The action readout maps Orca's latent to action chunks to control robot manipulation. It takes Orca's learned \textit{latent}, \textit{noisy action} with time embedding, and robot \textit{proprioception} as inputs. A DiT-based~\citep{dit} Action Expert with flow-matching~\citep{flow_matching} loss then predicts a short-horizon action chunk. The action expert uses the following conditions: 
+
+\begin{enumerate}[
+    leftmargin=1.35em,
+    itemsep=0.35em,
+    topsep=0.35em,
+    parsep=0em
+]
+    \item[] \textbf{\textit{1) Latent \(q_1\)}}: predictive query states from Orca, providing latent for future state evolution. 
+    \item[] \textbf{\textit{2) Noisy action with time embedding}}: Actions with Gaussian noise, and time embedding added.
+    \item[] \textbf{\textit{3) Proprioception}}: robot proprioceptive state, including joint and end-effector related information. 
+\end{enumerate} 
+
+
+\paragraph{Settings.} 
+The \textit{Action Expert} is trained with the flow-matching loss to obtain the action chunks. The ground-truth action chunk is perturbed with Gaussian noise, and the \textit{Action Expert} predicts the corresponding velocity.
+% \paragraph{Action Expert Settings.} 
+The architecture and training settings of the \textit{Action Expert} are shown in Table~\ref{tab:appendix_action_readout_settings}.
+
+\begin{table}[!htbp] 
+\centering 
+% \small
+\caption{\textbf{The action readout settings.}} \label{tab:appendix_action_readout_settings} 
+% \setlength{\tabcolsep}{5pt} 
+% \renewcommand{\arraystretch}{1.12} 
+\begin{tabular}{lc} 
+\toprule[1pt]
+\textbf{Item} & \textbf{Settings} \\ 
+\midrule
+\rowcolor[rgb]{ .949,  .949,  .949}\multicolumn{2}{l}{\textit{Architecture}} \\
+% \midrule \multicolumn{2}{l}{\textit{Architecture}} \\
+Action expert type & DiT-based model with flow-matching loss \\ 
+DiT blocks & 8 \\ 
+Block pattern & Interleaved a self attention and a cross attention \\
+Conditions & \(q_{1}\), Noisy action, Proprioception \\ 
+Input embedding dimension & 768 \\ 
+Hidden size & 1024 \\ 
+Attention heads & 12 \\ 
+Action dimension & 16 \\ 
+State dimension & 16 \\ 
+Action horizon & 30 \\ 
+Repeated samples & 8 \\ 
+Inference timesteps & 4 \\ 
+Position embedding & Enabled \\ 
+\midrule 
+\rowcolor[rgb]{ .949,  .949,  .949}\multicolumn{2}{l}{\textit{Training}} \\
+Global batch size & 128 \\ 
+Training steps & 20,000 \\ 
+AMP (Automatic Mixed Precision) & True \\ 
+Gradient clipping norm & 1.0 \\ 
+Optimizer & AdamW \\ 
+Action expert learning rate & \(1 \times 10^{-4}\) \\ 
+Orca backbone & Frozen \\ 
+Adam betas & \([0.9, 0.95]\) \\
+Weight decay & \(1 \times 10^{-8}\) \\ Scheduler & Cosine with minimum LR \\ Warmup steps & 500 \\ Minimum learning rate & \(1 \times 10^{-6}\) \\ 
+\bottomrule[1pt]
+\end{tabular}
+\end{table}

@@ -1,0 +1,415 @@
+% ========================================================
+% ------------ Appendix: Evaluation Settings -------------
+% ========================================================
+\section{Evaluation Settings}\label{sec:appendix_evaluation}
+\setnavsection{sec:appendix_evaluation}
+
+\renewcommand{\thefigure}{E\arabic{figure}}
+\renewcommand{\theHfigure}{E\arabic{figure}}
+\setcounter{figure}{0}
+
+\renewcommand{\thetable}{E\arabic{table}}
+\renewcommand{\theHtable}{E\arabic{table}}
+\setcounter{table}{0}
+
+\renewcommand{\thelstlisting}{E\arabic{lstlisting}}
+\renewcommand{\theHlstlisting}{E\arabic{lstlisting}}
+\setcounter{lstlisting}{0}
+
+\subsection{Text Generation}\label{sec:appendix_evaluation_toL}
+
+\paragraph{Benchmarks.} In terms of text generation, we use the following benchmarks for evaluation:
+
+\begin{itemize}
+    \item \textbf{MVBench} \citep{MVBench} evaluates a model's general video understanding capabilities through multiple-choice QA tasks, covering action recognition, temporal reasoning, object interaction, and event-level understanding.
+    \item \textbf{TemporalBench} \citep{cai2024temporalbench} evaluates a model's ability to handle fine-grained temporal dynamics, including action frequency, motion amplitude, and event order. The test uses short video (0-20 seconds) QA tasks and employs Multiple Binary Accuracy (MBA) as the evaluation metric.
+    \item \textbf{SWITCH} \citep{switch2025} evaluates a model's ability to interact with real-world TCIs (Time-Induced Compatibility Elements). It requires the model to possess common sense and physical understanding, causal prediction capabilities, and the ability to predict and verify operational results in the spatiotemporal dimensions.
+    \item \textbf{3DSRBench} \citep{ma20253dsrbench} evaluates a model's 3D spatial reasoning capabilities, including reasoning about height, location, orientation, and multiple objects.
+\end{itemize}
+
+
+\paragraph{Baselines.} In terms of text generation, we use the following baselines for evaluation:
+
+\begin{itemize}
+    \item \textbf{V-JEPA 2.1} \citep{V-JEPA-2.1} is a self-supervised video model that learns dense visual representations from images and videos. It serves as a representative latent world-model baseline, emphasizing spatially grounded and temporally consistent visual understanding.
+    \item \textbf{Emu3} \citep{Emu3} tokenizes images, text, and videos into a unified discrete token space and trains a single Transformer with next-token prediction. It provides a native multimodal baseline for both perception and generation.
+    \item \textbf{Emu3.5} \citep{Emu35} extends the next-token prediction paradigm toward native multimodal world modeling. It learns from interleaved vision-language sequences and supports long-horizon multimodal generation and spatiotemporally consistent world exploration.
+    \item \textbf{Qwen3.5} \citep{qwen35} is a native multimodal foundation model with early vision-language fusion. It provides a strong general-purpose VLM baseline for visual understanding, reasoning, long-context modeling, and agentic interaction.
+    \item \textbf{Gemma 4} \citep{Gemma4} is an efficient open multimodal model family supporting text, vision, video, and audio understanding. We use it as a compact yet strong baseline for multimodal reasoning and instruction following.
+    \item \textbf{DeepSeek-VL2} \citep{DeepSeek-VL2} is a Mixture-of-Experts vision-language model that improves high-resolution visual understanding through dynamic tiling and an efficient MoE language backbone. It is included as a strong VLM baseline for visual question answering, OCR, document understanding, and visual grounding.
+    \item \textbf{MiniCPM-V-4.6} \citep{MiniCPM-o-4.5} is an edge-deployment-friendly multimodal model designed for efficient image and video understanding. It introduces compact visual encoding and mixed visual token compression, making it a lightweight baseline for mobile and resource-constrained scenarios.
+    \item \textbf{SmolVLM2} \citep{SmolVLM} is a compact vision-language model series designed for resource-efficient image and video understanding. It is included as a lightweight baseline to evaluate whether small VLMs can capture temporal and spatial dynamics under limited model capacity.
+\end{itemize}
+
+
+
+\subsection{Image Prediction}\label{sec:appendix_evaluation_toV}
+\subsubsection{Benchmarks} \label{sec:appendix_evaluation_toV_benchmark}
+To evaluate the model's ability to predict state changes in real-world interactive scenarios, we developed \textbf{PRICE-V0.1} (i.e., Prediction of Real-world Interactions with Constraints Evaluation). This benchmark is an instruction-conditional image-to-image generation task (TI2I). Given an initial state image and an instruction, PRICE requires generating a target state image after the corresponding action is performed. Unlike traditional image editing tasks, PRICE focuses more on whether the model can understand the actual impact of the instruction in the real physical environment and generate state change results that conform to scene constraints and common sense.
+
+PRICE is derived from four real-world robot or first-person perspective interaction datasets: \textit{AgiBot-World} \citep{Agibot-world}, \textit{HomeInteract}, \textit{PE-Video} \citep{PE}, and \textit{PSI-Ego} \citep{SynData}. HomeInteract is the closed-source general data collected by the dual-arm wheeled robot in the home scene. Each sample consists of three parts: an instruction, an initial state image, and a target state image, as shown in Figure \ref{fig:PRICE}. These samples cover a variety of embodied interaction scenarios, including object manipulation, changes in scene state, action-result prediction, and interaction relationships between humans and objects, or between robots and objects.
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=0.98\linewidth]{figs/appendix/PRICE.pdf}
+    \caption{\textbf{PRICE-V0.1 Examples.}} % 
+    \label{fig:PRICE}
+\end{figure}
+
+\subsubsection{Metrics} \label{sec:appendix_evaluation_toV_metrics}
+We use closed-source Gemini 3.1 Pro \citep{Gemini-3.1-pro}, GPT 5.4 \citep{GPT54}, and Doubao Seed 2.0 Pro \cite{doubao-seed-2.0-pro}. In addition, to ensure reproducibility, we added the open-source model Gemma 4-31B \citep{Gemma4} as a judge model to score the generated results. 
+The judge model reads the initial state image, the instruction, and the model-generated target state image. It assigns an integer score from 1 to 5 based on the action execution (following the instruction), scene consistency, and physical plausibility, along with the reasoning for the score. A higher score indicates that the generated image closely matches the target required by the instruction. Then, the average of all the scores will be calculated to obtain the percentage, which is the final score. The prompt used for benchmark evaluation is shown in Listing \ref{lst:evaluator_prompt}. 
+
+\begin{center}
+\begin{minipage}{0.90\linewidth}
+\begin{lstlisting}[style=promptstyle, caption={Prompt used for benchmark evaluation.}, label={lst:evaluator_prompt}]
+"You are a practical benchmark evaluator using lenient pass criteria. You will receive two images (an original image and a modified image) along with a specific modification instruction.
+
+Modification instruction:
+{instruction}
+
+The first image is the original image. The second image is the modified image.
+
+Score Instruction: Following from 1 to 5 (integers only). Score higher when the instruction's intended outcome is clearly visible. For agent-action instructions, the outcome should look executed--not merely teleported: if a visible person or robot should act, penalize cases where the result appears but the agent's pose, position, or contact state is essentially unchanged. Allow in-progress or imperfect execution. Minor occlusion or detail loss is fine.
+
+General scoring philosophy:
+- Use the full 1-5 range to reflect how well the instruction is followed.
+- Minor blur, texture shifts, small artifacts, or partial ambiguity should NOT automatically fail.
+
+Respond with JSON only, no markdown fences:
+{
+  "score": 3,
+  "reasoning": "..."
+}"
+\end{lstlisting}
+\end{minipage}
+\end{center}
+
+Specifically, the focus is on the following three aspects. First, the generated image should be in the same scene as the input image, preserving the original environment, viewpoint, and layout of major objects as much as possible. Second, the generated image should accurately reflect the state changes corresponding to the action command, such as the result of an object being moved, opened, picked up, or lifted. Third, the generated image should not contain content that obviously violates the physical laws, such as generating irrelevant objects out of thin air or lacking a reasonable causal relationship in the interaction process. If the state of an object changes, but the posture, position, or contact relationship of the executing subject remains almost unchanged, points will be deducted appropriately. Slight blurring, texture changes, small-scale artifacts, or local ambiguity will not be considered failures.
+
+\subsubsection{Baselines} \label{sec:appendix_evaluation_toV_baselines}
+In terms of image prediction, we use the following baselines for evaluation:
+
+\vspace{-1ex}
+\begin{itemize}
+    \item \textbf{OmniGen2} \citep{OmniGen2} is a versatile open-source generative model for unified image generation, editing, and in-context generation. It introduces separate readout pathways for text and image modalities, a decoupled image tokenizer, and task-specific data construction pipelines for image editing and in-context generation.
+    \item \textbf{FLUX.1-Kontext} \citep{FLUX.1-Kontext} is a generative flow-matching model for in-context image generation and editing. It takes both text and image inputs as context and supports local editing, global editing, character reference, style reference, and text editing within a unified architecture. 
+    \item \textbf{FLUX.2 [klein]} \citep{flux2} is an efficient image generation and editing model. It adopts a rectified-flow Transformer architecture and supports text-conditioned generation as well as multi-reference image editing. We include it as a generative baseline to assess the visual synthesis and editing capability of compact world-oriented image models.
+\end{itemize}
+
+
+
+\subsection{Action Generation}
+\label{sec:appendix_evaluation_toA}
+
+\subsubsection{Real-Robot Benchmark}
+\label{sec:appendix_evaluation_toA_Benchmark}
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=0.98\linewidth]{figs/appendix/Realrobot.pdf}
+    \caption{
+    \textbf{Real-robot benchmark.}
+    We evaluate the dual-arm wheeled robot on five manipulation tasks and construct OOD settings for environment and object generalization.
+    }
+    \label{fig:appendix_realrobot}
+\end{figure}
+
+We evaluate action readout on the dual-arm wheeled humanoid real robot with five manipulation tasks: \textit{Take Book}, \textit{Stacked Bowls}, \textit{Pull Out Tissue}, \textit{Stamp}, and \textit{Scoop Sugar}. 
+For each task, we collect 200 real-robot trajectories for downstream \textit{Action Expert} post-training. 
+The benchmark settings are shown in Figure~\ref{fig:appendix_realrobot}.
+
+We construct two types of real-robot OOD settings. 
+For \textit{environment OOD}, we keep the task objects and instructions unchanged, but vary the scene appearance using three unseen tablecloth/background settings. 
+For \textit{object OOD}, we replace the task objects or target containers with unseen but semantically related instances. 
+The object OOD settings are summarized in Table~\ref{tab:appendix_object_ood_settings}.
+
+
+\begin{table}[!htbp]
+  \centering
+  \caption{\textbf{Object OOD settings for real-robot evaluation.}}
+  \label{tab:appendix_object_ood_settings}
+  \small
+  \setlength{\tabcolsep}{4pt}
+  \renewcommand{\arraystretch}{1.08}
+  \begin{tabularx}{\linewidth}{
+    @{}
+    >{\raggedright\arraybackslash}p{0.13\linewidth}
+    >{\raggedright\arraybackslash}p{0.35\linewidth}
+    >{\raggedright\arraybackslash}X
+    @{}
+  }
+    \toprule[1pt]
+    \textbf{Task} & \textbf{Training Instruction} & \textbf{Inference Instruction} \\
+    \midrule[0.5pt]
+    \textit{Take Book} 
+    & Put the book on the bookshelf. 
+    & Put the cutting board on the kitchen utensil shelf. \\
+
+    \textit{Stacked Bowls} 
+    & Stack bowls. 
+    & Stack boxes. \\
+
+    \textit{Pull Out Tissue} 
+    & Take tissue from the tissue box. 
+    & Take bread from the bread machine. \\
+
+    \textit{Stamp} 
+    & Stamp the paper with a regular stamp. 
+    & Stamp the notebook with a children's stamp. \\
+
+    \textit{Scoop Sugar} 
+    & Scoop sugar into the mug with a spoon. 
+    & Scoop sugar into the paper cup with a spoon. \\
+    \bottomrule[1pt]
+  \end{tabularx}
+\end{table}
+
+
+\subsubsection{Metrics}
+\label{sec:appendix_evaluation_toA_metrics}
+We evaluate real-robot performance from two complementary perspectives. First, we use task-specific rule-based scores. As shown in Table~\ref{tab:real_robot_scoring}, each task is decomposed into several key stages, and the rule-based score measures the highest completed stage before termination. Second, we adopt PRM-as-a-Judge~\citep{PRM-as-a-Judge} to provide dense trajectory-level diagnostics of progress and execution quality.
+
+
+\begin{table}[!ht]
+\centering
+\caption{
+\textbf{Scoring criteria for real-robot evaluation.}
+Each task is evaluated within 60 seconds. 
+If the robot becomes locked due to severe collision, or if the object falls and the task can no longer continue, evaluation is stopped. 
+For each task, only the highest achieved score before termination is counted.
+}
+\label{tab:real_robot_scoring}
+\small
+\renewcommand{\arraystretch}{0.83}
+\begin{tabularx}{\textwidth}{C{1.3cm}Y C{0.6cm}}
+\toprule
+Task & \multicolumn{1}{c}{Scoring Criteria} & Point \\
+\midrule
+
+\multirow{6}{1.5cm}{\centering Take Book}
+& 1. The robot arm moves toward the book. & 10 \\
+& 2. The gripper contacts the book. & 10 \\
+& 3. The book is pushed to the edge, with more than 2 cm beyond the edge, without falling. & 20 \\
+& 4. The book is successfully grasped. & 30 \\
+& 5. The book is moved toward the bookshelf while being grasped. & 20 \\
+& 6. The book is successfully placed on the bookshelf. & 10 \\
+\midrule
+
+\multirow{9}{1.5cm}{\centering Stacked Bowls}
+& 1. The hand moves toward Bowl 1. & 10 \\
+& 2. Bowl 1 is grasped. & 20 \\
+& 3. Bowl 1 is placed stably. & 10 \\
+& 4. The hand moves toward Bowl 2. & 10 \\
+& 5. Bowl 2 is grasped. & 10 \\
+& 6. Bowl 2 is stably stacked into Bowl 1. & 10 \\
+& 7. The hand moves toward Bowl 3. & 10 \\
+& 8. Bowl 3 is grasped. & 10 \\
+& 9. Bowl 3 is stably stacked into Bowl 2. & 10 \\
+\midrule
+
+\multirow{6}{1.5cm}{\centering Pull Out Tissue}
+& 1. Arm A moves toward the tissue box. & 10 \\
+& 2. Arm A holds the tissue box. & 20 \\
+& 3. Arm B moves toward the tissue. & 20 \\
+& 4. Arm B successfully grasps the yellow tissue. & 40 \\
+& 5. The tissue is placed on the table. & 10 \\
+& $\triangleright$ \textbf{The two arms are scored separately.} & - \\
+\midrule
+
+\multirow{7}{1.5cm}{\centering Stamp}
+& 1. The robot arm moves toward the stamp. & 10 \\
+& 2. The stamp is successfully grasped and lifted. & 30 \\
+& 3. The stamp is moved above the document. & 10 \\
+& 4. The document is stamped by pressing the stamp. & 20 \\
+& 5. The stamp is moved above the ink pad. & 10 \\
+& 6. The stamp is placed stably without toppling. & 20 \\
+& $\triangleright$ \textbf{If the stamp topples, scoring stops.} & - \\
+\midrule
+
+\multirow{6}{1.5cm}{\centering Scoop Sugar}
+& 1. The hand moves toward the spoon. & 10 \\
+& 2. The spoon is successfully grasped. & 20 \\
+& 3. Sugar is scooped with the spoon. & 20 \\
+& 4. The spoon is moved to the mug; the spoon must be held, but sugar is not strictly required. & 10 \\
+& 5. The sugar is poured into the mug; the spoon must be held, but sugar is not required. & 20 \\
+& 6. The spoon is placed back on the right side of the table. & 20 \\
+
+\bottomrule
+\end{tabularx}
+\end{table}
+
+
+\subsubsection{Baselines}
+\label{sec:appendix_evaluation_toA_baselines}
+
+We compare Orca with the following baselines in real-robot embodied tasks:
+
+\vspace{-2ex}
+\begin{itemize}
+    \item \textbf{V-JEPA 2.1}~\citep{V-JEPA-2.1}. 
+    The native V-JEPA-AC planner requires a goal image, which is unavailable in our real-robot OOD setting. 
+    Therefore, we use the hidden representation of V-JEPA 2.1 as the condition for the same downstream action expert used by Orca.
+
+    \item \textbf{Qwen3.5}~\citep{qwen35}. 
+    To clarify performance attribution, we use the last-layer hidden state of Qwen3.5 as the condition for the same downstream action expert. 
+    This comparison tests whether Orca's learned world representation provides more useful information for action readout than a general vision-language representation.
+
+    \item \textbf{$\pi_{0.5}$}~\citep{pi0.5}. 
+    We use $\pi_{0.5}$ as a strong VLA baseline pretrained on large-scale robot data. 
+    This comparison evaluates whether Orca's learned world representation can provide competitive or complementary benefits under limited real-robot trajectories.
+\end{itemize}
+
+During post-training, the V-JEPA 2.1 backbone, the Qwen3.5 backbone, and the VLM component of $\pi_{0.5}$ are frozen, and only the action expert is trained. 
+For V-JEPA 2.1, Qwen3.5, and Orca, the action experts are configured identically, initialized from scratch, and trained on 200 trajectories per task. 
+We train each task for 20k steps with a global batch size of 128, which gives the best empirical performance among the settings we tested. 
+For $\pi_{0.5}$, we follow its official post-training configuration and train for 30k steps with a global batch size of 32; we also find this setting to yield the best performance for $\pi_{0.5}$ in our benchmark.
+
+
+
+
+\subsubsection{Detailed Real-Robot Results}
+\label{sec:appendix_evaluation_toA_results}
+The PRM-as-a-Judge results are used in the main-text analysis, while this appendix provides the detailed task-level rule-based evaluation protocol and results. 
+Table~\ref{tab:appendix_detailed_real_robot_ood} provides the OOD results. 
+The rule-based scores report task-level completion under the manually designed scoring criteria. 
+
+
+
+
+\begin{table*}[!htbp]
+  \centering
+  \vspace{-0.5em}
+  \caption{\textbf{Detailed rule-based results under real-robot OOD settings.}}
+  \label{tab:appendix_detailed_real_robot_ood}
+  \setlength{\tabcolsep}{4pt}
+  \renewcommand{\arraystretch}{1.05}
+    \begin{tabularx}{\textwidth}{
+      >{\centering\arraybackslash}p{0.22\textwidth}|
+      >{\raggedright\arraybackslash}p{0.17\textwidth}|
+      *{6}{>{\centering\arraybackslash}X}
+    }
+    \toprule[1pt]
+    \multirow{2}{*}{Settings} 
+    & \multirow{2}{*}{Model}
+    & \multicolumn{6}{c}{Rule-based Score} \\
+    \cmidrule(lr){3-8}
+    & 
+    & Book & Bowls & Tissue & Stamp & Sugar & Average \\
+    \midrule[0.5pt]
+
+    \multirow{6}{*}{Environment OOD}
+    & $\pi_{0.5}$
+    & 27 & 44 & 32 & 9 & 26 & 27.6\\
+    & V-JEPA 2.1
+    & 24 & 15 & 28 & 6 & 3 & 15.2\\
+    & Qwen3.5-0.8B
+    & 1 & 28 & 0 & 0 & 10 & 7.8\\
+    & Qwen3.5-4B
+    & 19 & 27 & 0 & 6 & 10 & 12.4\\
+
+    \rowcolor[rgb]{.89,.949,.851}
+    & \textbf{Orca-0.8B}
+    & 23 & 44 & 28 & 27 & 15 & 27.4\\
+    \rowcolor[rgb]{.89,.949,.851}
+    & \textbf{Orca-4B}
+    & 25 & 41 & 39 & 62 & 16 & 36.6\\
+
+    \midrule[0.5pt]
+
+    \multirow{6}{*}{Object OOD}
+    & $\pi_{0.5}$
+    & 30 & 46 & 55 & 13 & 12 & 31.2\\
+    & V-JEPA 2.1 
+    & 34 & 0 & 44 & 2 & 14 & 18.8\\
+    & Qwen3.5-0.8B
+    & 3 & 27 & 0 & 0 & 10 & 8.0\\
+    & Qwen3.5-4B
+    & 6 & 23 & 0 & 0 & 14 & 8.6\\
+
+    \rowcolor[rgb]{.89,.949,.851}
+    & \textbf{Orca-0.8B}
+    & 24 & 23 & 65 & 12 & 10 & 26.8\\
+    \rowcolor[rgb]{.89,.949,.851}
+    & \textbf{Orca-4B}
+    & 34 & 28 & 59 & 4 & 16 & 28.2\\
+
+    \bottomrule[1pt]
+  \end{tabularx}
+\end{table*}
+
+
+
+\subsubsection{Additional Qualitative Visualizations}
+\label{sec:appendix_evaluation_toA_visualization}
+
+In addition to the qualitative example shown in the main text, we provide more trajectory visualizations in Figure~\ref{fig:toa_con1_case1}-Figure~\ref{fig:toa_con2_case3}. 
+These examples further illustrate two process-level advantages of Orca: maintaining higher progress even in failed trajectories and recovering from intermediate grasp failures.
+
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=1\linewidth]{figs/evaluation/ToA_appl_con1_case1.pdf}
+    % \vspace{-0.8em}
+\caption{
+\textbf{Failure with higher intermediate progress in Stamp.}
+Orca grasps and transports the stamp toward the ink pad before dropping it near the end, while Qwen3.5 fails to maintain a meaningful stamp grasp and remains at low progress.
+}
+    \label{fig:toa_con1_case1}
+    % \vspace{-0.8em}
+\end{figure}
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=1\linewidth]{figs/evaluation/ToA_appl_con1_case2.pdf}
+    % \vspace{-0.8em}
+\caption{
+\textbf{Failure with higher intermediate progress in Pull Out Tissue.}
+Orca reaches the tissue-grasping stage and achieves substantially higher intermediate progress, while $\pi_{0.5}$ only approaches the tissue box and fails to grasp the tissue.
+}
+\label{fig:toa_con1_case2}
+    % \vspace{-1em}
+\end{figure}
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=0.95\linewidth]{figs/evaluation/ToA_appl_con1_case3.pdf}
+    \vspace{-0.8em}
+\caption{
+\textbf{Failure with higher intermediate progress in Stacked Bowls.}
+Orca advances through multiple bowl-stacking stages, while $\pi_{0.5}$ repeatedly fails to grasp the bowl and remains at lower progress.
+}
+    \label{fig:toa_con2_case1}
+    \vspace{-1em}
+\end{figure}
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=0.95\linewidth]{figs/evaluation/ToA_appl_con2_case2.pdf}
+    \vspace{-0.8em}
+\caption{
+\textbf{Partial recovery after spoon-grasp failure in Scoop Sugar.}
+Orca retries after failing to grasp the spoon and recovers some lost progress, while Qwen3.5 shakes in place without effective re-grasping.
+}
+    \label{fig:toa_con2_case2}
+    \vspace{-1em}
+\end{figure}
+
+
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=0.95\linewidth]{figs/evaluation/ToA_appl_con2_case3.pdf}
+    \vspace{-0.8em}
+\caption{
+\textbf{Recovery through repeated spoon-grasp attempts in Scoop Sugar.}
+Orca makes multiple recovery attempts and eventually grasps the spoon successfully, while JEPA remains largely stagnant with limited task progress.
+}
+    \label{fig:toa_con2_case3}
+    \vspace{-2em}
+\end{figure}
+
+
+
+
+
+\clearpage

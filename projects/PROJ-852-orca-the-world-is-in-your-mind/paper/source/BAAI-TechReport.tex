@@ -1,0 +1,401 @@
+% ========================================================
+% ------------ BAAI Technical Report LaTeX ---------------
+% --------- Produced by Y.H. Wang and Y.H. Ji ------------
+% ========================================================
+\documentclass{BAAI_World2026}
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{marvosym}
+\usepackage{mwe}
+\usepackage{graphicx}
+\usepackage{threeparttable}
+\usepackage{amssymb}
+\usepackage{adjustbox}
+\usepackage{colortbl}
+\usepackage{array}
+\newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
+\usepackage{multirow}
+\usepackage{makecell}
+\usepackage{bbm}
+\usepackage{collcell,xfp}
+\usepackage{pgf}
+% \usepackage[table,dvipsnames]{xcolor}
+\usepackage{tikz}
+\usepackage[most]{tcolorbox}
+\usepackage{csquotes}
+\usepackage[noorphans,vskip=1em,leftmargin=1em]{quoting}
+\usepackage{pifont} % For custom symbols
+\usepackage{enumitem} % For customized itemize settings
+\usepackage{tcolorbox} % For creating a boxed environment
+\usepackage{forest}
+% \usepackage{subfig}
+\usepackage{wrapfig}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{longtable}
+% \usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{amsmath}
+\usepackage[capitalize]{cleveref}
+\usepackage[ruled,vlined,linesnumbered]{algorithm2e} 
+\usepackage[percent]{overpic}
+\usepackage{xspace}
+\usepackage[normalem]{ulem}  % for \ul, \setul, \setulcolor
+\usepackage{tocloft}  % TOC customization
+% \usepackage[numbers]{natbib}  % citep
+\usepackage[authoryear,round]{natbib}  % author-year citations, e.g., (Author et al., 2026)
+% \usepackage{enumerate}
+\usepackage{tabularx}
+\usepackage{listings}
+\lstdefinestyle{promptstyle}{
+    basicstyle=\rmfamily\footnotesize,
+    breaklines=true,
+    breakatwhitespace=false,
+    columns=fullflexible,
+    keepspaces=true,
+    frame=single,
+    backgroundcolor=\color{gray!5},
+    rulecolor=\color{gray!40},
+    xleftmargin=1em,
+    xrightmargin=1em
+}
+\linespread{1.05}
+% % no indent before footnotes
+% % https://stackoverflow.com/a/2842750/5487412
+% \usepackage[hang,flushmargin]{footmisc} 
+\newcolumntype{C}[1]{>{\centering\arraybackslash}m{#1}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+
+
+
+% ========================================================
+% ----------------------- LOGO ---------------------------
+% ========================================================
+\usepackage{fontawesome}
+\newcommand{\huggingface}{\raisebox{-1.5pt}{\includegraphics[height=1.05em]{figs/Logos/HuggingFace.pdf}}\xspace}
+\newcommand{\github}{\raisebox{-1.5pt}{\includegraphics[height=1.05em]{figs/Logos/GitHub.pdf}}\xspace}
+\newcommand{\worldwideweb}{\raisebox{-1.5pt}{\includegraphics[height=1.05em]{figs/Logos/Internet.pdf}}\xspace}
+\newcommand{\icona}{\raisebox{-1.5pt}{\includegraphics[height=1.05em]{
+figs/Logos/icon1.png}}\xspace}
+\newcommand{\iconb}{\raisebox{-1.5pt}{\includegraphics[height=1.05em]{figs/Logos/icon2.png}}\xspace}
+\newcommand{\iconc}{\raisebox{-1.5pt}{\includegraphics[height=1.05em]{figs/Logos/logo3.png}}\xspace}
+\newcommand{\icond}{\raisebox{-1.5pt}{\includegraphics[height=1.05em]{figs/Logos/logo4.png}}\xspace}
+
+
+
+
+% EH define scholarblue citation color
+\definecolor{bluelink}{RGB}{0,75,150}
+\hypersetup{
+    colorlinks=true,%
+    citecolor=bluelink,%
+    filecolor=bluelink,%
+    linkcolor=bluelink,%
+    urlcolor=bluelink
+}
+
+
+
+% ========================================================
+% ---------------------- Contents ------------------------
+% ========================================================
+\newcommand{\runningtitletext}{}
+\usepackage{etoolbox}
+% Current section for the running navigation header.
+% Do not use \rightmark here; it is not reliable with this class/header setup.
+\newcommand{\currentnavsection}{sec:intro}
+\newcommand{\setnavsection}[1]{%
+  \gdef\currentnavsection{#1}%
+}
+
+\newcommand{\navseclink}[3]{%
+  \begingroup
+  \edef\currentsec{\currentnavsection}%
+  \def\targetsec{#1}%
+  \ifx\currentsec\targetsec
+    \hyperref[#1]{\textcolor{black}{\textbf{Sec~#2:~#3}}}%
+  \else
+    \hyperref[#1]{\textcolor{black}{Sec~#2:~#3}}%
+  \fi
+  \endgroup
+}
+
+\newcommand{\navplainlink}[2]{%
+  \begingroup
+  \edef\currentsec{\currentnavsection}%
+  \def\targetsec{#1}%
+  \ifx\currentsec\targetsec
+    \hyperref[#1]{\textcolor{black}{\textbf{#2}}}%
+  \else
+    \hyperref[#1]{\textcolor{black}{#2}}%
+  \fi
+  \endgroup
+}
+
+\newcommand{\sectionheadertext}{%
+  \small
+  \navseclink{sec:intro}{1}{Intro} |
+  \navseclink{sec:method}{2}{Orca} |
+  \navseclink{sec:training}{3}{Training} |
+  \navseclink{sec:evaluation}{4}{Evaluation} |
+  \navseclink{sec:conclusion}{5}{Conclusion} |
+  \navseclink{sec:contributors}{6}{Authors} |
+  \navplainlink{sec:references}{References}\\
+  % \navplainlink{sec:appendix}{\textcolor{gray}{Appendix}}
+  \navplainlink{sec:appendix_conception}{\textcolor{gray}{Appendix A: Conception}} |
+  \navplainlink{sec:appendix_related_work}{\textcolor{gray}{B: Related Work}} |
+  \navplainlink{sec:appendix_training}{\textcolor{gray}{C: Train Settings}} |
+  \navplainlink{sec:appendix_infrastructure}{\textcolor{gray}{D: Infra}} |
+  \navplainlink{sec:appendix_evaluation}{\textcolor{gray}{E: Eval Settings}} |
+  \navplainlink{sec:appendix_visualization}{\textcolor{gray}{F: Visualization}}
+}
+
+\fancypagestyle{mainstyle}{
+    \fancyhf{}
+    \fancyhead[C]{%
+        \vbox{%
+            \centering
+            {\normalfont\bfseries\fontsize{9.5}{11}\selectfont \runningtitletext\par}%
+            \vspace{1pt}
+            {\normalfont\fontsize{9.5}{11}\selectfont \sectionheadertext\par}%
+            \vspace{3pt}
+            {\color{black}\hrule height 0.5pt}%
+        }%
+    }
+
+    \fancyfoot[C]{\footerfont \thepage}
+    \renewcommand{\headrulewidth}{0pt}
+    \renewcommand{\footrulewidth}{0pt}
+}
+
+\setlength{\headheight}{36pt}
+\setlength{\headsep}{18pt}
+
+% \definecolor{darkblue}{rgb}{0, 0, 0.5}
+% \usepackage[pagebackref,breaklinks,colorlinks, citecolor=scholarblue]{hyperref}
+
+% reduce the vspace for all \paragraph commands
+% https://www.perplexity.ai/search/latex-reduce-the-vspace-for-al-IlwgPwVWQTq_1Xsn.0j2qg#1
+\usepackage{titlesec}
+
+
+
+
+
+% ========================================================
+% ----------------------- Settings -----------------------
+% ========================================================
+\newcommand{\finding}[2]{
+    % args:
+    %   1: finding number
+    %   2: finding text
+    \begin{tcolorbox}[
+        colback=white!90!gray,     % Soft ivory background
+        colframe=teal!60!black,     % Deep navy frame color
+        arc=5pt,                    % Less rounded corners for a modern look
+        boxsep=5pt,                 % Inner margin between text and frame
+        left=10pt,                  % Left margin within the box
+        right=10pt,                 % Right margin within the box
+        top=2pt,                    % Top margin within the box
+        bottom=2pt,                 % Bottom margin within the box
+        boxrule=0.8pt,              % Frame thickness
+        drop shadow=gray!50!white,  % Subtle shadow effect for depth
+        enhanced jigsaw             % Allows for the shadow effect and better arcs
+    ]
+    % \paragraph{\textbf{\textit{Observation #1:}}} #2
+    #2
+    \end{tcolorbox}
+}
+
+
+\definecolor{navyblue}{HTML}{0071BC}
+% \iffalse   %% Change between \iffalse and \iftrue to show/hide comments
+\iftrue   %% Change between \iffalse and \iftrue to show/hide comments
+\newcommand{\displaytodo}[1]{#1}
+% \newcommand{\sy}[1]{}
+\else
+\newcommand{\displaytodo}[1]{}
+% \newcommand{\sy}[1]{\textcolor{navyblue}{[\textbf{SY:} #1]}}
+\fi
+\newcommand{\todo}[1]{\displaytodo{\textcolor{red}{[\textbf{TODO:} #1]}}}
+\newcommand{\sy}[1]{\displaytodo{\textcolor{navyblue}{[\textbf{SY:} #1]}}}
+\newcommand{\jy}[1]{\displaytodo{\textcolor{orange}{[\textbf{JY:} #1]}}}
+\newcommand{\eb}[1]{\displaytodo{\textcolor{Emerald}{[\textbf{EB:} #1]}}}
+\newcommand{\pt}[1]{\displaytodo{\textcolor{yellow}{[\textbf{PT:} #1]}}}
+\newcommand{\sx}[1]{\displaytodo{\textcolor{OrangeRed}{[\textbf{SX:} #1]}}}
+
+
+\newcommand{\new}[1]{\textcolor{cyan}{#1}}
+
+
+\def\eg{\emph{e.g.}} 
+\def\ie{\emph{i.e.}}
+\def\cf{\emph{c.f.}} 
+\def\etc{\emph{etc.}} 
+\def\wrt{w.r.t.}
+\def\vs{\emph{vs.}} 
+\def\etal{\emph{et al.}}
+
+% Colors
+\definecolor{blindcolor}{HTML}{AB2AC6}    % Blind – purple
+% \definecolor{chancecolor}{HTML}{8E8E93}   % Chance – slate gray
+\definecolor{chancecolor}{HTML}{F59E0B}   % Chance – amber
+\definecolor{singlecolor}{HTML}{06B6D4}   % Single – cyan
+\definecolor{multiplecolor}{HTML}{2563EB} % Multiple – blue
+\definecolor{captioncolor}{HTML}{22C55E}  % Caption – green
+
+% https://tex.stackexchange.com/a/681557/283520
+ \newcommand{\culine}[2]{%
+    \def\temp@uline{\bgroup\markoverwith
+        {\textcolor{#1}{\rule[-0.5ex]{2pt}{1pt}}}\ULon}%
+    \temp@uline{#2}%
+}
+ \newcommand{\cthickuline}[3][0.8pt]{%
+    \def\temp@uline{\bgroup\markoverwith
+        {\textcolor{#2}{\rule[-0.5ex]{2pt}{#1}}}\ULon}%
+    \temp@uline{#3}%
+}
+
+\newcommand{\blindul}[1]    {\cthickuline{blindcolor}{#1}}
+\newcommand{\chanceul}[1]   {\cthickuline{chancecolor}{#1}}
+\newcommand{\singleul}[1]   {\cthickuline[0.5pt]{singlecolor}{#1}}
+\newcommand{\multipleul}[1] {\cthickuline[1pt]{multiplecolor}{#1}}
+\newcommand{\captionul}[1]  {\cthickuline{captioncolor}{#1}}
+
+
+
+
+% ========================================================
+% -------------- Title & Authors & Abstract -------------- 
+% ========================================================
+\title{\center{Orca: The World is in Your Mind}}
+
+
+\renewcommand\Authfont{\normalfont\fontsize{11}{11}\selectfont\centering} \renewcommand\Affilfont{\normalfont\fontsize{11}{11}\selectfont} 
+\author{Orca Team, Beijing Academy of Artificial Intelligence}
+
+
+% ========================================================
+% --------------------- Link Table ----------------------- 
+% ========================================================
+\newcommand{\linktable}{
+\begin{center}
+    \renewcommand{\arraystretch}{1}
+    % \begin{tabular}{rll}
+    \begin{tabular}{@{}r@{\hspace{0.5em}}l@{\hspace{1.2em}}l@{}}
+        % \worldwideweb{} & \textbf{Website} & \url{https://XXX.github.io}\\
+        \icona{} & \textbf{Website} & \url{https://orca-wm.github.io}\\
+        % \iconb{} & \textbf{Website} & \url{https://XXX.github.io}\\
+        % \iconc{} & \textbf{Website} & \url{https://XXX.github.io}\\
+        % \icond{} & \textbf{Website} & \url{https://XXX.github.io}\\
+        % \github{} & \textbf{Code} & \url{https://github.com/XXXX}\\
+        % \huggingface{} & \textbf{Models} & \href{https://hf.co/collections/XXX}{\nolinkurl{https://hf.co/collections/XXX}} \\
+    \end{tabular}
+\end{center}
+}
+
+
+\begin{abstract}
+% We introduce Orca, a world learner that learns a unified world latent space from multimodal world signals and exposes it through multimodal interfaces. 
+We introduce Orca, an initial instantiation of a general world foundation model. Orca learns a unified world latent space from multimodal world signals and exposes it through multimodal readout interfaces.
+Rather than optimizing isolated next-token, next-frame, or next-action prediction, we are centered on \textit{Next-State-Prediction} modeling, offering a unified state-transition modeling route toward understanding, predicting, and acting upon the world.
+Orca learns through two complementary paradigms: \textit{unconscious learning} captures dense natural state transitions from continuous videos, and \textit{conscious learning} models sparse meaningful state transitions by language-described events and VQA supervision. 
+For pre-training, we construct a large-scale world-learning inventory data, including 125K hours of video data and 160M event annotations. 
+%  In this version, only one-tenth of the inventory data is used for pre-training. 
+% , and 11.5M VQA examples, 
+After pre-training, Orca learns a unified world latent space. 
+To examine whether the learned latent supports downstream, we evaluate it by three representative downstream readouts: text generation, image prediction, and embodied action generation. Orca's backbone is frozen, and only the lightweight modality-specific decoders are trainable.
+Experiments show the scalability of the proposed paradigm and verify that stronger world latent enables stronger downstream readouts. Orca outperforms similar-sized specialized baselines.
+These results show that Orca, as a general world foundation model, presents a promising approach to understanding, predicting, and acting upon the world. 
+Finally, we discuss the current limitations, aiming to provide useful insights and inspiration for the community.
+\end{abstract}
+
+
+
+\newcommand{\abstractboxwidth}{0.9\linewidth}
+\makeatletter
+\renewcommand{\abscontent}{%
+    \begin{center}
+        {\color{black}\fontsize{15pt}{14pt}\selectfont\textbf{Abstract}\par}%
+        \vspace{2ex}%
+        \parbox{\abstractboxwidth}{\absfont \theabstract}%
+        \@ifundefined{@keywords}{}{%
+            \vskip1em
+            \parbox{\abstractboxwidth}{\keywordsfont Keywords: \@keywords}%
+        }%
+    \end{center}%
+}
+\makeatother
+
+% ========================================================
+% ------------------- begin{document} -------------------- 
+% ========================================================
+\begin{document}
+\pagestyle{mainstyle}
+\let\storedabscontent\abscontent
+% \renewcommand{\abscontent}{}
+% \maketitle
+% \let\abscontent\storedabscontent
+
+\maketitle
+
+\vspace{2ex}
+\begin{figure}[!htbp]
+    \centering 
+    \includegraphics[width=1\linewidth]{figs/abstract/teaser.pdf}
+    \caption{\textbf{The Orca's overall framework.} Orca follows an \textit{\textbf{Encoder-Decoder}} architecture. Given multimodal world signals, the \textit{\textbf{Encoder}} learns a world latent through two complementary paradigms: \textit{unconscious learning} and \textit{conscious learning}. Unconscious learning captures dense natural state transitions, while conscious learning captures sparse meaningful state transitions. To prove that the learned latent is effective, the \textbf{\textit{Encoder}} is frozen after pre-training, and only the lightweight modality-specific decoders are trainable separately. The \textit{\textbf{Decoder}} reads out the latent into text, images, actions, and other modalities.}
+    % \caption{\textbf{The Orca pipeline.} Orca consists of two parts: the ``Encoder'' and the ``Decoder''. After receiving multimodal world signals, the ``Encoder'' uses two complementary learning paradigms, i.e., \textit{unconscious learning} and \textit{conscious learning}, to construct a world latent space. Unconscious learning is about objectively observing the world and learning its natural laws and dense state transitions. Conscious learning is about subjectively understanding the world and learning its meaningful and sparse state transitions. The latent is then used by the modal decoders to read out multimodal information such as text, images, actions, and so on, so that support understanding, prediction, and even the ability to change the world.}
+\label{fig:teaser}
+\end{figure}
+% \vspace{3ex}
+
+% \abscontent  % Abstract -> Teaser
+
+% ========================================================
+% ---------------------- Main Body ----------------------- 
+% ========================================================
+% include --> input!!!!
+\include{Section/Introduction.tex}
+\input{Section/Method.tex}
+\input{Section/Training.tex}
+\input{Section/Evaluation.tex}
+\input{Section/Conclusion.tex}
+\include{Section/Contributors.tex}
+
+
+
+% ====================== References ======================
+\begingroup
+\linespread{1}\selectfont
+\renewcommand{\refname}{}
+\section*{References}\phantomsection\label{sec:references}
+\setnavsection{sec:references}
+\vspace{-10ex}
+% \addcontentsline{toc}{section}{References}
+\bibliographystyle{BAAI-TechReport}
+% \bibliographystyle{plainnat}
+
+\bibliography{TR_Ref}
+\endgroup
+
+
+
+% ======================= Appendix =======================
+\newpage
+\input{Section/Appendix.tex}
+\input{Section/Appendix_conception.tex}
+\include{Section/Appendix_RelatedWork.tex}
+\input{Section/Appendix_Training.tex}
+\input{Section/Appendix_Infra.tex}
+\input{Section/Appendix_Evaluation.tex}
+\input{Section/Appendix_Visualization.tex}
+
+
+
+\end{document}

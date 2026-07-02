@@ -1,0 +1,54 @@
+% ========================================================
+% ------------------- Appendix: Infra --------------------
+% ========================================================
+\section{Infrastructure}\label{sec:appendix_infrastructure}
+\setnavsection{sec:appendix_infrastructure}
+
+\renewcommand{\thefigure}{D\arabic{figure}}
+\renewcommand{\theHfigure}{D\arabic{figure}}
+\setcounter{figure}{0}
+
+\renewcommand{\thetable}{D\arabic{table}}
+\renewcommand{\theHtable}{D\arabic{table}}
+\setcounter{table}{0}
+
+Orca training integrates visual embedding, language modeling, future visual-latent prediction, and action-related branches, resulting in higher memory pressure and communication cost than standard VLM training. To support stable and scalable large-scale training, we build the Orca training infrastructure on FlagScale~\citep{flagscale} and restructure the training pipeline at the system level. The optimization focuses on three aspects: distributed sharding, memory-efficient execution, and communication-computation overlap. Concretely, we adapt FSDP2 (Fully Sharded Data Parallel), activation recomputation, chunked cross-entropy loss, and forward/backward pre-fetching.
+
+
+
+\paragraph{FSDP2.} 
+We migrate the training backend from DeepSpeed to FSDP2. FSDP2 supports flexible sharding of parameters, gradients, and optimizer states under different memory budgets and model scales, which improves multi-GPU training efficiency while maintaining training stability. We further enable resharding to release redundant parameter copies after use, reducing peak GPU memory during distributed training. For lightweight visual blocks, we remove unnecessary FSDP sharding to avoid excessive communication and scheduling overhead.
+
+
+\paragraph{Activation Recompute.} 
+We apply activation recomputation to reduce the activation memory footprint. Instead of retaining all intermediate activations, the training process checkpoints selected activation boundaries and reconstructs the required intermediate states during backpropagation. This trades moderate additional computation for substantial memory savings, enabling larger batch sizes and improving overall throughput under memory-constrained settings.
+
+
+\paragraph{Chunked Cross-Entropy Loss.} 
+Memory profiling shows that the cross-entropy computation in the VLM forward stage introduces a significant peak-memory spike under long-sequence and large-vocabulary settings, mainly due to the log-softmax intermediate tensor. We therefore adopt chunked cross-entropy loss, which partitions the token dimension and computes the loss block by block. This avoids materializing the full logits tensor during loss computation and reduces peak memory, leaving more memory budget for larger batch sizes and longer sequences.
+
+
+\paragraph{Forward/Backward Pre-fetching.} 
+Performance analysis shows that FSDP2 all-gather operations can expose communication stalls when parameter aggregation and layer computation are not sufficiently overlapped. We introduce forward/backward pre-fetching to overlap the parameter all-gather for upcoming layers with computation in the current layer. This scheduling reduces GPU idle time caused by communication waits and improves overall device utilization.
+
+
+\begin{table}[!htbp]
+    \centering
+    % \small
+    \caption{\textbf{Training throughput of infrastructure optimizations on H100 GPUs.}}
+    \label{tab:appendix_infra_comparison}
+    \begin{tabular}{lc}
+    \toprule[1pt]
+    \textbf{Infrastructure} & \textbf{Samples/Sec/GPU $\uparrow$} \\
+    \midrule[0.5pt]
+    StarVLA~\citep{StarVLA} & 0.66 \\
+    FSDP2 baseline & 0.97 \\
+    \midrule[0.5pt]
+    + Chunked Cross-Entropy Loss & 1.35 \\
+    + Activation Recompute & 2.86 \\
+    + Forward/Backward Pre-fetching (\textbf{Full Orca}) & 2.91 \\
+    \bottomrule[1pt]
+    \end{tabular}
+\end{table}
+
+As shown in Table~\ref{tab:appendix_infra_comparison}, the optimized infrastructure achieves 2.91 samples/sec/GPU on H100 GPUs. This corresponds to a 3.0$\times$ improvement over the FSDP2 baseline of 0.97 samples/sec/GPU and a 4.4$\times$ improvement over the StarVLA~\citep{StarVLA} training pipeline.

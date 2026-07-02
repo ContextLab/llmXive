@@ -1,0 +1,77 @@
+% ========================================================
+% --------------------- Conclusion -----------------------
+% ========================================================
+\vspace{-1.5em}
+\section{Conclusion}
+\label{sec:conclusion}
+\setnavsection{sec:conclusion}
+We presented Orca, a world learner built around a world latent space. 
+Rather than being purpose-built for isolated downstream tasks such as question answering, visual frame prediction, or action generation, Orca adopts a fundamentally different modeling paradigm:
+It first learns an internal representation of world states from multimodal world signals, and subsequently exposes this representation via a suite of dedicated readout interfaces.
+This design shifts the modeling target from next-token/frame/action prediction toward next-state prediction. 
+Taken together, Orca constitutes an early exploratory milestone on the path toward building general-purpose world foundation models.
+
+\vspace{-0.5em}
+\paragraph{Discussion \& Limitation.}
+Orca is still an early step toward general world foundation models. We discuss its current boundaries together with the research directions they suggest for the community.
+
+\vspace{-1ex}
+\begin{enumerate}[
+    leftmargin=1.35em,
+    itemsep=0.35em,
+    topsep=0.35em,
+    parsep=0em
+]
+
+
+    \item[] \textit{\textbf{1) Limited multimodal world signals.}}
+    Orca currently learns mainly from vision and language, which cover only a subset of the multimodal world signals. However, many state transitions are expressed through other sensory or physical signals. For example, whether water is boiling can often be inferred from sound before clear visual changes appear, and tactile or force feedback can reveal contact, slippage, stiffness, or whether an object is firmly grasped. Future world learners should incorporate richer neural and physical signals, such as audio, tactile, force, light, and proprioception, and eventually extend to broader scientific domains to build a more complete world latent space.
+
+
+    \item[] \textit{\textbf{2) ViT space supervision.}} Orca aimed to provide a new learning paradigm that, in all other respects, employed a naive setup, thus using a pre-trained VLM and supervising visual state prediction within a frozen vision encoder. This design simplified the training process. However, this also aligns the learned state space with the semantic space. A general world foundation model should learn a unified world space directly from multi-source signals. These signals should jointly define and constrain the state, rather than relying on any single pre-trained modality space as the supervision target.
+
+    \item[] \textit{\textbf{3) Model size limited.}} Due to resource constraints, our current experiments are mainly conducted at the 4B and 0.8B scale. The current scale is insufficient to fully integrate greater world knowledge, more modalities, and more data. We found that the 4B model exhibits a trade-off among language, image, and action readout performance as pre-training progresses, and this trade-off is more pronounced in the 0.8B model. Therefore, although we have created 125K hours of video data and 160M event annotations, the current training only uses one-tenth of the inventory data. This indicates that world learning is not only limited by the data scale, but also requires sufficient model capacity.
+
+    
+    \item[] \textit{\textbf{4) Vision benchmark limited.}} 
+    % To evaluate real-world state transitions, we constructed PRICE-V0.1 because existing benchmarks remain limited in directly assessing interaction-conditioned state changes under physical constraints. 
+    Although the proposed PRICE-V0.1 covers multiple real-world data sources, its scale, diversity, and interaction richness are still limited. We hope it can serve as an initial step toward a more comprehensive evaluation of real-world state prediction.
+
+
+    \item[] \textit{\textbf{5) Short-horizon transition supervision.}}
+    The current state-transition supervision is constrained by the event annotation. Most event annotations describe short-horizon, minute-level state transitions, which are suitable for learning local transitions but insufficient for modeling long-term state evolution over hours, days, or even longer horizons. 
+
+
+    \item[] \textit{\textbf{6) Downstream readout limited.}} Currently, we have verified that the world latent we have learned is readout language, vision, and action. However, this is far from enough, as information from other fields such as hearing, quantum circuits, and proteins remains an important part of the world. 
+    
+    \item[] \textit{\textbf{7) Loss function limited.}} We use three losses to fully train Orca, but this is not consistent enough for the Next-State-Prediction modeling. A simpler loss and supervision need to be proposed.
+
+    \item[] \textit{\textbf{8) Embodied task difficulty limited.}} Our settings are quite stringent, resulting in lower performance. However, it's undeniable that the current embodiment tasks are still relatively short and easy.
+
+\end{enumerate}
+
+
+\vspace{-0.5em}
+\paragraph{Future Works.}
+We also provided some inspiration for the community, including:
+
+\vspace{-1ex}
+\begin{enumerate}[
+    leftmargin=1.35em,
+    itemsep=0.35em,
+    topsep=0.35em,
+    parsep=0em
+]
+    \item[] \textit{\textbf{1) More modalities input.}} The crucial next step is not simply to add more modalities, but to align them to the same underlying state to better constrain state transitions with the laws of physics.
+
+    
+    \item[] \textit{\textbf{2) Toward native world-state modeling.}} Native world foundation models can be pre-trained from scratch. To overcome the constraints imposed by a certain existing ViT space or other embedding model spaces, a unified world latent space can be learned directly from multi-source world signals, and a native world model can be trained from scratch.
+    
+    \item[] \textit{\textbf{3) A world model state transition evaluation system.}} This system constructs a unified evaluation framework for state prediction, intervention response, physical quantifiability, and counterfactual inference, preventing world models from remaining solely at the visual generation level. 
+
+    \item[] \textit{\textbf{4) Model-Data-Evaluation self-evolutionary closed loop.}} The model autonomously generates interaction trajectories and counterfactual samples, which are automatically evaluated and value-filtered before being fed back into the training system, forming a self-evolutionary closed loop of ``data generation—data filtering-training—leap''.
+
+    \item[] \textit{\textbf{5) Expanding the boundaries of human cognition.}} Gradually extending from embodied intelligence to complex systems such as AI for science, microscopic quantum mechanics, macroscopic universe, and life sciences, using a unified state transition world representation to support scientific discovery and the expansion of cognitive boundaries.
+    
+
+\end{enumerate}

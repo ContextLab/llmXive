@@ -1,0 +1,21 @@
+{
+   "sources" : [
+      {
+         "usage" : "toplevel",
+         "filename" : "BAAI-TechReport.tex"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "BAAI-TechReport.bst"
+      },
+      {
+         "usage" : "ignore",
+         "filename" : "TR_Ref.bib"
+      }
+   ],
+   "spec_version" : 1,
+   "texlive_version" : "2025",
+   "process" : {
+      "compiler" : "pdflatex"
+   }
+}

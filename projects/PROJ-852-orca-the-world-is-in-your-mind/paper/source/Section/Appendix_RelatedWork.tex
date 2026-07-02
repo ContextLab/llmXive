@@ -1,0 +1,91 @@
+% ========================================================
+% --------------- Appendix: Related Work -----------------
+% ========================================================
+\section{Related Work}\label{sec:appendix_related_work}
+\setnavsection{sec:appendix_related_work}
+
+\renewcommand{\thefigure}{B\arabic{figure}}
+\renewcommand{\theHfigure}{B\arabic{figure}}
+\setcounter{figure}{0}
+
+\renewcommand{\thetable}{B\arabic{table}}
+\renewcommand{\theHtable}{B\arabic{table}}
+\setcounter{table}{0}
+
+
+
+We organize related work according to the primary learning objective at the center of each paradigm, rather than by all downstream capabilities a model may exhibit. Under this view, some unified models span multiple capability domains, but are categorized by the dominant training formulation.
+
+
+\vspace{-1em}
+\subsection{Self-Supervised Learning}\label{sec:ssl}
+
+\paragraph{Latent World Models.}\label{sec:jepas}
+Latent world models shift predictive learning from reconstructing high-entropy observations to modeling task-related latent. Joint Embedding Predictive Architecture (JEPA)-style work established this path by predicting semantic representations rather than pixels. I-JEPA \citep{I-JEPA}, VL-JEPA \citep{VL-JEPA}, and MC-JEPA \citep{MC-JEPA} establish joint embedding predictions for images, texts, and videos. The most influential JEPA-style works are the V-JEPA series. V-JEPA \citep{V-JEPA} demonstrates that robust video representations can be learned solely from feature predictions, without pixel reconstruction. V-JEPA 2 \citep{V-JEPA-2} combines large-scale internet video pre-training with action-based understanding, prediction, and planning. This model marks a crucial step towards embodied latent world modeling. V-JEPA 2.1 \citep{V-JEPA-2.1} enhances dense and interaction-sensitive video representations. Recent work has further advanced this paradigm in several complementary directions. LeJEPA \citep{LeJEPA} improves the stability and scalability of JEPA-style training with fewer heuristics. Causal-JEPA \citep{Causal-JEPA} introduces object-level masking and latent interventions, moving latent predictions towards object-centric causal world modeling. LeWorldModel \citep{LeWorldModel} demonstrates that lightweight end-to-end world models can be trained directly from pixels under a stable joint embedding prediction objective. GeoWorld \citep{GeoWorld} further explores the hyperbolic potential dynamics for multi-step visual planning.
+
+\vspace{-0.5em}
+\paragraph{How Orca differs.}
+JEPA-style models demonstrate the effectiveness of latent prediction for self-supervised visual representation learning, which is closely related to Orca's observation-only state transition.
+Orca starts from a broader world-learning formulation: it abstracts latent world states from multimodal world signals and places state transition at the center of modeling.
+Specifically, Orca models state transitions under implicit dynamics and explicit semantic conditions, covering both transition directions: predicting future states and backtracking to past states.
+
+\vspace{-1em}
+\subsection{Next Token Prediction}\label{sec:ntp}
+\paragraph{Large Language Models.}\label{sec:llms}
+Since the development of autoregressive large language models \citep{DeepSeek-R1, Llama-2}, recent representative works have further pushed the paradigm along several directions. 
+LLaMA 3.1 \citep{llama3.1} scales dense models to stronger general reasoning and instruction following. DeepSeek-V4 \citep{DeepSeek-V4} developed large-scale Mixture-of-Experts (MoE) models toward cost-effective million-token contexts. Qwen3 \citep{Qwen3} explores hybrid reasoning within a unified framework. Kimi K2 \citep{Kimi-K2} and GLM-5 \citep{GLM-5} strengthen agentic language modeling. The former emphasizes tool-oriented intelligence, and the latter focuses on long-horizon agentic engineering. MiniMax-M2.7 \citep{MiniMax-M2.7} investigates self-evolving for real-world productivity. Phi-4-reasoning \citep{Phi-4-reasoning} shows the effectiveness of high-quality reasoning supervision in dense models. These works advance ``next token prediction'' as a strong scalable approach for language intelligence.
+
+
+\vspace{-0.5em}
+\paragraph{Multimodal Large Language Models.}\label{sec:mllms}
+In the context of multimodal environments, many works have emerged. These include instruction-tuned visual language models, native multimodal foundation models, and agents.
+LLaVA \citep{llava} pioneered a widely adopted approach to connect vision encoders to large language models. It leverages multimodal instruction tuning to achieve general visual language understanding. Gemini 3.1 \citep{Gemini-3.1-pro} enhanced multimodal reasoning, agent usage, and long context processing capabilities. The latest Qwen series \citep{Qwen3VL, qwen36_35b_a3b} further strengthens visual perception and reasoning, spatial and video dynamic understanding capabilities, and formally moves towards native multimodal large models. GPT-5.4 \citep{GPT54} extends cutting-edge multimodal systems to specialized knowledge work, native computer applications, and agent usage. Gemma 4 \citep{Gemma4} emphasizes cutting-edge multimodal intelligence on the device, supporting image, text, and audio input as well as long context processing. Kimi K2.5 \citep{KimiK2.5} developed multimodal models toward visual agentic intelligence by jointly optimizing text and vision, and introducing Agent Swarm, which decomposes complex tasks into heterogeneous sub-problems for concurrent execution. LLaMA 4 \citep{llama4} introduces a hybrid expert and native multimodal generative model, while Mistral Medium 3.5 \citep{Mistral-Medium-3.5} integrates instruction tracking and inference, and is equipped with a visual encoder trained for different image sizes and aspect ratios. The MLLM paradigm has also been extended toward embodied reasoning and robotic manipulation. RoboBrain series \citep{RoboBrain, RoboBrain2.0,reasonrft} proposes an MLLM-based robotic brain model that integrates general multimodal data with robot-specific supervision. These models improve multimodal understanding and agentic interaction capabilities.
+
+The unified multimodal models also begin to blur the boundary between token prediction and frame prediction. For example, Emu3 \citep{Emu3} and Emu3.5 \citep{Emu35} unify multimodality under the ``next-token-prediction'' paradigm. Emu3.5 significantly optimizes the slow image generation speed and poor performance of this autoregressive paradigm. BAGEL \citep{BAGEL} follows the next-token-prediction paradigm and uses a MoT \citep{MoT} architecture. It exhibits emergent capabilities such as image generation, image editing, and future frame prediction. Janus-Pro \citep{Janus-Pro} deploys a unified autoregressive Transformer architecture and decouples the visual encoding path for multimodal understanding and generation. Cosmos 3 \citep{Cosmos3} is an omnimodal world model for Physical AI. It jointly processes and generates language, image, video, audio, and action sequences within a unified MoT architecture.
+
+\vspace{-0.5em}
+\paragraph{How Orca differs.}
+Next-token models organize knowledge and reasoning through autoregressive language modeling.
+Orca uses language as an explicit semantic condition for state transition: language can specify events, task intentions, and causal premises that guide how the current state transitions toward a target state.
+Meanwhile, VQA response generation preserves the language interface and strengthens the commonsense and semantic grounding of the learned world representation.
+
+
+\vspace{-1em}
+\subsection{Next Frame Prediction}\label{sec:nfp}
+\vspace{-0.5em}
+\paragraph{Image Generation Models.}\label{sec:vgms}
+From a macro perspective, the representative image generation models can be viewed as frame-level prediction models. These models map language or multimodal conditions to target visual observations, thus extending prediction from the token space to the visual frame space. Nano Banana Pro  \citep{nanobananapro} boasts powerful multilingual text rendering, infographic creation, and search-based visualization capabilities. GPT Image 2 \citep{ChatGPT-Images-2.0} extends the image generation product line to native text and image model interfaces, supporting high-quality image generation and editing. Qwen-Image \citep{Qwen-image} uses the MMDiT \citep{SD3} to achieve complex text rendering and precise image editing. FLUX.2 \citep{flux2} drives the development of professional-grade image generation through high editing consistency, powerful cue tracking, multi-reference control, and real-time network context-based generation. Overall, these models significantly advance the next frame towards higher fidelity, instruction tracking, and image editing.
+
+
+\vspace{-0.5em}
+\paragraph{Video Generation Models.}\label{sec:videogms}
+Video generation works have expanded frame-level prediction from static visual observation to temporally coherent visual sequences~\citep{videoworld,VideoWorld-2,cognitive_map}. Seedance 2.0 \citep{seedance2.0} supports text, image, audio, and video inputs and possesses powerful reference-based generation and editing capabilities. Sora advances text-to-video generation to longer, higher-quality videos and attempts to understand and simulate the physical world of motion. Cosmos-Predict 2.5 \citep{cosmospredict2.5} unifies ``Any2World'' into a single framework, aiming to support pixel-level world modeling. Wan2.1 \citep{wan2.1} provides a comprehensive set of diffusion transform-based video foundational models. Overall, these models significantly improve temporal coherence, controllability, and multimodal conditional effectiveness.
+
+\vspace{-0.5em}
+\paragraph{How Orca differs.}
+Image and video generation models are often regarded as world models because they can synthesize coherent and visually appealing frames.
+Orca's goal is not to create a painter, but to model whether a target state follows the physical constraints and interaction process of the real world.
+Therefore, Orca emphasizes action execution, scene consistency, physical plausibility, scene and object consistency, contact relationships, and instruction following in interaction-conditioned state transitions.
+
+\vspace{-1em}
+\subsection{Next Action Prediction}\label{sec:nap}
+\paragraph{Vision Language Action Models.}\label{sec:vlas}
+Vision Language Action (VLA) models, an architecture in embodied intelligence, provide a feasible path to improve generalization and multi-task learning capabilities~\citep{manipulation_survey, bai2026latentreasoningvla,lyu2026general,lyu2026last,liu2026pi_0}. OpenVLA \citep{OpenVLA}, which first presented an open-source VLA model built on a pre-trained VLM, showing strong cross-embodied general manipulation capabilities after training on large-scale robot data. 
+$\pi_{0.5}$ \citep{pi0.5} builds upon $\pi_{0}$ \citep{pi0} by employing a collaborative training method based on heterogeneous data, including multiple robots, subtasks, and network data. It improves generalization capabilities in open worlds. $\pi_{0.7}$ \citep{pi0.7} uses task descriptions, generated sub-target images, and episode metadata to advance the general robot foundation model further. GR00T (N1 \citep{GR00TN1} to N1.7 \citep{GR00TN1.7}) gives a foundation model for general-purpose humanoid robots, achieving better performance in dual-arm and mobile manipulation tasks. VLA-Adapter \citep{VLA-Adapter} explores which information in VLM is more conducive to action generation, and its convergence scheme achieves better performance on a tiny backbone than large-scale VLAs. SimpleVLA-RL \citep{SimpleVLA-RL} develops an RL framework for VLA, improving long-horizon planning and generalization capabilities under limited demonstration, and surpassing supervised fine-tuning models \citep{han2026dexhil}. VLA-RFT \citep{VLA-RFT} is the first work to use a world model for post-training a VLA model. It treats the world model as a simulator and provides dense validation rewards.
+
+
+\vspace{-0.5em}
+\paragraph{Video Action Models.}\label{sec:vams}
+Some researchers argue that using a static VLM as the backbone increases the learning burden of the action expert because it needs to model both visual dynamics and control information simultaneously. To alleviate this problem, some works attempt to introduce visual dynamics modeling capabilities from video generation models to reduce the learning difficulty of the action expert. VPP \citep{VPP} is an early representative work in this direction, learning general robot policies by combining implicit inverse dynamics models with predictive visual representations extracted from video models. UVA \citep{UVA} achieves efficient action inference by learning a shared video-action latent with a decoupled diffusion head and combining forward/backward dynamics to jointly optimize observations and action prediction. Mimic-video \citep{mimic-video} combines a video model and an action decoder, demonstrating strong generalization ability and sample efficiency. Cosmos-Policy \citep{cosmos-policy} adapts the pre-trained Cosmos-Predict \citep{cosmospredict2.5} into a robot policy through single-stage post-training. This model predicts future states and value functions for planning.
+
+
+
+\vspace{-0.5em}
+\paragraph{World Action Models.}\label{sec:wams}
+With the recent surge in interest in world models, some embodied models have begun to jointly model action and future world states. Motus \citep{motus}, based on a MoT architecture, constructs a unified latent action world model, fusing understanding, video generation, and action experts. DreamZero \citep{DreamZero} constructs a world action model as a zero-shot policy based on a pre-trained video model, achieving real-time closed-loop manipulation by predicting future observations and actions. GigaWorld-Policy \citep{GigaWorld-Policy} proposes an efficient, action-centric world action model. This model decouples action prediction from video generation, improving inference efficiency while preserving visual dynamic supervision. Being-H0.7 \citep{Being-H0.7} proposes a latent world-action model that connects action prediction and world modeling through a compact latent inference space, injecting future-aware inference into action generation. VLA-JEPA \citep{VLA-JEPA} and JEPA-VLA \citep{JEPA-VLA} link latent predictive embeddings with VLA and imitation learning.
+
+\vspace{-0.5em}
+\paragraph{How Orca differs.}
+VLA and world-action models usually organize embodied learning around action prediction, policy learning, or joint video-action modeling.
+Orca follows a world-learning-first philosophy: it first learns how scenes and objects change through state-transition modeling, without relying on action labels during pre-training.
+By building a stronger world representation of temporal changes, object motion, and local physical interactions, Orca provides a more general foundation that can adapt more efficiently to embodied tasks under limited robot data and OOD settings.

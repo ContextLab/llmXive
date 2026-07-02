@@ -1,0 +1,39 @@
+{
+  "arxiv_id": "2606.31315",
+  "arxiv_url": "https://arxiv.org/abs/2606.31315",
+  "title": "BlockPilot: Instance-Adaptive Policy Learning for Diffusion-based Speculative Decoding",
+  "authors": [
+    "Hao Zhang",
+    "Yiming Hu",
+    "Yong Wang",
+    "Mingqiao Mo",
+    "Xin Xiao",
+    "Xiangxiang Chu"
+  ],
+  "submitter": "github-actions[bot]",
+  "abstract": "Speculative decoding accelerates inference by using a lightweight draft model to generate candidate tokens in parallel, and are then verified by the target model, enabling lossless acceleration. Recently, diffusion-based speculative decoding further improves parallelism by generating multiple tokens per forward pass via block-level diffusion, achieving state-of-the-art (SOTA) performance. However, existing methods adopt a fixed inference block size and assume a uniform optimal decoding strategy across all inputs. In this paper, we show that this assumption is suboptimal, as the optimal block size varies across samples and plays a critical role in speculative decoding performance. Moreover, these values exhibit a clear local structure, concentrating around the training block size, which reduces the problem to a low-dimensional and structured decision space. Based on these insights, we propose BlockPilot, a sample-adaptive policy that predicts the optimal block size from the prefilling representation. Specifically, we formulate block size selection as a lightweight policy learning problem and propose an instance-adaptive decision mechanism that predicts the optimal block size based on the representation of the prefilling stage. The prediction is performed only once after prefilling, allowing for seamless integration. Extensive experiments demonstrate that our method is plug-and-play, introduces minimal overhead, and consistently improves efficiency, achieving an acceptance length of 5.92 and a 4.20$\\times$ speedup on Qwen3-4B under temperature $T=1$.",
+  "submitted_via": "llmXive dashboard, GitHub issue #463",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [
+    "https://github.com/AMAP-ML/BlockPilot"
+  ],
+  "data": [],
+  "toplevel_tex": [
+    "neurips_2026.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "checklist.tex",
+    "IMG",
+    "IMG/1_2_2.pdf",
+    "IMG/22_2.pdf",
+    "IMG/22_3.pdf",
+    "IMG/Figure1.pdf",
+    "IMG/Overview3.pdf",
+    "IMG/comparision4.pdf",
+    "neurips_2025.bib",
+    "neurips_2026.sty",
+    "neurips_2026.tex"
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "arxiv_id": "2606.28436",
+  "arxiv_url": "https://arxiv.org/abs/2606.28436",
+  "title": "Dockerless: Environment-Free Program Verifier for Coding Agents",
+  "authors": [
+    "Wenhao Zeng",
+    "Yuling Shi",
+    "Xiaodong Gu",
+    "Chao Hu",
+    "Chaofan Wang",
+    "Yuhao Cui",
+    "Hongting Zhou",
+    "Mengnan Qi",
+    "Jianqiao Wangni",
+    "Zhaojian Yu",
+    "Shuzheng Gao",
+    "Kai Cai",
+    "Shilin He"
+  ],
+  "submitter": "github-actions[bot]",
+  "abstract": "Program verifiers play a central role in training coding agents, including selecting trajectories for supervised fine-tuning (SFT) and providing rewards for reinforcement learning (RL). Standard execution-based verification requires running unit tests inside per-repository environments such as Docker images, incurring substantial environment setup costs. We propose Dockerless, an environment-free agentic patch verifier that evaluates generated code patches without executing them. Rather than simply matching candidate patches to references, Dockerless judges patch correctness using evidence gathered through agentic repository exploration. On a verifier evaluation benchmark, Dockerless outperforms the strongest open-source verifier by 14.3 AUC points. Using Dockerless as both the SFT trajectory filter and the RL reward enables a fully environment-free post-training pipeline. The resulting model reaches 62.0%, 50.0%, and 35.2% resolve rate on SWE-bench Verified, Multilingual, and Pro, respectively. It surpasses the Qwen3.5-9B baseline by 2.4, 8.7, and 2.9 points, matching environment-based post-training.",
+  "submitted_via": "llmXive dashboard, GitHub issue #461",
+  "license": "arXiv Non-exclusive Distribution License",
+  "license_url": "http://arxiv.org/licenses/nonexclusive-distrib/1.0/",
+  "code": [],
+  "data": [],
+  "toplevel_tex": [
+    "byte.tex"
+  ],
+  "source_files": [
+    "00README.json",
+    "acl_natbib.bst",
+    "arxiv_template.cls",
+    "assets",
+    "assets/bytedance.jpg",
+    "assets/sjtu_log.png",
+    "byte.tex",
+    "custom.bib",
+    "figures",
+    "figures/PPTs",
+    "figures/PPTs/trainning7.pdf",
+    "figures/PPTs/case_study10.pdf",
+    "figures/PPTs/framework9.pdf",
+    "figures/PPTs/comparison9.pdf",
+    "figures/PPTs/SFT_SWE-RA4.pdf",
+    "figures/latency_runtime_composition.pdf",
+    "figures/per_language_scatter.pdf",
+    "figures/motivation_envbase_vs_envfree.pdf",
+    "figures/questions_ablation.pdf",
+    "figures/latency_distribution.pdf"
+  ]
+}

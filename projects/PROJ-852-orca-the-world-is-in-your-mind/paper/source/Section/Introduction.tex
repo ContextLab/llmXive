@@ -1,0 +1,38 @@
+% ========================================================
+% -------------------- Introduction ----------------------
+% ========================================================
+
+
+\section{Introduction}\label{sec:intro}
+\setnavsection{sec:intro}
+
+
+
+We argue that the essential next step toward general intelligence is to build a model that can continuously learn and self-evolve like a human, and ultimately transcend human cognitive boundaries. As it internalizes physical laws, causal relationships, and dynamic evolution, this model is expected to develop into a self-emerging intelligence system. Such a model should continuously absorb multimodal world signals to model the world's latent states. Ideally, these signals should encompass \textit{neural signals} such as vision, text, audio, action, and tactile; also include \textit{physical signals} such as force and light; and even include \textit{signals from fields} such as the macrocosm, the microscopic quantum systems, and life sciences.
+More importantly, such a model should use state-transition modeling as a unified paradigm for both observed and unknown domains, thereby opening new possibilities for exploring the world.
+
+
+
+From this perspective, intelligence should not merely be \textit{Next-Token-Prediction} model that can respond to instructions \citep{DeepSeek-V4, qwen36_35b_a3b, Emu3, GPT54}, \textit{Next-Frame-Prediction} model that can generate high-quality images and videos \citep{nanobananapro, ChatGPT-Images-2.0, seedance2.0}, or \textit{Next-Action-Prediction} model that can generate high-quality action \citep{pi0.7, DreamZero, GR00TN1.7}. Instead, it should be defined by the ability to build world states and support the latent space for diverse downstream tasks. These points toward a general world foundation model grounded in \textit{\textbf{Next-State-Prediction}} modeling, and including \textit{implicit dynamics} and \textit{explicit conditions}.
+Our conception visualization is shown in \textbf{Appendix \ref{sec:appendix_conception}}.
+
+We present Orca, a world learner that takes an initial step toward the above goal by learning a world latent space. Figure \ref{fig:teaser} shows the Orca's overall framework. In this version, \textbf{\textit{Encoder}} focuses on two fundamental signal types: visual and language. Visual signals, including videos and images, are similar to how humans perceive the world. Language signals correspond to how humans understand the world, providing causal explanations and task intentions. Orca has two learning paradigms to realize:
+
+\vspace{-1ex}
+\begin{enumerate}[label={}, leftmargin=10pt, itemindent=0pt, itemsep=0.3em, topsep=0.3em]
+    \item[] \textit{\textbf{1) Unconscious learning} aims to learn natural and dense state transitions from continuous video.} \ This process does not rely on labeled tags, but instead uses the supervision provided by itself. The model learns natural evolution by predicting the latents of the next frames and internalizes state transitions. 
+    \item[] \textit{\textbf{2) Conscious learning} aims to learn meaningful and sparse state transitions under the constraints of instructions.} \ The model uses textual constraints to learn meaningful state transitions at the event level.
+\end{enumerate}
+
+Orca builds a world latent space through the two paradigms. The \textbf{\textit{Decoder}} reads out text, images, and actions. \textbf{\textit{Note}} that these readouts are not intended to chase task-specific SOTA performance, but to examine two core questions: \textit{1) the proposed paradigms are feasible and scalable}, and \textit{2) stronger world modeling leads to stronger downstream readouts.} Therefore, the Orca backbone is frozen during decoder post-training, and only lightweight readout modules are trainable. Experiments answer these questions: Orca's training losses continue to decrease with model size and data scale, and its language, image, and action readouts consistently improve as pre-training scales up. The main contributions are as follows:
+
+\vspace{-0.5em}
+\begin{itemize}
+    \item \textit{We propose Orca.} \ Orca learns a world latent space from multimodal world signals. This latent space can serve as a general interface for multimodal downstream readouts.
+
+    \item \textit{We design two complementary learning paradigms.} \ Unconscious learning captures natural dense state transitions from continuous videos, while conscious learning leverages textual conditions to learn meaningful sparse state transitions associated with decisions and task outcomes.
+    
+    \item \textit{We construct a large-scale collection to support Orca's learning paradigm.} \ We built the inventory data that contains 125K hours of videos and 160M event annotations, covering ego-centric interaction, exo-centric manipulation, action-free robot execution, and event-level transitions for pre-training.
+    
+    \item \textit{Experiments show that Orca learns the effective world latent.} \ Experiments demonstrate the scalability of the proposed paradigm and show through readout probing that a stronger world latent enables stronger downstream capabilities. Across text generation, real-world interactive image prediction, and embodied action generation, Orca outperforms specialized baselines at a comparable scale. We further provide a careful analysis of its current limitations, aiming to offer insights and inspiration for the community's future sustainable development.
+\end{itemize}
