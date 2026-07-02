@@ -1,0 +1,164 @@
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: "Ingestion script on NIST subset yields \u226595% success rate"
+  claim_id: c_9162ce06
+  context: "Independent Test: Running the ingestion script on a known subset of the\
+    \ NIST database produces a CSV with valid SMILES, rate constants, and descriptors,\
+    \ with \u226595% success rate and proper stratification."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Running the ingestion script on a known subset of the NIST database produces\
+    \ a CSV with valid SMILES, rate constants, and descriptors, with \u226595% success\
+    \ rate and proper stratification."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T11:48:37Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: Training job completes within 6 hours on 2-core CPU
+  claim_id: c_8d2a10dd
+  context: "Independent Test: The training job completes within 6 hours on a 2-core\
+    \ CPU runner, saves model weights, and outputs R\xB2/MAE metrics comparing MPNN\
+    \ to linear regression with statistical significance."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The training job completes within 6 hours on a 2-core CPU runner, saves\
+    \ model weights, and outputs R\xB2/MAE metrics comparing MPNN to linear regression\
+    \ with statistical significance."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T11:49:05Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: Interpretability module produces SHAP plot, sensitivity report, and perturbation
+    study
+  claim_id: c_a304f62c
+  context: 'Independent Test: The interpretability module produces a SHAP summary
+    plot, a sensitivity report, and a perturbation study confirming feature importance
+    correlates with predictive performance.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Interpretability_module_produces_SHAP_plot,_sensitivity_repo
+  kind: entity_fact
+  raw_text: The interpretability module produces a SHAP summary plot, a sensitivity
+    report, and a perturbation study confirming feature importance correlates with
+    predictive performance.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T11:49:31Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: Primary SN1 data source is HuggingFace chemistry/dts-sn1
+  claim_id: c_26f17da5
+  context: 'Implement code/data/ingest.py to fetch verified SN1 data. Primary Source:
+    HuggingFace dataset chemistry/dts-sn1.'
+  evidence:
+    entailment_evidence: Primary SN1 data source is HuggingFace chemistry/dts-sn1
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Primary_SN1_data_source_is_HuggingFace_chemistry/dts-sn1
+  kind: entity_fact
+  raw_text: Primary Source for SN1 data is HuggingFace dataset chemistry/dts-sn1.
+  resolved_value: Primary SN1 data source is HuggingFace chemistry/dts-sn1
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-02T11:49:33Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: Fallback SN1 data source is UCI ucimlrepo SN subset
+  claim_id: c_b11a14d5
+  context: 'Primary Source: HuggingFace dataset chemistry/dts-sn1. Fallback: UCI ucimlrepo
+    SN subset.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fallback_SN1_data_source_is_UCI_ucimlrepo_SN_subset
+  kind: entity_fact
+  raw_text: Fallback source for SN1 data is UCI ucimlrepo SN subset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T11:50:02Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: MPNN layer count is between 1 and 4
+  claim_id: c_38c0d06b
+  context: "Constraint: Layer count MUST be >= 1 and <= 4. Rationale: The spec typo\
+    \ 'MPNN with -4 layers' is interpreted as '\u22644 layers'..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MPNN layer count constraint is between 1 and 4 inclusive.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T11:50:29Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: "Hyperparameter optimization uses random search with \u226450 configurations"
+  claim_id: c_72f1fbbe
+  context: "Implement code/models/train.py with random search hyperparameter optimization\
+    \ (\u226450 configurations)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Hyperparameter optimization uses random search with \u226450 configurations."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T11:50:29Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: Collinearity diagnostics flag VIF pairs greater than 5
+  claim_id: c_58bd2ddc
+  context: Implement code/analysis/collinearity.py to calculate VIF, flag pairs >
+    5, and perform PCA if necessary
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Collinearity_diagnostics_flag_VIF_pairs_greater_than_5
+  kind: magnitude
+  raw_text: Collinearity diagnostics flag pairs with VIF > 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T11:50:52Z'
+- artifact_path: projects/PROJ-373-predicting-rate-constants-of-sn1-reactio/specs/001-predicting-rate-constants-of-sn1-reactio/tasks.md
+  attempts: 1
+  canonical: Filtering removes rows where steric_index is greater than 2.0
+  claim_id: c_f5198a55
+  context: Filter row if steric_index > 2.0 OR if substrate class is explicitly 'primary'.
+  evidence:
+    entailment_evidence: Filtering removes rows where steric index is greater than
+      2.
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Filtering_removes_rows_where_steric_index_is_greater_than_2.
+  kind: magnitude
+  raw_text: Filtering rule removes rows if steric_index > 2.0.
+  resolved_value: Filtering removes rows where steric_index is greater than 2.0
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-02T11:50:54Z'

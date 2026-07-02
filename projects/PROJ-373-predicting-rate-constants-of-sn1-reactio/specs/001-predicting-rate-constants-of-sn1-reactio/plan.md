@@ -16,7 +16,7 @@ This project implements a CPU-tractable Machine Learning pipeline to predict SN1
 **Project Type**: Computational Chemistry Research Pipeline  
 **Performance Goals**: Total runtime ≤ 6 hours; Memory ≤ 7 GB; Data processing ≥ 95% success rate.  
 **Constraints**: No GPU/CUDA; No PM7/semi-empirical QM for full dataset (too expensive); No deep LLM inference; Strict stratification by substrate class.  
-**Scale/Scope**: ~kk reaction entries (depending on available verified SN1 data); Multiple hyperparameter configurations.
+**Scale/Scope**: ~kk reaction entries (depending on available verified SN data); Multiple hyperparameter configurations.
 
 ## Constitution Check
 

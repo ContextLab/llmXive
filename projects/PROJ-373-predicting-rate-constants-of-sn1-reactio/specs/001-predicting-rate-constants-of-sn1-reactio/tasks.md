@@ -24,9 +24,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`code/`, `data/`, `tests/`, `specs/`)
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (rdkit, torch-cpu, scikit-learn, shap, pandas, pyyaml, datasets)
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+- [X] T001 Create project structure per implementation plan (`code/`, `data/`, `tests/`, `specs/`)
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (rdkit, torch-cpu, scikit-learn, shap, pandas, pyyaml, datasets)
+- [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
 
@@ -36,9 +36,79 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Implement `code/config.py` for hyperparameters, paths, and random seeds
-- [ ] T005 [P] Setup `code/utils/logger.py` and `code/utils/checksum.py` for logging and data integrity
-- [ ] T006 Create base data schemas in `specs/001-predict-sn1-rate-constants/contracts/`: `dataset.schema.yaml`, `model_output.schema.yaml`, and `exclusion_report.schema.yaml` with fields defined in plan.md (SMILES, rate, substrate, etc.)
+- [X] T004 [P] Implement `code/config.py` for hyperparameters, paths, and random seeds
+- [X] T005 [P] Setup `code/utils/logger.py` and `code/utils/checksum.py` for logging and data integrity
+- [X] T006 [P] Create base data schemas in `specs/001-predict-sn1-rate-constants/contracts/`.
+ **Mandatory Schema Definitions** (Must be written as YAML files):
+ 1. `dataset.schema.yaml`:
+ ```yaml
+ type: object
+ required:
+ - smiles
+ - rate_constant
+ - substrate_class
+ properties:
+ smiles:
+ type: string
+ description: Canonical SMILES string
+ rate_constant:
+ type: number
+ description: Experimental rate constant
+ substrate_class:
+ type: string
+ enum: [secondary, tertiary]
+ description: Substrate classification
+ gasteiger_charges:
+ type: array
+ items:
+ type: number
+ description: Gasteiger partial charges
+ topological_indices:
+ type: array
+ items:
+ type: number
+ description: Topological indices
+ source_id:
+ type: string
+ description: Source database ID
+ ```
+ 2. `model_output.schema.yaml`:
+ ```yaml
+ type: object
+ required:
+ - model_id
+ - metrics
+ properties:
+ model_id:
+ type: string
+ hyperparameters:
+ type: object
+ metrics:
+ type: object
+ properties:
+ r2:
+ type: number
+ mae:
+ type: number
+ weights_path:
+ type: string
+ ```
+ 3. `exclusion_report.schema.yaml`:
+ ```yaml
+ type: object
+ required:
+ - row_index
+ - reason
+ - original_smiles
+ properties:
+ row_index:
+ type: integer
+ reason:
+ type: string
+ enum: [parsing_error, missing_rate, invalid_substrate]
+ original_smiles:
+ type: string
+ ```
 - [ ] T007 [P] Configure `pytest` with contract tests against YAML schemas
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -54,17 +124,17 @@
 ### Tests for User Story 1
 
 - [ ] T008 [P] [US1] Contract test for dataset schema in `tests/contract/test_dataset_schema.py` (DEPENDS ON T006)
-- [ ] T009 [P] [US1] Unit test for SMILES parsing and descriptor calculation in `tests/unit/test_descriptors.py`
-- [ ] T010 [P] [US1] Unit test for substrate filtering logic (SN2 removal) in `tests/unit/test_filtering.py`
+- [~] T009 [P] [US1] Unit test for SMILES parsing and descriptor calculation in `tests/unit/test_descriptors.py`
+- [~] T010 [P] [US1] Unit test for substrate filtering logic (SN2 removal) in `tests/unit/test_filtering.py`
 
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Implement `code/data/ingest.py` to fetch verified SN data from HuggingFace dataset 'dts-sn' (or fallback to 'ucimlrepo' SN subset) and parse raw JSONL/Parquet
-- [ ] T012 [US1] Implement `code/data/clean.py` to canonicalize SMILES, filter primary alkyl halides using a composite steric index (sum of `CalcNumRotatableBonds` + `CalcCrippenDescriptors` steric component) > 2.0, and handle missing values
-- [ ] T013 [US1] Implement `code/data/descriptors.py` to compute Gasteiger partial charges and topological indices using RDKit (CPU-only, approved alternative to PM7 per Constitution Amendment)
-- [ ] T014 [US1] Implement `code/data/split.py` to perform a stratified split by substrate class (secondary/tertiary) into training, validation, and test sets.
-- [ ] T015 [US1] Generate exclusion report for invalid rows and save to `data/processed/exclusion_report.csv` (DEPENDS ON T012, T013)
-- [ ] T016 [US1] Save final processed dataset to `data/processed/cleaned_sn1.csv` with checksum
+- [~] T011 [US1] Implement `code/data/ingest.py` to fetch verified SN1 data. **Primary Source**: HuggingFace dataset `chemistry/dts-sn1`. **Fallback**: UCI `ucimlrepo` SN subset. **Column Mapping**: Map `smiles` -> SMILES, `rate` -> rate_constant, `substrate` -> substrate_class. **Logic**: If HuggingFace columns differ, apply transformation: `rate_constant = abs(row['rate'])`, `substrate_class = row['substrate'].lower()`. Handle missing values by logging to exclusion report.
+- [~] T012 [US1] Implement `code/data/clean.py` to canonicalize SMILES and filter primary alkyl halides. **Filtering Rule**: Calculate `steric_index = CalcNumRotatableBonds + steric_component(CalcCrippenDescriptors)`. Filter row if `steric_index > 2.0` OR if substrate class is explicitly 'primary'. Handle missing values.
+- [~] T013 [US1] Implement `code/data/descriptors.py` to compute Gasteiger partial charges and topological indices using RDKit (CPU-only, approved alternative to PM7 per Constitution Amendment).
+- [~] T014 [US1] Implement `code/data/split.py` to perform a stratified split by substrate class (secondary/tertiary) into training, validation, and test sets with a majority portion allocated to training.
+- [~] T015 [US1] Generate exclusion report for invalid rows and save to `data/processed/exclusion_report.csv` (DEPENDS ON COMPLETION OF BOTH T012 AND T013)
+- [~] T016 [US1] Save final processed dataset to `data/processed/cleaned_sn1.csv` with checksum
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -78,16 +148,16 @@
 
 ### Implementation for User Story 2
 
-- [ ] T019 [US2] Implement `code/models/mpnn.py` with shallow architecture (≤4 layers) suitable for CPU inference
-- [ ] T020 [US2] Implement `code/models/train.py` with random search hyperparameter optimization (≤50 configurations)
-- [ ] T021 [US2] Implement `code/models/evaluate.py` to calculate R² and MAE, and perform bootstrap comparison (10,000 resamples) against linear regression baseline
-- [ ] T022 [US2] Save best model weights to `artifacts/best_model.pt` and metrics to `artifacts/metrics.json`
-- [ ] T023 [US2] Log top hyperparameter configurations and their validation scores to `artifacts/hyperparameter_search.log`
+- [~] T019 [US2] Implement `code/models/mpnn.py` with shallow architecture. **Constraint**: Layer count MUST be >= 1 and <= 4. **Rationale**: The spec typo 'MPNN with -4 layers' is interpreted as '≤4 layers'; the lower bound >=1 is enforced to prevent a degenerate 0-layer model which would fail the intent of an MPNN. Enforce this via config validation.
+- [~] T020 [US2] Implement `code/models/train.py` with random search hyperparameter optimization (≤50 configurations).
+- [~] T021 [US2] Implement `code/models/evaluate.py` to calculate R² and MAE, and perform bootstrap comparison with a sufficient number of resamples against linear regression baseline.
+- [~] T022 [US2] Save best model weights to `artifacts/best_model.pt` and metrics to `artifacts/metrics.json` (DEPENDS ON T016)
+- [~] T023 [US2] Log top hyperparameter configurations and their validation scores to `artifacts/hyperparameter_search.log` (DEPENDS ON T016)
 
 ### Tests for User Story 2
 
-- [ ] T017 [P] [US2] Unit test for MPNN architecture and forward pass in `tests/unit/test_mpnn.py`
-- [ ] T018 [P] [US2] Integration test for training loop with small subset in `tests/integration/test_training.py`
+- [~] T017 [P] [US2] Unit test for MPNN architecture and forward pass in `tests/unit/test_mpnn.py` (DEPENDS ON T019)
+- [~] T018 [P] [US2] Integration test for training loop with small subset in `tests/integration/test_training.py` (DEPENDS ON T019, T020)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -101,17 +171,17 @@
 
 ### Implementation for User Story 3
 
-- [ ] T026 [US3] Implement `code/analysis/interpret.py` to generate SHAP values, rank the most salient structural features, and create summary plots
-- [ ] T027 [US3] Implement `code/analysis/sensitivity.py` to sweep descriptor inclusion cutoffs over a range of values for BOTH Gasteiger charge magnitude AND topological index thresholds, reporting R²/MAE variance
-- [ ] T028 [US3] Implement `code/analysis/collinearity.py` to calculate VIF, flag pairs > 5, and perform PCA if necessary
-- [ ] T029 [US3] Implement perturbation study in `code/analysis/interpret.py` to remove top SHAP features (columns in feature matrix) and measure R² drop
-- [ ] T030 [US3] Generate `artifacts/feature_importance.png`, `artifacts/sensitivity_report.csv`, and `artifacts/perturbation_results.csv`
-- [ ] T035 [US3] Implement Power Analysis logic in `code/analysis/power.py` to calculate Minimum Detectable Effect (MDE) and sample size requirements, generating `artifacts/power_analysis_report.csv` to satisfy SC-006
+- [~] T026 [US3] Implement `code/analysis/interpret.py` to generate SHAP values, rank the most salient structural features, and create summary plots (DEPENDS ON T022) <!-- ATOMIZE: requested -->
+- [~] T027 [US3] Implement `code/analysis/sensitivity.py` to sweep descriptor inclusion cutoffs over a range of values for BOTH Gasteiger charge magnitude AND topological index thresholds, reporting R²/MAE variance. (DEPENDS ON T022)
+- [~] T028 [US3] Implement `code/analysis/collinearity.py` to calculate VIF, flag pairs > 5, and perform PCA if necessary (DEPENDS ON T022)
+- [~] T029 [US3] Implement perturbation study in `code/analysis/interpret.py`. **Method**: Identify top SHAP-ranked descriptors. For each, create a perturbed dataset by **zeroing out the corresponding node features** in the graph input (graph masking), re-run inference, and measure the drop in R². **Constraint**: Do NOT remove columns from feature matrix; use graph masking to align with MPNN architecture. (DEPENDS ON T022)
+- [~] T030 [US3] Generate `artifacts/feature_importance.png`, `artifacts/sensitivity_report.csv`, and `artifacts/perturbation_results.csv` (DEPENDS ON T026, T027, T029)
+- [~] T035 [US3] Implement Power Analysis logic in `code/analysis/power.py` to calculate Minimum Detectable Effect (MDE) and sample size requirements based on observed variance, generating `artifacts/power_analysis_report.csv` to satisfy SC-006 (Plan Requirement) (DEPENDS ON T022)
 
 ### Tests for User Story 3
 
-- [ ] T024 [P] [US3] Unit test for VIF calculation in `tests/unit/test_collinearity.py`
-- [ ] T025 [P] [US3] Unit test for SHAP value generation in `tests/unit/test_shap.py`
+- [~] T024 [P] [US3] Unit test for VIF calculation in `tests/unit/test_collinearity.py` (DEPENDS ON T028)
+- [~] T025 [P] [US3] Unit test for SHAP value generation in `tests/unit/test_shap.py` (DEPENDS ON T026)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -135,15 +205,15 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 model output
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - **Strictly depends on T016 (cleaned dataset)**
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - **Strictly depends on T022 (model output)**
 
 ### Within Each User Story
 
@@ -203,9 +273,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Data Pipeline)
-   - Developer B: User Story 2 (Model Training)
-   - Developer C: User Story 3 (Analysis)
+ - Developer A: User Story 1 (Data Pipeline)
+ - Developer B: User Story 2 (Model Training)
+ - Developer C: User Story 3 (Analysis)
 3. Stories complete and integrate independently
 
 ---
@@ -220,3 +290,4 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All tasks must be executable on CPU-only CI with limited resources and a bounded time limit. No GPU, no 8-bit quantization, no heavy QM calculations.
+- **Note on Constitution VI**: The Plan explicitly substitutes Gasteiger charges for PM7 to satisfy CPU constraints. This deviation is documented in the Plan's Constitution Check and is the approved implementation path for this project.

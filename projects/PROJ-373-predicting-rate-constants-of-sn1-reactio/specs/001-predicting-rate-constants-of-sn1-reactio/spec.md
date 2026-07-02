@@ -62,7 +62,7 @@ The system MUST generate feature importance analysis (using SHAP or attention we
 
 - **FR-001**: System MUST ingest and parse SN1 kinetic data from NIST/Reaxys/UCI sources, extracting SMILES and rate constants, and compute electronic descriptors (Gasteiger charges, topological indices) using RDKit without GPU acceleration (See US-1).
 - **FR-002**: System MUST split the dataset into train/validation/test sets (70/15/15) stratified by substrate class to prevent data leakage (See US-1).
-- **FR-003**: System MUST train a Message Passing Neural Network (MPNN) with -4 layers on 2-core CPU hardware, optimizing hyperparameters via random search (≤50 configurations) (See US-2).
+- **FR-003**: System MUST train a Message Passing Neural Network (MPNN) with a configurable number of layers. on 2-core CPU hardware, optimizing hyperparameters via random search (≤50 configurations) (See US-2).
 - **FR-004**: System MUST evaluate model performance using R² and MAE, comparing results against random and linear regression baselines via bootstrap-based comparison of mean squared errors (a large number of resamples) (See US-2).
 - **FR-005**: System MUST generate feature importance rankings using SHAP values or attention weights to identify structural determinants of SN1 rates (See US-3).
 - **FR-006**: System MUST perform a sensitivity analysis sweeping key thresholds (e.g., descriptor inclusion cutoffs) over a set of representative values and report performance variance (See US-3).
@@ -80,7 +80,7 @@ The system MUST generate feature importance analysis (using SHAP or attention we
 ### Measurable Outcomes
 
 - **SC-001**: The predictive accuracy (R²) of the MPNN on the held-out test set is measured against the linear regression baseline and a random baseline (See US-2).
-- **SC-002**: The computational feasibility (total runtime) is measured against the 6-hour 2-core CPU CI limit (See US-2).
+- **SC-002**: The computational feasibility (total runtime) is measured against the CI limit for a standard 2-core CPU environment (See US-2).
 - **SC-003**: The robustness of the model is measured by the variance in R² across the sensitivity sweep of key thresholds over the set {0.01, 0.02, 0.05, 0.1, 0.2} (See US-3).
 - **SC-004**: The validity of structural determinants is measured by the consistency of SHAP feature rankings across different random seeds and the magnitude of performance drop in the perturbation study (See US-3).
 - **SC-005**: The data quality is measured by the percentage of rows successfully processed without exclusion due to parsing or calculation errors, with success defined as ≥ 95% (See US-1).

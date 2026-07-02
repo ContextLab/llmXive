@@ -1,0 +1,30 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+*.egg-info/
+dist/
+build/
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Environment variables
+.env
+.venv/
+venv/
+
+# Data and artifacts (generated)
+data/processed/*
+!data/processed/.gitkeep
+artifacts/
+figures/
+
+# Logs
+*.log
+logs/

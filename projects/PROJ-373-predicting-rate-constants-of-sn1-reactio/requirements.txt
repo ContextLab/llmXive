@@ -1,0 +1,10 @@
+rdkit
+torch-cpu
+scikit-learn
+shap
+pandas
+pyyaml
+datasets
+pytest
+jsonschema
+pytest-json-report
