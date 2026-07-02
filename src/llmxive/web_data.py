@@ -1685,12 +1685,24 @@ def _reviewed_preprint_entry(repo: Path, project: Project) -> dict[str, Any]:
         if a.get("kind") == "llm" and any("reviewer" in r for r in (a.get("roles") or []))
     ]
 
-    def _pdf(name: str) -> dict[str, str] | None:
+    def _pdf(name: str) -> dict[str, Any] | None:
         p = pdir / "paper" / "pdf" / name
         if not p.is_file():
             return None
         rel = p.relative_to(repo).as_posix()
-        return {"repo_path": rel, "raw_url": _GH_RAW + rel, "github_url": _GH_BLOB + rel}
+        size = p.stat().st_size
+        # The Pages deploy (pages.yml) mirrors only PDFs <= 15 MB into
+        # docs/papers/ for same-origin inline embedding (1 GB site cap). A PDF
+        # over the cap is NOT mirrored, so its same-origin URL 404s — the modal
+        # must link to GitHub instead. Surface the prediction (same cap) so
+        # dialog.js picks embed-vs-link correctly rather than pointing at a 404.
+        return {
+            "repo_path": rel,
+            "raw_url": _GH_RAW + rel,
+            "github_url": _GH_BLOB + rel,
+            "size_bytes": size,
+            "mirrored": size <= 15 * 1024 * 1024,
+        }
 
     followup_id = manifest.get("followup_project_id")
     entry["preprint"] = {
