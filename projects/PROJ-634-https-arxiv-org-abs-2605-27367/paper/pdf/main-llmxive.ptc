@@ -1,0 +1,51 @@
+\contentsline {section}{\numberline {1}Introduction}{2}{section.1}%
+\contentsline {section}{\numberline {2}Related Work}{3}{section.2}%
+\contentsline {section}{\numberline {3}SpatialBench\xspace Design}{5}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Data Collection and Curation}{6}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Multi-density Evaluation Regimes}{7}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Evaluated Models}{8}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}Task Description and Metrics}{8}{subsection.3.4}%
+\contentsline {section}{\numberline {4}Depth-Anything-Next}{9}{section.4}%
+\contentsline {subsection}{\numberline {4.1}DA-Next-5M\xspace Dataset}{9}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Model Architecture}{9}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Implementation Details}{10}{subsection.4.3}%
+\contentsline {section}{\numberline {5}Findings: How to Train Your Best Spatial Foundation Models?}{10}{section.5}%
+\contentsline {section}{\numberline {6}Conclusion}{16}{section.6}%
+\ttl@starttoc {appendix@1}
+\contentsline {section}{\numberline {A}SpatialBench\xspace Data Curation Pipeline}{29}{appendix.A}%
+\contentsline {subsection}{\numberline {A.1}DROID Curation Pipeline}{29}{subsection.A.1}%
+\contentsline {subsection}{\numberline {A.2}Xperience Curation Pipeline}{31}{subsection.A.2}%
+\contentsline {subsection}{\numberline {A.3}Other Data Collection}{31}{subsection.A.3}%
+\contentsline {subsection}{\numberline {A.4}Depth Map Post-Processing Pipeline}{31}{subsection.A.4}%
+\contentsline {section}{\numberline {B}Benchmark Details}{32}{appendix.B}%
+\contentsline {subsection}{\numberline {B.1}Benchmark Composition}{32}{subsection.B.1}%
+\contentsline {subsection}{\numberline {B.2}Multi-density Evaluation Regime Details}{32}{subsection.B.2}%
+\contentsline {subsection}{\numberline {B.3}General Setting of the Benchmark}{34}{subsection.B.3}%
+\contentsline {subsection}{\numberline {B.4}Evaluation Metrics}{34}{subsection.B.4}%
+\contentsline {subsubsection}{\numberline {B.4.1}Camera Pose Estimation}{34}{subsubsection.B.4.1}%
+\contentsline {subsubsection}{\numberline {B.4.2}Camera Trajectory Estimation}{35}{subsubsection.B.4.2}%
+\contentsline {subsubsection}{\numberline {B.4.3}Depth Estimation}{36}{subsubsection.B.4.3}%
+\contentsline {subsubsection}{\numberline {B.4.4}Dense-View Reconstruction}{37}{subsubsection.B.4.4}%
+\contentsline {subsection}{\numberline {B.5}Evaluated Models Details}{38}{subsection.B.5}%
+\contentsline {subsubsection}{\numberline {B.5.1}Optimization-based Methods}{38}{subsubsection.B.5.1}%
+\contentsline {subsubsection}{\numberline {B.5.2}End-to-End Feed-Forward Methods}{38}{subsubsection.B.5.2}%
+\contentsline {subsubsection}{\numberline {B.5.3}Online / Streaming Methods}{39}{subsubsection.B.5.3}%
+\contentsline {subsubsection}{\numberline {B.5.4}Chunk-based Methods}{40}{subsubsection.B.5.4}%
+\contentsline {subsubsection}{\numberline {B.5.5}SLAM-based Methods}{41}{subsubsection.B.5.5}%
+\contentsline {subsubsection}{\numberline {B.5.6}Test-Time Training Methods}{41}{subsubsection.B.5.6}%
+\contentsline {subsection}{\numberline {B.6}SpatialBench\xspace Visualizations}{41}{subsection.B.6}%
+\contentsline {subsection}{\numberline {B.7}Evaluated Models and Training Datasets in SpatialBench\xspace }{42}{subsection.B.7}%
+\contentsline {section}{\numberline {C}The Collection of DA-Next-5M\xspace }{42}{appendix.C}%
+\contentsline {section}{\numberline {D}Detail of DA-Next\xspace }{44}{appendix.D}%
+\contentsline {subsection}{\numberline {D.1}Model Architecture}{44}{subsection.D.1}%
+\contentsline {subsection}{\numberline {D.2}Training Objective}{44}{subsection.D.2}%
+\contentsline {subsection}{\numberline {D.3}Camera Conditioning Training}{46}{subsection.D.3}%
+\contentsline {subsection}{\numberline {D.4}Training Datasets}{46}{subsection.D.4}%
+\contentsline {subsection}{\numberline {D.5}Frame Sampling Strategy}{46}{subsection.D.5}%
+\contentsline {subsection}{\numberline {D.6}Training Configuration}{47}{subsection.D.6}%
+\contentsline {section}{\numberline {E}Additional Findings}{47}{appendix.E}%
+\contentsline {subsection}{\numberline {E.1}Do More Input Frames Always Lead to Better Results?}{47}{subsection.E.1}%
+\contentsline {subsection}{\numberline {E.2}How to Select the Right Spatial Foundation Model for Your Task?}{48}{subsection.E.2}%
+\contentsline {section}{\numberline {F}The Complete SpatialBench\xspace Results}{48}{appendix.F}%
+\contentsline {section}{\numberline {G}Limitations}{49}{appendix.G}%
+\contentsfinish 

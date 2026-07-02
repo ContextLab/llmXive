@@ -6,7 +6,7 @@
     "audited_at": "2026-06-11T03:07:44.366972+00:00"
   },
   "repair_rounds": 0,
-  "llmxive_compile_attempts": 2,
+  "llmxive_compile_attempts": 3,
   "status": "fallback_original",
   "failure": {
     "stage": "compile",
@@ -14,5 +14,5 @@
     "log_excerpt": "lualatex failed:\nPackage natbib Warning: Citation `wang2026agenticocr' on page 4 undefined on in\nput line 182.\n\n\nLaTeX Warning: Reference `fig:citevqa_pipeline' on page 4 undefined on input li\nne 186.\n\n\nwarning  (file figures/citevqa_pipeline.pdf) (pdf inclusion): PDF inclusion: fo\nund PDF version '1.7', but at most version '1.5' allowed\n)\nRunaway argument?\n{\\url {; see Appendix~\\ref {Appendix: Ethical Consideration} for comp\\ETC.\n! File ended while scanning use of \\@footnotetext.\n<inserted text> \n\\par \n<*> ...g-abs-2605-12882/paper/source/main-llmxive.tex\n                                                  \n! Emergency stop.\n<*> ...g-abs-2605-12882/paper/source/main-llmxive.tex\n                                                  \n 41198 words of node memory still in use:\n   71 hlist, 4 vlist, 12 rule, 6 mark, 413 disc, 10 local_par, 1 dir, 4 math, 6\n64 glue, 255 kern, 67 penalty, 30 margin_kern, 3984 glyph, 225 attribute, 84 gl\nue_spec, 225 attribute_list, 1 temp, 11 write, 1 pdf_start_link, 1 pdf_end_link\n, 5 pdf_dest, 1 pdf_action, 34 pdf_colorstack, 1 pdf_setmatrix, 1 pdf_save, 1 p\ndf_restore nodes\n   avail lists: 1:2,2:433,3:88,4:110,5:258,6:47,7:3340,8:3,9:373,10:29,11:318\n!  ==> Fatal error occurred, no output PDF file produced!\nTranscript written on main-llmxive.log."
   },
   "paper_id": "PROJ-601-https-arxiv-org-abs-2605-12882",
-  "updated_at": "2026-07-02T05:31:26.788593+00:00"
+  "updated_at": "2026-07-02T06:48:48.767223+00:00"
 }
