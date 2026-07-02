@@ -1,13 +1,10 @@
 {
-  "pdf": "projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/paper/pdf/main-llmxive.pdf",
-  "audit": {
-    "passed": true,
-    "defects": [],
-    "audited_at": "2026-06-11T03:07:05.545910+00:00"
-  },
+  "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-574-eva-bench-a-new-end-to-end-framework-for/paper/pdf/main-llmxive.pdf",
+  "audit": null,
   "repair_rounds": 0,
-  "status": "audited",
+  "llmxive_compile_attempts": 0,
+  "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-574-eva-bench-a-new-end-to-end-framework-for",
-  "updated_at": "2026-06-11T03:07:05.545923+00:00"
+  "updated_at": "2026-07-02T03:10:01.169993+00:00"
 }

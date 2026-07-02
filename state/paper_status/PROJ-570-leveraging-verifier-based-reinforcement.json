@@ -1,28 +1,10 @@
 {
-  "pdf": "projects/PROJ-570-leveraging-verifier-based-reinforcement/paper/pdf/main-llmxive.pdf",
-  "audit": {
-    "passed": false,
-    "defects": [
-      {
-        "kind": "section_number_gap",
-        "evidence": "expected section 6, saw section 44",
-        "class": "unsupported_construct",
-        "recommendation": "check for stray \\setcounter or \\section* in source",
-        "page": 36
-      },
-      {
-        "kind": "section_number_gap",
-        "evidence": "expected section 45, saw section 51",
-        "class": "unsupported_construct",
-        "recommendation": "check for stray \\setcounter or \\section* in source",
-        "page": 36
-      }
-    ],
-    "audited_at": "2026-06-11T03:06:42.003018+00:00"
-  },
+  "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-570-leveraging-verifier-based-reinforcement/paper/pdf/main-llmxive.pdf",
+  "audit": null,
   "repair_rounds": 1,
+  "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-570-leveraging-verifier-based-reinforcement",
-  "updated_at": "2026-06-11T03:06:42.022888+00:00"
+  "updated_at": "2026-07-02T03:08:28.736539+00:00"
 }

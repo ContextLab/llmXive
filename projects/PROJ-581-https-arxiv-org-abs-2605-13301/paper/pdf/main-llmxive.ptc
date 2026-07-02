@@ -1,0 +1,52 @@
+\contentsline {section}{\numberline {1}Introduction}{2}{section.1}%
+\contentsline {section}{\numberline {2}Instilling Rigorous Reasoning via SFT}{3}{section.2}%
+\contentsline {subsection}{\numberline {2.1}SFT Data Curation}{4}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Reverse-Perplexity Curriculum for SFT}{5}{subsection.2.2}%
+\contentsline {section}{\numberline {3}Boosting Reasoning Capability with RL}{6}{section.3}%
+\contentsline {subsection}{\numberline {3.1}RL Data Curation}{6}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Coarse RL}{6}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Refined RL}{7}{subsection.3.3}%
+\contentsline {paragraph}{Generative proof reward.}{7}{paragraph*.4}%
+\contentsline {paragraph}{Self-refinement.}{8}{paragraph*.5}%
+\contentsline {paragraph}{Experience replay.}{8}{paragraph*.6}%
+\contentsline {section}{\numberline {4}Achieving Gold-Medal-Level Reasoning via Test-time Scaling}{9}{section.4}%
+\contentsline {section}{\numberline {5}Experimental Results}{9}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Benchmarks}{9}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}Verifiable Problems}{10}{subsection.5.2}%
+\contentsline {subsection}{\numberline {5.3}Non-verifiable Problems}{11}{subsection.5.3}%
+\contentsline {subsection}{\numberline {5.4}Olympiad Competition Problems}{12}{subsection.5.4}%
+\contentsline {paragraph}{Case study.}{13}{paragraph*.13}%
+\contentsline {section}{\numberline {6}Analysis and Discussion}{13}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Progressive Rigorous Reasoning}{14}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}Characterizing Inference Scaling}{14}{subsection.6.2}%
+\contentsline {subsection}{\numberline {6.3}Reverse-Perplexity Ordering}{15}{subsection.6.3}%
+\contentsline {subsection}{\numberline {6.4}Cost Analysis}{16}{subsection.6.4}%
+\contentsline {section}{\numberline {7}Related Work}{16}{section.7}%
+\contentsline {paragraph}{Post-training for Large Reasoning Models.}{16}{paragraph*.17}%
+\contentsline {paragraph}{Toward Olympiad-Level Reasoning.}{17}{paragraph*.18}%
+\contentsline {section}{\numberline {8}Conclusion}{17}{section.8}%
+\contentsline {part}{Appendix}{22}{section.8}%
+\ttl@starttoc {appendix@1}
+\contentsline {section}{\numberline {A}Implementation and Evaluation Details}{22}{appendix.A}%
+\contentsline {section}{\numberline {B}Problem-Solving Prompt}{22}{appendix.B}%
+\contentsline {section}{\numberline {C}SFT Training Details}{22}{appendix.C}%
+\contentsline {section}{\numberline {D}RL Training Details}{23}{appendix.D}%
+\contentsline {section}{\numberline {E}Inference and Reward-Model Serving Details}{24}{appendix.E}%
+\contentsline {section}{\numberline {F}Compared Models}{24}{appendix.F}%
+\contentsline {section}{\numberline {G}Evaluation Details}{25}{appendix.G}%
+\contentsline {section}{\numberline {H}Model Solutions for IMO 2025 and USAMO 2026}{25}{appendix.H}%
+\contentsline {subsection}{\numberline {H.1}IMO 2025}{25}{subsection.H.1}%
+\contentsline {paragraph}{IMO 2025 Problem 1.}{25}{paragraph*.19}%
+\contentsline {paragraph}{IMO 2025 Problem 2.}{30}{paragraph*.20}%
+\contentsline {paragraph}{IMO 2025 Problem 3.}{38}{paragraph*.21}%
+\contentsline {paragraph}{IMO 2025 Problem 4.}{47}{paragraph*.22}%
+\contentsline {paragraph}{IMO 2025 Problem 5.}{51}{paragraph*.23}%
+\contentsline {paragraph}{IMO 2025 Problem 6.}{56}{paragraph*.24}%
+\contentsline {subsection}{\numberline {H.2}USAMO 2026}{58}{subsection.H.2}%
+\contentsline {paragraph}{USAMO 2026 Problem 1.}{58}{paragraph*.25}%
+\contentsline {paragraph}{USAMO 2026 Problem 2.}{63}{paragraph*.26}%
+\contentsline {paragraph}{USAMO 2026 Problem 3.}{66}{paragraph*.27}%
+\contentsline {paragraph}{USAMO 2026 Problem 4.}{74}{paragraph*.28}%
+\contentsline {paragraph}{USAMO 2026 Problem 5.}{79}{paragraph*.29}%
+\contentsline {paragraph}{USAMO 2026 Problem 6.}{84}{paragraph*.30}%
+\contentsfinish 

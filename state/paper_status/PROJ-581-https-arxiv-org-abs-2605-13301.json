@@ -1,13 +1,10 @@
 {
-  "pdf": "projects/PROJ-581-https-arxiv-org-abs-2605-13301/paper/pdf/main-llmxive.pdf",
-  "audit": {
-    "passed": true,
-    "defects": [],
-    "audited_at": "2026-06-11T03:07:25.595681+00:00"
-  },
+  "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-581-https-arxiv-org-abs-2605-13301/paper/pdf/main-llmxive.pdf",
+  "audit": null,
   "repair_rounds": 0,
-  "status": "audited",
+  "llmxive_compile_attempts": 0,
+  "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-581-https-arxiv-org-abs-2605-13301",
-  "updated_at": "2026-06-11T03:07:25.595695+00:00"
+  "updated_at": "2026-07-02T03:11:46.023633+00:00"
 }
