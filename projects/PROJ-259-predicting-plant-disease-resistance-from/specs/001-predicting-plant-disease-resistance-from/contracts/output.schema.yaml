@@ -1,26 +1,43 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "PipelineOutput"
-description: "Schema for model performance metrics and biomarker selection results."
+title: "Pipeline Output Schema"
+description: "Schema for model metrics and feature selection results"
 type: "object"
 properties:
   performance_metrics:
     type: "object"
     properties:
-      accuracy:
+      cv_accuracy:
         type: "number"
-        description: "Cross-validated accuracy (if categorical)."
-      auc_roc:
+        minimum: 0.0
+        maximum: 1.0
+        description: "Cross-validated accuracy or R²"
+      baseline_accuracy:
         type: "number"
-        description: "AUC-ROC score."
-      r_squared:
+        description: "Null model baseline performance"
+      permutation_p_value:
         type: "number"
-        description: "R² score (if continuous)."
-      null_baseline:
-        type: "number"
-        description: "Performance of null model (random labels)."
+        minimum: 0.0
+        maximum: 1.0
+        description: "P-value from permutation testing (n=1000)"
+      confidence_interval:
+        type: "object"
+        properties:
+          lower:
+            type: "number"
+          upper:
+            type: "number"
+        required:
+          - lower
+          - upper
+      data_source:
+        type: "string"
+        enum: ["real", "simulated"]
+        description: "Indicates whether metrics are from real or simulated data"
     required:
-      - null_baseline
-  biomarkers:
+      - cv_accuracy
+      - permutation_p_value
+      - data_source
+  feature_selection:
     type: "object"
     properties:
       top_snps:
@@ -28,72 +45,52 @@ properties:
         items:
           type: "object"
           properties:
-            feature_id:
+            id:
               type: "string"
-            p_value_bh:
+            p_value:
               type: "number"
-              description: "Benjamini-Hochberg adjusted p-value."
             effect_size:
               type: "number"
             selection_frequency:
               type: "number"
-              description: "Frequency across thresholds {0.01, 0.05, 0.1}."
+              description: "Frequency across thresholds {0.01, 0.05, 0.1}"
           required:
-            - feature_id
-            - p_value_bh
+            - id
+            - p_value
             - effect_size
-            - selection_frequency
-        description: "Top 50 SNPs."
       top_metabolites:
         type: "array"
         items:
           type: "object"
           properties:
-            feature_id:
+            id:
               type: "string"
-            p_value_bh:
+            p_value:
               type: "number"
             effect_size:
               type: "number"
             selection_frequency:
               type: "number"
           required:
-            - feature_id
-            - p_value_bh
+            - id
+            - p_value
             - effect_size
-            - selection_frequency
-        description: "Top 50 metabolites."
     required:
       - top_snps
       - top_metabolites
-  validation:
+  diagnostics:
     type: "object"
     properties:
-      permutation_p_value:
+      max_vif:
         type: "number"
-        description: "Model-level p-value from permutation test (n=1000)."
-      vif_diagnostics:
-        type: "array"
-        items:
-          type: "object"
-          properties:
-            feature_id:
-              type: "string"
-            vif_score:
-              type: "number"
-            flagged:
-              type: "boolean"
-              description: "True if VIF > 5."
-          required:
-            - feature_id
-            - vif_score
-            - flagged
-        description: "Collinearity diagnostics for selected features."
+        description: "Maximum Variance Inflation Factor among selected features"
+      collinearity_flag:
+        type: "boolean"
+        description: "True if any feature has VIF > 5"
     required:
-      - permutation_p_value
-      - vif_diagnostics
+      - max_vif
+      - collinearity_flag
 required:
   - performance_metrics
-  - biomarkers
-  - validation
-additionalProperties: false
+  - feature_selection
+  - diagnostics

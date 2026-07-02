@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "PlantMultiOmicsDataset"
-description: "Schema for aligned plant genomic and metabolomic dataset with phenotypes."
+title: "Plant Multi-Omics Dataset Schema"
+description: "Schema for validated input and processed multi-omics data (including synthetic data)"
 type: "object"
 properties:
   metadata:
@@ -8,62 +8,76 @@ properties:
     properties:
       species:
         type: "string"
-        description: "Plant species name."
-      study_accession:
+        description: "Plant species name (e.g., 'Arabidopsis thaliana') or 'SIMULATED'"
+      pathogen:
         type: "string"
-        description: "Source study accession ID (e.g., SRP123456)."
-      retrieval_date:
-        type: "string"
-        format: "date"
-        description: "Date data was retrieved."
-    required:
-      - species
-      - study_accession
-      - retrieval_date
-  samples:
-    type: "array"
-    items:
-      type: "object"
-      properties:
-        sample_id:
+        description: "Pathogen name or 'SIMULATED'"
+      accession_numbers:
+        type: "array"
+        items:
           type: "string"
-        resistance_phenotype:
-          type: "number"
-          description: "Continuous disease severity score or encoded categorical label."
-        snp_features:
-          type: "array"
-          items:
-            type: "number"
-          description: "Allele counts (0, 1, 2) for selected SNPs."
-        metabolite_features:
-          type: "array"
-          items:
-            type: "number"
-          description: "Normalized metabolite intensities."
-      required:
-        - sample_id
-        - resistance_phenotype
-        - snp_features
-        - metabolite_features
-    minItems: 100
-  feature_names:
+        description: "List of NCBI SRA or MetaboLights accession numbers, or 'SIMULATED'"
+      sample_count:
+        type: "integer"
+        minimum: 100
+        description: "Total number of paired samples (must be >= 100)"
+      data_source:
+        type: "string"
+        enum: ["real", "simulated"]
+        description: "Indicates whether data is real or synthetic"
+  snp_matrix:
     type: "object"
     properties:
-      snps:
+      shape:
         type: "array"
         items:
-          type: "string"
-        description: "List of SNP IDs."
-      metabolites:
-        type: "array"
-        items:
-          type: "string"
-        description: "List of metabolite IDs."
+          type: "integer"
+        minItems: 2
+        maxItems: 2
+        description: "[n_samples, n_variants]"
+      dtype:
+        type: "string"
+        enum: ["int8", "int16", "float32"]
+        description: "Data type (0, 1, 2 for genotypes)"
     required:
-      - snps
-      - metabolites
+      - shape
+      - dtype
+  metabolite_matrix:
+    type: "object"
+    properties:
+      shape:
+        type: "array"
+        items:
+          type: "integer"
+        minItems: 2
+        maxItems: 2
+        description: "[n_samples, n_metabolites]"
+      dtype:
+        type: "string"
+        enum: ["float32", "float64"]
+        description: "Normalized intensity values"
+    required:
+      - shape
+      - dtype
+  phenotype:
+    type: "object"
+    properties:
+      type:
+        type: "string"
+        enum: ["continuous", "categorical"]
+        description: "Type of resistance measurement"
+      values:
+        type: "array"
+        items:
+          oneOf:
+            - type: "number"
+            - type: "string"
+        description: "Resistance scores or labels"
+    required:
+      - type
+      - values
 required:
   - metadata
-  - samples
-  - feature_names
-additionalProperties: false
+  - snp_matrix
+  - metabolite_matrix
+  - phenotype

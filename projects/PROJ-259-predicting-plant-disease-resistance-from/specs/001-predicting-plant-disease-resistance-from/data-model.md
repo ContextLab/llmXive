@@ -1,46 +1,56 @@
-# Data Model: 001-predict-plant-disease-resistance
+# Data Model: Predict Plant Disease Resistance from Multi‑omics Data
 
-## Overview
+## 1. Overview
 
-This document defines the data structures for the plant disease resistance prediction pipeline. The model ensures alignment between genomic (SNP) and metabolomic features with phenotypic resistance scores.
+This document defines the data structures for the plant disease resistance prediction pipeline. It covers the input data (raw and processed), the feature tables, and the output artifacts.
 
-## Key Entities
+## 2. Entity Definitions
 
 ### Sample
-A single plant individual with complete data modalities.
-- **Attributes**:
-  - `sample_id`: Unique identifier (string).
-  - `study_accession`: Source study ID (e.g., SRP123456).
-  - `resistance_phenotype`: Either a continuous score (float) or categorical label (string: "resistant"/"susceptible").
-  - `metadata`: Dictionary of additional biological info (species, tissue type).
+A single plant individual with available data.
+*   `sample_id`: Unique identifier (string).
+*   `phenotype`: Resistance score (float) or label (string: "Resistant", "Susceptible").
+*   `metadata`: Dictionary containing species, pathogen, experimental conditions.
 
-### FeatureTable
-Aligned matrix of features.
-- **Structure**:
-  - `snps`: DataFrame (samples × SNPs). Values: 0, 1, 2 (allele counts) or missing.
-  - `metabolites`: DataFrame (samples × Metabolites). Values: normalized intensity (float).
-  - `phenotypes`: Series (samples). Values: resistance score/label.
+### Genomic Feature (SNP)
+A genetic variant.
+*   `snp_id`: Unique identifier (e.g., "chr1:12345:A:T").
+*   `chromosome`: Chromosome name.
+*   `position`: Genomic coordinate.
+*   `allele_ref`: Reference allele.
+*   `allele_alt`: Alternate allele.
+*   `genotype`: Genotype value (0, 1, 2 for homozygous ref, heterozygous, homozygous alt).
 
-### ModelOutput
-Results from the training and validation pipeline.
-- **Attributes**:
-  - `metrics`: Dictionary (accuracy, AUC, R², null_baseline).
-  - `selected_features`: List of top SNPs and metabolites with p-values and effect sizes.
-  - `permutation_p_value`: Float.
-  - `vif_diagnostics`: Dictionary of VIF scores for selected features.
+### Metabolomic Feature
+A detected metabolite.
+*   `metabolite_id`: Unique identifier (e.g., "HMDB12345").
+*   `name`: Common name.
+*   `intensity`: Normalized intensity value.
 
-## Data Flow
+## 3. Data Flow & Transformations
 
-1. **Raw Data**: Downloaded from NCBI SRA (FASTQ) and MetaboLights (raw spectra).
-2. **Processed Data**:
-   - `snp_matrix.csv`: Aligned SNP matrix.
-   - `metabolite_matrix.csv`: Normalized metabolite matrix.
-   - `phenotype.csv`: Resistance labels.
-3. **Analysis Data**: Combined `feature_table.csv` (samples × features) with phenotype.
-4. **Output**: `results.json`, `biomarkers.csv`, `validation_report.txt`.
+### Raw Data
+*   **Input**: FASTQ files (genomics), MS spectra files (metabolomics), Phenotype CSV.
+*   **Storage**: `data/raw/` (preserved, checksummed).
+*   **Synthetic Fallback**: If real data is missing, `data/raw/synthetic_data.h5` is generated with the same structure.
 
-## Constraints
+### Preprocessed Data
+*   **SNP Matrix**: `samples x variants` (0, 1, 2). Missing values imputed or filtered.
+*   **Metabolite Matrix**: `samples x metabolites` (normalized intensity).
+*   **Phenotype Vector**: `samples x 1`.
+*   **Aligned Feature Table**: Concatenation of SNP and Metabolite matrices, filtered to only samples present in all three.
+    *   *Constraint*: If `n_samples < 100`, pipeline halts (FR-007).
 
-- **Sample Size**: Minimum 100 paired samples required (FR-007, FR-008).
-- **Missing Data**: Samples with missing modalities are excluded (FR-001).
-- **Data Integrity**: All raw files checksummed; derived files versioned.
+### Output Artifacts
+*   **Model**: Serialized sklearn/xgboost model object.
+*   **Feature Importance**: CSV of top 50 SNPs and metabolites with p-values and effect sizes.
+*   **Metrics**: JSON file containing CV accuracy, permutation p-value, VIF diagnostics.
+*   **Selection Frequency**: CSV of feature IDs, thresholds, and selection frequency (FR-003).
+
+## 4. Schema Definitions (Contracts)
+
+The following schemas are defined in `contracts/`:
+1.  `dataset.schema.yaml`: Validates the structure of the input/processed data (including synthetic data).
+2.  `output.schema.yaml`: Validates the structure of the results (metrics, features).
+
+These schemas are used to validate the output of the synthetic data generator and the final pipeline results.
