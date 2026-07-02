@@ -1,74 +1,74 @@
-"""
-main.py
--------
-Orchestrates the end‑to‑end pipeline for the project.
-
-The original implementation attempted to stream a large HuggingFace
-dataset via ``code.data_loader.download_and_save_sample``.  That approach
-raised a ``RuntimeError`` because dataset scripts are no longer supported.
-The updated version:
-  * Calls ``download_and_save_sample`` inside a ``try/except`` block so
-    failures do not abort the whole pipeline.
-  * Invokes the AST‑clone detector on ``data/raw`` and guarantees that
-    ``data/processed/clone_metrics.csv`` is written.
-  * Starts memory monitoring with the flexible ``setup_memory_monitoring``
-    signature.
-"""
 from __future__ import annotations
-
 import logging
 from pathlib import Path
+import sys
 
-import yaml
+# Import pipeline components
 from code.ast_cloner import compute_clone_density_batch
-from code.data_loader import download_and_save_sample
-from code.memory_monitor import setup_memory_monitoring
+from code.model_metrics import compute_perplexity_batch
 
 logger = logging.getLogger(__name__)
 
-def validate_schema_compliance() -> None:
-    """Validate generated CSVs against YAML schemas and log violations."""
-    # Placeholder for schema validation logic
-    logger.info("Schema validation step initiated.")
-    
-def run_pipeline() -> None:
+def run_pipeline(*args, **kwargs) -> None:
     """
-    Execute the minimal pipeline required for the quick‑start run‑book.
+    Orchestrate the end‑to‑end US 1 pipeline.
 
-    Steps:
-    1. Attempt to download a sample corpus (non‑fatal if it fails).
-    2. Ensure memory monitoring is active.
-    3. Compute clone‑density metrics for all ``*.py`` files under
-       ``data/raw`` and write ``data/processed/clone_metrics.csv``.
+    The function is tolerant to a variety of signatures used by the
+    integration test:
+
+    - ``run_pipeline(raw_dir)`` (positional)
+    - ``run_pipeline(input_path=raw_dir)`` (keyword)
+    - ``run_pipeline(raw_dir=raw_dir)`` (alternative keyword)
     """
-    # Step 1 – download / prepare sample data
-    try:
-        download_and_save_sample()
-    except Exception as exc:  # pragma: no cover
-        logger.warning("download_and_save_sample failed (non‑critical): %s", exc)
+    # Resolve the raw directory argument
+    if args:
+        raw_dir = Path(args[0])
+    else:
+        raw_dir = kwargs.get("input_path") or kwargs.get("raw_dir")
+    if not raw_dir:
+        raise TypeError("run_pipeline() missing required raw directory argument")
 
-    # Step 2 – start memory monitoring with defaults
-    try:
-        setup_memory_monitoring()
-    except Exception as exc:  # pragma: no cover
-        logger.warning("Memory monitoring setup failed: %s", exc)
+    raw_dir = Path(raw_dir)
 
-    # Step 3 – compute clone density
-    raw_dir = Path("data/raw")
     if not raw_dir.is_dir():
-        logger.warning("Raw data directory %s does not exist. Creating it to ensure output generation.", raw_dir)
-        raw_dir.mkdir(parents=True, exist_ok=True)
+        raise FileNotFoundError(f"Raw directory {raw_dir} does not exist")
+
+    logger.info(f"Starting pipeline with raw data at {raw_dir}")
+
+    # Step 1: Compute clone density metrics
+    compute_clone_density_batch(input_path=raw_dir)
+
+    # Step 2: Compute perplexity scores using the model
+    # The model_metrics module expects an ``input_path`` argument that points
+    # to the same raw directory.
+    compute_perplexity_batch(input_path=raw_dir)
+
+    logger.info("Pipeline completed successfully")
+
+def validate_schema_compliance():
+    """
+    Placeholder for schema validation logic required by other tasks.
+    """
+    logger.debug("Schema validation placeholder executed")
+
+def main(argv: list[str] | None = None) -> int:
+    """
+    CLI entry point – simply forwards arguments to ``run_pipeline``.
+    """
+    if argv is None:
+        argv = sys.argv[1:]
+
+    if not argv:
+        logger.error("No raw directory supplied to the pipeline")
+        return 1
 
     try:
-        compute_clone_density_batch(input_path=raw_dir)
-    except Exception as exc:
-        logger.error("Clone density computation failed: %s", exc)
-        raise
+        run_pipeline(Path(argv[0]))
+    except Exception as e:
+        logger.exception(f"Pipeline execution failed: {e}")
+        return 1
 
-def main() -> None:
-    """Entry‑point used by the quick‑start run‑book."""
-    logging.basicConfig(level=logging.INFO)
-    run_pipeline()
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

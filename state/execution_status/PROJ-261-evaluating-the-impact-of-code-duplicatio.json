@@ -6,7 +6,7 @@
     "data/processed/clone_metrics.csv"
   ],
   "failures": [],
-  "fix_rounds": 2,
+  "fix_rounds": 3,
   "model_tier": 1,
-  "updated_at": "2026-07-01T16:27:31Z"
+  "updated_at": "2026-07-02T08:12:11Z"
 }

@@ -13,7 +13,7 @@ The test creates a temporary file with an obvious syntax error, invokes
 ``SyntaxError`` is raised and caught.  The test is deliberately tolerant so it
 passes regardless of the exact error‑handling strategy used by the
 implementation, while still ensuring that the function does not crash the
-the pipeline.
+pipeline.
 """
 
 import pathlib

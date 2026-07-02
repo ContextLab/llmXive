@@ -82,10 +82,15 @@ def test_cli_parses_unknown_arguments(monkeypatch, tmp_path):
     output_path = tmp_path / "out.csv"
 
     # Mock the heavy‑weight download routine so the test runs instantly.
+    def mock_download(*args, **kwargs):
+        # Record that we were called.
+        mock_download.called = True  # type: ignore[attr-defined]
+        return None
+
     monkeypatch.setattr(
         data_loader,
         "download_and_save_sample",
-        lambda *args, **kwargs: None,
+        mock_download,
     )
 
     # Simulate command line that includes a stray comment token.
@@ -94,4 +99,4 @@ def test_cli_parses_unknown_arguments(monkeypatch, tmp_path):
     data_loader.main(argv)
 
     # Ensure the mocked download function was called (i.e. parsing succeeded).
-    assert getattr(data_loader.download_and_save_sample, "called", False)  # type: ignore
+    assert getattr(mock_download, "called", False)  # type: ignore[attr-defined]

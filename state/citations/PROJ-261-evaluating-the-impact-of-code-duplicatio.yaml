@@ -55,7 +55,18 @@
   verification_status: verified
   verified_against_url: null
   verified_at: '2026-06-30T16:33:21.381267Z'
-- artifact_hash: 93b967b6ae557566ea001810e31d76816630ddc9f07404b4d3f9e0d5d37d8fc0
+- artifact_hash: 1055db8a9be0628eca5445370344db63285dd0eadf54879b33cf0fbe9868271a
+  artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: validated - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q20748093
+  verification_status: verified
+  verified_against_url: https://www.wikidata.org/wiki/Q20748093
+  verified_at: '2026-07-02T08:45:02.012080Z'
+- artifact_hash: 567dfd1e7464b788d4d06149985308764fc9aff1d74a0c40363da42c5528ac20
   artifact_path: projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/specs/001-evaluating-the-impact-of-code-duplicatio/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -66,4 +77,4 @@
   value: https://arxiv.org/abs/2409.08555
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/2409.08555
-  verified_at: '2026-06-30T05:30:57.849600Z'
+  verified_at: '2026-07-02T08:53:39.589524Z'

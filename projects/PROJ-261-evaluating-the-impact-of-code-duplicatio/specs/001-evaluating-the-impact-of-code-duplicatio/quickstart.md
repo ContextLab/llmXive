@@ -1,49 +1,47 @@
-# Quickstart Guide
+# Quickstart for Evaluating Code Duplication Impact
 
-This document outlines the steps required to run the full analysis pipeline
-for the *Evaluating the Impact of Code Duplication on LLM Code Understanding*
-project.
-
-## Prerequisites
-
-* Python 3.11
-* All dependencies installed via `pip install -r requirements.txt`
-
-## Execution Steps
-
-1. **Download a sample of the GitHub code corpus**
-
- ```bash
- python -m code.data_loader
- ```
-
-2. **Run the full pipeline**
-
- ```bash
- python code/main.py
- ```
-
-The pipeline will:
-* Stream the dataset (if not already present) and write `data/raw/github-code-sample.csv`.
-* Scan for PII (handled internally).
-* Compute clone density and write `data/processed/clone_metrics.csv`.
-* Load the language model, compute perplexity scores, and write the corresponding CSV.
-* Perform downstream analysis, generate figures, and produce checksum manifests.
-
-## Validation
-
-After the pipeline finishes, you can run the validation suite:
+This document provides the minimal commands required to run the full research
+pipeline from end‑to‑end. All commands should be executed from the repository
+root.
 
 ```bash
-pytest -q
+# 1️⃣ Install dependencies
+pip install -r requirements.txt
+
+# 2️⃣ Stream a 500 MB subset of the CodeParrot GitHub corpus [UNRESOLVED-CLAIM: c_09a28615 — status=not_enough_info]
+python code/data_loader.py
+
+# 3️⃣ Scan for PII (optional but recommended)
+python code/pii_scanner.py
+
+# 4️⃣ Compute clone density metrics
+python code/ast_cloner.py
+
+# 5️⃣ Compute model perplexity scores (8‑bit quantised)
+python code/model_metrics.py
+
+# 6️⃣ Evaluate bug‑detection (HumanEval) and compute pass@1
+python code/bug_detection.py
+
+# 7️⃣ Correlation analysis (duplication ↔ perplexity ↔ accuracy)
+python code/correlation_analysis.py
+
+# 8️⃣ Generate visualisations
+python code/visualization/plotting.py
+
+# 9️⃣ Validate that all expected artefacts exist
+python code/quickstart_validation.py
 ```
 
-This will verify that all expected artefacts are present and conform to the
-contract schemas defined in `specs/001-evaluate-code-duplication-llm-understanding/contracts/`.
+After the above steps complete you should find the following artefacts in the
+repository:
 
-## Notes
+- `data/raw/github-code-sample.csv` – streamed subset of the CodeParrot corpus
+- `data/processed/clone_metrics.csv` – clone‑density per file/problem
+- `data/processed/perplexity_scores.csv` – token‑level perplexity per file
+- `data/processed/bug_detection_results.csv` – pass@1 and clone density per HumanEval problem
+- `data/analysis/correlation_results.csv` – Spearman correlation matrix and p‑values
+- `data/analysis/figures/` – PNG/PDF visualisations
 
-* The data download is performed in streaming mode; only a small subset
- (default 1 000 rows) is materialised to keep runtime modest.
-* Subsequent runs are fast because the CSV artefact is cached; delete
- `data/raw/github-code-sample.csv` to force a fresh download.
+The quickstart validation script (`code/quickstart_validation.py`) will raise an
+error if any of the above artefacts are missing or malformed.

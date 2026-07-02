@@ -1,3 +1,12 @@
-# Existing requirements (not shown) plus any new ones introduced by this task.
-# No additional third‑party packages are required for the updated
-# implementations; all used modules are from the Python standard library.
+# Core dependencies (already present in the project)
+datasets
+transformers
+bitsandbytes
+scipy
+matplotlib
+pytest
+
+# Added for memory‑monitoring and safe file handling
+psutil
+# Optional progress bar used by data loader (already a transitive dep of datasets)
+tqdm
