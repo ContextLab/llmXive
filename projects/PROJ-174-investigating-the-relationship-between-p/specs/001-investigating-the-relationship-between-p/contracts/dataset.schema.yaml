@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Processed Trial Dataset Schema"
+description: "Schema for the cleaned, interpolated, and validated trial‑level data used in analysis."
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique identifier for the participant."
+  trial_id:
+    type: "string"
+    description: "Unique identifier for the trial."
+  timestamp:
+    type: "integer"
+    description: "Monotonic timestamp in milliseconds."
+    minimum: 0
+  pupil_diameter:
+    type: "number"
+    description: "Interpolated and low‑pass filtered pupil diameter in millimeters."
+  search_time:
+    type: "number"
+    description: "Search time in milliseconds."
+  target_salience:
+    type: ["number", "null"]
+    description: "Target salience value. Null if metadata is missing and skipped per FR‑003."
+  fixation_count:
+    type: "integer"
+    description: "Total number of fixations in the trial."
+required:
+  - subject_id
+  - trial_id
+  - timestamp
+  - pupil_diameter
+  - search_time
+  - fixation_count
+additionalProperties: false

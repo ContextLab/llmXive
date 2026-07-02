@@ -1,0 +1,26 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Quality Report Schema"
+description: "Schema for the preprocessing exclusion log (FR‑008)."
+type: "object"
+properties:
+  trial_id:
+    type: "string"
+  subject_id:
+    type: "string"
+  exclusion_reason:
+    type: "string"
+    enum:
+      - "blink_loss_excessive"
+      - "non_monotonic_timestamp"
+      - "insufficient_trials"
+      - "missing_salience"
+    description: "Reason for exclusion or warning."
+  timestamp_start:
+    type: "integer"
+  timestamp_end:
+    type: "integer"
+required:
+  - trial_id
+  - subject_id
+  - exclusion_reason
+additionalProperties: false

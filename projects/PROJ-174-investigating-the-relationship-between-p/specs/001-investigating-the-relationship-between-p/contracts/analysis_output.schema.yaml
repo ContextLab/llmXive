@@ -1,6 +1,6 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: "Analysis Output Schema"
-description: "Schema for correlation and classifier output files"
+description: "Schema for correlation, model, and classifier output files"
 type: object
 properties:
   correlations:
@@ -22,7 +22,7 @@ properties:
           description: "Raw p-value from t-test"
         p_value_adjusted:
           type: number
-          description: "Bonferroni-adjusted p-value"
+          description: "Holm‑Bonferroni‑adjusted p-value"
         significant:
           type: boolean
           description: "True if p_value_adjusted < 0.05"
@@ -64,9 +64,13 @@ properties:
         required:
           - statistic
           - p_value
+      model_type:
+        type: string
+        description: "Either 'Full', 'Reduced (Collinearity Handled)', or 'Skipped (Salience Missing)'"
     required:
       - predictors
       - likelihood_ratio_test
+      - model_type
   classifier_results:
     type: array
     items:
@@ -86,17 +90,25 @@ properties:
           description: "Recall score"
         roc_auc:
           type: number
-          description: "ROC-AUC score"
+          description: "ROC‑AUC score"
+        relative_decrease:
+          type: number
+          description: "Relative decrease in performance compared to best threshold (percentage)"
         validation_type:
           type: string
-          description: "Either 'Independent' or 'Internal Consistency'"
+          description: "Either 'Independent Load Measure' or 'Search‑Time Median Split'"
+        ground_truth_limitation:
+          type: string
+          description: "Explicit statement: 'Ground truth derived from search-time median split; independent load measure unavailable'"
       required:
         - threshold
         - accuracy
         - precision
         - recall
         - roc_auc
+        - relative_decrease
         - validation_type
+        - ground_truth_limitation
   quality_report:
     type: object
     properties:
@@ -108,7 +120,7 @@ properties:
         type: object
         additionalProperties:
           type: integer
-        description: "Count of exclusions per reason"
+        description: "Count of exclusions per reason (e.g., blink_loss_excessive, non_monotonic_timestamp, insufficient_trials)"
     required:
       - total_trials
       - excluded_trials

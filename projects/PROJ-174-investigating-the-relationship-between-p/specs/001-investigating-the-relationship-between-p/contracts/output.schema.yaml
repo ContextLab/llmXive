@@ -1,0 +1,86 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Output Schema"
+description: "Schema for correlation, model, and classifier results."
+type: object
+properties:
+  correlation_summary:
+    type: array
+    items:
+      type: object
+      properties:
+        predictor:
+          type: string
+          description: "Name of the load proxy (e.g., search_time)."
+        metric:
+          type: string
+          description: "Name of the pupil metric (e.g., peak_dilation)."
+        pearson_r:
+          type: number
+        p_value:
+          type: number
+        adjusted_p_value:
+          type: number
+          description: "Holm‑Bonferroni corrected p‑value."
+        significant:
+          type: boolean
+      required:
+        - predictor
+        - metric
+        - pearson_r
+        - p_value
+        - adjusted_p_value
+        - significant
+  model_summary:
+    type: array
+    items:
+      type: object
+      properties:
+        predictor:
+          type: string
+        coefficient:
+          type: number
+        std_error:
+          type: number
+        p_value:
+          type: number
+        likelihood_ratio_p:
+          type: number
+          description: "P‑value from likelihood‑ratio test against null model."
+      required:
+        - predictor
+        - coefficient
+        - std_error
+        - p_value
+  classification_metrics:
+    type: array
+    items:
+      type: object
+      properties:
+        threshold:
+          type: number
+        accuracy:
+          type: number
+        precision:
+          type: number
+        recall:
+          type: number
+        roc_auc:
+          type: number
+        relative_decrease:
+          type: number
+          description: "Relative performance drop compared to best threshold (percentage)."
+        ground_truth_source:
+          type: string
+          description: "Either 'independent_load_measure' or 'search_time_median_split'"
+      required:
+        - threshold
+        - accuracy
+        - precision
+        - recall
+        - roc_auc
+        - relative_decrease
+        - ground_truth_source
+required:
+  - correlation_summary
+  - model_summary
+  - classification_metrics

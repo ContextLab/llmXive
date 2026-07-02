@@ -1,84 +1,65 @@
 # Quickstart: Investigating the Relationship Between Pupil Dilation and Cognitive Load During Visual Search
 
-## Prerequisites
+## 1. Prerequisites
 
 - Python 3.11+
 - Git
-- Internet access for dataset download
+- ~10 GB free disk space (for raw data download)
+- ~8 GB RAM (pipeline optimized for ≤ 6 GB)
 
-## Installation
+## 2. Installation
 
-1. **Clone the repository**:
+1. **Clone the Repository**  
    ```bash
    git clone <repo-url>
    cd projects/PROJ-174-investigating-the-relationship-between-p
    ```
 
-2. **Create and activate a virtual environment**:
+2. **Create Virtual Environment**  
    ```bash
    python -m venv venv
    source venv/bin/activate   # Windows: venv\Scripts\activate
    ```
 
-3. **Install dependencies**:
+3. **Install Dependencies**  
    ```bash
    pip install -r code/requirements.txt
    ```
 
-## Data Preparation
+## 3. Data Acquisition
 
-The pipeline expects raw eye‑tracking data in `data/raw/`.
-
-1. **Download the verified visual‑search dataset**:
-   ```bash
-   # Primary dataset with salience metadata
-   datalad install -d data/raw -s https://openneuro.org/datasets/ds004248.git
-   ```
-   *If `datalad` is unavailable, you may manually download the EDF/CSV files from the OpenNeuro page and place them in `data/raw/`.*
-
-2. **Validate dataset suitability**:
-   ```bash
-   python code/data_loader.py --validate
-   ```
-   This script checks that the required columns (`pupil_diameter`, `timestamp`, `search_time`) and the **stimulus metadata file** (`salience_map.npy`) are present. If the metadata is missing, the script **aborts** with a clear error. No fallback to unsuitable datasets is permitted.
-
-## Running the Full Pipeline
-
-From the `code/` directory, execute:
+The pipeline automatically fetches the verified eye‑tracking datasets from OpenNeuro. Ensure an internet connection.
 
 ```bash
-python main.py --config config.yaml
+python code/utils.py --fetch-data
 ```
 
-### Configuration Options (`config.yaml`)
+*The script will download ds001734, ds002642, and ds003663 into `data/raw/`. It verifies that each file contains the required columns (`pupil_diameter`, `timestamp`, and `target_salience` where available) before proceeding.*
 
-- `random_seed`: Integer (default 42) – pinned for reproducibility.
-- `low_pass_cutoff`: Float (default 4.0 Hz) – pupil filter.
-- `blink_threshold`: Float (default 0.2) – proportion of interpolated samples allowed.
-- `classification_thresholds`: List [0.01, 0.05, 0.10] – decision thresholds for sensitivity analysis.
-- `data_path`: String (path to raw data) – default `data/raw/`.
-- `sliding_window_ms`: Integer (200) – window size for real‑time classifier (logged per Principle VII).
-
-## Output
-
-All results are written to `outputs/`:
-
-- `correlations.csv` – Pearson r, raw and Bonferroni‑adjusted p‑values.
-- `lme_results.json` – Fixed‑effect estimates, SEs, p‑values, and LRT.
-- `classifier_results.csv` – Accuracy, precision, recall, ROC‑AUC per threshold. Includes `validation_type` ("Independent" or "Internal Consistency").
-- `quality_report.csv` – Exclusion counts and reasons.
-- `evaluation_log.json` – Includes the **exact integer values** of `random_seed` and `sliding_window_ms` for full traceability.
-
-## Validation
-
-Run the test suite to confirm a successful installation:
+## 4. Running the Full Pipeline
 
 ```bash
-pytest tests/
+python code/main.py
 ```
 
-## Troubleshooting
+### Configuration (config.yaml)
 
-- **Missing `stimulus_salience` metadata**: The pipeline will **abort** with a clear error. Provide a dataset that includes the `salience_map.npy` file to enable full analysis.
-- **Memory errors**: Reduce batch size in `config.yaml` or work with a subset of subjects.
-- **Dataset not found**: Verify the OpenNeuro URL and your internet connection; the pipeline does not fall back to other datasets.
+- `random_seed`: Fixed seed for reproducibility.  
+- `thresholds`: `[0.01, 0.05, 0.10]` (decision thresholds for the classifier).  
+- `salience_mode`: `strict` (must **skip** salience if missing; do not derive on‑the‑fly).  
+
+## 5. Expected Outputs (all in `data/results/`)
+
+| File | Description |
+| :--- | :--- |
+| `quality_report.csv` | Primary exclusion report (FR‑008) – counts of blink loss, timestamp errors, insufficient trials, etc. |
+| `correlation_summary.csv` | Pearson r, raw & Holm‑Bonferroni‑adjusted p‑values, significance flag (SC‑001). |
+| `model_summary.csv` | LME fixed effects, SE, p‑values, model type (Full or Reduced (Collinearity Handled)), and likelihood‑ratio test (SC‑002). |
+| `classification_metrics.csv` | Accuracy, precision, recall, ROC‑AUC, `relative_decrease` across thresholds, and ground‑truth limitation note (SC‑003, SC‑004). |
+| `ground_truth_limitation.txt` | Explicit statement that ground truth is derived from search‑time median split when no independent measure is present (FR‑011). |
+
+## 6. Troubleshooting
+
+- **Missing Salience Warning**: `WARNING: Target salience missing; skipping proxy` is expected if the dataset lacks the column. The pipeline will continue with the remaining proxies.  
+- **MemoryError**: Reduce the optional `sample_fraction` in `config.yaml` to process a smaller subset of trials.  
+- **Timestamp Errors**: Non‑monotonic timestamps will be dropped and reported in `quality_report.csv`.  
