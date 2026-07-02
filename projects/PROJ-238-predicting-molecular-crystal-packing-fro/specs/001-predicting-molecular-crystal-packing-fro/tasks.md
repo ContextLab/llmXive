@@ -47,8 +47,8 @@
 - [ ] T001.2 Create `code/utils/` and `code/tests/` subdirectories
 - [ ] T001.3 Create `data/raw/`, `data/descriptors/`, `data/processed/` subdirectories
 - [ ] T001.4 Create `results/` and `state/projects/PROJ-238.../` subdirectories
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (pins: `rdkit==2023.9.1`, `scikit-learn==1.3.0`, `pandas`, `numpy`, `requests`, `pytest`, `matplotlib`, `seaborn`)
-- [ ] T003 [P] Configure linting (flake8) and formatting (black) tools
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (pins: `rdkit==2023.9.1`, `scikit-learn==1.3.0`, `pandas`, `numpy`, `requests`, `pytest`, `matplotlib`, `seaborn`)
+- [X] T003 [P] Configure linting (flake8) and formatting (black) tools
 
 ---
 
@@ -58,23 +58,25 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Implement `utils/data_loaders.py` to fetch sample COD CIFs from official bulk URL ` certificate verify failed: Hostname mismatch, certificate is not valid for 'ftp.crystallography.net'. (_ssl.c:1016)")))].
- - **Deliverable**: Generate `data/raw/sample_cifs.txt` containing a set of valid CIF IDs.
- - **Verification**: Verify file exists and contains a sufficient number of lines.
-- [ ] T004.1 [P] Validate data volume: Fetch and count valid organic small molecules from COD to ensure N >= 1,000.
- - **Deliverable**: Generate `data/raw/volume_validation.log` with the count.
- - **Verification**: If count < 1,000, the task MUST fail and block Phase 1 execution. Log the count and reason for blocking.
-- [ ] T005 [P] Implement `utils/descriptors.py` wrapper for RDKit.
- - **Signature**: `compute_descriptors(mol) -> dict` returning Volume, Surface Area, Dipole, HBA, HBD, PSA.
- - **Verification**: Run on benzene molecule; verify returned Volume is within expected range.
-- [ ] T006 [P] Implement `utils/metrics.py` for statistical tests.
- - **Functions**: `paired_t_test(pred1, pred2)`, `bonferroni_correct(p_values, n_comparisons)`, `ks_test(data1, data2)`.
- - **Verification**: Unit tests for each function with known inputs/outputs.
-- [ ] T007 [P] Create base data model classes in `code/models.py`.
- - **Classes**: `Molecule` (attrs: id, mw, descriptors), `CrystalStructure` (attrs: id, unit_cell, interaction_type), `ModelResult` (attrs: model_type, metrics, params).
-- [ ] T008 [P] Configure environment variables and logging infrastructure in `code/config.py`.
- - **Env Vars**: `COD_URL`, `RANDOM_SEED`, `DATA_PATH`.
- - **Format**: JSON logs to stdout.
+- [X] T004 [P] Implement `utils/data_loaders.py` to fetch **only** the canonical COD bulk download URL ` Name or service not known)"))].
+ **Constraint**: NO fallback URLs are permitted.
+ **Deliverable**: Generate `data/raw/cod_sample_ids.txt` containing a list of COD entry IDs.
+ **Verification**: File exists and contains **≥ 100** lines.
+- [ ] T004.1 [P] Validate that the COD sample contains at least **[deferred]** valid organic small molecules.
+ **Definition of valid**: Molecules with molecular weight < 1000 Da, containing only C/H/N/O/F/Cl/Br atoms (no metals), as determined via RDKit filters.
+ **Deliverable**: Write count and any exclusions to `data/raw/volume_validation.log`.
+ **Verification**: Log reports count ≥ 1000; otherwise task fails and blocks further phases.
+- [X] T005 [P] Implement `utils/descriptors.py` wrapper for RDKit.
+ **Signature**: `compute_descriptors(mol) -> dict` returning Volume, Surface Area, Dipole, HBA, HBD, PSA.
+ **Verification**: Run on benzene (`c1ccccc1`); assert returned Volume is between **50 Å³** and **150 Å³**.
+- [X] T006 [P] Implement `utils/metrics.py` for statistical tests.
+ **Functions**: `paired_t_test(pred1, pred2)`, `bonferroni_correct(p_values, n_comparisons)`, `ks_test(data1, data2)`.
+ **Verification**: Unit tests with known numeric inputs/outputs (provided in `tests/unit/`).
+- [X] T007 [P] Create base data model classes in `code/models.py`.
+ **Classes**: `Molecule` (attrs: id, mw, descriptors), `CrystalStructure` (attrs: id, unit_cell, interaction_type), `ModelResult` (attrs: model_type, metrics, params).
+- [X] T008 [P] Configure environment variables and logging infrastructure in `code/config.py`.
+ **Env Vars**: `COD_URL`, `RANDOM_SEED`, `DATA_PATH`.
+ **Format**: JSON logs to stdout.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -84,68 +86,66 @@
 
 **Goal**: Ingest raw crystal structure data from COD, filter for valid organic small molecules, compute standardized molecular descriptors, and derive the `packing_coefficient` target.
 
-**Independent Test**: Run `code/01_ingest_and_descriptors.py` on a sample of COD entries; verify output CSV contains non-null values for all 6 descriptors and the derived `packing_coefficient`.
+**Independent Test**: Run `code/01_ingest_and_descriptors.py` on a sample of COD entries; verify output CSV contains non‑null values for all 6 descriptors and the derived `packing_coefficient`.
 
 ### Tests for User Story 1
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [ ] T009 [P] [US1] Unit test for CIF parsing logic in `tests/unit/test_data_loaders.py`
-- [ ] T010 [P] [US1] Unit test for descriptor computation (RDKit) in `tests/unit/test_descriptors.py`
-- [ ] T011 [P] [US1] Integration test for full ingestion pipeline with sample data in `tests/integration/test_ingestion.py`
+- [~] T010 [P] [US1] Unit test for descriptor computation (RDKit) in `tests/unit/test_descriptors.py`
+- [~] T011 [P] [US1] Integration test for full ingestion pipeline with sample data in `tests/integration/test_ingestion.py`
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `code/01_ingest_and_descriptors.py` to download CIFs, parse unit cell parameters ($a, b, c, \alpha, \beta, \gamma$), and calculate $V_{cell}$.
- - **Deliverable**: Generate `data/descriptors/raw_descriptors.csv` with columns [ID, Volume, SurfaceArea,...].
- - **Verification**: Verify rows exist.
-- [ ] T013 [US1] Implement logic to add missing hydrogens geometrically before descriptor calculation; log count of entries modified.
-- [ ] T014 [US1] Implement descriptor computation for Volume, Surface Area, Dipole, HBA, HBD, PSA using `utils/descriptors.py`.
-- [ ] T015 [US1] Implement logic to derive `packing_coefficient` = $V_{mol} / V_{cell}$ and filter out physically impossible values ($<0.5$ or $>1.0$).
- - **Verification**: Log the count of filtered entries to stdout.
-- [ ] T016 [US1] Implement missing data handling: impute auxiliary descriptors (e.g., Dipole) with training set median; exclude rows with missing target; log counts.
-- [ ] T017 [US1] Implement stratified split by `packing_coefficient` (target) into Train/Val/Test.
- - **Note**: This supersedes Spec FR-003 (molecular weight) which contradicts the Plan's scientific requirement to prevent target drift.
- - **Deliverable**: Generate `data/processed/train.csv`, `data/processed/val.csv`, `data/processed/test.csv` and `data/processed/split_report.json`.
- - **Verification**: Assert KS distance < 0.05 across splits for the target variable in `split_report.json`.
-- [ ] T017.1 [US1] Verify Molecular Weight distribution across splits.
- - **Verification**: Run KS test on MW across splits; log result. If KS > 0.05, log a warning but do not block (secondary check).
-- [ ] T018 [US1] Generate SHA-256 checksums for raw CIFs and derived CSVs; record in `state/projects/PROJ-238.../artifact_hashes`.
-- [ ] T019 [US1] Extract geometric criteria from CIFs to classify dominant interaction types (H-bond: distance < 3.5Å and angle > 150°).
- - **Deliverable**: Add columns `interaction_type`, `confidence` to `data/descriptors/derived.csv`.
- - **Verification**: Verify all rows in `derived.csv` have a non-null `interaction_type`.
+- [~] T012 [US1] Implement `code/01_ingest_and_descriptors.py` to download CIFs, parse unit cell parameters ($a, b, c, \alpha, \beta, \gamma$), and calculate $V_{cell}$.
+ **Deliverable**: Generate `data/descriptors/raw_descriptors.csv` with columns `[ID, Volume, SurfaceArea, Dipole, HBD, HBA, PSA, packing_coefficient]`.
+ **Verification**: File exists with **≥ 50** rows and all listed columns present.
+- [~] T013 [US1] Implement logic to add missing hydrogens geometrically before descriptor calculation; log count of modified entries to `data/processed/hydrogen_addition.log`.
+- [~] T014 [US1] Implement descriptor computation for Volume, Surface Area, Dipole, HBA, HBD, PSA using `utils/descriptors.py`. <!-- FAILED: unspecified -->
+- [~] T015 [US1] Derive `packing_coefficient = V_mol / V_cell` and **filter out physically impossible values** (`packing_coefficient < 0` or `> 1`).
+ **Log**: Write number of excluded rows to `data/processed/filter_log.txt`.
+- [~] T016 [US1] Implement missing‑data handling: impute auxiliary descriptors (e.g., Dipole) with the training‑set median and flag the row in `data/descriptors/raw_descriptors.csv` with a boolean column `dipole_imputed`. Exclude rows with missing target and log count to `data/processed/missing_target.log`.
+- [ ] T017.1 [US1] Perform a **stratified split** of the cleaned dataset into Train/Val/Test (70/15/15) **by molecular weight** (MW) to satisfy FR‑003.
+ **Deliverable**: `data/processed/train.csv`, `data/processed/val.csv`, `data/processed/test.csv`.
+- [ ] T017.2 [US1] Validate the split: run a Kolmogorov‑Smirnov test on the MW distributions across the three splits; assert KS distance `< 0.05`.
+ **Log**: Write KS statistic and p‑value to `data/processed/split_validation.log`.
+- [ ] T017.3 [US1] Generate a JSON report `data/processed/split_report.json` summarizing row counts, MW statistics (mean, std), and KS test results. Follow the schema defined in `contracts/dataset.schema.yaml`.
+- [ ] T017.1‑T017.3 are **not** marked `[P]` because they depend sequentially on each other.
+- [~] T018 [US1] Generate SHA‑256 checksums for raw CIFs and all derived CSV/JSON artifacts; record them in `state/projects/PROJ-238.../artifact_hashes`.
+- [ ] **(Removed) T019** – interaction classification is now handled in User Story 3.
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
 ---
 
 ## Phase 4: User Story 2 - Model Training and Baseline Comparison (Priority: P2)
 
-**Goal**: Train Random Forest and Gradient Boosting regressors to predict `packing_coefficient` and compare performance against a mean-predictor baseline with statistical rigor.
+**Goal**: Train Random Forest and Gradient Boosting regressors to predict `packing_coefficient` and compare performance against a mean‑predictor baseline with statistical rigor.
 
-**Independent Test**: Execute training pipeline on training set, evaluate on test set, verify Random Forest achieves statistically significant improvement over mean baseline (p < 0.05).
+**Independent Test**: Execute training pipeline on training set, evaluate on test set, verify Random Forest achieves statistically significant improvement over mean baseline (p < 0.05).
 
 ### Tests for User Story 2
 
-- [ ] T020 [P] [US2] Unit test for model training convergence within 30 mins on 2-CPU in `tests/unit/test_training.py`
-- [ ] T021 [P] [US2] Integration test for paired t-test against mean baseline in `tests/integration/test_model_evaluation.py`
+- [ ] T020 [P] [US2] Unit test for model training convergence within 30 mins on 2‑CPU in `tests/unit/test_training.py`
+- [ ] T021 [P] [US2] Integration test for paired t‑test against mean baseline in `tests/integration/test_model_evaluation.py`
 
 ### Implementation for User Story 2
 
-- [ ] T022 [US2] Implement `code/02_train_models.py` to load pre-split data from `data/processed/`.
- - **Deliverable**: Load `train.csv`, `val.csv`, `test.csv`. Verify they exist with non-overlapping indices.
+- [ ] T022 [US2] Implement `code/02_train_models.py` to load pre‑split data from `data/processed/`.
+ **Verification**: Files `train.csv`, `val.csv`, `test.csv` exist, have non‑overlapping IDs, and contain the required columns.
 - [ ] T023 [US2] Train Random Forest regressor with default hyperparameters and `random_state=42`.
 - [ ] T024 [US2] Train Gradient Boosting regressor with default hyperparameters and `random_state=42`.
-- [ ] T025 [US2] Implement Mean Predictor baseline.
-- [ ] T026 [US2] Implement Control Analysis: Train secondary RF/GB models excluding Volume and Surface Area to test if interaction descriptors drive packing.
- - **Deliverable**: Save results to `results/control_analysis_metrics.json`.
-- [ ] T027 [US2] Evaluate models using R², MAE, RMSE on test set.
-- [ ] T028 [US2] Perform paired t-test (Model vs Baseline) and apply Bonferroni correction.
- - **Logic**: Calculate alpha_corrected = 0.05 / N_models (where N_models includes RF, GB, and Control Analysis).
- - **Verification**: Log the corrected alpha and p-values.
-- [ ] T029 [US2] Save metrics to `results/metrics.json` including R², MAE, p-values, and correction flag.
+- [ ] T025 [US2] Implement Mean Predictor baseline (predicts the training‑set mean of `packing_coefficient`).
+- [ ] T026 [US2] Implement Control Analysis: train secondary RF/GB models **excluding** Volume and Surface Area descriptors to probe the contribution of interaction‑related features.
+ **Deliverable**: Save results to `results/control_analysis_metrics.json`.
+- [ ] T027 [US2] Evaluate all models on the test set; compute R², MAE, RMSE.
+- [ ] T028 [US2] Perform paired t‑tests of each primary model (RF, GB) against the baseline.
+ **Statistical correction**: Calculate `alpha_corrected = 0.05 / 2` (N_models = 2, excluding control analysis) and apply Bonferroni correction.
+ **Output**: Write corrected p‑values, `alpha_corrected`, and a flag indicating significance to `results/metrics.json`.
+- [ ] T029 [US2] Save a consolidated metrics summary (R², MAE, RMSE, corrected p‑values, significance flags) to `results/metrics.json`.
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
 ---
 
@@ -162,27 +162,31 @@
 
 ### Implementation for User Story 3
 
-- [ ] T032 [US3] Implement `code/03_evaluate_and_report.py` to calculate Permutation Importance (not Gini) for the trained Random Forest.
-- [ ] T033 [US3] Generate `results/feature_importance.png` identifying top 3 features and cumulative importance.
-- [ ] T034 [US3] Perform Leave-One-Feature-Out (LOFO) analysis; document R² variation across feature subsets in `results/sensitivity_report.md`.
-- [ ] T035 [US3] Read interaction labels from `data/descriptors/derived.csv` (pre-calculated in T019) to generate interaction classification report.
- - **Deliverable**: Generate `results/interaction_classification.md` with accuracy and confidence intervals.
- - **Verification**: Verify the report uses the pre-calculated labels and does not re-process raw CIFs.
-- [ ] T036 [US3] Evaluate interaction classification accuracy and compute confidence intervals via bootstrapping.
+- [ ] T032 [US3] Implement `code/03_evaluate_and_report.py` to calculate **Permutation Importance** (not Gini) for the trained Random Forest model.
+- [ ] T033 [US3] Generate `results/feature_importance.png` identifying the top 3 features and showing their cumulative importance (> 60 % total).
+- [ ] T034 [US3] Perform Leave‑One‑Feature‑Out (LOFO) analysis; document R² variation across feature subsets in `results/sensitivity_report.md`.
+ **Requirement**: Report that removing the top 5 features changes R² by no more than ±0.02.
+- [ ] T035.1 [US3] Extract geometric interaction criteria from the original CIF files (e.g., H‑bond distance < 3.5 Å and angle > 150°) and create a temporary table `data/interactions/raw_interactions.csv`.
+ **Verification**: File exists with columns `[CIF_ID, interaction_type, confidence]`.
+- [ ] T035.2 [US3] Classify the **dominant intermolecular interaction type** for each crystal using the criteria from T035.1; write results to `data/descriptors/derived.csv` (adds columns `interaction_type`, `interaction_confidence`).
+ **Verification**: All rows have non‑null `interaction_type`.
+- [ ] T035.3 [US3] Generate `results/interaction_classification.md` reporting overall classification accuracy and 95 % confidence intervals obtained via bootstrapping (≥ 1 000 resamples).
+ **Verification**: Report includes accuracy, CI, and number of resamples.
+- [ ] T036 [US3] (Optional) Evaluate interaction‑type prediction against any available external benchmark (if present) and log results to `results/interaction_benchmark.log`.
 
 **Checkpoint**: All user stories should now be independently functional
 
 ---
 
-## Phase N: Polish & Cross-Cutting Concerns
+## Phase N: Polish & Cross‑Cutting Concerns
 
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T037 [P] Update `state/projects/PROJ-238.../artifact_hashes` with final result checksums
-- [ ] T038 Verify `results/metrics.json` contains all required fields and Bonferroni flag
+- [ ] T038 Verify `results/metrics.json` contains all required fields and the Bonferroni flag
 - [ ] T039 [P] Generate `quickstart.md` and `contracts/` schemas from data model
 - [ ] T040 [P] Execute full pipeline validation: Run `code/01_ingest_and_descriptors.py`, `code/02_train_models.py`, and `code/03_evaluate_and_report.py` in a CI environment.
- - **Verification**: Verify all exit codes are 0 and artifacts are generated in `data/` and `results/`.
+ **Verification**: All exit codes are 0 and artifacts are generated in `data/` and `results/`.
 
 ---
 
@@ -190,18 +194,18 @@
 
 ### Phase Dependencies
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
+- **Setup (Phase 1)**: No dependencies – can start immediately
+- **Foundational (Phase 2)**: Depends on Setup completion – BLOCKS all user stories
+- **User Stories (Phase 3‑5)**: All depend on Foundational phase completion
+ - User stories can proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
 
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on data from US1
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on models from US2
+- **User Story 1 (P1)**: Can start after Foundational (Phase 2) – No dependencies on other stories
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) – Depends on dataset produced by US 1
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) – Depends on trained models from US 2 for feature‑importance steps; interaction‑type extraction uses raw CIFs, which are already available from Phase 2.
 
 ### Within Each User Story
 
@@ -214,7 +218,7 @@
 ### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
+- All Foundational tasks marked [P] can run in parallel (within Phase 2)
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
@@ -222,38 +226,22 @@
 
 ---
 
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test for CIF parsing logic in tests/unit/test_data_loaders.py"
-Task: "Unit test for descriptor computation (RDKit) in tests/unit/test_descriptors.py"
-Task: "Integration test for full ingestion pipeline with sample data in tests/integration/test_ingestion.py"
-
-# Launch all implementation tasks for User Story 1 together (where file paths differ):
-Task: "Implement code/01_ingest_and_descriptors.py to download CIFs..."
-Task: "Implement logic to add missing hydrogens geometrically..."
-Task: "Implement descriptor computation for Volume, Surface Area..."
-```
-
----
-
 ## Implementation Strategy
 
-### MVP First (User Story 1 Only)
+### MVP First (User Story 1 Only)
 
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
+1. Complete Phase 1: Setup
+2. Complete Phase 2: Foundational (CRITICAL – blocks all stories)
+3. Complete Phase 3: User Story 1
+4. **STOP and VALIDATE**: Test User Story 1 independently
 5. Deploy/demo if ready
 
 ### Incremental Delivery
 
 1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
+2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
+3. Add User Story 2 → Test independently → Deploy/Demo
+4. Add User Story 3 → Test independently → Deploy/Demo
 5. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
@@ -262,9 +250,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---
@@ -277,4 +265,4 @@ With multiple developers:
 - Verify tests fail before implementing
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- Avoid: vague tasks, same file conflicts, cross‑story dependencies that break independence

@@ -19,7 +19,7 @@ This project implements a machine learning pipeline to predict the packing coeff
 **Project Type**: Data Science / Computational Chemistry Pipeline.
 **Performance Goals**: Complete full pipeline (ingest 1k samples, train 2 models, evaluate) within 6 hours on 2 vCPU.
 **Constraints**: No GPU; no heavy LLM inference; memory usage < 7GB; strict adherence to reproducibility (random seeds).
-**Scale/Scope**: [deferred] organic small molecules (target); 6 molecular descriptors; 2 regression models.
+**Scale/Scope**: [deferred] organic small molecules (target); molecular descriptors; regression models.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 

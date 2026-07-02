@@ -1,0 +1,9 @@
+rdkit==2023.9.1
+scikit-learn==1.3.0
+pandas
+numpy
+requests
+pytest
+matplotlib
+seaborn
+scipy

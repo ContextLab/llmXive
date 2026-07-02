@@ -31,14 +31,3 @@
   verification_status: verified
   verified_against_url: https://www.crystallography.net/cod/
   verified_at: '2026-07-01T21:17:12.203102Z'
-- artifact_hash: 1fcfcac815e5dc4b16fe9737814f1041adee3d7a7621118d4cb75572949dbd91
-  artifact_path: projects/PROJ-238-predicting-molecular-crystal-packing-fro/specs/001-predicting-molecular-crystal-packing-fro/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://ftp.crystallography.net/pub/cod/`
-  verification_status: unreachable
-  verified_against_url: https://ftp.crystallography.net/pub/cod/
-  verified_at: '2026-07-01T21:40:48.225940Z'
