@@ -1,24 +1,22 @@
 """
-Metric validation for social memory network experiments.
-
-This module provides validation logic for specialization and retrieval
-metrics to ensure they meet quality requirements (SC-001).
+Validation utilities for experiment metrics.
 """
-
 import numpy as np
 from typing import List, Dict, Any, Optional, Tuple
 from dataclasses import dataclass, field
 from collections import defaultdict
+
 from .specialization import validate_specialization_index
 from .retrieval import validate_retrieval_efficiency
 
 @dataclass
 class ValidationResult:
     """Result of metric validation."""
-    passed: bool
-    valid_count: int
-    total_count: int
-    failure_reasons: List[str] = field(default_factory=list)
+    is_valid: bool
+    validation_rate: float
+    total_records: int
+    valid_records: int
+    invalid_reasons: Dict[str, int] = field(default_factory=dict)
 
 @dataclass
 class GameMetricRecord:
@@ -26,202 +24,167 @@ class GameMetricRecord:
     game_id: int
     specialization_index: float
     retrieval_efficiency: float
-    context_condition: str
-    agent_count: int
+    is_valid: bool
 
 def validate_specialization_range(
-    specialization: float,
-    num_agents: int
+    specialization_index: float
 ) -> bool:
     """
-    Validate specialization index is in valid range.
+    Validate that specialization index is in valid range.
     
     Args:
-        specialization: Specialization index value
-        num_agents: Number of agents
+        specialization_index: Computed specialization index
     
     Returns:
-        True if specialization is valid
+        True if valid
     """
-    return validate_specialization_index(specialization, num_agents)
+    return validate_specialization_index(specialization_index)
 
 def validate_retrieval_range(
-    efficiency: float
+    retrieval_efficiency: float
 ) -> bool:
     """
-    Validate retrieval efficiency is in valid range.
+    Validate that retrieval efficiency is in valid range.
     
     Args:
-        efficiency: Retrieval efficiency value
+        retrieval_efficiency: Computed retrieval efficiency
     
     Returns:
-        True if efficiency is valid
+        True if valid
     """
-    return validate_retrieval_efficiency(efficiency)
+    return validate_retrieval_efficiency(retrieval_efficiency, 1)  # num_agents not used in basic range check
 
 def validate_single_game_metrics(
-    game_record: Dict[str, Any]
-) -> ValidationResult:
+    game_record: GameMetricRecord
+) -> bool:
     """
     Validate metrics for a single game.
     
     Args:
-        game_record: Dictionary with game metrics
+        game_record: GameMetricRecord to validate
     
     Returns:
-        ValidationResult indicating pass/fail
+        True if all metrics are valid
     """
-    num_agents = game_record.get("agent_count", 3)
-    specialization = game_record.get("specialization_index", 0.0)
-    retrieval = game_record.get("retrieval_efficiency", 0.0)
-    
-    reasons = []
-    
-    if not validate_specialization_range(specialization, num_agents):
-        reasons.append(f"Specialization {specialization} out of range for {num_agents} agents")
-    
-    if not validate_retrieval_range(retrieval):
-        reasons.append(f"Retrieval efficiency {retrieval} out of valid range")
-    
-    passed = len(reasons) == 0
-    
-    return ValidationResult(
-        passed=passed,
-        valid_count=1 if passed else 0,
-        total_count=1,
-        failure_reasons=reasons
+    return (
+        validate_specialization_range(game_record.specialization_index) and
+        validate_retrieval_range(game_record.retrieval_efficiency)
     )
 
 def validate_experiment_metrics(
-    game_records: List[Dict[str, Any]],
-    min_valid_rate: float = 0.95
+    records: List[Dict[str, Any]]
 ) -> ValidationResult:
     """
-    Validate all metrics for an experiment (SC-001 requirement).
+    Validate all metrics in an experiment.
     
     Args:
-        game_records: List of game metric records
-        min_valid_rate: Minimum required validation rate (default 95%)
+        records: List of game result dictionaries with metrics
     
     Returns:
-        ValidationResult with experiment-level validation
+        ValidationResult with validation statistics
     """
-    if not game_records:
+    if not records:
         return ValidationResult(
-            passed=False,
-            valid_count=0,
-            total_count=0,
-            failure_reasons=["No game records to validate"]
+            is_valid=False,
+            validation_rate=0.0,
+            total_records=0,
+            valid_records=0
         )
     
     valid_count = 0
-    all_reasons = []
+    invalid_reasons: Dict[str, int] = defaultdict(int)
     
-    for record in game_records:
-        result = validate_single_game_metrics(record)
-        if result.passed:
+    for record in records:
+        spec_idx = record.get("specialization_index")
+        ret_eff = record.get("retrieval_efficiency")
+        
+        is_spec_valid = validate_specialization_range(spec_idx) if spec_idx is not None else False
+        is_ret_valid = validate_retrieval_range(ret_eff) if ret_eff is not None else False
+        
+        if is_spec_valid and is_ret_valid:
             valid_count += 1
         else:
-            all_reasons.extend(result.failure_reasons)
+            if not is_spec_valid:
+                invalid_reasons["specialization_invalid"] += 1
+            if not is_ret_valid:
+                invalid_reasons["retrieval_invalid"] += 1
     
-    validation_rate = valid_count / len(game_records)
-    passed = validation_rate >= min_valid_rate
+    validation_rate = valid_count / len(records) if records else 0.0
     
     return ValidationResult(
-        passed=passed,
-        valid_count=valid_count,
-        total_count=len(game_records),
-        failure_reasons=all_reasons[:10]  # Limit reasons for readability
+        is_valid=validation_rate >= 0.95,
+        validation_rate=validation_rate,
+        total_records=len(records),
+        valid_records=valid_count,
+        invalid_reasons=dict(invalid_reasons)
     )
 
 def validate_and_filter_records(
-    game_records: List[Dict[str, Any]],
-    min_valid_rate: float = 0.95
+    records: List[Dict[str, Any]]
 ) -> Tuple[List[Dict[str, Any]], ValidationResult]:
     """
-    Validate and filter records, returning only valid ones.
+    Validate records and filter out invalid ones.
     
     Args:
-        game_records: List of game metric records
-        min_valid_rate: Minimum required validation rate
+        records: List of game result dictionaries
     
     Returns:
-        Tuple of (valid records, validation result)
+        Tuple of (filtered_records, validation_result)
     """
-    valid_records = []
-    valid_count = 0
+    validation_result = validate_experiment_metrics(records)
     
-    for record in game_records:
-        result = validate_single_game_metrics(record)
-        if result.passed:
-            valid_records.append(record)
-            valid_count += 1
+    filtered = [
+        record for record in records
+        if validate_single_game_metrics(GameMetricRecord(
+            game_id=record.get("game_id", 0),
+            specialization_index=record.get("specialization_index", 0.0),
+            retrieval_efficiency=record.get("retrieval_efficiency", 0.0),
+            is_valid=True
+        ))
+    ]
     
-    validation_result = validate_experiment_metrics(game_records, min_valid_rate)
-    
-    return valid_records, validation_result
+    return filtered, validation_result
 
 def compute_metric_statistics(
-    game_records: List[Dict[str, Any]]
-) -> Dict[str, Any]:
+    records: List[Dict[str, Any]],
+    metric_name: str
+) -> Dict[str, float]:
     """
-    Compute statistics for metrics across all games.
+    Compute statistics for a specific metric.
     
     Args:
-        game_records: List of game metric records
+        records: List of game result dictionaries
+        metric_name: Name of the metric ("specialization_index" or "retrieval_efficiency")
     
     Returns:
-        Dictionary with metric statistics
+        Dictionary with mean, std, min, max
     """
-    if not game_records:
-        return {}
+    values = [r[metric_name] for r in records if metric_name in r and r[metric_name] is not None]
     
-    specializations = [r.get("specialization_index", 0.0) for r in game_records]
-    retrievals = [r.get("retrieval_efficiency", 0.0) for r in game_records]
+    if not values:
+        return {"mean": 0.0, "std": 0.0, "min": 0.0, "max": 0.0}
     
     return {
-        "specialization": {
-            "mean": float(np.mean(specializations)),
-            "std": float(np.std(specializations)),
-            "min": float(np.min(specializations)),
-            "max": float(np.max(specializations))
-        },
-        "retrieval": {
-            "mean": float(np.mean(retrievals)),
-            "std": float(np.std(retrievals)),
-            "min": float(np.min(retrievals)),
-            "max": float(np.max(retrievals))
-        },
-        "total_games": len(game_records)
+        "mean": float(np.mean(values)),
+        "std": float(np.std(values)),
+        "min": float(np.min(values)),
+        "max": float(np.max(values))
     }
 
 def validate_batch_metrics(
-    batch_records: List[List[Dict[str, Any]]],
-    min_valid_rate: float = 0.95
-) -> List[ValidationResult]:
+    batch_records: List[Dict[str, Any]],
+    min_validation_rate: float = 0.95
+) -> ValidationResult:
     """
-    Validate metrics for multiple batches of games.
+    Validate a batch of records against a minimum validation rate.
     
     Args:
-        batch_records: List of batch record lists
-        min_valid_rate: Minimum required validation rate
+        batch_records: List of game result dictionaries
+        min_validation_rate: Minimum required validation rate
     
     Returns:
-        List of ValidationResult for each batch
+        ValidationResult indicating if batch passes
     """
-    results = []
-    for batch in batch_records:
-        result = validate_experiment_metrics(batch, min_valid_rate)
-        results.append(result)
-    return results
-
-if __name__ == "__main__":
-    # Test validation
-    test_records = [
-        {"game_id": 0, "specialization_index": 0.5, "retrieval_efficiency": 1.2, "agent_count": 3},
-        {"game_id": 1, "specialization_index": 1.0, "retrieval_efficiency": 1.5, "agent_count": 3},
-    ]
-    
-    result = validate_experiment_metrics(test_records)
-    print(f"Validation passed: {result.passed}")
-    print(f"Valid: {result.valid_count}/{result.total_count}")
+    result = validate_experiment_metrics(batch_records)
+    result.is_valid = result.validation_rate >= min_validation_rate
+    return result

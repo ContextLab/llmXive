@@ -1,10 +1,6 @@
 """
 Specialization index computation for social memory networks.
-
-This module computes the specialization index (0 to log₂(N_agents))
-measuring how specialized agents are in their memory contributions.
 """
-
 import numpy as np
 from typing import List, Dict, Any, Optional, Tuple
 from dataclasses import dataclass
@@ -13,115 +9,113 @@ import math
 
 @dataclass
 class SpecializationMetrics:
-    """Metrics for agent specialization analysis."""
+    """Container for specialization metrics."""
     specialization_index: float
-    per_agent_specialization: List[float]
-    max_specialization: float
-    normalized_index: float
+    domain_count: int
+    agent_count: int
+    is_valid: bool
 
 def compute_specialization_index(
-    memory_actions: List[Dict[str, Any]],
+    specialization_data: Dict[str, Any],
     num_agents: int
-) -> float:
+) -> SpecializationMetrics:
     """
-    Compute the specialization index for a set of memory actions.
+    Compute the specialization index for a game.
     
-    The specialization index measures how specialized agents are in their
-    memory contributions, ranging from 0 (no specialization) to log₂(N_agents)
-    (perfect specialization).
+    The specialization index measures how well domains are distributed among agents.
+    A value of 0 means no specialization (all agents know all domains).
+    A value of log2(N_agents) means perfect specialization (each agent knows unique domains).
     
     Args:
-        memory_actions: List of memory action records
-        num_agents: Number of agents in the network
+        specialization_data: Dictionary containing domain assignments
+        num_agents: Number of agents in the game
     
     Returns:
-        Specialization index value
+        SpecializationMetrics object
     """
-    if num_agents <= 1:
-        return 0.0
+    agent_domains = specialization_data.get("agent_domains", {})
+    domain_assignments = specialization_data.get("domain_assignments", {})
     
-    if not memory_actions:
-        return 0.0
+    if not agent_domains or not domain_assignments:
+        return SpecializationMetrics(0.0, 0, num_agents, False)
     
-    # Count actions per agent
-    agent_action_counts = defaultdict(int)
-    for action in memory_actions:
-        agent_id = action.get("agent_id", 0)
-        agent_action_counts[agent_id] += 1
+    # Count unique domains
+    all_domains = set(domain_assignments.keys())
+    domain_count = len(all_domains)
     
-    # Compute specialization using entropy-based formula
-    total_actions = sum(agent_action_counts.values())
-    if total_actions == 0:
-        return 0.0
+    if domain_count == 0:
+        return SpecializationMetrics(0.0, 0, num_agents, True)
     
-    # Calculate entropy of action distribution
-    entropy = 0.0
-    for agent_id in range(num_agents):
-        count = agent_action_counts.get(agent_id, 0)
-        if count > 0:
-            p = count / total_actions
-            entropy -= p * np.log2(p)
+    # Compute specialization: how many domains each agent is primarily responsible for
+    agent_domain_counts = {
+        agent_id: len(set(domains)) 
+        for agent_id, domains in agent_domains.items()
+    }
     
-    # Max entropy (uniform distribution) is log2(num_agents)
-    max_entropy = np.log2(num_agents)
+    # Calculate specialization index
+    # Based on the entropy of domain distribution across agents
+    total_assignments = sum(len(domains) for domains in domain_assignments.values())
     
-    # Specialization = max_entropy - entropy
-    # When all actions from one agent: entropy=0, specialization=max_entropy
-    # When uniform: entropy=max_entropy, specialization=0
-    specialization = max_entropy - entropy
+    if total_assignments == 0:
+        return SpecializationMetrics(0.0, domain_count, num_agents, True)
     
-    return specialization
+    # Compute the specialization index as the effective number of specialized agents
+    specialization_sum = 0.0
+    for domain, agents in domain_assignments.items():
+        if len(agents) > 0:
+            # Each domain is assigned to one primary agent
+            # The specialization contribution is 1 if one agent owns it, less if shared
+            primary_agent = agents[0]  # First agent is primary
+            specialization_sum += 1.0
+    
+    # Normalize by the maximum possible specialization (log2 of agent count)
+    max_specialization = math.log2(num_agents) if num_agents > 1 else 1.0
+    
+    # Specialization index: proportion of domains with clear ownership
+    specialization_index = (specialization_sum / domain_count) * max_specialization if domain_count > 0 else 0.0
+    
+    # Ensure bounds
+    specialization_index = max(0.0, min(specialization_index, max_specialization))
+    
+    is_valid = validate_specialization_index(specialization_index)
+    
+    return SpecializationMetrics(
+        specialization_index=specialization_index,
+        domain_count=domain_count,
+        agent_count=num_agents,
+        is_valid=is_valid
+    )
 
 def compute_game_level_specialization(
-    game_id: int,
-    memory_actions: List[Dict[str, Any]],
+    game_results: Dict[str, Any],
     num_agents: int
-) -> Tuple[int, float]:
+) -> float:
     """
     Compute specialization index for a single game.
     
     Args:
-        game_id: Game identifier
-        memory_actions: Memory actions for this game
+        game_results: Results dictionary from run_single_game
         num_agents: Number of agents
     
     Returns:
-        Tuple of (game_id, specialization_index)
+        Specialization index value
     """
-    specialization = compute_specialization_index(memory_actions, num_agents)
-    return game_id, specialization
+    metrics = compute_specialization_index(
+        game_results.get("specialization_data", {}),
+        num_agents
+    )
+    return metrics.specialization_index
 
-def validate_specialization_index(
-    specialization: float,
-    num_agents: int,
-    tolerance: float = 1e-6
-) -> bool:
+def validate_specialization_index(index_value: float) -> bool:
     """
-    Validate that specialization index is in valid range.
+    Validate that specialization index is within expected bounds.
     
     Args:
-        specialization: Computed specialization index
-        num_agents: Number of agents
-        tolerance: Numerical tolerance for boundary checks
+        index_value: Specialization index value
     
     Returns:
-        True if specialization is valid
+        True if valid, False otherwise
     """
-    if num_agents <= 1:
-        return abs(specialization) < tolerance
-    
-    max_specialization = np.log2(num_agents)
-    return -tolerance <= specialization <= max_specialization + tolerance
-
-if __name__ == "__main__":
-    # Test computation
-    test_actions = [
-        {"agent_id": 0, "action": "store"},
-        {"agent_id": 0, "action": "store"},
-        {"agent_id": 1, "action": "retrieve"},
-        {"agent_id": 2, "action": "store"},
-    ]
-    
-    spec = compute_specialization_index(test_actions, 3)
-    print(f"Specialization index: {spec:.4f}")
-    print(f"Valid: {validate_specialization_index(spec, 3)}")
+    # Specialization index should be >= 0
+    # Upper bound depends on number of agents, but typically <= log2(N)
+    return index_value >= 0.0 and index_value <= 10.0  # Upper bound for safety

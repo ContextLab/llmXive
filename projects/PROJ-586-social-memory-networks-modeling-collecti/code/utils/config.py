@@ -1,143 +1,143 @@
+"""
+Configuration management for the social memory network experiments.
+"""
 import os
+import yaml
 from pathlib import Path
 from typing import Any, Dict, Optional, Union, List
 from dataclasses import dataclass, field, asdict
-import yaml
-from .logging import get_logger
 
 @dataclass
 class Config:
-    """Configuration for the social memory network experiments."""
+    """Experiment configuration."""
     seed: int = 42
     device: str = "cpu"
-    experiment_name: str = "default_experiment"
-    output_dir: str = "results"
-    data_dir: str = "data"
-    log_file: str = "experiment.log"
-    model_name: str = "facebook/opt-125m"
-    max_context_length: int = 512
-    num_agents: int = 3
+    model_name: str = "opt-125m"
+    num_agents: int = 5
     num_games: int = 1000
-    context_condition: str = "full"  # Options: "full", "limited"
-    limited_context_tokens: int = 256
-    scaling_agent_counts: List[int] = field(default_factory=lambda: [3, 5, 7])
-    scaling_games_per_count: int = 800
-    anova_alpha: float = 0.05
-    power_target: float = 0.80
+    context_condition: str = "full"
+    limited_context_threshold: int = 512
+    output_dir: str = "results"
+    log_dir: str = "logs"
+    data_dir: str = "data"
+    
+    # Memory buffer settings
+    memory_buffer_size: int = 10000
+    memory_action_timeout: float = 5.0
+    
+    # Validation settings
+    min_validation_rate: float = 0.95
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert config to dictionary."""
+        return asdict(self)
 
 class ConfigManager:
     """Manages configuration loading and saving."""
-
-    def __init__(self, config_path: Optional[Union[str, Path]] = None):
-        self._config: Optional[Config] = None
-        self._config_path: Path = Path(config_path) if config_path else Path("code/utils/config.yaml")
-        self._logger = get_logger(__name__)
-
-    def load_config(self) -> Config:
-        """Load configuration from YAML file or create default."""
-        if self._config is not None:
-            return self._config
-
-        if self._config_path.exists():
-            self._logger.info(f"Loading config from {self._config_path}")
-            with open(self._config_path, 'r') as f:
-                data = yaml.safe_load(f)
-                # Handle potential type mismatches from YAML (e.g., list vs tuple)
-                if 'scaling_agent_counts' in data and isinstance(data['scaling_agent_counts'], tuple):
-                    data['scaling_agent_counts'] = list(data['scaling_agent_counts'])
-                self._config = Config(**data)
+    
+    _instance: Optional['ConfigManager'] = None
+    
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+            cls._instance.config: Optional[Config] = None
+        return cls._instance
+    
+    def load_config(self, config_path: Optional[Union[str, Path]] = None) -> Config:
+        """Load configuration from YAML file."""
+        if config_path is None:
+            config_path = Path("code/config.yaml")
         else:
-            self._logger.info(f"Config file not found at {self._config_path}, creating default")
-            self._config = Config()
-            self.save_config()
-
-        return self._config
-
-    def save_config(self, config: Optional[Config] = None) -> None:
+            config_path = Path(config_path)
+        
+        if config_path.exists():
+            with open(config_path, 'r') as f:
+                config_dict = yaml.safe_load(f)
+            self.config = Config(**config_dict)
+        else:
+            # Create default config
+            self.config = Config()
+            self.save_config(config_path)
+        
+        return self.config
+    
+    def save_config(self, config_path: Union[str, Path], config: Optional[Config] = None):
         """Save configuration to YAML file."""
         if config is None:
-            config = self._config
+            config = self.config
             if config is None:
-                config = Config()
-
-        self._config_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(self._config_path, 'w') as f:
-            yaml.dump(dataclass_to_dict(config), f, default_flow_style=False)
-        self._logger.info(f"Saved config to {self._config_path}")
-
-    def reload_config(self) -> Config:
-        """Force reload of configuration from disk."""
-        self._config = None
-        return self.load_config()
-
-    @property
-    def config(self) -> Config:
-        """Get the current configuration."""
-        if self._config is None:
-            return self.load_config()
-        return self._config
+                raise ValueError("No config to save")
+        
+        config_path = Path(config_path)
+        config_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(config_path, 'w') as f:
+            yaml.dump(config.to_dict(), f, default_flow_style=False)
+    
+    def get_config(self) -> Config:
+        """Get current configuration."""
+        if self.config is None:
+            self.load_config()
+        return self.config
+    
+    def update_config(self, updates: Dict[str, Any]):
+        """Update configuration with new values."""
+        if self.config is None:
+            self.load_config()
+        
+        for key, value in updates.items():
+            if hasattr(self.config, key):
+                setattr(self.config, key, value)
+    
+    def reload_config(self, config_path: Optional[Union[str, Path]] = None):
+        """Reload configuration from file."""
+        self.config = None
+        return self.load_config(config_path)
 
 # Global config manager instance
-_global_config_manager: Optional[ConfigManager] = None
+_config_manager: Optional[ConfigManager] = None
 
 def get_config_manager() -> ConfigManager:
-    """Get or create the global config manager."""
-    global _global_config_manager
-    if _global_config_manager is None:
-        _global_config_manager = ConfigManager()
-    return _global_config_manager
+    """Get the global config manager instance."""
+    global _config_manager
+    if _config_manager is None:
+        _config_manager = ConfigManager()
+    return _config_manager
 
 def get_config() -> Config:
     """Get the current configuration."""
-    return get_config_manager().config
+    return get_config_manager().get_config()
 
 def load_config(config_path: Optional[Union[str, Path]] = None) -> Config:
-    """Load configuration from a specific path."""
-    manager = ConfigManager(config_path)
-    return manager.load_config()
+    """Load configuration from file."""
+    return get_config_manager().load_config(config_path)
 
-def save_config(config: Optional[Config] = None, config_path: Optional[Union[str, Path]] = None) -> None:
-    """Save configuration to a specific path."""
-    manager = ConfigManager(config_path)
-    manager.save_config(config)
+def save_config(config_path: Union[str, Path], config: Optional[Config] = None):
+    """Save configuration to file."""
+    get_config_manager().save_config(config_path, config)
 
-def reload_config() -> Config:
-    """Reload configuration from disk."""
-    return get_config_manager().reload_config()
+def reload_config(config_path: Optional[Union[str, Path]] = None):
+    """Reload configuration from file."""
+    return get_config_manager().reload_config(config_path)
 
 def get(key: str, default: Any = None) -> Any:
-    """Get a specific config value by key."""
+    """Get a configuration value by key."""
     config = get_config()
     return getattr(config, key, default)
 
-def set_config(key: str, value: Any) -> None:
-    """Set a specific config value."""
-    config = get_config()
-    if hasattr(config, key):
-        setattr(config, key, value)
-        get_config_manager().save_config(config)
-    else:
-        raise ValueError(f"Invalid config key: {key}")
+def set_config(config: Config):
+    """Set the global configuration."""
+    get_config_manager().config = config
 
-def dataclass_to_dict(obj: Any) -> Dict[str, Any]:
-    """Convert a dataclass instance to a dictionary."""
-    result = {}
-    for field_name in obj.__dataclass_fields__:
-        value = getattr(obj, field_name)
-        if isinstance(value, list):
-            result[field_name] = value
-        elif hasattr(value, '__dataclass_fields__'):
-            result[field_name] = dataclass_to_dict(value)
-        else:
-            result[field_name] = value
-    return result
+def dataclass_to_dict(obj) -> Dict[str, Any]:
+    """Convert a dataclass to a dictionary."""
+    return asdict(obj)
 
 def create_default_config() -> Config:
-    """Create a default configuration."""
+    """Create and return a default configuration."""
     return Config()
 
-def ensure_config_exists() -> Path:
+def ensure_config_exists(config_path: Optional[Union[str, Path]] = None) -> Config:
     """Ensure config file exists, creating it if necessary."""
     manager = get_config_manager()
-    manager.load_config()
-    return manager._config_path
+    return manager.load_config(config_path)
