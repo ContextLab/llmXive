@@ -1,0 +1,71 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Result Schema
+description: Schema for final analysis results including contagion index and decision quality metrics.
+type: object
+required:
+  - thread_id
+  - contagion_index
+  - sentiment_slope
+  - decision_metrics
+properties:
+  thread_id:
+    type: string
+    description: Unique identifier for the thread.
+  subreddit:
+    type: string
+    description: Source subreddit.
+  seed_sentiment:
+    type: number
+    description: Average sentiment of seed posts.
+  sentiment_slope:
+    type: number
+    description: Slope of the linear regression of sentiment vs. position in the thread.
+  contagion_index:
+    type: number
+    description: Pearson correlation between seed sentiment and sentiment slope.
+  decision_metrics:
+    type: object
+    description: Metrics related to decision quality.
+    required:
+      - agreement_proportion
+      - entropy
+      - time_to_decision
+      - thread_length
+    properties:
+      agreement_proportion:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: Proportion of comments agreeing with the seed sentiment direction.
+      entropy:
+        type: number
+        description: Shannon entropy of sentiment distribution.
+      time_to_decision:
+        type: ["number", "null"]
+        description: Time taken to reach a decision threshold (if applicable).
+      thread_length:
+        type: integer
+        description: Total number of comments in the thread.
+      ground_truth_valid:
+        type: ["boolean", "null"]
+        description: Whether ground truth was available for validation.
+      external_validation_score:
+        type: ["number", "null"]
+        description: Accuracy of consensus vs. ground truth.
+  statistical_significance:
+    type: object
+    description: Results of statistical testing.
+    properties:
+      p_value:
+        type: number
+      is_significant:
+        type: boolean
+      correction_method:
+        type: ["string", "null"]
+        description: Method used for multiple comparison correction (e.g., 'bonferroni').
+  exclusion_reason:
+    type: ["string", "null"]
+    description: Reason for exclusion if the thread was not analyzed (e.g., 'INSUFFICIENT_REPLIES').
+  processed_timestamp:
+    type: number
+    description: Unix timestamp of when this result was generated.

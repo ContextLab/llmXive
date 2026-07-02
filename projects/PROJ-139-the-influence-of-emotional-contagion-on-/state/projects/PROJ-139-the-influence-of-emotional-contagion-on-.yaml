@@ -1,0 +1,31 @@
+project_id: PROJ-139-the-influence-of-emotional-contagion-on-
+name: The Influence of Emotional Contagion on Collective Decision-Making in Online Forums
+status: active
+created_at: 2023-10-27T10:00:00Z
+last_updated: 2023-10-27T10:00:00Z
+
+# Infrastructure for artifact tracking
+artifact_hashes:
+  # This section will be populated by the pipeline as artifacts are generated
+  # Format: {relative_path}: {sha256_hash}
+  examples:
+    - path: data/raw/threads.json
+      hash: "pending_generation"
+    - path: data/processed/seed_posts.csv
+      hash: "pending_generation"
+    - path: code/utils/logging_config.py
+      hash: "pending_generation"
+
+logging_config:
+  directory: state/logs
+  rotation_max_bytes: 10485760
+  backup_count: 5
+  level: INFO
+
+checkpoints:
+  - id: foundation_ready
+    description: "Phase 2 complete - user story implementation can begin"
+    status: pending
+    tasks:
+      - T005
+      - T006
