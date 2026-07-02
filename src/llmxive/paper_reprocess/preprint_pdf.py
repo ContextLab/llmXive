@@ -119,7 +119,17 @@ def build_cover_tex(
 ) -> str:
     """Return the LaTeX for a single ``llmxive.cls`` cover/info page."""
     title = tex_escape(str(metadata.get("title") or "Untitled preprint").strip())
-    authors = [str(a).strip() for a in (metadata.get("authors") or []) if str(a).strip()]
+
+    # Authors may be plain strings or ``{"name": ..., "kind": ...}`` records
+    # (the intake stores the richer form). Render only the display name — never
+    # the raw dict repr, which would dump ``{'name': 'X', 'kind': 'human'}`` onto
+    # the cover byline.
+    def _author_name(a: object) -> str:
+        if isinstance(a, dict):
+            return str(a.get("name") or a.get("author") or a.get("full_name") or "").strip()
+        return str(a).strip()
+
+    authors = [n for a in (metadata.get("authors") or []) if (n := _author_name(a))]
     author_line = tex_escape(", ".join(authors)) if authors else "Original authors"
     abstract = tex_escape(str(metadata.get("abstract") or "").strip())
     src_url = str(metadata.get("arxiv_url") or metadata.get("source_url") or "").strip()
