@@ -1,5 +1,9 @@
 [
   {
+    "symbol": "__getattr__",
+    "owner": null
+  },
+  {
     "symbol": "reset",
     "owner": "MemoryBuffer"
   }

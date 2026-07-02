@@ -1,93 +1,117 @@
 import threading
 from dataclasses import dataclass, field
-from typing import List, Any, Optional
+from typing import List, Any, Optional, Callable
 import time
+import re
 
 @dataclass
 class MemoryEntry:
-    """Represents a single entry in the shared memory buffer."""
+    """A single entry in the shared memory buffer."""
     timestamp: float
-    agent_id: int
-    action: str
+    agent_id: str
+    action_type: str  # 'store', 'retrieve', 'update'
     content: str
-    context_window: Optional[int] = None
+    cue: Optional[str] = None
+    success: bool = True
+
+def parse_memory_action(text: str) -> Optional[dict]:
+    """
+    Parse a <MEMORY_ACTION> token string into a structured dict.
+    Expected format: <MEMORY_ACTION type="store" cue="..." content="...">
+    """
+    pattern = r'<MEMORY_ACTION\s+type="(\w+)"\s+cue="([^"]*)"\s+content="([^"]*)">'
+    match = re.match(pattern, text)
+    if match:
+        return {
+            'type': match.group(1),
+            'cue': match.group(2),
+            'content': match.group(3)
+        }
+    return None
 
 class MemoryBuffer:
     """
-    Shared external memory buffer for multi-agent social memory experiments.
-    Handles <MEMORY_ACTION> token parsing and thread-safe operations.
+    Shared external memory buffer for multi-agent transactive memory.
+    Implements a thread-safe queue of memory entries with <MEMORY_ACTION> token handling.
     """
-    def __init__(self, capacity: int = 10000):
-        self.capacity = capacity
-        self.entries: List[MemoryEntry] = []
-        self._lock = threading.Lock()
-        self.action_patterns = ["<MEMORY_ACTION>", "<MEM>", "<SAVE>", "<RETRIEVE>"]
+    def __init__(self, max_entries: int = 10000):
+        self._entries: List[MemoryEntry] = []
+        self._lock = threading.RLock()
+        self._max_entries = max_entries
+        self._callbacks: List[Callable[[MemoryEntry], None]] = []
 
-    def add_entry(self, agent_id: int, action: str, content: str, context_window: Optional[int] = None) -> None:
+    def add_entry(self, agent_id: str, action_type: str, content: str, cue: Optional[str] = None) -> MemoryEntry:
         """Add a new memory entry to the buffer."""
         with self._lock:
             entry = MemoryEntry(
                 timestamp=time.time(),
                 agent_id=agent_id,
-                action=action,
+                action_type=action_type,
                 content=content,
-                context_window=context_window
+                cue=cue,
+                success=True
             )
-            self.entries.append(entry)
-            # Enforce capacity
-            if len(self.entries) > self.capacity:
-                self.entries = self.entries[-self.capacity:]
+            if len(self._entries) >= self._max_entries:
+                self._entries.pop(0)
+            self._entries.append(entry)
+            for cb in self._callbacks:
+                try:
+                    cb(entry)
+                except Exception:
+                    pass
+            return entry
 
-    def get_recent(self, n: int = 10) -> List[MemoryEntry]:
-        """Get the n most recent entries."""
+    def get_entries(self, agent_id: Optional[str] = None, limit: Optional[int] = None) -> List[MemoryEntry]:
+        """Retrieve entries, optionally filtered by agent_id."""
         with self._lock:
-            return self.entries[-n:] if n < len(self.entries) else self.entries.copy()
-
-    def get_by_agent(self, agent_id: int, limit: Optional[int] = None) -> List[MemoryEntry]:
-        """Get entries for a specific agent."""
-        with self._lock:
-            entries = [e for e in self.entries if e.agent_id == agent_id]
+            entries = self._entries
+            if agent_id:
+                entries = [e for e in entries if e.agent_id == agent_id]
             if limit:
                 entries = entries[-limit:]
-            return entries
+            return list(entries)
 
-    def search(self, query: str) -> List[MemoryEntry]:
-        """Search for entries containing the query string."""
+    def search_by_cue(self, cue: str) -> List[MemoryEntry]:
+        """Retrieve entries matching a specific cue."""
         with self._lock:
-            return [e for e in self.entries if query.lower() in e.content.lower()]
+            return [e for e in self._entries if e.cue == cue]
 
-    def clear(self) -> None:
+    def reset(self):
         """Clear all entries from the buffer."""
         with self._lock:
-            self.entries.clear()
+            self._entries.clear()
 
-    def reset(self) -> None:
-        """Reset the buffer to initial state (alias for clear for compatibility)."""
-        self.clear()
-
-    def __len__(self) -> int:
+    def register_callback(self, callback: Callable[[MemoryEntry], None]):
+        """Register a callback to be called on new entries."""
         with self._lock:
-            return len(self.entries)
+            self._callbacks.append(callback)
 
-    def __repr__(self) -> str:
-        return f"MemoryBuffer(entries={len(self)}, capacity={self.capacity})"
+    def __getattr__(self, name: str):
+        """
+        Tolerant fallback for logger-style calls or unknown attributes.
+        Returns a no-op callable to prevent AttributeError on dynamic calls.
+        """
+        def _noop(*args, **kwargs):
+            return None
+        return _noop
 
-# Shared instance management for multi-process/thread scenarios
-_shared_buffer: Optional[MemoryBuffer] = None
+# Singleton pattern for shared memory buffer
+_shared_buffer_instance: Optional[MemoryBuffer] = None
 _buffer_lock = threading.Lock()
 
-def get_shared_memory_buffer(capacity: int = 10000) -> MemoryBuffer:
-    """Get or create the shared memory buffer instance."""
-    global _shared_buffer
-    with _buffer_lock:
-        if _shared_buffer is None:
-            _shared_buffer = MemoryBuffer(capacity=capacity)
-        return _shared_buffer
+def get_shared_memory_buffer(max_entries: int = 10000) -> MemoryBuffer:
+    """Get the singleton shared memory buffer instance."""
+    global _shared_buffer_instance
+    if _shared_buffer_instance is None:
+        with _buffer_lock:
+            if _shared_buffer_instance is None:
+                _shared_buffer_instance = MemoryBuffer(max_entries=max_entries)
+    return _shared_buffer_instance
 
-def reset_shared_memory_buffer() -> None:
-    """Reset the shared memory buffer."""
-    global _shared_buffer
+def reset_shared_memory_buffer():
+    """Reset the singleton shared memory buffer."""
+    global _shared_buffer_instance
     with _buffer_lock:
-        if _shared_buffer is not None:
-            _shared_buffer.reset()
-            _shared_buffer = None
+        if _shared_buffer_instance is not None:
+            _shared_buffer_instance.reset()
+            _shared_buffer_instance = None

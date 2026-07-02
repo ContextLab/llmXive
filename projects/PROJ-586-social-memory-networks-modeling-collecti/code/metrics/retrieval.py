@@ -1,116 +1,96 @@
-"""
-Retrieval efficiency computation for social memory networks.
-"""
 import numpy as np
 from typing import List, Dict, Any, Optional, Tuple
 from dataclasses import dataclass
 
 @dataclass
 class RetrievalMetrics:
-    """Container for retrieval metrics."""
+    """Metrics for retrieval efficiency."""
     retrieval_efficiency: float
-    total_attempts: int
-    successful_retrievals: int
-    is_valid: bool
+    success_rate: float
+    baseline: float
 
-def compute_retrieval_rate(
-    retrieval_events: List[Dict[str, Any]]
-) -> float:
+def compute_retrieval_rate(successes: List[int], total_attempts: int) -> float:
     """
-    Compute the raw retrieval rate (successes / attempts).
+    Compute raw retrieval success rate.
     
     Args:
-        retrieval_events: List of retrieval event dictionaries
-    
+        successes: List of 1 (success) or 0 (failure)
+        total_attempts: Total number of attempts
+        
     Returns:
-        Retrieval rate between 0 and 1
+        Success rate (0.0 to 1.0)
     """
-    if not retrieval_events:
+    if total_attempts == 0:
+        return 0.0
+    return sum(successes) / total_attempts
+
+def compute_retrieval_efficiency(successes: List[int], agent_count: int) -> float:
+    """
+    Compute retrieval efficiency relative to random baseline.
+    
+    The baseline is 1/N_agents (random guessing).
+    Efficiency = (actual_rate - baseline) / (1 - baseline)
+    Range: 0 (baseline) to 1 (perfect)
+    
+    Args:
+        successes: List of 1 (success) or 0 (failure)
+        agent_count: Number of agents
+        
+    Returns:
+        Retrieval efficiency (0.0 to 1.0)
+    """
+    if not successes:
         return 0.0
     
-    successful = sum(1 for event in retrieval_events if event.get("success", False))
-    return successful / len(retrieval_events)
-
-def compute_retrieval_efficiency(
-    retrieval_events: List[Dict[str, Any]],
-    num_agents: int
-) -> RetrievalMetrics:
-    """
-    Compute retrieval efficiency relative to baseline.
+    total = len(successes)
+    actual_rate = sum(successes) / total
+    baseline = 1.0 / agent_count if agent_count > 0 else 0.0
     
-    The baseline is 1/N_agents (random chance). Efficiency measures
-    how much better the system performs compared to random guessing.
+    if baseline >= 1.0:
+        return 1.0 if actual_rate >= baseline else 0.0
+    
+    # Normalize relative to baseline
+    # If actual == baseline, efficiency = 0
+    # If actual == 1.0, efficiency = 1
+    if actual_rate <= baseline:
+        return 0.0
+    
+    efficiency = (actual_rate - baseline) / (1.0 - baseline)
+    return max(0.0, min(1.0, efficiency))
+
+def validate_retrieval_efficiency(efficiency: float) -> bool:
+    """
+    Validate retrieval efficiency is in valid range.
     
     Args:
-        retrieval_events: List of retrieval event dictionaries
-        num_agents: Number of agents in the system
+        efficiency: The computed efficiency
+        
+    Returns:
+        True if valid
+    """
+    return 0.0 <= efficiency <= 1.0
+
+def compute_game_level_retrieval(game_data: Dict[str, Any]) -> RetrievalMetrics:
+    """
+    Compute retrieval metrics for a single game.
     
+    Args:
+        game_data: Dictionary containing game state
+        
     Returns:
         RetrievalMetrics object
     """
-    if not retrieval_events:
-        return RetrievalMetrics(0.0, 0, 0, True)
+    turns = game_data.get('turns', [])
+    successes = [1 if t.get('success') else 0 for t in turns if t.get('action') == 'retrieve']
+    total_retrievals = len([t for t in turns if t.get('action') == 'retrieve'])
     
-    total_attempts = len(retrieval_events)
-    successful_retrievals = sum(1 for event in retrieval_events if event.get("success", False))
-    
-    # Compute raw success rate
-    success_rate = successful_retrievals / total_attempts if total_attempts > 0 else 0.0
-    
-    # Compute baseline (random chance)
-    baseline = 1.0 / num_agents if num_agents > 0 else 0.0
-    
-    # Efficiency: how many times better than baseline
-    if baseline > 0:
-        efficiency = success_rate / baseline
-    else:
-        efficiency = 0.0 if success_rate == 0.0 else 1.0
-    
-    # Normalize to 0-1 range for reporting
-    # Maximum possible efficiency is num_agents (if everyone retrieves everything)
-    max_efficiency = float(num_agents)
-    normalized_efficiency = min(efficiency / max_efficiency, 1.0) if max_efficiency > 0 else 0.0
-    
-    is_valid = validate_retrieval_efficiency(normalized_efficiency, num_agents)
+    success_rate = compute_retrieval_rate(successes, total_retrievals)
+    agent_count = game_data.get('config', {}).get('num_agents', 1)
+    efficiency = compute_retrieval_efficiency(successes, agent_count)
+    baseline = 1.0 / agent_count if agent_count > 0 else 0.0
     
     return RetrievalMetrics(
-        retrieval_efficiency=normalized_efficiency,
-        total_attempts=total_attempts,
-        successful_retrievals=successful_retrievals,
-        is_valid=is_valid
+        retrieval_efficiency=efficiency,
+        success_rate=success_rate,
+        baseline=baseline
     )
-
-def validate_retrieval_efficiency(
-    efficiency_value: float,
-    num_agents: int
-) -> bool:
-    """
-    Validate that retrieval efficiency is within expected bounds.
-    
-    Args:
-        efficiency_value: Retrieval efficiency value
-        num_agents: Number of agents
-    
-    Returns:
-        True if valid, False otherwise
-    """
-    # Efficiency should be between 0 and 1
-    return 0.0 <= efficiency_value <= 1.0
-
-def compute_game_level_retrieval(
-    game_results: Dict[str, Any],
-    num_agents: int
-) -> float:
-    """
-    Compute retrieval efficiency for a single game.
-    
-    Args:
-        game_results: Results dictionary from run_single_game
-        num_agents: Number of agents
-    
-    Returns:
-        Retrieval efficiency value
-    """
-    retrieval_events = game_results.get("retrieval_events", [])
-    metrics = compute_retrieval_efficiency(retrieval_events, num_agents)
-    return metrics.retrieval_efficiency

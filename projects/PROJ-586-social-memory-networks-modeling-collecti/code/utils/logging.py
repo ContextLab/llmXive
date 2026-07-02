@@ -1,36 +1,48 @@
-"""
-utils/logging.py
------------------
-
-Simple wrapper around the standard library ``logging`` module that configures
-a file‑based logger used by the experiment scripts.  The original implementation
-already existed; this file is included here to guarantee that the import
-``from utils.logging import setup_logger`` works without modification.
-"""
-
 import logging
+import time
 from pathlib import Path
 from typing import Optional
 
-def setup_logger(log_file: Path | str, level: int = logging.INFO) -> logging.Logger:
+def setup_experiment_logging(log_path: str = "experiment.log") -> logging.Logger:
     """
-    Configure and return a logger that writes to ``log_file``.
-    The logger is singleton‑style – repeated calls return the same instance.
+    Configure error logging with timestamps to the specified log file.
     """
-    log_path = Path(log_file)
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-
-    logger = logging.getLogger("experiment_logger")
-    logger.setLevel(level)
-
-    # Prevent adding multiple handlers if ``setup_logger`` is called repeatedly
-    if not logger.handlers:
-        formatter = logging.Formatter(
-            fmt="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-            datefmt="%Y-%m-%d %H:%M:%S",
-        )
-        file_handler = logging.FileHandler(log_path, mode="a", encoding="utf-8")
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
-
+    # Ensure directory exists
+    Path(log_path).parent.mkdir(parents=True, exist_ok=True)
+    
+    # Create logger
+    logger = logging.getLogger("experiment")
+    logger.setLevel(logging.INFO)
+    
+    # Clear existing handlers
+    logger.handlers.clear()
+    
+    # File handler with timestamp
+    file_handler = logging.FileHandler(log_path)
+    file_handler.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
+    
+    # Console handler
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)
+    console_handler.setFormatter(formatter)
+    logger.addHandler(console_handler)
+    
     return logger
+
+def log_error(logger: logging.Logger, message: str, exception: Optional[Exception] = None):
+    """Log an error with optional exception details."""
+    if exception:
+        logger.error(f"{message}: {str(exception)}")
+    else:
+        logger.error(message)
+
+def log_info(logger: logging.Logger, message: str):
+    """Log an informational message."""
+    logger.info(message)
+
+def log_warning(logger: logging.Logger, message: str):
+    """Log a warning message."""
+    logger.warning(message)
