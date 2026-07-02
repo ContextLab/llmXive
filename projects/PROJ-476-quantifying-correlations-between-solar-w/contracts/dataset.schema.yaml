@@ -1,0 +1,33 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Synced Solar Wind Dataset
+description: >
+  Schema for the synchronized solar wind and geomagnetic dataset.
+  Contains hourly aligned data for ACE composition and NOAA indices.
+type: object
+properties:
+  timestamp:
+    type: string
+    format: date-time
+    description: UTC timestamp of the observation
+  N_p:
+    type: number
+    description: Proton density (cm^-3)
+  T_p:
+    type: number
+    description: Proton temperature (K)
+  He2+_ratio:
+    type: number
+    description: Helium abundance ratio (He2+/H+)
+  Kp:
+    type: number
+    description: Planetary K-index
+  Dst:
+    type: number
+    description: Disturbance Storm Time index (nT)
+required:
+  - timestamp
+  - N_p
+  - T_p
+  - He2+_ratio
+  - Kp
+  - Dst

@@ -1,0 +1,28 @@
+? 'T004 [P] Create `code/config.py` as a Python constants module. **MUST define**
+  the following constants with exact values: `TRAIN_START=1998`, `TRAIN_END=2017`,
+  `TEST_START=2018`, `TEST_END=2020`, `{{claim:c_0c2f0e5c}}`, `NOAA_VARS=[''Kp'',
+  ''Dst''] `. **MUST explicitly document** that `TRAIN_START` to `TEST_END` covers
+  the full 20-year span (1998-2020) referenced in SC-001 for the "full 20-year lagged
+  correlation analysis" performance benchmark, while `TRAIN_START` to `TRAIN_END`
+  is the subset used for model fitting. All downstream tasks MUST import these constants
+  from `code.config`.'
+: 2
+? "T009 [P] [US1] Unit test for interpolation logic in `code/tests/test_align.py`.\
+  \ **Function name**: `test_align_interpolates_small_gaps_warns_large`. Verify gap\
+  \ \u2264 6h fills, > 6h warns."
+: 2
+? 'T010 [US1] **Write** Integration test for full month download in `code/tests/test_pipeline.py`.
+  **Function name**: `test_pipeline_monthly_sync`. **MUST use a real (small) subset
+  of the actual NOAA/ACE data download (not mocked)** to verify `data/processed/synced.csv`
+  structure. Verify `data/processed/synced.csv` conforms to `contracts/dataset.schema.yaml`.
+  **Note**: This task is for WRITING the test code. The test is **executed** only
+  after T013 (align.py) is complete.'
+: 1
+? 'T011 [P] [US1] Implement logic in `code/data/fetch.py` (populating the existing
+  stub) to download ACE Level 2 (SWEPAM/SWICS) and NOAA Kp/Dst. **MUST implement**
+  `fetch_ace` and `fetch_noaa` with `start_date`, `end_date` parameters. **MUST use
+  verified URLs**: ACE (https://cdaweb.gsfc.nasa.gov/pub/data/ace/) and NOAA (https://www.ngdc.noaa.gov/stp/space-weather/).'
+: 1
+? T013 [US1] Implement `code/data/align.py` to resample to 1-hour UTC grid. **MUST**
+  read from `data/raw/` and write to `data/processed/synced.csv`.
+: 1

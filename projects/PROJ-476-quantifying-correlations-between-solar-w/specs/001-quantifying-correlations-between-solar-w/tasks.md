@@ -20,39 +20,39 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 [P] Create project structure for code directories using exact command: `mkdir -p code/data code/analysis code/viz code/tests artifacts/figures artifacts/reports state/`.
-- [ ] T001b [P] Create project structure for artifacts and state directories (included in T001).
-- [ ] T002 [P] Initialize Python 3.11 project by creating `code/requirements.txt` with the exact command: `echo -e "pandas>=2.0\nnumpy>=1.24\nscipy>=1.11\nstatsmodels>=0.14\nmatplotlib>=3.8\nrequests>=2.31\npyyaml>=6.0\npytest>=7.4\ntqdm>=4.66" > code/requirements.txt`.
-- [ ] T003 [P] Configure linting and formatting by creating `pyproject.toml` and `.ruff.toml` using exact commands:
-  1. `cat > pyproject.toml << 'EOF'
+- [X] T001 [P] Create project structure for code directories using exact command: `mkdir -p code/data code/analysis code/viz code/tests artifacts/figures artifacts/reports state/`.
+- [X] T001b [P] Create project structure for artifacts and state directories (included in T001).
+- [X] T002 [P] Initialize Python 3.11 project by creating `code/requirements.txt` with the exact command: `echo -e "pandas>=2.0\nnumpy>=1.24\nscipy>=1.11\nstatsmodels>=0.14\nmatplotlib>=3.8\nrequests>=2.31\npyyaml>=6.0\npytest>=7.4\ntqdm>=4.66" > code/requirements.txt`.
+- [X] T003 [P] Configure linting and formatting by creating `pyproject.toml` and `.ruff.toml` using exact commands:
+ 1. `cat > pyproject.toml << 'EOF'
 [tool.black]
 line-length = 88
 target-version = ['py311']
 EOF`
-  2. `cat > .ruff.toml << 'EOF'
+ 2. `cat >.ruff.toml << 'EOF'
 target-version = "py311"
 line-length = 88
 [lint]
@@ -67,19 +67,19 @@ EOF`
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Create `code/config.py` as a Python constants module. **MUST define** the following constants with exact values: `TRAIN_START=1998`, `TRAIN_END=2017`, `TEST_START=2018`, `TEST_END=2020`, `ACE_VARS=['N_p', 'T_p', 'He2+_ratio']`, `NOAA_VARS=['Kp', 'Dst']`. **MUST explicitly document** that `TRAIN_START` to `TEST_END` covers the full 20-year span (1998-2020) referenced in SC-001 for the "full 20-year lagged correlation analysis" performance benchmark, while `TRAIN_START` to `TRAIN_END` is the subset used for model fitting. All downstream tasks MUST import these constants from `code.config`.
-- [ ] T005 [P] Create `code/data/fetch.py` as a **stub file** containing empty function signatures: `fetch_ace(start_date, end_date) -> str` returning `data/raw/ace_raw.csv` and `fetch_noaa(start_date, end_date) -> str` returning `data/raw/noaa_raw.csv`. Do not implement logic yet.
-- [ ] T006 [P] Setup logging infrastructure in `code/__init__.py` by creating a logger named 'solar_wind' with level 'INFO' and a StreamHandler. **MUST use the following exact code snippet**:
-  ```python
-  import logging
-  logger = logging.getLogger('solar_wind')
-  logger.setLevel(logging.INFO)
-  handler = logging.StreamHandler()
-  formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-  handler.setFormatter(formatter)
-  logger.addHandler(handler)
-  ```
-- [ ] T007 [P] Create base data validation logic in `code/data/validate.py` as a **stub file**. **MUST import** `ACE_VARS` and `NOAA_VARS` from `code.config`. **MUST define** a function `validate_columns(df: pd.DataFrame, required_cols: list) -> None` that raises `ValueError` with the exact message "Missing required variable: <name>" if any column in `required_cols` is missing. Do not implement the abort logic yet; this task creates the file structure and imports.
+- [ ] T004 [P] Create `code/config.py` as a Python constants module. **MUST define** the following constants with exact values: `TRAIN_START=1998`, `TRAIN_END=2017`, `TEST_START=2018`, `TEST_END=2020`, `{{claim:c_0c2f0e5c}}`, `NOAA_VARS=['Kp', 'Dst'] `. **MUST explicitly document** that `TRAIN_START` to `TEST_END` covers the full 20-year span (1998-2020) referenced in SC-001 for the "full 20-year lagged correlation analysis" performance benchmark, while `TRAIN_START` to `TRAIN_END` is the subset used for model fitting. All downstream tasks MUST import these constants from `code.config`.
+- [X] T005 [P] Create `code/data/fetch.py` as a **stub file** containing empty function signatures: `fetch_ace(start_date, end_date) -> str` returning `data/raw/ace_raw.csv` and `fetch_noaa(start_date, end_date) -> str` returning `data/raw/noaa_raw.csv`. Do not implement logic yet.
+- [X] T006 [P] Setup logging infrastructure in `code/__init__.py` by creating a logger named 'solar_wind' with level 'INFO' and a StreamHandler. **MUST use the following exact code snippet**:
+ ```python
+ import logging
+ logger = logging.getLogger('solar_wind')
+ logger.setLevel(logging.INFO)
+ handler = logging.StreamHandler()
+ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+ handler.setFormatter(formatter)
+ logger.addHandler(handler)
+ ```
+- [X] T007 [P] Create base data validation logic in `code/data/validate.py` as a **stub file**. **MUST import** `ACE_VARS` and `NOAA_VARS` from `code.config`. **MUST define** a function `validate_columns(df: pd.DataFrame, required_cols: list) -> None` that raises `ValueError` with the exact message "Missing required variable: <name>" if any column in `required_cols` is missing. Do not implement the abort logic yet; this task creates the file structure and imports.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -95,18 +95,18 @@ EOF`
 
 > **NOTE**: Write these tests FIRST (Test-First approach). They are written before implementation but **executed** only after T011/T012 are complete.
 
-- [ ] T008 [P] [US1] Unit test for variable validation in `code/tests/test_validate.py`. **Function name**: `test_fetch_aborts_on_missing_he2plus`. **MUST use** `pytest.raises(ValueError, match="Missing required variable: He2+_ratio")` to verify abort on missing `He2+_ratio` in source file.
+- [X] T008 [P] [US1] Unit test for variable validation in `code/tests/test_validate.py`. **Function name**: `test_fetch_aborts_on_missing_he2plus`. **MUST use** `pytest.raises(ValueError, match="Missing required variable: He2+_ratio")` to verify abort on missing `He2+_ratio` in source file.
 - [ ] T009 [P] [US1] Unit test for interpolation logic in `code/tests/test_align.py`. **Function name**: `test_align_interpolates_small_gaps_warns_large`. Verify gap ≤ 6h fills, > 6h warns.
 - [ ] T010 [US1] **Write** Integration test for full month download in `code/tests/test_pipeline.py`. **Function name**: `test_pipeline_monthly_sync`. **MUST use a real (small) subset of the actual NOAA/ACE data download (not mocked)** to verify `data/processed/synced.csv` structure. Verify `data/processed/synced.csv` conforms to `contracts/dataset.schema.yaml`. **Note**: This task is for WRITING the test code. The test is **executed** only after T013 (align.py) is complete.
 
 ### Implementation for User Story 1
 
 - [ ] T011 [P] [US1] Implement logic in `code/data/fetch.py` (populating the existing stub) to download ACE Level 2 (SWEPAM/SWICS) and NOAA Kp/Dst. **MUST implement** `fetch_ace` and `fetch_noaa` with `start_date`, `end_date` parameters. **MUST use verified URLs**: ACE (https://cdaweb.gsfc.nasa.gov/pub/data/ace/) and NOAA (https://www.ngdc.noaa.gov/stp/space-weather/).
-- [ ] T012 [US1] Implement `code/data/validate.py` to abort with clear error if `N_p`, `T_p`, or `He2+_ratio` are missing (FR-006). **MUST explicitly check the actual headers of the downloaded file against the hardcoded list and abort if they don't match**. **MUST verify source file column names against ACE Level 2 names ('N_p', 'T_p', 'He2+_ratio') BEFORE mapping**. **MUST log the specific missing variable name** (e.g., "Missing variable: He2+_ratio") in the abort message to satisfy SC-002. **MUST raise** `ValueError` with the exact message format defined in T007.
+- [X] T012 [US1] Implement `code/data/validate.py` to abort with clear error if `N_p`, `T_p`, or `He2+_ratio` are missing (FR-006). **MUST explicitly check the actual headers of the downloaded file against the hardcoded list and abort if they don't match**. **MUST verify source file column names against ACE Level 2 names ('N_p', 'T_p', 'He2+_ratio') BEFORE mapping**. **MUST log the specific missing variable name** (e.g., "Missing variable: He2+_ratio") in the abort message to satisfy SC-002. **MUST raise** `ValueError` with the exact message format defined in T007.
 - [ ] T013 [US1] Implement `code/data/align.py` to resample to 1-hour UTC grid. **MUST** read from `data/raw/` and write to `data/processed/synced.csv`.
-- [ ] T014 [US1] Implement linear interpolation in `code/data/align.py` for gaps ≤ 6h (FR-002). **MUST** log interpolated intervals.
-- [ ] T015 [US1] Add logging for interpolated intervals in `code/data/align.py`.
-- [ ] T016 [US1] Create `code/main.py` entry point to orchestrate US1 pipeline (download → validate → sync).
+- [~] T014 [US1] Implement linear interpolation in `code/data/align.py` for gaps ≤ 6h (FR-002). **MUST** log interpolated intervals.
+- [~] T015 [US1] Add logging for interpolated intervals in `code/data/align.py`.
+- [~] T016 [US1] Create `code/main.py` entry point to orchestrate US1 pipeline (download → validate → sync).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -122,18 +122,18 @@ EOF`
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
-- [ ] T017 [P] [US2] Unit test for Neff calculation in `code/tests/test_correlation.py`. **Function name**: `test_correlation_neff_formula`. **MUST use formula** $N_{eff} = N \frac{1-\rho_1}{1+\rho_1}$ with synthetic data (e.g., N=100, rho=0.9) and verify expected result. **MUST include code snippet for synthetic data generation**: `np.random.RandomState(42).randn(100)`. **MUST verify that the detrending step (`scipy.signal.detrend`) is applied before calculating rho_1**.
-- [ ] T018 [P] [US2] Unit test for Bonferroni correction in `code/tests/test_correlation.py`. **Function name**: `test_correlation_bonferroni_divisor`. Verify α_adj = 0.05/30 (fixed global divisor).
-- [ ] T019 [US2] Integration test for full correlation run in `code/tests/test_pipeline.py`. **Function name**: `test_pipeline_correlation_full_run`. Verify `data/processed/correlation_results.csv` has 30 rows if all vars present, or fewer if missing.
+- [~] T017 [P] [US2] Unit test for Neff calculation in `code/tests/test_correlation.py`. **Function name**: `test_correlation_neff_formula`. **MUST use formula** $N_{eff} = N \frac{1-\rho_1}{1+\rho_1}$ with synthetic data (e.g., N=100, rho=0.9) and verify expected result. **MUST include code snippet for synthetic data generation**: `np.random.RandomState(42).randn(100)`. **MUST verify that the detrending step (`scipy.signal.detrend`) is applied before calculating rho_1**.
+- [~] T018 [P] [US2] Unit test for Bonferroni correction in `code/tests/test_correlation.py`. **Function name**: `test_correlation_bonferroni_divisor`. Verify α_adj = 0.05/30 (fixed global divisor).
+- [~] T019 [US2] Integration test for full correlation run in `code/tests/test_pipeline.py`. **Function name**: `test_pipeline_correlation_full_run`. Verify `data/processed/correlation_results.csv` has 30 rows if all vars present, or fewer if missing. <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Implement `code/analysis/correlation.py` to compute Pearson and Spearman coefficients for all pairs at various lags (FR-003). **MUST** read from `data/processed/synced.csv`.
-- [ ] T021 [US2] Implement `code/analysis/neff.py` to calculate effective sample size ($N_{eff}$) using lag-1 autocorrelation on the FULL continuous series (1998-2020). **MUST use the method of Pyper & Peterman (late 1990s)**: **Call `scipy.signal.detrend`** on the time series to remove linear trend before calculating lag-1 autocorrelation ($\rho_1$) of the residuals, then apply formula $N_{eff} = N \frac{1-\rho_1}{1+\rho_1}$. Do NOT use `scipy.stats.autocorr` directly on raw data. **MUST implement the detrending logic inline** to ensure the producer before consumer principle is met.
-- [ ] T022 [US2] Implement raw p-value calculation using $N_{eff}$ in `code/analysis/correlation.py`.
-- [ ] T023 [US2] Implement Bonferroni correction logic in `code/analysis/correlation.py` (FR-004). **MUST derive the divisor 30 dynamically** from configuration (3 params × 2 indices × 5 lags) to calculate $\alpha_{adj} = 0.05 / 30$, regardless of actual data availability, to control family-wise error rate.
-- [ ] T023b [US2] **Implement** the logic to re-compute Bonferroni correction specifically for the validation set (2018-2020) in `code/analysis/significance.py`. **MUST use the same procedure** (global Neff logic applied to the subset) to calculate $\alpha_{adj}$ for the test set to satisfy SC-003.
-- [ ] T024 [US2] Add flagging logic for significant pairs (Bonferroni p < 0.05) in `code/analysis/correlation.py`.
+- [~] T020 [US2] Implement `code/analysis/correlation.py` to compute Pearson and Spearman coefficients for all pairs at various lags (FR-003). **MUST** read from `data/processed/synced.csv`.
+- [~] T021 [US2] Implement `code/analysis/neff.py` to calculate effective sample size ($N_{eff}$) using lag-1 autocorrelation on the FULL continuous series (1998-2020). **MUST use the method of Pyper & Peterman (late 1990s)**: **Call `scipy.signal.detrend`** on the time series to remove linear trend before calculating lag-1 autocorrelation ($\rho_1$) of the residuals, then apply formula $N_{eff} = N \frac{1-\rho_1}{1+\rho_1}$. Do NOT use `scipy.stats.autocorr` directly on raw data. **MUST implement the detrending logic inline** to ensure the producer before consumer principle is met.
+- [~] T022 [US2] Implement raw p-value calculation using $N_{eff}$ in `code/analysis/correlation.py`.
+- [~] T023 [US2] Implement Bonferroni correction logic in `code/analysis/correlation.py` (FR-004). **MUST derive the divisor 30 dynamically** from configuration (3 params × 2 indices × 5 lags) to calculate $\alpha_{adj} = 0.05 / 30$, regardless of actual data availability, to control family-wise error rate.
+- [~] T023b [US2] **Implement** the logic to re-compute Bonferroni correction specifically for the validation set (2018-2020) in `code/analysis/significance.py`. **MUST use the same procedure** (global Neff logic applied to the subset) to calculate $\alpha_{adj}$ for the test set to satisfy SC-003.
+- [~] T024 [US2] Add flagging logic for significant pairs (Bonferroni p < 0.05) in `code/analysis/correlation.py`.
 - [ ] T025 [US2] Integrate US2 logic into `code/main.py` to run after US1 completes. **MUST** calculate global Neff and Bonferroni threshold values.
 - [ ] T025a [US2] **Write** `artifacts/thresholds/global_threshold.json` containing global Neff values and $\alpha_{adj}$. **MUST** validate against `contracts/threshold.schema.yaml` before writing. **This task must complete before T032**.
 
@@ -190,8 +190,8 @@ EOF`
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -255,9 +255,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Data Sync)
-   - Developer B: User Story 2 (Correlation Logic)
-   - Developer C: User Story 3 (Viz & Report)
+ - Developer A: User Story 1 (Data Sync)
+ - Developer B: User Story 2 (Correlation Logic)
+ - Developer C: User Story 3 (Viz & Report)
 3. Stories complete and integrate independently
 
 ---
