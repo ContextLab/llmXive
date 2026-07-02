@@ -85,6 +85,7 @@
   }
 
   function cardHTML(item, kind) {
+    if (kind === "reviewedPreprints") return preprintCardHTML(item);
     _buildActivityByProject();
     const stage = item.current_stage || "";
     // A project sits in the paper lane once it enters any paper_* stage (or
@@ -144,6 +145,39 @@
       + '<div class="right">' + points + '<span><i class="fa-regular fa-clock"></i> ' + escapeHtml(updated) + '</span></div>'
       + '</div>'
       + authorsRow
+      + '</article>';
+  }
+
+  // Reviewed-Preprint card: a distinct "Based on a preprint" variant. The
+  // original authors are credited (never llmXive), the source is linked, and
+  // the count of peer-review action items is previewed. Clicking opens the same
+  // modal (openProjectFromEl finds it in payload.reviewed_preprints).
+  function preprintCardHTML(item) {
+    const pp = item.preprint || {};
+    const authors = (pp.original_authors && pp.original_authors.length)
+      ? pp.original_authors
+      : (item.authors || []).filter(a => (a.roles || []).indexOf("paper_author") >= 0);
+    const authorPills = authors.slice(0, 4).map(a =>
+      '<span class="submitter"><i class="fa-regular fa-user"></i> ' + escapeHtml(a.name) + '</span>'
+    ).join(" ");
+    const nItems = (pp.action_items || []).reduce((n, r) => n + ((r.items || []).length), 0);
+    const nReviewers = (pp.action_items || []).length;
+    const desc = (item.description || item.field || "");
+    const src = pp.source_url
+      ? '<a class="stage-pill" href="' + escapeHtml(pp.source_url) + '" target="_blank" rel="noopener" style="margin-left:auto" onclick="event.stopPropagation()"><i class="fa-solid fa-arrow-up-right-from-square"></i> source</a>'
+      : '';
+    return ''
+      + '<article class="card" tabindex="0" data-pid="' + escapeHtml(item.id) + '" data-preprint="1">'
+      + '<div class="kicker"><span class="dot"></span>Reviewed preprint' + src + '</div>'
+      + '<h3>' + escapeHtml(item.title) + '</h3>'
+      + '<p class="desc">' + escapeHtml(desc.slice(0, 200)) + (desc.length > 200 ? "…" : "") + '</p>'
+      + '<div class="meta">'
+      + '<div class="keys"><span><i class="fa-regular fa-file-lines"></i> auto-reviewed</span>'
+      + (nReviewers ? '<span><i class="fa-solid fa-list-check"></i> ' + nItems + ' action items · ' + nReviewers + ' reviewers</span>' : '')
+      + '</div>'
+      + '<div class="right"><span><i class="fa-regular fa-clock"></i> ' + escapeHtml(D.relativeTime(item.updated_at)) + '</span></div>'
+      + '</div>'
+      + (authorPills ? '<div class="submitter-row">authors ' + authorPills + '</div>' : "")
       + '</article>';
   }
 
@@ -231,15 +265,10 @@
         // `+N more` toggle moved from the card into the modal's right
         // pane — see dialog.js _renderListColumn. The on-card click
         // handlers that toggled `.expanded` here are no longer needed.)
-        const pid = card.getAttribute("data-pid");
-        const proj = (payload.projects || []).find(p => p.id === pid);
-        if (proj) {
-          // Spec-010 follow-up: pass the project's personality-review
-          // comments into the modal (they used to render inline on the
-          // card; the user moved them into the modal).
-          const _act = (activityByProject || {})[proj.id];
-          Dialog.open(proj, { comments: (_act && _act.comments) || [] });
-        }
+        // Route through openProjectFromEl so Reviewed-Preprint cards (whose
+        // entries live in payload.reviewed_preprints, not payload.projects)
+        // also open their modal.
+        openProjectFromEl(card);
       });
       card.addEventListener("keydown", e => {
         if (e.key === "Enter" || e.key === " ") { e.preventDefault(); card.click(); }
@@ -319,7 +348,8 @@
   // Open the project modal for a given `.issue` / `.card` element.
   function openProjectFromEl(elem) {
     const pid = elem.getAttribute("data-pid");
-    const proj = (payload.projects || []).find(p => p.id === pid);
+    const proj = (payload.projects || []).find(p => p.id === pid)
+      || (payload.reviewed_preprints || []).find(p => p.id === pid);
     if (!proj) return;
     const _act = (activityByProject || {})[proj.id];
     Dialog.open(proj, { comments: (_act && _act.comments) || [] });
@@ -1578,6 +1608,7 @@
     // stage — see TAB_STAGE_SETS).
     renderCards("papers");
     renderCards("inProgress");
+    renderCards("reviewedPreprints");
     renderContributors();
     renderActivity();
 
