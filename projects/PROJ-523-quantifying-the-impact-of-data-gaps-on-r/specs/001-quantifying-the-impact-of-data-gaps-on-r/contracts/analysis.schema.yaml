@@ -1,0 +1,122 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Results Schema"
+type: "object"
+properties:
+  realization_id:
+    type: "string"
+    description: "ID of the realization being analyzed."
+  gap_config:
+    type: "object"
+    properties:
+      gap_fraction:
+        type: "number"
+        minimum: 0.0
+        maximum: 1.0
+        description: "Fraction of masked pixels."
+      spatial_distribution:
+        type: "string"
+        enum: ["random", "clustered"]
+      morphology:
+        type: "string"
+        enum: ["point-source", "galactic-plane"]
+    required: ["gap_fraction", "spatial_distribution", "morphology"]
+  algorithm:
+    type: "string"
+    enum: ["harmonic_interpolation", "wiener_filtering", "iterative_harmonic_synthesis"]
+    description: "Gap-filling algorithm used."
+  power_spectrum:
+    type: "object"
+    properties:
+      multipoles:
+        type: "array"
+        items:
+          type: "integer"
+        description: "List of ℓ values."
+      cl_values:
+        type: "array"
+        items:
+          type: "number"
+        description: "Corresponding Cℓ values."
+      has_nan:
+        type: "boolean"
+        description: "Whether the spectrum contains NaNs."
+    required: ["multipoles", "cl_values", "has_nan"]
+  parameter_estimates:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        parameter:
+          type: "string"
+          enum: ["H0", "Omega_m", "ns", "tau"]
+        median:
+          type: "number"
+        ci_68:
+          type: "array"
+          items:
+            type: "number"
+          minItems: 2
+          maxItems: 2
+        ci_95:
+          type: "array"
+          items:
+            type: "number"
+          minItems: 2
+          maxItems: 2
+        bias:
+          type: "number"
+          description: "Absolute difference from ground truth."
+        p_value:
+          type: "number"
+          description: "P-value from LMM."
+        leakage_matrix_file:
+          type: "string"
+          description: "Path to the mode-coupling matrix used."
+      required: ["parameter", "median", "ci_68", "ci_95", "bias", "p_value"]
+  sensitivity_sweep:
+    type: "object"
+    description: "Results of the sensitivity analysis (FR-007)."
+    properties:
+      alpha_sweep:
+        type: "array"
+        items:
+          type: "number"
+      tolerance_sweep:
+        type: "array"
+        items:
+          type: "number"
+      bias_variance:
+        type: "number"
+      significance_change:
+        type: "number"
+      sweep_results:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            alpha:
+              type: "number"
+            tolerance:
+              type: "number"
+            bias_rate:
+              type: "number"
+            significance:
+              type: "string"
+              enum: ["significant", "insignificant"]
+    required: ["alpha_sweep", "tolerance_sweep", "bias_variance", "significance_change"]
+  execution_time_ms:
+    type: "integer"
+    description: "Time taken for this step in milliseconds."
+  status:
+    type: "string"
+    enum: ["success", "failed", "excluded"]
+    description: "Status of the realization processing."
+required:
+  - "realization_id"
+  - "gap_config"
+  - "algorithm"
+  - "power_spectrum"
+  - "parameter_estimates"
+  - "execution_time_ms"
+  - "status"
+additionalProperties: false

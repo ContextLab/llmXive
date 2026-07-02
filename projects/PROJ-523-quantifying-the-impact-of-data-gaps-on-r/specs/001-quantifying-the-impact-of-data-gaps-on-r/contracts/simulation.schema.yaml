@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CMB Simulation Metadata"
+type: "object"
+properties:
+  realization_id:
+    type: "string"
+    description: "Unique identifier for the simulation realization."
+  random_seed:
+    type: "integer"
+    description: "Random seed used for generation."
+  ground_truth_params:
+    type: "object"
+    properties:
+      H0:
+        type: "number"
+        description: "Hubble constant (km/s/Mpc)."
+      Omega_m:
+        type: "number"
+        description: "Matter density parameter."
+      ns:
+        type: "number"
+        description: "Spectral index."
+      tau:
+        type: "number"
+        description: "Optical depth."
+    required: ["H0", "Omega_m", "ns", "tau"]
+  nside:
+    type: "integer"
+    const: 512
+    description: "HEALPix resolution parameter."
+  map_file:
+    type: "string"
+    description: "Path to the .fits map file."
+  is_null_model:
+    type: "boolean"
+    description: "True if gaps are random/uncorrelated (Null Model)."
+  created_at:
+    type: "string"
+    format: "date-time"
+    description: "Timestamp of generation."
+required:
+  - "realization_id"
+  - "random_seed"
+  - "ground_truth_params"
+  - "nside"
+  - "map_file"
+  - "is_null_model"
+  - "created_at"
+additionalProperties: false
