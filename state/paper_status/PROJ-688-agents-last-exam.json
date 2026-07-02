@@ -5,10 +5,10 @@
   "llmxive_compile_attempts": 3,
   "status": "fallback_original",
   "failure": {
-    "stage": "compile",
-    "reason": "lualatex failed:\nlualatex timed out after 900s on pass 1 (hung TeX run \u2014 likely an infinite loop in the source)",
-    "log_excerpt": "lualatex failed:\nlualatex timed out after 900s on pass 1 (hung TeX run \u2014 likely an infinite loop in the source)"
+    "stage": "restyle",
+    "reason": "llmxive restyle failed 3x \u2014 serving the arXiv fallback; reset llmxive_compile_attempts in state/paper_status/ after fixing the source",
+    "log_excerpt": "llmxive restyle failed 3x \u2014 serving the arXiv fallback; reset llmxive_compile_attempts in state/paper_status/ after fixing the source"
   },
   "paper_id": "PROJ-688-agents-last-exam",
-  "updated_at": "2026-07-02T13:03:04.243606+00:00"
+  "updated_at": "2026-07-02T13:36:52.228010+00:00"
 }
