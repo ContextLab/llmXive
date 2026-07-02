@@ -44,12 +44,12 @@
 **Purpose**: Resolve critical contradictions between Spec and Plan before implementation begins.
 **⚠️ CRITICAL GATE**: This phase MUST complete successfully before Phase 1 (Setup) begins. **Verification Step**: After T001, verify `spec.md` content matches `plan.md` requirements (FR-005: LMM, FR-012: prompt token count). If verification fails, halt execution.
 
-- [ ] T001 [P] **Apply Spec Amendments**: Create and apply a unified diff patch `spec_amendments.patch` to update `spec.md` with the following changes:
-    1. Update FR-005 to mandate **Linear Mixed Models (LMM)** instead of ANOVA/Kruskal-Wallis (aligning with Plan.md).
-    2. Update FR-012 to mandate **'prompt token count'** as the covariate for readability metrics instead of 'code length' (aligning with Plan.md).
-    3. Update US-1 Acceptance Scenario 3 and US-3 Acceptance Scenario 4 to link structural element count failures to 'manual review' flagging.
-    4. Update Assumptions to acknowledge 'State Transition Proxy' limitation.
-    Execute `git apply spec_amendments.patch` to update `spec.md`. This task is executable and atomic.
+- [ ] T001 [P] **Apply Spec Amendments**: Create and apply a unified diff patch `spec_amendments.patch` to update `spec.md` with the following changes: <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
+ 1. Update FR-005 to mandate **Linear Mixed Models (LMM)** instead of ANOVA/Kruskal-Wallis (aligning with Plan.md).
+ 2. Update FR-012 to mandate **'prompt token count'** as the covariate for readability metrics instead of 'code length' (aligning with Plan.md).
+ 3. Update US-1 Acceptance Scenario 3 and US-3 Acceptance Scenario 4 to link structural element count failures to 'manual review' flagging.
+ 4. Update Assumptions to acknowledge 'State Transition Proxy' limitation.
+ Execute `git apply spec_amendments.patch` to update `spec.md`. This task is executable and atomic.
 
 ---
 
@@ -57,7 +57,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T002 Create project structure per implementation plan: Create directories `code/`, `tests/`, `data/raw/`, `data/processed/`, `data/results/`, `state/` at repository root.
+- [X] T002 Create project structure per implementation plan: Create directories `code/`, `tests/`, `data/raw/`, `data/processed/`, `data/results/`, `state/` at repository root.
 
 ---
 
@@ -67,14 +67,14 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T003 Initialize Python 3.11 project with dependencies: `datasets`, `tiktoken`, `scikit-learn`, `statsmodels`, `pandas`, `ruff`, `requests`, `pyyaml` in `requirements.txt`
-- [ ] T004 [P] Configure linting and formatting tools (ruff) and pytest in `pyproject.toml`
-- [ ] T005 Setup data directory structure `data/raw/`, `data/processed/`, `data/results/` and implement `code/utils/hash_artifacts.py` for SHA-256 checksumming
-- [ ] T006 [P] Implement configuration management in `code/config.py` with fixed random seeds, paths, and API keys
-- [ ] T007 [P] Setup error handling and logging infrastructure in `code/utils/logger.py`
-- [ ] T008 Create base data models (Pydantic) for `HumanEvalProblem`, `PromptVariant`, `GeneratedCode`, `AnalysisResult` in `code/models/data_models.py`
-- [ ] T009 Implement artifact versioning utility to update `state/projects/PROJ-527-evaluating-the-impact-of-prompt-complexi.yaml` after data generation, deriving the filename from the project ID.
-- [ ] T010 [P] Setup CPU-tractable LLM client wrapper in `code/llm/client.py` supporting HuggingFace Inference API with fallback to local GGUF (CPU only, no CUDA). This task implements the HTTP/GGUF client interface only.
+- [X] T003 Initialize Python 3.11 project with dependencies: `datasets`, `tiktoken`, `scikit-learn`, `statsmodels`, `pandas`, `ruff`, `requests`, `pyyaml` in `requirements.txt`
+- [X] T004 [P] Configure linting and formatting tools (ruff) and pytest in `pyproject.toml`
+- [X] T005 Setup data directory structure `data/raw/`, `data/processed/`, `data/results/` and implement `code/utils/hash_artifacts.py` for SHA-256 checksumming
+- [X] T006 [P] Implement configuration management in `code/config.py` with fixed random seeds, paths, and API keys
+- [~] T007 [P] Setup error handling and logging infrastructure in `code/utils/logger.py`
+- [~] T008 Create base data models (Pydantic) for `HumanEvalProblem`, `PromptVariant`, `GeneratedCode`, `AnalysisResult` in `code/models/data_models.py`
+- [~] T009 Implement artifact versioning utility to update `state/projects/PROJ-527-evaluating-the-impact-of-prompt-complexi.yaml` after data generation, deriving the filename from the project ID.
+- [~] T010 [P] Setup CPU-tractable LLM client wrapper in `code/llm/client.py` supporting HuggingFace Inference API with fallback to local GGUF (CPU only, no CUDA). This task implements the HTTP/GGUF client interface only.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -90,19 +90,19 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T011 [P] [US1] Contract test for prompt generation logic in `tests/unit/test_prompt_gen.py`: Implement `test_generates_5_variants` using a single HumanEval problem JSON as input, asserting `len(variants) == 5` and `all(label in ['simple', 'moderate', 'complex', 'very_complex', 'degenerate'] for label in labels)`.
-- [ ] T012 [P] [US1] Integration test for LLM query and capture in `tests/integration/test_llm_capture.py`: Implement `test_query_and_capture` using a mocked LLM response, asserting that 5 distinct code samples are captured with correct metadata tags (complexity_label, token_count, structural_element_count).
+- [~] T011 [P] [US1] Contract test for prompt generation logic in `tests/unit/test_prompt_gen.py`: Implement `test_generates_5_variants` using a single HumanEval problem JSON as input, asserting `len(variants) == 5` and `all(label in ['simple', 'moderate', 'complex', 'very_complex', 'degenerate'] for label in labels)`.
+- [~] T012 [P] [US1] Integration test for LLM query and capture in `tests/integration/test_llm_capture.py`: Implement `test_query_and_capture` using a mocked LLM response, asserting that 5 distinct code samples are captured with correct metadata tags (complexity_label, token_count, structural_element_count).
 
 ### Implementation for User Story 1
 
-- [ ] T016 [US1] **Fetch HumanEval Dataset**: Implement `code/data/fetcher.py` to download HumanEval dataset from `https://huggingface.co/datasets/openai/human-eval` with checksum verification. **(MUST PRECEDE T013-T015)**
-- [ ] T013 [P] [US1] Implement `code/prompts/generator.py` to create multiple complexity variants based on structural composition (problem only, +1 example, +constraints, +multi-step, +redundant)
-- [ ] T014 [P] [US1] Implement `code/prompts/parser.py` to dynamically count structural elements (examples, constraints, instructions) and calculate structural complexity scores
-- [ ] T015 [US1] Implement `code/prompts/tokenizer.py` using `tiktoken cl100k_base` to count prompt tokens and validate thresholds (simple ≤50, moderate 51-150, etc.)
-- [ ] T017 [US1] Implement `code/llm/orchestrator.py` to query LLM with multiple variants per problem, utilizing the T010 wrapper in `code/llm/client.py`, capturing code, token counts, and structural metadata.
-- [ ] T018 [US1] Implement `code/data/storage.py` to write generated code and metadata to `data/processed/prompt_variants.parquet`
-- [ ] T019 [US1] Add logic to flag samples where 'degenerate' prompt token delta < 100 tokens vs 'very complex' for manual review (non-fatal), appending flagged sample IDs to `data/results/manual_review_queue.csv`. **(Note: This CSV is an internal flagging artifact; the spec requires flagging, not a full workflow).**
-- [ ] T020 [US1] Implement correlation check between token count and structural element count to diagnose collinearity (FR-013) and **write the correlation coefficient to `data/results/analysis_summary.csv`**.
+- [~] T016 [US1] **Fetch HumanEval Dataset**: Implement `code/data/fetcher.py` to download HumanEval dataset from `https://huggingface.co/datasets/openai/human-eval` with checksum verification. **(MUST PRECEDE T013-T015)**
+- [~] T013 [P] [US1] Implement `code/prompts/generator.py` to create multiple complexity variants based on structural composition (problem only, +1 example, +constraints, +multi-step, +redundant)
+- [~] T014 [P] [US1] Implement `code/prompts/parser.py` to dynamically count structural elements (examples, constraints, instructions) and calculate structural complexity scores
+- [~] T015 [US1] Implement `code/prompts/tokenizer.py` using `tiktoken cl100k_base` to count prompt tokens and validate thresholds (simple ≤50, moderate 51-150, etc.)
+- [~] T017 [US1] Implement `code/llm/orchestrator.py` to query LLM with multiple variants per problem, utilizing the T010 wrapper in `code/llm/client.py`, capturing code, token counts, and structural metadata.
+- [~] T018 [US1] Implement `code/data/storage.py` to write generated code and metadata to `data/processed/prompt_variants.parquet`
+- [~] T019 [US1] Add logic to flag samples where 'degenerate' prompt token delta < 100 tokens vs 'very complex' for manual review (non-fatal), appending flagged sample IDs to `data/results/manual_review_queue.csv`. **(Note: This CSV is an internal flagging artifact; the spec requires flagging, not a full workflow).**
+- [~] T020 [US1] Implement correlation check between token count and structural element count to diagnose collinearity (FR-013) and **write the correlation coefficient to `data/results/analysis_summary.csv`**.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -116,14 +116,14 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T021 [P] [US2] Contract test for test runner timeout handling in `tests/unit/test_execution_runner.py`
-- [ ] T022 [P] [US2] Integration test for full execution pipeline in `tests/integration/test_execution_pipeline.py`
+- [~] T021 [P] [US2] Contract test for test runner timeout handling in `tests/unit/test_execution_runner.py`
+- [~] T022 [P] [US2] Integration test for full execution pipeline in `tests/integration/test_execution_pipeline.py`
 
 ### Implementation for User Story 2
 
-- [ ] T023 [P] [US2] Implement `code/execution/runner.py` to execute generated code with a configurable timeout per test case using `subprocess` or `pytest` isolation.
-- [ ] T024 [US2] Implement exception handling in `runner.py` to mark samples as failed on syntax errors or runtime exceptions, logging error types.
-- [ ] T025 [US2] Implement timeout handling in `runner.py` to mark problems as failed if execution exceeds a predefined time threshold.
+- [~] T023 [P] [US2] Implement `code/execution/runner.py` to execute generated code with a configurable timeout per test case using `subprocess` or `pytest` isolation.
+- [~] T024 [US2] Implement exception handling in `runner.py` to mark samples as failed on syntax errors or runtime exceptions, logging error types.
+- [~] T025 [US2] Implement timeout handling in `runner.py` to mark problems as failed if execution exceeds a predefined time threshold.
 - [ ] T026 [US2] Implement `code/execution/static_analysis.py` to run `ruff` on generated code and extract cyclomatic complexity, lines of code, and indentation consistency.
 - [ ] T027 [P] [US2] **Document Validation Sources**: Implement documentation of validation sources (McCabe, standard literature) for the readability metrics extracted in T026, satisfying FR-008's requirement for citable validation. Add comments in `static_analysis.py` and entries in `research.md`.
 - [ ] T028 [US2] Implement aggregation logic in `code/analysis/aggregator.py` to calculate pass rates per complexity level (pass count / total count).

@@ -1,0 +1,7 @@
+? 'T001 [P] **Apply Spec Amendments**: Create and apply a unified diff patch `spec_amendments.patch`
+  to update `spec.md` with the following changes: <!-- FAILED: unspecified -->'
+: 2
+? 'T001 [P] **Apply Spec Amendments**: Create and apply a unified diff patch `spec_amendments.patch`
+  to update `spec.md` with the following changes: <!-- FAILED: unspecified --> <!--
+  ATOMIZE: requested -->'
+: 1
