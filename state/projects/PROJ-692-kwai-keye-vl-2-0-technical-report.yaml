@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-11T11:34:00.136868Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-692-kwai-keye-vl-2-0-technical-report
-last_run_id: 6f740b19-13fb-49a2-a5df-4a5786266338
+last_run_id: a4301b06-c9d5-4849-9160-ab7005d44678
 last_run_status: null
 points_paper: {}
 points_research: {}
