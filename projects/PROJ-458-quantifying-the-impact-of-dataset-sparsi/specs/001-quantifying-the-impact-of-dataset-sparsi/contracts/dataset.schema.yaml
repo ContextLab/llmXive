@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MaterialEntry Dataset Schema"
+description: "Schema for the preprocessed material dataset including formation energy and descriptors."
+type: object
+properties:
+  material_id:
+    type: string
+    description: "Unique identifier for the material."
+  composition:
+    type: object
+    description: "Dictionary of element symbols to counts."
+    additionalProperties:
+      type: integer
+  formation_energy_per_atom:
+    type: number
+    description: "DFT-computed formation energy per atom in eV/atom."
+    minimum: -100
+    maximum: 100
+  descriptors:
+    type: object
+    description: "Derived composition descriptors (e.g., avg atomic radius, electronegativity)."
+    additionalProperties:
+      type: number
+  source:
+    type: string
+    enum:
+      - "MaterialsProject"
+      - "Local"
+    description: "Origin of the data entry."
+required:
+  - material_id
+  - composition
+  - formation_energy_per_atom
+  - descriptors
+  - source
+additionalProperties: false

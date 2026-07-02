@@ -1,0 +1,195 @@
+resolved_at: '2026-07-01T23:21:06.573373+00:00'
+datasets:
+- intent: DFT-computed
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://tandf.figshare.com/articles/dataset/Association_of_non-insulin-based_insulin_resistance_indices_with_the_risk_of_aortic_stenosis_progression_in_patients_with_mild_or_moderate_aortic_stenosis/32868540
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Task_oriented_nursing_in_a_tuberculosis_control_programme_in_South_Africa_where_does_it_come_from_and_what_keeps_it_going_/32868647
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Ten-year_review_presidential_project_nation_building_and_reconciliation_the_public_service_commission_the_public_protector/32868614
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Assessment_resource_bank_literacy_grade_2_isiZulu_learner_tasks/32868671
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Alcohol_use_in_South_Africa_findings_from_the_South_African_community_epidemiology_network_on_drug_use_SACENDU_project/32868644
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19951614
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6824056
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6570994
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4737654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8234520
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.ccs.ornl.gov/dataset/b0af6eca-1d45-53f7-8a56-5851a6c75d75
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://toubkal.imist.ma/handle/123456789/25620
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.30978
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.30967
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.30912
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SAME
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/roa7n/prot_experiments_same_len_amino_acid_a/resolve/main/data/test-00000-of-00001-9c4f0615908d7533.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/roa7n/prot_experiments_same_len_amino_acid_a_m/resolve/main/data/test-00000-of-00001-1e94c91700e37da6.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 5676
+      parsed: true
+  - url: https://huggingface.co/datasets/nc33/same_text/resolve/main/test (1).json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 13226
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/roa7n/prot_experiments_same_len_amino_acid_a/resolve/main/data/test-00000-of-00001-9c4f0615908d7533.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/roa7n/prot_experiments_same_len_amino_acid_a_m/resolve/main/data/test-00000-of-00001-1e94c91700e37da6.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/nc33/same_text/resolve/main/test (1).json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/api/resolve-cache/datasets/SamehSelim/one/911f431b2c4343d34a4099d9ff306f03b9169cc2/paul_graham_essay.txt?%2Fdatasets%2FSamehSelim%2Fone%2Fresolve%2Fmain%2Fpaul_graham_essay.txt=&etag=%220a1bb7d3fc7b6e12b9afc6cc014be2dae2dc898e%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/SameerMahajan/marathi_numbers-1-20/resolve/main/data/train-00000-of-00001-ea2453c8ca5a01d0.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://tandf.figshare.com/articles/dataset/Association_of_non-insulin-based_insulin_resistance_indices_with_the_risk_of_aortic_stenosis_progression_in_patients_with_mild_or_moderate_aortic_stenosis/32868540
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Task_oriented_nursing_in_a_tuberculosis_control_programme_in_South_Africa_where_does_it_come_from_and_what_keeps_it_going_/32868647
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Ten-year_review_presidential_project_nation_building_and_reconciliation_the_public_service_commission_the_public_protector/32868614
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Assessment_resource_bank_literacy_grade_2_isiZulu_learner_tasks/32868671
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Alcohol_use_in_South_Africa_findings_from_the_South_African_community_epidemiology_network_on_drug_use_SACENDU_project/32868644
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11058114
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14874620
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7984743
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7913197
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8182689
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/kbn5a/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21117881
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21117881
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/vs75y/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21117776
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FixedTestSet
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://tandf.figshare.com/articles/dataset/Association_of_non-insulin-based_insulin_resistance_indices_with_the_risk_of_aortic_stenosis_progression_in_patients_with_mild_or_moderate_aortic_stenosis/32868540
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Task_oriented_nursing_in_a_tuberculosis_control_programme_in_South_Africa_where_does_it_come_from_and_what_keeps_it_going_/32868647
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Ten-year_review_presidential_project_nation_building_and_reconciliation_the_public_service_commission_the_public_protector/32868614
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Assessment_resource_bank_literacy_grade_2_isiZulu_learner_tasks/32868671
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hsrc-repository.figshare.com/articles/journal_contribution/Alcohol_use_in_South_Africa_findings_from_the_South_African_community_epidemiology_network_on_drug_use_SACENDU_project/32868644
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content

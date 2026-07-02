@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SparsitySubset Metadata Schema"
+description: "Metadata file defining the sparsity level and sampling parameters for a training subset."
+type: object
+properties:
+  subset_id:
+    type: string
+    description: "Unique identifier for the subset."
+  sparsity_level:
+    type: number
+    description: "Percentage of the 30k Representative Stratified Sample included (0.0 to 1.0)."
+    minimum: 0.0
+    maximum: 1.0
+  seed:
+    type: integer
+    description: "Random seed used for reproducibility."
+  stratification_method:
+    type: string
+    enum:
+      - "kmeans_fingerprint"
+    description: "Method used to preserve chemical space."
+  material_count:
+    type: integer
+    description: "Number of materials in this subset."
+  k_clusters:
+    type: integer
+    description: "Number of clusters used in k-means stratification."
+  validation_status:
+    type: string
+    enum:
+      - "passed"
+      - "failed"
+    description: "Result of the stratification validation step."
+  js_divergence:
+    type: number
+    description: "Jensen-Shannon divergence value from the 30k pool."
+  ks_pvalue:
+    type: number
+    description: "Kolmogorov-Smirnov test p-value for formation energy distribution."
+required:
+  - subset_id
+  - sparsity_level
+  - seed
+  - stratification_method
+  - material_count
+  - k_clusters
+  - validation_status
+additionalProperties: false
