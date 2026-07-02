@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-07T05:16:08.492628Z'
-current_stage: project_initialized
+current_stage: tasked
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-391-the-impact-of-linguistic-accommodation-o
-last_run_id: b58f76aa-d9d5-4c0c-92ba-8580aaa62169
+last_run_id: 02754be3-17ce-46e2-8ad9-611c0a27c03a
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-391-the-impact-of-linguistic-accommodation-o/specs/001-the-impact-of-linguistic-accommodation-o
 title: The Impact of Linguistic Accommodation on Perceived Empathy in AI Assistants
-updated_at: '2026-06-25T01:37:19.381359Z'
+updated_at: '2026-07-02T23:18:25.887225Z'

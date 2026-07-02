@@ -1,0 +1,59 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Analysis Output Schema"
+description: "Schema for the statistical analysis results including correlations and confidence intervals."
+type: object
+properties:
+  metric_type:
+    type: string
+    description: "Type of accommodation metric (lexical or syntactic)."
+    enum:
+      - "lexical"
+      - "syntactic"
+  correlation_method:
+    type: string
+    description: "Correlation method used."
+    enum:
+      - "pearson"
+      - "spearman"
+  correlation_coefficient:
+    type: number
+    description: "Correlation coefficient value."
+  p_value:
+    type: number
+    description: "P-value for the correlation test."
+  ci_lower:
+    type: number
+    description: "Lower bound of the 95% confidence interval."
+  ci_upper:
+    type: number
+    description: "Upper bound of the 95% confidence interval."
+  bootstrap_iterations:
+    type: integer
+    description: "Number of bootstrap iterations performed."
+    minimum: 1000
+  bonferroni_corrected_alpha:
+    type: number
+    description: "Bonferroni-corrected alpha threshold."
+  is_significant:
+    type: boolean
+    description: "Whether the result is significant after correction."
+  effect_size_category:
+    type: string
+    description: "Effect size category based on Cohen's guidelines."
+    enum:
+      - "negligible"
+      - "small"
+      - "medium"
+      - "large"
+required:
+  - metric_type
+  - correlation_method
+  - correlation_coefficient
+  - p_value
+  - ci_lower
+  - ci_upper
+  - bootstrap_iterations
+  - bonferroni_corrected_alpha
+  - is_significant
+  - effect_size_category
+additionalProperties: false

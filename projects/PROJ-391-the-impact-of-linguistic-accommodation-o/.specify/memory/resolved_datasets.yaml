@@ -1,0 +1,103 @@
+resolved_at: '2026-07-02T22:46:55.344765+00:00'
+datasets:
+- intent: DailyDialog
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/roskoN/dailydialog/resolve/main/test.zip
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 178601
+      parsed: true
+  - url: https://huggingface.co/datasets/ConvLab/dailydialog/resolve/main/dummy_data.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 37937
+      parsed: true
+  - url: https://huggingface.co/datasets/pixelsandpointers/daily_dialog_w_turn_templates/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/pixelsandpointers/daily_dialog_w_turn_templates/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ia-bentebib/daily_dialog_fr/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/roskoN/dailydialog/resolve/main/test.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/ConvLab/dailydialog/resolve/main/dummy_data.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Housing_and_transport_affordability_for_school_staff_and_its_impact_on_systemic_workforce_planning/32354013
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/_070_4096_4654_Coal_City_University_Enugu_i_Admission_Form_Open_i_i_2026-2027_Transfer_Form_i_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_Major_news_outlets_often_have_strong_controls_in_place_to_avoid_and_fix_false/32885747
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.mq.edu.au/articles/thesis/Experiences_from_Benchmarking_Vision_Language_Action_Models_for_Robotic_Manipulation/31593502
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/_070_4096_4654_Clifford_University_Owerrinta_i_Admission_Form_Open_i_i_2026-2027_Transfer_Form_i_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_Major_news_outlets_often_have_strong_controls_in_place_to_avoid_and_fix_fa/32885741
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_070_4096_4654_Spiritan_University_Nneochi_i_Admission_Form_Open_i_i_2026-2027_Transfer_Form_i_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_Major_news_outlets_often_have_strong_controls_in_place_to_avoid_and_fix_fals/32885738
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3539605
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17049649
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17238270
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15126395
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14600063
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/68427-towards-diverse-relevant-and-coherent-open-domain-dialogue-generation-via-hybrid-latent-variables
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/102696-triple-encoders-representations-that-fire-together-wire-together
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.09837
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/147166-chat-ghosting-methods-for-auto-completion-in-dialog-systems
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2511.03056
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

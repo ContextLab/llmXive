@@ -1,0 +1,72 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "DailyDialog Processed Dialogue Schema"
+description: "Schema for the processed dialogue dataset containing accommodation metrics and empathy ratings."
+type: object
+properties:
+  conversation_id:
+    type: string
+    description: "Unique identifier for the conversation."
+  turn_index:
+    type: integer
+    description: "Index of the turn within the conversation."
+  user_turn:
+    type: string
+    description: "Normalized text of the user's turn."
+  ai_response:
+    type: string
+    description: "Normalized text of the AI's response (proxy)."
+  topic:
+    type: string
+    description: "Topic label of the dialogue (from dataset)."
+  emotion_label:
+    type: string
+    description: "Emotion label from the dataset (e.g., joy, sadness)."
+  lexical_overlap:
+    type: number
+    description: "Jaccard similarity of token sets between user and AI."
+    minimum: 0.0
+    maximum: 1.0
+  syntactic_similarity_pos:
+    type: number
+    description: "Jaccard similarity of POS tag sets."
+    minimum: 0.0
+    maximum: 1.0
+  syntactic_similarity_dep:
+    type: number
+    description: "Jaccard similarity of dependency relations."
+    minimum: 0.0
+    maximum: 1.0
+  sentence_length_variance:
+    type: number
+    description: "Variance of sentence lengths in the AI response."
+  is_repetition:
+    type: boolean
+    description: "True if lexical overlap > 0.9 (flagged as repetition)."
+  proxy_empathy_score:
+    type: integer
+    description: "Likert scale proxy empathy rating (1-5)."
+    minimum: 1
+    maximum: 5
+  source:
+    type: string
+    description: "Source of the empathy score (explicit or inferred)."
+    enum:
+      - "explicit"
+      - "inferred"
+  inferred_from_emotion:
+    type: string
+    description: "The emotion label used for inference."
+required:
+  - conversation_id
+  - turn_index
+  - user_turn
+  - ai_response
+  - topic
+  - emotion_label
+  - lexical_overlap
+  - syntactic_similarity_pos
+  - sentence_length_variance
+  - is_repetition
+  - proxy_empathy_score
+  - source
+additionalProperties: false
