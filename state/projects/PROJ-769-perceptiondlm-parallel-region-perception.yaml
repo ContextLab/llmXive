@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-23T09:10:46.294611Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-769-perceptiondlm-parallel-region-perception
-last_run_id: 95ffb7de-31dc-49e5-8449-28825a66b18c
+last_run_id: ca13ecdb-dd63-4cbd-be54-3a63ecaa0811
 last_run_status: null
 points_paper: {}
 points_research: {}

@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-26T09:11:38.930928Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: engineering
 human_escalation_reason: null
 id: PROJ-622-https-arxiv-org-abs-2605-23463
-last_run_id: 3de18539-66b6-4377-99a6-c2ebb1f7f832
+last_run_id: 60694fa0-e182-408a-9656-73f738690e8a
 last_run_status: null
 points_paper: {}
 points_research: {}
