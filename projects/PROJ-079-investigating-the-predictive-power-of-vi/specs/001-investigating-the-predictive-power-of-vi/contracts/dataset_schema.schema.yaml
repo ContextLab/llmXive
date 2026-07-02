@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Schema for Viral-Host Immune Response"
+description: "Schema for the merged feature matrix and metadata"
+type: "object"
+properties:
+  strain_id:
+    type: "string"
+    description: "Unique identifier for the virus strain"
+  virus_accession:
+    type: "string"
+    description: "NCBI Accession ID"
+  host_species:
+    type: "string"
+    description: "Host species (Homo sapiens or Mus musculus)"
+  isg_pc1_score:
+    type: "number"
+    description: "First principal component of Interferon-Stimulated Genes"
+  cai:
+    type: "number"
+    description: "Codon Adaptation Index"
+  gc_global:
+    type: "number"
+    description: "Global GC content (0.0 to 1.0)"
+  kmer_counts:
+    type: "object"
+    description: "Dictionary of k-mer frequencies (k=3, 4 only)"
+    additionalProperties:
+      type: "number"
+  repeat_density:
+    type: "number"
+    description: "Percentage of genome covered by repeats"
+  protein_stability:
+    type: "number"
+    description: "Predicted protein stability score (Uniform Proxy)"
+  stability_method:
+    type: "string"
+    const: "proxy"
+    description: "Method used for stability calculation (Fixed to 'proxy')"
+required:
+  - "strain_id"
+  - "virus_accession"
+  - "isg_pc1_score"
+  - "cai"
+  - "gc_global"
+  - "kmer_counts"
+  - "repeat_density"
+  - "protein_stability"
+  - "stability_method"
+additionalProperties: false

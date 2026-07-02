@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+description: "Schema for model predictions and statistical metrics"
+type: "object"
+properties:
+  strain_id:
+    type: "string"
+    description: "Unique identifier for the virus strain"
+  actual_response:
+    type: "number"
+    description: "Observed ISG-PC1 score"
+  predicted_response:
+    type: "number"
+    description: "Model predicted ISG-PC1 score"
+  residual:
+    type: "number"
+    description: "Difference between actual and predicted"
+  vif:
+    type: "number"
+    description: "Variance Inflation Factor for the strain's feature set"
+  p_value:
+    type: "number"
+    description: "Debiased Lasso p-value"
+  fdr_p_value:
+    type: "number"
+    description: "Benjamini-Hochberg corrected p-value"
+  split:
+    type: "string"
+    enum:
+      - "train"
+      - "test"
+    description: "Data split assignment"
+required:
+  - "strain_id"
+  - "actual_response"
+  - "predicted_response"
+  - "residual"
+  - "vif"
+  - "p_value"
+  - "fdr_p_value"
+  - "split"
+additionalProperties: false

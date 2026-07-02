@@ -70,7 +70,7 @@ A researcher wants to understand which viral features drive the predictions and 
   - Predicted protein stability scores (using ESM-1b v1.1 for viruses with well-annotated ORFs of length > 100aa).  
 - **FR-004**: System MUST merge viral features with host response scores into a single tabular dataset, ensuring one‑to‑one mapping between virus strain and sample.  
 - **FR-005**: System MUST split the merged dataset into training and test subsets at the **virus strain level** (not family level), ensuring no strain appears in both splits. The test set MUST contain **≥ 5 distinct virus strains** to ensure statistical power for generalization. (See US-2)
-- **FR-006**: System MUST train an elastic‑net regression model on the training set, tuning α (mixing) and λ (regularization strength) via 5‑fold cross‑validation *inside* the training data only.  
+- **FR-006**: System MUST train an elastic‑net regression model on the training set, tuning α (mixing) and λ (regularization strength) via k‑fold cross‑validation *inside* the training data only.  
 - **FR-007**: System MUST evaluate the final model on the held‑out test set, reporting R², RMSE, and conducting a global permutation test with **≥ 1 000** random label shuffles to obtain an empirical p‑value for the overall model fit.  
 - **FR-008**: System MUST compute variance‑inflation factors (VIF) for all candidate predictors and flag any predictor with VIF > 5 as collinear. (See US-3)
 - **FR-009**: System MUST apply Benjamini‑Hochberg false discovery rate (FDR) correction to the set of p‑values obtained from the Debiased Lasso feature significance test (FR-012). (See US-3)

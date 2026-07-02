@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Global Metrics Schema"
+description: "Schema for overall model performance metrics"
+type: "object"
+properties:
+  r2_test:
+    type: "number"
+    description: "R-squared on the held-out test set"
+  rmse_test:
+    type: "number"
+    description: "Root Mean Squared Error on the test set"
+  min_fdr_p_value:
+    type: "number"
+    description: "Minimum FDR-adjusted p-value from Debiased Lasso"
+  permutation_p_value:
+    type: "number"
+    description: "Empirical p-value from 1000+ permutations"
+  n_samples_train:
+    type: "integer"
+    description: "Number of samples in training set"
+  n_samples_test:
+    type: "integer"
+    description: "Number of samples in test set"
+  n_strains_test:
+    type: "integer"
+    description: "Number of distinct strains in test set"
+  runtime_seconds:
+    type: "number"
+    description: "Total execution time in seconds"
+  status:
+    type: "string"
+    enum:
+      - "success"
+      - "abort_low_samples"
+      - "abort_low_strains"
+      - "timeout"
+    description: "Pipeline execution status"
+required:
+  - "r2_test"
+  - "rmse_test"
+  - "min_fdr_p_value"
+  - "permutation_p_value"
+  - "n_samples_train"
+  - "n_samples_test"
+  - "n_strains_test"
+  - "runtime_seconds"
+  - "status"
+additionalProperties: false
