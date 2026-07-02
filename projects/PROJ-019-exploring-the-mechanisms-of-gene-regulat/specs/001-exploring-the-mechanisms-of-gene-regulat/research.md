@@ -1,91 +1,70 @@
 # Research: Exploring the Mechanisms of Gene Regulation Across Different Cell Types
 
-## Executive Summary
-
-This research outlines the data strategy, statistical methodology, and computational feasibility for analyzing gene regulation mechanisms across five cell types. The primary challenge is sourcing high-quality ATAC-seq/ChIP-seq peak data from ENCODE and performing motif enrichment analysis within strict CPU-only resource limits.
-
 ## Dataset Strategy
 
-### Primary Data Source: ENCODE
+The primary data source is the **ENCODE Project** (Encyclopedia of DNA Elements), which provides standardized, high-quality ATAC-seq and ChIP-seq peak data for the five specified cell types.
 
-The project requires ATAC-seq and ChIP-seq peak files for GM12878, K562, HepG2, H1-hESC, and IMR90 from the ENCODE project.
+**Verified Datasets**:
+*Note: The "Verified datasets" block in the prompt contained non-ENCODE URLs (drug reviews, Yelp, CelebA) which are irrelevant to this genomic study. The plan below strictly adheres to the ENCODE specification (FR-001) by using the official ENCODE download API, which is the canonical source for these files. The URLs in the prompt's "Verified datasets" block are NOT used for this project as they do not contain genomic peak data.*
 
-**CRITICAL DATASET MISMATCH WARNING**:
-The provided "# Verified datasets" block in the project configuration **does not contain any verified URLs for ENCODE ATAC-seq or ChIP-seq peak data**. The listed URLs (e.g., `RamAnanth1/lex-fridman-podcasts`, `flxclxc/encoded_drug_reviews`) are unrelated to genomic data (they are podcasts, drug reviews, etc.).
+**Data Acquisition Strategy**:
+1.  **Source**: ENCODE Project (https://www.encodeproject.org/).
+2.  **Method**: The `code/download.py` script will use the ENCODE public API to fetch peak files for the Several cell types (GM12878, K562, HepG2, H1-hESC, IMR90).
+3.  **Accession Mapping**: The script will query the ENCODE API for `experiment_type`="ATAC-seq" or `experiment_type`="ChIP-seq" and `biosample_term_name` matching the target cell types.
+4.  **File Selection**: For each cell type, the script will select the "replicate" or "pooled" peak file with the highest `annotation_score` (typically 1) and `file_format`="BED".
+5.  **Handling 403/Rate Limits**: The script implements **FR-006**: Exponential backoff (1s, 2s, 4s) with a maximum of 3 retries. If the ENCODE API returns 403 (Forbidden) after retries, the script logs a specific error and aborts *that specific file* but continues if possible, or fails the run if critical data is missing. This adheres to the spec's requirement for robustness without inventing new constraints.
+6.  **Background Model (CRITICAL ALIGNMENT WITH FR-004)**:
+    *   **Strategy**: The background model is **NOT** random genomic regions. As mandated by FR-004 and the Spec Assumptions, the background for Cell Type A is the **Union of Peak Regions from the other four cell types** (B, C, D, E).
+    *   **Rationale**: This ensures the background represents "accessible chromatin" generally, avoiding the confounding of heterochromatin regions. It tests for *differential* enrichment (is this motif more specific to A than to the rest?) rather than absolute enrichment.
+    *   **Implementation**: `code/preprocess.py` will aggregate the parsed BED files of the 4 non-target cell types into a single `background_union.bed` file for the target cell type. No random generation or GC-matching is performed.
+    *   **Determinism**: The aggregation is deterministic based on the input files.
 
-**Action Plan**:
-1.  **Do NOT fabricate a URL.** The plan cannot proceed with a verified download link from the provided list.
-2.  **Implementation Strategy**: The `code/ingest/download.py` script will be designed to fetch data from the **official ENCODE public download portal** (e.g., `https://www.encodeproject.org/files/...`) using accession IDs specified in the spec.
-3.  **Verification**: The `research.md` and `data-model.md` will document the *expected* accession IDs (to be filled by the researcher during the "Clarified" stage or fetched dynamically via the ENCODE API if the API is accessible without auth).
-4.  **Fallback**: If the ENCODE API is rate-limited or inaccessible, the system will rely on the user providing the raw files in `data/raw/` manually, as per the "Assumptions" in the spec.
-
-**Dataset Table (Placeholder for Implementation)**:
-
-| Dataset | Source | Accession ID (Example) | Format | Verified URL (from Spec Block) | Status |
-| :--- | :--- | :--- | :--- :--- | :--- |
-| ENCODE Peaks (GM12878) | ENCODE | ENCFF... | BED | *None available in verified list* | **Manual/API Fetch Required** |
-| ENCODE Peaks (K562) | ENCODE | ENCFF... | BED | *None available in verified list* | **Manual/API Fetch Required** |
-| ... (others) | ... | ... | ... | ... | ... |
-
-*Note: The implementation will use the official ENCODE API or direct public links. The "Verified datasets" block provided is insufficient for this domain and must be overridden by the implementation team using the official ENCODE portal.*
-
-### Background Model Strategy
-
-To avoid tautological enrichment, the background model will consist of Peak Regions from *other* cell types. For example, when testing enrichment in GM12878, the background will be the union of peaks from K562, HepG2, H1-hESC, and IMR90. This isolates cell-type-specific signals.
-
-### Independent Validation Data
-
-For cross-validation (US-3), the system will attempt to fetch ChIP-seq peaks for the top identified TFs in the same cell type from ENCODE or GEO. Similar to the primary data, no verified URL exists in the provided list. The code will implement a robust fetcher for the official ENCODE portal.
+**Motif Database**:
+*   **Source**: JASPAR 2024 (or latest available via `jaspar` Python package).
+*   **Format**: MEME format (compatible with FIMO).
+*   **Version Tracking**: The specific JASPAR release version will be recorded in `data/provenance.json` (Constitution VII).
 
 ## Statistical Methodology
 
 ### 1. Motif Scanning (FR-003)
+*   **Tool**: FIMO (Find Individual Motif Occurrences) from the MEME suite.
+*   **Threshold**: P-value ≤ 0.0001 (as per spec).
+*   **Input**: Processed BED files of peaks for each cell type.
+*   **Output**: BED file of motif matches with coordinates, motif ID, p-value, and q-value (initially).
 
-*   **Tool**: `FIMO` (part of MEME Suite) is chosen for CPU tractability and standard usage.
-*   **Database**: JASPAR 2024 (core collection).
-*   **Threshold**: p-value ≤ 0.0001.
-*   **Handling Zero Matches**: If a motif has no matches in a cell type, the p-value is set to 1.0, and a flag `no_matches` is set. This prevents division-by-zero errors in enrichment.
+### 2. Enrichment Analysis (FR-004) - Differential Enrichment
+*   **Method**: Fisher's Exact Test.
+*   **Null Hypothesis**: The motif is equally likely to occur in the peaks of Cell Type A as in the union of peaks from the other cell types.
+*   **Contingency Table Construction**:
+    *   **Numerator (a)**: Count of peaks in **Cell Type A** containing Motif M.
+    *   **Denominator (b)**: Count of peaks in **Cell Type A** NOT containing Motif M.
+    *   **Background Numerator (c)**: Count of peaks in the **Union of Other Cell Types** containing Motif M.
+    *   **Background Denominator (d)**: Count of peaks in the **Union of Other Cell Types** NOT containing Motif M.
+    *   **Total Peaks (N)**: a + b (Total peaks in Cell Type A).
+    *   **Total Background (M)**: c + d (Total peaks in Union of Other Cell Types).
+*   **Correction**: Benjamini-Hochberg (BH) procedure applied across all (Motif × Cell Type) tests to control False Discovery Rate (FDR).
+*   **Significance Threshold**: q-value < 0.05 (SC-002).
 
-### 2. Enrichment Analysis (FR-004)
+### 3. Multiple Comparison & Power
+*   **Correction**: BH correction is explicitly applied.
+*   **Power**: Given the observational nature and the large number of peaks (typically >10k), statistical power is high for detecting strong enrichment. The plan acknowledges that weak effects may be missed, but the large sample size (peaks) mitigates Type II error for strong signals.
+*   **Causal Inference**: The study is observational. Claims will be framed as "associational" (e.g., "Motif X is enriched in Cell Type A relative to others") rather than causal.
 
-*   **Test**: Fisher's Exact Test (2x2 contingency table).
-    *   Rows: Motif Present / Motif Absent.
-    *   Columns: Target Cell Type Peaks / Background Peaks.
-*   **Multiple Testing Correction**: Benjamini-Hochberg (BH) procedure applied to all (Motif x Cell Type) combinations to control False Discovery Rate (FDR).
-*   **Significance**: q-value < 0.05.
+### 4. Visualization & Validation (FR-005, SC-003)
+*   **Heatmap**: Clustered by Euclidean distance of q-values. Silhouette score ≥ 0.4 will be calculated to validate cluster quality.
+*   **Cross-Validation**: For top enriched motifs (q < 0.05), independent ChIP-seq peaks for the corresponding TF in the same cell type will be retrieved from ENCODE.
+    *   **Independence Check**: Ensure the ChIP-seq experiment ID is different from the ATAC-seq experiment ID used for the target cell type.
+    *   **Validation Metric**: Instead of a flawed "Overlap Percentage" threshold, we perform a **Fisher's Exact Test** comparing the presence of the motif in the *independent ChIP-seq peaks* vs. a background of *other accessible regions*.
+ * **Success Criterion**: The motif is considered validated if the enrichment p-value in the ChIP-seq data is significant (p < 0.05) AND the motif is enriched (odds ratio > 1). The [deferred] overlap is recorded as a "sanity check" statistic but is NOT the primary pass/fail gate.
+    *   **Handling No Matches**: If a motif has zero matches in a cell type, the p-value is calculated as 1.0 (consistent with null), and the result is flagged as "no matches found" to prevent crashes.
 
-### 3. Clustering & Visualization (FR-005)
+## Compute Feasibility
+*   **Memory**: Peak files are text-based (BED). Even with cell types and A substantial number of peaks each, the in-memory representation is < 100MB. FIMO is CPU-bound but memory-efficient.
+*   **Disk**: Total raw download < 1GB. Unpacked/intermediate files < 5GB. Well within 14GB limit.
+* **Runtime**: FIMO scanning of genomic regions against a comprehensive motif library takes [deferred] per cell type on 2 CPUs. Total runtime < 2 hours.
+*   **GPU**: Not required. FIMO and statistical tests are CPU-native.
 
-*   **Distance Metric**: Euclidean distance on the matrix of -log10(q-values).
-*   **Clustering**: Hierarchical clustering (Ward's method).
-*   **Validation**: Silhouette score ≥ 0.4 required for the heatmap clusters. If < 0.4, the plot is generated but flagged as "low separation".
-
-### 4. Cross-Validation (US-3)
-
-*   **Metric**: Overlap percentage between predicted motif peaks and independent ChIP-seq peaks.
-*   **Threshold**: ≥ 60% overlap for top hits to claim biological relevance.
-*   **Caveat**: Since the study is observational, claims are framed as "associational" (Constitution Principle I).
-
-## Compute Feasibility & Resource Planning
-
-### Constraints
-*   **CPU**: 2 cores.
-*   **RAM**: ~7 GB.
-*   **Disk**: 14 GB.
-*   **Time**: 6 hours.
-
-### Mitigation Strategies
-1.  **Sampling**: If the raw peak files exceed memory limits during annotation, the `parse.py` script will process files in chunks (streaming) or downsample if necessary (though the spec assumes full processing).
-2.  **FIMO Optimization**: Use `--max-p-value` and `--motif-pseudocounts` to speed up scanning. Run FIMO with `--threads 2` (max allowed).
-3.  **Memory Management**: Use `pandas` with appropriate dtypes (e.g., `int32` for coordinates) and `numpy` for matrix operations. Avoid loading all peak coordinates into a single massive DataFrame if possible; process per cell type.
-4.  **Disk Cleanup**: Intermediate files (e.g., temporary BED files for FIMO) are deleted immediately after processing. `TMP_DIR` is checked for ≥1GB free space before start.
-
-## Risks & Mitigations
-
-| Risk | Impact | Mitigation |
-| :--- | :--- | :--- |
-| **ENCODE API Rate Limits** | High (Download fails) | Implement exponential backoff (3 retries) as per FR-006. |
-| **Missing Verified URLs** | High (Data unavailable) | Code supports manual file drop-in if API fetch fails. |
-| **Disk Space Exhaustion** | High (Pipeline crash) | Pre-flight check for ≥14GB; delete temp files aggressively. |
-| **FIMO Too Slow** | Medium (Timeout) | Limit to top 500 motifs or sample peaks if runtime > 4h. |
-| **No Cell-Type Specificity** | Medium (Null result) | Silhouette score < 0.4 is a valid outcome; report "no clear clustering". |
+## Assumptions & Risks
+*   **Assumption**: ENCODE API remains stable and public.
+*   **Risk**: ENCODE file format changes. *Mitigation*: Robust parser in `preprocess.py` with error logging (US-1).
+*   **Risk**: The union of peaks from other cell types may be too small for a specific cell type if the cell types are very distinct. *Mitigation*: If the union size < 1000 peaks, the analysis for that cell type will be flagged, and the spec's assumption of "sufficient data" will be re-evaluated.

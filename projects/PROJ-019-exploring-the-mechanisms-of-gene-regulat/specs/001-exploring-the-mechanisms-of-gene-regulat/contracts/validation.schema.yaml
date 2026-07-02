@@ -21,31 +21,45 @@ properties:
         predicted_peak_count:
           type: integer
           minimum: 0
-        chrip_peak_count:
+        chip_peak_count:
           type: integer
-          minimum: 0
+          minimum: 1
+          description: "Total number of independent ChIP-seq peaks for this TF/cell type"
         overlap_count:
           type: integer
           minimum: 0
+          description: "Number of ChIP-seq peaks containing at least one predicted motif"
         overlap_percentage:
           type: number
           minimum: 0
           maximum: 100
+          description: "Fraction of ChIP-seq peaks containing a motif (Sanity Check)"
+        enrichment_p_value:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: "Fisher's exact test p-value for motif enrichment in ChIP peaks vs. background"
+        enrichment_odds_ratio:
+          type: number
+          minimum: 0
+          description: "Odds ratio for motif enrichment in ChIP peaks vs. background"
         is_validated:
           type: boolean
-          description: "True if overlap_percentage >= 60"
-        chrip_source:
+          description: "True if enrichment_p_value < 0.05 AND enrichment_odds_ratio > 1"
+        chip_source:
           type: string
           description: "Source of the independent ChIP-seq data (e.g., ENCODE accession)"
       required:
         - motif_id
         - cell_type
         - predicted_peak_count
-        - chrip_peak_count
+        - chip_peak_count
         - overlap_count
         - overlap_percentage
+        - enrichment_p_value
+        - enrichment_odds_ratio
         - is_validated
-        - chrip_source
+        - chip_source
     minItems: 1
   summary:
     type: object
@@ -56,13 +70,13 @@ properties:
       successful_validations:
         type: integer
         minimum: 0
-      validation_threshold:
-        type: number
-        const: 60
+      validation_method:
+        type: string
+        const: "Statistical Enrichment in ChIP-seq"
     required:
       - total_validations
       - successful_validations
-      - validation_threshold
+      - validation_method
 required:
   - validations
   - summary

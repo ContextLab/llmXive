@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Motif Match Schema"
+description: "Schema for FIMO motif match results"
+type: object
+properties:
+  chromosome:
+    type: string
+    description: "Chromosome name"
+  start:
+    type: integer
+    description: "0-based start coordinate"
+  end:
+    type: integer
+    description: "0-based end coordinate"
+  motif_id:
+    type: string
+    description: "JASPAR motif ID (e.g., 'MA0139.1')"
+  p_value:
+    type: number
+    description: "Raw p-value from FIMO"
+    minimum: 0.0
+    maximum: 1.0
+  q_value:
+    type: number
+    description: "Benjamini-Hochberg corrected q-value"
+    minimum: 0.0
+    maximum: 1.0
+  cell_type:
+    type: string
+    description: "Cell type where the match was found"
+  peak_id:
+    type: string
+    description: "Identifier of the parent peak region"
+required:
+  - chromosome
+  - start
+  - end
+  - motif_id
+  - p_value
+  - q_value
+  - cell_type
+  - peak_id
+additionalProperties: false

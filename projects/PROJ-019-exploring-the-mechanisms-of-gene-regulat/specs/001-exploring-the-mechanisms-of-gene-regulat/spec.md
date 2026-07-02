@@ -9,7 +9,7 @@
 
 ### User Story 1 - Data Ingestion and Preprocessing (Priority: P1)
 
-The researcher needs to download, parse, and normalize ATAC-seq and ChIP-seq peak data from ENCODE for five major cell types (GM, K562, HepG2, H1-hESC, IMR90) to establish a consistent genomic coordinate system for analysis.
+The researcher needs to download, parse, and normalize ATAC-seq and ChIP-seq peak data from ENCODE for multiple major cell types. to establish a consistent genomic coordinate system for analysis.
 
 **Why this priority**: Without reliable, standardized input data, no downstream motif analysis or statistical inference is possible. This is the foundational step for the entire pipeline.
 
@@ -58,18 +58,18 @@ The researcher needs to generate visualizations (heatmaps, Manhattan plots) of t
 ### Edge Cases
 
 - What happens when the ENCODE API rate limits are hit during download? (System MUST implement exponential backoff with a maximum of 3 retries before failing).
-- How does the system handle a cell type where no Peak Regions are found for a specific TF motif? (System MUST output a p-value of 1.0 and a note indicating "no matches found" rather than crashing).
+- How does the system handle a cell type where no Peak Regions are found for a specific TF motif? (System MUST output a p-value indicating maximal consistency with the null hypothesis. and a note indicating "no matches found" rather than crashing).
 - How does the system handle disk space exhaustion during the temporary file generation? (System MUST detect available space < 1GB in `TMP_DIR` and abort with a clear error message before writing).
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download ATAC-seq and ChIP-seq peak files for specific cell types (GM12878, K562, HepG2, H1-hESC, IMR90) from ENCODE using HTTP GET requests, ensuring total raw download size does not exceed 2GB, while allowing up to 14GB of temporary disk space for unpacked and indexed files. (See US-1)
+- **FR-001**: System MUST download ATAC-seq and ChIP-seq peak files for specific cell types (GM12878, K562, HepG2, H1-hESC, IMR90) from ENCODE using HTTP GET requests, ensuring total raw download size does not exceed a manageable storage threshold, while allowing up to 14GB of temporary disk space for unpacked and indexed files. (See US-1)
 - **FR-002**: System MUST parse BED-formatted Peak Region files and annotate genomic regions with gene symbols using the hg38 reference genome, storing intermediate results in a configurable directory (`TMP_DIR`, default `/tmp`) with a pre-flight check ensuring ≥ 14GB available space. (See US-1)
 - **FR-003**: System MUST scan accessible regions for TF motif matches using a CPU-only tool (FIMO or HOMER) against the JASPAR database, identifying matches with a p-value ≤ 0.0001. (See US-2)
 - **FR-004**: System MUST compute motif enrichment scores using Fisher's exact test for each motif-cell type combination, using Peak Regions from other cell types as the background model, and apply Benjamini-Hochberg correction for multiple testing across all motifs. (See US-2)
-- **FR-005**: System MUST generate a heatmap visualization of motif enrichment (q-values) across cell types using Euclidean distance clustering with a minimum silhouette score of 0.4, and a summary table of top enriched motifs with associated independent ChIP-seq validation statistics. (See US-3)
+- **FR-005**: System MUST generate a heatmap visualization of motif enrichment (q-values) across cell types using Euclidean distance clustering with a minimum silhouette score sufficient to indicate well-separated clusters, and a summary table of top enriched motifs with associated independent ChIP-seq validation statistics. (See US-3)
 - **FR-006**: System MUST implement exponential backoff with a maximum of 3 retries for network requests to ENCODE, failing gracefully if the download cannot be completed. (See US-1)
 
 ### Key Entities
@@ -102,5 +102,5 @@ The researcher needs to generate visualizations (heatmaps, Manhattan plots) of t
 - The Benjamini-Hochberg correction is sufficient for the multiplicity of tests performed (number of motifs × number of cell types), and no further hierarchical correction is required.
 - The threshold for motif match p-value (≤ 0.0001) is based on standard practices in the field for reducing false positives in motif scanning, and a sensitivity analysis will sweep this threshold over a range of small values. to report stability of the top hits.
 - The dataset variables (Peak Region coordinates, cell type labels) are fully contained within the ENCODE source files; no external data sources are required for the primary analysis, except for independent ChIP-seq validation data which is publicly available.
-- The 2GB download limit refers strictly to the compressed archive size, while the 14GB disk limit accounts for unpacked files, indices, and intermediate matrices.
+- The download limit refers strictly to the compressed archive size, while the disk limit accounts for unpacked files, indices, and intermediate matrices.
 - The `TMP_DIR` environment variable allows configuration of temporary storage to ensure robustness across different CI environments where `/tmp` may be constrained.

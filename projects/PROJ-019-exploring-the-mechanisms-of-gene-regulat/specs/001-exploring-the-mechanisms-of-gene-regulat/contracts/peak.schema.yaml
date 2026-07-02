@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Peak Region Schema"
+description: "Schema for parsed ATAC-seq/ChIP-seq peak regions"
+type: object
+properties:
+  chromosome:
+    type: string
+    description: "Chromosome name (e.g., 'chr1', 'chrX')"
+  start:
+    type: integer
+    description: "0-based start coordinate"
+    minimum: 0
+  end:
+    type: integer
+    description: "0-based end coordinate (exclusive)"
+    minimum: 1
+  cell_type:
+    type: string
+    description: "Cell type identifier"
+    enum:
+      - "GM12878"
+      - "K562"
+      - "HepG2"
+      - "H1-hESC"
+      - "IMR90"
+  source_file:
+    type: string
+    description: "Original ENCODE filename or accession"
+  gene_symbol:
+    type: string
+    description: "Nearest gene symbol (may be null if no gene nearby)"
+    nullable: true
+required:
+  - chromosome
+  - start
+  - end
+  - cell_type
+  - source_file
+additionalProperties: false

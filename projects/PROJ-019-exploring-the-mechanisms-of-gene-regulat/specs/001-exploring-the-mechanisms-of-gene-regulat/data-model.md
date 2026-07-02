@@ -2,69 +2,49 @@
 
 ## Overview
 
-This document defines the data structures, file formats, and schemas used throughout the pipeline. All data is stored in `data/` with checksums. Intermediate files are in `TMP_DIR` and deleted after processing.
+This document defines the data structures used throughout the pipeline, ensuring consistency between ingestion, processing, and analysis. All data is stored in the `data/` directory hierarchy.
+
+## Data Flow
+
+1.  **Raw**: Downloaded ENCODE BED files (unmodified).
+2.  **Interim**: Parsed peaks, GC-matched background regions, FIMO output.
+3.  **Processed**: Enrichment matrices, validation statistics, visualization inputs.
+
+## Core Entities
+
+### 1. Peak Region
+A genomic interval representing an accessible region.
+*   **Fields**: `chromosome` (str), `start` (int), `end` (int), `cell_type` (str), `source_file` (str).
+*   **Origin**: ENCODE BED files.
+*   **Transformation**: Parsed by `preprocess.py`, annotated with gene symbols.
+
+### 2. Motif Match
+A genomic location where a TF motif was found.
+*   **Fields**: `chromosome` (str), `start` (int), `end` (int), `motif_id` (str), `p_value` (float), `q_value` (float), `cell_type` (str), `peak_id` (str).
+*   **Origin**: FIMO output.
+*   **Transformation**: Filtered by p-value ≤ 0.0001.
+
+### 3. Enrichment Result
+Statistical summary of motif enrichment.
+*   **Fields**: `motif_id` (str), `cell_type` (str), `observed_count` (int), `expected_count` (float), `p_value` (float), `q_value` (float), `odds_ratio` (float).
+*   **Origin**: `enrichment.py`.
+*   **Transformation**: Aggregated into a matrix for visualization.
+
+### 4. Validation Statistic
+Overlap between predicted motifs and independent ChIP-seq data.
+*   **Fields**: `motif_id` (str), `cell_type` (str), `chip_see_source` (str), `overlap_percentage` (float), `validation_status` (str: "passed" | "failed" | "no_data").
+*   **Origin**: `visualize.py` (validation step).
 
 ## File Formats
 
-### 1. Raw Peak Files (Input)
-*   **Format**: BED (Browser Extensible Data) or narrowPeak.
-*   **Columns**: `chrom`, `start`, `end`, `name` (optional), `score` (optional), `strand` (optional).
-*   **Source**: ENCODE.
-*   **Constraint**: Must be parsed into a unified internal representation.
+*   **Input/Intermediate**: BED (6 columns: chrom, start, end, name, score, strand) or TSV.
+*   **Processed**: Parquet or CSV for efficient matrix operations.
+*   **Provenance**: JSON (`data/provenance.json`).
 
-### 2. Annotated Peaks (Intermediate)
-*   **Format**: Parquet or JSONL.
-*   **Schema**:
-    *   `chrom`: string
-    *   `start`: int
-    *   `end`: int
-    *   `cell_type`: string (enum: GM12878, K562, HepG2, H1-hESC, IMR90)
-    *   `gene_symbol`: string (mapped from hg38)
-    *   `peak_id`: string (original ID)
+## Constraints & Validations
 
-### 3. Motif Matches (Intermediate)
-*   **Format**: JSONL.
-*   **Schema**:
-    *   `peak_id`: string
-    *   `cell_type`: string
-    *   `motif_id`: string (JASPAR ID)
-    *   `p_value`: float
-    *   `strand`: string (+/-)
-
-### 4. Enrichment Results (Output)
-*   **Format**: CSV/Parquet.
-*   **Schema**:
-    *   `motif_id`: string
-    *   `cell_type`: string
-    *   `odds_ratio`: float
-    *   `p_value`: float
-    *   `q_value`: float (BH corrected)
-    *   `is_significant`: bool
-
-### 5. Validation Results (Output)
-*   **Format**: CSV/Parquet.
-*   **Schema**:
-    *   `motif_id`: string
-    *   `cell_type`: string
-    *   `overlap_percentage`: float
-    *   `chips_peak_count`: int
-    *   `predicted_peak_count`: int
-
-## Data Flow Diagram
-
-```mermaid
-graph TD
-    A[ENCODE Raw BED] -->|Download + Checksum| B(data/raw)
-    B -->|Parse + Annotate| C(data/processed/annotated_peaks.parquet)
-    C -->|FIMO Scan| D(data/processed/motif_matches.jsonl)
-    D -->|Fisher + BH| E(data/results/enrichment.csv)
-    E -->|Cluster + Plot| F(data/results/heatmap.png)
-    E -->|Cross-Validate| G(data/results/validation.csv)
-```
-
-## Assumptions & Constraints
-
-*   **hg38 Reference**: All coordinates are assumed to be in hg38.
-*   **Gene Mapping**: Gene symbols are mapped using a standard GTF (e.g., GENCODE v44).
-*   **Memory**: All intermediate JSONL/Parquet files fit within 7GB RAM when loaded in chunks.
-*   **Disk**: Total disk usage for `data/` and `TMP_DIR` never exceeds 14GB.
+*   **Coordinates**: 0-based, half-open (BED standard).
+*   **Cell Types**: Must be one of: `GM12878`, `K562`, `HepG2`, `H1-hESC`, `IMR90`.
+*   **Motif IDs**: Must match JASPAR 2024 IDs (e.g., `MA0139.1`).
+*   **P-values**: Range [0.0, 1.0].
+*   **Q-values**: Range [0.0, 1.0], monotonically non-decreasing when sorted by p-value.
