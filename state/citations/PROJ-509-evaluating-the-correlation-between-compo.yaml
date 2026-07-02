@@ -31,7 +31,7 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.4053859
   verified_at: '2026-06-29T21:06:19.286842Z'
-- artifact_hash: cd3d6fbcff5f942dd6e004450d5bfb4951d7c5214a70c2efd8470603e524f208
+- artifact_hash: d15f4263bf96a8b870e658ca9187c512e0602da0d1056bbe10c6cea06dd224bb
   artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -41,8 +41,8 @@
   value: https://www.wikidata.org/wiki/Q47604
   verification_status: verified
   verified_against_url: https://www.wikidata.org/wiki/Q47604
-  verified_at: '2026-06-29T21:39:59.504258Z'
-- artifact_hash: cd3d6fbcff5f942dd6e004450d5bfb4951d7c5214a70c2efd8470603e524f208
+  verified_at: '2026-07-02T07:32:46.938077Z'
+- artifact_hash: d15f4263bf96a8b870e658ca9187c512e0602da0d1056bbe10c6cea06dd224bb
   artifact_path: projects/PROJ-509-evaluating-the-correlation-between-compo/specs/001-evaluating-the-correlation-between-compo/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -52,4 +52,4 @@
   value: 10.5281/zenodo.4053859
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.5281/zenodo.4053859
-  verified_at: '2026-06-29T21:39:59.504258Z'
+  verified_at: '2026-07-02T07:32:46.938077Z'
