@@ -337,9 +337,15 @@
       html += '<div style="font-size:11px; color:var(--muted); margin-bottom:6px;">' +
         escapeHtml(pp.ingestion_statement) + '</div>';
     }
-    // Prefer the same-origin mirror so the PDF opens VIEWABLE in the browser
-    // (falls back to the GitHub blob when the mirror path can't be derived).
-    const viewable = (pdf) => (pdf && (_toSameOriginPdf(pdf.repo_path) || pdf.github_url)) || null;
+    // Prefer the same-origin mirror ONLY when the PDF was actually mirrored
+    // (pages.yml skips PDFs > 15 MB → same-origin 404s); otherwise link to the
+    // GitHub blob, which always renders. `mirrored` is false on legacy payloads
+    // → default to the safe GitHub link there too.
+    const viewable = (pdf) => {
+      if (!pdf) return null;
+      if (pdf.mirrored) return _toSameOriginPdf(pdf.repo_path) || pdf.github_url;
+      return pdf.github_url || pdf.raw_url || null;
+    };
     if (pp.source_url) {
       html += row('<i class="fa-solid fa-arrow-up-right-from-square"></i>', 'Original source', pp.source_url, '');
     }
@@ -429,11 +435,16 @@
   // modal still shows a real artifact instead of "none".
   const _MD_KEYS = ["paper_tasks", "paper_plan", "paper_spec", "tasks", "plan", "spec", "idea"];
   function _resolveArtifact(project) {
-    // A Reviewed Preprint features its cover-prepended original PDF.
+    // A Reviewed Preprint features its cover-prepended original PDF. Only embed
+    // the same-origin mirror when it exists (pages.yml skips PDFs > 15 MB); for
+    // an un-mirrored (oversized) original, drop repo_path so _renderArtifactPane
+    // embeds the raw URL, which fails the clientHeight check and degrades to a
+    // working "Download PDF" button instead of a same-origin 404.
     const pp = project.preprint;
     if (pp && pp.original_pdf) {
-      return { type: "pdf", repo_path: pp.original_pdf.repo_path,
-               github_url: pp.original_pdf.github_url, raw_url: pp.original_pdf.raw_url };
+      const op = pp.original_pdf;
+      return { type: "pdf", repo_path: op.mirrored ? op.repo_path : null,
+               github_url: op.github_url, raw_url: op.raw_url };
     }
     const ca = project.current_artifact;
     if (ca && ca.type && ca.type !== "none") return ca;
@@ -476,10 +487,18 @@
         || "";
       const sameOriginUrl = _toSameOriginPdf(repoPath);
       const rawUrl = ca.raw_url || raw((project.artifact_links || {}).paper_pdf);
-      // Prefer the same-origin mirror; fall back to the raw URL (link only,
-      // no embed) when no mirror exists (older payload that predates the
-      // pages.yml workflow change).
-      const embedUrl = sameOriginUrl || rawUrl;
+      // No same-origin mirror (e.g. a PDF over pages.yml's 15 MB mirror cap):
+      // embedding raw.githubusercontent 404s / is X-Frame-blocked and shows
+      // "file not found". Skip the embed and offer working links immediately.
+      if (!sameOriginUrl) {
+        pdfEl.insertAdjacentHTML("beforeend",
+          '<div class="ad-pdf-empty"><div>This PDF is too large to preview inline.<br/>' +
+          (ca.github_url ? '<a class="btn primary" style="margin-top:12px;" href="' + escapeHtml(ca.github_url) + '" target="_blank" rel="noopener"><i class="fa-brands fa-github"></i> View on GitHub</a> ' : '') +
+          (rawUrl ? '<a class="btn" style="margin-top:12px;" href="' + escapeHtml(rawUrl) + '" target="_blank" rel="noopener"><i class="fa-solid fa-download"></i> Download PDF</a>' : '') +
+          '</div></div>');
+        return;
+      }
+      const embedUrl = sameOriginUrl;
       pdfEl.insertAdjacentHTML("beforeend", '<embed type="application/pdf" src="' + escapeHtml(embedUrl) + '" />');
       setTimeout(() => {
         const embed = pdfEl.querySelector("embed");
