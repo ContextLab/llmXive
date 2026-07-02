@@ -5,3 +5,4 @@
 {"at": "2026-06-24T23:36:18.220068+00:00", "from_stage": "validated", "last_run_id": "7a277b37-ccc3-450b-91c6-8e2487ab25f1", "to_stage": "project_initialized"}
 {"at": "2026-06-29T16:25:02.055354+00:00", "from_stage": "project_initialized", "last_run_id": "29993c12-b534-4297-8b55-2d8e78531928", "to_stage": "specified"}
 {"at": "2026-07-01T19:23:55.003734+00:00", "from_stage": "specified", "last_run_id": "29993c12-b534-4297-8b55-2d8e78531928", "to_stage": "paper_ingested"}
+{"at": "2026-07-02T21:30:00.950742+00:00", "from_stage": "paper_ingested", "last_run_id": "fbf3af52-2d48-48f5-a5c3-3470405caab3", "to_stage": "reviewed_preprint"}
