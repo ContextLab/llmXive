@@ -8,94 +8,75 @@ The gate detected that your reported numbers are NOT real measurements: they are
 2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
 3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
 
-- code/data/loaders.py: synthetic/fake INPUT data not authorized by the spec — “…implementation relied on synthetic data generation, which was fl…”
-- code/data/loaders.py: synthetic/fake INPUT data not authorized by the spec — “…o make it clear that     synthetic data generation is no longer…”
+- code/data/loaders.py: synthetic/fake INPUT data not authorized by the spec — “…all datasets' or use the synthetic data generator."         )  #…”
 - code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic data generation for social me…”
 - code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…xperiments.  This module generates controlled synthetic datasets for testing the…”
 - code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…IMPORTANT: This module generates CONTROLLED synthetic data for testing purpose…”
 - code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…iguration for generating synthetic game data."""     num_games: int =…”
 - code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…[str, Any]]:     """     Generate synthetic game data for testing th…”
 - code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…ction creates structured synthetic data that mimics the format…”
-
-## ⚠ REGRESSIONS — your last fix BROKE these (they passed before)
-
-These commands were NOT failing in the previous round and ARE failing now — your last edit broke previously-working code. REVERT or correct whatever change broke each one BEFORE touching anything else; do not trade one passing script for another (that oscillation is what burns the fix-round budget toward escalation):
-
-- `python -c "from data.loaders import verify_datasets; verify_datasets()"`
-- `python code/run_experiment.py --context full --agents 3,5,7 --games 800 --plot scaling`
-- `python code/run_experiment.py --context full --agents 5 --games 100 --seed 42`
-- `python code/run_experiment.py --context full --agents 5 --games 100 --seed 42`
-- `python code/run_experiment.py --context full --agents 5 --games 1000`
-- `python code/run_experiment.py --context limited --agents 5 --games 1000`
+- code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…Returns:         List of synthetic game records     """     random.seed(…”
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 15 fabricated/simulated-result signal(s) — results are not real measurements: code/data/loaders.py: synthetic/fake INPUT data not authorized by the spec — “…implementation relied on synthetic data generation, which was fl…”; code/data/loaders.py: synthetic/fake INPUT data not authorized by the spec — “…o make it clear that     synthetic data generation is no longer…”; code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic data generation for social me…”; 6 command(s) failed: python code/run_experiment.py --context full --agents 5 --games 1000 (rc=1); python code/run_experiment.py --context limited --agents 5 --games 1000 (rc=1); python code/run_experiment.py --context full --agents 3,5,7 --games 800 --plot scaling (rc=1)
+**Summary**: 14 fabricated/simulated-result signal(s) — results are not real measurements: code/data/loaders.py: synthetic/fake INPUT data not authorized by the spec — “…all datasets' or use the synthetic data generator."         )  #…”; code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic data generation for social me…”; code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…xperiments.  This module generates controlled synthetic datasets for testing the…”; 6 command(s) failed: python code/run_experiment.py --context full --agents 5 --games 1000 (rc=1); python code/run_experiment.py --context limited --agents 5 --games 1000 (rc=1); python code/run_experiment.py --context full --agents 3,5,7 --games 800 --plot scaling (rc=1)
 
 ## Failing / missing run-book commands
 
 - python code/run_experiment.py --context full --agents 5 --games 1000 -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 34, in <module>
-    from generate_full_results import simulate_one_game, ensure_dir
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/generate_full_results.py", line 26, in <module>
-    from utils.logging import get_logger
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/utils/__init__.py", line 5, in <module>
-    from .config import load_config, save_config
-ImportError: cannot import name 'load_config' from 'utils.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/utils/config.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 24, in <module>
+    from generate_full_results import (
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/generate_full_results.py", line 28, in <module>
+    logger = get_logger(__name__)
+             ^^^^^^^^^^^^^^^^^^^^
+TypeError: get_logger() takes 0 positional arguments but 1 was given
 - python code/run_experiment.py --context limited --agents 5 --games 1000 -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 34, in <module>
-    from generate_full_results import simulate_one_game, ensure_dir
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/generate_full_results.py", line 26, in <module>
-    from utils.logging import get_logger
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/utils/__init__.py", line 5, in <module>
-    from .config import load_config, save_config
-ImportError: cannot import name 'load_config' from 'utils.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/utils/config.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 24, in <module>
+    from generate_full_results import (
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/generate_full_results.py", line 28, in <module>
+    logger = get_logger(__name__)
+             ^^^^^^^^^^^^^^^^^^^^
+TypeError: get_logger() takes 0 positional arguments but 1 was given
 - python code/run_experiment.py --context full --agents 3,5,7 --games 800 --plot scaling -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 34, in <module>
-    from generate_full_results import simulate_one_game, ensure_dir
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/generate_full_results.py", line 26, in <module>
-    from utils.logging import get_logger
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/utils/__init__.py", line 5, in <module>
-    from .config import load_config, save_config
-ImportError: cannot import name 'load_config' from 'utils.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/utils/config.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 24, in <module>
+    from generate_full_results import (
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/generate_full_results.py", line 28, in <module>
+    logger = get_logger(__name__)
+             ^^^^^^^^^^^^^^^^^^^^
+TypeError: get_logger() takes 0 positional arguments but 1 was given
 - python code/run_experiment.py --context limited --agents 5 --games 1000 --thresholds 128,256,512 -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 34, in <module>
-    from generate_full_results import simulate_one_game, ensure_dir
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/generate_full_results.py", line 26, in <module>
-    from utils.logging import get_logger
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/utils/__init__.py", line 5, in <module>
-    from .config import load_config, save_config
-ImportError: cannot import name 'load_config' from 'utils.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/utils/config.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 24, in <module>
+    from generate_full_results import (
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/generate_full_results.py", line 28, in <module>
+    logger = get_logger(__name__)
+             ^^^^^^^^^^^^^^^^^^^^
+TypeError: get_logger() takes 0 positional arguments but 1 was given
 - python -c "from data.loaders import verify_datasets; verify_datasets()" -> rc=1
     Traceback (most recent call last):
   File "<string>", line 1, in <module>
   File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/data/__init__.py", line 4, in <module>
     from .loaders import (
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/data/loaders.py", line 18, in <module>
-    from datasets import load_dataset
-ModuleNotFoundError: No module named 'datasets'
+ImportError: cannot import name 'DatasetLoader' from 'data.loaders' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/data/loaders.py)
 - python code/run_experiment.py --context full --agents 5 --games 100 --seed 42 -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 34, in <module>
-    from generate_full_results import simulate_one_game, ensure_dir
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/generate_full_results.py", line 26, in <module>
-    from utils.logging import get_logger
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/utils/__init__.py", line 5, in <module>
-    from .config import load_config, save_config
-ImportError: cannot import name 'load_config' from 'utils.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/utils/config.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 24, in <module>
+    from generate_full_results import (
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/generate_full_results.py", line 28, in <module>
+    logger = get_logger(__name__)
+             ^^^^^^^^^^^^^^^^^^^^
+TypeError: get_logger() takes 0 positional arguments but 1 was given
 - python code/run_experiment.py --context full --agents 5 --games 100 --seed 42 -> rc=1
     Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 34, in <module>
-    from generate_full_results import simulate_one_game, ensure_dir
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/generate_full_results.py", line 26, in <module>
-    from utils.logging import get_logger
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/utils/__init__.py", line 5, in <module>
-    from .config import load_config, save_config
-ImportError: cannot import name 'load_config' from 'utils.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/utils/config.py)
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 24, in <module>
+    from generate_full_results import (
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/generate_full_results.py", line 28, in <module>
+    logger = get_logger(__name__)
+             ^^^^^^^^^^^^^^^^^^^^
+TypeError: get_logger() takes 0 positional arguments but 1 was given
 
 ## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
 
@@ -110,7 +91,7 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 Make `__getattr__` in `code/memory/buffer.py` accept ALL of the above.
 
-### `compute_retrieval_efficiency` — defined in `code/metrics/retrieval.py`; called 11 way(s):
+### `compute_retrieval_efficiency` — defined in `code/metrics/retrieval.py`; called 14 way(s):
 
 - code/generate_full_results.py: retrieval_eff, _ = compute_retrieval_efficiency(
 - code/metrics/tests/test_retrieval.py: metrics, efficiency = compute_retrieval_efficiency(10, 10, 3)
@@ -123,8 +104,22 @@ Make `__getattr__` in `code/memory/buffer.py` accept ALL of the above.
 - code/metrics/tests/test_retrieval.py: compute_retrieval_efficiency(5, -1, 3)
 - code/metrics/tests/test_retrieval.py: compute_retrieval_efficiency(-1, 10, 3)
 - code/metrics/tests/test_retrieval.py: compute_retrieval_efficiency(15, 10, 3)
+- code/tests/unit/test_retrieval.py: metrics, eff = compute_retrieval_efficiency(5, 10, 5)
+- code/tests/unit/test_retrieval.py: _, eff = compute_retrieval_efficiency(-5, -10, -3)
+- code/tests/unit/test_retrieval.py: _, eff = compute_retrieval_efficiency(5, 10, 0)
 
 Make `compute_retrieval_efficiency` in `code/metrics/retrieval.py` accept ALL of the above.
+
+### `get_logger` — defined in `code/utils/logging.py`; called 6 way(s):
+
+- code/generate_full_results.py: logger = get_logger(__name__)
+- code/run_pipeline_profile.py: logger = get_logger(__name__)
+- code/utils/tests/test_logging.py: logger = get_logger(name=logger_name)
+- code/utils/tests/test_logging.py: logger2 = get_logger(name="existing_logger")
+- code/analysis/anova.py: logger = get_logger(__name__)
+- code/analysis/sensitivity.py: logger = get_logger(__name__)
+
+Make `get_logger` in `code/utils/logging.py` accept ALL of the above.
 
 ### class `MemoryBuffer` (in `code/memory/buffer.py`) — accessed via method/attribute names this round: `reset`
 
@@ -142,8 +137,87 @@ Make `compute_retrieval_efficiency` in `code/metrics/retrieval.py` accept ALL of
 
 Whichever you choose, every call site of `MemoryBuffer` across the codebase must stop raising `AttributeError`/`TypeError`.
 
-`MemoryBuffer.reset` call sites (4):
+`MemoryBuffer.reset` call sites (3):
 - code/generate_full_results.py: agent.memory.reset()
-- code/memory/buffer.py: buffer.reset()
-- code/tests/unit/test_memory_buffer.py: """Test that reset() clears all entries."""
-- code/tests/unit/test_memory_buffer.py: buffer.reset()
+- code/memory/buffer.py: get_shared_memory_buffer().reset()
+- code/tests/unit/test_memory_buffer.py: buf.reset()
+
+## ✅ KNOWN-GOOD REFERENCE — a fully tolerant logging module
+
+`code/utils/logging.py` keeps breaking across rounds because it mixes the stdlib `logging` module (whose `Logger.log(level, msg)` needs an INTEGER level and has no `to_json`) with a custom `LogEntry`. That hybrid can never satisfy all callers. Replace the contents of `code/utils/logging.py` with the self-contained reference below — it ALREADY defines every symbol callers need (`get_logger`, `log_operation`, `ReproducibilityLogger`, `LogEntry`), returns a `LogEntry` (with `.to_json()`) from direct `log_operation(...)` calls, supports `@log_operation`, and resolves any `.info`/`.debug`/`.warning` via `__getattr__`. Do NOT reach for the stdlib `logging` module again. Adjust only if a call site listed above needs a field it lacks.
+
+```python
+"""Reproducibility logging — fully tolerant; raises on nothing."""
+from __future__ import annotations
+
+import functools
+import json
+from dataclasses import asdict, dataclass, field
+from datetime import datetime
+from typing import Any
+
+
+@dataclass
+class LogEntry:
+    operation: str = ""
+    parameters: dict = field(default_factory=dict)
+    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
+
+    def to_json(self) -> str:
+        return json.dumps(asdict(self), ensure_ascii=False, default=str)
+
+
+class ReproducibilityLogger:
+    """Accepts ANY call shape and never raises.
+
+    Do NOT subclass or delegate to the stdlib ``logging`` module: its
+    ``log(level, msg)`` needs an integer level and has no ``to_json`` — that is
+    exactly what keeps breaking. This logger is self-contained.
+    """
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        self.name = args[0] if args else kwargs.get("name", "reproducibility")
+        self.entries: list = []
+
+    def log(self, *args: Any, **kwargs: Any) -> "LogEntry":
+        op = args[0] if args else kwargs.get("operation", "")
+        entry = LogEntry(operation=str(op), parameters=dict(kwargs))
+        self.entries.append(entry)
+        return entry
+
+    # .info/.debug/.warning/.error/.critical/... -> tolerant no-op
+    def __getattr__(self, name: str):
+        def _noop(*args: Any, **kwargs: Any) -> None:
+            return None
+        return _noop
+
+
+_GLOBAL_LOGGER: "ReproducibilityLogger | None" = None
+
+
+def get_logger(*args: Any, **kwargs: Any) -> "ReproducibilityLogger":
+    global _GLOBAL_LOGGER
+    if _GLOBAL_LOGGER is None:
+        _GLOBAL_LOGGER = ReproducibilityLogger(*args, **kwargs)
+    return _GLOBAL_LOGGER
+
+
+def log_operation(*args: Any, **kwargs: Any) -> Any:
+    """Dual-purpose: a decorator (@log_operation) OR a direct logging call.
+
+    The direct-call path ALWAYS returns a LogEntry (callers use .to_json());
+    decorator use returns the wrapped function. Never return a bare function
+    from the direct-call path.
+    """
+    if len(args) == 1 and callable(args[0]) and not kwargs:
+        func = args[0]
+
+        @functools.wraps(func)
+        def _wrapper(*a: Any, **k: Any) -> Any:
+            return func(*a, **k)
+
+        return _wrapper
+
+    op = args[0] if args else kwargs.pop("operation", "operation")
+    return get_logger().log(op, **kwargs)
+```

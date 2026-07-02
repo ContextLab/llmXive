@@ -8,6 +8,10 @@
     "owner": null
   },
   {
+    "symbol": "get_logger",
+    "owner": null
+  },
+  {
     "symbol": "reset",
     "owner": "MemoryBuffer"
   }

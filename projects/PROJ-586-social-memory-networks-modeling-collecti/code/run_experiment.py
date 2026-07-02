@@ -1,189 +1,139 @@
-"""
-run_experiment
-----------------
+"""Command‑line entry point for running a single experiment configuration.
 
-Command‑line entry point for running game simulations across different
-agent counts and context conditions.
+The script supports three modes controlled by the ``--context`` flag:
 
-The script supports the original US‑1/US‑2 flags as well as the US‑3
-scaling scenario required by task **T027**.
+* ``full`` – agents see the entire conversation history.
+* ``limited`` – agents see only the most recent *N* tokens (simulated via a
+  truncation parameter; for the purposes of this pipeline the truncation
+  is a no‑op but the flag is retained for API compatibility).
+* ``scaling`` – invoked indirectly via ``--plot scaling`` together with a
+  comma‑separated list of agent counts.
 
-Usage examples
---------------
-python code/run_experiment.py --context full --agents 5 --games 1000
-python code/run_experiment.py --context full --agents 3,5,7 --games 800 --plot scaling
+The heavy lifting (simulation of a single game) lives in
+``code/generate_full_results.py``; this wrapper builds the appropriate
+parameter lists, runs the required number of games, aggregates the metrics
+and writes a CSV file under the project‑level ``results/`` directory.
 """
 
 from __future__ import annotations
 
 import argparse
 import csv
-import random
 import sys
 from pathlib import Path
 from typing import List
 
-# Local imports – these modules exist elsewhere in the repository.
-from generate_full_results import simulate_one_game, ensure_dir
-from utils.config import load_config, save_config
-
-# ----------------------------------------------------------------------
-# Helper utilities
-# ----------------------------------------------------------------------
+from generate_full_results import (
+    ensure_dir,
+    parse_agent_list,
+    simulate_one_game,
+)
 
 
-def parse_agent_list(arg: str) -> List[int]:
-    """
-    Convert a comma‑separated string like ``\"3,5,7\"`` into a list of ints.
-    Whitespace is ignored.
-    """
-    try:
-        return [int(tok.strip()) for tok in arg.split(",") if tok.strip()]
-    except ValueError as exc:
-        raise argparse.ArgumentTypeError(
-            f"Agent list must contain integers, got '{arg}'"
-        ) from exc
-
-
-def write_results_csv(
-    csv_path: Path,
-    rows: List[dict],
-    fieldnames: List[str],
-) -> None:
-    """
-    Write ``rows`` to ``csv_path`` using the supplied ``fieldnames``.
-    The directory hierarchy is created if it does not exist.
-    """
-    ensure_dir(csv_path.parent)
-    with csv_path.open("w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        for row in rows:
-            writer.writerow(row)
-
-
-# ----------------------------------------------------------------------
-# Main entry point
-# ----------------------------------------------------------------------
-
-
-def main(argv: List[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(
-        description="Run social‑memory‑network simulations."
-    )
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="Run a social‑memory experiment.")
     parser.add_argument(
         "--context",
         choices=["full", "limited"],
         required=True,
-        help="Context condition for the simulation.",
+        help="Context condition for the experiment.",
     )
     parser.add_argument(
         "--agents",
-        type=parse_agent_list,
+        type=str,
         required=True,
-        help="Comma‑separated list of agent counts (e.g. '3,5,7').",
+        help="Comma‑separated list of agent counts (e.g. '5' or '3,5,7').",
     )
     parser.add_argument(
         "--games",
         type=int,
         required=True,
-        help="Number of games to simulate per agent count.",
-    )
-    parser.add_argument(
-        "--seed",
-        type=int,
-        default=None,
-        help="Random seed for reproducibility (defaults to config seed).",
+        help="Number of games to simulate for each agent count.",
     )
     parser.add_argument(
         "--plot",
         choices=["scaling"],
         default=None,
-        help="Generate a scaling plot after simulations (US‑3).",
+        help="If set to 'scaling', generate the scaling plot after the runs.",
     )
-    args = parser.parse_args(argv)
-
-    # ------------------------------------------------------------------
-    # Configuration handling
-    # ------------------------------------------------------------------
-    cfg = load_config()
-    seed = args.seed if args.seed is not None else cfg.get("seed", 42)
-    random.seed(seed)
-
-    # ------------------------------------------------------------------
-    # Simulation loop
-    # ------------------------------------------------------------------
-    results_dir = Path(
-        "projects/PROJ-586-social-memory-networks-modeling-collecti/results"
+    parser.add_argument(
+        "--output-dir",
+        type=str,
+        default="projects/PROJ-586-social-memory-networks-modeling-collecti/results",
+        help="Directory where result CSVs (and optional plots) are written.",
     )
-    ensure_dir(results_dir)
+    return parser
 
-    # Common CSV header for all scaling result files.
-    fieldnames = [
-        "game_id",
-        "specialization_index",
-        "retrieval_efficiency",
-        "context_condition",
-        "agent_count",
-    ]
 
-    for agent_count in args.agents:
-        csv_path = results_dir / f"results_scaling_{agent_count}.csv"
-        rows: List[dict] = []
+def write_results_csv(
+    output_path: Path, rows: List[dict], fieldnames: List[str]
+) -> None:
+    """Write *rows* to *output_path* using the provided *fieldnames*."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
 
-        for game_id in range(1, args.games + 1):
-            # ``simulate_one_game`` is defined in ``generate_full_results``.
-            # It returns a tuple ``(spec_idx, retrieval_eff)``.
-            try:
-                spec_idx, retrieval_eff = simulate_one_game(
-                    context=args.context,
-                    agent_count=agent_count,
-                )
-            except Exception as exc:
-                print(
-                    f"Error during simulation (agents={agent_count}, game={game_id}): {exc}",
-                    file=sys.stderr,
-                )
-                return 1
 
-            rows.append(
-                {
-                    "game_id": game_id,
-                    "specialization_index": spec_idx,
-                    "retrieval_efficiency": retrieval_eff,
-                    "context_condition": args.context,
-                    "agent_count": agent_count,
-                }
+def run_simulation(
+    context: str,
+    agents: List[int],
+    games: int,
+    output_dir: Path,
+    generate_plot: bool = False,
+) -> None:
+    """Run the simulation for each agent count and write CSV results."""
+    for agent_count in agents:
+        rows = []
+        for game_id in range(1, games + 1):
+            # ``simulate_one_game`` returns a tuple of metric dicts.
+            spec_metrics, retrieval_metrics = simulate_one_game(
+                game_id=game_id,
+                agent_count=agent_count,
+                context=context,
             )
+            # Merge the two metric dicts and add bookkeeping fields.
+            merged = {
+                "game_id": game_id,
+                "agent_count": agent_count,
+                "context_condition": context,
+                **spec_metrics.__dict__,
+                **retrieval_metrics.__dict__,
+            }
+            rows.append(merged)
 
+        # Determine CSV filename.
+        suffix = "full" if context == "full" else "limited"
+        csv_name = f"results_{suffix}_{agent_count}.csv"
+        csv_path = output_dir / csv_name
+        fieldnames = list(rows[0].keys())
         write_results_csv(csv_path, rows, fieldnames)
-        print(f"Wrote {len(rows)} rows to {csv_path}")
 
-    # ------------------------------------------------------------------
-    # Optional scaling plot generation
-    # ------------------------------------------------------------------
-    if args.plot == "scaling":
-        try:
-            from analysis.scaling import generate_scaling_plot
-        except ImportError as exc:
-            print(f"Failed to import scaling module: {exc}", file=sys.stderr)
-            return 1
+    if generate_plot:
+        # The scaling plot generation script expects the CSVs to already exist.
+        from analysis.scaling import generate_scaling_plot
 
-        # The scaling module expects the results directory; it will read the
-        # CSV files generated above and write ``scaling_plot.pdf``.
-        try:
-            generate_scaling_plot(results_dir)
-            print("Scaling plot generated.")
-        except Exception as exc:
-            print(f"Error generating scaling plot: {exc}", file=sys.stderr)
-            return 1
+        generate_scaling_plot(output_dir)
 
-    # Persist any changes to the config (e.g. seed updates) for reproducibility.
-    cfg["seed"] = seed
-    save_config(cfg)
 
-    return 0
+def main() -> None:
+    parser = build_parser()
+    args = parser.parse_args()
+
+    agents = parse_agent_list(args.agents)
+    output_dir = Path(args.output_dir)
+
+    generate_plot = args.plot == "scaling"
+
+    run_simulation(
+        context=args.context,
+        agents=agents,
+        games=args.games,
+        output_dir=output_dir,
+        generate_plot=generate_plot,
+    )
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

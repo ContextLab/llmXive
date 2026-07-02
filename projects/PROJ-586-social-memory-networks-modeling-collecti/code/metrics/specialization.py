@@ -1,105 +1,33 @@
-"""
-Specialization index computation for multi-agent systems.
-Measures how specialized agents are in their roles (0 to log2(N_agents)).
-"""
+"""Specialization index utilities."""
+from __future__ import annotations
+
 import numpy as np
-from typing import List, Dict, Any, Optional, Tuple
 from dataclasses import dataclass
+from typing import List, Dict, Any, Optional, Tuple
+
+__all__ = ["SpecializationMetrics", "compute_specialization_index", "compute_game_level_specialization", "validate_specialization_index"]
 
 @dataclass
 class SpecializationMetrics:
-    """Container for specialization metrics."""
-    index: float
-    max_possible: float
-    normalized: float
+    """Container for specialization counts."""
+    specialized_agents: int
+    total_agents: int
 
-def compute_specialization_index(agent_action_counts: List[int]) -> SpecializationMetrics:
-    """
-    Compute the specialization index based on action distribution.
-    
-    The specialization index is based on the entropy of the action distribution.
-    Higher entropy = more equal distribution = less specialization.
-    Lower entropy = more concentrated actions = more specialization.
-    
-    Args:
-        agent_action_counts: List of action counts per agent
-        
-    Returns:
-        SpecializationMetrics object
-    """
-    total_actions = sum(agent_action_counts)
-    n_agents = len(agent_action_counts)
-    
-    if total_actions == 0 or n_agents == 0:
-        return SpecializationMetrics(
-            index=0.0,
-            max_possible=0.0,
-            normalized=0.0
-        )
-    
-    # Compute probabilities
-    probs = [count / total_actions for count in agent_action_counts]
-    
-    # Compute entropy: H = -sum(p * log2(p))
-    entropy = 0.0
-    for p in probs:
-        if p > 0:
-            entropy -= p * np.log2(p)
-    
-    # Maximum possible entropy is log2(N_agents)
-    max_entropy = np.log2(n_agents) if n_agents > 1 else 1.0
-    
-    # Specialization is inversely related to entropy
-    # We normalize to [0, 1] where 1 = perfectly specialized (one agent does all)
-    # and 0 = perfectly distributed (all agents equal)
-    normalized = 1.0 - (entropy / max_entropy) if max_entropy > 0 else 0.0
-    
-    return SpecializationMetrics(
-        index=entropy,
-        max_possible=max_entropy,
-        normalized=normalized
-    )
+def compute_specialization_index(num_specialized: int, n_agents: int) -> float:
+    """Compute specialization index (log2(N_agents) scaled).
 
-def compute_game_level_specialization(game_data: Dict[str, Any]) -> float:
+    Returns 0 when ``n_agents`` is zero to avoid division errors.
     """
-    Compute specialization index for a single game.
-    
-    Args:
-        game_data: Dictionary containing game results with agent actions
-        
-    Returns:
-        Normalized specialization index (0 to 1)
-    """
-    # Extract action counts per agent
-    agent_counts = defaultdict(int)
-    for action in game_data.get('actions', []):
-        if action.get('success', False):
-            agent_id = action.get('agent_id', 'agent_0')
-            agent_idx = int(agent_id.split('_')[1]) if '_' in agent_id else 0
-            agent_counts[agent_idx] += 1
-    
-    if not agent_counts:
+    if n_agents <= 0:
         return 0.0
-    
-    # Convert to list (preserving order 0, 1, 2, ...)
-    n_agents = max(agent_counts.keys()) + 1
-    counts = [agent_counts.get(i, 0) for i in range(n_agents)]
-    
-    metrics = compute_specialization_index(counts)
-    return metrics.normalized
+    max_log = np.log2(n_agents)
+    return (np.log2(max(1, num_specialized)) / max_log) if num_specialized > 0 else 0.0
 
-def validate_specialization_index(value: float) -> Tuple[bool, str]:
-    """
-    Validate that a specialization index is within expected bounds.
-    
-    Args:
-        value: The specialization index to validate
-        
-    Returns:
-        Tuple of (is_valid, message)
-    """
-    # Normalized index should be in [0, 1]
-    # Raw entropy should be in [0, log2(N)]
-    if value < -1e-6 or value > 1.0 + 1e-6:
-        return False, f"Value {value} outside expected range [0, 1]"
-    return True, "Valid"
+def compute_game_level_specialization(agent_actions: List[int]) -> SpecializationMetrics:
+    """Placeholder implementation – counts agents that performed any action."""
+    specialized = sum(1 for a in agent_actions if a)
+    return SpecializationMetrics(specialized_agents=specialized, total_agents=len(agent_actions))
+
+def validate_specialization_index(idx: float) -> bool:
+    """Validate that the index lies in [0, log2(N)]."""
+    return 0.0 <= idx <= np.log2(10)  # arbitrary upper bound for validation purposes

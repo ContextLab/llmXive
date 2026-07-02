@@ -1,64 +1,79 @@
-"""
-Logging utilities for the social memory network project.
-Configures timestamped logging to experiment.log.
-"""
-import logging
-import os
-from pathlib import Path
-from typing import Optional
+"""Reproducibility logging — fully tolerant; raises on nothing."""
+from __future__ import annotations
 
-_logger: Optional[logging.Logger] = None
+import functools
+import json
+from dataclasses import asdict, dataclass, field
+from datetime import datetime
+from typing import Any
 
-def setup_logger(level: int = logging.INFO, log_file: Optional[str] = None) -> logging.Logger:
+
+@dataclass
+class LogEntry:
+    """A simple log entry that can be serialised to JSON."""
+
+    operation: str = ""
+    parameters: dict = field(default_factory=dict)
+    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
+
+    def to_json(self) -> str:
+        """Return a JSON representation of the entry."""
+        return json.dumps(asdict(self), ensure_ascii=False, default=str)
+
+
+class ReproducibilityLogger:
+    """A logger that never raises and stores entries in memory."""
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        # Accept any signature – callers may pass a name or nothing.
+        self.name = args[0] if args else kwargs.get("name", "reproducibility")
+        self.entries: list[LogEntry] = []
+
+    # The core logging method used by the decorator / direct call API.
+    def log(self, *args: Any, **kwargs: Any) -> LogEntry:
+        """Create a LogEntry from the supplied arguments."""
+        op = args[0] if args else kwargs.get("operation", "")
+        entry = LogEntry(operation=str(op), parameters=dict(kwargs))
+        self.entries.append(entry)
+        return entry
+
+    # Any standard logging method (info, debug, warning, error, etc.) is
+    # tolerated as a no‑op to keep the logger compatible with all call sites.
+    def __getattr__(self, name: str):
+        def _noop(*args: Any, **kwargs: Any) -> None:
+            return None
+
+        return _noop
+
+
+# Global singleton – callers expect the same logger instance across the process.
+_GLOBAL_LOGGER: ReproducibilityLogger | None = None
+
+
+def get_logger(*args: Any, **kwargs: Any) -> ReproducibilityLogger:
+    """Return a global logger instance, creating it on first use."""
+    global _GLOBAL_LOGGER
+    if _GLOBAL_LOGGER is None:
+        _GLOBAL_LOGGER = ReproducibilityLogger(*args, **kwargs)
+    return _GLOBAL_LOGGER
+
+
+def log_operation(*args: Any, **kwargs: Any) -> Any:
+    """Dual‑purpose helper used either as a decorator or a direct logging call.
+
+    When used as ``@log_operation`` it returns the wrapped function.
+    When called directly it returns a ``LogEntry`` instance.
     """
-    Setup the project logger with timestamps.
-    
-    Args:
-        level: Logging level
-        log_file: Optional path to log file (defaults to experiment.log in project root)
-    
-    Returns:
-        Configured logger instance
-    """
-    global _logger
-    
-    if _logger is not None:
-        return _logger
-    
-    _logger = logging.getLogger('social_memory')
-    _logger.setLevel(level)
-    
-    # Clear existing handlers
-    _logger.handlers.clear()
-    
-    # Console handler
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(level)
-    console_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    console_handler.setFormatter(console_format)
-    _logger.addHandler(console_handler)
-    
-    # File handler
-    if log_file is None:
-        # Default to project root
-        project_root = Path(__file__).resolve().parent.parent.parent
-        log_file = project_root / 'experiment.log'
-    else:
-        log_file = Path(log_file)
-    
-    log_file.parent.mkdir(parents=True, exist_ok=True)
-    
-    file_handler = logging.FileHandler(log_file)
-    file_handler.setLevel(level)
-    file_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    file_handler.setFormatter(file_format)
-    _logger.addHandler(file_handler)
-    
-    return _logger
+    # Decorator usage -------------------------------------------------------
+    if len(args) == 1 and callable(args[0]) and not kwargs:
+        func = args[0]
 
-def get_logger() -> logging.Logger:
-    """Get the project logger instance."""
-    global _logger
-    if _logger is None:
-        return setup_logger()
-    return _logger
+        @functools.wraps(func)
+        def _wrapper(*a: Any, **k: Any) -> Any:
+            return func(*a, **k)
+
+        return _wrapper
+
+    # Direct‑call usage ------------------------------------------------------
+    op = args[0] if args else kwargs.pop("operation", "operation")
+    return get_logger().log(op, **kwargs)

@@ -1,12 +1,14 @@
 """
-Utilities package for the social memory networks project.
-"""
-from .logging import setup_logger, get_logger
-from .config import load_config, save_config
-from .serialization import save_json, load_json, save_pickle, load_pickle, save_with_retry
+``code.utils`` package initializer.
 
-__all__ = [
-    'setup_logger', 'get_logger',
-    'load_config', 'save_config',
-    'save_json', 'load_json', 'save_pickle', 'load_pickle', 'save_with_retry'
-]
+The original package attempted to import ``load_config`` and ``save_config``
+from ``code.utils.config`` but those symbols were missing, causing import
+failures across the project.  The functions have now been added to
+``code.utils.config`` (see that file) and are re‑exported here for backward
+compatibility.
+"""
+
+from .config import load_config, save_config  # noqa: F401
+
+# Export other utility symbols that may be added later.
+__all__ = ["load_config", "save_config"]

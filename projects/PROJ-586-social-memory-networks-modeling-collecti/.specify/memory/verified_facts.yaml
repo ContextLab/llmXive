@@ -1,0 +1,5 @@
+'|condition game simulated':
+  quote: Simple MCTS) we run 1000 games and track 16 statistics.
+  source_id: '2202.05773'
+  url: https://arxiv.org/abs/2202.05773
+  value: '1000'

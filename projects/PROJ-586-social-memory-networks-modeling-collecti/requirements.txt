@@ -1,4 +1,5 @@
-numpy
+# Project dependencies
 pandas
-pyyaml
-# The 'datasets' library is no longer required because we switched to CSV‑based loading.
+matplotlib
+numpy
+# The logging module is now self‑contained; no external logging package required.

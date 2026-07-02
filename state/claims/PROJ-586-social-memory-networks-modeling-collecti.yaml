@@ -941,24 +941,6 @@
   status: not_enough_info
   updated_at: '2026-07-02T18:05:30Z'
 - artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
-  attempts: 1
-  canonical: Hanabi and CoQA datasets have no verified URLs, synthetic fallback used
-  claim_id: c_08b0effc
-  context: 'Dataset Constraint: Hanabi/CoQA have NO verified URLs; use synthetic fallback
-    only.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Hanabi_and_CoQA_datasets_have_no_verified_URLs,_synthetic_fa
-  kind: entity_fact
-  raw_text: Hanabi/CoQA have NO verified URLs; use synthetic fallback only
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-02T18:05:33Z'
-- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   attempts: 2
   canonical: CI environment provides 2 CPUs and approximately 7 GB RAM, no GPU
   claim_id: c_0bd7efbe
@@ -1734,3 +1716,1214 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-02T18:43:02Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis token limits 128, 256, 512
+  claim_id: c_2c55c066
+  context: "Conduct sensitivity analysis sweeping context\u2011truncation token limit\
+    \ over {128, 256, 512} with performance curves output."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Sensitivity analysis sweeping context\u2011truncation token limit over\
+    \ {128, 256, 512}"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:01:02Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: power analysis based on 1000 games
+  claim_id: c_fa7c6446
+  context: "Generate power\u2011analysis report estimating detectable effect size\
+    \ (N=1000 games per spec FR\u2011009)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate power\u2011analysis report estimating detectable effect size\
+    \ (N=1000 games per spec FR\u2011009)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:02:11Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: power-law fitting using agent counts 3, 5, 7
+  claim_id: c_b694ed9b
+  context: "Implement power\u2011law fitting for metric trends vs. agent count (3,\
+    \ 5, 7)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement power\u2011law fitting for metric trends vs. agent count (3,\
+    \ 5, 7)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:02:31Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: "exponent \u03B2 less than 1"
+  claim_id: c_b346ee79
+  context: "Calculate 95% confidence interval for exponent \u03B2 and note sub\u2011\
+    linearity (\u03B2 < 1)."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Most populations that have been studied have b < 2 (usually 1.5\u2013\
+        1.6) but values of 2 have been reported. Occasionally cases with b > 2 have\
+        \ been reported. b values below 1 are uncommon but have also been reported\
+        \ ( b = 0.93 )."
+      source_id: Taylor's law
+      url: https://en.wikipedia.org/wiki/Taylor's_law
+      value: '0.93'
+    filled: true
+  kind: magnitude
+  raw_text: "Calculate 95% confidence interval for exponent \u03B2 and note sub\u2011\
+    linearity (\u03B2 < 1)"
+  resolved_value: '0.93'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-02T19:02:48Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: specialization index ranges from 0 to log2 of number of agents
+  claim_id: c_2d0eff8e
+  context: "Implement specialization index computation (0 to log\u2082(N_agents))."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Specialization index computation (0 to log\u2082(N_agents))"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:03:10Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 0
+  canonical: tasks must run on CPU-only CI with 2 CPUs and approximately 7GB RAM,
+    no GPU
+  claim_id: c_d3894fdd
+  context: A compute constraint is defined to ensure the pipeline fits within the
+    CI environment.
+  evidence:
+    asserted: '2.0'
+    authority: scipy.constants.G (CODATA 2018)
+    constant: gravitational
+    corrected: true
+    mode: approximate
+    true_value: 6.6743e-11
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
+  kind: numeric
+  raw_text: 'Compute Constraint: All tasks MUST run on CPU-only CI (2 CPU, ~7GB RAM,
+    NO GPU). Use small models (e.g., opt-125m) in float32.'
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
+  source_type: external
+  status: verified
+  updated_at: '2026-07-02T19:03:49Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: All tasks must run on CPU-only CI with 2 CPUs, approximately 7 GB RAM,
+    and no GPU
+  claim_id: c_0a2addc0
+  context: Compute Constraint bullet describing hardware limits for CI runs.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Compute Constraint: All tasks MUST run on CPU-only CI (2 CPU, ~7GB RAM,
+    NO GPU).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:05:12Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Run pipeline must complete within 6 hours, using at most 7 GB RAM and
+    14 GB disk
+  claim_id: c_6aa68740
+  context: Polish phase task for measuring resource usage.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Run_pipeline_must_complete_within_6_hours,_using_at_most_7_G
+  kind: magnitude
+  raw_text: "Phase 6: record runtime/memory/disk in ... to verify \u22646h, \u2264\
+    7GB RAM, \u226414GB disk constraints"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:05:35Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Taylor's law referenced from Wikipedia
+  claim_id: c_9aceca76
+  context: Task T029 referencing Taylor's law in scaling analysis code.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: American singer-songwriter (born 1989)
+      source_id: Q26876
+      url: https://www.wikidata.org/wiki/Q26876
+      value: '1989'
+    filled: true
+  kind: entity_fact
+  raw_text: '{{claim:c_b346ee79}} (Wikipedia: Taylor''s law, https://en.wikipedia.org/wiki/Taylor''s_law)
+    in `code/analysis/scaling.py`'
+  resolved_value: '1989'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-02T19:06:01Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Hanabi and CoQA datasets lack verified URLs, requiring synthetic fallback
+  claim_id: c_14fa04a9
+  context: 'Dataset Constraint: Hanabi/CoQA have NO verified URLs; use synthetic fallback
+    only'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Hanabi_and_CoQA_datasets_lack_verified_URLs,_requiring_synth
+  kind: entity_fact
+  raw_text: 'Dataset Constraint: Hanabi/CoQA have NO verified URLs; use synthetic
+    fallback only'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:07:19Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: CI runs on 2 CPUs with approximately 7GB RAM and no GPU
+  claim_id: c_fd36e17c
+  context: 'Compute Constraint: All tasks MUST run on CPU-only CI (2 CPU, ~7GB RAM,
+    NO GPU). Use small models (e.g., opt-125m) in float32.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All tasks MUST run on CPU-only CI (2 CPU, ~7GB RAM, NO GPU)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:09:23Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: CI runtime must be less than or equal to 6 hours
+  claim_id: c_dc5f6fcf
+  context: "Run full pipeline on CI runner, record runtime/memory/disk in results\
+    \ to verify \u22646h, \u22647GB RAM, \u226414GB disk constraints."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CI_runtime_must_be_less_than_or_equal_to_6_hours
+  kind: magnitude
+  raw_text: "verify \u22646h runtime on CI runner"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:09:41Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: CI memory usage must be less than or equal to 7GB RAM
+  claim_id: c_2b878e2d
+  context: "Run full pipeline on CI runner, record runtime/memory/disk in results\
+    \ to verify \u22646h, \u22647GB RAM, \u226414GB disk constraints."
+  evidence:
+    entailment_evidence: CI memory usage must be less than or equal to 7GB RAM - Wikipedia
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/CI_memory_usage_must_be_less_than_or_equal_to_7GB_RAM
+  kind: magnitude
+  raw_text: "verify \u22647GB RAM memory usage on CI runner"
+  resolved_value: CI memory usage must be less than or equal to 7GB RAM
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-02T19:09:44Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: CI disk usage must be less than or equal to 14GB
+  claim_id: c_b140aa0f
+  context: "Run full pipeline on CI runner, record runtime/memory/disk in results\
+    \ to verify \u22646h, \u22647GB RAM, \u226414GB disk constraints."
+  evidence:
+    entailment_evidence: CI disk usage must be less than or equal to 14GB
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/CI_disk_usage_must_be_less_than_or_equal_to_14GB
+  kind: magnitude
+  raw_text: "verify \u226414GB disk usage on CI runner"
+  resolved_value: CI disk usage must be less than or equal to 14GB
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-02T19:09:48Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis over token limits 128, 256, 512
+  claim_id: c_f981425d
+  context: "Phase 4 tasks outlining the sensitivity analysis for context\u2011truncation\
+    \ token limits."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Conduct sensitivity analysis sweeping context\u2011truncation token limit\
+    \ over {128, 256, 512} with performance curves output in `code/analysis/sensitivity.py`"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:11:03Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: 2 CPU cores required for CI
+  claim_id: c_f18731fc
+  context: All tasks MUST run on CPU-only CI (2 CPU, ~7GB RAM, NO GPU).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All tasks MUST run on CPU-only CI (2 CPU, ~7GB RAM, NO GPU)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:11:46Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: approximately 7GB RAM required for CI
+  claim_id: c_4f4bdfb0
+  context: All tasks MUST run on CPU-only CI (2 CPU, ~7GB RAM, NO GPU).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All tasks MUST run on CPU-only CI (2 CPU, ~7GB RAM, NO GPU)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:11:47Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: "runtime must be \u22646 hours"
+  claim_id: c_8641aadc
+  context: "Run full pipeline on CI runner, record runtime/memory/disk ... to verify\
+    \ \u22646h, \u22647GB RAM, \u226414GB disk constraints"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "record runtime/memory/disk ... to verify \u22646h"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:11:47Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: "RAM usage must be \u22647 GB"
+  claim_id: c_be50e439
+  context: "Run full pipeline on CI runner, record runtime/memory/disk ... to verify\
+    \ \u22646h, \u22647GB RAM, \u226414GB disk constraints"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "record runtime/memory/disk ... to verify \u22647GB RAM"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:11:47Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: "disk usage must be \u226414 GB"
+  claim_id: c_504c6efe
+  context: "Run full pipeline on CI runner, record runtime/memory/disk ... to verify\
+    \ \u22646h, \u22647GB RAM, \u226414GB disk constraints"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "record runtime/memory/disk ... to verify \u226414GB disk"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:11:48Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Wikidata Q26876
+  claim_id: c_824a75ef
+  context: T029 [P] [US-3] {{claim:c_9aceca76}} (Wikidata Q26876, https://www.wikidata.org/wiki/Q26876)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wikidata_Q26876
+  kind: entity_fact
+  raw_text: '{{claim:c_9aceca76}}'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:13:34Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 2
+  canonical: CPU-only CI with 2 CPUs and ~7GB RAM, no GPU
+  claim_id: c_746301fe
+  context: 'Compute Constraint: All tasks MUST run on CPU-only CI (2 CPU, ~7GB RAM,
+    NO GPU).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All tasks MUST run on CPU-only CI (2 CPU, ~7GB RAM, NO GPU)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:17:43Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: "pipeline runtime \u22646h, RAM \u22647GB, disk \u226414GB"
+  claim_id: c_4c2d02b4
+  context: "Run full pipeline on CI runner, record runtime/memory/disk ... to verify\
+    \ \u22646h, \u22647GB RAM, \u226414GB disk constraints."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The full pipeline should complete within \u22646\u202Fhours, using \u2264\
+    7\u202FGB RAM and \u226414\u202FGB disk space."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:17:43Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: power analysis with N=1000 games
+  claim_id: c_abbadfae
+  context: "Generate power\u2011analysis report estimating detectable effect size\
+    \ (N=1000 games per spec FR-009)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "A power\u2011analysis report will estimate detectable effect size using\
+    \ N\u202F=\u202F1000 games."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:18:05Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: power limitation flag if power < 0.70
+  claim_id: c_3ae155b4
+  context: Flag "Power limitation" if estimated power < 0.70 in results/power_analysis_report.md.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If estimated statistical power is below 0.70, a "Power limitation" flag
+    will be raised.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:18:32Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis token limits 128 256 512
+  claim_id: c_15d2c6a9
+  context: "Conduct sensitivity analysis sweeping context\u2011truncation token limit\
+    \ over {128, 256, 512} with performance curves output."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Sensitivity analysis will sweep context\u2011truncation token limits\
+    \ over 128, 256, and 512 tokens."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:18:46Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: power-law fitting for agent counts 3 5 7
+  claim_id: c_7f94d6a2
+  context: "Implement power\u2011law fitting for metric trends vs. agent count (3,\
+    \ 5, 7)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Power\u2011law fitting will be performed for agent counts of 3, 5, and\
+    \ 7."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:19:07Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: "single two-way ANOVA Context \xD7 Metric"
+  claim_id: c_d05937a4
+  context: "Implement two\u2011way independent\u2011samples ANOVA with factors Context\
+    \ \xD7 Metric (single ANOVA, not separate)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Single_two-way_ANOVA_Context_%C3%97_Metric
+  kind: entity_fact
+  raw_text: "The ANOVA design is a single two\u2011way independent\u2011samples ANOVA\
+    \ with factors Context and Metric."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:19:33Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction applied and corrected alpha reported
+  claim_id: c_107f1f37
+  context: "Apply Bonferroni correction to all family\u2011wise hypothesis tests and\
+    \ report corrected \u03B1 in anova.py."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_applied_and_corrected_alpha_reported
+  kind: entity_fact
+  raw_text: "Bonferroni correction will be applied to all family\u2011wise hypothesis\
+    \ tests and the corrected \u03B1 will be reported."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:19:56Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: CPU-only CI with 2 CPUs and ~7GB RAM, no GPU
+  claim_id: c_e742b91d
+  context: 'Compute Constraint: All tasks MUST run on CPU-only CI (2 CPU, ~7GB RAM,
+    NO GPU). Use small models (e.g., opt-125m) in float32.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All tasks MUST run on CPU-only CI (2 CPU, ~7GB RAM, NO GPU)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:22:38Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: "runtime \u22646 hours, RAM \u22647GB, disk \u226414GB"
+  claim_id: c_288e1e41
+  context: "Run full pipeline on CI runner, record runtime/memory/disk ... to verify\
+    \ \u22646h, \u22647GB RAM, \u226414GB disk constraints."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify \u22646h, \u22647GB RAM, \u226414GB disk constraints"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:22:39Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: context truncation token limits 128, 256, 512
+  claim_id: c_bc2a82f4
+  context: "Conduct sensitivity analysis sweeping context\u2011truncation token limit\
+    \ over {128, 256, 512} with performance curves output in code/analysis/sensitivity.py."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "sweeping context\u2011truncation token limit over {128, 256, 512}"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:24:27Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 2
+  canonical: Hanabi and CoQA datasets have no verified URLs, synthetic fallback used
+  claim_id: c_08b0effc
+  context: 'Dataset Constraint: Hanabi/CoQA have NO verified URLs; use synthetic fallback
+    only.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Hanabi_and_CoQA_datasets_have_no_verified_URLs,_synthetic_fa
+  kind: entity_fact
+  raw_text: Hanabi/CoQA have NO verified URLs; use synthetic fallback only
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:24:47Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: "The CI environment uses 2 CPUs, approximately 7\u202FGB RAM, and no\
+    \ GPU"
+  claim_id: c_99b075be
+  context: "All tasks must run on a CPU\u2011only CI as part of the compute constraints."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Compute constraint: CI runs on CPU\u2011only with 2 CPUs, ~7\u202FGB\
+    \ RAM, and no GPU"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:25:59Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: The full pipeline must complete in six hours or less on the CI runner
+  claim_id: c_2d362e3b
+  context: "Phase\u202F6 includes a task to record runtime and ensure it meets the\
+    \ constraint."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify runtime \u22646\u202Fh for the full pipeline on the CI runner"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:26:00Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: The full pipeline must use seven gigabytes of RAM or less on the CI runner
+  claim_id: c_46b06ee2
+  context: "Phase\u202F6 includes a task to record memory usage and ensure it meets\
+    \ the constraint."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify memory usage \u22647\u202FGB RAM for the full pipeline on the\
+    \ CI runner"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:26:00Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: The full pipeline must consume fourteen gigabytes of disk space or less
+    on the CI runner
+  claim_id: c_be3d2cfd
+  context: "Phase\u202F6 includes a task to record disk usage and ensure it meets\
+    \ the constraint."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify disk consumption \u226414\u202FGB for the full pipeline on the\
+    \ CI runner"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:26:00Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: The sensitivity analysis evaluates token limits of 128, 256, and 512
+  claim_id: c_773c16d1
+  context: "Task T022 specifies a sensitivity analysis over three token\u2011limit\
+    \ values."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Sensitivity analysis sweeps context\u2011truncation token limit over\
+    \ {128, 256, 512}"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:26:20Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: The power analysis uses a sample size of 1000 games to estimate detectable
+    effect size
+  claim_id: c_285ef985
+  context: "Task T023 generates a power\u2011analysis report based on the specification."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Power\u2011analysis report estimates detectable effect size with N=1000\
+    \ games per spec"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:26:40Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: tasks run on CPU-only CI with 2 CPUs and ~7GB RAM and no GPU
+  claim_id: c_f40d59d2
+  context: 'Compute Constraint: All tasks MUST run on CPU-only CI (2 CPU, ~7GB RAM,
+    NO GPU).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All tasks MUST run on CPU-only CI (2 CPU, ~7GB RAM, NO GPU)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:27:27Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: scaling analysis agent counts 3 5 7
+  claim_id: c_dd214041
+  context: Implement game simulation for agent counts 3, 5, 7 (800 games per config
+    per spec US-3) in code/run_experiment.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Scaling analysis uses agent counts 3, 5, 7
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:27:49Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: memory
+  claim_id: c_75e12beb
+  context: T029 [P] [US-3] {{claim:c_9aceca76}} (Wikidata Q26876, https://www.wikidata.org/wiki/Q26876)
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikidata
+        source_id: Q492
+        url: https://www.wikidata.org/wiki/Q492
+        value: cognitive process
+      quote: 'P31: scientific journal'
+      source_id: Q15753954
+      url: https://www.wikidata.org/wiki/Q15753954
+      value: scientific journal
+    filled: true
+  kind: entity_fact
+  raw_text: Memory (Wikidata Q26876)
+  resolved_value: scientific journal
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-02T19:28:09Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: CPU-only CI with 2 CPUs and ~7GB RAM, no GPU
+  claim_id: c_5d9295ea
+  context: Compute constraint section describing hardware limits.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All tasks MUST run on CPU-only CI (2 CPU, ~7GB RAM, NO GPU).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:29:20Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Hanabi and CoQA datasets lack verified URLs, requiring synthetic fallback
+  claim_id: c_bb5a569c
+  context: Dataset constraint stating lack of verified URLs for Hanabi/CoQA.
+  evidence:
+    entailment_evidence: Hanabi and CoQA datasets lack verified URLs, requiring synth
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Hanabi_and_CoQA_datasets_lack_verified_URLs,_requiring_synth
+  kind: entity_fact
+  raw_text: Hanabi/CoQA have NO verified URLs; use synthetic fallback only.
+  resolved_value: Hanabi and CoQA datasets lack verified URLs, requiring synthetic
+    fallback
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-02T19:29:22Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: CPU-only CI with 2 CPUs and ~7GB RAM
+  claim_id: c_592cfff6
+  context: Compute Constraint listed under Notes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Compute Constraint: All tasks MUST run on CPU-only CI (2 CPU, ~7GB RAM,
+    NO GPU)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:30:24Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis over token limits 128, 256, 512
+  claim_id: c_72e56bd4
+  context: User Story 2 implementation details.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Conduct sensitivity analysis sweeping context\u2011truncation token limit\
+    \ over {128, 256, 512}"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:30:38Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: simulation loop for 1000 games
+  claim_id: c_0d10a47f
+  context: User Story 1 implementation.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: Simple MCTS) we run 1000 games and track 16 statistics.
+      source_id: '2202.05773'
+      url: https://arxiv.org/abs/2202.05773
+      value: '1000'
+    filled: true
+  kind: numeric
+  raw_text: Implement game simulation loop for 1000 games
+  resolved_value: '1000'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-02T19:31:02Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Compute constraint requires 2 CPU cores
+  claim_id: c_8713df4d
+  context: 'Compute Constraint: All tasks MUST run on CPU-only CI (2 CPU, ~7GB RAM,
+    NO GPU).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All tasks MUST run on CPU-only CI (2 CPU
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:32:11Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Compute constraint requires approximately 7GB RAM
+  claim_id: c_599c9a86
+  context: 'Compute Constraint: All tasks MUST run on CPU-only CI (2 CPU, ~7GB RAM,
+    NO GPU).'
+  evidence:
+    entailment_evidence: Compute constraint requires approximately 7GB RAM
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Compute_constraint_requires_approximately_7GB_RAM
+  kind: entity_fact
+  raw_text: All tasks MUST run on CPU-only CI (~7GB RAM
+  resolved_value: Compute constraint requires approximately 7GB RAM
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-02T19:32:14Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Runtime must be less than or equal to 6 hours
+  claim_id: c_e603cc7e
+  context: "Run full pipeline on CI runner, record runtime/memory/disk ... to verify\
+    \ \u22646h, \u22647GB RAM, \u226414GB disk constraints."
+  evidence:
+    entailment_evidence: Runtime must be less than or equal to 6 hours
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Runtime_must_be_less_than_or_equal_to_6_hours
+  kind: magnitude
+  raw_text: "to verify \u22646h"
+  resolved_value: Runtime must be less than or equal to 6 hours
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-02T19:32:16Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: "Memory usage must be \u22647GB RAM"
+  claim_id: c_ac13ed84
+  context: "Run full pipeline on CI runner, record runtime/memory/disk ... to verify\
+    \ \u22646h, \u22647GB RAM, \u226414GB disk constraints."
+  evidence:
+    entailment_evidence: "Memory usage must be \u22647GB RAM"
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_must_be_%E2%89%A47GB_RAM
+  kind: entity_fact
+  raw_text: "to verify \u22647GB RAM"
+  resolved_value: "Memory usage must be \u22647GB RAM"
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-02T19:32:18Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: "Disk usage must be \u226414GB"
+  claim_id: c_02e9597f
+  context: "Run full pipeline on CI runner, record runtime/memory/disk ... to verify\
+    \ \u22646h, \u22647GB RAM, \u226414GB disk constraints."
+  evidence:
+    entailment_evidence: "Disk usage must be \u226414GB"
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Disk_usage_must_be_%E2%89%A414GB
+  kind: entity_fact
+  raw_text: "to verify \u226414GB disk constraints"
+  resolved_value: "Disk usage must be \u226414GB"
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-02T19:32:21Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Flag power limitation when estimated power is below 0.70
+  claim_id: c_f9748e80
+  context: Flag "Power limitation" if estimated power < 0.70 in projects/PROJ-586-social-memory-networks-modeling-collecti/results/power_analysis_report.md.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Flag "Power limitation" if estimated power < 0.70
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:32:22Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Limited-context simulation runs 1000 games
+  claim_id: c_df960e9c
+  context: Implement game simulation loop for limited context (1000 games per spec)
+    in code/run_experiment.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement game simulation loop for limited context (1000 games per spec)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:32:45Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Context truncation token limits of 128, 256, and 512 tokens
+  claim_id: c_f2510c1b
+  context: "Conduct sensitivity analysis sweeping context\u2011truncation token limit\
+    \ over {128, 256, 512} with performance curves output in code/analysis/sensitivity.py."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "sweeping context\u2011truncation token limit over {128, 256, 512}"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:32:46Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: CI runs on CPU-only with 2 CPUs and ~7GB RAM, no GPU
+  claim_id: c_9ea85034
+  context: 'Compute Constraint: All tasks MUST run on CPU-only CI (2 CPU, ~7GB RAM,
+    NO GPU). Use small models (e.g., opt-125m) in float32.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All tasks MUST run on CPU-only CI (2 CPU, ~7GB RAM, NO GPU).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:33:38Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Hanabi and CoQA have no verified URLs, use synthetic fallback only
+  claim_id: c_6f11b57c
+  context: 'Dataset Constraint: Hanabi/CoQA have NO verified URLs; use synthetic fallback
+    only'
+  evidence:
+    entailment_evidence: Hanabi and CoQA have no verified URLs, use synthetic fallbac
+      - Wikipedia
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Hanabi_and_CoQA_have_no_verified_URLs,_use_synthetic_fallbac
+  kind: entity_fact
+  raw_text: Hanabi and CoQA datasets have no verified URLs, so only synthetic fallback
+    is used.
+  resolved_value: Hanabi and CoQA have no verified URLs, use synthetic fallback only
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-02T19:33:41Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: "single two-way ANOVA with Context \xD7 Metric interaction"
+  claim_id: c_8b71dcd6
+  context: "ANOVA Design: Single two-way ANOVA with Context \xD7 Metric interaction\
+    \ (FR-006), NOT separate ANOVAs"
+  evidence:
+    entailment_evidence: "Single two-way ANOVA with Context \xD7 Metric interaction\
+      \ - Wikipedia"
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Single_two-way_ANOVA_with_Context_%C3%97_Metric_interaction
+  kind: entity_fact
+  raw_text: The analysis uses a single two-way independent-samples ANOVA with factors
+    Context and Metric.
+  resolved_value: "single two-way ANOVA with Context \xD7 Metric interaction"
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-02T19:33:44Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: power analysis with N=1000 games
+  claim_id: c_c77a8d8b
+  context: 'Power Analysis: N=1000 games (FR-009 spec requirement)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Power analysis is performed with N=1000 games per spec.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:34:21Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: game simulation loop for 1000 games (full-context condition)
+  claim_id: c_9ac913e5
+  context: Task T011 specifies implementing a CLI and a game simulation loop for 1000
+    games as part of User Story 1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement CLI flag parsing for --context, --agents, --dataset and game
+    simulation loop for 1000 games in code/run_experiment.py
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:35:20Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: game simulation loop for 1000 games (limited-context condition)
+  claim_id: c_1b274826
+  context: "Task T018 describes the implementation of a limited\u2011context simulation\
+    \ running 1000 games per specification."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement game simulation loop for limited context (1000 games per spec)
+    in code/run_experiment.py
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:35:42Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: "CPU\u2011only CI with 2 CPUs and ~7GB RAM"
+  claim_id: c_0c8be692
+  context: The notes section lists the compute constraints for the CI environment.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Compute Constraint: All tasks MUST run on CPU-only CI (2 CPU, ~7GB RAM,
+    NO GPU)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:35:42Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Hanabi and CoQA datasets lack verified URLs, requiring synthetic fallback
+  claim_id: c_fe522dd8
+  context: The dataset constraint specifies that the Hanabi and CoQA datasets cannot
+    be used directly.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Hanabi_and_CoQA_datasets_lack_verified_URLs,_requiring_synth
+  kind: entity_fact
+  raw_text: 'Dataset Constraint: Hanabi/CoQA have NO verified URLs; use synthetic
+    fallback only'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:35:44Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis over token limits 128, 256, and 512
+  claim_id: c_c042bedc
+  context: "Task T022 calls for a sensitivity analysis that varies the context\u2011\
+    truncation token limit across three values."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Sensitivity analysis sweeping context\u2011truncation token limit over\
+    \ {128, 256, 512}"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:35:45Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/results/power_analysis_report.md
+  attempts: 1
+  canonical: total simulated games per condition 1000
+  claim_id: c_ab585f1c
+  context: The experiment configuration lists the total number of simulated games
+    per condition as 1000.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: Simple MCTS) we run 1000 games and track 16 statistics.
+      source_id: '2202.05773'
+      url: https://arxiv.org/abs/2202.05773
+      value: '1000'
+    filled: true
+  kind: numeric
+  raw_text: 'Total number of simulated games per condition: 1000'
+  resolved_value: '1000'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-02T19:36:32Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/results/power_analysis_report.md
+  attempts: 1
+  canonical: estimated power 0.55
+  claim_id: c_70183ebd
+  context: "Using a two\u2011sample t\u2011test power calculation, the estimated power\
+    \ for detecting a small effect with 1000 observations is 0.55."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Estimated power = 0.55
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:36:58Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/results/power_analysis_report.md
+  attempts: 1
+  canonical: estimated power below 0.70 threshold
+  claim_id: c_336b23ab
+  context: "Because the estimated power is below the 0.70 threshold, the analysis\
+    \ is flagged as \u201CPower limitation\u201D."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: the estimated power is below the 0.70 threshold
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:37:29Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: CPU-only CI with 2 CPUs, about 7GB RAM, and no GPU
+  claim_id: c_78482d38
+  context: The document specifies the hardware constraints for the continuous integration
+    environment.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Compute Constraint: All tasks MUST run on CPU-only CI (2 CPU, ~7GB RAM,
+    NO GPU).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:38:20Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Hanabi and CoQA datasets lack verified URLs, requiring synthetic fallback
+  claim_id: c_1abc5c14
+  context: A constraint in the specification regarding the availability of dataset
+    URLs.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Hanabi_and_CoQA_datasets_lack_verified_URLs,_requiring_synth
+  kind: entity_fact
+  raw_text: 'Dataset Constraint: Hanabi/CoQA have NO verified URLs; use synthetic
+    fallback only'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T19:38:22Z'
