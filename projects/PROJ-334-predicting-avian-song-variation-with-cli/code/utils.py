@@ -1,183 +1,193 @@
-"""
-Utility functions for the avian song variation project.
-Includes logging setup, random state pinning, memory monitoring, and project structure creation.
-"""
+import logging
 import os
 import sys
-import shutil
-import logging
-import random
-import time
-import tracemalloc
+import json
+import yaml
 from pathlib import Path
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any, Union, List, Tuple
+from datetime import datetime
+import pandas as pd
+import numpy as np
+from pyproj import Transformer
 
-def setup_logging(log_file: Optional[str] = None, level: int = logging.INFO) -> logging.Logger:
+def setup_logging(log_level: str = "INFO", log_file: Optional[str] = None) -> logging.Logger:
     """
-    Setup basic logging configuration.
-    If log_file is provided, logs are written to that file as well.
+    Configure and return a logger with file and console handlers.
     """
-    logger = logging.getLogger("avian_song_project")
-    logger.setLevel(level)
+    logger = logging.getLogger("llmXive")
+    logger.setLevel(getattr(logging, log_level.upper()))
     
     if logger.handlers:
         return logger
-    
-    # Console handler
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(level)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    console_handler.setFormatter(formatter)
-    logger.addHandler(console_handler)
-    
-    # File handler if specified
+
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+
     if log_file:
-        log_path = Path(log_file)
-        log_path.parent.mkdir(parents=True, exist_ok=True)
         file_handler = logging.FileHandler(log_file)
-        file_handler.setLevel(level)
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
-    
+
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setFormatter(formatter)
+    logger.addHandler(console_handler)
+
     return logger
 
-def pin_random_state(seed: int = 42) -> None:
+def load_schema(schema_path: str) -> Dict[str, Any]:
     """
-    Pin random seeds for reproducibility across numpy, random, etc.
-    Note: numpy is imported dynamically if needed to avoid circular deps in utils.
+    Load a YAML schema definition from disk.
     """
-    random.seed(seed)
+    path = Path(schema_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Schema file not found: {schema_path}")
+    
+    with open(path, 'r', encoding='utf-8') as f:
+        return yaml.safe_load(f)
+
+def validate_schema(df: pd.DataFrame, schema_path: str) -> Tuple[bool, List[str]]:
+    """
+    Validate a DataFrame against a JSON/YAML schema definition.
+    
+    Checks:
+    1. Required columns exist.
+    2. Column data types match expected types (basic checks).
+    3. No null values in required fields.
+    
+    Args:
+        df: The DataFrame to validate.
+        schema_path: Path to the schema file (YAML).
+        
+    Returns:
+        Tuple of (is_valid, list_of_errors)
+    """
+    errors = []
     try:
-        import numpy as np
-        np.random.seed(seed)
-    except ImportError:
-        pass
+        schema = load_schema(schema_path)
+    except FileNotFoundError as e:
+        return False, [str(e)]
     
-    # Set environment variable for libraries that respect it
-    os.environ["PYTHONHASHSEED"] = str(seed)
+    if not isinstance(schema, dict):
+        return False, ["Invalid schema format: expected a dictionary"]
 
-def start_memory_monitor() -> None:
-    """
-    Start memory monitoring using tracemalloc.
-    """
-    tracemalloc.start()
+    required_columns = schema.get("required_columns", [])
+    column_types = schema.get("column_types", {})
+    unique_columns = schema.get("unique_columns", [])
 
-def record_memory_snapshot() -> Dict[str, Any]:
+    # Check required columns
+    missing_cols = [col for col in required_columns if col not in df.columns]
+    if missing_cols:
+        errors.append(f"Missing required columns: {missing_cols}")
+
+    # Check data types
+    for col, expected_type in column_types.items():
+        if col in df.columns:
+            if expected_type == "integer":
+                if not pd.api.types.is_integer_dtype(df[col]):
+                    # Allow float if it contains integers, but warn if mixed
+                    if not pd.api.types.is_numeric_dtype(df[col]):
+                        errors.append(f"Column '{col}' should be integer, got {df[col].dtype}")
+            elif expected_type == "float":
+                if not pd.api.types.is_numeric_dtype(df[col]):
+                    errors.append(f"Column '{col}' should be numeric, got {df[col].dtype}")
+            elif expected_type == "string":
+                if not pd.api.types.is_string_dtype(df[col]) and not pd.api.types.is_object_dtype(df[col]):
+                    # Often object is used for strings in pandas
+                    pass 
+            elif expected_type == "datetime":
+                if not pd.api.types.is_datetime64_any_dtype(df[col]):
+                    errors.append(f"Column '{col}' should be datetime, got {df[col].dtype}")
+
+    # Check for nulls in required columns
+    for col in required_columns:
+        if col in df.columns and df[col].isnull().any():
+            errors.append(f"Column '{col}' contains null values")
+
+    # Check uniqueness
+    for col in unique_columns:
+        if col in df.columns:
+            if df[col].duplicated().any():
+                errors.append(f"Column '{col}' contains duplicate values")
+
+    return len(errors) == 0, errors
+
+def reproject_coordinates(df: pd.DataFrame, 
+                          source_crs: str = "EPSG:4326", 
+                          target_crs: str = "EPSG:4326",
+                          lon_col: str = "lon", 
+                          lat_col: str = "lat") -> pd.DataFrame:
     """
-    Record current memory usage snapshot.
-    Returns a dictionary with current and peak memory in MB.
-    """
-    if not tracemalloc.is_tracing():
-        return {"current_mb": 0.0, "peak_mb": 0.0, "status": "not_monitoring"}
+    Reproject coordinates in a DataFrame.
     
-    current, peak = tracemalloc.get_traced_memory()
-    return {
-        "current_mb": current / 1024 / 1024,
-        "peak_mb": peak / 1024 / 1024,
-        "status": "monitoring"
-    }
+    Args:
+        df: Input DataFrame.
+        source_crs: Source coordinate reference system.
+        target_crs: Target coordinate reference system.
+        lon_col: Name of the longitude/longitude column.
+        lat_col: Name of the latitude/latitude column.
+        
+    Returns:
+        DataFrame with updated coordinates if transformation occurred.
+    """
+    if source_crs == target_crs:
+        return df
 
-def stop_memory_monitor() -> Dict[str, Any]:
-    """
-    Stop memory monitoring and return final stats.
-    """
-    if not tracemalloc.is_tracing():
-        return {"status": "not_monitoring"}
+    transformer = Transformer.from_crs(source_crs, target_crs, always_xy=True)
     
-    current, peak = tracemalloc.get_traced_memory()
-    tracemalloc.stop()
+    def transform_row(row):
+        try:
+            new_x, new_y = transformer.transform(row[lon_col], row[lat_col])
+            return pd.Series({lon_col: new_x, lat_col: new_y})
+        except Exception:
+            return pd.Series({lon_col: row[lon_col], lat_col: row[lat_col]})
+
+    # Only apply if columns exist
+    if lon_col in df.columns and lat_col in df.columns:
+        transformed = df.apply(transform_row, axis=1)
+        df[lon_col] = transformed[lon_col]
+        df[lat_col] = transformed[lat_col]
     
-    return {
-        "final_current_mb": current / 1024 / 1024,
-        "final_peak_mb": peak / 1024 / 1024,
-        "status": "stopped"
-    }
+    return df
 
-def get_memory_usage_mb() -> float:
+def safe_divide(numerator: float, denominator: float, default: float = 0.0) -> float:
     """
-    Get current memory usage in MB without stopping the monitor.
-    Returns 0.0 if not monitoring.
+    Perform division safely, returning a default value if denominator is zero.
     """
-    if not tracemalloc.is_tracing():
-        return 0.0
-    
-    current, _ = tracemalloc.get_traced_memory()
-    return current / 1024 / 1024
+    if denominator == 0:
+        return default
+    return numerator / denominator
 
-def get_project_paths() -> Dict[str, Path]:
+def format_bytes(num_bytes: float) -> str:
     """
-    Return a dictionary of standard project paths.
+    Format a byte count into a human-readable string.
     """
-    base = Path.cwd()
-    return {
-        "root": base,
-        "code": base / "code",
-        "data_raw": base / "data" / "raw",
-        "data_processed": base / "data" / "processed",
-        "output": base / "output",
-        "output_logs": base / "output" / "logs",
-        "output_models": base / "output" / "models",
-        "output_reports": base / "output" / "reports",
-        "figures": base / "figures",
-        "tests": base / "tests",
-        "specs": base / "specs" / "001-predicting-avian-song-variation",
-        "contracts": base / "specs" / "001-predicting-avian-song-variation" / "contracts"
-    }
+    for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
+        if abs(num_bytes) < 1024.0:
+            return f"{num_bytes:.2f} {unit}"
+        num_bytes /= 1024.0
+    return f"{num_bytes:.2f} PB"
 
-def create_project_structure() -> None:
+def validate_song_record(df: pd.DataFrame) -> Tuple[bool, List[str]]:
     """
-    Create the standard directory structure for the project if it doesn't exist.
+    Validate a DataFrame against the SongRecord schema.
     """
-    paths = get_project_paths()
-    
-    directories = [
-        paths["code"],
-        paths["data_raw"],
-        paths["data_processed"],
-        paths["output"],
-        paths["output_logs"],
-        paths["output_models"],
-        paths["output_reports"],
-        paths["figures"],
-        paths["tests"],
-        paths["specs"],
-        paths["contracts"]
-    ]
-    
-    for directory in directories:
-        directory.mkdir(parents=True, exist_ok=True)
-    
-    # Create a .gitkeep file in each directory to ensure they are tracked
-    for directory in directories:
-        gitkeep = directory / ".gitkeep"
-        if not gitkeep.exists():
-            gitkeep.touch()
+    schema_path = Path("contracts/song_record.schema.yaml")
+    if not schema_path.exists():
+        # Fallback if path is relative to project root but run from elsewhere
+        schema_path = Path("contracts/song_record.schema.yaml").resolve()
+    return validate_schema(df, str(schema_path))
 
-def setup_logging_infrastructure() -> None:
+def validate_climate_snapshot(df: pd.DataFrame) -> Tuple[bool, List[str]]:
     """
-    Ensure log directories exist and setup basic logging.
+    Validate a DataFrame against the ClimateSnapshot schema.
     """
-    paths = get_project_paths()
-    paths["output_logs"].mkdir(parents=True, exist_ok=True)
-    
-    # Setup default loggers
-    setup_logging(paths["output_logs"] / "ingestion.log", level=logging.INFO)
-    setup_logging(paths["output_logs"] / "modeling.log", level=logging.INFO)
+    schema_path = Path("contracts/climate_snapshot.schema.yaml")
+    return validate_schema(df, str(schema_path))
 
-def safe_mkdir(path: Path) -> None:
+def validate_analysis_dataset(df: pd.DataFrame) -> Tuple[bool, List[str]]:
     """
-    Safely create a directory, including parents if needed.
+    Validate a DataFrame against the AnalysisDataset schema.
     """
-    path.mkdir(parents=True, exist_ok=True)
-
-def file_exists(path: Path) -> bool:
-    """
-    Check if a file exists.
-    """
-    return path.exists() and path.is_file()
-
-def directory_exists(path: Path) -> bool:
-    """
-    Check if a directory exists.
-    """
-    return path.exists() and path.is_dir()
+    schema_path = Path("contracts/analysis_dataset.schema.yaml")
+    return validate_schema(df, str(schema_path))

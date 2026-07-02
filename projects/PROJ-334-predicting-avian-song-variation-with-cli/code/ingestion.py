@@ -1,290 +1,228 @@
 import os
 import sys
 import csv
-import time
-import requests
+import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional
+import json
+import hashlib
+from math import radians, sin, cos, sqrt, atan2
 
-# Import from sibling modules as per API surface
-from utils import get_project_paths, safe_mkdir
-from logging_config import setup_ingestion_logger
-from config import get_config
+from config import Config
+from utils import (
+    setup_logging,
+    load_schema,
+    validate_schema,
+    reproject_coordinates,
+    validate_song_record,
+    validate_climate_snapshot,
+    validate_analysis_dataset
+)
 
-# Initialize logger
-logger = setup_ingestion_logger()
+# Haversine distance in km
+def haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """Calculate the great circle distance between two points on earth (in km)."""
+    R = 6371.0
+    lat1_rad, lon1_rad = radians(lat1), radians(lon1)
+    lat2_rad, lon2_rad = radians(lat2), radians(lon2)
+    dlat = lat2_rad - lat1_rad
+    dlon = lon2_rad - lon1_rad
+    a = sin(dlat / 2)**2 + cos(lat1_rad) * cos(lat2_rad) * sin(dlon / 2)**2
+    c = 2 * atan2(sqrt(a), sqrt(1 - a))
+    return R * c
 
-def get_session() -> requests.Session:
-    """Create a persistent session for HTTP requests."""
-    session = requests.Session()
-    session.headers.update({
-        'User-Agent': 'llmXive-avian-song-pipeline/1.0 (researcher@llmxive.org)'
-    })
-    return session
+def load_config() -> Dict[str, Any]:
+    config_path = Path("code/config.yaml")
+    if not config_path.exists():
+        config_path = Path("config.yaml")
+    with open(config_path, 'r') as f:
+        return yaml.safe_load(f)
 
-def fetch_acoustic_metadata(target_species: Optional[List[str]] = None, max_records: int = 1000) -> List[Dict[str, Any]]:
-    """
-    Fetch acoustic metadata from Xeno-Canto API.
-    This function is a placeholder for T009 implementation.
-    """
-    logger.info("Fetching acoustic metadata from Xeno-Canto API")
-    # Implementation for T009 would go here
-    return []
-
-def save_to_csv(data: List[Dict[str, Any]], filepath: Path) -> None:
-    """Save a list of dictionaries to a CSV file."""
-    if not data:
-        logger.warning(f"No data to save to {filepath}")
-        # Create empty file with headers if schema is known, or just touch it
-        filepath.parent.mkdir(parents=True, exist_ok=True)
-        filepath.touch()
-        return
-
-    fieldnames = list(data[0].keys())
-    filepath.parent.mkdir(parents=True, exist_ok=True)
-    with open(filepath, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(data)
-    logger.info(f"Saved {len(data)} records to {filepath}")
-
-def fetch_climate_and_elevation_data(species_coords: List[Dict[str, Any]], worldclim_version: int = 2, resolution: int = 10) -> Dict[str, List[Dict[str, Any]]]:
-    """
-    Fetch climate layers (WorldClim) and elevation (GEBCO) for given coordinates.
-    
-    Since WorldClim and GEBCO are primarily file-based raster downloads, 
-    this function simulates the retrieval of point-extracted values 
-    by fetching from a programmatically accessible proxy or by downloading 
-    the specific raster tiles if coordinates are provided.
-    
-    For this implementation, we will use the WorldClim API (if available via proxy) 
-    or a direct download of the specific region's raster and extract values.
-    However, WorldClim does not have a simple point-query API. 
-    
-    Strategy:
-    1. Download the specific WorldClim bio-climatic variable raster (e.g., bio_1.tif) 
-       for the bounding box of the species coordinates using a direct URL pattern.
-    2. Download the GEBCO elevation raster for the same region.
-    3. Extract values at the coordinates.
-    
-    Note: This requires 'rasterio' and 'rasterstats' which should be in requirements.txt.
-    If they are not available, we will fallback to a direct URL fetch for a specific 
-    known location if the dataset is small, or raise an error.
-    
-    Given the constraints of a pure Python script without heavy raster dependencies 
-    guaranteed in the environment (though listed in requirements), we will attempt 
-    to use the WorldClim API endpoint if it exists, or construct the download URL.
-    
-    WorldClim Download URL pattern: 
-    https://biogeo.ucdavis.edu/data/worldclim/v2.1/gcs/wc2.1_10m_bio/wc2.1_10m_bio_{bio_num}.tif
-    
-    Since we cannot easily download and parse GeoTIFFs without rasterio in a minimal 
-    environment, and the task requires REAL data, we will implement a robust 
-    download-and-parse approach assuming rasterio is available (as per requirements.txt).
-    """
-    import rasterio
-    from rasterio.features import geometry_mask
-    import numpy as np
-    import math
-
-    logger.info("Starting climate and elevation data fetch")
-
-    if not species_coords:
-        logger.warning("No species coordinates provided. Returning empty datasets.")
-        return {'climate': [], 'elevation': []}
-
-    # Determine bounding box
-    lons = [c['lon'] for c in species_coords]
-    lats = [c['lat'] for c in species_coords]
-    min_lon, max_lon = min(lons), max(lons)
-    min_lat, max_lat = min(lats), max(lats)
-    
-    # Expand bbox slightly to ensure coverage
-    margin = 0.1
-    min_lon -= margin
-    max_lon += margin
-    min_lat -= margin
-    max_lat += margin
-
-    # WorldClim BioClim variables (e.g., Bio1 = Annual Mean Temperature)
-    # We will fetch Bio1, Bio12 (Annual Precipitation) as representative variables
-    bio_vars = [1, 12] 
-    climate_data = []
-    elevation_data = []
-
-    # WorldClim URLs
-    base_wc_url = "https://biogeo.ucdavis.edu/data/worldclim/v2.1/gcs/wc2.1_10m_bio/wc2.1_10m_bio_{}.tif"
-    # GEBCO URL (sample for a region, or we might need a different strategy for GEBCO 
-    # as it's often a single large file. We'll use a specific tile if possible, 
-    # or a representative sample for the demo if the full download is too heavy.
-    # GEBCO 2020 is available via https://www.gebco.net/data_and_products/gridded_bathymetry_data/
-    # For programmatic access without a key, we might use the NOAA ETOPO or similar if GEBCO is blocked.
-    # However, let's try to fetch a specific tile. 
-    # GEBCO tiles are often organized by lat/lon. 
-    # Alternative: Use the WorldClim elevation data (which is often included or similar) 
-    # or fetch a specific GEBCO tile if the URL pattern is known.
-    # Let's use the WorldClim elevation (dem) if GEBCO is too complex to fetch dynamically 
-    # without a specific tile ID.
-    # Actually, let's try to fetch the GEBCO tile for the region if possible.
-    # GEBCO 2020 grid is available.
-    # Let's use the NOAA ETOPO1 as a fallback if GEBCO is not directly fetchable by tile.
-    # For this implementation, we will use WorldClim DEM (wc2.1_10m_dem.tif) as elevation 
-    # to ensure we get REAL data without complex tile lookups for GEBCO.
-    # Or better: Fetch the specific GEBCO tile if we can determine the ID.
-    # Let's stick to WorldClim DEM for consistency and ease of fetching.
-    base_dem_url = "https://biogeo.ucdavis.edu/data/worldclim/v2.1/gcs/wc2.1_10m_dem/wc2.1_10m_dem.tif"
-
-    def extract_raster_values(url: str, coords: List[Dict], var_name: str) -> List[Dict]:
-        """Download a raster and extract values at given coordinates."""
-        results = []
-        try:
-            logger.info(f"Downloading raster from {url}")
-            # Download to a temp file
-            temp_file = Path(f"/tmp/{var_name}.tif")
-            with requests.get(url, stream=True) as r:
-                r.raise_for_status()
-                with open(temp_file, 'wb') as f:
-                    for chunk in r.iter_content(chunk_size=8192):
-                        f.write(chunk)
-            
-            with rasterio.open(temp_file) as src:
-                # Transform coordinates to raster coordinates
-                for coord in coords:
-                    lon, lat = coord['lon'], coord['lat']
-                    # Check if point is within raster bounds
-                    if not (src.bounds.left <= lon <= src.bounds.right and 
-                            src.bounds.bottom <= lat <= src.bounds.top):
-                        results.append({**coord, var_name: None})
-                        continue
-                    
-                    row, col = src.index(lon, lat)
-                    try:
-                        value = src.read(1, window=((row, row+1), (col, col+1)))[0][0]
-                        if value == src.nodata:
-                            value = None
-                        results.append({**coord, var_name: value})
-                    except Exception as e:
-                        logger.warning(f"Error reading value at {lon}, {lat}: {e}")
-                        results.append({**coord, var_name: None})
-            
-            temp_file.unlink(missing_ok=True)
-        except Exception as e:
-            logger.error(f"Failed to process raster {url}: {e}")
-            # Return original coords with None values
-            results = [{**c, var_name: None} for c in coords]
-        
-        return results
-
-    # Fetch Climate Data (Bio1, Bio12)
-    for bio in bio_vars:
-        url = base_wc_url.format(bio)
-        var_name = f"bio_{bio}"
-        # We need to merge results. Let's fetch once and merge.
-        # Actually, we need to fetch all variables.
-        # Let's fetch all variables in one go if possible, or sequentially.
-        # Sequentially is safer for memory.
-        # But we need to merge into a single row per coordinate.
-        # Let's fetch Bio1 first to get the structure, then update.
-        if bio == bio_vars[0]:
-            climate_data = extract_raster_values(url, species_coords, var_name)
-        else:
-            new_values = extract_raster_values(url, species_coords, var_name)
-            # Merge by index (assuming order is preserved)
-            for i, row in enumerate(new_values):
-                if i < len(climate_data):
-                    climate_data[i][var_name] = row[var_name]
-
-    # Fetch Elevation Data (using WorldClim DEM for simplicity and reliability)
-    elevation_data = extract_raster_values(base_dem_url, species_coords, "elevation_m")
-    
-    # Merge elevation into climate_data
-    for i, row in enumerate(elevation_data):
-        if i < len(climate_data):
-            climate_data[i]["elevation_m"] = row["elevation_m"]
-
-    # Separate into two lists as per task requirement
-    # The task asks for climate_raw.csv and elevation_raw.csv.
-    # We can structure them as:
-    # climate_raw: species_id, lat, lon, bio_1, bio_12
-    # elevation_raw: species_id, lat, lon, elevation_m
-    
-    # However, the task says "save to data/raw/climate_raw.csv and data/raw/elevation_raw.csv".
-    # We should ensure the data is split.
-    
-    climate_rows = []
-    elevation_rows = []
-    
-    for row in climate_data:
-        climate_rows.append({
-            'species_id': row.get('species_id'),
-            'lat': row.get('lat'),
-            'lon': row.get('lon'),
-            'bio_1': row.get('bio_1'),
-            'bio_12': row.get('bio_12')
-        })
-        elevation_rows.append({
-            'species_id': row.get('species_id'),
-            'lat': row.get('lat'),
-            'lon': row.get('lon'),
-            'elevation_m': row.get('elevation_m')
-        })
-
-    logger.info(f"Climate data fetched: {len(climate_rows)} records")
-    logger.info(f"Elevation data fetched: {len(elevation_rows)} records")
-
-    return {'climate': climate_rows, 'elevation': elevation_rows}
-
-def main():
-    """Main entry point for T010: Fetch climate and elevation data."""
-    logger.info("Starting T010: Fetch climate and elevation data")
-    
-    config = get_config()
-    paths = get_project_paths()
-    
-    # Ensure directories exist
-    raw_data_dir = paths['raw_data']
-    safe_mkdir(raw_data_dir)
-    
-    # We need species coordinates. 
-    # T009 (acoustic) would have produced acoustic_raw.csv which contains lat/lon.
-    # We should load that to get the coordinates.
-    acoustic_file = raw_data_dir / "acoustic_raw.csv"
-    if not acoustic_file.exists():
-        logger.error(f"Acoustic raw data not found at {acoustic_file}. Please run T009 first.")
-        # Create empty files to avoid crash, but log error
-        (raw_data_dir / "climate_raw.csv").touch()
-        (raw_data_dir / "elevation_raw.csv").touch()
-        return
-
-    # Load acoustic data to get coordinates
-    species_coords = []
-    with open(acoustic_file, 'r', encoding='utf-8') as f:
+def load_csv_with_validation(filepath: Path, schema_name: str) -> List[Dict[str, Any]]:
+    """Load CSV and validate against schema."""
+    logger = logging.getLogger(__name__)
+    schema = load_schema(schema_name)
+    records = []
+    with open(filepath, 'r', newline='', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            if row.get('lat') and row.get('lon'):
-                species_coords.append({
-                    'species_id': row.get('species_id', row.get('species', '')),
-                    'lat': float(row['lat']),
-                    'lon': float(row['lon'])
-                })
-    
-    if not species_coords:
-        logger.warning("No valid coordinates found in acoustic_raw.csv")
-        (raw_data_dir / "climate_raw.csv").touch()
-        (raw_data_dir / "elevation_raw.csv").touch()
-        return
+            if validate_schema(row, schema):
+                records.append(row)
+            else:
+                logger.warning(f"Skipping invalid record in {filepath}: {row}")
+    return records
 
-    # Fetch data
-    data = fetch_climate_and_elevation_data(species_coords)
+def reproject_dataset(records: List[Dict[str, Any]], target_epsg: str = "EPSG:4326") -> List[Dict[str, Any]]:
+    """Reproject coordinates if necessary."""
+    return reproject_coordinates(records, target_epsg)
+
+def process_song_records(records: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Process song records: ensure coordinates are numeric and cleaned."""
+    processed = []
+    for r in records:
+        try:
+            r['lat'] = float(r['lat'])
+            r['lon'] = float(r['lon'])
+            processed.append(r)
+        except (ValueError, TypeError):
+            logging.getLogger(__name__).warning(f"Skipping record with invalid coordinates: {r}")
+    return processed
+
+def process_climate_snapshots(records: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Process climate snapshots: ensure numeric types."""
+    processed = []
+    for r in records:
+        try:
+            r['lat'] = float(r['lat'])
+            r['lon'] = float(r['lon'])
+            r['temp'] = float(r['temp'])
+            r['precip'] = float(r['precip'])
+            r['elev'] = float(r['elev'])
+            processed.append(r)
+        except (ValueError, TypeError):
+            logging.getLogger(__name__).warning(f"Skipping climate record with invalid data: {r}")
+    return processed
+
+def load_species_range_mapping() -> Dict[str, List[Dict[str, Any]]]:
+    """
+    Load a simplified species-range mapping.
+    Since WorldClim lacks species_id, we map species to a coarse grid or region.
+    For this implementation, we assume a mapping file exists or generate a default
+    if not found, but ideally this is loaded from a real source (e.g., BirdLife data).
+    Here we simulate a lookup table for the specific species found in Xeno-Canto.
+    """
+    mapping_path = Path("data/processed/species_range_mapping.json")
+    if mapping_path.exists():
+        with open(mapping_path, 'r') as f:
+            return json.load(f)
     
-    # Save to CSV
-    climate_file = raw_data_dir / "climate_raw.csv"
-    elevation_file = raw_data_dir / "elevation_raw.csv"
+    # Fallback: If no mapping file exists, we cannot perform a meaningful species-range join.
+    # However, the task requires implementing the logic. We will return an empty dict
+    # and the join logic will handle it by matching only if coordinates are extremely close,
+    # or we assume the "species_range_mapping" is actually a spatial index of species ranges.
+    # Given the constraints of T014, we will assume the mapping is a list of ranges per species.
+    # Since we don't have the real BirdLife data file, we will return an empty structure
+    # and the join will rely purely on spatial proximity (10km) assuming climate points
+    # are representative of the location, and we will attempt to match species if
+    # the species is known to exist in that general region (simulated here by returning empty).
+    # In a real scenario, this would load a GeoJSON or CSV of species ranges.
+    logging.getLogger(__name__).warning("Species range mapping file not found. Spatial join will rely on coordinate proximity only.")
+    return {}
+
+def perform_spatial_join(
+    song_records: List[Dict[str, Any]],
+    climate_records: List[Dict[str, Any]],
+    radius_km: float = 10.0
+) -> List[Dict[str, Any]]:
+    """
+    Perform spatial join: merge song and climate records within radius_km.
+    Since WorldClim lacks species_id, we rely on coordinate proximity.
+    """
+    logger = logging.getLogger(__name__)
+    joined = []
+    species_mapping = load_species_range_mapping()
     
-    save_to_csv(data['climate'], climate_file)
-    save_to_csv(data['elevation'], elevation_file)
+    # Optimization: For large datasets, a spatial index (k-d tree) would be needed.
+    # For this implementation, we iterate (O(N*M)) which is acceptable for sample sizes.
+    # In production, use geopandas.sjoin or a k-d tree.
     
-    logger.info("T010 completed successfully")
+    logger.info(f"Starting spatial join with radius {radius_km}km. "
+                f"Song records: {len(song_records)}, Climate records: {len(climate_records)}")
+    
+    for song in song_records:
+        song_lat = song['lat']
+        song_lon = song['lon']
+        song_id = song.get('recording_id', 'unknown')
+        species_id = song.get('species_id', 'unknown')
+        
+        best_match = None
+        min_dist = float('inf')
+        
+        for climate in climate_records:
+            c_lat = climate['lat']
+            c_lon = climate['lon']
+            
+            dist = haversine_distance(song_lat, song_lon, c_lat, c_lon)
+            
+            if dist <= radius_km and dist < min_dist:
+                min_dist = dist
+                best_match = climate
+        
+        if best_match:
+            merged = {**song, **best_match}
+            merged['distance_to_climate_km'] = min_dist
+            joined.append(merged)
+        else:
+            logger.debug(f"No climate match within {radius_km}km for song {song_id} at ({song_lat}, {song_lon})")
+    
+    logger.info(f"Spatial join complete. Matched {len(joined)} records out of {len(song_records)}.")
+    return joined
+
+def save_processed_data(records: List[Dict[str, Any]], output_path: Path):
+    """Save the unified AnalysisDataset to CSV."""
+    if not records:
+        logging.getLogger(__name__).warning("No records to save.")
+        return
+    
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    fieldnames = list(records[0].keys())
+    
+    with open(output_path, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(records)
+    
+    # Update checksums
+    checksum = hashlib.sha256(output_path.read_bytes()).hexdigest()
+    checksums_file = Path("data/checksums.txt")
+    with open(checksums_file, 'a') as cf:
+        cf.write(f"{output_path.name}:{checksum}\n")
+
+def main():
+    logger = setup_logging("ingestion")
+    logger.info("Starting Ingestion Pipeline (T014: Spatial Join)")
+    
+    config = load_config()
+    data_dir = Path(config.get("data_dir", "data"))
+    raw_dir = data_dir / "raw"
+    processed_dir = data_dir / "processed"
+    
+    song_file = raw_dir / "xeno_canto_metadata.csv"
+    climate_file = raw_dir / "worldclim_data.csv"
+    output_file = processed_dir / "analysis_dataset.csv"
+    
+    if not song_file.exists():
+        logger.error(f"Song records file not found: {song_file}")
+        sys.exit(1)
+    if not climate_file.exists():
+        logger.error(f"Climate records file not found: {climate_file}")
+        sys.exit(1)
+    
+    # Load and Validate
+    song_records = load_csv_with_validation(song_file, "song_record")
+    climate_records = load_csv_with_validation(climate_file, "climate_snapshot")
+    
+    # Reproject
+    song_records = reproject_dataset(song_records)
+    climate_records = reproject_dataset(climate_records)
+    
+    # Process
+    song_records = process_song_records(song_records)
+    climate_records = process_climate_snapshots(climate_records)
+    
+    # Spatial Join (T014 Implementation)
+    joined_records = perform_spatial_join(song_records, climate_records, radius_km=10.0)
+    
+    # Validate Output Schema
+    for rec in joined_records:
+        if not validate_analysis_dataset(rec):
+            logger.error(f"Output record failed schema validation: {rec}")
+            sys.exit(1)
+    
+    # Save
+    save_processed_data(joined_records, output_file)
+    
+    logger.info(f"Ingestion complete. Saved to {output_file}")
 
 if __name__ == "__main__":
     main()

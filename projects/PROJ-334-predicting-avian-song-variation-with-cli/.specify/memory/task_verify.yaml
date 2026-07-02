@@ -1,9 +1,11 @@
-T001a [P] Create directory structure script file (`scripts/create_dirs.sh` or `code/utils.py` function): 1
-? T001b [P] Execute directory structure script to create `code/`, `data/raw/`, `data/processed/`,
-  `output/`, `tests/` with specific paths defined in the script
+? T001a [P] Create directory structure at `projects/PROJ-334-predicting-avian-song-variation-with-cli/`,
+  `data/`, `code/`, `tests/`
 : 1
-? 'T002a [P] Create `requirements.txt` with dependencies: `pandas`, `numpy`, `scikit-learn`,
-  `statsmodels`, `seaborn`, `matplotlib`, `scipy`, `geopandas`, `rasterio`, `pytest`'
+T001b [P] Create `requirements.txt` and `.gitignore` per implementation plan: 1
+? 'T002 [P] Initialize Python project with dependencies: pandas, numpy, scikit-learn,
+  statsmodels, scipy, matplotlib, seaborn, pyyaml, requests, rasterio, geopandas,
+  pyproj'
 : 1
-'T002b Initialize Python 3.11 virtualenv and install dependencies from `requirements.txt` <!-- ATOMIZE: requested -->': 1
-T003 [P] Configure linting (flake8/black) and formatting tools: 1
+T003 [P] Configure linting (ruff) and formatting (black) tools: 1
+T004 [P] Setup data directory structure (`data/raw/`, `data/processed/`) and initialize `data/checksums.txt`: 1
+T005 [P] Create base configuration loader for environment variables and paths: 1

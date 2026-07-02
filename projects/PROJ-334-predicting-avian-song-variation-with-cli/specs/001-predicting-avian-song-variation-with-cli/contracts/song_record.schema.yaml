@@ -1,0 +1,33 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: SongRecord
+description: Schema for avian acoustic recording data.
+type: object
+properties:
+  species_id:
+    type: string
+    description: "Unique identifier for the bird species."
+  song_metric_1:
+    type: number
+    description: "Primary song metric (e.g., frequency in kHz)."
+    minimum: 0
+  song_metric_2:
+    type: number
+    description: "Secondary song metric (e.g., duration in seconds)."
+    minimum: 0
+  location_lat:
+    type: number
+    description: "Latitude in decimal degrees (WGS84)."
+    minimum: -90
+    maximum: 90
+  location_lon:
+    type: number
+    description: "Longitude in decimal degrees (WGS84)."
+    minimum: -180
+    maximum: 180
+required:
+  - species_id
+  - song_metric_1
+  - song_metric_2
+  - location_lat
+  - location_lon
+additionalProperties: false

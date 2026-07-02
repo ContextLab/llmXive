@@ -1,164 +1,158 @@
 """
-Configuration management for llmXive avian song variation project.
+Base configuration loader for environment variables and paths.
 
-Loads paths from plan.md (YAML section) and environment variables.
-Provides a centralized Config object for the entire project.
+This module provides a centralized way to manage project configuration,
+including environment variable overrides and path resolution.
 """
 import os
-import sys
+import json
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Optional, Dict, Any
 
-# Try to import yaml; if missing, provide a clear error
-try:
-    import yaml
-except ImportError:
-    raise ImportError(
-        "PyYAML is required for config.py. "
-        "Please install it via 'pip install pyyaml' or ensure it is in requirements.txt."
-    )
+# Project root is assumed to be the parent of the 'code' directory
+# If running from code/, go up one level
+_CODE_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = _CODE_DIR.parent if _CODE_DIR.name == "code" else _CODE_DIR
 
-from utils import get_project_paths
+# Default directory structure
+DEFAULT_DATA_DIR = PROJECT_ROOT / "data"
+DEFAULT_DATA_RAW = DEFAULT_DATA_DIR / "raw"
+DEFAULT_DATA_PROCESSED = DEFAULT_DATA_DIR / "processed"
+DEFAULT_DATA_FIGURES = DEFAULT_DATA_DIR / "figures"
+DEFAULT_CONTRACTS_DIR = PROJECT_ROOT / "contracts"
+DEFAULT_LOGS_DIR = PROJECT_ROOT / "logs"
 
-# Default paths relative to project root
-DEFAULTS = {
-    "data_raw": "data/raw",
-    "data_processed": "data/processed",
-    "output_logs": "output/logs",
-    "output_reports": "output/reports",
-    "output_models": "output/models",
-    "specs": "specs/001-predicting-avian-song-variation",
-    "state_file": "state.yaml",
-    "plan_file": "plan.md",
-}
+# Environment variable prefixes
+ENV_PREFIX = "AVIAN_SONG_"
+
+def _get_env_str(key: str, default: str = "") -> str:
+    """Get string environment variable with fallback to default."""
+    full_key = f"{ENV_PREFIX}{key}"
+    return os.getenv(full_key, default)
+
+def _get_env_path(key: str, default: Optional[Path] = None) -> Path:
+    """Get path environment variable, resolving relative to project root if needed."""
+    val = _get_env_str(key)
+    if not val:
+        return default or PROJECT_ROOT
+    p = Path(val)
+    if not p.is_absolute():
+        p = PROJECT_ROOT / p
+    return p.resolve()
+
+def _get_env_bool(key: str, default: bool = False) -> bool:
+    """Get boolean environment variable."""
+    val = _get_env_str(key)
+    if not val:
+        return default
+    return val.lower() in ("true", "1", "yes", "on")
 
 class Config:
     """
-    Central configuration holder.
+    Central configuration object for the project.
     
-    Loads paths from:
-    1. Environment variables (highest priority)
-    2. plan.md YAML section (if present)
-    3. Hardcoded defaults (lowest priority)
+    Loads settings from environment variables prefixed with AVIAN_SONG_.
+    If not set, falls back to defaults based on project structure.
     """
     
-    def __init__(self, project_root: Optional[Path] = None):
-        self.project_root = project_root or Path(__file__).resolve().parent.parent
-        self.paths: Dict[str, Path] = {}
-        self._load_config()
-
-    def _load_config(self) -> None:
-        """Load configuration from env vars, plan.md, and defaults."""
+    def __init__(self):
+        # Paths
+        self.project_root = _get_env_path("PROJECT_ROOT", PROJECT_ROOT)
+        self.data_dir = _get_env_path("DATA_DIR", DEFAULT_DATA_DIR)
+        self.data_raw = _get_env_path("DATA_RAW_DIR", DEFAULT_DATA_RAW)
+        self.data_processed = _get_env_path("DATA_PROCESSED_DIR", DEFAULT_DATA_PROCESSED)
+        self.data_figures = _get_env_path("DATA_FIGURES_DIR", DEFAULT_DATA_FIGURES)
+        self.contracts_dir = _get_env_path("CONTRACTS_DIR", DEFAULT_CONTRACTS_DIR)
+        self.logs_dir = _get_env_path("LOGS_DIR", DEFAULT_LOGS_DIR)
         
-        # 1. Load base paths from utils (project structure)
-        base_paths = get_project_paths(self.project_root)
+        # Data sources
+        self.xeno_canto_api_base = _get_env_str("XENOCANTO_API_BASE", "https://www.xeno-canto.org/api/2")
+        self.worldclim_base_url = _get_env_str("WORLDCCLIM_BASE_URL", "https://biogeo.ucdavis.edu/data/worldclim/v2.1")
         
-        # Initialize paths with defaults first
-        for key, default_rel in DEFAULTS.items():
-            # If base_paths has a specific override, use it, else construct from root
-            if key in base_paths:
-                self.paths[key] = base_paths[key]
-            else:
-                self.paths[key] = self.project_root / default_rel
-
-        # 2. Override with environment variables
-        # Convention: PROJ_<KEY> (uppercase)
-        for key in self.paths.keys():
-            env_key = f"PROJ_{key.upper()}"
-            if env_key in os.environ:
-                self.paths[key] = Path(os.environ[env_key])
-
-        # 3. Attempt to load from plan.md if it exists
-        plan_path = self.paths.get("plan_file", self.project_root / "plan.md")
-        if plan_path.exists():
-            self._parse_plan_md(plan_path)
-
-        # Ensure all directories exist
-        self._ensure_directories()
-
-    def _parse_plan_md(self, plan_path: Path) -> None:
-        """
-        Parse plan.md to extract YAML configuration block.
+        # Analysis settings
+        self.spatial_join_radius_km = float(_get_env_str("SPATIAL_JOIN_RADIUS_KM", "10.0"))
+        self.multicollinearity_threshold = float(_get_env_str("MULTICOLLINEARITY_THRESHOLD", "0.8"))
+        self.vif_threshold = float(_get_env_str("VIF_THRESHOLD", "5.0"))
+        self.p_value_thresholds = [float(x) for x in _get_env_str("P_VALUE_THRESHOLDS", "0.01,0.05,0.10").split(",")]
         
-        Assumes plan.md contains a YAML block at the start or a specific
-        section labeled 'config' or similar. For robustness, we look for
-        a YAML block between '---' markers or a 'paths:' section.
-        """
-        try:
-            content = plan_path.read_text(encoding="utf-8")
-            lines = content.splitlines()
+        # Logging
+        self.log_level = _get_env_str("LOG_LEVEL", "INFO").upper()
+        self.log_to_file = _get_env_bool("LOG_TO_FILE", True)
+        self.log_to_console = _get_env_bool("LOG_TO_CONSOLE", True)
+        
+        # Validation
+        self.strict_validation = _get_env_bool("STRICT_VALIDATION", False)
+        
+        # Ensure directories exist
+        self._ensure_dirs()
+
+    def _ensure_dirs(self):
+        """Create necessary directories if they don't exist."""
+        dirs = [
+            self.data_dir,
+            self.data_raw,
+            self.data_processed,
+            self.data_figures,
+            self.contracts_dir,
+            self.logs_dir
+        ]
+        for d in dirs:
+            d.mkdir(parents=True, exist_ok=True)
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Export configuration as a dictionary."""
+        exclude = {"project_root"}  # Avoid recursion issues
+        return {
+            k: str(v) if isinstance(v, Path) else v
+            for k, v in self.__dict__.items()
+            if not k.startswith("_") and k not in exclude
+        }
+
+    def save(self, path: Optional[Path] = None):
+        """Save current configuration to a JSON file."""
+        if path is None:
+            path = self.data_dir / "config_snapshot.json"
+        else:
+            path = Path(path)
             
-            # Look for YAML block start/end
-            yaml_lines = []
-            in_yaml = False
-            
-            for line in lines:
-                if line.strip() == '---' and not in_yaml:
-                    in_yaml = True
-                    continue
-                if line.strip() == '---' and in_yaml:
-                    break
-                if in_yaml:
-                    yaml_lines.append(line)
-            
-            if yaml_lines:
-                yaml_content = "\n".join(yaml_lines)
-                data = yaml.safe_load(yaml_content)
-                
-                if isinstance(data, dict) and "paths" in data:
-                    for key, val in data["paths"].items():
-                        if key in self.paths and val:
-                            # Resolve relative to project root if relative path
-                            p = Path(val)
-                            if not p.is_absolute():
-                                p = self.project_root / p
-                            self.paths[key] = p
-            else:
-                # Fallback: try to find 'paths:' section in markdown
-                # This is a simpler heuristic if no YAML block exists
-                pass
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(self.to_dict(), f, indent=2, default=str)
 
-        except Exception as e:
-            # Log warning but don't fail; defaults are safe
-            print(f"Warning: Could not parse plan.md config: {e}", file=sys.stderr)
+    @classmethod
+    def load(cls, path: Path) -> "Config":
+        """Load configuration from a JSON file and override defaults."""
+        cfg = cls()
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        
+        for key, value in data.items():
+            if hasattr(cfg, key):
+                setattr(cfg, key, value)
+        
+        cfg._ensure_dirs()
+        return cfg
 
-    def _ensure_directories(self) -> None:
-        """Create directories if they don't exist."""
-        for key, path in self.paths.items():
-            if key.endswith("_file"):
-                # Ensure parent directory exists for files
-                path.parent.mkdir(parents=True, exist_ok=True)
-            else:
-                path.mkdir(parents=True, exist_ok=True)
-
-    def get(self, key: str, default: Optional[Path] = None) -> Path:
-        """Get a path by key."""
-        return self.paths.get(key, default or self.paths.get(key))
-
-    def __getitem__(self, key: str) -> Path:
-        return self.paths[key]
-
-    def __repr__(self) -> str:
-        return f"Config(root={self.project_root}, paths={list(self.paths.keys())})"
-
-# Global singleton instance
-_config: Optional[Config] = None
-
-def get_config() -> Config:
-    """Get the global config singleton."""
-    global _config
-    if _config is None:
-        _config = Config()
-    return _config
-
-def main() -> None:
-    """CLI entry point to print current configuration."""
-    cfg = get_config()
-    print("Current Project Configuration:")
-    print(f"Root: {cfg.project_root}")
-    print("Paths:")
-    for k, v in cfg.paths.items():
-        print(f"  {k}: {v}")
+# Global instance for convenience
+config = Config()
 
 if __name__ == "__main__":
-    main()
+    # Simple test: print current config
+    import sys
+    print("Current Configuration:")
+    print(json.dumps(config.to_dict(), indent=2, default=str))
+    print(f"\nProject Root: {config.project_root}")
+    print(f"Data Dir: {config.data_dir}")
+    print(f"Contracts Dir: {config.contracts_dir}")
+    
+    # Test saving
+    save_path = config.data_dir / "test_config.json"
+    config.save(save_path)
+    print(f"\nSaved test config to: {save_path}")
+    
+    # Test loading
+    loaded = Config.load(save_path)
+    print(f"Loaded config project root: {loaded.project_root}")
+    
+    # Cleanup
+    save_path.unlink()
+    print("Test complete.")

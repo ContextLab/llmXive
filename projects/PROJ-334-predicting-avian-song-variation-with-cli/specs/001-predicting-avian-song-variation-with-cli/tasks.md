@@ -1,6 +1,6 @@
 # Tasks: Predicting Avian Song Variation with Climatic and Geographic Factors
 
-**Input**: Design documents from `/specs/001-predicting-avian-song-variation/`
+**Input**: Design documents from `/specs/001-predicting-avian-song-variation-with-cli/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
@@ -10,12 +10,12 @@
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
+- **[Story]**: Which user story this user story belongs to (e.g., US1, US2, US3)
 - Include exact file paths in descriptions
 
 ## Path Conventions
 
-- **Single project**: `code/`, `tests/` at repository root
+- **Single project**: `src/`, `tests/` at repository root
 - **Web app**: `backend/src/`, `frontend/src/`
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
@@ -43,13 +43,8 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create directory structure script file (`scripts/create_dirs.sh` or `code/utils.py` function)
-- [ ] T001b [P] Execute directory structure script to create `code/`, `data/raw/`, `data/processed/`, `output/`, `tests/` with specific paths defined in the script
-
-- [ ] T002a [P] Create `requirements.txt` with dependencies: `pandas`, `numpy`, `scikit-learn`, `statsmodels`, `seaborn`, `matplotlib`, `scipy`, `geopandas`, `rasterio`, `pytest`
-- [ ] T002b Initialize Python 3.11 virtualenv and install dependencies from `requirements.txt` <!-- ATOMIZE: requested -->
-
-- [ ] T003 [P] Configure linting (flake8/black) and formatting tools
+- [ ] T001a [P] Create directory structure at `projects/PROJ-334-predicting-avian-song-variation-with-cli/`, `data/`, `code/`, `tests/`
+- [ ] T001b [P] Create `requirements.txt` and `.gitignore` per implementation plan
 
 ---
 
@@ -59,14 +54,16 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-Examples of foundational tasks (adjust based on your project):
-
-- [X] T004 Create `code/utils.py` with helper functions for logging, random state pinning, and memory monitoring
-- [~] T005a [P] Implement data validation schema in `specs/001-predicting-avian-song-variation/contracts/analysis_output.schema.yaml`
-- [~] T005b [P] Create `contracts/analysis_output.schema.yaml` defining the expected columns and types for `model_summary.csv`
-- [~] T006 [P] Setup logging infrastructure to write to `output/logs/ingestion.log` and `output/logs/modeling.log`
-- [~] T007 Create base configuration management to load paths from `plan.md` and environment variables
-- [~] T008 Setup `state.yaml` tracking for Constitution Principle V (hashes and timestamps)
+- [ ] T002 [P] Initialize Python project with dependencies: pandas, numpy, scikit-learn, statsmodels, scipy, matplotlib, seaborn, pyyaml, requests, rasterio, geopandas, pyproj
+- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [ ] T004 [P] Setup data directory structure (`data/raw/`, `data/processed/`) and initialize `data/checksums.txt`
+- [ ] T005 [P] Create base configuration loader for environment variables and paths
+- [~] T006 [P] Create base logging infrastructure (`code/utils.py`) with file and console handlers
+- [~] T007 [P] Create schema definition files (`contracts/song_record.schema.yaml`, `contracts/climate_snapshot.schema.yaml`, `contracts/analysis_dataset.schema.yaml`)
+- [~] T008 [P] Implement schema validation utilities (`code/utils.py`) for `SongRecord`, `ClimateSnapshot`, and `AnalysisDataset`
+- [~] T008a [P] Implement coordinate reprojection logic (`code/utils.py`) to handle WGS84/NAD83 conversions for spatial joins
+- [~] T009 [P] Create data source contracts (`contracts/data_sources.yaml`) defining Xeno-Canto and WorldClim v2.1 URLs, sample paths, and version pinning logic
+- [~] T010 Create `code/main.py` orchestration entry point with argument parsing
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -74,19 +71,26 @@ Examples of foundational tasks (adjust based on your project):
 
 ## Phase 3: User Story 1 - Data Ingestion and Variable Alignment (Priority: P1) 🎯 MVP
 
-**Goal**: Ingest avian acoustic data and merge with climate/geographic variables into a single clean table.
+**Goal**: Load real avian acoustic data (Xeno-Canto) and climate data (WorldClim v2.1), align by location/species, and produce a unified `AnalysisDataset`.
 
-**Independent Test**: The pipeline loads raw CSVs, joins by species/location, and outputs a single CSV with no missing core variables.
+**Independent Test**: Can be fully tested by executing `code/ingestion.py` against the provided sample CSVs or real fetch and verifying the output schema contains required columns with no duplicate rows.
 
 ### Implementation for User Story 1
 
-- [~] T009 [P] [US1] Implement `code/ingestion.py` to fetch acoustic metadata from Xeno-Canto API (filtered by target species) and save to `data/raw/acoustic_raw.csv`
-- [~] T010 [P] [US1] Implement `code/ingestion.py` to fetch climate layers (WorldClim) and elevation (GEBCO) and save to `data/raw/climate_raw.csv` and `data/raw/elevation_raw.csv`
-- [ ] T011 [US1] Implement data alignment logic in `code/ingestion.py`: Join acoustic, climate, and elevation data using `location_id` and `species`. Handle temporal mismatches by aggregating climate to recording date.
-- [ ] T012 [US1] Implement missing data handling in `code/ingestion.py`: Flag or remove records with missing matches, generate `output/logs/missing_matches.log` (FR-006).
-- [ ] T013 [US1] Implement Validation Check in `code/ingestion.py`: Calculate alignment success rate (`aligned_rows / total_raw_rows`). If < 95%, HALT execution, log error, and report failure. Do not proceed to modeling. (SC-001, plan.md Phase 0 Step 4).
-- [ ] T015 [US1] Write final aligned dataset to `data/processed/aligned_dataset.csv`
-- [ ] T016 [US1] Update `state.yaml` with new artifact hashes and timestamp (Constitution Principle V)
+- [~] T011 [US1] Implement `fetch_xeno_canto.py` to download real metadata (species_id, lat, lon) from Xeno-Canto API (referencing T009 for URL/version), record SHA256 checksum immediately to `data/checksums.txt`, and abort on fetch failure
+- [~] T012 [US1] Implement `fetch_worldclim.py` to download real climate variables (temp, precip, elev) from WorldClim v2.1 (referencing T009 for URL/version), record SHA256 checksum immediately to `data/checksums.txt`, and abort on fetch failure
+- [~] T013 [US1] Implement `code/ingestion.py` to load raw CSVs, validate against `contracts/*.schema.yaml` (using T008 utilities), and handle coordinate reprojection (WGS84) using T008a utilities
+- [~] T014 [US1] Implement spatial join logic in `code/ingestion.py` to merge `SongRecord` and `ClimateSnapshot` by performing a spatial join within a 10km radius of coordinates and applying species-range mapping (since WorldClim lacks species_id)
+- [ ] T014a [US1] Implement species-range mapping logic in `code/ingestion.py` to map species IDs to geographic regions for the join
+- [ ] T015 [US1] Calculate and log match rate (matched/total) and verify no duplicates in `code/ingestion.py`
+- [ ] T016 [US1] Implement exclusion logic for unmatched species and logging of warnings in `code/ingestion.py`
+- [ ] T017 [US1] Save the unified `AnalysisDataset` to `data/processed/analysis_dataset.csv` and update `data/checksums.txt`
+
+### Tests for User Story 1
+
+- [ ] T018 [P] [US1] Unit test for coordinate reprojection logic in `tests/test_ingestion.py` (depends on T013 implementation)
+- [ ] T019 [P] [US1] Unit test for schema validation and join logic in `tests/test_ingestion.py` (depends on T013/T014 implementation)
+- [ ] T020 [P] [US1] Integration test for full ingestion pipeline (fetch -> join -> save) in `tests/test_ingestion.py` (depends on T011-T017 implementation)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -94,43 +98,48 @@ Examples of foundational tasks (adjust based on your project):
 
 ## Phase 4: User Story 2 - Exploratory Data Analysis and Correlation Matrix (Priority: P2)
 
-**Goal**: Generate correlation matrix and scatterplot matrix; handle multicollinearity automatically.
+**Goal**: Generate statistical summaries, correlation matrices, and multicollinearity diagnostics (VIF) to validate data quality and relationships.
 
-**Independent Test**: Script produces a PDF report with correlation heatmap and scatterplots; applies PCA/Ridge/Lasso if |r| > 0.8.
+**Independent Test**: Can be fully tested by running `code/eda.py` and verifying a JSON report is generated with a symmetric correlation matrix, valid ranges bounded by theoretical limits, and VIF flags.
 
 ### Implementation for User Story 2
 
-- [ ] T017 [P] [US2] Implement `code/eda.py` to load `data/processed/aligned_dataset.csv`
-- [ ] T018 [P] [US2] Implement correlation matrix generation (heatmap) in `code/eda.py` using `seaborn`
-- [ ] T019 [US2] Implement multicollinearity detection in `code/eda.py`: Identify pairs with |r| > 0.8. If detected, apply PCA if > 2 correlated pairs, else apply Ridge/Lasso Regression; document method in `output/reports/eda_report.pdf` (FR-002).
-- [ ] T020 [US2] Implement spatial autocorrelation check in `code/eda.py`: Perform Moran's I test on null model residuals; append statistic and p-value to `output/reports/eda_report.pdf`.
-- [ ] T021 [US2] Implement scatterplot matrix generation (song metrics vs. climate variables) in `code/eda.py`
-- [ ] T022 [US2] Generate `output/reports/eda_report.pdf` containing all visualizations and the multicollinearity handling documentation
-- [ ] T023 [US2] Update `state.yaml` with new artifact hashes and timestamp
+- [ ] T021 [US2] Implement `code/eda.py` to load `AnalysisDataset` (validating against T007/T008 schemas), generate summary statistics (mean, std, range)
+- [ ] T022 [US2] Implement Pearson correlation matrix calculation between song metrics and environmental predictors in `code/eda.py`
+- [ ] T023 [US2] Implement multicollinearity threshold check (default 0.8) and flagging in `code/eda.py`
+- [ ] T024 [US2] Implement Variance Inflation Factor (VIF) calculation for all predictors in `code/eda.py`
+- [ ] T025 [US2] Implement VIF > 5 flagging logic and reporting in `code/eda.py`
+- [ ] T026 [US2] Generate and save EDA report (`data/eda_report.json`) containing correlation matrix and summary stats
+
+### Tests for User Story 2
+
+- [ ] T027 [P] [US2] Unit test for correlation matrix calculation and symmetry in `tests/test_eda.py`
+- [ ] T028 [P] [US2] Unit test for VIF calculation and threshold flagging in `tests/test_eda.py`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
 ---
 
-## Phase 5: User Story 3 - Associational Modeling and Sensitivity Analysis (Priority: P3)
+## Phase 5: User Story 3 - Predictive Modeling with Sensitivity Analysis (Priority: P3)
 
-**Goal**: Fit linear regression/GLM, perform sensitivity analysis, and validate model stability.
+**Goal**: Fit multiple linear regression models, perform sensitivity analysis on p-value thresholds, and apply FDR control.
 
-**Independent Test**: Model runs on CPU, produces coefficients, sensitivity loop completes, and stability metrics are reported.
+**Independent Test**: Can be fully tested by running `code/modeling.py` and verifying model files, sensitivity reports, and FDR-adjusted p-values.
 
 ### Implementation for User Story 3
 
-- [ ] T024 [P] [US3] Implement `code/modeling.py` to load `data/processed/aligned_dataset.csv`
-- [ ] T025 [US3] Implement data splitting in `code/modeling.py`: Partition into train/hold-out using `train_test_split` with fixed `random_state` and stratification by species if sample sizes allow; otherwise use random split (FR-007).
-- [ ] T026 [US3] Implement distributional check in `code/modeling.py`: Run Shapiro-Wilk test on residuals from an initial OLS model. Switch to GLM (Gamma/Poisson) if p < 0.05, and report the selected family in the output (FR-009, SC-008).
-- [ ] T027 [US3] Implement model fitting in `code/modeling.py`: Check for presence of phylogenetic data file; if missing, default to geographic coordinates as proxies (FR-008). Fit the selected model (OLS or GLM) and calculate variance explained by confounders vs. climate using partial R-squared comparing full model to confounders-only baseline. Report the variance explained by these confounders (FR-008, SC-007).
-- [ ] T028 [US3] Implement predictive stability check in `code/modeling.py`: Evaluate on hold-out set, calculate `r_squared_diff`. Flag if >= 0.10 (SC-006).
-- [ ] T029 [US3] Implement sensitivity analysis loop in `code/modeling.py`: Sweep thresholds across the exact set {0.05, 0.1}, re-evaluate predictors, and record model fit metrics for each threshold (FR-004, SC-003). Do NOT calculate Cohen's f².
-- [ ] T030 [US3] Implement convergence aggregation in `code/modeling.py`: Calculate convergence rate across species subsets where converged is defined as optimizer status == success, against total species subsets attempted. Append rate and flag status to `output/models/model_summary.csv` and `output/reports/analysis_report.pdf`. Flag if < 90% (SC-002).
-- [ ] T031 [US3] Generate `output/models/model_summary.csv` with coefficients, p-values, R², `r_squared_diff`, and confounder_variance_explained. Explicitly include columns for confounder_variance_explained and r_squared_diff. All headers must include "Associational Analysis" (FR-003, SC-006, SC-007).
-- [ ] T032 [US3] Generate `output/reports/analysis_report.pdf` compiling all metrics and sensitivity results. Ensure ALL headers in the report include the phrase "Associational Analysis" (FR-003).
-- [ ] T033 [US3] Validate `model_summary.csv` against `contracts/analysis_output.schema.yaml` (FR-005).
-- [ ] T034 [US3] Update `state.yaml` with final artifact hashes and timestamp (Constitution Principle V).
+- [ ] T029 [US3] Implement `code/modeling.py` to fit Model A (Climate Only) and Model B (Climate + Geo) using `statsmodels`, explicitly targeting song_metric_1/song_metric_2, consuming EDA report (T026) for multicollinearity diagnostics, and flagging analysis as 'associational' in output metadata
+- [ ] T030 [US3] Implement null model (intercept-only) comparison and R² improvement check in `code/modeling.py` (if not included in T029)
+- [ ] T031 [US3] Implement sensitivity analysis: sweep p-value thresholds across {0.01, 0.05, 0.10}, track significant predictors, calculate Jaccard index of significant predictors for each threshold pair, and save results (including Jaccard values) to `data/sensitivity_report.json`
+- [ ] T032 [US3] Implement Benjamini-Hochberg FDR correction on p-values across different song metrics (frequency vs duration) in `code/modeling.py`
+- [ ] T033 [US3] Save fitted models (`data/models/model_a.pkl`, `data/models/model_b.pkl`) and sensitivity report (`data/sensitivity_report.json`) including FDR-adjusted p-values
+- [ ] T034 [US3] Add error handling for zero-variance predictors and abort with clear message in `code/modeling.py`
+
+### Tests for User Story 3
+
+- [ ] T035 [P] [US3] Unit test for model fitting and R² calculation in `tests/test_modeling.py`
+- [ ] T036 [P] [US3] Unit test for sensitivity analysis sweep logic in `tests/test_modeling.py`
+- [ ] T037 [P] [US3] Unit test for Benjamini-Hochberg FDR procedure in `tests/test_modeling.py`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -140,13 +149,12 @@ Examples of foundational tasks (adjust based on your project):
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T035a [P] Update `README.md` with usage instructions
-- [ ] T035b [P] Update `docs/` with API reference
-- [ ] T036a Refactor code based on linting results
-- [ ] T036b Refactor code based on performance bottlenecks identified in T037
-- [ ] T037 Performance optimization (ensure memory < 5.6 GB ([deferred] of 7 GB limit), runtime < 4.8h)
-- [ ] T044 [P] Additional unit tests in `tests/unit/`
-- [ ] T045 Run `quickstart.md` validation
+- [ ] T038 [P] Documentation updates in `README.md` and `docs/`
+- [ ] T039a [P] Lint and format check across all code files (ruff/black)
+- [ ] T039b [P] Cyclomatic complexity check (target < 10) across all functions
+- [ ] T040 [P] Performance optimization: Profile `ingestion.py` and optimize spatial join to reduce runtime by [deferred]
+- [ ] T041 [P] Additional unit tests for edge cases (missing data, coordinate mismatches)
+- [ ] T042 Run `quickstart.md` validation
 
 ---
 
@@ -156,6 +164,8 @@ Examples of foundational tasks (adjust based on your project):
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
+ - T007/T008/T008a are prerequisites for T013/T014 (Ingestion)
+ - T009 is prerequisite for T011/T012 (Fetchers)
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
@@ -165,11 +175,11 @@ Examples of foundational tasks (adjust based on your project):
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US1 data output and US2 EDA insights
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US1 data and US2 diagnostics
 
 ### Within Each User Story
 
-- Tests (if included) MUST be written and FAIL before implementation
+- Implementation tasks MUST be completed before Test tasks
 - Models before services
 - Services before endpoints
 - Core implementation before integration
@@ -180,7 +190,7 @@ Examples of foundational tasks (adjust based on your project):
 - All Setup tasks marked [P] can run in parallel
 - All Foundational tasks marked [P] can run in parallel (within Phase 2)
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
+- All tests for a user story marked [P] can run in parallel (within their respective test suites, after implementation)
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
 
@@ -189,9 +199,13 @@ Examples of foundational tasks (adjust based on your project):
 ## Parallel Example: User Story 1
 
 ```bash
-# Launch all tasks for User Story 1 together (if parallel capacity exists):
-Task: "Fetch acoustic metadata from Xeno-Canto API"
-Task: "Fetch climate layers and elevation data"
+# Launch all models for User Story 1 together:
+Task: "Implement fetch_xeno_canto.py to download real metadata"
+Task: "Implement fetch_worldclim.py to download real climate variables"
+
+# Launch all tests for User Story 1 together (after implementation):
+Task: "Unit test for coordinate reprojection logic in tests/test_ingestion.py"
+Task: "Unit test for schema validation and join logic in tests/test_ingestion.py"
 ```
 
 ---
@@ -229,7 +243,7 @@ With multiple developers:
 
 ## Notes
 
-- [P] tasks = different files, no dependencies
+- [P] tasks = different files, no dependencies (except explicit implementation dependencies noted)
 - [Story] label maps task to specific user story for traceability
 - Each user story should be independently completable and testable
 - Verify tests fail before implementing

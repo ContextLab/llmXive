@@ -1,0 +1,132 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: ClimateSnapshot
+description: >
+  Schema for climate variables derived from WorldClim v2.1.
+  Contains bioclimatic variables and elevation for a specific location.
+type: object
+required:
+  - latitude
+  - longitude
+  - bio_1
+  - bio_12
+  - elevation
+properties:
+  latitude:
+    type: number
+    description: Latitude in decimal degrees (WGS84)
+    minimum: -90
+    maximum: 90
+  longitude:
+    type: number
+    description: Longitude in decimal degrees (WGS84)
+    minimum: -180
+    maximum: 180
+  bio_1:
+    type: number
+    description: Annual Mean Temperature (°C * 10)
+    minimum: -1000
+    maximum: 1000
+  bio_2:
+    type: number
+    description: Mean Diurnal Range (°C * 10)
+    minimum: -1000
+    maximum: 1000
+  bio_3:
+    type: number
+    description: Isothermality (dimensionless, 0-100)
+    minimum: 0
+    maximum: 100
+  bio_4:
+    type: number
+    description: Temperature Seasonality (standard deviation * 100)
+    minimum: 0
+    maximum: 10000
+  bio_5:
+    type: number
+    description: Max Temperature of Warmest Month (°C * 10)
+    minimum: -1000
+    maximum: 1000
+  bio_6:
+    type: number
+    description: Min Temperature of Coldest Month (°C * 10)
+    minimum: -1000
+    maximum: 1000
+  bio_7:
+    type: number
+    description: Temperature Annual Range (°C * 10)
+    minimum: -1000
+    maximum: 1000
+  bio_8:
+    type: number
+    description: Mean Temperature of Wettest Quarter (°C * 10)
+    minimum: -1000
+    maximum: 1000
+  bio_9:
+    type: number
+    description: Mean Temperature of Driest Quarter (°C * 10)
+    minimum: -1000
+    maximum: 1000
+  bio_10:
+    type: number
+    description: Mean Temperature of Warmest Quarter (°C * 10)
+    minimum: -1000
+    maximum: 1000
+  bio_11:
+    type: number
+    description: Mean Temperature of Coldest Quarter (°C * 10)
+    minimum: -1000
+    maximum: 1000
+  bio_12:
+    type: number
+    description: Annual Precipitation (mm * 10)
+    minimum: 0
+    maximum: 100000
+  bio_13:
+    type: number
+    description: Precipitation of Wettest Month (mm * 10)
+    minimum: 0
+    maximum: 10000
+  bio_14:
+    type: number
+    description: Precipitation of Driest Month (mm * 10)
+    minimum: 0
+    maximum: 10000
+  bio_15:
+    type: number
+    description: Precipitation Seasonality (Coefficient of Variation)
+    minimum: 0
+    maximum: 10000
+  bio_16:
+    type: number
+    description: Precipitation of Wettest Quarter (mm * 10)
+    minimum: 0
+    maximum: 10000
+  bio_17:
+    type: number
+    description: Precipitation of Driest Quarter (mm * 10)
+    minimum: 0
+    maximum: 10000
+  bio_18:
+    type: number
+    description: Precipitation of Warmest Quarter (mm * 10)
+    minimum: 0
+    maximum: 10000
+  bio_19:
+    type: number
+    description: Precipitation of Coldest Quarter (mm * 10)
+    minimum: 0
+    maximum: 10000
+  elevation:
+    type: number
+    description: Elevation in meters
+    minimum: -500
+    maximum: 9000
+  source_version:
+    type: string
+    description: Version of WorldClim data used
+    default: "2.1"
+  resolution_arcsec:
+    type: number
+    description: Spatial resolution in arc-seconds
+    enum: [30, 60]
+additionalProperties: true

@@ -1,0 +1,133 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: AnalysisDataset
+description: >
+  Unified dataset merging SongRecord and ClimateSnapshot.
+  Contains song metrics, environmental predictors, and join metadata.
+type: object
+required:
+  - recording_id
+  - species_id
+  - latitude
+  - longitude
+  - bio_1
+  - bio_12
+  - elevation
+  - match_source
+properties:
+  recording_id:
+    type: string
+    description: Unique identifier from Xeno-Canto
+  species_id:
+    type: string
+    description: Xeno-Canto species ID
+  species_name:
+    type: string
+    description: Scientific name of the species
+  latitude:
+    type: number
+    description: Latitude in decimal degrees (WGS84)
+    minimum: -90
+    maximum: 90
+  longitude:
+    type: number
+    description: Longitude in decimal degrees (WGS84)
+    minimum: -180
+    maximum: 180
+  date_recorded:
+    type: ["string", "null"]
+    format: date
+    description: Date of recording
+  country:
+    type: ["string", "null"]
+    description: Country code or name
+  # Song Metrics (derived from audio analysis or provided by Xeno-Canto)
+  song_metric_1:
+    type: ["number", "null"]
+    description: Primary song metric (e.g., dominant frequency in kHz)
+    minimum: 0
+  song_metric_2:
+    type: ["number", "null"]
+    description: Secondary song metric (e.g., song duration in seconds)
+    minimum: 0
+  # Climate Variables (from WorldClim)
+  bio_1:
+    type: number
+    description: Annual Mean Temperature (°C * 10)
+  bio_2:
+    type: number
+    description: Mean Diurnal Range (°C * 10)
+  bio_3:
+    type: number
+    description: Isothermality
+  bio_4:
+    type: number
+    description: Temperature Seasonality
+  bio_5:
+    type: number
+    description: Max Temperature of Warmest Month (°C * 10)
+  bio_6:
+    type: number
+    description: Min Temperature of Coldest Month (°C * 10)
+  bio_7:
+    type: number
+    description: Temperature Annual Range (°C * 10)
+  bio_8:
+    type: number
+    description: Mean Temperature of Wettest Quarter (°C * 10)
+  bio_9:
+    type: number
+    description: Mean Temperature of Driest Quarter (°C * 10)
+  bio_10:
+    type: number
+    description: Mean Temperature of Warmest Quarter (°C * 10)
+  bio_11:
+    type: number
+    description: Mean Temperature of Coldest Quarter (°C * 10)
+  bio_12:
+    type: number
+    description: Annual Precipitation (mm * 10)
+  bio_13:
+    type: number
+    description: Precipitation of Wettest Month (mm * 10)
+  bio_14:
+    type: number
+    description: Precipitation of Driest Month (mm * 10)
+  bio_15:
+    type: number
+    description: Precipitation Seasonality
+  bio_16:
+    type: number
+    description: Precipitation of Wettest Quarter (mm * 10)
+  bio_17:
+    type: number
+    description: Precipitation of Driest Quarter (mm * 10)
+  bio_18:
+    type: number
+    description: Precipitation of Warmest Quarter (mm * 10)
+  bio_19:
+    type: number
+    description: Precipitation of Coldest Quarter (mm * 10)
+  elevation:
+    type: number
+    description: Elevation in meters
+  # Join Metadata
+  match_source:
+    type: string
+    description: Method used for matching (e.g., "spatial_join_10km", "species_range_map")
+    enum:
+      - "spatial_join_10km"
+      - "species_range_map"
+  join_distance_km:
+    type: ["number", "null"]
+    description: Distance from song record to climate point in km (if spatial join)
+    minimum: 0
+  data_quality_flags:
+    type: array
+    items:
+      type: string
+    description: List of data quality flags (e.g., "low_quality_audio", "outlier_elevation")
+    default: []
+  notes:
+    type: ["string", "null"]
+    description: Additional notes about the record
+additionalProperties: true

@@ -1,0 +1,31 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: ClimateSnapshot
+description: Schema for environmental conditions at a specific location.
+type: object
+properties:
+  location_lat:
+    type: number
+    description: "Latitude in decimal degrees (WGS84)."
+    minimum: -90
+    maximum: 90
+  location_lon:
+    type: number
+    description: "Longitude in decimal degrees (WGS84)."
+    minimum: -180
+    maximum: 180
+  temperature:
+    type: number
+    description: "Mean temperature in Celsius."
+  precipitation:
+    type: number
+    description: "Total precipitation in mm."
+  elevation:
+    type: number
+    description: "Elevation above sea level in meters."
+required:
+  - location_lat
+  - location_lon
+  - temperature
+  - precipitation
+  - elevation
+additionalProperties: false

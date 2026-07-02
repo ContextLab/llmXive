@@ -1,62 +1,57 @@
 """
-Script to execute directory structure creation for the avian song variation project.
-Implements Task T001b: Execute directory structure script.
-
-This script uses the `create_project_structure` and `get_project_paths` functions
-from `code/utils.py` to ensure consistency with the project's utility definitions.
+Setup script to create the directory structure for the avian song variation project.
+This script creates the necessary folders under the project root as defined in the plan.
 """
 import os
 import sys
 from pathlib import Path
 
-# Ensure the project root is in the path to import utils
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
-
-from utils import create_project_structure, get_project_paths
-
-
 def main():
-    """
-    Executes the directory structure creation based on the project plan.
-    """
-    print("Initializing directory structure for PROJ-334-predicting-avian-song-variation...")
+    # Define the base directories relative to the current working directory (project root)
+    # The task specifies: projects/PROJ-334..., data/, code/, tests/
+    # We assume the script is run from the project root.
     
-    # Retrieve the standard paths defined in the project utilities
-    paths = get_project_paths()
-    
-    # Create the directory structure
-    # The create_project_structure function handles the actual creation logic
-    # and ensures all necessary subdirectories (raw, processed, etc.) are made.
-    created_count = create_project_structure(paths)
-    
-    if created_count > 0:
-        print(f"Successfully created {created_count} directories.")
-        print("Directory structure ready.")
-    else:
-        print("No new directories were created (structure may already exist).")
-
-    # Verify specific required paths exist as per task requirements
-    required_dirs = [
+    base_dirs = [
+        "projects/PROJ-334-predicting-avian-song-variation-with-cli",
+        "data",
         "code",
-        "data/raw",
-        "data/processed",
-        "output",
         "tests"
     ]
-    
-    missing = []
-    for rel_path in required_dirs:
-        full_path = project_root / rel_path
-        if not full_path.exists() or not full_path.is_dir():
-            missing.append(rel_path)
-    
-    if missing:
-        print(f"ERROR: The following required directories are missing: {missing}")
-        sys.exit(1)
-    
-    print("Verification complete: All required directories exist.")
 
+    # Also create the standard subdirectories for data as per Phase 2 (T004) anticipation
+    # and best practices, though strictly T001a asks for the top level.
+    # We will stick strictly to T001a requirements for the top level, 
+    # but ensure 'data' exists so subsequent tasks can run.
+    
+    created_count = 0
+    for dir_path in base_dirs:
+        path = Path(dir_path)
+        if not path.exists():
+            path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {path}")
+            created_count += 1
+        else:
+            print(f"Directory already exists: {path}")
+
+    # Create specific subdirectories for data structure (data/raw, data/processed)
+    # as these are standard and often required immediately by ingestion tasks (T004 context)
+    data_subdirs = [
+        "data/raw",
+        "data/processed",
+        "data/external"
+    ]
+    
+    for dir_path in data_subdirs:
+        path = Path(dir_path)
+        if not path.exists():
+            path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {path}")
+            created_count += 1
+        else:
+            print(f"Directory already exists: {path}")
+
+    print(f"Setup complete. {created_count} new directories created.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

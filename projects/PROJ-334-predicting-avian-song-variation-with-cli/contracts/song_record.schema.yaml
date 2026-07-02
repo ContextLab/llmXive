@@ -1,0 +1,71 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: SongRecord
+description: >
+  Schema for avian acoustic recording metadata from Xeno-Canto.
+  Contains species identification, geographic coordinates, and basic audio metrics.
+type: object
+required:
+  - recording_id
+  - species_id
+  - species_name
+  - latitude
+  - longitude
+  - date_recorded
+  - country
+properties:
+  recording_id:
+    type: string
+    description: Unique identifier from Xeno-Canto (e.g., "XC123456")
+    pattern: "^XC\\d+$"
+  species_id:
+    type: string
+    description: Xeno-Canto species ID (e.g., "turdus_merula")
+    minLength: 1
+  species_name:
+    type: string
+    description: Scientific name of the species
+    minLength: 1
+  latitude:
+    type: number
+    description: Latitude in decimal degrees (WGS84)
+    minimum: -90
+    maximum: 90
+  longitude:
+    type: number
+    description: Longitude in decimal degrees (WGS84)
+    minimum: -180
+    maximum: 180
+  date_recorded:
+    type: string
+    format: date
+    description: Date of recording in ISO format (YYYY-MM-DD)
+  country:
+    type: string
+    description: ISO 3166-1 alpha-2 country code or full name
+    minLength: 2
+  elevation_m:
+    type: ["number", "null"]
+    description: Elevation in meters, if available
+    minimum: -500
+  file_url:
+    type: ["string", "null"]
+    description: Direct URL to the audio file
+    format: uri
+  license:
+    type: string
+    description: License type (e.g., "CC BY-NC-SA 4.0")
+  recorder:
+    type: ["string", "null"]
+    description: Name of the recorder/contributor
+  duration_sec:
+    type: ["number", "null"]
+    description: Duration of the recording in seconds
+    minimum: 0
+  quality:
+    type: ["string", "null"]
+    description: Quality rating (A, B, C, D, or E)
+    pattern: "^[A-E]$"
+  extra_notes:
+    type: ["string", "null"]
+    description: Additional notes from the recorder
+additionalProperties: true

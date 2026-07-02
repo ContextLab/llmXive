@@ -1,128 +1,200 @@
 """
-Tests for the configuration management module (code/config.py).
+Unit tests for the configuration loader (T005).
 """
 import os
 import tempfile
 from pathlib import Path
 import pytest
-import yaml
-
-# Import the module under test
-# We need to ensure the parent of 'code' is in sys.path for imports to work
-# if running as a standalone test script, but pytest usually handles this
-# via conftest or path manipulation. Here we assume standard layout.
 import sys
-from pathlib import Path
+
+# Add code directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
-from config import Config, get_config, DEFAULTS
-from utils import create_project_structure
+from config import Config, _get_env_str, _get_env_path, _get_env_bool, PROJECT_ROOT
 
-@pytest.fixture
-def temp_project_root(tmp_path):
-    """Create a temporary project root with standard structure."""
-    # Create standard directories
-    dirs = [
-        "data/raw", "data/processed", "output/logs", 
-        "output/reports", "output/models", "specs"
-    ]
-    for d in dirs:
-        (tmp_path / d).mkdir(parents=True, exist_ok=True)
-    
-    # Create a mock plan.md with YAML config
-    plan_content = """
-    ---
-    paths:
-      data_raw: "data/raw"
-      custom_path: "output/custom"
-    ---
-    # Project Plan
-    """
-    (tmp_path / "plan.md").write_text(plan_content)
-    
-    return tmp_path
+class TestConfigBasics:
+    def test_default_paths_exist(self):
+        """Test that default paths are set correctly."""
+        cfg = Config()
+        assert cfg.project_root is not None
+        assert cfg.data_dir.exists()
+        assert cfg.data_raw.exists()
+        assert cfg.data_processed.exists()
+        assert cfg.contracts_dir.exists()
 
-def test_config_default_initialization(temp_project_root):
-    """Test that Config initializes with default paths relative to root."""
-    cfg = Config(project_root=temp_project_root)
-    
-    # Check that default paths are resolved correctly
-    assert cfg.paths["data_raw"] == temp_project_root / DEFAULTS["data_raw"]
-    assert cfg.paths["output_logs"] == temp_project_root / DEFAULTS["output_logs"]
-    
-    # Check that directories were created
-    assert cfg.paths["data_raw"].exists()
+    def test_directories_created(self):
+        """Test that __init__ creates necessary directories."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # Temporarily override environment to point to temp dir
+            old_root = os.environ.get("AVIAN_SONG_PROJECT_ROOT")
+            os.environ["AVIAN_SONG_PROJECT_ROOT"] = tmpdir
+            
+            try:
+                cfg = Config()
+                assert Path(tmpdir).exists()
+                assert (Path(tmpdir) / "data").exists()
+                assert (Path(tmpdir) / "data" / "raw").exists()
+                assert (Path(tmpdir) / "data" / "processed").exists()
+            finally:
+                if old_root is None:
+                    os.environ.pop("AVIAN_SONG_PROJECT_ROOT", None)
+                else:
+                    os.environ["AVIAN_SONG_PROJECT_ROOT"] = old_root
 
-def test_config_env_override(temp_project_root):
-    """Test that environment variables override default paths."""
-    custom_path = temp_project_root / "custom_env_dir"
-    os.environ["PROJ_DATA_RAW"] = str(custom_path)
-    
-    try:
-        cfg = Config(project_root=temp_project_root)
-        assert cfg.paths["data_raw"] == custom_path
-    finally:
-        # Cleanup env var
-        del os.environ["PROJ_DATA_RAW"]
+class TestEnvironmentOverrides:
+    def test_env_data_dir_override(self):
+        """Test that AVIAN_SONG_DATA_DIR overrides default."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            old_val = os.environ.get("AVIAN_SONG_DATA_DIR")
+            os.environ["AVIAN_SONG_DATA_DIR"] = tmpdir
+            
+            try:
+                cfg = Config()
+                assert cfg.data_dir == Path(tmpdir)
+            finally:
+                if old_val is None:
+                    os.environ.pop("AVIAN_SONG_DATA_DIR", None)
+                else:
+                    os.environ["AVIAN_SONG_DATA_DIR"] = old_val
 
-def test_config_plan_md_parsing(temp_project_root):
-    """Test that plan.md YAML block is parsed correctly."""
-    cfg = Config(project_root=temp_project_root)
-    
-    # The plan.md fixture includes a custom_path
-    # Note: Our DEFAULTS doesn't have 'custom_path', so it might not be in cfg.paths
-    # unless we extend DEFAULTS. Let's test a known key that is in DEFAULTS.
-    # The plan.md in fixture sets 'data_raw' which is in DEFAULTS.
-    # However, the fixture value is same as default, so let's check if the logic ran.
-    # A better test: check if 'custom_path' exists in paths if we added it to DEFAULTS?
-    # Or just verify the plan.md was read by checking if the logic didn't crash.
-    
-    # Let's verify the plan.md parsing didn't crash and standard paths are valid
-    assert "data_raw" in cfg.paths
-    assert cfg.paths["data_raw"].exists()
+    def test_env_bool_override(self):
+        """Test boolean environment variable parsing."""
+        old_val = os.environ.get("AVIAN_SONG_LOG_TO_FILE")
+        
+        try:
+            os.environ["AVIAN_SONG_LOG_TO_FILE"] = "false"
+            cfg = Config()
+            assert cfg.log_to_file is False
+            
+            os.environ["AVIAN_SONG_LOG_TO_FILE"] = "1"
+            cfg2 = Config()
+            assert cfg2.log_to_file is True
+            
+            os.environ["AVIAN_SONG_LOG_TO_FILE"] = "yes"
+            cfg3 = Config()
+            assert cfg3.log_to_file is True
+        finally:
+            if old_val is None:
+                os.environ.pop("AVIAN_SONG_LOG_TO_FILE", None)
+            else:
+                os.environ["AVIAN_SONG_LOG_TO_FILE"] = old_val
 
-def test_config_getter_methods(temp_project_root):
-    """Test get and item access methods."""
-    cfg = Config(project_root=temp_project_root)
-    
-    # Test __getitem__
-    path = cfg["data_raw"]
-    assert isinstance(path, Path)
-    
-    # Test .get()
-    path_get = cfg.get("data_raw")
-    assert path == path_get
-    
-    # Test .get() with default
-    fake_key = "non_existent_key"
-    default_val = Path("/fake")
-    assert cfg.get(fake_key, default_val) == default_val
+    def test_env_float_override(self):
+        """Test float environment variable parsing."""
+        old_val = os.environ.get("AVIAN_SONG_SPATIAL_JOIN_RADIUS_KM")
+        
+        try:
+            os.environ["AVIAN_SONG_SPATIAL_JOIN_RADIUS_KM"] = "25.5"
+            cfg = Config()
+            assert cfg.spatial_join_radius_km == 25.5
+        finally:
+            if old_val is None:
+                os.environ.pop("AVIAN_SONG_SPATIAL_JOIN_RADIUS_KM", None)
+            else:
+                os.environ["AVIAN_SONG_SPATIAL_JOIN_RADIUS_KM"] = old_val
 
-def test_config_singleton(get_config):
-    """Test that get_config returns the same instance."""
-    cfg1 = get_config()
-    # Reset singleton for this test to be safe
-    import config
-    config._config = None
-    cfg2 = get_config()
-    assert cfg1 is cfg2
+    def test_env_list_override(self):
+        """Test list environment variable parsing."""
+        old_val = os.environ.get("AVIAN_SONG_P_VALUE_THRESHOLDS")
+        
+        try:
+            os.environ["AVIAN_SONG_P_VALUE_THRESHOLDS"] = "0.001,0.01,0.05"
+            cfg = Config()
+            assert cfg.p_value_thresholds == [0.001, 0.01, 0.05]
+        finally:
+            if old_val is None:
+                os.environ.pop("AVIAN_SONG_P_VALUE_THRESHOLDS", None)
+            else:
+                os.environ["AVIAN_SONG_P_VALUE_THRESHOLDS"] = old_val
 
-def test_config_directory_creation(temp_project_root):
-    """Test that directories are created if they don't exist."""
-    # Remove a directory
-    target_dir = temp_project_root / "output" / "logs"
-    if target_dir.exists():
-        import shutil
-        shutil.rmtree(target_dir)
-    
-    # Re-init config (simulating fresh run)
-    # Note: The singleton might cache the old state, so we force a new instance
-    import config
-    config._config = None
-    
-    cfg = Config(project_root=temp_project_root)
-    
-    assert cfg.paths["output_logs"].exists()
+class TestConfigIO:
+    def test_save_and_load(self):
+        """Test saving and loading configuration to JSON."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            save_path = Path(tmpdir) / "test_config.json"
+            
+            cfg = Config()
+            cfg.spatial_join_radius_km = 50.0
+            cfg.log_level = "DEBUG"
+            cfg.save(save_path)
+            
+            assert save_path.exists()
+            
+            loaded = Config.load(save_path)
+            assert loaded.spatial_join_radius_km == 50.0
+            assert loaded.log_level == "DEBUG"
+            assert loaded.data_dir == cfg.data_dir
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+    def test_to_dict(self):
+        """Test exporting config to dictionary."""
+        cfg = Config()
+        d = cfg.to_dict()
+        
+        assert "data_dir" in d
+        assert "spatial_join_radius_km" in d
+        assert "log_level" in d
+        assert isinstance(d["data_dir"], str)  # Paths converted to strings
+
+class TestHelperFunctions:
+    def test_get_env_str_default(self):
+        """Test _get_env_str with missing key."""
+        old = os.environ.get("AVIAN_SONG_TEST_KEY")
+        try:
+            os.environ.pop("AVIAN_SONG_TEST_KEY", None)
+            assert _get_env_str("TEST_KEY", "default") == "default"
+        finally:
+            if old is None:
+                os.environ.pop("AVIAN_SONG_TEST_KEY", None)
+            else:
+                os.environ["AVIAN_SONG_TEST_KEY"] = old
+
+    def test_get_env_str_present(self):
+        """Test _get_env_str with present key."""
+        old = os.environ.get("AVIAN_SONG_TEST_KEY")
+        try:
+            os.environ["AVIAN_SONG_TEST_KEY"] = "value"
+            assert _get_env_str("TEST_KEY") == "value"
+        finally:
+            if old is None:
+                os.environ.pop("AVIAN_SONG_TEST_KEY", None)
+            else:
+                os.environ["AVIAN_SONG_TEST_KEY"] = old
+
+    def test_get_env_path_relative(self):
+        """Test _get_env_path with relative path."""
+        old = os.environ.get("AVIAN_SONG_TEST_PATH")
+        try:
+            os.environ["AVIAN_SONG_TEST_PATH"] = "data/raw"
+            result = _get_env_path("TEST_PATH")
+            assert result.is_absolute()
+            assert result.name == "raw"
+        finally:
+            if old is None:
+                os.environ.pop("AVIAN_SONG_TEST_PATH", None)
+            else:
+                os.environ["AVIAN_SONG_TEST_PATH"] = old
+
+    def test_get_env_bool_variants(self):
+        """Test various boolean string representations."""
+        test_cases = [
+            ("true", True),
+            ("True", True),
+            ("1", True),
+            ("yes", True),
+            ("on", True),
+            ("false", False),
+            ("0", False),
+            ("no", False),
+            ("off", False),
+        ]
+        
+        for val, expected in test_cases:
+            old = os.environ.get("AVIAN_SONG_TEST_BOOL")
+            try:
+                os.environ["AVIAN_SONG_TEST_BOOL"] = val
+                assert _get_env_bool("TEST_BOOL") == expected
+            finally:
+                if old is None:
+                    os.environ.pop("AVIAN_SONG_TEST_BOOL", None)
+                else:
+                    os.environ["AVIAN_SONG_TEST_BOOL"] = old

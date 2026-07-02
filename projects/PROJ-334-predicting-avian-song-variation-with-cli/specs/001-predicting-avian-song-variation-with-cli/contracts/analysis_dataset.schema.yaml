@@ -1,0 +1,40 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: AnalysisDataset
+description: Merged entity resulting from the join of SongRecord and ClimateSnapshot.
+type: object
+properties:
+  species_id:
+    type: string
+  song_metric_1:
+    type: number
+  song_metric_2:
+    type: number
+  location_lat:
+    type: number
+  location_lon:
+    type: number
+  temperature:
+    type: number
+  precipitation:
+    type: number
+  elevation:
+    type: number
+  match_status:
+    type: string
+    enum:
+      - matched
+      - excluded
+  distance_km:
+    type: number
+    description: "Distance between song location and climate grid cell."
+required:
+  - species_id
+  - song_metric_1
+  - song_metric_2
+  - location_lat
+  - location_lon
+  - temperature
+  - precipitation
+  - elevation
+  - match_status
+additionalProperties: false
