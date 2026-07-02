@@ -1,0 +1,92 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Occurrence Record Schema
+description: Schema for validating raw and processed species occurrence records.
+type: object
+required:
+  - records
+properties:
+  records:
+    type: array
+    items:
+      type: object
+      required:
+        - species
+        - latitude
+        - longitude
+        - year
+        - source_identifier
+        - download_timestamp
+        - original_dataset_name
+      properties:
+        species:
+          type: string
+          description: Scientific name of the species.
+        latitude:
+          type: number
+          minimum: -90.0
+          maximum: 90.0
+          description: Decimal latitude.
+        longitude:
+          type: number
+          minimum: -180.0
+          maximum: 180.0
+          description: Decimal longitude.
+        year:
+          type: integer
+          minimum: 1970
+          maximum: 2100
+          description: Year of occurrence.
+        source_identifier:
+          type: string
+          description: Unique identifier from the source (e.g., GBIF ID).
+        download_timestamp:
+          type: string
+          format: date-time
+          description: ISO 8601 timestamp when the data was downloaded.
+        original_dataset_name:
+          type: string
+          description: Name of the dataset from which the record originated.
+        eventDate:
+          type: string
+          description: Full date string if available (ISO 8601).
+        basisOfRecord:
+          type: string
+          description: Basis of record (e.g., HUMAN_OBSERVATION, MACHINE_OBSERVATION).
+        coordinateUncertaintyInMeters:
+          type: number
+          minimum: 0
+          description: Uncertainty in meters.
+        bias_proxy_density:
+          type: number
+          minimum: 0
+          description: Optional bias proxy density value from KDE.
+        climate_variables:
+          type: object
+          description: Optional nested object for extracted climate variables.
+          additionalProperties:
+            type: number
+  metadata:
+    type: object
+    properties:
+      total_records:
+        type: integer
+        minimum: 0
+      date_range:
+        type: object
+        properties:
+          start:
+            type: string
+            format: date
+          end:
+            type: string
+            format: date
+      source_url:
+        type: string
+        format: uri
+      generated_by:
+        type: string
+      schema_version:
+        type: string
+      timestamp:
+        type: string
+        format: date-time

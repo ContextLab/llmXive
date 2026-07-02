@@ -1,0 +1,574 @@
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: fetch North American bird occurrence data 1970-2000 via GBIF API
+  claim_id: c_6bbba52e
+  context: 'Implement code/download.py to fetch North American bird occurrence data
+    (1970-2000) via GBIF API (URL: ) using maxResults pagination and year filters
+    to handle large ranges efficiently, saving to data/raw/occurrence_1970_2000.csv'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/download.py to fetch North American bird occurrence data
+    (1970-2000) via GBIF API
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T18:31:32Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: fetch recent occurrence data 2005-2020 for evaluation
+  claim_id: c_d0d05118
+  context: Implement code/download.py to fetch recent occurrence data (2005-2020)
+    for evaluation, saving to data/raw/occurrence_2005_2020.csv (distinct file from
+    T010)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/download.py to fetch recent occurrence data (2005-2020)
+    for evaluation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T18:31:53Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: derive target-group effort data as all-observer density from historical
+    GBIF dataset
+  claim_id: c_cd9f2569
+  context: Implement code/download.py to derive 'target-group effort data' as all-observer
+    density from the historical GBIF dataset (T010) to serve as a bias proxy, saving
+    to data/raw/effort_data.csv
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Derive_target-group_effort_data_as_all-observer_density_from
+  kind: entity_fact
+  raw_text: Implement code/download.py to derive target-group effort data as all-observer
+    density from the historical GBIF dataset
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T18:32:13Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: generate bias layer using KDE with 10km bandwidth
+  claim_id: c_4e273163
+  context: Implement code/bias_correction.py to generate bias_layer.tif from data/raw/effort_data.csv
+    using Kernel Density Estimation (KDE) with 10km bandwidth, saving to data/processed/bias_layer.tif
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_bias_layer_using_KDE_with_10km_bandwidth
+  kind: entity_fact
+  raw_text: Generate bias_layer.tif from data/raw/effort_data.csv using Kernel Density
+    Estimation (KDE) with 10km bandwidth
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T18:32:33Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: Initialize Python 3.11 project with scikit-learn 1.5.0
+  claim_id: c_8c83d7f2
+  context: 'Initialize Python 3.11 project with pinned dependencies (requirements.txt:
+    scikit-learn==1.5.0, geopandas==0.14.2, rasterio==1.3.9, pandas==2.2.2, numpy==1.26.4,
+    requests==2.32.3, matplotlib==3.9.0, seaborn==0.13.2)'
+  evidence:
+    asserted: '3.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Initialize Python 3.11 project with pinned dependencies including scikit-learn==1.5.0
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-02T18:32:33Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: calculate minimum sample size with power 0.8 alpha 0.05 effect size 0.5
+  claim_id: c_25f5c580
+  context: Implement code/power_analysis.py to calculate minimum sample size for statistical
+    power (post-thinning) using default parameters (power=0.8, alpha=0.05, effect_size=0.5),
+    outputting metrics/power_analysis_report.json
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "The issue of power in PLS-SEM In the design of quantitative studies,\
+        \ researchers must always consider the sample size needed to achieve sufficient\
+        \ statistical power for the hypothesised effect size. In this respect, one\
+        \ of the most convenient features of PLS-SEM is that the model structural\
+        \ complexity does not have a critical impact on the determination of the minimum\
+        \ sample size required (Hair et al., 2021, Chapter 1). Moreover, compared\
+        \ with CB-SEM, PLS-SEM has higher statistical power in scenarios with complex\
+        \ model structures and small sample sizes. As described by Hair and colleagues\
+        \ (2021), these convenient features led to the misconception that sample size\
+        \ computation has no relevance in PLS-SEM. This misconception has been fueled\
+        \ by the very common \u201810-times rule\u2019 (Barclay et al., 1995), i.e.,\
+        \ a heuristic often used to determine the minimum sample size required for\
+        \ a study (Hair et al., 2011). According to this rule, the sample size \u201C\
+        should be equal to 10 times the number of independent variables in the most\
+        \ complex regression in the PLS path model (i.e., considering both measurement\
+        \ and structural models). This rule of thumb is equivalent to saying the minimum\
+        \ sample size should be 10 times the maximum number of arrowheads pointing\
+        \ at a latent variable anywhere in the PLS path mode.\u201D (Hair et al.,\
+        \ 2021, p. 16). This approach has the undeniable merit of being simple and\
+        \ easy to apply, which has contributed to its widespread use. There are nevertheless\
+        \ numerous problems (Goodhue et al., 2012). First, the rule is overly simplistic;\
+        \ it does not account for other critical factors that influence statistical\
+        \ power, such as the effect size, significance level (\U0001D6FC), and the\
+        \ desired statistical power (1\u2212\u03B2). The fact that this strategy is\
+        \ not sensitive to the effect size, in particular, is problematic. The basic\
+        \ underlying principle behind every power analysis, regardless of the specific\
+        \ technique at hand, is precisely that the sample size must vary based on\
+        \ the magnitude of the hypothesised effect. As a result, the 10-times rule\
+        \ may underestimate the required sample size, thus resulting in underpowered\
+        \ studies. As a second point, the 10-times rule lacks a solid statistical\
+        \ foundation. It relies on informal and universal guidelines rather than rigorous\
+        \ mathematical derivations, thus limiting its reliability and applicability\
+        \ across a broad range of research scenarios. The Minimum R-squared method\
+        \ (Hair et al., 2014) represents an alternative approach to sample size calculation.\
+        \ Using the smallest R-squared value anticipated in the model, this method\
+        \ computes the required sample size in PLS-SEM. By calculating the minimum\
+        \ R-squared, the corresponding sample size needed to achieve statistical power\
+        \ at a given significance level (\u03B1) is determined using either a lookup\
+        \ table or a formula. Despite being simpler, accounting for the strength of\
+        \ relationships in the model, and having stronger statistical foundations,\
+        \ this approach has a number of theoretical and practical limitations. On\
+        \ the theoretical side, the R2 is a measure of the model\u2019s explanatory\
+        \ power (Shmueli & Koppius, 2011), more correctly referred to as in-sample\
+        \ predictive power (Rigdon, 2012, but see also Hair et al., 2021, chapter\
+        \ 6). However, the predictive endeavour is hardly the main aim in the social\
+        \ sciences (Ozili, 2023), wherein the ultimate goal is unbiased causal inference.\
+        \ Moreover, despite the existence of some commonly used thresholds for acceptable\
+        \ R2 values (Hair et al., 2011), they are not entirely agreed upon in the\
+        \ literature, and it has been shown convincingly that models with R2 values\
+        \ as low as 0.10 can be entirely satisfactory in certain scientific contexts\
+        \ (Raithel et al., 2012). Furthermore, the idea that high predictive power\
+        \ directly translates into explanatory power and more legitimate causality\
+        \ claims is a false belief (McElreath, 2020, p. 225; Hill et al., 2018). On\
+        \ the practical side, the Minimum R-squared method assumes that researchers\
+        \ have a rough idea of, or can even quite"
+      source_id: '2511.14546'
+      url: https://arxiv.org/abs/2511.14546
+      value: '25'
+    filled: true
+  kind: numeric
+  raw_text: Calculate minimum sample size for statistical power using default parameters
+    (power=0.8, alpha=0.05, effect_size=0.5)
+  resolved_value: '25'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-02T18:33:04Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: train Random Forest with n_jobs 2 on CPU
+  claim_id: c_38edae36
+  context: Implement code/train.py to train Random Forest (sklearn.ensemble.RandomForestClassifier)
+    with n_jobs=2 on CPU
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train Random Forest with n_jobs=2 on CPU
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T18:33:21Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: project models onto CMIP6 SSP2-4.5 2050 climate scenarios
+  claim_id: c_67bf67da
+  context: Implement code/project.py to load trained models and project onto future
+    climate rasters (data/raw/cmip6_future.tif), saving data/artifacts/projection_{species}_{algo}_2050.tif
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Project models onto CMIP6 SSP2-4.5 (2050) climate scenarios
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T18:33:36Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: flag species with less than 10 records after historical thinning
+  claim_id: c_edc42199
+  context: Implement validation in code/preprocess.py to flag species with <10 records
+    after historical thinning as 'INSUFFICIENT_TRAINING_DATA' to prevent model failure
+    (distinct from FR-006's test-period threshold)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_species_with_less_than_10_records_after_historical_thin
+  kind: magnitude
+  raw_text: Flag species with less than 10 records after historical thinning as INSUFFICIENT_TRAINING_DATA
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T18:33:58Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: flag species with less than 100 records in 2005-2020 test period
+  claim_id: c_8e1ff9f9
+  context: Implement validation in code/evaluate.py to flag species with <100 records
+    in the 2005-2020 test period (from T029b) as 'INSUFFICIENT_DATA' and exclude from
+    aggregation (FR-006)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_species_with_less_than_100_records_in_2005-2020_test_pe
+  kind: magnitude
+  raw_text: Flag species with less than 100 records in the 2005-2020 test period as
+    INSUFFICIENT_DATA
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T18:34:20Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: sweep suitability thresholds 0.01 0.05 0.1 with Bonferroni correction
+  claim_id: c_32565b82
+  context: Implement code/sensitivity.py to sweep suitability thresholds (0.01, 0.05,
+    0.1) and apply Bonferroni correction for the family of tests (all pairwise model
+    comparisons across all valid species), outputting metrics/sensitivity_report.csv
+    with corrected p-values (FR-005, SC-003)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep suitability thresholds (0.01, 0.05, 0.1) and apply Bonferroni correction
+    for the family of tests
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T18:34:34Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: verify total compute time stays within 6-hour limit
+  claim_id: c_8ec9cb36
+  context: Verify total compute time stays within 6-hour limit (SC-002)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify total compute time stays within 6-hour limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T18:34:55Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 0
+  canonical: calculate minimum sample size for statistical power with power 0.8 alpha
+    0.05 and effect size 0.5
+  claim_id: c_477e57d5
+  context: 'Phase 4: User Story 2 - Model Training and Validation. T020 [US2] Implement
+    code/power_analysis.py to calculate minimum sample size for statistical power
+    (post-thinning) using default parameters (power=0.8, alpha=0.05, effect_size=0.5)...'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "The issue of power in PLS-SEM In the design of quantitative studies,\
+        \ researchers must always consider the sample size needed to achieve sufficient\
+        \ statistical power for the hypothesised effect size. In this respect, one\
+        \ of the most convenient features of PLS-SEM is that the model structural\
+        \ complexity does not have a critical impact on the determination of the minimum\
+        \ sample size required (Hair et al., 2021, Chapter 1). Moreover, compared\
+        \ with CB-SEM, PLS-SEM has higher statistical power in scenarios with complex\
+        \ model structures and small sample sizes. As described by Hair and colleagues\
+        \ (2021), these convenient features led to the misconception that sample size\
+        \ computation has no relevance in PLS-SEM. This misconception has been fueled\
+        \ by the very common \u201810-times rule\u2019 (Barclay et al., 1995), i.e.,\
+        \ a heuristic often used to determine the minimum sample size required for\
+        \ a study (Hair et al., 2011). According to this rule, the sample size \u201C\
+        should be equal to 10 times the number of independent variables in the most\
+        \ complex regression in the PLS path model (i.e., considering both measurement\
+        \ and structural models). This rule of thumb is equivalent to saying the minimum\
+        \ sample size should be 10 times the maximum number of arrowheads pointing\
+        \ at a latent variable anywhere in the PLS path mode.\u201D (Hair et al.,\
+        \ 2021, p. 16). This approach has the undeniable merit of being simple and\
+        \ easy to apply, which has contributed to its widespread use. There are nevertheless\
+        \ numerous problems (Goodhue et al., 2012). First, the rule is overly simplistic;\
+        \ it does not account for other critical factors that influence statistical\
+        \ power, such as the effect size, significance level (\U0001D6FC), and the\
+        \ desired statistical power (1\u2212\u03B2). The fact that this strategy is\
+        \ not sensitive to the effect size, in particular, is problematic. The basic\
+        \ underlying principle behind every power analysis, regardless of the specific\
+        \ technique at hand, is precisely that the sample size must vary based on\
+        \ the magnitude of the hypothesised effect. As a result, the 10-times rule\
+        \ may underestimate the required sample size, thus resulting in underpowered\
+        \ studies. As a second point, the 10-times rule lacks a solid statistical\
+        \ foundation. It relies on informal and universal guidelines rather than rigorous\
+        \ mathematical derivations, thus limiting its reliability and applicability\
+        \ across a broad range of research scenarios. The Minimum R-squared method\
+        \ (Hair et al., 2014) represents an alternative approach to sample size calculation.\
+        \ Using the smallest R-squared value anticipated in the model, this method\
+        \ computes the required sample size in PLS-SEM. By calculating the minimum\
+        \ R-squared, the corresponding sample size needed to achieve statistical power\
+        \ at a given significance level (\u03B1) is determined using either a lookup\
+        \ table or a formula. Despite being simpler, accounting for the strength of\
+        \ relationships in the model, and having stronger statistical foundations,\
+        \ this approach has a number of theoretical and practical limitations. On\
+        \ the theoretical side, the R2 is a measure of the model\u2019s explanatory\
+        \ power (Shmueli & Koppius, 2011), more correctly referred to as in-sample\
+        \ predictive power (Rigdon, 2012, but see also Hair et al., 2021, chapter\
+        \ 6). However, the predictive endeavour is hardly the main aim in the social\
+        \ sciences (Ozili, 2023), wherein the ultimate goal is unbiased causal inference.\
+        \ Moreover, despite the existence of some commonly used thresholds for acceptable\
+        \ R2 values (Hair et al., 2011), they are not entirely agreed upon in the\
+        \ literature, and it has been shown convincingly that models with R2 values\
+        \ as low as 0.10 can be entirely satisfactory in certain scientific contexts\
+        \ (Raithel et al., 2012). Furthermore, the idea that high predictive power\
+        \ directly translates into explanatory power and more legitimate causality\
+        \ claims is a false belief (McElreath, 2020, p. 225; Hill et al., 2018). On\
+        \ the practical side, the Minimum R-squared method assumes that researchers\
+        \ have a rough idea of, or can even quite"
+      source_id: '2511.14546'
+      url: https://arxiv.org/abs/2511.14546
+      value: '25'
+    filled: true
+  kind: numeric
+  raw_text: Calculate minimum sample size for statistical power using default parameters
+    (power=0.8, alpha=0.05, effect_size=0.5)
+  resolved_value: '25'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-02T18:40:40Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: fetch North American bird occurrence data 1970-2000 via GBIF API
+  claim_id: c_ef10fc34
+  context: 'Phase 3: User Story 1 - Data Acquisition and Preprocessing. T010 [P] [US1]
+    Implement code/download.py to fetch North American bird occurrence data (1970-2000)
+    via GBIF API (URL: ) using maxResults pagination and year filters...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/download.py to fetch North American bird occurrence data
+    (1970-2000) via GBIF API
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T18:40:40Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: fetch recent occurrence data 2005-2020 for evaluation
+  claim_id: c_dd162446
+  context: 'Phase 3: User Story 1 - Data Acquisition and Preprocessing. T011 [P] [US1]
+    Implement code/download.py to fetch recent occurrence data (2005-2020) for evaluation,
+    saving to data/raw/occurrence_2005_2020.csv...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/download.py to fetch recent occurrence data (2005-2020)
+    for evaluation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T18:40:40Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: generate bias layer using Kernel Density Estimation with 10km bandwidth
+  claim_id: c_c242efcb
+  context: 'Phase 3: User Story 1 - Data Acquisition and Preprocessing. T012 [US1]
+    Implement code/bias_correction.py to generate bias_layer.tif from data/raw/effort_data.csv
+    using Kernel Density Estimation (KDE) with 10km bandwidth...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_bias_layer_using_Kernel_Density_Estimation_with_10k
+  kind: entity_fact
+  raw_text: Implement code/bias_correction.py to generate bias_layer.tif using Kernel
+    Density Estimation (KDE) with 10km bandwidth
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T18:41:17Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: flag species with fewer than 10 records after historical thinning as
+    insufficient training data
+  claim_id: c_d6f223fd
+  context: 'Phase 3: User Story 1 - Data Acquisition and Preprocessing. T016b [US1]
+    Implement validation in code/preprocess.py to flag species with <10 records after
+    historical thinning as ''INSUFFICIENT_TRAINING_DATA''...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_species_with_fewer_than_10_records_after_historical_thi
+  kind: magnitude
+  raw_text: Implement validation to flag species with fewer than 10 records after
+    historical thinning as INSUFFICIENT_TRAINING_DATA
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T18:41:39Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: train Random Forest Bioclim and Regularized Logistic Regression using
+    spatial block cross-validation
+  claim_id: c_a95caa85
+  context: 'Phase 4: User Story 2 - Model Training and Validation. Goal: Train three
+    SDM algorithms (Random Forest, Bioclim, Regularized Logistic Regression PB) using
+    spatial block cross-validation on CPU.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Train_Random_Forest_Bioclim_and_Regularized_Logistic_Regress
+  kind: entity_fact
+  raw_text: Train Random Forest, Bioclim, and Regularized Logistic Regression algorithms
+    using spatial block cross-validation
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T18:42:06Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: project models onto CMIP6 SSP2-4.5 2050 climate scenarios
+  claim_id: c_6fdb2cca
+  context: 'Phase 5: User Story 3 - Future Projection and Evaluation. Goal: Project
+    models onto CMIP6 SSP2-4.5 (2050) climate scenarios and evaluate against recent
+    records (2005-2020)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Project models onto CMIP6 SSP2-4.5 (2050) climate scenarios
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T18:42:06Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: flag species with fewer than 100 records in the 2005-2020 test period
+    as insufficient data
+  claim_id: c_c4027c47
+  context: 'Phase 5: User Story 3 - Future Projection and Evaluation. T033b [US3]
+    Implement validation in code/evaluate.py to flag species with <100 records in
+    the 2005-2020 test period (from T029b) as ''INSUFFICIENT_DATA'' and exclude from
+    aggregation...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_species_with_fewer_than_100_records_in_the_2005-2020_te
+  kind: magnitude
+  raw_text: Flag species with fewer than 100 records in the 2005-2020 test period
+    as INSUFFICIENT_DATA and exclude from aggregation
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T18:42:28Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: apply Bonferroni correction for pairwise model comparisons
+  claim_id: c_14bba931
+  context: 'Phase 5: User Story 3 - Future Projection and Evaluation. T034 [P] [US3]
+    Implement code/sensitivity.py to sweep suitability thresholds (0.01, 0.05, 0.1)
+    and apply Bonferroni correction for the family of tests (all pairwise model comparisons
+    across all valid species)...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Bonferroni_correction_for_pairwise_model_comparisons
+  kind: entity_fact
+  raw_text: Apply Bonferroni correction for the family of tests across all pairwise
+    model comparisons
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T18:42:44Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: verify total compute time stays within 6-hour limit
+  claim_id: c_4022c8cc
+  context: 'Phase 5: User Story 3 - Future Projection and Evaluation. T037 [US3] Verify
+    total compute time stays within 6-hour limit (SC-002)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify total compute time stays within 6-hour limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T18:42:44Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: use real data from GBIF WorldClim and CMIP6
+  claim_id: c_2f1f2841
+  context: 'Notes section. Critical: All data must be real (GBIF, WorldClim, CMIP6);
+    no synthetic data fabrication.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_real_data_from_GBIF_WorldClim_and_CMIP6
+  kind: entity_fact
+  raw_text: All data must be real (GBIF, WorldClim, CMIP6)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T18:43:06Z'
+- artifact_path: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u/tasks.md
+  attempts: 1
+  canonical: run models on CPU-only scikit-learn without CUDA GPU dependencies
+  claim_id: c_412db434
+  context: 'Notes section. Critical: All models must run on CPU-only libraries (scikit-learn)
+    without CUDA/GPU dependencies.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Run_models_on_CPU-only_scikit-learn_without_CUDA_GPU_depende
+  kind: entity_fact
+  raw_text: All models must run on CPU-only libraries (scikit-learn) without CUDA/GPU
+    dependencies
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T18:43:23Z'

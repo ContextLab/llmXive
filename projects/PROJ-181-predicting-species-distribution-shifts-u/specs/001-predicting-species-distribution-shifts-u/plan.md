@@ -5,7 +5,7 @@
 
 ## Summary
 
-This feature implements a CPU‑tractable Species Distribution Modeling (SDM) pipeline to predict distribution shifts in North American birds. The system downloads historical occurrence data (mid-to-late 20th century) and climate rasters (WorldClim v2), preprocesses them (filtering, thinning, bias correction), trains three algorithms (Random Forest, Bioclim, Regularized Logistic Regression (Presence-Background)), projects them onto future climate scenarios (CMIP SSP2‑4.5, 2050), and evaluates against recent records while adhering to the project constitution.
+This feature implements a CPU‑tractable Species Distribution Modeling (SDM) pipeline to predict distribution shifts in North American birds. The system downloads historical occurrence data (mid-to-late 20th century) and climate rasters (WorldClim), preprocesses them (filtering, thinning, bias correction), trains three algorithms (Random Forest, Bioclim, Regularized Logistic Regression (Presence-Background)), projects them onto future climate scenarios (CMIP SSP‑4.5, 2050), and evaluates against recent records while adhering to the project constitution.
 
 **Critical Methodological Correction**: The "MaxEnt-Style" algorithm is explicitly identified as **Regularized Logistic Regression (Presence-Background)**. It is *not* the Maximum Entropy algorithm. The plan and contracts have been updated to reflect this accurately, eliminating construct validity failures.
 
