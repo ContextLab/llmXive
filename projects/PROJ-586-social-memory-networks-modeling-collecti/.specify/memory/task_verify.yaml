@@ -1,3 +1,13 @@
+? "T008 [P] Configure environment management (config.yaml with seed=42, device=cpu)\
+  \ in `code/utils/config.py` [UNRESOLVED-CLAIM: c_16e7b0da \u2014 status=not_enough_info]"
+: 1
+? "T018 [US-2] Implement game simulation loop for limited context (1000 games per\
+  \ spec) [UNRESOLVED-CLAIM: c_7943bae4 \u2014 status=not_enough_info] in `code/run_experiment.py`"
+: 1
+? "T021 [P] [US-2] Apply Bonferroni correction to all family\u2011wise hypothesis\
+  \ tests and report corrected \u03B1 in `code/analysis/anova.py` [UNRESOLVED-CLAIM:\
+  \ c_9e3d059c \u2014 status=not_enough_info] (FR-007)"
+: 1
 ? 'T031 [P] Run `quickstart.md` validation (execute all commands, verify exit code
   0 for each) in `projects/PROJ-586-social-memory-networks-modeling-collecti/code/`
   <!-- ATOMIZE: requested -->'
@@ -152,3 +162,100 @@
   --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
   -->'
 : 2
+? 'T031 [P] Run `quickstart.md` validation (execute all commands, verify exit code
+  0 for each) in `projects/PROJ-586-social-memory-networks-modeling-collecti/code/`
+  <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested -->'
+: 1
+? 'T031 [P] Run `quickstart.md` validation (execute all commands, verify exit code
+  0 for each) in `projects/PROJ-586-social-memory-networks-modeling-collecti/code/`
+  <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->'
+: 1
+? 'T031 [P] Run `quickstart.md` validation (execute all commands, verify exit code
+  0 for each) in `projects/PROJ-586-social-memory-networks-modeling-collecti/code/`
+  <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  -->'
+: 1
+? 'T031 [P] Run `quickstart.md` validation (execute all commands, verify exit code
+  0 for each) in `projects/PROJ-586-social-memory-networks-modeling-collecti/code/`
+  <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested -->'
+: 1
+? 'T031 [P] Run `quickstart.md` validation (execute all commands, verify exit code
+  0 for each) in `projects/PROJ-586-social-memory-networks-modeling-collecti/code/`
+  <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->'
+: 1
+? 'T031 [P] Run `quickstart.md` validation (execute all commands, verify exit code
+  0 for each) in `projects/PROJ-586-social-memory-networks-modeling-collecti/code/`
+  <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  -->'
+: 1
+? 'T031 [P] Run `quickstart.md` validation (execute all commands, verify exit code
+  0 for each) in `projects/PROJ-586-social-memory-networks-modeling-collecti/code/`
+  <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested -->'
+: 1
+? 'T031 [P] Run `quickstart.md` validation (execute all commands, verify exit code
+  0 for each) in `projects/PROJ-586-social-memory-networks-modeling-collecti/code/`
+  <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->'
+: 1

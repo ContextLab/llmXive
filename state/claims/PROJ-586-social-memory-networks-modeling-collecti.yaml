@@ -218,3 +218,140 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-02T01:57:41Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: linting and formatting tools configured
+  claim_id: c_b80d14b1
+  context: Create `code/.pre-commit-config.yaml`
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Linting_and_formatting_tools_configured
+  kind: entity_fact
+  raw_text: Configure linting (flake8) and formatting (black) tools in `code/.pre-commit-config.yaml`
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T06:53:59Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: specific library versions
+  claim_id: c_a4b64142
+  context: Create `code/requirements.txt`
+  evidence:
+    asserted: '4.35'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Create `code/requirements.txt` with pinned versions: `transformers==4.35.0`,
+    `torch==2.1.0+cpu`, `scikit-learn==1.3.0`, `pandas==2.1.0`, `pytest==7.4.0`, `numpy==1.24.0`,
+    `matplotlib==3.8.0`'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-02T06:53:59Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: agent uses opt-125m model with float32 precision
+  claim_id: c_16d788d5
+  context: Implement base Agent abstraction
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement base Agent abstraction using CPU-only `transformers` (opt-125m,
+    float32 precision) in `code/agent/base_agent.py`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T06:54:15Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: environment configured with seed 42 and cpu device
+  claim_id: c_16e7b0da
+  context: Configure environment management
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Configure environment management (config.yaml with seed=42, device=cpu)
+    in `code/utils/config.py`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T06:54:31Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: game simulation loop runs for 1000 games
+  claim_id: c_57661522
+  context: Implement CLI flag parsing for --context, --agents, --dataset and game
+    simulation loop
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement game simulation loop for 1000 games in `code/run_experiment.py`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T06:54:47Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: game simulation loop runs for 1000 games in limited context
+  claim_id: c_7943bae4
+  context: Implement game simulation loop for limited context
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement game simulation loop for limited context (1000 games per spec)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T06:55:04Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction applied
+  claim_id: c_9e3d059c
+  context: Apply Bonferroni correction
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_applied
+  kind: entity_fact
+  raw_text: "Apply Bonferroni correction to all family\u2011wise hypothesis tests\
+    \ and report corrected \u03B1 in `code/analysis/anova.py`"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T06:55:33Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: 95% confidence interval calculated
+  claim_id: c_bc898412
+  context: Calculate 95% confidence interval
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Calculate 95% confidence interval for exponent \u03B2 and note sub\u2011\
+    linearity (\u03B2 < 1) in `code/analysis/scaling.py`"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T06:55:33Z'

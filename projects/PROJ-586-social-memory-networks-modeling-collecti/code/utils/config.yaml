@@ -1,0 +1,19 @@
+seed: 42
+device: cpu
+experiment_name: default_experiment
+output_dir: results
+data_dir: data
+log_file: experiment.log
+model_name: facebook/opt-125m
+max_context_length: 512
+num_agents: 3
+num_games: 1000
+context_condition: full
+limited_context_tokens: 256
+scaling_agent_counts:
+- 3
+- 5
+- 7
+scaling_games_per_count: 800
+anova_alpha: 0.05
+power_target: 0.8
