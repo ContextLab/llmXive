@@ -1,10 +1,14 @@
 {
-  "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-699-interleavethinker-reinforcing-agentic-in/paper/pdf/main-llmxive.pdf",
+  "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-699-interleavethinker-reinforcing-agentic-in/paper/pdf/2606.13679.pdf",
   "audit": null,
   "repair_rounds": 0,
   "llmxive_compile_attempts": 0,
-  "status": "restyled_unaudited",
-  "failure": null,
+  "status": "fallback_original",
+  "failure": {
+    "stage": "restyle",
+    "reason": "restyle step failed",
+    "log_excerpt": "restyle step failed"
+  },
   "paper_id": "PROJ-699-interleavethinker-reinforcing-agentic-in",
-  "updated_at": "2026-06-13T09:41:08.306285+00:00"
+  "updated_at": "2026-07-02T11:15:45.448515+00:00"
 }

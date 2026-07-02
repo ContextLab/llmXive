@@ -1,10 +1,10 @@
 {
-  "pdf": "/Users/jmanning/llmXive/projects/PROJ-693-abot-earth-0-5-generative-3d-earth-model/paper/pdf/main-llmxive.pdf",
+  "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-693-abot-earth-0-5-generative-3d-earth-model/paper/pdf/main-llmxive.pdf",
   "audit": null,
   "repair_rounds": 0,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-693-abot-earth-0-5-generative-3d-earth-model",
-  "updated_at": "2026-06-12T13:03:15.406714+00:00"
+  "updated_at": "2026-07-02T11:14:14.228313+00:00"
 }

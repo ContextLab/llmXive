@@ -1,10 +1,10 @@
 {
-  "pdf": "/Users/jmanning/llmXive/projects/PROJ-696-agentic-environment-engineering-for-larg/paper/pdf/main-llmxive.pdf",
+  "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-696-agentic-environment-engineering-for-larg/paper/pdf/main-llmxive.pdf",
   "audit": null,
   "repair_rounds": 0,
   "llmxive_compile_attempts": 0,
   "status": "restyled_unaudited",
   "failure": null,
   "paper_id": "PROJ-696-agentic-environment-engineering-for-larg",
-  "updated_at": "2026-06-12T13:19:35.099375+00:00"
+  "updated_at": "2026-07-02T11:15:12.417499+00:00"
 }

@@ -22,5 +22,5 @@
     "log_excerpt": "llmxive restyle failed 3x \u2014 serving the arXiv fallback; reset llmxive_compile_attempts in state/paper_status/ after fixing the source"
   },
   "paper_id": "PROJ-602-https-arxiv-org-abs-2605-18661",
-  "updated_at": "2026-07-02T09:39:58.975775+00:00"
+  "updated_at": "2026-07-02T10:56:59.668797+00:00"
 }
