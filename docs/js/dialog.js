@@ -306,7 +306,68 @@
     return '<h4>Revision history</h4>' + rows;
   }
 
+  // Reviewed-Preprint block (2026-07-01): provenance + credit split + the two
+  // themed PDFs + peer-review action items + the follow-up link. Rendered at the
+  // top of the modal's info column when project.preprint is present.
+  function _preprintBlockHTML(pp) {
+    const row = (icon, label, href, meta) => {
+      const open = href
+        ? '<a class="ad-row" href="' + escapeHtml(href) + '" target="_blank" rel="noopener">'
+        : '<div class="ad-row" style="cursor:default;">';
+      const close = href ? '</a>' : '</div>';
+      return open +
+        '<span class="ad-row-icon">' + icon + '</span>' +
+        '<span class="ad-row-label">' + escapeHtml(label) + '</span>' +
+        (meta ? '<span class="ad-row-meta">' + escapeHtml(meta) + '</span>' : '') +
+        close;
+    };
+    let html = '<h4>Reviewed preprint</h4>';
+    if (pp.ingestion_statement) {
+      html += '<div style="font-size:11px; color:var(--muted); margin-bottom:6px;">' +
+        escapeHtml(pp.ingestion_statement) + '</div>';
+    }
+    // Prefer the same-origin mirror so the PDF opens VIEWABLE in the browser
+    // (falls back to the GitHub blob when the mirror path can't be derived).
+    const viewable = (pdf) => (pdf && (_toSameOriginPdf(pdf.repo_path) || pdf.github_url)) || null;
+    if (pp.source_url) {
+      html += row('<i class="fa-solid fa-arrow-up-right-from-square"></i>', 'Original source', pp.source_url, '');
+    }
+    if (pp.original_pdf) {
+      html += row('<i class="fa-regular fa-file-pdf"></i>', 'View original (with llmXive cover)', viewable(pp.original_pdf), 'original-llmxive.pdf');
+    }
+    if (pp.peer_review_pdf) {
+      html += row('<i class="fa-solid fa-file-pen"></i>', 'View automated-review report', viewable(pp.peer_review_pdf), 'peer-review-llmxive.pdf');
+    }
+    if (pp.followup_project_id) {
+      html += row('<i class="fa-solid fa-code-branch"></i>', 'llmXive follow-up study', '#inProgress', pp.followup_project_id);
+    }
+    // Credit split: review MODELS (never authored the paper — llmXive reviewed it).
+    if (pp.review_models && pp.review_models.length) {
+      html += '<div style="font-size:11px; color:var(--muted); margin:6px 0 2px;">Reviewed by (underlying models):</div>';
+      html += pp.review_models.map(m =>
+        '<div class="ad-row" style="cursor:default;"><span class="ad-row-icon"><i class="fa-solid fa-robot"></i></span>' +
+        '<span class="ad-row-label">' + escapeHtml(m.name) + '</span></div>'
+      ).join("");
+    }
+    // Peer-review action items grouped by reviewer.
+    const groups = (pp.action_items || []).filter(g => (g.items || []).length);
+    if (groups.length) {
+      html += '<h4>Automated-review action items</h4>';
+      html += groups.map(g => {
+        const items = g.items.map(it =>
+          '<li><strong>[' + escapeHtml(it.severity || '') + ']</strong> ' + escapeHtml(it.text || '') + '</li>'
+        ).join("");
+        return '<div style="margin-bottom:4px;"><div style="font-size:11px; font-weight:600;">' +
+          escapeHtml(g.reviewer) + ' <span style="color:var(--muted); font-weight:normal;">(' +
+          escapeHtml(g.verdict) + ')</span></div><ul style="margin:2px 0 0 16px; font-size:11px;">' +
+          items + '</ul></div>';
+      }).join("");
+    }
+    return html;
+  }
+
   function _renderListColumn(project, comments) {
+    const preprintBlock = project.preprint ? _preprintBlockHTML(project.preprint) : "";
     const links = project.artifact_links || {};
     const artifacts = ARTIFACT_ROWS
       .map(([key, icon, label]) => _artifactRow(label, icon, links[key]))
@@ -320,6 +381,7 @@
         _reviewsListHTML(project.reviews)
       : '<h4>Personality reviews</h4>' + _personalityReviewsHTML(comments);
     return '' +
+      preprintBlock +
       '<h4>Artifacts</h4>' +
       (artifacts || '<div style="color:var(--muted); font-size:11px;">No artifacts produced yet.</div>') +
       reviewsBlock +
@@ -350,6 +412,12 @@
   // modal still shows a real artifact instead of "none".
   const _MD_KEYS = ["paper_tasks", "paper_plan", "paper_spec", "tasks", "plan", "spec", "idea"];
   function _resolveArtifact(project) {
+    // A Reviewed Preprint features its cover-prepended original PDF.
+    const pp = project.preprint;
+    if (pp && pp.original_pdf) {
+      return { type: "pdf", repo_path: pp.original_pdf.repo_path,
+               github_url: pp.original_pdf.github_url, raw_url: pp.original_pdf.raw_url };
+    }
     const ca = project.current_artifact;
     if (ca && ca.type && ca.type !== "none") return ca;
     const links = project.artifact_links || {};
