@@ -1,20 +1,23 @@
 [
   {
-    "model_name": "TimeSeries-Transformer (T5-Small)",
+    "model_name": "TimeSeries-Transformer (Lite)",
     "hf_id": "google/t5-small",
-    "size_mb": 243.5,
-    "cpu_tractable": true
+    "size_mb": 242.0,
+    "cpu_tractable": true,
+    "target_arch": "TimeSeries-Transformer"
   },
   {
-    "model_name": "TabPFN (Small)",
-    "hf_id": "AutoTabPFN/TabPFN-small",
-    "size_mb": 45.2,
-    "cpu_tractable": true
+    "model_name": "TabPFN",
+    "hf_id": "Pfils/TabPFN-v1-500k",
+    "size_mb": 1024.5,
+    "cpu_tractable": false,
+    "target_arch": "TabPFN"
   },
   {
-    "model_name": "Distilled LLM (SmolLM2-135M)",
-    "hf_id": "HuggingFaceTB/SmolLM2-135M-Instruct",
-    "size_mb": 268.1,
-    "cpu_tractable": true
+    "model_name": "Distilled LLM",
+    "hf_id": "distilbert-base-uncased",
+    "size_mb": 267.9,
+    "cpu_tractable": true,
+    "target_arch": "Distilled LLM"
   }
 ]

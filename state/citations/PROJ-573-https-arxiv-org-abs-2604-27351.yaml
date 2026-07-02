@@ -86,40 +86,7 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/mustard/mustard
   verified_at: '2026-07-01T19:36:20.190036Z'
-- artifact_hash: 6f0cfb2a32a1dc7f8621cb188eb258ecd42998bcc6ff680eda8b421c7fafc46e
-  artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/code/research.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/datasets/UCI_HAR
-  verification_status: mismatch
-  verified_against_url: https://huggingface.co/UCI_HAR/datasets
-  verified_at: '2026-07-01T21:53:05.516183Z'
-- artifact_hash: 6f0cfb2a32a1dc7f8621cb188eb258ecd42998bcc6ff680eda8b421c7fafc46e
-  artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/code/research.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/datasets/UCI_Credit_Card
-  verification_status: mismatch
-  verified_against_url: https://huggingface.co/UCI_Credit_Card/datasets
-  verified_at: '2026-07-01T21:53:05.516183Z'
-- artifact_hash: 6f0cfb2a32a1dc7f8621cb188eb258ecd42998bcc6ff680eda8b421c7fafc46e
-  artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/code/research.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: drop (droppy)
-  kind: url
-  value: https://huggingface.co/datasets/drop
-  verification_status: verified
-  verified_against_url: https://huggingface.co/drop/datasets
-  verified_at: '2026-07-01T21:53:05.516183Z'
-- artifact_hash: 6bb9a7298fb715ed1b3141ce0a10c1c43a2ba71727f2e6f7d42779f466f71544
+- artifact_hash: 085499aa26a27741b72278417aa7195fbbf16638d5522e03d71082781bedcc4c
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -130,8 +97,8 @@
   value: https://arxiv.org/abs/1311.5354
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/1311.5354
-  verified_at: '2026-07-01T23:42:26.246425Z'
-- artifact_hash: 6bb9a7298fb715ed1b3141ce0a10c1c43a2ba71727f2e6f7d42779f466f71544
+  verified_at: '2026-07-02T00:45:26.147410Z'
+- artifact_hash: 085499aa26a27741b72278417aa7195fbbf16638d5522e03d71082781bedcc4c
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -141,8 +108,8 @@
   value: https://www.wikidata.org/wiki/Q50376371
   verification_status: verified
   verified_against_url: https://www.wikidata.org/wiki/Q50376371
-  verified_at: '2026-07-01T23:42:26.246425Z'
-- artifact_hash: 6bb9a7298fb715ed1b3141ce0a10c1c43a2ba71727f2e6f7d42779f466f71544
+  verified_at: '2026-07-02T00:45:26.147410Z'
+- artifact_hash: 085499aa26a27741b72278417aa7195fbbf16638d5522e03d71082781bedcc4c
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -153,8 +120,8 @@
   value: https://arxiv.org/abs/1710.08708
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/1710.08708
-  verified_at: '2026-07-01T23:42:26.246425Z'
-- artifact_hash: 6bb9a7298fb715ed1b3141ce0a10c1c43a2ba71727f2e6f7d42779f466f71544
+  verified_at: '2026-07-02T00:45:26.147410Z'
+- artifact_hash: 085499aa26a27741b72278417aa7195fbbf16638d5522e03d71082781bedcc4c
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-004
   cited_authors: []
@@ -164,8 +131,8 @@
   value: https://en.wikipedia.org/wiki/Bootstrapping_
   verification_status: verified
   verified_against_url: https://en.wikipedia.org/wiki/Bootstrapping
-  verified_at: '2026-07-01T23:42:26.246425Z'
-- artifact_hash: 6bb9a7298fb715ed1b3141ce0a10c1c43a2ba71727f2e6f7d42779f466f71544
+  verified_at: '2026-07-02T00:45:26.147410Z'
+- artifact_hash: 085499aa26a27741b72278417aa7195fbbf16638d5522e03d71082781bedcc4c
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-005
   cited_authors: []
@@ -175,8 +142,8 @@
   value: https://en.wikipedia.org/wiki/SHA-2
   verification_status: verified
   verified_against_url: https://en.wikipedia.org/wiki/SHA-2
-  verified_at: '2026-07-01T23:42:26.246425Z'
-- artifact_hash: 6bb9a7298fb715ed1b3141ce0a10c1c43a2ba71727f2e6f7d42779f466f71544
+  verified_at: '2026-07-02T00:45:26.147410Z'
+- artifact_hash: 085499aa26a27741b72278417aa7195fbbf16638d5522e03d71082781bedcc4c
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-006
   cited_authors: []
@@ -187,8 +154,8 @@
   value: https://www.wikidata.org/wiki/Q129317410
   verification_status: verified
   verified_against_url: https://www.wikidata.org/wiki/Q129317410
-  verified_at: '2026-07-01T23:42:26.246425Z'
-- artifact_hash: 6bb9a7298fb715ed1b3141ce0a10c1c43a2ba71727f2e6f7d42779f466f71544
+  verified_at: '2026-07-02T00:45:26.147410Z'
+- artifact_hash: 085499aa26a27741b72278417aa7195fbbf16638d5522e03d71082781bedcc4c
   artifact_path: projects/PROJ-573-https-arxiv-org-abs-2604-27351/specs/001-https-arxiv-org-abs-2604-27351/tasks.md
   cite_id: c-007
   cited_authors: []
@@ -199,4 +166,4 @@
   value: https://arxiv.org/abs/2505.06730
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/2505.06730
-  verified_at: '2026-07-01T23:42:26.246425Z'
+  verified_at: '2026-07-02T00:45:26.147410Z'

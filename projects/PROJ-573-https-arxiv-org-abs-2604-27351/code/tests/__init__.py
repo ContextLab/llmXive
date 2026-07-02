@@ -1,3 +1,3 @@
 """
-Test suite for llmXive benchmark.
+Test Suite Package
 """
