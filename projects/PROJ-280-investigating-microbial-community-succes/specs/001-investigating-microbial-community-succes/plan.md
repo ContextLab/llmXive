@@ -35,7 +35,7 @@ This project implements a reproducible, CPU-tractable pipeline to investigate mi
 | **IV. Single Source of Truth** | ✅ Compliant | All figures/stats trace to `data/processed` outputs; no hand-typed numbers in paper. |
 | **V. Versioning Discipline** | ✅ Compliant | Content hashes tracked; artifact updates trigger state timestamp updates. |
 | **VI. Public Data Provenance** | ⚠️ Blocked | Compliance is conditional on finding a verified 16S wetland dataset. If none is found, the pipeline halts (see "Data Gap Protocol"). |
-| **VII. Computational Resource Constraints** | ✅ Compliant | Subsampling logic (max 5k reads) and library choices (`scikit-bio`, `scipy`) ensure <7GB RAM usage. |
+| **VII. Computational Resource Constraints** | ✅ Compliant | Subsampling logic (a limited number of reads) and library choices (`scikit-bio`, `scipy`) ensure <7GB RAM usage. |
 
 ## Project Structure
 

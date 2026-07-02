@@ -1,128 +1,196 @@
 """
-Tests for the data manifest loader.
+Tests for the data manifest loader and utilities.
 """
 import os
 import tempfile
-from pathlib import Path
-
 import pytest
 import yaml
+from pathlib import Path
 
-from code.data.manifest import ManifestLoader, load_manifest, get_manifest_source_type
-from code.utils.exceptions import PipelineException
-
-
-@pytest.fixture
-def valid_manifest_content():
-    """Return a valid manifest dictionary."""
-    return {
-        "version": "1.0",
-        "source_type": "SIMULATED",
-        "description": "Test manifest",
-        "created_at": "2024-01-01T00:00:00Z",
-        "datasets": [
-            {
-                "name": "test_snps",
-                "path": "raw/test_snps.csv",
-                "type": "SNP",
-                "format": "csv",
-                "description": "Test SNP data",
-                "checksum": "abc123"
-            }
-        ]
-    }
-
+from code.data.manifest import (
+    load_manifest,
+    save_manifest,
+    get_dataset_by_id,
+    add_dataset,
+    update_dataset_status,
+    get_datasets_by_modality,
+    get_source_type,
+    is_simulation_mode,
+    MANIFEST_SCHEMA,
+)
 
 @pytest.fixture
-def temp_manifest_file(valid_manifest_content):
-    """Create a temporary manifest file."""
-    with tempfile.NamedTemporaryFile(
-        mode='w', suffix='.yaml', delete=False
-    ) as f:
-        yaml.dump(valid_manifest_content, f)
+def temp_manifest_path():
+    """Create a temporary manifest file for testing."""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+        manifest_data = {
+            "version": "1.0",
+            "source_type": "SIMULATED",
+            "datasets": [
+                {
+                    "dataset_id": "test_snp_001",
+                    "source": "synthetic",
+                    "modality": "SNP",
+                    "file_path": "data/raw/test_snps.csv",
+                    "status": "pending",
+                    "accession": None,
+                    "checksum": None,
+                    "metadata": {}
+                },
+                {
+                    "dataset_id": "test_metab_001",
+                    "source": "synthetic",
+                    "modality": "metabolite",
+                    "file_path": "data/raw/test_metabolites.csv",
+                    "status": "pending",
+                    "accession": None,
+                    "checksum": None,
+                    "metadata": {}
+                }
+            ]
+        }
+        yaml.dump(manifest_data, f)
         temp_path = Path(f.name)
     yield temp_path
     os.unlink(temp_path)
 
+def test_load_manifest_exists(temp_manifest_path):
+    """Test loading an existing manifest file."""
+    manifest = load_manifest(temp_manifest_path)
+    
+    assert manifest["version"] == "1.0"
+    assert manifest["source_type"] == "SIMULATED"
+    assert len(manifest["datasets"]) == 2
+    
+    # Check dataset structure
+    snp_dataset = get_dataset_by_id(manifest, "test_snp_001")
+    assert snp_dataset is not None
+    assert snp_dataset["modality"] == "SNP"
+    
+    metab_dataset = get_dataset_by_id(manifest, "test_metab_001")
+    assert metab_dataset is not None
+    assert metab_dataset["modality"] == "metabolite"
 
-class TestManifestLoader:
-    """Tests for ManifestLoader class."""
+def test_load_manifest_missing_file():
+    """Test loading a non-existent manifest file creates default."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        missing_path = Path(tmpdir) / "missing_manifest.yaml"
+        manifest = load_manifest(missing_path)
+        
+        assert os.path.exists(missing_path)
+        assert manifest["source_type"] == "SIMULATED"
+        assert manifest["version"] == "1.0"
+        assert manifest["datasets"] == []
 
-    def test_load_valid_manifest(self, temp_manifest_file):
-        """Test loading a valid manifest file."""
-        loader = ManifestLoader(temp_manifest_file)
-        data = loader.load()
+def test_save_and_reload(temp_manifest_path):
+    """Test saving and reloading a manifest."""
+    # Modify the manifest
+    manifest = load_manifest(temp_manifest_path)
+    manifest["source_type"] = "REAL"
+    
+    # Save to a new location
+    with tempfile.TemporaryDirectory() as tmpdir:
+        new_path = Path(tmpdir) / "new_manifest.yaml"
+        save_manifest(manifest, new_path)
+        
+        # Reload and verify
+        reloaded = load_manifest(new_path)
+        assert reloaded["source_type"] == "REAL"
+        assert len(reloaded["datasets"]) == 2
 
-        assert data["version"] == "1.0"
-        assert data["source_type"] == "SIMULATED"
-        assert len(data["datasets"]) == 1
-        assert data["datasets"][0]["type"] == "SNP"
+def test_add_dataset(temp_manifest_path):
+    """Test adding a new dataset to the manifest."""
+    manifest = load_manifest(temp_manifest_path)
+    
+    new_dataset = {
+        "dataset_id": "test_pheno_001",
+        "source": "synthetic",
+        "modality": "phenotype",
+        "file_path": "data/raw/test_phenotypes.csv",
+        "status": "pending"
+    }
+    
+    updated_manifest = add_dataset(manifest, new_dataset)
+    
+    assert len(updated_manifest["datasets"]) == 3
+    added = get_dataset_by_id(updated_manifest, "test_pheno_001")
+    assert added is not None
+    assert added["modality"] == "phenotype"
+    assert added["accession"] is None  # Should be added as None
 
-    def test_load_missing_file(self):
-        """Test loading a non-existent file raises exception."""
-        loader = ManifestLoader(Path("/nonexistent/path/manifest.yaml"))
-        with pytest.raises(PipelineException) as exc_info:
-            loader.load()
-        assert exc_info.value.code == "MANIFEST_NOT_FOUND"
+def test_add_duplicate_dataset(temp_manifest_path):
+    """Test that adding a duplicate dataset_id raises an error."""
+    manifest = load_manifest(temp_manifest_path)
+    
+    duplicate_dataset = {
+        "dataset_id": "test_snp_001",  # Already exists
+        "source": "synthetic",
+        "modality": "SNP",
+        "file_path": "data/raw/duplicate.csv",
+        "status": "pending"
+    }
+    
+    with pytest.raises(ValueError, match="already exists"):
+        add_dataset(manifest, duplicate_dataset)
 
-    def test_validate_missing_required_field(self, valid_manifest_content):
-        """Test validation fails when required field is missing."""
-        with tempfile.NamedTemporaryFile(
-            mode='w', suffix='.yaml', delete=False
-        ) as f:
-            del valid_manifest_content["version"]
-            yaml.dump(valid_manifest_content, f)
-            temp_path = Path(f.name)
+def test_update_dataset_status(temp_manifest_path):
+    """Test updating dataset status."""
+    manifest = load_manifest(temp_manifest_path)
+    
+    updated = update_dataset_status(manifest, "test_snp_001", "downloaded")
+    dataset = get_dataset_by_id(updated, "test_snp_001")
+    assert dataset["status"] == "downloaded"
 
-        try:
-            loader = ManifestLoader(temp_path)
-            with pytest.raises(PipelineException) as exc_info:
-                loader.load()
-            assert exc_info.value.code == "MANIFEST_MISSING_FIELD"
-        finally:
-            os.unlink(temp_path)
+def test_update_invalid_status(temp_manifest_path):
+    """Test updating with an invalid status raises an error."""
+    manifest = load_manifest(temp_manifest_path)
+    
+    with pytest.raises(ValueError, match="Invalid status"):
+        update_dataset_status(manifest, "test_snp_001", "invalid_status")
 
-    def test_get_source_type(self, temp_manifest_file):
-        """Test getting source type from manifest."""
-        loader = ManifestLoader(temp_manifest_file)
-        source_type = loader.get_source_type()
-        assert source_type == "SIMULATED"
+def test_get_datasets_by_modality(temp_manifest_path):
+    """Test filtering datasets by modality."""
+    manifest = load_manifest(temp_manifest_path)
+    
+    snp_datasets = get_datasets_by_modality(manifest, "SNP")
+    assert len(snp_datasets) == 1
+    assert snp_datasets[0]["dataset_id"] == "test_snp_001"
+    
+    metab_datasets = get_datasets_by_modality(manifest, "metabolite")
+    assert len(metab_datasets) == 1
+    
+    non_existent = get_datasets_by_modality(manifest, "protein")
+    assert len(non_existent) == 0
 
-    def test_get_datasets(self, temp_manifest_file):
-        """Test getting datasets from manifest."""
-        loader = ManifestLoader(temp_manifest_file)
-        datasets = loader.get_datasets()
-        assert len(datasets) == 1
-        assert datasets[0]["name"] == "test_snps"
+def test_source_type_helpers(temp_manifest_path):
+    """Test source type helper functions."""
+    manifest = load_manifest(temp_manifest_path)
+    
+    assert get_source_type(manifest) == "SIMULATED"
+    assert is_simulation_mode(manifest) is True
+    
+    manifest["source_type"] = "REAL"
+    assert get_source_type(manifest) == "REAL"
+    assert is_simulation_mode(manifest) is False
 
-    def test_get_dataset_by_type(self, temp_manifest_file):
-        """Test getting dataset by type."""
-        loader = ManifestLoader(temp_manifest_file)
-        dataset = loader.get_dataset_by_type("SNP")
-        assert dataset is not None
-        assert dataset["name"] == "test_snps"
-
-        dataset_none = loader.get_dataset_by_type("METABOLITE")
-        assert dataset_none is None
-
-    def test_get_dataset_path(self, temp_manifest_file):
-        """Test getting resolved dataset path."""
-        loader = ManifestLoader(temp_manifest_file)
-        path = loader.get_dataset_path("SNP")
-        assert path is not None
-        assert path.name == "test_snps.csv"
-        assert path.parent.name == "raw"
-
-class TestLoadManifestFunctions:
-    """Tests for convenience functions."""
-
-    def test_load_manifest(self, temp_manifest_file):
-        """Test load_manifest function."""
-        data = load_manifest(temp_manifest_file)
-        assert data["version"] == "1.0"
-        assert "datasets" in data
-
-    def test_get_manifest_source_type(self, temp_manifest_file):
-        """Test get_manifest_source_type function."""
-        source_type = get_manifest_source_type(temp_manifest_file)
-        assert source_type == "SIMULATED"
+def test_manifest_schema_validation():
+    """Test that manifest schema validation works correctly."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        # Create invalid manifest (missing required fields)
+        invalid_manifest = {
+            "version": "1.0",
+            "source_type": "SIMULATED",
+            "datasets": [
+                {
+                    "dataset_id": "test_001",
+                    # Missing required fields: source, modality, file_path, status
+                }
+            ]
+        }
+        
+        invalid_path = Path(tmpdir) / "invalid.yaml"
+        with open(invalid_path, 'w') as f:
+            yaml.dump(invalid_manifest, f)
+        
+        with pytest.raises(ValueError, match="missing required field"):
+            load_manifest(invalid_path)

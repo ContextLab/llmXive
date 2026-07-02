@@ -1,51 +1,104 @@
-# Plant Disease Resistance Prediction Pipeline Dockerfile
-# Base image: Python 3.11 slim for smaller footprint
-FROM python:3.11-slim
+# ==========================================
+# Build Stage: Prepare Python Environment
+# ==========================================
+# Use official Python 3.11 slim image as base for smaller footprint
+FROM python:3.11-slim as builder
 
-# Metadata
-LABEL maintainer="llmXive Research Team"
-LABEL description="Pipeline for predicting plant disease resistance from multi-omics data"
+# Set environment variables to prevent Python from writing .pyc files
+# and to ensure UTF-8 encoding for consistent behavior across locales
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
 
-# Set working directory
-WORKDIR /app
+# Create a non-root user for security best practices
+# This user will run the application inside the container
+RUN useradd --create-home --shell /bin/bash appuser
 
-# Install system dependencies required for bioinformatics tools
-# fastp: Ultra-fast all-in-one FASTQ preprocessor
-# bcftools: Tools for variant calling and manipulating VCF/BCF files
-# wget/curl: Required for downloading tools and data
-# gcc/g++: Required for compiling some Python dependencies
+# ==========================================
+# Build Stage: Install System Dependencies
+# ==========================================
+# Install bioinformatics tools required for preprocessing:
+# - fastp: Ultra-fast all-in-one FASTQ preprocessor
+# - bcftools: Tools for variant calling and manipulation
+# Note: These are installed at the system level as they require low-level libraries
 RUN apt-get update && apt-get install -y --no-install-recommends \
     fastp \
     bcftools \
-    wget \
     curl \
-    gcc \
-    g++ \
-    libbz2-dev \
-    liblzma-dev \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
-# Verify installation of bioinformatics tools
-RUN fastp --version && bcftools --version
+# ==========================================
+# Build Stage: Install Python Dependencies
+# ==========================================
+# Create a virtual environment to isolate project dependencies
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
 
-# Copy requirements first for better Docker layer caching
-# This ensures dependency installation only re-runs when requirements change
+# Copy only requirements first to leverage Docker layer caching
+# If requirements.txt hasn't changed, this layer is reused
 COPY requirements.txt .
+RUN pip install --upgrade pip && \
+    pip install -r requirements.txt
 
-# Upgrade pip and install Python dependencies
-# Installing dependencies separately from code allows for caching
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+# ==========================================
+# Final Stage: Production Image
+# ==========================================
+# Start a new, smaller stage for the final image to reduce size
+FROM python:3.11-slim
 
-# Copy the rest of the project code
-# Including code/, data/, tests/, and other project files
-COPY . .
+# Re-apply environment variables from builder stage
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PATH="/opt/venv/bin:$PATH"
 
-# Set environment variables
-# PYTHONPATH ensures the code directory is importable
-# This allows imports like 'from config import get_path' to work correctly
-ENV PYTHONPATH=/app
+# Install runtime system dependencies (bioinformatics tools again)
+# These are needed for the application to execute preprocessing steps
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    fastp \
+    bcftools \
+    && rm -rf /var/lib/apt/lists/*
 
-# Set default command to run the main pipeline
-# Users can override this with 'docker run ... python code/main.py --args'
+# Create non-root user for running the application
+RUN useradd --create-home --shell /bin/bash appuser
+
+# Create necessary directories for the application
+# These match the directory structure created by T001
+RUN mkdir -p /app/code /app/data /app/data/raw /app/data/processed \
+        /app/artifacts /app/artifacts/models /app/artifacts/reports \
+        /app/artifacts/figures /app/tests /app/specs && \
+    chown -R appuser:appuser /app
+
+# Switch to non-root user for security
+USER appuser
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Copy project source code and configuration
+# This includes the Python modules, scripts, and config files
+COPY --chown=appuser:appuser . .
+
+# Copy the virtual environment from builder stage to avoid rebuilding dependencies
+COPY --from=builder /opt/venv /opt/venv
+
+# ==========================================
+# Runtime Configuration
+# ==========================================
+# Set default environment variables for the application
+# These can be overridden by the user at runtime via docker run -e
+ENV PYTHONPATH=/app \
+    DATA_DIR=/app/data \
+    ARTIFACTS_DIR=/app/artifacts \
+    LOG_LEVEL=INFO
+
+# Expose any ports if the project includes a web service
+# (Currently not required for this CLI pipeline, but reserved for future use)
+# EXPOSE 8000
+
+# Default command: Run the main pipeline entry point
+# This can be overridden when running the container: docker run <image> python code/other_script.py
 CMD ["python", "code/main.py"]

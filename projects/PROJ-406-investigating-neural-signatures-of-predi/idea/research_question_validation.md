@@ -4,31 +4,31 @@
 
 **Verdict**: pass
 
-The title proposes investigating a biological phenomenon (neural signatures of predictive processing) within a specific context (visual illusions). It does not currently frame the inquiry around the performance of a specific algorithm or hardware constraint, keeping the focus on the scientific relationship between brain activity and perception.
+The question asks about a fundamental relationship between a computational parameter (precision weighting) representing a theoretical mechanism and a behavioral phenotype (illusion susceptibility). It does not frame the inquiry around the performance of a specific algorithm or hardware constraint, but rather uses the model as a tool to quantify a latent variable of interest.
 
 ### Circularity check
 
 **Verdict**: concern
 
-The relationship between "predictive processing" and "visual illusions" can be tautological if the illusion is defined as the manifestation of the prediction error being measured. To pass, the neural measure (e.g., fMRI BOLD signal) and the perceptual measure (e.g., subjective illusion strength report) must be confirmed as independent data sources, which is not explicitly guaranteed in the current phrasing.
+The predictor (precision-weighting parameters) is derived by fitting a model to the same behavioral data (illusion magnitude ratings) that constitutes the predicted variable (illusion susceptibility). While the parameters are theoretically distinct constructs, they are statistically estimated from the very same signal they are supposed to predict, creating a risk that the correlation is an artifact of the model fitting process rather than an independent empirical relationship.
 
 ### Triviality check
 
-**Verdict**: pass
+**Verdict**: concern
 
-Either confirming a specific neural signature or failing to find one would be informative for the predictive coding literature. A positive result supports the theory's neural plausibility, while a null result would challenge the assumed locus of prediction error signaling, making both outcomes publishable.
+If the model is fitted to the data, a positive correlation is mathematically expected by construction, making the result uninformative unless the model has a specific, independent validation mechanism. A null result would only be informative if the model failed to converge or fit well, but a positive result essentially confirms that the model parameters capture variance in the data they were trained on, which is a tautology unless cross-validated on a distinct dataset or task.
 
 ### Question-narrowing check
 
-**Verdict**: fail
+**Verdict**: pass
 
-The current text presents a research topic ("Investigating Neural Signatures...") rather than a specific research question naming a relationship between variables. It lacks the necessary specificity to distinguish between a hypothesis-driven inquiry and a general exploration, which prevents clear validation of the causal or correlational structure intended.
+The question names a specific domain relationship (the link between precision weighting mechanisms and perceptual bias) rather than an implementation constraint. It correctly identifies the scientific mechanism under investigation (predictive coding) rather than asking "can we fit a model," which would be an implementation question.
 
 ### Overall verdict
 
 **Verdict**: validator_revise
 
-The core concept is sound but currently framed as a broad topic rather than a testable hypothesis. To advance, the title must be reframed into a specific question linking independent neural and behavioral measures.
-[REVISED]
-Does prediction error signaling in early visual cortex (V1/V2) correlate with the subjective magnitude of the Müller-Lyer illusion across individual subjects?
+The current formulation risks circularity because the predictor and outcome are derived from the same behavioral fit. To validate the theory, the precision parameters must predict susceptibility on a *held-out* task or dataset, or the susceptibility measure must be independent of the fitting data. [REVISED]
+Do individual differences in precision-weighting parameters estimated from a predictive-coding model fitted to a *training* illusion task (e.g., Müller-Lyer) predict individual susceptibility to a *novel, held-out* visual illusion (e.g., Ponzo or Ebbinghaus) that was not used in the model fitting process?
 [/REVISED]
+This reframing breaks the circularity by ensuring the prediction is tested on data independent of the parameter estimation, making the result a genuine test of the model's generalizability and the theory's validity.

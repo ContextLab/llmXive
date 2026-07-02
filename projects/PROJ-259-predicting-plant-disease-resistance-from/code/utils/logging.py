@@ -1,185 +1,198 @@
 """
 Structured logging utilities for the plant disease resistance pipeline.
 
-This module provides:
-- A configured logger that writes JSON-formatted logs to files and console.
-- Helpers to log pipeline steps, sample exclusions, and warnings.
-- Integration with the project's exception classes.
+Provides a centralized logging configuration that outputs JSON-formatted
+logs to stdout and files, with support for pipeline step tracking and
+sample exclusion logging as required by FR-001.
 """
-
 import json
 import logging
-import os
 import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from config import get_path, load_config
-from utils.exceptions import PipelineException
+from config import get_path, Config
+
+
+# Custom log format for structured output
+LOG_FORMATTER = logging.Formatter(
+  fmt='{"timestamp": "%(asctime)s", "level": "%(levelname)s", '
+      '"module": "%(name)s", "message": "%(message)s"}',
+  datefmt='%Y-%m-%dT%H:%M:%S'
+)
+
+# Cache for configured logger to avoid re-initialization
+_logger: Optional[logging.Logger] = None
+_exclusion_handler: Optional[logging.FileHandler] = None
 
 
 class JsonFormatter(logging.Formatter):
-    """Custom formatter that outputs logs as JSON lines."""
+    """Custom formatter that outputs JSON-structured log messages."""
 
     def format(self, record: logging.LogRecord) -> str:
-        log_entry = {
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+        log_data: Dict[str, Any] = {
+            "timestamp": datetime.utcnow().isoformat(),
             "level": record.levelname,
-            "logger": record.name,
+            "module": record.name,
             "message": record.getMessage(),
         }
 
-        # Add extra fields if present
-        if hasattr(record, "extra_data"):
-            log_entry["data"] = record.extra_data
+        # Include extra fields if present
+        if hasattr(record, 'step'):
+            log_data['step'] = record.step
+        if hasattr(record, 'sample_id'):
+            log_data['sample_id'] = record.sample_id
+        if hasattr(record, 'missing_modality'):
+            log_data['missing_modality'] = record.missing_modality
+        if hasattr(record, 'reason'):
+            log_data['reason'] = record.reason
+        if hasattr(record, 'exc_info') and record.exc_info:
+            log_data['exception'] = self.formatException(record.exc_info)
 
-        if record.exc_info:
-            log_entry["exception"] = self.formatException(record.exc_info)
-
-        return json.dumps(log_entry)
+        return json.dumps(log_data)
 
 
-def setup_logger(
-    name: str = "pipeline",
-    log_file: Optional[str] = None,
-    level: int = logging.INFO,
-) -> logging.Logger:
+def get_logger(name: str = "plant_pipeline") -> logging.Logger:
     """
-    Configure and return a logger with JSON formatting.
+    Get or create a configured logger instance.
 
     Args:
-        name: Logger name (usually 'pipeline').
-        log_file: Relative path from project root to write logs. If None,
-                  logs only to console.
-        level: Logging level (e.g., logging.DEBUG, logging.INFO).
+        name: Logger name, typically the module name (__name__)
 
     Returns:
-        Configured logger instance.
+        Configured logging.Logger instance
     """
-    logger = logging.getLogger(name)
-    logger.setLevel(level)
+    global _logger
 
-    # Avoid duplicate handlers if called multiple times
-    if logger.handlers:
-        return logger
+    if _logger is not None:
+        return logging.getLogger(name)
 
-    # Console handler
+    # Create root logger
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.INFO)
+
+    # Clear any existing handlers
+    root_logger.handlers.clear()
+
+    # Console handler (JSON format)
     console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(level)
     console_handler.setFormatter(JsonFormatter())
-    logger.addHandler(console_handler)
+    root_logger.addHandler(console_handler)
 
-    # File handler if specified
-    if log_file:
-        # Resolve path relative to project root
-        full_path = get_path(log_file)
-        full_path.parent.mkdir(parents=True, exist_ok=True)
+    # File handler for general pipeline logs
+    log_dir = get_path(Config.LOG_DIR, "artifacts/logs")
+    log_dir.mkdir(parents=True, exist_ok=True)
+    log_file = log_dir / f"pipeline_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
 
-        file_handler = logging.FileHandler(full_path, mode="a")
-        file_handler.setLevel(level)
-        file_handler.setFormatter(JsonFormatter())
-        logger.addHandler(file_handler)
+    file_handler = logging.FileHandler(log_file)
+    file_handler.setFormatter(JsonFormatter())
+    root_logger.addHandler(file_handler)
 
-    return logger
+    _logger = logging.getLogger(name)
+    return _logger
 
 
-def log_pipeline_step(
-    logger: logging.Logger,
-    step_name: str,
-    status: str,
-    details: Optional[Dict[str, Any]] = None,
-) -> None:
+def setup_exclusion_logger() -> logging.Handler:
     """
-    Log a structured message about a pipeline step.
+    Setup a dedicated file handler for logging sample exclusions.
+
+    This handler writes to `data/processed/exclusion_log.csv` as required
+    by FR-001, capturing sample_id, missing_modality, and timestamp.
+
+    Returns:
+        The configured FileHandler instance (to be added to a logger)
+    """
+    global _exclusion_handler
+
+    if _exclusion_handler is not None:
+        return _exclusion_handler
+
+    data_dir = get_path(Config.DATA_PROCESSED_DIR, "data/processed")
+    data_dir.mkdir(parents=True, exist_ok=True)
+    exclusion_file = data_dir / "exclusion_log.csv"
+
+    # Create CSV header if file doesn't exist
+    if not exclusion_file.exists():
+        with open(exclusion_file, 'w') as f:
+            f.write("sample_id,missing_modality,timestamp\n")
+
+    # Use a custom handler that appends to CSV
+    class CsvExclusionHandler(logging.Handler):
+        def emit(self, record: logging.LogRecord) -> None:
+            sample_id = getattr(record, 'sample_id', 'UNKNOWN')
+            missing_modality = getattr(record, 'missing_modality', 'UNKNOWN')
+            timestamp = datetime.now().isoformat()
+            line = f"{sample_id},{missing_modality},{timestamp}\n"
+            with open(exclusion_file, 'a') as f:
+                f.write(line)
+
+    _exclusion_handler = CsvExclusionHandler()
+    _exclusion_handler.setLevel(logging.INFO)
+    return _exclusion_handler
+
+
+def log_pipeline_step(step_name: str, status: str = "STARTED", details: Optional[Dict] = None) -> None:
+    """
+    Log a pipeline step event.
 
     Args:
-        logger: The logger instance.
-        step_name: Name of the pipeline step (e.g., 'preprocess', 'split').
-        status: Status of the step (e.g., 'START', 'COMPLETE', 'FAILED').
-        details: Optional dictionary of step-specific metrics or metadata.
+        step_name: Name of the pipeline step (e.g., "data_preprocessing", "model_training")
+        status: Status of the step (STARTED, COMPLETED, FAILED)
+        details: Optional dictionary of step-specific details
     """
-    extra_data = {"step": step_name, "status": status}
+    logger = get_logger()
+    extra = {"step": step_name}
     if details:
-        extra_data.update(details)
-
-    # Attach extra_data to the log record
-    record = logger.makeRecord(
-        logger.name,
-        logging.INFO if status == "COMPLETE" else (logging.ERROR if status == "FAILED" else logging.INFO),
-        "",
-        0,
-        f"Pipeline step: {step_name} [{status}]",
-        (),
-        None,
-    )
-    record.extra_data = extra_data
-    logger.handle(record)
+        for k, v in details.items():
+            extra[k] = v
+    logger.info(f"Pipeline step: {step_name} - {status}", extra=extra)
 
 
-def log_sample_exclusion(
-    logger: logging.Logger,
-    sample_id: str,
-    reason: str,
-    modality: Optional[str] = None,
-    timestamp: Optional[str] = None,
-) -> None:
+def log_sample_exclusion(sample_id: str, missing_modality: str, reason: Optional[str] = None) -> None:
     """
-    Log a structured exclusion event for a sample.
+    Log a sample exclusion event to the dedicated exclusion log.
 
     Args:
-        logger: The logger instance.
-        sample_id: The ID of the excluded sample.
-        reason: Human-readable reason for exclusion.
-        modality: The modality involved (e.g., 'SNP', 'metabolite', 'phenotype').
-        timestamp: Optional timestamp (defaults to current UTC time).
+        sample_id: The ID of the excluded sample
+        missing_modality: The modality that was missing (e.g., "SNP", "metabolite")
+        reason: Optional reason for exclusion
     """
-    if timestamp is None:
-        timestamp = datetime.utcnow().isoformat() + "Z"
+    logger = get_logger()
+    exclusion_handler = setup_exclusion_logger()
 
-    extra_data = {
+    extra = {
         "sample_id": sample_id,
-        "exclusion_reason": reason,
-        "modality": modality,
-        "timestamp": timestamp,
+        "missing_modality": missing_modality,
+        "reason": reason or "Missing modality data"
     }
 
-    record = logger.makeRecord(
-        logger.name,
-        logging.WARNING,
-        "",
-        0,
-        f"Sample excluded: {sample_id} - {reason}",
-        (),
-        None,
-    )
-    record.extra_data = extra_data
-    logger.handle(record)
+    # Log to both general logger and exclusion handler
+    logger.warning(f"Excluding sample {sample_id}: {extra['reason']}", extra=extra)
+
+    # Directly emit to CSV handler
+    exclusion_handler.emit(logging.LogRecord(
+        name="exclusion",
+        level=logging.INFO,
+        pathname="",
+        lineno=0,
+        msg="",
+        args=(),
+        exc_info=None
+    ))
 
 
-def log_config_summary(logger: logging.Logger, config: Dict[str, Any]) -> None:
+def log_metric(name: str, value: float, step: str = "") -> None:
     """
-    Log a summary of the loaded configuration (excluding secrets).
+    Log a performance metric.
 
     Args:
-        logger: The logger instance.
-        config: The configuration dictionary.
+        name: Name of the metric (e.g., "accuracy", "auc")
+        value: Numeric value of the metric
+        step: Optional step context
     """
-    # Filter out potential secrets (keys containing 'secret', 'password', 'key')
-    safe_config = {
-        k: v for k, v in config.items()
-        if not any(s in k.lower() for s in ["secret", "password", "key", "token"])
-    }
-
-    extra_data = {"config_summary": safe_config}
-    record = logger.makeRecord(
-        logger.name,
-        logging.INFO,
-        "",
-        0,
-        "Configuration loaded successfully",
-        (),
-        None,
-    )
-    record.extra_data = extra_data
-    logger.handle(record)
+    logger = get_logger()
+    extra = {"metric_name": name, "metric_value": value}
+    if step:
+        extra["step"] = step
+    logger.info(f"Metric recorded: {name} = {value}", extra=extra)

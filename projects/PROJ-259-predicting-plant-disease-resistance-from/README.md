@@ -1,134 +1,129 @@
-# Predicting Plant Disease Resistance from Multi-omics Data
+# Predict Plant Disease Resistance from Multi-omics Data
 
-A reproducible machine learning pipeline for predicting plant disease resistance using SNP and metabolite data.
+This project implements a reproducible pipeline for predicting plant disease resistance using multi-omics data (SNPs and metabolites).
 
-## Project Overview
+## Project Structure
 
-This project implements an end-to-end pipeline that:
-1. Downloads or generates multi-omics data (SNPs and metabolites)
-2. Preprocesses and aligns data across modalities
-3. Performs feature selection using LASSO and Random Forest
-4. Trains predictive models (Elastic-Net, Gradient Boosting)
-5. Validates models with permutation testing on hold-out sets
-6. Generates biomarker reports and success criteria checks
+- `code/`: Source code for the pipeline
+- `data/`: Raw and processed data
+- `artifacts/`: Trained models, reports, and figures
+- `tests/`: Unit and integration tests
+- `specs/`: Feature specifications and design documents
 
-## Quick Start
+## Prerequisites
 
-### Prerequisites
+- Docker (for containerized execution)
+- Python 3.11+ (for local development)
+- Required Python packages listed in `requirements.txt`
 
-- Python 3.11+
-- Docker (optional, for containerized execution)
-- `fastp` and `bcftools` (if running on real sequencing data)
+## Quick Start with Docker
 
-### Installation
+### Building the Docker Image
 
-1. Clone the repository:
+Build the Docker image using the provided `Dockerfile`:
+
 ```bash
-git clone <repository-url>
-cd PROJ-259-predicting-plant-disease-resistance-from
+docker build -t plant-disease-resistance:latest.
 ```
 
-2. Install dependencies:
+This image includes:
+- Python 3.11 with project dependencies
+- `fastp` for sequence preprocessing
+- `bcftools` for variant calling and manipulation
+- All project-specific Python packages
+
+### Running the Pipeline
+
+Execute the full pipeline inside the Docker container:
+
+```bash
+docker run --rm -v $(pwd):/workspace -w /workspace plant-disease-resistance:latest \
+ python code/main.py
+```
+
+**Volume Mounting**: The `-v $(pwd):/workspace` flag mounts your current directory to `/workspace` inside the container, allowing the pipeline to:
+- Read input data from `data/`
+- Write processed data, models, and reports to `data/`, `artifacts/`, and `figures/`
+
+**Working Directory**: The `-w /workspace` flag sets the working directory to the mounted volume.
+
+### Running with Synthetic Data (Simulation Mode)
+
+If no real data is available, the pipeline can generate synthetic data for testing:
+
+```bash
+docker run --rm -v $(pwd):/workspace -w /workspace plant-disease-resistance:latest \
+ python code/main.py --simulate
+```
+
+This will:
+- Generate ~150 paired samples with injected signal structure [UNRESOLVED-CLAIM: c_7bcf3025 — status=not_enough_info]
+- Run the full pipeline on synthetic data
+- Output results to `artifacts/reports/`
+
+**Note**: In Simulation Mode, data integrity and power checks are bypassed per project specifications.
+
+### Interactive Shell Access
+
+For debugging or manual exploration:
+
+```bash
+docker run --rm -it -v $(pwd):/workspace -w /workspace plant-disease-resistance:latest bash
+```
+
+## Local Development (Without Docker)
+
+### Setup Virtual Environment
+
+```bash
+python -m venv venv
+source venv/bin/activate # On Windows: venv\Scripts\activate
+```
+
+### Install Dependencies
+
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Set up directory structure:
-```bash
-python code/setup_directories.py
-```
+### Install System Dependencies
 
-### Running the Pipeline
-
-**Simulation Mode (Recommended for first run):**
-```bash
-python code/main.py --mode simulated
-```
-
-**Real Data Mode:**
-Ensure `data/data_manifest.yaml` is configured with real accession numbers, then:
-```bash
-python code/main.py
-```
-
-## Docker Usage
-
-For a consistent environment, we recommend using Docker.
-
-### Build the Image
-
-```bash
-docker build -t plant-disease-pipeline:latest.
-```
-
-This image includes Python 3.11, `fastp`, `bcftools`, and all project dependencies.
+Ensure the following system tools are installed:
+- `fastp`: `conda install -c bioconda fastp` or download from [fastp GitHub](https://github.com/OpenGene/fastp)
+- `bcftools`: `conda install -c bioconda bcftools` or download from [samtools/bcftools](https://github.com/samtools/bcftools)
 
 ### Run the Pipeline
 
 ```bash
-docker run --rm -it \
- -v $(pwd)/data:/app/data \
- -v $(pwd)/artifacts:/app/artifacts \
- -v $(pwd)/code:/app/code \
- -e PYTHONPATH=/app \
- plant-disease-pipeline:latest \
- python code/main.py
+python code/main.py
 ```
 
-**Resource Limits:**
-To enforce the project's performance constraints (RAM < 7GB):
+## Output Artifacts
+
+After a successful run, the following artifacts will be generated:
+
+- `artifacts/reports/metrics.json`: Model performance metrics
+- `artifacts/reports/selection_frequency.csv`: Feature selection frequency across thresholds
+- `artifacts/reports/top_features.csv`: Ranked list of significant biomarkers
+- `artifacts/reports/holdout_metrics.json`: Independent validation results
+- `artifacts/models/`: Trained model files
+
+## Testing
+
+Run the test suite:
+
 ```bash
-docker run --rm -it --memory="7g" --cpus="4" \
- -v $(pwd)/data:/app/data \
- -v $(pwd)/artifacts:/app/artifacts \
- -v $(pwd)/code:/app/code \
- -e PYTHONPATH=/app \
- plant-disease-pipeline:latest \
- python code/main.py
+pytest tests/ -v
 ```
-
-See `docs/Docker_usage.md` for detailed Docker instructions, troubleshooting, and advanced configurations.
-
-## Project Structure
-
-```
-.
-├── code/ # Source code
-│ ├── analysis/ # Feature selection, modeling, validation
-│ ├── data/ # Data download, generation, preprocessing
-│ ├── utils/ # Logging, exceptions, stats
-│ ├── config.py # Configuration management
-│ └── main.py # CLI entry point
-├── data/ # Data directory
-│ ├── raw/ # Raw downloaded/generated data
-│ └── processed/ # Preprocessed data
-├── artifacts/ # Outputs
-│ ├── models/ # Trained models
-│ ├── reports/ # Metrics, biomarker reports
-│ └── figures/ # Visualizations
-├── docs/ # Documentation
-├── tests/ # Test suite
-├── requirements.txt # Python dependencies
-└── Dockerfile # Container definition
-```
-
-## Key Features
-
-- **Multi-omics Integration**: Aligns SNP and metabolite data by sample ID.
-- **Robust Feature Selection**: Sensitivity sweep over thresholds with frequency aggregation.
-- **Null Model Baselines**: Compares performance against random label baselines.
-- **Permutation Testing**: Validates model significance on hold-out sets.
-- **Success Criteria Checks**: Verifies minimum biomarker counts and performance targets.
 
 ## Configuration
 
-Environment variables and default paths are managed in `code/config.py`.
-Data sources are defined in `data/data_manifest.yaml`.
+Environment variables can be set to customize paths and behavior:
+
+- `DATA_DIR`: Path to raw data directory (default: `data/raw`)
+- `OUTPUT_DIR`: Path to output directory (default: `artifacts`)
+- `SIMULATE`: Set to `true` to enable simulation mode
 
 ## License
 
-[Insert License Information]
-
-## Contributing
-
-Please refer to the `CONTRIBUTING.md` (if available) for guidelines on adding new features or fixing bugs.
+This project is licensed under the terms specified in the LICENSE file.

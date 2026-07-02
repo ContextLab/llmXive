@@ -17,64 +17,34 @@ dependencies = [
 ]
 
 [tool.black]
-# Black formatting configuration (matches .flake8 ignore settings)
 line-length = 88
 target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-    | \.eggs
-    | \.cache
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | data
+  | artifacts
 )/
 '''
 
 [tool.isort]
-# Import sorting configuration (compatible with Black)
 profile = "black"
 line_length = 88
-known_first_party = ["code"]
-known_local_folder = ["tests"]
-skip = [
-    ".git",
-    ".hg",
-    ".mypy_cache",
-    ".tox",
-    ".venv",
-    "_build",
-    "buck-out",
-    "build",
-    "dist",
-    ".eggs",
-    ".cache"
-]
+known_first_party = ["code", "tests"]
+known_third_party = ["pandas", "numpy", "sklearn", "statsmodels", "yaml", "requests"]
+skip = ["data", "artifacts", "venv", ".venv"]
 
 [tool.pytest.ini_options]
-# Pytest configuration for running tests
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
 addopts = "-v --tb=short"
-
-[tool.mypy]
-# Type checking configuration
-python_version = "3.11"
-warn_return_any = true
-warn_unused_configs = true
-disallow_untyped_defs = false
-ignore_missing_imports = true
-exclude = [
-    ".git",
-    "__pycache__",
-    "build",
-    "dist",
-    ".eggs"
-]
