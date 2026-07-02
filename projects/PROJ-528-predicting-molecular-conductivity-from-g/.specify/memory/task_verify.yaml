@@ -1,0 +1,6 @@
+? 'T009 Create `contracts/model_results_schema.yaml` defining fields: `r2`, `mae`,
+  `cv_scores`, `sensitivity_data`, `vif_scores`'
+: 2
+'T010 [P] [US1] Write unit test code (expected to fail) for aromaticity index calculation on benzene (SMILES: "c1ccccc1")': 2
+T011 [P] [US1] Write unit test code (expected to fail) for conjugation path length on butadiene vs. butane: 1
+T012 [P] [US1] Write unit test code (expected to fail) for descriptor computation on mixed hybridization molecules: 1

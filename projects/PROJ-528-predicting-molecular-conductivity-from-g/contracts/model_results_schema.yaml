@@ -1,0 +1,169 @@
+%YAML 1.2
+---
+# Schema for model results and analysis artifacts
+# Generated for PROJ-528: Predicting Molecular Conductivity from Graph-Based Features
+# Defines the structure for T033 (model_results.json), T032 (sensitivity_analysis.json),
+# and T045 (analysis_summary.json) outputs.
+
+type: object
+required:
+  - r2
+  - mae
+  - cv_scores
+  - sensitivity_data
+  - vif_scores
+
+properties:
+  r2:
+    type: object
+    description: "Coefficient of determination (R²) for trained models"
+    required:
+      - random_forest
+      - gradient_boosting
+    properties:
+      random_forest:
+        type: number
+        description: "R² score for the Random Forest model"
+      gradient_boosting:
+        type: number
+        description: "R² score for the Gradient Boosting model"
+
+  mae:
+    type: object
+    description: "Mean Absolute Error for trained models"
+    required:
+      - random_forest
+      - gradient_boosting
+    properties:
+      random_forest:
+        type: number
+        description: "MAE for the Random Forest model"
+      gradient_boosting:
+        type: number
+        description: "MAE for the Gradient Boosting model"
+
+  cv_scores:
+    type: object
+    description: "Cross-validation metrics (5-fold) for each model"
+    required:
+      - random_forest
+      - gradient_boosting
+    properties:
+      random_forest:
+        type: object
+        properties:
+          r2_mean:
+            type: number
+          r2_std:
+            type: number
+          mae_mean:
+            type: number
+          mae_std:
+            type: number
+          fold_scores:
+            type: array
+            items:
+              type: object
+              properties:
+                fold:
+                  type: integer
+                r2:
+                  type: number
+                mae:
+                  type: number
+      gradient_boosting:
+        type: object
+        properties:
+          r2_mean:
+            type: number
+          r2_std:
+            type: number
+          mae_mean:
+            type: number
+          mae_std:
+            type: number
+          fold_scores:
+            type: array
+            items:
+              type: object
+              properties:
+                fold:
+                  type: integer
+                r2:
+                  type: number
+                mae:
+                  type: number
+
+  sensitivity_data:
+    type: array
+    description: "Results from outlier sensitivity analysis (T032)"
+    items:
+      type: object
+      required:
+        - threshold
+        - r2
+        - kruskal_stat
+        - kruskal_pval
+      properties:
+        threshold:
+          type: number
+          description: "Sigma threshold used for outlier exclusion (e.g., 3.0, 3.5)"
+        r2:
+          type: number
+          description: "R² score achieved with this threshold"
+        kruskal_stat:
+          type: number
+          description: "Kruskal-Wallis H statistic comparing variances"
+        kruskal_pval:
+          type: number
+          description: "P-value from the Kruskal-Wallis test"
+
+  vif_scores:
+    type: object
+    description: "Variance Inflation Factor analysis results (T037-T042)"
+    required:
+      - initial_vif
+      - final_vif
+      - excluded_features
+    properties:
+      initial_vif:
+        type: array
+        description: "VIF scores before filtering"
+        items:
+          type: object
+          properties:
+            feature:
+              type: string
+            vif:
+              type: number
+      final_vif:
+        type: array
+        description: "VIF scores after iterative filtering (all <= 10)"
+        items:
+          type: object
+          properties:
+            feature:
+              type: string
+            vif:
+              type: number
+      excluded_features:
+        type: array
+        description: "List of feature names excluded due to high VIF (> 10)"
+        items:
+          type: string
+      feature_importance:
+        type: array
+        description: "Final feature importance rankings"
+        items:
+          type: object
+          properties:
+            feature:
+              type: string
+            importance:
+              type: number
+            correlation:
+              type: number
+            p_value:
+              type: number
+            adjusted_p_value:
+              type: number

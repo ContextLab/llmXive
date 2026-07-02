@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "predicting-molecular-conductivity"
+version = "0.1.0"
+description = "Predicting molecular conductivity from graph-based features"
+requires-python = ">=3.11"
+dependencies = [
+    "rdkit",
+    "scikit-learn",
+    "pandas",
+    "numpy",
+    "matplotlib",
+    "seaborn",
+    "pyyaml",
+    "pytest"
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+
+[tool.ruff]
+select = ['E', 'F', 'W']
+ignore = ['E501']
