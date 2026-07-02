@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "HEA Descriptor Dataset Schema"
+description: "Schema for the processed HEA dataset with calculated descriptors"
+type: object
+properties:
+  alloy_id:
+    type: string
+    description: "Unique identifier for the alloy"
+  delta:
+    type: number
+    description: "Atomic size mismatch (δ)"
+  delta_chi:
+    type: number
+    description: "Electronegativity variance (Δχ)"
+  vec:
+    type: number
+    description: "Valence electron concentration (VEC)"
+  mixing_entropy:
+    type: number
+    description: "Configurational mixing entropy (R)"
+  melting_var:
+    type: number
+    description: "Melting temperature variance"
+  yield_strength:
+    type: number
+    description: "Yield strength in MPa"
+  is_single_phase:
+    type: boolean
+    description: "Filter flag for single-phase alloys"
+  is_room_temp:
+    type: boolean
+    description: "Filter flag for room temperature (20-25°C)"
+required:
+  - alloy_id
+  - delta
+  - delta_chi
+  - vec
+  - mixing_entropy
+  - melting_var
+  - yield_strength
+  - is_single_phase
+  - is_room_temp
+additionalProperties: false
