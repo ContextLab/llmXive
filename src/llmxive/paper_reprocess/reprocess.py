@@ -134,6 +134,21 @@ def finalize_reviewed_preprint(
     except Exception as exc:  # review is advisory; never sink intake
         logger.warning("finalize_reviewed_preprint: review failed for %s: %s", project.id, exc)
 
+    # Build the themed PDFs (llmXive-cover original + review report) NOW, so a
+    # freshly reviewed preprint reaches the dashboard WITH its cover and review
+    # PDFs instead of a "cover being generated" placeholder. Best-effort: needs a
+    # TeX toolchain (the reprocess workflow installs TeX Live); when lualatex is
+    # unavailable the Paper Compile sweep (build_missing_preprint_pdfs.py) fills
+    # it in on a later tick, so a build failure must never sink the intake.
+    try:
+        from llmxive.paper_reprocess.preprint_pdf import build_preprint_pdfs
+
+        build_preprint_pdfs(marked, repo_root=repo)
+    except Exception as exc:  # PDF build is best-effort; never sink intake
+        logger.warning(
+            "finalize_reviewed_preprint: PDF build failed for %s: %s", project.id, exc
+        )
+
     followup_id: str | None = None
     if spawn_followup:
         try:

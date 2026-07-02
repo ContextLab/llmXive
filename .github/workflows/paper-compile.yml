@@ -72,10 +72,12 @@ jobs:
             python3 scripts/compile_paper.py --all --max "$MAX"
           fi
       - name: Build missing Reviewed-Preprint PDFs
-        # The reprocess drain runner has no TeX Live, so preprints arrive with
-        # reviews but no themed PDFs; this sweep (which has TeX Live) fills in
-        # missing/stale original-llmxive.pdf + peer-review-llmxive.pdf.
-        run: python3 scripts/build_missing_preprint_pdfs.py --max 10
+        # Safety net: finalize_reviewed_preprint now builds these PDFs inline
+        # (reprocess.yml installs TeX Live), but this sweep still backfills any
+        # that slipped through (e.g. a build that failed mid-drain, or preprints
+        # created before the inline build landed). --max 30 keeps it ahead of the
+        # drain rate so no PDF-less backlog accumulates in the dashboard tab.
+        run: python3 scripts/build_missing_preprint_pdfs.py --max 30
 
       - name: Commit + push
         id: commit

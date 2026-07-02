@@ -58,6 +58,12 @@ jobs:
       # figure reviewer renders each figure PDF to PNG; without poppler the
       # figure lens silently skips in CI (reviews lose the figure critique).
       - run: sudo apt-get update -qq && sudo apt-get install -y -qq poppler-utils
+      # TeX Live: finalize_reviewed_preprint builds the llmXive-cover original +
+      # review-report PDFs INLINE (lualatex + llmxive.cls) so a drained preprint
+      # reaches the dashboard WITH its cover, not a "generating" placeholder.
+      # Without this the Paper Compile sweep (--max/tick) can't keep pace with the
+      # drain rate and a backlog of PDF-less preprints accumulates in the tab.
+      - run: bash scripts/ci/install-texlive.sh
       # GPU-offload lane (#367): pin the working Kaggle combo — a bare
       # `pip install kaggle` pulls kagglesdk 0.1.32 whose wheel drops
       # `competitions.legacy`, breaking `import kaggle` (offload then no-ops).
