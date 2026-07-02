@@ -33,7 +33,7 @@ As a researcher, I need to compute the spherical harmonic coefficients (a_lm) an
 
 **Acceptance Scenarios**:
 
-1. **Given** the downgraded and masked CMB map is loaded, **When** healpy's `map2alm` function is called, **Then** the a_lm coefficients are computed for multipoles l ∈ [2, 128] with no NaN/inf values
+1. **Given** the downgraded and masked CMB map is loaded, **When** healpy's `map2alm` function is called, **Then** the a_lm coefficients are computed for multipoles l ∈ [low, 128] with no NaN/inf values
 2. **Given** the a_lm coefficients are computed, **When** the angular power spectrum C_l is calculated, **Then** the output array has length 127 (one value per multipole l=2 to l=128) and all values are positive real numbers
 3. **Given** the full-sky C_l is computed, **When** hemispherical splits (North/South and East/West) are analyzed, **Then** each hemisphere produces an independent C_l estimate with ≥ 95% sky coverage after masking
 
@@ -121,7 +121,7 @@ As a researcher, I need to document all code, parameters, and perform sensitivit
 - The Commander Galactic mask adequately excludes foreground-contaminated regions, with ≥ 95% of the sky remaining unmasked after application
 - The dataset-variable fit is valid: the Planck 2018 SMICA map contains the temperature measurements required to compute hemispherical variance statistics (no missing variables)
 - The analysis is observational (no random assignment); therefore, findings must be framed as ASSOCIATIONAL, not causal, per the inference framing requirement
-- The Nside=128 downgrade preserves sufficient angular resolution (≈ 57 arcminutes) to test large-scale isotropy at low multipoles (l ≤ 128)
+- The Nside=128 downgrade preserves sufficient angular resolution (≈ arcminutes) to test large-scale isotropy at low multipoles (l ≤ 128)
 - A sufficient number of Monte Carlo simulations provide adequate statistical power for p-value estimation.; if power limitations arise, this will be documented as a constraint
 - The spherical harmonic transform using healpy on CPU with default precision is numerically stable for l ≤ 128
 - The 2.5σ–3.5σ threshold sweep is justified by the look-elsewhere effect and the need to validate robustness against the chosen significance threshold; sensitivity analysis will be documented in the final report

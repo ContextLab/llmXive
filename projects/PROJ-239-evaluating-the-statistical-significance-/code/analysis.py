@@ -125,6 +125,8 @@ def select_ci_method(error_rate: float, n: int) -> str:
 
     This function always returns 'clopper_pearson' for this project to ensure
     statistical rigor and consistency with the Single Source of Truth principle.
+    It serves as a centralized selector to guarantee that no other CI method
+    (e.g., Wald, Wilson) is inadvertently used in the analysis pipeline.
 
     Parameters
     ----------
@@ -138,4 +140,6 @@ def select_ci_method(error_rate: float, n: int) -> str:
     str
         The string 'clopper_pearson'.
     """
+    # Per project constitution, we strictly enforce the Clopper-Pearson method
+    # regardless of sample size or observed error rate to avoid approximation errors.
     return 'clopper_pearson'

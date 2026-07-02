@@ -1,0 +1,77 @@
+resolved_at: '2026-07-02T10:10:44.033239+00:00'
+datasets:
+- intent: ANOVA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/P2SAMAPA/p2-etf-functional-anova-results/resolve/main/functional_anova_2026-05-19.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 16586
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/P2SAMAPA/p2-etf-functional-anova-results/resolve/main/functional_anova_2026-05-19.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://figshare.com/articles/book/Book_Chapter_Electrical_and_Electronic_Engineering_Prospects_and_Challenges/32876351
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/_b_PENGANTAR_ETIKA_BISNIS_b_/32876429
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://manara.qnl.qa/articles/report/_p_dir_rtl_b___b____p_p_p_/32853035
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://manara.qnl.qa/articles/report/_b_Positions_of_Power_b_Gulf_Islands_and_the_Logic_of_Influence_at_Hormuz/32852234
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_The_compounding_burden_of_disability_in_Mexico_social_protection_gaps_chronic_disease_excess_and_prospective_mortality_from_national_open_data_sources_pdf/32876537
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1255322
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15804920
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10437571
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10011805
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14242875
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://epub.uni-regensburg.de/79744/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/7j2hb/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/y2vem/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21128689
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21128689
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

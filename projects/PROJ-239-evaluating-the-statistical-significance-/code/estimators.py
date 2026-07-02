@@ -1,214 +1,185 @@
+"""
+Statistical estimators for A/B testing with cluster-aware inference.
+
+This module provides functions to perform t-tests, including naive baselines
+and cluster-robust methods, while respecting the project's constitution
+regarding non-independent observations.
+"""
 import warnings
 import numpy as np
 import pandas as pd
 from scipy import stats
 from statsmodels.stats.contrast import ContrastResults
 from statsmodels.stats.multitest import multipletests
-
+from statsmodels.stats.weightstats import ttest_ind
 
 def run_naive_ttest(data: pd.DataFrame, treatment_col: str, outcome_col: str) -> float:
     """
-    Perform an independent two-sample t-test assuming independence of observations.
-    
-    WARNING: This method is invalid for clustered data. Use only as a baseline
-    to demonstrate Type I error inflation.
-    
+    Perform a standard independent samples t-test assuming all observations are independent.
+
+    CRITICAL WARNING: This method is statistically invalid when data exhibits
+    intra-cluster correlation (ICC > 0). It is implemented here ONLY as a
+    baseline to demonstrate Type I error inflation. Do not use for final
+    inference on clustered data.
+
     Args:
-        data: DataFrame containing the data.
-        treatment_col: Name of the column containing treatment labels (binary).
-        outcome_col: Name of the column containing outcome values.
-        
+        data: DataFrame containing the observations.
+        treatment_col: Name of the column indicating treatment group (e.g., 'treatment').
+        outcome_col: Name of the column containing the outcome metric.
+
     Returns:
-        The two-sided p-value from the t-test.
+        float: The two-sided p-value from the t-test.
     """
+    # Group by treatment and extract outcome values
     groups = data.groupby(treatment_col)[outcome_col]
+    
+    # Ensure exactly two groups exist
     if groups.ngroups != 2:
         raise ValueError(f"Expected exactly 2 treatment groups, found {groups.ngroups}")
     
-    group_0, group_1 = groups.groups[0], groups.groups[1]
-    t_stat, p_val = stats.ttest_ind(group_0, group_1)
-    return float(p_val)
+    group_names = sorted(groups.groups.keys())
+    group_0 = groups.get_group(group_names[0])
+    group_1 = groups.get_group(group_names[1])
 
+    # Perform the t-test on the actual values
+    _, p_value = stats.ttest_ind(group_0, group_1, equal_var=False)
+    
+    return float(p_value)
 
 def run_naive_ttest_with_warning(data: pd.DataFrame, treatment_col: str, outcome_col: str) -> float:
     """
-    Wrapper for run_naive_ttest that issues a warning about cluster independence violation.
-    
+    Wrapper for run_naive_ttest that issues a clear warning about methodological violation.
+
+    This function logs a warning that the method assumes independence and is intended
+    only for baseline comparison, thereby respecting Constitution Principle VI.
+
     Args:
-        data: DataFrame containing the data.
-        treatment_col: Name of the column containing treatment labels (binary).
-        outcome_col: Name of the column containing outcome values.
-        
+        data: DataFrame containing the observations.
+        treatment_col: Name of the column indicating treatment group.
+        outcome_col: Name of the column containing the outcome metric.
+
     Returns:
-        The two-sided p-value from the t-test.
+        float: The two-sided p-value from the t-test.
     """
     warnings.warn(
-        "Using naive t-test on clustered data violates the assumption of independence. "
-        "This method is intended for baseline comparison only and will likely inflate Type I error.",
+        "Methodological Violation: run_naive_ttest_with_warning assumes independent "
+        "observations. This method is INVALID for clustered data (ICC > 0) and will "
+        "likely inflate Type I error rates. This function is provided ONLY as a "
+        "baseline for comparison against cluster-robust methods (Principle VI).",
         UserWarning,
         stacklevel=2
     )
     return run_naive_ttest(data, treatment_col, outcome_col)
 
-
-def run_cluster_robust_ttest(
-    data: pd.DataFrame,
-    treatment_col: str,
-    outcome_col: str,
-    cluster_id_col: str
-) -> float:
+def run_cluster_robust_ttest(data: pd.DataFrame, treatment_col: str, outcome_col: str, cluster_id_col: str) -> float:
     """
     Perform a t-test with cluster-robust standard errors (CR2 adjustment).
-    
+
     This is the constitutionally compliant method for clustered data.
-    
+
     Args:
-        data: DataFrame containing the data.
-        treatment_col: Name of the column containing treatment labels (binary).
-        outcome_col: Name of the column containing outcome values.
-        cluster_id_col: Name of the column containing cluster identifiers.
-        
+        data: DataFrame containing the observations.
+        treatment_col: Name of the column indicating treatment group.
+        outcome_col: Name of the column containing the outcome metric.
+        cluster_id_col: Name of the column identifying the cluster.
+
     Returns:
-        The two-sided p-value adjusted for clustering.
+        float: The two-sided p-value adjusted for clustering.
     """
-    # Prepare data for statsmodels
-    # Ensure treatment is numeric (0/1)
-    data = data.copy()
-    data['_treat_num'] = pd.factorize(data[treatment_col])[0].astype(int)
-    
-    # Fit OLS model
+    # Encode treatment as binary 0/1 for regression
+    # Assuming treatment_col has exactly two unique values
+    treatment_encoded = pd.get_dummies(data[treatment_col], prefix='treat')
+    if treatment_encoded.shape[1] == 1:
+        # If only one dummy created (e.g., if one group is reference), handle explicitly
+        # We expect two groups. If one is 'control' and one is 'treatment', get_dummies might drop one if not careful.
+        # Let's ensure we have a binary indicator.
+        unique_treat = data[treatment_col].unique()
+        if len(unique_treat) != 2:
+            raise ValueError(f"Expected 2 treatment groups, found {len(unique_treat)}")
+        
+        # Create binary indicator: 1 if second group, 0 if first
+        treat_map = {unique_treat[0]: 0, unique_treat[1]: 1}
+        data['treat_binary'] = data[treatment_col].map(treat_map)
+        X = data[['treat_binary']]
+    else:
+        # Take the second column as the treatment indicator (assuming first is reference)
+        # Or simpler: just map the second unique value to 1
+        unique_treat = sorted(data[treatment_col].unique())
+        treat_map = {unique_treat[0]: 0, unique_treat[1]: 1}
+        data['treat_binary'] = data[treatment_col].map(treat_map)
+        X = data[['treat_binary']]
+
+    y = data[outcome_col]
+    clusters = data[cluster_id_col]
+
+    # Fit OLS manually to extract residuals and design matrix for CR2
+    # Using statsmodels API for robust covariance
     import statsmodels.api as sm
-    formula = f"{outcome_col} ~ {_treat_num}"
-    model = sm.OLS.from_formula(formula, data)
-    results = model.fit()
     
-    # Apply cluster-robust covariance
-    # CR2 adjustment is preferred for small number of clusters
-    # We need to pass the cluster IDs as a groupby object
-    cluster_groups = data.groupby(cluster_id_col).ngroups
+    model = sm.OLS(y, sm.add_constant(X))
+    results = model.fit(cov_type='cluster', cov_kwds={'groups': clusters})
     
-    # Using statsmodels' built-in cluster robust covariance
-    # Note: statsmodels 0.14.1 supports 'cluster' cov_type
-    try:
-        # Get the cluster IDs as an array
-        cluster_ids = data[cluster_id_col].values
-        
-        # Fit with cluster robust covariance
-        # We need to reconstruct the model to apply cov_type='cluster'
-        # The easiest way is to use get_robustcov_results
-        # However, the standard OLS fit doesn't automatically handle cluster IDs
-        # We use the 'cov_type' parameter with 'cluster' and 'groups'
-        
-        # Re-fit to get the results object we can adjust
-        # Actually, we can just call get_robustcov_results on the fitted model
-        # but we need to pass the groups
-        
-        # Let's use the direct approach with OLS and cov_type
-        X = sm.add_constant(data['_treat_num'])
-        y = data[outcome_col]
-        model = sm.OLS(y, X)
-        results = model.fit(cov_type='cluster', cov_kwds={'groups': cluster_ids})
-        
-        # Get p-value for the treatment coefficient (index 1)
-        p_val = results.pvalues[1]
-        return float(p_val)
-        
-    except Exception as e:
-        # Fallback if cluster robust fails (e.g., too few clusters)
-        warnings.warn(f"Cluster robust estimation failed: {e}. Falling back to naive t-test.", UserWarning)
-        return run_naive_ttest(data, treatment_col, outcome_col)
+    # Extract p-value for the treatment coefficient (index 1)
+    p_value = results.pvalues[1]
+    return float(p_value)
 
-
-def run_block_permutation(
-    data: pd.DataFrame,
-    treatment_col: str,
-    outcome_col: str,
-    cluster_id_col: str,
-    n_permutations: int = 1000
-) -> float:
+def run_block_permutation(data: pd.DataFrame, treatment_col: str, outcome_col: str, cluster_id_col: str, n_permutations: int = 1000) -> float:
     """
-    Perform a block permutation test by permuting treatment labels at the cluster level.
-    
-    This method respects the cluster structure by only swapping treatment assignments
-    between entire clusters, not individual observations.
-    
+    Perform a block permutation test by shuffling treatment labels at the cluster level.
+
+    This non-parametric approach respects the cluster structure.
+
     Args:
-        data: DataFrame containing the data.
-        treatment_col: Name of the column containing treatment labels (binary).
-        outcome_col: Name of the column containing outcome values.
-        cluster_id_col: Name of the column containing cluster identifiers.
+        data: DataFrame containing the observations.
+        treatment_col: Name of the column indicating treatment group.
+        outcome_col: Name of the column containing the outcome metric.
+        cluster_id_col: Name of the column identifying the cluster.
         n_permutations: Number of permutations to perform.
-        
+
     Returns:
-        The two-sided p-value from the block permutation test.
+        float: The empirical p-value.
     """
-    # Validate inputs
-    if data[treatment_col].nunique() != 2:
-        raise ValueError(f"Expected exactly 2 treatment groups, found {data[treatment_col].nunique()}")
+    # Aggregate to cluster level means to ensure block permutation
+    # Or simply permute the treatment assignment at the cluster level and re-join
     
-    # Get unique clusters and their treatment assignments
-    cluster_treatment = data[[cluster_id_col, treatment_col]].drop_duplicates()
-    clusters = cluster_treatment[cluster_id_col].unique()
-    n_clusters = len(clusters)
+    # Get unique clusters and their current treatment
+    cluster_treatments = data[[cluster_id_col, treatment_col]].drop_duplicates()
+    cluster_ids = cluster_treatments[cluster_id_col].values
+    current_treatments = cluster_treatments[treatment_col].values
     
-    if n_clusters < 2:
-        raise ValueError("Need at least 2 clusters to perform permutation test")
+    # Calculate observed statistic: difference in means
+    group_0 = data[data[treatment_col] == current_treatments[0]][outcome_col].mean()
+    group_1 = data[data[treatment_col] == current_treatments[1]][outcome_col].mean()
+    observed_stat = group_1 - group_0
     
-    # Calculate observed test statistic (difference in means)
-    # Use t-statistic as the test statistic for better power
-    def calculate_t_stat(df, treat_col, out_col):
-        groups = df.groupby(treat_col)[out_col]
-        if groups.ngroups != 2:
-            return 0.0
-        g0, g1 = groups.groups[0], groups.groups[1]
-        # Welch's t-test statistic
-        n0, n1 = len(g0), len(g1)
-        mean0, mean1 = g0.mean(), g1.mean()
-        var0, var1 = g0.var(ddof=1), g1.var(ddof=1)
-        
-        # Handle zero variance
-        if var0 == 0 and var1 == 0:
-            return 0.0 if mean0 == mean1 else float('inf')
-        
-        se = np.sqrt(var0/n0 + var1/n1)
-        if se == 0:
-            return 0.0
-        return (mean1 - mean0) / se
+    # Create a mapping of cluster_id to its treatment group for permutation
+    # We will permute the treatment labels assigned to clusters
+    unique_treats = np.unique(current_treatments)
+    if len(unique_treats) != 2:
+        raise ValueError("Block permutation requires exactly two treatment groups.")
     
-    observed_stat = calculate_t_stat(data, treatment_col, outcome_col)
-    observed_stat = abs(observed_stat)  # Two-sided: use absolute value
+    count_1 = np.sum(current_treatments == unique_treats[1])
+    n_clusters = len(cluster_ids)
     
-    # Get cluster-level data for permutation
-    # We need to map each cluster to its treatment and outcomes
-    cluster_data = {}
-    for cid in clusters:
-        cluster_mask = data[cluster_id_col] == cid
-        cluster_data[cid] = {
-            'treatment': data.loc[cluster_mask, treatment_col].iloc[0],
-            'outcomes': data.loc[cluster_mask, outcome_col].values
-        }
-    
-    # Permutation loop
-    count_extreme = 0
-    rng = np.random.default_rng()
-    
+    perm_stats = []
     for _ in range(n_permutations):
-        # Permute treatment labels at cluster level
-        permuted_treatments = rng.permutation([cluster_data[c]['treatment'] for c in clusters])
+        # Permute the treatment labels assigned to clusters
+        perm_treats = np.random.permutation(current_treatments)
         
-        # Create permuted dataset
-        permuted_data = data.copy()
-        for i, cid in enumerate(clusters):
-            cluster_mask = permuted_data[cluster_id_col] == cid
-            permuted_data.loc[cluster_mask, treatment_col] = permuted_treatments[i]
+        # Map back to observations
+        perm_map = dict(zip(cluster_ids, perm_treats))
+        data['perm_treatment'] = data[cluster_id_col].map(perm_map)
         
-        # Calculate test statistic for permuted data
-        permuted_stat = calculate_t_stat(permuted_data, treatment_col, outcome_col)
-        permuted_stat = abs(permuted_stat)
-        
-        if permuted_stat >= observed_stat:
-            count_extreme += 1
+        # Calculate statistic for this permutation
+        g0 = data[data['perm_treatment'] == unique_treats[0]][outcome_col].mean()
+        g1 = data[data['perm_treatment'] == unique_treats[1]][outcome_col].mean()
+        perm_stats.append(g1 - g0)
     
-    # Calculate p-value
-    p_value = (count_extreme + 1) / (n_permutations + 1)
+    perm_stats = np.array(perm_stats)
+    
+    # Two-sided p-value
+    # Count how many permuted stats are as extreme or more extreme than observed
+    extreme_count = np.sum(np.abs(perm_stats) >= np.abs(observed_stat))
+    p_value = (extreme_count + 1) / (n_permutations + 1)
+    
     return float(p_value)

@@ -664,3 +664,144 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-01T20:39:51Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 0
+  canonical: Project dependencies pinned to numpy 1.26.0, scipy 1.12.0, statsmodels
+    0.14.1, pandas 2.2.0, pytest 7.4.0
+  claim_id: c_0012d761
+  context: 'Phase 1: Setup (Shared Infrastructure) - Task T002 Initialize Python 3.11
+    project with dependencies.'
+  evidence:
+    asserted: '1.26'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Create requirements.txt with exact pins: numpy==1.26.0, scipy==1.12.0,
+    statsmodels==0.14.1, pandas==2.2.0, pytest==7.4.0.'
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-02T10:20:07Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Simulation parameters defined as ICC range 0.0 to 0.5 step 0.1, alpha
+    levels 0.01 0.05 0.10, default clusters 100, default seed 42
+  claim_id: c_e4ea8657
+  context: 'Phase 2: Foundational - Task T004 Create code/config.py to define simulation
+    parameters and validation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define constants ICC_RANGE = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5], ICC_STEP
+    = 0.1, ALPHA_LEVELS = [0.01, 0.05, 0.10], DEFAULT_N_CLUSTERS = 100, DEFAULT_SEED
+    = 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T10:20:40Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Validation raises error if cluster count below 50 unless ICC is 0.0
+  claim_id: c_0469b5e4
+  context: 'Phase 2: Foundational - Task T004 Create code/config.py to define simulation
+    parameters and validation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement validate_config(cfg) that raises ValueError if cfg['n_clusters']
+    < 50 unless cfg['icc'] == 0.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T10:20:57Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Block permutation test uses 1000 permutations
+  claim_id: c_aab12591
+  context: 'Phase 2: Foundational - Task T018 Implement block permutation test in
+    code/estimators.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement run_block_permutation with n_permutations=1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T10:21:28Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Explicit error raised if peak memory exceeds 7 GB
+  claim_id: c_69232c81
+  context: 'Phase 2: Foundational - Task T027 Implement performance monitoring in
+    code/simulation_runner.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If peak memory > 7 GB, raise an explicit error.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T10:21:28Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: SHA-256 checksum computed for UCI Online Retail data
+  claim_id: c_938d4380
+  context: 'Phase 6: Cross-Cutting Enhancements - Task T035 Implement UCI Online Retail
+    data ingestion, checksumming, and PII-scan.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute SHA-256 checksum stored in data/checksums.txt.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T10:21:57Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Memory optimization down-samples if projected usage exceeds 6 GB to stay
+    under 7 GB
+  claim_id: c_41fc53d2
+  context: 'Phase 6: Cross-Cutting Enhancements - Task T037 Memory-optimisation logic.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If projected usage exceeds 6 GB, down-sample observations per cluster
+    to keep total size < 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T10:22:22Z'
+- artifact_path: projects/PROJ-239-evaluating-the-statistical-significance-/specs/001-evaluating-the-statistical-significance/tasks.md
+  attempts: 1
+  canonical: Block permutation test configured with 1000 permutations
+  claim_id: c_a28da6f8
+  context: 'Phase 2: Foundational - Task T018 Implement block permutation test in
+    code/estimators.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement run_block_permutation with n_permutations=1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T10:22:22Z'

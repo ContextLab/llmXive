@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-03T14:26:11.681009Z'
-current_stage: clarified
+current_stage: planned
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-205-the-influence-of-visual-aesthetics-on-pe
-last_run_id: 19937d88-8ce3-4587-b6ce-89d2f703e922
+last_run_id: 002626d3-a4c2-415b-8fae-94a094a39880
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-205-the-influence-of-visual-aesthetics-on-pe/specs/001-the-influence-of-visual-aesthetics-on-pe
 title: The Influence of Visual Aesthetics on Perceived Credibility of Online Information
-updated_at: '2026-06-30T10:22:11.387704Z'
+updated_at: '2026-07-02T10:17:08.941764Z'

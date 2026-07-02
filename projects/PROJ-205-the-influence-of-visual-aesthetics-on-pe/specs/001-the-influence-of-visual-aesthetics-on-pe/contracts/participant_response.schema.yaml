@@ -1,0 +1,115 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Participant Response Schema"
+description: "Schema for the raw survey output CSV (converted to JSON for validation)"
+type: "object"
+properties:
+  participant_id:
+    type: "string"
+    description: "Unique anonymized participant ID"
+    pattern: "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
+  consent_given:
+    type: "boolean"
+    description: "Must be true for valid data"
+  timestamp_start:
+    type: "string"
+    format: "date-time"
+    description: "Survey start time (ISO8601)"
+  timestamp_end:
+    type: "string"
+    format: "date-time"
+    description: "Survey end time (ISO8601)"
+  order_sequence:
+    type: "integer"
+    description: "Latin Square sequence ID"
+    minimum: 1
+    maximum: 4
+  stimulus_1:
+    type: "string"
+    enum: ["Professional", "Minimalist", "Low-Quality", "Neutral"]
+  credibility_1:
+    type: "integer"
+    description: "Credibility rating 1-7"
+    minimum: 1
+    maximum: 7
+  professionalism_1:
+    type: "integer"
+    description: "Professionalism rating 1-7"
+    minimum: 1
+    maximum: 7
+  stimulus_2:
+    type: "string"
+    enum: ["Professional", "Minimalist", "Low-Quality", "Neutral"]
+  credibility_2:
+    type: "integer"
+    minimum: 1
+    maximum: 7
+  professionalism_2:
+    type: "integer"
+    minimum: 1
+    maximum: 7
+  stimulus_3:
+    type: "string"
+    enum: ["Professional", "Minimalist", "Low-Quality", "Neutral"]
+  credibility_3:
+    type: "integer"
+    minimum: 1
+    maximum: 7
+  professionalism_3:
+    type: "integer"
+    minimum: 1
+    maximum: 7
+  stimulus_4:
+    type: "string"
+    enum: ["Professional", "Minimalist", "Low-Quality", "Neutral"]
+  credibility_4:
+    type: "integer"
+    minimum: 1
+    maximum: 7
+  professionalism_4:
+    type: "integer"
+    minimum: 1
+    maximum: 7
+  age:
+    type: "integer"
+    description: "Participant age in years"
+    minimum: 18
+    maximum: 100
+  education:
+    type: "string"
+    enum: ["High School", "Bachelor's", "Master's", "PhD"]
+    description: "Highest level of education"
+  ip_hash:
+    type: "string"
+    description: "SHA-256 hash of IP address for deduplication"
+    pattern: "^[a-f0-9]{64}$"
+  device_info:
+    type: "string"
+    description: "User Agent string"
+  text_version:
+    type: "string"
+    description: "SHA-256 hash of the text content file to verify constancy"
+    pattern: "^[a-f0-9]{64}$"
+required:
+  - participant_id
+  - consent_given
+  - timestamp_start
+  - timestamp_end
+  - order_sequence
+  - stimulus_1
+  - credibility_1
+  - professionalism_1
+  - stimulus_2
+  - credibility_2
+  - professionalism_2
+  - stimulus_3
+  - credibility_3
+  - professionalism_3
+  - stimulus_4
+  - credibility_4
+  - professionalism_4
+  - age
+  - education
+  - ip_hash
+  - device_info
+  - text_version
+additionalProperties: false

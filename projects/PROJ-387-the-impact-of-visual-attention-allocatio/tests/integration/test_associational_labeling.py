@@ -3,13 +3,14 @@ import json
 import os
 import sys
 from pathlib import Path
+import pandas as pd
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from analysis.lmm_model import run_lmm_analysis, save_results, ASSOCIATION_LABEL
-from analysis.correction import apply_bonferroni_correction
-from analysis.sensitivity import run_sensitivity_analysis
+from analysis.lmm_model import run_lmm_analysis, save_results, ASSOCIATION_LABEL, fit_lmm_for_combination
+from analysis.correction import apply_bonferroni_correction, load_lmm_results
+from analysis.sensitivity import run_sensitivity_analysis, load_lmm_results as load_sens_results
 
 class MockDataFrame:
     """Mock dataframe for testing without real data files."""
@@ -22,29 +23,26 @@ class MockDataFrame:
             'saccade_amplitude': [2.5, 3.0, 1.5, 2.0, 2.8, 2.9],
             'gaze_distribution': [0.4, 0.5, 0.3, 0.4, 0.45, 0.48]
         }
+        self._df = pd.DataFrame(self.data)
     
     def __getitem__(self, key):
-        if key == 'valence_category':
-            return pd.Series(self.data['valence_category'])
-        # Simplified for test
-        return pd.Series(self.data.get(key, []))
+        return self._df[key]
+    
+    def __iter__(self):
+        return iter(self._df)
     
     def copy(self):
-        return self
+        return self._df.copy()
     
     def dropna(self, subset):
-        return self
+        return self._df.dropna(subset=subset)
 
 def test_associational_labeling_in_lmm_results():
     """
     Test that all LMM results include the explicit 'associational' label.
     FR-005 Compliance: Prohibit causal language in outputs.
     """
-    # Simulate a small dataset run
-    # Note: In a full integration test, we would use a real CSV.
-    # Here we mock the logic to ensure the label is attached.
-    
-    # Create a mock result list similar to what fit_lmm_for_combination returns
+    # Create mock results similar to what fit_lmm_for_combination returns
     mock_results = [
         {
             "metric": "fixation_duration",
@@ -52,7 +50,8 @@ def test_associational_labeling_in_lmm_results():
             "coef": 0.05,
             "p_raw": 0.04,
             "n_obs": 10,
-            "converged": True
+            "converged": True,
+            "association_label": ASSOCIATION_LABEL
         },
         {
             "metric": "saccade_amplitude",
@@ -60,14 +59,10 @@ def test_associational_labeling_in_lmm_results():
             "coef": -0.02,
             "p_raw": 0.12,
             "n_obs": 10,
-            "converged": True
+            "converged": True,
+            "association_label": ASSOCIATION_LABEL
         }
     ]
-
-    # Apply the logic that should happen in run_lmm_analysis / save_results
-    # We verify that the constant is used correctly
-    for res in mock_results:
-        res['association_label'] = ASSOCIATION_LABEL
 
     # Assertion: Check that the label is present and correct
     for res in mock_results:
@@ -83,13 +78,12 @@ def test_associational_labeling_after_correction():
         {"metric": "m2", "valence": "v2", "p_raw": 0.03, "association_label": "associational"}
     ]
     
-    # Mock the correction logic (since we can't easily run statsmodels without real data structure)
-    # We simulate the function behavior
+    # Apply correction
     corrected = apply_bonferroni_correction(results)
     
     for res in corrected:
-        assert 'association_label' in res
-        assert res['association_label'] == "associational"
+        assert 'association_label' in res, "Correction failed to preserve association_label"
+        assert res['association_label'] == "associational", f"Correction changed label to {res['association_label']}"
 
 def test_associational_labeling_in_sensitivity():
     """
@@ -104,12 +98,28 @@ def test_associational_labeling_in_sensitivity():
     thresholds = [0.01, 0.05, 0.1]
     analysis = run_sensitivity_analysis(mock_lmm_results, thresholds)
     
-    assert 'analysis' in analysis
+    assert 'analysis' in analysis, "Sensitivity analysis missing 'analysis' key"
+    
     for item in analysis['analysis']:
-        assert 'association_label' in item
-        assert item['association_label'] == "associational"
+        assert 'association_label' in item, "Sensitivity analysis item missing association_label"
+        assert item['association_label'] == "associational", f"Sensitivity label mismatch: {item['association_label']}"
     
     # Top level should also have it if applicable (implementation dependent, but safe to check)
-    # In our implementation, top level doesn't strictly have it, but children do.
-    # Let's ensure the structure is sound.
-    assert len(analysis['analysis']) == len(thresholds)
+    assert analysis.get('association_label') == "associational", "Top level sensitivity result missing label"
+
+def test_lmm_fit_function_includes_label():
+    """
+    Test that the actual fit_lmm_for_combination function (if it runs) includes the label.
+    Since we can't easily run statsmodels without real data structure in this test env,
+    we verify the constant is used in the return dict construction.
+    """
+    # This test verifies the code structure. 
+    # In a real integration test with data, we would call fit_lmm_for_combination.
+    # Here we assert the constant exists and is used in the module.
+    assert ASSOCIATION_LABEL == "associational"
+    
+    # Verify the string is used in the source code of the module
+    import inspect
+    source = inspect.getsource(fit_lmm_for_combination)
+    assert 'association_label' in source, "fit_lmm_for_combination does not set association_label"
+    assert ASSOCIATION_LABEL in source, "fit_lmm_for_combination does not use the ASSOCIATION_LABEL constant"

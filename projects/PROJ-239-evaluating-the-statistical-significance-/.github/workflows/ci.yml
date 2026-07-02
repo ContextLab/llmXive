@@ -7,22 +7,23 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-    - name: Set up Python 3.11
-      uses: actions/setup-python@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
       with:
         python-version: '3.11'
 
-    - name: Cache pip
-      uses: actions/cache@v3
+    - name: Cache pip dependencies
+      uses: actions/cache@v4
       with:
         path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-
 
@@ -31,19 +32,26 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Validate CPU-only dependencies (T029)
+    - name: Verify CPU-only (No CUDA dependencies)
       run: |
-        if grep -i "cuda" requirements.txt; then
-          echo "Error: CUDA-related dependencies found in requirements.txt"
+        echo "Checking for CUDA-related packages in requirements.txt..."
+        if grep -iE "cuda|torch.*cu|tensorflow.*gpu|cupy" requirements.txt; then
+          echo "Error: CUDA-related packages detected in requirements.txt. This project must run on CPU-only hardware."
           exit 1
         else
-          echo "Validation passed: No CUDA dependencies found."
+          echo "Success: No CUDA-related packages found. Project is CPU-only compliant."
         fi
 
-    - name: Lint with flake8
+    - name: Run Linting
       run: |
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        black --check .
+        flake8 .
 
-    - name: Test with pytest
+    - name: Run Tests
       run: |
         pytest tests/ -v
+
+    - name: Run Simulation (Smoke Test)
+      run: |
+        python code/run_simulation_baseline.py --icc 0.0 --iterations 5 --seed 42
+        python code/run_simulation_robust.py --icc 0.0 --iterations 5 --seed 42

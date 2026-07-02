@@ -108,8 +108,8 @@ The system can run mixed‑effects models with participant‑level covariates (a
 
 - **SC-001**: ≥95% of participants complete all 4 stimulus ratings without data loss, measured against total survey submissions (See US-1)
 - **SC-002**: Statistical analysis pipeline completes within 30 minutes on GitHub Actions CPU‑only runner (2 cores, ~7 GB RAM), measured against job timeout limit of 6 hours (See US-2)
-- **SC-003**: All 6 pairwise comparisons (if ANOVA significant) report effect sizes (η² or Cohen's d) with Bonferroni‑adjusted p‑values, measured against ANOVA output log (See US-2)
-- **SC-004**: Mixed‑effects model converges without warnings and reports design condition coefficient with 95% confidence interval, measured against model convergence status (See US-3)
+- **SC-003**: All pairwise comparisons (if ANOVA significant) report effect sizes (η² or Cohen's d) with Bonferroni‑adjusted p‑values, measured against ANOVA output log (See US-2)
+- **SC-004**: Mixed‑effects model converges without warnings and reports design condition coefficient with a confidence interval., measured against model convergence status (See US-3)
 - **SC-005**: Data file size remains <5MB after collection and preprocessing, measured against GitHub Actions disk limit of 14 GB (See US-1)
 
 ## Assumptions
