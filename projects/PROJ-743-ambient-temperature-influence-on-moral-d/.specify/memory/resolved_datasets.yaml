@@ -1,107 +1,77 @@
-resolved_at: '2026-07-02T20:45:55.689966+00:00'
+resolved_at: '2026-07-02T21:20:39.255539+00:00'
 datasets:
-- intent: NOAA
+- intent: ERA5
   status: verified
   candidates:
-  - url: https://huggingface.co/datasets/Qdrant/NOAA-Buoy/resolve/main/full_2023_remove_flawed.parquet
+  - url: https://huggingface.co/datasets/zhixiangd/ERA5/resolve/main/1982_1.h5
     source: huggingface
-    format: parquet
+    format: hdf5
     relevance: 1.0
     sample_check:
-      downloaded_bytes: 225573
-      parsed: true
-  - url: https://huggingface.co/datasets/brianofrim/NOAA_buoycams/resolve/main/split_sizes.json
-    source: huggingface
-    format: json
-    relevance: 1.0
-    sample_check:
-      downloaded_bytes: 70
-      parsed: true
-  - url: https://huggingface.co/datasets/yueq92/NOAA_narratives_NER/resolve/main/data/train-00000-of-00001.parquet
-    source: huggingface
-    format: parquet
-    relevance: 1.0
-    sample_check:
-      downloaded_bytes: 114547
+      downloaded_bytes: 262144
       parsed: true
   candidates_tried:
-  - url: https://huggingface.co/datasets/Qdrant/NOAA-Buoy/resolve/main/full_2023_remove_flawed.parquet
+  - url: https://huggingface.co/datasets/zhixiangd/ERA5/resolve/main/1982_1.h5
     source: huggingface
     status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/brianofrim/NOAA_buoycams/resolve/main/split_sizes.json
-    source: huggingface
-    status: verified
-    format: json
-  - url: https://huggingface.co/datasets/yueq92/NOAA_narratives_NER/resolve/main/data/train-00000-of-00001.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/alea-institute/kl3m-data-dotgov-oceanservice.noaa.gov/resolve/main/data/train-00000-of-00001.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://huggingface.co/datasets/alea-institute/kl3m-data-dotgov-www.nmfs.noaa.gov/resolve/main/data/train-00000-of-00001.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://figshare.com/articles/dataset/_i_An_Intercultural_Mixed-Methods_Protocol_for_Analyzing_Support_Systems_for_Women_Experiencing_Violence_i_/32885357
+    format: hdf5
+  - url: https://figshare.com/articles/preprint/Novel_Adsorbent_in_Novel_Location_Fluorosorb_as_Replacement_for_Anthracite_in_Gravity_Media_Filters_North_Jersey_District_Water_Supply_Commission_s_Research_on_the_Use_of_Cetco_s_Fluorosorb_Media_for_Compliance_with_Federal_PFAS_Regulations/32746212
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Rapid_and_Specific_Detection_of_Escherichia_coli_O157_H7_Using_Engineered_Phage_Tailspike_Protein-Based_Magnetic_Assisted_Luminescence_Assay/32885394
+  - url: https://figshare.com/articles/journal_contribution/Del_da_o_quir_rgico_al_equilibrio_ocular_abordaje_biorregulador_del_ojo_seco_postoperatorio_Reporte_de_caso/32885414
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opticapublishing.figshare.com/articles/journal_contribution/Supplementary_document_for_Ultra-compact_and_efficient_standing-wave_electro-optic_modulator_in_lithium_niobate_-_7926509_pdf/32630331
+  - url: https://acs.figshare.com/articles/journal_contribution/K_sub_3_sub_Yb_sub_2_sub_BO_sub_3_sub_sub_3_sub_and_Rb_sub_3_sub_Yb_sub_2_sub_BO_sub_3_sub_sub_3_sub_Two_Rare-Earth_Borate_Ultraviolet_Nonlinear_Optical_Crystals/32885436
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Towards_anti-_i_Toxoplasmosis_i_agents_synthesis_and_biological_evaluation_of_diosgenin_ester_derivatives/32751310
+  - url: https://figshare.com/articles/figure/Map_of_Ilam_Province_western_Iran_indicating_the_location_of_Ilam_City_provincial_capital_with_its_position_highlighted_on_the_world_map/32885426
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://data.lib.vt.edu/articles/dataset/Perceptions_of_Scientists_and_Scientific_Beliefs_-_United_States_National_Representative_Survey_2023/30518543
+  - url: https://figshare.com/articles/figure/From_lab_to_life_Advances_in_tissue_engineering_and_3D_bioprinting_for_regenerative_female_reproductive_health_https_doi_org_10_1016_j_tice_2026_103736_/32885417
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.135212/slp
-    source: zenodo
-    status: unreachable
-    reason: 'reachability failed: HTTP 404'
-  - url: https://zenodo.org/records/7505022
+  - url: https://zenodo.org/records/18488867
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/18893503
+  - url: https://zenodo.org/records/7730020
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5787067
+  - url: https://zenodo.org/records/5816765
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/14816488
+  - url: https://zenodo.org/records/7474859
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://ir.library.oregonstate.edu/concern/datasets/zk51vs057
-    source: datacite
+  - url: https://zenodo.org/records/3528936
+    source: zenodo
     status: wrong_format
-    reason: HTTP 403
-  - url: https://www.sciencebase.gov/catalog/item/598b89a7e4b09fa1cb0eae2b
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21115102
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20973604
+  - url: https://zenodo.org/records/21115102
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20973604
+  - url: https://zenodo.org/records/21135299
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21133531
+  - url: https://zenodo.org/records/21135299
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16763144
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

@@ -1,0 +1,69 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+description: "Schema for the statistical model output and diagnostics."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    description: "Type of model fitted (e.g., 'LMM', 'GLMM')."
+  fixed_effects:
+    type: "object"
+    description: "Coefficients, standard errors, and p-values for fixed effects."
+    additionalProperties:
+      type: "object"
+      properties:
+        coefficient:
+          type: "number"
+        standard_error:
+          type: "number"
+        p_value:
+          type: "number"
+          minimum: 0
+          maximum: 1
+      required:
+        - coefficient
+        - standard_error
+        - p_value
+  random_effects:
+    type: "object"
+    description: "Variance components for random effects."
+    additionalProperties:
+      type: "number"
+  convergence_status:
+    type: "boolean"
+    description: "True if the model converged successfully."
+  likelihood_ratio_test:
+    type: "object"
+    description: "Results of the likelihood-ratio test against the null model."
+    properties:
+      statistic:
+        type: "number"
+      p_value:
+        type: "number"
+        minimum: 0
+        maximum: 1
+    required:
+      - statistic
+      - p_value
+  diagnostics:
+    type: "object"
+    description: "Diagnostic test results."
+    properties:
+      shapiro_wilk_p:
+        type: "number"
+        minimum: 0
+        maximum: 1
+      anderson_darling_p:
+        type: "number"
+        minimum: 0
+        maximum: 1
+    required:
+      - shapiro_wilk_p
+      - anderson_darling_p
+required:
+  - model_type
+  - fixed_effects
+  - convergence_status
+  - likelihood_ratio_test
+  - diagnostics
+additionalProperties: false

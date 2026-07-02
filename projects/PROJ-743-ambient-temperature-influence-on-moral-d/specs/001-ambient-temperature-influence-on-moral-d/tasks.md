@@ -39,13 +39,29 @@
   ============================================================================
 -->
 
+## Phase 0: Data Availability & Validation (CRITICAL BLOCKER)
+
+**Purpose**: Verify data sources and resolve the temporal mismatch before any ingestion or modeling can proceed.
+
+**⚠️ CRITICAL**: No other tasks can begin until Phase 0 is complete and the data gap is resolved.
+
+- [ ] T001 [P] Validate existence of ERA5 Reanalysis data for the 2016-2019 period in the project's "Verified datasets" block (Plan Phase 0).
+- [ ] T002 [P] If verified source exists, download and checksum the ERA5 data; if not, halt and report "Fatal Data Gap" to the project state.
+- [ ] T003 [P] Verify Moral Machine dataset source against the "Verified Accuracy" principle and log validation status.
+- [ ] T004 [P] Run Reference-Validator Agent to verify specific dataset integrity (checksum/metadata) for ERA5 2016-2019 before ingestion scripts run (FR-014).
+- [ ] T005 [P] Write `results/logs/data_validation_log.txt` with Pass/Fail status and checksums.
+
+**Checkpoint**: Data validation complete. If Pass, proceed to Phase 1. If Fail, project is blocked.
+
+---
+
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan, specifically creating directories: `code/`, `data/raw/`, `data/processed/`, `results/figures/`, `results/logs/`, `tests/`
-- [ ] T002 Initialize a Python project with dependencies (pandas, numpy, statsmodels, scikit-learn, requests, pyyaml, seaborn, matplotlib, geopandas) in requirements.txt
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+- [ ] T006 Create project structure per implementation plan, specifically creating directories: `code/`, `data/raw/`, `data/processed/`, `results/figures/`, `results/logs/`, `results/stats/`, `tests/`
+- [ ] T007 Initialize a Python project with dependencies (pandas, numpy, statsmodels, scikit-learn, requests, pyyaml, seaborn, matplotlib, geopandas) in requirements.txt
+- [ ] T008 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
 
@@ -55,13 +71,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-Examples of foundational tasks (adjust based on your project):
-
-- [ ] T004 Create base configuration module `code/config.py` defining paths, random seeds, and distance thresholds (default 100km)
-- [ ] T005 [P] Setup logging infrastructure to write data quality logs and model diagnostics to `results/logs/`
-- [ ] T006 [P] Implement checksum generation and verification for `data/raw/` and `data/processed/` files in `code/utils.py`
-- [ ] T007 Create data loading utilities that handle CSV/Parquet ingestion with memory-mapping for large files
-- [ ] T008 [P] Setup unit test framework (pytest) with configuration for CPU-only execution and stratified sampling
+- [ ] T009 Create base configuration module `code/config.py` defining paths, random seeds, and distance thresholds (default 100km)
+- [ ] T010 [P] Setup logging infrastructure to write data quality logs and model diagnostics to `results/logs/`
+- [ ] T011 [P] Implement checksum generation and verification for `data/raw/` and `data/processed/` files in `code/utils.py`
+- [ ] T012 Create data loading utilities that handle CSV/Parquet ingestion with memory-mapping for large files
+- [ ] T013 [P] Setup unit test framework (pytest) with configuration for CPU-only execution and stratified sampling
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -69,7 +83,7 @@ Examples of foundational tasks (adjust based on your project):
 
 ## Phase 3: User Story 1 - Data Ingestion and Temperature Matching (Priority: P1) 🎯 MVP
 
-**Goal**: Ingest Moral Machine data, merge with NOAA temperature data, and ensure data quality.
+**Goal**: Ingest Moral Machine data, merge with ERA5 Reanalysis data, and ensure data quality.
 
 **Independent Test**: Can be fully tested by running the ingestion script on a small, known subset of the Moral Machine data and verifying that every output record contains a valid temperature value within a reasonable geographic range and that no records are dropped due to missing location data.
 
@@ -77,17 +91,17 @@ Examples of foundational tasks (adjust based on your project):
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T009 [P] [US1] Unit test for location validation and exclusion logic in `tests/test_ingestion.py`
-- [ ] T010 [P] [US1] Integration test for NOAA data fetching and merging with sample Moral Machine data in `tests/test_ingestion.py`
+- [ ] T014 [P] [US1] Unit test for location validation and exclusion logic in `tests/test_ingestion.py`
+- [ ] T015 [P] [US1] Integration test for ERA5 data fetching and merging with sample Moral Machine data in `tests/test_ingestion.py`
 
 ### Implementation for User Story 1
 
-- [ ] T011 [P] [US1] Implement `code/ingestion.py` to load Moral Machine dataset and filter records with missing location data or impossible response times (<100ms or >10,000ms) (FR-002, FR-010)
-- [ ] T012 [US1] Implement NOAA data fetching logic in `code/ingestion.py` using canonical sources: NOAA GHCN-Daily or ERA5-Land (FR-001)
-- [ ] T013 [US1] Implement geospatial matching logic in `code/ingestion.py` to link Moral Machine records to nearest NOAA station within 100km threshold, flagging low-confidence matches (FR-009)
-- [ ] T014 [US1] Implement time-based interpolation for missing NOAA hourly values in `code/ingestion.py`: apply linear interpolation ONLY if the gap is ≤2 hours; otherwise, use the nearest available hourly reading (Edge Case: Missing Temp)
-- [ ] T015 [US1] Create `code/ingestion.py` function to log excluded records with reasons (e.g., "NOAA coverage gap", "Low confidence match") to `data_quality_log` (US-1, FR-002)
-- [ ] T016 [US1] Implement output generation to save merged dataset to `data/processed/merged_dataset.parquet` and log success rate (SC-001)
+- [ ] T016 [P] [US1] Implement `code/ingestion.py` to load Moral Machine dataset and filter records with missing location data or impossible response times (<100ms or >10,000ms), logging excluded records to `data_quality_log` (FR-002, FR-010)
+- [ ] T017 [US1] Implement ERA5 Reanalysis data fetching logic in `code/ingestion.py` using the verified source for 2016-2019 (FR-001)
+- [ ] T018 [US1] Implement geospatial matching logic in `code/ingestion.py` to link Moral Machine records to nearest ERA5 grid within 100km threshold, flagging low-confidence matches and excluding records >100km (FR-009)
+- [ ] T019 [US1] Implement time-based interpolation for missing ERA5 hourly values in `code/ingestion.py`: apply linear interpolation ONLY if the gap is ≤2 hours; EXCLUDE the record if the gap >2 hours (Edge Case: Missing Temp)
+- [ ] T020 [US1] Create `code/ingestion.py` function to log excluded records with reasons (e.g., "ERA5 coverage gap", "Low confidence match", "Gap > 2h") to `data_quality_log` (US-1, FR-002)
+- [ ] T021 [US1] Implement output generation to save merged dataset to `data/processed/merged_dataset.parquet` and log success rate (SC-001)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -101,17 +115,17 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T017 [P] [US2] Unit test for log-transformation and outlier handling in `tests/test_modeling.py`
-- [ ] T018 [P] [US2] Integration test for model convergence and coefficient extraction in `tests/test_modeling.py`
+- [ ] T022 [P] [US2] Unit test for log-transformation and outlier handling in `tests/test_modeling.py`
+- [ ] T023 [P] [US2] Integration test for model convergence and coefficient extraction in `tests/test_modeling.py`
 
 ### Implementation for User Story 2
 
-- [ ] T019 [P] [US2] Implement `code/modeling.py` to perform log-transformation of response times and handle non-convergence by switching to GLMM (FR-003)
-- [ ] T020 [US2] Implement primary Linear Mixed-Effects Model in `code/modeling.py` with fixed effects: temperature, dilemma complexity, time-of-day, age, gender, dilemma choice; and random intercepts for participant ID and cultural region (FR-003, FR-004, FR-011)
-- [ ] T021 [US2] Implement non-linearity test in `code/modeling.py` by adding quadratic term (temperature^2) or spline basis and comparing model fit (FR-013)
-- [ ] T022 [US2] Implement likelihood-ratio test in `code/modeling.py` comparing full model vs. null model (without temperature) and record p-value (FR-005, SC-002)
-- [ ] T023 [US2] Implement diagnostic plot generation (QQ-plot, residual vs. fitted) in `code/plots.py` and save to `results/figures/` (FR-007, SC-005)
-- [ ] T024 [US2] Export model coefficients, standard errors, p-values, and random effect variances to `results/logs/model_results.csv` (FR-008)
+- [ ] T024 [P] [US2] Implement `code/modeling.py` to perform log-transformation of response times and handle non-convergence by switching to GLMM (FR-003)
+- [ ] T025 [US2] Implement primary Linear Mixed-Effects Model in `code/modeling.py` with fixed effects: temperature, dilemma complexity, time-of-day, dilemma choice; and random intercepts for participant ID and cultural region. **Conditionally** include age and gender as fixed effects ONLY if columns exist in the dataset; if missing, log and proceed without them (FR-003, FR-004, FR-011)
+- [ ] T026 [US2] Implement non-linearity test in `code/modeling.py` by adding quadratic term (temperature^2) or spline basis and comparing model fit (FR-013)
+- [ ] T027 [US2] Implement likelihood-ratio test in `code/modeling.py` comparing full model vs. null model (without temperature) and record p-value (FR-005, SC-002)
+- [ ] T028 [US2] Implement diagnostic plot generation (QQ-plot, residual vs. fitted) in `code/plots.py` and save to `results/figures/` (FR-007, SC-005)
+- [ ] T029 [US2] Export model coefficients, standard errors, p-values, and random effect variances to `results/stats/model_results.csv` (FR-008)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -125,16 +139,16 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T025 [P] [US3] Unit test for sensitivity analysis threshold sweeping in `tests/test_robustness.py`
-- [ ] T026 [P] [US3] Integration test for robustness summary table generation in `tests/test_robustness.py`
+- [ ] T030 [P] [US3] Unit test for sensitivity analysis threshold sweeping in `tests/test_robustness.py`
+- [ ] T031 [P] [US3] Integration test for robustness summary table generation in `tests/test_robustness.py`
 
 ### Implementation for User Story 3
 
-- [ ] T027 [P] [US3] Implement `code/robustness.py` to calculate alternative temperature metrics (e.g., 3-hour moving average) and re-run modeling (FR-006)
-- [ ] T028 [US3] Implement sensitivity analysis in `code/robustness.py` sweeping temperature outlier thresholds (e.g., 2SD, 3SD, 4SD) and reporting coefficient variation (FR-006, SC-003)
-- [ ] T029 [US3] Implement indoor/outdoor confound analysis in `code/robustness.py` by stratifying data or applying proxy adjustment; if metadata missing, report limitation and quantify noise impact (FR-012)
-- [ ] T030 [US3] Generate comparison table in `code/robustness.py` showing temperature coefficient and p-value for primary vs. alternative models (US-3)
-- [ ] T031 [US3] Save all robustness figures (scatter plots, conditional effect plots) to `results/figures/` (FR-008)
+- [ ] T032 [P] [US3] Implement `code/robustness.py` to calculate alternative temperature metrics (e.g., 3-hour moving average) and re-run modeling (FR-006)
+- [ ] T033 [US3] Implement sensitivity analysis in `code/robustness.py` sweeping temperature outlier thresholds (e.g., varying standard deviation multipliers) and reporting coefficient variation (FR-006, SC-003)
+- [ ] T034 [US3] Implement indoor/outdoor confound analysis in `code/robustness.py` by FIRST attempting to stratify data or apply proxy adjustment using urban/rural classification; if metadata is unavailable, THEN report the limitation and quantify noise impact (FR-012)
+- [ ] T035 [US3] Generate comparison table in `code/robustness.py` showing temperature coefficient and p-value for primary vs. alternative models (US-3)
+- [ ] T036 [US3] Save all robustness figures (scatter plots, conditional effect plots) to `results/figures/` (FR-008)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -148,9 +162,25 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for Limitations
 
-- [ ] T041 [US3] Update `code/robustness.py` or `code/plots.py` to generate a final limitations report in `results/logs/limitations.md` explicitly stating: (1) No individual baseline reaction time data exists in the dataset; (2) Arousal/micro-climate effects are unmeasured noise; (3) These factors are not controlled for, only reported (FR-012, Spec Assumptions)
+- [ ] T037 [US3] Update `code/robustness.py` or `code/plots.py` to generate a final limitations report in `results/logs/limitations.md` explicitly stating: (1) No individual baseline reaction time data exists in the dataset; (2) Arousal/micro-climate effects are unmeasured noise; (3) These factors are not controlled for, only reported (FR-012, Spec Assumptions)
 
 **Checkpoint**: Limitations documented; analysis complete within data constraints.
+
+---
+
+## Phase 7: Review Response - Baseline & Arousal Confounds (Priority: P3 - Revision)
+
+**Goal**: Address the specific reviewer concern (daniel-kahneman-simulated) regarding individual baseline reaction speed and physiological arousal confounds. Since the Moral Machine dataset lacks these specific measurements, this phase tasks the system with explicitly quantifying the potential noise impact and documenting the inability to perform the suggested "pre-test" adjustment.
+
+**Independent Test**: Verify that the `results/logs/limitations.md` and `results/logs/data_quality_log.txt` explicitly reference the reviewer's concern about baseline speed confounds and explain why the proposed "observed RT - baseline RT" adjustment is impossible with the current data source.
+
+### Implementation for Review Response
+
+- [ ] T038 [US3] [Review-Response] Add a specific analysis section in `code/robustness.py` that calculates the variance of response times attributable to individual participants (random effects variance) to quantify the "individual difference" noise floor mentioned by the reviewer.
+- [ ] T039 [US3] [Review-Response] Implement a sensitivity simulation in `code/robustness.py` that models how a hypothetical unmeasured baseline confound (e.g., if a substantial portion of the temperature effect is actually due to individual speed) would alter the significance of the primary coefficient, and save this scenario analysis to `results/logs/confound_simulation.md`.
+- [ ] T040 [US3] [Review-Response] Update `results/logs/limitations.md` to explicitly cite the reviewer's suggestion (pre-test baseline, skin conductance) and state clearly: "The Moral Machine dataset does not contain pre-test baseline reaction times or physiological arousal measures; therefore, the proposed 'temperature-adjusted RT' metric cannot be computed. The analysis relies on random intercepts to partially control for individual speed differences, but residual confounding remains." (FR-012, Review Concern)
+
+**Checkpoint**: Reviewer concern addressed with quantitative noise estimation and explicit limitation documentation.
 
 ---
 
@@ -158,11 +188,11 @@ Examples of foundational tasks (adjust based on your project):
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T036 [P] Documentation updates in `docs/` and `quickstart.md` including instructions for running with sampled data
-- [ ] T037 Code cleanup and refactoring to ensure modularity
-- [ ] T038 Performance optimization: Ensure dataset sampling logic in `code/ingestion.py` prevents memory overflow on 7GB RAM runners
-- [ ] T039 [P] Additional unit tests for edge cases (e.g., all records excluded due to distance)
-- [ ] T040 Run quickstart.md validation to ensure full pipeline completes within 4 hours
+- [ ] T041 [P] Documentation updates in `docs/` and `quickstart.md` including instructions for running with sampled data
+- [ ] T042 Code cleanup and refactoring to ensure modularity
+- [ ] T043 Performance optimization: Ensure dataset sampling logic in `code/ingestion.py` prevents memory overflow on runners with constrained RAM resources
+- [ ] T044 [P] Additional unit tests for edge cases (e.g., all records excluded due to distance)
+- [ ] T045 Run quickstart.md validation to ensure full pipeline completes within 4 hours
 
 ---
 
@@ -170,12 +200,14 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Phase Dependencies
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
+- **Phase 0 (Data Validation)**: No dependencies - must run FIRST. BLOCKS all other phases.
+- **Phase 1 (Setup)**: Depends on Phase 0 completion - can start immediately after validation passes.
+- **Phase 2 (Foundational)**: Depends on Phase 1 completion - BLOCKS all user stories.
 - **User Stories (Phase 3-5)**: All depend on Foundational phase completion
   - User stories can then proceed in parallel (if staffed)
   - Or sequentially in priority order (P1 → P2 → P3)
 - **Limitations (Phase 6)**: Depends on US3 completion (to summarize findings)
+- **Review Response (Phase 7)**: Depends on US3 completion (to access model variance estimates)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -184,6 +216,7 @@ Examples of foundational tasks (adjust based on your project):
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Requires merged data from US1
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Requires model output from US2
 - **Limitations (Phase 6)**: Requires US3 implementation to summarize findings
+- **Review Response (Phase 7)**: Requires US3 implementation to access random effect variances
 
 ### Within Each User Story
 
@@ -208,11 +241,11 @@ Examples of foundational tasks (adjust based on your project):
 ```bash
 # Launch all tests for User Story 1 together (if tests requested):
 Task: "Unit test for location validation and exclusion logic in tests/test_ingestion.py"
-Task: "Integration test for NOAA data fetching and merging with sample Moral Machine data in tests/test_ingestion.py"
+Task: "Integration test for ERA5 data fetching and merging with sample Moral Machine data in tests/test_ingestion.py"
 
 # Launch all implementation tasks for User Story 1 together:
 Task: "Implement code/ingestion.py to load Moral Machine dataset..."
-Task: "Implement NOAA data fetching logic in code/ingestion.py..."
+Task: "Implement ERA5 Reanalysis data fetching logic in code/ingestion.py..."
 ```
 
 ---
@@ -221,32 +254,37 @@ Task: "Implement NOAA data fetching logic in code/ingestion.py..."
 
 ### MVP First (User Story 1 Only)
 
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
+1. Complete Phase 0: Data Validation (CRITICAL - must pass)
+2. Complete Phase 1: Setup
+3. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
+4. Complete Phase 3: User Story 1
+5. **STOP and VALIDATE**: Test User Story 1 independently
+6. Deploy/demo if ready
 
 ### Incremental Delivery
 
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Add Limitations (Phase 6) → Test independently → Deploy/Demo
-6. Each story adds value without breaking previous stories
+1. Complete Phase 0 → Data validated
+2. Complete Setup + Foundational → Foundation ready
+3. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
+4. Add User Story 2 → Test independently → Deploy/Demo
+5. Add User Story 3 → Test independently → Deploy/Demo
+6. Add Limitations (Phase 6) → Test independently → Deploy/Demo
+7. Add Review Response (Phase 7) → Test independently → Deploy/Demo
+8. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
 
 With multiple developers:
 
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
+1. Team completes Phase 0 (Data Validation) together
+2. Once Phase 0 passes:
+   - Team completes Setup + Foundational together
+3. Once Foundational is done:
    - Developer A: User Story 1 (Ingestion)
    - Developer B: User Story 2 (Modeling)
    - Developer C: User Story 3 (Robustness)
-3. Stories complete and integrate independently
-4. Developer D (or A/B/C rotation): Limitations (Phase 6) to document constraints
+4. Stories complete and integrate independently
+5. Developer D (or A/B/C rotation): Limitations (Phase 6) and Review Response (Phase 7) to document constraints and address specific reviewer concerns
 
 ---
 
@@ -259,6 +297,8 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CPU Constraint**: All tasks must be designed to run on 2 CPU cores, ~7 GB RAM. Use stratified sampling if dataset size exceeds memory.
-- **NO GPU**: No 8-bit/4-bit quantization, no CUDA dependencies. Use standard precision models.
+- **CPU Constraint**: All tasks must be designed to run on a limited number of CPU cores and moderate memory resources.. Use stratified sampling if dataset size exceeds memory.
+- **NO GPU**: No -bit/4-bit quantization, no CUDA dependencies. Use standard precision models.
 - **Data Constraints**: Do not attempt to simulate missing data (baseline, arousal). Document limitations instead.
+- **Review Response**: Phase 7 specifically addresses the "daniel-kahneman-simulated" review regarding baseline reaction speed confounds.
+- **Critical Blocker**: Phase 0 MUST pass before any ingestion tasks (T016+) are attempted.

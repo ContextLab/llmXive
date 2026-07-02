@@ -1,0 +1,74 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Merged Analysis Dataset Schema"
+description: "Schema for the merged moral decision and temperature dataset."
+type: "object"
+properties:
+  response_id:
+    type: "string"
+    description: "Unique identifier for the moral response record."
+  participant_id:
+    type: "string"
+    description: "Anonymous participant identifier."
+  cultural_region:
+    type: "string"
+    description: "Cultural region derived from the participant's country."
+  latitude:
+    type: "number"
+    description: "Latitude of the response location."
+    minimum: -90
+    maximum: 90
+  longitude:
+    type: "number"
+    description: "Longitude of the response location."
+    minimum: -180
+    maximum: 180
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of the response."
+  response_time_log:
+    type: "number"
+    description: "Log-transformed response time in milliseconds."
+  temperature_c:
+    type: "number"
+    description: "Ambient temperature in Celsius from ERA5."
+    minimum: -50
+    maximum: 60
+  temperature_3hr_avg:
+    type: "number"
+    description: "3-hour moving average of temperature."
+  dilemma_complexity:
+    type: "number"
+    description: "Static complexity score of the dilemma (derived from lives/species only)."
+  time_of_day:
+    type: "number"
+    description: "Hour of the day (0-24) when the response was made."
+  choice_type:
+    type: "string"
+    description: "Type of moral choice made (e.g., 'save_many')."
+  dilemma_id:
+    type: "integer"
+    description: "Identifier for the dilemma."
+  age:
+    type: ["number", "null"]
+    description: "Participant age (if available)."
+  gender:
+    type: ["string", "null"]
+    description: "Participant gender (if available)."
+  match_quality:
+    type: "string"
+    enum: ["high", "low"]
+    description: "Quality of the geospatial/temporal match."
+  exclusion_reason:
+    type: ["string", "null"]
+    description: "Reason for exclusion if the record was filtered out."
+required:
+  - response_id
+  - participant_id
+  - latitude
+  - longitude
+  - timestamp
+  - response_time_log
+  - temperature_c
+  - dilemma_id
+additionalProperties: false
