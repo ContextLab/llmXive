@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-30T18:40:38.670156Z'
-current_stage: project_initialized
+current_stage: clarified
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-050-the-effect-of-priming-on-prosocial-behav
-last_run_id: 46b9be9e-16e0-47e8-9847-6543bad4ce6a
+last_run_id: f73ed49e-2bba-4805-a280-815093469799
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/specs/001-the-effect-of-priming-on-prosocial-behav
 title: The Effect of Priming on Prosocial Behavior in Online Communities
-updated_at: '2026-06-25T01:31:49.599547Z'
+updated_at: '2026-07-02T19:24:46.560166Z'

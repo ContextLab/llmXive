@@ -1,0 +1,93 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Results Schema"
+description: "Schema for the final statistical analysis report (Linear Mixed-Effects Model)."
+type: "object"
+properties:
+  lmm_results:
+    type: "object"
+    description: "Results of the Linear Mixed-Effects Model."
+    properties:
+      fixed_effects:
+        type: "object"
+        description: "Coefficients for fixed effects."
+        properties:
+          thread_type:
+            type: "number"
+          thread_age:
+            type: "number"
+          comment_count:
+            type: "number"
+          subreddit:
+            type: "number"
+        required:
+          - thread_type
+          - thread_age
+          - comment_count
+      random_intercepts:
+        type: "object"
+        description: "Variance components for random effects."
+        properties:
+          thread_id:
+            type: "number"
+        required:
+          - thread_id
+      p_values:
+        type: "object"
+        description: "P-values for fixed effects."
+        properties:
+          thread_type:
+            type: "number"
+          thread_age:
+            type: "number"
+          comment_count:
+            type: "number"
+        required:
+          - thread_type
+          - thread_age
+          - comment_count
+      confidence_interval:
+        type: "array"
+        items:
+          type: "number"
+        minItems: 2
+        maxItems: 2
+      significance:
+        type: "boolean"
+    required:
+      - fixed_effects
+      - random_intercepts
+      - p_values
+      - confidence_interval
+      - significance
+  sensitivity_analysis:
+    type: "object"
+    description: "P-values at different thresholds."
+    properties:
+      p_0_01:
+        type: "number"
+      p_0_05:
+        type: "number"
+      p_0_10:
+        type: "number"
+    required:
+      - p_0_01
+      - p_0_05
+      - p_0_10
+  validation:
+    type: "object"
+    description: "Validation metrics."
+    properties:
+      cohen_kappa:
+        type: "number"
+        minimum: 0
+        maximum: 1
+      sample_size:
+        type: "integer"
+    required:
+      - cohen_kappa
+      - sample_size
+required:
+  - lmm_results
+  - sensitivity_analysis
+  - validation
+additionalProperties: false

@@ -1,0 +1,263 @@
+resolved_at: '2026-07-02T18:49:36.317739+00:00'
+datasets:
+- intent: AskReddit
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/derek-thomas/dataset-creator-askreddit/resolve/main/data/all_days-00000-of-00008-d98c95f7df3e0a34.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/suyanwen/askreddit_processed/resolve/main/askreddit_processed.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Hylium/AskReddit/resolve/main/output.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/derek-thomas/dataset-creator-askreddit/resolve/main/data/all_days-00000-of-00008-d98c95f7df3e0a34.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/SALT-NLP/AskRedditCountries/resolve/main/AskRedditCountries_final.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/suyanwen/askreddit_processed/resolve/main/askreddit_processed.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/Hylium/AskReddit/resolve/main/output.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/_b_Associations_between_community_engagement_human_flourishing_and_mental_illness_symptoms_b_/32885093
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.lib.vt.edu/articles/dataset/Data_and_Code_associated_with_Modeling_and_Expert_Evaluation_of_Competency_Dependency_Relationships_for_Human-Robot_Collaboration_Training_in_Construction_/32837123
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/LPS_LMR_dta/29263562
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Data_for_Effects_of_Hypoxia_on_the_Olfactory_System_of_Threespine_Stickleback_Gasterosteus_aculeatus_Tigert_and_Porteus/32840345
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/How_Metal_IV_Phosphonate_Local_Structure_Drives_Radiolytic_Stability_in_Sorbents_with_Novel_Minor_Actinide-Lanthanide_Selectivity/32885090
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.19218
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://mcgill.scholaris.ca/handle/20.500.14905/113993
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openaccess.wgtn.ac.nz/articles/journal_contribution/A_Content_Analysis_of_Reddit_Users_Perspectives_on_Reasons_for_Not_Following_Through_with_a_Suicide_Attempt/16922473/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_1_of_Temporal_and_diurnal_variation_in_social_media_posts_to_a_suicide_support_forum/14623177/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_1_of_Temporal_and_diurnal_variation_in_social_media_posts_to_a_suicide_support_forum/14623177
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-only
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/_b_Associations_between_community_engagement_human_flourishing_and_mental_illness_symptoms_b_/32885093
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.lib.vt.edu/articles/dataset/Data_and_Code_associated_with_Modeling_and_Expert_Evaluation_of_Competency_Dependency_Relationships_for_Human-Robot_Collaboration_Training_in_Construction_/32837123
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/LPS_LMR_dta/29263562
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Data_for_Effects_of_Hypoxia_on_the_Olfactory_System_of_Threespine_Stickleback_Gasterosteus_aculeatus_Tigert_and_Porteus/32840345
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/How_Metal_IV_Phosphonate_Local_Structure_Drives_Radiolytic_Stability_in_Sorbents_with_Novel_Minor_Actinide-Lanthanide_Selectivity/32885090
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3810211
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://beei.org/index.php/EEI/article/view/1972
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5951740
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6127654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21137012
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21137012
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://uregina.scholaris.ca/handle/10294/16485
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20820977
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20820977
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: VADER
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/bartoszmaj/vader_sentiment_full/resolve/main/data/train-00000-of-00001-16eab957b5f41fe3.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/samdotme/vader-speak/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 7792
+      parsed: true
+  - url: https://huggingface.co/datasets/samdotme/vader-speak-video/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 7712
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/bartoszmaj/vader_sentiment_full/resolve/main/data/train-00000-of-00001-16eab957b5f41fe3.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/samdotme/vader-speak/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/samdotme/vader-speak-video/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/bacmen/vader-speak/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/mtobbias/vader-test/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/_b_Associations_between_community_engagement_human_flourishing_and_mental_illness_symptoms_b_/32885093
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://data.lib.vt.edu/articles/dataset/Data_and_Code_associated_with_Modeling_and_Expert_Evaluation_of_Competency_Dependency_Relationships_for_Human-Robot_Collaboration_Training_in_Construction_/32837123
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/LPS_LMR_dta/29263562
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Data_for_Effects_of_Hypoxia_on_the_Olfactory_System_of_Threespine_Stickleback_Gasterosteus_aculeatus_Tigert_and_Porteus/32840345
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/How_Metal_IV_Phosphonate_Local_Structure_Drives_Radiolytic_Stability_in_Sorbents_with_Novel_Minor_Actinide-Lanthanide_Selectivity/32885090
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5239808
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3857550
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7187333
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7402505
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5239816
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://uregina.scholaris.ca/handle/10294/15010
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://oa.tib.eu/renate/handle/123456789/38701
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.catalogueoflife.org/data/metadata?__goaway_challenge=cookie&__goaway_id=9a4b57f5fbacf3659278e779c9452f3a
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.checklistbank.org/dataset/315192?__goaway_challenge=cookie&__goaway_id=f408c77ec159cbafe42ca26cc0c5a953
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.checklistbank.org/dataset/1202?__goaway_challenge=cookie&__goaway_id=b2f115ceae7dc523e546de1817b19d57
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403

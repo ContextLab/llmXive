@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Processed Comment Dataset Schema"
+description: "Schema for the anonymized, classified comment dataset used in analysis."
+type: "object"
+properties:
+  comment_id:
+    type: "string"
+    description: "SHA-256 hash of the original comment ID."
+  thread_id:
+    type: "string"
+    description: "SHA-256 hash of the original thread ID."
+  author_hash:
+    type: "string"
+    description: "SHA-256 hash of the username."
+  subreddit:
+    type: "string"
+    description: "Name of the subreddit."
+    enum: ["AskReddit", "relationships", "socialscience", "psychology", "dataisbeautiful"]
+  thread_type:
+    type: "string"
+    description: "Classification of the thread."
+    enum: ["Prime", "Control"]
+  text:
+    type: "string"
+    description: "The comment body."
+  negation_excluded:
+    type: "boolean"
+    description: "True if the title contained a negation pattern."
+required:
+  - comment_id
+  - thread_id
+  - author_hash
+  - subreddit
+  - thread_type
+  - text
+  - negation_excluded
+additionalProperties: false
