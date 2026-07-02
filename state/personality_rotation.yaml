@@ -1,12 +1,7 @@
-last_used: john-von-neumann
-last_used_at: '2026-07-02T09:10:03.142298+00:00'
+last_used: linus-pauling
+last_used_at: '2026-07-02T10:59:44.316198+00:00'
 last_outcome: committed
 history:
-- slug: linus-pauling
-  started_at: '2026-06-21T23:30:37.472612+00:00'
-  ended_at: '2026-06-21T23:59:35.578959+00:00'
-  outcome: triage_rejected_advanced_as_abstain
-  action: comment
 - slug: marie-curie
   started_at: '2026-06-21T23:59:35.578959+00:00'
   ended_at: '2026-06-22T01:13:35.972155+00:00'
@@ -1208,3 +1203,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-261-evaluating-the-impact-of-code-duplicatio/reviews/research/john-von-neumann-simulated__2026-07-02__research.md
+- slug: linus-pauling
+  started_at: '2026-07-02T09:10:03.142298+00:00'
+  ended_at: '2026-07-02T10:59:44.316198+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-079-investigating-the-predictive-power-of-vi/reviews/research/linus-pauling-simulated__2026-07-02__research.md
