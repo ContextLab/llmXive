@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-29T09:12:15.263978Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-639-https-arxiv-org-abs-2605-28774
-last_run_id: a502ac82-eefc-4f04-a70d-46e5bfb35636
+last_run_id: 194e6795-6fb2-4294-b819-b4a5330c4d6a
 last_run_status: null
 points_paper: {}
 points_research: {}
