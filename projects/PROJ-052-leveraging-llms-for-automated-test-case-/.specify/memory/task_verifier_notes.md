@@ -1,0 +1,5 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T006b [P] Implement checksum recording in `code/data_loader.py` to compute SHA-256 hash of `data/defects4j_v1.0.parquet` and store in project state, satisfying Constitution Principle III.** — The `code/data_loader.py` file contains a generic `record_checksum` function but never calls it for `data/defects4j_v1.0.parquet`, and the required parquet file is absent from the repository. Additionally, the source file is truncated (e.g., `verify_data_integrity` ends with a typo), indicating the implementation is incomplete. The checksum recording for the specified dataset is therefore not actually performed.

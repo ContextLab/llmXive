@@ -1,0 +1,4 @@
+? T006b [P] Implement checksum recording in `code/data_loader.py` to compute SHA-256
+  hash of `data/defects4j_v1.0.parquet` and store in project state, satisfying Constitution
+  Principle III.
+: 2

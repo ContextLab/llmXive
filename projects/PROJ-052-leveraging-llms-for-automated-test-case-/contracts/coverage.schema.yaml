@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Coverage Metrics Schema
+description: Schema for coverage measurement results
+type: object
+required:
+  - project_id
+  - test_type
+  - coverage_percentage
+properties:
+  project_id:
+    type: string
+    description: Unique identifier for the project
+  test_type:
+    type: string
+    description: Type of test (e.g., 'llm_generated', 'manual_baseline')
+  coverage_percentage:
+    type: number
+    minimum: 0
+    maximum: 100
+    description: Percentage of changed lines covered
+  status:
+    type: string
+    enum:
+      - success
+      - failed_to_compile
+      - failed_to_execute
+    description: Execution status of the test
+  error_msg:
+    type:
+      - string
+      - "null"
+    description: Error message if status is not success
+  assertion_count:
+    type: integer
+    minimum: 0
+    description: Number of assertions in the test
+additionalProperties: false
