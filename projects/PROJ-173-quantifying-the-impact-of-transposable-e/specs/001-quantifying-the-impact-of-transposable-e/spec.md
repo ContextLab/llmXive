@@ -18,7 +18,7 @@ A researcher downloads DGRP genotype and expression data, runs the association a
 **Acceptance Scenarios**:
 
 1. **Given** DGRP genotype VCF and RNA-seq expression data for ≥50 lines, **When** the pipeline executes the linear model association analysis, **Then** the output table contains ≥1 TE-gene pair with FDR < 0.05 or explicitly reports null findings with complete test statistics.
-2. **Given** population structure PCs computed from genome-wide SNPs, **When** the linear model `gene_expression ~ TE_presence + PC1 + PC2 + PC3` is fit, **Then** the output includes effect size (log₂-fold change), 95% confidence interval, and adjusted p-value for each tested pair.
+2. **Given** population structure PCs computed from genome-wide SNPs, **When** the linear model `gene_expression ~ TE_presence + PC1 + PC2 + PC3` is fit, **Then** the output includes effect size (log₂-fold change), 95% confidence interval, unadjusted p-value, and adjusted p-value for each tested pair.
 3. **Given** ≥5,000 TE-gene pairs tested, **When** Benjamini–Hochberg correction is applied, **Then** the adjusted p-values are computed and the false discovery rate is ≤0.05 for retained pairs.
 
 ---
@@ -29,11 +29,11 @@ A researcher validates significant TE-gene associations by testing them on an in
 
 **Why this priority**: Replication strengthens the reliability of findings and distinguishes true biological signals from dataset-specific artifacts.
 
-**Independent Test**: Can be fully tested by running the association analysis on a second expression dataset (e.g., modENCODE) and checking that ≥30% of significant associations from the primary dataset replicate (same direction, p < 0.1).
+**Independent Test**: Can be fully tested by running the association analysis on a second expression dataset (e.g., modENCODE) and calculating the replication concordance rate (proportion of significant associations with consistent direction) to assess robustness against random chance.
 
 **Acceptance Scenarios**:
 
-1. **Given** ≥10 significant TE-gene pairs from the primary analysis (FDR < 0.05), **When** the same associations are tested on an independent expression dataset, **Then** ≥3 pairs show consistent direction of effect with p < 0.1 in the replication dataset.
+1. **Given** ≥10 significant TE-gene pairs from the primary analysis (FDR < 0.05), **When** the same associations are tested on an independent expression dataset, **Then** the system reports the proportion of pairs showing consistent direction of effect with p < 0.05 in the replication dataset.
 2. **Given** replication test results, **When** the system generates a comparison table, **Then** the table includes original effect size, replication effect size, direction concordance flag, and replication p-value for each pair.
 3. **Given** missing expression data for a line in the replication dataset, **When** the analysis pipeline encounters the missing value, **Then** the line is excluded from that specific test without crashing the entire replication run.
 
@@ -45,11 +45,11 @@ A researcher performs permutation testing to confirm that observed TE-gene assoc
 
 **Why this priority**: Permutation testing adds a layer of robustness validation but is not strictly required to answer the core research question.
 
-**Independent Test**: Can be fully tested by running Multiple permutations of TE presence labels and verifying that the observed number of significant associations exceeds the 95th percentile of the null distribution.
+**Independent Test**: Can be fully tested by running multiple permutations of TE presence labels and verifying that the observed raw test statistic exceeds the 95th percentile of the null distribution generated from permuted data.
 
 **Acceptance Scenarios**:
 
-1. **Given** 100 permutation runs where TE presence labels are shuffled, **When** the association analysis is re-run on each permuted dataset, **Then** the observed number of significant associations (FDR < 0.05) exceeds the 95th percentile of the null distribution in ≥90% of valid analyses.
+1. **Given** 100 permutation runs where TE presence labels are shuffled, **When** the association analysis is re-run on each permuted dataset to generate a null distribution of raw t-statistics, **Then** the observed raw t-statistic for significant pairs exceeds the 95th percentile of the null distribution.
 2. **Given** permutation results, **When** the system generates a null distribution plot, **Then** the plot shows the observed statistic as a vertical line with the 95th percentile threshold clearly marked.
 3. **Given** a permutation run that exceeds the 6-hour CI time limit, **When** the job is interrupted, **Then** the system saves intermediate results and reports the number of completed permutations without data loss.
 
@@ -67,12 +67,12 @@ A researcher performs permutation testing to confirm that observed TE-gene assoc
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download DGRP genotype VCF including TE insertion calls and RNA-seq expression data for ≥100 DGRP lines from public repositories (See US-1)
+- **FR-001**: System MUST download DGRP genotype VCF including TE genotype calls and RNA-seq expression data for ≥50 DGRP lines from public repositories (See US-1)
 - **FR-002**: System MUST define proximal TE-gene pairs as those where TE insertion site lies ≤5 kb upstream or downstream of gene transcription start/end using Drosophila release 6 gene models (See US-1)
 - **FR-003**: System MUST compute population structure PCs from genome-wide SNP genotypes and include PC1, PC2, PC3 as covariates in the linear model to control for population stratification (See US-1)
-- **FR-004**: System MUST fit linear model `gene_expression ~ TE_presence + PC1 + PC2 + PC3` for each TE-gene pair and output effect size, 95% CI, and unadjusted p-value (See US-1)
+- **FR-004**: System MUST fit linear model `gene_expression ~ TE_presence + PC1 + PC2 + PC3` for each TE-gene pair and output effect size, 95% CI, unadjusted p-value, and Benjamini-Hochberg adjusted p-value (See US-1)
 - **FR-005**: System MUST apply Benjamini–Hochberg correction across all tested TE-gene pairs and retain pairs with adjusted p-value < 0.05 (See US-1)
-- **FR-006**: System MUST perform permutation testing with ≥100 random shuffles of TE presence labels to establish null distribution (See US-3)
+- **FR-006**: System MUST perform permutation testing with ≥100 random shuffles of TE presence labels to establish null distribution of raw test statistics (See US-3)
 - **FR-007**: System MUST compute collinearity diagnostics (variance inflation factor) for TE presence and population structure PCs; if VIF > 5, flag the pair for descriptive reporting only (See US-1)
 - **FR-008**: System MUST exclude monomorphic TEs (presence frequency < 5% or > 95%) from association testing (See US-1)
 - **FR-009**: System MUST handle missing expression data by excluding affected lines from individual tests without crashing the pipeline (See US-2)
@@ -94,16 +94,16 @@ A researcher performs permutation testing to confirm that observed TE-gene assoc
 > measured quantities, percentages) to the implementation/research phase.
 
 - **SC-001**: Number of significant TE-gene associations (FDR < 0.05) is measured against the null expectation from permutation testing to confirm signal exceeds random chance (See US-1)
-- **SC-002**: Replication concordance rate (proportion of significant associations with consistent direction in independent dataset) is measured against the threshold of ≥30% to assess robustness (See US-2)
+- **SC-002**: Replication concordance rate (proportion of significant associations with consistent direction in independent dataset) is measured against the null expectation of random chance to assess robustness (See US-2)
 - **SC-003**: False discovery rate is measured against the Benjamini–Hochberg adjusted p-value threshold of < 0.05 to control for multiple testing across ≥5,000 TE-gene pairs (See US-1)
-- **SC-004**: Population structure control efficacy is measured by comparing model fit (R²) with and without PC covariates; ≥10% reduction in residual variance indicates successful confounding control (See US-1)
-- **SC-005**: Permutation null distribution 95th percentile is measured against observed significant association count; observed count must exceed null 95th percentile in ≥90% of valid analyses (See US-3)
+- **SC-004**: Population structure control efficacy is measured by comparing model fit (R²) with and without PC covariates; the reduction in residual variance is reported to indicate confounding control (See US-1)
+- **SC-005**: Permutation null distribution 95th percentile is measured against observed raw test statistics; observed statistic must exceed null 95th percentile for valid associations (See US-3)
 - **SC-006**: Collinearity diagnostic VIF is measured against threshold of 5; pairs exceeding this threshold are flagged for descriptive reporting only rather than causal inference claims (See US-1)
 
 ## Assumptions
 
-- DGRP genotype VCF from ftp://ftp.flybase.net/genomes/Drosophila/DGRP/ contains all polymorphic TE insertion calls needed for the analysis
-- RNA-seq expression data from NCBI SRA accession SRPXXXXX or modENCODE covers ≥100 DGRP lines with sufficient read depth for reliable TPM quantification
+- DGRP genotype VCF from ftp://ftp.flybase.net/genomes/Drosophila/DGRP/ contains all polymorphic TE genotype calls needed for the analysis
+- RNA-seq expression data from NCBI SRA accession SRPXXXXX or modENCODE covers ≥50 DGRP lines with sufficient read depth for reliable TPM quantification
 - Drosophila release 6 gene models provide accurate transcription start/end coordinates for defining the ≤5 kb proximal window
 - Population structure PCs derived from genome-wide SNPs adequately capture stratification; if not, additional PCs may be needed
 - Benjamini–Hochberg correction is appropriate for the dependency structure among TE-gene tests; if tests are highly correlated, family-wise error rate control may be more conservative
@@ -111,7 +111,6 @@ A researcher performs permutation testing to confirm that observed TE-gene assoc
 - STAR 2-pass alignment and featureCounts/TEtranscripts quantification can run within the CPU-only, memory-constrained environment when processing ≤100 samples
 - No GPU acceleration is available or required; all statistical modeling uses CPU-tractable methods (linear regression via MatrixEQTL)
 - TE presence is treated as a binary predictor; insertion copy number variation is not modeled due to data limitations
-- Effect size threshold of ≥0.2 log₂-fold change is used as a community-standard minimum for biologically meaningful regulation (See FR-004)
-- If the DGRP VCF lacks explicit TE insertion calls, [NEEDS CLARIFICATION: does the dataset contain polymorphic TE insertion coordinates or only SNP genotypes?]
-- If RNA-seq data for specific DGRP lines is unavailable, [NEEDS CLARIFICATION: should missing lines be excluded entirely or imputed from similar genotypes?]
+- If the DGRP VCF lacks explicit TE genotype calls, the system MUST fail gracefully with an error message indicating missing input data; de novo calling is out of scope for this feature.
+- If RNA-seq data for specific DGRP lines is unavailable, the system MUST exclude affected lines from individual tests. Imputation from similar genotypes is explicitly prohibited for expression data to prevent introducing synthetic bias into the association statistics; only lines with actual measured expression values are included in the linear model fit for any given gene.
 - If population structure PCs show high collinearity with TE presence (VIF > 5), findings for those pairs will be framed as associational only, not causal (See FR-007)

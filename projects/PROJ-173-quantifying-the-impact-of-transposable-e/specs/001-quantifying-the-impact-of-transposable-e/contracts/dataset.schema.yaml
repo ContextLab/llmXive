@@ -1,0 +1,117 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "DGRP TE‑Gene Dataset Schema"
+description: "Schema for input genotype and expression data. Used for mock generation and validation."
+type: "object"
+properties:
+  metadata:
+    type: "object"
+    properties:
+      source:
+        type: "string"
+        description: "Source of the data (e.g., 'mock', 'dgrp_vcf')"
+      generated_at:
+        type: "string"
+        format: "date-time"
+      seed:
+        type: "integer"
+        description: "Random seed used for generation"
+    required:
+      - source
+      - generated_at
+  genotypes:
+    type: "array"
+    description: "TE presence/absence per sample"
+    items:
+      type: "object"
+      properties:
+        sample_id:
+          type: "string"
+          description: "DGRP line ID"
+        te_id:
+          type: "string"
+          description: "TE identifier"
+        te_family:
+          type: "string"
+          description: "TE family name"
+        chromosome:
+          type: "string"
+        position:
+          type: "integer"
+          description: "Genomic coordinate"
+        presence:
+          type: "integer"
+          enum: [0, 1]
+          description: "Presence (1) or Absence (0)"
+        frequency:
+          type: "number"
+          minimum: 0
+          maximum: 1
+          description: "Frequency across all lines"
+      required:
+        - sample_id
+        - te_id
+        - chromosome
+        - position
+        - presence
+        - frequency
+  expression:
+    type: "array"
+    description: "Gene expression values per sample"
+    items:
+      type: "object"
+      properties:
+        sample_id:
+          type: "string"
+        gene_id:
+          type: "string"
+        expression_value:
+          type: "number"
+          minimum: 0
+          description: "TPM or log2(TPM+1)"
+        tissue:
+          type: "string"
+          description: "Tissue type (for replication)"
+        quantification_method:
+          type: "string"
+          description: "Must be 'TEaware' to satisfy Principle VII"
+      required:
+        - sample_id
+        - gene_id
+        - expression_value
+        - quantification_method
+  gene_models:
+    type: "array"
+    description: "Gene coordinates"
+    items:
+      type: "object"
+      properties:
+        gene_id:
+          type: "string"
+        chromosome:
+          type: "string"
+        strand:
+          type: "string"
+          enum: ["+", "-"]
+        start:
+          type: "integer"
+        end:
+          type: "integer"
+        tss:
+          type: "integer"
+          description: "Transcription Start Site"
+        tes:
+          type: "integer"
+          description: "Transcription End Site"
+      required:
+        - gene_id
+        - chromosome
+        - start
+        - end
+        - tss
+        - tes
+required:
+  - metadata
+  - genotypes
+  - expression
+  - gene_models
+additionalProperties: false

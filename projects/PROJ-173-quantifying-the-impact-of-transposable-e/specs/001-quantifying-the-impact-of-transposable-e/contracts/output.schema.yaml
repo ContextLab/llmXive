@@ -1,0 +1,116 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Association Output Schema"
+description: "Schema for the final association results and derived metrics."
+type: "object"
+properties:
+  associations:
+    type: "array"
+    description: "Results of the linear model association analysis"
+    items:
+      type: "object"
+      properties:
+        te_id:
+          type: "string"
+        gene_id:
+          type: "string"
+        distance_bp:
+          type: "integer"
+        proximal_flag:
+          type: "boolean"
+        ambiguous_flag:
+          type: "boolean"
+          description: "True if TE is within 5kb of multiple genes"
+        mac:
+          type: "integer"
+          description: "Minor Allele Count"
+        power_flag:
+          type: "boolean"
+          description: "True if MAC meets the min_maf threshold"
+        effect_size:
+          type: "number"
+          description: "Log2 fold change"
+        ci_lower:
+          type: "number"
+        ci_upper:
+          type: "number"
+        p_value:
+          type: "number"
+          minimum: 0
+          maximum: 1
+        adj_p_value:
+          type: "number"
+          minimum: 0
+          maximum: 1
+        vif:
+          type: "number"
+          description: "Variance Inflation Factor"
+        vif_flag:
+          type: "boolean"
+          description: "True if VIF > 5"
+        fdr_significant:
+          type: "boolean"
+          description: "True if adj_p_value < 0.05"
+        null_statistic_95th:
+          type: "number"
+          description: "95th percentile of the null distribution from permutation"
+      required:
+        - te_id
+        - gene_id
+        - effect_size
+        - p_value
+        - adj_p_value
+        - fdr_significant
+        - vif_flag
+        - ambiguous_flag
+  population_structure_control:
+    type: "object"
+    description: "R² reduction metric (SC‑004)"
+    properties:
+      r_squared_with_pcs:
+        type: "number"
+      r_squared_without_pcs:
+        type: "number"
+      reduction:
+        type: "number"
+        description: "Difference in R²"
+    required:
+      - r_squared_with_pcs
+      - r_squared_without_pcs
+      - reduction
+  permutation_summary:
+    type: "object"
+    description: "Summary of permutation testing"
+    properties:
+      n_permutations:
+        type: "integer"
+      observed_t_stat:
+        type: "number"
+      null_95th_percentile:
+        type: "number"
+      exceeds_null:
+        type: "boolean"
+    required:
+      - n_permutations
+      - observed_t_stat
+      - null_95th_percentile
+      - exceeds_null
+  replication_summary:
+    type: "object"
+    description: "Replication results"
+    properties:
+      total_tested:
+        type: "integer"
+      concordant_count:
+        type: "integer"
+      concordance_rate:
+        type: "number"
+    required:
+      - total_tested
+      - concordant_count
+      - concordance_rate
+required:
+  - associations
+  - population_structure_control
+  - permutation_summary
+  - replication_summary
+additionalProperties: false

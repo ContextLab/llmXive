@@ -6,7 +6,7 @@ failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-173-quantifying-the-impact-of-transposable-e
-last_run_id: d4397f3a-a6f2-4489-b5f5-3af040f5e4c4
+last_run_id: 0ffc98ed-de33-4637-b124-baed7a66cc69
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-173-quantifying-the-impact-of-transposable-e/specs/001-quantifying-the-impact-of-transposable-e
 title: Quantifying the Impact of Transposable Element Activity on Gene Expression
   Variation in Drosophila
-updated_at: '2026-06-27T10:08:41.904304Z'
+updated_at: '2026-07-02T23:16:02.808394Z'

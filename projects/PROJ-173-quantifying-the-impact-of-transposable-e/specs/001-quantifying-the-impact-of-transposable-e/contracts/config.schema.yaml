@@ -1,0 +1,94 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Project Configuration Schema"
+description: "Schema for config.yaml"
+type: "object"
+properties:
+  project:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+        description: "Project ID"
+      name:
+        type: "string"
+      version:
+        type: "string"
+    required:
+      - id
+      - name
+      - version
+  data:
+    type: "object"
+    properties:
+      genotypes_path:
+        type: "string"
+        description: "Path to genotype VCF or CSV"
+      expression_path:
+        type: "string"
+        description: "Path to expression matrix (must be TE‑aware)"
+      gene_models_path:
+        type: "string"
+        description: "Path to GTF file"
+      use_mock:
+        type: "boolean"
+        description: "If true, generate synthetic data"
+      mock_seed:
+        type: "integer"
+        description: "Seed for mock data generation"
+      mock_n_lines:
+        type: "integer"
+        minimum: 1
+        description: "Number of lines for mock data"
+      mock_n_pairs:
+        type: "integer"
+        minimum: 1
+        description: "Number of TE‑gene pairs for mock data"
+    required:
+      - use_mock
+  analysis:
+    type: "object"
+    properties:
+      proximal_window_kb:
+        type: "integer"
+        default: 5
+      fdr_threshold:
+        type: "number"
+        default: 0.05
+      vif_threshold:
+        type: "number"
+        default: 5
+      n_permutations:
+        type: "integer"
+        minimum: 1
+        default: 100
+      pc_count:
+        type: "integer"
+        default: 3
+      min_maf:
+        type: "number"
+        minimum: 0
+        maximum: 1
+        default: 0.10
+        description: "Minimum minor allele frequency required for inclusion in primary OLS analysis"
+    required:
+      - proximal_window_kb
+      - fdr_threshold
+      - n_permutations
+      - pc_count
+  reproducibility:
+    type: "object"
+    properties:
+      random_seed:
+        type: "integer"
+        description: "Global random seed"
+      checksum_raw_data:
+        type: "boolean"
+        default: true
+    required:
+      - random_seed
+required:
+  - project
+  - data
+  - analysis
+  - reproducibility
+additionalProperties: false

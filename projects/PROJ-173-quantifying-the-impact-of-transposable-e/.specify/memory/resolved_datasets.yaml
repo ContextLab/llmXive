@@ -1,0 +1,242 @@
+resolved_at: '2026-07-02T22:44:00.964140+00:00'
+datasets:
+- intent: TE-gene
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/poster/_070_4096_4654_Coal_City_University_Enugu_i_Admission_Form_Open_i_i_2026-2027_Transfer_Form_i_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_Major_news_outlets_often_have_strong_controls_in_place_to_avoid_and_fix_false/32885747
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.mq.edu.au/articles/thesis/Experiences_from_Benchmarking_Vision_Language_Action_Models_for_Robotic_Manipulation/31593502
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/_070_4096_4654_Clifford_University_Owerrinta_i_Admission_Form_Open_i_i_2026-2027_Transfer_Form_i_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_Major_news_outlets_often_have_strong_controls_in_place_to_avoid_and_fix_fa/32885741
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_070_4096_4654_Spiritan_University_Nneochi_i_Admission_Form_Open_i_i_2026-2027_Transfer_Form_i_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_Major_news_outlets_often_have_strong_controls_in_place_to_avoid_and_fix_fals/32885738
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_ProQuest_b_Protein_Querying_Using_Semantic_Technology_for_developing_the_UniProtKB_LLM_Query_Interface/32885441
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10214080
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.kwh70rz70
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.sj3tx965m
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.3329/ijarit.v14i1.74523
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''www.banglajol.info'',
+      port=443): Max retries exceeded with url: /index.php/IJARIT/article/view/74523
+      (Caused by ConnectTimeoutError(<HTTPSConnection(host=''www.banglajol.info'',
+      port=443) at 0x7f9b50e47910>, ''Connection to www.banglajol.info timed out.
+      (connect timeout=20.0)''))'
+  - url: https://zenodo.org/records/5140470
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.b8gtht7t6
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.9s4mw6mxk
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.dg483
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ora.ox.ac.uk/objects/uuid:45c915a9-3dfc-44d2-9713-613ec8c76bca
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://doi.org/10.17615/gwkk-f272
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''cdr.lib.unc.edu'',
+      port=443): Max retries exceeded with url: /concern/articles/ht24x1365 (Caused
+      by ConnectTimeoutError(<HTTPSConnection(host=''cdr.lib.unc.edu'', port=443)
+      at 0x7f9b50e2d590>, ''Connection to cdr.lib.unc.edu timed out. (connect timeout=20.0)''))'
+- intent: DGRP
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Housing_and_transport_affordability_for_school_staff_and_its_impact_on_systemic_workforce_planning/32354013
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/_070_4096_4654_Coal_City_University_Enugu_i_Admission_Form_Open_i_i_2026-2027_Transfer_Form_i_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_Major_news_outlets_often_have_strong_controls_in_place_to_avoid_and_fix_false/32885747
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.mq.edu.au/articles/thesis/Experiences_from_Benchmarking_Vision_Language_Action_Models_for_Robotic_Manipulation/31593502
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/_070_4096_4654_Clifford_University_Owerrinta_i_Admission_Form_Open_i_i_2026-2027_Transfer_Form_i_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_Major_news_outlets_often_have_strong_controls_in_place_to_avoid_and_fix_fa/32885741
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_070_4096_4654_Spiritan_University_Nneochi_i_Admission_Form_Open_i_i_2026-2027_Transfer_Form_i_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_Major_news_outlets_often_have_strong_controls_in_place_to_avoid_and_fix_fals/32885738
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6651851
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5035934
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.qbzkh18rw
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11402628
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.2z34tmpr6
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5285/65c7085a-7bcf-481a-884a-8e1c9cfc395b
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://hammer.purdue.edu/articles/thesis/_i_NEDD8_i_REGULATION_IN_OVEREXPRESSION_MODELS_i_P53_i_i_RPR_i_AND_i_RH1_i_sup_em_G69D_em_sup_/32731251/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://hammer.purdue.edu/articles/thesis/_i_NEDD8_i_REGULATION_IN_OVEREXPRESSION_MODELS_i_P53_i_i_RPR_i_AND_i_RH1_i_sup_em_G69D_em_sup_/32731251
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://knowledge.uchicago.edu/records/91vcj-mrd93
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://knowledge.uchicago.edu/records/91vcj-mrd93
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: FDR
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/RyanSaleh/fdr/resolve/main/dataset_info.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 766
+      parsed: true
+  - url: https://huggingface.co/datasets/PhillyMac/fdr-training-corpus/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/leonadase/fdRE/resolve/main/fdRE.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 27026
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/leonadase/fdRE/resolve/main/fdRE.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/api/resolve-cache/datasets/Ant-j-a/fdr_pc/eaa55dcc52ce3a34a2476e5ee83e770b90f0597b/fdr_ft_data.json?%2Fdatasets%2FAnt-j-a%2Ffdr_pc%2Fresolve%2Fmain%2Ffdr_ft_data.json=&etag=%22abf005552883ffb0cb56efb92dd40704626e6119%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/api/resolve-cache/datasets/Ant-j-a/fdr_data/d17d474aa35707f6f6963bc81dc9b780c12c4a84/fdr_ft_data.jsonl?%2Fdatasets%2FAnt-j-a%2Ffdr_data%2Fresolve%2Fmain%2Ffdr_ft_data.jsonl=&etag=%22abf005552883ffb0cb56efb92dd40704626e6119%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/RyanSaleh/fdr/resolve/main/dataset_info.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/PhillyMac/fdr-training-corpus/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://dro.deakin.edu.au/articles/conference_contribution/Housing_and_transport_affordability_for_school_staff_and_its_impact_on_systemic_workforce_planning/32354013
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/_070_4096_4654_Coal_City_University_Enugu_i_Admission_Form_Open_i_i_2026-2027_Transfer_Form_i_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_Major_news_outlets_often_have_strong_controls_in_place_to_avoid_and_fix_false/32885747
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.mq.edu.au/articles/thesis/Experiences_from_Benchmarking_Vision_Language_Action_Models_for_Robotic_Manipulation/31593502
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/_070_4096_4654_Clifford_University_Owerrinta_i_Admission_Form_Open_i_i_2026-2027_Transfer_Form_i_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_Major_news_outlets_often_have_strong_controls_in_place_to_avoid_and_fix_fa/32885741
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_070_4096_4654_Spiritan_University_Nneochi_i_Admission_Form_Open_i_i_2026-2027_Transfer_Form_i_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_Major_news_outlets_often_have_strong_controls_in_place_to_avoid_and_fix_fals/32885738
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19485037
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15629319
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16743754
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7756151
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10254142
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Long-term_molecular_embedding_of_early_life_adversity_leukocyte_DNA_methylation_and_gene_expression_associations_from_childhood_to_young_adulthood/32813205/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Long-term_molecular_embedding_of_early_life_adversity_leukocyte_DNA_methylation_and_gene_expression_associations_from_childhood_to_young_adulthood/32813205
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Long-term_molecular_embedding_of_early_life_adversity_leukocyte_DNA_methylation_and_gene_expression_associations_from_childhood_to_young_adulthood/32813205/2
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21128268
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21128268
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
