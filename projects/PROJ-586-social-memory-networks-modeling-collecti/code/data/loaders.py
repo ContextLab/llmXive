@@ -1,10 +1,7 @@
 """
-Dataset loaders for social memory network experiments.
-
-This module provides dataset loading functionality with synthetic fallback
-when real datasets (Hanabi, CoQA) are not programmatically accessible.
+Dataset loaders for Social Memory Networks.
+Provides interfaces for loading real datasets and managing synthetic data.
 """
-
 import os
 from typing import List, Dict, Any, Optional, Tuple, Union
 from pathlib import Path
@@ -13,148 +10,52 @@ import pandas as pd
 from .synthetic import generate_all_datasets
 
 class DatasetLoader:
-    """
-    Dataset loader for social memory experiments.
+    """Base class for dataset loaders."""
     
-    Provides methods to load, generate, and save datasets for experiments.
-    """
+    def __init__(self, data_dir: str = "data"):
+        self.data_dir = Path(data_dir)
+        self.data_dir.mkdir(parents=True, exist_ok=True)
     
-    def __init__(self, dataset_name: str = "synthetic"):
-        """
-        Initialize dataset loader.
-        
-        Args:
-            dataset_name: Name of dataset to load
-        """
-        self.dataset_name = dataset_name
-        self.dataset = None
-    
-    def load(self, **kwargs) -> Dict[str, Any]:
-        """
-        Load dataset.
-        
-        Args:
-            **kwargs: Additional loading parameters
-        
-        Returns:
-            Dataset dictionary
-        """
-        if self.dataset_name == "synthetic":
-            self.dataset = generate_all_datasets(**kwargs)
-        else:
-            raise ValueError(f"Unsupported dataset: {self.dataset_name}")
-        
-        return self.dataset
+    def load(self, dataset_name: str) -> pd.DataFrame:
+        """Load a dataset by name."""
+        raise NotImplementedError
 
-def get_dataset(
-    dataset_name: str = "synthetic",
-    num_games: int = 1000,
-    num_agents: int = 3,
-    seed: int = 42
-) -> Dict[str, Any]:
+def get_dataset(dataset_name: str) -> pd.DataFrame:
     """
-    Get dataset by name.
+    Get a dataset by name.
     
-    Args:
-        dataset_name: Dataset name
-        num_games: Number of games
-        num_agents: Number of agents
-        seed: Random seed
-    
-    Returns:
-        Dataset dictionary
+    Currently only synthetic datasets are supported as per spec requirements.
+    Real datasets (Hanabi, CoQA) are not available via verified URLs.
     """
-    if dataset_name == "synthetic":
-        return generate_all_datasets(
-            dataset_name="synthetic",
-            num_games=num_games,
-            num_agents=num_agents,
-            seed=seed
-        )
-    else:
-        raise ValueError(f"Unsupported dataset: {dataset_name}")
+    if dataset_name == "synthetic_games":
+        return generate_all_datasets()["games"]
+    raise ValueError(f"Unknown dataset: {dataset_name}")
 
-def load_experiment_results(filepath: Union[str, Path]) -> pd.DataFrame:
-    """
-    Load experiment results from CSV file.
-    
-    Args:
-        filepath: Path to results CSV file
-    
-    Returns:
-        DataFrame with experiment results
-    """
-    filepath = Path(filepath)
-    if not filepath.exists():
-        raise FileNotFoundError(f"Results file not found: {filepath}")
-    
-    return pd.read_csv(filepath)
+def load_experiment_results(filepath: str) -> List[Dict[str, Any]]:
+    """Load experiment results from a CSV file."""
+    df = pd.read_csv(filepath)
+    return df.to_dict(orient="records")
 
-def save_experiment_results(
-    df: pd.DataFrame,
-    filepath: Union[str, Path]
-) -> None:
-    """
-    Save experiment results to CSV file.
-    
-    Args:
-        df: DataFrame with results
-        filepath: Output path
-    """
-    filepath = Path(filepath)
-    filepath.parent.mkdir(parents=True, exist_ok=True)
+def save_experiment_results(records: List[Dict[str, Any]], filepath: str):
+    """Save experiment results to a CSV file."""
+    df = pd.DataFrame(records)
     df.to_csv(filepath, index=False)
 
-def get_dataset_spec(dataset_name: str = "synthetic") -> Dict[str, Any]:
-    """
-    Get dataset specification.
-    
-    Args:
-        dataset_name: Dataset name
-    
-    Returns:
-        Dataset specification dictionary
-    """
-    if dataset_name == "synthetic":
-        return {
-            "name": "synthetic",
+def get_dataset_spec() -> Dict[str, Any]:
+    """Get the specification for available datasets."""
+    return {
+        "synthetic_games": {
             "description": "Synthetic game data for social memory experiments",
-            "fields": ["game_id", "items", "agent_items", "turns"],
             "num_games": 1000,
-            "num_agents": 3,
-            "num_items": 20,
-            "num_turns": 10
+            "fields": ["game_id", "agent_actions", "memory_states", "outcomes"]
         }
-    else:
-        raise ValueError(f"Unsupported dataset: {dataset_name}")
+    }
 
-def generate_all_datasets(
-    dataset_name: str = "synthetic",
-    num_games: int = 1000,
-    num_agents: int = 3,
-    seed: int = 42
-) -> Dict[str, Any]:
+def generate_all_datasets(output_dir: str = "data"):
     """
-    Generate all datasets needed for experiments.
+    Generate all synthetic datasets needed for the experiment.
     
-    Args:
-        dataset_name: Dataset name
-        num_games: Number of games
-        num_agents: Number of agents
-        seed: Random seed
-    
-    Returns:
-        Dictionary with all generated datasets
+    This is the primary data source as real datasets are unavailable.
     """
-    return generate_all_datasets(
-        dataset_name=dataset_name,
-        num_games=num_games,
-        num_agents=num_agents,
-        seed=seed
-    )
-
-if __name__ == "__main__":
-    # Test loader
-    loader = DatasetLoader("synthetic")
-    dataset = loader.load(num_games=10)
-    print(f"Loaded {len(dataset['games'])} games")
+    from .synthetic import generate_all_datasets as gen_all
+    return gen_all(output_dir)
