@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-27T09:10:32.424067Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-628-foundation-protocol-a-coordination-layer
-last_run_id: 92bf9a05-d752-4e2e-a905-6af23c2f0bfa
+last_run_id: 53f96b31-6dde-44a0-9c28-4b68ffc7d359
 last_run_status: null
 points_paper: {}
 points_research: {}

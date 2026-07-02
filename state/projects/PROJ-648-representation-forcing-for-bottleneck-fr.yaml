@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-02T09:29:07.162842Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-648-representation-forcing-for-bottleneck-fr
-last_run_id: f0b6f42e-87f9-49a9-830c-fdadb31cdf14
+last_run_id: 73b5c1b3-cc11-4b15-ba8e-e85a6ccaae07
 last_run_status: null
 points_paper: {}
 points_research: {}
