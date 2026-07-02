@@ -1,390 +1,364 @@
 """
 Preprocessing module for plant disease resistance data.
 
-Wrappers for fastp (QC), bcftools (variant calling), and MetaboAnalyst-compatible
-normalization. Handles alignment of sample IDs across modalities.
+Wraps external tools (fastp, bcftools) and implements MetaboAnalyst-compatible
+normalization. Handles alignment of sample IDs across modalities and logs
+exclusions as mandated by FR-001.
 """
 import os
 import subprocess
-import sys
-import csv
-from datetime import datetime
-from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
-
 import pandas as pd
 import numpy as np
+from pathlib import Path
+from datetime import datetime
+from typing import Optional, List, Tuple, Dict, Any
+import yaml
 
-from config import get_path
-from utils.logging import get_logger, log_pipeline_step, log_sample_exclusion, setup_exclusion_logger
+from config import get_processed_data_path, get_data_path
+from utils.logging import get_logger, log_sample_exclusion, log_pipeline_step
+from utils.exceptions import EX_DATA_INTEGRITY
+from data.manifest import load_manifest
 
 logger = get_logger(__name__)
-exclusion_logger = setup_exclusion_logger()
 
-def run_fastp(input_file: Path, output_file: Path, log_file: Path) -> bool:
+def run_fastp(input_fastq: Path, output_prefix: Path, threads: int = 4) -> bool:
     """
-    Wrapper for fastp to perform quality control on FASTQ files.
+    Run fastp for quality control and adapter trimming.
     
     Args:
-        input_file: Path to input FASTQ file
-        output_file: Path to output FASTQ file
-        log_file: Path to fastp log file
+        input_fastq: Path to input FASTQ file.
+        output_prefix: Prefix for output files (fastp adds extensions).
+        threads: Number of threads to use.
         
     Returns:
-        bool: True if successful, False otherwise
+        True if successful, False otherwise.
     """
     cmd = [
         "fastp",
-        "-i", str(input_file),
-        "-o", str(output_file),
-        "--json", str(log_file),
-        "--html", str(log_file.with_suffix('.html'))
+        "-i", str(input_fastq),
+        "-o", f"{output_prefix}_clean.fastq",
+        "--json", f"{output_prefix}_fastp.json",
+        "--html", f"{output_prefix}_fastp.html",
+        "-j", str(threads),
+        "--thread", str(threads)
     ]
     
+    logger.info(f"Running fastp: {' '.join(cmd)}")
     try:
-        logger.info(f"Running fastp on {input_file}")
-        subprocess.run(cmd, check=True, capture_output=True, text=True)
-        logger.info(f"fastp completed successfully for {input_file}")
+        result = subprocess.run(cmd, check=True, capture_output=True, text=True)
+        logger.info("fastp completed successfully")
         return True
     except subprocess.CalledProcessError as e:
-        logger.error(f"fastp failed for {input_file}: {e.stderr}")
-        return False
-    except FileNotFoundError:
-        logger.error("fastp executable not found. Please install fastp.")
+        logger.error(f"fastp failed: {e.stderr}")
         return False
 
-def run_bcftools_call(bcf_file: Path, output_vcf: Path) -> bool:
+def run_bcftools_call(bam_file: Path, reference_fasta: Path, output_vcf: Path) -> bool:
     """
-    Wrapper for bcftools call to perform variant calling.
+    Run bcftools for variant calling.
     
     Args:
-        bcf_file: Path to input BCF file
-        output_vcf: Path to output VCF file
+        bam_file: Path to sorted BAM file.
+        reference_fasta: Path to reference genome FASTA.
+        output_vcf: Path to output VCF file.
         
     Returns:
-        bool: True if successful, False otherwise
+        True if successful, False otherwise.
     """
+    # Index reference if needed
+    if not Path(f"{reference_fasta}.fai").exists():
+        cmd_idx = ["samtools", "faidx", str(reference_fasta)]
+        subprocess.run(cmd_idx, check=True)
+    
+    # Call variants
     cmd = [
-        "bcftools", "call",
-        "-mv",
-        "-Oz",
-        "-o", str(output_vcf),
-        str(bcf_file)
+        "bcftools", "mpileup",
+        "-f", str(reference_fasta),
+        "-Ou",
+        str(bam_file),
+        "|", "bcftools", "call",
+        "-mv", "-Oz", "-o", str(output_vcf)
     ]
     
+    # Build command without pipe for subprocess
+    cmd_pileup = ["bcftools", "mpileup", "-f", str(reference_fasta), "-Ou", str(bam_file)]
+    cmd_call = ["bcftools", "call", "-mv", "-Oz", "-o", str(output_vcf)]
+    
+    logger.info(f"Running bcftools mpileup and call")
     try:
-        logger.info(f"Running bcftools call on {bcf_file}")
-        subprocess.run(cmd, check=True, capture_output=True, text=True)
-        logger.info(f"bcftools call completed successfully for {bcf_file}")
+        p1 = subprocess.Popen(cmd_pileup, stdout=subprocess.PIPE)
+        p2 = subprocess.Popen(cmd_call, stdin=p1.stdout, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p1.stdout.close()
+        _, stderr = p2.communicate()
+        
+        if p2.returncode != 0:
+            logger.error(f"bcftools failed: {stderr.decode()}")
+            return False
+        
+        # Index VCF
+        subprocess.run(["bcftools", "index", str(output_vcf)], check=True)
+        logger.info("bcftools completed successfully")
         return True
-    except subprocess.CalledProcessError as e:
-        logger.error(f"bcftools call failed for {bcf_file}: {e.stderr}")
-        return False
-    except FileNotFoundError:
-        logger.error("bcftools executable not found. Please install bcftools.")
+    except Exception as e:
+        logger.error(f"bcftools error: {str(e)}")
         return False
 
-def normalize_metabolomics(data: pd.DataFrame, method: str = "pareto") -> pd.DataFrame:
+def normalize_metabolomics(dataframe: pd.DataFrame, method: str = "log2") -> pd.DataFrame:
     """
-    Apply MetaboAnalyst-compatible normalization to metabolomics data.
+    Apply MetaboAnalyst-compatible normalization.
     
     Args:
-        data: DataFrame with metabolite features (columns) and samples (rows)
-        method: Normalization method ('pareto', 'log', 'autoscale', 'max')
+        dataframe: Input DataFrame with samples as rows, features as columns.
+        method: Normalization method ('log2', 'pareto', 'autoscale').
         
     Returns:
-        Normalized DataFrame
+        Normalized DataFrame.
     """
-    if method not in ["pareto", "log", "autoscale", "max"]:
-        raise ValueError(f"Unknown normalization method: {method}")
+    df = dataframe.copy()
     
-    # Ensure numeric columns only
-    numeric_cols = data.select_dtypes(include=[np.number]).columns
-    if len(numeric_cols) == 0:
-        logger.warning("No numeric columns found for normalization")
-        return data
-    
-    normalized = data.copy()
-    
-    if method == "pareto":
+    if method == "log2":
+        # Add small constant to avoid log(0)
+        df = np.log2(df + 1e-6)
+    elif method == "pareto":
         # Pareto scaling: divide by square root of standard deviation
-        std_vals = normalized[numeric_cols].std(axis=0)
-        std_vals[std_vals == 0] = 1  # Avoid division by zero
-        normalized[numeric_cols] = normalized[numeric_cols] / np.sqrt(std_vals)
-        
-    elif method == "log":
-        # Log transformation (log2(x + 1) to handle zeros)
-        normalized[numeric_cols] = np.log2(normalized[numeric_cols] + 1)
-        
+        std = df.std(axis=0)
+        std[std == 0] = 1
+        df = df / np.sqrt(std)
     elif method == "autoscale":
-        # Autoscaling: mean center and divide by standard deviation
-        means = normalized[numeric_cols].mean(axis=0)
-        std_vals = normalized[numeric_cols].std(axis=0)
-        std_vals[std_vals == 0] = 1
-        normalized[numeric_cols] = (normalized[numeric_cols] - means) / std_vals
-        
-    elif method == "max":
-        # Max normalization: divide by maximum value
-        max_vals = normalized[numeric_cols].max(axis=0)
-        max_vals[max_vals == 0] = 1
-        normalized[numeric_cols] = normalized[numeric_cols] / max_vals
+        # Z-score normalization
+        mean = df.mean(axis=0)
+        std = df.std(axis=0)
+        std[std == 0] = 1
+        df = (df - mean) / std
     
-    return normalized
-
-def align_sample_ids(
-    snp_data: pd.DataFrame,
-    metabo_data: pd.DataFrame,
-    snp_id_col: str = "sample_id",
-    metabo_id_col: str = "sample_id",
-    output_dir: Path = None
-) -> Tuple[pd.DataFrame, pd.DataFrame, List[Dict[str, Any]]]:
-    """
-    Align sample IDs across SNP and metabolomics modalities using exact string match.
-    Drop samples that don't match in both modalities and log exclusions.
-    
-    Args:
-        snp_data: DataFrame with SNP data
-        metabo_data: DataFrame with metabolomics data
-        snp_id_col: Column name for sample IDs in SNP data
-        metabo_id_col: Column name for sample IDs in metabolomics data
-        output_dir: Directory to write exclusion log
-        
-    Returns:
-        Tuple of (aligned_snp_data, aligned_metabo_data, exclusion_log)
-    """
-    if output_dir is None:
-        output_dir = get_path("data_processed")
-    
-    # Ensure ID columns exist
-    if snp_id_col not in snp_data.columns:
-        raise ValueError(f"SNP ID column '{snp_id_col}' not found in SNP data")
-    if metabo_id_col not in metabo_data.columns:
-        raise ValueError(f"Metabolite ID column '{metabo_id_col}' not found in metabolomics data")
-    
-    # Convert to string for exact matching
-    snp_ids = set(snp_data[snp_id_col].astype(str))
-    metabo_ids = set(metabo_data[metabo_id_col].astype(str))
-    
-    # Find matching IDs
-    common_ids = snp_ids & metabo_ids
-    missing_in_snp = metabo_ids - snp_ids
-    missing_in_metabo = snp_ids - metabo_ids
-    
-    exclusion_log = []
-    timestamp = datetime.now().isoformat()
-    
-    # Log exclusions
-    for sample_id in missing_in_snp:
-        exclusion_entry = {
-            "sample_id": sample_id,
-            "missing_modality": "SNP",
-            "timestamp": timestamp
-        }
-        exclusion_log.append(exclusion_entry)
-        log_sample_exclusion(
-            sample_id=sample_id,
-            reason="Missing in SNP modality",
-            missing_modality="SNP"
-        )
-        
-    for sample_id in missing_in_metabo:
-        exclusion_entry = {
-            "sample_id": sample_id,
-            "missing_modality": "Metabolomics",
-            "timestamp": timestamp
-        }
-        exclusion_log.append(exclusion_entry)
-        log_sample_exclusion(
-            sample_id=sample_id,
-            reason="Missing in Metabolomics modality",
-            missing_modality="Metabolomics"
-        )
-    
-    # Log summary
-    logger.info(f"Alignment: {len(common_ids)} matching samples, "
-               f"{len(missing_in_snp)} missing in SNP, "
-               f"{len(missing_in_metabo)} missing in Metabolomics")
-    
-    # Filter data to common IDs
-    aligned_snp = snp_data[snp_data[snp_id_col].astype(str).isin(common_ids)].reset_index(drop=True)
-    aligned_metabo = metabo_data[metabo_data[metabo_id_col].astype(str).isin(common_ids)].reset_index(drop=True)
-    
-    # Write exclusion log
-    if exclusion_log:
-        exclusion_log_path = output_dir / "exclusion_log.csv"
-        with open(exclusion_log_path, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=["sample_id", "missing_modality", "timestamp"])
-            writer.writeheader()
-            writer.writerows(exclusion_log)
-        logger.info(f"Wrote exclusion log to {exclusion_log_path}")
-    
-    return aligned_snp, aligned_metabo, exclusion_log
-
-def preprocess_snps(
-    input_vcf: Path,
-    output_csv: Path,
-    sample_id_col: str = "sample_id"
-) -> pd.DataFrame:
-    """
-    Process SNP data from VCF to a feature table.
-    
-    Args:
-        input_vcf: Path to input VCF file
-        output_csv: Path to output CSV file
-        sample_id_col: Name for the sample ID column
-        
-    Returns:
-        DataFrame with SNP features
-    """
-    if not input_vcf.exists():
-        raise FileNotFoundError(f"Input VCF file not found: {input_vcf}")
-    
-    # Check if bcftools is available and convert VCF to TSV
-    try:
-        # Use bcftools to convert VCF to a more manageable format
-        temp_tsv = input_vcf.with_suffix('.tsv')
-        cmd = [
-            "bcftools", "query",
-            "-f", "%CHROM\t%POS\t%REF\t%ALT[\t%GT]\n",
-            str(input_vcf)
-        ]
-        
-        subprocess.run(cmd, check=True, capture_output=True)
-        
-        # Parse the TSV output
-        # This is a simplified parser; in production, use a proper VCF parser
-        snp_data = []
-        with open(temp_tsv, 'r') as f:
-            for line in f:
-                parts = line.strip().split('\t')
-                if len(parts) >= 4:
-                    chrom, pos, ref, alt = parts[:4]
-                    genotypes = parts[4:]
-                    snp_data.append({
-                        "sample_id": sample_id_col,  # Placeholder - actual sample IDs would come from VCF header
-                        "chrom": chrom,
-                        "pos": pos,
-                        "ref": ref,
-                        "alt": alt,
-                        "genotypes": genotypes
-                    })
-        
-        # In a real implementation, we would properly extract sample IDs from VCF header
-        # and create a proper feature matrix
-        logger.warning("Simplified VCF parsing used. Full implementation requires proper VCF parsing.")
-        
-    except FileNotFoundError:
-        logger.error("bcftools not found. Cannot process VCF.")
-        raise
-    except subprocess.CalledProcessError as e:
-        logger.error(f"bcftools query failed: {e.stderr}")
-        raise
-    
-    # For now, return an empty DataFrame - real implementation would parse properly
-    df = pd.DataFrame()
-    df.to_csv(output_csv, index=False)
     return df
 
-def preprocess_metabolomics(
-    input_csv: Path,
-    output_csv: Path,
-    normalization_method: str = "pareto",
-    sample_id_col: str = "sample_id"
-) -> pd.DataFrame:
+def align_modalities(
+    snp_data: pd.DataFrame,
+    metabolite_data: pd.DataFrame,
+    snp_id_col: str = "sample_id",
+    metabolite_id_col: str = "sample_id",
+    exclusion_log_path: Optional[Path] = None
+) -> Tuple[pd.DataFrame, pd.DataFrame, List[Dict[str, Any]]]:
     """
-    Process metabolomics data with normalization.
+    Align sample IDs across SNP and metabolite modalities.
+    
+    Performs exact string matching on sample IDs. Drops samples that do not
+    appear in both modalities and logs exclusions.
     
     Args:
-        input_csv: Path to input CSV file
-        output_csv: Path to output CSV file
-        normalization_method: Method for normalization
-        sample_id_col: Name for the sample ID column
+        snp_data: DataFrame with SNP data.
+        metabolite_data: DataFrame with metabolite data.
+        snp_id_col: Column name for sample IDs in SNP data.
+        metabolite_id_col: Column name for sample IDs in metabolite data.
+        exclusion_log_path: Path to write exclusion log CSV.
         
     Returns:
-        Normalized DataFrame
+        Tuple of (aligned_snp_data, aligned_metabolite_data, exclusion_records)
     """
-    if not input_csv.exists():
-        raise FileNotFoundError(f"Input CSV file not found: {input_csv}")
+    # Ensure ID columns exist
+    if snp_id_col not in snp_data.columns:
+        raise EX_DATA_INTEGRITY(f"SNP data missing ID column: {snp_id_col}")
+    if metabolite_id_col not in metabolite_data.columns:
+        raise EX_DATA_INTEGRITY(f"Metabolite data missing ID column: {metabolite_id_col}")
     
-    # Load data
-    data = pd.read_csv(input_csv)
+    # Get unique IDs from each modality
+    snp_ids = set(snp_data[snp_id_col].astype(str))
+    metabolite_ids = set(metabolite_data[metabolite_id_col].astype(str))
     
-    # Apply normalization
-    normalized_data = normalize_metabolomics(data, method=normalization_method)
+    # Find matching IDs
+    matching_ids = snp_ids.intersection(metabolite_ids)
+    missing_in_snp = metabolite_ids - snp_ids
+    missing_in_metabolite = snp_ids - metabolite_ids
     
-    # Save
-    normalized_data.to_csv(output_csv, index=False)
-    logger.info(f"Normalized metabolomics data saved to {output_csv}")
+    exclusion_records = []
+    timestamp = datetime.now().isoformat()
     
-    return normalized_data
+    # Log exclusions for missing in SNP (present in metabolite only)
+    for sample_id in missing_in_snp:
+        record = {
+            "sample_id": sample_id,
+            "missing_modality": "snp",
+            "timestamp": timestamp
+        }
+        exclusion_records.append(record)
+        log_sample_exclusion(
+            sample_id=sample_id,
+            reason="missing_in_snp",
+            modality="snp"
+        )
+    
+    # Log exclusions for missing in metabolite (present in SNP only)
+    for sample_id in missing_in_metabolite:
+        record = {
+            "sample_id": sample_id,
+            "missing_modality": "metabolite",
+            "timestamp": timestamp
+        }
+        exclusion_records.append(record)
+        log_sample_exclusion(
+            sample_id=sample_id,
+            reason="missing_in_metabolite",
+            modality="metabolite"
+        )
+    
+    # Filter data to matching IDs
+    aligned_snp = snp_data[snp_data[snp_id_col].astype(str).isin(matching_ids)].copy()
+    aligned_metabolite = metabolite_data[metabolite_data[metabolite_id_col].astype(str).isin(matching_ids)].copy()
+    
+    # Sort by sample_id for consistency
+    aligned_snp = aligned_snp.sort_values(by=snp_id_col).reset_index(drop=True)
+    aligned_metabolite = aligned_metabolite.sort_values(by=metabolite_id_col).reset_index(drop=True)
+    
+    # Write exclusion log if path provided
+    if exclusion_log_path and exclusion_records:
+        exclusion_log_path.parent.mkdir(parents=True, exist_ok=True)
+        exclusion_df = pd.DataFrame(exclusion_records)
+        exclusion_df.to_csv(exclusion_log_path, index=False)
+        logger.info(f"Written exclusion log to {exclusion_log_path} with {len(exclusion_records)} entries")
+    
+    logger.info(f"Aligned {len(matching_ids)} samples across modalities. "
+               f"Dropped {len(missing_in_snp)} samples missing in SNP, "
+               f"{len(missing_in_metabolite)} samples missing in metabolite.")
+    
+    return aligned_snp, aligned_metabolite, exclusion_records
 
-def main():
+def process_pipeline(
+    manifest_path: Optional[Path] = None,
+    output_dir: Optional[Path] = None
+) -> Dict[str, Any]:
     """
-    Main function to run the preprocessing pipeline.
+    Run the full preprocessing pipeline.
     
-    This function demonstrates the preprocessing workflow:
-    1. Load raw data (SNP and Metabolomics)
-    2. Align sample IDs across modalities
-    3. Normalize metabolomics data
-    4. Save aligned datasets
+    Args:
+        manifest_path: Path to data manifest YAML.
+        output_dir: Directory for processed outputs.
+        
+    Returns:
+        Dictionary with pipeline results and paths.
     """
-    log_pipeline_step("preprocess_start", {"message": "Starting preprocessing pipeline"})
+    if manifest_path is None:
+        manifest_path = get_data_path() / "data_manifest.yaml"
     
-    # Get paths
-    data_dir = get_path("data_raw")
-    output_dir = get_path("data_processed")
+    if output_dir is None:
+        output_dir = get_processed_data_path()
     
-    # Ensure output directory exists
     output_dir.mkdir(parents=True, exist_ok=True)
     
-    # Example: Load synthetic data for demonstration
-    # In real usage, this would load from downloaded files
-    try:
-        # Load SNP data (if exists)
-        snp_path = data_dir / "snps.csv"
+    log_pipeline_step(step="preprocess_start", details={"manifest": str(manifest_path)})
+    
+    # Load manifest
+    manifest = load_manifest(manifest_path)
+    
+    # Initialize results
+    results = {
+        "aligned_samples": 0,
+        "excluded_samples": 0,
+        "snp_output": None,
+        "metabolite_output": None,
+        "exclusion_log": None
+    }
+    
+    # Check if we have data to process
+    datasets = manifest.get("datasets", [])
+    if not datasets:
+        logger.warning("No datasets found in manifest")
+        return results
+    
+    # Identify SNP and metabolite datasets
+    snp_dataset = None
+    metabolite_dataset = None
+    
+    for ds in datasets:
+        modality = ds.get("modality", "")
+        if modality == "snp":
+            snp_dataset = ds
+        elif modality == "metabolite":
+            metabolite_dataset = ds
+    
+    # Load data files
+    snp_data = None
+    metabolite_data = None
+    
+    if snp_dataset:
+        snp_path = get_data_path() / snp_dataset.get("file", "")
         if snp_path.exists():
             snp_data = pd.read_csv(snp_path)
-            logger.info(f"Loaded SNP data: {len(snp_data)} samples")
+            logger.info(f"Loaded SNP data from {snp_path}")
         else:
-            logger.warning("SNP data not found. Skipping SNP preprocessing.")
-            snp_data = None
-        
-        # Load Metabolomics data (if exists)
-        metabo_path = data_dir / "metabolites.csv"
+            logger.warning(f"SNP data file not found: {snp_path}")
+    
+    if metabolite_dataset:
+        metabo_path = get_data_path() / metabolite_dataset.get("file", "")
         if metabo_path.exists():
-            metabo_data = pd.read_csv(metabo_path)
-            logger.info(f"Loaded Metabolomics data: {len(metabo_data)} samples")
+            metabolite_data = pd.read_csv(meto_path)
+            logger.info(f"Loaded metabolite data from {metabo_path}")
         else:
-            logger.warning("Metabolomics data not found. Skipping metabolomics preprocessing.")
-            metabo_data = None
+            logger.warning(f"Metabolite data file not found: {metabo_path}")
+    
+    if snp_data is None or metabolite_data is None:
+        logger.error("Missing required data files for alignment")
+        raise EX_DATA_INTEGRITY("Cannot preprocess: missing SNP or metabolite data files")
+    
+    # Align modalities
+    exclusion_log_path = output_dir / "exclusion_log.csv"
+    aligned_snp, aligned_metabolite, exclusions = align_modalities(
+        snp_data=snp_data,
+        metabolite_data=metabolite_data,
+        exclusion_log_path=exclusion_log_path
+    )
+    
+    # Normalize metabolite data (MetaboAnalyst style)
+    # Assume first column is sample_id, rest are features
+    sample_col = "sample_id"
+    feature_cols = [c for c in aligned_metabolite.columns if c != sample_col]
+    
+    if feature_cols:
+        normalized_metabolite = aligned_metabolite.copy()
+        normalized_metabolite[feature_cols] = normalize_metabolomics(
+            aligned_metabolite[feature_cols],
+            method="log2"
+        )
+    else:
+        normalized_metabolite = aligned_metabolite
+    
+    # Save outputs
+    snp_output_path = output_dir / "snp_aligned.csv"
+    metabo_output_path = output_dir / "metabolite_normalized.csv"
+    
+    aligned_snp.to_csv(snp_output_path, index=False)
+    normalized_metabolite.to_csv(meto_output_path, index=False)
+    
+    results["aligned_samples"] = len(aligned_snp)
+    results["excluded_samples"] = len(exclusions)
+    results["snp_output"] = str(snp_output_path)
+    results["metabolite_output"] = str(meto_output_path)
+    results["exclusion_log"] = str(exclusion_log_path) if exclusions else None
+    
+    log_pipeline_step(
+        step="preprocess_complete",
+        details={
+            "aligned": results["aligned_samples"],
+            "excluded": results["excluded_samples"],
+            "snp_file": str(snp_output_path),
+            "metabo_file": str(meto_output_path)
+        }
+    )
+    
+    return results
+
+def main():
+    """Entry point for preprocessing pipeline."""
+    logger.info("Starting preprocessing pipeline")
+    
+    try:
+        results = process_pipeline()
+        logger.info(f"Pipeline completed: {results['aligned_samples']} samples aligned")
         
-        if snp_data is not None and metabo_data is not None:
-            # Align sample IDs
-            aligned_snp, aligned_metabo, exclusions = align_sample_ids(
-                snp_data, metabo_data,
-                output_dir=output_dir
-            )
-            
-            logger.info(f"Aligned dataset: {len(aligned_snp)} samples")
-            
-            # Normalize metabolomics
-            normalized_metabo = normalize_metabolomics(aligned_metabo, method="pareto")
-            
-            # Save results
-            aligned_snp.to_csv(output_dir / "snps_aligned.csv", index=False)
-            normalized_metabo.to_csv(output_dir / "metabolites_normalized.csv", index=False)
-            
-            logger.info("Preprocessing completed successfully")
-            log_pipeline_step("preprocess_end", {
-                "aligned_samples": len(aligned_snp),
-                "exclusions": len(exclusions)
-            })
-        else:
-            logger.warning("Could not process data. Both SNP and Metabolomics data required for alignment.")
+        if results["excluded_samples"] > 0:
+            logger.warning(f"{results['excluded_samples']} samples excluded due to missing modalities")
             
     except Exception as e:
-        logger.error(f"Preprocessing failed: {str(e)}")
-        log_pipeline_step("preprocess_error", {"error": str(e)})
+        logger.error(f"Pipeline failed: {str(e)}", exc_info=True)
         raise
 
 if __name__ == "__main__":

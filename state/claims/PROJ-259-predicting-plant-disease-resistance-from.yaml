@@ -1,16 +1,876 @@
-- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/README.md
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
   attempts: 1
-  canonical: generate 150 paired synthetic samples with injected signal structure
-  claim_id: c_7bcf3025
-  context: 'This will: Generate ~150 paired samples with injected signal structure;
-    Run the full pipeline on synthetic data; Output results to artifacts/reports/.'
+  canonical: Create 150 paired samples with injected signal structure
+  claim_id: c_61213753
+  context: 'T009 Implement code/data/generate_synthetic.py to create ~150 paired samples
+    with injected signal structure: [deferred] SNPs, metabolites, binary phenotype
+    (balanced split), effect size=0.1, noise distribution=normal(0,1), SNP-metabolite
+    correlation=0.5, seed=42 for reproducibility'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: Generate ~150 paired samples with injected signal structure
+  raw_text: Implement code/data/generate_synthetic.py to create ~150 paired samples
+    with injected signal structure
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-02T22:10:16Z'
+  updated_at: '2026-07-02T22:10:23Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: Effect size of 0.1 for synthetic data generation
+  claim_id: c_1c4b5823
+  context: 'T009 Implement code/data/generate_synthetic.py to create ~150 paired samples
+    with injected signal structure: [deferred] SNPs, metabolites, binary phenotype
+    (balanced split), effect size=0.1, noise distribution=normal(0,1), SNP-metabolite
+    correlation=0.5, seed=42 for reproducibility'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: effect size=0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:12:43Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: Normal noise distribution with mean 0 and standard deviation 1 for synthetic
+    data
+  claim_id: c_04fafa7b
+  context: 'T009 Implement code/data/generate_synthetic.py to create ~150 paired samples
+    with injected signal structure: [deferred] SNPs, metabolites, binary phenotype
+    (balanced split), effect size=0.1, noise distribution=normal(0,1), SNP-metabolite
+    correlation=0.5, seed=42 for reproducibility'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: noise distribution=normal(0,1)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:13:09Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: SNP-metabolite correlation of 0.5 for synthetic data
+  claim_id: c_c45599a0
+  context: 'T009 Implement code/data/generate_synthetic.py to create ~150 paired samples
+    with injected signal structure: [deferred] SNPs, metabolites, binary phenotype
+    (balanced split), effect size=0.1, noise distribution=normal(0,1), SNP-metabolite
+    correlation=0.5, seed=42 for reproducibility'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: SNP-metabolite correlation=0.5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:13:27Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: Random seed of 42 used for reproducibility in synthetic data generation
+  claim_id: c_13800645
+  context: 'T009 Implement code/data/generate_synthetic.py to create ~150 paired samples
+    with injected signal structure: [deferred] SNPs, metabolites, binary phenotype
+    (balanced split), effect size=0.1, noise distribution=normal(0,1), SNP-metabolite
+    correlation=0.5, seed=42 for reproducibility'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: January 14, 2026
+      source_id: '2601.08725'
+      url: https://arxiv.org/abs/2601.08725
+      value: '42'
+    filled: true
+  kind: numeric
+  raw_text: seed=42 for reproducibility
+  resolved_value: '42'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-02T22:13:48Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: Run 3 independent iterations per threshold for selection frequency calculation
+  claim_id: c_549f7dc4
+  context: 'T016 [US1] Implement code/analysis/feature_selection.py with LASSO/RF
+    and sensitivity sweep over thresholds {0.01, 0.05, 0.1}; run 3 independent iterations
+    per threshold to calculate selection frequency; output selection_frequency.csv
+    with columns: feature_id, threshold, frequency (aggregated across 3 runs per threshold)
+    (FR-003)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: run 3 independent iterations per threshold to calculate selection frequency
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:14:06Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: Halt with EX_DATA_INTEGRITY error if aligned samples are fewer than 100
+  claim_id: c_246d211a
+  context: 'T019 [US1] Implement code/main.py CLI entry point orchestrating: Fetch
+    -> Preprocess -> Split -> Select -> Train -> Validate; include logic to check
+    data integrity: read source_type from data_manifest.yaml; if source_type != SIMULATED
+    and (aligned samples < 100 OR missing modalities), halt with EX_DATA_INTEGRITY
+    (02)'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_with_EX_DATA_INTEGRITY_error_if_aligned_samples_are_few
+  kind: magnitude
+  raw_text: halt with EX_DATA_INTEGRITY (02) if aligned samples < 100
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:14:44Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: Halt with EX_POWER_INSUFFICIENT error if samples are fewer than 100
+  claim_id: c_1e7f27cf
+  context: 'T019 [US1] Implement code/main.py CLI entry point orchestrating: Fetch
+    -> Preprocess -> Split -> Select -> Train -> Validate; include logic to check
+    data integrity: read source_type from data_manifest.yaml; if source_type != SIMULATED
+    and (samples < 100), halt with EX_POWER_INSUFFICIENT (03)'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_with_EX_POWER_INSUFFICIENT_error_if_samples_are_fewer_t
+  kind: magnitude
+  raw_text: halt with EX_POWER_INSUFFICIENT (03) if samples < 100
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:15:34Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: Require at least 10 significant SNPs and 10 significant metabolites across
+    sensitivity sweep
+  claim_id: c_558a777c
+  context: 'T028b [US2] Implement logic to count and verify that at least 10 SNPs
+    and 10 metabolites remain significant across the entire sensitivity sweep (defined
+    as intersection of significant features across all three thresholds); if count
+    < 10, write success_status: FAILED to artifacts/reports/success_criteria.json
+    and log a warning (SC-002)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Require_at_least_10_significant_SNPs_and_10_significant_meta
+  kind: magnitude
+  raw_text: at least 10 SNPs and 10 metabolites remain significant across the entire
+    sensitivity sweep
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:15:58Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: Flag features with Variance Inflation Factor greater than 5
+  claim_id: c_d690e157
+  context: T029 [US2] Add VIF flagging logic in code/analysis/validation.py to flag
+    features with VIF > 5 (FR-005)
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1533: Q113107166'
+      source_id: Q113106917
+      url: https://www.wikidata.org/wiki/Q113106917
+      value: '33'
+    filled: true
+  kind: magnitude
+  raw_text: flag features with VIF > 5
+  resolved_value: '33'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-02T22:16:12Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: Perform 1000 permutation iterations on independent hold-out test set
+    for model-level p-value
+  claim_id: c_c81c61b6
+  context: 'T033 [US3] Implement permutation testing (n=1000, shuffling phenotype
+    labels, metric: accuracy/AUC) specifically on the independent hold-out test set
+    to generate model-level p-value; output to artifacts/reports/holdout_metrics.json
+    (FR-005, SC-003)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'permutation testing (n=1000, shuffling phenotype labels, metric: accuracy/AUC)
+    specifically on the independent hold-out test set'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:16:32Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: Compare hold-out performance against 75% target
+  claim_id: c_b2b972f6
+  context: "T035 [US3] Implement logic to compare hold-out performance against the\
+    \ \u2265 75% target and log a warning to artifacts/reports/validation.log if target\
+    \ is not met (as a hypothesis, not a hard halt)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "compare hold-out performance against the \u2265 75% target"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:16:32Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: Ensure runtime is at most 6 hours and RAM usage is at most 7GB on CI
+  claim_id: c_d2371661
+  context: "T038 Performance optimization to ensure runtime \u2264 6h and RAM \u2264\
+    \ 7GB on CI"
+  evidence:
+    candidates:
+    - - RAM usage is at most
+      - 7.0
+    - - Ensure runtime is at most
+      - 6.0
+    ordering_correct: true
+    source_url: https://en.wikipedia.org/wiki/Ensure_runtime_is_at_most_6_hours_and_RAM_usage_is_at_most_7
+  kind: magnitude
+  raw_text: "ensure runtime \u2264 6h and RAM \u2264 7GB on CI"
+  resolved_value: Ensure runtime is at most 6 hours and RAM usage is at most 7GB on
+    CI
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-02T22:16:35Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: create 150 paired samples with effect size 0.1 and SNP-metabolite correlation
+    0.5
+  claim_id: c_e1d6dd8f
+  context: 'T009 Implement code/data/generate_synthetic.py to create ~150 paired samples
+    with injected signal structure: [deferred] SNPs, metabolites, binary phenotype
+    (balanced split), effect size=0.1, noise distribution=normal(0,1), SNP-metabolite
+    correlation=0.5'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement code/data/generate_synthetic.py to create ~150 paired samples
+    with injected signal structure: SNPs, metabolites, binary phenotype (balanced
+    split), effect size=0.1, noise distribution=normal(0,1), SNP-metabolite correlation=0.5'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:17:51Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: at least 10 SNPs and 10 metabolites remain significant across sensitivity
+    sweep
+  claim_id: c_c3ec830e
+  context: T028b [US2] Implement logic to count and verify that at least 10 SNPs and
+    10 metabolites remain significant across the entire sensitivity sweep (defined
+    as intersection of significant features across all three thresholds)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/At_least_10_SNPs_and_10_metabolites_remain_significant_acros
+  kind: magnitude
+  raw_text: count and verify that at least 10 SNPs and 10 metabolites remain significant
+    across the entire sensitivity sweep
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:18:18Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: perform 1000 permutation iterations on independent hold-out test set
+  claim_id: c_b8249755
+  context: 'T033 [US3] Implement permutation testing (n=1000, shuffling phenotype
+    labels, metric: accuracy/AUC) specifically on the independent hold-out test set
+    to generate model-level p-value'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement permutation testing (n=1000, shuffling phenotype labels, metric:
+    accuracy/AUC) specifically on the independent hold-out test set'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:18:33Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: create 150 paired samples with effect size 0.1 and SNP-metabolite correlation
+    0.5
+  claim_id: c_6ff6b7de
+  context: T009 Implement code/data/generate_synthetic.py to create ~150 paired samples
+    with injected signal structure...
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: 'Implement code/data/generate_synthetic.py to create ~150 paired samples
+    with injected signal structure: SNPs, metabolites, binary phenotype (balanced
+    split), effect size=0.1, noise distribution=normal(0,1), SNP-metabolite correlation=0.5,
+    {{claim:c_13800645}} (2601.08725, https://arxiv.org/abs/2601.08725)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:19:30Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: verify at least 10 SNPs and 10 metabolites remain significant across
+    sensitivity sweep
+  claim_id: c_a6b9f52a
+  context: T028b [US2] Implement logic to count and verify that at least 10 SNPs and
+    10 metabolites remain significant...
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_at_least_10_SNPs_and_10_metabolites_remain_significan
+  kind: magnitude
+  raw_text: Implement logic to count and verify that at least 10 SNPs and 10 metabolites
+    remain significant across the entire sensitivity sweep (defined as intersection
+    of significant features across all three thresholds)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:20:12Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: perform permutation testing with 1000 iterations on independent hold-out
+    test set
+  claim_id: c_1f2f9f42
+  context: 'T033 [US3] Implement permutation testing (n=1000, shuffling phenotype
+    labels, metric: accuracy/AUC) specifically on the independent hold-out test set...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement permutation testing (n=1000, shuffling phenotype labels, metric:
+    accuracy/AUC) specifically on the independent hold-out test set to generate model-level
+    p-value'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:20:30Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: compare hold-out performance against 75% target
+  claim_id: c_9c877017
+  context: "T035 [US3] Implement logic to compare hold-out performance against the\
+    \ \u2265 75% target and log a warning..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement logic to compare hold-out performance against the \u2265 75%\
+    \ target and log a warning to artifacts/reports/validation.log if target is not\
+    \ met"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:20:30Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: fallback to synthetic generation after 3 retries on HTTP 404 or 403
+  claim_id: c_14a2bbfe
+  context: T010 Implement code/data/download.py to attempt NCBI SRA/MetaboLights fetch...
+    if no results found OR HTTP 404/403 after 3 retries...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: if no results found OR HTTP 404/403 after 3 retries, trigger immediate
+    fallback to synthetic generation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:20:57Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: halt with data integrity error if aligned samples are fewer than 100
+  claim_id: c_561f8386
+  context: T019 [US1] Implement code/main.py CLI entry point... if source_type !=
+    SIMULATED and (aligned samples < 100 OR missing modalities), halt with EX_DATA_INTEGRITY
+    (02)...
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_with_data_integrity_error_if_aligned_samples_are_fewer
+  kind: magnitude
+  raw_text: if source_type != SIMULATED and (aligned samples < 100 OR missing modalities),
+    halt with EX_DATA_INTEGRITY (02)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:21:31Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: halt with power insufficient error if samples are fewer than 100
+  claim_id: c_9a8f28a3
+  context: T019 [US1] Implement code/main.py CLI entry point... if source_type !=
+    SIMULATED and (samples < 100), halt with EX_POWER_INSUFFICIENT (03)...
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_with_power_insufficient_error_if_samples_are_fewer_than
+  kind: magnitude
+  raw_text: if source_type != SIMULATED and (samples < 100), halt with EX_POWER_INSUFFICIENT
+    (03)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:22:21Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: verify full pipeline runtime is under 6 hours and RAM usage is under
+    7GB
+  claim_id: c_22b46f3a
+  context: T014 [P] [US1] Integration test for full pipeline run in tests/test_pipeline.py
+    (verify runtime < 6h, RAM < 7GB)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Integration test for full pipeline run in tests/test_pipeline.py (verify
+    runtime < 6h, RAM < 7GB)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:22:21Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: run 3 independent iterations per threshold for selection frequency calculation
+  claim_id: c_c98322c3
+  context: T016 [US1] Implement code/analysis/feature_selection.py with LASSO/RF and
+    sensitivity sweep over thresholds {0.01, 0.05, 0.1}; run 3 independent iterations
+    per threshold...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: run 3 independent iterations per threshold to calculate selection frequency
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:22:21Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: at least 10 SNPs and 10 metabolites remain significant across entire
+    sensitivity sweep
+  claim_id: c_f44e2116
+  context: Implement logic to count and verify that **at least 10 SNPs and 10 metabolites**
+    remain significant **across the entire sensitivity sweep (defined as intersection
+    of significant features across all three thresholds)**
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/At_least_10_SNPs_and_10_metabolites_remain_significant_acros
+  kind: magnitude
+  raw_text: at least 10 SNPs and 10 metabolites remain significant across the entire
+    sensitivity sweep
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:25:46Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: permutation testing with 1000 iterations
+  claim_id: c_ea3478ca
+  context: 'Implement permutation testing (**n=1000**, **shuffling phenotype labels**,
+    metric: **accuracy/AUC**) specifically on the **independent hold-out test set**
+    to generate **model-level p-value**'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: permutation testing with n=1000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:26:48Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: halt with EX_POWER_INSUFFICIENT error if samples less than 100
+  claim_id: c_fabb579d
+  context: if `source_type != SIMULATED` and (samples < 100), halt with `EX_POWER_INSUFFICIENT
+    (03)`
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_with_EX_POWER_INSUFFICIENT_error_if_samples_less_than_1
+  kind: magnitude
+  raw_text: halt with EX_POWER_INSUFFICIENT (03) if samples < 100
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:26:50Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: halt with EX_DATA_INTEGRITY error if aligned samples less than 100
+  claim_id: c_9179fff0
+  context: if `source_type != SIMULATED` and (aligned samples < 100 OR missing modalities),
+    halt with `EX_DATA_INTEGRITY (02)`
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_with_EX_DATA_INTEGRITY_error_if_aligned_samples_less_th
+  kind: magnitude
+  raw_text: halt with EX_DATA_INTEGRITY (02) if aligned samples < 100
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:26:52Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: trigger fallback to synthetic generation after 3 retries
+  claim_id: c_9d878144
+  context: if **no results found OR HTTP 404/403 after 3 retries**, trigger immediate
+    fallback to synthetic generation
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: trigger immediate fallback to synthetic generation after 3 retries
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:27:06Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: verify runtime less than 6 hours
+  claim_id: c_785ec7ee
+  context: Integration test for full pipeline run in `tests/test_pipeline.py` (verify
+    runtime < 6h, RAM < 7GB)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_runtime_less_than_6_hours
+  kind: magnitude
+  raw_text: verify runtime < 6h
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:27:23Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: run 3 independent iterations per threshold
+  claim_id: c_c47100a3
+  context: '**run 3 independent iterations per threshold** to calculate selection
+    frequency'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: run 3 independent iterations per threshold
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:27:51Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: CV accuracy target 75 percent in Simulation Mode
+  claim_id: c_5a338421
+  context: "Verify `artifacts/reports/metrics.json` meets SC-001 (CV \u2265 75% in\
+    \ **Simulation Mode** for injected signal validation)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "CV accuracy target \u2265 75% in Simulation Mode"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:27:51Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: p-value target 0.05
+  claim_id: c_e9f89f06
+  context: "Verify `artifacts/reports/metrics.json` meets SC-001 (CV \u2265 75% in\
+    \ **Simulation Mode** for injected signal validation) and SC-003 (p \u2264 0.05)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "p \u2264 0.05 target"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:27:51Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: compare hold-out performance against 75 percent target
+  claim_id: c_4be0f686
+  context: "Implement logic to compare hold-out performance against the \u2265 75%\
+    \ target and log a warning to `artifacts/reports/validation.log` if target is\
+    \ not met"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "compare hold-out performance against the \u2265 75% target"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:27:51Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 2
+  canonical: create 150 paired samples with injected signal structure
+  claim_id: c_8f26a464
+  context: 'Implement `code/data/generate_synthetic.py` to create ~150 paired samples
+    with injected signal structure: **[deferred] SNPs, metabolites**, **binary phenotype
+    (balanced split)**, effect size=0.1, noise distribution=normal(0,1), SNP-metabolite
+    correlation=0.5'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: create ~150 paired samples with injected signal structure
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:30:08Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: effect size 0.1
+  claim_id: c_67f17bfe
+  context: 'create ~150 paired samples with injected signal structure: **[deferred]
+    SNPs, metabolites**, **binary phenotype (balanced split)**, effect size=0.1, noise
+    distribution=normal(0,1), SNP-metabolite correlation=0.5'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: effect size=0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:30:08Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: SNP metabolite correlation 0.5
+  claim_id: c_b6adeafa
+  context: 'create ~150 paired samples with injected signal structure: **[deferred]
+    SNPs, metabolites**, **binary phenotype (balanced split)**, effect size=0.1, noise
+    distribution=normal(0,1), SNP-metabolite correlation=0.5'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: SNP-metabolite correlation=0.5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:30:08Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: at least 10 SNPs and 10 metabolites remain significant across sensitivity
+    sweep
+  claim_id: c_2df85026
+  context: Implement logic to count and verify that **at least 10 SNPs and 10 metabolites**
+    remain significant **across the entire sensitivity sweep (defined as intersection
+    of significant features across all three thresholds)**
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/At_least_10_SNPs_and_10_metabolites_remain_significant_acros
+  kind: magnitude
+  raw_text: at least 10 SNPs and 10 metabolites remain significant across the entire
+    sensitivity sweep
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:30:10Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: full pipeline run time less than 6 hours
+  claim_id: c_f64e8bf5
+  context: Integration test for full pipeline run in `tests/test_pipeline.py` (verify
+    runtime < 6h, RAM < 7GB)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_pipeline_run_time_less_than_6_hours
+  kind: magnitude
+  raw_text: runtime < 6h
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:30:36Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: halt if aligned samples less than 100
+  claim_id: c_9fa52e6f
+  context: if `source_type != SIMULATED` and (aligned samples < 100 OR missing modalities),
+    halt with `EX_DATA_INTEGRITY (02)`
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_if_aligned_samples_less_than_100
+  kind: magnitude
+  raw_text: aligned samples < 100
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:32:28Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: halt if samples less than 100
+  claim_id: c_ccf5b9d9
+  context: if `source_type != SIMULATED` and (samples < 100), halt with `EX_POWER_INSUFFICIENT
+    (03)`
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_if_samples_less_than_100
+  kind: magnitude
+  raw_text: samples < 100
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:33:06Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: 'synthetic data parameters: effect size 0.1, noise normal(0,1), SNP-metabolite
+    correlation 0.5'
+  claim_id: c_c39f1b62
+  context: 'Implement `code/data/generate_synthetic.py` to create ~150 paired samples
+    with injected signal structure: **[deferred] SNPs, metabolites**, **binary phenotype
+    (balanced split)**, effect size=0.1, noise distribution=normal(0,1), SNP-metabolite
+    correlation=0.5, {{claim:c_13800645}} (2601.08725, https://arxiv.org/abs/2601.08725)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: effect size=0.1, noise distribution=normal(0,1), SNP-metabolite correlation=0.5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:40:08Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: 'minimum significant features: 10 SNPs and 10 metabolites across sensitivity
+    sweep'
+  claim_id: c_5451e86e
+  context: 'Implement logic to count and verify that **at least 10 SNPs and 10 metabolites**
+    remain significant **across the entire sensitivity sweep (defined as intersection
+    of significant features across all three thresholds)**; **if count < 10, write
+    `success_status: FAILED` to `artifacts/reports/success_criteria.json` and log
+    a warning** (SC-002)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Minimum_significant_features:_10_SNPs_and_10_metabolites_acr
+  kind: magnitude
+  raw_text: at least 10 SNPs and 10 metabolites remain significant across the entire
+    sensitivity sweep
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:40:13Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: 'permutation testing parameters: 1000 iterations, phenotype label shuffling,
+    accuracy/AUC metric'
+  claim_id: c_a260698c
+  context: 'Implement permutation testing (**n=1000**, **shuffling phenotype labels**,
+    metric: **accuracy/AUC**) specifically on the **independent hold-out test set**
+    to generate **model-level p-value**; output to `artifacts/reports/holdout_metrics.json`
+    (FR-005, SC-003)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'permutation testing (n=1000, shuffling phenotype labels, metric: accuracy/AUC)
+    specifically on the independent hold-out test set'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:40:13Z'
+- artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
+  attempts: 1
+  canonical: 'Simulation Mode validation target: CV accuracy at least 75%'
+  claim_id: c_e1791f14
+  context: "Verify `artifacts/reports/metrics.json` meets SC-001 (CV \u2265 75% in\
+    \ **Simulation Mode** for injected signal validation) and SC-003 (p \u2264 0.05);\
+    \ explicitly scope this to \"Simulation Mode\" context"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Simulation_Mode_validation_target:_CV_accuracy_at_least_75%25
+  kind: magnitude
+  raw_text: "CV \u2265 75% in Simulation Mode for injected signal validation"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T22:41:00Z'

@@ -1,0 +1,10 @@
+'|feature flag vif':
+  quote: 'P1533: Q113107166'
+  source_id: Q113106917
+  url: https://www.wikidata.org/wiki/Q113106917
+  value: '33'
+'|reproducibility seed':
+  quote: January 14, 2026
+  source_id: '2601.08725'
+  url: https://arxiv.org/abs/2601.08725
+  value: '42'

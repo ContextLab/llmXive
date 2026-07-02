@@ -1,25 +1,23 @@
-- artifact_hash: 260c274266d8a77ae1ff1e0f1826ab426c4158a2ec5253dfdf56426c1defb021
-  artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/README.md
+- artifact_hash: 7e39271f31b1b4f491606cd5556742b736ff7e8e946a73e0716ddd41fa0415d8
+  artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
   cite_id: c-001
   cited_authors: []
-  cited_title: fastp GitHub
-  fetched_title: "GitHub - OpenGene/fastp: An ultra-fast all-in-one FASTQ preprocessor\
-    \ (QC/adapters/trimming/filtering/splitting/merging...) \xB7 GitHub"
+  cited_title: null
+  fetched_title: '[2601.08725] Malware Detection based on API Calls: A Reproducibility
+    Study'
   kind: url
-  value: https://github.com/OpenGene/fastp
+  value: https://arxiv.org/abs/2601.08725
   verification_status: verified
-  verified_against_url: https://github.com/OpenGene/fastp
-  verified_at: '2026-07-02T22:10:16.573163Z'
-- artifact_hash: 260c274266d8a77ae1ff1e0f1826ab426c4158a2ec5253dfdf56426c1defb021
-  artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/README.md
+  verified_against_url: https://arxiv.org/abs/2601.08725
+  verified_at: '2026-07-02T22:41:00.456189Z'
+- artifact_hash: 7e39271f31b1b4f491606cd5556742b736ff7e8e946a73e0716ddd41fa0415d8
+  artifact_path: projects/PROJ-259-predicting-plant-disease-resistance-from/specs/001-predicting-plant-disease-resistance-from/tasks.md
   cite_id: c-002
   cited_authors: []
-  cited_title: samtools/bcftools
-  fetched_title: "GitHub - samtools/bcftools: This is the official development repository\
-    \ for BCFtools. See installation instructions and other documentation here http://samtools.github.io/bcftools/howtos/install.html\
-    \ \xB7 GitHub"
+  cited_title: null
+  fetched_title: Vif - Wikidata
   kind: url
-  value: https://github.com/samtools/bcftools
+  value: https://www.wikidata.org/wiki/Q113106917
   verification_status: verified
-  verified_against_url: https://github.com/samtools/bcftools
-  verified_at: '2026-07-02T22:10:16.573163Z'
+  verified_against_url: https://www.wikidata.org/wiki/Q113106917
+  verified_at: '2026-07-02T22:41:00.456189Z'

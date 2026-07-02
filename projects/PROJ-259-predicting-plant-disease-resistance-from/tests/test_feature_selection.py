@@ -1,5 +1,5 @@
 """
-Tests for feature selection module.
+Unit tests for feature_selection.py
 """
 
 import pytest
@@ -9,101 +9,104 @@ from pathlib import Path
 import tempfile
 import os
 
-# Mock config for testing
-class MockConfig:
-    def __init__(self):
-        self.data = {
-            "split_dir": "data/processed",
-            "selection_frequency_path": "artifacts/reports/selection_frequency.csv"
-        }
-    
-    def get(self, key, default=None):
-        return self.data.get(key, default)
+from code.analysis.feature_selection import (
+    run_lasso_selection,
+    run_rf_selection,
+    run_sensitivity_sweep,
+    save_selection_frequency
+)
 
 @pytest.fixture
-def sample_data():
-    """Create sample feature matrix and target vector."""
+def synthetic_data():
+    """Create synthetic data for testing."""
     np.random.seed(42)
-    n_samples = 100
-    n_features = 20
-    
+    n_samples = 200
+    n_features = 50
+
+    # Create features with some correlation structure
     X = pd.DataFrame(
         np.random.randn(n_samples, n_features),
         columns=[f"feature_{i}" for i in range(n_features)]
     )
-    y = pd.Series(np.random.randint(0, 2, n_samples), name="resistance")
-    
+
+    # Create binary labels with signal from first 5 features
+    y = pd.Series(
+        np.where(X.iloc[:, :5].sum(axis=1) > 0, 1, 0),
+        name="resistance"
+    )
+
     return X, y
 
-@pytest.fixture
-def temp_output_dir():
-    """Create temporary directory for test outputs."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        yield tmpdir
+def test_lasso_selection_basic(synthetic_data):
+    """Test LASSO selection returns a list of features."""
+    X, y = synthetic_data
+    selected = run_lasso_selection(X, y)
 
-def test_run_lasso_selection(sample_data):
-    """Test LASSO feature selection returns valid feature list."""
-    from code.analysis.feature_selection import run_lasso_selection
-    
-    X, y = sample_data
-    selected = run_lasso_selection(X, y, alpha=0.1)
-    
     assert isinstance(selected, list)
+    assert len(selected) > 0
     assert all(isinstance(f, str) for f in selected)
-    assert all(f in X.columns for f in selected)
 
-def test_run_rf_selection(sample_data):
-    """Test Random Forest feature selection returns valid feature list."""
-    from code.analysis.feature_selection import run_rf_selection
-    
-    X, y = sample_data
-    selected = run_rf_selection(X, y, threshold=0.01)
-    
+def test_rf_selection_basic(synthetic_data):
+    """Test Random Forest selection returns a list of features."""
+    X, y = synthetic_data
+    selected = run_rf_selection(X, y, threshold=0.05)
+
     assert isinstance(selected, list)
+    assert len(selected) > 0
     assert all(isinstance(f, str) for f in selected)
-    assert all(f in X.columns for f in selected)
 
-def test_run_sensitivity_sweep(sample_data):
-    """Test sensitivity sweep produces correct output format."""
-    from code.analysis.feature_selection import run_sensitivity_sweep
-    
-    X, y = sample_data
+def test_sensitivity_sweep_output_shape(synthetic_data):
+    """Test sensitivity sweep returns correct DataFrame shape."""
+    X, y = synthetic_data
     thresholds = [0.01, 0.05]
-    n_iterations = 2
-    
-    result_df = run_sensitivity_sweep(
-        X=X, 
-        y=y, 
-        thresholds=thresholds, 
-        n_iterations=n_iterations
-    )
-    
-    # Check columns
-    assert 'feature_id' in result_df.columns
-    assert 'threshold' in result_df.columns
-    assert 'frequency' in result_df.columns
-    
-    # Check frequencies are between 0 and 1
-    assert all((result_df['frequency'] >= 0) & (result_df['frequency'] <= 1))
-    
-    # Check that we have results for each threshold
-    for t in thresholds:
-        subset = result_df[result_df['threshold'] == t]
-        assert len(subset) > 0  # At least some features selected
+    iterations = 2
 
-def test_save_selection_frequency(sample_data, temp_output_dir):
-    """Test saving selection frequency to CSV."""
-    from code.analysis.feature_selection import run_sensitivity_sweep, save_selection_frequency
-    
-    X, y = sample_data
-    result_df = run_sensitivity_sweep(X, y, thresholds=[0.01], n_iterations=2)
-    
-    output_path = Path(temp_output_dir) / "test_selection.csv"
-    save_selection_frequency(result_df, str(output_path))
-    
-    assert output_path.exists()
-    
-    # Verify loaded data matches
-    loaded_df = pd.read_csv(output_path)
-    assert len(loaded_df) == len(result_df)
-    assert list(loaded_df.columns) == list(result_df.columns)
+    df = run_sensitivity_sweep(X, y, thresholds=thresholds, iterations=iterations, method="lasso")
+
+    expected_rows = len(X.columns) * len(thresholds)
+    assert df.shape[0] == expected_rows
+    assert list(df.columns) == ["feature_id", "threshold", "frequency"]
+
+def test_sensitivity_sweep_frequency_range(synthetic_data):
+    """Test that frequencies are between 0 and 1."""
+    X, y = synthetic_data
+    df = run_sensitivity_sweep(X, y, iterations=3, method="lasso")
+
+    assert (df["frequency"] >= 0).all()
+    assert (df["frequency"] <= 1).all()
+
+def test_save_selection_frequency(tmp_path):
+    """Test that save_selection_frequency writes a valid CSV."""
+    df = pd.DataFrame({
+        "feature_id": ["f1", "f2"],
+        "threshold": [0.01, 0.01],
+        "frequency": [0.5, 0.8]
+    })
+
+    output_path = tmp_path / "test_selection.csv"
+    saved_path = save_selection_frequency(df, output_path)
+
+    assert saved_path.exists()
+    loaded_df = pd.read_csv(saved_path)
+    assert loaded_df.shape == df.shape
+    assert list(loaded_df.columns) == ["feature_id", "threshold", "frequency"]
+
+def test_lasso_with_null_signal():
+    """Test LASSO with no signal (random y) returns few/no features."""
+    np.random.seed(42)
+    X = pd.DataFrame(np.random.randn(100, 20), columns=[f"f{i}" for i in range(20)])
+    y = pd.Series(np.random.randint(0, 2, 100))
+
+    selected = run_lasso_selection(X, y)
+    # With no signal, LASSO should select very few or no features
+    assert len(selected) < 10
+
+def test_rf_with_null_signal():
+    """Test RF with no signal (random y) returns few/no features."""
+    np.random.seed(42)
+    X = pd.DataFrame(np.random.randn(100, 20), columns=[f"f{i}" for i in range(20)])
+    y = pd.Series(np.random.randint(0, 2, 100))
+
+    selected = run_rf_selection(X, y, threshold=0.05)
+    # With no signal, RF importance should be low
+    assert len(selected) < 10

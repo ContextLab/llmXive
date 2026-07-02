@@ -55,17 +55,17 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Implement `code/utils/exceptions.py` with `EX_DATA_INTEGRITY (02)` and `EX_POWER_INSUFFICIENT (03)` custom classes
-- [ ] T005 Create `code/config.py` for loading environment variables and default paths
-- [ ] T006 [P] Setup Dockerfile bundling Python 3.11, `fastp`, `bcftools`, and project dependencies
-- [~] T006b [P] Add inline comments to `Dockerfile` explaining build steps and dependencies
-- [~] T006c [P] Add Docker build/run commands and usage instructions to `README.md` to satisfy FR-006 documentation requirements
-- [~] T007 Implement `code/utils/logging.py` for structured logging of pipeline steps and sample exclusions
-- [~] T008 Create `data/data_manifest.yaml` schema and loader in `code/data/manifest.py`
-- [~] T009 Implement `code/data/generate_synthetic.py` to create ~150 paired samples with injected signal structure: **[deferred] SNPs, metabolites**, **binary phenotype (balanced split)**, effect size=0.1, noise distribution=normal(0,1), SNP-metabolite correlation=0.5, seed=42 for reproducibility
-- [~] T010 Implement `code/data/download.py` to attempt NCBI SRA/MetaboLights fetch using query "plant AND disease resistance AND (SNP OR metabolite)" with accession list from `data_manifest.yaml`; if **no results found OR HTTP 404/403 after 3 retries**, trigger immediate fallback to synthetic generation (**Simulation Mode ONLY**); bypass halt logic in T019 only if `source == SIMULATED`
+- [X] T004 Implement `code/utils/exceptions.py` with `EX_DATA_INTEGRITY (02)` and `EX_POWER_INSUFFICIENT (03)` custom classes
+- [X] T005 Create `code/config.py` for loading environment variables and default paths
+- [X] T006 [P] Setup Dockerfile bundling Python 3.11, `fastp`, `bcftools`, and project dependencies
+- [X] T006b [P] Add inline comments to `Dockerfile` explaining build steps and dependencies
+- [X] T006c [P] Add Docker build/run commands and usage instructions to `README.md` to satisfy FR-006 documentation requirements
+- [ ] T007 Implement `code/utils/logging.py` for structured logging of pipeline steps and sample exclusions
+- [X] T008 Create `data/data_manifest.yaml` schema and loader in `code/data/manifest.py`
+- [ ] T009 Implement `code/data/generate_synthetic.py` to create ~150 paired samples with injected signal structure: **[deferred] SNPs, metabolites**, **binary phenotype (balanced split)**, effect size=0.1, noise distribution=normal(0,1), SNP-metabolite correlation=0.5 [UNRESOLVED-CLAIM: c_c39f1b62 — status=not_enough_info], {{claim:c_13800645}} (2601.08725, https://arxiv.org/abs/2601.08725)
+- [ ] T010 Implement `code/data/download.py` to attempt NCBI SRA/MetaboLights fetch using query "plant AND disease resistance AND (SNP OR metabolite)" with accession list from `data_manifest.yaml`; if **no results found OR HTTP 404/403 after 3 retries**, trigger immediate fallback to synthetic generation (**Simulation Mode ONLY**); bypass halt logic in T019 only if `source == SIMULATED`
 - [~] T011 Implement `code/data/preprocess.py` wrappers for `fastp` (variant calling via `bcftools`) and MetaboAnalyst-compatible normalization; explicitly generate aligned feature tables by matching sample IDs across modalities using **exact string match**; if IDs do not match, **drop both samples** and log to `data/processed/exclusion_log.csv` with columns: `sample_id`, `missing_modality`, `timestamp` as mandated by FR-001
-- [ ] T012 Implement `code/utils/stats.py` with Benjamini-Hochberg correction and Variance Inflation Factor (VIF) calculation
+- [~] T012 Implement `code/utils/stats.py` with Benjamini-Hochberg correction and Variance Inflation Factor (VIF) calculation
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -89,9 +89,9 @@
 - [~] T015 [US1] Implement `code/data/split.py` for stratified sampling based on resistance phenotype (FR-009); **split proportions: [deferred] training, [deferred] hold-out** (resolving spec "[deferred]" via plan.md authority); strictly reserve hold-out set from all training/selection steps
 - [~] T016 [US1] Implement `code/analysis/feature_selection.py` with LASSO/RF and sensitivity sweep over thresholds {0.01, 0.05, 0.1}; **run 3 independent iterations per threshold ** to calculate selection frequency; output `selection_frequency.csv` with columns: `feature_id`, `threshold`, `frequency` (aggregated across 3 runs per threshold) (FR-003)
 - [~] T017 [US1] Implement `code/analysis/modeling.py` for Elastic-Net (continuous) or Gradient-Boosting (categorical) with 5-fold CV (FR-004)
-- [~] T017b [US1] Implement logic in `code/analysis/modeling.py` to generate and train a null model baseline (**random labels**) and compare performance against the primary model; **ensure results are included in `metrics.json`** (FR-004)
+- [~] T017b [US1] Implement logic in `code/analysis/modeling.py` to generate and train a null model baseline (**random labels**) and compare performance against the primary model; **ensure results are included in `metrics.json`** (FR-004) <!-- FAILED: unspecified -->
 - [~] T018 [US1] Implement `code/analysis/validation.py` for **null model baseline comparison on training/CV folds ONLY**; **DO NOT run permutation testing on hold-out set here** (defer to T033) (FR-005)
-- [~] T019 [US1] Implement `code/main.py` CLI entry point orchestrating: Fetch -> Preprocess -> Split -> Select -> Train -> Validate; **include logic to check data integrity**: read `source_type` from `data_manifest.yaml`; if `source_type != SIMULATED` and (aligned samples < 100 OR missing modalities), halt with `EX_DATA_INTEGRITY (02)`; if `source_type != SIMULATED` and (samples < 100), halt with `EX_POWER_INSUFFICIENT (03)`; **bypass halt ONLY if `source_type == SIMULATED`** (Simulation Mode exception per plan.md); handle contradictory FR-007/FR-008 by prioritizing FR-008 (Power) then FR-007 (Integrity) with unified error message
+- [~] T019 [US1] Implement `code/main.py` CLI entry point orchestrating: Fetch -> Preprocess -> Split -> Select -> Train -> Validate; **include logic to check data integrity**: read `source_type` from `data_manifest.yaml`; if `source_type != SIMULATED` and (aligned samples < 100 OR missing modalities), halt with `EX_DATA_INTEGRITY (02)`; if `source_type != SIMULATED` and (samples < 100), halt with `EX_POWER_INSUFFICIENT (03)`; **bypass halt ONLY if `source_type == SIMULATED`** (Simulation Mode exception per plan.md); handle contradictory FR-007/FR-008 by prioritizing FR-008 (Power) then FR-007 (Integrity) with unified error message <!-- FAILED: unspecified -->
 - [~] T022 [US1] Generate `artifacts/reports/metrics.json` containing CV accuracy, AUC/R², null model comparison, and **permutation p-value (from hold-out set, see T033)** <!-- FAILED: unspecified -->
 - [~] T023 [US1] Generate `artifacts/reports/selection_frequency.csv` listing feature IDs, thresholds, and selection frequency (FR-003)
 
@@ -114,9 +114,9 @@
 
 - [~] T026 [P] [US2] Extend `code/analysis/feature_selection.py` to calculate effect-size coefficients for selected features
 - [~] T027 [US2] Implement `code/analysis/biomarker_report.py` to generate `artifacts/reports/top_features.csv` with p-values and effect sizes
-- [~] T028 [US2] Implement logic to filter and rank features based on selection frequency and BH-adjusted p < 0.05 <!-- ATOMIZE: requested -->
-- [~] T028b [US2] Implement logic to count and verify that **at least 10 SNPs and 10 metabolites** remain significant **across the entire sensitivity sweep (defined as intersection of significant features across all three thresholds)**; **if count < 10, write `success_status: FAILED` to `artifacts/reports/success_criteria.json` and log a warning** (SC-002)
-- [~] T029 [US2] Add VIF flagging logic in `code/analysis/validation.py` to flag features with VIF > 5 (FR-005)
+- [ ] T028 [US2] Implement logic to filter and rank features based on selection frequency and BH-adjusted p < 0.05
+- [ ] T028b [US2] Implement logic to count and verify that **at least 10 SNPs and 10 metabolites** remain significant **across the entire sensitivity sweep (defined as intersection of significant features across all three thresholds)**; **if count < 10, write `success_status: FAILED` to `artifacts/reports/success_criteria.json` and log a warning** (SC-002)
+- [ ] T029 [US2] Add VIF flagging logic in `code/analysis/validation.py` to {{claim:c_d690e157}} (Wikidata Q113106917, https://www.wikidata.org/wiki/Q113106917) (FR-005)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -149,9 +149,9 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T036 [P] Documentation updates in `docs/` and `README.md` including Docker usage
-- [~] T037 Code cleanup and refactoring of `code/analysis/` modules
-- [ ] T038 Performance optimization to ensure runtime ≤ 6h and RAM ≤ 7GB on CI
+- [ ] T036 [P] Documentation updates in `docs/` and `README.md` including Docker usage
+- [ ] T037 Code cleanup and refactoring of `code/analysis/` modules
+- [ ] T038 Performance optimization to {{claim:c_d2371661}}
 - [ ] T038b [P] Implement runtime/memory measurement script in `code/utils/measure_resources.py` to log peak usage
 - [ ] T038c [P] Update CI workflow to execute measurement script and log results against FR-006 constraints
 - [ ] T039 [P] Additional unit tests for `code/data/preprocess.py` (mocking fastp/bcftools)

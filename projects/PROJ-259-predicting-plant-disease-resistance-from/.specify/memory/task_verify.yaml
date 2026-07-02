@@ -1,11 +1,13 @@
-? 'T001 Create project directory tree: `code/`, `data/`, `data/raw`, `data/processed`,
-  `artifacts/`, `artifacts/models`, `artifacts/reports`, `artifacts/figures`, `tests/`'
+T007 Implement `code/utils/logging.py` for structured logging of pipeline steps and sample exclusions: 1
+? "T009 Implement `code/data/generate_synthetic.py` to create ~150 paired samples\
+  \ with injected signal structure: **[deferred] SNPs, metabolites**, **binary phenotype\
+  \ (balanced split)**, effect size=0.1, noise distribution=normal(0,1), SNP-metabolite\
+  \ correlation=0.5 [UNRESOLVED-CLAIM: c_c39f1b62 \u2014 status=not_enough_info],\
+  \ {{claim:c_13800645}} (2601.08725, https://arxiv.org/abs/2601.08725)"
 : 1
-? 'T002 Initialize Python 3.11 project with `requirements.txt` containing pinned versions:
-  `pandas==2.0.3`, `numpy==1.24.3`, `scikit-learn==1.3.0`, `statsmodels==0.14.0`,
-  `pyyaml==6.0.1`, `requests==2.31.0`'
+? T010 Implement `code/data/download.py` to attempt NCBI SRA/MetaboLights fetch using
+  query "plant AND disease resistance AND (SNP OR metabolite)" with accession list
+  from `data_manifest.yaml`; if **no results found OR HTTP 404/403 after 3 retries**,
+  trigger immediate fallback to synthetic generation (**Simulation Mode ONLY**); bypass
+  halt logic in T019 only if `source == SIMULATED`
 : 1
-T003 [P] Configure linting (`.flake8` or `pyproject.toml` for black) and formatting tools: 1
-T004 Implement `code/utils/exceptions.py` with `EX_DATA_INTEGRITY (02)` and `EX_POWER_INSUFFICIENT (03)` custom classes: 1
-T005 Create `code/config.py` for loading environment variables and default paths: 1
-T006 [P] Setup Dockerfile bundling Python 3.11, `fastp`, `bcftools`, and project dependencies: 1

@@ -1,165 +1,114 @@
 """
-Configuration module for the plant disease resistance prediction pipeline.
+Configuration management for the llmXive plant disease resistance pipeline.
 
-Loads environment variables and defines default paths for project artifacts.
+Loads environment variables and defines default paths for project directories.
 """
 import os
 from pathlib import Path
+from typing import Optional, Dict, Any
 
-# Project root is assumed to be two levels up from this file (code/config.py)
-# Structure: <root>/code/config.py -> <root>
+# Project root is the parent of the 'code' directory
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-# Default directory paths
-DEFAULT_DATA_DIR = _PROJECT_ROOT / "data"
-DEFAULT_PROCESSED_DATA_DIR = DEFAULT_DATA_DIR / "processed"
-DEFAULT_RAW_DATA_DIR = DEFAULT_DATA_DIR / "raw"
-DEFAULT_ARTIFACTS_DIR = _PROJECT_ROOT / "artifacts"
-DEFAULT_MODELS_DIR = DEFAULT_ARTIFACTS_DIR / "models"
-DEFAULT_REPORTS_DIR = DEFAULT_ARTIFACTS_DIR / "reports"
-DEFAULT_FIGURES_DIR = DEFAULT_ARTIFACTS_DIR / "figures"
-DEFAULT_LOGS_DIR = _PROJECT_ROOT / "logs"
+# Default directory structure as defined in T001
+DEFAULT_PATHS: Dict[str, Path] = {
+    "code": _PROJECT_ROOT / "code",
+    "data": _PROJECT_ROOT / "data",
+    "data_raw": _PROJECT_ROOT / "data" / "raw",
+    "data_processed": _PROJECT_ROOT / "data" / "processed",
+    "artifacts": _PROJECT_ROOT / "artifacts",
+    "artifacts_models": _PROJECT_ROOT / "artifacts" / "models",
+    "artifacts_reports": _PROJECT_ROOT / "artifacts" / "reports",
+    "artifacts_figures": _PROJECT_ROOT / "artifacts" / "figures",
+    "tests": _PROJECT_ROOT / "tests",
+    "specs": _PROJECT_ROOT / "specs",
+}
 
-# Default file paths
-DEFAULT_MANIFEST_PATH = DEFAULT_DATA_DIR / "data_manifest.yaml"
-DEFAULT_CONFIG_PATH = _PROJECT_ROOT / "config.yaml"
+# Environment variable keys
+ENV_PREFIX = "LLMXIVE_"
+ENV_DATA_ROOT = f"{ENV_PREFIX}DATA_ROOT"
+ENV_LOG_LEVEL = f"{ENV_PREFIX}LOG_LEVEL"
+ENV_SEED = f"{ENV_PREFIX}SEED"
+ENV_SIMULATION_MODE = f"{ENV_PREFIX}SIMULATION_MODE"
 
-# Environment variable names
-ENV_DATA_DIR = "PLANT_DISEASE_DATA_DIR"
-ENV_MODELS_DIR = "PLANT_DISEASE_MODELS_DIR"
-ENV_REPORTS_DIR = "PLANT_DISEASE_REPORTS_DIR"
-ENV_LOG_LEVEL = "PLANT_DISEASE_LOG_LEVEL"
-ENV_SIMULATION_MODE = "PLANT_DISEASE_SIMULATION_MODE"
-ENV_N_JOBS = "PLANT_DISEASE_N_JOBS"
+def get_env_var(key: str, default: str = "") -> str:
+    """Retrieve an environment variable, falling back to the provided default."""
+    return os.environ.get(key, default)
 
+def get_int_env_var(key: str, default: int = 0) -> int:
+    """Retrieve an integer environment variable."""
+    try:
+        return int(get_env_var(key, str(default)))
+    except ValueError:
+        return default
 
-def get_path(env_var: str, default: Path) -> Path:
-    """
-    Retrieve a path from an environment variable or fall back to the default.
+def get_bool_env_var(key: str, default: bool = False) -> bool:
+    """Retrieve a boolean environment variable (checks for '1', 'true', 'yes')."""
+    val = get_env_var(key, "").lower()
+    return val in ("1", "true", "yes", "on")
 
-    Args:
-        env_var: The name of the environment variable.
-        default: The default Path to use if the env var is not set.
-
-    Returns:
-        A resolved Path object.
-    """
-    val = os.getenv(env_var)
-    if val:
-        return Path(val).resolve()
-    return default.resolve()
-
-
-def get_int(env_var: str, default: int) -> int:
-    """
-    Retrieve an integer from an environment variable or fall back to the default.
-
-    Args:
-        env_var: The name of the environment variable.
-        default: The default integer to use if the env var is not set.
-
-    Returns:
-        The integer value.
-    """
-    val = os.getenv(env_var)
-    if val is not None:
-        try:
-            return int(val)
-        except ValueError:
-            return default
-    return default
-
-
-def get_bool(env_var: str, default: bool) -> bool:
-    """
-    Retrieve a boolean from an environment variable or fall back to the default.
-
-    Args:
-        env_var: The name of the environment variable.
-        default: The default boolean to use if the env var is not set.
-
-    Returns:
-        The boolean value (True for '1', 'true', 'yes', 'on'; False otherwise).
-    """
-    val = os.getenv(env_var)
-    if val is not None:
-        return val.lower() in ("1", "true", "yes", "on")
-    return default
-
-
-# Configuration Object
 class Config:
     """
-    Central configuration object holding all paths and runtime settings.
+    Central configuration object holding paths and runtime settings.
     """
 
-    # Directories
-    DATA_DIR: Path = None
-    PROCESSED_DATA_DIR: Path = None
-    RAW_DATA_DIR: Path = None
-    ARTIFACTS_DIR: Path = None
-    MODELS_DIR: Path = None
-    REPORTS_DIR: Path = None
-    FIGURES_DIR: Path = None
-    LOGS_DIR: Path = None
-
-    # Files
-    MANIFEST_PATH: Path = None
-    CONFIG_PATH: Path = None
-
-    # Runtime Settings
-    LOG_LEVEL: str = None
-    SIMULATION_MODE: bool = None
-    N_JOBS: int = None
-
     def __init__(self):
-        """Initialize configuration from environment variables and defaults."""
-        self.DATA_DIR = get_path(ENV_DATA_DIR, DEFAULT_DATA_DIR)
-        self.RAW_DATA_DIR = get_path(ENV_DATA_DIR, DEFAULT_RAW_DATA_DIR)
-        self.PROCESSED_DATA_DIR = get_path(ENV_DATA_DIR, DEFAULT_PROCESSED_DATA_DIR)
-        
-        # Ensure processed/raw are subdirs of data if data is customized, 
-        # otherwise use defaults relative to project root
-        if os.getenv(ENV_DATA_DIR):
-            self.RAW_DATA_DIR = self.DATA_DIR / "raw"
-            self.PROCESSED_DATA_DIR = self.DATA_DIR / "processed"
+        # Determine root paths
+        data_root_override = get_env_var(ENV_DATA_ROOT)
+        if data_root_override:
+            base_path = Path(data_root_override)
+            self._paths = {
+                "code": base_path / "code",
+                "data": base_path / "data",
+                "data_raw": base_path / "data" / "raw",
+                "data_processed": base_path / "data" / "processed",
+                "artifacts": base_path / "artifacts",
+                "artifacts_models": base_path / "artifacts" / "models",
+                "artifacts_reports": base_path / "artifacts" / "reports",
+                "artifacts_figures": base_path / "artifacts" / "figures",
+                "tests": base_path / "tests",
+                "specs": base_path / "specs",
+            }
+        else:
+            self._paths = DEFAULT_PATHS
 
-        self.ARTIFACTS_DIR = get_path(ENV_DATA_DIR, DEFAULT_ARTIFACTS_DIR)
-        self.MODELS_DIR = get_path(ENV_MODELS_DIR, DEFAULT_MODELS_DIR)
-        self.REPORTS_DIR = get_path(ENV_REPORTS_DIR, DEFAULT_REPORTS_DIR)
-        self.FIGURES_DIR = self.ARTIFACTS_DIR / "figures"
-        self.LOGS_DIR = get_path(ENV_DATA_DIR, DEFAULT_LOGS_DIR)
+        # Runtime settings
+        self.log_level = get_env_var(ENV_LOG_LEVEL, "INFO").upper()
+        self.seed = get_int_env_var(ENV_SEED, 42)
+        self.simulation_mode = get_bool_env_var(ENV_SIMULATION_MODE, False)
 
-        self.MANIFEST_PATH = get_path(ENV_DATA_DIR, DEFAULT_MANIFEST_PATH)
-        self.CONFIG_PATH = DEFAULT_CONFIG_PATH
+        # Ensure directories exist (optional, can be done in setup T001)
+        # self._ensure_dirs()
 
-        self.LOG_LEVEL = os.getenv(ENV_LOG_LEVEL, "INFO")
-        self.SIMULATION_MODE = get_bool(ENV_SIMULATION_MODE, False)
-        self.N_JOBS = get_int(ENV_N_JOBS, -1)  # -1 usually means use all cores
+    @property
+    def paths(self) -> Dict[str, Path]:
+        """Return the dictionary of configured paths."""
+        return self._paths
 
-    def ensure_dirs(self):
-        """Create all configured directories if they do not exist."""
-        dirs = [
-            self.DATA_DIR,
-            self.RAW_DATA_DIR,
-            self.PROCESSED_DATA_DIR,
-            self.ARTIFACTS_DIR,
-            self.MODELS_DIR,
-            self.REPORTS_DIR,
-            self.FIGURES_DIR,
-            self.LOGS_DIR,
-        ]
-        for d in dirs:
-            d.mkdir(parents=True, exist_ok=True)
+    def get_path(self, name: str) -> Path:
+        """Get a specific path by name, raising KeyError if not found."""
+        if name not in self._paths:
+            raise KeyError(f"Path name '{name}' not found in config.")
+        return self._paths[name]
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
-            f"Config(DATA_DIR={self.DATA_DIR}, "
-            f"MODELS_DIR={self.MODELS_DIR}, "
-            f"REPORTS_DIR={self.REPORTS_DIR}, "
-            f"SIMULATION_MODE={self.SIMULATION_MODE})"
+            f"Config(log_level={self.log_level}, seed={self.seed}, "
+            f"simulation_mode={self.simulation_mode})"
         )
 
-
-# Global instance for convenience
+# Singleton instance for easy import
 config = Config()
+
+# Convenience accessors
+def get_data_path() -> Path:
+    return config.get_path("data")
+
+def get_processed_data_path() -> Path:
+    return config.get_path("data_processed")
+
+def get_artifacts_path() -> Path:
+    return config.get_path("artifacts")
+
+def get_reports_path() -> Path:
+    return config.get_path("artifacts_reports")

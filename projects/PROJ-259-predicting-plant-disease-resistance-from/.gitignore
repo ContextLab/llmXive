@@ -1,12 +1,8 @@
-# Byte-compiled / optimized / DLL files
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
-
-# C extensions
 *.so
-
-# Distribution / packaging
 .Python
 build/
 develop-eggs/
@@ -24,71 +20,38 @@ wheels/
 .installed.cfg
 *.egg
 
-# PyInstaller
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
-.hypothesis/
-.pytest_cache/
-
-# Translations
-*.mo
-*.pot
-
-# Environments
-.env
-.venv
-env/
+# Virtual environments
+.venv/
 venv/
 ENV/
-env.bak/
-venv.bak/
+env/
 
 # IDE
 .idea/
 .vscode/
 *.swp
 *.swo
-*~
 
-# Jupyter Notebook
-.ipynb_checkpoints
+# Data and artifacts (keep in git, but ignore large files)
+data/raw/*.fastq
+data/raw/*.bam
+data/raw/*.vcf
+data/processed/*.csv
+artifacts/models/*.pkl
+artifacts/models/*.h5
+artifacts/reports/*.json
+artifacts/reports/*.csv
+artifacts/figures/*.png
+artifacts/figures/*.pdf
 
-# pyenv
-.python-version
-
-# mypy
-.mypy_cache/
-.dmypy.json
-dmypy.json
-
-# Pyre type checker
-.pyre/
-
-# Project specific
-data/raw/*
-!data/raw/.gitkeep
-data/processed/*
-!data/processed/.gitkeep
-artifacts/*
-!artifacts/.gitkeep
-logs/
+# Logs
 *.log
 
 # OS
 .DS_Store
 Thumbs.db
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/

@@ -1,318 +1,234 @@
 """
-Data Download Module for Plant Disease Resistance Project.
-
-Attempts to fetch real data from NCBI SRA and MetaboLights.
-Falls back to synthetic generation if real data is unavailable or inaccessible.
+Data download module for plant disease resistance project.
+Attempts to fetch real data from NCBI SRA/MetaboLights; falls back to synthetic generation
+if real data is unavailable.
 """
 import os
 import time
 import requests
+import yaml
 from pathlib import Path
-from typing import Dict, Any, Optional, List, Tuple
+from typing import Dict, Any, List, Optional, Tuple
 
-import pandas as pd
-import numpy as np
+from config import get_data_path, get_data_path as get_data_root
+from data.manifest import load_manifest, get_source_type, create_default_manifest
+from utils.logging import get_logger, log_pipeline_step, log_error_context
+from utils.exceptions import PipelineError
 
-from config import get_path, Config
-from data.manifest import load_manifest, save_manifest, add_dataset, update_dataset_status, get_source_type, is_simulation_mode
-from utils.logging import get_logger, log_pipeline_step
-from data.generate_synthetic import main as generate_synthetic_main, update_manifest as synthetic_update_manifest
+logger = get_logger(__name__)
 
 # Constants
 MAX_RETRIES = 3
 RETRY_DELAY = 5  # seconds
-DOWNLOAD_QUERY = "plant AND disease resistance AND (SNP OR metabolite)"
-SRA_API_URL = "https://www.ebi.ac.uk/ena/browser/api/xml/"
-METABOLIGHTS_API_URL = "https://www.ebi.ac.uk/metabolights/api/v2/assays"
+QUERY_STRING = "plant AND disease resistance AND (SNP OR metabolite)"
+SIMULATED_SOURCE_TYPE = "SIMULATED"
+REAL_SOURCE_TYPE = "REAL"
 
-logger = get_logger(__name__)
-
-def check_sra_accession(accession: str) -> Optional[Dict[str, Any]]:
+def check_ncbi_sra_accession(accession: str) -> Tuple[bool, str]:
     """
-    Check if an SRA accession exists and is accessible.
-    
-    Args:
-        accession: SRA accession ID (e.g., SRP123456)
-        
-    Returns:
-        Dictionary with metadata if found, None otherwise.
+    Check if an accession exists in NCBI SRA.
+    Returns (is_valid, message).
     """
-    url = f"{SRA_API_URL}{accession}"
-    
-    for attempt in range(MAX_RETRIES):
-        try:
-            response = requests.get(url, timeout=30)
-            if response.status_code == 200:
-                # Simple check for valid XML response
-                if "<ExperimentSet" in response.text or "<RunSet" in response.text:
-                    return {
-                        "accession": accession,
-                        "source": "SRA",
-                        "status": "found",
-                        "url": url
-                    }
-            elif response.status_code in [404, 403]:
-                logger.warning(f"SRA accession {accession} returned {response.status_code}")
-                return None
-        except requests.exceptions.RequestException as e:
-            logger.warning(f"Attempt {attempt + 1}/{MAX_RETRIES} failed for SRA {accession}: {e}")
-            if attempt < MAX_RETRIES - 1:
-                time.sleep(RETRY_DELAY)
-            continue
-        
-        return None
-    
-    return None
-
-def check_metabolights_accession(accession: str) -> Optional[Dict[str, Any]]:
-    """
-    Check if a MetaboLights accession exists and is accessible.
-    
-    Args:
-        accession: MetaboLights accession ID (e.g., MTBLS1234)
-        
-    Returns:
-        Dictionary with metadata if found, None otherwise.
-    """
-    url = f"{METABOLIGHTS_API_URL}/{accession}/download"
-    
-    for attempt in range(MAX_RETRIES):
-        try:
-            response = requests.get(url, timeout=30)
-            if response.status_code == 200:
-                # Check for valid JSON response with assay info
-                data = response.json()
-                if "assayAccession" in data or "studyAccession" in data:
-                    return {
-                        "accession": accession,
-                        "source": "MetaboLights",
-                        "status": "found",
-                        "url": url
-                    }
-            elif response.status_code in [404, 403]:
-                logger.warning(f"MetaboLights accession {accession} returned {response.status_code}")
-                return None
-        except (requests.exceptions.RequestException, ValueError) as e:
-            logger.warning(f"Attempt {attempt + 1}/{MAX_RETRIES} failed for MetaboLights {accession}: {e}")
-            if attempt < MAX_RETRIES - 1:
-                time.sleep(RETRY_DELAY)
-            continue
-        
-        return None
-    
-    return None
-
-def search_public_databases(query: str) -> List[Dict[str, Any]]:
-    """
-    Search public databases for plant disease resistance data.
-    
-    Args:
-        query: Search query string
-        
-    Returns:
-        List of found datasets with metadata
-    """
-    found_datasets = []
-    
-    # Try to find datasets via simple accession search
-    # In a real implementation, this would use NCBI E-utilities or MetaboLights search API
-    # For now, we'll attempt common accession patterns or return empty if no direct hits
-    
-    # Since we don't have a specific list of accessions to check, we'll try a few common patterns
-    # or return empty to trigger synthetic generation
-    test_accessions = [
-        ("SRP000001", "SRA"),
-        ("SRP000002", "SRA"),
-        ("MTBLS1", "MetaboLights"),
-        ("MTBLS2", "MetaboLights"),
-    ]
-    
-    for accession, source in test_accessions:
-        if source == "SRA":
-            result = check_sra_accession(accession)
+    url = f"https://www.ncbi.nlm.nih.gov/sra/?term={accession}"
+    try:
+        response = requests.get(url, timeout=10)
+        if response.status_code == 200:
+            # Check if the page contains "No results found" or similar
+            if "No results found" in response.text or "not found" in response.text.lower():
+                return False, f"Accession {accession} not found in NCBI SRA"
+            return True, f"Accession {accession} found in NCBI SRA"
+        elif response.status_code == 404:
+            return False, f"Accession {accession} returned 404 from NCBI SRA"
+        elif response.status_code == 403:
+            return False, f"Accession {accession} returned 403 from NCBI SRA"
         else:
-            result = check_metabolights_accession(accession)
-        
-        if result:
-            found_datasets.append(result)
-    
-    if not found_datasets:
-        logger.info(f"No accessible datasets found for query: '{query}'")
-    
-    return found_datasets
+            return False, f"Accession {accession} returned HTTP {response.status_code}"
+    except requests.exceptions.RequestException as e:
+        return False, f"Network error checking {accession}: {str(e)}"
 
-def fetch_data_from_accession(dataset_info: Dict[str, Any]) -> bool:
+def check_metabolights_accession(accession: str) -> Tuple[bool, str]:
     """
-    Attempt to download data from a specific accession.
-    
-    Args:
-        dataset_info: Dictionary containing accession and source information
-        
-    Returns:
-        True if download successful, False otherwise
+    Check if an accession exists in MetaboLights.
+    Returns (is_valid, message).
     """
-    accession = dataset_info["accession"]
-    source = dataset_info["source"]
-    
-    logger.info(f"Attempting to download {source} data for accession {accession}")
-    
-    # In a real implementation, this would download the actual files
-    # For now, we'll simulate the download process and return False
-    # to trigger synthetic generation since we can't actually download
-    # without proper authentication and large file handling
-    
+    url = f"https://www.ebi.ac.uk/metabolights/api/studies/{accession}"
     try:
-        # This is a placeholder - real implementation would use:
-        # - NCBI SRA Toolkit for SRA data
-        # - Direct FTP/HTTP download for MetaboLights
-        # For this task, we return False to demonstrate fallback logic
-        logger.warning(f"Real download from {source} {accession} not implemented in this task. "
-                     "Returning False to trigger synthetic fallback.")
-        return False
-    except Exception as e:
-        logger.error(f"Failed to download {source} data for {accession}: {e}")
-        return False
+        response = requests.get(url, timeout=10)
+        if response.status_code == 200:
+            return True, f"Accession {accession} found in MetaboLights"
+        elif response.status_code == 404:
+            return False, f"Accession {accession} returned 404 from MetaboLights"
+        elif response.status_code == 403:
+            return False, f"Accession {accession} returned 403 from MetaboLights"
+        else:
+            return False, f"Accession {accession} returned HTTP {response.status_code}"
+    except requests.exceptions.RequestException as e:
+        return False, f"Network error checking {accession}: {str(e)}"
 
-def trigger_synthetic_fallback() -> bool:
+def fetch_real_data(accession: str, modality: str, max_retries: int = MAX_RETRIES) -> Tuple[bool, str]:
     """
-    Trigger synthetic data generation as fallback.
+    Attempt to fetch real data for a given accession with retries.
+    Returns (success, message).
+    """
+    last_error = None
     
-    Returns:
-        True if synthetic generation successful, False otherwise
-    """
-    logger.info("Triggering synthetic data generation as fallback...")
-    try:
-        # Call the synthetic generation function
-        generate_synthetic_main()
+    for attempt in range(1, max_retries + 1):
+        logger.info(f"Attempt {attempt}/{max_retries} to fetch accession {accession} ({modality})")
         
-        # Update manifest to reflect simulation mode
-        manifest_path = get_path("data_manifest.yaml")
-        update_manifest = synthetic_update_manifest
-        update_manifest(manifest_path, "SIMULATED")
+        if modality == "SNP":
+            success, message = check_ncbi_sra_accession(accession)
+        elif modality == "metabolite":
+            success, message = check_metabolights_accession(accession)
+        else:
+            success, message = False, f"Unknown modality: {modality}"
         
-        logger.info("Synthetic data generation completed successfully")
-        return True
-    except Exception as e:
-        logger.error(f"Failed to generate synthetic data: {e}")
-        return False
-
-def update_manifest_with_download_status(manifest_path: str, datasets: List[Dict[str, Any]], 
-                                         success: bool) -> None:
-    """
-    Update the data manifest with download status.
-    
-    Args:
-        manifest_path: Path to the manifest file
-        datasets: List of attempted datasets
-        success: Whether download was successful
-    """
-    try:
-        manifest = load_manifest(manifest_path)
-        
-        for dataset in datasets:
-            dataset_id = dataset.get("accession", "unknown")
-            source = dataset.get("source", "unknown")
-            
-            # Add or update dataset entry
-            add_dataset(manifest, dataset_id, {
-                "source": source,
-                "status": "downloaded" if success else "failed",
-                "timestamp": pd.Timestamp.now().isoformat()
-            })
-        
-        # Update overall status
         if success:
-            update_dataset_status(manifest, "real_data", "SUCCESS")
-        else:
-            update_dataset_status(manifest, "real_data", "FALLBACK_TO_SYNTHETIC")
+            logger.info(message)
+            return True, message
         
-        save_manifest(manifest, manifest_path)
+        last_error = message
+        logger.warning(f"Attempt {attempt} failed: {message}")
         
-    except Exception as e:
-        logger.error(f"Failed to update manifest: {e}")
+        if attempt < max_retries:
+            logger.info(f"Retrying in {RETRY_DELAY} seconds...")
+            time.sleep(RETRY_DELAY)
+    
+    return False, f"All {max_retries} attempts failed for {accession}: {last_error}"
 
-def main() -> bool:
+def download_real_data(manifest_path: Optional[Path] = None) -> Tuple[bool, str]:
     """
-    Main download function.
-    
-    Attempts to fetch real data from public databases.
-    Falls back to synthetic generation if real data is unavailable.
-    
-    Returns:
-        True if data acquisition successful (real or synthetic), False otherwise
+    Attempt to download real data based on manifest entries.
+    Returns (success, message).
     """
-    log_pipeline_step("download", "Starting data download process")
+    if manifest_path is None:
+        manifest_path = get_data_root() / "data_manifest.yaml"
     
-    manifest_path = get_path("data_manifest.yaml")
+    if not manifest_path.exists():
+        logger.warning(f"Manifest not found at {manifest_path}, creating default")
+        create_default_manifest(manifest_path)
+    
+    manifest = load_manifest(manifest_path)
+    datasets = manifest.get("datasets", [])
+    
+    if not datasets:
+        logger.warning("No datasets found in manifest")
+        return False, "No datasets in manifest"
+    
+    all_success = True
+    failed_accessions = []
+    
+    for dataset in datasets:
+        accession = dataset.get("accession")
+        modality = dataset.get("modality")
+        
+        if not accession or not modality:
+            logger.warning(f"Skipping dataset with missing accession or modality: {dataset}")
+            continue
+        
+        success, message = fetch_real_data(accession, modality)
+        
+        if success:
+            logger.info(f"Successfully verified data for {accession}: {message}")
+        else:
+            logger.error(f"Failed to verify data for {accession}: {message}")
+            all_success = False
+            failed_accessions.append(accession)
+    
+    if all_success:
+        return True, "All real data accessions verified successfully"
+    else:
+        return False, f"Failed to verify data for accessions: {', '.join(failed_accessions)}"
+
+def trigger_synthetic_fallback(manifest_path: Optional[Path] = None) -> Tuple[bool, str]:
+    """
+    Trigger synthetic data generation as a fallback.
+    Returns (success, message).
+    """
+    logger.info("Triggering synthetic data generation fallback")
     
     try:
-        # Load manifest to check for existing accessions
-        manifest = load_manifest(manifest_path)
+        # Import the synthetic generation module
+        from data.generate_synthetic import generate_synthetic_data
         
-        # Check if we already have accessions listed
-        existing_datasets = manifest.get("datasets", [])
+        if manifest_path is None:
+            manifest_path = get_data_root() / "data_manifest.yaml"
         
-        if existing_datasets:
-            logger.info(f"Found {len(existing_datasets)} existing datasets in manifest")
-            # Try to download each existing dataset
-            for dataset in existing_datasets:
-                accession = dataset.get("accession")
-                source = dataset.get("source")
-                
-                if source == "SRA":
-                    result = check_sra_accession(accession)
-                elif source == "MetaboLights":
-                    result = check_metabolights_accession(accession)
-                else:
-                    logger.warning(f"Unknown source type: {source}")
-                    continue
-                
-                if result:
-                    if fetch_data_from_accession(result):
-                        update_manifest_with_download_status(manifest_path, [result], True)
-                        log_pipeline_step("download", "Real data download successful")
-                        return True
-        else:
-            logger.info("No existing datasets in manifest, searching public databases...")
-            # Search for new datasets
-            found_datasets = search_public_databases(DOWNLOAD_QUERY)
+        # Generate synthetic data
+        success, message = generate_synthetic_data(manifest_path)
+        
+        if success:
+            logger.info(f"Synthetic data generated successfully: {message}")
+            # Update manifest to indicate SIMULATED source
+            manifest = load_manifest(manifest_path)
+            manifest["source_type"] = SIMULATED_SOURCE_TYPE
+            manifest["generation_timestamp"] = time.strftime("%Y-%m-%d %H:%M:%S")
+            manifest["fallback_reason"] = "Real data fetch failed"
             
-            if found_datasets:
-                logger.info(f"Found {len(found_datasets)} potential datasets")
-                for dataset in found_datasets:
-                    if fetch_data_from_accession(dataset):
-                        update_manifest_with_download_status(manifest_path, [dataset], True)
-                        log_pipeline_step("download", "Real data download successful")
-                        return True
-            else:
-                logger.info("No datasets found in public databases")
-        
-        # If we reach here, real data acquisition failed
-        logger.warning("Real data acquisition failed. Triggering synthetic fallback...")
-        
-        if trigger_synthetic_fallback():
-            log_pipeline_step("download", "Synthetic data generation successful (Simulation Mode)")
-            return True
-        else:
-            logger.error("Both real data acquisition and synthetic generation failed")
-            return False
+            with open(manifest_path, 'w') as f:
+                yaml.dump(manifest, f, default_flow_style=False)
             
+            return True, "Synthetic data generated and manifest updated"
+        else:
+            return False, f"Synthetic data generation failed: {message}"
+            
+    except ImportError as e:
+        return False, f"Cannot import synthetic generation module: {str(e)}"
     except Exception as e:
-        logger.error(f"Download process failed: {e}")
-        # Try synthetic fallback as last resort
-        try:
-            if trigger_synthetic_fallback():
-                log_pipeline_step("download", "Synthetic data generation successful (Simulation Mode)")
-                return True
-        except:
-            pass
-        return False
+        return False, f"Unexpected error during synthetic fallback: {str(e)}"
+
+def run_download_pipeline(manifest_path: Optional[Path] = None) -> Tuple[bool, str]:
+    """
+    Main pipeline function to attempt real data download with synthetic fallback.
+    Returns (success, message).
+    """
+    log_pipeline_step("download", "Starting data download pipeline")
+    
+    if manifest_path is None:
+        manifest_path = get_data_root() / "data_manifest.yaml"
+    
+    # First, try to download real data
+    logger.info("Attempting to fetch real data from NCBI SRA/MetaboLights")
+    success, message = download_real_data(manifest_path)
+    
+    if success:
+        # Update manifest to indicate REAL source
+        manifest = load_manifest(manifest_path)
+        manifest["source_type"] = REAL_SOURCE_TYPE
+        manifest["generation_timestamp"] = time.strftime("%Y-%m-%d %H:%M:%S")
+        
+        with open(manifest_path, 'w') as f:
+            yaml.dump(manifest, f, default_flow_style=False)
+        
+        log_pipeline_step("download", f"Real data download successful: {message}")
+        return True, message
+    
+    logger.warning(f"Real data fetch failed: {message}")
+    logger.info("Triggering synthetic data fallback")
+    
+    # Fallback to synthetic generation
+    success, message = trigger_synthetic_fallback(manifest_path)
+    
+    if success:
+        log_pipeline_step("download", f"Synthetic fallback successful: {message}")
+        return True, message
+    else:
+        log_error_context("download", "Both real data fetch and synthetic fallback failed", error=message)
+        return False, message
+
+def main():
+    """
+    Entry point for the download script.
+    """
+    logger.info("Running data download script")
+    
+    success, message = run_download_pipeline()
+    
+    if success:
+        logger.info(f"Download pipeline completed successfully: {message}")
+        return 0
+    else:
+        logger.error(f"Download pipeline failed: {message}")
+        return 1
 
 if __name__ == "__main__":
-    success = main()
-    if success:
-        logger.info("Data download process completed successfully")
-        exit(0)
-    else:
-        logger.error("Data download process failed completely")
-        exit(1)
+    exit(main())

@@ -1,196 +1,326 @@
 """
-Tests for the data manifest loader and utilities.
+Tests for the data manifest loader and validator.
 """
-import os
-import tempfile
 import pytest
 import yaml
+import tempfile
 from pathlib import Path
+from unittest.mock import patch
 
 from code.data.manifest import (
     load_manifest,
-    save_manifest,
-    get_dataset_by_id,
-    add_dataset,
-    update_dataset_status,
+    _validate_manifest_schema,
     get_datasets_by_modality,
+    get_dataset_by_accession,
     get_source_type,
-    is_simulation_mode,
-    MANIFEST_SCHEMA,
+    create_default_manifest,
+    VALID_SOURCE_TYPES,
+    VALID_MODALITIES,
+    VALID_STATUSES
 )
+from code.utils.exceptions import PipelineError, EX_DATA_INTEGRITY
 
-@pytest.fixture
-def temp_manifest_path():
-    """Create a temporary manifest file for testing."""
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
-        manifest_data = {
-            "version": "1.0",
+
+class TestManifestValidation:
+    """Test manifest schema validation."""
+
+    def test_valid_manifest(self):
+        """Test that a valid manifest passes validation."""
+        manifest = {
+            "schema_version": "1.0.0",
+            "created_at": "2024-01-15T10:30:00Z",
+            "updated_at": "2024-01-15T10:30:00Z",
             "source_type": "SIMULATED",
             "datasets": [
                 {
-                    "dataset_id": "test_snp_001",
-                    "source": "synthetic",
+                    "accession_id": "SIM001",
                     "modality": "SNP",
-                    "file_path": "data/raw/test_snps.csv",
-                    "status": "pending",
-                    "accession": None,
-                    "checksum": None,
-                    "metadata": {}
+                    "source_url": "internal",
+                    "status": "downloaded",
+                    "file_path": "data/synthetic_snps.csv"
+                }
+            ]
+        }
+        assert _validate_manifest_schema(manifest) is True
+
+    def test_missing_required_field(self):
+        """Test validation fails when required field is missing."""
+        manifest = {
+            "schema_version": "1.0.0",
+            "created_at": "2024-01-15T10:30:00Z",
+            "updated_at": "2024-01-15T10:30:00Z",
+            "source_type": "SIMULATED",
+            "datasets": []
+        }
+        assert _validate_manifest_schema(manifest) is True  # Empty datasets is allowed but logged
+
+        manifest_no_version = {
+            "created_at": "2024-01-15T10:30:00Z",
+            "updated_at": "2024-01-15T10:30:00Z",
+            "source_type": "SIMULATED",
+            "datasets": []
+        }
+        assert _validate_manifest_schema(manifest_no_version) is False
+
+    def test_invalid_source_type(self):
+        """Test validation fails with invalid source type."""
+        manifest = {
+            "schema_version": "1.0.0",
+            "created_at": "2024-01-15T10:30:00Z",
+            "updated_at": "2024-01-15T10:30:00Z",
+            "source_type": "INVALID",
+            "datasets": []
+        }
+        assert _validate_manifest_schema(manifest) is False
+
+    def test_invalid_modality(self):
+        """Test validation fails with invalid modality."""
+        manifest = {
+            "schema_version": "1.0.0",
+            "created_at": "2024-01-15T10:30:00Z",
+            "updated_at": "2024-01-15T10:30:00Z",
+            "source_type": "SIMULATED",
+            "datasets": [
+                {
+                    "accession_id": "SIM001",
+                    "modality": "INVALID",
+                    "source_url": "internal",
+                    "status": "downloaded",
+                    "file_path": "data/synthetic_snps.csv"
+                }
+            ]
+        }
+        assert _validate_manifest_schema(manifest) is False
+
+    def test_invalid_status(self):
+        """Test validation fails with invalid status."""
+        manifest = {
+            "schema_version": "1.0.0",
+            "created_at": "2024-01-15T10:30:00Z",
+            "updated_at": "2024-01-15T10:30:00Z",
+            "source_type": "SIMULATED",
+            "datasets": [
+                {
+                    "accession_id": "SIM001",
+                    "modality": "SNP",
+                    "source_url": "internal",
+                    "status": "INVALID",
+                    "file_path": "data/synthetic_snps.csv"
+                }
+            ]
+        }
+        assert _validate_manifest_schema(manifest) is False
+
+    def test_empty_datasets(self):
+        """Test validation passes with empty datasets (but logs warning)."""
+        manifest = {
+            "schema_version": "1.0.0",
+            "created_at": "2024-01-15T10:30:00Z",
+            "updated_at": "2024-01-15T10:30:00Z",
+            "source_type": "SIMULATED",
+            "datasets": []
+        }
+        assert _validate_manifest_schema(manifest) is True
+
+    def test_missing_dataset_fields(self):
+        """Test validation fails when dataset is missing required fields."""
+        manifest = {
+            "schema_version": "1.0.0",
+            "created_at": "2024-01-15T10:30:00Z",
+            "updated_at": "2024-01-15T10:30:00Z",
+            "source_type": "SIMULATED",
+            "datasets": [
+                {
+                    "accession_id": "SIM001",
+                    "modality": "SNP",
+                    "source_url": "internal"
+                    # Missing status and file_path
+                }
+            ]
+        }
+        assert _validate_manifest_schema(manifest) is False
+
+
+class TestManifestOperations:
+    """Test manifest data operations."""
+
+    def test_get_datasets_by_modality(self):
+        """Test filtering datasets by modality."""
+        manifest = {
+            "schema_version": "1.0.0",
+            "created_at": "2024-01-15T10:30:00Z",
+            "updated_at": "2024-01-15T10:30:00Z",
+            "source_type": "SIMULATED",
+            "datasets": [
+                {
+                    "accession_id": "SIM001",
+                    "modality": "SNP",
+                    "source_url": "internal",
+                    "status": "downloaded",
+                    "file_path": "data/synthetic_snps.csv"
                 },
                 {
-                    "dataset_id": "test_metab_001",
-                    "source": "synthetic",
-                    "modality": "metabolite",
-                    "file_path": "data/raw/test_metabolites.csv",
-                    "status": "pending",
-                    "accession": None,
-                    "checksum": None,
-                    "metadata": {}
+                    "accession_id": "SIM002",
+                    "modality": "METABOLITE",
+                    "source_url": "internal",
+                    "status": "downloaded",
+                    "file_path": "data/synthetic_metabolites.csv"
+                },
+                {
+                    "accession_id": "SIM003",
+                    "modality": "SNP",
+                    "source_url": "internal",
+                    "status": "downloaded",
+                    "file_path": "data/synthetic_snps2.csv"
                 }
             ]
         }
-        yaml.dump(manifest_data, f)
-        temp_path = Path(f.name)
-    yield temp_path
-    os.unlink(temp_path)
-
-def test_load_manifest_exists(temp_manifest_path):
-    """Test loading an existing manifest file."""
-    manifest = load_manifest(temp_manifest_path)
-    
-    assert manifest["version"] == "1.0"
-    assert manifest["source_type"] == "SIMULATED"
-    assert len(manifest["datasets"]) == 2
-    
-    # Check dataset structure
-    snp_dataset = get_dataset_by_id(manifest, "test_snp_001")
-    assert snp_dataset is not None
-    assert snp_dataset["modality"] == "SNP"
-    
-    metab_dataset = get_dataset_by_id(manifest, "test_metab_001")
-    assert metab_dataset is not None
-    assert metab_dataset["modality"] == "metabolite"
-
-def test_load_manifest_missing_file():
-    """Test loading a non-existent manifest file creates default."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        missing_path = Path(tmpdir) / "missing_manifest.yaml"
-        manifest = load_manifest(missing_path)
         
-        assert os.path.exists(missing_path)
-        assert manifest["source_type"] == "SIMULATED"
-        assert manifest["version"] == "1.0"
-        assert manifest["datasets"] == []
-
-def test_save_and_reload(temp_manifest_path):
-    """Test saving and reloading a manifest."""
-    # Modify the manifest
-    manifest = load_manifest(temp_manifest_path)
-    manifest["source_type"] = "REAL"
-    
-    # Save to a new location
-    with tempfile.TemporaryDirectory() as tmpdir:
-        new_path = Path(tmpdir) / "new_manifest.yaml"
-        save_manifest(manifest, new_path)
+        snp_datasets = get_datasets_by_modality(manifest, "SNP")
+        assert len(snp_datasets) == 2
+        assert all(ds["modality"] == "SNP" for ds in snp_datasets)
         
-        # Reload and verify
-        reloaded = load_manifest(new_path)
-        assert reloaded["source_type"] == "REAL"
-        assert len(reloaded["datasets"]) == 2
+        metabolite_datasets = get_datasets_by_modality(manifest, "METABOLITE")
+        assert len(metabolite_datasets) == 1
+        assert metabolite_datasets[0]["accession_id"] == "SIM002"
 
-def test_add_dataset(temp_manifest_path):
-    """Test adding a new dataset to the manifest."""
-    manifest = load_manifest(temp_manifest_path)
-    
-    new_dataset = {
-        "dataset_id": "test_pheno_001",
-        "source": "synthetic",
-        "modality": "phenotype",
-        "file_path": "data/raw/test_phenotypes.csv",
-        "status": "pending"
-    }
-    
-    updated_manifest = add_dataset(manifest, new_dataset)
-    
-    assert len(updated_manifest["datasets"]) == 3
-    added = get_dataset_by_id(updated_manifest, "test_pheno_001")
-    assert added is not None
-    assert added["modality"] == "phenotype"
-    assert added["accession"] is None  # Should be added as None
+    def test_get_datasets_by_modality_invalid(self):
+        """Test that invalid modality raises ValueError."""
+        manifest = {
+            "schema_version": "1.0.0",
+            "created_at": "2024-01-15T10:30:00Z",
+            "updated_at": "2024-01-15T10:30:00Z",
+            "source_type": "SIMULATED",
+            "datasets": []
+        }
+        
+        with pytest.raises(ValueError):
+            get_datasets_by_modality(manifest, "INVALID")
 
-def test_add_duplicate_dataset(temp_manifest_path):
-    """Test that adding a duplicate dataset_id raises an error."""
-    manifest = load_manifest(temp_manifest_path)
-    
-    duplicate_dataset = {
-        "dataset_id": "test_snp_001",  # Already exists
-        "source": "synthetic",
-        "modality": "SNP",
-        "file_path": "data/raw/duplicate.csv",
-        "status": "pending"
-    }
-    
-    with pytest.raises(ValueError, match="already exists"):
-        add_dataset(manifest, duplicate_dataset)
-
-def test_update_dataset_status(temp_manifest_path):
-    """Test updating dataset status."""
-    manifest = load_manifest(temp_manifest_path)
-    
-    updated = update_dataset_status(manifest, "test_snp_001", "downloaded")
-    dataset = get_dataset_by_id(updated, "test_snp_001")
-    assert dataset["status"] == "downloaded"
-
-def test_update_invalid_status(temp_manifest_path):
-    """Test updating with an invalid status raises an error."""
-    manifest = load_manifest(temp_manifest_path)
-    
-    with pytest.raises(ValueError, match="Invalid status"):
-        update_dataset_status(manifest, "test_snp_001", "invalid_status")
-
-def test_get_datasets_by_modality(temp_manifest_path):
-    """Test filtering datasets by modality."""
-    manifest = load_manifest(temp_manifest_path)
-    
-    snp_datasets = get_datasets_by_modality(manifest, "SNP")
-    assert len(snp_datasets) == 1
-    assert snp_datasets[0]["dataset_id"] == "test_snp_001"
-    
-    metab_datasets = get_datasets_by_modality(manifest, "metabolite")
-    assert len(metab_datasets) == 1
-    
-    non_existent = get_datasets_by_modality(manifest, "protein")
-    assert len(non_existent) == 0
-
-def test_source_type_helpers(temp_manifest_path):
-    """Test source type helper functions."""
-    manifest = load_manifest(temp_manifest_path)
-    
-    assert get_source_type(manifest) == "SIMULATED"
-    assert is_simulation_mode(manifest) is True
-    
-    manifest["source_type"] = "REAL"
-    assert get_source_type(manifest) == "REAL"
-    assert is_simulation_mode(manifest) is False
-
-def test_manifest_schema_validation():
-    """Test that manifest schema validation works correctly."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        # Create invalid manifest (missing required fields)
-        invalid_manifest = {
-            "version": "1.0",
+    def test_get_dataset_by_accession(self):
+        """Test finding dataset by accession ID."""
+        manifest = {
+            "schema_version": "1.0.0",
+            "created_at": "2024-01-15T10:30:00Z",
+            "updated_at": "2024-01-15T10:30:00Z",
             "source_type": "SIMULATED",
             "datasets": [
                 {
-                    "dataset_id": "test_001",
-                    # Missing required fields: source, modality, file_path, status
+                    "accession_id": "SIM001",
+                    "modality": "SNP",
+                    "source_url": "internal",
+                    "status": "downloaded",
+                    "file_path": "data/synthetic_snps.csv"
                 }
             ]
         }
         
-        invalid_path = Path(tmpdir) / "invalid.yaml"
-        with open(invalid_path, 'w') as f:
-            yaml.dump(invalid_manifest, f)
+        dataset = get_dataset_by_accession(manifest, "SIM001")
+        assert dataset is not None
+        assert dataset["accession_id"] == "SIM001"
         
-        with pytest.raises(ValueError, match="missing required field"):
-            load_manifest(invalid_path)
+        missing = get_dataset_by_accession(manifest, "NONEXISTENT")
+        assert missing is None
+
+    def test_get_source_type(self):
+        """Test getting source type from manifest."""
+        manifest = {
+            "schema_version": "1.0.0",
+            "created_at": "2024-01-15T10:30:00Z",
+            "updated_at": "2024-01-15T10:30:00Z",
+            "source_type": "REAL",
+            "datasets": []
+        }
+        
+        assert get_source_type(manifest) == "REAL"
+        
+        manifest["source_type"] = "SIMULATED"
+        assert get_source_type(manifest) == "SIMULATED"
+
+    def test_create_default_manifest(self):
+        """Test creating a default manifest."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+            temp_path = Path(f.name)
+        
+        try:
+            manifest = create_default_manifest(temp_path)
+            
+            assert manifest["schema_version"] == "1.0.0"
+            assert manifest["source_type"] == "SIMULATED"
+            assert manifest["datasets"] == []
+            assert "created_at" in manifest
+            assert "updated_at" in manifest
+            
+            # Verify file was written
+            assert temp_path.exists()
+            with open(temp_path, 'r') as f:
+                loaded = yaml.safe_load(f)
+            assert loaded == manifest
+        finally:
+            temp_path.unlink()
+
+class TestLoadManifest:
+    """Test loading manifest from file."""
+
+    def test_load_manifest_success(self):
+        """Test successful manifest loading."""
+        manifest_data = {
+            "schema_version": "1.0.0",
+            "created_at": "2024-01-15T10:30:00Z",
+            "updated_at": "2024-01-15T10:30:00Z",
+            "source_type": "SIMULATED",
+            "datasets": []
+        }
+        
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+            yaml.dump(manifest_data, f)
+            temp_path = Path(f.name)
+        
+        try:
+            loaded = load_manifest(temp_path)
+            assert loaded == manifest_data
+        finally:
+            temp_path.unlink()
+
+    def test_load_manifest_not_found(self):
+        """Test that loading non-existent manifest raises PipelineError."""
+        with pytest.raises(PipelineError) as exc_info:
+            load_manifest(Path("/nonexistent/path/data_manifest.yaml"))
+        
+        assert exc_info.value.code == EX_DATA_INTEGRITY.code
+        assert "not found" in str(exc_info.value.message).lower()
+
+    def test_load_manifest_invalid_yaml(self):
+        """Test that invalid YAML raises PipelineError."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+            f.write("invalid: yaml: content: [")
+            temp_path = Path(f.name)
+        
+        try:
+            with pytest.raises(PipelineError) as exc_info:
+                load_manifest(temp_path)
+            
+            assert exc_info.value.code == EX_DATA_INTEGRITY.code
+            assert "parse" in str(exc_info.value.message).lower()
+        finally:
+            temp_path.unlink()
+
+    def test_load_manifest_invalid_schema(self):
+        """Test that invalid schema raises PipelineError."""
+        manifest_data = {
+            "invalid_field": "value"
+            # Missing required fields
+        }
+        
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+            yaml.dump(manifest_data, f)
+            temp_path = Path(f.name)
+        
+        try:
+            with pytest.raises(PipelineError) as exc_info:
+                load_manifest(temp_path)
+            
+            assert exc_info.value.code == EX_DATA_INTEGRITY.code
+            assert "schema validation failed" in str(exc_info.value.message).lower()
+        finally:
+            temp_path.unlink()

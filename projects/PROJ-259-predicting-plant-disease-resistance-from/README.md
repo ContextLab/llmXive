@@ -1,129 +1,166 @@
 # Predict Plant Disease Resistance from Multi-omics Data
 
-This project implements a reproducible pipeline for predicting plant disease resistance using multi-omics data (SNPs and metabolites).
+Automated science pipeline for predicting plant disease resistance using integrated SNP and metabolite data.
 
 ## Project Structure
 
-- `code/`: Source code for the pipeline
-- `data/`: Raw and processed data
-- `artifacts/`: Trained models, reports, and figures
-- `tests/`: Unit and integration tests
-- `specs/`: Feature specifications and design documents
+```
+.
+├── code/ # Source code
+│ ├── analysis/ # Feature selection, modeling, validation
+│ ├── data/ # Data download, preprocessing, splitting
+│ ├── utils/ # Utilities (exceptions, logging, stats)
+│ ├── config.py # Configuration management
+│ └── main.py # CLI entry point
+├── data/ # Data storage
+│ ├── raw/ # Raw downloaded data
+│ └── processed/ # Preprocessed and aligned data
+├── artifacts/ # Model outputs and reports
+│ ├── models/ # Trained model files
+│ ├── reports/ # Metrics and analysis reports
+│ └── figures/ # Visualization outputs
+├── tests/ # Test suites
+├── specs/ # Design documents
+├── Dockerfile # Container definition
+├── requirements.txt # Python dependencies
+└── README.md # This file
+```
 
 ## Prerequisites
 
 - Docker (for containerized execution)
-- Python 3.11+ (for local development)
-- Required Python packages listed in `requirements.txt`
+- Python 3.11+ (for local execution)
+- pip for package management
 
-## Quick Start with Docker
+## Quick Start (Docker)
 
-### Building the Docker Image
+### Build the Docker Image
 
-Build the Docker image using the provided `Dockerfile`:
+Build the container image containing Python 3.11, bioinformatics tools (fastp, bcftools), and project dependencies:
 
 ```bash
+# Navigate to project root
+cd /path/to/project
+
+# Build the image (tag: plant-disease-resistance:latest)
 docker build -t plant-disease-resistance:latest.
 ```
 
-This image includes:
-- Python 3.11 with project dependencies
-- `fastp` for sequence preprocessing
-- `bcftools` for variant calling and manipulation
-- All project-specific Python packages
-
-### Running the Pipeline
-
-Execute the full pipeline inside the Docker container:
-
-```bash
-docker run --rm -v $(pwd):/workspace -w /workspace plant-disease-resistance:latest \
- python code/main.py
-```
-
-**Volume Mounting**: The `-v $(pwd):/workspace` flag mounts your current directory to `/workspace` inside the container, allowing the pipeline to:
-- Read input data from `data/`
-- Write processed data, models, and reports to `data/`, `artifacts/`, and `figures/`
-
-**Working Directory**: The `-w /workspace` flag sets the working directory to the mounted volume.
-
-### Running with Synthetic Data (Simulation Mode)
-
-If no real data is available, the pipeline can generate synthetic data for testing:
-
-```bash
-docker run --rm -v $(pwd):/workspace -w /workspace plant-disease-resistance:latest \
- python code/main.py --simulate
-```
-
-This will:
-- Generate ~150 paired samples with injected signal structure [UNRESOLVED-CLAIM: c_7bcf3025 — status=not_enough_info]
-- Run the full pipeline on synthetic data
-- Output results to `artifacts/reports/`
-
-**Note**: In Simulation Mode, data integrity and power checks are bypassed per project specifications.
-
-### Interactive Shell Access
-
-For debugging or manual exploration:
-
-```bash
-docker run --rm -it -v $(pwd):/workspace -w /workspace plant-disease-resistance:latest bash
-```
-
-## Local Development (Without Docker)
-
-### Setup Virtual Environment
-
-```bash
-python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
-```
-
-### Install Dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-### Install System Dependencies
-
-Ensure the following system tools are installed:
-- `fastp`: `conda install -c bioconda fastp` or download from [fastp GitHub](https://github.com/OpenGene/fastp)
-- `bcftools`: `conda install -c bioconda bcftools` or download from [samtools/bcftools](https://github.com/samtools/bcftools)
-
 ### Run the Pipeline
 
+Execute the full pipeline inside the container:
+
 ```bash
+# Run the main pipeline script
+docker run --rm -v $(pwd):/app -w /app plant-disease-resistance:latest \
+ python code/main.py
+
+# Run with specific configuration (optional)
+docker run --rm -v $(pwd):/app -w /app -e DATA_SOURCE=simulated \
+ plant-disease-resistance:latest python code/main.py
+```
+
+### Interactive Shell
+
+For debugging or manual inspection:
+
+```bash
+# Start an interactive shell inside the container
+docker run --rm -it -v $(pwd):/app -w /app plant-disease-resistance:latest bash
+```
+
+## Local Execution (Python)
+
+If you prefer running locally without Docker:
+
+```bash
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run the pipeline
+python code/main.py
+```
+
+## Configuration
+
+The pipeline reads configuration from environment variables:
+
+- `DATA_SOURCE`: Either `real` (fetch from NCBI/MetaboLights) or `simulated` (generate synthetic data)
+- `DATA_PATH`: Directory for raw data (default: `data/raw`)
+- `PROCESSED_DATA_PATH`: Directory for processed data (default: `data/processed`)
+- `ARTIFACTS_PATH`: Directory for outputs (default: `artifacts`)
+
+Example:
+```bash
+export DATA_SOURCE=simulated
 python code/main.py
 ```
 
 ## Output Artifacts
 
-After a successful run, the following artifacts will be generated:
+After successful execution, the following artifacts are generated:
 
-- `artifacts/reports/metrics.json`: Model performance metrics
-- `artifacts/reports/selection_frequency.csv`: Feature selection frequency across thresholds
-- `artifacts/reports/top_features.csv`: Ranked list of significant biomarkers
-- `artifacts/reports/holdout_metrics.json`: Independent validation results
-- `artifacts/models/`: Trained model files
+- `artifacts/reports/metrics.json`: Model performance metrics (CV accuracy, AUC/R², null model comparison)
+- `artifacts/reports/selection_frequency.csv`: Feature selection frequencies across thresholds
+- `artifacts/reports/top_features.csv`: Ranked list of significant biomarkers with p-values and effect sizes
+- `artifacts/reports/holdout_metrics.json`: Independent validation results with permutation p-values
+- `artifacts/models/`: Serialized trained models
 
-## Testing
+## Development
 
-Run the test suite:
+### Running Tests
 
 ```bash
+# Run all tests
 pytest tests/ -v
+
+# Run specific test suite
+pytest tests/test_pipeline.py -v
 ```
 
-## Configuration
+### Linting and Formatting
 
-Environment variables can be set to customize paths and behavior:
+```bash
+# Check code style
+flake8 code/
 
-- `DATA_DIR`: Path to raw data directory (default: `data/raw`)
-- `OUTPUT_DIR`: Path to output directory (default: `artifacts`)
-- `SIMULATE`: Set to `true` to enable simulation mode
+# Format code
+black code/
+```
+
+## Troubleshooting
+
+### Docker Build Failures
+
+If the build fails due to missing tools:
+1. Ensure Docker is running (`docker info`)
+2. Check network connectivity for package downloads
+3. Verify `Dockerfile` has correct base image and tool installation steps
+
+### Data Download Errors
+
+If real data fetch fails:
+1. Check internet connectivity
+2. Verify accession IDs in `data/data_manifest.yaml`
+3. Set `DATA_SOURCE=simulated` to use synthetic data for testing
+
+### Memory Issues
+
+For large datasets:
+1. Increase container memory limit: `docker run -m 8g...`
+2. Enable data chunking in preprocessing steps
+3. Use stratified sampling to reduce dataset size
 
 ## License
 
-This project is licensed under the terms specified in the LICENSE file.
+This project is part of the llmXive automated science pipeline. See LICENSE for details.
+
+## References
+
+- FR-006: Documentation requirements for Docker usage
+- Plan.md: Project planning document
+- Spec.md: User stories and feature requirements

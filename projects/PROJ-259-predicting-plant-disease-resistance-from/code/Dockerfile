@@ -1,64 +1,85 @@
-# Stage 1: Base image with Python 3.11 and system dependencies
-FROM python:3.11-slim-bookworm AS base
+# ============================================================================
+# Dockerfile for llmXive: Predicting Plant Disease Resistance from Multi-omics Data
+# ============================================================================
+# This container provides the runtime environment for the research pipeline.
+# It includes Python 3.11, bioinformatics tools (fastp, bcftools), and
+# project-specific Python dependencies.
+# ============================================================================
 
-# Install system dependencies required for bioinformatics tools and compilation
-# fastp: Ultra-fast all-in-one FASTQ preprocessor
-# bcftools: Utilities for variant calling and manipulation (requires htslib)
-# gcc, make, libcurl4-openssl-dev, libbz2-dev, liblzma-dev: Build tools for compiling tools from source if needed
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    fastp \
-    bcftools \
-    tabix \
-    build-essential \
-    libcurl4-openssl-dev \
-    libbz2-dev \
-    liblzma-dev \
-    libhts-dev \
-    git \
-    curl \
-&& rm -rf /var/lib/apt/lists/*
+# Use official Python 3.11 slim image as base for smaller size and stability
+FROM python:3.11-slim
 
-# Set working directory inside the container
+# Set environment variables to prevent Python from writing .pyc files
+# and to ensure UTF-8 encoding for file operations and logs
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV LANG=C.UTF-8
+ENV LC_ALL=C.UTF-8
+
+# Set the working directory inside the container
+# All subsequent commands will run relative to this path
 WORKDIR /app
 
-# Stage 2: Python environment setup
-FROM base AS python-setup
+# --------------------------------------------------------------------------
+# Step 1: Install System Dependencies
+# --------------------------------------------------------------------------
+# Update package lists to ensure we get the latest versions of tools.
+# Install build-essential for compiling any Python C extensions if needed.
+# Install fastp for high-performance FASTQ preprocessing (adapter trimming, quality filtering).
+# Install bcftools for variant calling and manipulation of VCF/BCF files.
+# Install libbz2-dev and liblzma-dev for compression support in bioinformatics tools.
+# Install curl and wget for downloading data files within the container.
+# Install git for cloning repositories if needed during development.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    fastp \
+    bcftools \
+    libbz2-dev \
+    liblzma-dev \
+    curl \
+    wget \
+    git \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
 
-# Copy only requirements first to leverage Docker layer caching
-# This ensures we only reinstall dependencies if requirements.txt changes
+# --------------------------------------------------------------------------
+# Step 2: Install Python Dependencies
+# --------------------------------------------------------------------------
+# Copy the requirements file first to leverage Docker layer caching.
+# If requirements.txt hasn't changed, this step uses the cached layer.
 COPY requirements.txt .
 
-# Upgrade pip and install Python dependencies
-# Dependencies include: pandas, numpy, scikit-learn, statsmodels, pyyaml, requests
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+# Upgrade pip to the latest version to ensure compatibility with wheels.
+# Install all Python dependencies listed in requirements.txt.
+# --no-cache-dir ensures the pip cache isn't stored in the image, reducing size.
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Stage 3: Final production image
-FROM base AS production
-
-# Copy the Python environment and dependencies from the python-setup stage
-# This avoids rebuilding the entire environment if only source code changes
-COPY --from=python-setup /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
-COPY --from=python-setup /usr/local/bin /usr/local/bin
-
-# Copy the project source code into the container
-# Includes code/, data/, specs/, and other necessary project files
+# --------------------------------------------------------------------------
+# Step 3: Copy Project Source Code
+# --------------------------------------------------------------------------
+# Copy the entire project source code into the container.
+# This includes code/, data/, tests/, and configuration files.
+# We copy everything to ensure the project structure is preserved.
 COPY . .
 
-# Set environment variables for the application
-# PYTHONUNBUFFERED ensures Python output is sent straight to terminal without buffering
-# PYTHONDONTWRITEBYTECODE prevents .pyc files from being written to disk
-ENV PYTHONUNBUFFERED=1 \
-    PYTHONDONTWRITEBYTECODE=1 \
-    APP_HOME=/app
+# --------------------------------------------------------------------------
+# Step 4: Create Non-Root User (Security Best Practice)
+# --------------------------------------------------------------------------
+# Create a non-root user 'researcher' to run the pipeline.
+# Running as root is a security risk; this minimizes potential damage.
+RUN useradd -m -u 1000 researcher
 
-# Set the working directory
-WORKDIR $APP_HOME
+# Change ownership of the application directory to the new user.
+# This ensures the 'researcher' user can read/write necessary files.
+RUN chown -R researcher:researcher /app
 
-# Create necessary directories if they don't exist (redundant but safe)
-# Ensures data/raw, data/processed, artifacts, etc. are present
-RUN mkdir -p data/raw data/processed artifacts/models artifacts/reports artifacts/figures
+# Switch to the non-root user for all subsequent commands.
+USER researcher
 
-# Default command: Run the main pipeline script
-# This can be overridden by docker run command arguments
+# --------------------------------------------------------------------------
+# Step 5: Define Default Command
+# --------------------------------------------------------------------------
+# Set the default command to run the main pipeline script.
+# This can be overridden by the user when running the container.
+# Example: docker run --rm llmXive python code/main.py --help
 CMD ["python", "code/main.py"]

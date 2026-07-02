@@ -1,310 +1,216 @@
 import os
-import logging
-import numpy as np
 import pandas as pd
+import numpy as np
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any, Union
-import pickle
+from typing import Dict, Any, Tuple, List, Optional
+import warnings
 
-from config import get_path, load_config
-from utils.logging import log_pipeline_step, setup_logger
+from config import get_reports_path
+from utils.logging import get_logger
+from utils.stats import benjamini_hochberg
 
-# Configure logger for this module
-logger = setup_logger("feature_selection")
+logger = get_logger(__name__)
 
-def load_split_data(split_dir: Optional[Path] = None) -> Tuple[pd.DataFrame, pd.Series, pd.DataFrame, pd.Series]:
+def load_split_data(split_path: str) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series]:
     """
     Load training data from the split directory.
-    
-    Returns:
-        Tuple of (X_train, y_train, X_val, y_val)
+    Returns X_train, y_train, and feature names if available.
     """
-    if split_dir is None:
-        split_dir = get_path("data", "processed", "split")
+    X_path = Path(split_path) / "X_train.csv"
+    y_path = Path(split_path) / "y_train.csv"
     
-    X_train_path = split_dir / "X_train.csv"
-    y_train_path = split_dir / "y_train.csv"
-    X_val_path = split_dir / "X_val.csv"
-    y_val_path = split_dir / "y_val.csv"
+    if not X_path.exists() or not y_path.exists():
+        raise FileNotFoundError(f"Split data not found at {split_path}")
     
-    if not all(p.exists() for p in [X_train_path, y_train_path, X_val_path, y_val_path]):
-        raise FileNotFoundError(f"Split data files not found in {split_dir}")
+    X = pd.read_csv(X_path, index_col=0)
+    y = pd.read_csv(y_path, index_col=0)
     
-    X_train = pd.read_csv(X_train_path, index_col=0)
-    y_train = pd.read_csv(y_train_path, index_col=0).squeeze()
-    X_val = pd.read_csv(X_val_path, index_col=0)
-    y_val = pd.read_csv(y_val_path, index_col=0).squeeze()
-    
-    logger.info(f"Loaded training data: X_train shape {X_train.shape}, y_train shape {y_train.shape}")
-    logger.info(f"Loaded validation data: X_val shape {X_val.shape}, y_val shape {y_val.shape}")
-    
-    return X_train, y_train, X_val, y_val
-
-def run_lasso_selection(
-    X_train: pd.DataFrame, 
-    y_train: pd.Series, 
-    X_val: pd.DataFrame, 
-    y_val: pd.Series,
-    alpha: float = 0.01,
-    max_iter: int = 10000
-) -> Tuple[List[str], Dict[str, float], float]:
-    """
-    Run LASSO feature selection and return selected features, coefficients, and validation score.
-    
-    Args:
-        X_train: Training features
-        y_train: Training target
-        X_val: Validation features
-        y_val: Validation target
-        alpha: L1 penalty strength
-        max_iter: Maximum iterations for solver
+    # Ensure y is a Series
+    if isinstance(y, pd.DataFrame):
+        y = y.iloc[:, 0]
         
-    Returns:
-        Tuple of (selected_feature_names, coefficients_dict, val_score)
+    return X, y, X.columns
+
+def run_lasso_selection(X: pd.DataFrame, y: pd.Series, alpha: float = 0.01) -> Tuple[List[str], np.ndarray]:
     """
-    from sklearn.linear_model import Lasso
+    Run LASSO regression for feature selection and return selected features.
+    Also returns the coefficients for effect size calculation.
+    """
+    from sklearn.linear_model import LassoCV
     
-    # Fit LASSO model
-    lasso = Lasso(alpha=alpha, max_iter=max_iter, random_state=42)
-    lasso.fit(X_train, y_train)
+    # Standardize features for LASSO
+    from sklearn.preprocessing import StandardScaler
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
     
-    # Extract coefficients
-    coef_dict = dict(zip(X_train.columns, lasso.coef_))
+    # Use LassoCV for automated alpha selection, or fixed alpha if preferred
+    # Here we use a fixed alpha for consistency with sensitivity sweep
+    lasso = LassoCV(alphas=[alpha], cv=5, random_state=42, max_iter=10000)
+    lasso.fit(X_scaled, y)
     
-    # Select features with non-zero coefficients
-    selected_features = [feat for feat, coef in coef_dict.items() if coef != 0]
-    
-    # Calculate validation score
-    val_score = lasso.score(X_val, y_val)
+    coefficients = lasso.coef_
+    selected_mask = coefficients != 0
+    selected_features = X.columns[selected_mask].tolist()
     
     logger.info(f"LASSO selected {len(selected_features)} features with alpha={alpha}")
     
-    return selected_features, coef_dict, val_score
+    return selected_features, coefficients
 
-def run_rf_selection(
-    X_train: pd.DataFrame, 
-    y_train: pd.Series, 
-    X_val: pd.DataFrame, 
-    y_val: pd.Series,
-    n_estimators: int = 100,
-    threshold: float = 0.01
-) -> Tuple[List[str], Dict[str, float], float]:
+def run_rf_selection(X: pd.DataFrame, y: pd.Series, n_estimators: int = 100) -> Tuple[List[str], np.ndarray]:
     """
-    Run Random Forest feature selection and return selected features, importances, and validation score.
-    
-    Args:
-        X_train: Training features
-        y_train: Training target
-        X_val: Validation features
-        y_val: Validation target
-        n_estimators: Number of trees
-        threshold: Minimum importance threshold
-        
-    Returns:
-        Tuple of (selected_feature_names, importance_dict, val_score)
+    Run Random Forest for feature selection and return selected features.
+    Also returns feature importances as effect size proxy.
     """
-    from sklearn.ensemble import RandomForestRegressor
+    from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+    from sklearn.model_selection import cross_val_score
     
-    # Fit Random Forest model
-    rf = RandomForestRegressor(n_estimators=n_estimators, random_state=42, n_jobs=-1)
-    rf.fit(X_train, y_train)
+    # Determine problem type
+    if y.nunique() <= 5:
+        # Likely classification
+        rf = RandomForestClassifier(n_estimators=n_estimators, random_state=42, n_jobs=-1)
+    else:
+        # Likely regression
+        rf = RandomForestRegressor(n_estimators=n_estimators, random_state=42, n_jobs=-1)
     
-    # Extract feature importances
-    importance_dict = dict(zip(X_train.columns, rf.feature_importances_))
+    rf.fit(X, y)
+    importances = rf.feature_importances_
     
-    # Select features above threshold
-    selected_features = [feat for feat, imp in importance_dict.items() if imp >= threshold]
-    
-    # Calculate validation score
-    val_score = rf.score(X_val, y_val)
+    # Select features with importance > 0 (or a threshold)
+    # For this task, we'll select top 20% or all with non-zero importance
+    threshold = np.percentile(importances, 80) if len(importances) > 0 else 0
+    selected_mask = importances > threshold
+    selected_features = X.columns[selected_mask].tolist()
     
     logger.info(f"RF selected {len(selected_features)} features with threshold={threshold}")
     
-    return selected_features, importance_dict, val_score
+    return selected_features, importances
 
-def run_sensitivity_sweep(
-    X_train: pd.DataFrame, 
-    y_train: pd.Series, 
-    X_val: pd.DataFrame, 
-    y_val: pd.Series,
-    thresholds: List[float] = [0.01, 0.05, 0.1],
-    n_iterations: int = 3
-) -> pd.DataFrame:
+def run_sensitivity_sweep(X: pd.DataFrame, y: pd.Series, thresholds: List[float] = [0.01, 0.05, 0.1]) -> pd.DataFrame:
     """
-    Run feature selection sensitivity sweep over multiple thresholds and iterations.
-    
-    Args:
-        X_train: Training features
-        y_train: Training target
-        X_val: Validation features
-        y_val: Validation target
-        thresholds: List of thresholds to test
-        n_iterations: Number of iterations per threshold
-        
-    Returns:
-        DataFrame with feature_id, threshold, and frequency
+    Run feature selection across multiple thresholds and calculate selection frequency.
+    Returns a DataFrame with feature_id, threshold, and frequency.
     """
     results = []
     
     for threshold in thresholds:
-        selection_counts = {}
+        # Run LASSO with current threshold as alpha
+        selected_features, coefficients = run_lasso_selection(X, y, alpha=threshold)
         
-        for i in range(n_iterations):
-            # Run RF selection with current threshold
-            selected_features, _, _ = run_rf_selection(
-                X_train, y_train, X_val, y_val, 
-                threshold=threshold
-            )
-            
-            for feat in selected_features:
-                selection_counts[feat] = selection_counts.get(feat, 0) + 1
-        
-        # Calculate frequency for this threshold
-        for feat, count in selection_counts.items():
-            freq = count / n_iterations
+        # Count selection frequency (for a single run, frequency is 1 if selected, 0 otherwise)
+        # In a real sweep with multiple iterations, this would aggregate across runs
+        for feature in X.columns:
+            freq = 1.0 if feature in selected_features else 0.0
             results.append({
-                "feature_id": feat,
-                "threshold": threshold,
-                "frequency": freq
+                'feature_id': feature,
+                'threshold': threshold,
+                'frequency': freq,
+                'effect_size': coefficients[list(X.columns).index(feature)] if feature in selected_features else 0.0
             })
     
-    df = pd.DataFrame(results)
-    logger.info(f"Sensitivity sweep completed: {len(df)} feature-threshold combinations")
-    return df
+    return pd.DataFrame(results)
 
-def calculate_effect_sizes(
-    X_train: pd.DataFrame, 
-    y_train: pd.Series, 
-    selected_features: List[str],
-    method: str = "lasso"
-) -> Dict[str, float]:
+def save_selection_frequency(df: pd.DataFrame, output_path: str):
     """
-    Calculate effect-size coefficients for selected features.
-    
-    Args:
-        X_train: Training features (must contain selected features)
-        y_train: Training target
-        selected_features: List of feature names to calculate effects for
-        method: Method to use for effect size calculation ('lasso' or 'rf')
-        
-    Returns:
-        Dictionary mapping feature names to effect-size coefficients
+    Save the selection frequency DataFrame to CSV.
     """
-    # Filter X_train to only selected features
-    X_selected = X_train[selected_features]
-    
-    if method == "lasso":
-        from sklearn.linear_model import LinearRegression
-        # Use LinearRegression to get coefficients (effect sizes)
-        model = LinearRegression()
-        model.fit(X_selected, y_train)
-        coef_dict = dict(zip(selected_features, model.coef_))
-        logger.info(f"Calculated effect sizes using Linear Regression for {len(selected_features)} features")
-        
-    elif method == "rf":
-        from sklearn.ensemble import RandomForestRegressor
-        # Use RF to get feature importances as effect proxies
-        model = RandomForestRegressor(n_estimators=100, random_state=42)
-        model.fit(X_selected, y_train)
-        coef_dict = dict(zip(selected_features, model.feature_importances_))
-        logger.info(f"Calculated effect sizes using Random Forest for {len(selected_features)} features")
-        
-    else:
-        raise ValueError(f"Unknown method: {method}")
-    
-    return coef_dict
-
-def save_selection_frequency(df: pd.DataFrame, output_path: Optional[Path] = None):
-    """
-    Save selection frequency results to CSV.
-    
-    Args:
-        df: DataFrame with feature_id, threshold, frequency
-        output_path: Path to save the CSV file
-    """
-    if output_path is None:
-        output_path = get_path("artifacts", "reports", "selection_frequency.csv")
-    
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(output_path, index=False)
     logger.info(f"Saved selection frequency to {output_path}")
 
-def feature_selection_pipeline(
-    split_dir: Optional[Path] = None,
-    output_dir: Optional[Path] = None,
-    thresholds: List[float] = [0.01, 0.05, 0.1],
-    n_iterations: int = 3,
-    lasso_alpha: float = 0.01
-) -> Dict[str, Any]:
+def calculate_effect_sizes(X: pd.DataFrame, y: pd.Series, selected_features: List[str], method: str = "lasso") -> Dict[str, float]:
     """
-    Run the complete feature selection pipeline.
+    Calculate effect-size coefficients for selected features.
+    Returns a dictionary mapping feature_id to effect size.
+    """
+    if method == "lasso":
+        # Use LASSO coefficients
+        _, coefficients = run_lasso_selection(X, y)
+        effect_sizes = {
+            feat: float(coefficients[list(X.columns).index(feat)]) 
+            for feat in selected_features if feat in X.columns
+        }
+    elif method == "rf":
+        # Use RF importances
+        _, importances = run_rf_selection(X, y)
+        effect_sizes = {
+            feat: float(importances[list(X.columns).index(feat)]) 
+            for feat in selected_features if feat in X.columns
+        }
+    else:
+        raise ValueError(f"Unknown method: {method}")
     
-    Args:
-        split_dir: Directory containing split data
-        output_dir: Directory to save results
-        thresholds: Thresholds for sensitivity sweep
-        n_iterations: Iterations per threshold
-        lasso_alpha: Alpha for LASSO
-        
-    Returns:
-        Dictionary containing pipeline results
+    return effect_sizes
+
+def run_feature_selection_pipeline(
+    split_path: str, 
+    output_path: str,
+    thresholds: List[float] = [0.01, 0.05, 0.1],
+    method: str = "lasso"
+) -> Tuple[pd.DataFrame, Dict[str, float]]:
     """
-    if output_dir is None:
-        output_dir = get_path("artifacts", "reports")
-    output_dir = Path(output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
+    Run the full feature selection pipeline:
+    1. Load data
+    2. Run sensitivity sweep
+    3. Calculate effect sizes for selected features
+    4. Save results
+    
+    Returns the selection frequency DataFrame and effect sizes dictionary.
+    """
+    logger.info(f"Starting feature selection pipeline for {split_path}")
     
     # Load data
-    X_train, y_train, X_val, y_val = load_split_data(split_dir)
+    X, y, feature_names = load_split_data(split_path)
+    logger.info(f"Loaded {X.shape[0]} samples and {X.shape[1]} features")
     
     # Run sensitivity sweep
-    logger.info("Running sensitivity sweep...")
-    freq_df = run_sensitivity_sweep(X_train, y_train, X_val, y_val, thresholds, n_iterations)
-    save_selection_frequency(freq_df, output_dir / "selection_frequency.csv")
+    freq_df = run_sensitivity_sweep(X, y, thresholds)
     
-    # Get top features (frequency > 0.5 across all thresholds)
-    top_features = freq_df[freq_df['frequency'] > 0.5]['feature_id'].unique().tolist()
+    # Identify top features based on frequency (e.g., selected in at least 1 threshold)
+    top_features = freq_df[freq_df['frequency'] > 0]['feature_id'].unique().tolist()
+    logger.info(f"Identified {len(top_features)} top features across thresholds")
     
-    if not top_features:
-        logger.warning("No top features found with frequency > 0.5")
-        # Fallback to all features if none selected
-        top_features = X_train.columns.tolist()
+    # Calculate effect sizes for top features
+    effect_sizes = calculate_effect_sizes(X, y, top_features, method=method)
     
-    logger.info(f"Selected {len(top_features)} top features for effect size calculation")
+    # Save selection frequency
+    save_selection_frequency(freq_df, output_path)
     
-    # Calculate effect sizes using LASSO
-    logger.info("Calculating effect sizes...")
-    effect_sizes = calculate_effect_sizes(X_train, y_train, top_features, method="lasso")
-    
-    # Save effect sizes
-    effect_df = pd.DataFrame([
-        {"feature_id": feat, "effect_size": coef}
-        for feat, coef in effect_sizes.items()
+    # Also save effect sizes to a separate file for downstream use
+    effect_size_path = str(Path(output_path).parent / "effect_sizes.csv")
+    effect_size_df = pd.DataFrame([
+        {'feature_id': feat, 'effect_size': size} 
+        for feat, size in effect_sizes.items()
     ])
-    effect_df.to_csv(output_dir / "effect_sizes.csv", index=False)
-    logger.info(f"Saved effect sizes for {len(effect_sizes)} features")
+    effect_size_df.to_csv(effect_size_df, index=False)
+    logger.info(f"Saved effect sizes to {effect_size_path}")
     
-    return {
-        "selected_features": top_features,
-        "effect_sizes": effect_sizes,
-        "selection_frequency": freq_df,
-        "effect_sizes_path": str(output_dir / "effect_sizes.csv"),
-        "selection_frequency_path": str(output_dir / "selection_frequency.csv")
-    }
+    return freq_df, effect_sizes
 
 def main():
-    """Main entry point for feature selection pipeline."""
-    config = load_config()
-    logger.info("Starting feature selection pipeline...")
+    """
+    Main entry point for feature selection script.
+    """
+    import argparse
     
-    try:
-        results = feature_selection_pipeline()
-        logger.info("Feature selection pipeline completed successfully.")
-        logger.info(f"Selected features: {len(results['selected_features'])}")
-        logger.info(f"Effect sizes calculated: {len(results['effect_sizes'])}")
-    except Exception as e:
-        logger.error(f"Feature selection pipeline failed: {e}", exc_info=True)
-        raise
+    parser = argparse.ArgumentParser(description="Run feature selection with effect size calculation")
+    parser.add_argument("--split-path", type=str, default="data/processed/split", help="Path to split data")
+    parser.add_argument("--output", type=str, default="artifacts/reports/selection_frequency.csv", help="Output path for selection frequency")
+    parser.add_argument("--thresholds", type=str, default="0.01,0.05,0.1", help="Comma-separated list of thresholds")
+    parser.add_argument("--method", type=str, default="lasso", choices=["lasso", "rf"], help="Feature selection method")
+    
+    args = parser.parse_args()
+    
+    thresholds = [float(t) for t in args.thresholds.split(",")]
+    
+    freq_df, effect_sizes = run_feature_selection_pipeline(
+        split_path=args.split_path,
+        output_path=args.output,
+        thresholds=thresholds,
+        method=args.method
+    )
+    
+    logger.info("Feature selection pipeline completed successfully")
+    return freq_df, effect_sizes
 
 if __name__ == "__main__":
     main()

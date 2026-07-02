@@ -1,4 +1,5 @@
-version: '1.0'
-source_type: SIMULATED
-description: Data manifest for plant disease resistance prediction pipeline
+schema_version: "1.0.0"
+created_at: "2024-01-15T10:30:00Z"
+updated_at: "2024-01-15T10:30:00Z"
+source_type: "SIMULATED"
 datasets: []
