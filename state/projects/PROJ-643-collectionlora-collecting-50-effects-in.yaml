@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-30T08:50:36.787454Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-643-collectionlora-collecting-50-effects-in
-last_run_id: c956201b-6062-4ae6-98b8-2fef78562171
+last_run_id: a678857b-c415-4e72-ab76-b302abdefea8
 last_run_status: null
 points_paper: {}
 points_research: {}

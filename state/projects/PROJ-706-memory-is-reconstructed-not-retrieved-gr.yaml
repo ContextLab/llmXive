@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-16T09:58:10.381752Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-706-memory-is-reconstructed-not-retrieved-gr
-last_run_id: f922da24-a53e-45e9-a7e5-e696efd032a7
+last_run_id: 34c084ab-e77c-448f-91b3-db4743639e24
 last_run_status: null
 points_paper: {}
 points_research: {}
