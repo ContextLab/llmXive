@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-28T09:17:06.345355Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-636-locateanything-fast-and-high-quality-vis
-last_run_id: c8c130ef-3113-496b-8311-bab12f7f0f5f
+last_run_id: e70b1555-ab65-4cb4-a7b0-c5ff7b6f99f0
 last_run_status: null
 points_paper: {}
 points_research: {}
