@@ -1,0 +1,37 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Compositional Descriptor Schema
+description: Schema for derived features calculated from HEA composition.
+type: object
+properties:
+  sample_id:
+    type: string
+    description: "Foreign key to HEA Sample."
+  delta_H_mix:
+    type: number
+    description: "Mixing enthalpy (kJ/mol)."
+  atomic_radius_variance:
+    type: number
+    description: "Variance of atomic radii."
+  entropy_mix:
+    type: number
+    description: "Entropy of mixing (J/mol/K)."
+  vec:
+    type: number
+    description: "Valence electron concentration."
+  electronegativity_variance:
+    type: number
+    description: "Variance of electronegativity."
+  ilr_components:
+    type: array
+    description: "ILR-transformed composition vector."
+    items:
+      type: number
+required:
+  - sample_id
+  - delta_H_mix
+  - atomic_radius_variance
+  - entropy_mix
+  - vec
+  - electronegativity_variance
+  - ilr_components
+additionalProperties: false

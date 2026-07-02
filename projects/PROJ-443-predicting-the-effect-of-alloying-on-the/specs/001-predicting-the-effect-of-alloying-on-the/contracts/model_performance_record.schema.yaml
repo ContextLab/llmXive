@@ -1,0 +1,39 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Model Performance Record Schema
+description: Schema for evaluation metrics of a regression model.
+type: object
+properties:
+  model_name:
+    type: string
+    description: "Name of the model (e.g., RandomForest)."
+  r2_score:
+    type: number
+    description: "Coefficient of determination."
+  rmse:
+    type: number
+    description: "Root Mean Squared Error."
+  mae:
+    type: number
+    description: "Mean Absolute Error."
+  r2_ci_lower:
+    type: number
+    description: "95% CI lower bound for R²."
+  r2_ci_upper:
+    type: number
+    description: "95% CI upper bound for R²."
+  p_value:
+    type: number
+    description: "P-value against null hypothesis (R² = 0)."
+  is_significant:
+    type: boolean
+    description: "Significance after FDR correction."
+required:
+  - model_name
+  - r2_score
+  - rmse
+  - mae
+  - r2_ci_lower
+  - r2_ci_upper
+  - p_value
+  - is_significant
+additionalProperties: false

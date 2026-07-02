@@ -1,0 +1,38 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: HEA Sample Schema
+description: Schema for a single High-Entropy Alloy sample with compositional and elastic properties.
+type: object
+properties:
+  sample_id:
+    type: string
+    description: "Unique identifier for the alloy sample."
+  composition:
+    type: object
+    description: "Dictionary of element: atomic_fraction."
+    additionalProperties:
+      type: number
+      minimum: 0
+      maximum: 1
+  bulk_modulus:
+    type: number
+    description: "Bulk modulus in GPa."
+  shear_modulus:
+    type: number
+    description: "Shear modulus in GPa."
+    nullable: true
+  crystal_structure:
+    type: string
+    description: "Crystal structure type (e.g., FCC, BCC)."
+  source:
+    type: string
+    description: "Source database (e.g., OQMD)."
+  is_valid:
+    type: boolean
+    description: "True if composition sums to ~1.0 and bulk_modulus is present."
+required:
+  - sample_id
+  - composition
+  - bulk_modulus
+  - source
+  - is_valid
+additionalProperties: false

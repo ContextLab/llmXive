@@ -9,23 +9,23 @@
 
 ### User Story 1 - Data Ingestion and Feature Engineering Pipeline (Priority: P1)
 
-As a researcher, I need to automatically retrieve HEA composition and elastic property data from public repositories (Materials Project, OQMD) and compute compositional descriptors (mixing enthalpy, atomic radius variance, etc.) so that I have a clean, structured dataset for analysis.
+As a researcher, I need to automatically retrieve HEA composition and elastic property data from public repositories (Materials Project, OQMD) and compute compositional descriptors (mixing enthalpy, atomic radius variance, etc.) using Isometric Log-Ratio (ILR) transformation so that I have a clean, structured dataset for analysis that avoids compositional singularity.
 
-**Why this priority**: Without a validated dataset, no modeling can occur. This is the foundational step that determines the feasibility of the entire study.
+**Why this priority**: Without a validated dataset and scientifically sound feature engineering, no modeling can occur. This is the foundational step that determines the feasibility and validity of the entire study.
 
-**Independent Test**: The pipeline can be run on a subset of 50 known HEAs, producing a CSV file with exactly 50 rows and all required descriptor columns populated without errors.
+**Independent Test**: The pipeline can be run on a subset of known HEAs, producing a CSV file with rows corresponding to the input samples and all required descriptor columns populated without errors.
 
 **Acceptance Scenarios**:
 
 1. **Given** valid API keys for Materials Project and OQMD, **When** the pipeline executes, **Then** it retrieves all HEA entries with ≥5 principal elements and filters for those with reported elastic constants.
 2. **Given** a raw composition string (e.g., "FeCoNiCrMn"), **When** the feature engineering module runs, **Then** it outputs numeric descriptors (entropy, electronegativity variance) with no NaN values for valid inputs.
-3. **Given** compositional data where element percentages sum to [deferred], **When** collinearity checks run, **Then** the system applies a transformation (e.g., log-ratio or dropping one element) to prevent singular matrices in regression.
+3. **Given** compositional data where element percentages sum to 1.0, **When** collinearity checks run, **Then** the system applies an Isometric Log-Ratio (ILR) transformation to break the closure constraint and prevent singular matrices in regression.
 
 ---
 
 ### User Story 2 - Model Training and Statistical Evaluation (Priority: P2)
 
-As a researcher, I need to train multiple regression models (Random Forest, Gradient Boosting, ElasticNet) on the prepared dataset and evaluate them using R², RMSE, and bootstrapped confidence intervals so that I can identify the best predictive approach and quantify uncertainty.
+As a researcher, I need to train multiple regression models (Random Forest, Gradient Boosting, ElasticNet) on the prepared dataset and evaluate them using R², RMSE, and grouped bootstrapped confidence intervals so that I can identify the best predictive approach for Bulk Modulus and quantify uncertainty without data leakage.
 
 **Why this priority**: This delivers the core scientific output (the model and its performance metrics) required to answer the research question.
 
@@ -33,9 +33,9 @@ As a researcher, I need to train multiple regression models (Random Forest, Grad
 
 **Acceptance Scenarios**:
 
-1. **Given** the prepared dataset split (70/15/15), **When** the model training job runs, **Then** it produces R², RMSE, and MAE for Young's, Shear, and Poisson's ratios on the held-out test set.
-2. **Given** the test set predictions, **When** the bootstrap resampling (1000 iterations) runs, **Then** it calculates 95% confidence intervals for R² for each target variable.
-3. **Given** multiple model comparisons, **When** the evaluation concludes, **Then** the system applies a multiple-comparison correction (e.g., Bonferroni or FDR) to the significance testing of model performance differences.
+1. **Given** the prepared dataset split (70/15/15), **When** the model training job runs, **Then** it produces R², RMSE, and MAE for Bulk Modulus on the held-out test set.
+2. **Given** the test set predictions, **When** the grouped bootstrap resampling (1000 iterations, sampling by alloy system) runs, **Then** it calculates 95% confidence intervals for R² for the target variable.
+3. **Given** multiple model comparisons, **When** the evaluation concludes, **Then** the system applies a multiple-comparison correction (FDR) to the significance testing of model performance differences to ensure valid model selection.
 
 ---
 
@@ -58,11 +58,11 @@ As a researcher, I need to extract feature importance (SHAP/Permutation) and gen
 ### Edge Cases
 
 - **What happens when** the public APIs return insufficient HEA samples with elastic constants (e.g., < 500 samples)?
-  - **System handles** this by triggering a warning and halting training, requiring a `[NEEDS CLARIFICATION: does current dataset access yield sufficient HEA samples?]` flag.
-- **How does system handle** compositional data where element percentages do not sum to [deferred] (data entry error)?
- - **System handles** this by normalizing percentages to sum to [deferred] before feature engineering and logging the adjustment.
+  - **Given** a retrieved sample count, **When** the count is below 500, **Then** the system triggers a hard halt and reports the specific deficit (e.g., 'Retrieved 320 samples; threshold 500 not met') rather than proceeding with underpowered training.
+- **How does system handle** compositional data where element percentages do not sum to 1.0 (data entry error)?
+  - **Given** raw compositional data where percentages do not sum to 1.0, **When** the normalization step runs, **Then** the system normalizes percentages to sum to 1.0 and logs the adjustment before feature engineering.
 - **What happens when** a model overfits due to high dimensionality relative to sample size?
-  - **System handles** this by enforcing regularization (ElasticNet) and reporting the train/test gap as a diagnostic metric.
+  - **Given** a large train/test gap, **When** the evaluation concludes, **Then** the system reports the gap as a diagnostic metric and flags the model for potential regularization adjustment.
 
 ## Requirements *(mandatory)*
 
@@ -70,16 +70,16 @@ As a researcher, I need to extract feature importance (SHAP/Permutation) and gen
 
 - **FR-001**: System MUST retrieve HEA composition and elastic constant data from Materials Project and OQMD APIs, filtering for alloys with ≥5 principal elements (See US-1).
 - **FR-002**: System MUST compute compositional descriptors including mixing enthalpy (Miedema's model), atomic radius variance, and entropy of mixing for every sample (See US-1).
-- **FR-003**: System MUST apply a collinearity handling strategy (e.g., centering or log-ratio transformation) to compositional data before regression to prevent singular matrices (See US-1).
+- **FR-003**: System MUST apply an Isometric Log-Ratio (ILR) transformation to compositional data before regression to break the closure constraint and prevent singular matrices (See US-1).
 - **FR-004**: System MUST train Random Forest, Gradient Boosting, and ElasticNet models using scikit-learn on CPU-only infrastructure without GPU acceleration (See US-2).
-- **FR-005**: System MUST compute 95% confidence intervals for R² via bootstrap resampling (1000 iterations) and apply multiple-comparison correction for model selection (See US-2).
+- **FR-005**: System MUST compute 95% confidence intervals for R² via grouped bootstrap resampling (1000 iterations, sampling by alloy system) and apply multiple-comparison correction (FDR) for model selection (See US-2).
 - **FR-006**: System MUST perform sensitivity analysis on the R² null hypothesis threshold (sweeping {0.25, 0.30, 0.35}) and report variance in false-positive rates (See US-3).
 - **FR-007**: System MUST explicitly label all findings as associational in final reports to distinguish from causal claims (See US-3).
 
 ### Key Entities *(include if feature involves data)*
 
-- **HEA Sample**: Represents a single alloy instance; key attributes include elemental composition (atomic %), crystal structure, and measured elastic constants (Young's, Shear, Poisson's).
-- **Compositional Descriptor**: Represents a derived feature (e.g., mixing enthalpy, valence electron concentration) calculated from elemental properties and percentages.
+- **HEA Sample**: Represents a single alloy instance; key attributes include elemental composition (atomic %), crystal structure, and measured elastic constants (Bulk Modulus, Shear Modulus).
+- **Compositional Descriptor**: Represents a derived feature (e.g., mixing enthalpy, valence electron concentration) calculated from elemental properties and percentages, transformed via ILR.
 - **Model Performance Record**: Represents the evaluation output for a specific model; key attributes include R², RMSE, MAE, and 95% CI bounds.
 
 ## Success Criteria *(mandatory)*
@@ -91,8 +91,8 @@ As a researcher, I need to extract feature importance (SHAP/Permutation) and gen
 > measured quantities, percentages) to the implementation/research phase.
 
 - **SC-001**: Dataset sufficiency is measured against the requirement of ≥500 valid HEA samples with elastic constants from public APIs (See US-1).
-- **SC-002**: Model predictive power is measured against the target R² ≥ 0.50 for the best-performing model on the held-out test set (See US-2).
-- **SC-003**: Statistical robustness is measured against the requirement that 95% confidence intervals for R² have a width ≤ 0.10 (See US-2).
+- **SC-002**: Model predictive power is measured against the null hypothesis (R² = 0) to report the actual variance explained, regardless of whether the result is positive (R² > 0) or null/negative (R² < 0.3) (See US-2).
+- **SC-003**: Statistical robustness is measured against the requirement that 95% confidence intervals for R² are calculated using grouped bootstrapping to prevent data leakage (See US-2).
 - **SC-004**: Methodological validity is measured against the requirement that no causal language is used in reporting results (See US-3).
 
 ## Assumptions
