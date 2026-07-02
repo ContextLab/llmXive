@@ -20,32 +20,32 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`code/`, `tests/`, `data/`, `state/`). Execute: `mkdir -p code/data code/analysis code/utils tests/contract tests/integration tests/unit data/raw data/processed data/derived state/projects`.
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` containing pinned versions: `nilearn==0.10.1`, `networkx==3.2.1`, `scikit-learn==1.3.2`, `pandas==2.1.4`, `numpy==1.26.2`, `scipy==1.11.4`, `pyyaml==6.0.1`, `pytest==7.4.3`, `statsmodels==0.14.0`, `nibabel==5.2.0`.
-- [ ] T003 [P] Configure linting and formatting tools. Create `.flake8` (max-line-length=100, exclude=venv) and `pyproject.toml` (black config). Execute verification: `black --check .` and `flake8 code/`.
+- [X] T001 Create project structure per implementation plan (`code/`, `tests/`, `data/`, `state/`). Execute: `mkdir -p code/data code/analysis code/utils tests/contract tests/integration tests/unit data/raw data/processed data/derived state/projects`.
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` containing pinned versions: `nilearn==0.10.1`, `networkx==3.2.1`, `scikit-learn==1.3.2`, `pandas==2.1.4`, `numpy==1.26.2`, `scipy==1.11.4`, `pyyaml==6.0.1`, `pytest==7.4.3`, `statsmodels==0.14.0`, `nibabel==5.2.0`.
+- [X] T003 [P] Configure linting and formatting tools. Create `.flake8` (max-line-length=100, exclude=venv) and `pyproject.toml` (black config). Execute verification: `black --check.` and `flake8 code/`.
 
 ---
 
@@ -55,11 +55,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Create `code/config.py` with paths, hyperparameters (window sizes, TRs), and dataset IDs (ds000030, ds000208). Include a mechanism to switch dataset IDs if validation fails.
-- [ ] T005 [P] Implement `code/utils/atlas.py` to load Schaefer atlas and map ROIs to Yeo 7-network parcellation (DMN=7, Auditory=4, Salience=2). Define `load_atlas()` and `map_to_yeo()` functions.
-- [ ] T006 [P] Implement `code/utils/io.py` for checksums, JSON/Parquet handling, and directory creation. Define `compute_checksum()`, `save_parquet()`, `load_json()`.
-- [ ] T007 Create base data models/entities in `code/data/models.py` using Pydantic. Define `Subject` (id: str, genre_scores: dict), `TimeSeries` (roi_id: str, values: list[float]), `NetworkMetric` (subject_id: str, metric_name: str, value: float), `CorrelationResult` (metric: str, genre: str, r: float, p_raw: float, p_adj: float), `SensitivityReport` (window_size: int, icc: float).
-- [ ] T008 [P] Configure Docker environment validation script in `code/utils/docker.py` (moved from preprocess.py to separate validation unit). Define `validate_docker_daemon()` and `check_fmriprep_image()` to ensure environment readiness before any heavy compute.
+- [X] T004 Create `code/config.py` with paths, hyperparameters (window sizes, TRs), and dataset IDs (ds000030, ds000208). Include a mechanism to switch dataset IDs if validation fails.
+- [X] T005 [P] Implement `code/utils/atlas.py` to load Schaefer atlas and map ROIs to Yeo 7-network parcellation (DMN=7, Auditory=4, Salience=2). Define `load_atlas()` and `map_to_yeo()` functions.
+- [X] T006 [P] Implement `code/utils/io.py` for checksums, JSON/Parquet handling, and directory creation. Define `compute_checksum()`, `save_parquet()`, `load_json()`.
+- [X] T007 Create base data models/entities in `code/data/models.py` using Pydantic. Define `Subject` (id: str, genre_scores: dict), `TimeSeries` (roi_id: str, values: list[float]), `NetworkMetric` (subject_id: str, metric_name: str, value: float), `CorrelationResult` (metric: str, genre: str, r: float, p_raw: float, p_adj: float), `SensitivityReport` (window_size: int, icc: float).
+- [X] T008 [P] Configure Docker environment validation script in `code/utils/docker.py` (moved from preprocess.py to separate validation unit). Define `validate_docker_daemon()` and `check_fmriprep_image()` to ensure environment readiness before any heavy compute.
 - [ ] T009 Setup environment configuration management for memory limits and runtime caps. Define `check_memory_limit()` and `set_runtime_cap()`.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -76,23 +76,23 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Contract test for data validation schema in `tests/contract/test_data_validation.py`. Implement `test_schema_validates_musical_genre_field()` and `test_schema_falls_back_to_stomp_r()`.
-- [ ] T011 [P] [US1] Integration test for fMRIPrep wrapper in `tests/integration/test_fmriprep_wrapper.py`. Implement `test_fmriprep_runs_on_mock_data()` and `test_fmriprep_handles_memory_error()`.
+- [ ] T010 [P] [US1] Contract test for data validation schema in `tests/contract/test_data_validation.py`. Implement `test_schema_validates_musical_genre_field()` and `test_schema_falls_back_to_stomp_r()`. <!-- SKIPPED: non-mapping output -->
+- [ ] T011 [P] [US1] Integration test for fMRIPrep wrapper in `tests/integration/test_fmriprep_wrapper.py`. Implement `test_fmriprep_runs_on_mock_data()` and `test_fmriprep_handles_memory_error()`. <!-- ATOMIZE: requested -->
 
 ### Implementation for User Story 1
 
 - [ ] T012 [P] [US1] Implement `code/data/download.py` to download resting-state fMRI data from OpenNeuro (ds000030, ds000208) using `requests` or `bids-validator` logic. Define `download_dataset(dataset_id: str, output_dir: str)`.
 - [ ] T012e [US1] Implement `code/data/validate.py` to dynamically validate dataset IDs against a verified list of datasets containing required behavioral variables. If a hardcoded ID (e.g., ds000030) is not in the verified list, halt with `ERR_INVALID_DATASET` and log the specific missing variable. Define `validate_dataset_id()`.
-- [ ] T012c [US1] Implement `code/data/validate.py` to perform comprehensive data integrity checks:
-  1. Check sample size N >= 85 (Hard Gate). If N < 85, log `ERR_UNDERPOWERED` and halt execution unconditionally. No bypass for 'Spec Amendment' is permitted.
-  2. Verify dataset variable availability: Check `participants.tsv` for 'musical_genre'. If missing, attempt fallback to 'STOMP-R'. If both missing, halt with `DataValidationError` (code `ERR_DATA_MISSING`). Log specific missing field name.
-  3. Verify the dataset source matches the Constitution's Verified Accuracy principle (check against a verified list of datasets).
-  Define `check_data_integrity()`.
-- [ ] T016 [P] [US1] Implement `code/data/validate.py` to check for 'musical_genre' or 'STOMP-R' in `participants.tsv`; halt with `DataValidationError` (code `ERR_DATA_MISSING`) if missing. Log specific missing field name. (Integrated into T012c logic, but kept as separate task for testability of specific validation step).
-- [ ] T017 [P] [US1] Add validation logic to exclude subjects with >10% missing behavioral data or >10% corrupted fMRI volumes. Define `exclude_subjects_by_missing_data()`.
-- [ ] T018 [P] [US1] Add logic to flag/exclude subjects with excessive head motion (>0.5mm FD). Define `exclude_subjects_by_motion()`.
-- [ ] T014 [US1] Depends: T008, T012c, T012e. Implement `code/data/preprocess.py` to run fMRIPrep (Docker) with memory limits and generate standardized BOLD/confounds. Command args: `--output-space MNI152NLin2009cAsym --confounds trans_x,trans_y,trans_z,rot_x,rot_y,rot_z,framewise_displacement,dvars`. Define `run_fmriprep(subject_id: str)`.
-- [ ] T015 [US1] Depends: T005, T014. Implement `code/data/preprocess.py` to extract regional time courses using Schaefer-400 atlas (400 ROIs × timepoints). Define `extract_time_series(subject_id: str)`.
+- [~] T012c [US1] Implement `code/data/validate.py` to perform comprehensive data integrity checks:
+ 1. Check sample size N >= 85 (Hard Gate). If N < 85, log `ERR_UNDERPOWERED` and halt execution unconditionally. No bypass for 'Spec Amendment' is permitted.
+ 2. Verify dataset variable availability: Check `participants.tsv` for 'musical_genre'. If missing, attempt fallback to 'STOMP-R'. If both missing, halt with `DataValidationError` (code `ERR_DATA_MISSING`). Log specific missing field name.
+ 3. Verify the dataset source matches the Constitution's Verified Accuracy principle (check against a verified list of datasets).
+ Define `check_data_integrity()`.
+- [~] T016 [P] [US1] Implement `code/data/validate.py` to check for 'musical_genre' or 'STOMP-R' in `participants.tsv`; halt with `DataValidationError` (code `ERR_DATA_MISSING`) if missing. Log specific missing field name. (Integrated into T012c logic, but kept as separate task for testability of specific validation step).
+- [~] T017 [P] [US1] Add validation logic to exclude subjects with >10% missing behavioral data or >10% corrupted fMRI volumes. Define `exclude_subjects_by_missing_data()`.
+- [~] T018 [P] [US1] Add logic to flag/exclude subjects with excessive head motion (>0.5mm FD). Define `exclude_subjects_by_motion()`.
+- [~] T014 [US1] Depends: T008, T012c, T012e. Implement `code/data/preprocess.py` to run fMRIPrep (Docker) with memory limits and generate standardized BOLD/confounds. Command args: `--output-space MNI152NLin2009cAsym --confounds trans_x,trans_y,trans_z,rot_x,rot_y,rot_z,framewise_displacement,dvars`. Define `run_fmriprep(subject_id: str)`.
+- [~] T015 [US1] Depends: T005, T014. Implement `code/data/preprocess.py` to extract regional time courses using Schaefer-400 atlas (400 ROIs × timepoints). Define `extract_time_series(subject_id: str)`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -106,18 +106,18 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T019 [P] [US2] Contract test for metric calculation outputs in `tests/contract/test_metric_schema.py`. Implement `test_metric_schema_has_required_columns()` and `test_metric_values_in_range()`.
-- [ ] T020 [P] [US2] Integration test for sliding-window analysis in `tests/integration/test_sliding_window.py`. Implement `test_sliding_window_produces_time_series()` and `test_sensitivity_analysis_reports_icc()`.
+- [~] T019 [P] [US2] Contract test for metric calculation outputs in `tests/contract/test_metric_schema.py`. Implement `test_metric_schema_has_required_columns()` and `test_metric_values_in_range()`.
+- [~] T020 [P] [US2] Integration test for sliding-window analysis in `tests/integration/test_sliding_window.py`. Implement `test_sliding_window_produces_time_series()` and `test_sensitivity_analysis_reports_icc()`.
 
 ### Implementation for User Story 2
 
-- [ ] T021 [P] [US2] Implement `code/analysis/metrics.py` to calculate static functional connectivity matrices (400x400 correlation). Define `compute_static_connectivity(time_series: np.array)`.
-- [ ] T022 [US2] Implement `code/analysis/metrics.py` to derive static network metrics (global efficiency, modularity, within-module degree) for DMN, Auditory, Salience networks. Define `compute_static_metrics(matrix: np.array, network_map: dict)`.
-- [ ] T023 [US2] Implement `code/analysis/metrics.py` for sliding-window dynamic connectivity (window=30 TRs, step=5 TRs). Define `compute_dynamic_connectivity(time_series: np.array, window_size: int, step: int)`.
-- [ ] T024 [US2] Implement `code/analysis/metrics.py` to calculate dynamic reconfiguration rate from sliding-window matrices. Define `compute_reconfiguration_rate(dynamic_matrices: list[np.array])`.
-- [ ] T025 [US2] Depends: T015. Implement `code/analysis/metrics.py` to regress out FD/DVARS from time series before dynamic analysis using `sklearn.linear_model.LinearRegression`. Output format: CSV with timepoints and residuals. Define `regress_confounds(time_series: np.array, confounds: np.array)`.
-- [ ] T026 [US2] Implement `code/analysis/metrics.py` to run sensitivity analysis with window sizes 30, 40 TRs. Define `run_sensitivity_analysis(time_series: np.array, window_sizes: list[int])`.
-- [ ] T027 [US2] Implement `code/analysis/metrics.py` to calculate Intraclass Correlation Coefficient (ICC) for dynamic metrics across window sizes. Define `compute_icc(metrics: list[float])`.
+- [~] T021 [P] [US2] Implement `code/analysis/metrics.py` to calculate static functional connectivity matrices (400x400 correlation). Define `compute_static_connectivity(time_series: np.array)`.
+- [~] T022 [US2] Implement `code/analysis/metrics.py` to derive static network metrics (global efficiency, modularity, within-module degree) for DMN, Auditory, Salience networks. Define `compute_static_metrics(matrix: np.array, network_map: dict)`.
+- [~] T023 [US2] Implement `code/analysis/metrics.py` for sliding-window dynamic connectivity (window=30 TRs, step=5 TRs). Define `compute_dynamic_connectivity(time_series: np.array, window_size: int, step: int)`.
+- [~] T024 [US2] Implement `code/analysis/metrics.py` to calculate dynamic reconfiguration rate from sliding-window matrices. Define `compute_reconfiguration_rate(dynamic_matrices: list[np.array])`.
+- [~] T025 [US2] Depends: T015. Implement `code/analysis/metrics.py` to regress out FD/DVARS from time series before dynamic analysis using `sklearn.linear_model.LinearRegression`. Output format: CSV with timepoints and residuals. Define `regress_confounds(time_series: np.array, confounds: np.array)`.
+- [~] T026 [US2] Implement `code/analysis/metrics.py` to run sensitivity analysis with window sizes 30, 40 TRs. Define `run_sensitivity_analysis(time_series: np.array, window_sizes: list[int])`.
+- [~] T027 [US2] Implement `code/analysis/metrics.py` to calculate Intraclass Correlation Coefficient (ICC) for dynamic metrics across window sizes. Define `compute_icc(metrics: list[float])`.
 - [ ] T028 [US2] Generate `SensitivityReport` JSON/Parquet with stability metrics and ICC values. Save to `data/derived/sensitivity_report.json`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -173,8 +173,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -240,9 +240,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---
