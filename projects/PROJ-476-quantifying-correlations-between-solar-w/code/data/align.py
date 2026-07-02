@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 import numpy as np
-from datetime import datetime, timedelta
+from datetime import timedelta
 from code import logger
 from code.config import ACE_VARS, NOAA_VARS, TRAIN_START, TEST_END
 
@@ -10,7 +10,6 @@ def load_raw_ace(filepath: str) -> pd.DataFrame:
     if not os.path.exists(filepath):
         raise FileNotFoundError(f"ACE raw data file not found: {filepath}")
     df = pd.read_csv(filepath, parse_dates=['timestamp'])
-    logger.info(f"Loaded ACE data: {len(df)} rows from {filepath}")
     return df
 
 def load_raw_noaa(filepath: str) -> pd.DataFrame:
@@ -18,154 +17,183 @@ def load_raw_noaa(filepath: str) -> pd.DataFrame:
     if not os.path.exists(filepath):
         raise FileNotFoundError(f"NOAA raw data file not found: {filepath}")
     df = pd.read_csv(filepath, parse_dates=['timestamp'])
-    logger.info(f"Loaded NOAA data: {len(df)} rows from {filepath}")
     return df
 
-def align_to_grid(df: pd.DataFrame, freq: str = '1H') -> pd.DataFrame:
-    """Resample dataframe to a regular time grid."""
-    if 'timestamp' not in df.columns:
-        raise ValueError("DataFrame must contain 'timestamp' column")
-    
+def align_to_hourly(df: pd.DataFrame, source_name: str) -> pd.DataFrame:
+    """Resample data to 1-hour UTC grid."""
+    if df.empty:
+        logger.warning(f"Empty dataframe provided for {source_name}, returning empty.")
+        return df
+
     df = df.set_index('timestamp')
-    # Ensure time index is sorted
-    df = df.sort_index()
     
-    # Resample to target frequency
-    aligned = df.resample(freq).first()
-    logger.info(f"Resampled to {freq} grid: {len(aligned)} rows")
-    return aligned.reset_index()
-
-def merge_datasets(ace_df: pd.DataFrame, noaa_df: pd.DataFrame) -> pd.DataFrame:
-    """Merge ACE and NOAA datasets on timestamp."""
-    # Ensure both have timestamp column
-    if 'timestamp' not in ace_df.columns or 'timestamp' not in noaa_df.columns:
-        raise ValueError("Both DataFrames must have 'timestamp' column")
+    # Resample to hourly frequency
+    # Using '1h' frequency ensures alignment to UTC hours
+    resampled = df.resample('1h').first()
     
-    # Merge on timestamp
-    merged = pd.merge(ace_df, noaa_df, on='timestamp', how='outer')
-    logger.info(f"Merged datasets: {len(merged)} rows")
-    return merged
-
-def validate_and_normalize(df: pd.DataFrame) -> pd.DataFrame:
-    """Validate required columns and normalize data types."""
-    required_cols = list(ACE_VARS) + list(NOAA_VARS)
-    missing = [col for col in required_cols if col not in df.columns]
-    if missing:
-        raise ValueError(f"Missing required columns: {missing}")
-    
-    # Ensure numeric types for data columns
-    for col in required_cols:
-        if col != 'timestamp':
-            df[col] = pd.to_numeric(df[col], errors='coerce')
-    
-    logger.info("Validation and normalization complete")
-    return df
+    logger.info(f"Resampled {source_name} to {len(resampled)} hourly records.")
+    return resampled
 
 def interpolate_gaps(df: pd.DataFrame, max_gap_hours: int = 6) -> pd.DataFrame:
     """
-    Interpolate missing values in time series data.
-    
-    Gaps <= max_gap_hours are filled via linear interpolation.
-    Larger gaps are logged as warnings and left as NaN.
+    Perform linear interpolation for gaps <= max_gap_hours.
+    Logs interpolated intervals.
     
     Args:
-        df: DataFrame with 'timestamp' column and numeric data columns
+        df: DataFrame with DatetimeIndex
         max_gap_hours: Maximum gap size (in hours) to interpolate
     
     Returns:
-        DataFrame with interpolated values
+        DataFrame with gaps filled
     """
-    if 'timestamp' not in df.columns:
-        raise ValueError("DataFrame must contain 'timestamp' column")
+    if df.empty:
+        return df
+
+    # Identify gaps
+    # Calculate time differences between consecutive rows
+    time_diffs = df.index.to_series().diff()
     
-    df = df.set_index('timestamp').sort_index()
-    data_cols = [col for col in df.columns if col != 'timestamp']
+    # Convert to hours to identify gap size
+    gap_hours = time_diffs / pd.Timedelta(hours=1)
+    
+    # Identify gaps larger than threshold
+    large_gaps = gap_hours > max_gap_hours
+    
+    # Log large gaps (warning)
+    if large_gaps.any():
+        large_gap_indices = df.index[large_gaps]
+        for idx in large_gap_indices:
+            gap_size = gap_hours[large_gaps][large_gaps.get_loc(idx)]
+            logger.warning(f"Large gap detected at {idx}: {gap_size:.1f} hours (exceeds {max_gap_hours}h limit). Skipping interpolation for this segment.")
+    
+    # Identify gaps to interpolate (<= max_gap_hours)
+    # We need to find segments where the gap is <= max_gap_hours
+    # Create a mask for gaps that are valid for interpolation
+    valid_gaps_mask = gap_hours <= max_gap_hours
+    
+    # We need to be careful: we want to interpolate between points where the gap is small
+    # but NOT across large gaps.
+    
+    # Strategy:
+    # 1. Create a copy
+    # 2. Identify segments separated by large gaps
+    # 3. Interpolate within each segment
+    
+    result = df.copy()
+    
+    # Find indices where gaps are too large
+    large_gap_idx = large_gaps[large_gaps].index
+    
+    if len(large_gap_idx) == 0:
+        # No large gaps, interpolate everything
+        logger.info(f"Interpolating {len(result)} rows for all variables (no large gaps).")
+        result = result.interpolate(method='linear', limit_direction='forward')
+        return result
+    
+    # Split by large gaps
+    # Create groups: each time we hit a large gap, we start a new group
+    # Shift the large_gap_mask to mark the start of a new segment
+    segment_start = large_gaps.shift(1).fillna(False)
+    segment_id = segment_start.cumsum()
     
     total_interpolated = 0
-    total_gaps = 0
-    large_gaps_detected = 0
+    interpolated_vars = set()
     
-    for col in data_cols:
-        # Identify gaps
-        is_na = df[col].isna()
-        if not is_na.any():
+    for seg_id in segment_id.unique():
+        seg_mask = segment_id == seg_id
+        seg_df = result[seg_mask]
+        
+        if len(seg_df) < 2:
             continue
         
-        # Calculate gap sizes in hours
-        time_diff = df[col].notna().astype(int).diff().fillna(0)
-        # Find consecutive NaN sequences
-        group = (~df[col].isna()).cumsum()
-        gap_sizes = df[col].groupby(group).apply(lambda x: x.isna().sum() if x.isna().any() else 0)
-        
-        for gap_size in gap_sizes[gap_sizes > 0]:
-            total_gaps += 1
-            gap_hours = gap_size  # Assuming 1H frequency after resampling
+        # Check if this segment has any NaNs that need interpolation
+        if seg_df.isnull().any().any():
+            # Interpolate this segment
+            old_nulls = seg_df.isnull().sum().sum()
+            seg_df_interp = seg_df.interpolate(method='linear', limit_direction='forward')
+            new_nulls = seg_df_interp.isnull().sum().sum()
             
-            if gap_hours <= max_gap_hours:
-                # Mark for interpolation
-                pass
-            else:
-                large_gaps_detected += 1
-                logger.warning(f"Large gap detected in {col}: {gap_hours} hours (>{max_gap_hours}h). Skipping interpolation.")
+            interpolated_count = old_nulls - new_nulls
+            if interpolated_count > 0:
+                total_interpolated += interpolated_count
+                # Track which variables were interpolated
+                for col in seg_df.columns:
+                    if seg_df[col].isnull().any() and not seg_df_interp[col].isnull().all():
+                        interpolated_vars.add(col)
+            
+            result.loc[seg_mask] = seg_df_interp
     
-    # Perform interpolation for all columns
-    df_interpolated = df.interpolate(method='linear', limit=6*24) # Limit to 6 days of consecutive NaNs
-    
-    # Count actually interpolated values
-    interpolated_count = (df_interpolated.notna() & df.isna()).sum().sum()
-    total_interpolated += interpolated_count
-    
-    # Log summary
     if total_interpolated > 0:
-        logger.info(f"Interpolation complete: {total_interpolated} values filled across {len(data_cols)} columns.")
-        if large_gaps_detected > 0:
-            logger.warning(f"Skipped {large_gaps_detected} large gaps (> {max_gap_hours}h) that were not interpolated.")
+        logger.info(f"Interpolated {total_interpolated} values across {len(interpolated_vars)} variables: {list(interpolated_vars)}. Gaps > {max_gap_hours}h were skipped.")
     else:
-        logger.info("No missing values found to interpolate.")
-    
-    return df_interpolated.reset_index()
+        logger.info("No interpolation performed (no gaps found or all gaps were too large).")
+        
+    return result
 
-def run_alignment(ace_path: str, noaa_path: str, output_path: str) -> str:
+def run_alignment(raw_ace_path: str, raw_noaa_path: str, output_path: str) -> str:
     """
-    Full pipeline to align ACE and NOAA data.
-    
-    1. Load raw data
-    2. Align to 1-hour grid
-    3. Merge datasets
-    4. Validate and normalize
-    5. Interpolate gaps
-    6. Save to output
+    Main orchestration function for data alignment.
+    1. Load raw ACE and NOAA data
+    2. Align to hourly grid
+    3. Interpolate gaps (<= 6h)
+    4. Merge and save to output
     
     Args:
-        ace_path: Path to raw ACE data
-        noaa_path: Path to raw NOAA data
-        output_path: Path to save aligned data
+        raw_ace_path: Path to raw ACE CSV
+        raw_noaa_path: Path to raw NOAA CSV
+        output_path: Path for final synced CSV
     
     Returns:
         Path to the output file
     """
-    logger.info(f"Starting alignment pipeline. ACE: {ace_path}, NOAA: {noaa_path}")
+    logger.info(f"Starting alignment process. ACE: {raw_ace_path}, NOAA: {raw_noaa_path}")
     
     # Load data
-    ace_df = load_raw_ace(ace_path)
-    noaa_df = load_raw_noaa(noaa_path)
+    df_ace = load_raw_ace(raw_ace_path)
+    df_noaa = load_raw_noaa(raw_noaa_path)
     
-    # Align to grid
-    ace_aligned = align_to_grid(ace_df)
-    noaa_aligned = align_to_grid(noaa_df)
+    # Select required columns
+    # ACE
+    ace_cols = ['timestamp'] + ACE_VARS
+      # Check if columns exist
+    missing_ace = [c for c in ace_cols if c not in df_ace.columns]
+    if missing_ace:
+        raise ValueError(f"Missing ACE columns: {missing_ace}")
+    df_ace = df_ace[ace_cols]
     
-    # Merge
-    merged = merge_datasets(ace_aligned, noaa_aligned)
+    # NOAA
+    noaa_cols = ['timestamp'] + NOAA_VARS
+    missing_noaa = [c for c in noaa_cols if c not in df_noaa.columns]
+    if missing_noaa:
+        raise ValueError(f"Missing NOAA columns: {missing_noaa}")
+    df_noaa = df_noaa[noaa_cols]
     
-    # Validate and normalize
-    validated = validate_and_normalize(merged)
+    # Align to hourly
+    df_ace_hourly = align_to_hourly(df_ace, "ACE")
+    df_noaa_hourly = align_to_hourly(df_noaa, "NOAA")
     
     # Interpolate gaps
-    final_df = interpolate_gaps(validated)
+    df_ace_interp = interpolate_gaps(df_ace_hourly)
+    df_noaa_interp = interpolate_gaps(df_noaa_hourly)
     
-    # Save output
+    # Merge on timestamp
+    # Reset index to merge on 'timestamp' column
+    df_ace_reset = df_ace_interp.reset_index()
+    df_noaa_reset = df_noaa_interp.reset_index()
+    
+    # Merge
+    merged = pd.merge(df_ace_reset, df_noaa_reset, on='timestamp', how='outer')
+    
+    # Final interpolation for any remaining gaps after merge
+    merged = merged.set_index('timestamp')
+    merged = interpolate_gaps(merged)
+    merged = merged.reset_index()
+    
+    # Ensure output directory exists
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    final_df.to_csv(output_path, index=False)
-    logger.info(f"Alignment complete. Output saved to: {output_path}")
+    
+    # Save
+    merged.to_csv(output_path, index=False)
+    logger.info(f"Alignment complete. Output saved to {output_path} ({len(merged)} rows).")
     
     return output_path

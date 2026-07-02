@@ -1,102 +1,82 @@
 """
-Effective Sample Size (Neff) calculation module.
+Effective sample size (Neff) calculation module.
 
-Implements the Pyper & Peterman method for calculating Neff using
-lag-1 autocorrelation on detrended time series.
+Implements the method of Pyper & Peterman for correcting p-values for autocorrelation.
+Formula: Neff = N * (1 - rho_1) / (1 + rho_1)
+Where rho_1 is the lag-1 autocorrelation of the detrended time series.
 """
 import numpy as np
-import pandas as pd
 from scipy import signal
+from typing import Union
+import pandas as pd
 from code import logger
 
-def calculate_neff(series: pd.Series) -> float:
+def calculate_neff(time_series: Union[pd.Series, np.ndarray]) -> float:
     """
-    Calculate the effective sample size (Neff) for a time series.
-
-    Uses the formula: Neff = N * (1 - rho_1) / (1 + rho_1)
-    where rho_1 is the lag-1 autocorrelation of the detrended series.
-
+    Calculate the effective sample size (Neff) for a given time series.
+    
+    Steps:
+    1. Detrend the series using scipy.signal.detrend (removes linear trend).
+    2. Calculate lag-1 autocorrelation (rho_1) of the residuals.
+    3. Apply formula: Neff = N * (1 - rho_1) / (1 + rho_1)
+    
     Args:
-        series: A pandas Series containing the time series data.
-
+        time_series: 1D array-like or pandas Series.
+        
     Returns:
-        The effective sample size (float).
+        Effective sample size (float).
+        
+    Raises:
+        ValueError: If the series is too short or has no variance.
     """
-    if not isinstance(series, pd.Series):
-        series = pd.Series(series)
-
-    # Drop NaNs
-    clean_series = series.dropna()
-    n = len(clean_series)
-
+    # Convert to numpy array
+    x = np.asarray(time_series)
+    n = len(x)
+    
     if n < 3:
-        logger.warning(f"Series too short ({n}) to calculate Neff. Returning N.")
+        raise ValueError(f"Series too short for Neff calculation: {n} points")
+    
+    # Step 1: Detrend
+    # scipy.signal.detrend removes the linear trend by default
+    detrended = signal.detrend(x)
+    
+    # Check for zero variance after detrending
+    if np.std(detrended) < 1e-10:
+        logger.warning("Detrended series has near-zero variance. Neff may be unreliable.")
         return float(n)
-
-    # Detrend the series (remove linear trend)
-    # scipy.signal.detrend removes the mean and linear trend
-    detrended = signal.detrend(clean_series.values)
-
-    # Calculate lag-1 autocorrelation of the residuals
-    # rho_1 = Cov(X_t, X_{t-1}) / Var(X_t)
-    # Using numpy corrcoef on shifted arrays
-    x = detrended[:-1]
-    y = detrended[1:]
-
-    if len(x) < 2:
+    
+    # Step 2: Calculate lag-1 autocorrelation (rho_1) of the residuals
+    # We calculate this manually to ensure we use the detrended residuals
+    mean_val = np.mean(detrended)
+    centered = detrended - mean_val
+    
+    # Numerator: sum of (x_t * x_{t+1}) for centered data
+    # Denominator: sum of (x_t^2) for centered data
+    # This is the standard definition of autocorrelation at lag 1
+    numerator = np.sum(centered[:-1] * centered[1:])
+    denominator = np.sum(centered ** 2)
+    
+    if denominator == 0:
+        logger.warning("Zero variance in centered detrended series. Returning N.")
         return float(n)
-
-    # Avoid division by zero if variance is 0
-    var_x = np.var(x)
-    if var_x == 0:
-        logger.warning("Variance of detrended series is zero. Returning N.")
-        return float(n)
-
-    # Correlation
-    try:
-        rho_1 = np.corrcoef(x, y)[0, 1]
-    except Exception as e:
-        logger.warning(f"Failed to calculate autocorrelation: {e}")
-        return float(n)
-
-    if np.isnan(rho_1):
-        logger.warning("Autocorrelation is NaN. Returning N.")
-        return float(n)
-
-    # Clamp rho_1 to [-1, 1] to avoid numerical issues in formula
-    rho_1 = np.clip(rho_1, -1.0, 1.0)
-
-    # Pyper & Peterman formula
+        
+    rho_1 = numerator / denominator
+    
+    # Ensure rho_1 is within [-1, 1] to avoid numerical issues in the formula
+    rho_1 = np.clip(rho_1, -0.999, 0.999)
+    
+    # Step 3: Apply Pyper & Peterman formula
     # Neff = N * (1 - rho_1) / (1 + rho_1)
-    if abs(1 + rho_1) < 1e-10:
-        logger.warning("Denominator near zero in Neff formula. Returning N.")
-        return float(n)
-
     neff = n * (1 - rho_1) / (1 + rho_1)
+    
+    logger.debug(f"Neff calculation: N={n}, rho_1={rho_1:.4f}, Neff={neff:.2f}")
+    
+    return float(neff)
 
-    # Ensure Neff is positive and at most N
-    neff = max(1.0, min(neff, float(n)))
-
-    return neff
-
-def calculate_neff_for_subset(
-    series: pd.Series,
-    start_date: str,
-    end_date: str
-) -> float:
-    """
-    Calculate Neff for a specific subset of the time series.
-
-    Args:
-        series: The full time series.
-        start_date: Start date string (e.g., '2018-01-01').
-        end_date: End date string (e.g., '2020-12-31').
-
-    Returns:
-        The effective sample size for the subset.
-    """
-    # Filter by date
-    mask = (series.index >= start_date) & (series.index <= end_date)
-    subset = series[mask]
-
-    return calculate_neff(subset)
+if __name__ == "__main__":
+    # Simple test with synthetic data to verify logic
+    test_data = np.random.RandomState(42).randn(100)
+    # Add some autocorrelation to make it realistic
+    test_data = np.cumsum(test_data) / 10.0
+    result = calculate_neff(test_data)
+    print(f"Test Neff calculation: {result}")

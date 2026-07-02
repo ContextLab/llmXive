@@ -1,32 +1,88 @@
 """
-Unit tests for data validation logic in code/data/validate.py.
+Unit tests for data validation logic.
 """
 import pytest
 import pandas as pd
-import os
-import sys
-
-# Ensure the code directory is in the path for imports
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-from data.validate import validate_columns
+from code.data.validate import validate_columns
 from code.config import ACE_VARS, NOAA_VARS
 
 
 def test_fetch_aborts_on_missing_he2plus():
     """
-    Verify that validate_columns raises a ValueError with the specific message
-    when the 'He2+_ratio' column is missing from the DataFrame.
+    Verify that validate_columns aborts with a clear error if He2+_ratio is missing.
+    
+    This test satisfies the requirement in T012 to abort with a clear error
+    if N_p, T_p, or He2+_ratio are missing, and to log the specific missing variable.
     """
-    # Create a DataFrame with all ACE variables EXCEPT He2+_ratio
-    # This simulates a scenario where the source file is missing the required column
-    df_missing = pd.DataFrame({
-        'N_p': [1.0, 2.0, 3.0],
+    # Create a DataFrame with N_p and T_p but missing He2+_ratio
+    df_missing_he = pd.DataFrame({
+        'N_p': [5.0, 6.0, 7.0],
         'T_p': [100000.0, 110000.0, 120000.0],
-        # 'He2+_ratio' is intentionally omitted
-        'timestamp': pd.date_range('2020-01-01', periods=3)
+        'other_col': [1, 2, 3]
     })
-
-    # The task requires checking against ACE_VARS which includes 'He2+_ratio'
+    
+    # We expect a ValueError with the specific message for He2+_ratio
+    # Note: ACE_VARS is defined as ['N_p', 'T_p', 'He2+_ratio'] in code/config.py
     with pytest.raises(ValueError, match="Missing required variable: He2+_ratio"):
-        validate_columns(df_missing, ACE_VARS)
+        validate_columns(df_missing_he, ACE_VARS)
+
+def test_fetch_aborts_on_missing_np():
+    """
+    Verify that validate_columns aborts if N_p is missing.
+    """
+    df_missing_np = pd.DataFrame({
+        'T_p': [100000.0, 110000.0],
+        'He2+_ratio': [0.05, 0.06]
+    })
+    
+    with pytest.raises(ValueError, match="Missing required variable: N_p"):
+        validate_columns(df_missing_np, ACE_VARS)
+
+def test_fetch_aborts_on_missing_tp():
+    """
+    Verify that validate_columns aborts if T_p is missing.
+    """
+    df_missing_tp = pd.DataFrame({
+        'N_p': [5.0, 6.0],
+        'He2+_ratio': [0.05, 0.06]
+    })
+    
+    with pytest.raises(ValueError, match="Missing required variable: T_p"):
+        validate_columns(df_missing_tp, ACE_VARS)
+
+def test_validate_columns_passes():
+    """
+    Verify that validate_columns passes when all required columns are present.
+    """
+    df_complete = pd.DataFrame({
+        'N_p': [5.0, 6.0],
+        'T_p': [100000.0, 110000.0],
+        'He2+_ratio': [0.05, 0.06],
+        'extra_col': [1, 2]
+    })
+    
+    # Should not raise
+    validate_columns(df_complete, ACE_VARS)
+
+def test_validate_noaa_columns():
+    """
+    Verify validation logic works for NOAA variables as well.
+    """
+    df_noaa = pd.DataFrame({
+        'Kp': [2.0, 3.0],
+        'Dst': [-20.0, -30.0]
+    })
+    
+    # Should not raise
+    validate_columns(df_noaa, NOAA_VARS)
+
+def test_validate_noaa_missing_dst():
+    """
+    Verify validation logic fails for missing NOAA variables.
+    """
+    df_noaa_missing = pd.DataFrame({
+        'Kp': [2.0, 3.0]
+    })
+    
+    with pytest.raises(ValueError, match="Missing required variable: Dst"):
+        validate_columns(df_noaa_missing, NOAA_VARS)

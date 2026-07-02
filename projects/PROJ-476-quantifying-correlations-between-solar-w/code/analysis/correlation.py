@@ -2,202 +2,212 @@ import os
 import pandas as pd
 import numpy as np
 from scipy import stats
+from datetime import timedelta
 from typing import Dict, List, Tuple, Optional
+from code.config import ACE_VARS, NOAA_VARS, TRAIN_START, TRAIN_END, TEST_START, TEST_END
 from code import logger
-from code.config import TRAIN_START, TRAIN_END, TEST_START, TEST_END
 from code.analysis.neff import calculate_neff
-from code.analysis.significance import compute_pvalue_with_neff, calculate_neff_for_subset
 
-# Global Bonferroni divisor: 3 parameters (N_p, T_p, He2+_ratio) * 2 indices (Kp, Dst) * 5 lags (0,1,2,3,6)
-BONFERRONI_DIVISOR = 30
-ALPHA = 0.05
-BONFERRONI_THRESHOLD = ALPHA / BONFERRONI_DIVISOR
+# Configuration for Bonferroni correction
+# 3 ACE parameters (N_p, T_p, He2+_ratio)
+# 2 NOAA indices (Kp, Dst)
+# 5 lags (0, 1, 2, 3, 6 hours)
+N_PARAMS = len(ACE_VARS)
+N_INDICES = len(NOAA_VARS)
+N_LAGS = 5  # 0, 1, 2, 3, 6
+TOTAL_TESTS = N_PARAMS * N_INDICES * N_LAGS
+ALPHA_RAW = 0.05
+ALPHA_ADJ = ALPHA_RAW / TOTAL_TESTS
 
-def compute_correlation_at_lag(df: pd.DataFrame, var_x: str, var_y: str, lag_hours: int) -> Tuple[float, float, float]:
-    """
-    Compute Pearson and Spearman correlations between var_x and var_y at a specific lag.
-    var_x is shifted by lag_hours (positive lag means var_x leads var_y).
-    
-    Returns: (pearson_r, spearman_rho, p_value_raw)
-    """
-    if lag_hours > 0:
-        shifted_x = df[var_x].shift(lag_hours)
-    elif lag_hours < 0:
-        shifted_x = df[var_x].shift(-lag_hours) # Shift other way if negative lag needed, though spec implies positive
-    else:
-        shifted_x = df[var_x]
-    
-    # Drop NaNs resulting from shift
-    valid_mask = shifted_x.notna() & df[var_y].notna()
-    x_valid = shifted_x[valid_mask]
-    y_valid = df[var_y][valid_mask]
-    
-    if len(x_valid) < 10:
-        logger.warning(f"Not enough data points for correlation at lag {lag_hours} for {var_x} vs {var_y}")
-        return np.nan, np.nan, np.nan
-    
-    pearson_r, p_pearson = stats.pearsonr(x_valid, y_valid)
-    spearman_rho, p_spearman = stats.spearmanr(x_valid, y_valid)
-    
-    # Return raw p-value (unadjusted for Neff yet, will be adjusted in next step)
-    # We use the p-value from the test statistic but the significance check will use Neff-adjusted p
-    return float(pearson_r), float(spearman_rho), float(p_pearson)
+logger.info(f"Bonferroni configuration: {N_PARAMS} params x {N_INDICES} indices x {N_LAGS} lags = {TOTAL_TESTS} tests")
+logger.info(f"Adjusted alpha (Bonferroni): {ALPHA_ADJ:.6f}")
 
-def compute_neff_adjusted_pvalue(r: float, n: int, rho1: float) -> float:
-    """
-    Compute p-value adjusted for autocorrelation using Neff.
-    Uses the formula for Neff and then computes p-value from t-distribution.
-    """
-    neff = calculate_neff(n, rho1)
-    if neff <= 2:
-        return 1.0
-    
-    # t-statistic for correlation: t = r * sqrt((neff - 2) / (1 - r^2))
-    if abs(r) >= 1.0:
-        return 0.0 if r != 0 else 1.0
-        
-    t_stat = r * np.sqrt((neff - 2) / (1 - r**2))
-    # Two-tailed p-value
-    p_val = 2 * (1 - stats.t.cdf(abs(t_stat), neff - 2))
-    return float(p_val)
+def load_synced_data() -> pd.DataFrame:
+    """Load the synchronized dataset from the processed directory."""
+    path = "data/processed/synced.csv"
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Synced data not found at {path}. Run US1 pipeline first.")
+    df = pd.read_csv(path, parse_dates=['timestamp'])
+    logger.info(f"Loaded synced data: {df.shape[0]} rows, {df.shape[1]} columns")
+    return df
 
-def apply_bonferroni_correction(raw_p: float) -> float:
+def compute_correlations_at_lag(
+    df: pd.DataFrame,
+    param: str,
+    index_var: str,
+    lag_hours: int,
+    neff: Optional[float] = None
+) -> Dict:
     """
-    Apply Bonferroni correction to a raw p-value.
-    Returns min(raw_p * divisor, 1.0).
-    """
-    return min(raw_p * BONFERRONI_DIVISOR, 1.0)
-
-def flag_significant_pairs(
-    pearson_r: float, 
-    bonferroni_p: float, 
-    threshold: float = BONFERRONI_THRESHOLD,
-    abs_r_threshold: float = 0.5
-) -> Dict[str, bool]:
-    """
-    Flag a correlation pair as significant based on Bonferroni-corrected p-value.
+    Compute Pearson and Spearman correlations for a specific parameter, index, and lag.
     
     Args:
-        pearson_r: The Pearson correlation coefficient.
-        bonferroni_p: The Bonferroni-corrected p-value.
-        threshold: The significance threshold (default 0.05).
-        abs_r_threshold: Optional magnitude threshold for |r| (e.g., 0.5).
+        df: The synchronized dataframe.
+        param: The ACE parameter name (e.g., 'N_p').
+        index_var: The NOAA index name (e.g., 'Kp').
+        lag_hours: The lag in hours (0, 1, 2, 3, 6).
+        neff: Optional pre-calculated effective sample size. If None, calculated from data.
     
     Returns:
-        Dict with flags for 'statistically_significant' and 'strong_correlation'.
+        Dictionary containing correlation metrics.
     """
-    is_significant = bonferroni_p < threshold
-    is_strong = abs(pearson_r) > abs_r_threshold
+    if lag_hours > 0:
+        # Shift the ACE data forward by lag_hours to simulate lagged effect
+        # If lag is positive, we align ACE(t) with Index(t+lag)
+        # In the dataframe, we shift the ACE column down by lag_hours
+        shift_rows = lag_hours
+        if shift_rows > 0:
+            df_shifted = df.copy()
+            df_shifted[param] = df_shifted[param].shift(shift_rows)
+            # Drop rows where the shifted value is NaN (the beginning of the series)
+            df_valid = df_shifted.dropna(subset=[param, index_var])
+        else:
+            df_valid = df
+    else:
+        df_valid = df.dropna(subset=[param, index_var])
+
+    if len(df_valid) < 10:
+        logger.warning(f"Insufficient data for {param} vs {index_var} at lag {lag_hours}h: {len(df_valid)} rows")
+        return {
+            'param': param,
+            'index': index_var,
+            'lag': lag_hours,
+            'pearson_r': np.nan,
+            'spearman_rho': np.nan,
+            'p_value_raw': np.nan,
+            'p_value_bonferroni': np.nan,
+            'n_obs': len(df_valid),
+            'neff': np.nan,
+            'is_significant': False
+        }
+
+    x = df_valid[param].values
+    y = df_valid[index_var].values
+
+    # Pearson
+    r, p_raw = stats.pearsonr(x, y)
     
-    logger.info(f"Correlation check: p={bonferroni_p:.4f} < {threshold}? {is_significant} | |r|={abs(pearson_r):.4f} > {abs_r_threshold}? {is_strong}")
+    # Spearman
+    rho, p_spearman = stats.spearmanr(x, y)
+
+    # Calculate Neff if not provided
+    if neff is None:
+        # We calculate Neff based on the overlapping valid data length
+        # However, the spec implies Neff is calculated on the FULL continuous series.
+        # For this function, we calculate it on the valid subset for accuracy in this specific window,
+        # but the main runner should ideally pass the global Neff or calculate it globally.
+        # Per T021, we use the Pyper & Peterman method on the residuals.
+        # Since we are in a generic function, we calculate it here on the valid data for this pair.
+        # NOTE: The global Neff calculation is handled in run_correlation_analysis for consistency.
+        # Here we compute a local estimate if not passed, but the global one is preferred for the threshold.
+        neff_local = calculate_neff(x)
+    else:
+        neff_local = neff
+
+    # Adjust p-value for Neff? 
+    # The spec says: "adjust p-values for autocorrelation (Neff)".
+    # Standard approach: Use Neff to adjust the degrees of freedom in the t-test for correlation significance.
+    # t = r * sqrt((Neff - 2) / (1 - r^2))
+    # But scipy.stats.pearsonr uses N-2. We can approximate the adjusted p-value by re-calculating it.
     
+    if not np.isnan(r) and neff_local > 2:
+        t_stat = r * np.sqrt((neff_local - 2) / (1 - r**2 + 1e-10))
+        # Two-tailed p-value
+        p_adj = 2 * (1 - stats.t.cdf(abs(t_stat), neff_local - 2))
+    else:
+        p_adj = p_raw
+
+    # Bonferroni correction
+    p_bonf = min(p_adj * TOTAL_TESTS, 1.0)
+    is_significant = p_bonf < ALPHA_ADJ
+
+    logger.debug(f"Lag {lag_hours}h: {param} vs {index_var}, r={r:.4f}, p_raw={p_adj:.4e}, p_bonf={p_bonf:.4e}, sig={is_significant}")
+
     return {
-        "statistically_significant": is_significant,
-        "strong_correlation": is_strong,
-        "is_both": is_significant and is_strong
+        'param': param,
+        'index': index_var,
+        'lag': lag_hours,
+        'pearson_r': r,
+        'spearman_rho': rho,
+        'p_value_raw': p_adj,
+        'p_value_bonferroni': p_bonf,
+        'n_obs': len(df_valid),
+        'neff': neff_local,
+        'is_significant': is_significant
     }
 
-def run_correlation_analysis(
-    df: pd.DataFrame,
-    params: List[str] = None,
-    indices: List[str] = None,
-    lags: List[int] = None,
-    output_path: str = "data/processed/correlation_results.csv"
-) -> pd.DataFrame:
+def run_correlation_analysis(df: Optional[pd.DataFrame] = None, output_path: str = "data/processed/correlation_results.csv") -> pd.DataFrame:
     """
-    Run full correlation analysis across all parameter-index pairs and lags.
-    Computes Neff, adjusted p-values, Bonferroni corrections, and flags significance.
-    """
-    if params is None:
-        params = ['N_p', 'T_p', 'He2+_ratio']
-    if indices is None:
-        indices = ['Kp', 'Dst']
-    if lags is None:
-        lags = [0, 1, 2, 3, 6]
+    Run the full correlation analysis across all parameters, indices, and lags.
+    Implements FR-004: Bonferroni correction with dynamic divisor 30.
     
+    Args:
+        df: Optional dataframe. If None, loads from disk.
+        output_path: Path to save the results CSV.
+    
+    Returns:
+        DataFrame with all correlation results.
+    """
+    if df is None:
+        df = load_synced_data()
+
     results = []
     
-    # Calculate global Neff for the full series (assuming df is the full series)
-    # We calculate Neff for each parameter and index to be precise, or use a representative one.
-    # Per spec, we use global Neff logic. We'll compute Neff for each variable involved.
-    neff_cache = {}
-    
-    for var in params + indices:
+    # Define lags explicitly
+    lags = [0, 1, 2, 3, 6]
+
+    logger.info(f"Starting correlation analysis for {len(ACE_VARS)} params x {len(NOAA_VARS)} indices x {len(lags)} lags")
+    logger.info(f"Using Bonferroni divisor: {TOTAL_TESTS} (Alpha adjusted to {ALPHA_ADJ})")
+
+    # Pre-calculate global Neff for the full series if possible, or per variable
+    # The spec emphasizes global Neff for the threshold. 
+    # We will calculate Neff for each ACE variable on the full series (ignoring NaNs in the specific column)
+    # to use as the 'neff' argument for the correlation functions, ensuring consistency.
+    global_neff_map = {}
+    for var in ACE_VARS:
         if var in df.columns:
-            # Calculate rho1 (lag-1 autocorrelation) on detrended data
-            series = df[var].dropna()
-            if len(series) > 10:
-                detrended = stats.signal.detrend(series)
-                rho1 = np.corrcoef(detrended[:-1], detrended[1:])[0, 1]
-                if np.isnan(rho1): rho1 = 0.0
-                neff_cache[var] = calculate_neff(len(series), rho1)
+            clean_series = df[var].dropna()
+            if len(clean_series) > 10:
+                global_neff_map[var] = calculate_neff(clean_series.values)
             else:
-                neff_cache[var] = len(series)
+                global_neff_map[var] = None
         else:
-            logger.warning(f"Variable {var} not found in dataframe for Neff calculation")
-    
-    logger.info(f"Global Neff values calculated: {neff_cache}")
-    
-    for param in params:
-        for index in indices:
-            if param not in df.columns or index not in df.columns:
-                logger.warning(f"Skipping {param} vs {index} due to missing columns")
+            global_neff_map[var] = None
+
+    for param in ACE_VARS:
+        if param not in df.columns:
+            logger.warning(f"ACE variable {param} not found in data, skipping.")
+            continue
+
+        for index_var in NOAA_VARS:
+            if index_var not in df.columns:
+                logger.warning(f"NOAA variable {index_var} not found in data, skipping.")
                 continue
             
-            # Use the minimum Neff of the two series for conservative adjustment
-            n_param = neff_cache.get(param, len(df))
-            n_index = neff_cache.get(index, len(df))
-            effective_n = min(n_param, n_index)
-            
-            # Estimate rho1 for the pair (average of the two) or use the parameter's rho1
-            # Spec implies using the series properties. We'll use the average rho1 for the pair's Neff calculation if needed,
-            # but the function `compute_neff_adjusted_pvalue` takes a single rho1.
-            # Let's re-calculate rho1 specifically for the pair's combined effective sample logic if strictly needed,
-            # but standard practice in this context often uses the lag-1 of the primary series or an average.
-            # For robustness, we'll use the rho1 of the parameter series as it's the "predictor".
-            series_param = df[param].dropna()
-            if len(series_param) > 10:
-                detrended_param = stats.signal.detrend(series_param)
-                rho1_param = np.corrcoef(detrended_param[:-1], detrended_param[1:])[0, 1]
-                if np.isnan(rho1_param): rho1_param = 0.0
-            else:
-                rho1_param = 0.0
-            
+            neff_for_param = global_neff_map.get(param)
+
             for lag in lags:
-                r, rho_s, p_raw = compute_correlation_at_lag(df, param, index, lag)
-                
-                if np.isnan(r):
-                    continue
-                
-                # Adjust p-value using Neff
-                p_adj = compute_pvalue_with_neff(r, len(df), rho1_param) # Uses the full series length and parameter's rho1
-                
-                # Apply Bonferroni
-                p_bonf = apply_bonferroni_correction(p_adj)
-                
-                # Flag significance
-                flags = flag_significant_pairs(r, p_bonf)
-                
-                results.append({
-                    "parameter": param,
-                    "index": index,
-                    "lag_hours": lag,
-                    "pearson_r": r,
-                    "spearman_rho": rho_s,
-                    "p_raw": p_raw,
-                    "p_neff_adjusted": p_adj,
-                    "p_bonferroni": p_bonf,
-                    "is_significant": flags["statistically_significant"],
-                    "is_strong": flags["strong_correlation"],
-                    "is_both_significant_and_strong": flags["is_both"],
-                    "neff_used": effective_n
-                })
-    
+                res = compute_correlations_at_lag(
+                    df, 
+                    param, 
+                    index_var, 
+                    lag,
+                    neff=neff_for_param
+                )
+                results.append(res)
+
     results_df = pd.DataFrame(results)
     
-    # Ensure output directory exists
+    # Sort for readability
+    results_df = results_df.sort_values(by=['param', 'index', 'lag'])
+
+    # Save to disk
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     results_df.to_csv(output_path, index=False)
     logger.info(f"Correlation results saved to {output_path}")
-    
+    logger.info(f"Significant findings (Bonferroni p < {ALPHA_ADJ}): {results_df['is_significant'].sum()}")
+
     return results_df
+
+# Export for main.py
+__all__ = ['load_synced_data', 'compute_correlations_at_lag', 'run_correlation_analysis', 'ALPHA_ADJ', 'TOTAL_TESTS']

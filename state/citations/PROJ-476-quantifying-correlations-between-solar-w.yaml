@@ -42,25 +42,3 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/claritylab/utcd/a8ae39963cef8309a23c63334cd5c6c6604942f2/_utcd_info.json?%2Fdatasets%2Fclaritylab%2Futcd%2Fresolve%2Fmain%2F_utcd_info.json=&etag=%22d4617f2e5f574cfbe815a0d482a7f107a06cdf76%22
   verified_at: '2026-07-02T11:42:04.266903Z'
-- artifact_hash: 84373f62bd5dc6aa4f236afbdbcb32dcd2ebc48a8f9194807c193e8e49120d9f
-  artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: Index of /pub/data/ace
-  kind: url
-  value: https://cdaweb.gsfc.nasa.gov/pub/data/ace/
-  verification_status: verified
-  verified_against_url: https://cdaweb.gsfc.nasa.gov/pub/data/ace/
-  verified_at: '2026-07-02T14:22:27.260814Z'
-- artifact_hash: 84373f62bd5dc6aa4f236afbdbcb32dcd2ebc48a8f9194807c193e8e49120d9f
-  artifact_path: projects/PROJ-476-quantifying-correlations-between-solar-w/specs/001-quantifying-correlations-between-solar-w/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: Index of /stp/space-weather
-  kind: url
-  value: https://www.ngdc.noaa.gov/stp/space-weather/
-  verification_status: verified
-  verified_against_url: https://www.ngdc.noaa.gov/stp/space-weather/
-  verified_at: '2026-07-02T14:22:27.260814Z'

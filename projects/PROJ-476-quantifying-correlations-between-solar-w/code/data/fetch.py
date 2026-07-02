@@ -1,45 +1,46 @@
 """
-Data fetching module for Solar Wind and Geomagnetic indices.
+Data fetching module for solar wind and geomagnetic indices.
 
-This module provides stub functions for fetching ACE and NOAA data.
-Implementations are pending.
+This file is a stub as per task T005.
+It defines the function signatures for fetching ACE and NOAA data.
 """
-
+from datetime import datetime
+from typing import Tuple
 import os
-import requests
-import pandas as pd
-from typing import Optional
-from datetime import datetime, timedelta
-from code import logger
 
+# Ensure the raw data directory exists
+os.makedirs('data/raw', exist_ok=True)
 
-def fetch_ace(start_date: str, end_date: str) -> str:
+def fetch_ace(start_date: datetime, end_date: datetime) -> str:
     """
-    Fetch ACE Level 2 (SWEPAM/SWICS) data for the given date range.
-
+    Fetch ACE Level 2 data (SWEPAM/SWICS) for the specified date range.
+    
     Args:
-        start_date: Start date string (YYYY-MM-DD).
-        end_date: End date string (YYYY-MM-DD).
-
+        start_date: Start of the time window (inclusive).
+        end_date: End of the time window (inclusive).
+        
     Returns:
-        str: Path to the saved raw CSV file ('data/raw/ace_raw.csv').
+        str: Path to the saved raw CSV file: 'data/raw/ace_raw.csv'
+        
+    Note:
+        This is a stub implementation. The actual download logic
+        will be implemented in T011.
     """
-    # Stub: Returns the expected output path without performing logic
-    logger.info(f"Stub fetch_ace called for {start_date} to {end_date}")
-    return "data/raw/ace_raw.csv"
+    return 'data/raw/ace_raw.csv'
 
-
-def fetch_noaa(start_date: str, end_date: str) -> str:
+def fetch_noaa(start_date: datetime, end_date: datetime) -> str:
     """
-    Fetch NOAA Kp and Dst indices for the given date range.
-
+    Fetch NOAA Kp and Dst indices for the specified date range.
+    
     Args:
-        start_date: Start date string (YYYY-MM-DD).
-        end_date: End date string (YYYY-MM-DD).
-
+        start_date: Start of the time window (inclusive).
+        end_date: End of the time window (inclusive).
+        
     Returns:
-        str: Path to the saved raw CSV file ('data/raw/noaa_raw.csv').
+        str: Path to the saved raw CSV file: 'data/raw/noaa_raw.csv'
+        
+    Note:
+        This is a stub implementation. The actual download logic
+        will be implemented in T011.
     """
-    # Stub: Returns the expected output path without performing logic
-    logger.info(f"Stub fetch_noaa called for {start_date} to {end_date}")
-    return "data/raw/noaa_raw.csv"
+    return 'data/raw/noaa_raw.csv'

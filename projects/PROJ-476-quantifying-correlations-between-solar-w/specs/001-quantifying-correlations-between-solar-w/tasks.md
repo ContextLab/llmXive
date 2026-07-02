@@ -67,8 +67,8 @@ EOF`
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Create `code/config.py` as a Python constants module. **MUST define** the following constants with exact values: `TRAIN_START=1998`, `TRAIN_END=2017`, `TEST_START=2018`, `TEST_END=2020`, `{{claim:c_0c2f0e5c}}`, `NOAA_VARS=['Kp', 'Dst'] `. **MUST explicitly document** that `TRAIN_START` to `TEST_END` covers the full 20-year span (1998-2020) referenced in SC-001 for the "full 20-year lagged correlation analysis" performance benchmark, while `TRAIN_START` to `TRAIN_END` is the subset used for model fitting. All downstream tasks MUST import these constants from `code.config`.
-- [X] T005 [P] Create `code/data/fetch.py` as a **stub file** containing empty function signatures: `fetch_ace(start_date, end_date) -> str` returning `data/raw/ace_raw.csv` and `fetch_noaa(start_date, end_date) -> str` returning `data/raw/noaa_raw.csv`. Do not implement logic yet.
+- [X] T004 [P] Create `code/config.py` as a Python constants module. **MUST define** the following constants with exact values: `TRAIN_START=1998`, `TRAIN_END=2017`, `TEST_START=2018`, `TEST_END=2020`, `ACE_VARS=['N_p', 'T_p', 'He2+_ratio']`, `NOAA_VARS=['Kp', 'Dst']`. **MUST explicitly document** that `TRAIN_START` to `TEST_END` covers the full 20-year span (1998-2020) referenced in SC-001 for the "full 20-year lagged correlation analysis" performance benchmark, while `TRAIN_START` to `TRAIN_END` is the subset used for model fitting. All downstream tasks MUST import these constants from `code.config`.
+- [X] T005 [P] Create `code/data/fetch.py` as a **stub file** containing empty function signatures: `fetch_ace(start_date, end_date) -> str` returning `data/raw/ace_raw.csv` and `fetch_noaa(start_date, end_date) -> str` returning `data/raw/noaa_raw.csv`. Do not implement logic yet. <!-- FAILED: unspecified -->
 - [X] T006 [P] Setup logging infrastructure in `code/__init__.py` by creating a logger named 'solar_wind' with level 'INFO' and a StreamHandler. **MUST use the following exact code snippet**:
  ```python
  import logging
@@ -101,8 +101,8 @@ EOF`
 
 ### Implementation for User Story 1
 
-- [ ] T011 [P] [US1] Implement logic in `code/data/fetch.py` (populating the existing stub) to download ACE Level 2 (SWEPAM/SWICS) and NOAA Kp/Dst. **MUST implement** `fetch_ace` and `fetch_noaa` with `start_date`, `end_date` parameters. **MUST use verified URLs**: ACE (https://cdaweb.gsfc.nasa.gov/pub/data/ace/) and NOAA (https://www.ngdc.noaa.gov/stp/space-weather/).
-- [X] T012 [US1] Implement `code/data/validate.py` to abort with clear error if `N_p`, `T_p`, or `He2+_ratio` are missing (FR-006). **MUST explicitly check the actual headers of the downloaded file against the hardcoded list and abort if they don't match**. **MUST verify source file column names against ACE Level 2 names ('N_p', 'T_p', 'He2+_ratio') BEFORE mapping**. **MUST log the specific missing variable name** (e.g., "Missing variable: He2+_ratio") in the abort message to satisfy SC-002. **MUST raise** `ValueError` with the exact message format defined in T007.
+- [ ] T011 [P] [US1] Implement logic in `code/data/fetch.py` (populating the existing stub) to download ACE Level 2 (SWEPAM/SWICS) and NOAA Kp/Dst. **MUST implement** `fetch_ace` and `fetch_noaa` with `start_date`, `end_date` parameters. **MUST use verified URLs**: ACE ({{claim:c_b55181bd}}) and NOAA ({{claim:c_50896016}}).
+- [ ] T012 [US1] Implement `code/data/validate.py` to abort with clear error if `N_p`, `T_p`, or `He2+_ratio` are missing (FR-006). **MUST explicitly check the actual headers of the downloaded file against the hardcoded list and abort if they don't match**. **MUST verify source file column names against ACE Level 2 names ('N_p', 'T_p', 'He2+_ratio') BEFORE mapping**. **MUST log the specific missing variable name** (e.g., "Missing variable: He2+_ratio") in the abort message to satisfy SC-002. **MUST raise** `ValueError` with the exact message format defined in T007.
 - [ ] T013 [US1] Implement `code/data/align.py` to resample to 1-hour UTC grid. **MUST** read from `data/raw/` and write to `data/processed/synced.csv`.
 - [~] T014 [US1] Implement linear interpolation in `code/data/align.py` for gaps ≤ 6h (FR-002). **MUST** log interpolated intervals.
 - [~] T015 [US1] Add logging for interpolated intervals in `code/data/align.py`.
@@ -124,7 +124,7 @@ EOF`
 
 - [~] T017 [P] [US2] Unit test for Neff calculation in `code/tests/test_correlation.py`. **Function name**: `test_correlation_neff_formula`. **MUST use formula** $N_{eff} = N \frac{1-\rho_1}{1+\rho_1}$ with synthetic data (e.g., N=100, rho=0.9) and verify expected result. **MUST include code snippet for synthetic data generation**: `np.random.RandomState(42).randn(100)`. **MUST verify that the detrending step (`scipy.signal.detrend`) is applied before calculating rho_1**.
 - [~] T018 [P] [US2] Unit test for Bonferroni correction in `code/tests/test_correlation.py`. **Function name**: `test_correlation_bonferroni_divisor`. Verify α_adj = 0.05/30 (fixed global divisor).
-- [~] T019 [US2] Integration test for full correlation run in `code/tests/test_pipeline.py`. **Function name**: `test_pipeline_correlation_full_run`. Verify `data/processed/correlation_results.csv` has 30 rows if all vars present, or fewer if missing. <!-- FAILED: unspecified -->
+- [~] T019 [US2] Integration test for full correlation run in `code/tests/test_pipeline.py`. **Function name**: `test_pipeline_correlation_full_run`. Verify `data/processed/correlation_results.csv` has 30 rows if all vars present, or fewer if missing.
 
 ### Implementation for User Story 2
 
@@ -133,9 +133,13 @@ EOF`
 - [~] T022 [US2] Implement raw p-value calculation using $N_{eff}$ in `code/analysis/correlation.py`.
 - [~] T023 [US2] Implement Bonferroni correction logic in `code/analysis/correlation.py` (FR-004). **MUST derive the divisor 30 dynamically** from configuration (3 params × 2 indices × 5 lags) to calculate $\alpha_{adj} = 0.05 / 30$, regardless of actual data availability, to control family-wise error rate.
 - [~] T023b [US2] **Implement** the logic to re-compute Bonferroni correction specifically for the validation set (2018-2020) in `code/analysis/significance.py`. **MUST use the same procedure** (global Neff logic applied to the subset) to calculate $\alpha_{adj}$ for the test set to satisfy SC-003.
-- [~] T024 [US2] Add flagging logic for significant pairs (Bonferroni p < 0.05) in `code/analysis/correlation.py`.
-- [ ] T025 [US2] Integrate US2 logic into `code/main.py` to run after US1 completes. **MUST** calculate global Neff and Bonferroni threshold values.
-- [ ] T025a [US2] **Write** `artifacts/thresholds/global_threshold.json` containing global Neff values and $\alpha_{adj}$. **MUST** validate against `contracts/threshold.schema.yaml` before writing. **This task must complete before T032**.
+- [~] T024 [US2] Add flagging logic for significant pairs (Bonferroni p < 0.05) in `code/analysis/correlation.py`. <!-- SKIPPED: YAML+regex parse failed (while parsing a block mapping
+expected <block end>, but found ':'
+ in "<unicode string>", line 1, column 1:
+: |
+ ^) -->
+- [~] T025 [US2] Integrate US2 logic into `code/main.py` to run after US1 completes. **MUST** calculate global Neff and Bonferroni threshold values.
+- [~] T025a [US2] **Write** `artifacts/thresholds/global_threshold.json` containing global Neff values and $\alpha_{adj}$. **MUST** validate against `contracts/threshold.schema.yaml` before writing. **This task must complete before T032**.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -151,14 +155,14 @@ EOF`
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
-- [ ] T026 [P] [US3] Unit test for file size check in `code/tests/test_viz.py`. **Function name**: `test_viz_png_size_limit`. **MUST use** `assert os.path.getsize(filepath) <= 5*1024*1024` to verify PNG generation ≤ 5MB.
-- [ ] T027 [P] [US3] Unit test for report logic in `code/tests/test_report.py`. **Function name**: `test_report_threshold_detection`. Verify |r| > 0.5 threshold detection.
-- [ ] T028 [US3] Integration test for full validation run in `code/tests/test_pipeline.py`. **Function name**: `test_pipeline_validation_full_run`. Verify artifacts exist.
+- [~] T026 [P] [US3] Unit test for file size check in `code/tests/test_viz.py`. **Function name**: `test_viz_png_size_limit`. **MUST use** `assert os.path.getsize(filepath) <= 5*1024*1024` to verify PNG generation ≤ 5MB.
+- [~] T027 [P] [US3] Unit test for report logic in `code/tests/test_report.py`. **Function name**: `test_report_threshold_detection`. Verify |r| > 0.5 threshold detection.
+- [~] T028 [US3] Integration test for full validation run in `code/tests/test_pipeline.py`. **Function name**: `test_pipeline_validation_full_run`. Verify artifacts exist.
 
 ### Implementation for User Story 3
 
-- [ ] T029 [P] [US3] Implement `code/viz/plots.py` to generate time-series overlay plots per lag.
-- [ ] T030 [P] [US3] Implement `code/viz/plots.py` to generate correlation heatmap (parameters × lags).
+- [~] T029 [P] [US3] Implement `code/viz/plots.py` to generate time-series overlay plots per lag.
+- [~] T030 [P] [US3] Implement `code/viz/plots.py` to generate correlation heatmap (parameters × lags).
 - [ ] T031 [US3] Implement `code/viz/report.py` to split data into Train (1998-2017) and Test (2018-2020) using constants `TRAIN_START`, `TRAIN_END`, `TEST_START`, `TEST_END` from `code/config.py`.
 - [ ] T032 [US3] Implement `code/viz/report.py` to **load the GLOBAL significance threshold** (from `artifacts/thresholds/global_threshold.json` produced in T025a) and **evaluate** the pre-computed global correlations against the held-out 2018-2020 period data. **MUST also re-compute** the multiple-testing correction (Neff and Bonferroni p-values) **specifically on the validation set** (2018-2020) using the same procedure (detrending + Neff formula) to verify stability. **DO NOT** rely solely on global p-values for the validation conclusion. **MUST report** whether the composition-index pair exceeds |r| > 0.5 **AND** has a local Bonferroni-corrected p < 0.05 in the test set.
 - [ ] T032a [US3] **Implement** the specific logic to re-calculate Neff and Bonferroni p-values for the validation set in `code/viz/report.py`. **MUST use** `scipy.signal.detrend` and the Pyper & Peterman formula on the 2018-2020 subset.

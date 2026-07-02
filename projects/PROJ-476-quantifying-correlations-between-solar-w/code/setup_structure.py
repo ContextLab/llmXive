@@ -1,41 +1,34 @@
 import os
-import sys
+from pathlib import Path
 
-def main():
+def create_project_structure():
     """
-    Create the project directory structure for artifacts and state directories.
-    This script ensures the existence of:
-    - artifacts/figures
-    - artifacts/reports
-    - state/
-    
-    It also ensures the 'artifacts' and 'state' parent directories exist.
+    Creates the required project directory structure for artifacts and state.
+    This implements the logic for T001 and T001b.
     """
-    # Define the directories to create relative to the project root
-    # We assume this script is run from the project root or code/ directory.
-    # To be safe, we determine the project root based on the script location.
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    project_root = os.path.dirname(script_dir)
+    base_dir = Path(__file__).resolve().parent.parent
     
-    directories = [
-        os.path.join(project_root, "artifacts", "figures"),
-        os.path.join(project_root, "artifacts", "reports"),
-        os.path.join(project_root, "state"),
+    # Directories for code (T001)
+    code_dirs = [
+        base_dir / "code" / "data",
+        base_dir / "code" / "analysis",
+        base_dir / "code" / "viz",
+        base_dir / "code" / "tests",
     ]
     
-    created_count = 0
-    for directory in directories:
-        if not os.path.exists(directory):
-            os.makedirs(directory)
-            print(f"Created directory: {directory}")
-            created_count += 1
-        else:
-            print(f"Directory already exists: {directory}")
+    # Directories for artifacts and state (T001b)
+    # artifacts/figures, artifacts/reports, state/
+    artifact_dirs = [
+        base_dir / "artifacts" / "figures",
+        base_dir / "artifacts" / "reports",
+        base_dir / "state",
+    ]
     
-    if created_count == 0:
-        print("All required directories already exist.")
-    else:
-        print(f"Successfully created {created_count} new directories.")
+    all_dirs = code_dirs + artifact_dirs
+    
+    for dir_path in all_dirs:
+        dir_path.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {dir_path}")
 
 if __name__ == "__main__":
-    main()
+    create_project_structure()
