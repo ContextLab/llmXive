@@ -1,0 +1,30 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: ArtifactConfig
+description: Configuration for artifact injection (noise, saturation).
+type: object
+required:
+  - noise_sigma
+  - saturation_fraction
+  - seed
+properties:
+  noise_sigma:
+    type: number
+    description: "Relative Gaussian noise level (σ / median_signal). Range: 0.0 to 0.5."
+    minimum: 0.0
+    maximum: 0.5
+  saturation_fraction:
+    type: number
+    description: "Fraction of brightest pixels to clip. Range: 0.0 to 1.0."
+    minimum: 0.0
+    maximum: 1.0
+  seed:
+    type: integer
+    description: "Random seed for reproducibility."
+  psf_fwhm:
+    type: number
+    description: "Optional PSF Full Width at Half Maximum in pixels."
+    minimum: 0.0
+  metadata:
+    type: object
+    description: "Additional metadata for the artifact configuration."
+    additionalProperties: true

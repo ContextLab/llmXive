@@ -1,0 +1,56 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: MorphologyMetrics
+description: Calculated morphological parameters for a planetary nebula image.
+type: object
+required:
+  - image_id
+  - ellipticity
+  - asymmetry
+  - position_angle
+  - bias_ellipticity
+  - bias_asymmetry
+properties:
+  image_id:
+    type: string
+    format: uuid
+    description: "Unique identifier for the source image."
+  source:
+    type: string
+    enum:
+      - synthetic
+      - hst_mast
+    description: "Source of the image data."
+  ellipticity:
+    type: number
+    description: "Measured ellipticity (1 - b/a). Range: 0.0 to 1.0."
+    minimum: 0.0
+    maximum: 1.0
+  asymmetry:
+    type: number
+    description: "Measured asymmetry index (Conselice 2003). Range: 0.0 to 1.0."
+    minimum: 0.0
+    maximum: 1.0
+  position_angle:
+    type: number
+    description: "Position angle in degrees (0 to 180)."
+    minimum: 0.0
+    maximum: 180.0
+  true_ellipticity:
+    type: number
+    description: "Ground truth ellipticity (for synthetic data only)."
+  true_asymmetry:
+    type: number
+    description: "Ground truth asymmetry (for synthetic data only)."
+  bias_ellipticity:
+    type: number
+    description: "Difference between measured and true ellipticity."
+  bias_asymmetry:
+    type: number
+    description: "Difference between measured and true asymmetry."
+  artifact_config_id:
+    type: string
+    description: "Reference to the ArtifactConfig used for this measurement."
+  timestamp:
+    type: string
+    format: date-time
+    description: "ISO 8601 timestamp of the measurement."
