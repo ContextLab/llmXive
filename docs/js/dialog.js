@@ -34,6 +34,70 @@
     return base + "papers/" + m[1] + "/" + m[2];
   }
 
+  // --- inline PDF rendering via pdf.js (for PDFs we can't <embed>) -----------
+  // raw.githubusercontent.com sends `X-Frame-Options: deny`, so <embed>/<iframe>
+  // of a raw PDF renders a blank/blocked frame; the same-origin mirror only
+  // exists for PDFs <= 15 MB (pages.yml cap). For an oversized/un-mirrored PDF
+  // we fetch the raw bytes (raw.githubusercontent sends
+  // `access-control-allow-origin: *`, so CORS fetch is allowed even though
+  // framing is not) and render each page to a <canvas> with pdf.js. This makes
+  // the featured pane a real rendered PDF at any size, with no repo mirroring.
+  const _PDFJS_VER = "4.6.82";
+  const _PDFJS_BASE = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/" + _PDFJS_VER + "/";
+  let _pdfjsLibPromise = null;
+  function _loadPdfjs() {
+    if (!_pdfjsLibPromise) {
+      _pdfjsLibPromise = import(_PDFJS_BASE + "pdf.min.mjs").then((lib) => {
+        lib.GlobalWorkerOptions.workerSrc = _PDFJS_BASE + "pdf.worker.min.mjs";
+        return lib;
+      });
+    }
+    return _pdfjsLibPromise;
+  }
+
+  // Render `url` into `pdfEl` page-by-page. `fallbackHtml` is shown if pdf.js
+  // can't load or the document can't be fetched/parsed. A monotonic token on
+  // the element guards against a stale async render landing after the user has
+  // switched to a different project.
+  function _renderPdfViaJs(pdfEl, url, fallbackHtml) {
+    const token = (pdfEl.__pdfToken = (pdfEl.__pdfToken || 0) + 1);
+    pdfEl.replaceChildren();
+    pdfEl.insertAdjacentHTML("beforeend",
+      '<div class="ad-pdf-empty"><div>Rendering PDF…</div></div>');
+    const fail = () => { if (pdfEl.__pdfToken === token) pdfEl.innerHTML = fallbackHtml; };
+    _loadPdfjs().then(async (pdfjsLib) => {
+      let doc;
+      try { doc = await pdfjsLib.getDocument({ url: url }).promise; }
+      catch (e) { fail(); return; }
+      if (pdfEl.__pdfToken !== token) return;            // superseded
+      const wrap = document.createElement("div");
+      wrap.style.cssText =
+        "width:100%;height:100%;overflow:auto;background:#525659;text-align:center;padding:8px 0;";
+      pdfEl.replaceChildren(wrap);
+      const avail = (pdfEl.clientWidth || 800) - 24;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      for (let n = 1; n <= doc.numPages; n++) {
+        if (pdfEl.__pdfToken !== token) return;
+        let page;
+        try { page = await doc.getPage(n); } catch (e) { continue; }
+        const base = page.getViewport({ scale: 1 });
+        const vp = page.getViewport({ scale: Math.min(2, avail / base.width) });
+        const canvas = document.createElement("canvas");
+        canvas.style.cssText =
+          "display:block;margin:0 auto 10px;box-shadow:0 1px 6px rgba(0,0,0,.45);max-width:100%;";
+        canvas.width = Math.floor(vp.width * dpr);
+        canvas.height = Math.floor(vp.height * dpr);
+        canvas.style.width = Math.floor(vp.width) + "px";
+        canvas.style.height = Math.floor(vp.height) + "px";
+        const ctx = canvas.getContext("2d");
+        ctx.scale(dpr, dpr);
+        wrap.appendChild(canvas);
+        try { await page.render({ canvasContext: ctx, viewport: vp }).promise; }
+        catch (e) { /* leave this page blank, keep going */ }
+      }
+    }).catch(fail);
+  }
+
   const ARTIFACT_ROWS = [
     ["idea",                    "fa-lightbulb",            "Idea"],
     ["spec",                    "fa-file-lines",           "Research spec"],
@@ -353,7 +417,17 @@
       html += row('<i class="fa-regular fa-file-pdf"></i>', 'View original (with llmXive cover)', viewable(pp.original_pdf), 'original-llmxive.pdf');
     }
     if (pp.peer_review_pdf) {
-      html += row('<i class="fa-solid fa-file-pen"></i>', 'View automated-review report', viewable(pp.peer_review_pdf), 'peer-review-llmxive.pdf');
+      // The automated-review report is the headline artifact of a Reviewed
+      // Preprint — give it a distinct, prominent row (accent border + label).
+      const rurl = viewable(pp.peer_review_pdf);
+      html += (rurl
+        ? '<a class="ad-row" href="' + escapeHtml(rurl) + '" target="_blank" rel="noopener"'
+        : '<div class="ad-row"') +
+        ' style="border-left:3px solid var(--accent,#10b981); background:rgba(16,185,129,.06);">' +
+        '<span class="ad-row-icon"><i class="fa-solid fa-file-pen"></i></span>' +
+        '<span class="ad-row-label" style="font-weight:600;">Read the automated-review report (PDF)</span>' +
+        '<span class="ad-row-meta">peer-review-llmxive.pdf</span>' +
+        (rurl ? '</a>' : '</div>');
     }
     if (pp.followup_project_id) {
       // Clickable: opens the follow-up project's modal directly (it's a normal
@@ -476,38 +550,42 @@
       : "";
 
     if (ca.type === "pdf") {
-      // raw.githubusercontent.com serves PDFs with Content-Disposition:
-      // attachment + X-Frame-Options: deny, which forces a download and blocks
-      // iframe embedding. The deploy workflow mirrors every project's PDFs
-      // under <site>/papers/<project_id>/<name>.pdf where they're served from
-      // the same origin with proper Content-Type: application/pdf — those can
-      // be embedded inline.
+      // The featured pane is always a RENDERED PDF. Two paths:
+      //  • same-origin mirror (pages.yml copies PDFs <= 15 MB into
+      //    <site>/papers/<PID>/<name>.pdf): native <embed> — fast, scrollable.
+      //  • no mirror (oversized / un-mirrored): raw.githubusercontent forces a
+      //    download + `X-Frame-Options: deny`, so <embed> shows a 404/blank —
+      //    render it with pdf.js from the raw bytes (CORS-allowed) instead.
+      // `ca` is authoritative when it carries its own raw/github URL (a resolved
+      // current_artifact or a Reviewed-Preprint PDF); only then must we NOT fall
+      // back to artifact_links.paper_pdf, which would re-derive the un-mirrored
+      // same-origin path and re-introduce the 404 the mirror guard prevents.
+      const authoritative = !!(ca.raw_url || ca.github_url);
       const repoPath = ca.repo_path
-        || (project.artifact_links || {}).paper_pdf
+        || (authoritative ? "" : (project.artifact_links || {}).paper_pdf)
         || "";
       const sameOriginUrl = _toSameOriginPdf(repoPath);
       const rawUrl = ca.raw_url || raw((project.artifact_links || {}).paper_pdf);
-      // No same-origin mirror (e.g. a PDF over pages.yml's 15 MB mirror cap):
-      // embedding raw.githubusercontent 404s / is X-Frame-blocked and shows
-      // "file not found". Skip the embed and offer working links immediately.
+      const ghUrl = ca.github_url || blob((project.artifact_links || {}).paper_pdf);
+      const linksPanel =
+        '<div class="ad-pdf-empty"><div>Couldn’t render this PDF inline.<br/>' +
+        (ghUrl ? '<a class="btn primary" style="margin-top:12px;" href="' + escapeHtml(ghUrl) + '" target="_blank" rel="noopener"><i class="fa-brands fa-github"></i> View on GitHub</a> ' : '') +
+        (rawUrl ? '<a class="btn" style="margin-top:12px;" href="' + escapeHtml(rawUrl) + '" target="_blank" rel="noopener"><i class="fa-solid fa-download"></i> Download PDF</a>' : '') +
+        '</div></div>';
       if (!sameOriginUrl) {
-        pdfEl.insertAdjacentHTML("beforeend",
-          '<div class="ad-pdf-empty"><div>This PDF is too large to preview inline.<br/>' +
-          (ca.github_url ? '<a class="btn primary" style="margin-top:12px;" href="' + escapeHtml(ca.github_url) + '" target="_blank" rel="noopener"><i class="fa-brands fa-github"></i> View on GitHub</a> ' : '') +
-          (rawUrl ? '<a class="btn" style="margin-top:12px;" href="' + escapeHtml(rawUrl) + '" target="_blank" rel="noopener"><i class="fa-solid fa-download"></i> Download PDF</a>' : '') +
-          '</div></div>');
+        // Oversized / un-mirrored: render the raw bytes with pdf.js, degrading
+        // to working links if that fails or there is no raw URL.
+        if (rawUrl) _renderPdfViaJs(pdfEl, rawUrl, linksPanel);
+        else pdfEl.insertAdjacentHTML("beforeend", linksPanel);
         return;
       }
-      const embedUrl = sameOriginUrl;
-      pdfEl.insertAdjacentHTML("beforeend", '<embed type="application/pdf" src="' + escapeHtml(embedUrl) + '" />');
+      pdfEl.insertAdjacentHTML("beforeend", '<embed type="application/pdf" src="' + escapeHtml(sameOriginUrl) + '" />');
       setTimeout(() => {
         const embed = pdfEl.querySelector("embed");
         if (embed && !embed.clientHeight) {
-          pdfEl.replaceChildren();
-          pdfEl.insertAdjacentHTML("beforeend",
-            '<div class="ad-pdf-empty"><div>PDF preview unavailable in this browser.<br/>' +
-            '<a class="btn primary" style="margin-top:12px;" href="' + escapeHtml(rawUrl || embedUrl) + '" target="_blank" rel="noopener">' +
-            '<i class="fa-solid fa-download"></i> Download PDF</a></div></div>');
+          // Native embed didn't lay out (browser without a PDF plugin): fall
+          // back to a pdf.js render of the same-origin bytes.
+          _renderPdfViaJs(pdfEl, sameOriginUrl, linksPanel);
         }
       }, 1500);
       return;
