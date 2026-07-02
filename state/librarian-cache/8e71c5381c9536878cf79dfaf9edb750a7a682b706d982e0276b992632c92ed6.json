@@ -1,0 +1,691 @@
+{
+  "fetched_at": "2026-07-02T19:28:11Z",
+  "field": "chemistry",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "chemistry",
+      "idea_body_excerpt": "Predicting Battery Electrolyte Decomposition Products via DFT and Machine Learning",
+      "target_n": 5
+    },
+    "duration_seconds": 55.671,
+    "ended_at": "2026-07-02T19:28:11Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "machine learning prediction of electrolyte decomposition pathways"
+        ],
+        [
+          2,
+          "density functional theory screening of battery electrolyte stability"
+        ],
+        [
+          3,
+          "computational prediction of solid electrolyte interphase formation"
+        ],
+        [
+          4,
+          "neural network models for electrochemical reaction products"
+        ],
+        [
+          5,
+          "DFT-based thermodynamic stability of battery electrolytes"
+        ],
+        [
+          6,
+          "automated reaction network generation for electrolyte degradation"
+        ],
+        [
+          7,
+          "machine learning force fields for electrolyte decomposition"
+        ],
+        [
+          8,
+          "predicting SEI composition using quantum chemistry and AI"
+        ],
+        [
+          9,
+          "high-throughput DFT screening of electrolyte additives"
+        ],
+        [
+          10,
+          "data-driven discovery of electrolyte decomposition mechanisms"
+        ],
+        [
+          11,
+          "ab initio molecular dynamics of battery electrolyte breakdown"
+        ],
+        [
+          12,
+          "graph neural networks for predicting chemical reaction outcomes in batteries"
+        ],
+        [
+          13,
+          "computational methods for electrolyte oxidation and reduction limits"
+        ],
+        [
+          14,
+          "machine learning accelerated quantum chemistry for battery materials"
+        ],
+        [
+          15,
+          "identification of decomposition products in lithium-ion electrolytes"
+        ],
+        [
+          16,
+          "hybrid DFT-machine learning approaches for electrochemical stability"
+        ],
+        [
+          17,
+          "reaction barrier prediction for electrolyte degradation using ML"
+        ],
+        [
+          18,
+          "computational electrolyte design for enhanced battery longevity"
+        ],
+        [
+          19,
+          "deep learning for predicting solvent decomposition in electrochemical cells"
+        ],
+        [
+          20,
+          "quantum mechanical modeling of electrolyte-electrode interface reactions"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Predicting Battery Electrolyte Decomposition Products via DFT and Machine Learning chemistry": 0,
+        "machine learning prediction of electrolyte decomposition pathways": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "solid-electrolyte interphase SEI formation mechanism",
+      "DFT lithium-ion battery electrolyte degradation",
+      "graph neural networks reaction pathway prediction",
+      "decomposition product identification mass spectrometry validation",
+      "density functional theory transition state barrier screening"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2306.04338"
+      ]
+    },
+    "per_query_hit_count": {
+      "DFT lithium-ion battery electrolyte degradation": 3,
+      "Predicting Battery Electrolyte Decomposition Products via DFT and Machine Learning chemistry": 3,
+      "decomposition product identification mass spectrometry validation": 3,
+      "density functional theory transition state barrier screening": 3,
+      "graph neural networks reaction pathway prediction": 3,
+      "solid-electrolyte interphase SEI formation mechanism": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": true,
+      "rejected_count": 6,
+      "rejections": [
+        {
+          "primary_pointer": "2306.14753",
+          "rationale": "The paper focuses on a theoretical mathematical framework for improving neural network architecture using polynomial chaos theory, but it does not address the specific domain of battery electrolyte decomposition, DFT calculations, or the prediction of chemical reaction products. It fails to meet the inclusion criteria because it lacks any connection to the user's target mechanism, variables, or empirical population (chemistry/batteries), falling under the \"Off-domain entirely\" rejection rule.",
+          "title": "The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory"
+        },
+        {
+          "primary_pointer": "2306.04338",
+          "rationale": "The paper focuses on \"official statistics\" and data governance issues like concept drift and ethics in government reporting, which is an entirely different domain from the user's question about predicting chemical decomposition products in battery electrolytes using DFT and machine learning. It fails all inclusion criteria (a-f) as it shares no mechanism, variables, domain, or empirical population with computational chemistry or battery science, representing only a superficial keyword overlap on",
+          "title": "Changing Data Sources in the Age of Machine Learning for Official Statistics"
+        },
+        {
+          "primary_pointer": "2006.16189",
+          "rationale": "The paper focuses on general validation standards for machine learning in biology, which is an off-domain application (biology vs. battery chemistry) and does not address the specific mechanism (electrolyte decomposition), domain (materials science), or variables (DFT/ML predictions of decomposition products) of the user's question. It fails to meet any inclusion criteria (a-f) as it offers no empirical data on the target system, no foundational method for the specific chemistry task, and no con",
+          "title": "DOME: Recommendations for supervised machine learning validation in biology"
+        },
+        {
+          "primary_pointer": "2201.12150",
+          "rationale": "The paper is a general survey on \"learning curves\" as a meta-learning concept for algorithm selection and resource budgeting, which is distinct from the user's specific domain of predicting chemical decomposition products using DFT and ML. It fails to address the specific mechanism (electrolyte decomposition), the domain (battery chemistry), or the variables (DFT-derived features and decomposition products), falling under the rejection rule for \"Distinct construct sharing only homonym keywords\" ",
+          "title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey"
+        },
+        {
+          "primary_pointer": "2302.08893",
+          "rationale": "The paper is a general survey on active learning for data streams in machine learning and does not address the specific domain of battery electrolyte chemistry, DFT calculations, or the prediction of decomposition products. It fails to meet any inclusion criteria as it lacks the necessary domain connection (off-domain entirely) and does not provide the specific mechanism, variables, or empirical baseline required for the user's chemistry-focused research question.",
+          "title": "Active learning for data streams: a survey"
+        },
+        {
+          "primary_pointer": "2304.02381",
+          "rationale": "The paper proposes a general methodology for interpreting machine learning models using energy landscape concepts but does not study battery electrolytes, decomposition products, or DFT data, failing to meet the criteria for same-mechanism evidence, domain-specific variables, or empirical baselines required for inclusion in a literature review on this specific chemical prediction task.",
+          "title": "Physics-Inspired Interpretability Of Machine Learning Models"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-02T19:27:16Z",
+    "term_input": {
+      "normalized": "predicting battery electrolyte decomposition products via dft and machine learning chemistry",
+      "raw": "Predicting Battery Electrolyte Decomposition Products via DFT and Machine Learning chemistry"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Data science has become increasingly essential for the production of official statistics, as it enables the automated collection, processing, and analysis of large amounts of data. With such data science practices in place, it enables more timely, more insightful and more flexible reporting. However, the quality and integrity of data-science-driven statistics rely on the accuracy and reliability of the data sources and the machine learning techniques that support them. In particular, changes in data sources are inevitable to occur and pose significant risks that are crucial to address in the context of machine learning for official statistics.\n  This paper gives an overview of the main risks, liabilities, and uncertainties associated with changing data sources in the context of machine learning for official statistics. We provide a checklist of the most prevalent origins and causes of changing data sources; not only on a technical level but also regarding ownership, ethics, regulation, and public perception. Next, we highlight the repercussions of changing data sources on statistical reporting. These include technical effects such as concept drift, bias, availability, validity, accuracy and completeness, but also the neutrality and potential discontinuation of the statistical offering. We offer a few important precautionary measures, such as enhancing robustness in both data sourcing and statistical techniques, and thorough monitoring. In doing so, machine learning-based official statistics can maintain integrity, reliability, consistency, and relevance in policy-making, decision-making, and public discourse.",
+          "claimed_authors": [
+            "Cedric De Boom",
+            "Michael Reusens"
+          ],
+          "claimed_title": "Changing Data Sources in the Age of Machine Learning for Official Statistics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.04338"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Battery Electrolyte Decomposition Products via DFT and Machine Learni', candidate_title='Changing Data Sources in the Age of Machine Learning for Official Statistics')",
+        "failed_at": "2026-07-02T19:27:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Modern biology frequently relies on machine learning to provide predictions and improve decision processes. There have been recent calls for more scrutiny on machine learning performance and possible limitations. Here we present a set of community-wide recommendations aiming to help establish standards of supervised machine learning validation in biology. Adopting a structured methods description for machine learning based on data, optimization, model, evaluation (DOME) will aim to help both reviewers and readers to better understand and assess the performance and limitations of a method or outcome. The recommendations are formulated as questions to anyone wishing to pursue implementation of a machine learning algorithm. Answers to these questions can be easily included in the supplementary material of published papers.",
+          "claimed_authors": [
+            "Ian Walsh",
+            "Dmytro Fishman",
+            "Dario Garcia-Gasulla",
+            "Tiina Titma",
+            "Gianluca Pollastri",
+            "The ELIXIR Machine Learning focus group",
+            "Jen Harrow",
+            "Fotis E. Psomopoulos",
+            "Silvio C. E. Tosatto"
+          ],
+          "claimed_title": "DOME: Recommendations for supervised machine learning validation in biology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.16189"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Battery Electrolyte Decomposition Products via DFT and Machine Learni', candidate_title='DOME: Recommendations for supervised machine learning validation in biology')",
+        "failed_at": "2026-07-02T19:27:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Learning curves are a concept from social sciences that has been adopted in the context of machine learning to assess the performance of a learning algorithm with respect to a certain resource, e.g., the number of training examples or the number of training iterations. Learning curves have important applications in several machine learning contexts, most notably in data acquisition, early stopping of model training, and model selection. For instance, learning curves can be used to model the performance of the combination of an algorithm and its hyperparameter configuration, providing insights into their potential suitability at an early stage and often expediting the algorithm selection process. Various learning curve models have been proposed to use learning curves for decision making. Some of these models answer the binary decision question of whether a given algorithm at a certain budget will outperform a certain reference performance, whereas more complex models predict the entire learning curve of an algorithm. We contribute a framework that categorises learning curve approaches using three criteria: the decision-making situation they address, the intrinsic learning curve question they answer and the type of resources they use. We survey papers from the literature and classify them into this framework.",
+          "claimed_authors": [
+            "Felix Mohr",
+            "Jan N. van Rijn"
+          ],
+          "claimed_title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2201.12150"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Battery Electrolyte Decomposition Products via DFT and Machine Learni', candidate_title='Learning Curves for Decision Making in Supervised Machine Learning: A Survey')",
+        "failed_at": "2026-07-02T19:27:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Accurately predicting aging of lithium-ion batteries would help to prolong their lifespan, but remains a challenge owing to the complexity and interrelation of different aging mechanisms. As a result, aging prediction often relies on empirical or data-driven approaches, which obtain their performance from analyzing large datasets. However, these datasets are expensive to generate and the models are agnostic of the underlying physics and thus difficult to extrapolate to new conditions. In this article, a physical model is used to predict capacity fade caused by solid-electrolyte interphase (SEI) growth in 62 automotive cells, aged with 28 different protocols. Three protocols parametrize the time, current and temperature dependence of the model, the state of charge dependence results from the anode's open circuit voltage curve. The model validation with the remaining 25 protocols shows a high predictivity with a root-mean squared error of $1.28\\%$. A case study with the so-validated model shows that the operating window, i.e. maximum and minimum state of charge, has the largest impact on SEI growth, while the influence of the applied current is almost negligible. Thereby the presented model is a promising approach to better understand, quantify and predict aging of lithium-ion batteries.",
+          "claimed_authors": [
+            "Lars von Kolzenberg",
+            "Jochen Stadler",
+            "Johannes Fath",
+            "Madeleine Ecker",
+            "Birger Horstmann",
+            "Arnulf Latz"
+          ],
+          "claimed_title": "A four parameter model for the solid-electrolyte interphase to predict battery aging during operation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2112.13671"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Battery Electrolyte Decomposition Products via DFT and Machine Learni', candidate_title='A four parameter model for the solid-electrolyte interphase to predict battery aging during operation')",
+        "failed_at": "2026-07-02T19:27:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Continued growth of the solid electrolyte interphase (SEI) is the major reason for capacity fade in modern lithium-ion batteries. This growth is made possible by a yet unidentified transport mechanism that limits the passivating ability of the SEI towards electrolyte reduction. We, for the first time, differentiate the proposed mechanisms by analyzing their dependence on the electrode potential. Our calculations are compared to recent experimental capacity fade data. We show that the potential dependence of SEI growth facilitated by solvent diffusion, electron conduction, or electron tunneling qualitatively disagrees with the experimental observations. Only diffusion of Li-interstitials results in a potential dependence matching to the experiments. Therefore, we identify Li-interstitial diffusion as the cause of long-term SEI growth.",
+          "claimed_authors": [
+            "Fabian Single",
+            "Arnulf Latz",
+            "Birger Horstmann"
+          ],
+          "claimed_title": "Identifying the Mechanism of Continued Growth of the Solid-Electrolyte Interphase",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1812.03841"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Battery Electrolyte Decomposition Products via DFT and Machine Learni', candidate_title='Identifying the Mechanism of Continued Growth of the Solid-Electrolyte Interphase')",
+        "failed_at": "2026-07-02T19:27:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Electrolyte reduction products form the solid-electrolyte interphase (SEI) on negative electrodes of lithium-ion batteries. Even though this process practically stabilizes the electrode-electrolyte interface, it results in continued capacity-fade limiting lifetime and safety of lithium-ion batteries. Recent atomistic and continuum theories give new insights into the growth of structures and the transport of ions in the SEI. The diffusion of neutral radicals has emerged as a prominent candidate for the long-term growth mechanism, because it predicts the observed potential dependence of SEI growth.",
+          "claimed_authors": [
+            "Birger Horstmann",
+            "Fabian Single",
+            "Arnulf Latz"
+          ],
+          "claimed_title": "Review on Multi-Scale Models of Solid-Electrolyte Interphase Formation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1811.04667"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Battery Electrolyte Decomposition Products via DFT and Machine Learni', candidate_title='Review on Multi-Scale Models of Solid-Electrolyte Interphase Formation')",
+        "failed_at": "2026-07-02T19:27:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Effective thermal management is critical for lithium-ion battery packs' safe and efficient operations, particularly in applications such as drones, where compact designs and varying airflow conditions present unique challenges. This study investigates the thermal performance of a 16-cell lithium-ion battery pack by optimizing cooling airflow configurations and integrating phase change materials (PCMs) for enhanced heat dissipation. Seven geometric configurations were evaluated under airflow speeds ranging from 0 to 15 m/s, reflecting the operational conditions of civilian drones. A comprehensive 3D simulation approach was used to analyze the effects of inlet and outlet configurations, airflow dynamics, and PCM phase transition behavior. Results indicate that the trapezoidal (wide-base) configuration, paired with a 5-inlet and 1-outlet setup, achieves the most balanced performance, effectively maintaining optimal operating temperatures across low and high-speed airflow conditions. PCM integration further stabilized thermal behavior, with phase change durations extending to 12.5 min under tested conditions. These findings highlight the importance of geometric optimization and material integration in advancing compact and reliable thermal management systems for energy-dense battery packs. This study provides a foundation for designing efficient cooling strategies tailored to lightweight applications such as drones and portable energy storage systems.",
+          "claimed_authors": [
+            "Xuguang Zhang",
+            "Hexiang Zhang",
+            "Amjad Almansour",
+            "Mrityunjay Singh",
+            "Hengling Zhu",
+            "Michael C. Halbig",
+            "Yi Zheng"
+          ],
+          "claimed_title": "Comprehensive Analysis of Thermal Dissipation in Lithium-Ion Battery Packs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.07070"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Battery Electrolyte Decomposition Products via DFT and Machine Learni', candidate_title='Comprehensive Analysis of Thermal Dissipation in Lithium-Ion Battery Packs')",
+        "failed_at": "2026-07-02T19:27:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Battery degradation, which is the reduction of performance over time, is one of the main roadblocks to the wide deployment of lithium-ion batteries. Physics-based models, such as those based on the Doyle-Fuller-Newman model, are invaluable tools to understand and predict such phenomena. However, these models are often too complex for practical applications, so reduced models are needed. In this article we introduce the Single Particle Model with electrolyte and Side Reactions, a reduced model with electrochemical degradation which has been formally derived from the Doyle-Fuller-Newman model with Side Reactions using asymptotic methods. The reduced model has been validated against the full model for three scenarios (solid-electrolyte interphase growth, lithium plating, and both effects combined) showing similar accuracy at a much lower computational cost. The implications of the results are twofold: the reduced model is simple and accurate enough to be used in most real practical applications, and the reduction framework used is robust so it can be extended to account for further degradation effects.",
+          "claimed_authors": [
+            "Ferran Brosa Planella",
+            "W. Dhammika Widanage"
+          ],
+          "claimed_title": "A Single Particle Model with Electrolyte and Side Reactions for degradation of lithium-ion batteries",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2206.05078"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Battery Electrolyte Decomposition Products via DFT and Machine Learni', candidate_title='A Single Particle Model with Electrolyte and Side Reactions for degradation of lithium-ion batteries')",
+        "failed_at": "2026-07-02T19:27:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Non-destructive characterization of lithium-ion batteries provides critical insights for optimizing performance and lifespan while preserving structural integrity. Optimizing electrolyte design in commercial LIBs requires consideration of composition, electrolyte-to-capacity ratio, spatial distribution, and associated degradation pathways. However, existing non-destructive methods for studying electrolyte infiltration, distribution, and degradation in LIBs lack the spatiotemporal resolution required for precise observation and quantification of the electrolyte. In this study, we employ neutron imaging with sufficient spatial resolution ~150 um and large field of view 20x20 cm2 to quantitatively resolve the electrolyte inventory and distribution within LiFePO4/graphite pouch cells under high-temperature accelerated aging. Quantitative standard curves based on neutron transmission attenuation reveal a clear electrolyte dry-out threshold at 3.18 g Ah-1 and the two stages evolutions of EI during cell aging were quantified. By integrating non-destructive electrochemical diagnostics, accelerated graphite material loss and liquid phase Li+ diffusion degradation is observed during pore-drying. Further analysis, including operando cyclic aging, reveals that the neutron transmission below the saturation reference is due to the enrichment of hydrogen nuclei within the solid-electrolyte interphase. Assumed pore-drying does not occur, the SEI signal of the electrodes can be quantitatively decoupled during ageing. Combined analyses with NI, TOF-SIMS, and SEM reveal that high EI cells exhibit uniform SEI growth and reduced degradation, while low EI cells show uneven SEI formation, accelerating capacity loss. This study unveils a dynamic electrolyte infiltration-consumption-dry-out process in LIBs, offering non-destructive and quantitative insights to guide sustainable and durable battery development.",
+          "claimed_authors": [
+            "Yonggang Hu",
+            "Yiqing Liao",
+            "Lufeng Yang",
+            "Ke Zhang",
+            "Yufan Peng",
+            "Shijun Tang",
+            "Shengxiang Wang",
+            "Meifang Ding",
+            "Jiahao Wu",
+            "Jianrong Lin",
+            "Jinding Liang",
+            "Yimin Wei",
+            "Yanting Jin",
+            "Zhengliang Gong",
+            "Anatoliy Senyshyn",
+            "Jie Chen",
+            "Yong Yang"
+          ],
+          "claimed_title": "Quantification of Electrolyte Degradation in Lithium-ion Batteries with Neutron Imaging Techniques",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.12055"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Battery Electrolyte Decomposition Products via DFT and Machine Learni', candidate_title='Quantification of Electrolyte Degradation in Lithium-ion Batteries with Neutron Imaging Techniques')",
+        "failed_at": "2026-07-02T19:27:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Accurate uncertainty quantification is necessary to enhance the reliability of deep learning models in real-world applications. In the case of regression tasks, prediction intervals (PIs) should be provided along with the deterministic predictions of deep learning models. Such PIs are useful or \"high-quality\" as long as they are sufficiently narrow and capture most of the probability density. In this paper, we present a method to learn prediction intervals for regression-based neural networks automatically in addition to the conventional target predictions. In particular, we train two companion neural networks: one that uses one output, the target estimate, and another that uses two outputs, the upper and lower bounds of the corresponding PI. Our main contribution is the design of a novel loss function for the PI-generation network that takes into account the output of the target-estimation network and has two optimization objectives: minimizing the mean prediction interval width and ensuring the PI integrity using constraints that maximize the prediction interval probability coverage implicitly. Furthermore, we introduce a self-adaptive coefficient that balances both objectives within the loss function, which alleviates the task of fine-tuning. Experiments using a synthetic dataset, eight benchmark datasets, and a real-world crop yield prediction dataset showed that our method was able to maintain a nominal probability coverage and produce significantly narrower PIs without detriment to its target estimation accuracy when compared to those PIs generated by three state-of-the-art neural-network-based methods. In other words, our method was shown to produce higher-quality PIs.",
+          "claimed_authors": [
+            "Giorgio Morales",
+            "John W. Sheppard"
+          ],
+          "claimed_title": "Dual Accuracy-Quality-Driven Neural Network for Prediction Interval Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2212.06370"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Battery Electrolyte Decomposition Products via DFT and Machine Learni', candidate_title='Dual Accuracy-Quality-Driven Neural Network for Prediction Interval Generation')",
+        "failed_at": "2026-07-02T19:27:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Providing a model that achieves a strong predictive performance and is simultaneously interpretable by humans is one of the most difficult challenges in machine learning research due to the conflicting nature of these two objectives. To address this challenge, we propose a modification of the radial basis function neural network model by equipping its Gaussian kernel with a learnable precision matrix. We show that precious information is contained in the spectrum of the precision matrix that can be extracted once the training of the model is completed. In particular, the eigenvectors explain the directions of maximum sensitivity of the model revealing the active subspace and suggesting potential applications for supervised dimensionality reduction. At the same time, the eigenvectors highlight the relationship in terms of absolute variation between the input and the latent variables, thereby allowing us to extract a ranking of the input variables based on their importance to the prediction task enhancing the model interpretability. We conducted numerical experiments for regression, classification, and feature selection tasks, comparing our model against popular machine learning models, the state-of-the-art deep learning-based embedding feature selection techniques, and a transformer model for tabular data. Our results demonstrate that the proposed model does not only yield an attractive prediction performance compared to the competitors but also provides meaningful and interpretable results that potentially could assist the decision-making process in real-world applications. A PyTorch implementation of the model is available on GitHub at the following link. https://github.com/dannyzx/Gaussian-RBFNN",
+          "claimed_authors": [
+            "Danny D'Agostino",
+            "Ilija Ilievski",
+            "Christine Annette Shoemaker"
+          ],
+          "claimed_title": "Learning Active Subspaces and Discovering Important Features with Gaussian Radial Basis Functions Neural Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2307.05639"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Battery Electrolyte Decomposition Products via DFT and Machine Learni', candidate_title='Learning Active Subspaces and Discovering Important Features with Gaussian Radial Basis Functions Neural Networks')",
+        "failed_at": "2026-07-02T19:27:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Motivation: Tumor classification using Imaging Mass Spectrometry (IMS) data has a high potential for future applications in pathology. Due to the complexity and size of the data, automated feature extraction and classification steps are required to fully process the data. Deep learning offers an approach to learn feature extraction and classification combined in a single model. Commonly these steps are handled separately in IMS data analysis, hence deep learning offers an alternative strategy worthwhile to explore. Results: Methodologically, we propose an adapted architecture based on deep convolutional networks to handle the characteristics of mass spectrometry data, as well as a strategy to interpret the learned model in the spectral domain based on a sensitivity analysis. The proposed methods are evaluated on two challenging tumor classification tasks and compared to a baseline approach. Competitiveness of the proposed methods are shown on both tasks by studying the performance via cross-validation. Moreover, the learned models are analyzed by the proposed sensitivity analysis revealing biologically plausible effects as well as confounding factors of the considered task. Thus, this study may serve as a starting point for further development of deep learning approaches in IMS classification tasks.",
+          "claimed_authors": [
+            "Jens Behrmann",
+            "Christian Etmann",
+            "Tobias Boskamp",
+            "Rita Casadonte",
+            "Jörg Kriegsmann",
+            "Peter Maass"
+          ],
+          "claimed_title": "Deep Learning for Tumor Classification in Imaging Mass Spectrometry",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1705.01015"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Battery Electrolyte Decomposition Products via DFT and Machine Learni', candidate_title='Deep Learning for Tumor Classification in Imaging Mass Spectrometry')",
+        "failed_at": "2026-07-02T19:27:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The paper presents the application of Variational Autoencoders (VAE) for data dimensionality reduction and explorative analysis of mass spectrometry imaging data (MSI). The results confirm that VAEs are capable of detecting the patterns associated with the different tissue sub-types with performance than standard approaches.",
+          "claimed_authors": [
+            "Paolo Inglese",
+            "James L. Alexander",
+            "Anna Mroz",
+            "Zoltan Takats",
+            "Robert Glen"
+          ],
+          "claimed_title": "Variational autoencoders for tissue heterogeneity exploration from (almost) no preprocessed mass spectrometry imaging data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1708.07012"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Battery Electrolyte Decomposition Products via DFT and Machine Learni', candidate_title='Variational autoencoders for tissue heterogeneity exploration from (almost) no preprocessed mass spectrometry imaging data')",
+        "failed_at": "2026-07-02T19:27:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Levels of trace radiopurity in active detector materials is a subject of major concern in low-background experiments. Procedures were devised to measure trace concentrations of I-129 in the inorganic salt CsI as well as in organic liquid scintillator with Accelerator Mass Spectrometry (AMS) which leads to improvement in sensitivities by several orders of magnitude over other methods. No evidence of their existence in these materials were observed. Limits of < 6 X 10^{-13} g/g and < 2.6 X 10^{-17} g/g on the contaminations of I-129 in CsI and liquid scintillator, respectively, were derived.These are the first results in a research program whose goals are to develop techniques to measure trace radioactivity in detector materials by AMS.",
+          "claimed_authors": [
+            "K. J. Dong"
+          ],
+          "claimed_title": "Measurement of Trace I-129 Concentrations in CsI Powder and Organic Liquid Scintillator with Accelerator Mass Spectrometry",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2005,
+          "primary_pointer": "nucl-ex/0512003"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Battery Electrolyte Decomposition Products via DFT and Machine Learni', candidate_title='Measurement of Trace I-129 Concentrations in CsI Powder and Organic Liquid Scintillator with Accelerator Mass Spectrometry')",
+        "failed_at": "2026-07-02T19:27:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present an interactive version of an evidence-driven state-merging (EDSM) algorithm for learning variants of finite state automata. Learning these automata often amounts to recovering or reverse engineering the model generating the data despite noisy, incomplete, or imperfectly sampled data sources rather than optimizing a purely numeric target function. Domain expertise and human knowledge about the target domain can guide this process, and typically is captured in parameter settings. Often, domain expertise is subconscious and not expressed explicitly. Directly interacting with the learning algorithm makes it easier to utilize this knowledge effectively.",
+          "claimed_authors": [
+            "Christian A. Hammerschmidt",
+            "Radu State",
+            "Sicco Verwer"
+          ],
+          "claimed_title": "Human in the Loop: Interactive Passive Automata Learning via Evidence-Driven State-Merging Algorithms",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1707.09430"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Battery Electrolyte Decomposition Products via DFT and Machine Learni', candidate_title='Human in the Loop: Interactive Passive Automata Learning via Evidence-Driven State-Merging Algorithms')",
+        "failed_at": "2026-07-02T19:27:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A statistical-mechanical treatment of collision leads to a formal connection with transition-state theory, suggesting that collision theory and transition-state theory might be joined ultimately as a collision induced transition state theory.",
+          "claimed_authors": [
+            "Y. G. Yi"
+          ],
+          "claimed_title": "A Reconciliation of Collision Theory and Transition State Theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2001,
+          "primary_pointer": "physics/0102027"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Battery Electrolyte Decomposition Products via DFT and Machine Learni', candidate_title='A Reconciliation of Collision Theory and Transition State Theory')",
+        "failed_at": "2026-07-02T19:27:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This article reviews the application of fragment descriptors at different stages of virtual screening: filtering, similarity search, and direct activity assessment using QSAR/QSPR models. Several case studies are considered. It is demonstrated that the power of fragment descriptors stems from their universality, very high computational efficiency, simplicity of interpretation and versatility.",
+          "claimed_authors": [
+            "Igor I. Baskin",
+            "Alexandre Varnek"
+          ],
+          "claimed_title": "Fragment Descriptors in Virtual Screening",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1311.3723"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Battery Electrolyte Decomposition Products via DFT and Machine Learni', candidate_title='Fragment Descriptors in Virtual Screening')",
+        "failed_at": "2026-07-02T19:27:46Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sergey Oladyshkin",
+            "Timothy Praditia",
+            "Ilja Kröker",
+            "Farid Mohammadi",
+            "Wolfgang Nowak",
+            "Sebastian Otte"
+          ],
+          "title": "The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2306.14753",
+        "summary": "Artificial Intelligence and Machine learning have been widely used in various fields of mathematical computing, physical modeling, computational science, communication science, and stochastic analysis. Approaches based on Deep Artificial Neural Networks (DANN) are very popular in our days. Depending on the learning task, the exact form of DANNs is determined via their multi-layer architecture, activation functions and the so-called loss function. However, for a majority of deep learning approaches based on DANNs, the kernel structure of neural signal processing remains the same, where the node response is encoded as a linear superposition of neural activity, while the non-linearity is triggered by the activation functions. In the current paper, we suggest to analyze the neural signal processing in DANNs from the point of view of homogeneous chaos theory as known from polynomial chaos expansion (PCE). From the PCE perspective, the (linear) response on each node of a DANN could be seen as a $1^{st}$ degree multi-variate polynomial of single neurons from the previous layer, i.e. linear weighted sum of monomials. From this point of view, the conventional DANN structure relies implicitly (but erroneously) on a Gaussian distribution of neural signals. Additionally, this view revels that by design DANNs do not necessarily fulfill any orthogonality or orthonormality condition for a majority of data-driven applications. Therefore, the prevailing handling of neural signals in DANNs could lead to redundant representation as any neural signal could contain some partial information from other neural signals. To tackle that challenge, we suggest to employ the data-driven generalization of PCE theory known as arbitrary polynomial chaos (aPC) to construct a corresponding multi-variate orthonormal representations on each node of a DANN to obtain Deep arbitrary polynomial chaos neural networks.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2306.14753",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-02T19:27:45Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Cedric De Boom",
+            "Michael Reusens"
+          ],
+          "title": "Changing Data Sources in the Age of Machine Learning for Official Statistics",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2306.04338",
+        "summary": "Data science has become increasingly essential for the production of official statistics, as it enables the automated collection, processing, and analysis of large amounts of data. With such data science practices in place, it enables more timely, more insightful and more flexible reporting. However, the quality and integrity of data-science-driven statistics rely on the accuracy and reliability of the data sources and the machine learning techniques that support them. In particular, changes in data sources are inevitable to occur and pose significant risks that are crucial to address in the context of machine learning for official statistics.\n  This paper gives an overview of the main risks, liabilities, and uncertainties associated with changing data sources in the context of machine learning for official statistics. We provide a checklist of the most prevalent origins and causes of changing data sources; not only on a technical level but also regarding ownership, ethics, regulation, and public perception. Next, we highlight the repercussions of changing data sources on statistical reporting. These include technical effects such as concept drift, bias, availability, validity, accuracy and completeness, but also the neutrality and potential discontinuation of the statistical offering. We offer a few important precautionary measures, such as enhancing robustness in both data sourcing and statistical techniques, and thorough monitoring. In doing so, machine learning-based official statistics can maintain integrity, reliability, consistency, and relevance in policy-making, decision-making, and public discourse.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2306.04338",
+          "http_status": 200,
+          "pdf_sample_score": 0.3017,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-02T19:27:52Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ian Walsh",
+            "Dmytro Fishman",
+            "Dario Garcia-Gasulla",
+            "Tiina Titma",
+            "Gianluca Pollastri",
+            "The ELIXIR Machine Learning focus group",
+            "Jen Harrow",
+            "Fotis E. Psomopoulos",
+            "Silvio C. E. Tosatto"
+          ],
+          "title": "DOME: Recommendations for supervised machine learning validation in biology",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2006.16189",
+        "summary": "Modern biology frequently relies on machine learning to provide predictions and improve decision processes. There have been recent calls for more scrutiny on machine learning performance and possible limitations. Here we present a set of community-wide recommendations aiming to help establish standards of supervised machine learning validation in biology. Adopting a structured methods description for machine learning based on data, optimization, model, evaluation (DOME) will aim to help both reviewers and readers to better understand and assess the performance and limitations of a method or outcome. The recommendations are formulated as questions to anyone wishing to pursue implementation of a machine learning algorithm. Answers to these questions can be easily included in the supplementary material of published papers.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2006.16189",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-02T19:27:53Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Felix Mohr",
+            "Jan N. van Rijn"
+          ],
+          "title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2201.12150",
+        "summary": "Learning curves are a concept from social sciences that has been adopted in the context of machine learning to assess the performance of a learning algorithm with respect to a certain resource, e.g., the number of training examples or the number of training iterations. Learning curves have important applications in several machine learning contexts, most notably in data acquisition, early stopping of model training, and model selection. For instance, learning curves can be used to model the performance of the combination of an algorithm and its hyperparameter configuration, providing insights into their potential suitability at an early stage and often expediting the algorithm selection process. Various learning curve models have been proposed to use learning curves for decision making. Some of these models answer the binary decision question of whether a given algorithm at a certain budget will outperform a certain reference performance, whereas more complex models predict the entire learning curve of an algorithm. We contribute a framework that categorises learning curve approaches using three criteria: the decision-making situation they address, the intrinsic learning curve question they answer and the type of resources they use. We survey papers from the literature and classify them into this framework.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2201.12150",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-02T19:27:53Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Davide Cacciarelli",
+            "Murat Kulahci"
+          ],
+          "title": "Active learning for data streams: a survey",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2302.08893",
+        "summary": "Online active learning is a paradigm in machine learning that aims to select the most informative data points to label from a data stream. The problem of minimizing the cost associated with collecting labeled observations has gained a lot of attention in recent years, particularly in real-world applications where data is only available in an unlabeled form. Annotating each observation can be time-consuming and costly, making it difficult to obtain large amounts of labeled data. To overcome this issue, many active learning strategies have been proposed in the last decades, aiming to select the most informative observations for labeling in order to improve the performance of machine learning models. These approaches can be broadly divided into two categories: static pool-based and stream-based active learning. Pool-based active learning involves selecting a subset of observations from a closed pool of unlabeled data, and it has been the focus of many surveys and literature reviews. However, the growing availability of data streams has led to an increase in the number of approaches that focus on online active learning, which involves continuously selecting and labeling observations as they arrive in a stream. This work aims to provide an overview of the most recently proposed approaches for selecting the most informative observations from data streams in real time. We review the various techniques that have been proposed and discuss their strengths and limitations, as well as the challenges and opportunities that exist in this area of research.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2302.08893",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-02T19:27:54Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Maximilian P Niroomand",
+            "David J Wales"
+          ],
+          "title": "Physics-Inspired Interpretability Of Machine Learning Models",
+          "topically_marginal": true,
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2304.02381",
+        "summary": "The ability to explain decisions made by machine learning models remains one of the most significant hurdles towards widespread adoption of AI in highly sensitive areas such as medicine, cybersecurity or autonomous driving. Great interest exists in understanding which features of the input data prompt model decision making. In this contribution, we propose a novel approach to identify relevant features of the input data, inspired by methods from the energy landscapes field, developed in the physical sciences. By identifying conserved weights within groups of minima of the loss landscapes, we can identify the drivers of model decision making. Analogues to this idea exist in the molecular sciences, where coordinate invariants or order parameters are employed to identify critical features of a molecule. However, no such approach exists for machine learning loss landscapes. We will demonstrate the applicability of energy landscape methods to machine learning models and give examples, both synthetic and from the real world, for how these methods can help to make models more interpretable.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2304.02381",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-02T19:27:54Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting battery electrolyte decomposition products via dft and machine learning chemistry",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

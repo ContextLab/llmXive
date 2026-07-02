@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2302.08893",
+  "judged_at": "2026-07-02T19:28:09Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting battery electrolyte decomposition products via dft and machine learning chemistry",
+  "rationale": "The paper is a general survey on active learning for data streams in machine learning and does not address the specific domain of battery electrolyte chemistry, DFT calculations, or the prediction of decomposition products. It fails to meet any inclusion criteria as it lacks the necessary domain connection (off-domain entirely) and does not provide the specific mechanism, variables, or empirical baseline required for the user's chemistry-focused research question.",
+  "relevant": false
+}

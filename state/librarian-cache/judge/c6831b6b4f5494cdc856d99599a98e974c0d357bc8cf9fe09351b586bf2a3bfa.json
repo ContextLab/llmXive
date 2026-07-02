@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2304.02381",
+  "judged_at": "2026-07-02T19:28:11Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting battery electrolyte decomposition products via dft and machine learning chemistry",
+  "rationale": "The paper proposes a general methodology for interpreting machine learning models using energy landscape concepts but does not study battery electrolytes, decomposition products, or DFT data, failing to meet the criteria for same-mechanism evidence, domain-specific variables, or empirical baselines required for inclusion in a literature review on this specific chemical prediction task.",
+  "relevant": false
+}

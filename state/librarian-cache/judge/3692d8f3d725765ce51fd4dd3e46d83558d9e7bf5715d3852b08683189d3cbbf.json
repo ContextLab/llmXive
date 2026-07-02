@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.04338",
+  "judged_at": "2026-07-02T19:28:00Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting battery electrolyte decomposition products via dft and machine learning chemistry",
+  "rationale": "The paper focuses on \"official statistics\" and data governance issues like concept drift and ethics in government reporting, which is an entirely different domain from the user's question about predicting chemical decomposition products in battery electrolytes using DFT and machine learning. It fails all inclusion criteria (a-f) as it shares no mechanism, variables, domain, or empirical population with computational chemistry or battery science, representing only a superficial keyword overlap on",
+  "relevant": false
+}

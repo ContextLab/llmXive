@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.14753",
+  "judged_at": "2026-07-02T19:27:57Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting battery electrolyte decomposition products via dft and machine learning chemistry",
+  "rationale": "The paper focuses on a theoretical mathematical framework for improving neural network architecture using polynomial chaos theory, but it does not address the specific domain of battery electrolyte decomposition, DFT calculations, or the prediction of chemical reaction products. It fails to meet the inclusion criteria because it lacks any connection to the user's target mechanism, variables, or empirical population (chemistry/batteries), falling under the \"Off-domain entirely\" rejection rule.",
+  "relevant": false
+}

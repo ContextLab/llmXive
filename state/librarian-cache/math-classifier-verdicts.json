@@ -51,6 +51,10 @@
     "classified_at": "2026-06-28T10:20:30Z",
     "verdict": false
   },
+  "PROJ-085-predicting-battery-electrolyte-decomposi::1.6.0": {
+    "classified_at": "2026-07-02T19:27:45Z",
+    "verdict": false
+  },
   "PROJ-094-evaluating-the-effectiveness-of-retrieva::1.6.0": {
     "classified_at": "2026-06-24T22:46:29Z",
     "verdict": false

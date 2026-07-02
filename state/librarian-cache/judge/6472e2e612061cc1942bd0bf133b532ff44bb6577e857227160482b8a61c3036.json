@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2006.16189",
+  "judged_at": "2026-07-02T19:28:03Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting battery electrolyte decomposition products via dft and machine learning chemistry",
+  "rationale": "The paper focuses on general validation standards for machine learning in biology, which is an off-domain application (biology vs. battery chemistry) and does not address the specific mechanism (electrolyte decomposition), domain (materials science), or variables (DFT/ML predictions of decomposition products) of the user's question. It fails to meet any inclusion criteria (a-f) as it offers no empirical data on the target system, no foundational method for the specific chemistry task, and no con",
+  "relevant": false
+}

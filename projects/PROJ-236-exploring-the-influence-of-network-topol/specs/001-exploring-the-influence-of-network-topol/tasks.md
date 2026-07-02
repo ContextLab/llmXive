@@ -2,7 +2,8 @@
 
 **Input**: Design documents from `/specs/001-exploring-the-influence-of-network-topol/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-**Branch**: `001-exploring-the-influence-of-network-topol` (Note: spec.md and plan.md must be updated to match this branch name)
+**Branch**: `001-exploring-the-influence-of-network-topol`
+**Spec**: `specs/001-exploring-the-influence-of-network-topol/spec.md`
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 
@@ -31,14 +32,26 @@
   - Entities from data-model.md
   - Endpoints from contracts/
   
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
+  Tasks MUST be organized by user story so each story can:
+  - Be implemented independently
+  - Be tested independently
+  - Be delivered as an MVP increment
   
   DO NOT keep these sample tasks in the generated tasks.md file.
   ============================================================================
 -->
+
+## Phase 0: Documentation Alignment
+
+**Purpose**: Resolve contradictions in upstream artifacts (spec.md, plan.md) before code implementation begins.
+**Dependency**: None. Must be completed before Phase 1.
+
+- [ ] T047 [P] [Doc] Update `plan.md` and `spec.md` to replace branch name `001-gene-regulation` with `001-exploring-the-influence-of-network-topol` to resolve branch naming contradiction.
+- [ ] T048 [P] [Doc] Update `plan.md` Constitution Check to explicitly state that external atomic coordinate seeds are fetched from verified sources (e.g., Zenodo, Materials Project) to satisfy Principle III (Data Hygiene).
+- [ ] T049 [P] [Doc] Update `plan.md` FR/SC Mapping for FR-006 to specify "anharmonic force constant estimation via perturbation theory" OR "Harmonic Lattice Dynamics with mass disorder" (aligned with Plan's approved methodology) to align with spec requirements.
+- [ ] T050 [P] [Doc] Fix formatting error in `spec.md` FR-004 line to ensure valid Markdown rendering and correct requirement text.
+
+---
 
 ## Phase 1: Setup (Shared Infrastructure)
 
@@ -59,9 +72,10 @@
 - [ ] T004 Setup configuration loader for `code/simulation_config.yaml` in `code/utils/io.py`
 - [ ] T005 [P] Implement checksumming utility for `data/` artifacts in `code/utils/io.py`
 - [ ] T006 [P] Create base logging infrastructure in `code/utils/logging.py`
-- [ ] T007 Create Pydantic base entities `NetworkRealization` (fields: node_count, edge_list, topology_type, cutoff_factor, seed, validation_status) and `TransportResult` (fields: network_id, kappa, error_estimate, convergence_status, runtime) in `code/utils/models.py`
+- [ ] T007 Create Pydantic base entities `NetworkRealization` (fields: node_count: int, edge_list: List[Tuple[int, int]], topology_type: str, cutoff_factor: float, seed: int, validation_status: Literal['valid', 'disconnected', 'failed']) and `TransportResult` (fields: network_id: str, kappa: float, error_estimate: float, convergence_status: str, runtime: float) in `code/utils/models.py`
 - [ ] T008 Setup random seed management (np.random.seed(42)) in `code/utils/seeds.py`
-- [ ] T015 [US1] Implement distance-based cutoff logic (1.5x NN default, retry up to 2.0x) and connectivity check in `code/generate_networks.py` (Must precede graph generators)
+- [ ] T017a [P] [Foundational] Implement 'Physical Stability Filter' in `code/utils/validation.py` to check for bond-distance thresholds and atomic stability based on Assumptions (no FR-010 tag)
+- [ ] T018a [P] [FR-001] Implement explicit connectivity validation logic to ensure >95% of realizations are connected in `code/generate_networks.py` (Distinct deliverable for FR-001)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -83,15 +97,14 @@
 
 ### Implementation for User Story 1
 
+- [ ] T015 [P] [US1] Implement distance-based cutoff logic (x NN default, retry up to 2.0x) and connectivity check in `code/generate_networks.py` (Moved from Phase 2 to US1 block)
 - [ ] T012 [P] [US1] Implement Small-World (Watts-Strogatz) graph generator in `code/generate_networks.py` (Depends on T015)
 - [ ] T013 [P] [US1] Implement Scale-Free (Barabási-Albert) graph generator in `code/generate_networks.py` (Depends on T015)
 - [ ] T014 [P] [US1] Implement Random (Erdős-Rényi) graph generator in `code/generate_networks.py` (Depends on T015)
 - [ ] T016 [US1] Implement topological metric extraction (clustering, degree variance, spectral gap, betweenness) in `code/generate_networks.py`
-- [ ] T017 [US1] [FR-010] Implement physical validity filter (physical energy minimization check for atomic stability) in `code/utils/validation.py` (Must precede T018/T019)
-- [ ] T018 [US1] Implement ensemble generation loop with `meta.json` logging for each realization in `code/generate_networks.py` (Depends on T015, T017)
-- [ ] T019a [US1] Implement ensemble generation per cutoff (1.2x, 1.5x, 1.8x, 2.0x) in `code/generate_networks.py`
-- [ ] T019b [US1] Implement transport simulation runner per cutoff in `code/compute_transport.py`
-- [ ] T019c [US1] Implement result aggregation for sensitivity analysis in `code/analyze_correlations.py`
+- [ ] T018 [US1] Implement ensemble generation loop with `meta.json` logging for each realization in `code/generate_networks.py` (Depends on T015, T017a, T018a)
+- [ ] T018b [US1] Implement ensemble generation per cutoff (x, 1.5x, 1.8x, 2.0x) in `code/generate_networks.py` (Split from T019a)
+- [ ] T019a [US1] Implement transport simulation runner **stub** in `code/generate_networks.py` that calls a **placeholder** function (not the real runner) to satisfy dependency checks without executing US2 logic (Split from T019b)
 - [ ] T020 [US1] Save generated graphs to `data/networks/` and checksums to `state/projects/PROJ-236-exploring-the-influence-of-network-topol.yaml`
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -100,24 +113,24 @@
 
 ## Phase 4: User Story 2 - Compute Phonon Transport and Thermal Conductivity (Priority: P2)
 
-**Goal**: Calculate effective thermal conductivity (κ) for each network realization using anharmonic lattice dynamics (Mode-Coupling Approximation with Lennard-Jones potential) on CPU-only hardware.
+**Goal**: Calculate effective thermal conductivity (κ) for each network realization using Harmonic Lattice Dynamics (HLA) with mass disorder and Green-Kubo solver on CPU-only hardware (per Plan's Critical Methodology Update).
 
 **Independent Test**: Can be fully tested by running the simulation on a small, known test case (e.g., a 1D chain) and verifying the output κ matches the analytical or literature value within 10%, while confirming the process completes on a CPU-only runner.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T021 [P] [US2] Unit test for force constant derivation from perturbation theory in `tests/unit/test_transport.py`
+- [ ] T021 [P] [US2] Unit test for force constant derivation from mass disorder in `tests/unit/test_transport.py`
 - [ ] T022 [P] [US2] Unit test for convergence check logic in `tests/unit/test_transport.py`
-- [ ] T023 [P] [US2] Integration test for MCA solver timeout enforcement in `tests/integration/test_transport_solver.py`
+- [ ] T023 [P] [US2] Integration test for HLA solver timeout enforcement in `tests/integration/test_transport_solver.py`
 
 ### Implementation for User Story 2
 
-- [ ] T024 [US2] [FR-006] Implement force constant derivation via anharmonic force constant estimation (perturbation theory) in `code/compute_transport.py` (Depends on T017 output; Must precede T025)
-- [ ] T025 [US2] Implement Mode-Coupling Approximation (MCA) solver for thermal conductivity (reads `data/networks/*.graphml`, writes `data/transport/results.csv`, LJ epsilon=1.0, sigma=3.4) with mandatory convergence validation loop (flag and rerun on failure) in `code/compute_transport.py`
-- [ ] T026 [US2] Implement convergence check and retry logic (max 3 retries) in `code/utils/validation.py`
-- [ ] T027 [US2] Implement timeout enforcement (45 min limit) per realization in `code/compute_transport.py`
-- [ ] T028 [US2] Implement result aggregation and error handling for singular matrices in `code/compute_transport.py`
+- [ ] T024 [US2] [FR-006] Implement force constant derivation via **Harmonic Lattice Dynamics with mass disorder** (based on bond distances and atomic masses) in `code/compute_transport.py` (Aligned with Plan's approved methodology)
+- [ ] T025a [US2] Implement Harmonic Lattice Dynamics (HLA) Green-Kubo solver core in `code/compute_transport.py` (reads `data/networks/*.graphml`, writes `data/transport/results.csv`, uses **reduced units (sigma=1.0, epsilon=1.0), Temperature T=1.0**)
+- [ ] T025b [US2] Implement convergence check and retry logic (A limited number of retries is permitted.) in `code/utils/validation.py`
+- [ ] T025c [US2] Implement timeout enforcement (min limit) per realization and result serialization in `code/compute_transport.py`
 - [ ] T029 [US2] Save transport results to `data/transport/transport_results.csv` with metadata in `code/compute_transport.py`
+- [ ] T029b [US2] Implement transport simulation runner per cutoff in `code/compute_transport.py` (Split from T019b, moved to US2)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -139,12 +152,16 @@
 ### Implementation for User Story 3
 
 - [ ] T034 [P] [US3] Implement linear regression and correlation coefficient calculation in `code/analyze_correlations.py`
-- [ ] T035 [US3] Implement bootstrap resampling (1000 iterations) for confidence intervals in `code/analyze_correlations.py`
+- [ ] T035 [US3] Implement bootstrap resampling (A sufficient number of iterations will be performed to ensure convergence of the results.) for confidence intervals **and Variance Inflation Factor (VIF) check (threshold > 5)** in `code/analyze_correlations.py` (Integrated T037 logic)
 - [ ] T036 [US3] Implement multiple-comparison correction (Bonferroni/FDR) for p-values in `code/analyze_correlations.py`
-- [ ] T037 [US3] [FR-009] Implement Variance Inflation Factor (VIF) check and predictor handling in `code/analyze_correlations.py`
+- [ ] T036b [US3] Implement result aggregation for sensitivity analysis (from T019c) in `code/analyze_correlations.py` (Moved from US1)
+- [ ] T036c [US3] Implement result aggregation per cutoff for sensitivity analysis in `code/analyze_correlations.py` (Split from T019c)
+- [ ] T036d [US3] [FR-008] Implement explicit verification step to validate the robustness of the topology-transport correlation across cutoffs in `code/analyze_correlations.py`
 - [ ] T038 [US3] [SC-005] Implement power-law fit (R² calculation) between disorder parameters and conductivity in `code/analyze_correlations.py`
 - [ ] T039 [US3] Implement associational framing logic to explicitly scrub causal language from final output artifacts (plots, CSV headers, summary text) in `code/analyze_correlations.py`
-- [ ] T040 [US3] Generate publication-ready scatter plots with error bars in `code/analyze_correlations.py`
+- [ ] T040a [US3] Generate publication-ready scatter plots (Metric vs Conductivity) with error bars in `code/analyze_correlations.py`
+- [ ] T040b [US3] Generate error bar plots for bootstrap confidence intervals in `code/analyze_correlations.py`
+- [ ] T040c [US3] Generate power-law fit plots with R² annotation in `code/analyze_correlations.py`
 - [ ] T041 [US3] Save analysis results to `data/analysis/correlation_results.csv` and plots to `data/analysis/plots/`
 
 **Checkpoint**: All user stories should now be independently functional
@@ -167,8 +184,9 @@
 
 ### Phase Dependencies
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
+- **Phase 0 (Docs)**: No dependencies - MUST start immediately
+- **Setup (Phase 1)**: Depends on Phase 0 - Can start immediately after
+- **Foundational (Phase 2)**: Depends on Setup - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
   - User stories can then proceed in parallel (if staffed)
   - Or sequentially in priority order (P1 → P2 → P3)
@@ -177,7 +195,7 @@
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on T015/T018 (network generation) for input data
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on T018 (networks) for input data
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on T018 (networks) AND T029 (transport results) for input data
 
 ### Within Each User Story
@@ -218,15 +236,16 @@ Task: "Implement Random graph generator in code/generate_networks.py"
 
 ### MVP First (User Story 1 Only)
 
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
+1. Complete Phase 0: Documentation Alignment
+2. Complete Phase 1: Setup
+3. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
+4. Complete Phase 3: User Story 1
+5. **STOP and VALIDATE**: Test User Story 1 independently
+6. Deploy/demo if ready
 
 ### Incremental Delivery
 
-1. Complete Setup + Foundational → Foundation ready
+1. Complete Phase 0 + Setup + Foundational → Foundation ready
 2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
 3. Add User Story 2 → Test independently → Deploy/Demo
 4. Add User Story 3 → Test independently → Deploy/Demo
@@ -236,7 +255,7 @@ Task: "Implement Random graph generator in code/generate_networks.py"
 
 With multiple developers:
 
-1. Team completes Setup + Foundational together
+1. Team completes Phase 0 + Setup + Foundational together
 2. Once Foundational is done:
    - Developer A: User Story 1
    - Developer B: User Story 2
@@ -254,9 +273,19 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All transport simulations (T024-T029) must run within 45 minutes on 2 CPU cores; if convergence fails, the task must exclude the realization and log the failure, never hang or require GPU.
+- **Critical Constraint**: All transport simulations (T025a, T029b) must run within 45 minutes on CPU cores; if convergence fails, the task must exclude the realization and log the failure, never hang or require GPU.
 - **Critical Constraint**: No synthetic/fake data generation for input; all network realizations must be procedurally generated from real atomic coordinate seeds, and transport results must be computed from real simulations, not hardcoded values.
-- **Branch Note**: The feature branch in this file is `001-exploring-the-influence-of-network-topol`. The `spec.md` and `plan.md` files currently list `001-gene-regulation` which is a contradiction; these upstream files must be corrected to match this branch name.
-- **Constitution Note**: The `plan.md` Constitution Check currently states "No external datasets are fetched" which contradicts Constitution Principle III. This must be corrected in `plan.md` to reflect that external datasets (or physical seeds) are fetched from canonical sources.
-- **FR-006 Note**: The `plan.md` FR/SC Mapping for FR-006 currently mentions "uniform LJ potential" which contradicts the spec. This must be corrected to "perturbation theory" in `plan.md`.
-- **Spec Note**: The `spec.md` FR-004 line has a formatting error (broken text) that must be fixed in `spec.md`.
+- **Methodology Note**: The Plan explicitly mandates **Harmonic Lattice Dynamics (HLA) with mass disorder** and **Green-Kubo** solver. All tasks in Phase 4 (T024, T025a) must adhere to this approved physics model, not Anharmonic Lattice Dynamics or Perturbation Theory.
+- **Branch Note**: The feature branch is `001-exploring-the-influence-of-network-topol`. Phase 0 tasks (T047-T050) must be completed first to align upstream artifacts.
+- **Constitution Note**: The `plan.md` Constitution Check must be updated to reflect fetching external atomic coordinate seeds from verified sources (Zenodo/Materials Project).
+- **FR-006 Note**: Force constant derivation in T024 must align with the Plan's approved methodology (HLA with mass disorder) rather than Perturbation Theory.
+- **Spec Note**: The `spec.md` FR-004 line formatting error must be fixed in Phase 0.
+
+## Revision Tasks: Addressing Review Concerns
+
+**Purpose**: New tasks added to address specific reviewer concerns regarding branch naming consistency, data fetch protocols, and force constant methodology. (Moved to Phase 0).
+
+- [ ] T047 [P] [Doc] Update `plan.md` and `spec.md` to replace branch name `001-gene-regulation` with `001-exploring-the-influence-of-network-topol` to resolve branch naming contradiction.
+- [ ] T048 [P] [Doc] Update `plan.md` Constitution Check to explicitly state that external atomic coordinate seeds are fetched from verified sources (e.g., Zenodo, Materials Project) to satisfy Principle III (Data Hygiene).
+- [ ] T049 [P] [Doc] Update `plan.md` FR/SC Mapping for FR-006 to specify "anharmonic force constant estimation via perturbation theory" OR "Harmonic Lattice Dynamics with mass disorder" (aligned with Plan's approved methodology) to align with spec requirements.
+- [ ] T050 [P] [Doc] Fix formatting error in `spec.md` FR-004 line to ensure valid Markdown rendering and correct requirement text.
