@@ -1,0 +1,64 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Results Schema"
+description: "Schema for the final statistical analysis results"
+type: "object"
+properties:
+  element:
+    type: "string"
+    enum:
+      - "Pb"
+      - "I"
+      - "MA"
+      - "composite"
+    description: "Element tested or 'composite'"
+  metric_type:
+    type: "string"
+    enum:
+      - "correlation_length"
+      - "spectral_power"
+    description: "Type of spatial metric used"
+  pearson_r:
+    type: "number"
+    description: "Pearson correlation coefficient"
+  pearson_p:
+    type: "number"
+    description: "Raw p-value for Pearson correlation"
+  pearson_p_adj:
+    type: "number"
+    description: "Benjamini-Hochberg adjusted p-value"
+  spearman_r:
+    type: "number"
+    description: "Spearman correlation coefficient"
+  spearman_p:
+    type: "number"
+    description: "Raw p-value for Spearman correlation"
+  spearman_p_adj:
+    type: "number"
+    description: "Benjamini-Hochberg adjusted p-value"
+  gam_deviance_explained:
+    type: "number"
+    description: "Deviance explained by the GAM"
+  robustness_delta_r_max:
+    type: "number"
+    description: "Maximum change in correlation coefficient during LOO-CV"
+  n_samples:
+    type: "integer"
+    minimum: 1
+    description: "Number of samples used in the analysis"
+  sensitivity_excluded:
+    type: "boolean"
+    description: "True if sample excluded due to sensitivity analysis"
+required:
+  - element
+  - metric_type
+  - pearson_r
+  - pearson_p
+  - pearson_p_adj
+  - spearman_r
+  - spearman_p
+  - spearman_p_adj
+  - gam_deviance_explained
+  - robustness_delta_r_max
+  - n_samples
+  - sensitivity_excluded
+additionalProperties: false

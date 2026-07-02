@@ -1,0 +1,79 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Schema"
+description: "Schema for the unified dataset containing elemental maps and performance metrics"
+type: "object"
+properties:
+  sample_id:
+    type: "string"
+    description: "Unique identifier for the sample"
+  element:
+    type: "string"
+    enum:
+      - "Pb"
+      - "I"
+      - "MA"
+    description: "Element type for the map"
+  pce:
+    type: "number"
+    description: "Power Conversion Efficiency (%)"
+  j_sc:
+    type: "number"
+    description: "Short-circuit current density (mA/cm²)"
+  v_oc:
+    type: "number"
+    description: "Open-circuit voltage (V)"
+  correlation_length:
+    type: "number"
+    nullable: true
+    description: "1/e decay distance (nm) from best-fit model"
+  best_fit_model:
+    type: "string"
+    enum:
+      - "exponential"
+      - "gaussian"
+      - "power-law"
+    nullable: true
+    description: "Model used for correlation length extraction"
+  low_freq_spectral_power:
+    type: "number"
+    description: "Integrated spectral power in 0-0.1 cycles/pixel"
+  mask_percentage:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Percentage of pixels masked due to defects"
+  is_censored:
+    type: "boolean"
+    description: "True if correlation length exceeds image dimension"
+  censored_value:
+    type: "number"
+    nullable: true
+    description: "Image dimension used as lower bound"
+  co_location_status:
+    type: "string"
+    enum:
+      - "verified"
+      - "mismatch"
+      - "ambiguous"
+    description: "Co-location validation status"
+  depth_validation_status:
+    type: "string"
+    enum:
+      - "valid"
+      - "flagged"
+      - "excluded"
+    description: "Depth resolution validation status"
+required:
+  - sample_id
+  - element
+  - pce
+  - j_sc
+  - v_oc
+  - correlation_length
+  - best_fit_model
+  - low_freq_spectral_power
+  - mask_percentage
+  - is_censored
+  - co_location_status
+  - depth_validation_status
+additionalProperties: false

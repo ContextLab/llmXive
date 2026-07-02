@@ -1,0 +1,255 @@
+resolved_at: '2026-07-02T05:35:51.197902+00:00'
+datasets:
+- intent: EDS
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f183519/f08d87e0070aa66735803e35a838c9baf7079521ab8de3c6b28996b6f2e7b017?X-Xet-Cas-Uid=public&response-content-type=application%2Fjson&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27datasets.json%3B+filename%3D%22datasets.json%22%3B&Expires=1782973964&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgzNTE5L2YwOGQ4N2UwMDcwYWE2NjczNTgwM2UzNWE4MzhjOWJhZjcwNzk1MjFhYjhkZTNjNmIyODk5NmI2ZjJlN2IwMTdcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJnVzZXJfaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdkYXRhc2V0cy5qc29uJTNCK2ZpbGVuYW1lJTNEJTIyZGF0YXNldHMuanNvbiUyMiUzQiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgyOTczOTY0fX19XX0_&Signature=MEYCIQDUPW4nZxTGcRwXaw8LDQCVMtryMt4e06l4TLzWeHEKKgIhAKhpGRLw7M2x~0pO8P4rDZngUseO70jiO92ijHtvuBnp&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://irr.singaporetech.edu.sg/articles/conference_contribution/DL-based_Optical_Fibre_Fault_Detection_for_Healthcare_Telesurgery_Communication_System/30998047
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Neurochemical-hemodynamic-electrophysiological_coupling_in_the_neonatal_brain_a_multimodal_MRS-fMRI-EEG_investigation_pdf/32871506
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Blood-activating_depression-relieving_formula_alleviates_post-stroke_depression_mechanistic_insights_from_network_pharmacology_and_microglial_validation_xlsx/32871494
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_3_Blood-activating_depression-relieving_formula_alleviates_post-stroke_depression_mechanistic_insights_from_network_pharmacology_and_microglial_validation_xlsx/32871440
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Blood-activating_depression-relieving_formula_alleviates_post-stroke_depression_mechanistic_insights_from_network_pharmacology_and_microglial_validation_xlsx/32871461
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1146630
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1146616
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1139262
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1146608
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1140094
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/gm5se/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.26187/deakin.32871107
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''doi.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://osf.io/4hfyd/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/7zgxt/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.48580/d3cz
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''doi.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+- intent: PCE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/ravindrakinagi/pcee/resolve/main/new1.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 1636
+      parsed: true
+  - url: https://huggingface.co/datasets/StarBottle/PC-Eval/resolve/main/PC-Eval.json
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 5163
+      parsed: true
+  - url: https://huggingface.co/datasets/pce126/turtle/resolve/main/turtleQA.json
+    source: huggingface
+    format: json
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 28652
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ravindrakinagi/pcee/resolve/main/new1.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/api/resolve-cache/datasets/tahiriqbal141/PCE/902e1d2f31f390b52d56e84af13b4deab8fcbb2d/acceptor%20-%20accept.csv.csv?%2Fdatasets%2Ftahiriqbal141%2FPCE%2Fresolve%2Fmain%2Facceptor+-+accept.csv.csv=&etag=%225fc5d7fb87a95c61492b6bca738a976ba17b2409%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/StarBottle/PC-Eval/resolve/main/PC-Eval.json
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/pce126/turtle/resolve/main/turtleQA.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/pce126/turtle2/resolve/main/turtleQA_R2.csv
+    source: huggingface
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''huggingface.co'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Aggressive_encounters_with_large_mammals_vary_by_recreational_activity_type_in_Canadian_national_parks_pdf/32871518
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/How_Intramolecular_Epoxide-Opening_Cascades_Generate_Polyether_Ionophores_Marine_Ladder_Polyethers_and_Oxasqualenoids/32871514
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://irr.singaporetech.edu.sg/articles/conference_contribution/DL-based_Optical_Fibre_Fault_Detection_for_Healthcare_Telesurgery_Communication_System/30998047
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Neurochemical-hemodynamic-electrophysiological_coupling_in_the_neonatal_brain_a_multimodal_MRS-fMRI-EEG_investigation_pdf/32871506
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Blood-activating_depression-relieving_formula_alleviates_post-stroke_depression_mechanistic_insights_from_network_pharmacology_and_microglial_validation_xlsx/32871494
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6472234
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1578292
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.10948474
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''doi.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://zenodo.org/records/3999171
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15846679
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.18914
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5075/epfl-thesis-7762
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''doi.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://toubkal.imist.ma/handle/123456789/33463
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://toubkal.imist.ma/handle/123456789/33363
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://aip.figshare.com/collections/_strong_Quantitative_Analysis_of_Grain_Boundary_Attributes_and_Their_Impact_on_Device_Performance_in_Perovskite_Solar_Cells_Based_on_3D_Modeling_strong_/8535183/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: NREL
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/bsebench-org/nrel-pulse-diagnostics-2025-raw/resolve/main/BSEBENCH_SOURCE.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 3850
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/bsebench-org/nrel-pulse-diagnostics-2025-raw/resolve/main/BSEBENCH_SOURCE.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_2_Effects_of_different_negative_pressure_wound_therapy_modes_on_wound_healing_a_systematic_review_docx/32871665
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_4_Predictors_of_user_satisfaction_with_forest_healing_services_differ_by_health_status_docx/32871671
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_3_Effects_of_different_negative_pressure_wound_therapy_modes_on_wound_healing_a_systematic_review_docx/32871674
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Effects_of_different_negative_pressure_wound_therapy_modes_on_wound_healing_a_systematic_review_docx/32871656
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Predictors_of_user_satisfaction_with_forest_healing_services_differ_by_health_status_docx/32871662
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3476763
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7752851
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7671486
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14907943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14920259
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21110116
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21110116
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/4srfb/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21007356
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21007356
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
