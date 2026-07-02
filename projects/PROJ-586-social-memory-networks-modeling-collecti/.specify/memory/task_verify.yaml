@@ -55,7 +55,14 @@
   requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE:
   requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED:
   unspecified -->'
-: 1
+: 2
+? 'T011 [P] [US-1] Implement CLI flag parsing for --context, --agents, --dataset and
+  game simulation loop for 1000 games in `code/run_experiment.py` (FR-001) <!-- FAILED:
+  unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE:
+  requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE:
+  requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED:
+  unspecified --> <!-- FAILED: unspecified -->'
+: 2
 ? "T018 [US-2] Implement game simulation loop for limited context (1000 games per\
   \ spec) [UNRESOLVED-CLAIM: c_7943bae4 \u2014 status=not_enough_info] in `code/run_experiment.py`"
 : 1
@@ -101,6 +108,33 @@
   --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
   --> <!-- FAILED: unspecified -->'
 : 1
+? 'T018 [US-2] Implement game simulation loop for limited context (1000 games per
+  spec) in `code/run_experiment.py` <!-- FAILED: unspecified --> <!-- FAILED: unspecified
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->'
+: 2
+? 'T018 [US-2] Implement game simulation loop for limited context (1000 games per
+  spec) in `code/run_experiment.py` <!-- FAILED: unspecified --> <!-- FAILED: unspecified
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
+  -->'
+: 1
+? 'T018 [US-2] Implement game simulation loop for limited context (1000 games per
+  spec) in `code/run_experiment.py` <!-- FAILED: unspecified --> <!-- FAILED: unspecified
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
+  --> <!-- FAILED: unspecified -->'
+: 2
+? 'T018 [US-2] Implement game simulation loop for limited context (1000 games per
+  spec) in `code/run_experiment.py` <!-- FAILED: unspecified --> <!-- FAILED: unspecified
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->'
+: 2
 ? "T021 [P] [US-2] Apply Bonferroni correction to all family\u2011wise hypothesis\
   \ tests and report corrected \u03B1 in `code/analysis/anova.py` [UNRESOLVED-CLAIM:\
   \ c_9e3d059c \u2014 status=not_enough_info] (FR-007)"

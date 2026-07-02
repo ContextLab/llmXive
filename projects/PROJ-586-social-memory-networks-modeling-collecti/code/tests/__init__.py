@@ -1,1 +1,2 @@
-"""Tests subpackage - contains test suites."""
+"""Tests package initialization."""
+pass
