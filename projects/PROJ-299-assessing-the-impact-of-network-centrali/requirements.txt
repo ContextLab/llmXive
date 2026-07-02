@@ -1,0 +1,10 @@
+nibabel
+nilearn
+networkx
+pandas
+scikit-learn
+statsmodels
+matplotlib
+seaborn
+reportlab
+python-dotenv

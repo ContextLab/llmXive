@@ -1,0 +1,75 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Centrality Metrics Schema"
+description: "Schema for the centrality_metrics.csv output file containing ROI-level and network-level centrality values."
+type: "object"
+properties:
+  participant_id:
+    type: "string"
+    description: "Unique identifier for the participant (e.g., ADNI ID)."
+  roi_id:
+    type: "string"
+    description: "Name of the AAL region of interest (e.g., 'Precentral_L')."
+  network:
+    type: "string"
+    enum:
+      - "DMN"
+      - "FPN"
+      - "Global"
+    description: "Network classification for the ROI or aggregate."
+  degree:
+    type: "number"
+    description: "Degree centrality value."
+  betweenness:
+    type: "number"
+    description: "Betweenness centrality value."
+  closeness:
+    type: "number"
+    description: "Closeness centrality value."
+  mean_fd:
+    type: "number"
+    description: "Mean framewise displacement for the scan."
+  dmn_mean_degree:
+    type: "number"
+    description: "Mean degree centrality across all DMN ROIs for this participant."
+  dmn_mean_betweenness:
+    type: "number"
+    description: "Mean betweenness centrality across all DMN ROIs for this participant."
+  dmn_mean_closeness:
+    type: "number"
+    description: "Mean closeness centrality across all DMN ROIs for this participant."
+  fpn_mean_degree:
+    type: "number"
+    description: "Mean degree centrality across all FPN ROIs for this participant."
+  fpn_mean_betweenness:
+    type: "number"
+    description: "Mean betweenness centrality across all FPN ROIs for this participant."
+  fpn_mean_closeness:
+    type: "number"
+    description: "Mean closeness centrality across all FPN ROIs for this participant."
+  global_mean_degree:
+    type: "number"
+    description: "Mean degree centrality across all ROIs (Global) for this participant."
+  global_mean_betweenness:
+    type: "number"
+    description: "Mean betweenness centrality across all ROIs (Global) for this participant."
+  global_mean_closeness:
+    type: "number"
+    description: "Mean closeness centrality across all ROIs (Global) for this participant."
+required:
+  - "participant_id"
+  - "roi_id"
+  - "network"
+  - "degree"
+  - "betweenness"
+  - "closeness"
+  - "mean_fd"
+  - "dmn_mean_degree"
+  - "dmn_mean_betweenness"
+  - "dmn_mean_closeness"
+  - "fpn_mean_degree"
+  - "fpn_mean_betweenness"
+  - "fpn_mean_closeness"
+  - "global_mean_degree"
+  - "global_mean_betweenness"
+  - "global_mean_closeness"
+additionalProperties: false

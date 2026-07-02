@@ -1,0 +1,185 @@
+resolved_at: '2026-07-02T03:51:30.128076+00:00'
+datasets:
+- intent: ADAS
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/adasgaleus/unannotated-wids/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 12250
+      parsed: true
+  - url: https://huggingface.co/datasets/adas100/resume_dataset1/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/adasgaleus/word-importance/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 15462
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/adasgaleus/unannotated-wids/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/adas100/resume_dataset1/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/adasgaleus/word-importance/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Pre-Coordination_Induced_Further_Deamination_to_Create_Inter-Chain_Cross-Linking_in_Carbon_Nitride_for_Enhanced_Photocatalytic_H2O2_Production/32869835
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/A_Scheme_to_Enhance_Dense_Internet_of_Things_Networks_Performance_An_Early_Evaluation/32869826
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Isostructural_Tin_and_Germanium_Carbonates_Sn_CO_sub_3_sub_sub_2_sub_and_Ge_CO_sub_3_sub_sub_2_sub_/32869821
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_b_Evaluasi_Usability_Aplikasi_Meitu_Menggunakan_Model_Nielsen_dan_Metode_PLS-SEM_b_/32844821
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Giving_voice_to_the_Deaf_community_co-designing_a_Bangla_Mental_Health_Sign_Language_Bank_in_Bangladesh/32869808
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17737501
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13982925
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7656580
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13985864
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7607609
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://livewire.energy.gov/ds/nrel-mdhd-cav/ds0
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://air.unimi.it/handle/2434/150552
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21075658
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21075658
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21075378
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MMSE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/rufernan/MMSense/resolve/main/gt_20mpp/Chlorophyll/_timestamps.txt
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 1408
+      parsed: true
+  - url: https://huggingface.co/datasets/jyjyjyjy/MMS-e/resolve/main/test/Fixed_Patch_QA/fix12/annotations/action_recognition.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 44738
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/rufernan/MMSense/resolve/main/gt_20mpp/Chlorophyll/_timestamps.txt
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/jyjyjyjy/MMS-e/resolve/main/test/Fixed_Patch_QA/fix12/annotations/action_recognition.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Pre-Coordination_Induced_Further_Deamination_to_Create_Inter-Chain_Cross-Linking_in_Carbon_Nitride_for_Enhanced_Photocatalytic_H2O2_Production/32869835
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/A_Scheme_to_Enhance_Dense_Internet_of_Things_Networks_Performance_An_Early_Evaluation/32869826
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Isostructural_Tin_and_Germanium_Carbonates_Sn_CO_sub_3_sub_sub_2_sub_and_Ge_CO_sub_3_sub_sub_2_sub_/32869821
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_b_Evaluasi_Usability_Aplikasi_Meitu_Menggunakan_Model_Nielsen_dan_Metode_PLS-SEM_b_/32844821
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dro.deakin.edu.au/articles/journal_contribution/Giving_voice_to_the_Deaf_community_co-designing_a_Bangla_Mental_Health_Sign_Language_Bank_in_Bangladesh/32869808
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://link.springer.com/article/10.1134/S2079057021030036
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7223594
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijece.iaescore.com/index.php/IJECE/article/view/26179
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17283433
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7644087
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.10111
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21108085
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21108085
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://toubkal.imist.ma/handle/123456789/25502
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://toubkal.imist.ma/handle/123456789/25874
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

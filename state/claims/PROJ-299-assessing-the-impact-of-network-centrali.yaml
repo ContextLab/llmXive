@@ -1,0 +1,211 @@
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/docs/sync_impact_report.md
+  attempts: 1
+  canonical: 9 distinct regression models involving 3 centrality metrics and 3 cognitive
+    domains
+  claim_id: c_15b822ca
+  context: Bonferroni correction is overly conservative for this exploratory network
+    analysis, significantly increasing the risk of Type II errors (false negatives).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "This phase involves 9 distinct regression models (3 centrality metrics\
+    \ \xD7 3 cognitive domains) across multiple ROIs."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T04:27:15Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/docs/sync_impact_report.md
+  attempts: 1
+  canonical: target sample size of N greater than or equal to 85
+  claim_id: c_4c264e2b
+  context: Bonferroni correction would render many true effects statistically non-significant,
+    failing the project's goal of identifying potential biomarkers.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Target_sample_size_of_N_greater_than_or_equal_to_85
+  kind: magnitude
+  raw_text: "With the target sample size (N \u2265 85), Bonferroni correction would\
+    \ render many true effects statistically non-significant."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T04:28:01Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/docs/sync_impact_report.md
+  attempts: 1
+  canonical: neuroimaging literature predominantly utilizes FDR for error control
+  claim_id: c_f68ddb5c
+  context: 'Domain Standard: Neuroimaging and network neuroscience literature (e.g.,
+    Eklund et al., 2016; Nichols & Hayasaka, 2003) predominantly utilizes FDR to balance
+    discovery power with error control in high-dimensional data.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Neuroimaging and network neuroscience literature (e.g., Eklund et al.,
+    2016; Nichols & Hayasaka, 2003) predominantly utilizes FDR to balance discovery
+    power with error control in high-dimensional data.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T04:28:18Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  attempts: 1
+  canonical: exclude participants with mean FD > 0.5mm or >20% volumes > 0.5mm
+  claim_id: c_760ba2fd
+  context: Implement Framewise Displacement (FD) calculation. Exclude participants
+    with mean FD > 0.5mm or >20% volumes > 0.5mm; log exclusions to data/analysis/qc_log.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exclude participants with mean FD > 0.5mm or >20% volumes > 0.5mm
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T04:30:18Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  attempts: 1
+  canonical: verify usable participant sample size is at least 85
+  claim_id: c_443986d6
+  context: "Calculate the number of usable participants (post-QC exclusions). Verify\
+    \ sample size \u2265 85. Abort with clear error message if usable count < 85."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_usable_participant_sample_size_is_at_least_85
+  kind: magnitude
+  raw_text: "Verify sample size \u2265 85"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T04:30:58Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  attempts: 1
+  canonical: fit 9 separate linear models for centrality metric by cognitive domain
+    pairs
+  claim_id: c_b59e55dd
+  context: "Fit separate linear models for each (Centrality Metric \xD7 Cognitive\
+    \ Domain) pair (3\xD73=9 models). Control for covariates. Calculate \u03B2, SE,\
+    \ p-values, partial-r, and VIF."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Fit separate linear models for each (Centrality Metric \xD7 Cognitive\
+    \ Domain) pair (3\xD73=9 models)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T04:31:18Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  attempts: 1
+  canonical: flag variance inflation factor greater than 5
+  claim_id: c_213b933f
+  context: 'Check assumptions: Linearity, Normality (Shapiro-Wilk), Homoscedasticity
+    (Breusch-Pagan), Independence. Flag VIF > 5 and assumption violations (warnings
+    only, do not halt).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_variance_inflation_factor_greater_than_5
+  kind: magnitude
+  raw_text: Flag VIF > 5
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T04:31:37Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  attempts: 1
+  canonical: run integration test on 20 participants
+  claim_id: c_5b10a0e7
+  context: Run integration test on N=20 and record runtime in outputs/perf_metrics.json
+    to verify < 4 hour constraint.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run integration test on N=20
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T04:32:35Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  attempts: 1
+  canonical: verify integration test runtime is under 4 hours
+  claim_id: c_64852c39
+  context: Run integration test on N=20 and record runtime in outputs/perf_metrics.json
+    to verify < 4 hour constraint.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify < 4 hour constraint
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T04:32:35Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  attempts: 1
+  canonical: ensure generated report file size is at most 5 MB
+  claim_id: c_be1fedbb
+  context: "Assemble plots and tables into a PDF using reportlab or matplotlib + PIL.\
+    \ Include QC summary (exclusions, sample size). Ensure file size \u2264 5 MB (SC-004)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_generated_report_file_size_is_at_most_5_MB
+  kind: magnitude
+  raw_text: "Ensure file size \u2264 5 MB"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T04:32:54Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  attempts: 1
+  canonical: generate mock NIfTI files for 5 participants
+  claim_id: c_9e5eacef
+  context: 'CI/Simulation Path: Generate mock NIfTI files in data/processed/ for N=5
+    participants that simulate the output of the full preprocessing pipeline (including
+    motion correction logic) to ensure schema compatibility with downstream steps.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate mock NIfTI files in data/processed/ for N=5 participants
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T04:33:18Z'
+- artifact_path: projects/PROJ-299-assessing-the-impact-of-network-centrali/specs/001-assessing-the-impact-of-network-centrali/tasks.md
+  attempts: 1
+  canonical: initialize project with Python 3.10
+  claim_id: c_a94429f2
+  context: Initialize Python 3.10 project with requirements.txt (nibabel, nilearn,
+    networkx, pandas, scikit-learn, statsmodels, matplotlib, seaborn, reportlab)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Python 3.10
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T04:33:31Z'

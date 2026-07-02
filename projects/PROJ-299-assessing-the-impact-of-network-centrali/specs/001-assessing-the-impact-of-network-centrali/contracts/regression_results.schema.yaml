@@ -1,0 +1,72 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Regression Results Schema"
+description: "Schema for the regression_results.json output containing statistical test results for each centrality-cognitive pair."
+type: "array"
+items:
+  type: "object"
+  properties:
+    model_id:
+      type: "string"
+      description: "Unique identifier for the model (e.g., 'dmn_degree_vs_adas_cog')."
+    outcome:
+      type: "string"
+      description: "Name of the cognitive outcome variable."
+    predictor:
+      type: "string"
+      description: "Name of the centrality predictor variable."
+    beta:
+      type: "number"
+      description: "Regression coefficient."
+    se:
+      type: "number"
+      description: "Standard error of the coefficient."
+    p_value:
+      type: "number"
+      description: "Raw p-value."
+    q_value:
+      type: "number"
+      description: "FDR-adjusted q-value (Benjamini-Yekutieli)."
+    partial_r:
+      type: "number"
+      description: "Partial correlation effect size."
+    vif:
+      type: "object"
+      description: "Variance Inflation Factors for all predictors in the model."
+      additionalProperties:
+        type: "number"
+    assumptions:
+      type: "object"
+      description: "Summary of linear model assumption checks."
+      properties:
+        linearity:
+          type: "string"
+          enum: ["Pass", "Fail", "Warning"]
+        normality:
+          type: "string"
+          enum: ["Pass", "Fail", "Warning"]
+        homoscedasticity:
+          type: "string"
+          enum: ["Pass", "Fail", "Warning"]
+        independence:
+          type: "string"
+          enum: ["Pass", "Fail", "Warning"]
+    predictor_correlation_matrix:
+      type: "array"
+      description: "Pearson correlation matrix among the three centrality metrics (Degree, Betweenness, Closeness). 3x3 matrix flattened or nested."
+      items:
+        type: "array"
+        items:
+          type: "number"
+  required:
+    - "model_id"
+    - "outcome"
+    - "predictor"
+    - "beta"
+    - "se"
+    - "p_value"
+    - "q_value"
+    - "partial_r"
+    - "vif"
+    - "assumptions"
+    - "predictor_correlation_matrix"
+  additionalProperties: false

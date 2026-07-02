@@ -1,0 +1,50 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-network-centrality"
+version = "0.1.0"
+description = "Assessing the Impact of Network Centrality on Age-Related Cognitive Decline"
+requires-python = ">=3.10"
+dependencies = [
+    "nibabel",
+    "nilearn",
+    "networkx",
+    "pandas",
+    "scikit-learn",
+    "statsmodels",
+    "matplotlib",
+    "seaborn",
+    "reportlab",
+    "python-dotenv",
+    "requests",
+]
+optional-dependencies = { dev = [
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+    "pytest",
+    "pytest-cov",
+] }
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+
+[tool.black]
+line-length = 88
+target-version = ["py310"]
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''

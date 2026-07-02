@@ -1,0 +1,12 @@
+? 'T001 Create project structure per implementation plan (`code/`, `data/`, `tests/`,
+  `docs/`) <!-- SKIPPED: YAML+regex parse failed (while scanning a simple key'
+: 1
+? T002 Initialize Python 3.10 project with `requirements.txt` (nibabel, nilearn, networkx,
+  pandas, scikit-learn, statsmodels, matplotlib, seaborn, reportlab)
+: 1
+T003 [P] Configure linting (ruff/flake8) and formatting (black) tools: 1
+T004 Setup environment configuration management (load ADNI credentials from `.env`, validate presence of required keys): 1
+T005 [P] Implement logging infrastructure (machine-readable logs per FR-011 in `logs/pipeline.log`): 1
+? T006 [P] Create base data models/entities (Participant, ImagingSession, CentralityMetrics,
+  CognitiveScore, RegressionResult) in `code/data_models.py`
+: 1

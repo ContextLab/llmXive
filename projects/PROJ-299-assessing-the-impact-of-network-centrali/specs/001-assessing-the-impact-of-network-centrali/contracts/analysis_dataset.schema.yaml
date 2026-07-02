@@ -1,0 +1,65 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Dataset Schema"
+description: "Schema for the merged analysis_dataset.csv containing demographics, cognitive scores, and centrality metrics."
+type: "object"
+properties:
+  participant_id:
+    type: "string"
+  age:
+    type: "integer"
+  sex:
+    type: "string"
+    enum:
+      - "M"
+      - "F"
+  education_years:
+    type: "integer"
+  diagnosis:
+    type: "string"
+    enum:
+      - "CN"
+      - "MCI"
+      - "AD"
+  adas_cog:
+    type: "number"
+  mmse:
+    type: "integer"
+  processing_speed:
+    type: "number"
+  dmn_degree:
+    type: "number"
+  dmn_betweenness:
+    type: "number"
+  dmn_closeness:
+    type: "number"
+  fpn_degree:
+    type: "number"
+  fpn_betweenness:
+    type: "number"
+  fpn_closeness:
+    type: "number"
+  global_degree:
+    type: "number"
+  global_betweenness:
+    type: "number"
+  global_closeness:
+    type: "number"
+required:
+  - "participant_id"
+  - "age"
+  - "sex"
+  - "education_years"
+  - "diagnosis"
+  - "adas_cog"
+  - "mmse"
+  - "processing_speed"
+  - "dmn_degree"
+  - "dmn_betweenness"
+  - "dmn_closeness"
+  - "fpn_degree"
+  - "fpn_betweenness"
+  - "fpn_closeness"
+  - "global_degree"
+  - "global_betweenness"
+  - "global_closeness"
+additionalProperties: false

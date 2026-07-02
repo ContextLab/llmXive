@@ -1,0 +1,42 @@
+# Data Directory - Ignore all generated and raw data files
+# Only keep .gitkeep files to maintain directory structure
+
+# Raw data (large binary files, proprietary formats)
+raw/
+!raw/.gitkeep
+
+# Processed data (intermediate results, large matrices)
+processed/
+!processed/.gitkeep
+
+# Analysis results (CSV, JSON, statistical outputs)
+analysis/
+!analysis/.gitkeep
+
+# Output artifacts (reports, figures)
+outputs/
+!outputs/.gitkeep
+
+# Specific large file patterns (explicitly ignored even if directories are kept)
+*.nii
+*.nii.gz
+*.dcm
+*.csv
+*.json
+*.pkl
+*.h5
+*.parquet
+
+# Log files
+*.log
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# IDE and editor files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
