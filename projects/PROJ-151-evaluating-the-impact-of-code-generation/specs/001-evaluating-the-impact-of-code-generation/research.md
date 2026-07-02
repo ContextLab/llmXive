@@ -1,92 +1,125 @@
 # Research: Evaluating the Impact of Code Generation Models on Code Review Efficiency
 
+## Problem Statement
+
+Do LLM-generated code snippets require more reviewer effort (time, comments, difficulty) than human-written snippets for the same task? The historical data lacks ground-truth time/difficulty, so we use `filtered_comment_count` as a proxy for the historical analysis (Exploratory) and validate findings via a human survey study (Confirmatory).
+
 ## Dataset Strategy
 
-### Source Selection & GHTorrent Gate
-The primary dataset MUST be the **Gerrit Chromium code-review dataset via GHTorrent** (FR-001). 
-- **Gate**: If GHTorrent is inaccessible or the dump lacks required fields, the project halts and a Spec Amendment Request is generated to switch to the verified HuggingFace proxy.
-- **Variables**: The dataset provides `title`, `diff/patch`, `created_at`, `updated_at`, `comment_count`. 
-- **Limitation**: `review_time_seconds` and `perceived_difficulty` are often missing or unreliable in historical PR data.
-  - **Primary Cohort (N≥1000)**: Analysis uses `comment_count` as a **Proxy Effort** metric.
-  - **Validation Study (N≥50)**: Actual `review_time` and `perceived_difficulty` are collected via human survey to validate the proxy and test for bias.
+### Historical Data (Gerrit Chromium Proxy)
+- **Source**: `loubnabnl/prs-v2-sample` (Verified URL: `)
+- **Content**: PR metadata, code diffs, review comments.
+- **Constraints**:
+ - **No `review_time` or `perceived_difficulty`**: Explicitly excluded per FR-001.
+ - **Proxy**: `filtered_comment_count` (after quality filter) used for historical effort modeling.
+ - **Filter**: Java/Python only, ≤30 LOC changed.
+- **Fit Check**: The dataset contains code snippets and comment counts. It **does not** contain the required `review_time` or `perceived_difficulty` fields. This mismatch is explicitly handled by:
+ 1. Using `filtered_comment_count` as the primary proxy for historical analysis (Exploratory).
+ 2. Designing a separate **Validation Study** (FR-012) to measure actual effort on a subset of generated code (Confirmatory).
+- **Adaptive Sample**: If the filtered dataset yields < 1,000 rows, the study proceeds with available N, but power analysis (Phase 0.5) adjusts model complexity.
 
-| Dataset Name | Verified URL | Suitability |
-| :--- | :--- | :--- |
-| **Gerrit Chromium (GHTorrent)** | `http://ghtorrent.org/` | Primary source. Contains diffs, timestamps, comments. |
-| **Verified Gerrit Source (HF)** | `https://huggingface.co/datasets/verified_gerrit_source` | Proxy source. Used if GHTorrent fails. |
+### Generated Data
+- **Source**: Synthesized via CodeGen-350M (primary) / StarCoder-1B (secondary) on CPU.
+- **Fit Check**: Generated code is matched to problem statements extracted from PR titles. **Symmetric Prompting** is used: the exact same extracted text is used for both Human (as-is) and LLM groups to isolate 'Origin' from 'Prompt Quality'.
 
-**Variable Mapping & Proxy Outcome**
+### Validation Study Data
+- **Source**: Human reviewers (≥3) via browser-based tool.
+- **Content**: Actual review time (ms), comment count, 5-point Likert difficulty.
+- **Fit Check**: Directly addresses the missing ground-truth fields in the historical dataset.
 
-| Spec Requirement | Dataset Field | Handling |
-| :--- | :--- | :--- |
-| Code Snippet | `diff` / `patch` | Directly extracted. |
-| Review Time | `created_at` / `updated_at` → `review_time_seconds` | **Unavailable for Primary Cohort**. Used only in Validation Study. |
-| Comment Count | `comment_count` | **Primary Outcome** for large-scale analysis (Proxy Effort). |
-| Perceived Difficulty | *Not in Dataset* | Collected via survey for Validation Study only. |
+## Methodology
 
-### Variable Risk Mitigation
-- **Missing `review_time_seconds`**: Primary analysis uses `proxy_effort = comment_count`. Validation study provides ground truth.
-- **Missing `perceived_difficulty`**: Not measured for historical data. Only measured for the Validation Study subset (FR-011).
+### Phase 0: Setup & Power Analysis (FR-009, FR-003)
+1. Initialize environment, pin seeds (42).
+2. **Phase 0.5: Power Analysis**:
+ - Count unique `project_id` clusters.
+ - Estimate power for mixed-effects model (interaction term).
+ - **Decision**: If clusters < 30, switch to Fixed-Effects model with robust SEs. If N < 100, reduce sample size target to 200.
 
-## Model Strategy
+### Phase 1: Data Ingestion & Filtering (FR-001, FR-002)
+1. Download `prs-v2-sample` via `datasets.load_dataset`.
+2. Filter for `language` in ["Java", "Python"].
+3. Filter for `diff_lines` ≤ 30.
+4. **Phase 1.5: Comment Quality Filter**:
+ - Exclude comments with length < 10 chars or containing only 'LGTM', 'nit', 'n/a'.
+ - Recalculate `comment_count` as `filtered_comment_count`.
+5. Validate presence of `code_snippet` and `filtered_comment_count`.
+6. Output: `data/processed/filtered_prs.parquet`.
 
-### Model Selection & Memory Management
-- **StarCoder‑1B** (CPU‑only, `float16`, ~4 GB RAM).
-- **CodeGen‑350M** (CPU‑only, ~1.5 GB RAM).
-- **Memory‑Check**: Script estimates RAM before loading. If >5 GB, fallback to CodeGen‑350M only.
-- **Model Capability Benchmark**: Pre-run benchmark of CodeGen-350M to ensure it meets `Pearson r ≥ 0.7` and `[deferred] generation success`. If failed, fallback to CodeGen-2B or flag spec amendment.
+### Phase 2: Code Generation (FR-002, FR-003)
+1. Extract problem statement from PR title (Symmetric).
+2. Load a CodeGen model (CPU, float16).
+ - **Fallback**: If OOM, switch to StarCoder-1B (if memory allows) or reduce N.
+3. Generate code with seed=42.
+4. **Phase 2.5: Plausibility Filter**:
+ - Check for non-existent imports, trivial solutions, or infinite loops.
+ - Exclude failed generations.
+5. Log provenance (model, prompt, seed, timestamp) to `data/generated_provenance.csv`.
+6. Output: `data/generated/code_snippets.csv`.
 
-### Prompt Template & Matched-Pair Design
-To address confounding (methodology-0311797a), the prompt includes the **full reconstructed context**:
-`"Context: [Extracted Imports + Function Signatures + Surrounding Code]\nTask: [PR Title]\nWrite a function in <language> that solves the task."`
-This ensures the LLM attempts to solve the *exact same* problem instance as the human, creating a true matched pair.
+### Phase 3: Metric Computation (FR-004)
+1. Compute for both human and generated code:
+ - Cyclomatic Complexity (Radon)
+ - Maintainability Index (Radon)
+ - Pylint Score (Python)
+ - Checkstyle Score (Java)
+ - Token Count
+2. Output: `data/processed/metrics.csv`.
 
-## Statistical Methodology
+### Phase 4: Statistical Analysis (FR-005, FR-006, FR-007, FR-010, FR-013, FR-014)
+1. **Phase 3.5: Collinearity & Distributional Shift Check**:
+ - Perform KS-test on Complexity distributions (Human vs. Generated).
+ - If significant shift, use Propensity Score Matching (PSM) or Stratified Analysis.
+2. **Phase 4.1: Mixed-Effects Model**:
+ - Fit model: `Effort ~ Complexity + Origin + (Complexity * Origin) + (1|Project_ID)`.
+ - If clusters < 30, use Fixed-Effects model.
+3. **Phase 4.2: Interaction Test**:
+ - If `Origin * Complexity` is significant (p < 0.05), report stratified results.
+4. **Phase 4.3: Wilcoxon Signed-Rank Test**:
+ - Compare predicted effort for matched pairs (Human vs. Generated) per FR-010.
+5. **Phase 4.4: Multiple-Comparison Correction**:
+ - Apply Bonferroni/FDR for all hypothesis tests per FR-007.
+6. **Phase 4.5: Sensitivity Analysis**:
+ - Sweep LOC thresholds (15, 30, 50) per FR-006.
+7. **Phase 4.6: Validation Study & Transfer Error**:
+ - Analyze survey data (Likert, time).
+ - Calculate Cohen's Kappa (FR-011).
+ - Compute MAE between predicted (historical) and actual (validation) effort per FR-014.
+8. **Phase 4.7: Success Criterion Check**:
+ - Evaluate Pearson r ≥ 0.7 (SC-005).
+ - Report Pass/Fail.
 
-### Primary Analysis (Mixed‑Effects Model)
-- **Outcome**: `proxy_effort` (comment_count).
-- **Fixed Effects**: `code_origin` (human vs generated), `cyclomatic_complexity`, `context_complexity` (derived from diff size/depth).
-- **Interaction**: `code_origin * context_complexity` to isolate the origin effect from context complexity.
-- **Random Effects**: `(1|project_id)` and `(1|problem_statement)` (true matched pair ID).
-- **Formula**: `proxy_effort ~ code_origin * cyclomatic_complexity + (1|project_id) + (1|problem_statement)`.
-- **Multiple Comparisons**: Bonferroni correction.
-- **Collinearity**: VIF check; drop if >5.
+## Statistical Rigor & Assumptions
 
-### Proxy Attenuation Correction & Power Adjustment
-- **Problem**: `comment_count` is a weak proxy for `review_time`, leading to attenuated effect sizes and reduced power.
-- **Mitigation**: 
-  1. Calculate Pearson correlation (r) between `comment_count` and `review_time` in the Validation Study.
-  2. Apply a correction factor (1/r) to the observed effect sizes in the primary analysis to estimate the "true" effect size.
-  3. Perform a post-hoc power calculation based on the observed r to determine if the sample size is sufficient given the attenuated signal. If power < 0.8, the report will explicitly state this limitation.
+- **Multiple Comparisons**: Bonferroni/FDR correction applied to all >1 hypothesis tests (FR-007).
+- **Sample Size/Power**:
+ - Historical: N≥1000 (adaptive).
+ - Validation: N≥50 (target power ≥ 0.70 if fallback triggered).
+ - **Power Analysis**: Performed in Phase 0.5. If clusters < 30, model switches to Fixed-Effects.
+- **Causal Claims**: **None**. All findings framed as associational (FR-005). Explicit disclaimer included in final report.
+- **Measurement Validity**: `filtered_comment_count` is a weak proxy; historical results are exploratory. Validation study is confirmatory.
+- **Collinearity**: Addressed via KS-test (Phase 3.5) and PSM/Stratification fallback.
+- **Prompt Quality**: Addressed via Symmetric Prompting (same input for both groups).
 
-### Transfer Estimation (Statistical Bridge)
-- **Goal**: Compare Human vs. LLM effort despite the lack of `review_time` in the primary Human cohort.
-- **Mechanism**:
-  1. **Train Human Effort Model**: Fit a model on the historical human cohort using `comment_count` (proxy) as the outcome to predict "Expected Effort" based on code metrics.
-  2. **Predict Counterfactual**: Apply this model to the Generated cohort to predict their "Expected Effort" (what their effort would have been if they were human).
-  3. **Compare**: Compare the "Actual Effort" (from Validation Study) of Generated code against the "Predicted Effort" of Human code (scaled by the proxy correlation) and the "Predicted Effort" of Generated code.
-  4. **Result**: This creates a statistical bridge allowing for a direct group comparison of effort, even though the primary Human cohort lacks `review_time`.
+## Compute Feasibility
 
-### Sensitivity Analyses
-- **LOC Threshold Sweep**: 15, 30, 50 LOC.
-- **Transfer Assumption**: Compare residual distributions between origins.
-
-### Validation Study (FR‑011, FR‑012)
-- Sample ≥ 50 `valid` generated snippets and matched human snippets.
-- **Human Review**: Collect `review_time`, `comment_count`, `difficulty` (5-point Likert).
-- **Bias Analysis**: 
-  1. Compute residuals of the primary model on the validation set.
-  2. Test for **Systematic Bias**: Compare mean residuals between Human and LLM groups (t-test). This addresses the "validity trap" where high Pearson r masks systematic over/under-prediction.
-  3. Compute Pearson r (target ≥ 0.7).
-  4. Wilcoxon signed-rank test on paired differences.
+- **Hardware**: GitHub Actions Free (CPU, 7 GB RAM).
+- **Strategy**:
+ - **Primary Model**: CodeGen-350M (CPU, float16).
+ - **Secondary Model**: StarCoder-1B (only if memory allows).
+ - Use `torch` CPU wheel.
+ - Process in batches to avoid OOM.
+- **Runtime**: Target ≤ 6 hours.
 
 ## Risks & Mitigations
 
 | Risk | Impact | Mitigation |
-| :--- | :--- | :--- |
-| **Dataset Mismatch** | Fatal if GHTorrent unavailable. | **Hard Gate**: Project halts; Spec Amendment requested. |
-| **Confounding by Context** | Spurious `code_origin` effect. | **Matched-Pair Design**: LLM uses full context; Random effect `(1|problem_statement)`. |
-| **Proxy Effort Validity** | Weak correlation with true effort. | **Validation Study**: Measures actual effort; **Proxy Attenuation Correction** applied to primary analysis. |
-| **Semantic Failure** | Trivial code skews results. | **Semantic Filter**: Excludes nonsensical/trivial generations from "valid" set. |
-| **OOM on CPU** | Pipeline crash. | **Memory-Check**: Fallback to CodeGen‑350M. |
-| **Insufficient Model Capability** | Fallback model fails quality targets. | **Model Capability Benchmark**: Pre-run check; fallback to CodeGen-2B or spec amendment. |
+|------|--------|------------|
+| StarCoder OOM on CPU | Pipeline failure | Primary model is CodeGen-350M; StarCoder is secondary. |
+| Low generation success rate | Insufficient data | Plausibility filter; log failures; report rate. |
+| Weak `comment_count` correlation | Invalid historical model | Reliance on validation study for final conclusions; historical results are exploratory. |
+| Reviewer bias in survey | Invalid difficulty rating | Blinding protocol (reviewers unaware of origin). |
+| Low cluster count (Power) | Invalid mixed-effects | Switch to Fixed-Effects with robust SEs. |
+| Distributional Shift (Collinearity) | Spurious interaction | Use PSM or Stratified Analysis. |
+| Prompt Quality Confound | Invalid Origin effect | Symmetric Prompting (same input for both groups). |
+| Semantic Correctness | Invalid comparison | Plausibility Filter (static analysis) applied to both groups. |

@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Filtered PR Dataset Schema"
+description: "Schema for the filtered PR dataset (Java/Python, ≤30 LOC)"
+type: object
+properties:
+  pr_id:
+    type: string
+    description: "Unique PR identifier"
+  project_id:
+    type: string
+    description: "Project identifier from Gerrit"
+  language:
+    type: string
+    enum:
+      - "Java"
+      - "Python"
+    description: "Programming language of the snippet"
+  diff_lines:
+    type: integer
+    description: "Number of lines changed"
+    maximum: 30
+    minimum: 1
+  code_snippet:
+    type: string
+    description: "The code snippet content"
+  comment_count:
+    type: integer
+    description: "Number of review comments (proxy for effort)"
+    minimum: 0
+  problem_statement:
+    type: string
+    description: "Derived problem statement from PR title"
+required:
+  - pr_id
+  - project_id
+  - language
+  - diff_lines
+  - code_snippet
+  - comment_count
+  - problem_statement
+additionalProperties: false

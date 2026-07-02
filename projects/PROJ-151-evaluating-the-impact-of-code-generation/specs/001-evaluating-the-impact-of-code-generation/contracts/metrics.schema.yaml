@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Code Metrics Schema"
+description: "Schema for computed code metrics (complexity, maintainability, etc.)"
+type: object
+properties:
+  id:
+    type: string
+    description: "Unique identifier for the code snippet"
+  origin:
+    type: string
+    enum:
+      - "human"
+      - "generated"
+    description: "Origin of the code snippet"
+  loc:
+    type: integer
+    description: "Lines of code"
+    minimum: 1
+  cyclomatic_complexity:
+    type: number
+    description: "Cyclomatic complexity score (Radon)"
+    minimum: 0
+  maintainability_index:
+    type: number
+    description: "Maintainability index (Radon)"
+    minimum: 0
+    maximum: 100
+  pylint_score:
+    type: number
+    description: "Pylint score (Python only)"
+    minimum: 0
+    maximum: 10
+  checkstyle_score:
+    type: number
+    description: "Checkstyle score (Java only)"
+    minimum: 0
+    maximum: 10
+  token_count:
+    type: integer
+    description: "Number of tokens in the code snippet"
+    minimum: 1
+required:
+  - id
+  - origin
+  - loc
+  - cyclomatic_complexity
+  - maintainability_index
+  - token_count
+additionalProperties: false

@@ -1,0 +1,10 @@
+? 'T001 [P] Create project directory tree per `plan.md` (directories: `code/`, `data/raw/`,
+  `data/processed/`, `data/generated/`, `data/validation/`, `tests/`)'
+: 2
+? T002 [P] Initialize Python 3.11 environment and create `requirements.txt` pinning
+  `datasets`, `transformers`, `torch` (CPU), `radon>=0.7.0`, `pylint`, `statsmodels>=0.14.0`,
+  `pandas`, `numpy`, `scikit-learn`, `pwr`
+: 1
+T003 [P] Create `.gitignore` to exclude `data/` (raw/processed/generated) and `__pycache__`: 1
+T005 [P] Create `state.yaml` skeleton for artifact hashing and version tracking: 1
+T007 [P] Implement `code/metrics/utils.py` for metric aggregation and checksum calculation utilities: 1

@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Generation Provenance Schema"
+description: "Schema for LLM generation provenance records (Constitution Principle VI)"
+type: object
+properties:
+  generation_id:
+    type: string
+    description: "Unique generation identifier"
+  model_id:
+    type: string
+    description: "Model identifier (e.g., StarCoder-1B, CodeGen-350M)"
+  prompt:
+    type: string
+    description: "Full prompt string used for generation"
+  seed:
+    type: integer
+    description: "Random seed used (must be 42)"
+    const: 42
+  timestamp:
+    type: string
+    format: date-time
+    description: "Generation timestamp"
+  generation_file_path:
+    type: string
+    description: "Path to the generated code file"
+  effort_proxy_type:
+    type: string
+    description: "Type of effort proxy used (e.g., comment_count)"
+    const: "comment_count"
+required:
+  - generation_id
+  - model_id
+  - prompt
+  - seed
+  - timestamp
+  - generation_file_path
+  - effort_proxy_type
+additionalProperties: false

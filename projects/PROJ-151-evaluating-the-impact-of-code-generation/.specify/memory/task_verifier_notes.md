@@ -1,0 +1,6 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001 [P] Create project directory tree per `plan.md` (directories: `code/`, `data/raw/`, `data/processed/`, `data/generated/`, `data/validation/`, `tests/`)** — No evidence of the required directory structure (`code/`, `data/raw/`, `data/processed/`, `data/generated/`, `data/validation/`, `tests/`) is provided; the implementer did not supply any artifact showing that these folders exist. The task remains undone until the full tree is created and visible.
+- **T007 [P] Implement `code/metrics/utils.py` for metric aggregation and checksum calculation utilities** — The provided `code/metrics/utils.py` contains only partial implementations – the `aggregate_metrics_by_project` function is cut off (“# D …(truncated)”), and no further utilities are shown. Because the file is incomplete, it does not fully satisfy the requirement to implement metric aggregation and checksum calculation utilities. The missing remainder must be added for the task to be considered complete.

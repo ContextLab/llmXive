@@ -1,83 +1,52 @@
 # Data Model: Evaluating the Impact of Code Generation Models on Code Review Efficiency
 
-## Key Entities
+## Overview
 
-### 1. Code Snippet
-Represents a single function or change block (Human or Generated).
+This document defines the schema for all data artifacts in the project, ensuring compliance with Constitution Principles III (Data Hygiene) and VII (Metric Consistency).
 
-- **id**: `str` (UUID)  
-- **origin**: `str` (Enum: `"human"`, `"generated"`)  
-- **language**: `str` (Enum: `"python"`, `"java"`)  
-- **loc**: `int` (Lines of Code)  
-- **cyclomatic_complexity**: `float`  
-- **maintainability_index**: `float`  
-- **pylint_score**: `float` (0‑10, `null` for Java)  
-- **checkstyle_score**: `float` (null for Python)  
-- **token_count**: `int`  
-- **content_hash**: `str` (SHA256 of the code)  
-- **status**: `str` (Enum: `"valid"`, `"invalid_syntax"`, `"trivial"`, `"semantic_failure"`, `"failed"`) – indicates whether the snippet passed the **semantic validity filter**.  
-- **context_snapshot**: `str` (Optional, for generated only) – The reconstructed problem context used in the prompt.
+## Entities
 
-### 2. Review Record
-Represents a PR review event (human data) or a validation‑study record.
+### 1. Raw PR Dataset
+- **Source**: HuggingFace `loubnabnl/prs-v2-sample`
+- **Format**: Parquet
+- **Key Fields**: `pr_id`, `project_id`, `language`, `diff_lines`, `code_snippet`, `comment_count`, `timestamp`
 
-- **id**: `str` (UUID)  
-- **snippet_id**: `str` (FK to Code Snippet)  
-- **review_time_seconds**: `float` (nullable – missing in primary cohort, present in validation)  
-- **comment_count**: `int`  
-- **proxy_effort**: `int` – derived field equal to `comment_count` when `review_time_seconds` is null.  
-- **perceived_difficulty**: `int` (1‑5 Likert, nullable – present only in validation study)  
-- **project_id**: `str` (for random‑effects grouping)  
+### 2. Filtered PR Dataset
+- **Derived From**: Raw PR Dataset
+- **Filter**: `language` in ["Java", "Python"] AND `diff_lines` ≤ 30 AND `comment_count` IS NOT NULL
+- **Format**: Parquet
+- **Key Fields**: `pr_id`, `project_id`, `language`, `code_snippet`, `comment_count`, `problem_statement` (derived from title)
 
-### 3. Experiment Pair
-Links a human snippet to its LLM‑generated counterpart for the **exact same problem instance**.
+### 3. Generated Code Snippet
+- **Derived From**: Filtered PR Dataset + LLM Generation
+- **Format**: CSV
+- **Key Fields**: `pr_id`, `origin` ("generated"), `code_snippet`, `generation_status` ("success"|"failed"), `model_id`, `prompt`, `seed`, `timestamp`
 
-- **id**: `str` (UUID)  
-- **human_snippet_id**: `str`  
-- **generated_snippet_id**: `str`  
-- **problem_statement**: `str` (derived from the PR title)  
-- **context_snapshot**: `str` (The reconstructed context used for generation)
+### 4. Code Metrics
+- **Derived From**: Filtered PR Dataset (Human) + Generated Code Snippet
+- **Format**: CSV
+- **Key Fields**: `id`, `origin`, `loc`, `cyclomatic_complexity`, `maintainability_index`, `pylint_score`, `checkstyle_score`, `token_count`
 
-### 4. Provenance Record
-Links generated code to generation parameters (FR‑008).
+### 5. Provenance Record
+- **Derived From**: Generation Step
+- **Format**: CSV
+- **Key Fields**: `generation_id`, `model_id`, `prompt`, `seed`, `timestamp`, `generation_file_path`, `effort_proxy_type` ("comment_count")
 
-- **id**: `str` (UUID)  
-- **generated_snippet_id**: `str`  
-- **model_id**: `str` (e.g., `"StarCoder-1B"` or `"CodeGen-350M"`)  
-- **prompt_string**: `str` (Full prompt including context)  
-- **random_seed**: `int`  
-- **timestamp**: `datetime`  
-- **generation_file_path**: `str`  
+### 6. Validation Survey Data
+- **Derived From**: Human Review Study
+- **Format**: CSV
+- **Key Fields**: `snippet_id`, `reviewer_id`, `review_time_ms`, `comment_count`, `difficulty_rating` (1-5), `blinding_status`
 
-## Data Flow
+## Relationships
 
-1. **Ingestion** → `data/processed/prs_filtered.csv` (human PRs).  
-2. **Context Reconstruction** → Extract context from diffs.  
-3. **Generation** → `data/generated/snippets/` + `data/generated_provenance.csv`.  
-4. **Semantic Validity Filter** → snippets flagged with `status`.  
-5. **Metrics** → `data/metrics/all_metrics.csv` (includes `status` and language-specific scores).  
-6. **Analysis** → `data/models/lmm_results.json`.  
-7. **Validation** → `data/models/validation_results.csv` (includes bias analysis).
+- **Filtered PR** (1) → (N) **Generated Code** (if multiple generations per PR)
+- **Generated Code** (1) → (1) **Metrics**
+- **Human Code** (1) → (1) **Metrics**
+- **Validation Survey** (N) → (1) **Snippet** (multiple reviewers per snippet)
 
-## File Structure
+## Data Hygiene Rules
 
-```
-data/
-├── raw/
-│   └── gerrit_dump.tar.gz
-├── processed/
-│   ├── prs_filtered.csv
-│   └── pairs.csv
-├── generated/
-│   ├── snippets/
-│   │   ├── snip_001.py
-│   │   └── …
-│   └── …
-├── metrics/
-│   └── all_metrics.csv
-├── models/
-│   ├── lmm_results.json
-│   └── validation_results.csv
-└── provenance/
-    └── generated_provenance.csv
-```
+1. **Checksums**: All files in `data/raw/` and `data/processed/` must be checksummed (SHA-256) and recorded in `state.yaml`.
+2. **Immutability**: Raw data is never modified. Derivations create new files (e.g., `filtered_prs.parquet`).
+3. **PII**: No PII allowed in `data/`. Reviewer IDs in validation study are anonymized.
+4. **Versioning**: Each artifact change updates `state.yaml` `artifact_hashes`.

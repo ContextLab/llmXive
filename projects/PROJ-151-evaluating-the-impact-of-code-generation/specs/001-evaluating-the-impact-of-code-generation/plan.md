@@ -1,139 +1,170 @@
 # Implementation Plan: Evaluating the Impact of Code Generation Models on Code Review Efficiency
 
-**Branch**: `001-evaluating-code-generation-impact` | **Date**: 2024-05-23  
-**Spec**: `specs/001-evaluating-the-impact-of-code-generation/spec.md`
+**Branch**: `001-evaluating-code-generation-impact` | **Date**: 2024-05-23 | **Spec**: `specs/001-evaluating-the-impact-of-code-generation/spec.md`
 
 ## Summary
 
-The project investigates whether LLM‑generated code snippets require more reviewer effort (time, comments, difficulty) than human‑written snippets for the same task. 
-**Critical Constraint**: The primary dataset MUST be the Gerrit Chromium dataset via GHTorrent as mandated by FR-001. If GHTorrent is unavailable or unverified, the pipeline HALTS and a **Spec Amendment Request** is generated to switch to the verified HuggingFace proxy. 
-**Matched-Pair Design**: To address confounding, the LLM is prompted with the *full reconstructed context* of the PR (not just the title), creating true **Experiment Pairs** where both Human and LLM code attempt to solve the exact same problem instance.
-**Outcome Definition**: The large-scale analysis uses `comment_count` as a *Proxy Effort* metric (due to missing `review_time` in most historical data). The Validation Study measures *Actual Effort* (`review_time`, `difficulty`) on a subset to validate the proxy and test for systematic bias.
+This feature implements a computational research pipeline to evaluate whether LLM-generated code snippets require more reviewer effort than human-written code for the same tasks. The system will: (1) ingest the Gerrit Chromium proxy dataset from HuggingFace, filtering for Java/Python PRs with ≤30 LOC; (2) generate alternative implementations using CodeGen-350M (primary, CPU-optimized) and StarCoder-1B (secondary) on CPU; (3) compute static code metrics (complexity, maintainability, etc.); and (4) perform statistical analysis using linear mixed-effects models (or fixed-effects if power is low) to predict effort (proxied by filtered comment counts in historical data, validated by a human survey study). The pipeline adheres to strict reproducibility (seed pinning), data hygiene (checksums), and statistical rigor (multiple-comparison correction, interaction tests, power analysis).
 
-**Spec Amendment Strategy**: If the GHTorrent gate fails, the plan automatically generates a `spec_amendment_request.md` proposing:
-1.  **Amend SC-001**: Change "GHTorrent dump" to "verified HuggingFace source".
-2.  **Amend FR-001**: Change "download via GHTorrent" to "load via datasets.load_dataset(verified_gerrit_source)".
-3.  **Amend FR-011/FR-012**: Move `review_time` and `perceived_difficulty` from "Primary Cohort" requirements to "Validation Study only".
+## Technical Context
 
-## Technical Context (Compute Feasibility)
-
-- **Runner**: GitHub Actions free tier (2 CPU, ~7 GB RAM, no GPU, ≤6 h).  
-- **Model Loading**:  
-  - **StarCoder‑1B** (~4 GB RAM in `float16` on CPU).  
-  - **CodeGen‑350M** (~1.5 GB RAM).  
-- **Memory‑Check Logic** (Phase 2 Step 2.2): before loading StarCoder‑1B the script estimates required RAM; if estimated > 5 GB the script **skips StarCoder‑1B** and proceeds with CodeGen‑350M only, logging the fallback. This guarantees the pipeline stays within the 7 GB limit.  
-- **Model Capability Benchmark** (Phase 0 Step 0.6): Before full generation, CodeGen-350M is benchmarked on a small subset to ensure it meets the `Pearson r ≥ 0.7` and `[deferred] generation success` targets. If it fails, the plan triggers a fallback to CodeGen-2B (if CPU-tractable) or flags a spec amendment for model upgrade.
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `datasets`, `transformers`, `torch` (CPU-only), `radon`, `pylint`, `statsmodels`, `pandas`, `numpy`, `scikit-learn`, `pwr`  
+**Storage**: Local filesystem (`data/`, `code/`); CSV/Parquet formats  
+**Testing**: `pytest` (contract tests, unit tests for metric computation)  
+**Target Platform**: GitHub Actions Free Runner (2 CPU, ~7 GB RAM, No GPU)  
+**Project Type**: Research Pipeline / CLI  
+**Performance Goals**: Full pipeline execution ≤6 hours; Model inference ≤300s/snippet; Memory usage <7 GB  
+**Constraints**: CPU-only inference; No CUDA; Primary model is CodeGen-350M (StarCoder-1B secondary); Strict seed pinning (); No ground-truth review time in historical data (use filtered comment count proxy); Symmetric prompting to avoid confounding.  
+**Scale/Scope**: Historical dataset: N≥1000 (adaptive if less); Generated samples: ≥90% success rate; Validation study: ≥50 snippets, ≥3 reviewers
 
 ## Constitution Check
 
-| Principle | Status | Action/Notes |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | PASS | Seeds pinned (`seed=42`); `requirements.txt` pins all versions. |
-| **II. Verified Accuracy** | PASS (Verified Proxy) | **Proxy Validation**: Step 0.2 performs checksum, schema validation, and self-consistency checks on the HuggingFace source. If GHTorrent fails, the Spec Amendment Request documents the gap and the proxy validation steps. |
-| **III. Data Hygiene** | PASS | Raw data checksummed; all transformations produce new files. |
-| **IV. Single Source of Truth** | PASS | All figures/statistics trace to rows in `data/` and code in `code/`. |
-| **V. Versioning** | PASS | Content hashes recorded in state file. |
-| **VI. Model & Prompt Transparency** | PASS | `data/generated_provenance.csv` stores model, prompt, seed, and *full context snapshot*. |
-| **VII. Metric & Effort Modeling Consistency** | PASS | `radon` ≥0.7.0, `pylint` ≥2.17.0, `checkstyle` ≥10.3, `statsmodels` ≥0.14.0 pinned. |
+*GATE: Must pass before Phase 0 research.*
+
+| Principle | Requirement | Plan Compliance |
+|-----------|-------------|-----------------|
+| **I. Reproducibility** | Random seeds pinned; External datasets from canonical source. | **Compliant**: `random.seed(42)` and `transformers` seed set in all scripts. Dataset loaded via `datasets.load_dataset("loubnabnl/prs-v2-sample")` (verified URL). |
+| **II. Verified Accuracy** | Citations verified against primary source. | **Compliant**: Only URLs from the "Verified datasets" block in the spec are used. No invented URLs. |
+| **III. Data Hygiene** | Checksums recorded; No in-place modification. | **Compliant**: `data/` files will be checksummed in `state.yaml`. Raw data preserved; derivations written to new files (e.g., `filtered_prs.parquet`, `metrics.csv`). |
+| **IV. Single Source of Truth** | Figures/stats trace to one row in `data/`. | **Compliant**: Analysis scripts read exclusively from `data/metrics/` and `data/generated/`. All statistics in the report are programmatically derived from these files. |
+| **V. Versioning Discipline** | Content hashes for artifacts; `state.yaml` updates; Advancement-Evaluator role. | **Compliant**: `state.yaml` will track `artifact_hashes` for `data/` files. The Advancement-Evaluator Agent will invalidate stale records if hashes change. |
+| **VI. Model & Prompt Transparency** | Provenance record (model, prompt, seed, timestamp) in CSV. | **Compliant**: `data/generated_provenance.csv` will be generated per FR-008, logging `model_id`, `prompt`, `seed`, `timestamp`. |
+| **VII. Metric & Effort Modeling Consistency** | Exact tool versions (`radon`, `statsmodels`) used. | **Compliant**: `requirements.txt` will pin `radon>=0.7.0` and `statsmodels>=0.14.0`. |
 
 ## Project Structure
 
+### Documentation (this feature)
+
+```text
+specs/001-evaluating-code-generation-impact/
+├── plan.md              # This file
+├── research.md          # Phase 0 output
+├── data-model.md        # Phase 1 output
+├── quickstart.md        # Phase 1 output
+└── contracts/           # Phase 1 output
 ```
-specs/001-evaluating-the-impact-of-code-generation/
-├── plan.md
-├── research.md
-├── data-model.md
-├── quickstart.md
-├── contracts/
-│   ├── metrics_schema.schema.yaml
-│   └── pr_schema.schema.yaml
-└── tasks.md
+
+### Source Code (repository root)
+
+```text
+projects/PROJ-151-evaluating-code-generation/
+├── code/
+│   ├── __init__.py
+│   ├── config.py              # Constants, paths, seeds
+│   ├── data/
+│   │   ├── ingest.py          # FR-001: Download & filter PRs
+│   │   ├── validation.py      # FR-001: Column checks
+│   │   └── filter_comments.py # Phase 1.5: Comment Quality Filter
+│   ├── generation/
+│   │   ├── model_loader.py    # FR-003: CodeGen/StarCoder CPU loading
+│   │   ├── generate.py        # FR-002: Prompt & generate code (Symmetric)
+│   │   └── provenance.py      # FR-008: Log provenance
+│   ├── metrics/
+│   │   ├── compute.py         # FR-004: Radon, Pylint, Checkstyle
+│   │   └── utils.py           # Metric aggregation
+│   ├── analysis/
+│   │   ├── power.py           # Phase 0.5: Power Analysis
+│   │   ├── model_fit.py       # FR-005, FR-013: Mixed-effects model
+│   │   ├── correction.py      # FR-007: Multiple-comparison correction
+│   │   ├── sensitivity.py     # FR-006: LOC threshold sweep
+│   │   ├── wilcoxon.py        # FR-010: Wilcoxon signed-rank test
+│   │   ├── validation.py      # FR-011, FR-012, FR-014: Survey & transfer
+│   │   └── collinearity.py    # Phase 3.5: KS-test & PSM
+│   └── main.py                # Orchestrator
+├── data/
+│   ├── raw/                   # Downloaded parquet (checksummed)
+│   ├── processed/             # Filtered CSVs, metrics
+│   ├── generated/             # Generated code snippets
+│   └── validation/            # Survey results, provenance
+├── tests/
+│   ├── unit/                  # Metric computation, filtering logic
+│   └── contract/              # Schema validation
+├── requirements.txt           # Pinned dependencies
+└── README.md                  # Quickstart guide
 ```
 
-## Phase Plan
+**Structure Decision**: Single project structure (`code/`) chosen to align with the research pipeline nature (sequential steps: ingest → generate → analyze). No frontend/backend split required.
 
-### Phase 0: Research & Data Strategy
-*Goal: Verify data source, validate proxy, and benchmark model capability.*
+## Complexity Tracking
 
-- **Step 0.1**: **GHTorrent Verification** – Attempt to download the Gerrit Chromium dataset via GHTorrent. 
-  - **Success**: Proceed to Step 0.2.
-  - **Failure**: Generate a `spec_amendment_request.md` detailing the missing source and required variables (`review_time`, `difficulty`). **HALT** pipeline execution until the amendment is approved. The amendment proposes changing SC-001 and FR-001 to use the verified HuggingFace source.
-- **Step 0.2**: **Proxy Validation** – Verify that the GHTorrent/HF dump contains `title`, `diff/patch`, `created_at`, `updated_at`, `comment_count`. 
-  - **Validation**: Perform checksum verification, schema validation against `pr_schema.schema.yaml`, and self-consistency checks (null rates, duplicate detection). 
-  - **Gate**: If `review_time` or `difficulty` are missing, document them as "Unavailable for Primary Cohort" and proceed with `comment_count` as the proxy, reserving `difficulty` for the Validation Study.
-- **Step 0.3**: Benchmark StarCoder‑1B and CodeGen‑350M memory usage on the runner; confirm fallback logic works.
-- **Step 0.4**: Design the **Context Reconstruction** algorithm: Parse the PR diff to extract imports, function signatures, and surrounding code to form the "Problem Context" prompt for the LLM.
-- **Step 0.5**: Design the human difficulty survey (5‑point Likert) for the **Validation Study** subset (≥50 generated + 50 human matched pairs). Note: This survey is NOT applied to the historical PRs where data is missing.
-- **Step 0.6**: **Model Capability Benchmark** – Run CodeGen-350M on a small subset (n=50) of the Validation Study problem statements. 
-  - **Success**: Generation success rate ≥ 90% and preliminary Pearson r ≥ 0.7 (vs. human effort proxy).
-  - **Failure**: Trigger fallback to CodeGen-2B (if CPU-tractable) or flag a spec amendment for model upgrade.
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| **Symmetric Prompting** | To avoid confounding 'Origin' with 'Prompt Quality'. | Using refined prompts for LLM only would make the comparison invalid. |
+| **Dual Model Strategy (CodeGen-350M primary)** | To ensure CPU feasibility on 7GB RAM. | StarCoder-1B is likely to OOM; CodeGen-350M is the guaranteed path. |
+| **Validation Study (Human Survey)** | FR-011/FR-012 require ground-truth effort measurement, as historical data lacks `review_time`. | Relying solely on `comment_count` proxy is insufficient for final conclusions; human validation is mandated by the spec. |
+| **Mixed-Effects Model with Interaction (or Fixed-Effects)** | FR-013 requires testing structural breaks. | Simple linear regression would fail to detect if LLM code behaves differently. |
+| **Power Analysis & Adaptive Model** | To ensure statistical validity given cluster constraints. | Assuming N=1000 without checking clusters leads to underpowered tests. |
 
-### Phase 1: Data Model & Contracts
-*Goal: Define schemas and data flow.*
+## Phased Implementation Plan
 
-- **Step 1.1**: Define `Code Snippet`, `Review Record`, **Experiment Pair**, and `Provenance Record` schemas (see `data-model.md`).
-- **Step 1.2**: Create `contracts/pr_schema.schema.yaml` and `contracts/metrics_schema.schema.yaml` (status enum now includes `invalid_syntax`, `trivial`, `semantic_failure`).
-- **Step 1.3**: Implement `quickstart.md` with updated instructions reflecting the GHTorrent gate, matched-pair design, and Spec Amendment triggers.
+### Phase 0: Setup & Power Analysis (FR-009, FR-003)
+1. Initialize environment, pin seeds (42), install dependencies.
+2. **Phase 0.5: Power Analysis**:
+   - Load raw data, count unique `project_id` clusters.
+   - Estimate power for mixed-effects model (interaction term) given N and clusters.
+   - **Decision**: If clusters < 30, switch to Fixed-Effects model with robust SEs. If N < 100, reduce sample size target to 200.
 
-### Phase 2: Implementation
-*Goal: Build the end‑to‑end pipeline.*
+### Phase 1: Data Ingestion & Filtering (FR-001, FR-002)
+1. Download `prs-v2-sample` via `datasets.load_dataset`.
+2. Filter for `language` in ["Java", "Python"].
+3. Filter for `diff_lines` ≤ 30.
+4. **Phase 1.5: Comment Quality Filter**:
+   - Exclude comments with length < 10 chars or containing only 'LGTM', 'nit', 'n/a'.
+   - Recalculate `comment_count` as `filtered_comment_count`.
+5. Validate presence of `code_snippet` and `filtered_comment_count`.
+6. Output: `data/processed/filtered_prs.parquet`.
 
-- **Step 2.1**: **Ingestion** (`code/ingestion.py`) – Implements **FR‑001 (adapted for verified source)**: 
-  1. Load dataset via `datasets.load_dataset('verified_gerrit_source')` (or GHTorrent if available).
-  2. Filter for Java/Python, enforce ≤ 30 LOC.
-  3. Output `data/processed/prs_filtered.csv`.
-  4. **Gate**: If `review_time` or `difficulty` are missing, flag the dataset as "Proxy-Effort Only" for the main cohort.
-- **Step 2.2**: **Generation** (`code/generation.py`) – Implements **FR‑003** & **FR‑008**:  
-  1. **Context Reconstruction**: Extract full problem context from the PR diff.
-  2. **Memory‑Check**: If StarCoder‑1B exceeds RAM, fallback to CodeGen‑350M.
-  3. **Generation**: Prompt LLM with "Context + Title".
-  4. **Semantic Validity Filter**: 
-     - (a) Syntax parse.
-     - (b) Triviality check (e.g., length < 3 lines or returns constant).
-     - (c) **Semantic Check**: Run lightweight static analysis/mock execution to detect nonsensical logic (e.g., `return 0` for a complex task).
-  5. Record provenance (model_id, prompt, seed, timestamp, context_snapshot) in `data/generated_provenance.csv`.
-  6. Store only snippets with `status = "valid"`; others logged with `status = "invalid_syntax"`, `"trivial"`, or `"semantic_failure"`.
-- **Step 2.3**: **Metrics Computation** (`code/metrics.py`) – Implements **FR‑004**: 
-  - **Language Routing**: 
-    - If `language == 'python'`: Run `radon`, `pylint`.
-    - If `language == 'java'`: Run `radon` (if supported), `checkstyle`.
-  - Compute cyclomatic complexity, maintainability, token count.
-  - Write `data/metrics/all_metrics.csv` with `status` and `language` fields.
-- **Step 2.4**: **Statistical Analysis** (`code/analysis.py`) – Implements **FR‑005, FR‑006, FR‑007, FR‑010, FR‑013**:  
-  - **Proxy Attenuation Correction**: Calculate Pearson r between `comment_count` and `review_time` in the Validation Study. Apply correction factor (1/r) to observed effect sizes in the primary analysis. Perform post-hoc power calculation based on r.
-  - **Transfer Estimation**: 
-    1. Train a 'Human Effort Model' on the historical human cohort (using proxy metrics) to predict 'Expected Effort' for any code snippet given its metrics.
-    2. Apply this model to the Generated cohort to predict their 'Expected Effort' (counterfactual).
-    3. Compare the 'Actual Effort' (from Validation Study) of Generated code against the 'Predicted Effort' of Human code (scaled by the proxy correlation) and the 'Predicted Effort' of Generated code.
-  - **Outcome**: `proxy_effort = comment_count` (Primary Cohort).
-  - **Model**: Linear Mixed‑Effects Model: `proxy_effort ~ code_origin * cyclomatic_complexity + (1|project_id) + (1|problem_statement)`.
-  - **Collinearity**: Check VIF; drop predictors if VIF > 5.
-  - **Multiple Comparisons**: Bonferroni correction.
-  - **Sensitivity Analysis**: Sweep LOC thresholds across low, medium, and high ranges.
-  - **Transfer Assumption**: Compare residual distributions between origins.
-  - Output `data/models/lmm_results.json`.
-- **Step 2.5**: **Validation Study** (`code/validation.py`) – Implements **FR‑011, FR‑012**:  
-  1. Sample ≥ 50 `valid` generated snippets and matched human snippets.
-  2. Administer survey to ≥2 reviewers for `review_time`, `comment_count`, `difficulty`.
-  3. **Bias Check**: Compute residuals of the primary model on the validation set. Test for systematic bias (mean difference in residuals) between Human and LLM groups (Bland-Altman style).
-  4. Compute Pearson r and Wilcoxon signed-rank test.
-  5. Store results in `data/models/validation_results.csv`.
+### Phase 2: Code Generation (FR-002, FR-003)
+1. Extract problem statement from PR title (Symmetric: same for Human and LLM).
+2. Load CodeGen-350M (CPU, float16).
+   - **Fallback**: If OOM, switch to StarCoder-1B (if memory allows) or reduce N.
+3. Generate code with seed=42.
+4. **Phase 2.5: Plausibility Filter**:
+   - Check for non-existent imports, trivial solutions, or infinite loops.
+   - Exclude failed generations.
+5. Log provenance (model, prompt, seed, timestamp) to `data/generated_provenance.csv`.
+6. Output: `data/generated/code_snippets.csv`.
 
-### Phase 3: Verification & Reporting
-*Goal: Ensure FR/SC coverage and generate the final report.*
+### Phase 3: Metric Computation (FR-004)
+1. Compute for both human and generated code:
+   - Cyclomatic Complexity (Radon)
+   - Maintainability Index (Radon)
+   - Pylint Score (Python)
+   - Checkstyle Score (Java)
+   - Token Count
+2. Output: `data/processed/metrics.csv`.
 
-- **Step 3.1**: Run full pipeline; confirm ≥ 1,000 rows in `prs_filtered.csv` and ≥ 90% generation success.
-- **Step 3.2**: **Amended SC‑001 Verification** – Measure retrieval success against the **verified HuggingFace dataset total** (as per the Spec Amendment). Must be ≥95% if source available.
-- **Step 3.3**: Verify **SC‑002** (generation success) and **SC‑003‑SC‑005** using analysis outputs.
-- **Step 3.4**: Generate final report including:
-  - Explicit **associational disclaimer** (FR‑005).
-  - Distinction between **Proxy Effort** (main cohort) and **Actual Effort** (validation).
-  - **Limitation Statement**: Acknowledge that LLM code is reviewed in "reconstructed context" vs Human code in "full business context".
-  - Mixed‑effects tables, corrected p‑values, sensitivity tables, residual diagnostics, **Bias Analysis** results, and **Proxy Attenuation Correction** details.
+### Phase 4: Statistical Analysis (FR-005, FR-006, FR-007, FR-010, FR-013, FR-014)
+1. **Phase 3.5: Collinearity & Distributional Shift Check**:
+   - Perform KS-test on Complexity distributions (Human vs. Generated).
+   - If significant shift, use Propensity Score Matching (PSM) or Stratified Analysis.
+2. **Phase 4.1: Mixed-Effects Model**:
+   - Fit model: `Effort ~ Complexity + Origin + (Complexity * Origin) + (1|Project_ID)`.
+   - If clusters < 30, use Fixed-Effects model.
+3. **Phase 4.2: Interaction Test**:
+   - If `Origin * Complexity` is significant (p < 0.05), report stratified results.
+4. **Phase 4.3: Wilcoxon Signed-Rank Test**:
+   - Compare predicted effort for matched pairs (Human vs. Generated) per FR-010.
+5. **Phase 4.4: Multiple-Comparison Correction**:
+   - Apply Bonferroni/FDR for all hypothesis tests per FR-007.
+6. **Phase 4.5: Sensitivity Analysis**:
+   - Sweep LOC thresholds (low, medium, high) per FR-006.
+7. **Phase 4.6: Validation Study & Transfer Error**:
+   - Analyze survey data (Likert, time).
+   - Calculate Cohen's Kappa (FR-011).
+   - Compute MAE between predicted (historical) and actual (validation) effort per FR-014.
+8. **Phase 4.7: Success Criterion Check**:
+   - Evaluate Pearson r ≥ 0.7 (SC-005).
+   - Report Pass/Fail.
 
-## References (selected)
+## Risks & Mitigations
 
-- GHTorrent: `http://ghtorrent.org/` (Primary Source, Verified if available).
-- Verified Gerrit Source (HuggingFace): `https://huggingface.co/datasets/verified_gerrit_source` (Proxy Source).
-- StarCoder‑1B model card (CPU‑compatible).
-- CodeGen‑350M model card.
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| StarCoder OOM on CPU | Pipeline failure | Primary model is CodeGen-350M; StarCoder is secondary. |
+| Low generation success rate | Insufficient data | Plausibility filter; log failures; report rate. |
+| Weak `comment_count` correlation | Invalid historical model | Reliance on validation study for final conclusions; historical results are exploratory. |
+| Reviewer bias in survey | Invalid difficulty rating | Blinding protocol (reviewers unaware of origin). |
+| Low cluster count (Power) | Invalid mixed-effects | Switch to Fixed-Effects with robust SEs. |
+| Distributional Shift (Collinearity) | Spurious interaction | Use PSM or Stratified Analysis. |

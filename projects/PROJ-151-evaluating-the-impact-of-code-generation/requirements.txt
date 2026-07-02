@@ -1,0 +1,17 @@
+# Python 3.11+ environment for llmXive PROJ-151
+# Core data and ML libraries
+datasets>=2.14.0
+transformers>=4.35.0
+# PyTorch CPU-only version to ensure compatibility and avoid CUDA requirements
+torch --index-url https://download.pytorch.org/whl/cpu
+# Code quality and static analysis
+radon>=0.7.0
+pylint>=3.0.0
+# Statistical analysis
+statsmodels>=0.14.0
+# Data manipulation
+pandas>=2.0.0
+numpy>=1.24.0
+scikit-learn>=1.3.0
+# Power analysis
+pwr>=1.0.0

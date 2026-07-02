@@ -1,69 +1,5 @@
-resolved_at: '2026-07-01T05:36:12.376690+00:00'
+resolved_at: '2026-07-02T21:47:33.407390+00:00'
 datasets:
-- intent: GHTorrent
-  status: unresolved
-  candidates: []
-  candidates_tried:
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/The_effect_of_a_combined_lifestyle_intervention_with_and_without_protein_drink_on_inflammation_in_older_adults_with_obesity_and_type_2_diabetes/32843894
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/SSMAP_Weekly_Environmental_Traffic_Safety_Report_057_2020_Prepared_for_Egis_SRKN/32843858
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Tactile_Neuromorphic_Ion-Gated_Vertical_Transistor_Displays_Enabling_Dual-Output_Reservoir_Computing/32843892
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/A_Hyperbranched_Rolling_Circle_Amplification_Assay_Using_Aptamer_Hemin_G-Quadruplex_Recognition_for_the_Detection_of_Creatine_Kinase-MB/32843889
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Photochemical_Ni-Catalyzed_Cross-Coupling_of_Aryl_Bromides_with_Hydrazides/32843886
-    source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3711500
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3711630
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/5111043
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/12741072
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3840472
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2606.29550
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/4566198
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/4566740
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10049493
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10049493
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
 - intent: PRs
   status: verified
   candidates:
@@ -109,23 +45,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://opal.latrobe.edu.au/articles/composition/The_Enhanced_Games_are_not_about_doping_they_are_clearing_a_path_for_accelerationism/32740728
+  - url: https://acs.figshare.com/articles/journal_contribution/Chiral_Benzimidazole_Manganese_Catalysts_for_Asymmetric_Transfer_Hydrogenation_of_3_Substituted_2H_1_4-Benzoxazines/32885584
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/The_effect_of_a_combined_lifestyle_intervention_with_and_without_protein_drink_on_inflammation_in_older_adults_with_obesity_and_type_2_diabetes/32843894
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Multifunctional_Magnetic_Microvesicle_for_Enhanced_Chemodynamic_Therapy_and_Immune_Activation_against_Bacterial_Infections/32885581
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/SSMAP_Weekly_Environmental_Traffic_Safety_Report_057_2020_Prepared_for_Egis_SRKN/32843858
+  - url: https://figshare.com/articles/dataset/_i_Electrical_Grid_Stability_Simulated_Data_i_set/32885567
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Tactile_Neuromorphic_Ion-Gated_Vertical_Transistor_Displays_Enabling_Dual-Output_Reservoir_Computing/32843892
+  - url: https://acs.figshare.com/articles/journal_contribution/K38_Succinylation_of_CsrA_Regulates_Biofilm_Formation_in_Pseudomonas_fluorescens_PF08_by_Modulating_c_di-GMP_Levels/32885578
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/A_Hyperbranched_Rolling_Circle_Amplification_Assay_Using_Aptamer_Hemin_G-Quadruplex_Recognition_for_the_Detection_of_Creatine_Kinase-MB/32843889
+  - url: https://figshare.com/articles/dataset/HCMI_snRNAseq_data_metadata/28410485
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -141,32 +77,113 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/16931148
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/6203212
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/Maternal_influenza_vaccination_intention_and_associated_factors_among_pregnant_women_in_Guizhou_Province_China/30382974
+  - url: https://zenodo.org/records/15547287
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21142093
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/Maternal_influenza_vaccination_intention_and_associated_factors_among_pregnant_women_in_Guizhou_Province_China/30382974/1
+  - url: https://zenodo.org/records/21142093
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Seroprevalence_and_determinants_of_SARS-CoV-2_anti-nucleocapsid_IgG_in_a_vaccinated_Iranian_adult_population_A_cross-sectional_study_Summer_2023/30145928
+  - url: https://zenodo.org/records/21142084
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Seroprevalence_and_determinants_of_SARS-CoV-2_anti-nucleocapsid_IgG_in_a_vaccinated_Iranian_adult_population_A_cross-sectional_study_Summer_2023/30145928/1
+  - url: https://zenodo.org/records/21142084
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://fair.unifg.it//handle/11369/363317
+  - url: https://osf.io/fus4k/
     source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: NOT
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/notune/fable5-repos/resolve/main/manifest.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/nothingiisreal/Human_Stories/resolve/main/reddit_vs_synth_writing_prompts.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/leolee99/NotInject/resolve/main/data/NotInject_one-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 10859
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/notune/fable5-repos/resolve/main/manifest.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/nothingiisreal/Human_Stories/resolve/main/reddit_vs_synth_writing_prompts.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/leolee99/NotInject/resolve/main/data/NotInject_one-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/nothingiisreal/Reddit-Dirty-And-WritingPrompts/resolve/main/reddit_dirty_writing_prompts.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://acs.figshare.com/articles/journal_contribution/Chiral_Benzimidazole_Manganese_Catalysts_for_Asymmetric_Transfer_Hydrogenation_of_3_Substituted_2H_1_4-Benzoxazines/32885584
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Multifunctional_Magnetic_Microvesicle_for_Enhanced_Chemodynamic_Therapy_and_Immune_Activation_against_Bacterial_Infections/32885581
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_i_Electrical_Grid_Stability_Simulated_Data_i_set/32885567
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/K38_Succinylation_of_CsrA_Regulates_Biofilm_Formation_in_Pseudomonas_fluorescens_PF08_by_Modulating_c_di-GMP_Levels/32885578
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/HCMI_snRNAseq_data_metadata/28410485
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15525595
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16413212
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16413231
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5105584
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16413496
+    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
 - intent: LOC
@@ -186,12 +203,12 @@ datasets:
     sample_check:
       downloaded_bytes: 262144
       parsed: true
-  - url: https://huggingface.co/datasets/local-deep-research/ldr-benchmarks/resolve/main/leaderboards/all.csv
+  - url: https://huggingface.co/datasets/nvidia/PhysicalAI-Robotics-Locomanipulation-GRAIL/resolve/main/checkpoint/GEM-SMPL/inputs/checkpoints/body_models/smplx/SMPLX_NEUTRAL.npz
     source: huggingface
-    format: csv
+    format: zip
     relevance: 0.0
     sample_check:
-      downloaded_bytes: 3357
+      downloaded_bytes: 262144
       parsed: true
   candidates_tried:
   - url: https://huggingface.co/datasets/LocalLaws/LOCUS-v1/resolve/main/data/train-00000-of-00008.parquet
@@ -206,31 +223,27 @@ datasets:
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://huggingface.co/datasets/local-deep-research/ldr-benchmarks/resolve/main/leaderboards/all.csv
-    source: huggingface
-    status: verified
-    format: csv
   - url: https://huggingface.co/datasets/nvidia/PhysicalAI-Robotics-Locomanipulation-GRAIL/resolve/main/checkpoint/GEM-SMPL/inputs/checkpoints/body_models/smplx/SMPLX_NEUTRAL.npz
     source: huggingface
     status: verified
     format: zip
-  - url: https://figshare.com/articles/dataset/Greenfield_University_i_0704_096_4654_i_officially_release_the_2026_2027_Admission_forms_for_all_programs_You_can_find_the_forms_available_for_Direct_Entry_Transfer_JUPEB_Form_Is_Out_07040964654_/32843861
+  - url: https://acs.figshare.com/articles/journal_contribution/Chiral_Benzimidazole_Manganese_Catalysts_for_Asymmetric_Transfer_Hydrogenation_of_3_Substituted_2H_1_4-Benzoxazines/32885584
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/Patients_perspectives_of_factors_influencing_active_participation_in_healthcare_interactions_A_qualitative_study/32843903
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Multifunctional_Magnetic_Microvesicle_for_Enhanced_Chemodynamic_Therapy_and_Immune_Activation_against_Bacterial_Infections/32885581
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opal.latrobe.edu.au/articles/composition/The_Enhanced_Games_are_not_about_doping_they_are_clearing_a_path_for_accelerationism/32740728
+  - url: https://figshare.com/articles/dataset/_i_Electrical_Grid_Stability_Simulated_Data_i_set/32885567
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://dro.deakin.edu.au/articles/journal_contribution/The_effect_of_a_combined_lifestyle_intervention_with_and_without_protein_drink_on_inflammation_in_older_adults_with_obesity_and_type_2_diabetes/32843894
+  - url: https://acs.figshare.com/articles/journal_contribution/K38_Succinylation_of_CsrA_Regulates_Biofilm_Formation_in_Pseudomonas_fluorescens_PF08_by_Modulating_c_di-GMP_Levels/32885578
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/SSMAP_Weekly_Environmental_Traffic_Safety_Report_057_2020_Prepared_for_Egis_SRKN/32843858
+  - url: https://figshare.com/articles/dataset/HCMI_snRNAseq_data_metadata/28410485
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -242,11 +255,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20272240
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20247041
+  - url: https://zenodo.org/records/20029524
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -254,23 +263,27 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2606.20790
+  - url: https://zenodo.org/records/20247041
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6283228
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2509.20491
+  - url: https://zenodo.org/records/6283228
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2404.10034
+  - url: https://zenodo.org/records/6283220
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21089152
+  - url: https://zenodo.org/records/6283220
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21089152
+  - url: https://zenodo.org/records/6283216
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
