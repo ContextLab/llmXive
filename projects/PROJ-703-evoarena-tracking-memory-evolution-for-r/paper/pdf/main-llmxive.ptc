@@ -1,0 +1,98 @@
+\contentsline {section}{\numberline {1}Introduction}{1}{section.1}%
+\contentsline {section}{\numberline {2}Related Work}{3}{section.2}%
+\contentsline {section}{\numberline {3}EvoArena: Benchmarking Agents under Persistent Environment Evolution}{4}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Executable Workflow Evolution: Terminal-Bench-Evo}{5}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Software Evolution: SWE-Chain-Evo}{7}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Social Intelligence Evolution: PersonaMem-Evo}{10}{subsection.3.3}%
+\contentsline {section}{\numberline {4}EvoMem: Patch-Based Memory Evolution}{13}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Overview: Memory as an Evolution Trace}{13}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Recording Memory Evolution as Patches}{14}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Retrieving Versioned Memory Evidence}{15}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}Instantiation Across Agents}{16}{subsection.4.4}%
+\contentsline {section}{\numberline {5}Experiments}{17}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Experimental Setup}{17}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}Main Results}{17}{subsection.5.2}%
+\contentsline {section}{\numberline {6}Analysis: When and Why Does EvoMem Help?}{18}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Terminal-Bench-Evo Mechanism Analysis}{18}{subsection.6.1}%
+\contentsline {paragraph}{EvoMem helps when retrieved transitions are operationalized.}{19}{paragraph*.13}%
+\contentsline {subsection}{\numberline {6.2}SWE-Chain-Evo Mechanism Analysis}{19}{subsection.6.2}%
+\contentsline {paragraph}{EvoMem reduces regressions across backbones.}{19}{paragraph*.16}%
+\contentsline {subsection}{\numberline {6.3}PersonaMem-Evo Mechanism Analysis}{19}{subsection.6.3}%
+\contentsline {subsection}{\numberline {6.4}Efficiency--Accuracy Trade-off}{20}{subsection.6.4}%
+\contentsline {paragraph}{PersonaMem-Evo Efficiency.}{20}{paragraph*.19}%
+\contentsline {paragraph}{Terminal-Bench-Evo Efficiency.}{20}{paragraph*.20}%
+\contentsline {section}{\numberline {7}Conclusion}{21}{section.7}%
+\ttl@starttoc {appendix@1}
+\contentsline {section}{\numberline {A}Limitations and Future Directions}{25}{appendix.A}%
+\contentsline {section}{\numberline {B}Broader Impact}{26}{appendix.B}%
+\contentsline {section}{\numberline {C}Declaration of LLM Usage}{27}{appendix.C}%
+\contentsline {section}{\numberline {D}Additional Analysis}{27}{appendix.D}%
+\contentsline {subsection}{\numberline {D.1}PersonaMem-Evo Analysis}{27}{subsection.D.1}%
+\contentsline {section}{\numberline {E}EvoArena Dataset Construction Details}{27}{appendix.E}%
+\contentsline {subsection}{\numberline {E.1}Terminal-Bench-Evo: Task Analysis and Evolution Taxonomy}{27}{subsection.E.1}%
+\contentsline {subsubsection}{\numberline {E.1.1}Evaluation Unit and Metrics}{28}{subsubsection.E.1.1}%
+\contentsline {subsubsection}{\numberline {E.1.2}Original Task Analysis}{29}{subsubsection.E.1.2}%
+\contentsline {subsubsection}{\numberline {E.1.3}Evolution Taxonomy}{29}{subsubsection.E.1.3}%
+\contentsline {subsection}{\numberline {E.2}Terminal-Bench-Evo: Version Construction and Validation}{30}{subsection.E.2}%
+\contentsline {subsubsection}{\numberline {E.2.1}Version-Chain Construction}{30}{subsubsection.E.2.1}%
+\contentsline {subsubsection}{\numberline {E.2.2}Quality Control}{30}{subsubsection.E.2.2}%
+\contentsline {subsubsection}{\numberline {E.2.3}Oracle Validation and Solvability Verification}{30}{subsubsection.E.2.3}%
+\contentsline {subsubsection}{\numberline {E.2.4}Metadata and Dataset Statistics}{31}{subsubsection.E.2.4}%
+\contentsline {subsection}{\numberline {E.3}SWE-Chain-Evo: Repository and Milestone Construction}{31}{subsection.E.3}%
+\contentsline {paragraph}{Goal and task formulation.}{31}{paragraph*.25}%
+\contentsline {subsubsection}{\numberline {E.3.1}Repository Collection and Domain Coverage}{31}{subsubsection.E.3.1}%
+\contentsline {subsubsection}{\numberline {E.3.2}Milestone Construction}{32}{subsubsection.E.3.2}%
+\contentsline {subsection}{\numberline {E.4}SWE-Chain-Evo: Evaluation Packaging and Chain Assembly}{32}{subsection.E.4}%
+\contentsline {subsubsection}{\numberline {E.4.1}Task Format and Problem Statement Construction}{32}{subsubsection.E.4.1}%
+\contentsline {subsubsection}{\numberline {E.4.2}Docker Evaluation Environment}{32}{subsubsection.E.4.2}%
+\contentsline {subsubsection}{\numberline {E.4.3}Chain Assembly}{33}{subsubsection.E.4.3}%
+\contentsline {subsubsection}{\numberline {E.4.4}Dataset Statistics}{34}{subsubsection.E.4.4}%
+\contentsline {subsection}{\numberline {E.5}PersonaMem-Evo: Persona and Interaction History Construction}{34}{subsection.E.5}%
+\contentsline {subsubsection}{\numberline {E.5.1}Seed Persona Expansion and Preference Cleaning}{34}{subsubsection.E.5.1}%
+\contentsline {subsubsection}{\numberline {E.5.2}Implicit Interaction History Construction}{35}{subsubsection.E.5.2}%
+\contentsline {subsection}{\numberline {E.6}PersonaMem-Evo: Preference Evolution and OOD Benchmark Construction}{36}{subsection.E.6}%
+\contentsline {subsubsection}{\numberline {E.6.1}Temporal Preference Evolution}{37}{subsubsection.E.6.1}%
+\contentsline {subsubsection}{\numberline {E.6.2}OOD Preference-Inference Question Generation}{37}{subsubsection.E.6.2}%
+\contentsline {subsubsection}{\numberline {E.6.3}Dual-Blind Filtering}{38}{subsubsection.E.6.3}%
+\contentsline {subsubsection}{\numberline {E.6.4}Answer-Option Construction}{39}{subsubsection.E.6.4}%
+\contentsline {subsubsection}{\numberline {E.6.5}Benchmark Assembly and Metadata}{39}{subsubsection.E.6.5}%
+\contentsline {subsubsection}{\numberline {E.6.6}Interaction Formats and Preference Records}{39}{subsubsection.E.6.6}%
+\contentsline {subsubsection}{\numberline {E.6.7}Dataset Statistics}{40}{subsubsection.E.6.7}%
+\contentsline {section}{\numberline {F}EvoMem Implementation Details}{41}{appendix.F}%
+\contentsline {subsection}{\numberline {F.1}Terminus2 with EvoMem}{41}{subsection.F.1}%
+\contentsline {paragraph}{Chain-scoped terminal memory.}{41}{paragraph*.34}%
+\contentsline {paragraph}{Store-time update.}{42}{paragraph*.35}%
+\contentsline {paragraph}{Patch representation.}{42}{paragraph*.36}%
+\contentsline {paragraph}{Retrieval-time construction.}{43}{paragraph*.37}%
+\contentsline {paragraph}{Prompt construction and container hydration.}{43}{paragraph*.38}%
+\contentsline {paragraph}{Safety and anti-copying safeguards.}{43}{paragraph*.39}%
+\contentsline {paragraph}{Relation to Terminus2.}{44}{paragraph*.40}%
+\contentsline {subsection}{\numberline {F.2}OpenHands with EvoMem}{45}{subsection.F.2}%
+\contentsline {paragraph}{Feature-level patch records.}{45}{paragraph*.41}%
+\contentsline {paragraph}{Retrieval.}{45}{paragraph*.42}%
+\contentsline {paragraph}{Prompt construction.}{46}{paragraph*.43}%
+\contentsline {paragraph}{Relation to OpenHands.}{46}{paragraph*.44}%
+\contentsline {subsection}{\numberline {F.3}Memento-Skill with EvoMem}{47}{subsection.F.3}%
+\contentsline {paragraph}{Versioned tip memory.}{47}{paragraph*.45}%
+\contentsline {paragraph}{Store-time update.}{47}{paragraph*.46}%
+\contentsline {paragraph}{Inference-time retrieval.}{48}{paragraph*.47}%
+\contentsline {paragraph}{Prompt construction and execution.}{48}{paragraph*.48}%
+\contentsline {paragraph}{Relation to Memento-S.}{50}{paragraph*.49}%
+\contentsline {subsection}{\numberline {F.4}A-Mem with EvoMem}{51}{subsection.F.4}%
+\contentsline {paragraph}{Patch construction during memory ingestion.}{52}{paragraph*.50}%
+\contentsline {paragraph}{Patch representation.}{53}{paragraph*.51}%
+\contentsline {paragraph}{Patch indexing and storage.}{53}{paragraph*.52}%
+\contentsline {paragraph}{Query-time retrieval.}{53}{paragraph*.53}%
+\contentsline {paragraph}{Patch-conditioned answer generation.}{54}{paragraph*.54}%
+\contentsline {paragraph}{Relation to A-Mem.}{54}{paragraph*.55}%
+\contentsline {section}{\numberline {G}Experiments Setting}{54}{appendix.G}%
+\contentsline {subsection}{\numberline {G.1}Terminal-Bench-Evo}{55}{subsection.G.1}%
+\contentsline {subsection}{\numberline {G.2}SWE-Chain-Evo}{55}{subsection.G.2}%
+\contentsline {subsection}{\numberline {G.3}PersonaMem-Evo}{55}{subsection.G.3}%
+\contentsline {subsection}{\numberline {G.4}GAIA}{55}{subsection.G.4}%
+\contentsline {subsection}{\numberline {G.5}LoCoMo}{56}{subsection.G.5}%
+\contentsline {section}{\numberline {H}Example of EvoArena}{56}{appendix.H}%
+\contentsline {subsection}{\numberline {H.1}Terminal-Bench-Evo}{56}{subsection.H.1}%
+\contentsline {subsection}{\numberline {H.2}SWE-Chain-Evo}{57}{subsection.H.2}%
+\contentsline {subsection}{\numberline {H.3}PersonaMem-Evo}{58}{subsection.H.3}%
+\contentsfinish 

@@ -1,0 +1,66 @@
+\contentsline {section}{\numberline {1}Introduction}{2}{section.1}%
+\contentsline {section}{\numberline {2}Related Work}{5}{section.2}%
+\contentsline {section}{\numberline {3}\textsc {WeaveBench} Benchmark}{5}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Task Admission Criteria}{5}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Task Construction}{6}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Task Diversity}{7}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}Trajectory-aware Agent as Judge}{7}{subsection.3.4}%
+\contentsline {section}{\numberline {4}Experiments}{8}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Experimental Setup}{9}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Main Results}{9}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Interface Ablation}{10}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}Trajectory-Aware Judge Ablation}{11}{subsection.4.4}%
+\contentsline {subsection}{\numberline {4.5}Tool-Call Distribution}{12}{subsection.4.5}%
+\contentsline {subsection}{\numberline {4.6}Failure Mechanism Analysis}{13}{subsection.4.6}%
+\contentsline {section}{\numberline {5}Conclusion}{14}{section.5}%
+\ttl@starttoc {appendix@1}
+\ttl@change@i {\@ne }{lsection}{0em}{\large \bfseries \vspace {0.8em}}{\thecontentslabel \hspace {0.5em}}{}{\titlerule *[0.5pc]{.}\contentspage }\relax 
+\ttl@change@v {lsection}{}{}{}\relax 
+\ttl@change@i {\@ne }{lsubsection}{2.5em}{\normalsize \vspace {0.3em}}{\thecontentslabel \hspace {0.5em}}{}{\titlerule *[0.5pc]{.}\contentspage }\relax 
+\ttl@change@v {lsubsection}{}{}{}\relax 
+\contentsline {section}{\numberline {A}Benchmark Construction}{15}{appendix.A}%
+\contentsline {subsection}{\numberline {A.1}Atomic-Capability Decomposition for P1}{15}{subsection.A.1}%
+\contentsline {paragraph}{Coverage verifies P1 at three strictness levels.}{15}{paragraph*.12}%
+\contentsline {paragraph}{Worked example.}{16}{paragraph*.14}%
+\contentsline {paragraph}{What this establishes.}{17}{paragraph*.15}%
+\contentsline {subsection}{\numberline {A.2}P2/P3 Trajectory Distributions and By-Domain Metrics}{17}{subsection.A.2}%
+\contentsline {paragraph}{Task-level distributions (Figure~\ref {fig:p2p3}).}{17}{paragraph*.16}%
+\contentsline {paragraph}{By-domain breakdown (Figure~\ref {fig:p2p3-domain}).}{17}{paragraph*.18}%
+\contentsline {subsection}{\numberline {A.3}Domain Details}{19}{subsection.A.3}%
+\contentsline {subsection}{\numberline {A.4}Task Source Distribution}{19}{subsection.A.4}%
+\contentsline {section}{\numberline {B}Trajectory-aware Agent as Judge}{22}{appendix.B}%
+\contentsline {subsection}{\numberline {B.1}Architecture}{22}{subsection.B.1}%
+\contentsline {subsection}{\numberline {B.2}Layered Scoring Pipeline}{22}{subsection.B.2}%
+\contentsline {paragraph}{Final score.}{22}{paragraph*.25}%
+\contentsline {subsection}{\numberline {B.3}Cheating-Pattern Catalog}{24}{subsection.B.3}%
+\contentsline {subsection}{\numberline {B.4}Inference-time Anti-fabrication Prompt}{25}{subsection.B.4}%
+\contentsline {subsection}{\numberline {B.5}Prompt Constraints and Output Schema}{26}{subsection.B.5}%
+\contentsline {paragraph}{Five behaviour-determining prompt constraints.}{26}{paragraph*.27}%
+\contentsline {paragraph}{Per-case output schema.}{26}{paragraph*.28}%
+\contentsline {section}{\numberline {C}Full Think-Budget Sweep}{27}{appendix.C}%
+\contentsline {section}{\numberline {D}Hybrid Trajectory Walkthroughs}{27}{appendix.D}%
+\contentsline {subsection}{\numberline {D.1}Case 1 --- {\ttfamily \color {llmxGreenDeep}DSK\_task\_1\_gsettings\_dconf\_policy} (score 0.92)}{28}{subsection.D.1}%
+\contentsline {subsection}{\numberline {D.2}Case 2 --- {\ttfamily \color {llmxGreenDeep}WEB\_task\_0\_iframe\_3layer\_form} (score 0.97)}{30}{subsection.D.2}%
+\contentsline {subsection}{\numberline {D.3}Case 3 --- {\ttfamily \color {llmxGreenDeep}DSK\_task\_2\_electron\_app\_test} (score 0.96)}{31}{subsection.D.3}%
+\contentsline {subsection}{\numberline {D.4}Case 4 --- {\ttfamily \color {llmxGreenDeep}SPA\_task\_12\_verilator\_gtkwave\_uart\_bug} (score 0.92)}{32}{subsection.D.4}%
+\contentsline {paragraph}{Summary.}{34}{paragraph*.30}%
+\contentsline {section}{\numberline {E}CLI-Only Re-evaluation of OSWorld}{34}{appendix.E}%
+\contentsline {paragraph}{Setup.}{34}{paragraph*.31}%
+\contentsline {paragraph}{Scoring: human-audited, GT-aware in-VM agent-as-judge.}{34}{paragraph*.32}%
+\contentsline {paragraph}{Result: comparable accuracy under one judge.}{35}{paragraph*.33}%
+\contentsline {paragraph}{Efficiency.}{35}{paragraph*.34}%
+\contentsline {section}{\numberline {F}Failure Analysis}{36}{appendix.F}%
+\contentsline {subsection}{\numberline {F.1}Per-Sub-class Failure Examples}{36}{subsection.F.1}%
+\contentsline {subsubsection}{\numberline {F.1.1}E1 -- Reasoning \& Planning}{37}{subsubsection.F.1.1}%
+\contentsline {subsubsection}{\numberline {F.1.2}E2 -- Tool Use \& Execution}{37}{subsubsection.F.1.2}%
+\contentsline {subsubsection}{\numberline {F.1.3}E3 -- Visual Grounding}{38}{subsubsection.F.1.3}%
+\contentsline {subsubsection}{\numberline {F.1.4}E4 -- Long-horizon Execution Discipline}{38}{subsubsection.F.1.4}%
+\contentsline {subsubsection}{\numberline {F.1.5}E5 -- Reward Hacking}{39}{subsubsection.F.1.5}%
+\contentsline {subsection}{\numberline {F.2}Cross-Backbone Failure Analysis (Extended)}{40}{subsection.F.2}%
+\contentsline {subsubsection}{\numberline {F.2.1}Worked Cases: Three Failure Mechanisms on One Task}{41}{subsubsection.F.2.1}%
+\contentsline {paragraph}{Task.}{41}{paragraph*.36}%
+\contentsline {paragraph}{Case A --- Claude Opus 4.7 (score $0.66$, mechanism E1.3 imprecision -- close miss).}{41}{paragraph*.37}%
+\contentsline {paragraph}{Case B --- GPT-5.5 (score $0.46$, mechanism E5.3 crop / overlay reuse).}{42}{paragraph*.38}%
+\contentsline {paragraph}{Case C --- Gemini 3.1 Pro (score $0.00$, mechanism E5.2 hardcoded metric + E4.1 silent halt).}{42}{paragraph*.39}%
+\contentsline {paragraph}{Reading the comparison.}{43}{paragraph*.40}%
+\contentsfinish 

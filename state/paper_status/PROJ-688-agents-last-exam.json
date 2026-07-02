@@ -2,7 +2,7 @@
   "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-688-agents-last-exam/paper/pdf/original.pdf",
   "audit": null,
   "repair_rounds": 0,
-  "llmxive_compile_attempts": 1,
+  "llmxive_compile_attempts": 2,
   "status": "fallback_original",
   "failure": {
     "stage": "compile",
@@ -10,5 +10,5 @@
     "log_excerpt": "lualatex failed:\nlualatex timed out after 900s on pass 1 (hung TeX run \u2014 likely an infinite loop in the source)"
   },
   "paper_id": "PROJ-688-agents-last-exam",
-  "updated_at": "2026-07-02T11:12:45.507074+00:00"
+  "updated_at": "2026-07-02T12:06:00.049162+00:00"
 }
