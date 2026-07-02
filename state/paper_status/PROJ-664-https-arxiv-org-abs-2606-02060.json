@@ -1,14 +1,10 @@
 {
-  "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-664-https-arxiv-org-abs-2606-02060/paper/pdf/2606.02060.pdf",
+  "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-664-https-arxiv-org-abs-2606-02060/paper/pdf/main-llmxive.pdf",
   "audit": null,
   "repair_rounds": 0,
-  "llmxive_compile_attempts": 1,
-  "status": "fallback_original",
-  "failure": {
-    "stage": "compile",
-    "reason": "lualatex failed:\nzlibraryfadings.code.tex\n(/usr/share/texlive/texmf-dist/tex/generic/pgf/libraries/pgflibraryfadings.code\n.tex))) (/usr/share/texlive/texmf-dist/tex/latex/tcolorbox/tcbposter.code.tex\nLibrary (tcolorbox): 'tcbposter.code.tex' version '6.2.0'\n)) (/usr/share/texlive/texmf-dist/tex/latex/subfigure/subfigure.sty\n****************************************\n* Local config file subfigure.cfg used *\n****************************************\n(/usr/share/texlive/texmf-dist/tex/latex/subfigure/subfigure.cfg))\n(/usr/share/texlive/texmf-dist/tex/latex/psnfss/pifont.sty\n(/usr/share/texlive/texmf-dist/tex/latex/psnfss/upzd.fd)\n(/usr/share/texlive/texmf-dist/tex/latex/psnfss/upsy.fd))\n\n! LaTeX Error: File `soul.sty' not found.\n\nType X to quit or <RETURN> to proceed,\nor enter new name. (Default extension: sty)\n\nEnter file name: \n! Emergency stop.\n<read *> \n   \nl.21 \\usepackage\n              {natbib}\n 1411 words of node memory still in use:\n   29 hlist, 1 vlist, 14 rule, 1 dir, 4 kern, 1 gly",
-    "log_excerpt": "lualatex failed:\nzlibraryfadings.code.tex\n(/usr/share/texlive/texmf-dist/tex/generic/pgf/libraries/pgflibraryfadings.code\n.tex))) (/usr/share/texlive/texmf-dist/tex/latex/tcolorbox/tcbposter.code.tex\nLibrary (tcolorbox): 'tcbposter.code.tex' version '6.2.0'\n)) (/usr/share/texlive/texmf-dist/tex/latex/subfigure/subfigure.sty\n****************************************\n* Local config file subfigure.cfg used *\n****************************************\n(/usr/share/texlive/texmf-dist/tex/latex/subfigure/subfigure.cfg))\n(/usr/share/texlive/texmf-dist/tex/latex/psnfss/pifont.sty\n(/usr/share/texlive/texmf-dist/tex/latex/psnfss/upzd.fd)\n(/usr/share/texlive/texmf-dist/tex/latex/psnfss/upsy.fd))\n\n! LaTeX Error: File `soul.sty' not found.\n\nType X to quit or <RETURN> to proceed,\nor enter new name. (Default extension: sty)\n\nEnter file name: \n! Emergency stop.\n<read *> \n   \nl.21 \\usepackage\n              {natbib}\n 1411 words of node memory still in use:\n   29 hlist, 1 vlist, 14 rule, 1 dir, 4 kern, 1 glyph, 80 attribute, 83 glue_sp\nec, 80 attribute_list, 2 write, 24 pdf_literal, 26 pdf_colorstack nodes\n   avail lists: 1:1,2:14,3:1,5:4,7:5,8:2,9:2\n!  ==> Fatal error occurred, no output PDF file produced!\nTranscript written on main-llmxive.log."
-  },
+  "llmxive_compile_attempts": 0,
+  "status": "restyled_unaudited",
+  "failure": null,
   "paper_id": "PROJ-664-https-arxiv-org-abs-2606-02060",
-  "updated_at": "2026-06-12T12:52:27.551929+00:00"
+  "updated_at": "2026-07-02T09:40:35.278822+00:00"
 }

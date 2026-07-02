@@ -1,14 +1,10 @@
 {
-  "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-680-socrates-towards-reliable-automated-eval/paper/pdf/2606.05563.pdf",
+  "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-680-socrates-towards-reliable-automated-eval/paper/pdf/main-llmxive.pdf",
   "audit": null,
   "repair_rounds": 0,
-  "llmxive_compile_attempts": 1,
-  "status": "fallback_original",
-  "failure": {
-    "stage": "compile",
-    "reason": "lualatex failed:\nautomated-eval/paper/source/natbib.sty))\n(/usr/share/texlive/texmf-dist/tex/latex/multirow/multirow.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/makecell/makecell.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/siunitx/siunitx.sty\n(/usr/share/texlive/texmf-dist/tex/latex/translations/translations.sty))\n(/usr/share/texlive/texmf-dist/tex/latex/arydshln/arydshln.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/wrapfig/wrapfig.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/placeins/placeins.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/tcolorbox/tcolorbox.sty\n(/usr/share/texlive/texmf-dist/tex/latex/tools/verbatim.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/environ/environ.sty\n(/usr/share/texlive/texmf-dist/tex/latex/trimspaces/trimspaces.sty)))\n\n! LaTeX Error: File `soul.sty' not found.\n\nType X to quit or <RETURN> to proceed,\nor enter new name. (Default extension: sty)\n\nEnter file name: \n! Emergency stop.\n<read *> \n   \nl.29 \\usepackage\n              {pifont}\n 611 words of n",
-    "log_excerpt": "lualatex failed:\nautomated-eval/paper/source/natbib.sty))\n(/usr/share/texlive/texmf-dist/tex/latex/multirow/multirow.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/makecell/makecell.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/siunitx/siunitx.sty\n(/usr/share/texlive/texmf-dist/tex/latex/translations/translations.sty))\n(/usr/share/texlive/texmf-dist/tex/latex/arydshln/arydshln.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/wrapfig/wrapfig.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/placeins/placeins.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/tcolorbox/tcolorbox.sty\n(/usr/share/texlive/texmf-dist/tex/latex/tools/verbatim.sty)\n(/usr/share/texlive/texmf-dist/tex/latex/environ/environ.sty\n(/usr/share/texlive/texmf-dist/tex/latex/trimspaces/trimspaces.sty)))\n\n! LaTeX Error: File `soul.sty' not found.\n\nType X to quit or <RETURN> to proceed,\nor enter new name. (Default extension: sty)\n\nEnter file name: \n! Emergency stop.\n<read *> \n   \nl.29 \\usepackage\n              {pifont}\n 611 words of node memory still in use:\n   5 hlist, 1 vlist, 2 rule, 1 dir, 4 kern, 1 glyph, 8 attribute, 79 glue_spec,\n 8 attribute_list, 2 write, 2 pdf_colorstack nodes\n   avail lists: 1:1,2:24,3:1,5:5,7:5,8:2\n!  ==> Fatal error occurred, no output PDF file produced!\nTranscript written on main-llmxive.log."
-  },
+  "llmxive_compile_attempts": 0,
+  "status": "restyled_unaudited",
+  "failure": null,
   "paper_id": "PROJ-680-socrates-towards-reliable-automated-eval",
-  "updated_at": "2026-06-12T12:54:59.005235+00:00"
+  "updated_at": "2026-07-02T09:44:56.428793+00:00"
 }

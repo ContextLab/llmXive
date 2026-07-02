@@ -1,14 +1,10 @@
 {
-  "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-671-code2lora-hypernetwork-generated-adapter/paper/pdf/2606.06492.pdf",
+  "pdf": "/home/runner/work/llmXive/llmXive/projects/PROJ-671-code2lora-hypernetwork-generated-adapter/paper/pdf/main-llmxive.pdf",
   "audit": null,
   "repair_rounds": 0,
-  "llmxive_compile_attempts": 1,
-  "status": "fallback_original",
-  "failure": {
-    "stage": "compile",
-    "reason": "lualatex failed:\nluaotfload | resolve : sequence of 3 lookups yielded nothing appropriate.\nluaotfload | resolve : sequence of 3 lookups yielded nothing appropriate.\nluaotfload | resolve : sequence of 3 lookups yielded nothing appropriate.\nluaotfload | resolve : sequence of 3 lookups yielded nothing appropriate.\nluaotfload | resolve : sequence of 3 lookups yielded nothing appropriate.\nluaotfload | resolve : sequence of 3 lookups yielded nothing appropriate.(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd)\n(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd)\n(/usr/share/texlive/texmf-dist/tex/latex/lastpage/lastpage.sty\n(/usr/share/texlive/texmf-dist/tex/latex/lastpage/lastpage2e.sty\n(/usr/share/texlive/texmf-dist/tex/latex/lastpage/lastpagemodern.sty) \n)) (/usr/share/texlive/texmf-dist/tex/latex/natbib/natbib.sty))\n(/usr/share/texlive/texmf-dist/tex/latex/tools/xspace.sty)\n\n! LaTeX Error: File `ulem.sty' not found.\n\nType X to quit or <RETURN> to proceed,\nor enter new name",
-    "log_excerpt": "lualatex failed:\nluaotfload | resolve : sequence of 3 lookups yielded nothing appropriate.\nluaotfload | resolve : sequence of 3 lookups yielded nothing appropriate.\nluaotfload | resolve : sequence of 3 lookups yielded nothing appropriate.\nluaotfload | resolve : sequence of 3 lookups yielded nothing appropriate.\nluaotfload | resolve : sequence of 3 lookups yielded nothing appropriate.\nluaotfload | resolve : sequence of 3 lookups yielded nothing appropriate.(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd)\n(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd)\n(/usr/share/texlive/texmf-dist/tex/latex/lastpage/lastpage.sty\n(/usr/share/texlive/texmf-dist/tex/latex/lastpage/lastpage2e.sty\n(/usr/share/texlive/texmf-dist/tex/latex/lastpage/lastpagemodern.sty) \n)) (/usr/share/texlive/texmf-dist/tex/latex/natbib/natbib.sty))\n(/usr/share/texlive/texmf-dist/tex/latex/tools/xspace.sty)\n\n! LaTeX Error: File `ulem.sty' not found.\n\nType X to quit or <RETURN> to proceed,\nor enter new name. (Default extension: sty)\n\nEnter file name: \n! Emergency stop.\n<read *> \n   \nl.18 \\usepackage\n              {amsmath}\n 611 words of node memory still in use:\n   5 hlist, 1 vlist, 2 rule, 1 dir, 4 kern, 1 glyph, 8 attribute, 79 glue_spec,\n 8 attribute_list, 2 write, 2 pdf_colorstack nodes\n   avail lists: 1:1,2:24,3:1,5:5,7:5,8:2\n!  ==> Fatal error occurred, no output PDF file produced!\nTranscript written on main-llmxive.log."
-  },
+  "llmxive_compile_attempts": 0,
+  "status": "restyled_unaudited",
+  "failure": null,
   "paper_id": "PROJ-671-code2lora-hypernetwork-generated-adapter",
-  "updated_at": "2026-06-12T12:52:56.340344+00:00"
+  "updated_at": "2026-07-02T09:42:51.944568+00:00"
 }
