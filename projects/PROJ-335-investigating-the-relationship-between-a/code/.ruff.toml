@@ -1,0 +1,24 @@
+[lint]
+select = [
+  "E",   # pycodestyle errors
+  "W",   # pycodestyle warnings
+  "F",   # pyflakes
+  "I",   # isort
+  "C",   # flake8-comprehensions
+  "B",   # flake8-bugbear
+  "UP",  # pyupgrade
+  "ANN", # flake8-annotations (basic)
+]
+ignore = [
+  "ANN001", # Missing type annotation for function argument
+  "ANN201", # Missing return type annotation for public function
+  "B008",   # Do not perform function call in argument defaults (common in dataclasses)
+]
+
+[lint.isort]
+known-first-party = ["config", "models", "utils"]
+
+[format]
+quote-style = "double"
+indent-style = "space"
+line-length = 88

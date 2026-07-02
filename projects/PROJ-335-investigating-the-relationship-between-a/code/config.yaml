@@ -1,0 +1,74 @@
+# Configuration for Alpha Oscillations and Working Memory Capacity Study
+# Project: PROJ-335-investigating-the-relationship-between-a
+# Task: T004 - Initialize MNE parameters, seeds, and dataset IDs
+
+# Dataset Configuration
+dataset:
+  source: "openneuro"
+  id: "ds000248"  # OpenNeuro dataset for visual working memory
+  version: "1.0.0"
+  download_path: "data/raw/ds000248"
+
+# MNE-Python Preprocessing Parameters
+mne:
+  # Bandpass filter settings (Hz)
+  filter:
+    l_freq: 1.0
+    h_freq: 40.0
+    method: "iir"
+    fir_window: "hamming"
+    fir_design: "firwin"
+
+  # Alpha band definition (Hz) for power analysis
+  alpha_band:
+    low: 8.0
+    high: 12.0
+
+  # Epoching parameters (in seconds relative to event)
+  epochs:
+    tmin: -0.2
+    tmax: 1.0
+    baseline:
+      start: null
+      end: 0.0
+
+  # ICA settings
+  ica:
+    method: "fastica"
+    n_components: 0.99  # Explain 99% of variance
+    max_iter: 500
+    random_state: 42
+
+  # Reference settings
+  reference:
+    method: "average"
+    exclude: ["EOG", "ECG"]
+
+# Random Seeds for Reproducibility
+seeds:
+  numpy: 42
+  python: 42
+  ica: 42
+
+# Power Analysis Thresholds
+power_analysis:
+  min_n_subjects: 30
+  warning_n_subjects: 52
+
+# Electrode Regions of Interest (ROIs)
+roi:
+  frontal:
+    - "F3"
+    - "F4"
+    - "Fz"
+  parietal:
+    - "P3"
+    - "P4"
+    - "Pz"
+
+# Output Paths
+output:
+  processed_data: "data/processed"
+  metrics: "data/metrics"
+  results: "data/results"
+  figures: "figures"

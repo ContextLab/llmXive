@@ -1,0 +1,309 @@
+- artifact_path: projects/PROJ-335-investigating-the-relationship-between-a/specs/001-investigating-the-relationship-between-a/tasks.md
+  attempts: 1
+  canonical: halt pipeline if sample size N is less than 30
+  claim_id: c_07513b52
+  context: 'T017 [US1] Add power analysis check to code/01_download_preprocess.py:
+    if N < 30, halt with ''INSUFFICIENT POWER'' message; if N=30-52, log warning...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_pipeline_if_sample_size_N_is_less_than_30
+  kind: magnitude
+  raw_text: if N < 30, halt with 'INSUFFICIENT POWER' message
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T14:40:58Z'
+- artifact_path: projects/PROJ-335-investigating-the-relationship-between-a/specs/001-investigating-the-relationship-between-a/tasks.md
+  attempts: 1
+  canonical: log warning and set status to LIMITED if sample size N is between 30
+    and 52
+  claim_id: c_bdcc97d8
+  context: 'T017 [US1] Add power analysis check to code/01_download_preprocess.py:
+    if N < 30, halt with ''INSUFFICIENT POWER'' message; if N=30-52, log warning...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: if N=30-52, log warning, write data/results/power_status.json with keys
+    n_count and status set to 'LIMITED', and continue
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T14:41:13Z'
+- artifact_path: projects/PROJ-335-investigating-the-relationship-between-a/specs/001-investigating-the-relationship-between-a/tasks.md
+  attempts: 1
+  canonical: apply bandpass filter with range 1 to 40 Hz
+  claim_id: c_6a151557
+  context: 'Independent Test: Verify that (1) ds000248 downloads successfully, (2)
+    data is bandpass-filtered (1-40 Hz)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: bandpass filter (1-40 Hz)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T14:41:27Z'
+- artifact_path: projects/PROJ-335-investigating-the-relationship-between-a/specs/001-investigating-the-relationship-between-a/tasks.md
+  attempts: 1
+  canonical: extract alpha power from electrodes F3, F4, Fz, P3, P4, and Pz
+  claim_id: c_80a1a164
+  context: 'Independent Test: Verify that () alpha power is extracted from F3, F4,
+    Fz, P3, P4, Pz...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Extract_alpha_power_from_electrodes_F3,_F4,_Fz,_P3,_P4,_and
+  kind: entity_fact
+  raw_text: alpha power is extracted from F3, F4, Fz, P3, P4, Pz
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T14:41:38Z'
+- artifact_path: projects/PROJ-335-investigating-the-relationship-between-a/specs/001-investigating-the-relationship-between-a/tasks.md
+  attempts: 1
+  canonical: compare correlation coefficients to absolute value threshold of 0.3
+  claim_id: c_ab7df239
+  context: "T034 [US3] Compare correlation coefficients to |r| \u2265 0.3 threshold\
+    \ and reliability to \u22650.7 threshold..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "compare correlation coefficients to |r| \u2265 0.3 threshold"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T14:41:38Z'
+- artifact_path: projects/PROJ-335-investigating-the-relationship-between-a/specs/001-investigating-the-relationship-between-a/tasks.md
+  attempts: 1
+  canonical: compare reliability coefficient to threshold of 0.7
+  claim_id: c_aa91af4f
+  context: "T034 [US3] Compare correlation coefficients to |r| \u2265 0.3 threshold\
+    \ and reliability to \u22650.7 threshold..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "compare reliability to \u22650.7 threshold"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T14:41:38Z'
+- artifact_path: projects/PROJ-335-investigating-the-relationship-between-a/specs/001-investigating-the-relationship-between-a/tasks.md
+  attempts: 1
+  canonical: flag collinearity and prepare PCA components if Variance Inflation Factor
+    exceeds 5
+  claim_id: c_d278a99a
+  context: T029 [P] [US3] Implement Variance Inflation Factor (VIF) calculation in
+    code/03_correlation_analysis.py; if VIF > 5, flag collinearity and prepare PCA
+    components
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: if VIF > 5, flag collinearity and prepare PCA components
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T14:41:38Z'
+- artifact_path: projects/PROJ-335-investigating-the-relationship-between-a/specs/001-investigating-the-relationship-between-a/tasks.md
+  attempts: 1
+  canonical: Download dataset ds000248 from OpenNeuro
+  claim_id: c_0fd2110a
+  context: Implement code/01_download_preprocess.py to fetch ds000248 from OpenNeuro
+    and save to data/raw/
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_dataset_ds000248_from_OpenNeuro
+  kind: entity_fact
+  raw_text: The dataset ID ds000248 is downloaded from OpenNeuro.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T14:58:44Z'
+- artifact_path: projects/PROJ-335-investigating-the-relationship-between-a/specs/001-investigating-the-relationship-between-a/tasks.md
+  attempts: 1
+  canonical: Apply 1-40 Hz bandpass filter to data
+  claim_id: c_0d73d163
+  context: Verify that (2) data is bandpass-filtered (1-40 Hz)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Data is bandpass-filtered with a range of 1-40 Hz.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T14:59:06Z'
+- artifact_path: projects/PROJ-335-investigating-the-relationship-between-a/specs/001-investigating-the-relationship-between-a/tasks.md
+  attempts: 1
+  canonical: Apply 1-40 Hz bandpass filter to data
+  claim_id: c_9c2e52c2
+  context: Implement bandpass filtering (1-40 Hz) and re-reference to average mastoids...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Data is bandpass-filtered with a range of 1-40 Hz.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T14:59:06Z'
+- artifact_path: projects/PROJ-335-investigating-the-relationship-between-a/specs/001-investigating-the-relationship-between-a/tasks.md
+  attempts: 1
+  canonical: Halt analysis if N < 30
+  claim_id: c_4d865515
+  context: if N < 30, halt with 'INSUFFICIENT POWER' message
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis requires a minimum of 30 subjects (N < 30 triggers a halt).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T14:59:51Z'
+- artifact_path: projects/PROJ-335-investigating-the-relationship-between-a/specs/001-investigating-the-relationship-between-a/tasks.md
+  attempts: 1
+  canonical: Log warning for N between 30 and 52
+  claim_id: c_19cf6232
+  context: if N=30-52, log warning, write data/results/power_status.json with keys
+    n_count and status set to 'LIMITED'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the sample size is between 30 and 52, a warning is logged and the status
+    is set to 'LIMITED'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T15:00:23Z'
+- artifact_path: projects/PROJ-335-investigating-the-relationship-between-a/specs/001-investigating-the-relationship-between-a/tasks.md
+  attempts: 1
+  canonical: Extract alpha power from F3 F4 Fz P3 P4 Pz
+  claim_id: c_c4c7a7c8
+  context: Verify that (1) alpha power is extracted from F3, F4, Fz, P3, P4, Pz...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Extract_alpha_power_from_F3_F4_Fz_P3_P4_Pz
+  kind: entity_fact
+  raw_text: Alpha power is extracted from electrodes F3, F4, Fz, P3, P4, and Pz.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T15:00:41Z'
+- artifact_path: projects/PROJ-335-investigating-the-relationship-between-a/specs/001-investigating-the-relationship-between-a/tasks.md
+  attempts: 1
+  canonical: Reject Cluster-Based Permutation Testing for discrete pairs
+  claim_id: c_312d9ee7
+  context: include a comment referencing plan.md Complexity Tracking section which
+    explicitly rejects Cluster-Based Permutation Testing for discrete electrode-metric
+    pairs.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Reject_Cluster-Based_Permutation_Testing_for_discrete_pairs
+  kind: entity_fact
+  raw_text: Cluster-Based Permutation Testing is explicitly rejected for discrete
+    electrode-metric pairs.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T15:00:57Z'
+- artifact_path: projects/PROJ-335-investigating-the-relationship-between-a/specs/001-investigating-the-relationship-between-a/tasks.md
+  attempts: 1
+  canonical: Use Leave-One-Subject-Out cross-validation at subject level
+  claim_id: c_6f3d289c
+  context: Implement Leave-One-Subject-Out (LOSO) cross-validation (Subject-Level
+    only, replacing trial-level per Plan)...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_Leave-One-Subject-Out_cross-validation_at_subject_level
+  kind: entity_fact
+  raw_text: Cross-validation is performed using Leave-One-Subject-Out (LOSO) at the
+    subject level only.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T15:01:48Z'
+- artifact_path: projects/PROJ-335-investigating-the-relationship-between-a/specs/001-investigating-the-relationship-between-a/tasks.md
+  attempts: 1
+  canonical: Flag collinearity if VIF > 5
+  claim_id: c_414f4e56
+  context: if VIF > 5, flag collinearity and prepare PCA components
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: arXiv:2306.06751v1 [stat.ME] 11 Jun 2023
+      source_id: '2306.06751'
+      url: https://arxiv.org/abs/2306.06751
+      value: '5'
+    filled: true
+  kind: magnitude
+  raw_text: Collinearity is flagged if the Variance Inflation Factor (VIF) is greater
+    than 5.
+  resolved_value: '5'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-02T15:02:26Z'
+- artifact_path: projects/PROJ-335-investigating-the-relationship-between-a/specs/001-investigating-the-relationship-between-a/tasks.md
+  attempts: 1
+  canonical: Compare correlation to 0.3 threshold
+  claim_id: c_48614dc4
+  context: "Compare correlation coefficients to |r| \u2265 0.3 threshold..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Correlation coefficients are compared to a threshold of |r| \u2265 0.3."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T15:02:27Z'
+- artifact_path: projects/PROJ-335-investigating-the-relationship-between-a/specs/001-investigating-the-relationship-between-a/tasks.md
+  attempts: 1
+  canonical: Compare reliability to 0.7 threshold
+  claim_id: c_58a52b1f
+  context: "and reliability to \u22650.7 threshold..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Reliability metrics are compared to a threshold of \u2265 0.7."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T15:02:27Z'

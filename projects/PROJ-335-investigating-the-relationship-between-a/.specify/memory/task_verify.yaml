@@ -1,0 +1,14 @@
+T008 Configure logging infrastructure to output structured logs to `data/results/` and console: 2
+? T010 [P] [US1] Unit test for dataset validation logic in `tests/unit/test_validation.py`
+  (tests validation utility from T005 for missing behavioral measures)
+: 2
+? 'T011 [US1] Integration test for full download and preprocessing pipeline in `tests/integration/test_download_preprocess.py`
+  (Depends on T012-T018 completion) <!-- ATOMIZE: requested -->'
+: 1
+? 'T011 [US1] Integration test for full download and preprocessing pipeline in `tests/integration/test_download_preprocess.py`
+  (Depends on T012-T018 completion) <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  -->'
+: 1
+T012 [P] [US1] Implement `code/01_download_preprocess.py` to fetch ds000248 from OpenNeuro and save to `data/raw/`: 1
+T013 [US1] Implement bandpass filtering (1-40 Hz) and re-reference to average mastoids in `code/01_download_preprocess.py`: 1
+T014 [US1] Implement ICA artifact removal in `code/01_download_preprocess.py` using MNE-Python: 1
