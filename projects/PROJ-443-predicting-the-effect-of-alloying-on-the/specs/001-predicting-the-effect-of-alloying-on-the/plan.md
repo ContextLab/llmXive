@@ -1,106 +1,131 @@
-# Implementation Plan: Predicting the Effect of Alloying on the Elastic Modulus of High-Entropy Alloys
+# Implementation Plan: Predicting the Effect of Alloying on the Elastic Modulus of High‑Entropy Alloys
 
-**Branch**: `001-predict-elastic-modulus` | **Date**: 2024-05-21 | **Spec**: `specs/001-predict-elastic-modulus/spec.md`
+**Branch**: `001-predict-elastic-modulus` | **Date**: 2024-05-21 | **Spec**: `spec.md`
 **Input**: Feature specification from `/specs/001-predict-elastic-modulus/spec.md`
 
 ## Summary
 
-This feature implements a computational pipeline to predict the Bulk Modulus of High-Entropy Alloys (HEAs) based on compositional descriptors. The approach involves retrieving data from the Open Quantum Materials Database (OQMD) and Materials Project (via verified public sources), engineering features using Isometric Log-Ratio (ILR) transformation (for linear models only) to handle compositional closure, and training three regression models (Random Forest, Gradient Boosting, ElasticNet) under strict CPU-only constraints. The plan ensures statistical rigor via grouped bootstrapping (with a fallback to Leave-One-System-Out if group count is low), multiple-comparison correction (FDR), and explicit associational framing.
+This project implements a computational pipeline to predict the Bulk Modulus of High‑Entropy Alloys (HEAs) by analyzing the effect of alloying. The approach retrieves raw composition and elastic constant data from Materials Project and OQMD, engineers compositional descriptors (mixing enthalpy, atomic radius variance, entropy of mixing, VEC) **excluding** mixing enthalpy from the predictor matrix, applies an Isometric Log‑Ratio (ILR) transformation to break compositional closure, and trains ensemble and linear regression models (Random Forest, Gradient Boosting, ElasticNet) on the **residual bulk modulus** (`B_obs - B_Miedema`). 
+
+**Critical Methodological Safeguards**:
+1. **Orthogonality Check**: Explicitly verifies that predictors are not deterministic functions of the Miedema baseline inputs (Task T016, T017).
+2. **Residual Variance Pre-Check**: Validates signal-to-noise ratio before power analysis (Task T018).
+3. **Robust CI Estimation**: Uses Bayesian Hierarchical Bootstrap for low-group scenarios (<30) to ensure valid 95% CIs (Task T011).
+4. **CPU-Only**: All steps run on CPU-only GitHub Actions runners.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11
-**Primary Dependencies**: `pandas`, `scikit-learn`, `numpy`, `requests`, `pyyaml`, `shap`, `scipy`, `pymatgen` (for Miedema/properties)
-**Storage**: Local CSV/Parquet files under `data/`; no external database required.
-**Testing**: `pytest` (unit tests for feature engineering; integration tests for pipeline flow).
-**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, ~7 GB RAM).
-**Project Type**: Data Science Pipeline / CLI Tool.
-**Performance Goals**: Complete full pipeline (fetch, engineer, train, evaluate) within 6 hours; memory usage < 6 GB.
-**Constraints**: No GPU acceleration; no deep learning models; strict adherence to compositional data analysis (CoDA) principles.
-**Scale/Scope**: Target dataset size sufficient for robust statistical analysis and method validation, drawing on established protocols in the field (DOI:.xxxx/xxxxx). (dependent on OQMD API availability); 3 models, A sufficient number of bootstrap iterations.
-
-> **Dataset Fit Warning**: The plan relies **only** on the OQMD sources listed in the verified block:
-> 1. **Primary**: ` (if it contains elemental vectors).
-> 2. **Fallback**: ` (raw dump).
-> If neither source contains explicit elemental breakdowns for HEAs (≥5 elements), the pipeline halts with a "Fatal Data Gap" error. The Materials Project API will be attempted as a secondary source if keys are provided, but OQMD is the primary fallback.
+- **Language/Version**: Python 3.10  
+- **Primary Dependencies** (pinned in `code/requirements.txt`):
+  - `scikit-learn==1.3.2`
+  - `pandas==2.1.3`
+  - `numpy==1.26.2`
+  - `scipy==1.11.4`
+  - `scikit-bio==0.5.9` (provides `ilr` implementation)
+  - `matplotlib==3.8.2`
+  - `seaborn==0.13.2`
+  - `shap==0.44.0`
+  - `pyyaml==6.0.1`
+  - `requests==2.31.0`
+  - `pymc==5.8.0` (for Bayesian Hierarchical Bootstrap in low-group scenarios)
+- **Storage**: `data/` (raw, processed), `results/` (metrics, models, reports).  
+- **Testing**: `pytest` suite under `tests/`.  
+- **Compute Constraints**: GitHub Actions Free Tier (2 CPU, ~7 GB RAM). All steps run CPU‑only (`n_jobs=1`).  
+- **Performance Goal**: Full pipeline ≤ 6 h, memory < 6 GB.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research.*
+| Principle | Requirement | Plan Compliance Strategy |
+|-----------|-------------|--------------------------|
+| **I. Reproducibility** | Random seeds pinned; external datasets fetched from canonical sources. | `random_state=42` everywhere; API queries logged with timestamps/parameters in `data/source_metadata.yaml`. |
+| **II. Verified Accuracy** | All citations verified against primary sources. | All dataset URLs are taken from the verified block; `Reference‑Validator Agent` invoked via Task T001. |
+| **III. Data Hygiene** | Datasets checksummed; no in‑place modifications. | Raw API dumps saved under `data/raw/`; processed files written to new filenames; checksums stored in `state/...yaml`. |
+| **IV. Single Source of Truth** | Figures/statistics trace back to one data row and code block. | Metrics generated directly from evaluation scripts; no manual transcription. |
+| **V. Versioning Discipline** | Content hashes trigger state updates. | `data/source_metadata.yaml` includes API version & query params; any change updates `state/...yaml`. |
+| **VI. Materials Database Provenance** | Provenance metadata required. | Task T005 writes `data/source_metadata.yaml` with API version, query parameters, and SHA‑256 checksums (explicitly cites Principle VI). |
+| **VII. Model Evaluation Transparency** | Full metric reporting, bootstrap CI, t‑test, FDR. | Task T007 computes metrics, 1000‑iteration grouped bootstrap CIs (or Bayesian Hierarchical fallback), t‑test vs. R² = 0, and Benjamini‑Hochberg FDR correction. |
 
-| Principle | Compliance Strategy |
-|:--- |:--- |
-| **I. Reproducibility** | All random seeds pinned in `code/utils/seeds.py`. External data sources fixed to specific URLs in `data/source_metadata.yaml`. |
-| **II. Verified Accuracy** | **Task**: Invoke Reference-Validator Agent (or script) in Phase 0 to verify all citations in `research.md` against primary sources before proceeding. |
-| **III. Data Hygiene** | Raw data downloads stored in `data/raw/` with checksums. Derived features stored in `data/processed/`. No in-place modification. |
-| **IV. Single Source of Truth** | All metrics in `results/metrics.yaml` generated programmatically. No manual entry in reports. |
-| **V. Versioning Discipline** | **Task**: In Phase 5, compute content hashes of all results and update `state/projects/PROJ-443-...yaml` `artifact_hashes` map. |
-| **VI. Materials Database Provenance** | `data/source_metadata.yaml` will record the exact OQMD URL, query parameters (HEA filter), and API version used. |
-| **VII. Model Evaluation Transparency** | `results/metrics.yaml` will contain R², RMSE, MAE, and 95% CI bounds for all models, generated by the bootstrap script. |
+## Project Structure
 
-## Project Phases & Tasks
+```
+specs/001-predict-elastic-modulus/
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
+│   ├── compositional_descriptor.schema.yaml
+│   ├── hea_sample.schema.yaml
+│   ├── model_performance.schema.yaml
+│   └── model_performance_record.schema.yaml
+└── tasks.md   # generated from the task list below
+```
 
-### Phase 0: Research Validation & Data Verification
-1. **Reference Validation**: Run Reference-Validator Agent on `research.md` citations. Fail if any citation is unreachable or mismatched.
-2. **Data Modality Check**: Fetch a sample of the OQMD targets. Verify presence of `element_symbols` and `atomic_fractions` columns.
- - *If missing*: Switch to raw OQMD dump.
- - *If still missing*: Halt with "Fatal Data Gap: No elemental composition vectors found".
-3. **Group Count Check**: Count unique "Alloy Systems" (unique element sets).
- - *If < 30*: Flag warning. Plan to use Leave-One-System-Out (LOSO) CV instead of bootstrapping for variance estimation.
+```
+code/
+├── __init__.py
+├── config.py            # paths, thresholds, seeds
+├── data/
+│   ├── __init__.py
+│   ├── fetch.py         # Materials Project & OQMD API clients
+│   ├── clean.py         # Normalization, sum‑to‑1.0 checks
+│   └── features.py      # Miedema baseline, descriptors, ILR, Orthogonality checks
+├── models/
+│   ├── __init__.py
+│   ├── train.py         # RF, GB, EN training on residual target
+│   └── eval.py          # Bootstrap CI, FDR, sensitivity, VIF, correlation checks, Bayesian CI
+├── reports/
+│   ├── __init__.py
+│   └── generate.py      # SHAP, parity plots, partial dependence, disclaimer
+├── validate_references.py  # invokes Reference‑Validator Agent
+├── main.py              # orchestration script
+└── requirements.txt
+```
 
-### Phase 1: Data Ingestion & Feature Engineering
-1. **MP API Fetch**: Attempt to fetch HEA data from Materials Project (if API keys exist). Log success/failure.
-2. **OQMD Fetch**: Download and merge OQMD data.
-3. **Filtering**: Retain only samples with ≥5 principal elements and valid Bulk Modulus.
-4. **Normalization**: Enforce sum(composition) = 1.0. Log adjustments.
-5. **Feature Engineering**:
- - **For ElasticNet**: Apply ILR transformation to composition. Compute descriptors (Miedema $\Delta H_{mix}$, $\delta$, $\Delta S_{mix}$, VEC, $\Delta \chi$).
- - **For RF/GB**: Use raw compositions or simple ratios (ILR not required).
- - **Residual Target**: Compute `Bulk_Modulus_Miedema` (baseline). Target = `Bulk_Modulus_Observed - Bulk_Modulus_Miedema`.
-6. **Output**: `data/processed/hea_features.csv`.
+## Complexity Tracking & Methodological Safeguards
 
-### Phase 2: Model Training
-1. **Split**: Train/Val/Test split (majority/minority/minority) respecting "Alloy System" grouping.
-2. **Training**: Train RF, GB, ElasticNet.
- - *Constraint*: `n_jobs=2` (max runner cores).
-3. **Output**: `results/models/` (pickle files).
+| Complexity | Reason | Mitigation |
+|------------|--------|------------|
+| **ILR Transformation** | Compositional closure creates singular matrices. | Apply `scikit‑bio.ilr` to composition before any regression. |
+| **Residual Target** | Predicting absolute bulk modulus risks physics leakage. | Model **residual bulk modulus** (`B_obs - B_Miedema`) as target; **mixing enthalpy excluded** from predictors. |
+| **Baseline-Descriptor Circularity** | Miedema inputs (radius, electronegativity) overlap with descriptors. | **Task T016**: Verify orthogonality. **Task T017**: Residualize predictors against Miedema inputs if correlation > 0.3. |
+| **Grouped Bootstrap** | Potential leakage across chemically similar alloys. | Sample by **unique element set** (unordered) – defined in Task T010. |
+| **Low Group Count (<30)** | Bootstrap variance unstable. | **Task T011**: Switch to **Bayesian Hierarchical Bootstrap** (weakly informative prior) to compute valid 95% CIs. |
+| **Sample Size / Signal Strength** | Power may be limited if residual variance is low. | **Task T018**: Pre-check residual variance. **Task T013**: Adjust power analysis based on observed signal-to-noise ratio. |
+| **Descriptor‑Baseline Correlation** | Miedema baseline shares elemental inputs with descriptors. | Verify orthogonality via VIF and Pearson correlation (Task T016); residualize if needed (Task T017). |
+| **GPU / Heavy Models** | CI runners have no GPU. | All models trained with `n_jobs=1` on CPU; no GPU flags allowed. |
 
-### Phase 3: Evaluation & Statistical Rigor
-1. **Grouped Bootstrap**: A sufficient number of iterations will be performed to ensure convergence. (or LOSO if groups < 30).
- - Calculate 95% CI for R².
- - **Significance**: Defined as 95% CI excluding 0.
-2. **Permutation Test**: Run A set of permutations to verify signal is not random.
-3. **FDR Correction**: Apply Benjamini-Hochberg to model comparison p-values (if applicable).
-4. **Output**: `results/metrics.yaml`.
+## Task List
 
-### Phase 4: Sensitivity & Interpretability
-1. **Sensitivity Analysis**: Sweep R² thresholds {low, moderate, high}. Calculate False Positive Rate (FPR) for each.
-2. **Interpretability**: Generate SHAP values for the best model.
-3. **Causal Language Check**: Scan final report text for causal keywords. Flag violations.
-4. **Output**: `results/sensitivity.yaml`, `results/interpretability.yaml`.
+| ID | Description | FR / SC Addressed |
+|----|-------------|-------------------|
+| **T001** | Run `python code/validate_references.py` to invoke the Reference‑Validator Agent. **Exit codes**: 0 = all citations verified, 1 = mismatch, 2 = unreachable. | – |
+| **T002** | Retrieve HEA compositions and elastic constants from Materials Project and OQMD APIs (filter: ≥5 principal elements, elastic constants present). Save raw JSON/CSV to `data/raw/`. Record total count; if `<500`, log `"Retrieved X samples; threshold 500 not met"` and halt. | **FR‑001** |
+| **T003** | Compute compositional descriptors: mixing enthalpy (Miedema, **used only for baseline**), atomic radius variance, entropy of mixing, VEC, electronegativity variance. Store in `data/processed/descriptors.csv` **excluding** mixing enthalpy from the predictor matrix. | **FR‑002** |
+| **T004** | Apply ILR transformation to the normalized composition using `scikit‑bio.ilr`. Append `ilr_features` to `data/processed/features.csv`. | **FR‑003** |
+| **T005** | Write `data/source_metadata.yaml` containing API version, query parameters, and SHA‑256 checksum of each raw source. **Explicitly cite Constitution Principle VI**. | – |
+| **T006** | Train Random Forest, Gradient Boosting, ElasticNet on **residual bulk modulus** (`B_obs - B_Miedema`) with `random_state=42`, `n_jobs=1`. Save models under `results/models/`. | **FR‑004** |
+| **T007** | Evaluate models: compute R², RMSE, MAE on held‑out test set; perform 1000‑iteration **grouped bootstrap** (group = unique element set) for 95 % CI of R²; run t‑test vs. R² = 0; apply Benjamini‑Hochberg FDR. Also perform VIF screening (VIF < 5) and Pearson correlation checks between residuals and each ILR component (warn if |r| > 0.3). Log power‑analysis results (ΔR² = 0.05). | **FR‑005**, **FR‑006**, scientific soundness‑e4a32cb0 |
+| **T008** | Generate interpretability report: SHAP (global) and permutation importance, parity plots, partial dependence plots. Insert mandatory disclaimer: **\"Associational Disclaimer: All reported relationships are observational; no causal inference is claimed.\"** Save to `reports/summary.md`. | **FR‑007** |
+| **T009** | Perform **sensitivity analysis** sweeping R² thresholds {0.25, 0.30, 0.35}. For each threshold compute false‑positive rate; write `results/sensitivity.json` with fields `thresholds_tested` and `fpr_variance` (variance across thresholds). | **FR‑006** |
+| **T010** | Define grouping key for bootstrap as the **unordered set of constituent elements** (e.g., `{'Cr','Fe','Co','Ni','Mn'}`). Use this key in Task T007. | methodological‑9f9b7ae8 |
+| **T011** | **Low‑Group Fallback**: If number of unique groups < 30, log warning and switch to **Bayesian Hierarchical Bootstrap** (weakly informative prior on group variance) to compute 95% CIs. **Do not omit CIs or use heuristics.** | methodological‑9f9b7ae8, spec_coverage‑497e5c7b, spec_coverage‑6bf522c7 |
+| **T012** | **Orthogonality Validation**: Compute Pearson correlation between the residual target and each predictor (including ILR components). If any |r| > 0.3, log a warning and flag the residual target as potentially confounded. | methodological‑b49c576e, scientific_soundness‑e4a32cb0 |
+| **T013** | **Power Analysis**: Using `statsmodels.stats.power.FTestPower`, calculate required sample size for detecting ΔR² = 0.05 with α = 0.05, power = 0.8. **Condition this on the residual variance estimate from T018.** Log the result and compare to actual sample count. | methodological‑6627bfc5 |
+| **T014** | **CPU‑Only Guard**: Enforce `device='cpu'` and `n_jobs=1` in all sklearn calls; abort if any GPU flag detected. | **FR‑004**, compute‑constraint |
+| **T015** | **Descriptor‑Baseline Decoupling**: Ensure mixing enthalpy is *only* used to compute `miedema_baseline` and never appears in the predictor matrix passed to training scripts. | scientific_soundness‑b4dbf1ec |
+| **T016** | **Baseline-Descriptor Orthogonality Check**: Compute Pearson correlation between each predictor (radius variance, VEC, etc.) and the **inputs** of the Miedema Bulk Modulus model (electron density, electronegativity). If any |r| > 0.3, flag for residualization. | scientific_soundness‑e4a32cb0, methodology‑6f01c211 |
+| **T017** | **Predictor Residualization**: If T016 flags high correlation, regress each predictor against the Miedema inputs and use the **residuals** as the new predictors to ensure independence from the baseline model's functional form. | scientific_soundness‑e4a32cb0, methodology‑6f01c211 |
+| **T018** | **Residual Variance Pre-Check**: Calculate the variance of the residual target (`B_obs - B_Miedema`). If variance is < 5% of total bulk modulus variance, flag the study as potentially underpowered for the assumed effect size and adjust ΔR² in T013 accordingly. | methodology‑6627bfc5 |
 
-### Phase 5: Reporting & State Update
-1. **Report Generation**: Compile PDF/Markdown.
-2. **State Update**: Compute hashes of `results/` and update `state/projects/...yaml`.
-3. **Final Gate**: Verify all FRs and SCs are addressed.
+*All tasks are ordered so that data download (T002) precedes cleaning/feature engineering (T003‑T004), provenance recording (T005), orthogonality/power checks (T012‑T018), model training (T006/T014), evaluation (T007/T011), interpretability/reporting (T008), and sensitivity analysis (T009/T010). The fallback tasks (T011) are invoked conditionally after group‑count assessment.*
 
-## Complexity Tracking
+## Deliverables
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| **ILR Transformation (Linear Only)** | Required for ElasticNet to break compositional singularity. | Standard normalization leads to perfect multicollinearity in linear models. |
-| **ILR Omission (Tree Models)** | Tree models (RF/GB) are robust to multicollinearity. | Applying ILR to trees obscures interpretability and is unnecessary. |
-| **Residual Target** | Predicts *deviation* from physics baselines (Miedema) to avoid trivial learning. | Predicting absolute values leads to "physics leakage" where the model just learns elemental properties. |
-| **Grouped Bootstrap / LOSO** | Prevents leakage of alloy system information between train/test. | Random split overestimates performance by allowing the model to "memorize" specific alloy families. |
-| **CI-Based Significance** | R² distribution is non-normal; t-tests are invalid. | Parametric t-tests on R² yield incorrect p-values. |
-
-## Risk Assessment & Mitigation
-
-| Risk | Probability | Impact | Mitigation Strategy |
-|:--- |:--- |:--- |:--- |
-| **Insufficient HEA Samples** | High | Fatal | Pipeline checks sample count immediately. If < 500, halts with specific error. |
-| **Missing Elemental Data** | Medium | Fatal | Data Modality Check (Phase 0) halts pipeline if columns are missing. |
-| **Low Group Count** | Medium | High | If unique systems < 30, switch to LOSO CV to ensure valid variance estimation. |
-| **Overfitting** | Medium | Medium | Grouped bootstrap and FDR correction ensure robust performance estimates. |
-| **CPU Time Exceeded** | Low | High | Use `n_jobs=2`. Limit tree depth. |
-| **Underpowered Study** | Medium | Medium | Report Minimum Detectable Effect Size (MDES). Do not claim significance for R² < 0.4 if N is low. |
+- `data/raw/` – raw API dumps with checksums.  
+- `data/processed/` – cleaned CSV, descriptors, ILR features, residual target, and (if T017 runs) residualized predictors.  
+- `results/models/` – serialized sklearn models.  
+- `results/metrics.yaml` – R², RMSE, MAE, 95 % CI (standard or Bayesian), p‑values, FDR flags.  
+- `results/sensitivity.json` – threshold sweep variance.  
+- `reports/summary.md` – visualizations + associational disclaimer.  
+- `data/source_metadata.yaml` – provenance per Constitution Principle VI.  

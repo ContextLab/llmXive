@@ -1,0 +1,55 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Performance Record Schema"
+description: "Schema for evaluation metrics of a regression model."
+type: "object"
+required:
+  - "model_name"
+  - "r2_score"
+  - "rmse"
+  - "mae"
+  - "r2_ci_lower"
+  - "r2_ci_upper"
+properties:
+  model_name:
+    type: "string"
+    description: "Name of the model (e.g., 'RandomForest', 'GradientBoosting', 'ElasticNet')."
+  r2_score:
+    type: "number"
+    description: "R-squared score on the test set."
+  rmse:
+    type: "number"
+    description: "Root Mean Squared Error on the test set."
+  mae:
+    type: "number"
+    description: "Mean Absolute Error on the test set."
+  r2_ci_lower:
+    type: "number"
+    description: "Lower bound of the 95% confidence interval for R² (from grouped bootstrap)."
+  r2_ci_upper:
+    type: "number"
+    description: "Upper bound of the 95% confidence interval for R²."
+  p_value_null:
+    type: "number"
+    description: "P-value from t-test against the null hypothesis (R² = 0)."
+  fdr_corrected:
+    type: "boolean"
+    description: "Whether FDR correction was applied for multiple comparisons."
+  sensitivity_analysis:
+    type: "object"
+    description: "Results of the sensitivity analysis on R² thresholds."
+    properties:
+      thresholds_tested:
+        type: "array"
+        items:
+          type: "number"
+        description: "List of R² thresholds tested (e.g., [0.25, 0.30, 0.35])."
+      fpr_variance:
+        type: "number"
+        description: "Variance in false-positive rates across the tested thresholds."
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of the evaluation run."
+  seed:
+    type: "integer"
+    description: "Random seed used for reproducibility."

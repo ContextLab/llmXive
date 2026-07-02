@@ -1,38 +1,74 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: HEA Sample Schema
-description: Schema for a single High-Entropy Alloy sample with compositional and elastic properties.
-type: object
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "HEA Sample Schema"
+description: "Schema for a single High-Entropy Alloy sample with compositional and elastic properties."
+type: "object"
+required:
+  - "sample_id"
+  - "composition"
+  - "elastic_constants"
+  - "residual_bulk_modulus"
 properties:
   sample_id:
-    type: string
+    type: "string"
     description: "Unique identifier for the alloy sample."
   composition:
-    type: object
-    description: "Dictionary of element: atomic_fraction."
+    type: "object"
+    description: "Atomic fractions of elements. Keys are element symbols, values are floats."
     additionalProperties:
-      type: number
+      type: "number"
       minimum: 0
       maximum: 1
-  bulk_modulus:
-    type: number
-    description: "Bulk modulus in GPa."
-  shear_modulus:
-    type: number
-    description: "Shear modulus in GPa."
-    nullable: true
+    description: "Sum of values must be 1.0."
+  elastic_constants:
+    type: "object"
+    required:
+      - "bulk_modulus"
+      - "shear_modulus"
+    properties:
+      bulk_modulus:
+        type: "number"
+        description: "Bulk Modulus in GPa."
+      shear_modulus:
+        type: "number"
+        description: "Shear Modulus in GPa."
   crystal_structure:
-    type: string
-    description: "Crystal structure type (e.g., FCC, BCC)."
+    type: "string"
+    description: "Crystal structure (e.g., 'BCC', 'FCC')."
   source:
-    type: string
-    description: "Source database (e.g., OQMD)."
-  is_valid:
-    type: boolean
-    description: "True if composition sums to ~1.0 and bulk_modulus is present."
-required:
-  - sample_id
-  - composition
-  - bulk_modulus
-  - source
-  - is_valid
-additionalProperties: false
+    type: "string"
+    description: "Data source (e.g., 'OQMD', 'Materials Project')."
+  miedema_baseline:
+    type: "number"
+    description: "Predicted Bulk Modulus via Miedema's model in GPa."
+  residual_bulk_modulus:
+    type: "number"
+    description: "Observed Bulk Modulus minus Miedema baseline (GPa)."
+  ilr_features:
+    type: "array"
+    items:
+      type: "number"
+    description: "Isometric Log-Ratio transformed composition coordinates."
+  mixing_enthalpy:
+    type: "number"
+    description: "Mixing enthalpy in kJ/mol."
+  atomic_radius_variance:
+    type: "number"
+    description: "Atomic radius variance (dimensionless)."
+  entropy_mixing:
+    type: "number"
+    description: "Entropy of mixing in J/mol·K."
+  vec:
+    type: "number"
+    description: "Valence Electron Concentration."
+  metadata:
+    type: "object"
+    properties:
+      api_version:
+        type: "string"
+        description: "Version of the API used to fetch this data."
+      query_params:
+        type: "string"
+        description: "JSON string of query parameters used."
+      checksum:
+        type: "string"
+        description: "SHA-256 checksum of the raw data source."

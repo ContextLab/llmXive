@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-02T08:40:08.648108Z'
-current_stage: project_initialized
+current_stage: specified
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-133-investigating-the-stability-of-rotating-
-last_run_id: 80fe36d4-894f-4b3e-a55b-b8c887968030
+last_run_id: f77c74d4-1a22-4c7c-8601-6dedf50fa70e
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-133-investigating-the-stability-of-rotating-/specs/001-investigating-the-stability-of-rotating
 title: Investigating the Stability of Rotating Bose-Einstein Condensates with Dipolar
   Interactions
-updated_at: '2026-06-28T21:33:53.053824Z'
+updated_at: '2026-07-02T15:56:47.579429Z'

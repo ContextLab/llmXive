@@ -4,202 +4,158 @@ import sys
 from pathlib import Path
 from datetime import datetime
 from typing import Optional, Dict, Any
-import json
 import yaml
+import json
 
-# Ensure artifacts directory exists
-ARTIFACTS_DIR = Path(__file__).parent.parent / "artifacts"
-ARTIFACTS_DIR.mkdir(parents=True, exist_ok=True)
+# Constants for artifact paths
+ARTIFACTS_DIR = "artifacts"
+PREPROCESS_LOG_PATH = os.path.join(ARTIFACTS_DIR, "preprocess.yaml")
+ANALYSIS_RESULTS_PATH = os.path.join(ARTIFACTS_DIR, "analysis_results.json")
 
-PREPROCESS_LOG_PATH = ARTIFACTS_DIR / "preprocess.yaml"
-ANALYSIS_RESULTS_PATH = ARTIFACTS_DIR / "analysis_results.json"
+# Global storage for structured logs
+_preprocess_logs: list[Dict[str, Any]] = []
+_analysis_results: Dict[str, Any] = {}
+_log_lock = None  # For thread safety if needed later
 
 class YAMLLogHandler(logging.Handler):
-    """Custom logging handler that accumulates structured log events into a YAML file."""
-    
-    def __init__(self, log_path: Path):
+    """
+    Custom logging handler that captures structured log events
+    and writes them to a YAML file.
+    """
+    def __init__(self, log_list: list):
         super().__init__()
-        self.log_path = log_path
-        self.events = []
-        
-        # Initialize file if it doesn't exist
-        if not self.log_path.exists():
-            with open(self.log_path, 'w') as f:
-                yaml.dump({"logs": []}, f)
+        self.log_list = log_list
+        self.setLevel(logging.INFO)
+        self.setFormatter(StructuredFormatter())
 
     def emit(self, record: logging.LogRecord):
         try:
-            event = {
-                "timestamp": datetime.utcnow().isoformat() + "Z",
-                "level": record.levelname,
-                "message": record.getMessage(),
-                "module": record.module,
-                "function": record.funcName,
-                "line": record.lineno
-            }
-            
-            # Add extra fields if present
-            if hasattr(record, 'event_data'):
-                event.update(record.event_data)
-            
-            self.events.append(event)
-            
-            # Also write immediately to file for persistence
-            self._write_event(event)
-            
+            # Parse the structured message if it exists, otherwise format standard
+            msg = self.format(record)
+            try:
+                # Try to parse as JSON if the formatter output JSON, fallback to string
+                if isinstance(record.msg, dict):
+                    entry = record.msg
+                else:
+                    entry = {"message": msg, "level": record.levelname, "timestamp": datetime.now().isoformat()}
+                
+                # Ensure required fields
+                if "timestamp" not in entry:
+                    entry["timestamp"] = datetime.now().isoformat()
+                if "level" not in entry:
+                    entry["level"] = record.levelname
+                
+                self.log_list.append(entry)
+            except Exception:
+                # Fallback for non-dict messages
+                self.log_list.append({
+                    "message": msg,
+                    "level": record.levelname,
+                    "timestamp": datetime.now().isoformat()
+                })
         except Exception:
             self.handleError(record)
 
-    def _write_event(self, event: Dict[str, Any]):
-        """Append a single event to the YAML file."""
-        try:
-            # Read existing content
-            existing = {"logs": []}
-            if self.log_path.exists():
-                try:
-                    with open(self.log_path, 'r') as f:
-                        content = yaml.safe_load(f)
-                        if content and 'logs' in content:
-                            existing['logs'] = content['logs']
-                except (yaml.YAMLError, IOError):
-                    pass
-            
-            # Append new event
-            existing['logs'].append(event)
-            
-            # Write back
-            with open(self.log_path, 'w') as f:
-                yaml.dump(existing, f, default_flow_style=False, sort_keys=False)
-                
-        except Exception as e:
-            logging.error(f"Failed to write log event to {self.log_path}: {e}")
-
-    def flush(self):
-        """Flush any buffered events."""
-        pass
-
 class StructuredFormatter(logging.Formatter):
-    """Formatter that creates structured log records with extra data support."""
-    
-    def format(self, record: logging.LogRecord) -> str:
-        # Standard formatting for console output
+    """
+    Formatter that outputs JSON-like structured strings for console
+    but allows the handler to intercept the raw dict if available.
+    """
+    def format(self, record):
+        if isinstance(record.msg, dict):
+            # If the message is already a dict, we return it as a string for console
+            # but the handler handles the dict directly.
+            return json.dumps(record.msg)
         return super().format(record)
 
-def get_logger(name: str = "llmXive") -> logging.Logger:
+def get_logger(name: str, is_preprocess: bool = False) -> logging.Logger:
     """
-    Get a configured logger with both console and YAML file handlers.
-    
-    Args:
-        name: Logger name, defaults to "llmXive"
-        
-    Returns:
-        Configured logger instance
+    Factory function to get a configured logger.
+    If is_preprocess is True, it uses the global preprocess log list.
+    Otherwise, it uses standard logging or analysis results dict.
     """
     logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)
     
-    # Avoid duplicate handlers
+    # Prevent duplicate handlers
     if logger.handlers:
         return logger
-    
-    # Console handler
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(logging.INFO)
-    console_formatter = StructuredFormatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
-    console_handler.setFormatter(console_formatter)
-    logger.addHandler(console_handler)
-    
-    # YAML file handler for structured logs
-    yaml_handler = YAMLLogHandler(PREPROCESS_LOG_PATH)
-    yaml_handler.setLevel(logging.INFO)
-    yaml_handler.setFormatter(logging.Formatter('%(message)s'))
-    logger.addHandler(yaml_handler)
-    
+
+    # Determine target based on context
+    if is_preprocess:
+        handler = YAMLLogHandler(_preprocess_logs)
+        logger.addHandler(handler)
+    else:
+        # For analysis, we might want to update the global results dict
+        # This is a simplified approach; usually, analysis results are updated explicitly
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(StructuredFormatter())
+        logger.addHandler(handler)
+
     return logger
 
-def log_structured_event(
-    logger: logging.Logger, 
-    level: str, 
-    message: str, 
-    **kwargs
-) -> None:
+def get_preprocess_logger() -> logging.Logger:
+    """Returns the logger configured for preprocessing tasks."""
+    return get_logger("preprocess_logger", is_preprocess=True)
+
+def get_analysis_logger() -> logging.Logger:
+    """Returns the logger configured for analysis tasks."""
+    return get_logger("analysis_logger", is_preprocess=False)
+
+def log_structured_event(logger: logging.Logger, event_name: str, details: Dict[str, Any]) -> None:
     """
-    Log a structured event with additional data fields.
-    
-    Args:
-        logger: Logger instance to use
-        level: Log level (INFO, WARNING, ERROR, etc.)
-        message: Log message
-        **kwargs: Additional structured data to include
+    Logs a structured event to the logger.
     """
-    record = logger.makeRecord(
-        logger.name, 
-        getattr(logging, level.upper()), 
-        "", 
-        0, 
-        message, 
-        (), 
-        None
-    )
-    record.event_data = kwargs
-    logger.handle(record)
+    event = {
+        "event": event_name,
+        "timestamp": datetime.now().isoformat(),
+        **details
+    }
+    logger.info(event)
 
 def flush_yaml_logs() -> None:
-    """Explicitly flush all YAML log handlers."""
-    for handler in logging.root.handlers:
-        if isinstance(handler, YAMLLogHandler):
-            handler.flush()
+    """
+    Writes the accumulated preprocess logs to artifacts/preprocess.yaml.
+    """
+    artifacts_path = Path(ARTIFACTS_DIR)
+    artifacts_path.mkdir(parents=True, exist_ok=True)
+    
+    output_file = artifacts_path / "preprocess.yaml"
+    
+    with open(output_file, "w") as f:
+        yaml.dump(_preprocess_logs, f, default_flow_style=False, sort_keys=False)
 
 def save_analysis_results(results: Dict[str, Any]) -> None:
     """
-    Save analysis results to the canonical JSON file.
-    
-    Args:
-        results: Dictionary of analysis results to save
+    Updates the global analysis results and writes to artifacts/analysis_results.json.
+    This function is typically called by the analysis module to finalize results.
     """
-    try:
-        # Ensure directory exists
-        ANALYSIS_RESULTS_PATH.parent.mkdir(parents=True, exist_ok=True)
-        
-        # Add metadata
-        output = {
-            "generated_at": datetime.utcnow().isoformat() + "Z",
-            "project": "llmXive-gut-microbiome-eeg",
-            "results": results
-        }
-        
-        with open(ANALYSIS_RESULTS_PATH, 'w') as f:
-            json.dump(output, f, indent=2, default=str)
-            
-        # Also log the save event
-        logger = get_logger()
-        log_structured_event(
-            logger, 
-            "INFO", 
-            f"Analysis results saved to {ANALYSIS_RESULTS_PATH}",
-            file=str(ANALYSIS_RESULTS_PATH),
-            keys=list(results.keys())
-        )
-        
-    except Exception as e:
-        logger = get_logger()
-        log_structured_event(
-            logger, 
-            "ERROR", 
-            f"Failed to save analysis results: {e}",
-            error=str(e)
-        )
-        raise
+    global _analysis_results
+    _analysis_results.update(results)
+    
+    artifacts_path = Path(ARTIFACTS_DIR)
+    artifacts_path.mkdir(parents=True, exist_ok=True)
+    
+    output_file = artifacts_path / "analysis_results.json"
+    
+    with open(output_file, "w") as f:
+        json.dump(_analysis_results, f, indent=2, default=str)
 
-# Convenience function to get the preprocess logger
-def get_preprocess_logger() -> logging.Logger:
-    """Get logger configured for preprocessing tasks."""
-    return get_logger("preprocess")
+def get_analysis_results() -> Dict[str, Any]:
+    """Returns the current state of analysis results."""
+    return _analysis_results
 
-# Convenience function to get the analysis logger
-def get_analysis_logger() -> logging.Logger:
-    """Get logger configured for analysis tasks."""
-    return get_logger("analysis")
+def initialize_logging() -> None:
+    """
+    Initializes the logging infrastructure.
+    Clears previous logs if re-running in the same session.
+    """
+    global _preprocess_logs, _analysis_results
+    _preprocess_logs = []
+    _analysis_results = {}
+    
+    # Ensure artifacts directory exists
+    Path(ARTIFACTS_DIR).mkdir(parents=True, exist_ok=True)
+
+# Initialize immediately on import to ensure state is clean for the task run
+initialize_logging()

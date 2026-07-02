@@ -1,14 +1,18 @@
-rdkit
-torch-cpu
-scikit-learn
-pandas
-numpy
-requests
-tqdm
-jinja2
-statsmodels
-scipy
-matplotlib
-seaborn
-pyyaml
-jsonschema
+# Core dependencies
+rdkit==2023.9.6
+torch-cpu==2.1.0
+scikit-learn==1.3.2
+pandas==2.1.4
+numpy==1.26.2
+requests==2.31.0
+tqdm==4.66.1
+jinja2==3.1.2
+statsmodels==0.14.0
+scipy==1.11.4
+matplotlib==3.8.2
+seaborn==0.13.0
+pyyaml==6.0.1
+jsonschema==4.20.0
+# Additional utilities
+pyarrow==14.0.1
+aiohttp==3.9.1

@@ -60,7 +60,7 @@
 - [ ] T004b1 [P] Generate `contracts/dataset.schema.yaml` defining the schema for input microbiome and EEG feature matrices (US-1)
 - [ ] T004b2 [P] Generate `contracts/output.schema.yaml` defining the schema for `matched_pairs.csv`, `distribution_groups.csv`, and `analysis_results.json` (US-2)
 - [X] T004 [P] Implement data schema validation using `pydantic` or `jsonschema` based on `contracts/dataset.schema.yaml` (Depends on T004b1, T004b2) <!-- FAILED: unspecified -->
-- [ ] T005 [P] Setup logging infrastructure to output structured logs to `artifacts/preprocess.yaml` and `artifacts/analysis_results.json`
+- [X] T005 [P] Setup logging infrastructure to output structured logs to `artifacts/preprocess.yaml` and `artifacts/analysis_results.json`
 - [ ] T006 [P] Create utility functions for checksum verification (MD5/SHA256) to enforce `artifacts/checksums.txt` protocol
 - [ ] T007 Implement random seed management utility to ensure reproducibility across statistical runs (must be importable by all analysis scripts)
 - [ ] T008 Create base configuration loader to read `preprocess.yaml` parameters (filter bands, ICA settings, pseudocount)
@@ -73,7 +73,7 @@
 
 **Goal**: Acquire AGP and OpenNeuro data, preprocess them, and attempt Virtual Cohort Matching. If matching fails (<10 pairs), automatically switch to Distributional Comparison.
 
-**Independent Test**: Verify that (1) microbiome CSV has ≥100 rows, (2) EEG CSV has ≥50 subjects [UNRESOLVED-CLAIM: c_028d66f5 — status=not_enough_info], (3) `matched_pairs.csv` has ≥10 rows OR `distribution_groups.csv` is generated with valid group sizes.
+**Independent Test**: Verify that (1) microbiome CSV has ≥100 rows, (2) EEG CSV has ≥50 subjects, (3) `matched_pairs.csv` has ≥10 rows OR `distribution_groups.csv` is generated with valid group sizes.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -131,8 +131,8 @@
  - **Path B**: Shuffle group labels in distribution groups.
  - **Pass the random seed (from T007) explicitly as `random_state`** to ensure reproducibility.
  - Set `perm_test_passed` boolean if observed statistic exceeds the 95th percentile of null distribution in `code/correlation_analysis.py`.
-- [ ] T025 [US2] Inject the exact string "Note: This analysis is associational only; no causal inference is made." into all result JSONs and reports
-- [ ] T026 [US2] Output `artifacts/analysis_results.json` containing correlation coefficients (Path A) OR test statistics (Path B), p-values, q-values, VIF values (if applicable), and permutation flags
+- [~] T025 [US2] Inject the exact string "Note: This analysis is associational only; no causal inference is made." into all result JSONs and reports
+- [~] T026 [US2] Output `artifacts/analysis_results.json` containing correlation coefficients (Path A) OR test statistics (Path B), p-values, q-values, VIF values (if applicable), and permutation flags
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently, with results corresponding to the selected path.
 

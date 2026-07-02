@@ -1,12 +1,11 @@
-pandas
-numpy
-scipy
-scikit-learn
-mne
-scikit-bio
-matplotlib
-seaborn
-pyyaml
+pandas>=2.0.0
+numpy>=1.24.0
+scipy>=1.10.0
+scikit-learn>=1.2.0
+mne>=1.5.0
+skbio>=0.5.9
+matplotlib>=3.7.0
+seaborn>=0.12.0
+pyyaml>=6.0
 qiime2==2023.5
-requests
-# Existing dependencies from earlier phases are assumed to be present.
+statsmodels>=0.14.0

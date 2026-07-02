@@ -1,135 +1,124 @@
 """
-Utility functions and constants for the molecular packing efficiency project.
-
-This module provides:
-- Reproducible seed fixing for random number generators.
-- Centralized logging setup.
-- Bondi van der Waals radii constants for packing calculations.
+Utility functions for the molecular packing efficiency project.
 """
-
 import logging
 import os
 import random
 import sys
 from typing import Dict, Optional
-
 import numpy as np
 
-# ---------------------------------------------------------------------------
-# Bondi Van der Waals Radii (Angstroms)
-# Source: Bondi, A. J. Phys. Chem. 1964, 68, 441.
-# Used for calculating molecular volumes and packing coefficients.
-# ---------------------------------------------------------------------------
-BONDI_RADII: Dict[str, float] = {
-    "H": 1.20,
-    "He": 1.40,
-    "C": 1.70,
-    "N": 1.55,
-    "O": 1.52,
-    "F": 1.47,
-    "Ne": 1.54,
-    "Si": 2.10,
-    "P": 1.80,
-    "S": 1.80,
-    "Cl": 1.75,
-    "Ar": 1.88,
-    "As": 1.85,
-    "Se": 1.90,
-    "Br": 1.85,
-    "Kr": 1.98,
-    "Te": 2.06,
-    "I": 1.98,
-    "Xe": 2.16,
-    # Add other common organic elements if needed
-    "B": 1.92,
-    "Li": 1.82,
-    "Na": 2.27,
-    "K": 2.75,
-    "Mg": 1.73,
-    "Ca": 2.31,
-    "Fe": 2.00, # Approximate, varies by oxidation state
-    "Zn": 1.39, # Metal coordination radii differ, using covalent approx if needed
+# Bondi van der Waals radii (in Angstroms)
+BONDI_RADII = {
+    'H': 1.20,
+    'C': 1.70,
+    'N': 1.55,
+    'O': 1.52,
+    'F': 1.47,
+    'P': 1.80,
+    'S': 1.80,
+    'Cl': 1.75,
+    'Br': 1.85,
+    'I': 1.98,
+    'Si': 2.10,
+    'B': 1.73,
+    'Be': 1.60,
+    'Li': 1.82,
+    'Na': 2.27,
+    'K': 2.75,
+    'Ca': 2.31,
+    'Mg': 1.73,
+    'Al': 1.84,
+    'Fe': 2.04,
+    'Cu': 1.80,
+    'Zn': 1.98,
+    'Ag': 2.00,
+    'Au': 2.00,
+    'Pt': 2.00,
+    'Pd': 2.00,
+    'Ni': 1.80,
+    'Co': 1.80,
+    'Mn': 1.80,
+    'Cr': 1.80,
+    'V': 1.80,
+    'Ti': 1.80,
+    'Sc': 1.80,
+    'Y': 2.00,
+    'La': 2.00,
+    'Ce': 2.00,
+    'Pr': 2.00,
+    'Nd': 2.00,
+    'Sm': 2.00,
+    'Eu': 2.00,
+    'Gd': 2.00,
+    'Tb': 2.00,
+    'Dy': 2.00,
+    'Ho': 2.00,
+    'Er': 2.00,
+    'Tm': 2.00,
+    'Yb': 2.00,
+    'Lu': 2.00,
+    'Hf': 2.00,
+    'Ta': 2.00,
+    'W': 2.00,
+    'Re': 2.00,
+    'Os': 2.00,
+    'Ir': 2.00,
+    'Ru': 2.00,
+    'Rh': 2.00,
+    'Mo': 2.00,
+    'Nb': 2.00,
+    'Zr': 2.00,
+    'Ge': 2.00,
+    'As': 2.00,
+    'Se': 2.00,
+    'Te': 2.00,
+    'Bi': 2.00,
+    'Pb': 2.00,
+    'Sn': 2.00,
+    'Ga': 2.00,
+    'In': 2.00,
+    'Tl': 2.00,
+    'Hg': 2.00,
+    'Cd': 2.00,
+    'Ru': 2.00
 }
 
-# ---------------------------------------------------------------------------
-# Reproducibility
-# ---------------------------------------------------------------------------
-
-def fix_seed(seed: int = 42) -> None:
+def fix_seed(seed: int = 42):
     """
-    Fix the random seed for reproducibility across numpy, random, and torch (if available).
-
+    Fix random seed for reproducibility.
+    
     Args:
-        seed: Integer seed value. Default is 42.
+        seed: Random seed to use
     """
     random.seed(seed)
     np.random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
 
-    try:
-        import torch
-        torch.manual_seed(seed)
-        if torch.cuda.is_available():
-            torch.cuda.manual_seed_all(seed)
-    except ImportError:
-        # Torch not installed; skip torch seeding
-        pass
-
-    # Ensure deterministic behavior in some operations if torch is available
-    if "torch" in sys.modules:
-        import torch
-        torch.backends.cudnn.deterministic = True
-        torch.backends.cudnn.benchmark = False
-
-
-# ---------------------------------------------------------------------------
-# Logging
-# ---------------------------------------------------------------------------
-
-def setup_logging(
-    level: int = logging.INFO,
-    log_file: Optional[str] = None,
-    name: str = "molecular_packing"
-) -> logging.Logger:
+def setup_logging(name: str, level: int = logging.INFO) -> logging.Logger:
     """
-    Configure and return a logger with console and optional file handlers.
-
+    Setup logging configuration.
+    
     Args:
-        level: Logging level (e.g., logging.INFO, logging.DEBUG).
-        log_file: Optional path to a log file. If None, only console logging is used.
-        name: Name of the logger.
-
+        name: Logger name
+        level: Logging level
+        
     Returns:
-        Configured logging.Logger instance.
+        Configured logger instance
     """
     logger = logging.getLogger(name)
     logger.setLevel(level)
-
-    # Avoid adding duplicate handlers if called multiple times
-    if logger.handlers:
-        return logger
-
-    # Formatter
-    formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S"
-    )
-
-    # Console handler
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(level)
-    console_handler.setFormatter(formatter)
-    logger.addHandler(console_handler)
-
-    # File handler (optional)
-    if log_file:
-        # Ensure directory exists
-        log_dir = os.path.dirname(log_file)
-        if log_dir and not os.path.exists(log_dir):
-            os.makedirs(log_dir, exist_ok=True)
-
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setLevel(level)
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
-
+    
+    # Avoid adding handlers multiple times
+    if not logger.handlers:
+        # Console handler
+        console_handler = logging.StreamHandler(sys.stdout)
+        console_handler.setLevel(level)
+        console_formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+            datefmt='%Y-%m-%d %H:%M:%S'
+        )
+        console_handler.setFormatter(console_formatter)
+        logger.addHandler(console_handler)
+    
     return logger

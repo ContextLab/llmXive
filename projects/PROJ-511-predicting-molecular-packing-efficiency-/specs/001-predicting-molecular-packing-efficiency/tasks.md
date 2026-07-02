@@ -58,7 +58,7 @@
 - [ ] T004 [P] Create `contracts/dataset.schema.yaml` defining SMILES, PC, CAPE, 3D descriptors, H-bond count, aromatic ring count, and confounder fields
 - [ ] T005 [P] Create `contracts/model.schema.yaml` and `contracts/validation_report.schema.yaml`
 - [X] T006 Create `code/utils.py` with seed fixing, logging setup, and Bondi radii constants (FR-018)
-- [~] T007 [P] Create base data loading utilities for CIF parsing and SMILES generation in `code/`
+- [ ] T007 [P] Create base data loading utilities for CIF parsing and SMILES generation in `code/`
 - [~] T008 [P] Configure error handling for corrupt CIFs and missing metadata in `code/`
 - [~] T009 [P] Setup environment configuration for COD URL and HuggingFace model path in `code/`
 - [~] T013b [P] [US1] Implement `code/extract_physics_features.py` to calculate H-bond capacity (donor/acceptor counts), aromatic ring fraction, and thermodynamic confounders (temperature, solvent presence) from CIF metadata and 3D geometry. **Reads raw CIFs and produces `data/physics_features.csv`**. (FR-013, FR-002, Pauling/Curie requirements integrated into core flow)
@@ -71,7 +71,7 @@
 
 **Goal**: Obtain a clean dataset of ≥500 organic crystal structures with SMILES and packing coefficients.
 
-**Independent Test**: The pipeline can be run on a fresh CI runner and must output `data/dataset.csv` with ≥500 rows, valid SMILES, and numeric packing coefficients. [UNRESOLVED-CLAIM: c_0e062248 — status=not_enough_info]
+**Independent Test**: The pipeline can be run on a fresh CI runner and must output `data/dataset.csv` with ≥500 rows, valid SMILES, and numeric packing coefficients.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -79,12 +79,12 @@
 > **Dependency Note**: While code can be written in parallel, execution depends on T004 (schema) and T012-T018 (implementation).
 
 - [~] T010 [US1] Contract test for dataset schema validation in `tests/contract/test_dataset_schema.py` (Depends on T004; must run after T018 completes)
-- [ ] T011 [P] [US1] Integration test for download and parse pipeline in `tests/integration/test_download_parse.py` (Depends on T012-T018; fails until implementation)
+- [~] T011 [P] [US1] Integration test for download and parse pipeline in `tests/integration/test_download_parse.py` (Depends on T012-T018; fails until implementation)
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `code/download_cif.py` to fetch organic CIFs (≤50 non-H atoms) from COD [UNRESOLVED-CLAIM: c_4e303c2b — status=not_enough_info] with logging (FR-001, FR-017)
-- [ ] T013 [US1] Implement `code/parse_cif.py` to extract/generate SMILES via RDKit, flag source, and record confounders (FR-002, FR-013)
+- [~] T012 [US1] Implement `code/download_cif.py` to fetch organic CIFs (≤50 non-H atoms) from COD with logging (FR-001, FR-017)
+- [~] T013 [US1] Implement `code/parse_cif.py` to extract/generate SMILES via RDKit, flag source, and record confounders (FR-002, FR-013)
 - [ ] T015 [US1] Implement `code/compute_raw_metrics.py` to calculate **Raw Packing Coefficient (PC)** (diagnostic only) and **CAPE** (target) using Bondi radii (FR-003, FR-011, FR-018). **Reads `data/dataset_intermediate.csv` and produces `data/dataset_with_metrics.csv`**. This task must output both metrics clearly to allow downstream filtering.
 - [ ] T016 [US1] Implement `code/filter_dataset.py` to filter records with missing SMILES, invalid CAPE, or invalid Raw PC from `data/dataset_with_metrics.csv`, producing `data/dataset_filtered.csv` (FR-003, SC-001). Explicitly ensure CAPE is valid before filtering.
 - [ ] T017 [US1] Add logging for download statistics, parsing failures, and filtering counts (FR-001, FR-017)
@@ -146,11 +146,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T051 [P] Run full end-to-end pipeline on CI and verify runtime ≤ 6 hours [UNRESOLVED-CLAIM: c_e24b618e — status=not_enough_info] (SC-005)
+- [ ] T051 [P] Run full end-to-end pipeline on CI and verify runtime ≤ 6 hours [UNRESOLVED-CLAIM: c_a2899dbc — status=not_enough_info] (SC-005)
 - [ ] T052a [P] Run `black --check` on `code/` and fix formatting violations
 - [ ] T052b [P] Run `flake8` on `code/` and fix linting errors
 - [ ] T052c [P] Run automated linting: `pylint --max-line-length=100 --max-branches=10 --max-returns=10 code/` and `radon cc -m code/` ensuring max cyclomatic complexity is ≤ 10. Log results in `code/REFACTORING_LOG.txt`.
-- [ ] T052d [P] Refactor code for readability based on T052c logs: Ensure all functions have < 50 lines [UNRESOLVED-CLAIM: c_0836655a — status=not_enough_info], docstrings present, and variable names are descriptive. Pass criterion: T052c logs show max complexity ≤ 10 and function length < 50 lines.
+- [ ] T052d [P] Refactor code for readability based on T052c logs: Ensure all functions have < 50 lines [UNRESOLVED-CLAIM: c_bb528aad — status=not_enough_info], docstrings present, and variable names are descriptive. Pass criterion: T052c logs show max complexity ≤ 10 and function length < 50 lines.
 - [ ] T053 [P] Performance optimization: parallelize permutation test shuffles if needed (within CPU limits)
 - [ ] T054 [P] Additional unit tests for feature extraction logic in `tests/unit/`
 - [ ] T055 Security hardening: sanitize external data inputs

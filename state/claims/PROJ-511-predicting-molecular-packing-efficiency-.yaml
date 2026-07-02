@@ -165,3 +165,179 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-01T19:04:37Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: Pipeline outputs dataset with 500 or more organic crystal structures
+  claim_id: c_75e938cb
+  context: "Goal: Obtain a clean dataset of \u2265500 organic crystal structures with\
+    \ SMILES and packing coefficients. Independent Test: The pipeline can be run on\
+    \ a fresh CI runner..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The pipeline can be run on a fresh CI runner and must output data/dataset.csv\
+    \ with \u2265500 rows, valid SMILES, and numeric packing coefficients."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T16:14:35Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: Download organic CIFs with 50 or fewer non-hydrogen atoms from COD
+  claim_id: c_fc66e31b
+  context: "Implementation for User Story 1 - Implement code/download_cif.py to fetch\
+    \ organic CIFs (\u226450 non-H atoms) from COD with logging (FR-001, FR-017)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement code/download_cif.py to fetch organic CIFs (\u226450 non-H\
+    \ atoms) from COD with logging"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T16:14:35Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: Train 2-layer MLP with 100000 parameters or fewer on 80/20 split
+  claim_id: c_bc70ebbe
+  context: "Implementation for User Story 2 - Implement code/train_mlp.py to train\
+    \ a 2-layer MLP (\u2264100k params) on 80/20 split (FR-005)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement code/train_mlp.py to train a 2-layer MLP (\u2264100k params)\
+    \ on 80/20 split"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T16:14:51Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: Permutation test uses 10000 shuffles for 0.0001 resolution
+  claim_id: c_f4b956e1
+  context: Implementation for User Story 2 - Implement code/evaluate.py to run a permutation
+    test with exactly 10,000 shuffles to achieve 0.0001 resolution (FR-006, FR-016,
+    Constitution VII).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/evaluate.py to run a permutation test with exactly 10,000
+    shuffles to achieve 0.0001 resolution
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T16:15:14Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: Variation in Pearson r across thresholds is less than or equal to 0.05
+  claim_id: c_15bc849a
+  context: "Implementation for User Story 3 - Implement code/sensitivity.py to compute\
+    \ and report the variation in r across the set {0.5, 0.6, 0.7} and verify it is\
+    \ \u2264 \xB10.05 (SC-004)"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Variation_in_Pearson_r_across_thresholds_is_less_than_or_equ
+  kind: magnitude
+  raw_text: "Verify that variation in r across the set {0.5, 0.6, 0.7} is \u2264 \xB1\
+    0.05"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T16:16:36Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: End-to-end pipeline runtime is 6 hours or less
+  claim_id: c_a2899dbc
+  context: "Phase 6: Polish & Cross-Cutting Concerns - Run full end-to-end pipeline\
+    \ on CI and verify runtime \u2264 6 hours (SC-005)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Run full end-to-end pipeline on CI and verify runtime \u2264 6 hours"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T16:16:36Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: Max cyclomatic complexity is 10 or less
+  claim_id: c_68133d6c
+  context: "Phase 6: Polish & Cross-Cutting Concerns - Run automated linting... ensuring\
+    \ max cyclomatic complexity is \u2264 10."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Run automated linting: pylint --max-line-length=100 --max-branches=10\
+    \ --max-returns=10 code/ and radon cc -m code/ ensuring max cyclomatic complexity\
+    \ is \u2264 10"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T16:16:58Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: All functions have fewer than 50 lines
+  claim_id: c_bb528aad
+  context: 'Phase 6: Polish & Cross-Cutting Concerns - Refactor code for readability
+    based on T052c logs: Ensure all functions have < 50 lines...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/All_functions_have_fewer_than_50_lines
+  kind: magnitude
+  raw_text: Ensure all functions have < 50 lines
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T16:17:27Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: SMILES encoded using seyonec/PubChem10M_SMILES_BPE_60k model
+  claim_id: c_c5cd109e
+  context: Implementation for User Story 2 - Implement code/feature_assembly.py to
+    encode SMILES using frozen seyonec/PubChem10M_SMILES_BPE_60k (CPU)...
+  evidence:
+    entailment_evidence: SMILES encoded using seyonec/PubChem10M SMILES BPE 60k model
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/SMILES_encoded_using_seyonec/PubChem10M_SMILES_BPE_60k_model
+  kind: entity_fact
+  raw_text: Use frozen seyonec/PubChem10M_SMILES_BPE_60k (CPU) to encode SMILES
+  resolved_value: SMILES encoded using seyonec/PubChem10M_SMILES_BPE_60k model
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-02T16:17:29Z'
+- artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/tasks.md
+  attempts: 1
+  canonical: 3D descriptors calculated with ETKDG seed 42 and 50 max attempts
+  claim_id: c_17ed4fe3
+  context: Implementation for User Story 1 - Implement code/add_3d_descriptors.py
+    to calculate 3D descriptors... using ETKDG parameters, seed=42, max_attempts=50.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate 3D descriptors using ETKDG parameters, seed=42, max_attempts=50
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T16:17:58Z'
