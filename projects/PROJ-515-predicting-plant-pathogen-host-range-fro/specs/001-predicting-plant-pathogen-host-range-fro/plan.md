@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a computational pipeline to predict plant pathogen host ranges using genomic features (effector counts, Pfam domains, GC content, k-mer frequencies, secondary-metabolism clusters) and public interaction data (PHI-Base, Interactome3D, NCBI BioSample). The core deliverable is an interpretable, regularized logistic-regression model trained on 50 pathogens, validated via k-fold cross-validation and permutation testing, running entirely on CPU-only CI hardware within 5 hours.
+This project implements a computational pipeline to predict plant pathogen host ranges using genomic features (effector counts, Pfam domains, GC content, k-mer frequencies, secondary-metabolism clusters) and public interaction data (PHI-Base, Interactome3D, NCBI BioSample). The core deliverable is an interpretable, regularized logistic-regression model trained on a diverse set of pathogens, validated via k-fold cross-validation and permutation testing, running entirely on CPU-only CI hardware within 5 hours.
 
 ## Technical Context
 
@@ -17,7 +17,7 @@ This project implements a computational pipeline to predict plant pathogen host 
 **Project Type**: CLI pipeline (Python scripts + Bash wrappers).  
 **Performance Goals**: End-to-end runtime ≤ 5 hours for 50 pathogens; memory ≤ 4 GB; prediction latency ≤ 30s per novel genome.  
 **Constraints**: No GPU/CUDA; no deep learning; no proprietary data; strict data provenance (NCBI GenBank, PHI-Base, etc.); missing interactions treated as 'unknown' unless sensitivity analysis is run.  
-**Scale/Scope**: 50 pathogens (max 2 GB total genome data), ~200 host species, 5 genomic feature categories.
+**Scale/Scope**: A diverse set of pathogens (max 2 GB total genome data), ~ host species, genomic feature categories.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 

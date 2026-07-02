@@ -1,0 +1,79 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Interaction Schema
+description: |
+  Schema for pathogen-host interaction records.
+  Derived from PHI-base and Interactome3D.
+type: object
+required:
+  - metadata
+  - interactions
+properties:
+  metadata:
+    type: object
+    required:
+      - source_databases
+      - extraction_date
+      - total_records
+      - label_distribution
+    properties:
+      source_databases:
+        type: array
+        items:
+          type: string
+        description: List of source databases (e.g., ["PHI-base", "Interactome3D"])
+      extraction_date:
+        type: string
+        format: date-time
+        description: Timestamp of data extraction
+      total_records:
+        type: integer
+        minimum: 1
+        description: Total number of interaction records
+      label_distribution:
+        type: object
+        required:
+          - host
+          - non_host
+          - unknown
+        properties:
+          host:
+            type: integer
+            description: Count of confirmed host interactions
+          non_host:
+            type: integer
+            description: Count of confirmed non-host interactions
+          unknown:
+            type: integer
+            description: Count of unknown/missing interactions
+  interactions:
+    type: array
+    description: List of interaction records
+    items:
+      type: object
+      required:
+        - pathogen_id
+        - host_species
+        - label
+        - source
+        - confidence_score
+      properties:
+        pathogen_id:
+          type: string
+          description: Unique pathogen identifier
+        host_species:
+          type: string
+          description: Scientific name of the host species
+        label:
+          type: integer
+          enum: [0, 1]
+          description: |
+            1: Host (pathogen infects)
+            0: Non-host (pathogen does not infect)
+        source:
+          type: string
+          description: Source database or study ID
+        confidence_score:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Confidence score of the interaction (optional)

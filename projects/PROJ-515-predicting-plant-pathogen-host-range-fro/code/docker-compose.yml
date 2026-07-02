@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  effectorp:
+    image: effectorp/effectorp:3.0
+    pull_policy: always
+    command: ["echo", "EffectorP 3.0 image verified"]
+    profiles:
+      - tools
+
+  antismash:
+    image: antismash/antismash:7.0
+    pull_policy: always
+    command: ["echo", "antiSMASH 7.0 image verified"]
+    profiles:
+      - tools
+
+# This configuration pins the required Docker images for non-Python tools.
+# To pull and verify these images before pipeline execution, run:
+#   docker-compose --profile tools pull
+#   docker-compose --profile tools up --abort-on-container-exit
+#
+# The 'pull_policy: always' ensures the latest tagged versions are fetched.
+# The 'command' in each service is a verification step that confirms the image
+# can be instantiated and run.

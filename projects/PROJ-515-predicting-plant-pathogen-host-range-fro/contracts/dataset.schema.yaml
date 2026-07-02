@@ -1,0 +1,76 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Dataset Schema
+description: |
+  Schema for the primary dataset used in the pipeline.
+  This dataset aggregates genomic features and interaction labels.
+type: object
+required:
+  - metadata
+  - data
+properties:
+  metadata:
+    type: object
+    required:
+      - version
+      - created_at
+      - source
+      - pathogen_count
+      - host_count
+      - feature_columns
+    properties:
+      version:
+        type: string
+        description: Schema version string (e.g., "1.0.0")
+      created_at:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of dataset creation
+      source:
+        type: string
+        description: Reference to raw data sources (e.g., "PHI-base, NCBI")
+      pathogen_count:
+        type: integer
+        minimum: 0
+        description: Number of unique pathogens in the dataset
+      host_count:
+        type: integer
+        minimum: 0
+        description: Number of unique host species in the dataset
+      feature_columns:
+        type: array
+        items:
+          type: string
+        description: List of feature column names in the data matrix
+  data:
+    type: object
+    required:
+      - features
+      - labels
+      - pathogen_ids
+      - host_ids
+    properties:
+      features:
+        type: array
+        items:
+          type: array
+          items:
+            type: number
+        description: 2D array of genomic features (n_pathogens x n_features)
+      labels:
+        type: array
+        items:
+          type: integer
+          enum: [0, 1, -1]
+        description: |
+          Interaction labels: 1 (host), 0 (non-host), -1 (unknown/missing).
+          Shape matches features rows if aggregated, or flattened for pairwise.
+      pathogen_ids:
+        type: array
+        items:
+          type: string
+        description: List of unique pathogen identifiers corresponding to feature rows
+      host_ids:
+        type: array
+        items:
+          type: string
+        description: List of unique host identifiers (if aggregated by pathogen)

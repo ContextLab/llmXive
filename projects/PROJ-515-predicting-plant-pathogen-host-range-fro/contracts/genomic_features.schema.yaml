@@ -1,0 +1,86 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Genomic Features Schema
+description: |
+  Schema for the genomic feature matrix extracted from pathogen genomes.
+  Includes effector counts, SM clusters, GC content, k-mer profiles, and Pfam domains.
+type: object
+required:
+  - metadata
+  - features
+properties:
+  metadata:
+    type: object
+    required:
+      - extraction_tool_versions
+      - genome_source
+      - total_pathogens
+      - feature_definitions
+    properties:
+      extraction_tool_versions:
+        type: object
+        required:
+          - effectorp
+          - antismash
+          - hmmsearch
+        properties:
+          effectorp:
+            type: string
+            description: EffectorP version (e.g., "3.0")
+          antismash:
+            type: string
+            description: antiSMASH version (e.g., "7.0")
+          hmmsearch:
+            type: string
+            description: HMMER/hmmsearch version
+      genome_source:
+        type: string
+        description: Source of input genomes (e.g., "NCBI GenBank")
+      total_pathogens:
+        type: integer
+        minimum: 1
+        description: Number of pathogen genomes processed
+      feature_definitions:
+        type: object
+        description: Map of feature name to description
+        additionalProperties:
+          type: string
+  features:
+    type: array
+    description: List of feature records, one per pathogen
+    items:
+      type: object
+      required:
+        - pathogen_id
+        - effector_count
+        - sm_cluster_count
+        - gc_content
+        - kmer_profile
+        - pfam_counts
+      properties:
+        pathogen_id:
+          type: string
+          description: Unique identifier for the pathogen
+        effector_count:
+          type: integer
+          minimum: 0
+          description: Total count of predicted effectors
+        sm_cluster_count:
+          type: integer
+          minimum: 0
+          description: Total count of secondary metabolite clusters
+        gc_content:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: GC content ratio (0.0 to 1.0)
+        kmer_profile:
+          type: array
+          items:
+            type: number
+          description: Normalized 4-mer frequency vector (256 dimensions)
+        pfam_counts:
+          type: object
+          description: Map of Pfam domain ID to count
+          additionalProperties:
+            type: integer
+            minimum: 0

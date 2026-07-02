@@ -1,0 +1,120 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Model Output Schema
+description: |
+  Schema for the trained model artifacts and evaluation reports.
+type: object
+required:
+  - metadata
+  - performance_metrics
+  - feature_importance
+properties:
+  metadata:
+    type: object
+    required:
+      - model_type
+      - training_date
+      - cv_folds
+      - random_seed
+      - vif_threshold
+    properties:
+      model_type:
+        type: string
+        description: Type of model (e.g., "L1_LogisticRegression")
+      training_date:
+        type: string
+        format: date-time
+        description: Timestamp of model training
+      cv_folds:
+        type: integer
+        minimum: 2
+        description: Number of cross-validation folds used
+      random_seed:
+        type: integer
+        description: Random seed used for reproducibility
+      vif_threshold:
+        type: number
+        minimum: 1
+        description: VIF threshold used for feature selection
+  performance_metrics:
+    type: object
+    required:
+      - auprc
+      - accuracy
+      - precision
+      - recall
+      - f1_score
+    properties:
+      auprc:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: Area Under Precision-Recall Curve
+      accuracy:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: Classification accuracy
+      precision:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: Mean precision
+      recall:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: Mean recall
+      f1_score:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: Mean F1 score
+      std_dev:
+        type: number
+        minimum: 0
+        description: Standard deviation of metrics across folds
+  feature_importance:
+    type: array
+    description: List of features with their importance scores (SHAP values)
+    items:
+      type: object
+      required:
+        - feature_name
+        - mean_abs_shap
+        - shap_sign
+      properties:
+        feature_name:
+          type: string
+          description: Name of the genomic feature
+        mean_abs_shap:
+          type: number
+          minimum: 0
+          description: Mean absolute SHAP value
+        shap_sign:
+          type: string
+          enum: ["positive", "negative", "mixed"]
+          description: Overall direction of the feature's effect
+  significant_features:
+    type: array
+    description: List of features identified as statistically significant
+    items:
+      type: object
+      required:
+        - feature_name
+        - cohen_d
+        - adj_p_value
+        - significant
+      properties:
+        feature_name:
+          type: string
+        cohen_d:
+          type: number
+          description: Effect size (Cohen's d)
+        adj_p_value:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Benjamini-Hochberg adjusted p-value
+        significant:
+          type: boolean
+          description: Whether the feature passed the significance threshold
