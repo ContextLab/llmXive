@@ -1,0 +1,103 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Simulation Run Schema"
+description: "Schema for a single Monte Carlo simulation run configuration and results"
+type: "object"
+properties:
+  run_id:
+    type: "string"
+    format: "uuid"
+    description: "Unique identifier for the simulation run"
+  distribution_name:
+    type: "string"
+    description: "Name of the parametric distribution"
+  distribution_parameters:
+    type: "object"
+    description: "Parameters of the parametric distribution (e.g., mu, sigma)"
+  variable_name:
+    type: "string"
+    description: "Name of the variable analyzed"
+  sample_size:
+    type: "integer"
+    enum:
+      - 10
+      - 20
+      - 30
+    description: "Sample size used in the simulation"
+  confidence_level:
+    type: "number"
+    enum:
+      - 0.90
+      - 0.95
+      - 0.99
+    description: "Nominal confidence level for the intervals"
+  replications:
+    type: "integer"
+    minimum: 10000
+    description: "Number of Monte Carlo replications (must be ≥10,000)"
+  true_population_mean:
+    type: "number"
+    description: "Theoretical mean of the parametric distribution (ground truth)"
+  start_timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp when simulation started"
+  end_timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp when simulation ended"
+  random_seed:
+    type: "integer"
+    description: "Pinned random seed for reproducibility"
+  t_coverage_rate:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Empirical coverage rate for t-intervals"
+  t_coverage_deviation:
+    type: "number"
+    description: "Deviation from nominal coverage (t_coverage_rate - confidence_level)"
+  t_is_significant_deviation:
+    type: "boolean"
+    description: "True if |t_coverage_deviation| > 0.01 (1.0% threshold)"
+  bootstrap_coverage_rate:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Empirical coverage rate for bootstrap percentile intervals"
+  bootstrap_coverage_deviation:
+    type: "number"
+    description: "Deviation from nominal coverage (bootstrap_coverage_rate - confidence_level)"
+  bootstrap_is_significant_deviation:
+    type: "boolean"
+    description: "True if |bootstrap_coverage_deviation| > 0.01 (1.0% threshold)"
+  bonferroni_adjusted_pvalue_t:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Bonferroni-adjusted p-value for t-interval deviation"
+  bonferroni_adjusted_pvalue_bootstrap:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Bonferroni-adjusted p-value for bootstrap deviation"
+required:
+  - run_id
+  - distribution_name
+  - distribution_parameters
+  - variable_name
+  - sample_size
+  - confidence_level
+  - replications
+  - true_population_mean
+  - start_timestamp
+  - end_timestamp
+  - random_seed
+  - t_coverage_rate
+  - t_coverage_deviation
+  - t_is_significant_deviation
+  - bootstrap_coverage_rate
+  - bootstrap_coverage_deviation
+  - bootstrap_is_significant_deviation
+  - bonferroni_adjusted_pvalue_t
+  - bonferroni_adjusted_pvalue_bootstrap
+additionalProperties: false

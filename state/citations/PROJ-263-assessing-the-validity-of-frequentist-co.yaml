@@ -1,1 +1,11 @@
-[]
+- artifact_hash: a150de978f4b72c67af63fc2604c0dcb017a5f40571582f095afc21180c1cff1
+  artifact_path: projects/PROJ-263-assessing-the-validity-of-frequentist-co/specs/001-assessing-the-validity-of-frequentist-co/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/your-org/assessing-the-validity-of-frequentist-co.git
+  verification_status: mismatch
+  verified_against_url: https://github.com/your-org/assessing-the-validity-of-frequentist-co
+  verified_at: '2026-07-02T07:15:53.848705Z'

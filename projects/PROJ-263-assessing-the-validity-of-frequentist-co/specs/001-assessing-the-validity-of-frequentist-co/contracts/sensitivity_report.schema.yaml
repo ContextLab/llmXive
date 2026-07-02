@@ -1,0 +1,58 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Sensitivity Report Schema"
+description: "Schema for sensitivity analysis results across sample sizes or confidence levels"
+type: "object"
+properties:
+  report_type:
+    type: "string"
+    enum:
+      - "sample_size"
+      - "confidence_level"
+    description: "Type of sensitivity analysis performed"
+  distribution_name:
+    type: "string"
+    description: "Name of the parametric distribution analyzed"
+  variable_name:
+    type: "string"
+    description: "Name of the variable analyzed"
+  varying_parameter:
+    type: "array"
+    items:
+      oneOf:
+        - type: "integer"
+          enum:
+            - 10
+            - 20
+            - 30
+        - type: "number"
+          enum:
+            - 0.90
+            - 0.95
+            - 0.99
+    description: "List of sample sizes or confidence levels tested"
+  t_coverage_rates:
+    type: "array"
+    items:
+      type: "number"
+      minimum: 0
+      maximum: 1
+    description: "Coverage rates for t-intervals across varying parameter"
+  bootstrap_coverage_rates:
+    type: "array"
+    items:
+      type: "number"
+      minimum: 0
+      maximum: 1
+    description: "Coverage rates for bootstrap intervals across varying parameter"
+  coverage_deviation_trend:
+    type: "string"
+    description: "Qualitative description of coverage deviation trend (e.g., 'decreasing with n')"
+required:
+  - report_type
+  - distribution_name
+  - variable_name
+  - varying_parameter
+  - t_coverage_rates
+  - bootstrap_coverage_rates
+  - coverage_deviation_trend
+additionalProperties: false
