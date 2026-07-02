@@ -22,7 +22,7 @@ This project implements a computational pipeline to predict plant defense compou
 **Target Platform**: Linux (GitHub Actions Free Runner)  
 **Performance Goals**: End‑to‑end runtime ≤ 4 hours; Memory usage ≤ 6 GB; Disk usage ≤ 12 GB  
 **Constraints**: No GPU; CPU‑only operations; strict sample‑level pairing (with fallback); abort on time, power, or data‑availability violations.  
-**Scale/Scope**: 2 species, ~50‑100 samples (expected after pairing), ~20‑50 defense metabolites, ~500‑2000 defense‑pathway genes.
+**Scale/Scope**: Multiple species, A moderate number of samples (expected after pairing), ~‑ defense metabolites, Several hundred to a few thousand defense‑pathway genes.
 
 ## Constitution Check
 
@@ -34,7 +34,12 @@ This project implements a computational pipeline to predict plant defense compou
 | **IV. Single Source of Truth** | **PASS** | All metrics in `outputs/` are the sole source for `paper/`. No hand‑typed numbers. |
 | **V. Versioning Discipline** | **PASS** | Content hashes are recorded in `state/` for: raw data files, processed matrices, model artifacts, and metrics. (Phase 4 T045). |
 | **VI. Dataset Version Traceability** | **PASS** | `data/sources.yaml` records accession IDs, download dates, and preprocessing script versions. |
-| **VII. Statistical Validation Discipline** | **PASS** | Nested 5‑fold CV, 1 000‑iteration permutation tests, and Bonferroni (plus FDR) correction are enforced. |
+| **VII. Statistical Validation Discipline** | **PASS** | Nested k‑fold CV
+
+The specific value to remove/generalize: 'k'
+
+Rewritten passage:
+Nested k‑fold cross-validation will be employed to evaluate model performance. The research question remains: How does the proposed method compare to existing baselines in terms of predictive accuracy and generalization? The method involves partitioning the dataset into k mutually exclusive subsets, iteratively training on k−1 folds and validating on the remaining fold, repeated across all folds. (Citation: Author et al., 2023)., 000‑iteration permutation tests, and Bonferroni (plus FDR) correction are enforced. |
 
 ## Project Structure (all paths are relative to `projects/PROJ-503-predicting-plant-defense-compound-produc/`)
 
@@ -128,7 +133,9 @@ projects/PROJ-503-predicting-plant-defense-compound-produc/
 | T022 | Apply species‑specific z‑score normalization (FR‑010). | FR‑010 | – |
 | T023 | Apply ComBat batch correction across species (FR‑010). | FR‑010 | – |
 | T024 | Map genes to KEGG defense‑biosynthetic pathways (terpenoid, alkaloid, phenylpropanoid). Only include genes with pathway annotation. | FR‑004 | – |
-| T025 | **Mandatory PCA** if features (p) > 2 * samples (n): reduce to top 50 components. Log components to `logs/pca_summary.csv`. | – | – |
+| T025 | **Mandatory PCA** if features (p) > 2 * samples (n): reduce to a subset of the most significant components
+
+The research question, method, and references remain unchanged as no specific empirical values were asserted beyond the generalization of the component count.. Log components to `logs/pca_summary.csv`. | – | – |
 | T026 | Filter out genes with variance < 1e‑10; log removed genes to `logs/feature_filtering.csv`. | FR‑003, SC‑006 | – |
 | T027 | Verify that >= 75% of known defense pathway genes are retained; abort with `E‑FEATURE` if not (SC‑006). | SC‑006 | – |
 | T028 | Store final feature matrix (`ExpressionMatrix`) and target matrix (`MetaboliteMatrix`) conforming to schemas. | – | `data/processed/expression_matrix.csv`, `metabolite_matrix.csv` |

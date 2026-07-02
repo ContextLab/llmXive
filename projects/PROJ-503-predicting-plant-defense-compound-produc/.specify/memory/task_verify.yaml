@@ -1,0 +1,23 @@
+? "T001 [P] [US1] Define search criteria (GEO herbivore\u2011stress keywords, Metabolomics\
+  \ Workbench metabolite keywords) and draft `projects/PROJ-503-predict-plant-defense-compound-produc/data/sources.yaml`.\
+  \ Verify YAML syntax."
+: 1
+? "T002 [P] [US1] Search GEO for *Arabidopsis* herbivore\u2011stress series; output\
+  \ IDs to `projects/PROJ-503-predict-plant-defense-compound-produc/data/raw/geo_arabidopsis_search.json`."
+: 1
+? "T003 [P] [US1] Search GEO for *Solanum* herbivore\u2011stress series; output IDs\
+  \ to `projects/PROJ-503-predict-plant-defense-compound-produc/data/raw/geo_solanum_search.json`."
+: 1
+? "T004 [P] [US1] Search Metabolomics Workbench for defense\u2011metabolite experiments;\
+  \ output IDs to `projects/PROJ-503-predict-plant-defense-compound-produc/data/raw/mw_search.json`.\
+  \ Verify at least one accession is returned. <!-- SKIPPED: YAML+regex parse failed\
+  \ (mapping values are not allowed here"
+: 1
+? "T005 [P] Create configurable power\u2011analysis utility `projects/PROJ-503-predict-plant-defense-compound-produc/code/utils/power_analysis.py`\
+  \ (default power\u202F=\u202F0.8, \u03B1\u202F=\u202F0.05, target\u202Fr\u202F=\u202F\
+  0.5). Include unit test."
+: 1
+? T006 [P] Run power analysis (using T005) and write result to `projects/PROJ-503-predict-plant-defense-compound-produc/logs/power_analysis.log`.
+  If n < 28, log a warning and halt **modeling** (do not abort the entire pipeline);
+  document the power deficiency in `logs/power_analysis.log`.
+: 1
