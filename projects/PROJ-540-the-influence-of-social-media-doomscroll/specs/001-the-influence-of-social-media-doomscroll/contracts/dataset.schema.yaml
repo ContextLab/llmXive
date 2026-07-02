@@ -1,0 +1,30 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AnalysisDatasetSchema"
+description: "Schema for the cleaned, analysis-ready dataset for the Doomscrolling Anxiety study."
+type: "object"
+properties:
+  news_exposure_freq:
+    type: "number"
+    description: "Frequency of negative news consumption (numeric)."
+  anxiety_score:
+    type: "number"
+    description: "Outcome anxiety score (numeric)."
+  baseline_anxiety:
+    type: "number"
+    description: "Baseline anxiety measure (numeric)."
+  age:
+    type: "integer"
+    description: "Participant age."
+  gender:
+    type: "string"
+    description: "Participant gender (categorical)."
+  social_media_engagement:
+    type: "number"
+    description: "Social media engagement metric (numeric)."
+required:
+  - "news_exposure_freq"
+  - "anxiety_score"
+  - "baseline_anxiety"
+  - "age"
+  - "gender"
+additionalProperties: true

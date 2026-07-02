@@ -1,0 +1,16 @@
+# Configuration for PROJ-540: The Influence of Social Media "Doomscrolling"
+# This file can be overridden by environment variables prefixed with LLXIVE_
+
+# Random seed for reproducibility (Constitution Principle I)
+# Set to an integer (e.g., 42) to ensure reproducible results.
+# If omitted, a warning will be logged, and results may vary.
+seed: 42
+
+# Dataset URL
+# Pointing to a public dataset source (GSS example).
+# Replace with the actual URL used in the project if different.
+dataset_url: "https://gss.norc.org/documents/gss_data_2022.csv"
+
+# Directory paths (relative to project root)
+raw_dir: "data/raw"
+output_dir: "data/processed"

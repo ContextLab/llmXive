@@ -1,0 +1,103 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "RegressionOutputSchema"
+description: "Schema for the statistical model output and diagnostics."
+type: "object"
+properties:
+  model_summary:
+    type: "object"
+    properties:
+      r_squared:
+        type: "number"
+        description: "R-squared value of the model."
+      adj_r_squared:
+        type: "number"
+        description: "Adjusted R-squared value."
+      n_obs:
+        type: "integer"
+        description: "Number of observations used."
+    required:
+      - "r_squared"
+      - "n_obs"
+  coefficients:
+    type: "object"
+    description: "Dictionary of predictor names to their coefficients."
+    additionalProperties:
+      type: "object"
+      properties:
+        coef:
+          type: "number"
+        pvalue:
+          type: "number"
+        std_err:
+          type: "number"
+      required:
+        - "coef"
+        - "pvalue"
+        - "std_err"
+  diagnostics:
+    type: "object"
+    properties:
+      linearity:
+        type: "string"
+        enum:
+          - "PASS"
+          - "FAIL"
+          - "WARNING"
+        description: "Linearity assumption check result."
+      homoscedasticity:
+        type: "string"
+        enum:
+          - "PASS"
+          - "FAIL"
+          - "WARNING"
+        description: "Homoscedasticity assumption check result."
+      normality:
+        type: "string"
+        enum:
+          - "PASS"
+          - "FAIL"
+          - "WARNING"
+        description: "Normality of residuals check result."
+      vif_max:
+        type: "number"
+        description: "Maximum Variance Inflation Factor."
+      shapiro_w:
+        type: "number"
+        description: "Shapiro-Wilk W statistic."
+      shapiro_p:
+        type: "number"
+        description: "Shapiro-Wilk p-value."
+    required:
+      - "linearity"
+      - "homoscedasticity"
+      - "normality"
+      - "vif_max"
+      - "shapiro_w"
+      - "shapiro_p"
+  flags:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of flags (e.g., 'PROXY_ANXIETY_USED', 'LOW_POWER')."
+  significance:
+    type: "object"
+    properties:
+      primary_predictor:
+        type: "string"
+        description: "Name of the primary predictor."
+      p_value:
+        type: "number"
+        description: "P-value for the primary predictor."
+      significant:
+        type: "boolean"
+        description: "True if p < 0.05."
+    required:
+      - "primary_predictor"
+      - "p_value"
+      - "significant"
+required:
+  - "model_summary"
+  - "coefficients"
+  - "diagnostics"
+  - "flags"
+  - "significance"

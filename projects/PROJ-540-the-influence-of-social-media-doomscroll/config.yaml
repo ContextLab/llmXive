@@ -1,0 +1,6 @@
+dataset_url: https://raw.githubusercontent.com/pewresearch/social-media-data/main/survey_data.csv
+random_seed: 42
+paths:
+  raw_data: data/raw
+  processed_data: data/processed
+  outputs: outputs

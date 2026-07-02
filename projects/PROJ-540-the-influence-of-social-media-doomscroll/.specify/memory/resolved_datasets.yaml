@@ -1,0 +1,167 @@
+resolved_at: '2026-07-02T16:58:46.145456+00:00'
+datasets:
+- intent: YouGov
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Spring_NDVI_time_series_from_PlanetScope_imagery/32882273
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Mechanistic_performance_evaluation_of_cement_concrete_pavements_in_PMGSY_rural_road_networks_of_Jharkhand_distress_mechanisms_NDT_assessment_and_multi-objective_design_optimisation/32882290
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Effectiveness_and_safety_of_eravacycline-based_regimens_for_resistant_acinetobacter_baumannii_infections_a_systematic_review_and_meta-analysis/32882288
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/Cuentos_Digitales_para_Educaci_n_Infantil/32882267
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Population_pharmacokinetic-based_dose_adjustment_of_tiapride_in_patients_with_impaired_renal_function/32882287
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17701058
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dadun.unav.edu/handle/10171/124680
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://revistasucal.com/index.php/rca/article/view/55
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/32722
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dadun.unav.edu/handle/10171/116802
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://osf.io/zbg3d/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/gmsyt/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/uqvkb/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.20180753
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+  - url: https://doi.org/10.5281/zenodo.20247531
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+- intent: GSS
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/gsstein/mini-xlsum/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/gsstein/0-percent-human-dataset-og/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/gsstein/100-percent-human-dataset/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/gsstein/mini-xlsum/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/gsstein/0-percent-human-dataset-og/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/gsstein/100-percent-human-dataset/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/gsstein/75-percent-human-dataset-og/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Spring_NDVI_time_series_from_PlanetScope_imagery/32882273
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Mechanistic_performance_evaluation_of_cement_concrete_pavements_in_PMGSY_rural_road_networks_of_Jharkhand_distress_mechanisms_NDT_assessment_and_multi-objective_design_optimisation/32882290
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Effectiveness_and_safety_of_eravacycline-based_regimens_for_resistant_acinetobacter_baumannii_infections_a_systematic_review_and_meta-analysis/32882288
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/Cuentos_Digitales_para_Educaci_n_Infantil/32882267
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Population_pharmacokinetic-based_dose_adjustment_of_tiapride_in_patients_with_impaired_renal_function/32882287
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5781768
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://onlinelibrary.wiley.com/doi/10.1111/1744-7917.70058
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://academic.oup.com/jac/article-lookup/doi/10.1093/jac/dkw455
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.29pb4
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://link.springer.com/article/10.1007/s12035-017-0506-6
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://uregina.scholaris.ca/handle/10294/14891
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/rhfx7/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/c5ajv/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/jzkxm/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/qf6pv/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
