@@ -1,0 +1,2 @@
+# This directory stores raw downloaded data from external sources (NCBI, GEO).
+# Files here are never modified by the pipeline.

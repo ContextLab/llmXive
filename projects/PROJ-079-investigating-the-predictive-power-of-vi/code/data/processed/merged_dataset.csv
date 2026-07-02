@@ -1,0 +1,6 @@
+strain_accession,feature_1,feature_2,isg_score
+strain_A,1.0,10.0,0.5
+strain_A,1.0,10.0,0.7
+strain_B,2.0,20.0,1.2
+strain_B,2.0,20.0,1.4
+strain_C,3.0,30.0,0.9
