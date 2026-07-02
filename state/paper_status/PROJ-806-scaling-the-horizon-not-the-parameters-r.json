@@ -10,5 +10,5 @@
     "log_excerpt": "llmxive restyle failed 3x \u2014 serving the arXiv fallback; reset llmxive_compile_attempts in state/paper_status/ after fixing the source"
   },
   "paper_id": "PROJ-806-scaling-the-horizon-not-the-parameters-r",
-  "updated_at": "2026-07-02T19:07:32.639719+00:00"
+  "updated_at": "2026-07-02T20:06:45.073012+00:00"
 }
