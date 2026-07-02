@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EEGFeatureSchema"
+description: "Schema for the processed feature table containing CLR-transformed relative band powers and behavioral metrics."
+type: object
+properties:
+  participant_id:
+    type: string
+    description: "Unique identifier for the participant."
+  delta_clr:
+    type: number
+    description: "Centered Log-Ratio transformed relative power in the delta band (0.5-4 Hz)."
+  theta_clr:
+    type: number
+    description: "Centered Log-Ratio transformed relative power in the theta band (4-8 Hz)."
+  alpha_clr:
+    type: number
+    description: "Centered Log-Ratio transformed relative power in the alpha band (8-13 Hz)."
+  beta_low_clr:
+    type: number
+    description: "Centered Log-Ratio transformed relative power in the low-beta band (13-20 Hz)."
+  beta_high_clr:
+    type: number
+    description: "Centered Log-Ratio transformed relative power in the high-beta band (20-30 Hz)."
+  gamma_clr:
+    type: number
+    description: "Centered Log-Ratio transformed relative power in the gamma band (30-40 Hz)."
+  median_rt_ms:
+    type: number
+    description: "Median reaction time in milliseconds."
+  trials_kept_pct:
+    type: number
+    description: "Percentage of trials kept after outlier removal."
+  channels_rejected_ratio:
+    type: number
+    description: "Ratio of rejected channels to total channels."
+required:
+  - participant_id
+  - delta_clr
+  - theta_clr
+  - alpha_clr
+  - beta_low_clr
+  - beta_high_clr
+  - gamma_clr
+  - median_rt_ms
+  - trials_kept_pct
+  - channels_rejected_ratio
+additionalProperties: false

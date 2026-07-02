@@ -1,0 +1,72 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelResultSchema"
+description: "Schema for the output of the statistical modeling and hypothesis testing phase."
+type: object
+properties:
+  model_type:
+    type: string
+    enum:
+      - "linear"
+      - "lasso"
+    description: "Type of regression model used."
+  r_squared:
+    type: number
+    description: "Coefficient of determination (R²)."
+  adjusted_r_squared:
+    type: number
+    description: "Adjusted R² value."
+  rmse:
+    type: number
+    description: "Root Mean Square Error."
+  permutation_p_value:
+    type: number
+    description: "P-value from the 10,000-shuffle permutation test (on test set)."
+  alpha_correlation_p_raw:
+    type: number
+    description: "Raw Pearson correlation p-value for alpha band."
+  alpha_correlation_p_bonferroni:
+    type: number
+    description: "Bonferroni-corrected p-value for alpha band (0.05/6)."
+  significant_at_bonferroni:
+    type: boolean
+    description: "True if alpha_correlation_p_bonferroni < 0.0083."
+  coefficients:
+    type: object
+    description: "Model coefficients for each band (CLR-transformed)."
+    properties:
+      delta_clr: { "type": "number" }
+      theta_clr: { "type": "number" }
+      alpha_clr: { "type": "number" }
+      beta_low_clr: { "type": "number" }
+      beta_high_clr: { "type": "number" }
+      gamma_clr: { "type": "number" }
+    required:
+      - delta_clr
+      - theta_clr
+      - alpha_clr
+      - beta_low_clr
+      - beta_high_clr
+      - gamma_clr
+  optimal_lambda:
+    type: number
+    description: "Optimal regularization parameter lambda from cross-validation."
+  non_linear_p_value:
+    type: number
+    description: "P-value from F-test comparing linear vs. polynomial model."
+  mdes_n_required:
+    type: integer
+    description: "Minimum sample size required to detect R²=0.10 with power >= 0.80."
+required:
+  - model_type
+  - r_squared
+  - adjusted_r_squared
+  - rmse
+  - permutation_p_value
+  - alpha_correlation_p_raw
+  - alpha_correlation_p_bonferroni
+  - significant_at_bonferroni
+  - coefficients
+  - optimal_lambda
+  - non_linear_p_value
+  - mdes_n_required
+additionalProperties: false
