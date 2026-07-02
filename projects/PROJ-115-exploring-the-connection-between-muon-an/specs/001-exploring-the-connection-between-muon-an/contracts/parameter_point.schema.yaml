@@ -1,0 +1,65 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ParameterPoint"
+description: "Schema for a single parameter point in the leptophilic DM scan."
+type: "object"
+properties:
+  m_chi:
+    type: number
+    description: "Dark Matter mass in MeV."
+    minimum: 0
+  m_V:
+    type: number
+    description: "Mediator mass in MeV."
+    minimum: 0
+  g:
+    type: number
+    description: "Coupling constant (g_chi = g_mu)."
+    minimum: 0
+    maximum: 1
+  delta_a_mu:
+    type: number
+    description: "One-loop contribution to muon g-2."
+  omega_chi_h2:
+    type: number
+    description: "Relic density Omega_chi h^2."
+    minimum: 0
+  sigma_SI:
+    type: number
+    description: "Spin-independent cross-section in cm^2."
+    minimum: 0
+  pass_g2:
+    type: boolean
+    description: "True if |Delta a_mu - Delta a_mu_exp| <= 2.51e-9."
+  pass_relic:
+    type: boolean
+    description: "True if Omega_chi h^2 <= 0.12."
+  pass_direct:
+    type: boolean
+    description: "True if sigma_SI <= Xenon1T limit."
+  pass_lep:
+    type: boolean
+    description: "True if LEP mono-photon limits are respected."
+  is_viable:
+    type: boolean
+    description: "True if all constraints pass."
+  status:
+    type: string
+    enum:
+      - "viable"
+      - "excluded"
+      - "undefined"
+    description: "Status of the parameter point."
+required:
+  - m_chi
+  - m_V
+  - g
+  - delta_a_mu
+  - omega_chi_h2
+  - sigma_SI
+  - pass_g2
+  - pass_relic
+  - pass_direct
+  - pass_lep
+  - is_viable
+  - status
+additionalProperties: false

@@ -2,80 +2,63 @@
 
 ## Prerequisites
 
-- Python +
-- A minimal multi-core CPU configuration and 4 GB RAM (minimum for 30-min runtime)
-- Internet access (for downloading LEP data)
+- Python 3.11+
+- pip
 
 ## Installation
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-115-exploring-the-connection-between-muon-an/code
-    ```
-
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-
-3.  **Install dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
-    *Dependencies*: `scipy`, `numpy`, `matplotlib`, `pandas`, `requests`, `reportlab`.
-
-4.  **Download external data**:
-    ```bash
-    python scripts/download_data.py
-    ```
-    *Note*: This script fetches `lepaute_data.json` and verifies its SHA-256 checksum against `data_manifest.json`. If the checksum does not match, the script will abort with a clear error message. If `xenon1t_limits.csv` is missing, the script will use the hardcoded curve from the 2014 paper and log a warning.
+1. Clone the repository and navigate to the project directory.
+2. Create a virtual environment:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+3. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
 ## Running the Scan
 
-### 1. Validate Physics Implementation
-Before running the full scan, verify the $\Delta a_\mu$ calculation against the benchmark.
-```bash
-python scripts/validate_delta_a.py
-```
-*Expected Output*: "Validation passed: relative error < 2%".
+1. **Generate Lookup Tables** (Pre-computation):
+   ```bash
+   python code/scan/generate_tables.py
+   ```
+   This creates `data/processed/relic_lookup.csv`.
 
-### 2. Validate Sommerfeld Calculation
-Verify the Sommerfeld enhancement calculation against a non-perturbative solver.
-```bash
-python scripts/validate_sommerfeld.py
-```
-*Expected Output*: "Sommerfeld validation passed: relative error < 5%".
+2. **Run the Parameter Scan**:
+   ```bash
+   python code/scan/run_scan.py
+   ```
+   This executes the grid scan, applies constraints, and outputs:
+   - `data/processed/viable_points.csv`
+   - `data/processed/viable_region.png`
+   - `logs/scan.log`
 
-### 3. Execute the Parameter Scan
-Run the full grid scan:
-```bash
-python scripts/run_scan.py
-```
-*Output*:
-- `viable_points.csv` (list of viable parameter points)
-- `viable_region.png` (contour plot)
-- `summary.txt` (scan summary)
+3. **Validation**:
+   - Validate $\Delta a_\mu$ implementation:
+     ```bash
+     python code/validation/validate_delta_a.py
+     ```
+   - Validate Relic Density (Sommerfeld):
+     ```bash
+     python code/validation/validate_relic_density.py
+     ```
 
-*Runtime*: Expected ≤ 30 minutes on 2-core CPU.
+4. **Generate Report**:
+   ```bash
+   python code/reporting/make_report.py
+   ```
+   This produces `g2_dm_report.pdf`.
 
-### 4. Generate the Report
-Create the PDF report:
-```bash
-python scripts/make_report.py
-```
-*Output*: `g2_dm_report.pdf` containing plots, tables, and reproducibility metadata.
+## Expected Outputs
+
+- **viable_points.csv**: List of parameter points satisfying all constraints.
+- **viable_region.png**: 2D contour plot of $m_V$ vs $g$.
+- **g2_dm_report.pdf**: Comprehensive PDF report with plots, tables, and reproducibility info.
 
 ## Troubleshooting
 
-- **Error: "Checksum mismatch"**: The downloaded data file does not match the expected hash. Check your internet connection and re-run `download_data.py`.
-- **Error: "Xenon1T data missing"**: The script will use the hardcoded curve from the 2014 paper and log a warning. The scan will proceed.
-- **Error: "Numerical overflow"**: Coupling $g$ is too large. The script caps $g$ at 1.0 and logs a warning.
-- **Runtime > 30 mins**: The adaptive scanning strategy and pre-computation tables should prevent this. If it occurs, check for system resource constraints.
-
-## Data Hygiene
-
-- All downloaded files are stored in `data/` with checksums.
-- Do not modify files in `data/` manually.
-- To clear cache and re-download: `rm -rf data/* && python scripts/download_data.py`.
+- **Runtime Error**: Ensure you are on a 2-core CPU environment (GitHub Actions). If running locally, limit threads.
+- **Data Missing**: If LEP data fails to download, check network or verify the URL in `code/config.py`.
+- **Overflow**: If couplings $g \ge 1$ are attempted, the script will cap them and log a warning.

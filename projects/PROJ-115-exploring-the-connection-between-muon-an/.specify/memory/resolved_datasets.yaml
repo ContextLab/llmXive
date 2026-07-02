@@ -1,27 +1,55 @@
-resolved_at: '2026-06-29T19:51:12.431616+00:00'
+resolved_at: '2026-07-02T05:29:35.593872+00:00'
 datasets:
+- intent: ConstraintDataset
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Health_economic_evaluations_of_digital_health_technologies_a_rapid_review_of_applied_methods_pdf/32871293
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Cellular_interaction_of_mycosis_fungoides_tumor_cells_changes_from_cytotoxic_CD8_T_cells_in_plaques_to_B_cells_in_tumors_pdf/32871287
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_2_Cellular_interaction_of_mycosis_fungoides_tumor_cells_changes_from_cytotoxic_CD8_T_cells_in_plaques_to_B_cells_in_tumors_pdf/32871272
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_3_Cellular_interaction_of_mycosis_fungoides_tumor_cells_changes_from_cytotoxic_CD8_T_cells_in_plaques_to_B_cells_in_tumors_pdf/32871236
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Characteristics_in_the_uterine_cavity_microbiota_of_infertile_women_with_hydrosalpinx_or_endometrial_polyps_revealed_by_shotgun_metagenomics_xlsx/32871269
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
 - intent: Xenon1T
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/conference_contribution/HUDUDIY_SANOAT_SIYOSATINI_TAKOMILLASHTIRISHDA_INVESTITSIYALARNING_O_RNI/32826905
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Stem_cell_factor_248_shapes_ILC2_transcriptional_programs_and_promotes_mucosal_inflammation_in_allergic_asthma_docx/32871347
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/HUDUDIY_SANOAT_SIYOSATINI_TAKOMILLASHTIRISHDA_INVESTITSIYALARNING_O_RNI/32826902
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_2_EFE-8c4_a_polyamine_from_Elaeagnus_multiflora_protects_neuronal_cells_by_regulating_oxidative_stress_and_apoptotic_pathways_zip/32871332
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/_b_The_vanWienen_Korzybski_Generativity_Gradient_v5_Architecture_b_b_A_Closed_Operator_Driven_Calculus_for_Universal_Generative_Transformation_b_/32826794
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Characterization_of_self-incompatibility_genes_in_Brassica_rapa_var_toria_and_yellow_sarson_docx/32871302
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Single-cell_transcriptomics_and_multi-omics_integration_identify_necroptosis-driven_core_targets_and_tubular-immune_crosstalk_in_chronic_kidney_disease_b_/32826635
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_EFE-8c4_a_polyamine_from_Elaeagnus_multiflora_protects_neuronal_cells_by_regulating_oxidative_stress_and_apoptotic_pathways_zip/32871314
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/7259230_/32826848
+  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_3_Characterization_of_self-incompatibility_genes_in_Brassica_rapa_var_toria_and_yellow_sarson_pdf/32871275
     source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7255651
+    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/165486
@@ -33,10 +61,6 @@ datasets:
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/4771143
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7255651
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -67,12 +91,12 @@ datasets:
 - intent: LEP
   status: verified
   candidates:
-  - url: https://huggingface.co/datasets/Carson1125/lepaute_ycbv_test/resolve/main/lepaute_data.json
+  - url: https://huggingface.co/datasets/vector-institute/atom3d-lep/resolve/main/data/test-00000-of-00001.parquet
     source: huggingface
-    format: json
-    relevance: 0.0
+    format: parquet
+    relevance: 1.0
     sample_check:
-      downloaded_bytes: 171819
+      downloaded_bytes: 262144
       parsed: true
   - url: https://huggingface.co/datasets/huggingartists/grigory-leps/resolve/main/datasets.json
     source: huggingface
@@ -89,10 +113,6 @@ datasets:
       downloaded_bytes: 262144
       parsed: true
   candidates_tried:
-  - url: https://huggingface.co/datasets/Carson1125/lepaute_ycbv_test/resolve/main/lepaute_data.json
-    source: huggingface
-    status: verified
-    format: json
   - url: https://huggingface.co/datasets/huggingartists/grigory-leps/resolve/main/datasets.json
     source: huggingface
     status: verified
@@ -105,23 +125,27 @@ datasets:
     source: huggingface
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/HUDUDIY_SANOAT_SIYOSATINI_TAKOMILLASHTIRISHDA_INVESTITSIYALARNING_O_RNI/32826905
+  - url: https://huggingface.co/datasets/vector-institute/atom3d-lep/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://frontiersin.figshare.com/articles/figure/Image_1_Preliminary_genomic_characterisation_and_antimicrobial_resistance_of_non-typhoidal_Salmonella_isolates_from_Burkina_Faso_within_a_One_Health_framework_tiff/32871386
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/conference_contribution/HUDUDIY_SANOAT_SIYOSATINI_TAKOMILLASHTIRISHDA_INVESTITSIYALARNING_O_RNI/32826902
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Preliminary_genomic_characterisation_and_antimicrobial_resistance_of_non-typhoidal_Salmonella_isolates_from_Burkina_Faso_within_a_One_Health_framework_xlsx/32871380
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/_b_The_vanWienen_Korzybski_Generativity_Gradient_v5_Architecture_b_b_A_Closed_Operator_Driven_Calculus_for_Universal_Generative_Transformation_b_/32826794
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Preliminary_genomic_characterisation_and_antimicrobial_resistance_of_non-typhoidal_Salmonella_isolates_from_Burkina_Faso_within_a_One_Health_framework_xlsx/32871371
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_b_Single-cell_transcriptomics_and_multi-omics_integration_identify_necroptosis-driven_core_targets_and_tubular-immune_crosstalk_in_chronic_kidney_disease_b_/32826635
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Article_title_efficacy_and_safety_of_romosozumab_in_postmenopausal_women_with_osteoporosis_previously_treated_with_antiresorptive_drugs_a_prospective_observational_study_and_literature_review_docx/32871383
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/preprint/7259230_/32826848
+  - url: https://frontiersin.figshare.com/articles/figure/Image_1_Article_title_efficacy_and_safety_of_romosozumab_in_postmenopausal_women_with_osteoporosis_previously_treated_with_antiresorptive_drugs_a_prospective_observational_study_and_literature_review_jpeg/32871362
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -133,7 +157,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/1068939
+  - url: https://zenodo.org/records/3387237
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -145,23 +169,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20560732
+  - url: https://zenodo.org/records/20389835
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20560732
+  - url: https://zenodo.org/records/20389835
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://usiena-air.unisi.it//handle/11365/1133350
+  - url: https://arxiv.org/abs/2607.00887
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21035438
+  - url: https://osf.io/kc4yx/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21012651
+  - url: https://toubkal.imist.ma/handle/123456789/6761
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

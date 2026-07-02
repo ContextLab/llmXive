@@ -9,3 +9,25 @@
   verification_status: unreachable
   verified_against_url: null
   verified_at: '2026-06-29T20:36:41.784335Z'
+- artifact_hash: 0a5b212364a2121cdf06158d91ef82242ff7c4263d280ca3ccd7083b2af1072c
+  artifact_path: projects/PROJ-115-exploring-the-connection-between-muon-an/specs/001-exploring-the-connection-between-muon-an/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: test-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/vector-institute/atom3d-lep/resolve/main/data/test-00000-of-00001.parquet`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/668d4cb317676d77918431d4/2ff37c74f5977200d702ca274aa6dfaf5f3722aa056166a31eed03f5b4385f47?user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&X-Xet-Cas-Uid=public&Expires=1782974482&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjY4ZDRjYjMxNzY3NmQ3NzkxODQzMWQ0LzJmZjM3Yzc0ZjU5NzcyMDBkNzAyY2EyNzRhYTZkZmFmNWYzNzIyYWEwNTYxNjZhMzFlZWQwM2Y1YjQzODVmNDdcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODI5NzQ0ODJ9fX1dfQ__&Signature=MEYCIQDh7MUS1%7EYEsiVb1H8zqLMNOCTrk5wTmHV5dmKA1bSfwwIhAMcSFuAtqvKDcob39oR1ToHlTSiDgeyaXYlMezkJUiPV&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-02T05:41:22.270095Z'
+- artifact_hash: 0a5b212364a2121cdf06158d91ef82242ff7c4263d280ca3ccd7083b2af1072c
+  artifact_path: projects/PROJ-115-exploring-the-connection-between-muon-an/specs/001-exploring-the-connection-between-muon-an/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: arxiv
+  value: '1402.5143'
+  verification_status: unreachable
+  verified_against_url: null
+  verified_at: '2026-07-02T05:41:22.270095Z'

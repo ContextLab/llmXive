@@ -1,0 +1,21 @@
+# Physics Constants for Yukawa Solver and Dark Matter Calculations
+# Units: Natural units (ħ = c = 1), masses in MeV, distances in 1/MeV
+constants:
+  alpha_em: 1/137.035999084
+  proton_mass_MeV: 938.27208816
+  electron_mass_MeV: 0.51099895000
+  planck_mass_MeV: 1.220910e19
+  hbar_c_MeV_fm: 197.3269804
+
+# Default parameters for T002 validation
+defaults:
+  m_chi_default_MeV: 10.0
+  m_V_default_MeV: 100.0
+  g_default: 0.1
+  v_galactic_default: 1e-3
+
+# Solver configuration
+solver:
+  r_max_default_1_per_MeV: 1000.0
+  n_points_default: 10000
+  tolerance: 1e-8

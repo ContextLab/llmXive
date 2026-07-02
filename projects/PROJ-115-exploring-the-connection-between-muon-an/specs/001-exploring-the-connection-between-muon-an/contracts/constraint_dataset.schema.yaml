@@ -1,0 +1,31 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ConstraintDataset"
+description: "Schema for external constraint datasets."
+type: "object"
+properties:
+  source:
+    type: string
+    enum:
+      - "Planck_2018"
+      - "Xenon1T_2014"
+      - "LEP"
+    description: "Source of the constraint."
+  limit_value:
+    type: number
+    description: "The numerical limit value."
+  mass_range:
+    type: array
+    items:
+      type: number
+    minItems: 2
+    maxItems: 2
+    description: "Tuple of (min_mass, max_mass) in MeV."
+  formula_ref:
+    type: string
+    description: "Reference to the formula or paper."
+required:
+  - source
+  - limit_value
+  - mass_range
+  - formula_ref
+additionalProperties: false

@@ -1,0 +1,27 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "RelicLookupTable"
+description: "Schema for the pre-computed relic density lookup table."
+type: "object"
+properties:
+  m_chi:
+    type: number
+    description: "Dark Matter mass in MeV."
+  m_V:
+    type: number
+    description: "Mediator mass in MeV."
+  g:
+    type: number
+    description: "Coupling constant."
+  omega_chi_h2:
+    type: number
+    description: "Pre-computed relic density."
+  s_factor:
+    type: number
+    description: "Sommerfeld enhancement factor."
+required:
+  - m_chi
+  - m_V
+  - g
+  - omega_chi_h2
+  - s_factor
+additionalProperties: false

@@ -60,7 +60,7 @@ A researcher validates the numerical integration of the Boltzmann equation inclu
 
 **Acceptance Scenarios**:
 
-1. **Given** a set of benchmark points in the resonance region (e.g., m_V ~ 10 MeV, g ~ 0.1), **When** `python validate_relic_density.py` is executed, **Then** the reported Ω_χ h² differs from the reference by ≤ 5 % relative error.
+1. **Given** a set of benchmark points in the resonance region (e.g., m_V ~ O(MeV), g ~ 0.1), **When** `python validate_relic_density.py` is executed, **Then** the reported Ω_χ h² differs from the reference by ≤ 5 % relative error.
 
 ---
 

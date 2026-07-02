@@ -1,0 +1,39 @@
+{
+  "timestamp": "2023-10-27T10:00:00.000000",
+  "project": "PROJ-115-exploring-the-connection-between-muon-an",
+  "task": "T004",
+  "sources": {
+    "Planck_2018": {
+      "name": "Planck 2018 Relic Density Constraints",
+      "type": "constant",
+      "description": "Standard cosmological constants (Omega_c h^2). No external fetch required.",
+      "available": true,
+      "method": "hardcoded_constant",
+      "details": "No external fetch required. Value defined in code.",
+      "fallback_strategy": "Use hardcoded Planck 2018 central value: 0.120 +/- 0.001."
+    },
+    "Xenon1T_2018": {
+      "name": "Xenon1T Spin-Independent Limits (2018)",
+      "type": "url",
+      "description": "Spin-independent cross-section limits vs DM mass.",
+      "available": false,
+      "method": "fetch_failed",
+      "details": "URL unreachable: https://zenodo.org/api/records/3364945/files-archive",
+      "fallback_strategy": "Use hardcoded piecewise polynomial approximation of the 2018 curve if fetch fails."
+    },
+    "LEP_Monophoton": {
+      "name": "LEP Monophoton Limits (2004-2014)",
+      "type": "url",
+      "description": "LEP limits on contact interactions/monophoton events.",
+      "available": false,
+      "method": "fetch_failed",
+      "details": "URL unreachable: https://cds.cern.ch/record/2004841/files/1408.2878.pdf",
+      "fallback_strategy": "Parse numerical tables from the paper (arXiv:1408.2878) if direct data fetch fails."
+    }
+  },
+  "summary": {
+    "total_sources": 3,
+    "available_count": 1,
+    "fallbacks_required": 2
+  }
+}
