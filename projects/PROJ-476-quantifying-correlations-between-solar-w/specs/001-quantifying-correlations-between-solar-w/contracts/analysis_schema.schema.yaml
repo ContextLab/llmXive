@@ -1,0 +1,56 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CorrelationResult"
+description: "Schema for the output of the lagged correlation analysis."
+type: object
+properties:
+  composition_parameter:
+    type: string
+    enum:
+      - proton_density
+      - temperature
+      - helium_abundance
+    description: "The solar wind variable being tested."
+  geomagnetic_index:
+    type: string
+    enum:
+      - kp_index
+      - dst_index
+    description: "The geomagnetic variable being tested."
+  lag_hours:
+    type: integer
+    enum:
+      - 0
+      - 1
+      - 2
+      - 3
+      - 6
+    description: "Time lag in hours."
+  pearson_r:
+    type: number
+    description: "Pearson correlation coefficient."
+  spearman_rho:
+    type: number
+    description: "Spearman rank correlation coefficient."
+  p_raw:
+    type: number
+    description: "Raw p-value adjusted for effective sample size (Neff)."
+  p_bonferroni:
+    type: number
+    description: "Bonferroni-corrected p-value (global threshold applied)."
+  significance_flag:
+    type: boolean
+    description: "True if p_bonferroni < 0.05."
+  effect_size_flag:
+    type: boolean
+    description: "True if absolute(pearson_r) > 0.5."
+required:
+  - composition_parameter
+  - geomagnetic_index
+  - lag_hours
+  - pearson_r
+  - spearman_rho
+  - p_raw
+  - p_bonferroni
+  - significance_flag
+  - effect_size_flag
+additionalProperties: false

@@ -1,69 +1,49 @@
 # Quickstart: Quantifying Correlations Between Solar Wind Composition and Geomagnetic Indices
 
 ## Prerequisites
-
-- Python 3.11+
-- `git`
-- Access to a terminal (Linux/macOS/WSL)
+- Python 3.11+
+- `pip`
+- Access to a GitHub Actions runner (or a local machine with ≤ 7 GB RAM).
 
 ## Installation
 
-1. **Clone the repository** and navigate to the project directory:
- ```bash
- git clone <repo-url>
- cd projects/PROJ-476-quantifying-correlations-between-solar-w
- ```
-
-2. **Create a virtual environment**:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-
-3. **Install dependencies**:
- ```bash
- pip install -r requirements.txt
- ```
- *Dependencies include: `pandas`, `numpy`, `scipy`, `matplotlib`, `requests`, `pytest`.*
+```bash
+git clone <repo-url>
+cd projects/PROJ-476-quantifying-correlations-between-solar-w
+pip install -r code/requirements.txt
+```
 
 ## Running the Pipeline
 
-### Step 1: Data Acquisition (Real Data)
+> **Important**: The NOAA Kp/Dst dataset currently lacks a verified download URL. The pipeline will abort with a clear error until a verified source is added (see Constitution Principle II).
 
-The pipeline uses the verified OMNI2 dataset which contains real solar wind composition and geomagnetic indices.
-
+### 1. Fetch & Validate
 ```bash
-python code/main.py --mode run --data-source ""
+python code/main.py fetch --start 1998-01-01 --end 2020-12-31
 ```
+Creates `data/processed/synced.csv` (no NaNs).
 
-*Flags:*
-- `--data-source`: URL to the OMNI2 CSV data.
-
-### Step 2: Analysis & Validation
-
-The command above executes the full pipeline:
-1. Downloads real OMNI2 data.
-2. Verifies required variables (`N_p`, `T_p`, `He2+_ratio`, `Kp`, `Dst`).
-3. Aligns to 1-hour grid.
-4. Computes lagged correlations (0–6h) on the full series.
-5. Applies global Bonferroni correction (derived from full series Neff).
-6. Validates on the 2018–2020 test set using the global threshold.
-7. Generates visualizations and the validation report.
-
-### Step 3: Inspect Results
-
-- **Correlation Table**: `data/processed/correlation_results.csv`
-- **Visualizations**: `artifacts/figures/` (PNG files)
-- **Validation Report**: `artifacts/reports/validation.md`
-
-### Running Tests
-
+### 2. Compute Global Thresholds
 ```bash
-pytest tests/ -v
+python code/main.py compute-thresholds
 ```
+Generates `artifacts/thresholds/global_threshold.json`.
 
-## Troubleshooting
+### 3. Correlation Analysis
+```bash
+python code/main.py analyze --data data/processed/synced.csv --lags 0,1,2,3,6
+```
+Outputs `artifacts/correlations.csv`.
 
-- **Missing Variables**: If the OMNI2 file lacks `N_p`, `T_p`, or `He2+_ratio`, the pipeline will abort with an error (SC-002).
-- **Large Gaps**: If gaps > 6h are detected, they are excluded from correlation, and a warning is logged.
-- **Memory**: The pipeline is optimized for < 1 GB RAM. If you encounter memory issues, check your local environment for other heavy processes.
+### 4. Validation (held‑out 2018‑2020)
+```bash
+python code/main.py validate --data data/processed/synced.csv --test-start 2018-01-01 --test-end 2020-12-31
+```
+Produces PNGs under `artifacts/plots/` (≤ 5 MB each) and `artifacts/reports/validation_report.md`.
+
+## Expected Outputs
+- `data/processed/synced.csv` – aligned, gap‑filled (no NaNs).  
+- `artifacts/thresholds/global_threshold.json` – Neff & Bonferroni α_adj.  
+- `artifacts/correlations.csv` – 30 rows of results.  
+- PNG heatmaps & time‑series overlays (≤ 5 MB).  
+- `validation_report.md` – summary of effect‑size and significance.

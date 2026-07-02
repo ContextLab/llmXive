@@ -1,98 +1,106 @@
 # Implementation Plan: Quantifying Correlations Between Solar Wind Composition and Geomagnetic Indices
 
 **Branch**: `feature-001-geomagnetic-correlation` | **Date**: 2026-06-24 | **Spec**: `specs/feature-001-geomagnetic-correlation/spec.md`
+**Input**: Feature specification from `/specs/feature-001-geomagnetic-correlation/spec.md`
 
 ## Summary
 
-This feature implements a reproducible, CPU-tractable pipeline to quantify the associational relationships between solar wind composition (proton density, temperature, helium abundance) and geomagnetic indices (Kp, Dst). The pipeline downloads real ACE/OMNI and NOAA data, aligns them to a 1-hour UTC grid, computes lagged correlations (0–6h) with autocorrelation-adjusted p-values, applies Bonferroni correction, and validates results on a held-out period. The analysis is strictly observational and designed to run within GitHub Actions free-tier constraints (limited CPU, 7 GB RAM, 6h runtime).
+The pipeline quantifies associational relationships between ACE solar‑wind composition (proton density, temperature, helium abundance) and NOAA geomagnetic indices (Kp, Dst). It downloads multi‑year data, validates required variables, aligns to a 1‑hour UTC grid with strict gap handling, computes lagged Pearson and Spearman correlations, adjusts raw p‑values using an effective sample size (Neff) that accounts for autocorrelation, applies a **global** Bonferroni correction derived from the **full 1998‑2020 series**, and generates visual artefacts and a validation report for the held‑out 2018‑2020 period.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `numpy`, `scipy`, `matplotlib`, `requests`, `pyyaml`  
-**Storage**: Local CSV/JSON/Parquet files under `data/` and `artifacts/`  
-**Testing**: `pytest` (unit tests for data alignment, correlation logic; integration test for full pipeline)  
-**Target Platform**: Linux (GitHub Actions free-tier runner)  
-**Project Type**: Data analysis CLI / Research pipeline  
-**Performance Goals**: Full 20-year analysis ≤ 6 hours; Data sync ≤ 30 minutes; RAM ≤ 7 GB.  
-**Constraints**: No GPU; No external API keys required (public data); Linear interpolation max gap h.  
-**Scale/Scope**: [deferred] hourly records (20 years); correlation tests per lag window.
-
-## Constitution Check
-
-*GATE: Must pass before Phase 0 research.*
-
-| Principle | Status | Implementation Detail |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | ✅ PASS | All scripts pinned to `requirements.txt`; random seeds fixed; data fetched from canonical verified URLs (OMNI2); checksums recorded in `state/`. |
-| **II. Verified Accuracy** | ✅ PASS | Dataset URLs cited only from the `# Verified datasets` block (OMNI2); no hallucinated sources. |
-| **III. Data Hygiene** | ✅ PASS | Raw data preserved in `data/raw/`; derivatives in `data/processed/`; no in-place modification; PII scan passed (no PII in solar data). |
-| **IV. Single Source of Truth** | ✅ PASS | All figures/stats generated programmatically from `data/processed/synced.csv`; no hand-typed values. |
-| **V. Versioning Discipline** | ✅ PASS | Artifact hashes updated in `state/` upon data/code changes. |
-| **VI. Temporal Alignment** | ✅ PASS | Explicit 1-hour UTC grid alignment; lag consistency enforced in `code/services/correlation.py`. |
-| **VII. Statistical Rigor** | ✅ PASS | Bonferroni correction and effective sample size (Neff) calculation implemented as per FR-003/FR-010 on the full continuous time series. |
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**: `pandas`, `numpy`, `scipy`, `statsmodels`, `matplotlib`, `requests`, `tqdm`, `pyyaml`  
+- **Storage**: `data/raw/`, `data/processed/`, `artifacts/`  
+- **Testing**: `pytest` (see detailed task list)  
+- **Target Platform**: GitHub Actions Free Tier (2 CPU, ~7 GB RAM, ≤6 h) – CPU‑only.  
+- **Constraints**: No GPU, no large‑LLM inference, all libraries CPU‑compatible.  
 
 ## Project Structure
 
-### Documentation (this feature)
-
-```text
-specs/feature-001-geomagnetic-correlation/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-│   ├── dataset.schema.yaml
-│   └── output.schema.yaml
-└── tasks.md             # Phase 2 output
 ```
-
-### Source Code (repository root)
-
-```text
 code/
-├── __init__.py
-├── main.py              # Entry point for CLI
-├── config.py            # Constants, paths, seeds
+├── __init__.py          # logging config, random seed
 ├── data/
-│   ├── __init__.py
-│   └── fetch.py         # Downloaders for ACE/OMNI2 and NOAA
-├── services/
-│   ├── __init__.py
-│   ├── align.py         # Resampling, interpolation, gap handling
-│   ├── correlation.py   # Pearson/Spearman, Neff, Bonferroni
-│   └── viz.py           # Plot generation
-├── validation/
-│   └── report.py        # Validation logic for US-3
-└── tests/
-    ├── test_align.py
-    ├── test_correlation.py
-    └── test_pipeline.py
+│   ├── fetch.py         # FR‑001, FR‑006 – download & variable existence check
+│   ├── align.py         # FR‑002 – resample, linear interpolation ≤6 h, logging
+│   └── validate.py      # abort on missing variables, logs exact missing name (SC‑002)
+├── analysis/
+│   ├── neff.py          # FR‑010 – compute lag‑specific Neff using Pyper & Peterman
+│   ├── correlation.py   # FR‑003 – lagged Pearson/Spearman
+│   └── significance.py  # FR‑004 – global Bonferroni correction (single artifact)
+├── viz/
+│   ├── plots.py         # FR‑008 – time‑series overlay & heatmaps (PNG ≤5 MB)
+│   └── report.py        # FR‑009 – Markdown validation report
+├── main.py              # CLI orchestration
+└── requirements.txt     # pinned versions
+tests/
+├── unit/
+│   ├── test_fetch.py
+│   ├── test_align.py
+│   ├── test_neff.py
+│   ├── test_significance.py
+│   └── test_validation_abort.py
+├── integration/
+│   └── test_pipeline.py
+└── conftest.py
+data/
+├── raw/
+└── processed/
+    └── synced.csv
+artifacts/
+├── plots/
+├── reports/
+└── thresholds/
+    └── global_threshold.json   # stores Neff and Bonferroni α_adj
 ```
 
-**Structure Decision**: Single-project Python CLI structure. Separated into `data` (I/O), `services` (logic), and `tests` to ensure modularity and testability. No external database; file-based storage aligns with CI constraints.
+## Phases & Explicit Plan Elements
 
-## Phase Breakdown (Computational Ordering)
+| Phase | Description | FR / SC addressed | Output / Contract |
+|------|-------------|-------------------|-------------------|
+| **Phase 0** | Scaffold repository, create directory layout, pin `requirements.txt`. | – | – |
+| **Phase 1** | **Variable Validation** – `fetch.py` checks that ACE files contain **exact** columns `N_p`, `T_p`, `He2+_ratio`. If any are missing, the pipeline aborts with error `Missing required variable: <name>` and logs the name (fulfills FR‑006, SC‑002). | FR‑006, SC‑002 | No output; abort on failure. |
+| **Phase 2** | **Alignment** – `align.py` resamples both ACE and NOAA series to a 1‑hour UTC grid, fills gaps ≤ 6 h by linear interpolation, logs each interpolated interval, and **excludes** any gap > 6 h from downstream correlation (still visualised). The resulting CSV (`synced.csv`) contains **no NaNs** (SC‑004). | FR‑001, FR‑002, SC‑004 | `data/processed/synced.csv` (conforms to `contracts/dataset.schema.yaml`). |
+| **Phase 3** | **Global Statistical Thresholding** – `neff.py` computes lag‑specific effective sample sizes for each composition‑index pair on the **full 1998‑2020 series** (no splitting). `significance.py` then applies a Bonferroni correction for the multiple tests, storing `α_adj` and all Neff values in `artifacts/thresholds/global_threshold.json`. This artifact is the **single source** for significance testing in both training and validation (addresses FR‑010, SC‑003). | FR‑010, FR‑004, SC‑003 | `artifacts/thresholds/global_threshold.json` (validated against a new `contracts/threshold.schema.yaml`). |
+| **Phase 4** | **Correlation Computation** – `correlation.py` uses the global Neff values and the Bonferroni α_adj from Phase 3 to compute Pearson r, Spearman ρ, raw p‑values (adjusted for Neff), and Bonferroni‑corrected p‑values for each of the 30 lagged pairs. Results are written to `artifacts/correlations.csv` and must conform to `contracts/analysis_schema.schema.yaml`. | FR‑003, FR‑004 | `artifacts/correlations.csv`. |
+| **Phase 5** | **Visualization & Reporting** – `plots.py` creates PNG heatmaps and time‑series overlays (≤ 5 MB each) and validates them against `contracts/visual_artifact.schema.yaml`. `report.py` generates `artifacts/reports/validation_report.md` adhering to `contracts/output.schema.yaml`, summarising any pair with |r| > 0.5 **and** Bonferroni‑corrected p < 0.05. | FR‑008, FR‑009 | PNG artefacts, `validation_report.md`. |
+| **Phase 6** | **Performance Contracts** – Benchmark scripts (`benchmarks/performance.py`) record runtime and peak RAM for Phases 2–5; results are compared against SC‑001 (≤ 6 h, ≤ 7 GB) and SC‑004 (≤ 30 min, ≤ 4 GB). Failures raise a CI error. | SC‑001, SC‑004 | Log file `artifacts/performance.log`. |
 
-1.  **Phase 0: Data Acquisition & Validation** (FR-001, FR-006)
-    *   Download raw ACE/OMNI2 (SWEPAM/SWICS) and NOAA (Kp/Dst) data from verified sources (OMNI2 dataset).
-    *   **Strict Variable Verification**: Check that the downloaded ACE/OMNI2 file contains **exactly** the required variable names: `N_p` (proton density), `T_p` (temperature), `He2+_ratio` (helium abundance).
-    *   **Abort Condition**: If any of these specific variable names are missing, the pipeline MUST abort with a clear error message (SC-002).
-    *   *Output*: `data/raw/ace_raw.csv`, `data/raw/noaa_raw.csv`.
-2.  **Phase 1: Synchronization & Cleaning** (FR-002, US-1)
-    *   Merge to 1-hour UTC grid.
-    *   Linear interpolation for gaps ≤ 6h; log warnings for larger gaps.
-    *   *Output*: `data/processed/synced.csv`.
-3.  **Phase 2: Correlation Analysis** (FR-003, FR-004, FR-010, US-2)
-    *   **Full Series Constraint**: Calculate effective sample size ($N_{eff}$) using the lag-1 autocorrelation ($\rho_1$) of the **full continuous time series** (1998–2020) for each variable, as per FR-010 and Pyper & Peterman ().
-    *   Compute Pearson/Spearman for selected lags on the full series.
-    *   Apply Bonferroni correction ($\alpha_{adj} = 0.05 / 30$) using the $N_{eff}$ derived from the full series.
-    *   *Output*: `data/processed/correlation_results.csv`.
-4.  **Phase 3: Validation & Visualization** (FR-008, FR-009, US-3)
-    *   Split data: Train (early period), Test (–2020).
-    *   **Replication Test**: Calculate correlation coefficients for the Test set. Compare these coefficients against the **global** significance threshold (derived in Phase 2 from the full series) and the pre-registered effect size (|r| > 0.5).
-    *   Generate heatmaps and time-series overlays.
-    *   Generate Markdown validation report explicitly stating that the significance threshold is global.
-    *   *Output*: `artifacts/figures/*.png`, `artifacts/reports/validation.md`.
+## Task List (Deterministic Function Names)
 
+| Task ID | Description | Produces |
+|--------|-------------|----------|
+| T001 | `scripts/create_scaffold.py` – creates repo directories. | directories |
+| T002 | `scripts/init_requirements.py` – writes `code/requirements.txt`. | file |
+| T003 | `scripts/configure_linting.py` – creates `pyproject.toml`, `.ruff.toml`, `.black`. | files |
+| T004 | `code/data/fetch.py` – download ACE, verify variables, abort on missing. | raw files, abort message |
+| T005 | `code/data/align.py` – resample, interpolate, log gaps. | `synced.csv` |
+| T006 | `code/analysis/neff.py` – compute lag‑specific Neff on full series. | JSON artifact |
+| T007 | `code/analysis/significance.py` – global Bonferroni, write `global_threshold.json`. | JSON artifact |
+| T008 | `code/analysis/correlation.py` – compute correlations using global thresholds. | `correlations.csv` |
+| T009 | `code/viz/plots.py` – generate PNG heatmaps & overlays (size ≤5 MB). | PNG files |
+| T010 | `code/viz/report.py` – generate `validation_report.md`. | Markdown report |
+| T011 | `scripts/run_performance.py` – benchmark Phases 2‑5, write log. | `performance.log` |
+| T012‑T030 | Unit & integration tests (e.g., `test_fetch_abort_on_missing.py`, `test_align_interpolation.py`, `test_neff_formula.py`, `test_bonferroni_divisor.py`, `test_pipeline_full_run.py`, `test_viz_png_size_limit.py`, `test_report_threshold_detection.py`). | pytest modules |
+
+All tests are named explicitly as above to satisfy deterministic execution.
+
+## Constitution Check
+
+| Principle | Status | Note |
+| :--- | :--- | :--- |
+| I. Reproducibility | PASS | Version‑pinned `requirements.txt`; random seeds fixed in `code/__init__.py`. |
+| II. Verified Accuracy | **FAIL** | NOAA Kp/Dst dataset URL is missing from the verified block; pipeline aborts until a verified source is supplied. |
+| III. Data Hygiene | PASS | Raw data checksummed; transformations write new files; no PII. |
+| IV. Single Source of Truth | PASS | All figures and statistics generated from code; no hand‑typed numbers. |
+| V. Versioning Discipline | PASS | Artifacts hashed; `state/` updated on change. |
+| VI. Temporal Alignment | PASS | All series aligned to 1‑hour UTC grid; lag consistency enforced. |
+| VII. Statistical Rigor | PASS | Global Neff & Bonferroni computed once; applied to both training and validation. |
+
+## Risks & Mitigations (re‑iterated)
+
+- **Missing NOAA source** – pipeline aborts; flagged as critical.  
+- **Interpolation bias** – interpolated points are excluded from correlation; only visualised.  
+- **Non‑stationarity** – median of rolling‑window lag‑1 autocorrelations used for Neff; documented in research.md.  
+- **Dependent tests** – Bonferroni justified as per community practice; noted in research.md.  
