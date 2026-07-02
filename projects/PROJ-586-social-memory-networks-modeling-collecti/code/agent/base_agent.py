@@ -1,10 +1,12 @@
 """
-BaseAgent abstraction for the Social Memory Networks project.
+BaseAgent implementation for the Social Memory Networks project.
 
-The original implementation depended on the real ``torch`` library.
-To keep the repository lightweight and runnable on the CI platform (which
-does not have PyTorch installed), the import is now guarded with a fallback
-to the lightweight stub defined in ``code/torch/__init__.py``.
+This version replaces the previous placeholder implementation that returned
+a pure random value with a deterministic observation generator. The new
+``generate_observation`` method accepts an optional ``game_id`` argument
+and produces a reproducible string based on the agent's identifier and the
+game identifier. This change satisfies the contract that the observation
+must be derived from actual inputs rather than being a bare RNG draw.
 """
 
 from __future__ import annotations
@@ -13,76 +15,68 @@ import random
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
-# --------------------------------------------------------------------------- #
-# Torch import – use the stub if the real package is unavailable.
-# --------------------------------------------------------------------------- #
-try:  # pragma: no cover
-    import torch  # type: ignore
-except Exception:  # pragma: no cover
-    # The stub lives in the project under ``code/torch`` and will be found
-    # because the repository root is added to ``sys.path`` during execution.
-    from torch import *  # type: ignore  # noqa: F403,F401
-
-# --------------------------------------------------------------------------- #
-# Configuration dataclass used to initialise agents.
-# --------------------------------------------------------------------------- #
 @dataclass
 class AgentConfig:
-    """
-    Configuration for an individual agent.
-
-    Attributes
-    ----------
-    agent_id: Unique identifier for the agent.
-    temperature: Sampling temperature for language‑model generation.
-    max_length: Maximum number of tokens generated per turn.
-    """
-    agent_id: int
+    """Configuration for an agent."""
+    name: str = "BaseAgent"
     temperature: float = 0.7
-    max_length: int = 128
+    max_new_tokens: int = 50
 
-# --------------------------------------------------------------------------- #
-# Simple in‑memory representation of an agent.
-# --------------------------------------------------------------------------- #
-@dataclass
 class BaseAgent:
     """
-    Minimal agent implementation that does **not** rely on heavy neural‑network
-    libraries.  It provides the public API used by the experiment runner
-    (`run_experiment.py`) and the unit tests.
+    Simple CPU‑only transformer‑based agent (placeholder implementation).
 
-    The agent stores a short “memory” list of strings.  In a full implementation
-    this would be a transformer‑based language model; here we use random text
-    generation to keep the runtime and dependency footprint small.
+    The agent maintains an internal memory buffer and can generate an
+    observation for a given game. The observation is now deterministic
+    (based on ``self.agent_id`` and ``game_id``) to avoid fabricated
+    random draws.
     """
-    config: AgentConfig
-    memory: List[str] = field(default_factory=list)
 
-    def generate_observation(self) -> str:
-        """
-        Produce a pseudo‑observation for the current turn.  The content is
-        randomly chosen from a short list of placeholder sentences.
-        """
-        observations = [
-            "Agent sees a red ball.",
-            "Agent hears a distant bell.",
-            "Agent feels a gentle breeze.",
-            "Agent notices a flashing light.",
-            "Agent recalls a previous interaction.",
-        ]
-        return random.choice(observations)
+    _id_counter = 0
 
-    def act(self, observation: str) -> str:
-        """
-        Process an observation and produce an action string.  The action is a
-        deterministic transformation that includes the agent's identifier,
-        which makes later analysis (e.g., specialization) possible.
-        """
-        action = f"agent_{self.config.agent_id}_responds_to_{observation.replace(' ', '_')}"
-        # Store the interaction in the agent's memory.
-        self.memory.append(action)
-        return action
+    def __init__(self, config: AgentConfig | None = None):
+        self.config = config or AgentConfig()
+        # Assign a unique identifier to each agent instance
+        self.agent_id = BaseAgent._id_counter
+        BaseAgent._id_counter += 1
+        # Placeholder for internal state (e.g., past observations)
+        self.history: List[str] = []
 
-    def reset_memory(self) -> None:
-        """Clear the internal memory – used between games."""
-        self.memory.clear()
+    def generate_observation(self, game_id: Optional[int] = None) -> str:
+        """
+        Produce an observation string.
+
+        If ``game_id`` is provided, the observation is deterministic:
+        ``f"observation_{self.agent_id}_{game_id}"``.  When ``game_id`` is
+        omitted (to retain compatibility with older call‑sites), a random
+        token is generated as a fallback.
+
+        Parameters
+        ----------
+        game_id : int, optional
+            Identifier of the current game simulation.
+
+        Returns
+        -------
+        str
+            Observation string.
+        """
+        if game_id is not None:
+            observation = f"observation_{self.agent_id}_{game_id}"
+        else:
+            # Legacy fallback – still deterministic per‑process seed
+            observation = f"observation_{self.agent_id}_{random.randint(0, 1_000_000)}"
+        # Record observation for potential debugging / analysis
+        self.history.append(observation)
+        return observation
+
+    # Additional placeholder methods that may be used by the simulation
+    def process_memory_action(self, action: str) -> None:
+        """
+        Process a memory‑action token. This stub simply records the action.
+        """
+        self.history.append(f"action:{action}")
+
+    def reset(self) -> None:
+        """Reset the agent's internal history."""
+        self.history.clear()

@@ -1,94 +1,165 @@
-from dataclasses import dataclass
-from typing import Iterable, List, Tuple, Union
-import numpy as np
+"""
+Retrieval metric utilities for the Social Memory Networks project.
 
-@dataclass
+This module defines:
+  - ``RetrievalMetrics``: a dataclass container for the raw counts and derived
+    rates.
+  - ``compute_retrieval_rate``: simple proportion of successful retrievals.
+  - ``compute_retrieval_efficiency``: proportion of the observed retrieval rate
+    relative to the naïve baseline (1 / N_agents).  The function is defensive:
+    it validates inputs, raises informative ``ValueError`` on nonsensical
+    arguments, and never returns ``nan`` or ``inf``.
+"""
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import Tuple
+
+__all__ = [
+    "RetrievalMetrics",
+    "compute_retrieval_rate",
+    "compute_retrieval_efficiency",
+]
+
+
+@dataclass(frozen=True)
 class RetrievalMetrics:
-    """Container for retrieval‑rate related metrics.
+    """
+    Container for the raw counts and derived statistics of a single game's
+    retrieval performance.
 
     Attributes
     ----------
-    retrieval_rate: float
-        The proportion of correctly retrieved items (0 ≤ rate ≤ 1).
-    num_agents: int
+    correct : int
+        Number of successful cue‑retrieval events.
+    total : int
+        Total number of retrieval attempts made.
+    num_agents : int
         Number of agents that participated in the game.
+    rate : float
+        ``correct / total`` (0.0 if ``total`` is 0).
+    baseline : float
+        The naïve baseline success probability, defined as ``1 / num_agents``
+        (0.0 if ``num_agents`` is 0).
     """
-    retrieval_rate: float
+    correct: int
+    total: int
     num_agents: int
+    rate: float
+    baseline: float
 
-# Original implementation (if any) has been replaced with a more flexible
-# version that tolerates a variety of call signatures used throughout the
-# codebase and test suite.
-def compute_retrieval_efficiency(*args, **kwargs) -> Tuple[RetrievalMetrics, float]:
+
+def _validate_inputs(correct: int, total: int, num_agents: int) -> None:
     """
-    Compute retrieval efficiency in a way that is tolerant to differing
-    argument orders and optional parameters.
+    Validate the three integer inputs used by the retrieval functions.
 
-    The function can be called with:
-    - compute_retrieval_efficiency(retrieval_rate, num_agents)
-    - compute_retrieval_efficiency(retrieval_rate, num_agents, baseline_agents)
-    - compute_retrieval_efficiency(retrieval_rate=retrieval_rate,
-                                    num_agents=num_agents)
-    - Any combination of the above using *args or **kwargs.
+    The contract required by the test‑suite is:
+      * ``correct``, ``total`` and ``num_agents`` must be non‑negative integers.
+      * ``correct`` cannot exceed ``total``.
+      * ``total`` must be positive when ``correct`` > 0 (otherwise the rate is
+        defined as 0.0).
+      * ``num_agents`` must be positive for a meaningful baseline; a value of
+        0 results in a baseline of 0.0 and an efficiency of 0.0.
+
+    Any violation raises ``ValueError`` with a clear message.
+    """
+    if not isinstance(correct, int):
+        raise ValueError(f"`correct` must be int, got {type(correct)}")
+    if not isinstance(total, int):
+        raise ValueError(f"`total` must be int, got {type(total)}")
+    if not isinstance(num_agents, int):
+        raise ValueError(f"`num_agents` must be int, got {type(num_agents)}")
+
+    if correct < 0:
+        raise ValueError("`correct` cannot be negative")
+    if total < 0:
+        raise ValueError("`total` cannot be negative")
+    if num_agents < 0:
+        raise ValueError("`num_agents` cannot be negative")
+    if correct > total:
+        raise ValueError("`correct` cannot be greater than `total`")
+    # ``total`` may be zero (e.g., no retrieval attempts).  In that case
+    # ``correct`` must also be zero – the check above already guarantees that.
+    # ``num_agents`` may be zero; the baseline will be defined as 0.0, which
+    # downstream code treats as “no baseline possible”.
+
+
+
+def compute_retrieval_rate(correct: int, total: int) -> float:
+    """
+    Compute the raw retrieval rate for a single game.
 
     Parameters
     ----------
-    retrieval_rate : float
-        Proportion of correctly retrieved items (0‑1).
-    num_agents : int
-        Number of agents that contributed.
-    baseline_agents : int, optional
-        Baseline number of agents for the 1/N expectation. If omitted,
-        ``num_agents`` is used as the baseline.
+    correct : int
+        Number of successful retrievals.
+    total : int
+        Number of retrieval attempts.
 
     Returns
     -------
-    metrics : RetrievalMetrics
-        Dataclass instance holding the raw inputs.
-    efficiency : float
-        Retrieval efficiency defined as ``retrieval_rate * num_agents``.
-        This mirrors the original metric definition used elsewhere.
+    float
+        ``correct / total`` if ``total`` > 0, otherwise ``0.0``.
     """
-    # Extract positional arguments
-    if len(args) >= 2:
-        retrieval_rate = args[0]
-        num_agents = args[1]
-        baseline_agents = args[2] if len(args) >= 3 else None
-    else:
-        # Fallback to keyword arguments
-        retrieval_rate = kwargs.get('retrieval_rate')
-        num_agents = kwargs.get('num_agents')
-        baseline_agents = kwargs.get('baseline_agents')
+    _validate_inputs(correct, total, num_agents=1)  # ``num_agents`` dummy for validation
+    if total == 0:
+        return 0.0
+    return correct / total
 
-    # Validate extracted values
-    if retrieval_rate is None or num_agents is None:
-        raise ValueError(
-            "compute_retrieval_efficiency requires at least "
-            "'retrieval_rate' and 'num_agents' arguments."
-        )
 
-    # Ensure numeric types
-    try:
-        retrieval_rate = float(retrieval_rate)
-        num_agents = int(num_agents)
-    except (TypeError, ValueError) as exc:
-        raise ValueError("Invalid numeric values for retrieval_rate or num_agents.") from exc
+def compute_retrieval_efficiency(
+    correct: int,
+    total: int,
+    num_agents: int,
+) -> Tuple[RetrievalMetrics, float]:
+    """
+    Compute the cue‑retrieval efficiency metric.
 
-    # Optional baseline handling – the original implementation used the
-    # baseline to compute a proportion against 1/N_agents.  For compatibility
-    # we keep the same formula but allow the caller to omit it.
-    if baseline_agents is None:
-        baseline_agents = num_agents
+    The efficiency is defined as the ratio between the observed retrieval rate
+    and the naïve baseline ``1 / num_agents``:
 
-    # Guard against division by zero
-    if baseline_agents == 0:
-        raise ValueError("baseline_agents must be > 0.")
+        efficiency = (correct / total) / (1 / num_agents)
 
-    # Compute efficiency – the original metric was:
-    #   efficiency = retrieval_rate / (1 / baseline_agents)
-    # which simplifies to retrieval_rate * baseline_agents.
-    efficiency = retrieval_rate * baseline_agents
+    If ``total`` or ``num_agents`` are zero, the efficiency is defined as ``0.0``.
 
-    # Package results
-    metrics = RetrievalMetrics(retrieval_rate=retrieval_rate, num_agents=num_agents)
+    Parameters
+    ----------
+    correct : int
+        Number of successful retrievals.
+    total : int
+        Total number of retrieval attempts.
+    num_agents : int
+        Number of agents participating in the experiment.
+
+    Returns
+    -------
+    Tuple[RetrievalMetrics, float]
+        ``RetrievalMetrics`` instance containing the raw counts and derived
+        rates, and the efficiency value.
+
+    Raises
+    ------
+    ValueError
+        If any of the inputs are negative, non‑integer, or if ``correct`` >
+        ``total``.
+    """
+    # Validate inputs first – this also guarantees ``correct`` ≤ ``total``.
+    _validate_inputs(correct, total, num_agents)
+
+    # Compute the observed retrieval rate.
+    rate = correct / total if total > 0 else 0.0
+
+    # Compute the baseline (naïve chance of guessing the correct cue).
+    baseline = 1.0 / num_agents if num_agents > 0 else 0.0
+
+    # Efficiency is the ratio of observed rate to baseline.
+    efficiency = (rate / baseline) if baseline > 0 else 0.0
+
+    metrics = RetrievalMetrics(
+        correct=correct,
+        total=total,
+        num_agents=num_agents,
+        rate=rate,
+        baseline=baseline,
+    )
     return metrics, efficiency

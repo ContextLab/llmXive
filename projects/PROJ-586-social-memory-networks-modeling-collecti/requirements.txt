@@ -1,9 +1,4 @@
-# Project dependencies
-transformers>=4.30.0
-pandas>=2.0.0
-numpy>=1.24.0
-scipy>=1.10.0
-statsmodels>=0.14.0
-matplotlib>=3.7.0
-# Added for CI performance measurement (standard library used, no extra deps) 
-# No new third‑party packages required for the metrics script.
+numpy
+pandas
+pyyaml
+# The 'datasets' library is no longer required because we switched to CSV‑based loading.

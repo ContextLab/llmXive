@@ -1,23 +1,21 @@
+"""
+Public export surface for the ``metrics`` package.
+
+The module re‑exports the key metric functions so that callers can simply
+import ``metrics`` and access ``compute_specialization_index``,
+``compute_retrieval_rate`` and ``compute_retrieval_efficiency``.
+"""
+
 from .specialization import (
     SpecializationMetrics,
     compute_specialization_index,
     compute_game_level_specialization,
-    validate_specialization_index
+    validate_specialization_index,
 )
 from .retrieval import (
     RetrievalMetrics,
     compute_retrieval_rate,
     compute_retrieval_efficiency,
-    compute_game_level_retrieval,
-    validate_retrieval_efficiency
-)
-from .validator import (
-    ValidationResult,
-    GameMetricRecord,
-    validate_single_game_metrics,
-    validate_and_filter_records,
-    compute_metric_statistics,
-    validate_experiment_metrics
 )
 
 __all__ = [
@@ -28,12 +26,4 @@ __all__ = [
     "RetrievalMetrics",
     "compute_retrieval_rate",
     "compute_retrieval_efficiency",
-    "compute_game_level_retrieval",
-    "validate_retrieval_efficiency",
-    "ValidationResult",
-    "GameMetricRecord",
-    "validate_single_game_metrics",
-    "validate_and_filter_records",
-    "compute_metric_statistics",
-    "validate_experiment_metrics"
 ]

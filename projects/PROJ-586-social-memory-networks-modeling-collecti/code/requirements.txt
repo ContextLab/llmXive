@@ -16,3 +16,5 @@ pre-commit>=3.0.0
 # statsmodels>=0.14.0
 statsmodels  # auto-added: imported by run-book but missing from venv
 pyyaml  # auto-added: imported by run-book but missing from venv
+psutil  # auto-added: imported by run-book but missing from venv
+datasets  # auto-added: imported by run-book but missing from venv

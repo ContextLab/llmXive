@@ -1,4 +1,7 @@
 T006 [P] Implement shared external memory buffer with `<MEMORY_ACTION>` token handling in `code/memory/buffer.py` (FR-003): 1
+? 'T006 [P] Implement shared external memory buffer with `<MEMORY_ACTION>` token handling
+  in `code/memory/buffer.py` (FR-003) <!-- FAILED: unspecified -->'
+: 1
 ? "T008 [P] Configure environment management (config.yaml with seed=42, device=cpu)\
   \ in `code/utils/config.py` [UNRESOLVED-CLAIM: c_16e7b0da \u2014 status=not_enough_info]"
 : 1
@@ -80,6 +83,18 @@ T006 [P] Implement shared external memory buffer with `<MEMORY_ACTION>` token ha
   unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE:
   requested --> <!-- ATOMIZE: requested -->'
 : 2
+? 'T011 [P] [US-1] Implement CLI flag parsing for --context, --agents, --dataset and
+  game simulation loop for 1000 games in `code/run_experiment.py` (FR-001) <!-- FAILED:
+  unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE:
+  requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE:
+  requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED:
+  unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE:
+  requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->'
+: 1
+? T015 [US-1] Output `results_full.csv` with `game_id`, `specialization_index`, `retrieval_efficiency`,
+  `context_condition`, `agent_count` to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/`
+  for 1000 games
+: 1
 ? "T018 [US-2] Implement game simulation loop for limited context (1000 games per\
   \ spec) [UNRESOLVED-CLAIM: c_7943bae4 \u2014 status=not_enough_info] in `code/run_experiment.py`"
 : 1
@@ -255,6 +270,18 @@ T006 [P] Implement shared external memory buffer with `<MEMORY_ACTION>` token ha
   --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified
   --> <!-- FAILED: unspecified -->'
 : 2
+? 'T018 [US-2] Implement game simulation loop for limited context (1000 games per
+  spec) in `code/run_experiment.py` <!-- FAILED: unspecified --> <!-- FAILED: unspecified
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified
+  --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
+  -->'
+: 1
 ? "T021 [P] [US-2] Apply Bonferroni correction to all family\u2011wise hypothesis\
   \ tests and report corrected \u03B1 in `code/analysis/anova.py` [UNRESOLVED-CLAIM:\
   \ c_9e3d059c \u2014 status=not_enough_info] (FR-007)"
@@ -288,6 +315,12 @@ T006 [P] Implement shared external memory buffer with `<MEMORY_ACTION>` token ha
   requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED:
   unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->'
 : 2
+? 'T027 [US-3] Implement game simulation for agent counts 3, 5, 7 (800 games per config
+  per spec US-3) in `code/run_experiment.py` <!-- ATOMIZE: requested --> <!-- ATOMIZE:
+  requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED:
+  unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED:
+  unspecified -->'
+: 1
 ? 'T031 [P] Run `quickstart.md` validation (execute all commands, verify exit code
   0 for each) in `projects/PROJ-586-social-memory-networks-modeling-collecti/code/`
   <!-- ATOMIZE: requested -->'
