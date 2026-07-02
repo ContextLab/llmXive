@@ -50,6 +50,12 @@ def test_build_cover_tex_has_provenance_blurb_and_links() -> None:
     assert "github.com/ContextLab/llmXive" in tex
     assert "peer-review-llmxive.pdf" in tex
     assert "PROJ-999-followup" in tex
+    # About-llmXive blurb reflects the real provenance: third-party papers from
+    # Hugging Face / human submissions, reviewed AND used to seed a follow-up —
+    # not "this paper was brainstormed".
+    assert "Hugging Face" in tex
+    assert "seed a new llmXive follow-up" in tex
+    assert "did not write it" in tex
 
 
 def test_build_peer_review_tex_renders_reviewers() -> None:
@@ -59,7 +65,14 @@ def test_build_peer_review_tex_renders_reviewers() -> None:
         SimpleNamespace(
             reviewer_name="paper_reviewer_overreach",
             verdict="minor_revision",
-            feedback="The abstract overstates the result.",
+            model_name="qwen.qwen3.5-122b",
+            # Markdown body: bold, inline code, and a bullet list must render as
+            # LaTeX, not as literal ** / backtick / - source.
+            feedback=(
+                'The **abstract** overstates the result in `main.tex`, calling '
+                'it "state of the art".\n\n'
+                "1. First concern\n\n2. Second concern\n"
+            ),
             action_items=[
                 SimpleNamespace(text="Soften the SOTA claim.", severity="writing")
             ],
@@ -67,6 +80,7 @@ def test_build_peer_review_tex_renders_reviewers() -> None:
         SimpleNamespace(
             reviewer_name="paper_reviewer_claim_accuracy",
             verdict="accept",
+            model_name="openai.gpt-oss-120b",
             feedback="Claims are supported.",
             action_items=[],
         ),
@@ -74,9 +88,52 @@ def test_build_peer_review_tex_renders_reviewers() -> None:
     proj = SimpleNamespace(title="A Paper", id="PROJ-1-x")
     tex = build_peer_review_tex(proj, recs)
     assert r"llmXive Automated Review of A Paper" in tex
-    assert "paper\\_reviewer\\_overreach" in tex  # reviewer names escaped
+    # Reviewer names are prettified for a clean header (not raw snake_case).
+    assert r"\section*{Overreach}" in tex
+    assert r"\section*{Claim Accuracy}" in tex
     assert "Soften the SOTA claim." in tex
     assert "advisory" in tex and "automated feedback" in tex
+    # Opening section describes the process + a panel ROSTER (names only — the
+    # per-reviewer descriptions are NOT duplicated in the overview).
+    assert r"\section*{How this review was produced}" in tex
+    assert "This paper's panel" in tex
+    assert tex.count("over-claiming") == 1  # overreach blurb appears ONCE (its section)
+    assert tex.count("citations") == 1  # claim_accuracy blurb appears ONCE
+    # Each reviewer section carries its pre-written focus blurb.
+    assert "over-claiming" in tex  # overreach focus blurb
+    assert "citations" in tex  # claim_accuracy focus blurb
+    # The prompts-folder link renders as a real \href (single backslash), never
+    # as literal "\\href" text.
+    assert r"\href{https://github.com/ContextLab/llmXive/tree/main/agents/prompts}" in tex
+    assert "\\\\href" not in tex
+    assert r"\textbf{Reviewer model:}" in tex
+    assert r"\texttt{qwen.qwen3.5-122b}" in tex
+    assert r"\texttt{openai.gpt-oss-120b}" in tex
+    # Links: the overview links the prompt library folder; each reviewer links
+    # its own prompt file.
+    assert r"\usepackage{hyperref}" in tex
+    assert "github.com/ContextLab/llmXive/tree/main/agents/prompts" in tex
+    assert (
+        r"\href{https://github.com/ContextLab/llmXive/blob/main/agents/prompts/"
+        r"paper_reviewer_overreach.md}" in tex
+    )
+    # Markdown feedback renders as LaTeX, never as raw markdown source.
+    assert r"\textbf{abstract}" in tex
+    assert r"\texttt{main.tex}" in tex
+    assert "First concern" in tex
+    assert "**" not in tex  # no literal markdown emphasis leaks through
+    # A loose numbered list stays ONE enumerate (items number 1,2,3 — not 1,1).
+    assert tex.count(r"\begin{enumerate}") == 1 and tex.count(r"\item") >= 2
+    # Straight quotes render as directional LaTeX quotes (open ``, close '').
+    assert "``state of the art''" in tex
+    # Prominent, human-not-checked disclaimer at the top.
+    assert "not checked by any human" in tex
+    assert "errors, misreadings, and inaccuracies are likely" in tex
+    # A Reviewed Preprint is advisory only — NO accept/reject verdict is shown,
+    # so the report never contradicts its own "nothing is accepted or rejected".
+    assert "Verdict" not in tex
+    # the verdict *values* never surface (the disclaimer's "accepted" is fine)
+    assert "minor_revision" not in tex
 
 
 def test_prepend_preserves_original_pages_and_file(tmp_path: Path) -> None:

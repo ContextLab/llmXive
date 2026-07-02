@@ -30,8 +30,14 @@ _CLS_REL = "papers/.style/llmxive.cls"
 # --------------------------------------------------------------------------- #
 # LaTeX escaping (deterministic, no network)
 # --------------------------------------------------------------------------- #
-def tex_escape(text: str) -> str:
-    """Escape the LaTeX special characters so metadata prose renders literally."""
+def tex_escape(text: str, *, smart_quotes: bool = True) -> str:
+    """Escape LaTeX special characters so metadata/prose renders literally.
+
+    With ``smart_quotes`` (the default), straight ``"``/``'`` are turned into
+    directional LaTeX quotes (````...''````) based on context, so an opening
+    quote does not render as a closing one. Pass ``smart_quotes=False`` for code
+    spans, where a literal quote is wanted.
+    """
     if not text:
         return ""
     replacements = {
@@ -45,10 +51,23 @@ def tex_escape(text: str) -> str:
         "}": r"\}",
         "~": r"\textasciitilde{}",
         "^": r"\textasciicircum{}",
+        # Unicode “smart” punctuation the LLMs emit -> LaTeX quotes/dashes.
+        "“": "``", "”": "''",      # “ ”
+        "‘": "`", "’": "'",         # ‘ ’
+        "–": "--", "—": "---",      # en / em dash
+        "…": r"\ldots{}",                 # …
     }
+    _openers = " \t\n([{~/-"  # a straight quote after one of these opens
     out: list[str] = []
+    prev = ""
     for ch in str(text):
-        out.append(replacements.get(ch, ch))
+        if smart_quotes and ch == '"':
+            out.append("``" if (prev == "" or prev in _openers) else "''")
+        elif smart_quotes and ch == "'":
+            out.append("`" if (prev == "" or prev in _openers) else "'")
+        else:
+            out.append(replacements.get(ch, ch))
+        prev = ch
     return "".join(out)
 
 
@@ -161,10 +180,14 @@ def build_cover_tex(
     if src_url:
         lines += [rf"\noindent\textbf{{Source.}} \url{{{src_url}}}", ""]
     lines += [
-        r"\noindent\textbf{About llmXive.} llmXive is an automated platform for "
-        r"scientific discovery in which specialist LLM agents advance ideas from a "
-        r"one-paragraph brainstorm to a peer-reviewed paper. Learn more at "
-        rf"\url{{{_LLMXIVE_URL}}}.",
+        r"\noindent\textbf{About llmXive.} llmXive is an automated platform for open "
+        r"scientific discovery. Its specialist LLM agents advance their own ideas "
+        r"from brainstorm to peer-reviewed paper, and they also review notable "
+        r"third-party papers --- drawn from the most-downloaded papers on Hugging "
+        r"Face and from submissions by human contributors. Every submitted paper is "
+        r"reviewed by the LLM panel \emph{and} used to seed a new llmXive follow-up "
+        r"study. This paper is one such third-party work: llmXive reviewed it but "
+        rf"did not write it. Learn more at \url{{{_LLMXIVE_URL}}}.",
         "",
     ]
     if review_report_name:
@@ -252,39 +275,273 @@ def prepend_cover_to_pdf(cover_pdf: Path, original_pdf: Path, out_path: Path) ->
 
 
 # --------------------------------------------------------------------------- #
+# Markdown -> LaTeX (the review body is free-form markdown)
+# --------------------------------------------------------------------------- #
+import re as _re
+
+# Inline tokens, in precedence order (code first so ** inside `code` is literal).
+_MD_INLINE_RE = _re.compile(
+    r"(?P<code>`[^`]+`)"
+    r"|(?P<bold>\*\*(?:[^*]|\*(?!\*))+\*\*)"
+    r"|(?P<bolddunderscore>__[^_]+__)"
+    r"|(?P<italic>(?<![\*\w])\*(?!\s)[^*\n]+?\*(?!\*))"
+    r"|(?P<link>\[[^\]]+\]\([^)\s]+\))"
+)
+
+
+def _md_inline(text: str) -> str:
+    """Convert inline markdown (bold/italic/code/links) to LaTeX, tex-escaping
+    every literal run so the review prose renders as formatted text, not raw
+    ``**...**`` / backtick source."""
+    out: list[str] = []
+    pos = 0
+    for m in _MD_INLINE_RE.finditer(text):
+        out.append(tex_escape(text[pos:m.start()]))
+        if m.group("code"):
+            out.append(rf"\texttt{{{tex_escape(m.group('code')[1:-1], smart_quotes=False)}}}")
+        elif m.group("bold"):
+            out.append(rf"\textbf{{{_md_inline(m.group('bold')[2:-2])}}}")
+        elif m.group("bolddunderscore"):
+            out.append(rf"\textbf{{{_md_inline(m.group('bolddunderscore')[2:-2])}}}")
+        elif m.group("italic"):
+            out.append(rf"\textit{{{_md_inline(m.group('italic')[1:-1])}}}")
+        elif m.group("link"):
+            lm = _re.match(r"\[([^\]]+)\]\(([^)\s]+)\)", m.group("link"))
+            out.append(rf"{tex_escape(lm.group(1))} (\texttt{{{tex_escape(lm.group(2))}}})")
+        pos = m.end()
+    out.append(tex_escape(text[pos:]))
+    return "".join(out)
+
+
+def _markdown_to_latex(md: str) -> str:
+    """Convert a markdown block (headers, bullet/numbered lists, paragraphs,
+    inline emphasis/code) into llmxive.cls-safe LaTeX. Deterministic, no deps."""
+    out: list[str] = []
+    para: list[str] = []
+    list_open: str | None = None
+
+    def flush_para() -> None:
+        if para:
+            out.append(_md_inline(" ".join(para).strip()))
+            out.append("")
+            para.clear()
+
+    def close_list() -> None:
+        nonlocal list_open
+        if list_open:
+            out.append(rf"\end{{{list_open}}}")
+            list_open = None
+
+    for raw in md.replace("\r\n", "\n").split("\n"):
+        stripped = raw.strip()
+        if not stripped:
+            # A blank line ends a paragraph but does NOT close an open list: a
+            # "loose" markdown list (blank lines between items) must stay a single
+            # list so items number 1, 2, 3 rather than restarting at 1 each time.
+            flush_para()
+            continue
+        hm = _re.match(r"^(#{1,6})\s+(.*)$", stripped)
+        ul = _re.match(r"^[-*+]\s+(.*)$", stripped)
+        ol = _re.match(r"^(\d+)[.)]\s+(.*)$", stripped)
+        if hm:
+            flush_para()
+            close_list()
+            out.append(rf"\subsection*{{{_md_inline(hm.group(2))}}}")
+        elif ul or ol:
+            flush_para()
+            want = "itemize" if ul else "enumerate"
+            if list_open != want:
+                close_list()
+                out.append(rf"\begin{{{want}}}")
+                list_open = want
+            body = ul.group(1) if ul else ol.group(2)
+            out.append(rf"\item {_md_inline(body)}")
+        else:
+            close_list()
+            para.append(stripped)
+    flush_para()
+    close_list()
+    return "\n".join(out)
+
+
+# --------------------------------------------------------------------------- #
 # Peer-review report (llmxive.cls)
 # --------------------------------------------------------------------------- #
+def _prettify_reviewer(name: str) -> str:
+    """``paper_reviewer_claim_accuracy`` -> ``Claim Accuracy`` for a clean header."""
+    n = _lens_key(name)
+    n = n.replace("_", " ").strip()
+    return n.title() if n else str(name or "Reviewer")
+
+
+def _lens_key(name: str) -> str:
+    """Strip the ``paper_reviewer[_]`` prefix to the bare lens key."""
+    return _re.sub(r"^(paper|research)_reviewer_?", "", str(name or "").strip())
+
+
+# Pre-written, human-facing summary of what each specialist reviewer is directed
+# to focus on (mirrors the mandate in agents/prompts/paper_reviewer_<lens>.md).
+_REVIEWER_FOCUS: dict[str, str] = {
+    "writing_quality": (
+        "Reads the manuscript purely as prose --- clarity, flow, sentence-level "
+        "grammar, paragraph cohesion, and overall readability --- setting the "
+        "scientific content aside."
+    ),
+    "logical_consistency": (
+        "Checks that each conclusion follows from its premises, flagging internal "
+        "contradictions and causal claims that lack a stated supporting mechanism."
+    ),
+    "claim_accuracy": (
+        "Verifies factual claims against their citations --- whether each cited "
+        "source actually supports the claim attributed to it, and whether any "
+        "claim is stated more strongly than its evidence permits."
+    ),
+    "overreach": (
+        "Looks for over-claiming: conclusions extrapolated beyond what the data, "
+        "methods, or scope justify, and whether the paper states its limitations "
+        "honestly."
+    ),
+    "safety_ethics": (
+        "Examines safety and ethics --- dual-use risk, IRB/IACUC and consent "
+        "concerns, potential for harm, data privacy, and conflicts of interest "
+        "--- aiming to be thorough but not alarmist."
+    ),
+    "scientific_evidence": (
+        "Weighs the strength of the scientific evidence: sample sizes, controls, "
+        "replication, effect sizes, p-hacking risk, and robustness of the central "
+        "claims to plausible alternative explanations."
+    ),
+    "statistical_analysis": (
+        "Scrutinizes the statistics --- appropriateness of tests, "
+        "multiple-comparison handling, confidence intervals, model assumptions, "
+        "and the reproducibility of the analyses."
+    ),
+    "jargon_police": (
+        "Flags needless jargon: terms with plainer equivalents, acronyms not "
+        "defined at first use, and passages that needlessly exclude "
+        "non-specialist readers."
+    ),
+    "figure_critic": (
+        "Inspects each figure directly --- the rendered image alongside its "
+        "caption --- for clarity, axis labels and units, color choices, "
+        "legibility at print scale, and whether the figure earns its place. This "
+        "lens runs on a vision-capable model."
+    ),
+}
+
+
+def _reviewer_focus(name: str) -> str:
+    """The pre-written focus blurb for a reviewer, or a generic fallback."""
+    key = _lens_key(name)
+    return _REVIEWER_FOCUS.get(
+        key,
+        f"Focuses narrowly on the {key.replace('_', ' ')} aspect of the manuscript.",
+    )
+
+
+#: The public agent-prompt library (each reviewer's exact instructions live here).
+_PROMPTS_DIR_URL = f"{_LLMXIVE_URL}/tree/main/agents/prompts"
+
+
+def _prompt_url(reviewer_name: str) -> str:
+    """GitHub URL of the prompt that defines a reviewer (``agents/prompts/<name>.md``)."""
+    return f"{_LLMXIVE_URL}/blob/main/agents/prompts/{str(reviewer_name or '').strip()}.md"
+
+
 def build_peer_review_tex(project: Project, records: list, *, action_items_md: str = "") -> str:
-    """Render the reviewer verdicts + feedback + action items as an llmxive.cls doc."""
+    """Render the reviewers' feedback + action items as an llmxive.cls doc.
+
+    Deliberately shows NO per-reviewer accept/reject verdict: a Reviewed Preprint
+    is advisory feedback only, so surfacing an internal verdict would contradict
+    the report's own "nothing is accepted or rejected" statement. The review body
+    is markdown and is converted to LaTeX so it renders formatted, not as source.
+    """
     title = tex_escape(f"llmXive Automated Review of {project.title}")
+    ordered = sorted(records, key=lambda r: r.reviewer_name)
     lines = [
         r"\documentclass{llmxive}",
+        r"\usepackage{hyperref}",
         rf"\title{{{title}}}",
         r"\author{llmXive automated review panel}",
         r"\paperstatus{Automated Review}",
         r"\begin{document}",
         r"\maketitle",
-        (
-            "This report collects the llmXive LLM review panel's assessment of an "
-            "ingested preprint. It is \\textbf{advisory, automated feedback for the "
-            "authors}: llmXive does not modify the paper, and nothing is accepted "
-            "or rejected on its basis."
-        ),
     ]
-    for rec in sorted(records, key=lambda r: r.reviewer_name):
-        lines.append(rf"\section*{{{tex_escape(rec.reviewer_name)}}}")
-        lines.append(rf"\noindent\textbf{{Verdict:}} {tex_escape(str(rec.verdict))}\\")
+
+    # --- prominent up-front disclaimer ------------------------------------- #
+    lines += [
+        (
+            "\\noindent\\textbf{Please read first --- this review is fully "
+            "automated and not checked by any human.} It is written by "
+            "free, open-weight LLM agents that read the paper once, so "
+            "\\textbf{errors, misreadings, and inaccuracies are likely}. Nothing "
+            "here has been verified by a person. Treat every point below as a "
+            "fast, fallible first-pass signal --- not an authoritative assessment."
+        ),
+        "",
+    ]
+
+    # --- opening: how the review was produced + who is on the panel --------- #
+    lines += [
+        r"\section*{How this review was produced}",
+        (
+            "This Reviewed Preprint was read by a panel of specialist llmXive LLM "
+            "reviewers. Each reviewer is deliberately confined to a \\emph{single "
+            "narrow lens} --- writing, logic, statistics, and so on --- and does "
+            "not comment outside it, so that distinct concerns are surfaced "
+            "independently rather than blurred into one overall score. The panel "
+            "runs \\emph{once} over the paper. Every reviewer's exact instructions "
+            "are public in the "
+            rf"\href{{{_PROMPTS_DIR_URL}}}{{llmXive agent-prompt library}}; each "
+            "section below also links the specific prompt it used."
+        ),
+        "",
+        (
+            "This report is \\textbf{advisory, automated feedback for the "
+            "authors}. llmXive does not modify the paper, and \\textbf{nothing is "
+            "accepted or rejected} on its basis --- every point below is a "
+            "suggestion the authors are free to weigh. Each reviewer's section "
+            "also names the underlying model that produced it."
+        ),
+        "",
+    ]
+    if ordered:
+        # Panel makeup: just the roster (names) — each reviewer's full focus blurb
+        # lives in its own section below, so it is NOT repeated here.
+        names = [_prettify_reviewer(rec.reviewer_name) for rec in ordered]
+        roster = (
+            ", ".join(names[:-1]) + ", and " + names[-1] if len(names) > 1 else names[0]
+        )
+        lines.append(
+            rf"\noindent\textbf{{This paper's panel ({len(names)} "
+            rf"lens{'es' if len(names) != 1 else ''}):}} {tex_escape(roster)}. "
+            r"Each lens is described in its own section below, alongside the model "
+            r"and the exact prompt it used."
+        )
+        lines.append("")
+
+    # --- one section per reviewer ------------------------------------------ #
+    for rec in ordered:
+        lines.append(rf"\section*{{{tex_escape(_prettify_reviewer(rec.reviewer_name))}}}")
+        lines.append(rf"\noindent\textit{{{_md_inline(_reviewer_focus(rec.reviewer_name))}}}\\[4pt]")
+        model = str(getattr(rec, "model_name", "") or "").strip() or "(model unrecorded)"
+        lines.append(rf"\noindent\textbf{{Reviewer model:}} \texttt{{{tex_escape(model)}}}\\[2pt]")
+        lines.append(
+            rf"\noindent\textbf{{Prompt:}} \href{{{_prompt_url(rec.reviewer_name)}}}"
+            rf"{{\texttt{{agents/prompts/{tex_escape(str(rec.reviewer_name))}.md}}}}\\[4pt]"
+        )
         feedback = (getattr(rec, "feedback", "") or "").strip()
         if feedback:
-            lines.append(tex_escape(feedback[:4000]))
+            lines.append(_markdown_to_latex(feedback[:12000]))
         items = getattr(rec, "action_items", None) or []
         if items:
+            lines.append(r"\noindent\textbf{Action items.}")
             lines.append(r"\begin{itemize}")
             for item in items:
                 sev = getattr(getattr(item, "severity", ""), "value", getattr(item, "severity", ""))
                 lines.append(
                     rf"\item \textbf{{[{tex_escape(str(sev))}]}} "
-                    rf"{tex_escape((item.text or '').strip())}"
+                    rf"{_md_inline((item.text or '').strip())}"
                 )
             lines.append(r"\end{itemize}")
     lines.append(r"\end{document}")
