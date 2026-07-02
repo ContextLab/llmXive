@@ -14,3 +14,4 @@
 {"at": "2026-06-30T14:03:00.783596+00:00", "from_stage": "research_complete", "last_run_id": "d0b4b3db-76ab-42fe-8b5a-f667477a33a8", "to_stage": "research_full_revision"}
 {"at": "2026-06-30T14:03:00.788200+00:00", "from_stage": "research_full_revision", "last_run_id": "d0b4b3db-76ab-42fe-8b5a-f667477a33a8", "to_stage": "in_progress"}
 {"at": "2026-07-01T19:23:55.015717+00:00", "from_stage": "in_progress", "last_run_id": "d0b4b3db-76ab-42fe-8b5a-f667477a33a8", "to_stage": "paper_ingested"}
+{"at": "2026-07-02T08:03:04.790233+00:00", "from_stage": "paper_ingested", "last_run_id": "1e615609-434b-4644-b4d4-200593ddf364", "to_stage": "reviewed_preprint"}

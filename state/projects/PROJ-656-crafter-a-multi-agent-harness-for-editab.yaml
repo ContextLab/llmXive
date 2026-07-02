@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-03T09:39:51.159679Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-656-crafter-a-multi-agent-harness-for-editab
-last_run_id: 2d9d3a6e-337a-4eff-96c4-c599ac25094d
+last_run_id: 2ea0196c-7c10-4590-aa7d-7c889332bc8e
 last_run_status: null
 points_paper: {}
 points_research: {}

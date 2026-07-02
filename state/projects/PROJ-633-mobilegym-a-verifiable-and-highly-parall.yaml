@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-28T09:16:53.036245Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-633-mobilegym-a-verifiable-and-highly-parall
-last_run_id: 5837d727-0f71-4709-a489-afadbca2f377
+last_run_id: 5e91b27a-9334-4f6c-ac6f-72ccf817914b
 last_run_status: null
 points_paper: {}
 points_research: {}
