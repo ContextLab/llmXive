@@ -1,6 +1,5 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Predicted PPI Edge List"
-description: "Schema for the predicted protein‑protein interaction edge list produced by the pipeline."
 type: object
 required:
   - protein_id_1
@@ -9,15 +8,13 @@ required:
 properties:
   protein_id_1:
     type: string
-    description: "STRING protein identifier for the first node."
+    description: "STRING protein identifier for the first node (e.g., 9606.ENSP00000354547)."
   protein_id_2:
     type: string
     description: "STRING protein identifier for the second node."
   correlation:
     type: number
-    format: float
-    description: "Pearson (or Spearman) correlation coefficient between the two proteins."
-    minimum: 0.8
+    description: "Pearson (or Spearman) correlation coefficient between the two genes."
   method:
     type: string
     enum: ["pearson", "spearman"]
@@ -29,8 +26,3 @@ properties:
     type: number
     description: "Upper bound of the bootstrap confidence interval (optional)."
 additionalProperties: false
-example:
-  protein_id_1: "AT1G01010"
-  protein_id_2: "AT2G02020"
-  correlation: 0.85
-  method: "pearson"
