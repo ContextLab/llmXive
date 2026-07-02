@@ -1,14 +1,7 @@
-last_used: marie-curie
-last_used_at: '2026-07-02T12:45:21.794848+00:00'
-last_outcome: triage_rejected_advanced_as_abstain
+last_used: richard-feynman
+last_used_at: '2026-07-02T14:51:21.058264+00:00'
+last_outcome: committed
 history:
-- slug: richard-feynman
-  started_at: '2026-06-22T01:13:35.972155+00:00'
-  ended_at: '2026-06-22T02:20:46.064136+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-308-quantifying-entanglement-entropy-in-rand/reviews/research/richard-feynman-simulated__2026-06-22__research.md
 - slug: rosalind-franklin
   started_at: '2026-06-22T02:20:46.064136+00:00'
   ended_at: '2026-06-22T05:49:13.430674+00:00'
@@ -1208,3 +1201,10 @@ history:
   ended_at: '2026-07-02T12:45:21.794848+00:00'
   outcome: triage_rejected_advanced_as_abstain
   action: comment
+- slug: richard-feynman
+  started_at: '2026-07-02T12:45:21.794848+00:00'
+  ended_at: '2026-07-02T14:51:21.058264+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/reviews/research/richard-feynman-simulated__2026-07-02__research.md
