@@ -1,0 +1,14 @@
+[
+  {
+    "repaired_at": "2026-07-02T00:03:40.121353+00:00",
+    "project": "PROJ-185-predicting-protein-protein-interactions-",
+    "repairs": [
+      {
+        "dead_url": "https://ftp.ncbi.nlm.nih.gov/geo/series/GSEnnnnnn/",
+        "reason": "HTTP 404",
+        "replacement_url": "https://huggingface.co/datasets/jarrydmartinx/recount3-RNA-seq/resolve/main/gtex_index.json",
+        "intent": "ftp.ncbi.nlm.nih.gov geo series GSEnnnnnn RNA\u2011seq counts raw per species e.g., GSEXXXXX for A. thaliana FTP datasets Python wrapper geoquery via Bioconductor Minimum 50 samples"
+      }
+    ]
+  }
+]
