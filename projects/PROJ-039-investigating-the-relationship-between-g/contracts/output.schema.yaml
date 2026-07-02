@@ -1,0 +1,107 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Output Dataset Schema
+description: Schema for matched pairs, distribution groups, and analysis results.
+
+definitions:
+  matched_pairs:
+    type: object
+    required:
+      - pairs
+      - metadata
+    properties:
+      pairs:
+        type: array
+        items:
+          type: object
+          required:
+            - microbiome_subject_id
+            - eeg_subject_id
+            - distance
+          properties:
+            microbiome_subject_id:
+              type: string
+            eeg_subject_id:
+              type: string
+            distance:
+              type: number
+      metadata:
+        type: object
+        properties:
+          method:
+            type: string
+            enum: ["nearest_neighbor", "propensity_score"]
+          total_pairs:
+            type: integer
+            minimum: 0
+          path_selected:
+            type: string
+            enum: ["Path A"]
+
+  distribution_groups:
+    type: object
+    required:
+      - groups
+      - metadata
+    properties:
+      groups:
+        type: array
+        items:
+          type: object
+          required:
+            - subject_id
+            - group_label
+            - abundance_metric
+          properties:
+            subject_id:
+              type: string
+            group_label:
+              type: string
+              enum: ["High", "Low"]
+            abundance_metric:
+              type: number
+      metadata:
+        type: object
+        properties:
+          method:
+            type: string
+            const: "distributional_comparison"
+          split_type:
+            type: string
+            enum: ["median"]
+          path_selected:
+            type: string
+            enum: ["Path B"]
+
+  analysis_results:
+    type: object
+    required:
+      - path_type
+      - statistics
+      - disclaimer
+    properties:
+      path_type:
+        type: string
+        enum: ["Path A", "Path B"]
+      statistics:
+        type: object
+        description: Contains correlation results (Path A) or group comparison results (Path B).
+      permutation_test:
+        type: object
+        properties:
+          passed:
+            type: boolean
+          p_value:
+            type: number
+          null_distribution_mean:
+            type: number
+      vif_values:
+        type: object
+        description: VIF values for taxa (Path A only).
+      disclaimer:
+        type: string
+        const: "Note: This analysis is associational only; no causal inference is made."
+
+anyOf:
+  - $ref: "#/definitions/matched_pairs"
+  - $ref: "#/definitions/distribution_groups"
+  - $ref: "#/definitions/analysis_results"

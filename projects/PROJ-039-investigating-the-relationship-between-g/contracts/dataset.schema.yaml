@@ -1,0 +1,87 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Gut Microbiome and EEG Dataset Schema
+description: Schema for input microbiome and EEG feature matrices for the Gut-EEG Alpha Power study.
+
+definitions:
+  microbiome_features:
+    type: object
+    required:
+      - subject_id
+      - metadata
+      - taxa_abundances
+    properties:
+      subject_id:
+        type: string
+        description: Unique identifier for the subject.
+      metadata:
+        type: object
+        required:
+          - age
+          - sex
+          - bmi
+        properties:
+          age:
+            type: number
+            minimum: 0
+          sex:
+            type: string
+            enum: ["M", "F"]
+          bmi:
+            type: number
+            minimum: 0
+      taxa_abundances:
+        type: object
+        additionalProperties:
+          type: number
+          minimum: 0
+        description: Key-value pairs of genus/taxon names to relative abundance.
+
+  eeg_features:
+    type: object
+    required:
+      - subject_id
+      - metadata
+      - eeg_metrics
+    properties:
+      subject_id:
+        type: string
+        description: Unique identifier for the subject.
+      metadata:
+        type: object
+        required:
+          - age
+          - sex
+          - bmi
+        properties:
+          age:
+            type: number
+            minimum: 0
+          sex:
+            type: string
+            enum: ["M", "F"]
+          bmi:
+            type: number
+            minimum: 0
+      eeg_metrics:
+        type: object
+        required:
+          - alpha_power
+          - valid_epochs
+        properties:
+          alpha_power:
+            type: number
+            description: Mean alpha power (8-12 Hz) in uV^2.
+          valid_epochs:
+            type: integer
+            minimum: 0
+            description: Number of valid epochs used for averaging.
+          theta_power:
+            type: number
+            description: Optional theta power.
+          beta_power:
+            type: number
+            description: Optional beta power.
+
+anyOf:
+  - $ref: "#/definitions/microbiome_features"
+  - $ref: "#/definitions/eeg_features"

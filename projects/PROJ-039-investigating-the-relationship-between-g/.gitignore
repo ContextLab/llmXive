@@ -1,0 +1,54 @@
+# Python
+__pycache__/
+*.py[cod]
+$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environments
+venv/
+ENV/
+env/
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+data/raw/**/*.csv
+data/raw/**/*.tsv
+data/raw/**/*.json
+data/raw/**/*.bz2
+data/raw/**/*.gz
+data/processed/**/*.csv
+data/processed/**/*.json
+artifacts/**/*.png
+artifacts/**/*.pdf
+artifacts/**/*.json
+artifacts/**/*.yaml
+logs/
+.mypy_cache/
+.pytest_cache/
+.coverage
+htmlcov/

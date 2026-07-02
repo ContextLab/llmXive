@@ -43,11 +43,11 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a Create `code/`, `data/`, `artifacts/`, `tests/` directories in repository root
-- [ ] T001b Create `data/raw/agp_microbiome/` and `data/raw/openneuro_eeg/` subdirectories
-- [ ] T001c Create `data/processed/`, `artifacts/`, `tests/contract/`, `tests/integration/`, `tests/unit/` subdirectories
-- [ ] T002 Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt` (pandas, numpy, scipy, scikit-learn, mne, skbio, matplotlib, seaborn, pyyaml, qiime2==2023.5)
-- [ ] T003 [P] Configure linting (flake8/black) and formatting tools
+- [X] T001a Create `code/`, `data/`, `artifacts/`, `tests/` directories in repository root
+- [X] T001b Create `data/raw/agp_microbiome/` and `data/raw/openneuro_eeg/` subdirectories
+- [X] T001c Create `data/processed/`, `artifacts/`, `tests/contract/`, `tests/integration/`, `tests/unit/` subdirectories
+- [X] T002 Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt` (pandas, numpy, scipy, scikit-learn, mne, skbio, matplotlib, seaborn, pyyaml, qiime2==2023.5)
+- [X] T003 [P] Configure linting (flake8/black) and formatting tools
 
 ---
 
@@ -59,7 +59,7 @@
 
 - [ ] T004b1 [P] Generate `contracts/dataset.schema.yaml` defining the schema for input microbiome and EEG feature matrices (US-1)
 - [ ] T004b2 [P] Generate `contracts/output.schema.yaml` defining the schema for `matched_pairs.csv`, `distribution_groups.csv`, and `analysis_results.json` (US-2)
-- [ ] T004 [P] Implement data schema validation using `pydantic` or `jsonschema` based on `contracts/dataset.schema.yaml` (Depends on T004b1, T004b2)
+- [X] T004 [P] Implement data schema validation using `pydantic` or `jsonschema` based on `contracts/dataset.schema.yaml` (Depends on T004b1, T004b2) <!-- FAILED: unspecified -->
 - [ ] T005 [P] Setup logging infrastructure to output structured logs to `artifacts/preprocess.yaml` and `artifacts/analysis_results.json`
 - [ ] T006 [P] Create utility functions for checksum verification (MD5/SHA256) to enforce `artifacts/checksums.txt` protocol
 - [ ] T007 Implement random seed management utility to ensure reproducibility across statistical runs (must be importable by all analysis scripts)
@@ -73,20 +73,20 @@
 
 **Goal**: Acquire AGP and OpenNeuro data, preprocess them, and attempt Virtual Cohort Matching. If matching fails (<10 pairs), automatically switch to Distributional Comparison.
 
-**Independent Test**: Verify that (1) microbiome CSV has ≥100 rows, (2) EEG CSV has ≥50 subjects, (3) `matched_pairs.csv` has ≥10 rows OR `distribution_groups.csv` is generated with valid group sizes.
+**Independent Test**: Verify that (1) microbiome CSV has ≥100 rows, (2) EEG CSV has ≥50 subjects [UNRESOLVED-CLAIM: c_028d66f5 — status=not_enough_info], (3) `matched_pairs.csv` has ≥10 rows OR `distribution_groups.csv` is generated with valid group sizes.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [ ] T010 [P] [US1] Contract test for data loading in `tests/contract/test_data_loading.py` (verify schema compliance for matched pairs or distribution groups)
-- [ ] T011 [P] [US1] Integration test for full preprocessing and matching pipeline in `tests/integration/test_preprocessing.py` (verify file existence, row counts, and successful path selection)
+- [ ] T011 [P] [US1] Integration test for full preprocessing and matching pipeline in `tests/integration/test_preprocessing.py` (verify file existence, row counts, and successful path selection) <!-- ATOMIZE: requested -->
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement `code/preprocess_microbiome.py` to download AGP data from ` (or execute 'Manual Download + Checksum' protocol if URL fails). Run QIIME2 version `2023.5` with CLI command `qiime feature-table summarize --i-table table.qza --o-visualization table.qzv` followed by `qiime taxa barplot` to generate genus-level abundances. Apply pseudocount=0.5. Output `data/processed/microbiome_features.csv`. **NOTE: The Plan mandates 'Virtual Cohort Matching' (Path A) or 'Distributional Comparison' (Path B). This task implements the data preparation for both paths.**
-- [ ] T013 [P] [US1] Implement `code/preprocess_eeg.py` to download OpenNeuro dataset `ds000248` (Spec/Constitution mandate). Filter (0.5–45 Hz), run FastICA (20 components), epoch (2-min), compute alpha power (Welch's method). Filter subjects with <80% valid epochs. Output `data/processed/eeg_features.csv`. **NOTE: Output the available subjects (target ≥50); log a warning if count < 50.**
-- [ ] T014 [US1] Implement `code/match_cohorts.py` to perform **Virtual Cohort Matching** (Path A) and fallback logic (Path B):
+- [~] T012 [P] [US1] Implement `code/preprocess_microbiome.py` to download AGP data from ` (or execute 'Manual Download + Checksum' protocol if URL fails). Run QIIME2 version `2023.5` with CLI command `qiime feature-table summarize --i-table table.qza --o-visualization table.qzv` followed by `qiime taxa barplot` to generate genus-level abundances. Apply pseudocount=0.5. Output `data/processed/microbiome_features.csv`. **NOTE: The Plan mandates 'Virtual Cohort Matching' (Path A) or 'Distributional Comparison' (Path B). This task implements the data preparation for both paths.**
+- [~] T013 [P] [US1] Implement `code/preprocess_eeg.py` to download OpenNeuro dataset `ds000248` (Spec/Constitution mandate). Filter (0.5–45 Hz), run FastICA (20 components), epoch (2-min), compute alpha power (Welch's method). Filter subjects with <80% valid epochs. Output `data/processed/eeg_features.csv`. **NOTE: Output the available subjects (target ≥50); log a warning if count < 50.**
+- [~] T014 [US1] Implement `code/match_cohorts.py` to perform **Virtual Cohort Matching** (Path A) and fallback logic (Path B):
  1. Load `microbiome_features.csv` and `eeg_features.csv`.
  2. **Path A (Matching)**: Match AGP and OpenNeuro subjects based on (Age, Sex, BMI) using **Nearest-Neighbor** matching (scikit-learn `NearestNeighbors`) as the PRIMARY method.
  3. **Fallback Logic**: If Nearest-Neighbor fails to converge or returns <10 pairs, attempt Propensity Score matching as a secondary method.
@@ -114,19 +114,19 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Unit test for CLR transformation function in `tests/unit/test_transformations.py` (verify log(0) handling with pseudocount)
-- [ ] T019 [P] [US2] Unit test for FDR correction in `tests/unit/test_statistics.py` (verify Benjamini-Hochberg logic)
+- [~] T018 [P] [US2] Unit test for CLR transformation function in `tests/unit/test_transformations.py` (verify log(0) handling with pseudocount)
+- [~] T019 [P] [US2] Unit test for FDR correction in `tests/unit/test_statistics.py` (verify Benjamini-Hochberg logic)
 
 ### Implementation for User Story 2
 
-- [ ] T020 [P] [US2] Implement CLR transformation in `code/correlation_analysis.py` applying pseudocount=0.5 to subject-level data (Path A) or group-level means (Path B)
-- [ ] T021 [US2] Implement alpha power aggregation per subject/group in `code/correlation_analysis.py` using Welch's method results from Phase 1
-- [ ] T022 [US2] Implement **Conditional Statistical Testing** in `code/correlation_analysis.py`:
+- [~] T020 [P] [US2] Implement CLR transformation in `code/correlation_analysis.py` applying pseudocount=0.5 to subject-level data (Path A) or group-level means (Path B)
+- [~] T021 [US2] Implement alpha power aggregation per subject/group in `code/correlation_analysis.py` using Welch's method results from Phase 1
+- [~] T022 [US2] Implement **Conditional Statistical Testing** in `code/correlation_analysis.py`:
  - **If Path A (matched_pairs.csv exists)**: Perform Spearman correlation between **the 20 taxa with the highest mean relative abundance** and mean alpha power per matched pair. Apply Benjamini-Hochberg FDR (q<0.1).
  - **If Path B (distribution_groups.csv exists)**: Perform Mann-Whitney U or Kolmogorov-Smirnov tests comparing alpha power distributions between High/Low abundance groups.
  - **NOTE**: Strictly follow the Plan's conditional logic. Do NOT use PCoA axes for the primary test unless specified as a secondary diagnostic.
-- [ ] T023 [US2] Implement collinearity diagnostics: Calculate **Variance Inflation Factor (VIF)** for the 20 taxa tested in T022 (Path A only) to satisfy FR-009. Report VIF values in `artifacts/analysis_results.json`. For Path B, report group separation statistics instead.
-- [ ] T024 [US2] Implement permutation testing to generate null distribution:
+- [~] T023 [US2] Implement collinearity diagnostics: Calculate **Variance Inflation Factor (VIF)** for the 20 taxa tested in T022 (Path A only) to satisfy FR-009. Report VIF values in `artifacts/analysis_results.json`. For Path B, report group separation statistics instead.
+- [~] T024 [US2] Implement permutation testing to generate null distribution:
  - **Path A**: Shuffle subject labels in matched pairs.
  - **Path B**: Shuffle group labels in distribution groups.
  - **Pass the random seed (from T007) explicitly as `random_state`** to ensure reproducibility.

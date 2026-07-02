@@ -1,0 +1,12 @@
+pandas
+numpy
+scipy
+scikit-learn
+mne
+scikit-bio
+matplotlib
+seaborn
+pyyaml
+qiime2==2023.5
+requests
+# Existing dependencies from earlier phases are assumed to be present.
