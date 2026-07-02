@@ -1,247 +1,194 @@
 """
-Quickstart Validation Script for Social Memory Networks Project.
+Quickstart Validation Script
 
-This script executes all commands defined in quickstart.md and verifies
-that each command exits with code 0. It produces a validation report
-to stdout and exits with non-zero if any command fails.
-
-Usage:
-    python code/validate_quickstart.py
+This script validates the quickstart.md file by:
+1. Parsing all bash code blocks
+2. Executing each command in sequence
+3. Verifying all commands return exit code 0
+4. Generating a validation report
 """
-import argparse
+
 import subprocess
 import sys
 import os
-import time
+import re
 from pathlib import Path
+from datetime import datetime
 from typing import List, Dict, Any, Tuple
+import json
 
-# Define the commands from quickstart.md based on the project structure
-# These commands are derived from the tasks and project requirements
-QUICKSTART_COMMANDS = [
-    {
-        "name": "Install dependencies",
-        "command": ["pip", "install", "-r", "code/requirements.txt"],
-        "description": "Install pinned dependencies from requirements.txt"
-    },
-    {
-        "name": "Run unit tests for metrics",
-        "command": [
-            "python", "-m", "pytest",
-            "code/metrics/tests/test_specialization.py",
-            "code/metrics/tests/test_retrieval.py",
-            "code/metrics/tests/test_validator.py",
-            "-v"
-        ],
-        "description": "Run unit tests for specialization, retrieval, and validator metrics"
-    },
-    {
-        "name": "Run contract tests",
-        "command": [
-            "python", "-m", "pytest",
-            "code/tests/contract/test_game_result.py",
-            "code/tests/contract/test_anova.py",
-            "code/tests/contract/test_scaling.py",
-            "-v"
-        ],
-        "description": "Run contract tests for game results, ANOVA, and scaling"
-    },
-    {
-        "name": "Run integration tests for full context",
-        "command": [
-            "python", "-m", "pytest",
-            "code/tests/integration/test_full_context.py",
-            "-v"
-        ],
-        "description": "Run integration tests for full-context simulation"
-    },
-    {
-        "name": "Run integration tests for limited context",
-        "command": [
-            "python", "-m", "pytest",
-            "code/tests/integration/test_limited_context.py",
-            "-v"
-        ],
-        "description": "Run integration tests for limited-context simulation"
-    },
-    {
-        "name": "Run unit tests for base agent",
-        "command": [
-            "python", "-m", "pytest",
-            "code/tests/unit/test_base_agent.py",
-            "-v"
-        ],
-        "description": "Run unit tests for base agent initialization and operations"
-    },
-    {
-        "name": "Run unit tests for power analysis",
-        "command": [
-            "python", "-m", "pytest",
-            "code/tests/unit/test_power.py",
-            "-v"
-        ],
-        "description": "Run unit tests for power analysis functions"
-    },
-    {
-        "name": "Run quantization audit",
-        "command": [
-            "python", "code/remove_quantization_imports.py",
-            "--dir", "code"
-        ],
-        "description": "Verify no prohibited quantization imports exist"
-    },
-    {
-        "name": "Run full pipeline profile",
-        "command": [
-            "python", "code/run_full_pipeline_profile.py",
-            "--output", "results/pipeline_profile.json"
-        ],
-        "description": "Run full pipeline with resource profiling"
-    }
-]
 
-def run_command(cmd: List[str], timeout: int = 600) -> Tuple[bool, str, int]:
+def extract_bash_commands(markdown_content: str) -> List[str]:
     """
-    Execute a command and return (success, output, exit_code).
+    Extract bash commands from markdown code blocks.
     
     Args:
-        cmd: Command and arguments as a list of strings
-        timeout: Maximum execution time in seconds
+        markdown_content: The content of the markdown file
         
     Returns:
-        Tuple of (success, output, exit_code)
+        List of bash commands to execute
+    """
+    # Pattern to match bash code blocks
+    pattern = r'```bash\s*\n(.*?)\n```'
+    matches = re.findall(pattern, markdown_content, re.DOTALL)
+    
+    commands = []
+    for match in matches:
+        # Split by newlines and filter out empty lines and comments
+        lines = match.strip().split('\n')
+        for line in lines:
+            line = line.strip()
+            if line and not line.startswith('#'):
+                commands.append(line)
+    
+    return commands
+
+
+def run_command(command: str, cwd: Path) -> Tuple[int, str, str]:
+    """
+    Run a single command and return its result.
+    
+    Args:
+        command: The command to execute
+        cwd: Working directory for the command
+        
+    Returns:
+        Tuple of (exit_code, stdout, stderr)
     """
     try:
-        print(f"Executing: {' '.join(cmd)}")
         result = subprocess.run(
-            cmd,
+            command,
+            shell=True,
+            cwd=cwd,
             capture_output=True,
             text=True,
-            timeout=timeout,
-            cwd=Path(__file__).parent.parent
+            timeout=300  # 5 minute timeout per command
         )
-        
-        output = result.stdout
-        if result.stderr:
-            output += "\n" + result.stderr
-            
-        return result.returncode == 0, output, result.returncode
+        return result.returncode, result.stdout, result.stderr
     except subprocess.TimeoutExpired:
-        return False, "Command timed out", -1
+        return -1, "", "Command timed out after 5 minutes"
     except Exception as e:
-        return False, str(e), -1
+        return -1, "", str(e)
 
-def validate_quickstart(
-    commands: List[Dict[str, Any]],
-    verbose: bool = False
-) -> bool:
+
+def validate_quickstart(project_root: Path) -> Dict[str, Any]:
     """
-    Execute all quickstart commands and verify exit codes.
+    Validate the quickstart.md file by executing all commands.
     
     Args:
-        commands: List of command dictionaries with 'name' and 'command' keys
-        verbose: If True, print detailed output for each command
+        project_root: The root directory of the project
         
     Returns:
-        True if all commands succeed, False otherwise
+        Validation report as a dictionary
     """
-    print("=" * 80)
-    print("QUICKSTART VALIDATION REPORT")
-    print("=" * 80)
-    print(f"Total commands to validate: {len(commands)}")
-    print(f"Working directory: {Path(__file__).parent.parent}")
-    print("=" * 80)
+    quickstart_path = project_root / "quickstart.md"
     
+    if not quickstart_path.exists():
+        return {
+            "success": False,
+            "error": "quickstart.md not found",
+            "commands_tested": 0,
+            "commands_passed": 0,
+            "commands_failed": 0,
+            "results": []
+        }
+    
+    # Read quickstart.md
+    with open(quickstart_path, 'r', encoding='utf-8') as f:
+        content = f.read()
+    
+    # Extract commands
+    commands = extract_bash_commands(content)
+    
+    if not commands:
+        return {
+            "success": False,
+            "error": "No commands found in quickstart.md",
+            "commands_tested": 0,
+            "commands_passed": 0,
+            "commands_failed": 0,
+            "results": []
+        }
+    
+    # Execute commands
     results = []
-    total_start = time.time()
+    passed = 0
+    failed = 0
     
-    for i, cmd_def in enumerate(commands, 1):
-        name = cmd_def["name"]
-        cmd = cmd_def["command"]
-        description = cmd_def.get("description", "")
+    for i, command in enumerate(commands, 1):
+        print(f"[{i}/{len(commands)}] Executing: {command}")
+        exit_code, stdout, stderr = run_command(command, project_root)
         
-        print(f"\n[{i}/{len(commands)}] {name}")
-        print(f"Description: {description}")
-        print("-" * 40)
-        
-        success, output, exit_code = run_command(cmd)
-        
-        if verbose:
-            print("Output:")
-            print(output)
-        
-        status = "✓ PASS" if success else "✗ FAIL"
-        print(f"Status: {status} (exit code: {exit_code})")
-        
-        results.append({
-            "name": name,
-            "success": success,
+        result = {
+            "command": command,
             "exit_code": exit_code,
-            "output": output
-        })
+            "success": exit_code == 0,
+            "stdout": stdout[:1000] if stdout else "",  # Truncate for readability
+            "stderr": stderr[:1000] if stderr else ""
+        }
+        results.append(result)
         
-        if not success:
-            print(f"ERROR: Command '{name}' failed!")
+        if exit_code == 0:
+            passed += 1
+            print(f"  ✓ Success")
+        else:
+            failed += 1
+            print(f"  ✗ Failed (exit code: {exit_code})")
+            if stderr:
+                print(f"    Error: {stderr[:200]}")
     
-    total_time = time.time() - total_start
+    # Generate report
+    report = {
+        "timestamp": datetime.now().isoformat(),
+        "quickstart_path": str(quickstart_path),
+        "commands_tested": len(commands),
+        "commands_passed": passed,
+        "commands_failed": failed,
+        "success": failed == 0,
+        "results": results
+    }
     
-    # Print summary
-    print("\n" + "=" * 80)
-    print("VALIDATION SUMMARY")
-    print("=" * 80)
-    
-    passed = sum(1 for r in results if r["success"])
-    failed = len(results) - passed
-    
-    print(f"Total commands: {len(results)}")
-    print(f"Passed: {passed}")
-    print(f"Failed: {failed}")
-    print(f"Total time: {total_time:.2f} seconds")
-    
-    if failed > 0:
-        print("\nFailed commands:")
-        for r in results:
-            if not r["success"]:
-                print(f"  - {r['name']} (exit code: {r['exit_code']})")
-        print("\nValidation FAILED!")
-        return False
-    else:
-        print("\nAll commands executed successfully!")
-        print("Validation PASSED!")
-        return True
+    return report
+
+
+def save_report(report: Dict[str, Any], output_path: Path):
+    """Save the validation report to a file."""
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(report, f, indent=2, default=str)
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Validate quickstart.md commands"
-    )
-    parser.add_argument(
-        "--verbose", "-v",
-        action="store_true",
-        help="Print detailed output for each command"
-    )
-    parser.add_argument(
-        "--commands",
-        type=str,
-        nargs="+",
-        help="Specific command names to validate (default: all)"
-    )
+    """Main entry point for the validation script."""
+    # Determine project root
+    # Assume script is in code/ directory
+    script_path = Path(__file__).resolve()
+    project_root = script_path.parent.parent
     
-    args = parser.parse_args()
+    print(f"Project root: {project_root}")
+    print(f"Looking for: {project_root / 'quickstart.md'}")
     
-    # Filter commands if specific names provided
-    if args.commands:
-        filtered_commands = [
-            cmd for cmd in QUICKSTART_COMMANDS
-            if cmd["name"] in args.commands
-        ]
-        if not filtered_commands:
-            print(f"Error: No matching commands found for: {args.commands}")
-            sys.exit(1)
-    else:
-        filtered_commands = QUICKSTART_COMMANDS
+    # Validate
+    report = validate_quickstart(project_root)
     
-    success = validate_quickstart(filtered_commands, args.verbose)
-    sys.exit(0 if success else 1)
+    # Save report
+    results_dir = project_root / "results"
+    results_dir.mkdir(exist_ok=True)
+    report_path = results_dir / "quickstart_validation_report.json"
+    save_report(report, report_path)
+    
+    # Print summary
+    print("\n" + "="*60)
+    print("VALIDATION SUMMARY")
+    print("="*60)
+    print(f"Commands tested: {report['commands_tested']}")
+    print(f"Commands passed: {report['commands_passed']}")
+    print(f"Commands failed: {report['commands_failed']}")
+    print(f"Overall success: {'YES' if report['success'] else 'NO'}")
+    print(f"Report saved to: {report_path}")
+    print("="*60)
+    
+    # Exit with appropriate code
+    sys.exit(0 if report['success'] else 1)
+
 
 if __name__ == "__main__":
     main()

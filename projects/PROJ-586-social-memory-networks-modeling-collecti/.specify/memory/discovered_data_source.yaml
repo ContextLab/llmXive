@@ -1,0 +1,14 @@
+status: none
+intent: Hanabi game interaction dataset USK-difficult USK-easy WINNIE-US2 USD-Enhanced
+  CoQA python package dataset
+required_fields:
+- game_id
+- episode_id
+- agent_id
+- action
+- cue
+- retrieved_fact
+- specialization_index
+- cue_retrieval_efficiency
+- timestamp
+- context_state
