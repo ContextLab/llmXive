@@ -1,0 +1,107 @@
+resolved_at: '2026-07-02T19:46:37.625599+00:00'
+datasets:
+- intent: HumanEval
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/openai/openai_humaneval/resolve/main/openai_humaneval/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 83920
+      parsed: true
+  - url: https://huggingface.co/datasets/zai-org/humaneval-x/resolve/main/data/cpp/data/humaneval.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/loubnabnl/humaneval_infilling/resolve/main/data/HumanEval-MultiLineInfilling.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/openai/openai_humaneval/resolve/main/openai_humaneval/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/zai-org/humaneval-x/resolve/main/data/cpp/data/humaneval.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/loubnabnl/humaneval_infilling/resolve/main/data/HumanEval-MultiLineInfilling.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/diversoailab/standard_humaneval/resolve/main/HumanEval.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/diversoailab/humaneval-rust/resolve/main/humaneval_rust.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_3_Integrating_preexposure_prophylaxis_into_gynecologic_care_determinants_and_strategies_docx/32885261
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Integrating_preexposure_prophylaxis_into_gynecologic_care_determinants_and_strategies_docx/32885264
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Integrating_preexposure_prophylaxis_into_gynecologic_care_determinants_and_strategies_docx/32885267
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_4_Integrating_preexposure_prophylaxis_into_gynecologic_care_determinants_and_strategies_docx/32885258
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/dataset/Microalgae-Mediated_Electron_Transfer_and_Allocation_in_Paracoccus_denitrificans_for_Efficient_Nitrate_Removal/32885255
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15554034
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10530787
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19237762
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20617097
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20708135
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.20582430
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+  - url: https://arxiv.org/abs/2606.18430
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.00208
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.00062
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Towards_Pre-generation_Requirement_Uncertainty_Assessment_for_Code_Generation/32854478
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
