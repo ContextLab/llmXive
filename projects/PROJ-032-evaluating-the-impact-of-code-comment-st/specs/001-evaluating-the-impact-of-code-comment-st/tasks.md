@@ -47,8 +47,8 @@ description: "Task list for Evaluating the Impact of Code Comment Style on Maint
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure: Execute `mkdir -p src/code src/data/raw src/data/processed src/data/schemas tests/unit tests/integration docs` to establish the directory tree.
-- [ ] T002 Initialize Python 3.9+ project:
+- [X] T001 Create project structure: Execute `mkdir -p src/code src/data/raw src/data/processed src/data/schemas tests/unit tests/integration docs` to establish the directory tree.
+- [X] T002 Initialize Python 3.9+ project:
  1. Run `python -m venv venv`.
  2. Create `requirements.txt` containing runtime dependencies: `datasets`, `tree-sitter`, `tree-sitter-python`, `textstat`, `textblob`, `pylint`, `gitpython`, `scikit-learn`, `pandas`, `numpy`, `statsmodels`, `radon`, `psutil` (pinned versions).
  3. Create `dev-requirements.txt` containing development tools: `pip-audit`, `bandit`, `pytest`, `pytest-cov`.
@@ -63,7 +63,7 @@ description: "Task list for Evaluating the Impact of Code Comment Style on Maint
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T009 Create base data models and CSV schemas: Create `data/schemas/metrics_schema.json` and `data/schemas/analysis_results_schema.json` with the following exact JSON Schema definitions:
+- [X] T009 Create base data models and CSV schemas: Create `data/schemas/metrics_schema.json` and `data/schemas/analysis_results_schema.json` with the following exact JSON Schema definitions:
  1. `metrics_schema.json`:
  ```json
  {
@@ -100,20 +100,20 @@ description: "Task list for Evaluating the Impact of Code Comment Style on Maint
  "required": ["model_type", "r_squared", "p_values", "is_significant", "sensitivity_data"]
  }
  ```
-- [ ] T004a [P] Implement `src/code/utils.py`: Logging - Create function `configure_logging(log_path="logs/pipeline.log")` to set up file and console handlers with INFO/ERROR levels.
-- [ ] T004b [P] Implement `src/code/utils.py`: Batching - Create class `BatchIterator` with semaphore logic to enforce max concurrent clones; implement `__iter__` and `__next__`.
-- [ ] T004c [P] Implement `src/code/utils.py`: Memory monitoring - Create class `MemoryMonitor` using `psutil` with method `check_limit(limit_gb=7)` that raises `MemoryError` if exceeded.
-- [ ] T004d [P] Implement `src/code/utils.py`: Commit sampling - Create class `CommitSampler` with method `sample_commits(commits, n=10)` to select representative commits for static analysis.
+- [X] T004a [P] Implement `src/code/utils.py`: Logging - Create function `configure_logging(log_path="logs/pipeline.log")` to set up file and console handlers with INFO/ERROR levels.
+- [X] T004b [P] Implement `src/code/utils.py`: Batching - Create class `BatchIterator` with semaphore logic to enforce max concurrent clones; implement `__iter__` and `__next__`.
+- [X] T004c [P] Implement `src/code/utils.py`: Memory monitoring - Create class `MemoryMonitor` using `psutil` with method `check_limit(limit_gb=7)` that raises `MemoryError` if exceeded.
+- [X] T004d [P] Implement `src/code/utils.py`: Commit sampling - Create class `CommitSampler` with method `sample_commits(commits, n=10)` to select representative commits for static analysis.
 - [ ] T006 [P] Implement `src/code/extract.py`: `extract_comments_ast()` using `tree-sitter` to isolate comments from string literals; handle empty files and syntax errors gracefully.
 - [ ] T006b [P] Implement `src/code/metrics.py`: `calc_complexity()` using `radon` or `ast` module to compute average cyclomatic complexity per function for a repository.
 - [ ] T007a [P] Implement `src/code/metrics.py`: `calc_readability()` using `textstat.flesch_kincaid_grade` on extracted comments; handle empty comment sets by returning 0.0 and log event.
 - [ ] T007b [P] Implement `src/code/metrics.py`: `calc_sentiment()` using `TextBlob` polarity on extracted comments; handle empty comment sets by returning 0.0 and log event.
 - [ ] T007c [P] Implement `src/code/metrics.py`: `calc_churn()` using `git log --numstat` to calculate total lines changed per commit; aggregate to repository level.
-- [ ] T007d [P] Implement `src/code/metrics.py`: `calc_quality_rate()` using `pylint` on sampled commits; calculate ratio of commits with error-level warnings; validate against `data/manual_labels.csv` (global stratified sample N=50) and calculate 95% CI for accuracy.
-- [ ] T007e [P] Implement `src/code/metrics.py`: `generate_manual_labels()` - Create a script to generate `data/manual_labels.csv` by stratified sampling a representative subset of commits from the 500 repos, manually labeling them as 'bug_fix' or 'not_bug_fix' (simulated via commit message keywords for automation), and saving the ground truth.
-- [ ] T008a [P] Implement `src/code/analysis.py`: `run_regression()`: Implement Multiple Linear Regression (MLR) with robust standard errors (using `statsmodels` or `scikit-learn` with `White` covariance) to model maintainability vs. comment metrics, controlling for age, LOC, and complexity. (Note: Negative Binomial/Beta are prohibited by Constitution Principle VII).
-- [ ] T008b [P] Implement `src/code/analysis.py`: `apply_fdr_correction()`: Implement Benjamini-Hochberg FDR correction on p-values from multiple hypothesis tests.
-- [ ] T008c [P] Implement `src/code/analysis.py`: `run_sensitivity()`: Implement sensitivity analysis sweeping thresholds over a range of small values for exploratory purposes only; ensure final report uses fixed p < 0.05.
+- [~] T007d [P] Implement `src/code/metrics.py`: `calc_quality_rate()` using `pylint` on sampled commits; calculate ratio of commits with error-level warnings; validate against `data/manual_labels.csv` (global stratified sample N=50) and calculate 95% CI for accuracy.
+- [~] T007e [P] Implement `src/code/metrics.py`: `generate_manual_labels()` - Create a script to generate `data/manual_labels.csv` by stratified sampling a representative subset of commits from the 500 repos, manually labeling them as 'bug_fix' or 'not_bug_fix' (simulated via commit message keywords for automation), and saving the ground truth.
+- [~] T008a [P] Implement `src/code/analysis.py`: `run_regression()`: Implement Multiple Linear Regression (MLR) with robust standard errors (using `statsmodels` or `scikit-learn` with `White` covariance) to model maintainability vs. comment metrics, controlling for age, LOC, and complexity. (Note: Negative Binomial/Beta are prohibited by Constitution Principle VII).
+- [~] T008b [P] Implement `src/code/analysis.py`: `apply_fdr_correction()`: Implement Benjamini-Hochberg FDR correction on p-values from multiple hypothesis tests.
+- [~] T008c [P] Implement `src/code/analysis.py`: `run_sensitivity()`: Implement sensitivity analysis sweeping thresholds over a range of small values for exploratory purposes only; ensure final report uses fixed p < 0.05.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -127,20 +127,20 @@ description: "Task list for Evaluating the Impact of Code Comment Style on Maint
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement `src/code/fetch.py` `get_candidates()`: Query HuggingFace `codeparrot/github-code` for Python repos ≥100 stars. If unreachable, fallback to `. Return list of 500 candidate IDs.
-- [ ] T013 [US1] Implement `src/code/fetch.py` `clone_batch()`: Use `BatchIterator` (T004b) to clone repos to `data/raw/` with full history; handle errors (skip/log); enforce batch size ≤10.
-- [ ] T014 [US1] Implement `src/code/fetch.py` `validate_count()`: Ensure target of valid clones with git history is met; log exclusions; retry if target not met.
-- [ ] T015b [US1] Handle edge case: Git clone failures: Implement retry logic and skip mechanism in `clone_batch`; log error and continue to next candidate.
-- [ ] T015c [US1] Handle edge case: Missing history: Implement check in `clone_batch` to exclude repos with empty git history; log exclusion.
-- [ ] T016 [US1] Add logging for acquisition stats: Output success rate, excluded repos count, and total valid clones to `logs/acquisition_stats.json`.
+- [~] T012 [P] [US1] Implement `src/code/fetch.py` `get_candidates()`: Query HuggingFace `codeparrot/github-code` for Python repos ≥100 stars. If unreachable, fallback to `. Return list of 500 candidate IDs.
+- [~] T013 [US1] Implement `src/code/fetch.py` `clone_batch()`: Use `BatchIterator` (T004b) to clone repos to `data/raw/` with full history; handle errors (skip/log); enforce batch size ≤10. <!-- FAILED: unspecified -->
+- [~] T014 [US1] Implement `src/code/fetch.py` `validate_count()`: Ensure target of valid clones with git history is met; log exclusions; retry if target not met. <!-- FAILED: unspecified -->
+- [~] T015b [US1] Handle edge case: Git clone failures: Implement retry logic and skip mechanism in `clone_batch`; log error and continue to next candidate.
+- [~] T015c [US1] Handle edge case: Missing history: Implement check in `clone_batch` to exclude repos with empty git history; log exclusion.
+- [~] T016 [US1] Add logging for acquisition stats: Output success rate, excluded repos count, and total valid clones to `logs/acquisition_stats.json`.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE: Write these tests AFTER implementation to verify the implemented logic**
 
-- [ ] T010a [P] [US1] Unit test `test_get_candidates_returns_ids` in `tests/unit/test_fetch.py`.
-- [ ] T010b [P] [US1] Unit test `test_get_candidates_fallback` in `tests/unit/test_fetch.py`.
-- [ ] T011 [P] [US1] Integration test for batch cloning and history validation in `tests/integration/test_clone.py`.
+- [~] T010a [P] [US1] Unit test `test_get_candidates_returns_ids` in `tests/unit/test_fetch.py`.
+- [~] T010b [P] [US1] Unit test `test_get_candidates_fallback` in `tests/unit/test_fetch.py`.
+- [~] T011 [P] [US1] Integration test for batch cloning and history validation in `tests/integration/test_clone.py`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -154,13 +154,13 @@ description: "Task list for Evaluating the Impact of Code Comment Style on Maint
 
 ### Implementation for User Story 2
 
-- [ ] T021 [P] [US2] Implement `src/code/extract.py`: Parse Python files with `tree-sitter`, extract comments, handle empty files, and save to `data/processed/comments.json`.
-- [ ] T021b [P] [US2] Implement `src/code/metrics.py` `calc_density()`: Calculate comment density as (lines of comment / lines of code) with precision ≥2 decimal places; handle division by zero.
-- [ ] T022 [P] [US2] Implement `src/code/metrics.py` `calc_readability()`: Use `textstat.flesch_kincaid_grade` on extracted comments; validate against known string "This is a simple test." (target 65.3 ± 0.1).
-- [ ] T023 [P] [US2] Implement `src/code/metrics.py` `calc_sentiment()`: Use `TextBlob` polarity on extracted comments; validate against known string.
-- [ ] T024 [US2] Implement `src/code/metrics.py` `calc_churn()`: Parse `git log --numstat` for lines changed per commit; aggregate to repository level; validate against manual spot-check.
-- [ ] T025 [US2] Implement `src/code/metrics.py` `calc_quality_rate()`: Sample commits using `CommitSampler`; run `pylint` for error-level warnings; calculate ratio; validate against `data/manual_labels.csv` (global stratified sample N=50) and compute 95% CI.
-- [ ] T026 [US2] Implement `src/code/utils.py` memory stream processing: Ensure `MemoryMonitor` (T004c) is active during metric aggregation to stay within acceptable RAM limits.
+- [~] T021 [P] [US2] Implement `src/code/extract.py`: Parse Python files with `tree-sitter`, extract comments, handle empty files, and save to `data/processed/comments.json`.
+- [~] T021b [P] [US2] Implement `src/code/metrics.py` `calc_density()`: Calculate comment density as (lines of comment / lines of code) with precision ≥2 decimal places; handle division by zero.
+- [~] T022 [P] [US2] Implement `src/code/metrics.py` `calc_readability()`: Use `textstat.flesch_kincaid_grade` on extracted comments; validate against known string "This is a simple test." (target 65.3 ± 0.1).
+- [~] T023 [P] [US2] Implement `src/code/metrics.py` `calc_sentiment()`: Use `TextBlob` polarity on extracted comments; validate against known string.
+- [~] T024 [US2] Implement `src/code/metrics.py` `calc_churn()`: Parse `git log --numstat` for lines changed per commit; aggregate to repository level; validate against manual spot-check.
+- [~] T025 [US2] Implement `src/code/metrics.py` `calc_quality_rate()`: Sample commits using `CommitSampler`; run `pylint` for error-level warnings; calculate ratio; validate against `data/manual_labels.csv` (global stratified sample N=50) and compute 95% CI.
+- [~] T026 [US2] Implement `src/code/utils.py` memory stream processing: Ensure `MemoryMonitor` (T004c) is active during metric aggregation to stay within acceptable RAM limits.
 - [ ] T027 [US2] Aggregate metrics: Combine readability, sentiment, density, churn, bug_fix_rate, and complexity into `data/processed/metrics.csv` with precision ≥2 decimal places. (Note: This task depends on T021 and T021b; NOT parallel).
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️

@@ -1,0 +1,13 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Analysis Results",
+  "type": "object",
+  "properties": {
+    "model_type": {"type": "string"},
+    "r_squared": {"type": "number"},
+    "p_values": {"type": "array", "items": {"type": "number"}},
+    "is_significant": {"type": "boolean"},
+    "sensitivity_data": {"type": "array", "items": {"type": "object"}}
+  },
+  "required": ["model_type", "r_squared", "p_values", "is_significant", "sensitivity_data"]
+}

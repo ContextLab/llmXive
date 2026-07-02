@@ -1,0 +1,213 @@
+- artifact_path: projects/PROJ-032-evaluating-the-impact-of-code-comment-st/specs/001-evaluating-the-impact-of-code-comment-st/tasks.md
+  attempts: 1
+  canonical: creation of JSON schemas for metrics and analysis results
+  claim_id: c_056f18c4
+  context: 'Create `data/schemas/metrics_schema.json` and `data/schemas/analysis_results_schema.json`
+    with the following exact JSON Schema definitions:'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Creation_of_JSON_schemas_for_metrics_and_analysis_results
+  kind: entity_fact
+  raw_text: Create `data/schemas/metrics_schema.json` and `data/schemas/analysis_results_schema.json`
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T05:34:25Z'
+- artifact_path: projects/PROJ-032-evaluating-the-impact-of-code-comment-st/specs/001-evaluating-the-impact-of-code-comment-st/tasks.md
+  attempts: 1
+  canonical: 9 properties defined in metrics_schema.json
+  claim_id: c_8f310ae8
+  context: '1. `metrics_schema.json`: ... properties:'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Create `metrics_schema.json` with 9 properties: repo_id, readability,
+    sentiment, density, churn, bug_fix_rate, complexity, age, contributors'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T05:34:36Z'
+- artifact_path: projects/PROJ-032-evaluating-the-impact-of-code-comment-st/specs/001-evaluating-the-impact-of-code-comment-st/tasks.md
+  attempts: 1
+  canonical: 5 properties defined in analysis_results_schema.json
+  claim_id: c_9b68d7a4
+  context: '2. `analysis_results_schema.json`: ... properties:'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Create `analysis_results_schema.json` with 5 properties: model_type,
+    r_squared, p_values, is_significant, sensitivity_data'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T05:34:55Z'
+- artifact_path: projects/PROJ-032-evaluating-the-impact-of-code-comment-st/specs/001-evaluating-the-impact-of-code-comment-st/tasks.md
+  attempts: 1
+  canonical: implementation of configure_logging function
+  claim_id: c_7d64de9f
+  context: 'Implement `src/code/utils.py`: Logging - Create function `configure_logging(log_path="logs/pipeline.log")`
+    to set up file and console handlers with INFO/ERROR levels.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Implementation_of_configure_logging_function
+  kind: entity_fact
+  raw_text: Implement function `configure_logging(log_path="logs/pipeline.log")`
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T05:35:48Z'
+- artifact_path: projects/PROJ-032-evaluating-the-impact-of-code-comment-st/specs/001-evaluating-the-impact-of-code-comment-st/tasks.md
+  attempts: 1
+  canonical: 13 runtime dependencies to be installed
+  claim_id: c_3e4464f2
+  context: '2. Create `requirements.txt` containing runtime dependencies: `datasets`,
+    `tree-sitter`, `tree-sitter-python`, `textstat`, `textblob`, `pylint`, `gitpython`,
+    `scikit-learn`, `pandas`, `numpy`, `statsmodels`, `radon`, `psutil` (pinned versions).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Install runtime dependencies: `datasets`, `tree-sitter`, `tree-sitter-python`,
+    `textstat`, `textblob`, `pylint`, `gitpython`, `scikit-learn`, `pandas`, `numpy`,
+    `statsmodels`, `radon`, `psutil`'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T05:35:48Z'
+- artifact_path: projects/PROJ-032-evaluating-the-impact-of-code-comment-st/specs/001-evaluating-the-impact-of-code-comment-st/tasks.md
+  attempts: 1
+  canonical: 4 development dependencies to be installed
+  claim_id: c_ede45010
+  context: '3. Create `dev-requirements.txt` containing development tools: `pip-audit`,
+    `bandit`, `pytest`, `pytest-cov`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Install development dependencies: `pip-audit`, `bandit`, `pytest`, `pytest-cov`'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T05:35:48Z'
+- artifact_path: projects/PROJ-032-evaluating-the-impact-of-code-comment-st/specs/001-evaluating-the-impact-of-code-comment-st/tasks.md
+  attempts: 1
+  canonical: implementation of BatchIterator class with semaphore logic
+  claim_id: c_14ab846b
+  context: Implement class `BatchIterator` with semaphore logic to enforce max concurrent
+    clones; implement `__iter__` and `__next__`.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Implementation_of_BatchIterator_class_with_semaphore_logic
+  kind: entity_fact
+  raw_text: Implement `BatchIterator` class with semaphore logic to enforce max concurrent
+    clones
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T05:36:22Z'
+- artifact_path: projects/PROJ-032-evaluating-the-impact-of-code-comment-st/specs/001-evaluating-the-impact-of-code-comment-st/tasks.md
+  attempts: 1
+  canonical: implementation of MemoryMonitor class with 7GB memory limit
+  claim_id: c_51b99f5f
+  context: Create class `MemoryMonitor` using `psutil` with method `check_limit(limit_gb=7)`
+    that raises `MemoryError` if exceeded.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `MemoryMonitor` class using `psutil` with method `check_limit(limit_gb=7)`
+    that raises `MemoryError` if exceeded.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T05:36:24Z'
+- artifact_path: projects/PROJ-032-evaluating-the-impact-of-code-comment-st/specs/001-evaluating-the-impact-of-code-comment-st/tasks.md
+  attempts: 1
+  canonical: implementation of CommitSampler class with sample size of 10
+  claim_id: c_c1df5fc6
+  context: Create class `CommitSampler` with method `sample_commits(commits, n=10)`
+    to select representative commits for static analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `CommitSampler` class with method `sample_commits(commits, n=10)`
+    to select representative commits
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T05:36:29Z'
+- artifact_path: projects/PROJ-032-evaluating-the-impact-of-code-comment-st/specs/001-evaluating-the-impact-of-code-comment-st/tasks.md
+  attempts: 1
+  canonical: comment density calculation with precision of 2 decimal places
+  claim_id: c_be003074
+  context: "Implement `src/code/metrics.py` `calc_density()`: Calculate comment density\
+    \ as (lines of comment / lines of code) with precision \u22652 decimal places;\
+    \ handle division by zero."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Calculate comment density as (lines of comment / lines of code) with\
+    \ precision \u22652 decimal places"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T05:36:29Z'
+- artifact_path: projects/PROJ-032-evaluating-the-impact-of-code-comment-st/specs/001-evaluating-the-impact-of-code-comment-st/tasks.md
+  attempts: 1
+  canonical: "readability validation against string 'This is a simple test.' with\
+    \ target 65.3 \xB1 0.1"
+  claim_id: c_b81ad2eb
+  context: "Implement `src/code/metrics.py` `calc_readability()`: Use `textstat.flesch_kincaid_grade`\
+    \ on extracted comments; validate against known string \"This is a simple test.\"\
+    \ (target 65.3 \xB1 0.1)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Readability_validation_against_string_%27This_is_a_simple_test
+  kind: entity_fact
+  raw_text: "Validate `calc_readability()` against known string 'This is a simple\
+    \ test.' (target 65.3 \xB1 0.1)"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T05:36:38Z'
+- artifact_path: projects/PROJ-032-evaluating-the-impact-of-code-comment-st/specs/001-evaluating-the-impact-of-code-comment-st/tasks.md
+  attempts: 1
+  canonical: implementation of Benjamini-Hochberg FDR correction
+  claim_id: c_872cfb85
+  context: 'Implement `src/code/analysis.py` `apply_fdr_correction()`: Implement Benjamini-Hochberg
+    FDR correction on p-values from multiple hypothesis tests.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Implementation_of_Benjamini-Hochberg_FDR_correction
+  kind: entity_fact
+  raw_text: Implement Benjamini-Hochberg FDR correction on p-values
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-02T05:36:43Z'

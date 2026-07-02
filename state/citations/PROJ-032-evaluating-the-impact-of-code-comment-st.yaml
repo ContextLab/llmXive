@@ -20,7 +20,7 @@
   verification_status: verified
   verified_against_url: https://github.com/
   verified_at: '2026-07-02T00:27:39.466592Z'
-- artifact_hash: a66ed338f5bb5cb96b81d0119822b1f705f45979865ced278a713205587947eb
+- artifact_hash: cb894ececd196ff2db05f940429778c18b151d0e982a53399d9d6711b6c8a7cf
   artifact_path: projects/PROJ-032-evaluating-the-impact-of-code-comment-st/specs/001-evaluating-the-impact-of-code-comment-st/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -30,15 +30,4 @@
   value: http://json-schema.org/draft-07/schema#
   verification_status: verified
   verified_against_url: https://json-schema.org/draft-07/schema
-  verified_at: '2026-07-02T00:56:13.435839Z'
-- artifact_hash: a66ed338f5bb5cb96b81d0119822b1f705f45979865ced278a713205587947eb
-  artifact_path: projects/PROJ-032-evaluating-the-impact-of-code-comment-st/specs/001-evaluating-the-impact-of-code-comment-st/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://raw.githubusercontent.com/.../top-python-repos.csv`
-  verification_status: unreachable
-  verified_against_url: https://raw.githubusercontent.com/.../top-python-repos.csv
-  verified_at: '2026-07-02T00:56:13.435839Z'
+  verified_at: '2026-07-02T06:16:56.090173Z'

@@ -1,0 +1,13 @@
+datasets==2.19.1
+tree-sitter==0.21.3
+tree-sitter-python==0.21.0
+textstat==0.7.3
+textblob==0.18.0.post0
+pylint==3.2.2
+gitpython==3.1.43
+scikit-learn==1.5.0
+pandas==2.2.2
+numpy==1.26.4
+statsmodels==0.14.2
+radon==6.0.1
+psutil==5.9.8

@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Repository Metrics",
+  "type": "object",
+  "properties": {
+    "repo_id": {"type": "string"},
+    "readability": {"type": "number", "minimum": 0},
+    "sentiment": {"type": "number", "minimum": -1, "maximum": 1},
+    "density": {"type": "number", "minimum": 0},
+    "churn": {"type": "number", "minimum": 0},
+    "bug_fix_rate": {"type": "number", "minimum": 0, "maximum": 1},
+    "complexity": {"type": "number", "minimum": 0},
+    "age": {"type": "integer"},
+    "contributors": {"type": "integer"}
+  },
+  "required": ["repo_id", "readability", "sentiment", "density", "churn", "bug_fix_rate", "complexity", "age", "contributors"]
+}
