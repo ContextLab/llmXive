@@ -1,0 +1,73 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Hamiltonian Instance Schema"
+description: "Schema for a single 1D Anderson Hamiltonian realization stored in data/raw/"
+type: "object"
+properties:
+  realization_id:
+    type: "integer"
+    description: "Unique identifier for this realization"
+  L:
+    type: "integer"
+    description: "System size (number of sites)"
+    minimum: 10
+  W:
+    type: "number"
+    description: "Disorder width (standard deviation of uniform distribution)"
+    minimum: 0.0
+  seed:
+    type: "integer"
+    description: "Random seed used for generation"
+  hopping:
+    type: "number"
+    description: "Hopping parameter t"
+    const: 1.0
+  on_site_energies:
+    type: "array"
+    items:
+      type: "number"
+    minItems: 10
+    maxItems: 1600
+    description: "Array of on-site potentials epsilon_i ~ U(-W/2, W/2)"
+  eigenvalues:
+    type: "array"
+    items:
+      type: "number"
+    description: "Eigenvalues of the Hamiltonian (sorted)"
+  eigenvectors:
+    type: "array"
+    description: "Eigenvectors as a list of arrays (complex128)"
+    items:
+      type: "array"
+      items:
+        type: "object"
+        properties:
+          real:
+            type: "number"
+          imag:
+            type: "number"
+        required:
+          - real
+          - imag
+  metadata:
+    type: "object"
+    properties:
+      created_at:
+        type: "string"
+        format: "date-time"
+      checksum:
+        type: "string"
+        description: "SHA-256 checksum of the raw data"
+      residual_norm:
+        type: "number"
+        description: "Residual norm for eigenvalue solver convergence check"
+required:
+  - realization_id
+  - L
+  - W
+  - seed
+  - hopping
+  - on_site_energies
+  - eigenvalues
+  - eigenvectors
+  - metadata
+additionalProperties: false

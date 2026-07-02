@@ -1,0 +1,83 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Localization Measurement Schema"
+description: "Schema for aggregated localization length measurements (PR and TM)"
+type: "object"
+properties:
+  measurement_id:
+    type: "string"
+    description: "Unique identifier for the measurement record"
+  W:
+    type: "number"
+    description: "Disorder width"
+  L:
+    type: "integer"
+    description: "System size"
+  method:
+    type: "string"
+    enum:
+      - "PR"
+      - "TM"
+    description: "Method used for calculation"
+  localization_length:
+    type: "number"
+    description: "Computed localization length ξ"
+    minimum: 0.0
+  uncertainty:
+    type: "number"
+    description: "Standard error of the mean"
+    minimum: 0.0
+  n_realizations:
+    type: "integer"
+    description: "Number of disorder realizations averaged"
+    minimum: 1
+  energy_range:
+    type: "object"
+    properties:
+      min:
+        type: "number"
+      max:
+        type: "number"
+    required:
+      - min
+      - max
+    description: "Energy range used for averaging (|E| < 0.1)"
+  convergence_check:
+    type: "object"
+    properties:
+      passed:
+        type: "boolean"
+        description: "True if finite‑size scaling (PR) or Lyapunov‑exponent convergence (TM) criteria are satisfied"
+      relative_change:
+        type: "number"
+        description: "Relative change in ξ (PR) or γ (TM) between successive system sizes"
+    required:
+      - passed
+      - relative_change
+  convergence_trace:
+    type: "array"
+    description: "List of (L, value) pairs documenting ξ (for PR) or γ (for TM) as a function of system size. Mandatory for verifying numerical stability."
+    items:
+      type: "object"
+      properties:
+        L:
+          type: "integer"
+          description: "System size"
+        value:
+          type: "number"
+          description: "ξ for PR or γ for TM at this L"
+      required:
+        - L
+        - value
+    minItems: 1
+required:
+  - measurement_id
+  - W
+  - L
+  - method
+  - localization_length
+  - uncertainty
+  - n_realizations
+  - energy_range
+  - convergence_check
+  - convergence_trace
+additionalProperties: false
