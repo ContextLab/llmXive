@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-24T11:04:08.352304Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-776-planbench-xl-evaluating-long-horizon-pla
-last_run_id: 58481e1e-a175-49ae-beef-6fa165be8ef4
+last_run_id: 90f9c1c9-b79e-443c-bf6b-4f4c806416ca
 last_run_status: null
 points_paper: {}
 points_research: {}
