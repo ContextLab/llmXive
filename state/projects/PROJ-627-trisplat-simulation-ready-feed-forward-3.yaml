@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-27T09:10:29.535458Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-627-trisplat-simulation-ready-feed-forward-3
-last_run_id: a52fa4b8-5be4-4180-bd69-a79ddaa2dc98
+last_run_id: f9996aba-fdc5-4bab-b08b-f0d236a69b7b
 last_run_status: null
 points_paper: {}
 points_research: {}

@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-13T09:06:25.912211Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-701-minimax-sparse-attention
-last_run_id: edef9177-890c-427f-b3e5-20f7f2fa7b8a
+last_run_id: 14b718a8-0acd-4cf1-b8b9-c2efd30d499c
 last_run_status: null
 points_paper: {}
 points_research: {}
