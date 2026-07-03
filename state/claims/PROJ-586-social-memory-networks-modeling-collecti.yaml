@@ -13985,24 +13985,6 @@
   updated_at: '2026-07-03T13:59:43Z'
 - artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   attempts: 1
-  canonical: 3 data points limit power-law reliability
-  claim_id: c_a8417c53
-  context: "T030 [US-3] Generate `scaling_plot.pdf` with fitted power\u2011law curves\
-    \ and explicit note that The scaling plot includes an explicit note that 3 data\
-    \ points limit power-law reliability. limit power\u2011law reliability in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_plot.pdf`"
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The scaling plot includes an explicit note that 3 data points limit power-law
-    reliability.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T14:01:19Z'
-- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
-  attempts: 1
   canonical: No 8-bit/4-bit quantization or CUDA imports in Python files
   claim_id: c_21104bee
   context: T032 [P] Remove all 8-bit/4-bit quantization imports, verify no CUDA imports
@@ -15426,24 +15408,6 @@
   status: not_enough_info
   updated_at: '2026-07-03T16:06:10Z'
 - artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
-  attempts: 2
-  canonical: 3 data points limit power-law reliability in scaling plot
-  claim_id: c_c7220bcd
-  context: "T030 [US-3] Generate `scaling_plot.pdf` with fitted power\u2011law curves\
-    \ and explicit note that The scaling plot includes an explicit note that 3 data\
-    \ points limit power-law reliability. limit power\u2011law reliability in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_plot.pdf`"
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The scaling plot includes an explicit note that 3 data points limit power-law
-    reliability.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T16:09:15Z'
-- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   attempts: 1
   canonical: Game simulation for agent counts 3, 5, 7
   claim_id: c_e85b5ff3
@@ -16738,24 +16702,6 @@
   updated_at: '2026-07-03T17:18:49Z'
 - artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   attempts: 1
-  canonical: Scaling plot note states 3 data points limit power-law reliability
-  claim_id: c_9dacdc4c
-  context: "Generate scaling_plot.pdf with fitted power\u2011law curves and explicit\
-    \ note that The scaling plot includes an explicit note that 3 data points limit\
-    \ power-law reliability. limit power\u2011law reliability in projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_plot.pdf"
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The scaling plot includes an explicit note that 3 data points limit power-law
-    reliability.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T17:51:44Z'
-- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
-  attempts: 1
   canonical: ANOVA design is single two-way ANOVA with Context x Metric interaction
   claim_id: c_a56e6644
   context: "**ANOVA Design**: Single two-way ANOVA with Context \xD7 Metric interaction\
@@ -17238,24 +17184,6 @@
   status: not_enough_info
   updated_at: '2026-07-03T18:26:02Z'
 - artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
-  attempts: 1
-  canonical: Scaling plot note states 3 data points limit power-law reliability
-  claim_id: c_ea9e320d
-  context: "T030 [US-3] Generate scaling_plot.pdf with fitted power\u2011law curves\
-    \ and explicit note that The scaling plot includes an explicit note that 3 data\
-    \ points limit power-law reliability. limit power\u2011law reliability in projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_plot.pdf"
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The scaling plot includes an explicit note that 3 data points limit power-law
-    reliability.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T18:46:59Z'
-- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   attempts: 3
   canonical: Scaling plot note states 3 data points limit power-law reliability
   claim_id: c_fe75335c
@@ -17396,43 +17324,6 @@
   source_type: external
   status: verified
   updated_at: '2026-07-03T18:58:16Z'
-- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
-  attempts: 1
-  canonical: Specialization metric references Wikidata Q54767019
-  claim_id: c_9892120b
-  context: T012 [P] [US-1] {{claim:c_a5c2fb06}} ({{claim:c_9c940fb1}} ({{claim:c_24cbb02a}},
-    https://www.wikidata.org/wiki/Q54767019)) in code/metrics/specialization.py (FR-004)
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Specialization_metric_references_Wikidata_Q54767019
-  kind: entity_fact
-  raw_text: Specialization metric implementation references Wikidata Q54767019
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T18:58:33Z'
-- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
-  attempts: 1
-  canonical: Sensitivity analysis references OEIS A000079
-  claim_id: c_5404fe2c
-  context: T022 [US-2] {{claim:c_6eea8bb5}} ({{claim:c_13708974}}, {{claim:c_5397ebf4}}
-    ({{claim:c_e54f8eb7}}, https://oeis.org/A000079)) with performance curves output
-    in code/analysis/sensitivity.py (FR-008)
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_references_OEIS_A000079
-  kind: entity_fact
-  raw_text: Sensitivity analysis references OEIS sequence A000079
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T18:59:05Z'
 - artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   attempts: 2
   canonical: Scaling plot notes 3 data points limit power-law reliability
@@ -17793,24 +17684,6 @@
   status: not_enough_info
   updated_at: '2026-07-03T19:27:42Z'
 - artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
-  attempts: 4
-  canonical: Scaling plot notes 3 data points limit power-law reliability
-  claim_id: c_140da3e0
-  context: "T030 [US-3] Generate scaling_plot.pdf with fitted power\u2011law curves\
-    \ and explicit note that The scaling plot includes an explicit note that 3 data\
-    \ points limit power-law reliability. limit power\u2011law reliability in projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_plot.pdf"
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The scaling plot includes an explicit note that 3 data points limit power-law
-    reliability.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T19:49:01Z'
-- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   attempts: 1
   canonical: Base Agent abstraction uses opt-125m float32
   claim_id: c_3755c455
@@ -17965,24 +17838,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-03T19:54:36Z'
-- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
-  attempts: 3
-  canonical: 3 data points limit power-law reliability in scaling plot
-  claim_id: c_ef59f107
-  context: "Generate scaling_plot.pdf with fitted power\u2011law curves and explicit\
-    \ note that The scaling plot includes an explicit note that 3 data points limit\
-    \ power-law reliability. limit power\u2011law reliability in projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_plot.pdf"
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The scaling plot includes an explicit note that 3 data points limit power-law
-    reliability.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T19:55:43Z'
 - artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   attempts: 0
   canonical: Wikidata item Q54767019 referenced
@@ -18202,23 +18057,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-03T20:12:12Z'
-- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
-  attempts: 16
-  canonical: User Story 3 game simulation runs 800 games per configuration
-  claim_id: c_703a4668
-  context: T027 [US-3] Implement game simulation for agent counts 3, 5, 7 (The game
-    simulation for User Story 3 runs 800 games per configuration. per spec US-3) in
-    code/run_experiment.py
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The game simulation for User Story 3 runs 800 games per configuration.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T20:14:19Z'
 - artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   attempts: 2
   canonical: 'Scaling plot note: 3 data points limit power-law reliability'
@@ -18667,22 +18505,6 @@
   status: not_enough_info
   updated_at: '2026-07-03T21:09:27Z'
 - artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
-  attempts: 4
-  canonical: 800 games per configuration for User Story 3 simulation
-  claim_id: c_13e5ac07
-  context: Implement game simulation for agent counts 3, 5, 7 (The game simulation
-    for User Story 3 runs 800 games per configuration. per spec US-3) in code/run_experiment.py
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The game simulation for User Story 3 runs 800 games per configuration.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T21:12:12Z'
-- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   attempts: 2
   canonical: 3 data points limit power-law reliability in scaling plot
   claim_id: c_0992969e
@@ -18754,41 +18576,6 @@
   status: not_enough_info
   updated_at: '2026-07-03T21:17:52Z'
 - artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
-  attempts: 3
-  canonical: 800 games per configuration for User Story 3 simulation
-  claim_id: c_441b587a
-  context: T027 [US-3] Implement game simulation for agent counts 3, 5, 7 (The game
-    simulation for User Story 3 runs 800 games per configuration. per spec US-3) in
-    code/run_experiment.py
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The game simulation for User Story 3 runs 800 games per configuration.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T21:19:01Z'
-- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
-  attempts: 2
-  canonical: 3 data points limit power-law reliability in scaling plot
-  claim_id: c_07836e30
-  context: "T030 [US-3] Generate scaling_plot.pdf with fitted power\u2011law curves\
-    \ and explicit note that The scaling plot includes an explicit note that 3 data\
-    \ points limit power-law reliability. limit power\u2011law reliability in projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_plot.pdf"
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The scaling plot includes an explicit note that 3 data points limit power-law
-    reliability.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T21:19:03Z'
-- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   attempts: 1
   canonical: Power analysis requires N=800
   claim_id: c_009226e3
@@ -18803,22 +18590,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-03T21:20:15Z'
-- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
-  attempts: 18
-  canonical: User Story 3 game simulation runs 800 games per configuration
-  claim_id: c_43f3c873
-  context: Implement game simulation for agent counts 3, 5, 7 (The game simulation
-    for User Story 3 runs 800 games per configuration. per spec US-3) in code/run_experiment.py
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The game simulation for User Story 3 runs 800 games per configuration.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T21:26:43Z'
 - artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   attempts: 10
   canonical: Scaling plot notes 3 data points limit power-law reliability
@@ -18837,3 +18608,691 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-03T21:26:45Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Scaling plot notes that 3 data points limit power-law reliability
+  claim_id: c_0725ee47
+  context: "T030 [US-3] Generate scaling_plot.pdf with fitted power\u2011law curves\
+    \ and explicit note that The scaling plot includes an explicit note that 3 data\
+    \ points limit power-law reliability. limit power\u2011law reliability in projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_plot.pdf"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The scaling plot includes an explicit note that 3 data points limit power-law
+    reliability.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T21:44:56Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Base Agent abstraction uses opt-125m with float32 precision
+  claim_id: c_f267c55c
+  context: T005 [P] Implement base Agent abstraction using CPU-only transformers (opt-125m,
+    float32 precision) in code/agent/base_agent.py (FR-002)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The base Agent abstraction uses opt-125m with float32 precision.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T21:45:18Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Environment configuration uses seed 42 and device cpu
+  claim_id: c_4d2c6f21
+  context: T008 [P] Configure environment management (config.yaml with seed=42, device=cpu)
+    in code/utils/config.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The environment configuration uses seed=42 and device=cpu.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T21:45:44Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Validation logic requires 95% of games to produce metrics
+  claim_id: c_173a0f64
+  context: "T014 [P] [US-1] Implement validation logic for metrics (\u226595% games\
+    \ produce metrics, SC-001) in code/metrics/validator.py"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validation_logic_requires_95%25_of_games_to_produce_metrics
+  kind: magnitude
+  raw_text: Validation logic requires at least 95% of games to produce metrics.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T21:46:20Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Scaling analysis uses agent counts 3, 5, and 7
+  claim_id: c_805eaa29
+  context: T027 [US-3] Implement game simulation for agent counts 3, 5, 7 (The game
+    simulation for User Story 3 runs 800 games per configuration. per spec US-3) in
+    code/run_experiment.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Agent counts for scaling analysis are 3, 5, and 7.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T21:46:45Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 2
+  canonical: Scaling plot note states 3 data points limit power-law reliability
+  claim_id: c_ea9e320d
+  context: "T030 [US-3] Generate scaling_plot.pdf with fitted power\u2011law curves\
+    \ and explicit note that The scaling plot includes an explicit note that 3 data\
+    \ points limit power-law reliability. limit power\u2011law reliability in projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_plot.pdf"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The scaling plot includes an explicit note that 3 data points limit power-law
+    reliability.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T21:58:48Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: User Story 3 game simulation uses agent counts 3, 5, 7
+  claim_id: c_933a9874
+  context: T028 [P] [US-3] Implement power-law fitting for metric trends vs. agent
+    count (3, 5, 7) in code/analysis/scaling.py (US-3)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The game simulation for User Story 3 uses agent counts 3, 5, and 7.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T22:03:29Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 3
+  canonical: User Story 3 game simulation uses agent counts 3, 5, 7
+  claim_id: c_4f1ad031
+  context: T027 [US-3] Implement game simulation for agent counts 3, 5, 7 (The game
+    simulation for User Story 3 runs 800 games per configuration. per spec US-3) in
+    code/run_experiment.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The game simulation for User Story 3 uses agent counts 3, 5, and 7.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T22:03:36Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Base Agent abstraction uses opt-125m model
+  claim_id: c_4c528a07
+  context: T005 [P] Implement base Agent abstraction using CPU-only transformers (opt-125m,
+    float32 precision) in code/agent/base_agent.py (FR-002)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The base Agent abstraction uses the opt-125m model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T22:03:43Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Base Agent abstraction uses float32 precision
+  claim_id: c_7b769a86
+  context: T005 [P] Implement base Agent abstraction using CPU-only transformers (opt-125m,
+    float32 precision) in code/agent/base_agent.py (FR-002)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Base_Agent_abstraction_uses_float32_precision
+  kind: entity_fact
+  raw_text: The base Agent abstraction uses float32 precision.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T22:03:54Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Environment configuration uses seed 42
+  claim_id: c_49e90c90
+  context: T008 [P] Configure environment management (config.yaml with seed=42, device=cpu)
+    in code/utils/config.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The environment configuration uses seed=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T22:04:02Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Environment configuration uses device cpu
+  claim_id: c_d03d4fc5
+  context: T008 [P] Configure environment management (config.yaml with seed=42, device=cpu)
+    in code/utils/config.py
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Environment_configuration_uses_device_cpu
+  kind: entity_fact
+  raw_text: The environment configuration uses device=cpu.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T22:04:13Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Validation logic requires 95% of games produce metrics
+  claim_id: c_d8719d83
+  context: "T014 [P] [US-1] Implement validation logic for metrics (\u226595% games\
+    \ produce metrics, SC-001) in code/metrics/validator.py"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validation_logic_requires_95%25_of_games_produce_metrics
+  kind: magnitude
+  raw_text: The validation logic requires at least 95% of games to produce metrics.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T22:04:19Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: User Story 3 game simulation based on arXiv 2202.05773
+  claim_id: c_a6ee1973
+  context: 'Game Counts: US-1/US-2 = {{claim:c_10d5c9c0}} per condition (spec requirement);
+    US-3 = {{claim:c_7b176f6b}} (2202.05773, https://arxiv.org/abs/2202.05773, https://arxiv.org/abs/2202.05773,
+    https://arxiv.org/abs/2202.05773)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The game simulation for User Story 3 is based on reference 2202.05773.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T22:04:25Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: CLI flag parsing references arXiv 2203.14669
+  claim_id: c_e2a54c66
+  context: T011 [P] [US-1] Implement CLI flag parsing for --context, --agents, --dataset
+    and {{claim:c_b7311021}} (2203.14669, https://arxiv.org/abs/2203.14669, https://arxiv.org/abs/2203.14669,
+    https://arxiv.org/abs/2203.14669) in code/run_experiment.py (FR-001)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CLI flag parsing references arXiv paper 2203.14669.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T22:06:47Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis references arXiv 2503.02686
+  claim_id: c_3dc1d00f
+  context: T018 [US-2] {{claim:c_504902df}} (2503.02686, https://arxiv.org/abs/2503.02686,
+    https://arxiv.org/abs/2503.02686, https://arxiv.org/abs/2503.02686) in code/run_experiment.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis references arXiv paper 2503.02686.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T22:06:53Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 2
+  canonical: Specialization metric references Wikidata Q54767019
+  claim_id: c_9892120b
+  context: T012 [P] [US-1] {{claim:c_a5c2fb06}} ({{claim:c_9c940fb1}} ({{claim:c_24cbb02a}},
+    https://www.wikidata.org/wiki/Q54767019)) in code/metrics/specialization.py (FR-004)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Specialization_metric_references_Wikidata_Q54767019
+  kind: entity_fact
+  raw_text: Specialization metric implementation references Wikidata Q54767019
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T22:07:08Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 2
+  canonical: Sensitivity analysis references OEIS A000079
+  claim_id: c_5404fe2c
+  context: T022 [US-2] {{claim:c_6eea8bb5}} ({{claim:c_13708974}}, {{claim:c_5397ebf4}}
+    ({{claim:c_e54f8eb7}}, https://oeis.org/A000079)) with performance curves output
+    in code/analysis/sensitivity.py (FR-008)
+  evidence:
+    entailment_evidence: Wikipedia does not have an article with this exact name.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_references_OEIS_A000079
+  kind: entity_fact
+  raw_text: Sensitivity analysis references OEIS sequence A000079
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-03T22:07:31Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 19
+  canonical: User Story 3 game simulation runs 800 games per configuration
+  claim_id: c_43f3c873
+  context: Implement game simulation for agent counts 3, 5, 7 (The game simulation
+    for User Story 3 runs 800 games per configuration. per spec US-3) in code/run_experiment.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The game simulation for User Story 3 runs 800 games per configuration.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T22:08:35Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 3
+  canonical: Scaling plot note states 3 data points limit power-law reliability
+  claim_id: c_9dacdc4c
+  context: "Generate scaling_plot.pdf with fitted power\u2011law curves and explicit\
+    \ note that The scaling plot includes an explicit note that 3 data points limit\
+    \ power-law reliability. limit power\u2011law reliability in projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_plot.pdf"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The scaling plot includes an explicit note that 3 data points limit power-law
+    reliability.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T22:08:42Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 4
+  canonical: 800 games per configuration for User Story 3 simulation
+  claim_id: c_441b587a
+  context: T027 [US-3] Implement game simulation for agent counts 3, 5, 7 (The game
+    simulation for User Story 3 runs 800 games per configuration. per spec US-3) in
+    code/run_experiment.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The game simulation for User Story 3 runs 800 games per configuration.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T22:11:20Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 3
+  canonical: 3 data points limit power-law reliability in scaling plot
+  claim_id: c_07836e30
+  context: "T030 [US-3] Generate scaling_plot.pdf with fitted power\u2011law curves\
+    \ and explicit note that The scaling plot includes an explicit note that 3 data\
+    \ points limit power-law reliability. limit power\u2011law reliability in projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_plot.pdf"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The scaling plot includes an explicit note that 3 data points limit power-law
+    reliability.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T22:11:24Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Base Agent abstraction uses opt-125m model with float32 precision on
+    CPU
+  claim_id: c_21a2f4d4
+  context: T005 [P] Implement base Agent abstraction using CPU-only transformers (opt-125m,
+    float32 precision) in code/agent/base_agent.py (FR-002)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement base Agent abstraction using CPU-only transformers (opt-125m,
+    float32 precision)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T22:13:15Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 19
+  canonical: User Story 3 game simulation runs 800 games per configuration
+  claim_id: c_703a4668
+  context: T027 [US-3] Implement game simulation for agent counts 3, 5, 7 (The game
+    simulation for User Story 3 runs 800 games per configuration. per spec US-3) in
+    code/run_experiment.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The game simulation for User Story 3 runs 800 games per configuration.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T22:17:23Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 5
+  canonical: Scaling plot notes 3 data points limit power-law reliability
+  claim_id: c_140da3e0
+  context: "T030 [US-3] Generate scaling_plot.pdf with fitted power\u2011law curves\
+    \ and explicit note that The scaling plot includes an explicit note that 3 data\
+    \ points limit power-law reliability. limit power\u2011law reliability in projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_plot.pdf"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The scaling plot includes an explicit note that 3 data points limit power-law
+    reliability.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T22:17:27Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 6
+  canonical: 800 games per configuration for User Story 3 simulation
+  claim_id: c_13e5ac07
+  context: Implement game simulation for agent counts 3, 5, 7 (The game simulation
+    for User Story 3 runs 800 games per configuration. per spec US-3) in code/run_experiment.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The game simulation for User Story 3 runs 800 games per configuration.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T22:25:41Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 5
+  canonical: 3 data points limit power-law reliability in scaling plot
+  claim_id: c_ef59f107
+  context: "Generate scaling_plot.pdf with fitted power\u2011law curves and explicit\
+    \ note that The scaling plot includes an explicit note that 3 data points limit\
+    \ power-law reliability. limit power\u2011law reliability in projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_plot.pdf"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The scaling plot includes an explicit note that 3 data points limit power-law
+    reliability.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T22:25:44Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Phases 6-11 removed from prior draft not in original spec
+  claim_id: c_c5c70bd2
+  context: 'Reviewer Feedback: Phases 6-11 from prior draft removed (not in original
+    spec) (not in original spec); addressed in T034'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Phases 6-11 from prior draft were removed as they were not in the original
+    spec.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T22:26:15Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: 800 games per configuration for User Story 3
+  claim_id: c_ee216b3f
+  context: T027 [US-3] Implement game simulation for agent counts 3, 5, 7 (The game
+    simulation for User Story 3 runs 800 games per configuration. per spec US-3) in
+    `code/run_experiment.py`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The game simulation for User Story 3 runs 800 games per configuration.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T22:30:15Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 3
+  canonical: 3 data points limit power-law reliability in scaling plot
+  claim_id: c_c7220bcd
+  context: "T030 [US-3] Generate `scaling_plot.pdf` with fitted power\u2011law curves\
+    \ and explicit note that The scaling plot includes an explicit note that 3 data\
+    \ points limit power-law reliability. limit power\u2011law reliability in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_plot.pdf`"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The scaling plot includes an explicit note that 3 data points limit power-law
+    reliability.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T22:30:18Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 2
+  canonical: 3 data points limit power-law reliability
+  claim_id: c_a8417c53
+  context: "T030 [US-3] Generate `scaling_plot.pdf` with fitted power\u2011law curves\
+    \ and explicit note that The scaling plot includes an explicit note that 3 data\
+    \ points limit power-law reliability. limit power\u2011law reliability in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_plot.pdf`"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The scaling plot includes an explicit note that 3 data points limit power-law
+    reliability.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T22:33:23Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: 800 games per configuration
+  claim_id: c_33ea39c7
+  context: T027 [US-3] Implement game simulation for agent counts 3, 5, 7 (The game
+    simulation for User Story 3 runs 800 games per configuration. per spec US-3) in
+    `code/run_experiment.py`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The game simulation for User Story 3 runs 800 games per configuration.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T22:33:27Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 2
+  canonical: agent counts 3 5 7
+  claim_id: c_a5dfeca9
+  context: T027 [US-3] Implement game simulation for agent counts 3, 5, 7 ... in `code/run_experiment.py`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The agent counts for the game simulation are 3, 5, and 7.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T22:33:30Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 2
+  canonical: power-law fitting for metric trends vs agent count 3 5 7
+  claim_id: c_a309c6e9
+  context: T028 [P] [US-3] Implement power-law fitting for metric trends vs. agent
+    count (3, 5, 7) in `code/analysis/scaling.py` (US-3)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power-law fitting is performed for metric trends vs. agent count (3,
+    5, 7).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T22:33:34Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 2
+  canonical: US-3 investigates scaling of collective remembering fidelity across agent
+    group sizes
+  claim_id: c_d7513b7b
+  context: 'Phase 5: User Story 3 - Scaling Analysis Across Agent Populations (Priority:
+    P3) Goal: Investigate how the fidelity of collective remembering scales when the
+    number of agents varies across different group sizes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: User Story 3 investigates how the fidelity of collective remembering scales
+    when the number of agents varies across different group sizes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T22:33:38Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 2
+  canonical: Phases 6-11 removed
+  claim_id: c_ec163b8e
+  context: 'Reviewer Feedback: Phases 6-11 from prior draft removed (not in original
+    spec) (not in original spec); addressed in T034'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Phases 6-11 from prior draft were removed.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T22:33:42Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 2
+  canonical: base Agent abstraction uses CPU-only transformers opt-125m float32 precision
+  claim_id: c_9c125f61
+  context: T005 [P] Implement base Agent abstraction using CPU-only `transformers`
+    (opt-125m, float32 precision) in `code/agent/base_agent.py` (FR-002)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The base Agent abstraction uses CPU-only transformers (opt-125m, float32
+    precision).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T22:33:45Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 2
+  canonical: environment configuration seed 42 device cpu
+  claim_id: c_5407fda4
+  context: T008 [P] Configure environment management (config.yaml with seed=42, device=cpu)
+    in `code/utils/config.py`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The environment configuration uses seed=42 and device=cpu.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T22:33:49Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 2
+  canonical: 95% of games must produce metrics
+  claim_id: c_45edeab8
+  context: "T014 [P] [US-1] Implement validation logic for metrics (\u226595% games\
+    \ produce metrics, SC-001) in `code/metrics/validator.py`"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The validation logic for metrics requires that 95% or more games produce
+    metrics.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T22:33:53Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 2
+  canonical: Bonferroni correction applied to all family-wise hypothesis tests
+  claim_id: c_d3ff12fd
+  context: "T021 [P] [US-2] Apply Bonferroni correction to all family\u2011wise hypothesis\
+    \ tests and reportcorrected \u03B1 in `code/analysis/anova.py` (FR-007)"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_applied_to_all_family-wise_hypothesis
+  kind: entity_fact
+  raw_text: Bonferroni correction is applied to all family-wise hypothesis tests and
+    the corrected alpha is reported.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T22:33:59Z'

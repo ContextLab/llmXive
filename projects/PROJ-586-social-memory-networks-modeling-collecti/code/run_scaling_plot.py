@@ -1,25 +1,14 @@
-"""Entry point for generating the scaling plot.
+"""Wrapper script to run the scaling plot generation for T030."""
+from __future__ import annotations
 
-This script is a thin wrapper that calls the scaling plot generator
-with default arguments suitable for the project's US-3 requirements.
-"""
 import sys
 from pathlib import Path
 
-# Add project root to path
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
+# Add code directory to path
+code_dir = Path(__file__).parent
+sys.path.insert(0, str(code_dir))
 
 from analysis.scaling_plot_generator import main
 
-if __name__ == '__main__':
-    # Default to project results directory
-    results_dir = project_root / 'results'
-    output_file = project_root / 'results' / 'scaling_plot.pdf'
-
-    # Override with command-line arguments if provided
-    import sys
-    if len(sys.argv) == 1:
-        sys.argv = [sys.argv[0], '--results-dir', str(results_dir), '--output', str(output_file)]
-
+if __name__ == "__main__":
     sys.exit(main())

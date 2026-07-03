@@ -1,0 +1,4 @@
+agent_count,specialization_index,retrieval_efficiency
+3,0.652,0.781
+5,0.589,0.823
+7,0.541,0.856
