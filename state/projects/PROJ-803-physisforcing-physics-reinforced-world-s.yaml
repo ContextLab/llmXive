@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-30T20:41:08.833717Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-803-physisforcing-physics-reinforced-world-s
-last_run_id: b76d21e4-9b7a-43bc-9b7f-197e58f43108
+last_run_id: 1b4ef090-532c-4c05-915c-d6f29190f693
 last_run_status: null
 points_paper: {}
 points_research: {}

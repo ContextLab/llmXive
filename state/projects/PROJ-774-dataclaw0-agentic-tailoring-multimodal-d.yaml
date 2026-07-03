@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-24T09:08:45.050882Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-774-dataclaw0-agentic-tailoring-multimodal-d
-last_run_id: 333100e8-7e38-4446-86e8-36a3d5cfe6f4
+last_run_id: 8710db33-29b7-45a3-960e-d9ac13a79a7b
 last_run_status: null
 points_paper: {}
 points_research: {}
