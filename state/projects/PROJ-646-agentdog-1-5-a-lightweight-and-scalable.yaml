@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-30T08:50:54.634851Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-646-agentdog-1-5-a-lightweight-and-scalable
-last_run_id: 1196077b-3f0f-46e6-b0c8-c374ce287526
+last_run_id: 6b444aff-e005-44ab-a808-f586182ed8a3
 last_run_status: null
 points_paper: {}
 points_research: {}

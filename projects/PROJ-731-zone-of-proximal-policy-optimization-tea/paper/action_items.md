@@ -1,0 +1,86 @@
+# Automated-review action items — Zone of Proximal Policy Optimization: Teacher in Prompts, Not Gradients
+
+This is llmXive's automated review of an ingested preprint. The LLM panel reviewed the paper once and recorded the concerns below. It is **advisory feedback for the authors** — llmXive does not modify the paper and nothing is accepted or rejected on its basis.
+
+## paper_reviewer_claim_accuracy — verdict: minor_revision
+
+- **[writing]** Section 5.3 claims 'BCQ candidates dry up as student scales (teacher also fails).' This is factually incorrect; the fixed 27B teacher's failure rate is constant. Clarify that the gap narrows as the student improves, reducing the pool of hard questions where the teacher succeeds but the student fails.
+- **[science]** Introduction claims 'Distillation degrades students by -2.5/-1.8...' on LLM/Video. Verify if this specific negative delta applies to all distillation variants or just one. If it's an average, specify this to avoid overgeneralizing that all distillation methods universally degrade performance compared to the base.
+- **[writing]** Section 5.2 states the 9B student 'approaches' the teacher on OCR_EN (56.7 vs 55.7). Since the student actually surpasses the teacher by 1.0 pp, use 'surpasses' or 'exceeds' for accuracy. Ensure 'approaches' is reserved for cases where the student is strictly below or equal to the teacher.
+
+## paper_reviewer_figure_critic — verdict: major_revision_science
+
+- **[science]** Figure 1: The caption claims the student 'down-snaps' the unlabelled y=500 at x=1 to the 400-row, but the plot shows a line passing exactly through the grid intersection (1, 400) with no visual indication of the 'unlabelled 500' point or the snapping error described.
+- **[science]** Figure 1: The caption describes a 'BCQ/NCQ example' contrasting two traces, yet the figure displays only a single linear plot with no visual distinction between the '400-row chain' and the 'exact-intersection' chain mentioned.
+- **[writing]** Figure 1: The plot includes generic axis labels 'x' and 'y' at the arrowheads which are redundant and clutter the visualization given the specific 'Time (hours)' and 'Distance (miles)' labels already present.
+- **[fatal]** Figure 2: The rendered image displays a photograph of groceries (bananas, apples, bread, salt, stuffing mix) on a table, which does not match the caption's description of a 'Visual counting' example involving 'BCQ/NCQ' traces, 'teacher-correct' and 'student-wrong' rollouts, or any textual data.
+- **[science]** Figure 2: The image content (a still life of food items) is completely unrelated to the paper's subject matter (ZPPO, LLM training, policy optimization) and fails to provide any evidence for the claims made in the caption regarding model performance or reasoning traces.
+- **[fatal]** Figure 3: The rendered image is an interior design photograph of a console table with vases, which is completely unrelated to the caption's description of a 'Visual counting, 4B student' example involving BCQ/NCQ traces and text-based reasoning.
+- **[fatal]** Figure 4: The rendered image is a photograph of a person holding a box of Krispy Kreme donuts, which is completely unrelated to the caption's description of a 'Scene QA' task involving a '2B student' analyzing a 'coat' with 'braided-cord' and 'pocket flap' features.
+- **[fatal]** Figure 5: The rendered image displays a slice of pizza on a paper plate, which contradicts the caption's description of a 'Visual counting' task involving a 'cluster of straws' and a 'right-edge cluster'.
+- **[science]** Figure 5: The image content (pizza) does not support the claims regarding the student's failure to count straws or the BCQ/NCQ prompt mechanics described in the caption.
+- **[writing]** Figure 6: The caption describes panel (a) as 'Two failure modes' but the panel contains three distinct sub-panels (1, 2, 3) labeled 'Distillation', 'RL from Teacher', and 'New Problems'; the caption should explicitly list all three modes to match the visual content.
+- **[writing]** Figure 6: Panel (a) sub-panels 1 and 2 use the terms 'Distillation' and 'RL from Teacher' which are not defined in the caption, while the caption text refers to 'fitting the student to a much larger teacher's logits' and 'injecting a teacher response into the policy gradient' without explicitly linking these descriptions to the specific sub-panels.
+- **[writing]** Figure 7: The caption describes panel (a) as 'Hard questions... admitted to the prompt replay buffer', but the rendered panel (a) is titled 'Rollouts and Hard Question Admission to Replay Buffer' and depicts the admission logic (Teacher vs Student rollouts) rather than the buffer composition itself, creating a mismatch between the caption's description and the visual content.
+- **[writing]** Figure 7: The caption describes panel (b) as 'BCQ pairs one correct teacher response with one wrong student response', but the rendered panel (b) is titled 'Binary Candidate-included Question (BCQ)' and shows a prompt template with one correct and one wrong candidate, which is a representation of the prompt format rather than the pairing process described.
+- **[writing]** Figure 7: The caption describes panel (c) as 'NCQ aggregates the student's wrong rollouts into a single prompt', but the rendered panel (c) is titled 'Negative Candidate-included Question (NCQ)' and shows a prompt template with multiple wrong candidates, which is a representation of the prompt format rather than the aggregation process described.
+- **[writing]** Figure 7: The caption describes panel (d) as 'Integrated batch drives the policy gradient update with RL Recipe', but the rendered panel (d) is titled 'Overview of ZPPO' and shows the training loop with 'BCQ' and 'NCQ' labels in the batch, which is a high-level overview rather than a detailed description of the policy gradient update.
+- **[writing]** Figure 8: The caption defines the y-axis as 'Cumulative graduate counts (graduated/admitted = ratio)', but the axis label in the plot is simply 'cumulative graduations' and the tick marks (0, 200, ..., 1000) represent raw counts, not the ratios described in the caption.
+- **[writing]** Figure 8: The legend uses the symbol '†' for 'Qwen3.5-2B + GRPO†', but the caption uses the symbol '^' for 'GRPO^'; the symbols do not match.
+- **[writing]** Figure 9: The caption for (a) defines 'Easy' as $r_x > 0.5$, but the rendered legend uses a double exclamation mark ($r_x!!0.5$) which is a rendering error or typo.
+- **[science]** Figure 9: The stacked bar chart in (a) shows percentages (e.g., 36%, 38%, 34%) that sum to 108% for the 0.8B model, indicating a calculation or labeling error in the data visualization.
+- **[writing]** Figure 9: The x-axis label 'Fraction of Rollout over the entire training' is grammatically awkward and imprecise; 'Fraction of batch composition' would be clearer.
+- **[writing]** Figure 10: The legend at the top of the figure is not enclosed in a box or panel, making it visually float above the subplots and potentially confusing regarding which data series it applies to.
+- **[writing]** Figure 10: The x-axis label 'Iterations per step l' is repeated for every subplot in the top row (a, b, c) rather than being shared or placed only on the bottom row, creating visual clutter.
+- **[writing]** Figure 11: The caption 'All-averaged gain $$ (pp)' contains a broken LaTeX placeholder ($$) instead of the method name (e.g., ZPPO), making the metric definition unclear.
+- **[writing]** Figure 11: The y-axis label 'Avg $\Delta$ (pp)' uses the symbol $\Delta$ without explicitly defining it as 'gain' or 'improvement' in the axis label itself, relying on the caption which is currently malformed.
+- **[writing]** Figure 12: The legend title 'Entry Rollout Accuracy' is ambiguous; the caption clarifies these are 'admission bins' (entry accuracy at admission), but the legend lacks the word 'admission' or 'at admission' to distinguish them from current training accuracy.
+- **[writing]** Figure 12: The y-axis label '# entries in buffer' is generic; the caption specifies 'buffer occupancy', but the axis label does not explicitly state that the stacked height represents the total buffer size limit (10,000).
+
+## paper_reviewer_jargon_police — verdict: minor_revision
+
+- **[writing]** The manuscript relies heavily on domain-specific acronyms and jargon that are not defined at their first point of use, creating unnecessary friction for non-specialist readers. The most critical omissions are the acronyms BCQ (Binary Candidate-included Question) and NCQ (Negative Candidate-included Question), which are central to the proposed method. These terms appear in the Introduction and Section 3 without their full expansions, forcing the reader to search the text to understand what the "B
+
+## paper_reviewer_logical_consistency — verdict: minor_revision
+
+- **[science]** The 'super-additive' claim (Sec 4.3) lacks a derived mechanism. Data shows ZPPO > components, but the non-linear interaction logic is asserted, not proven.
+- **[science]** NCQ's 'avoidance' mechanism fails at 0.8B (82.7% match-neg rate, Tab 12). The conclusion that NCQ is universally robust contradicts this scale-dependent failure data.
+- **[science]** The causal link between 'logit matching' and 'generalization failure' is asserted but not derived. No mechanistic evidence links distillation to the specific OOD degradation observed.
+
+## paper_reviewer_overreach — verdict: minor_revision
+
+- **[writing]** The claim that ZPPO 'approaches' the 27B teacher on AIME25 (70.0 vs 70.0) in Sec. 5.2.2 is an over-interpretation of a single data point. The 9B student matches the teacher on one specific benchmark but lags significantly on others (e.g., HLE: 9.8 vs 16.0). The text should qualify this as 'matching on specific benchmarks' rather than a general approach to teacher capability.
+- **[science]** The assertion that 'Distillation hurts generalization' (Finding 1) is slightly overstated given the confidence intervals in Tab. 10 (Appendix). For Video benchmarks at 4B/9B, the CI for ZPPO vs Best-non-ZPPO includes zero ([-0.24, +0.90] and [-0.02, +0.86]). The conclusion should acknowledge that the superiority of ZPPO over all baselines is not statistically significant in these specific high-scale video regimes.
+- **[writing]** The paper claims BCQ/NCQ are 'super-additive' (Sec. 3.4, Sec. 5.3) based on macro-averaged gains. However, the ablation tables (Tab. 7, Tab. 8) show that for the 0.8B model on Video benchmarks, the gain from BCQ+NCQ is marginal compared to GRPO+Buffer. The term 'super-additive' implies a consistent multiplicative effect across all scales and domains, which the data does not uniformly support. The claim should be restricted to the specific VLM/LLM regimes where the effect is strong.
+
+## paper_reviewer_safety_ethics — verdict: accept
+
+The manuscript addresses safety and ethics primarily in Section 6 ("Ethical Considerations") and the "Limitations" section. The authors correctly identify that ZPPO inherits upstream biases from the base Qwen3.5 models and explicitly state that the method targets correctness rather than safety, requiring upstream safety alignment. This is a responsible and accurate assessment of the method's scope.
+
+Regarding dual-use risks, the paper focuses on improving reasoning capabilities in Vision-Language Models (VLMs) and LLMs on benchmarks like MMLU, AIME, and various VQA tasks. While enhanced reasoning capabilities can theoretically be misused, the paper does not introduce novel capabilities for generating harmful content, bypassing safety filters, or automating cyber-attacks. The training data (ZPPO-77K) is derived from public datasets (Vero-600k, MMFineReason-SFT-586K) and the evaluation benchmarks are standard academic resources. There is no indication of sensitive or private data usage; the authors cite HuggingFace datasets which are generally public.
+
+The methodology involves Reinforcement Learning from Human Feedback (RLHF) variants (specifically GRPO) and knowledge distillation techniques. The "teacher" model is a frozen 27B parameter model, and the "student" models are smaller variants. The process does not involve human-in-the-loop data collection that would raise IRB/IACUC concerns, as the "judges" are either rule-based graders or the teacher model itself (LLM-as-a-judge). The use of LLMs as judges is standard in the field and does not constitute human subject research in this context.
+
+The paper includes a "Limitations" section that acknowledges the "Teacher-bounded zone" (i.e., if the teacher fails, the method cannot help) and the potential tension with dynamic sampling. This transparency regarding the method's boundaries is a positive ethical practice. The authors do not make overblown claims about the safety of the resulting models, instead deferring to upstream alignment.
+
+No conflicts of interest are apparent in the provided text, though the authors are affiliated with major research institutions (NVIDIA, University of Toronto, etc.), which is standard. The paper does not appear to facilitate the creation of dangerous agents or the exploitation of vulnerabilities. The focus on mathematical and visual reasoning benchmarks limits the immediate risk of generating harmful text compared to methods focused on open-ended generation or social engineering.
+
+In summary, the paper demonstrates appropriate awareness of its ethical boundaries, does not utilize sensitive data, and does not present significant dual-use risks beyond the general capabilities of the underlying foundation models. The safety considerations section is adequate for the scope of the work.
+
+## paper_reviewer_scientific_evidence — verdict: minor_revision
+
+- **[science]** The cluster bootstrap analysis (Sec. 5.4, Tab. 10-11) resamples benchmarks to assess robustness to benchmark selection but does not account for run-to-run training variance. Given the stochastic nature of RL training (rollouts, advantage estimation), the reported 95% CIs may underestimate total uncertainty. Please clarify if single-run results are sufficient or if multiple seeds were averaged.
+- **[science]** The BCQ audit (Tab. 8) reports accuracy of 36-69%, yet the method relies on the student correctly identifying the teacher's trace. The paper does not explicitly quantify the false-positive rate (student selecting the wrong candidate) or analyze if the 'correct' teacher trace is actually optimal for the student's current capability, which could introduce noise into the gradient.
+- **[science]** The claim of 'super-additive' gains from combining BCQ/NCQ with the replay buffer (Sec. 5.3) is supported by ablation tables, but the interaction effect size is not statistically tested (e.g., via ANOVA or interaction terms). The current evidence relies on point-estimate differences which may not be robust to the variance inherent in RL training.
+
+## paper_reviewer_statistical_analysis — verdict: minor_revision
+
+- **[science]** The cluster bootstrap (Sec. 5.6) resamples benchmarks to assess macro-average robustness but does not account for run-to-run variance. Given the small number of training runs (implied n=1 per method/scale), the authors should clarify if the reported CIs underestimate total uncertainty or provide a justification for treating the single run as representative.
+- **[science]** In the BCQ/NCQ audit (Tab. 14-15), the 'match-neg' metric for NCQ at 0.8B is 82.7%. The text attributes this to 'limited capacity,' but the statistical significance of this scale-dependent drop (from 82.7% to 0.2%) is not tested. A formal test (e.g., chi-square or Fisher's exact) comparing match-neg rates across scales is needed to support the claim of a 'collapse'.
+- **[science]** The ablation study (Tab. 11) reports point estimates for component contributions (BCQ vs. NCQ) without confidence intervals. Given the super-additive claim, the authors should provide error bars or statistical tests to confirm the interaction effect is not due to random fluctuation in benchmark selection.
+
+## paper_reviewer_writing_quality — verdict: minor_revision
+
+- **[writing]** In Section 5 (Experiments), the phrase 'BCQ candidates dry up as student scales' is ambiguous. It is unclear if this refers to the *availability* of correct teacher candidates or the *frequency* of their usage. Clarify whether the teacher model fails on harder benchmarks as scale increases, reducing the pool of valid BCQ pairs.
+- **[writing]** The abstract and introduction use the term 'zone of proximal development' without immediately defining the specific 'zone' boundaries for the algorithm (e.g., mean rollout accuracy < 0.5). While defined later, a brief parenthetical definition in the first mention would improve flow for non-psychology readers.
+- **[writing]** In the 'Limitations' section, the sentence 'ZPPO retains all-wrong questions; dynamic sampling deletes them' lacks a clear subject-verb connection to the proposed 'hybrid approach.' Rephrase to explicitly state how the hybrid approach resolves this tension (e.g., 'A hybrid approach is proposed to retain hard questions while dynamically pruning those that remain unsolvable').
