@@ -1,0 +1,42 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: AtomicGraph
+description: A graph representation of an amorphous silicon configuration (nodes=atoms, edges=bonds < 3.0 Å).
+type: object
+properties:
+  node_id:
+    type: integer
+    description: "Unique identifier for the atom"
+  x:
+    type: number
+    description: "X coordinate in Angstroms (Å)"
+  y:
+    type: number
+    description: "Y coordinate in Angstroms (Å)"
+  z:
+    type: number
+    description: "Z coordinate in Angstroms (Å)"
+  degree:
+    type: integer
+    description: "Node degree (number of bonds within 3.0 Å cutoff)"
+    minimum: 1
+  clustering_coefficient:
+    type: number
+    description: "Local clustering coefficient (0 to 1)"
+    minimum: 0
+    maximum: 1
+  shortest_path_mean:
+    type: number
+    description: "Mean shortest path length to all other nodes"
+  shortest_path_std:
+    type: number
+    description: "Standard deviation of shortest path lengths"
+required:
+  - node_id
+  - x
+  - y
+  - z
+  - degree
+  - clustering_coefficient
+  - shortest_path_mean
+  - shortest_path_std
+additionalProperties: false

@@ -1,0 +1,37 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: GNNOutput
+description: Output from the GNN training and LMM analysis.
+type: object
+properties:
+  sample_id:
+    type: string
+    description: "Reference to the ThermalSample"
+  scattering_potential:
+    type: array
+    description: "Predicted static scattering potential values (N_atoms)"
+    items:
+      type: number
+  model_loss:
+    type: number
+    description: "Training loss (MSE)"
+  validation_loss:
+    type: number
+    description: "Validation loss (MSE)"
+  lmm_coefficients:
+    type: object
+    description: "LMM fixed effect coefficients (metric_name -> coefficient)"
+    additionalProperties:
+      type: number
+  lmm_p_values:
+    type: object
+    description: "LMM p-values (metric_name -> p_value)"
+    additionalProperties:
+      type: number
+required:
+  - sample_id
+  - scattering_potential
+  - model_loss
+  - validation_loss
+  - lmm_coefficients
+  - lmm_p_values
+additionalProperties: false

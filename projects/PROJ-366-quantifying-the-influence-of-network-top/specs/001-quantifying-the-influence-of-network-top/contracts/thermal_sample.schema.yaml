@@ -1,0 +1,48 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: ThermalSample
+description: A dataset entry containing an AtomicGraph, computed thermal conductivity, and simulation metadata. Includes sample-level variance for LMM analysis.
+type: object
+properties:
+  sample_id:
+    type: string
+    description: "Unique identifier for the sample (e.g., 'sample_001')"
+  atomic_graph_path:
+    type: string
+    description: "Relative path to the AtomicGraph file in data/processed/graphs/"
+  thermal_conductivity:
+    type: number
+    description: "Global thermal conductivity in W/m·K"
+    minimum: 0
+  simulation_time:
+    type: number
+    description: "Duration of Green-Kubo simulation in picoseconds (ps)"
+  temperature:
+    type: number
+    description: "Simulation temperature in Kelvin (K)"
+  convergence_flag:
+    type: boolean
+ description: "True if HCACF converged (relative change < 1% in final [deferred] of trajectory)"
+  exclusion_flag:
+    type: boolean
+    description: "True if sample was excluded due to defects or non-convergence"
+  degree_variance:
+    type: number
+    description: "Variance of node degree across all atoms in the sample"
+  clustering_variance:
+    type: number
+    description: "Variance of clustering coefficient across all atoms in the sample"
+  path_variance:
+    type: number
+    description: "Variance of shortest path statistics across all atoms in the sample"
+required:
+  - sample_id
+  - atomic_graph_path
+  - thermal_conductivity
+  - simulation_time
+  - temperature
+  - convergence_flag
+  - exclusion_flag
+  - degree_variance
+  - clustering_variance
+  - path_variance
+additionalProperties: false

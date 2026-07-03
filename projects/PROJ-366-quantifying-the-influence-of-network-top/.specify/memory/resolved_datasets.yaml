@@ -1,4 +1,4 @@
-resolved_at: '2026-07-02T16:40:22.196039+00:00'
+resolved_at: '2026-07-03T16:37:55.715096+00:00'
 datasets:
 - intent: GNN
   status: verified
@@ -28,28 +28,24 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://figshare.com/articles/dataset/Banco_de_artigos_da_revis_o_bibliom_trica_das_Escalas_EDM_e_EDI/32838446
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Cyclodextrin_Ag_sub_2_sub_O_MWCNT-Based_Stochastic_Platform_for_the_Simultaneous_Molecular_Enantiorecognition_and_Enantioanalysis_of_Twelve_Amino_Acids_in_Biological_Matrices/32896748
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Non-ferrous_metalworking_in_Kyivan_Podil_10th_first_half_of_the_13th_century_/32882237
+  - url: https://acs.figshare.com/articles/journal_contribution/Carbene_Analogues_of_Group_15_Reduction_of_s_Hydrindacene-Based_Chloropnictogenium_Ions_To_Access_an_Antimony_Hydride_Monocation_and_a_Trinuclear_Bismuth_Dication/32896745
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Photoregulated_Structural_Memory_in_Supramolecular_Polymers/32882254
+  - url: https://acs.figshare.com/articles/dataset/Carbene_Analogues_of_Group_15_Reduction_of_s_Hydrindacene-Based_Chloropnictogenium_Ions_To_Access_an_Antimony_Hydride_Monocation_and_a_Trinuclear_Bismuth_Dication/32896742
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Organic_versus_Hybrid_Molecularly_Imprinted_Polymer_Adsorbents_Structure_Selectivity_Trade-Offs_in_Progesterone_Removal_from_Water/32882251
+  - url: https://acs.figshare.com/articles/journal_contribution/Solution-Synthesis_and_Optical_and_Magnetic_Properties_of_MnX_sub_2_sub_Se_sub_4_sub_X_Bi_Sb_In_Nanomaterials/32896736
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/In_Situ_Growth_of_an_Amino-Modified_UiO-67_Nanofiber_Membrane_for_SO_sub_2_sub_Adsorption/32882248
+  - url: https://acs.figshare.com/articles/journal_contribution/Multiple_Hydrogen-Bonding-Mediated_Co-Assembled_Monolayers_for_Efficient_and_Stable_Wide-Bandgap_Perovskite_Solar_Cells/32896733
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/2703306
-    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/7803328
@@ -60,31 +56,35 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: HTTP 403
+  - url: https://zenodo.org/records/2703306
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/6798322
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/6785285
+  - url: https://zenodo.org/records/7198473
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21132635
+  - url: https://doi.org/10.5281/zenodo.20740271
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+  - url: https://zenodo.org/records/21165437
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21132635
+  - url: https://zenodo.org/records/21165437
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21131856
+  - url: https://doi.org/10.5281/zenodo.21144557
     source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21131856
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21131698
+    status: unreachable
+    reason: 'reachability failed: HTTP 410'
+  - url: https://www.repository.cam.ac.uk/handle/1810/405756
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -92,23 +92,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/Banco_de_artigos_da_revis_o_bibliom_trica_das_Escalas_EDM_e_EDI/32838446
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Cyclodextrin_Ag_sub_2_sub_O_MWCNT-Based_Stochastic_Platform_for_the_Simultaneous_Molecular_Enantiorecognition_and_Enantioanalysis_of_Twelve_Amino_Acids_in_Biological_Matrices/32896748
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Non-ferrous_metalworking_in_Kyivan_Podil_10th_first_half_of_the_13th_century_/32882237
+  - url: https://acs.figshare.com/articles/journal_contribution/Carbene_Analogues_of_Group_15_Reduction_of_s_Hydrindacene-Based_Chloropnictogenium_Ions_To_Access_an_Antimony_Hydride_Monocation_and_a_Trinuclear_Bismuth_Dication/32896745
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Photoregulated_Structural_Memory_in_Supramolecular_Polymers/32882254
+  - url: https://acs.figshare.com/articles/dataset/Carbene_Analogues_of_Group_15_Reduction_of_s_Hydrindacene-Based_Chloropnictogenium_Ions_To_Access_an_Antimony_Hydride_Monocation_and_a_Trinuclear_Bismuth_Dication/32896742
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Organic_versus_Hybrid_Molecularly_Imprinted_Polymer_Adsorbents_Structure_Selectivity_Trade-Offs_in_Progesterone_Removal_from_Water/32882251
+  - url: https://acs.figshare.com/articles/journal_contribution/Solution-Synthesis_and_Optical_and_Magnetic_Properties_of_MnX_sub_2_sub_Se_sub_4_sub_X_Bi_Sb_In_Nanomaterials/32896736
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/In_Situ_Growth_of_an_Amino-Modified_UiO-67_Nanofiber_Membrane_for_SO_sub_2_sub_Adsorption/32882248
+  - url: https://acs.figshare.com/articles/journal_contribution/Multiple_Hydrogen-Bonding-Mediated_Co-Assembled_Monolayers_for_Efficient_and_Stable_Wide-Bandgap_Perovskite_Solar_Cells/32896733
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -116,23 +116,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/Banco_de_artigos_da_revis_o_bibliom_trica_das_Escalas_EDM_e_EDI/32838446
+  - url: https://acs.figshare.com/articles/journal_contribution/A_Cyclodextrin_Ag_sub_2_sub_O_MWCNT-Based_Stochastic_Platform_for_the_Simultaneous_Molecular_Enantiorecognition_and_Enantioanalysis_of_Twelve_Amino_Acids_in_Biological_Matrices/32896748
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Non-ferrous_metalworking_in_Kyivan_Podil_10th_first_half_of_the_13th_century_/32882237
+  - url: https://acs.figshare.com/articles/journal_contribution/Carbene_Analogues_of_Group_15_Reduction_of_s_Hydrindacene-Based_Chloropnictogenium_Ions_To_Access_an_Antimony_Hydride_Monocation_and_a_Trinuclear_Bismuth_Dication/32896745
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Photoregulated_Structural_Memory_in_Supramolecular_Polymers/32882254
+  - url: https://acs.figshare.com/articles/dataset/Carbene_Analogues_of_Group_15_Reduction_of_s_Hydrindacene-Based_Chloropnictogenium_Ions_To_Access_an_Antimony_Hydride_Monocation_and_a_Trinuclear_Bismuth_Dication/32896742
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Organic_versus_Hybrid_Molecularly_Imprinted_Polymer_Adsorbents_Structure_Selectivity_Trade-Offs_in_Progesterone_Removal_from_Water/32882251
+  - url: https://acs.figshare.com/articles/journal_contribution/Solution-Synthesis_and_Optical_and_Magnetic_Properties_of_MnX_sub_2_sub_Se_sub_4_sub_X_Bi_Sb_In_Nanomaterials/32896736
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/In_Situ_Growth_of_an_Amino-Modified_UiO-67_Nanofiber_Membrane_for_SO_sub_2_sub_Adsorption/32882248
+  - url: https://acs.figshare.com/articles/journal_contribution/Multiple_Hydrogen-Bonding-Mediated_Co-Assembled_Monolayers_for_Efficient_and_Stable_Wide-Bandgap_Perovskite_Solar_Cells/32896733
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content

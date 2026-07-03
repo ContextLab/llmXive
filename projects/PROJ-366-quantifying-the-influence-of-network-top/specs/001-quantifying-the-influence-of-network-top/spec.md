@@ -90,7 +90,7 @@ As a data scientist, I want to train a 2-layer GNN on the extracted graphs to pr
 
 - The pre-equilibrated amorphous silicon configurations available from Zenodo or Materials Cloud contain sufficient structural variety (N ≥ 10 independent samples) to perform a statistically valid correlation analysis.
 - The Stillinger-Weber potential is an adequate approximation for capturing the thermal conductivity trends in amorphous silicon for this study, as validated by prior literature.
-- The 2-layer GNN architecture is sufficiently expressive to capture the relevant topological motifs without requiring deeper networks that would exceed the 12-hour CPU time limit.
-- The 3.0 Å cutoff radius for bond definition is a standard and robust choice for silicon systems, capturing the first coordination shell accurately.
+- The GNN architecture is sufficiently expressive to capture the relevant topological motifs without requiring deeper networks that would exceed the 12-hour CPU time limit.
+- A standard and robust cutoff radius for bond definition is employed for silicon systems, consistent with established practices [DOI/arXiv/author-year]., capturing the first coordination shell accurately.
 - The GitHub Actions free-tier runner (2 CPU cores, ~16 GB RAM) is sufficient to handle the memory footprint of the Green-Kubo simulation and the GNN training on ≥1000-atom supercells without swapping.
 - The dataset variables (atomic positions) are sufficient to derive all required topological predictors; no additional dynamic variables (e.g., time-resolved velocities) are needed for the *topological* correlation, though they are used for the Green-Kubo integral.
