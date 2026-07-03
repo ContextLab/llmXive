@@ -1,0 +1,35 @@
+analysis:
+  bond_cutoff: 3.0
+  convergence_threshold: 0.01
+  exclusion_threshold: 15.0
+flags:
+  enforce_exclusion: true
+  verbose_logging: false
+gnn:
+  batch_size: 32
+  dropout: 0.1
+  hidden_dim: 64
+  learning_rate: 0.001
+  max_epochs: 100
+  num_layers: 2
+  patience: 10
+paths:
+  code_root: code
+  contracts: contracts
+  data_root: data
+  processed_conductivities: data/processed/conductivities
+  processed_graphs: data/processed/graphs
+  processed_model_outputs: data/processed/model_outputs
+  raw_data: data/raw
+seeds:
+  numpy_seed: 42
+  random_seed: 42
+  torch_seed: 42
+simulation:
+  cores: 2
+  lammps_version: 2023.08.02
+  max_runtime_hours: 12
+  potential: sw
+  temperature: 300.0
+  thermostat: nose-hoover
+  timestep: 1.0

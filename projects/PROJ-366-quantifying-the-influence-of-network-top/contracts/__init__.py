@@ -1,0 +1,1 @@
+"""Contracts (schemas) package initialization."""

@@ -1,0 +1,30 @@
+# LAMMPS Simulation Configuration
+# Used for Green-Kubo thermal conductivity calculations
+
+lammps:
+  version: "2023.08.02"
+  executable: "lmp"
+
+potential:
+  type: "sw"
+  file: "Si.sw"
+  # Note: SW potential file must be available in the working directory
+
+simulation:
+  timestep: 1.0  # femtoseconds
+  thermostat: "nose-hoover"
+  temperature: 300.0  # Kelvin
+  pressure: 0.0  # bar
+  ensemble: "NVT"
+
+green_kubo:
+  # Parameters for Green-Kubo calculation
+  equilibration_steps: 10000
+  production_steps: 50000
+  correlation_length: 1000
+  heat_current_components: ["xx", "yy", "zz"]
+
+resources:
+  cores: 2
+  max_runtime_hours: 12
+  memory_gb: 8

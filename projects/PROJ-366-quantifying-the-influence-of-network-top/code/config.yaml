@@ -1,0 +1,46 @@
+# llmXive Pipeline Configuration
+# This file controls all runtime parameters for the topology-thermal-conductivity project.
+
+paths:
+  base: "."
+  raw: "data/raw"
+  processed_graphs: "data/processed/graphs"
+  processed_conductivities: "data/processed/conductivities"
+  model_outputs: "data/processed/model_outputs"
+  checksums: "data/checksums.json"
+  contracts: "contracts"
+
+simulation:
+  lammps_version: "2023.05"
+  potential_file: "sw Silicon"
+  timestep: 1.0
+  thermostat: "nose-hoover"
+  temperature: 1500
+  cores: 2
+  max_duration_hours: 12
+  convergence_threshold: 0.01 # 1% relative change
+
+gnn:
+  layers: 2
+  hidden_dim: 64
+  dropout: 0.1
+  learning_rate: 0.001
+  epochs: 100
+  patience: 10
+  target: "static_scattering_potential"
+
+analysis:
+  bond_cutoff: 3.0 # Angstroms
+  outlier_defect_threshold: 0.15 # 15%
+  min_samples_for_power: 10
+  min_samples_for_run: 2
+  alpha: 0.05 # Significance level for Bonferroni
+
+enforcement:
+  enforce_exclusion: true
+  enforce_convergence: true
+  enforce_power_warning: true
+
+logging:
+  level: "INFO"
+  file: "logs/pipeline.log"

@@ -1,0 +1,65 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: ThermalSample
+description: Schema for a thermal conductivity sample containing graph and simulation results.
+type: object
+required:
+  - sample_id
+  - graph_id
+  - thermal_conductivity
+  - metadata
+properties:
+  sample_id:
+    type: string
+    description: Unique identifier for the thermal sample.
+  graph_id:
+    type: string
+    description: Reference to the associated AtomicGraph graph_id.
+  thermal_conductivity:
+    type: object
+    description: Thermal conductivity results.
+    required:
+      - value
+      - unit
+    properties:
+      value:
+        type: number
+        description: Thermal conductivity value.
+      unit:
+        type: string
+        enum: ["W/mK"]
+        description: Unit of measurement.
+      method:
+        type: string
+        enum: ["Green-Kubo"]
+        description: Method used to calculate conductivity.
+      converged:
+        type: boolean
+        description: Whether the simulation converged.
+      convergence_details:
+        type: object
+        description: Details about convergence if available.
+  topological_metrics:
+    type: object
+    description: Aggregated topological metrics for the sample.
+    properties:
+      avg_degree:
+        type: number
+      avg_clustering:
+        type: number
+      avg_path_length:
+        type: number
+  metadata:
+    type: object
+    description: Metadata for the sample.
+    properties:
+      simulation_time:
+        type: number
+      temperature:
+        type: number
+      pressure:
+        type: number
+      excluded:
+        type: boolean
+        description: Whether the sample was excluded due to outliers.
+      exclusion_reason:
+        type: string
