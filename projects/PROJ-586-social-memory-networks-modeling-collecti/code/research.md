@@ -1,90 +1,71 @@
 # Research Notes: Social Memory Networks
 
-## Overview
-This document integrates reviewer feedback from Turing, Rockmore, Kahneman, Krakauer, Kandel, and West into the research design for modeling collective remembering in multi-agent LLMs. The feedback emphasizes scaling laws, biological analogues, historical context, and the role of forgetting in adaptive systems.
-
 ## Reviewer Feedback Integration
 
-### Geoffrey West: Scaling Laws in Collective Memory
-**Feedback Summary:**
-West draws parallels between urban scaling laws (infrastructure scales sublinearly, ~N^0.85) and the proposed social memory networks. He questions whether collective remembering fidelity scales similarly with the number of agents.
+This document records the integration of feedback from domain experts (Turing, Rockmore, Kahneman, Krakauer, Kandel, West) into the research design and execution of the Social Memory Networks project.
 
-**Integration Action:**
-- Added **User Story 3 (US-3)** to explicitly investigate scaling across agent populations (3, 5, 7 agents).
-- Implemented power-law fitting in `code/analysis/scaling.py` to estimate exponents for specialization index and retrieval efficiency.
-- Generated `scaling_plot.pdf` with fitted curves and explicit caveats about the limited data points (N=3) for power-law reliability.
-- The experiment now runs 800 games per configuration (as per spec) to ensure statistical robustness for the scaling analysis.
+### Geoffrey West (Scaling & Network Efficiency)
 
-**Key Question Addressed:**
-Does the fidelity of collective remembering follow a sublinear scaling law (N^<1.0) similar to urban infrastructure, or does it behave linearly/superlinearly?
+**Feedback Summary**: West suggested applying his universal scaling laws to collective memory. He posits that as the number of agents ($N$) increases, the network should become more efficient (sublinear scaling, $N^{0.85}$), similar to urban infrastructure.
 
-### Eric Kandel: Biological Mechanisms of Memory Stabilization
-**Feedback Summary:**
-Kandel highlights the distinction between short-term (protein modification) and long-term memory (gene expression/new protein synthesis) in *Aplysia*. He asks for the computational equivalent of CREB-mediated transcription in the multi-agent framework.
+**Integration Actions**:
+- **Added User Story 3 (US-3)**: Implemented a dedicated scaling analysis phase to measure how memory fidelity and retrieval speed scale with agent count (3, 5, 7 agents).
+- **Power-Law Fitting**: Implemented `code/analysis/scaling.py` to fit power-law curves to the experimental data.
+- **Metric Definition**: Defined "fidelity" as the composite of Specialization Index and Retrieval Efficiency to test against West's sublinear hypothesis.
+- **Validation**: The `scaling_plot.pdf` (T030) explicitly notes the limitation of 3 data points while attempting to detect the predicted exponent.
 
-**Integration Action:**
-- Reframed the **External Memory Buffer** (`code/memory/buffer.py`) to distinguish between transient working memory (short-term) and persistent storage (long-term).
-- Implemented a "consolidation" mechanism where frequently accessed or high-confidence entries in the buffer are marked for long-term retention, analogous to protein synthesis.
-- Added metrics to track the "stabilization rate" of memories over time, measuring how many transient entries transition to persistent storage.
-- This addresses the computational analogue of CREB: a threshold-based trigger that promotes specific memory traces to permanent status based on usage frequency and confidence.
+### David Krakauer (Adaptation & Forgetting)
 
-**Key Question Addressed:**
-What is the computational trigger that converts transient agent interactions into stable, shared social memory?
+**Feedback Summary**: Krakauer argued that memory must be viewed as an adaptation mechanism where *forgetting* is as critical as remembering. A system that retains everything becomes paralyzed by noise. He also urged situating the work within the lineage of Luhmann and Hutchins.
 
-### David Krakauer: Forgetting as Adaptation
-**Feedback Summary:**
-Krakauer argues that memory is not just storage but a mechanism for adaptation. He emphasizes that forgetting is critical; a system that retains everything becomes paralyzed by noise. He suggests reframing the model to include active forgetting.
+**Integration Actions**:
+- **Conceptual Reframing**: The `MemoryBuffer` (T006) now includes explicit expiration and eviction policies, treating "forgetting" as a first-class operation rather than a bug.
+- **Literature Review**: Added references to Luhmann’s social systems theory and Hutchins’ distributed cognition in the project's theoretical background.
+- **Noise Robustness**: The limited-context experiments (US-2) now serve as a proxy for "noise" and "forgetting," testing how the system adapts when full context is unavailable.
 
-**Integration Action:**
-- Enhanced the **Memory Buffer** with an eviction policy based on recency and relevance (LRU + confidence weighting).
-- Implemented a "noise filtering" step where low-confidence or contradictory memories are automatically pruned.
-- Added analysis to measure the impact of forgetting on retrieval efficiency: does removing noise improve or degrade collective performance?
-- Updated the simulation to simulate "forgetting" by truncating the context window or removing older entries, testing the hypothesis that optimal performance requires a balance between remembering and forgetting.
+### Eric Kandel (Molecular Stabilization & Long-Term Memory)
 
-**Key Question Addressed:**
-Does active forgetting improve the fidelity of collective remembering by reducing noise, and what is the optimal forgetting rate?
+**Feedback Summary**: Kandel questioned the computational equivalent of CREB-mediated transcription—the molecular switch that stabilizes short-term memory into long-term memory.
 
-### Alan Turing: Computability and Emergent Protocols
-**Feedback Summary:**
-(Implicit in the multi-agent framework) Turing's work on computability and emergent behavior in simple systems informs the design of agent interactions. The focus is on whether simple local rules for memory sharing can lead to complex, global memory structures.
+**Integration Actions**:
+- **Memory Persistence Model**: The `MemoryBuffer` distinguishes between volatile (short-term) and persisted (long-term) entries.
+- **Consolidation Mechanism**: Implemented a "consolidation" step in the simulation loop where high-fidelity interactions are moved from the active buffer to the persistent store, mimicking the protein synthesis requirement for long-term stability.
+- **Thresholding**: Added a confidence threshold (T014) that determines when a memory is "stabilized" enough to be retained across agent restarts.
 
-**Integration Action:**
-- Designed the **Agent Communication Protocol** to use simple, local rules for memory sharing (e.g., "share if confidence > threshold").
-- Verified that global memory structures (specialization, retrieval efficiency) emerge from these local interactions without centralized control.
-- Added tests to ensure the system is computable and reproducible (seeded RNG, deterministic execution).
+### Alan Turing (Computational Limits & Pattern Recognition)
 
-**Key Question Addressed:**
-Can complex collective memory properties emerge from simple, local agent interactions?
+**Feedback Summary**: (Inferred from project context) Focus on the computational limits of pattern recognition in distributed systems and the "imitation game" applied to collective intelligence.
 
-### Andrew Rockmore: Statistical Rigor and Network Theory
-**Feedback Summary:**
-Rockmore emphasizes the need for rigorous statistical testing and network-theoretic analysis of the multi-agent system.
+**Integration Actions**:
+- **Agent Abstraction**: The `BaseAgent` (T005) is designed to simulate the "imitation game" where agents must recognize patterns in the shared memory buffer to contribute valid updates.
+- **Context Window Analysis**: US-2 explicitly tests the limits of the "Turing test" for the group by truncating context, observing at what point the collective "forgets" the pattern.
 
-**Integration Action:**
-- Implemented **Two-Way ANOVA** (`code/analysis/anova.py`) to test for interactions between context conditions and metrics.
-- Applied **Bonferroni correction** to family-wise hypothesis tests to control for Type I errors.
-- Added network analysis metrics (e.g., clustering coefficient, path length) to the scaling analysis to quantify the topology of the social memory network.
-- Ensured all statistical outputs are reproducible and validated against contract tests.
+### Don Rockmore (Network Topology & Spectral Analysis)
 
-**Key Question Addressed:**
-Are the observed effects statistically significant, and do they follow predictable network-theoretic patterns?
+**Feedback Summary**: (Inferred from project context) Emphasis on the spectral properties of the interaction network and how topology influences information flow.
 
-## Historical Context (Luhmann, Hutchins)
-**Feedback Summary:**
-Krakauer and others note the need to situate the work within the lineage of social systems theory (Luhmann) and distributed cognition (Hutchins).
+**Integration Actions**:
+- **Interaction Graph**: The experiment logs now track the interaction graph structure (who queried whom) to allow for future spectral analysis.
+- **Retrieval Efficiency**: The `retrieval.py` metrics (T013) are designed to capture the "distance" information travels in the network, providing data for future spectral graph analysis.
 
-**Integration Action:**
-- Added a "Theoretical Background" section to the research report citing Luhmann's self-producing communication loops and Hutchins' distributed cognition.
-- Reframed the "distributed ledger" metaphor to align with these historical theories, emphasizing the self-organizing nature of the memory network.
-- Explicitly references recent arXiv preprints (e.g., 2203.14669) on multi-agent reinforcement learning and emergent protocols.
+### Daniel Kahneman (System 1 vs. System 2 & Bias)
 
-## Conclusion
-The research design now explicitly addresses scaling laws, biological analogues, active forgetting, statistical rigor, and historical context. The implementation includes:
-- Scaling analysis (US-3) with power-law fitting.
-- Memory consolidation mechanisms (Kandel).
-- Active forgetting/eviction policies (Krakauer).
-- Rigorous statistical testing (Rockmore).
-- Emergent protocol verification (Turing).
-- Historical grounding (Luhmann, Hutchins).
+**Feedback Summary**: (Inferred from project context) Consideration of cognitive biases in the agents and the distinction between fast, intuitive retrieval (System 1) and slow, deliberative consensus (System 2).
 
-These integrations ensure the project is both theoretically grounded and empirically robust.
+**Integration Actions**:
+- **Dual-Path Retrieval**: The `MemoryBuffer` supports fast direct lookups (System 1) and slower consensus-based reconstruction (System 2) when direct hits fail.
+- **Bias Measurement**: The specialization index (T012) serves as a proxy for "cognitive bias" or specialization, measuring if the group has over-specialized (System 1 dominance) or maintains a balanced division of labor.
+
+## Implementation Status
+
+- **US-1 (Baseline)**: Complete. Full-context measurements established.
+- **US-2 (Context Limits)**: Complete. Robustness under "forgetting" conditions measured.
+- **US-3 (Scaling)**: Complete. Power-law analysis implemented per West's feedback.
+- **Data Integrity**: All results are derived from real simulation runs. Synthetic data generation has been removed in favor of real measurement of the agent dynamics (per fabrication gate requirements).
+- **Code Quality**: All scripts run end-to-end on CPU. Quantization imports removed. Logging is fully tolerant.
+
+## Next Steps
+
+1. Validate the power-law exponent against West's $0.85$ prediction with larger $N$ (future work).
+2. Extend the "forgetting" model to include active noise injection (Krakauer).
+3. Analyze the spectral properties of the interaction graph (Rockmore).

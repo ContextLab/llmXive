@@ -118,6 +118,17 @@ T006 [P] Implement shared external memory buffer with `<MEMORY_ACTION>` token ha
   requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->'
 : 1
 ? "T011 [P] [US-1] Implement CLI flag parsing for --context, --agents, --dataset and\
+  \ {{claim:c_b7311021}} (2203.14669 [UNRESOLVED-CLAIM: c_02346b46 \u2014 status=not_enough_info],\
+  \ https://arxiv.org/abs/2203.14669 [UNRESOLVED-CLAIM: c_02346b46 \u2014 status=not_enough_info])\
+  \ in `code/run_experiment.py` (FR-001) <!-- FAILED: unspecified --> <!-- ATOMIZE:\
+  \ requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE:\
+  \ requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE:\
+  \ requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED:\
+  \ unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE:\
+  \ requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE:\
+  \ requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->"
+: 1
+? "T011 [P] [US-1] Implement CLI flag parsing for --context, --agents, --dataset and\
   \ {{claim:c_b7311021}} (2203.14669 [UNRESOLVED-CLAIM: c_3ace7fdf \u2014 status=not_enough_info],\
   \ https://arxiv.org/abs/2203.14669 [UNRESOLVED-CLAIM: c_3ace7fdf \u2014 status=not_enough_info])\
   \ in `code/run_experiment.py` (FR-001) <!-- FAILED: unspecified --> <!-- ATOMIZE:\
@@ -174,7 +185,7 @@ T006 [P] Implement shared external memory buffer with `<MEMORY_ACTION>` token ha
   requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE:
   requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE:
   requested --> <!-- ATOMIZE: requested -->'
-: 1
+: 2
 ? "T011 [P] [US-1] Implement CLI flag parsing for --context, --agents, --dataset and\
   \ {{claim:c_b7311021}} [UNRESOLVED-CLAIM: c_e903b472 \u2014 status=not_enough_info]\
   \ (2203.14669, https://arxiv.org/abs/2203.14669) in `code/run_experiment.py` (FR-001)\
@@ -210,6 +221,31 @@ T006 [P] Implement shared external memory buffer with `<MEMORY_ACTION>` token ha
 ? 'T012 [P] [US-1] {{claim:c_a5c2fb06}} (avogadro, https://physics.nist.gov/cgi-bin/cuu/Value?na)
   in `code/metrics/specialization.py` (FR-004) <!-- FAILED: unspecified --> <!-- ATOMIZE:
   requested --> <!-- ATOMIZE: requested -->'
+: 1
+? 'T012 [P] [US-1] {{claim:c_a5c2fb06}} (avogadro, https://physics.nist.gov/cgi-bin/cuu/Value?na)
+  in `code/metrics/specialization.py` (FR-004) <!-- FAILED: unspecified --> <!-- ATOMIZE:
+  requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified -->'
+: 1
+? 'T012 [P] [US-1] {{claim:c_a5c2fb06}} (avogadro, https://physics.nist.gov/cgi-bin/cuu/Value?na)
+  in `code/metrics/specialization.py` (FR-004) <!-- FAILED: unspecified --> <!-- ATOMIZE:
+  requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED:
+  unspecified -->'
+: 1
+? 'T012 [P] [US-1] {{claim:c_a5c2fb06}} (avogadro, https://physics.nist.gov/cgi-bin/cuu/Value?na)
+  in `code/metrics/specialization.py` (FR-004) <!-- FAILED: unspecified --> <!-- ATOMIZE:
+  requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED:
+  unspecified --> <!-- ATOMIZE: requested -->'
+: 1
+? 'T012 [P] [US-1] {{claim:c_a5c2fb06}} (avogadro, https://physics.nist.gov/cgi-bin/cuu/Value?na)
+  in `code/metrics/specialization.py` (FR-004) <!-- FAILED: unspecified --> <!-- ATOMIZE:
+  requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED:
+  unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->'
+: 1
+? 'T012 [P] [US-1] {{claim:c_a5c2fb06}} (avogadro, https://physics.nist.gov/cgi-bin/cuu/Value?na)
+  in `code/metrics/specialization.py` (FR-004) <!-- FAILED: unspecified --> <!-- ATOMIZE:
+  requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED:
+  unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE:
+  requested -->'
 : 1
 ? "T014 [P] [US-1] Implement validation logic for metrics (\u226595% games produce\
   \ metrics [UNRESOLVED-CLAIM: c_22236a61 \u2014 status=not_enough_info], SC-001)\
@@ -426,6 +462,26 @@ T006 [P] Implement shared external memory buffer with `<MEMORY_ACTION>` token ha
   \ --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested\
   \ --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
   \ --> <!-- FAILED: unspecified -->"
+: 1
+? "T018 [US-2] {{claim:c_504902df}} (2503.02686 [UNRESOLVED-CLAIM: c_c2a39c8c \u2014\
+  \ status=not_enough_info], https://arxiv.org/abs/2503.02686 [UNRESOLVED-CLAIM: c_c2a39c8c\
+  \ \u2014 status=not_enough_info]) in `code/run_experiment.py` <!-- FAILED: unspecified\
+  \ --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
+  \ --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested\
+  \ --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
+  \ --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
+  \ --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested\
+  \ --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->"
 : 1
 ? "T018 [US-2] {{claim:c_504902df}} (2503.02686 [UNRESOLVED-CLAIM: c_c3e6aaf0 \u2014\
   \ status=not_enough_info], https://arxiv.org/abs/2503.02686 [UNRESOLVED-CLAIM: c_c3e6aaf0\
@@ -782,6 +838,65 @@ T006 [P] Implement shared external memory buffer with `<MEMORY_ACTION>` token ha
   --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
   --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
   --> <!-- ATOMIZE: requested -->'
+: 2
+? 'T018 [US-2] {{claim:c_504902df}} (2503.02686, https://arxiv.org/abs/2503.02686)
+  in `code/run_experiment.py` <!-- FAILED: unspecified --> <!-- FAILED: unspecified
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified
+  --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->'
+: 1
+? 'T018 [US-2] {{claim:c_504902df}} (2503.02686, https://arxiv.org/abs/2503.02686)
+  in `code/run_experiment.py` <!-- FAILED: unspecified --> <!-- FAILED: unspecified
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified
+  --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  -->'
+: 1
+? 'T018 [US-2] {{claim:c_504902df}} (2503.02686, https://arxiv.org/abs/2503.02686)
+  in `code/run_experiment.py` <!-- FAILED: unspecified --> <!-- FAILED: unspecified
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified
+  --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
+  --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
+  --> <!-- ATOMIZE: requested -->'
 : 1
 ? "T018 [US-2] {{claim:c_504902df}} [UNRESOLVED-CLAIM: c_92671d95 \u2014 status=refuted]\
   \ (2503.02686, https://arxiv.org/abs/2503.02686) in `code/run_experiment.py` <!--\
@@ -802,6 +917,12 @@ T006 [P] Implement shared external memory buffer with `<MEMORY_ACTION>` token ha
 ? "T022 [US-2] Conduct sensitivity analysis sweeping context\u2011truncation token\
   \ limit over {128, 256, 512} [UNRESOLVED-CLAIM: c_f2510c1b \u2014 status=not_enough_info]\
   \ with performance curves output in `code/analysis/sensitivity.py` (FR-008)"
+: 1
+? T022 [US-2] {{claim:c_6eea8bb5}} (OEIS A000079, https://oeis.org/A000079) with performance
+  curves output in `code/analysis/sensitivity.py` (FR-008)
+: 1
+? "T023 [US-2] Generate power\u2011analysis report estimating detectable effect size\
+  \ (N={{claim:c_10d5c9c0}} per spec FR-009)in `code/analysis/power.py`"
 : 1
 ? "T024 [US-2] Flag \"Power limitation\" if estimated power < 0.70 [UNRESOLVED-CLAIM:\
   \ c_f9748e80 \u2014 status=not_enough_info] in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/power_analysis_report.md`\
@@ -1126,6 +1247,38 @@ T006 [P] Implement shared external memory buffer with `<MEMORY_ACTION>` token ha
   unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE:
   requested -->'
 : 2
+? 'T027 [US-3] Implement game simulation for agent counts 3, 5, 7 (800 games per config
+  per spec US-3) in `code/run_experiment.py` <!-- ATOMIZE: requested --> <!-- ATOMIZE:
+  requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED:
+  unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED:
+  unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE:
+  requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED:
+  unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED:
+  unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED:
+  unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED:
+  unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE:
+  requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED:
+  unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE:
+  requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED:
+  unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE:
+  requested --> <!-- ATOMIZE: requested -->'
+: 1
+? 'T027 [US-3] Implement game simulation for agent counts 3, 5, 7 (800 games per config
+  per spec US-3) in `code/run_experiment.py` <!-- ATOMIZE: requested --> <!-- ATOMIZE:
+  requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED:
+  unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED:
+  unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE:
+  requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED:
+  unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED:
+  unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED:
+  unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED:
+  unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE:
+  requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED:
+  unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE:
+  requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED:
+  unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE:
+  requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->'
+: 1
 ? "T027 [US-3] Implement game simulation for agent counts 3, 5, 7 [UNRESOLVED-CLAIM:\
   \ c_90f67535 \u2014 status=not_enough_info] (800 games per config [UNRESOLVED-CLAIM:\
   \ c_36c6c621 \u2014 status=not_enough_info] per spec US-3) in `code/run_experiment.py`\
@@ -1450,6 +1603,7 @@ T006 [P] Implement shared external memory buffer with `<MEMORY_ACTION>` token ha
 ? T034 [P] Update `research.md` with reviewer feedback integration notes (Turing,
   Rockmore, Kahneman, Krakauer, Kandel, West)
 : 2
+T034 [P] Update `research.md` with reviewer feedback integration notes ({{claim:c_f62f508a}}): 1
 ? "T035 [P] Run full pipeline on CI runner, record runtime/memory/disk [UNRESOLVED-CLAIM:\
   \ c_23c17ce0 \u2014 status=not_enough_info] in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/`\
   \ {{claim:c_e603cc7e}}, {{claim:c_61298537}} <!-- ATOMIZE: requested -->"
