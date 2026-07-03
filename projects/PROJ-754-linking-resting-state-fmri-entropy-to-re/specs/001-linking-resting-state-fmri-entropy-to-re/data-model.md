@@ -1,67 +1,30 @@
 # Data Model: Linking Resting‑State fMRI Entropy to Real‑World Decision Risk‑Taking
 
 ## Overview
+The project manipulates three primary data tiers:
 
-This document defines the data structures used throughout the pipeline, from raw downloads to final statistical outputs. All data is stored in `data/` (raw/processed) and `output/`. New fields capture scale‑specific entropy, resampling validation metrics, noise‑variance, power, and runtime measurements required by FR‑009, SC‑006, and SC‑007.
+| Tier | Description | Primary File(s) | Format |
+|------|-------------|-----------------|--------|
+| **Raw** | Original downloads (HCP time series, DSRT scores) | `data/raw/hcp_timeseries.parquet`, `data/raw/dsrt_scores.parquet` | Parquet |
+| **Derived** | Quality‑controlled time series, entropy matrix, covariate table | `data/derived/clean_subjects.parquet`, `data/derived/entropy_matrix.parquet`, `data/derived/covariates.parquet` | Parquet |
+| **Results** | Statistical outputs, neuroimaging maps, report | `results/model_coefficients.csv`, `results/significant_parcels.nii.gz`, `reports/link_entropy_risk.pdf` | CSV / NIfTI / PDF |
 
-## Entities
+## Entity Definitions
 
-### 1. Subject
-Represents a single participant in the HCP cohort.
-* **ID**: `sub_XXXX` (string)
-* **Age**: Integer (years)
-* **Sex**: String ("M", "F")
-* **MeanFD**: Float (mm) – Framewise displacement.
-* **DSRT_Score**: Float – Domain‑Specific Risk‑Taking score.
-* **NoiseVariance**: Float – Variance of residuals after nuisance regression (FR‑009).
-* **Status**: "valid" or "excluded" (if MeanFD ≥ 0.2 mm or missing DSRT).
+| Entity | Attributes | Data Type | Notes |
+|--------|------------|-----------|-------|
+| **Subject** | `subject_id` (str), `age` (int), `sex` (categorical: "M"/"F"), `mean_fd` (float), `dsrt_score` (float) | Primary key `subject_id` | All covariates required for modeling; rows with missing `dsrt_score` are excluded. |
+| **Parcel** | `parcel_id` (int), `parcel_name` (str) | Fixed 400‑parcel Schaefer atlas | Used for indexing entropy and statistical maps. |
+| **EntropyMetric** | `subject_id` (FK), `parcel_id` (FK), `entropy` (float) | One row per subject‑parcel pair | Computed as mean of multiscale sample entropy across scales 1‑5. |
+| **StatResult** | `parcel_id` (FK), `beta_entropy` (float), `se_entropy` (float), `t_entropy` (float), `p_raw` (float), `p_fwe` (float), `significant` (bool) | One row per parcel | Generated after permutation testing. |
+| **SensitivityRecord** | `r` (float), `m` (int), `significant_parcels` (int) | Aggregated counts per parameter combo | Supports FR‑008. |
+| **PowerAnalysis** | `effect_size_d` (float), `n_subjects` (int), `alpha` (float), `power` (float) | Single summary row | Used for SC‑006. |
 
-### 2. Parcel
-Represents a cortical region (e.g., Schaefer‑400).
-* **ID**: Integer (1‑400)
-* **Name**: String (e.g., "L_1", "R_400")
-* **Coordinates**: Tuple (x, y, z) in MNI space.
+## Relationships
+- **Subject ↔ EntropyMetric**: One‑to‑many (subject has 400 entropy values).  
+- **Parcel ↔ EntropyMetric**: One‑to‑many (parcel has entropy for each subject).  
+- **Parcel ↔ StatResult**: One‑to‑one (each parcel yields a statistical summary).  
 
-### 3. EntropyMatrix
-Core predictor variable.
-* **Shape**: (N_subjects, N_parcels)
-* **Value**: Float – Average multiscale sample entropy (m = 1‑5) across scales.
-* **ScaleSpecific** *(optional)*: Mapping from scale `m` (1‑5) to a (subjects × parcels) matrix.
-* **Metadata**:
-  * `n_subjects`: Integer
-  * `n_parcels`: Integer
-  * `scales`: List of integers `[1,2,3,4,5]`
-  * `r_values`: List of floats `[0.1,0.15,0.2]`
-  * `seed`: Integer
-  * `includes_noise_variance`: Boolean
-* **ValidationMetrics** *(optional)*:
-  * `resampling_correlation`: Float – Pearson r between 2 mm and 4 mm entropy for validation subjects.
-  * `ks_pvalue`: Float – KS test p‑value against literature benchmark.
-  * `literature_match_flag`: Boolean – True if both validation criteria pass.
+All tables include a SHA‑256 checksum column (`checksum`) stored in `data/checksums.txt` for reproducibility (Constitution III).
 
-### 4. StatisticalResult
-Output of the mass‑univariate analysis.
-* **Parcel_ID**: Integer
-* **Beta**: Float – Regression coefficient (entropy → DSRT).
-* **SE**: Float – Standard error.
-* **P_Value_Raw**: Float – Uncorrected p‑value.
-* **P_Value_FWE**: Float – Permutation‑based FWE corrected p‑value.
-* **Significant**: Boolean – True if `P_Value_FWE` < 0.05.
-* **VIF**: Float – Variance Inflation Factor for covariates.
-* **PartialCorr_Entropy_DSRT** *(optional)*: Float – Partial correlation controlling for NoiseVariance.
-
-### 5. RuntimeMetrics
-* **TotalSeconds**: Float – Wall‑clock time for the entire pipeline.
-* **PermutationSeconds**: Float – Time spent in the permutation loop.
-* **PeakRAM_GB**: Float – Peak RAM usage during execution.
-
-### 6. PowerMetrics
-* **EstimatedPower**: Float – Proportion of Monte‑Carlo simulations that yielded at least one significant parcel (target ≥ 0.80).
-
-## Data Flow
-
-1. **Raw**: `data/raw/hcp_<subject>_ptseries.nii.gz`, `data/raw/DSRT_scores.csv`.
-2. **Processed**: `data/processed/entropy_matrix.npy`, `data/processed/entropy_scale_{m}_r{r}.npy`, `data/processed/subject_qc.csv`, `data/processed/noise_variance.npy`.
-3. **Results**: `output/results.csv`, `output/association_map.nii.gz`, `output/runtime_log.json`, `output/power_metrics.json`, `output/resampling_validation.json`.
-
-All files are version‑hashed and checksummed per the Constitution.
+---

@@ -1,1 +1,22 @@
-[]
+- artifact_hash: 8e77eb1164d89fc42f26954cc269b5d93a6e99b87343b905b919c7ea899cf627
+  artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/specs/001-linking-resting-state-fmri-entropy-to-re/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: train-00000-of-00001-ecc38ed386fa0d8c.parquet
+  kind: url
+  value: https://huggingface.co/datasets/jonxuxu/HCP-flat/resolve/main/data/train-00000-of-00001-ecc38ed386fa0d8c.parquet
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/64c37b0b7918ee895ba1a9b4/90b53eeb7c93da7768d757270cc9f7c4c37b6cb3a9992e1e223fd2bae07a5194?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001-ecc38ed386fa0d8c.parquet%3B+filename%3D%22train-00000-of-00001-ecc38ed386fa0d8c.parquet%22%3B&user_id=public&Expires=1783121848&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjRjMzdiMGI3OTE4ZWU4OTViYTFhOWI0LzkwYjUzZWViN2M5M2RhNzc2OGQ3NTcyNzBjYzlmN2M0YzM3YjZjYjNhOTk5MmUxZTIyM2ZkMmJhZTA3YTUxOTRcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEtZWNjMzhlZDM4NmZhMGQ4Yy5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydHJhaW4tMDAwMDAtb2YtMDAwMDEtZWNjMzhlZDM4NmZhMGQ4Yy5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODMxMjE4NDh9fX1dfQ__&Signature=MEUCIA7WxGlP5928UMtosi1e1yNOyqDrV9MGX55PNv0UHzFiAiEAmfywcdWlcFaXSAXK9vpiDH-4gpOJPNS3l6TrR44KQE4_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-03T22:37:28.379033Z'
+- artifact_hash: 8e77eb1164d89fc42f26954cc269b5d93a6e99b87343b905b919c7ea899cf627
+  artifact_path: projects/PROJ-754-linking-resting-state-fmri-entropy-to-re/specs/001-linking-resting-state-fmri-entropy-to-re/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/HumanConnectomeProject/HCP-1200/resolve/main/behavioral_data.csv
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/HumanConnectomeProject/HCP-1200/resolve/main/behavioral_data.csv
+  verified_at: '2026-07-03T22:37:28.379033Z'

@@ -1,0 +1,21 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Entropy Matrix Schema"
+description: "Parquet‑based matrix linking subjects to parcels with averaged multiscale sample entropy."
+type: object
+required:
+  - subject_id
+  - parcel_id
+  - entropy
+properties:
+  subject_id:
+    type: string
+    description: "Unique identifier matching the HCP subject IDs."
+  parcel_id:
+    type: integer
+    description: "Integer index of the cortical parcel (1‑400 for Schaefer‑400)."
+  entropy:
+    type: number
+    description: "Mean multiscale sample entropy across scales 1‑5 for this parcel and subject."
+  checksum:
+    type: string
+    description: "SHA‑256 checksum of the row (for data‑hygiene tracking)."

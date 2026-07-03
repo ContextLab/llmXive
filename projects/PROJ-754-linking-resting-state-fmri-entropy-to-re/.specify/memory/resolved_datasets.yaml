@@ -1,4 +1,4 @@
-resolved_at: '2026-07-03T21:10:16.989162+00:00'
+resolved_at: '2026-07-03T22:15:42.795294+00:00'
 datasets:
 - intent: DSRT
   status: verified
@@ -45,23 +45,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/figure/Supplementary_Materials_of_the_manuscript_b_Cognitive_and_neural_outcomes_of_executive_function_training_in_healthy_adults_A_systematic_review_b_/32897309
+  - url: https://figshare.com/articles/dataset/Host_Selection_and_Feeding_Activity_of_i_Leptocoris_tagalicus_i_Hemiptera_Rhopalidae_/32889533
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Circulating_Nitrate_and_Antioxidants_Are_Associated_with_Cardiometabolic_Risk_Markers_in_Older_Adults_Following_Beetroot_Extract_Supplementation/32897342
+  - url: https://figshare.com/articles/poster/A_Community-Driven_Platform_for_Trusted_Benchmarking_of_LLMs_in_Biomedicine_BioArena/32897372
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/A_Concise_and_Efficient_Synthesis_of_25_S_sup_7_sup_Dafachronic_Acid_a_Lead_Compound_for_the_Development_of_Antiparasitic_Agents/32897339
+  - url: https://figshare.com/articles/dataset/Dataset_of_At_mpero_outcomes/30546023
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Stability_Limits_of_Cu_Substitution_in_La_sub_2_sub_Ni_sub_1_x_sub_Cu_sub_x_sub_O_sub_4_sub_and_Support-Controlled_Stability_During_Oxidative_Steam_Reforming_of_Ethanol/32897336
+  - url: https://figshare.com/articles/dataset/The_curriculum_effect_in_visual_learning_the_role_of_readout_dimensionality_Dataset_/32897081
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Continuous_Conjugation_in_Ketoenamine_Covalent_Organic_Frameworks_Boosts_Charge_Transfer_for_Selective_Photocatalysis/32897330
+  - url: https://figshare.com/articles/dataset/trXAS_Measurement_Outer_Products_and_Example_Computer_Code/31847485
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -150,23 +150,23 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://figshare.com/articles/figure/Supplementary_Materials_of_the_manuscript_b_Cognitive_and_neural_outcomes_of_executive_function_training_in_healthy_adults_A_systematic_review_b_/32897309
+  - url: https://figshare.com/articles/dataset/Host_Selection_and_Feeding_Activity_of_i_Leptocoris_tagalicus_i_Hemiptera_Rhopalidae_/32889533
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Circulating_Nitrate_and_Antioxidants_Are_Associated_with_Cardiometabolic_Risk_Markers_in_Older_Adults_Following_Beetroot_Extract_Supplementation/32897342
+  - url: https://figshare.com/articles/poster/A_Community-Driven_Platform_for_Trusted_Benchmarking_of_LLMs_in_Biomedicine_BioArena/32897372
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/A_Concise_and_Efficient_Synthesis_of_25_S_sup_7_sup_Dafachronic_Acid_a_Lead_Compound_for_the_Development_of_Antiparasitic_Agents/32897339
+  - url: https://figshare.com/articles/dataset/Dataset_of_At_mpero_outcomes/30546023
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Stability_Limits_of_Cu_Substitution_in_La_sub_2_sub_Ni_sub_1_x_sub_Cu_sub_x_sub_O_sub_4_sub_and_Support-Controlled_Stability_During_Oxidative_Steam_Reforming_of_Ethanol/32897336
+  - url: https://figshare.com/articles/dataset/The_curriculum_effect_in_visual_learning_the_role_of_readout_dimensionality_Dataset_/32897081
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Continuous_Conjugation_in_Ketoenamine_Covalent_Organic_Frameworks_Boosts_Charge_Transfer_for_Selective_Photocatalysis/32897330
+  - url: https://figshare.com/articles/dataset/trXAS_Measurement_Outer_Products_and_Example_Computer_Code/31847485
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -186,27 +186,27 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/4643074
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.wwpzgmsjq
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21181869
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21181869
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21181762
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/ju32v/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://www.repository.cam.ac.uk/handle/1810/293071
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://osf.io/re3v6/
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20817630
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20817630
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/RSV_disease_and_vaccination_knowledge_attitudes_and_practices_among_US_adults_a_2024_2025_RSV_season_survey/32896154
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
