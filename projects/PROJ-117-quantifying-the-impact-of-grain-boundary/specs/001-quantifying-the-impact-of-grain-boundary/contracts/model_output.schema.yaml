@@ -1,0 +1,63 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelOutput"
+description: "Schema for the trained model artifact and validation metrics."
+type: "object"
+required:
+  - model_id
+  - hyperparameters
+  - feature_importance
+  - performance_metrics
+  - training_timestamp
+  - random_seed
+  - final_feature_set
+properties:
+  model_id:
+    type: "string"
+    description: "Unique identifier for the model artifact."
+  hyperparameters:
+    type: "object"
+    description: "JSON object containing XGBoost hyperparameters."
+    additionalProperties: true
+  feature_importance:
+    type: "array"
+    description: "List of feature importance scores."
+    items:
+      type: "object"
+      required:
+        - feature_name
+        - importance_score
+      properties:
+        feature_name:
+          type: "string"
+        importance_score:
+          type: "number"
+  performance_metrics:
+    type: "object"
+    description: "Performance metrics on the test set."
+    required:
+      - r_squared
+      - rmse
+      - mape
+    properties:
+      r_squared:
+        type: "number"
+        description: "R-squared value."
+      rmse:
+        type: "number"
+        description: "Root Mean Squared Error."
+      mape:
+        type: "number"
+        description: "Mean Absolute Percentage Error."
+  training_timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of training completion."
+  random_seed:
+    type: "integer"
+    description: "Random seed used for reproducibility."
+  final_feature_set:
+    type: "array"
+    description: "List of features used after collinearity filtering."
+    items:
+      type: "string"
+additionalProperties: false

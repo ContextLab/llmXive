@@ -1,0 +1,78 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "GrainBoundaryRecord"
+description: "Schema for a single grain boundary diffusion record used in the XGBoost model."
+type: "object"
+required:
+  - record_id
+  - material_composition
+  - temperature
+  - misorientation_angle
+  - boundary_plane_normal
+  - sigma_value
+  - diffusivity
+  - source
+  - checksum
+  - boundary_width
+  - excess_volume
+  - simulation_method
+  - potential_id
+properties:
+  record_id:
+    type: "string"
+    description: "Unique identifier for the record."
+  material_composition:
+    type: "string"
+    description: "Chemical formula of the material."
+  temperature:
+    type: "number"
+    description: "Temperature in Kelvin."
+    minimum: 0
+  misorientation_angle:
+    type: "number"
+    description: "Misorientation angle in degrees."
+    minimum: 0
+    maximum: 180
+  boundary_plane_normal:
+    type: "array"
+    description: "Miller indices [h, k, l] representing the boundary plane normal."
+    items:
+      type: "integer"
+    minItems: 3
+    maxItems: 3
+  sigma_value:
+    type: "integer"
+    description: "Sigma (Σ) value from Coincident Site Lattice theory."
+    minimum: 1
+  diffusivity:
+    type: "number"
+    description: "Diffusivity value in m² s⁻¹."
+    minimum: 0
+  source:
+    type: "string"
+    description: "Source of the data (e.g., 'MaterialsProject', 'OpenKIM')."
+    enum:
+      - "MaterialsProject"
+      - "OpenKIM"
+      - "NIST"
+  checksum:
+    type: "string"
+    description: "SHA-256 checksum of the raw source data."
+    pattern: "^[a-f0-9]{64}$"
+  boundary_width:
+    type: "number"
+    description: "Boundary width in nanometers (derived from geometry)."
+    minimum: 0
+  excess_volume:
+    type: "number"
+    description: "Excess volume in Å³/atom (derived from geometry)."
+  simulation_method:
+    type: "string"
+    description: "Simulation method used (DFT, MD, KMC)."
+    enum:
+      - "DFT"
+      - "MD"
+      - "KMC"
+  potential_id:
+    type: "string"
+    description: "Identifier for the interatomic potential used."
+additionalProperties: false
