@@ -1,0 +1,69 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Halo Shape and Property Schema"
+description: "Schema for the processed halo data including shape metrics and galaxy properties."
+type: "object"
+properties:
+  halo_id:
+    type: "integer"
+    description: "Unique identifier for the halo."
+  snapshot_id:
+    type: "integer"
+    description: "Snapshot identifier."
+  mass_total:
+    type: "number"
+    description: "Total halo mass in Msun/h."
+  n_dm_particles:
+    type: "integer"
+    minimum: 10000
+    description: "Number of dark matter particles. Must be >= 10000."
+  axial_ratio_ba:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Axial ratio b/a."
+  axial_ratio_ca:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Axial ratio c/a."
+  triaxiality:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Triaxiality parameter T."
+  shape_bin:
+    type: "string"
+    enum:
+      - "Prolate"
+      - "Triaxial"
+      - "Spherical"
+    description: "Categorical bin based on c/a thresholds."
+  subhalo_id:
+    type: "integer"
+    description: "ID of the central galaxy subhalo."
+  stellar_mass:
+    type: "number"
+    description: "Stellar mass of the central galaxy."
+  sfr:
+    type: "number"
+    description: "Star Formation Rate."
+  effective_radius:
+    type: "number"
+    description: "Effective radius of the galaxy."
+  associational_only:
+    type: "boolean"
+    const: true
+    description: "Flag indicating the non-causal nature of the data."
+required:
+  - halo_id
+  - snapshot_id
+  - mass_total
+  - n_dm_particles
+  - axial_ratio_ba
+  - axial_ratio_ca
+  - triaxiality
+  - shape_bin
+  - sfr
+  - effective_radius
+  - associational_only
+additionalProperties: false

@@ -1,0 +1,38 @@
+# Project Metadata and Data Source Tracking
+# Updated by T011: TNG-100 Data Fetcher
+
+project:
+  name: "PROJ-107-quantifying-the-effects-of-dark-matter-h"
+  version: "0.1.0"
+  hardware_constraints:
+    ram_gb: 7
+    gpu: false
+    note: "Chunked processing and sampling used due to RAM constraints (SC-005)"
+
+sources:
+  tng_snapshot_000:
+    status: "pending"
+    url: "https://www.tng-project.org/api/v2/snapshots/000/halos"
+    description: "TNG-100 Snapshot 000 halo catalog"
+    expected_files: "HDF5 files for haloes"
+    checksum_algorithm: "md5"
+    last_updated: null
+    download_path: null
+    downloaded_count: 0
+    failed_count: 0
+
+processing:
+  chunk_size: 1000
+  sample_rate: 0.1
+  associations_only: true
+
+success_criteria:
+  SC-001: "Compute reduced inertia tensors"
+  SC-002: "Derive axial ratios and triaxiality"
+  SC-003: "P-value variance <= 0.001 in sensitivity analysis"
+  SC-004: "Not Measurable (Millennium-II/WDM data availability pending)"
+  SC-005: "Feasible on 7GB RAM (Sampling/Chunking implemented)"
+
+notes:
+  - "T002: Documented deviation from 'every FoF halo' due to hardware constraints."
+  - "T026: All output datasets must include associational_only=true flag."

@@ -1,0 +1,69 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Analysis Result Schema"
+description: "Schema for the output of statistical tests (Kruskal-Wallis, Mann-Whitney, etc.)."
+type: "object"
+properties:
+  test_type:
+    type: "string"
+    enum:
+      - "Kruskal-Wallis"
+      - "Mann-Whitney U"
+      - "Kolmogorov-Smirnov"
+      - "Linear Regression"
+    description: "Type of statistical test performed."
+  property:
+    type: "string"
+    enum:
+      - "SFR"
+      - "Effective Radius"
+      - "Stellar Mass"
+    description: "Galaxy property being tested."
+  comparison:
+    type: "string"
+    description: "Description of the groups being compared (e.g., 'Prolate vs Spherical')."
+  statistic:
+    type: "number"
+    description: "Value of the test statistic."
+  p_value_raw:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Raw p-value before correction."
+  p_value_adj:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Bonferroni-corrected p-value."
+  significant:
+    type: "boolean"
+    description: "True if p_value_adj < 0.01."
+  threshold_set:
+    type: "string"
+    description: "Binning thresholds used (e.g., '0.5,0.8')."
+  effect_size:
+    type: "number"
+    description: "Regression coefficient value (effect size)."
+  ci_lower:
+    type: "number"
+    description: "Lower bound of 95% confidence interval."
+  ci_upper:
+    type: "number"
+    description: "Upper bound of 95% confidence interval."
+  associational_only:
+    type: "boolean"
+    const: true
+    description: "Flag indicating the non-causal nature of the result."
+required:
+  - test_type
+  - property
+  - comparison
+  - statistic
+  - p_value_raw
+  - p_value_adj
+  - significant
+  - threshold_set
+  - effect_size
+  - ci_lower
+  - ci_upper
+  - associational_only
+additionalProperties: false

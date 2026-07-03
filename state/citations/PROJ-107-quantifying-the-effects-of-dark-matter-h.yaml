@@ -1,0 +1,33 @@
+- artifact_hash: 2451a06a157e3d881e9667f74c1c539bbca61026e4db51327bb76fb6897ffb60
+  artifact_path: projects/PROJ-107-quantifying-the-effects-of-dark-matter-h/specs/001-quantifying-the-effects-of-dark-matter-h/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: IllustrisTNG - Data Access
+  kind: url
+  value: https://www.tng-project.org/data/`
+  verification_status: verified
+  verified_against_url: https://www.tng-project.org/data/
+  verified_at: '2026-07-03T11:41:37.838257Z'
+- artifact_hash: 8fd9a00656d8d488c97671febd94968d1efa3bbf26ddd3ac18f039134617b27d
+  artifact_path: projects/PROJ-107-quantifying-the-effects-of-dark-matter-h/specs/001-quantifying-the-effects-of-dark-matter-h/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://www.tng-project.org/api/
+  verification_status: pending
+  verified_against_url: https://www.tng-project.org/api/
+  verified_at: '2026-07-03T11:42:06.378087Z'
+- artifact_hash: 484eabfefb4385bfdc791ed66534a87d63eeae0b8671b331af7445f6934af0a9
+  artifact_path: projects/PROJ-107-quantifying-the-effects-of-dark-matter-h/specs/001-quantifying-the-effects-of-dark-matter-h/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: IllustrisTNG - Main
+  kind: url
+  value: https://www.tng-project.org/api/v2/snapshots/000/halos`
+  verification_status: verified
+  verified_against_url: https://www.tng-project.org/api/v2/snapshots/000/halos
+  verified_at: '2026-07-03T12:12:45.900623Z'

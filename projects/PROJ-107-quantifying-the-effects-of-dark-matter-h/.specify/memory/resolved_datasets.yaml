@@ -1,0 +1,238 @@
+resolved_at: '2026-07-03T11:33:44.267783+00:00'
+datasets:
+- intent: CPU-only
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/Online_supplement_to_Hearing_the_Institution_conceptual_model_of_the_voice_realism_to_inclusion_pathway/32895479
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Role-Normalized_Possession-Level_Passing_Networks_Anonymous_Reproducibility_Materials/32895449
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_High_Altitude_Amazonian_Eukaryotic_Shells_Arcellinida_Amoebozoa_b_SEM_IMAGES_/32895425
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Restaurant_Equipment_Maintenance_Guide_Preventive_Care_for_Commercial_Kitchens/32895461
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.le.ac.uk/articles/journal_contribution/Gossiping_and_Bitching_Online_The_Role_of_Gender_in_Perpetrating_Online_Toxicity_and_Anti-Social_Behavior/32740635
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://beei.org/index.php/EEI/article/view/1972
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6127654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21158400
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21158400
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21158909
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21158909
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21156634
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: GPU-accelerated
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Online_supplement_to_Hearing_the_Institution_conceptual_model_of_the_voice_realism_to_inclusion_pathway/32895479
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Role-Normalized_Possession-Level_Passing_Networks_Anonymous_Reproducibility_Materials/32895449
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_High_Altitude_Amazonian_Eukaryotic_Shells_Arcellinida_Amoebozoa_b_SEM_IMAGES_/32895425
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Restaurant_Equipment_Maintenance_Guide_Preventive_Care_for_Commercial_Kitchens/32895461
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.le.ac.uk/articles/journal_contribution/Gossiping_and_Bitching_Online_The_Role_of_Gender_in_Perpetrating_Online_Toxicity_and_Anti-Social_Behavior/32740635
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13937876
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17138571
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7649179
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15863506
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.cnp5hqc9v
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20719441
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20719441
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21151447
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21151447
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.27086
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CUDA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/SakanaAI/AI-CUDA-Engineer-Archive/resolve/main/level_1.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/deepreinforce-ai/CUDA-L1/resolve/main/more_baselines/cuda_graph.json
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/deepreinforce-ai/CUDA-L2/resolve/main/eval_results/cuda_l2_a100_F16F16F16F16_speedup_offline.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 74288
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/SakanaAI/AI-CUDA-Engineer-Archive/resolve/main/level_1.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/deepreinforce-ai/CUDA-L1/resolve/main/more_baselines/cuda_graph.json
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/deepreinforce-ai/CUDA-L2/resolve/main/eval_results/cuda_l2_a100_F16F16F16F16_speedup_offline.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/dataset/Online_supplement_to_Hearing_the_Institution_conceptual_model_of_the_voice_realism_to_inclusion_pathway/32895479
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Role-Normalized_Possession-Level_Passing_Networks_Anonymous_Reproducibility_Materials/32895449
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_High_Altitude_Amazonian_Eukaryotic_Shells_Arcellinida_Amoebozoa_b_SEM_IMAGES_/32895425
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Restaurant_Equipment_Maintenance_Guide_Preventive_Care_for_Commercial_Kitchens/32895461
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.le.ac.uk/articles/journal_contribution/Gossiping_and_Bitching_Online_The_Role_of_Gender_in_Perpetrating_Online_Toxicity_and_Anti-Social_Behavior/32740635
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5550909
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16299984
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.1653/024.099.0440
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://zenodo.org/records/19228158
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7683127
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://sdl.hpc.cineca.it/api/experiments/556/versions/1.0.0/summary
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://sdl.hpc.cineca.it/api/experiments/556/versions/1.0.0/summary
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://drum.lib.umd.edu/handle/1903/35974
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.02363
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.01984
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
