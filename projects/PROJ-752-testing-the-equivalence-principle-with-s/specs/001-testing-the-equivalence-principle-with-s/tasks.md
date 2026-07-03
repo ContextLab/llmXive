@@ -43,9 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan: `mkdir -p code/data code/models code/analysis code/utils code/tests contracts data/raw data/processed data/results docs`
-- [ ] T002 Initialize Python 3.11 project with pinned dependencies in `requirements.txt` (copy list from plan.md Technical Context)
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [X] T001 Create project structure per implementation plan: `mkdir -p code/data code/models code/analysis code/utils code/tests contracts data/raw data/processed data/results docs`
+- [X] T002 Initialize Python 3.11 project with pinned dependencies in `requirements.txt` (copy list from plan.md Technical Context)
+- [X] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
 
@@ -55,13 +55,13 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Implement `config.py` to load paths, hyperparams, and `verified_dataset_urls` keys
-- [ ] T005 [P] Create `contracts/normal_point.schema.yaml` defining the SLR observation schema
-- [ ] T006 [P] Create `contracts/orbit_solution.schema.yaml` defining the fit results schema
-- [~] T007 [P] Create `contracts/eotvos_result.schema.yaml` defining the final metric schema
-- [~] T008 Implement `utils/logging.py` for standardized error handling and progress logging
-- [~] T009 Implement `data/ingestion.py` skeleton with `DataUnavailableError` check (trigger if `config.verified_dataset_urls` is empty). **Note**: The verified ILRS URLs for LAGEOS-1, LAGEOS-2, Etalon-1, Etalon-2, and Starlette are hardcoded as pre-requisites in this task (e.g., `) to satisfy the 'Verified Accuracy' gate before implementation.
-- [~] T010 Setup `pytest` framework: create `tests/conftest.py`, `pytest.ini`, and `requirements-dev.txt`
+- [X] T004 Implement `config.py` to load paths, hyperparams, and `verified_dataset_urls` keys
+- [X] T005 [P] Create `contracts/normal_point.schema.yaml` defining the SLR observation schema
+- [X] T006 [P] Create `contracts/orbit_solution.schema.yaml` defining the fit results schema
+- [ ] T007 [P] Create `contracts/eotvos_result.schema.yaml` defining the final metric schema
+- [ ] T008 Implement `utils/logging.py` for standardized error handling and progress logging
+- [ ] T009 Implement `data/ingestion.py` skeleton with `DataUnavailableError` check (trigger if `config.verified_dataset_urls` is empty). **Note**: The verified ILRS URLs for LAGEOS-1, LAGEOS-2, Etalon-1, Etalon-2, and Starlette are hardcoded as pre-requisites in this task (e.g., `) to satisfy the 'Verified Accuracy' gate before implementation.
+- [ ] T010 Setup `pytest` framework: create `tests/conftest.py`, `pytest.ini`, and `requirements-dev.txt`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -79,7 +79,7 @@
 
 - [~] T011 [P] [US1] Unit test for URL validation and backoff retry logic in `tests/test_ingestion.py`
 - [~] T012 [P] [US1] Unit test for quality filtering (>2cm residual exclusion) in `tests/test_preprocessing.py`
-- [~] T013 [P] [US1] Integration test: Verify end-to-end download and CSV generation for LAGEOS-1 in `tests/test_data_pipeline.py` <!-- FAILED: unspecified -->
+- [~] T013 [P] [US1] Integration test: Verify end-to-end download and CSV generation for LAGEOS-1 in `tests/test_data_pipeline.py`
 
 ### Implementation for User Story 1
 
@@ -88,8 +88,8 @@
 - [~] T015 [US1] Implement `data/ingestion.py` to parse raw SLR files into `NormalPoint` objects
 - [~] T016 [US1] Implement `data/preprocessing.py` to filter residuals > 2cm and handle sparse satellites
 - [~] T017 [US1] Implement time-alignment logic in `data/preprocessing.py` to merge multi-satellite datasets
-- [ ] T018 [US1] Add error handling for 403 errors and "Insufficient Data" (<500 points) warnings
-- [ ] T019 [US1] Write output to `data/processed/cleaned_slr_data.csv` with checksum verification; record checksum in `data/processed/.checksums.json` in JSON format `{ "file": "cleaned_slr_data.csv", "sha256": "..." }` and ensure raw data is preserved unchanged
+- [~] T018 [US1] Add error handling for 403 errors and "Insufficient Data" (<500 points) warnings
+- [~] T019 [US1] Write output to `data/processed/cleaned_slr_data.csv` with checksum verification; record checksum in `data/processed/.checksums.json` in JSON format `{ "file": "cleaned_slr_data.csv", "sha256": "..." }` and ensure raw data is preserved unchanged
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -103,18 +103,18 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T020 [P] [US2] Unit test for dynamical model components (geopotential, drag, SRP) in `tests/test_dynamics.py`
-- [ ] T021 [US2] Unit test for **joint** least-squares solver convergence in `tests/test_estimator.py` (TDD-first: depends on interface definition in T024)
-- [ ] T022 [US2] Unit test for $\eta$ calculation and covariance propagation in `tests/test_eotvos.py` (TDD-first: depends on interface definition in T024)
+- [~] T020 [P] [US2] Unit test for dynamical model components (geopotential, drag, SRP) in `tests/test_dynamics.py`
+- [~] T021 [US2] Unit test for **joint** least-squares solver convergence in `tests/test_estimator.py` (TDD-first: depends on interface definition in T024)
+- [~] T022 [US2] Unit test for $\eta$ calculation and covariance propagation in `tests/test_eotvos.py` (TDD-first: depends on interface definition in T024)
 
 ### Implementation for User Story 2
 
-- [ ] T023 [P] [US2] Implement `models/dynamics.py` with GGM05C geopotential, Jacchia drag, and SRP models; input: state vector, output: acceleration vector (ITRS coordinates, using `astropy.coordinates`)
-- [ ] T024 [US2] Implement `models/estimator.py` for **joint** weighted least-squares fitting (stack residuals of both satellites into single vector, estimate shared $a_c$); output: joint solution object
-- [ ] T025 [US2] Implement function `extract_joint_parameters(solution: OrbitSolution) -> dict` to **extract** differential acceleration $a_c$ and local gravity $g$ **directly from the joint solution vector** and joint covariance matrix, returning a dictionary with keys `{'ac': float, 'g': float, 'covariance': np.array}`.
-- [ ] T026 [US2] Implement `analysis/eotvos.py` to compute $\eta = |a_c| / g$ and 95% CI from the joint covariance matrix
-- [ ] T027 [US2] Implement fallback logic for non-convergence (relax tolerance, log warning, output best-fit) as authorized by plan robustness requirements
-- [ ] T028 [US2] Save `OrbitSolution` and `EotvosResult` to `data/results/orbit_solutions.json` and `data/results/eotvos_metrics.json`
+- [~] T023 [P] [US2] Implement `models/dynamics.py` with GGM05C geopotential, Jacchia drag, and SRP models; input: state vector, output: acceleration vector (ITRS coordinates, using `astropy.coordinates`)
+- [~] T024 [US2] Implement `models/estimator.py` for **joint** weighted least-squares fitting (stack residuals of both satellites into single vector, estimate shared $a_c$); output: joint solution object
+- [~] T025 [US2] Implement function `extract_joint_parameters(solution: OrbitSolution) -> dict` to **extract** differential acceleration $a_c$ and local gravity $g$ **directly from the joint solution vector** and joint covariance matrix, returning a dictionary with keys `{'ac': float, 'g': float, 'covariance': np.array}`.
+- [~] T026 [US2] Implement `analysis/eotvos.py` to compute $\eta = |a_c| / g$ and 95% CI from the joint covariance matrix
+- [~] T027 [US2] Implement fallback logic for non-convergence (relax tolerance, log warning, output best-fit) as authorized by plan robustness requirements
+- [~] T028 [US2] Save `OrbitSolution` and `EotvosResult` to `data/results/orbit_solutions.json` and `data/results/eotvos_metrics.json`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -128,9 +128,9 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T029 [P] [US3] Unit test for F-test and BIC calculation logic in `tests/test_validation.py`
-- [ ] T030 [P] [US3] Unit test for Bonferroni/Holm-Bonferroni correction logic in `tests/test_validation.py`
-- [ ] T031 [P] [US3] Integration test: Verify sensitivity sweep across 3 geopotential models in `tests/test_sensitivity.py`
+- [~] T029 [P] [US3] Unit test for F-test and BIC calculation logic in `tests/test_validation.py`
+- [~] T030 [P] [US3] Unit test for Bonferroni/Holm-Bonferroni correction logic in `tests/test_validation.py`
+- [~] T031 [P] [US3] Integration test: Verify sensitivity sweep across 3 geopotential models in `tests/test_sensitivity.py`
 
 ### Implementation for User Story 3
 

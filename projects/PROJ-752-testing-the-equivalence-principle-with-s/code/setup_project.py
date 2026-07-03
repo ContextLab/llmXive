@@ -1,54 +1,102 @@
 import os
 import sys
-import subprocess
-import shutil
 
-def main():
+def create_project_structure():
     """
-    Initialize the Python project environment.
-    This script verifies Python version and installs dependencies from requirements.txt.
+    Creates the directory structure for the llmXive automated science pipeline project.
+    
+    This function creates the following directories relative to the current working directory:
+    - code/data, code/models, code/analysis, code/utils, code/tests
+    - contracts
+    - data/raw, data/processed, data/results
+    - docs
+    
+    It also creates placeholder __init__.py files in Python packages to ensure they are
+    recognized as modules.
     """
-    # Check Python version
-    if sys.version_info < (3, 11):
-        print("ERROR: Python 3.11 or higher is required.")
-        print(f"Current version: {sys.version}")
-        sys.exit(1)
-
-    print(f"Python version verified: {sys.version}")
-
-    # Determine project root (assuming script is in code/)
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    project_root = os.path.dirname(script_dir)
-    requirements_path = os.path.join(project_root, "requirements.txt")
-
-    if not os.path.exists(requirements_path):
-        print(f"ERROR: requirements.txt not found at {requirements_path}")
-        sys.exit(1)
-
-    print(f"Found requirements.txt at {requirements_path}")
-
-    # Install dependencies
-    print("Installing dependencies...")
-    try:
-        subprocess.check_call(
-            [sys.executable, "-m", "pip", "install", "-r", requirements_path],
-            cwd=project_root
-        )
-        print("Dependencies installed successfully.")
-    except subprocess.CalledProcessError as e:
-        print(f"ERROR: Failed to install dependencies: {e}")
-        sys.exit(1)
-
-    # Verify directory structure exists (T001 should have created this, but ensure it)
-    dirs = [
-        "code/data", "code/models", "code/analysis", "code/utils", "code/tests",
-        "contracts", "data/raw", "data/processed", "data/results", "docs"
+    # Define the directory structure to create
+    directories = [
+        "code/data",
+        "code/models",
+        "code/analysis",
+        "code/utils",
+        "code/tests",
+        "contracts",
+        "data/raw",
+        "data/processed",
+        "data/results",
+        "docs"
     ]
-    for d in dirs:
-        path = os.path.join(project_root, d)
-        os.makedirs(path, exist_ok=True)
 
-    print("Project initialization complete.")
+    # Create directories
+    for dir_path in directories:
+        os.makedirs(dir_path, exist_ok=True)
+        print(f"Created directory: {dir_path}")
+
+    # Create __init__.py files for Python packages
+    python_packages = [
+        "code",
+        "code/data",
+        "code/models",
+        "code/analysis",
+        "code/utils",
+        "code/tests"
+    ]
+
+    for package_path in python_packages:
+        init_file = os.path.join(package_path, "__init__.py")
+        if not os.path.exists(init_file):
+            with open(init_file, "w") as f:
+                f.write("# Package initialization file\n")
+            print(f"Created package initializer: {init_file}")
+        else:
+            print(f"Package initializer already exists: {init_file}")
+
+    # Create placeholder files for contracts
+    contract_files = [
+        "contracts/normal_point.schema.yaml",
+        "contracts/orbit_solution.schema.yaml",
+        "contracts/eotvos_result.schema.yaml"
+    ]
+
+    for contract_file in contract_files:
+        if not os.path.exists(contract_file):
+            with open(contract_file, "w") as f:
+                f.write("# Schema definition placeholder\n")
+            print(f"Created contract schema placeholder: {contract_file}")
+        else:
+            print(f"Contract schema already exists: {contract_file}")
+
+    # Create placeholder files for data directories
+    data_placeholders = [
+        ("data/raw/.gitkeep", "# Raw data directory - do not commit actual data files"),
+        ("data/processed/.gitkeep", "# Processed data directory"),
+        ("data/results/.gitkeep", "# Results directory"),
+        ("docs/.gitkeep", "# Documentation directory")
+    ]
+
+    for file_path, content in data_placeholders:
+        if not os.path.exists(file_path):
+            with open(file_path, "w") as f:
+                f.write(content)
+            print(f"Created placeholder file: {file_path}")
+        else:
+            print(f"Placeholder file already exists: {file_path}")
+
+    print("\nProject structure creation complete.")
+    print("Directory structure:")
+    print("├── code/")
+    print("│   ├── data/")
+    print("│   ├── models/")
+    print("│   ├── analysis/")
+    print("│   ├── utils/")
+    print("│   └── tests/")
+    print("├── contracts/")
+    print("├── data/")
+    print("│   ├── raw/")
+    print("│   ├── processed/")
+    print("│   └── results/")
+    print("└── docs/")
 
 if __name__ == "__main__":
-    main()
+    create_project_structure()

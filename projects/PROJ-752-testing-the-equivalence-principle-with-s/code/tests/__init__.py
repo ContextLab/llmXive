@@ -1,3 +1,1 @@
-"""
-Initialization file for the tests package.
-"""
+# Tests package initialization

@@ -1,3 +1,2 @@
-"""
-Initialization file for the data package.
-"""
+# Data package initialization
+pass

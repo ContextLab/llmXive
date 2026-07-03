@@ -1,129 +1,133 @@
 """
-Standardized logging configuration and helpers for the Equivalence Principle pipeline.
+Logging and Error Handling Utilities
 
-Provides:
-  - init_logging(): Configure root logger with file and console handlers.
-  - get_logger(name): Retrieve a named logger (child of root).
-  - log_error, log_warning, log_info, log_progress: Convenience wrappers.
-
-Logs are written to:
-  - `data/logs/pipeline.log` (all levels)
-  - Console (INFO and above)
+Provides standardized logging configuration and custom exception classes
+for the llmXive science pipeline.
 """
 import logging
-import os
 import sys
-from pathlib import Path
-from typing import Optional
+import os
+from typing import Optional, Dict, Any
+from datetime import datetime
 
-# Project root relative to this file
-_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-_LOG_DIR = _PROJECT_ROOT / "data" / "logs"
-_LOG_FILE = _LOG_DIR / "pipeline.log"
+# Custom Exceptions
+class PipelineError(Exception):
+    """Base exception for pipeline-related errors."""
+    pass
 
-# Default log level
-_DEFAULT_LEVEL = logging.INFO
+class DataUnavailableError(PipelineError):
+    """Raised when required data is missing or inaccessible."""
+    pass
 
-# Ensure log directory exists
-_LOG_DIR.mkdir(parents=True, exist_ok=True)
+class ConfigurationError(PipelineError):
+    """Raised when configuration is invalid or missing."""
+    pass
 
-
-class LoggingConfig:
-    """Configuration container for logging behavior."""
-    level: int = _DEFAULT_LEVEL
-    log_file: Path = _LOG_FILE
-    log_dir: Path = _LOG_DIR
-    console_enabled: bool = True
-    file_enabled: bool = True
-    format_string: str = (
-        "%(asctime)s | %(levelname)-8s | %(name)s | %(message)s"
-    )
-    date_format: str = "%Y-%m-%d %H:%M:%S"
+class AnalysisError(PipelineError):
+    """Raised when a scientific analysis step fails."""
+    pass
 
 
-def init_logging(config: Optional[LoggingConfig] = None) -> None:
+# Logger Registry
+_loggers: Dict[str, logging.Logger] = {}
+
+
+def get_logger(name: str = "llmXive") -> logging.Logger:
     """
-    Configure the root logger with file and console handlers.
+    Get or create a logger with standardized configuration.
 
     Args:
-        config: Optional LoggingConfig instance. Uses defaults if None.
+        name: The name of the logger (usually __name__).
+
+    Returns:
+        Configured logging.Logger instance.
     """
-    if config is None:
-        config = LoggingConfig()
+    if name in _loggers:
+        return _loggers[name]
 
-    # Ensure directory exists
-    config.log_dir.mkdir(parents=True, exist_ok=True)
+    logger = logging.getLogger(name)
+    if logger.handlers:
+        _loggers[name] = logger
+        return logger
 
-    # Root logger
-    root_logger = logging.getLogger()
-    root_logger.setLevel(config.level)
+    logger.setLevel(logging.INFO)
 
-    # Clear existing handlers to avoid duplicates on re-init
-    if root_logger.handlers:
-        root_logger.handlers.clear()
+    # Console handler
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(logging.INFO)
 
     # Formatter
     formatter = logging.Formatter(
-        fmt=config.format_string,
-        datefmt=config.date_format
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
     )
+    console_handler.setFormatter(formatter)
 
-    # File handler
-    if config.file_enabled:
-        file_handler = logging.FileHandler(config.log_file, mode='a')
-        file_handler.setLevel(config.level)
-        file_handler.setFormatter(formatter)
-        root_logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
+    _loggers[name] = logger
 
-    # Console handler
-    if config.console_enabled:
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setLevel(logging.INFO)
-        console_handler.setFormatter(formatter)
-        root_logger.addHandler(console_handler)
+    return logger
 
 
-def get_logger(name: str) -> logging.Logger:
+def init_logging(log_file: Optional[str] = None, level: int = logging.INFO) -> None:
     """
-    Retrieve a named logger (child of root).
+    Initialize logging to both console and optional file.
 
     Args:
-        name: Logger name (e.g., 'ingestion', 'estimator').
-
-    Returns:
-        Configured logger instance.
+        log_file: Path to log file. If None, only console logging is used.
+        level: Logging level (e.g., logging.DEBUG, logging.INFO).
     """
-    return logging.getLogger(name)
+    root_logger = logging.getLogger()
+    root_logger.setLevel(level)
+
+    # Clear existing handlers to avoid duplicates
+    root_logger.handlers.clear()
+
+    # Console handler
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(level)
+    console_handler.setFormatter(
+        logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+            datefmt='%Y-%m-%d %H:%M:%S'
+        )
+    )
+    root_logger.addHandler(console_handler)
+
+    if log_file:
+        os.makedirs(os.path.dirname(log_file) if os.path.dirname(log_file) else '.', exist_ok=True)
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setLevel(level)
+        file_handler.setFormatter(
+            logging.Formatter(
+                '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                datefmt='%Y-%m-%d %H:%M:%S'
+            )
+        )
+        root_logger.addHandler(file_handler)
 
 
-def log_error(message: str, logger_name: str = "root") -> None:
-    """Log an error message."""
-    logger = get_logger(logger_name)
-    logger.error(message)
-
-
-def log_warning(message: str, logger_name: str = "root") -> None:
-    """Log a warning message."""
-    logger = get_logger(logger_name)
-    logger.warning(message)
-
-
-def log_info(message: str, logger_name: str = "root") -> None:
-    """Log an info message."""
-    logger = get_logger(logger_name)
-    logger.info(message)
-
-
-def log_progress(message: str, logger_name: str = "root") -> None:
-    """
-    Log a progress message (treated as INFO).
-
-    Use this for long-running task updates.
-    """
+def log_progress(message: str, logger_name: str = "llmXive") -> None:
+    """Log a progress message at INFO level."""
     logger = get_logger(logger_name)
     logger.info(f"[PROGRESS] {message}")
 
 
-# Initialize logging on module import if not already configured
-if not logging.getLogger().handlers:
-    init_logging()
+def log_error(message: str, logger_name: str = "llmXive") -> None:
+    """Log an error message at ERROR level."""
+    logger = get_logger(logger_name)
+    logger.error(f"[ERROR] {message}")
+
+
+def handle_fatal_error(error: Exception, logger_name: str = "llmXive") -> None:
+    """
+    Handle a fatal error by logging it and exiting the program.
+
+    Args:
+        error: The exception that caused the failure.
+        logger_name: Name of the logger to use.
+    """
+    logger = get_logger(logger_name)
+    logger.critical(f"FATAL ERROR: {str(error)}")
+    logger.critical("Pipeline execution aborted.")
+    sys.exit(1)

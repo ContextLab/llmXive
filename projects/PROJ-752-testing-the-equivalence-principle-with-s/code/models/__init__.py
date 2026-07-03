@@ -1,3 +1,2 @@
-"""
-Initialization file for the models package.
-"""
+# Models package initialization
+pass

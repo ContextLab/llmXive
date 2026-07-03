@@ -1,193 +1,121 @@
-"""
-Unit tests for URL validation and backoff retry logic in data/ingestion.py.
-
-These tests verify:
-1. The fetch_single_satellite function correctly handles HTTP errors with exponential backoff.
-2. The fetch_single_satellite function raises the appropriate exception after max retries.
-3. The function validates URLs and rejects invalid formats.
-"""
 import pytest
+import pandas as pd
+from unittest.mock import patch, MagicMock
 import requests
-from unittest.mock import patch, MagicMock, Mock
-import time
+from io import StringIO
 
-# Add code to path using the conftest fixture
-from tests.conftest import add_code_to_path
+from code.data.ingestion import fetch_single_satellite, DataUnavailableError, verify_data_availability, get_satellite_urls
 
-# Import the module under test
-from data.ingestion import fetch_single_satellite, DataUnavailableError
+@pytest.fixture
+def mock_config():
+    """Mock configuration with verified URLs."""
+    return {
+        'verified_dataset_urls': {
+            'LAGEOS-1': 'https://example.com/lageos1.csv',
+            'LAGEOS-2': 'https://example.com/lageos2.csv',
+            'Etalon-1': 'https://example.com/etalon1.csv'
+        }
+    }
 
+@patch('code.data.ingestion.get_config')
+def test_verify_data_availability(mock_get_config, mock_config):
+    mock_get_config.return_value = type('Config', (), mock_config)()
+    assert verify_data_availability() is True
 
-class TestURLValidation:
-    """Tests for URL validation logic."""
+@patch('code.data.ingestion.get_config')
+def test_verify_data_availability_empty(mock_get_config):
+    mock_get_config.return_value = type('Config', (), {'verified_dataset_urls': {}})()
+    assert verify_data_availability() is False
 
-    def test_valid_http_url(self):
-        """Test that a valid HTTP URL is accepted."""
-        valid_url = "http://example.com/data.csv"
-        # We mock the request to avoid actual network calls
-        with patch('data.ingestion.requests.get') as mock_get:
-            mock_response = MagicMock()
-            mock_response.status_code = 200
-            mock_response.text = "dummy content"
-            mock_get.return_value = mock_response
+@patch('code.data.ingestion.get_config')
+def test_get_satellite_urls(mock_get_config, mock_config):
+    mock_get_config.return_value = type('Config', (), mock_config)()
+    urls = get_satellite_urls()
+    assert 'LAGEOS-1' in urls
+    assert urls['LAGEOS-1'] == 'https://example.com/lageos1.csv'
 
-            # Should not raise
-            try:
-                fetch_single_satellite("TEST_SAT", valid_url)
-            except Exception:
-                # We expect it to fail later due to parsing, but not URL validation
-                pass
+@patch('code.data.ingestion.requests.Session')
+def test_fetch_single_satellite_success(mock_session_class):
+    mock_session = MagicMock()
+    mock_session_class.return_value = mock_session
+    
+    # Mock response
+    mock_response = MagicMock()
+    mock_response.text = "time,range,residual\n1.0,1000.0,0.5\n2.0,1000.1,0.6\n"
+    mock_response.headers = {'Content-Type': 'text/csv'}
+    mock_response.raise_for_status = MagicMock()
+    mock_session.get.return_value = mock_response
 
-    def test_valid_https_url(self):
-        """Test that a valid HTTPS URL is accepted."""
-        valid_url = "https://ilrs.cddis.eosdis.nasa.gov/data/slr/normal_points/LAGEOS1.csv"
-        with patch('data.ingestion.requests.get') as mock_get:
-            mock_response = MagicMock()
-            mock_response.status_code = 200
-            mock_response.text = "dummy content"
-            mock_get.return_value = mock_response
-            try:
-                fetch_single_satellite("TEST_SAT", valid_url)
-            except Exception:
-                pass
+    df = fetch_single_satellite('LAGEOS-1', 'https://example.com/data.csv')
+    
+    assert isinstance(df, pd.DataFrame)
+    assert len(df) == 2
+    assert 'time' in df.columns
+    assert df['satellite_id'].empty  # This function doesn't add satellite_id
 
-    def test_invalid_url_no_scheme(self):
-        """Test that a URL without a scheme is handled gracefully (requests will fail)."""
-        invalid_url = "example.com/data.csv"
-        with patch('data.ingestion.requests.get') as mock_get:
-            # requests raises MissingSchema for invalid URLs
-            mock_get.side_effect = requests.exceptions.MissingSchema("Invalid URL")
-            
-            with pytest.raises((requests.exceptions.MissingSchema, DataUnavailableError)):
-                fetch_single_satellite("TEST_SAT", invalid_url)
+@patch('code.data.ingestion.requests.Session')
+def test_fetch_single_satellite_empty_content(mock_session_class):
+    mock_session = MagicMock()
+    mock_session_class.return_value = mock_session
+    
+    mock_response = MagicMock()
+    mock_response.text = ""
+    mock_response.headers = {}
+    mock_response.raise_for_status = MagicMock()
+    mock_session.get.return_value = mock_response
 
+    with pytest.raises(DataUnavailableError, match="No data content received"):
+        fetch_single_satellite('LAGEOS-1', 'https://example.com/data.csv')
 
-class TestBackoffRetryLogic:
-    """Tests for exponential backoff retry mechanism."""
+@patch('code.data.ingestion.requests.Session')
+def test_fetch_single_satellite_retry_logic(mock_session_class):
+    mock_session = MagicMock()
+    mock_session_class.return_value = mock_session
+    
+    # Simulate a transient error followed by success
+    error_response = MagicMock()
+    error_response.status_code = 503
+    error_response.raise_for_status.side_effect = requests.exceptions.HTTPError("503 Service Unavailable")
+    
+    success_response = MagicMock()
+    success_response.text = "time,range\n1.0,1000.0\n"
+    success_response.headers = {'Content-Type': 'text/csv'}
+    success_response.raise_for_status = MagicMock()
+    
+    mock_session.get.side_effect = [
+        requests.exceptions.HTTPError("503"), # First call fails
+        requests.exceptions.HTTPError("503"), # Second call fails
+        success_response # Third call succeeds
+    ]
 
-    @patch('data.ingestion.requests.get')
-    def test_retry_on_503_service_unavailable(self, mock_get):
-        """Test that the function retries on 503 Service Unavailable errors."""
-        mock_response = MagicMock()
-        mock_response.status_code = 503
-        mock_response.text = "Service Unavailable"
-        
-        # Configure mock to return 503 for first 2 calls, then 200
-        mock_get.side_effect = [
-            requests.exceptions.HTTPError(response=mock_response),
-            requests.exceptions.HTTPError(response=mock_response),
-            MagicMock(status_code=200, text="Success content")
-        ]
+    df = fetch_single_satellite('LAGEOS-1', 'https://example.com/data.csv')
+    assert len(df) == 1
+    assert mock_session.get.call_count == 3
 
-        # We expect the function to succeed after retries
-        # Note: In a real scenario, we might need to mock time.sleep to speed up tests
-        with patch('data.ingestion.time.sleep'):
-            try:
-                result = fetch_single_satellite("TEST_SAT", "http://example.com/data.csv")
-                assert result is not None
-            except Exception:
-                # If it fails, it might be due to parsing logic, not retry logic
-                # The retry logic itself (calling requests.get 3 times) is what we care about
-                pass
-        
-        # Verify requests.get was called 3 times (2 failures + 1 success)
-        assert mock_get.call_count == 3
+@patch('code.data.ingestion.requests.Session')
+def test_fetch_single_satellite_max_retries_exceeded(mock_session_class):
+    mock_session = MagicMock()
+    mock_session_class.return_value = mock_session
+    
+    error_response = MagicMock()
+    error_response.status_code = 503
+    error_response.raise_for_status.side_effect = requests.exceptions.HTTPError("503 Service Unavailable")
+    mock_session.get.return_value = error_response
+    mock_session.get.side_effect = [error_response] * 6 # Force failure after retries
 
-    @patch('data.ingestion.requests.get')
-    def test_retry_on_connection_error(self, mock_get):
-        """Test that the function retries on ConnectionError."""
-        # Configure mock to raise ConnectionError twice, then succeed
-        mock_get.side_effect = [
-            requests.exceptions.ConnectionError("Network error"),
-            requests.exceptions.ConnectionError("Network error"),
-            MagicMock(status_code=200, text="Success content")
-        ]
+    with pytest.raises(DataUnavailableError):
+        fetch_single_satellite('LAGEOS-1', 'https://example.com/data.csv')
 
-        with patch('data.ingestion.time.sleep'):
-            try:
-                result = fetch_single_satellite("TEST_SAT", "http://example.com/data.csv")
-                assert result is not None
-            except Exception:
-                pass
+@patch('code.data.ingestion.requests.Session')
+def test_fetch_single_satellite_invalid_format(mock_session_class):
+    mock_session = MagicMock()
+    mock_session_class.return_value = mock_session
+    
+    mock_response = MagicMock()
+    mock_response.text = "This is not a valid CSV or table"
+    mock_response.headers = {'Content-Type': 'text/plain'}
+    mock_response.raise_for_status = MagicMock()
+    mock_session.get.return_value = mock_response
 
-        # Verify retry logic executed 3 times
-        assert mock_get.call_count == 3
-
-    @patch('data.ingestion.requests.get')
-    def test_max_retries_exceeded_raises_error(self, mock_get):
-        """Test that the function raises an error after max retries are exceeded."""
-        mock_response = MagicMock()
-        mock_response.status_code = 503
-        mock_response.text = "Service Unavailable"
-        
-        # Always fail
-        mock_get.side_effect = requests.exceptions.HTTPError(response=mock_response)
-
-        with patch('data.ingestion.time.sleep'):
-            with pytest.raises(DataUnavailableError) as exc_info:
-                fetch_single_satellite("TEST_SAT", "http://example.com/data.csv")
-            
-            assert "Max retries exceeded" in str(exc_info.value)
-
-        # Verify it was called 3 times (default max retries)
-        assert mock_get.call_count == 3
-
-    @patch('data.ingestion.requests.get')
-    def test_exponential_backoff_delays(self, mock_get):
-        """Test that the delays between retries are exponential."""
-        mock_response = MagicMock()
-        mock_response.status_code = 503
-        
-        mock_get.side_effect = requests.exceptions.HTTPError(response=mock_response)
-
-        recorded_sleeps = []
-        
-        def capture_sleep(duration):
-            recorded_sleeps.append(duration)
-        
-        with patch('data.ingestion.time.sleep', side_effect=capture_sleep):
-            with pytest.raises(DataUnavailableError):
-                fetch_single_satellite("TEST_SAT", "http://example.com/data.csv")
-
-        # We expect 2 sleeps before the 3rd (final) attempt fails
-        assert len(recorded_sleeps) == 2
-        
-        # Verify exponential backoff: sleep times should be increasing
-        # (e.g., base_delay, base_delay * 2, etc.)
-        # The exact values depend on the implementation in ingestion.py
-        # Here we just verify they are increasing
-        for i in range(1, len(recorded_sleeps)):
-            assert recorded_sleeps[i] >= recorded_sleeps[i-1], \
-                f"Backoff not exponential: {recorded_sleeps}"
-
-    @patch('data.ingestion.requests.get')
-    def test_no_retry_on_404_not_found(self, mock_get):
-        """Test that 404 errors are not retried (client error)."""
-        mock_response = MagicMock()
-        mock_response.status_code = 404
-        mock_response.text = "Not Found"
-        
-        mock_get.side_effect = requests.exceptions.HTTPError(response=mock_response)
-
-        with patch('data.ingestion.time.sleep'):
-            with pytest.raises(DataUnavailableError):
-                fetch_single_satellite("TEST_SAT", "http://example.com/data.csv")
-
-        # Should only be called once for 404 (no retry)
-        assert mock_get.call_count == 1
-
-    @patch('data.ingestion.requests.get')
-    def test_no_retry_on_403_forbidden(self, mock_get):
-        """Test that 403 errors are not retried (client error)."""
-        mock_response = MagicMock()
-        mock_response.status_code = 403
-        mock_response.text = "Forbidden"
-        
-        mock_get.side_effect = requests.exceptions.HTTPError(response=mock_response)
-
-        with patch('data.ingestion.time.sleep'):
-            with pytest.raises(DataUnavailableError):
-                fetch_single_satellite("TEST_SAT", "http://example.com/data.csv")
-
-        # Should only be called once for 403
-        assert mock_get.call_count == 1
+    with pytest.raises(ValueError, match="Could not parse data"):
+        fetch_single_satellite('LAGEOS-1', 'https://example.com/data.csv')

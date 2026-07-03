@@ -1,277 +1,218 @@
-import numpy as np
+"""
+Preprocessing module for Satellite Laser Ranging (SLR) data.
+
+This module handles:
+- Quality filtering (residual exclusion)
+- Time-alignment of multi-satellite datasets
+- Merging datasets into a unified time series
+"""
 import pandas as pd
-from typing import List, Optional, Tuple, Dict
-from dataclasses import dataclass, field
-from data.ingestion import NormalPoint, normal_points_to_dataframe
-from utils.logging import get_logger
+import numpy as np
+from typing import List, Optional, Tuple
+from datetime import timedelta
 
-logger = get_logger(__name__)
-
-
-@dataclass
-class PreprocessingStats:
-    """Container for statistics about the preprocessing pipeline."""
-    original_points: int = 0
-    filtered_out_residuals: int = 0
-    filtered_out_sparse: int = 0
-    final_points: int = 0
-    satellites_processed: List[str] = field(default_factory=list)
-    time_range_start: Optional[str] = None
-    time_range_end: Optional[str] = None
+# Constants
+RESIDUAL_THRESHOLD_CM = 2.0  # cm
+RESIDUAL_THRESHOLD_M = RESIDUAL_THRESHOLD_CM / 100.0  # meters
 
 
-def filter_residuals(df: pd.DataFrame, threshold_m: float = 0.02) -> Tuple[pd.DataFrame, int]:
+def filter_residuals(df: pd.DataFrame, threshold_m: float = RESIDUAL_THRESHOLD_M) -> pd.DataFrame:
     """
-    Filter out normal points with residuals larger than the threshold.
+    Filter out SLR normal points with residuals exceeding the threshold.
 
     Args:
-        df: DataFrame containing SLR data with a 'residual' column (in meters).
-        threshold_m: Threshold in meters (default 0.02m = 2cm).
+        df: DataFrame containing SLR normal points with a 'residual' column (in meters).
+        threshold_m: Maximum allowed residual in meters (default: 2cm).
 
     Returns:
-        Tuple of (filtered DataFrame, count of removed points).
+        Filtered DataFrame with rows where abs(residual) <= threshold_m.
     """
-    original_count = len(df)
     if 'residual' not in df.columns:
-        logger.warning("DataFrame missing 'residual' column; skipping residual filtering.")
-        return df, 0
+        raise ValueError("DataFrame must contain a 'residual' column for filtering.")
 
-    mask = df['residual'].abs() <= threshold_m
-    filtered_df = df[mask].copy()
-    removed_count = original_count - len(filtered_df)
+    # Filter based on absolute residual value
+    filtered_df = df[np.abs(df['residual']) <= threshold_m].copy()
 
-    if removed_count > 0:
-        logger.info(f"Filtered {removed_count} points with residuals > {threshold_m*1000:.1f}mm")
-
-    return filtered_df, removed_count
+    return filtered_df
 
 
-def handle_sparse_satellites(df: pd.DataFrame, min_points: int = 500) -> Tuple[pd.DataFrame, int]:
+def handle_sparse_satellites(
+    df: pd.DataFrame,
+    min_points: int = 500,
+    satellite_col: str = 'satellite_id'
+) -> Tuple[pd.DataFrame, List[str]]:
     """
-    Remove satellites from the dataset that have fewer than min_points observations.
+    Identify and optionally remove satellites with insufficient data points.
 
     Args:
         df: DataFrame containing SLR data with a 'satellite_id' column.
-        min_points: Minimum number of points required to keep a satellite.
+        min_points: Minimum number of points required for a satellite to be kept.
+        satellite_col: Name of the column containing satellite identifiers.
 
     Returns:
-        Tuple of (filtered DataFrame, count of removed points).
+        Tuple of (filtered_df, list_of_excluded_satellite_ids).
+        If a satellite has fewer than min_points, it is removed from the DataFrame
+        and its ID is added to the exclusion list.
     """
-    original_count = len(df)
-    if 'satellite_id' not in df.columns:
-        logger.warning("DataFrame missing 'satellite_id' column; skipping sparse satellite handling.")
-        return df, 0
+    if satellite_col not in df.columns:
+        raise ValueError(f"DataFrame must contain a '{satellite_col}' column.")
 
-    counts = df['satellite_id'].value_counts()
+    excluded_ids = []
+    counts = df[satellite_col].value_counts()
+
+    # Identify satellites below threshold
     sparse_satellites = counts[counts < min_points].index.tolist()
+    excluded_ids.extend(sparse_satellites)
 
     if sparse_satellites:
-        logger.warning(f"Removing {len(sparse_satellites)} sparse satellites: {sparse_satellites}")
-        mask = ~df['satellite_id'].isin(sparse_satellites)
-        filtered_df = df[mask].copy()
+        filtered_df = df[~df[satellite_col].isin(sparse_satellites)].copy()
     else:
-        filtered_df = df
+        filtered_df = df.copy()
 
-    removed_count = original_count - len(filtered_df)
-    return filtered_df, removed_count
+    return filtered_df, excluded_ids
 
 
 def align_time_series(
-    multi_df: pd.DataFrame,
-    time_col: str = 'timestamp',
-    freq: str = '1min',
-    method: str = 'nearest'
+    df_list: List[pd.DataFrame],
+    time_col: str = 'time',
+    freq: str = '1H',
+    satellite_col: str = 'satellite_id'
 ) -> pd.DataFrame:
     """
-    Align multi-satellite datasets to a common time grid.
+    Align multiple satellite datasets to a common time grid by resampling.
 
-    This function merges data from multiple satellites onto a unified time index,
-    handling cases where satellites have different observation schedules.
-
-    Args:
-        multi_df: DataFrame containing combined data from multiple satellites.
-                  Must have 'timestamp' (or time_col) and 'satellite_id' columns.
-        time_col: Name of the timestamp column.
-        freq: Resampling frequency (e.g., '1min', '10min', '1h').
-        method: Method for filling missing values in the time alignment:
-                'nearest', 'pad', 'backfill', or None for no filling.
-
-    Returns:
-        DataFrame with observations aligned to the common time grid.
-        Includes a 'time_aligned' column with the canonical timestamp.
-    """
-    if multi_df.empty:
-        logger.warning("Empty DataFrame provided to align_time_series.")
-        return multi_df
-
-    if time_col not in multi_df.columns:
-        raise ValueError(f"DataFrame must contain '{time_col}' column for time alignment.")
-    if 'satellite_id' not in multi_df.columns:
-        raise ValueError("DataFrame must contain 'satellite_id' column for multi-satellite alignment.")
-
-    # Ensure timestamp is datetime
-    df = multi_df.copy()
-    if not pd.api.types.is_datetime64_any_dtype(df[time_col]):
-        df[time_col] = pd.to_datetime(df[time_col], utc=True)
-
-    # Create a complete time index covering the range of the data
-    start_time = df[time_col].min()
-    end_time = df[time_col].max()
-
-    # Generate the common time grid
-    time_index = pd.date_range(start=start_time, end=end_time, freq=freq, tz='UTC')
-    logger.info(f"Created time grid from {start_time} to {end_time} with freq {freq}")
-
-    # Set timestamp as index for resampling/alignment
-    df = df.set_index(time_col)
-
-    # Create a MultiIndex to track satellite_id for each time slot
-    # We will reindex per satellite then combine
-    result_frames = []
-
-    for sat_id in df['satellite_id'].unique():
-        sat_df = df[df['satellite_id'] == sat_id].copy()
-        sat_df = sat_df.sort_index()
-
-        # Reindex to the common time grid
-        # This creates NaNs for times where this satellite has no observation
-        sat_df = sat_df.reindex(time_index)
-        sat_df.index.name = 'time_aligned'
-        sat_df['satellite_id'] = sat_id  # Ensure ID persists after reindex
-
-        # Handle missing values based on method
-        if method == 'nearest':
-            # Only fill NaNs in numeric columns
-            numeric_cols = sat_df.select_dtypes(include=[np.number]).columns
-            sat_df[numeric_cols] = sat_df[numeric_cols].fillna(method='nearest')
-        elif method == 'pad':
-            sat_df = sat_df.ffill()
-        elif method == 'backfill':
-            sat_df = sat_df.bfill()
-        # else: leave as NaN (no filling)
-
-        result_frames.append(sat_df)
-
-    # Concatenate all aligned satellite dataframes
-    if result_frames:
-        aligned_df = pd.concat(result_frames, axis=0)
-        aligned_df = aligned_df.reset_index()
-        aligned_df = aligned_df.rename(columns={'index': time_col})
-        # Sort by time and satellite
-        aligned_df = aligned_df.sort_values(by=[time_col, 'satellite_id']).reset_index(drop=True)
-
-        logger.info(f"Time alignment complete. Result shape: {aligned_df.shape}")
-        return aligned_df
-    else:
-        logger.warning("No data frames to align.")
-        return df.reset_index()
-
-
-def preprocess_normal_points(
-    normal_points: List[NormalPoint],
-    residual_threshold_m: float = 0.02,
-    min_satellite_points: int = 500
-) -> Tuple[pd.DataFrame, PreprocessingStats]:
-    """
-    Full preprocessing pipeline for a list of NormalPoint objects.
-
-    1. Converts to DataFrame
-    2. Filters by residual threshold
-    3. Removes sparse satellites
+    This function:
+    1. Sets the time column as the index for each DataFrame.
+    2. Determines the global time range (min to max) across all datasets.
+    3. Resamples each dataset to the specified frequency (default: 1 hour).
+    4. Merges the resampled datasets, filling missing values with NaN.
 
     Args:
-        normal_points: List of NormalPoint objects.
-        residual_threshold_m: Max allowed residual (meters).
-        min_satellite_points: Min points to keep a satellite.
+        df_list: List of DataFrames, each representing a satellite's time series.
+                 Each must have a 'time' column (datetime-like) and a 'satellite_id' column.
+        time_col: Name of the time column (default: 'time').
+        freq: Resampling frequency string for pandas (default: '1H').
+        satellite_col: Name of the column containing satellite identifiers.
 
     Returns:
-        Tuple of (processed DataFrame, PreprocessingStats).
+        A single DataFrame with:
+        - A DatetimeIndex aligned to the specified frequency.
+        - Columns for each satellite's measurements (e.g., 'range_LAGEOS-1', 'range_LAGEOS-2').
+        - NaN for missing data points at specific times.
     """
-    stats = PreprocessingStats(original_points=len(normal_points))
+    if not df_list:
+        raise ValueError("At least one DataFrame must be provided in df_list.")
 
-    if not normal_points:
-        logger.warning("Empty list of NormalPoints provided.")
-        return pd.DataFrame(), stats
+    # Validate inputs
+    for i, df in enumerate(df_list):
+        if time_col not in df.columns:
+            raise ValueError(f"DataFrame {i} is missing the '{time_col}' column.")
+        if satellite_col not in df.columns:
+            raise ValueError(f"DataFrame {i} is missing the '{satellite_col}' column.")
 
-    # Convert to DataFrame
-    df = normal_points_to_dataframe(normal_points)
-    stats.satellites_processed = list(df['satellite_id'].unique())
+    # Convert time columns to datetime if not already
+    processed_dfs = []
+    global_min_time = None
+    global_max_time = None
 
-    # Filter residuals
-    df, filtered_residuals = filter_residuals(df, residual_threshold_m)
-    stats.filtered_out_residuals = filtered_residuals
+    for df in df_list:
+        df_temp = df.copy()
+        df_temp[time_col] = pd.to_datetime(df_temp[time_col])
+        processed_dfs.append(df_temp)
 
-    # Handle sparse satellites
-    df, filtered_sparse = handle_sparse_satellites(df, min_satellite_points)
-    stats.filtered_out_sparse = filtered_sparse
+        current_min = df_temp[time_col].min()
+        current_max = df_temp[time_col].max()
 
-    stats.final_points = len(df)
+        if global_min_time is None or current_min < global_min_time:
+            global_min_time = current_min
+        if global_max_time is None or current_max > global_max_time:
+            global_max_time = current_max
 
-    if not df.empty:
-        stats.time_range_start = str(df['timestamp'].min())
-        stats.time_range_end = str(df['timestamp'].max())
+    # Create a common time index
+    # Add a small buffer to ensure we capture the full range if needed, though range() is exclusive at end
+    common_time_index = pd.date_range(start=global_min_time, end=global_max_time, freq=freq)
 
-    logger.info(f"Preprocessing complete. Stats: {stats}")
-    return df, stats
+    aligned_dfs = []
+
+    for df in processed_dfs:
+        sat_id = df[satellite_col].iloc[0]  # Assume all rows in a DF have the same satellite ID
+        df_indexed = df.set_index(time_col)
+
+        # Resample to the common frequency
+        # We use 'mean' for numeric columns. If there are non-numeric columns, we might need to handle them differently.
+        # For SLR normal points, the key columns are usually numeric (range, residual, etc.)
+        resampled = df_indexed.resample(freq).mean()
+
+        # Reindex to the common time index to ensure alignment
+        resampled = resampled.reindex(common_time_index)
+
+        # Rename columns to include satellite ID to avoid conflicts
+        # e.g., 'range' -> 'range_LAGEOS-1'
+        resampled.columns = [f"{col}_{sat_id}" for col in resampled.columns]
+
+        # Ensure the satellite_id column is preserved if needed, or we rely on the column suffix
+        # Here we drop the satellite_id column from the data since the suffix identifies it
+        if satellite_col in resampled.columns:
+            resampled = resampled.drop(columns=[satellite_col])
+
+        aligned_dfs.append(resampled)
+
+    # Concatenate all aligned DataFrames horizontally
+    final_df = pd.concat(aligned_dfs, axis=1)
+
+    # Reset index to make time a column again if desired, or keep as index
+    # The task implies merging into a dataset, often useful to have time as a column for CSV export
+    final_df = final_df.reset_index().rename(columns={'index': time_col})
+
+    return final_df
 
 
-def preprocess_slr_data(
-    input_df: pd.DataFrame,
-    residual_threshold_m: float = 0.02,
-    min_satellite_points: int = 500,
-    align: bool = False,
-    align_freq: str = '1min'
-) -> Tuple[pd.DataFrame, PreprocessingStats]:
+def merge_multi_satellite_datasets(
+    dfs: List[pd.DataFrame],
+    time_col: str = 'time',
+    freq: str = '1H',
+    threshold_m: float = RESIDUAL_THRESHOLD_M,
+    min_points: int = 500
+) -> pd.DataFrame:
     """
-    Preprocess SLR data from a DataFrame (e.g., output of ingestion).
+    End-to-end pipeline to filter, clean, and time-align multiple satellite datasets.
 
-    This function applies residual filtering, sparse satellite handling,
-    and optional time alignment.
+    Steps:
+    1. Filter residuals for each satellite.
+    2. Remove sparse satellites (optional, based on min_points).
+    3. Align all remaining datasets to a common time grid.
 
     Args:
-        input_df: DataFrame from ingestion.
-        residual_threshold_m: Max allowed residual (meters).
-        min_satellite_points: Min points to keep a satellite.
-        align: Whether to perform time alignment.
-        align_freq: Frequency for time alignment if align=True.
+        dfs: List of DataFrames, each containing data for one satellite.
+        time_col: Name of the time column.
+        freq: Resampling frequency for time alignment.
+        threshold_m: Residual threshold for quality filtering.
+        min_points: Minimum points required per satellite to be included.
 
     Returns:
-        Tuple of (processed DataFrame, PreprocessingStats).
+        A single merged DataFrame with time-aligned data from all valid satellites.
     """
-    # Convert NormalPoint objects in the dataframe to a list if necessary,
-    # or assume the dataframe is already in the format expected by filter_residuals.
-    # The ingestion pipeline typically outputs a standard DataFrame.
-    
-    stats = PreprocessingStats(original_points=len(input_df))
+    cleaned_dfs = []
+    for df in dfs:
+        # Step 1: Filter residuals
+        filtered = filter_residuals(df, threshold_m)
 
-    if input_df.empty:
-        logger.warning("Empty DataFrame provided to preprocess_slr_data.")
-        return input_df, stats
+        # Step 2: Handle sparse satellites (check count before or after? Usually after filtering)
+        # We check if the filtered DF has enough points
+        sat_id_col = 'satellite_id' if 'satellite_id' in df.columns else None
+        if sat_id_col:
+            if len(filtered) < min_points:
+                # Log warning or skip
+                continue
+            cleaned_dfs.append(filtered)
+        else:
+            # If no satellite_id column, assume the whole DF is one satellite
+            cleaned_dfs.append(filtered)
 
-    df = input_df.copy()
-    stats.satellites_processed = list(df['satellite_id'].unique())
+    if not cleaned_dfs:
+        raise ValueError("No valid satellite data remaining after filtering.")
 
-    # Filter residuals
-    df, filtered_residuals = filter_residuals(df, residual_threshold_m)
-    stats.filtered_out_residuals = filtered_residuals
+    # Step 3: Time alignment
+    aligned_df = align_time_series(cleaned_dfs, time_col=time_col, freq=freq)
 
-    # Handle sparse satellites
-    df, filtered_sparse = handle_sparse_satellites(df, min_satellite_points)
-    stats.filtered_out_sparse = filtered_sparse
-
-    # Time alignment if requested
-    if align:
-        logger.info("Performing time alignment...")
-        df = align_time_series(df, freq=align_freq, method='nearest')
-        # Update stats after alignment (row count might change if NaNs dropped or filled)
-        # Note: align_time_series keeps rows but fills NaNs, so count usually stays same
-        # unless we dropna explicitly. We'll keep the count as is for now.
-    
-    stats.final_points = len(df)
-
-    if not df.empty:
-        stats.time_range_start = str(df['timestamp'].min())
-        stats.time_range_end = str(df['timestamp'].max())
-
-    logger.info(f"SLR Data preprocessing complete. Final shape: {df.shape}")
-    return df, stats
+    return aligned_df

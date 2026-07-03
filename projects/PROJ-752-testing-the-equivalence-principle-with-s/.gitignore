@@ -3,44 +3,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# C extensions
-*.so
-
-# Distribution / packaging
-.eggs/
-*.egg-info/
-build/
-dist/
-develop-eggs/
-downloads/
-eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-
-# PyInstaller
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.coverage
-.coverage.*
-cover/
-.tox/
-.nox/
-
 # Virtual environments
+.venv/
 venv/
 ENV/
-env/
 
 # IDE
 .idea/
@@ -48,17 +14,27 @@ env/
 *.swp
 *.swo
 
-# OS
-.DS_Store
-Thumbs.db
+# Test / coverage
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/
 
-# Project specific data
+# Data artifacts (raw data is excluded, processed data is tracked)
 data/raw/*
 !data/raw/.gitkeep
-data/processed/*
-!data/processed/.gitkeep
-data/results/*
-!data/results/.gitkeep
+
+# Generated outputs
+data/processed/*.csv
+data/results/*.json
+data/results/*.png
+data/results/*.csv
+data/processed/.checksums.json
 
 # Logs
 *.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,53 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: EotvosResult
+description: |
+  Schema for the Eotvos parameter estimation results.
+  Contains the calculated eta parameter, its uncertainty, confidence intervals,
+  and the underlying differential acceleration and gravity values.
+type: object
+required:
+  - eta
+  - eta_std
+  - eta_ci_95_lower
+  - eta_ci_95_upper
+  - ac
+  - g
+  - covariance_ac_g
+  - success
+  - message
+properties:
+  eta:
+    type: number
+    description: The calculated Eotvos parameter (η = |a_c| / g).
+  eta_std:
+    type: number
+    description: The standard deviation (uncertainty) of η.
+  eta_ci_95_lower:
+    type: number
+    description: Lower bound of the 95% confidence interval for η.
+  eta_ci_95_upper:
+    type: number
+    description: Upper bound of the 95% confidence interval for η.
+  ac:
+    type: number
+    description: Differential acceleration (a_c) in m/s².
+  g:
+    type: number
+    description: Local gravity (g) in m/s².
+  covariance_ac_g:
+    type: array
+    description: 2x2 covariance matrix for [ac, g].
+    items:
+      type: array
+      items:
+        type: number
+      minItems: 2
+      maxItems: 2
+    minItems: 2
+    maxItems: 2
+  success:
+    type: boolean
+    description: Whether the computation was successful.
+  message:
+    type: string
+    description: Diagnostic message or status string.

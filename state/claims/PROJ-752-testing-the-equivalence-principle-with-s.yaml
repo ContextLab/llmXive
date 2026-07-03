@@ -1,0 +1,123 @@
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: ILRS URLs for LAGEOS-1, LAGEOS-2, Etalon-1, Etalon-2, and Starlette are
+    pre-requisites
+  claim_id: c_983634da
+  context: 'Implement `data/ingestion.py` skeleton with `DataUnavailableError` check
+    (trigger if `config.verified_dataset_urls` is empty). **Note**: The verified ILRS
+    URLs for LAGEOS-1, LAGEOS-2, Etalon-1, Etalon-2, and Starlette are hardcoded as
+    pre-requisites in this task (e.g., `)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The verified ILRS URLs for LAGEOS-1, LAGEOS-2, Etalon-1, Etalon-2, and
+    Starlette are hardcoded as pre-requisites.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T17:13:28Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: "LAGEOS-1 data download and CSV generation has \u2265 95% data coverage\
+    \ and no NaN values."
+  claim_id: c_fac040da
+  context: "Independent Test: Execute ingestion pipeline and verify output CSV contains\
+    \ \u2265 95% of available points with no NaN values."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify end-to-end download and CSV generation for LAGEOS-1 contains \u2265\
+    \ 95% of available points with no NaN values."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T17:13:43Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: Residuals greater than 2cm are filtered.
+  claim_id: c_fedfa38d
+  context: Unit test for quality filtering (>2cm residual exclusion) in `tests/test_preprocessing.py`
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Residuals_greater_than_2cm_are_filtered.
+  kind: magnitude
+  raw_text: Quality filtering excludes residuals > 2cm.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T17:14:00Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: GGM05C geopotential model implementation.
+  claim_id: c_98c52383
+  context: 'Implement `models/dynamics.py` with GGM05C geopotential, Jacchia drag,
+    and SRP models; input: state vector, output: acceleration vector (ITRS coordinates,
+    using `astropy.coordinates`)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GGM05C_geopotential_model_implementation.
+  kind: entity_fact
+  raw_text: The GGM05C geopotential model is implemented.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T17:15:36Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: Joint solver converges with residuals < 1e-5m.
+  claim_id: c_3fdf1ad7
+  context: 'Unit test for **joint** least-squares solver convergence in `tests/test_estimator.py`
+    (TDD-first: depends on interface definition in T024)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Joint solver convergence is expected with residuals < 1e-5m.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T17:15:36Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: Pipeline execution time < 6 hours.
+  claim_id: c_83cb16ed
+  context: 'Independent Test: Run full pipeline on subset and verify completion time
+    < 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pipeline execution time should be < 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T17:15:36Z'
+- artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
+  attempts: 1
+  canonical: RAM usage < 6GB.
+  claim_id: c_12f142b3
+  context: Implement memory profiling hooks in `main.py` to warn if RAM > 6GB
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RAM_usage_%3C_6GB.
+  kind: entity_fact
+  raw_text: RAM usage should be < 6GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T17:16:09Z'

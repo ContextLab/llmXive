@@ -1,0 +1,2 @@
+# Contracts package initialization
+pass

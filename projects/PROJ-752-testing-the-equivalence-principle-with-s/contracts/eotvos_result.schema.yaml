@@ -2,140 +2,135 @@ $schema: http://json-schema.org/draft-07/schema#
 title: EotvosResult
 description: |
   Schema for the final Eötvös parameter ($\eta$) estimation results derived from
-  joint orbit determination of multiple satellites (e.g., LAGEOS-1, LAGEOS-2, Etalon-1,
-  Etalon-2, Starlette) to test the Weak Equivalence Principle.
+  joint orbit determination of multiple satellites (e.g., LAGEOS-1, LAGEOS-2, Etalon-1, Etalon-2, Starlette).
+  This schema defines the structure for `data/results/eotvos_metrics.json`.
 type: object
 required:
-  - project_id
-  - satellite_ids
-  - eta_value
-  - eta_uncertainty
-  - confidence_level
-  - differential_acceleration
-  - local_gravity
-  - covariance_matrix
-  - fit_statistics
-  - metadata
+  - meta
+  - parameters
+  - statistics
+  - validation
 properties:
-  project_id:
-    type: string
-    description: Unique identifier for the project run (e.g., "PROJ-752").
-    pattern: "^PROJ-[0-9]+-.*$"
-  satellite_ids:
-    type: array
-    items:
-      type: string
-    description: List of satellite IDs included in the joint solution.
-    minItems: 2
-    examples:
-      - ["LAGEOS-1", "LAGEOS-2"]
-      - ["LAGEOS-1", "LAGEOS-2", "Etalon-1", "Etalon-2", "Starlette"]
-  eta_value:
-    type: number
-    description: |
-      The estimated Eötvös parameter ($\eta = |a_c| / g$).
-      Represents the fractional difference in acceleration between test masses.
-    minimum: 0
-  eta_uncertainty:
-    type: number
-    description: The 1-sigma uncertainty (standard error) of $\eta$.
-    minimum: 0
-  confidence_level:
-    type: number
-    description: Confidence level for the uncertainty interval (e.g., 0.95 for 95% CI).
-    minimum: 0
-    maximum: 1
-    default: 0.95
-  differential_acceleration:
+  meta:
     type: object
-    description: The estimated differential acceleration vector ($a_c$) and its uncertainty.
-    required:
-      - value
-      - uncertainty
-      - unit
-    properties:
-      value:
-        type: number
-        description: Magnitude of the differential acceleration in m/s².
-      uncertainty:
-        type: number
-        description: 1-sigma uncertainty of the differential acceleration.
-      unit:
-        type: string
-        const: "m/s^2"
-  local_gravity:
-    type: object
-    description: The reference local gravity ($g$) used for normalization.
-    required:
-      - value
-      - unit
-    properties:
-      value:
-        type: number
-        description: Reference gravity value in m/s².
-      unit:
-        type: string
-        const: "m/s^2"
-  covariance_matrix:
-    type: array
-    description: |
-      The joint covariance matrix of the estimated parameters.
-      Flattened as a list of lists (row-major) or a 1D list if square root is not needed.
-      Here we expect a 2D array representation for clarity.
-    items:
-      type: array
-      items:
-        type: number
-    minItems: 1
-  fit_statistics:
-    type: object
-    description: Statistics from the joint weighted least-squares fit.
-    required:
-      - chi_squared
-      - degrees_of_freedom
-      - reduced_chi_squared
-      - convergence_status
-    properties:
-      chi_squared:
-        type: number
-        description: Total weighted sum of squared residuals.
-      degrees_of_freedom:
-        type: integer
-        description: Number of observations minus number of estimated parameters.
-        minimum: 0
-      reduced_chi_squared:
-        type: number
-        description: Chi-squared per degree of freedom.
-      convergence_status:
-        type: string
-        enum:
-          - converged
-          - max_iterations_reached
-          - divergence_detected
-          - singular_matrix
-        description: Status of the numerical optimizer.
-  metadata:
-    type: object
-    description: Additional context about the run.
+    description: Metadata regarding the run and data sources.
     required:
       - timestamp
-      - software_version
+      - satellites
       - geopotential_model
-      - data_source
+      - data_checksum
     properties:
       timestamp:
         type: string
         format: date-time
-        description: ISO 8601 timestamp of when the result was generated.
-      software_version:
-        type: string
-        description: Version of the analysis pipeline.
+        description: ISO 8601 timestamp of when the analysis was completed.
+      satellites:
+        type: array
+        items:
+          type: string
+        description: List of satellite IDs included in the joint solution (e.g., ["LAGEOS-1", "LAGEOS-2"]).
       geopotential_model:
         type: string
-        description: Name of the geopotential model used (e.g., "GGM05C").
-      data_source:
+        description: Identifier for the geopotential model used (e.g., "GGM05C", "EGM2008").
+      data_checksum:
         type: string
-        description: Source of the input SLR data (e.g., "ILRS").
-      notes:
+        description: SHA-256 checksum of the input cleaned dataset (`data/processed/cleaned_slr_data.csv`).
+      pipeline_version:
         type: string
-        description: Optional notes regarding the analysis or specific conditions.
+        description: Version of the analysis pipeline (e.g., "1.0.0").
+
+  parameters:
+    type: object
+    description: Estimated physical parameters from the joint least-squares fit.
+    required:
+      - ac
+      - ac_uncertainty
+      - g_local
+      - eta
+      - eta_uncertainty
+    properties:
+      ac:
+        type: number
+        description: Differential acceleration (m/s^2) between the test bodies.
+      ac_uncertainty:
+        type: number
+        description: Standard deviation (1-sigma) of the differential acceleration estimate.
+      g_local:
+        type: number
+        description: Local gravitational acceleration magnitude (m/s^2) at the mean orbital altitude.
+      eta:
+        type: number
+        description: Eötvös parameter ($\eta = |a_c| / g$). Dimensionless.
+      eta_uncertainty:
+        type: number
+        description: Standard deviation (1-sigma) of the Eötvös parameter.
+      ci_95_lower:
+        type: number
+        description: Lower bound of the 95% confidence interval for $\eta$.
+      ci_95_upper:
+        type: number
+        description: Upper bound of the 95% confidence interval for $\eta$.
+
+  statistics:
+    type: object
+    description: Goodness-of-fit and statistical metrics.
+    required:
+      - chi2
+      - dof
+      - reduced_chi2
+      - rms_residuals_mm
+    properties:
+      chi2:
+        type: number
+        description: Total chi-squared value of the joint fit.
+      dof:
+        type: integer
+        description: Degrees of freedom (number of observations minus number of estimated parameters).
+      reduced_chi2:
+        type: number
+        description: Reduced chi-squared ($\chi^2 / \text{dof}$).
+      rms_residuals_mm:
+        type: number
+        description: Root Mean Square of post-fit residuals in millimeters.
+      covariance_matrix:
+        type: array
+        items:
+          type: array
+          items:
+            type: number
+        description: Full covariance matrix of the estimated parameters (flattened or nested array).
+        minItems: 1
+        description: "Nested array representation of the covariance matrix for parameters [ac, g, ...]."
+
+  validation:
+    type: object
+    description: Robustness and sensitivity analysis results.
+    required:
+      - convergence_status
+      - sensitivity_z_variation
+      - reliability_flag
+    properties:
+      convergence_status:
+        type: string
+        enum: [converged, max_iterations_reached, failed]
+        description: Status of the least-squares solver.
+      sensitivity_z_variation:
+        type: number
+        description: Percentage variation in Z-scores when sweeping geopotential models.
+      reliability_flag:
+        type: string
+        enum: [reliable, unreliable]
+        description: "Flag indicating result reliability based on sensitivity thresholds (e.g., variation > 20% -> unreliable)."
+      p_value_null:
+        type: number
+        description: P-value for the null hypothesis ($\eta = 0$).
+      model_comparison:
+        type: object
+        description: Model comparison metrics (AIC/BIC) if applicable.
+        properties:
+          bic:
+            type: number
+          aic:
+            type: number
+
+additionalProperties: false
