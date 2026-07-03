@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "HCP Dataset Schema"
+description: "Schema for the HCP dataset used in the network module dynamics analysis (ds001734)."
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique identifier for the subject."
+  resting_state_time_series:
+    type: "array"
+    description: "2D array of fMRI time series data (Time x Regions)."
+    items:
+      type: "array"
+      items:
+        type: "number"
+  motion_parameters:
+    type: "array"
+    description: "2D array of motion parameters (Time x 6)."
+    items:
+      type: "array"
+      items:
+        type: "number"
+  framewise_displacement:
+    type: "array"
+    description: "1D array of Framewise Displacement values (Time,)."
+    items:
+      type: "number"
+  working_memory_score:
+    type: "number"
+    description: "Accuracy on the 2-back task."
+  mean_fd:
+    type: "number"
+    description: "Average Framewise Displacement across time."
+  motion_pcs:
+    type: "array"
+    description: "2D array of top 5 motion principal components (Time x 5)."
+    items:
+      type: "array"
+      items:
+        type: "number"
+required:
+  - subject_id
+  - resting_state_time_series
+  - motion_parameters
+  - framewise_displacement
+  - working_memory_score
+  - mean_fd
+  - motion_pcs
+additionalProperties: false

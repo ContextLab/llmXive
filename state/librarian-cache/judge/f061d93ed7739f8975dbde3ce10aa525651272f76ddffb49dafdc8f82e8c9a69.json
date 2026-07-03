@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2103.00475",
+  "judged_at": "2026-07-03T04:20:52Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the role of network module dynamics in predicting individual differences in working memory capacity neuroscience",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly measures the relationship between resting-state network module dynamics (specifically segregation, integration, and their balance) and individual differences in memory capacity within the same neuroscience domain. Although the user's question specifies \"working memory\" and the paper highlights \"memory\" generally alongside other cognitive phenotypes, the study provides the canonical empirical evidence for the mechanism (network module dynam",
+  "relevant": true
+}

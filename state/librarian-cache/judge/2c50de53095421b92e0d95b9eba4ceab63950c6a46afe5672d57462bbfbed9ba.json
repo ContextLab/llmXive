@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2408.03023",
+  "judged_at": "2026-07-03T04:20:49Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the role of network module dynamics in predicting individual differences in working memory capacity neuroscience",
+  "rationale": "This paper satisfies criterion (b) by measuring network controllability scores (a proxy for node importance and dynamic potential) on brain networks, which directly addresses the \"network module dynamics\" and \"brain\" domain of the user's question, even though it focuses on control-theoretic metrics rather than working memory capacity specifically. It also partially meets criterion (a) by investigating the relationship between these dynamic network properties and cognitive functions (noting AECS ",
+  "relevant": true
+}

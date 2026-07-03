@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "0901.3028",
+  "judged_at": "2026-07-03T04:21:02Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the role of network module dynamics in predicting individual differences in working memory capacity neuroscience",
+  "rationale": "The paper is a theoretical review of autonomous neural network dynamics and reservoir computing architectures, which does not measure the specific biological mechanism of \"network module dynamics\" predicting \"individual differences in working memory capacity\" in human neuroscience. It fails to satisfy criteria (a) or (b) as it lacks empirical data on human working memory or the specific predictive relationship requested, and it is not a foundational empirical baseline (c) or canonical population",
+  "relevant": false
+}

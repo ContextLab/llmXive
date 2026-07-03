@@ -1,0 +1,343 @@
+{
+  "fetched_at": "2026-07-03T04:21:02Z",
+  "field": "neuroscience",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "neuroscience",
+      "idea_body_excerpt": "The Role of Network Module Dynamics in Predicting Individual Differences in Working Memory Capacity",
+      "target_n": 5
+    },
+    "duration_seconds": 80.753,
+    "ended_at": "2026-07-03T04:21:02Z",
+    "expansion": null,
+    "extracted_queries": [
+      "brain module dynamics working memory capacity",
+      "default mode network executive control WM span",
+      "modular segregation integration individual cognitive differences",
+      "fluid intelligence prediction functional connectivity dynamics",
+      "network topology cognitive reserve neural efficiency"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1307.7970"
+      ]
+    },
+    "per_query_hit_count": {
+      "The Role of Network Module Dynamics in Predicting Individual Differences in Working Memory Capacity neuroscience": 3,
+      "brain module dynamics working memory capacity": 1,
+      "default mode network executive control WM span": 3,
+      "fluid intelligence prediction functional connectivity dynamics": 3,
+      "modular segregation integration individual cognitive differences": 3,
+      "network topology cognitive reserve neural efficiency": 2
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "1805.09354",
+          "rationale": "The paper focuses on deep learning architectures (Memory Networks and Relation Networks) for artificial intelligence tasks like question answering, whereas the user's question concerns biological brain networks and individual differences in human working memory capacity. This is a case of distinct constructs sharing only homonym keywords (\"network,\" \"module,\" \"working memory\") with no measurable connection to the neuroscience domain or the biological mechanism in question.",
+          "title": "Working Memory Networks: Augmenting Memory Networks with a Relational Reasoning Module"
+        },
+        {
+          "primary_pointer": "0901.3028",
+          "rationale": "The paper is a theoretical review of autonomous neural network dynamics and reservoir computing architectures, which does not measure the specific biological mechanism of \"network module dynamics\" predicting \"individual differences in working memory capacity\" in human neuroscience. It fails to satisfy criteria (a) or (b) as it lacks empirical data on human working memory or the specific predictive relationship requested, and it is not a foundational empirical baseline (c) or canonical population",
+          "title": "Cognitive computation with autonomously active neural networks: an emerging field"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-03T04:19:42Z",
+    "term_input": {
+      "normalized": "the role of network module dynamics in predicting individual differences in working memory capacity neuroscience",
+      "raw": "The Role of Network Module Dynamics in Predicting Individual Differences in Working Memory Capacity neuroscience"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper investigates the zero-error capacity of channels with memory. Motivated by the nuanced requirements of semantic communication that incorporate memory, we advance the classical enlightened dictator channel by introducing a new category known as the semantic channel. We analyze the zero-error capacity of the semantic channel using a comprehensive framework that accommodates multiple input and output memories. Our approach reveals a more sophisticated and detailed model compared to the classical memory channels, highlighting the impact of memory on achieving error-free communication.",
+          "claimed_authors": [
+            "Qi Cao",
+            "Yulin Shao",
+            "Shangwei Ge"
+          ],
+          "claimed_title": "On the Zero-Error Capacity of Semantic Channels with Input and Output Memories",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.21732"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='The Role of Network Module Dynamics in Predicting Individual Differences in Work', candidate_title='On the Zero-Error Capacity of Semantic Channels with Input and Output Memories')",
+        "failed_at": "2026-07-03T04:20:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The characterisation of CMB polarisation is one of the next challenge in observationnal cosmology. This is especially true for the so-called B-modes that are at least 3 order of magnitude lower than CMB temperature fluctuations. A precise measurement of the angular power spectrum of these B-modes will give important constraints on inflation parameters. In this talk, I will describe two complementary experiments, BRAIN and CLOVER, dedicated to CMB polarisation measurement. These experiments are proposed to be installed in Dome-C, Antarctica, to take advantage of the extreme dryness of the atmosphere and to allow long integration time.",
+          "claimed_authors": [
+            "M. Piat",
+            "C. Rosset",
+            "the BRAIN",
+            "CLOVER Collaboration"
+          ],
+          "claimed_title": "Precise measurement of CMB polarisation from Dome-C: the BRAIN and CLOVER experiments",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2004,
+          "primary_pointer": "astro-ph/0412590"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Role of Network Module Dynamics in Predicting Individual Differences in Work', candidate_title='Precise measurement of CMB polarisation from Dome-C: the BRAIN and CLOVER experiments')",
+        "failed_at": "2026-07-03T04:20:27Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We deal with controlling the spread of an epidemic disease on a network by isolating one or multiple locations by banning people from leaving them. To this aim, we build on the susceptible-infected-susceptible and the susceptible-infected-removed discrete-time network models, encapsulating a control action that captures mobility bans via removing links from the network. Then, we formulate the problem of optimally devising a control policy based on mobility bans that trades-off the burden on the healthcare system and the social and economic costs associated with interventions. The binary nature of mobility bans hampers the possibility to solve the control problem with standard optimization methods, yielding a NP-hard problem. Here, this is tackled by deriving a Quadratic Unconstrained Binary Optimization (QUBO) formulation of the control problem, and leveraging the growing potentialities of quantum computing to efficiently solve it.",
+          "claimed_authors": [
+            "Lorenzo Zino",
+            "Mattia Boggio",
+            "Deborah Volpe",
+            "Giacomo Orlandi",
+            "Giovanna Turvani",
+            "Carlo Novara"
+          ],
+          "claimed_title": "A Quantum-Compliant Formulation for Network Epidemic Control",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2509.00337"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='The Role of Network Module Dynamics in Predicting Individual Differences in Work', candidate_title='A Quantum-Compliant Formulation for Network Epidemic Control')",
+        "failed_at": "2026-07-03T04:20:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Classical queuing network control strategies typically rely on accurate knowledge of model data, i.e., arrival and service rates. However, such data are not always available and may be time-variant. To address this challenge, we consider a class of model data-independent (MDI) control policies that only rely on traffic state observation and network topology. Specifically, we focus on the MDI control policies that can stabilize multi-class Markovian queuing networks under centralized and decentralized policies. Control actions include routing, sequencing, and holding. By expanding the routes and constructing piecewise-linear test functions, we derive an easy-to-use criterion to check the stability of a multi-class network under a given MDI policy. For stabilizable multi-class networks, we show that a centralized, stabilizing MDI policy exists. For stabilizable single-class networks, we further show that a decentralized, stabilizing MDI policy exists. In addition, for both settings, we construct explicit policies that attain maximal throughput and present numerical examples to illustrate the results.",
+          "claimed_authors": [
+            "Qian Xie",
+            "Li Jin"
+          ],
+          "claimed_title": "Stabilizing Queuing Networks with Model Data-Independent Control",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2011.11788"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='The Role of Network Module Dynamics in Predicting Individual Differences in Work', candidate_title='Stabilizing Queuing Networks with Model Data-Independent Control')",
+        "failed_at": "2026-07-03T04:20:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The primary tasks of a cognitive system is to survive and to maximize a life-long utility function, like the number of offsprings. A direct computational maximization of life-long utility is however not possible in complex environments, especially in the context, of real-world time constraints. The central role of emotions is to serve as an intermediate layer in the space of policies available to agents and animals, leading to a large dimensional reduction of complexity.\n  We review our current understanding of the functional role of emotions, stressing the role of the neuromodulators mediating emotions for the diffusive homeostatic control system of the brain. We discuss a recent proposal, that emotional diffusive control is characterized, in contrast to neutral diffusive control, by interaction effects, viz by interferences between emotional arousal and reward signaling. Several proposals for the realization of synthetic emotions are discussed in this context, together with key open issues regarding the interplay between emotional motivational drives and diffusive control.",
+          "claimed_authors": [
+            "Claudius Gros"
+          ],
+          "claimed_title": "Cognition and Emotion: Perspectives of a Closing Gap",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.3035"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='The Role of Network Module Dynamics in Predicting Individual Differences in Work', candidate_title='Cognition and Emotion: Perspectives of a Closing Gap')",
+        "failed_at": "2026-07-03T04:20:37Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The ejection of liquid droplets from a nozzle is highly important for physics of fluid. The Weber number describes how much kinetic energy is needed to overcome the surface tension and create a free-flying droplet. According to literature Weber numbers above 12 assure the creation and safe break up of a liquid droplet. However, even when this number goes down below 8, it is still possible to observe droplet break-up but sometimes with particular effects. We present here a fluid dynamics video showing experimental results and CFD simulations for droplet break-up at low Weber number where the droplet is generated with negative momentum. Such droplet generation is characterized by the droplet breaking up and then returning back into the nozzle. This is due to the fact that during the droplet formation the surface tension begins to slow down the flow velocity inside the droplet and then finally inverts the flow direction, while the droplet tail still breaks off from the nozzle. Thus after the break up the droplet momentum is oriented toward the nozzle. It is therefore possible to observe the droplet returning into the bulk fluid. High-speed images of this particular phenomenon are shown and simulation results are presented to illustrate the break up dynamics and the local velocities in the droplet.",
+          "claimed_authors": [
+            "Laurent Tanguy",
+            "Dong Liang",
+            "Roland Zengerle",
+            "Peter Koltay"
+          ],
+          "claimed_title": "Droplet break-up with negative momentum Fluid Dynamics Videos",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1210.4078"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='The Role of Network Module Dynamics in Predicting Individual Differences in Work', candidate_title='Droplet break-up with negative momentum Fluid Dynamics Videos')",
+        "failed_at": "2026-07-03T04:20:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Elastoviscoplastic (EVP) fluid flows are driven by a non-trivial interplay between the elastic, viscous, and plastic properties, which under certain conditions can transition the otherwise laminar flow into complex flow instabilities with rich space-time-dependent dynamics. We discover that under elastic turbulence regimes, EVP fluids undergo dynamic jamming triggered by localised polymer stress deformations that facilitate the formation of solid regions trapped in local low-stress energy wells. Below the jamming transition $φ<φ_J$, the solid volume fraction $φ$ scales with $\\sqrt{Bi}$, where $Bi$ is the Bingham number characterizing the ratio of yield to viscous stresses, in direct agreement with theoretical approximations based on the laminar solution. The onset of this new dynamic jamming transition $φ\\geqφ_J$ is marked by a clear deviation from the scaling $φ\\sim \\sqrt{Bi}$, scaling as $φ\\sim \\exp{Bi}$. We show that this instability-induced jamming transition -- analogous to that in dense suspensions -- leads to slow, minimally diffusive, and rigid-like flows with finite deformability, highlighting a novel phase-change in elastic turbulence regimes of complex fluids.",
+          "claimed_authors": [
+            "Christopher S. From",
+            "Vedad Dzanic",
+            "Vahid Niasar",
+            "Emilie Sauret"
+          ],
+          "claimed_title": "Jamming of Elastoviscoplastic fluids in Elastic Turbulence",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.13774"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='The Role of Network Module Dynamics in Predicting Individual Differences in Work', candidate_title='Jamming of Elastoviscoplastic fluids in Elastic Turbulence')",
+        "failed_at": "2026-07-03T04:20:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Emergence of singularity of vorticity at a single point, not related to any symmetry of the initial distribution, has been demonstrated numerically for the first time. Behavior of the maximum of vorticity near the point of collapse closely follows the dependence 1/(t0-t), where t0 is the time of collapse. This agrees with the interpretation of collapse in an ideal incompressible fluid as of the process of vortex lines breaking.",
+          "claimed_authors": [
+            "E. A. Kuznetsov",
+            "O. M. Podvigina",
+            "V. A. Zheligovsky"
+          ],
+          "claimed_title": "Numerical evidence of breaking of vortex lines in an ideal fluid",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2001,
+          "primary_pointer": "physics/0110046"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Role of Network Module Dynamics in Predicting Individual Differences in Work', candidate_title='Numerical evidence of breaking of vortex lines in an ideal fluid')",
+        "failed_at": "2026-07-03T04:20:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Random Neural Networks (RNNs) are a class of Neural Networks (NNs) that can also be seen as a specific type of queuing network. They have been successfully used in several domains during the last 25 years, as queuing networks to analyze the performance of resource sharing in many engineering areas, as learning tools and in combinatorial optimization, where they are seen as neural systems, and also as models of neurological aspects of living beings. In this article we focus on their learning capabilities, and more specifically, we present a practical guide for using the RNN to solve supervised learning problems. We give a general description of these models using almost indistinctly the terminology of Queuing Theory and the neural one. We present the standard learning procedures used by RNNs, adapted from similar well-established improvements in the standard NN field. We describe in particular a set of learning algorithms covering techniques based on the use of first order and, then, of second order derivatives. We also discuss some issues related to these objects and present new perspectives about their use in supervised learning problems. The tutorial describes their most relevant applications, and also provides a large bibliography.",
+          "claimed_authors": [
+            "Sebastián Basterrech",
+            "Gerardo Rubino"
+          ],
+          "claimed_title": "A Tutorial about Random Neural Networks in Supervised Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1609.04846"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='The Role of Network Module Dynamics in Predicting Individual Differences in Work', candidate_title='A Tutorial about Random Neural Networks in Supervised Learning')",
+        "failed_at": "2026-07-03T04:20:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Based on the theory of the Federal Communications Commission, the spectrum available on cognitive radio networks is limit and the non-optimal use of the spectrum necessitates the need for a telecommunications model, so that this pattern can exploit the existing spectral positions. In this spectrum subscription scenario, when the primary users are not present, it is also possible to assign this telecommunication to tenants who are unauthorized or secondary. The challenge of using this scenario is to allocate time-frequency resources to them and how to access nodes in one channel without any interactions between primary and secondary users and the throughput will increase. The main idea of this research is using chaotic recurrent neural network for improving access to spectrum in congestion times and the main purposes are reduce interference and increase throughput in cognitive radio networks. In this method, in addition to the throughput, the amount of unwanted blockage of packets, the reduction of the cost of operations for secondary users, the hardware requirements for secondary users and the coefficient of justice are considered which in fact, it is a new channel assignment process with respect to the environment response, the updates the probability that the channels are empty in subsequent periods, and increases the permeability by reducing interference with chaotic recurrent neural network.",
+          "claimed_authors": [
+            "Mahdi Mir"
+          ],
+          "claimed_title": "Spectrum accessing optimization in congestion times in radio cognitive networks based on chaotic neural networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1807.07000"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='The Role of Network Module Dynamics in Predicting Individual Differences in Work', candidate_title='Spectrum accessing optimization in congestion times in radio cognitive networks based on chaotic neural networks')",
+        "failed_at": "2026-07-03T04:20:38Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Adam S. Charles",
+            "Han Lun Yap",
+            "Christopher J. Rozell"
+          ],
+          "title": "Short Term Memory Capacity in Networks via the Restricted Isometry Property",
+          "venue": "arXiv",
+          "year": 2013
+        },
+        "primary_pointer": "1307.7970",
+        "summary": "Cortical networks are hypothesized to rely on transient network activity to support short term memory (STM). In this paper we study the capacity of randomly connected recurrent linear networks for performing STM when the input signals are approximately sparse in some basis. We leverage results from compressed sensing to provide rigorous non asymptotic recovery guarantees, quantifying the impact of the input sparsity level, the input sparsity basis, and the network characteristics on the system capacity. Our analysis demonstrates that network memory capacities can scale superlinearly with the number of nodes, and in some situations can achieve STM capacities that are much larger than the network size. We provide perfect recovery guarantees for finite sequences and recovery bounds for infinite sequences. The latter analysis predicts that network STM systems may have an optimal recovery length that balances errors due to omission and recall mistakes. Furthermore, we show that the conditions yielding optimal STM capacity can be embodied in several network topologies, including networks with sparse or dense connectivities.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1307.7970",
+          "http_status": 200,
+          "pdf_sample_score": 0.2558,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-03T04:20:26Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Kazuhiro Sato",
+            "Ryohei Kawamura"
+          ],
+          "title": "Uniqueness Analysis of Controllability Scores and Their Application to Brain Networks",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2408.03023",
+        "summary": "Assessing centrality in network systems is critical for understanding node importance and guiding decision-making processes. In dynamic networks, incorporating a controllability perspective is essential for identifying key nodes. In this paper, we study two control theoretic centrality measures -- the Volumetric Controllability Score (VCS) and Average Energy Controllability Score (AECS) -- to quantify node importance in linear time-invariant network systems. We prove the uniqueness of VCS and AECS for almost all specified terminal times, thereby enhancing their applicability beyond previously recognized cases. This ensures their interpretability, comparability, and reproducibility. Our analysis reveals substantial differences between VCS and AECS in linear systems with symmetric and skew-symmetric transition matrices. We also investigate the dependence of VCS and AECS on the terminal time and prove that when this parameter is extremely small, both scores become essentially uniform. Additionally, we prove that a sequence generated by a projected gradient method for computing VCS and AECS converges linearly to both measures under several assumptions. Finally, evaluations on brain networks modeled via Laplacian dynamics using real data reveal contrasting evaluation tendencies and correlations for VCS and AECS, with AECS favoring brain regions associated with cognitive and motor functions, while VCS emphasizes sensory and emotional regions.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2408.03023",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-03T04:20:27Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Rong Wang",
+            "Mianxin Liu",
+            "Xinhong Cheng",
+            "Ying Wu",
+            "Andrea Hildebrandt",
+            "Changsong Zhou"
+          ],
+          "title": "Segregation, integration and balance of large-scale resting brain networks configure different cognitive abilities",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2103.00475",
+        "summary": "Diverse cognitive processes set different demands on locally segregated and globally integrated brain activity. However, it remains unclear how resting brains configure their functional organization to balance the demands on network segregation and integration to best serve cognition. Here, we use an eigenmode-based approach to identify hierarchical modules in functional brain networks, and quantify the functional balance between network segregation and integration. In a large sample of healthy young adults (n=991), we combine the whole-brain resting state functional magnetic resonance imaging (fMRI) data with a mean-filed model on the structural network derived from diffusion tensor imaging and demonstrate that resting brain networks are on average close to a balanced state. This state allows for a balanced time dwelling at segregated and integrated configurations, and highly flexible switching between them. Furthermore, we employ structural equation modelling to estimate general and domain-specific cognitive phenotypes from nine tasks, and demonstrate that network segregation, integration and their balance in resting brains predict individual differences in diverse cognitive phenotypes. More specifically, stronger integration is associated with better general cognitive ability, stronger segregation fosters crystallized intelligence and processing speed, and individual's tendency towards balance supports better memory. Our findings provide a comprehensive and deep understanding of the brain's functioning principles in supporting diverse functional demands and cognitive abilities, and advance modern network neuroscience theories of human cognition.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2103.00475",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4444,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-03T04:20:30Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "the role of network module dynamics in predicting individual differences in working memory capacity neuroscience",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

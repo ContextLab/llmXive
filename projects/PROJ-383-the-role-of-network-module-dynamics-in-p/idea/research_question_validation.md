@@ -2,30 +2,30 @@
 
 ### Phenomenon-vs-method check
 
-**Verdict**: pass  
+**Verdict**: pass
 
-The question asks whether a neurobiological property—temporal flexibility of resting‑state functional network modules—relates to a cognitive trait—working‑memory capacity. It does not hinge on any particular algorithmic implementation or computational budget, but on a substantive brain‑behavior relationship.
+The question asks about the relationship between the brain's intrinsic dynamic reconfiguration properties (temporal flexibility) and a specific cognitive trait (working memory capacity). It does not hinge on the performance of a specific machine learning algorithm, hardware constraint, or software library, but rather on the existence and strength of a biological correlation.
 
 ### Circularity check
 
-**Verdict**: pass  
+**Verdict**: pass
 
-The predictor (module‑flexibility metric) is derived from sliding‑window community detection on resting‑state fMRI data, while the outcome (working‑memory capacity) is a behavioral score from a 2‑back task. These are independent measurement modalities, so the relationship is not mechanically guaranteed.
+The predictor (temporal flexibility) is derived from the time-varying community structure of resting-state fMRI data, while the predicted variable (working memory capacity) is an independent behavioral score from the 2-back task. Since the behavioral data is not derived from the same signal processing steps as the fMRI metrics, the relationship is not mechanically guaranteed by construction.
 
 ### Triviality check
 
-**Verdict**: pass  
+**Verdict**: pass
 
-Both a positive correlation (flexibility predicts higher capacity) and a null result (no relationship) would be scientifically informative: the former would support dynamic network flexibility as a trait marker, the latter would suggest other factors dominate individual differences.
+A positive correlation would provide evidence that dynamic network adaptability is a core component of cognitive reserve, refining current static network models. Conversely, a null result would be highly informative, suggesting that the brain's ability to reconfigure at rest is not the limiting factor for working memory capacity, thereby directing attention to other dynamic features (e.g., integration speed) or static topology. Neither outcome is predetermined by current domain knowledge.
 
 ### Question-narrowing check
 
-**Verdict**: pass  
+**Verdict**: pass
 
-The formulation “To what extent does X predict Y?” directly names a domain relationship between brain dynamics and cognition, without embedding constraints on specific methods, resources, or hardware.
+The question explicitly names a domain relationship (network flexibility predicting cognitive variation) rather than an implementation constraint. While the methodology mentions sliding windows and Louvain detection, these are standard operationalizations for the phenomenon, not the subject of the inquiry itself.
 
 ### Overall verdict
 
-**Verdict**: validated  
+**Verdict**: validated
 
-All four checks pass; the research question is well‑posed as a substantive scientific inquiry about brain‑behavior linkage.
+All four checks pass; the research question targets a substantive, non-circular, and non-trivial relationship between dynamic brain network properties and cognitive performance. The project is ready to advance to initialization.

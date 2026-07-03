@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1805.09354",
+  "judged_at": "2026-07-03T04:20:41Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the role of network module dynamics in predicting individual differences in working memory capacity neuroscience",
+  "rationale": "The paper focuses on deep learning architectures (Memory Networks and Relation Networks) for artificial intelligence tasks like question answering, whereas the user's question concerns biological brain networks and individual differences in human working memory capacity. This is a case of distinct constructs sharing only homonym keywords (\"network,\" \"module,\" \"working memory\") with no measurable connection to the neuroscience domain or the biological mechanism in question.",
+  "relevant": false
+}

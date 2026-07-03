@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1307.7970",
+  "judged_at": "2026-07-03T04:20:45Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the role of network module dynamics in predicting individual differences in working memory capacity neuroscience",
+  "rationale": "This paper satisfies criterion (a) by investigating the same biological mechanism (network dynamics in cortical networks) and dependent variable (memory capacity) as the user's question, even though it focuses on short-term memory rather than working memory and uses a theoretical/compressed sensing approach rather than individual difference data. It also meets criterion (d) as a foundational theoretical reference for the relationship between network topology and memory capacity in neuroscience.",
+  "relevant": true
+}
