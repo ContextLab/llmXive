@@ -1,0 +1,102 @@
+resolved_at: '2026-07-03T02:53:51.132552+00:00'
+datasets:
+- intent: MVP
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/mvpxx/ebay/resolve/main/TestSet.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_mvpmaster__Einstein-4D-Marcoro14-7b-full-slerp/resolve/main/2024-03-21T18-30-33.593861/details_harness|arc:challenge|25_2024-03-21T18-30-33.593861.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_mvpmaster__NeuralDareDMistralPro-7b-slerp/resolve/main/2024-03-21T21-05-06.389896/details_harness|arc:challenge|25_2024-03-21T21-05-06.389896.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/mvpxx/ebay/resolve/main/TestSet.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_mvpmaster__Einstein-4D-Marcoro14-7b-full-slerp/resolve/main/2024-03-21T18-30-33.593861/details_harness|arc:challenge|25_2024-03-21T18-30-33.593861.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_mvpmaster__NeuralDareDMistralPro-7b-slerp/resolve/main/2024-03-21T21-05-06.389896/details_harness|arc:challenge|25_2024-03-21T21-05-06.389896.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://bridges.monash.edu/articles/thesis/Big_Data_Analytics_Maturity_Model_for_Assessment_of_Malaysian_Public_Sector_Agencies/32887121
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/thesis/Big_Data_Analytics_Maturity_Model_for_Assessment_of_Malaysian_Public_Sector_Agencies/32887121
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://figshare.com/articles/dataset/_09036153255_Federal_University_of_Health_Sciences_Katsina_Admission_Form_Open_2026-2027_post-UTME_form_Diploma_Form_is_still_on_sale_call_O_9036153255-09036153255_and_forms_into_the_Post_Basic_Nursing_is_also_available_CALL_09036153255_Dr_/32887163
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_08132728112_Department_of_Nursing_Sciences_Thomas_Adewunmi_University_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school/32887166
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_07076040542_Emmanuel_Alayande_University_of_Education_2026_2027_Post-Utme_Form_Part-time_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Rita_07076040542_for_further_assistance_/32887160
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_i_Data_file_12_de_novo_i_genome_assembly_of_the_deepwater_rice_i_Oryza_sativa_i_cultivar_Pin_Gaew_56/32887157
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15231467
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S0002870399701511
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.mdpi.com/2075-4418/14/22/2488
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://journals.lww.com/10.2459/JCM.0000000000001614
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.mdpi.com/2077-0383/13/20/6160
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/21140256
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21140256
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21132880
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21132880
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21104901
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

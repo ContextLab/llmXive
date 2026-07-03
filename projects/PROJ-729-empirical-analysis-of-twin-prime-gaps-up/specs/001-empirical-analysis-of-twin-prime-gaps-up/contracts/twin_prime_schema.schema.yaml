@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Twin Prime Gap Dataset Schema"
+description: "Schema for the generated twin prime gap CSV file. Used for validation in code/validate_schema.py."
+type: "object"
+properties:
+  header:
+    type: "array"
+    description: "Column names"
+    items:
+      type: "string"
+    enum:
+      - "p"
+      - "p_next"
+      - "delta"
+      - "normalized_gap"
+  rows:
+    type: "array"
+    description: "Data rows"
+    items:
+      type: "object"
+      properties:
+        p:
+          type: "integer"
+          description: "First prime of the twin pair"
+          minimum: 3
+        p_next:
+          type: "integer"
+          description: "First prime of the next twin pair"
+        delta:
+          type: "integer"
+          description: "Gap between consecutive twin pairs"
+          minimum: 2
+        normalized_gap:
+          type: "number"
+          description: "Normalized gap (delta / log(p))"
+          minimum: 0
+      required:
+        - "p"
+        - "p_next"
+        - "delta"
+        - "normalized_gap"
+required:
+  - "header"
+  - "rows"
+additionalProperties: false
