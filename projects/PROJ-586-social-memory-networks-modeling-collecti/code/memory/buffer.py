@@ -1,8 +1,7 @@
 """Shared external memory buffer with <MEMORY_ACTION> token handling.
 
-This module implements a thread-safe shared memory buffer for multi-agent
-systems. Agents can store, retrieve, update, and delete memory entries
-using a token-based interface.
+Implements a thread-safe, shared memory buffer for multi-agent systems.
+Supports serialization/deserialization of memory actions via token strings.
 """
 from __future__ import annotations
 
@@ -11,426 +10,295 @@ import re
 import threading
 from dataclasses import dataclass, field, asdict
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Callable
-from enum import Enum
+from typing import List, Dict, Any, Optional, Callable, TypeVar
 
+T = TypeVar('T')
 
-class MemoryAction(Enum):
-    """Types of memory operations."""
-    STORE = "store"
-    RETRIEVE = "retrieve"
-    UPDATE = "update"
-    DELETE = "delete"
-    LIST = "list"
-    CLEAR = "clear"
-
+# Token pattern for memory actions
+MEMORY_ACTION_PATTERN = re.compile(r'<MEMORY_ACTION>(.*?)</MEMORY_ACTION>')
 
 @dataclass
-class MemoryEntry:
-    """A single memory entry in the shared buffer."""
-    id: str
-    content: str
-    creator: str
-    timestamp: str
-    access_count: int = 0
-    last_accessed: Optional[str] = None
-    tags: List[str] = field(default_factory=list)
-    confidence: float = 1.0
+class MemoryAction:
+    """Represents a single memory action (store, retrieve, update, delete)."""
+    action_type: str  # 'store', 'retrieve', 'update', 'delete'
+    key: str
+    value: Optional[str] = None
+    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
+    agent_id: Optional[str] = None
+    metadata: Dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for serialization."""
         return asdict(self)
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "MemoryEntry":
+    def from_dict(cls, data: Dict[str, Any]) -> MemoryAction:
         """Create from dictionary."""
         return cls(**data)
 
-
-@dataclass
-class MemoryActionToken:
-    """Token representing a memory action to be executed."""
-    action: MemoryAction
-    payload: Dict[str, Any]
-    timestamp: str
-    requester: str
-    success: bool = False
-    result: Optional[Any] = None
-    error: Optional[str] = None
-
     def to_token_string(self) -> str:
-        """Serialize to <MEMORY_ACTION> token format."""
-        data = {
-            "action": self.action.value,
-            "payload": self.payload,
-            "timestamp": self.timestamp,
-            "requester": self.requester,
-            "success": self.success,
-            "result": self.result,
-            "error": self.error
-        }
-        return f"<MEMORY_ACTION>{json.dumps(data)}</MEMORY_ACTION>"
+        """Serialize to token string format."""
+        return f"<MEMORY_ACTION>{json.dumps(self.to_dict())}</MEMORY_ACTION>"
 
     @classmethod
-    def from_token_string(cls, token: str) -> Optional["MemoryActionToken"]:
-        """Parse from <MEMORY_ACTION> token format."""
-        pattern = r"<MEMORY_ACTION>(.*?)</MEMORY_ACTION>"
-        match = re.search(pattern, token)
+    def from_token_string(cls, token_str: str) -> Optional[MemoryAction]:
+        """Parse from token string format."""
+        match = MEMORY_ACTION_PATTERN.search(token_str)
         if not match:
             return None
-
         try:
             data = json.loads(match.group(1))
-            action = MemoryAction(data["action"])
-            return cls(
-                action=action,
-                payload=data["payload"],
-                timestamp=data["timestamp"],
-                requester=data["requester"],
-                success=data.get("success", False),
-                result=data.get("result"),
-                error=data.get("error")
-            )
-        except (json.JSONDecodeError, KeyError, ValueError):
+            return cls.from_dict(data)
+        except (json.JSONDecodeError, KeyError):
             return None
 
+@dataclass
+class MemoryEntry:
+    """A stored memory entry with metadata."""
+    key: str
+    value: str
+    created_at: str = field(default_factory=lambda: datetime.utcnow().isoformat())
+    updated_at: str = field(default_factory=lambda: datetime.utcnow().isoformat())
+    access_count: int = 0
+    last_accessed: Optional[str] = None
+    agent_id: Optional[str] = None
+    metadata: Dict[str, Any] = field(default_factory=dict)
 
-def now() -> str:
-    """Return current timestamp in ISO format."""
-    return datetime.utcnow().isoformat()
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary."""
+        return asdict(self)
 
-
-def parse_memory_action(token: str) -> Optional[MemoryActionToken]:
-    """Parse a <MEMORY_ACTION> token string."""
-    return MemoryActionToken.from_token_string(token)
-
-
-def parse_memory_action_token(token: str) -> Optional[MemoryActionToken]:
-    """Alias for parse_memory_action for backward compatibility."""
-    return parse_memory_action(token)
-
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> MemoryEntry:
+        """Create from dictionary."""
+        return cls(**data)
 
 class MemoryBuffer:
     """Thread-safe shared memory buffer for multi-agent systems.
 
-    This buffer supports:
-    - Storing new memory entries
-    - Retrieving entries by ID or content query
-    - Updating existing entries
-    - Deleting entries
-    - Listing all entries
-    - Clearing the entire buffer
-    - Thread-safe operations via locking
-    - Token-based action interface
+    Provides store, retrieve, update, delete operations with optional
+    action logging via MemoryAction tokens.
     """
 
-    def __init__(self, max_entries: int = 10000, capacity_warning: float = 0.9):
-        """Initialize the memory buffer.
-
-        Args:
-            max_entries: Maximum number of entries to store.
-            capacity_warning: Threshold (0-1) to trigger capacity warnings.
-        """
-        self._entries: Dict[str, MemoryEntry] = {}
+    def __init__(self, capacity: int = 10000, action_logging: bool = True):
+        self._buffer: Dict[str, MemoryEntry] = {}
+        self._capacity = capacity
+        self._action_logging = action_logging
         self._lock = threading.RLock()
-        self._max_entries = max_entries
-        self._capacity_warning = capacity_warning
-        self._action_history: List[MemoryActionToken] = []
-        self._id_counter = 0
+        self._action_log: List[MemoryAction] = []
+        self._action_log_lock = threading.Lock()
 
-    def _generate_id(self) -> str:
-        """Generate a unique entry ID."""
-        self._id_counter += 1
-        return f"mem_{self._id_counter}_{now()}"
+    def _log_action(self, action: MemoryAction) -> None:
+        """Log an action if logging is enabled."""
+        if self._action_logging:
+            with self._action_log_lock:
+                self._action_log.append(action)
 
-    def store(self, content: str, creator: str, tags: Optional[List[str]] = None,
-              confidence: float = 1.0) -> MemoryActionToken:
-        """Store a new memory entry.
-
-        Args:
-            content: The memory content.
-            creator: ID of the agent creating this memory.
-            tags: Optional list of tags for categorization.
-            confidence: Confidence score for this memory (0-1).
-
-        Returns:
-            MemoryActionToken with result or error.
-        """
-        token = MemoryActionToken(
-            action=MemoryAction.STORE,
-            payload={"content": content, "creator": creator, "tags": tags or [], "confidence": confidence},
-            timestamp=now(),
-            requester=creator
-        )
-
+    def store(self, key: str, value: str, agent_id: Optional[str] = None,
+              metadata: Optional[Dict[str, Any]] = None) -> bool:
+        """Store a memory entry."""
         with self._lock:
-            if len(self._entries) >= self._max_entries:
-                token.success = False
-                token.error = f"Buffer full ({self._max_entries} entries). Use update or delete first."
-                self._action_history.append(token)
-                return token
+            if len(self._buffer) >= self._capacity and key not in self._buffer:
+                # Evict oldest entry
+                oldest_key = min(self._buffer.keys(),
+                                 key=lambda k: self._buffer[k].created_at)
+                del self._buffer[oldest_key]
 
             entry = MemoryEntry(
-                id=self._generate_id(),
-                content=content,
-                creator=creator,
-                timestamp=token.timestamp,
-                tags=tags or [],
-                confidence=confidence
+                key=key,
+                value=value,
+                agent_id=agent_id,
+                metadata=metadata or {}
             )
-            self._entries[entry.id] = entry
-            token.success = True
-            token.result = {"entry_id": entry.id}
-            self._action_history.append(token)
-            return token
+            self._buffer[key] = entry
 
-    def retrieve(self, entry_id: str) -> MemoryActionToken:
-        """Retrieve a memory entry by ID.
+            # Log action
+            action = MemoryAction(
+                action_type='store',
+                key=key,
+                value=value,
+                agent_id=agent_id,
+                metadata=metadata or {}
+            )
+            self._log_action(action)
+            return True
 
-        Args:
-            entry_id: The ID of the entry to retrieve.
-
-        Returns:
-            MemoryActionToken with entry data or error.
-        """
-        token = MemoryActionToken(
-            action=MemoryAction.RETRIEVE,
-            payload={"entry_id": entry_id},
-            timestamp=now(),
-            requester="system"
-        )
-
+    def retrieve(self, key: str, agent_id: Optional[str] = None) -> Optional[str]:
+        """Retrieve a memory entry by key."""
         with self._lock:
-            if entry_id not in self._entries:
-                token.success = False
-                token.error = f"Entry not found: {entry_id}"
-                self._action_history.append(token)
-                return token
+            if key not in self._buffer:
+                return None
 
-            entry = self._entries[entry_id]
+            entry = self._buffer[key]
             entry.access_count += 1
-            entry.last_accessed = now()
-            token.success = True
-            token.result = entry.to_dict()
-            self._action_history.append(token)
-            return token
+            entry.last_accessed = datetime.utcnow().isoformat()
 
-    def retrieve_by_content(self, query: str, top_k: int = 5) -> MemoryActionToken:
-        """Retrieve entries matching a content query (simple substring match).
+            # Log action
+            action = MemoryAction(
+                action_type='retrieve',
+                key=key,
+                agent_id=agent_id
+            )
+            self._log_action(action)
+            return entry.value
 
-        Args:
-            query: Search query string.
-            top_k: Maximum number of results to return.
-
-        Returns:
-            MemoryActionToken with list of matching entries.
-        """
-        token = MemoryActionToken(
-            action=MemoryAction.RETRIEVE,
-            payload={"query": query, "top_k": top_k},
-            timestamp=now(),
-            requester="system"
-        )
-
+    def update(self, key: str, value: str, agent_id: Optional[str] = None,
+               metadata: Optional[Dict[str, Any]] = None) -> bool:
+        """Update an existing memory entry."""
         with self._lock:
-            query_lower = query.lower()
-            matches = []
-            for entry in self._entries.values():
-                if query_lower in entry.content.lower():
-                    entry.access_count += 1
-                    entry.last_accessed = now()
-                    matches.append(entry.to_dict())
+            if key not in self._buffer:
+                return False
 
-            matches.sort(key=lambda x: x["access_count"], reverse=True)
-            token.success = True
-            token.result = matches[:top_k]
-            self._action_history.append(token)
-            return token
+            entry = self._buffer[key]
+            entry.value = value
+            entry.updated_at = datetime.utcnow().isoformat()
+            if metadata:
+                entry.metadata.update(metadata)
+            if agent_id:
+                entry.agent_id = agent_id
 
-    def update(self, entry_id: str, content: Optional[str] = None,
-               confidence: Optional[float] = None, tags: Optional[List[str]] = None) -> MemoryActionToken:
-        """Update an existing memory entry.
+            # Log action
+            action = MemoryAction(
+                action_type='update',
+                key=key,
+                value=value,
+                agent_id=agent_id,
+                metadata=metadata or {}
+            )
+            self._log_action(action)
+            return True
 
-        Args:
-            entry_id: ID of entry to update.
-            content: New content (optional).
-            confidence: New confidence score (optional).
-            tags: New tags (optional).
-
-        Returns:
-            MemoryActionToken with result or error.
-        """
-        token = MemoryActionToken(
-            action=MemoryAction.UPDATE,
-            payload={"entry_id": entry_id, "content": content, "confidence": confidence, "tags": tags},
-            timestamp=now(),
-            requester="system"
-        )
-
+    def delete(self, key: str, agent_id: Optional[str] = None) -> bool:
+        """Delete a memory entry."""
         with self._lock:
-            if entry_id not in self._entries:
-                token.success = False
-                token.error = f"Entry not found: {entry_id}"
-                self._action_history.append(token)
-                return token
+            if key not in self._buffer:
+                return False
 
-            entry = self._entries[entry_id]
-            if content is not None:
-                entry.content = content
-            if confidence is not None:
-                entry.confidence = confidence
-            if tags is not None:
-                entry.tags = tags
-            entry.last_accessed = now()
-            token.success = True
-            token.result = {"updated_entry_id": entry_id}
-            self._action_history.append(token)
-            return token
+            del self._buffer[key]
 
-    def delete(self, entry_id: str) -> MemoryActionToken:
-        """Delete a memory entry.
+            # Log action
+            action = MemoryAction(
+                action_type='delete',
+                key=key,
+                agent_id=agent_id
+            )
+            self._log_action(action)
+            return True
 
-        Args:
-            entry_id: ID of entry to delete.
+    def get(self, key: str, default: Optional[str] = None) -> Optional[str]:
+        """Get value by key (alias for retrieve)."""
+        return self.retrieve(key)
 
-        Returns:
-            MemoryActionToken with result or error.
-        """
-        token = MemoryActionToken(
-            action=MemoryAction.DELETE,
-            payload={"entry_id": entry_id},
-            timestamp=now(),
-            requester="system"
-        )
+    def set(self, key: str, value: str) -> bool:
+        """Set value by key (alias for store)."""
+        return self.store(key, value)
 
+    def has(self, key: str) -> bool:
+        """Check if key exists."""
         with self._lock:
-            if entry_id not in self._entries:
-                token.success = False
-                token.error = f"Entry not found: {entry_id}"
-                self._action_history.append(token)
-                return token
+            return key in self._buffer
 
-            del self._entries[entry_id]
-            token.success = True
-            token.result = {"deleted_entry_id": entry_id}
-            self._action_history.append(token)
-            return token
-
-    def list_entries(self, limit: int = 100, offset: int = 0) -> MemoryActionToken:
-        """List memory entries.
-
-        Args:
-            limit: Maximum number of entries to return.
-            offset: Number of entries to skip.
-
-        Returns:
-            MemoryActionToken with list of entries.
-        """
-        token = MemoryActionToken(
-            action=MemoryAction.LIST,
-            payload={"limit": limit, "offset": offset},
-            timestamp=now(),
-            requester="system"
-        )
-
+    def keys(self) -> List[str]:
+        """Return all keys."""
         with self._lock:
-            entries = list(self._entries.values())
-            paginated = [e.to_dict() for e in entries[offset:offset + limit]]
-            token.success = True
-            token.result = {
-                "entries": paginated,
-                "total": len(entries),
-                "limit": limit,
-                "offset": offset
-            }
-            self._action_history.append(token)
-            return token
+            return list(self._buffer.keys())
 
-    def clear(self) -> MemoryActionToken:
-        """Clear all memory entries.
-
-        Returns:
-            MemoryActionToken with result.
-        """
-        token = MemoryActionToken(
-            action=MemoryAction.CLEAR,
-            payload={},
-            timestamp=now(),
-            requester="system"
-        )
-
+    def values(self) -> List[str]:
+        """Return all values."""
         with self._lock:
-            count = len(self._entries)
-            self._entries.clear()
-            self._id_counter = 0
-            token.success = True
-            token.result = {"cleared_count": count}
-            self._action_history.append(token)
-            return token
+            return [entry.value for entry in self._buffer.values()]
+
+    def items(self) -> List[tuple]:
+        """Return all (key, value) pairs."""
+        with self._lock:
+            return [(k, entry.value) for k, entry in self._buffer.items()]
+
+    def size(self) -> int:
+        """Return current buffer size."""
+        with self._lock:
+            return len(self._buffer)
+
+    def clear(self) -> None:
+        """Clear all entries."""
+        with self._lock:
+            self._buffer.clear()
 
     def reset(self) -> None:
-        """Reset the buffer to empty state (alias for clear)."""
+        """Reset buffer and action log."""
         with self._lock:
-            self._entries.clear()
-            self._id_counter = 0
-            self._action_history.clear()
+            self._buffer.clear()
+        with self._action_log_lock:
+            self._action_log.clear()
 
-    def get_action_history(self, limit: int = 100) -> List[Dict[str, Any]]:
-        """Get recent action history.
+    def get_action_log(self) -> List[MemoryAction]:
+        """Return copy of action log."""
+        with self._action_log_lock:
+            return list(self._action_log)
 
-        Args:
-            limit: Maximum number of history entries to return.
+    def parse_and_execute(self, token_string: str, agent_id: Optional[str] = None) -> Any:
+        """Parse a token string and execute the memory action.
 
-        Returns:
-            List of action tokens as dictionaries.
+        Returns the result of the action or None if parsing fails.
         """
-        with self._lock:
-            history = self._action_history[-limit:]
-            return [asdict(h) for h in history]
+        action = MemoryAction.from_token_string(token_string)
+        if action is None:
+            return None
 
-    def get_stats(self) -> Dict[str, Any]:
-        """Get buffer statistics.
+        # Set agent_id if not provided in action
+        if action.agent_id is None:
+            action.agent_id = agent_id
 
-        Returns:
-            Dictionary with buffer statistics.
-        """
-        with self._lock:
-            return {
-                "entry_count": len(self._entries),
-                "max_entries": self._max_entries,
-                "capacity_usage": len(self._entries) / self._max_entries,
-                "action_count": len(self._action_history),
-                "is_full": len(self._entries) >= self._max_entries,
-                "is_near_capacity": len(self._entries) / self._max_entries >= self._capacity_warning
-            }
+        if action.action_type == 'store':
+            return self.store(action.key, action.value or '',
+                             action.agent_id, action.metadata)
+        elif action.action_type == 'retrieve':
+            return self.retrieve(action.key, action.agent_id)
+        elif action.action_type == 'update':
+            return self.update(action.key, action.value or '',
+                              action.agent_id, action.metadata)
+        elif action.action_type == 'delete':
+            return self.delete(action.key, action.agent_id)
+        return None
 
     def __getattr__(self, name: str) -> Callable[..., Any]:
-        """Tolerant fallback for unknown method calls.
-
-        This allows the buffer to be used as a tolerant logger-like object
-        where any unknown method returns a no-op callable.
-        """
-        def _noop(*args: Any, **kwargs: Any) -> Any:
+        """Tolerant fallback for unknown logger-style methods."""
+        def _noop(*args: Any, **kwargs: Any) -> None:
             return None
         return _noop
 
+# Shared buffer singleton
+_shared_buffer: Optional[MemoryBuffer] = None
+_shared_buffer_lock = threading.Lock()
 
-# Singleton instance for shared access
-_SHARED_BUFFER: Optional[MemoryBuffer] = None
-_BUFFER_LOCK = threading.Lock()
+def get_shared_buffer(capacity: int = 10000, action_logging: bool = True) -> MemoryBuffer:
+    """Get or create the shared memory buffer singleton."""
+    global _shared_buffer
+    with _shared_buffer_lock:
+        if _shared_buffer is None:
+            _shared_buffer = MemoryBuffer(capacity=capacity,
+                                         action_logging=action_logging)
+        return _shared_buffer
 
+def get_shared_memory_buffer(capacity: int = 10000, action_logging: bool = True) -> MemoryBuffer:
+    """Alias for get_shared_buffer for compatibility."""
+    return get_shared_buffer(capacity=capacity, action_logging=action_logging)
 
-def get_shared_buffer(max_entries: int = 10000) -> MemoryBuffer:
-    """Get the singleton shared memory buffer instance.
+def reset_shared_buffer() -> None:
+    """Reset the shared buffer singleton."""
+    global _shared_buffer
+    with _shared_buffer_lock:
+        if _shared_buffer is not None:
+            _shared_buffer.reset()
+            _shared_buffer = None
 
-    Args:
-        max_entries: Maximum entries (only used on first creation).
+def now() -> str:
+    """Return current timestamp string."""
+    return datetime.utcnow().isoformat()
 
-    Returns:
-        The shared MemoryBuffer instance.
-    """
-    global _SHARED_BUFFER
-    with _BUFFER_LOCK:
-        if _SHARED_BUFFER is None:
-            _SHARED_BUFFER = MemoryBuffer(max_entries=max_entries)
-        return _SHARED_BUFFER
+def parse_memory_action(token_string: str) -> Optional[MemoryAction]:
+    """Parse a memory action from token string."""
+    return MemoryAction.from_token_string(token_string)
+
+def parse_memory_action_token(token_string: str) -> Optional[MemoryAction]:
+    """Alias for parse_memory_action."""
+    return parse_memory_action(token_string)

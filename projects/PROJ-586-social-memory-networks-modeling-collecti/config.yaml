@@ -1,42 +1,11 @@
-# Social Memory Networks - Experiment Configuration
-# This file contains all configuration parameters for the multi-agent simulation.
-# Values can be overridden via environment variables with prefix SOCIAL_MEMORY_
-
-# Random seed for reproducibility (default: 42)
 seed: 42
-
-# Device to run on: cpu, cuda, mps (default: cpu)
 device: cpu
-
-# Number of agents in the simulation (default: 3)
-num_agents: 3
-
-# Number of games to simulate (default: 1000)
-num_games: 1000
-
-# Context window size in tokens (default: 512)
-context_window: 512
-
-# Model name to use (default: opt-125m)
-model_name: opt-125m
-
-# Batch size for processing (default: 1)
-batch_size: 1
-
-# Maximum number of memory entries per agent (default: 100)
-max_memory_entries: 100
-
-# Context condition: "full" or "limited" (default: full)
-context_condition: full
-
-# Token limit for limited context condition (default: 256)
-limited_context_tokens: 256
-
-# Directory paths (relative to project root)
-data_dir: data
-results_dir: results
-figures_dir: figures
-
-# Logging configuration
-log_level: INFO
+model_name: facebook/opt-125m
+dtype: float32
 log_file: experiment.log
+output_dir: results
+data_dir: data
+num_games_full: 1000
+num_games_limited: 1000
+agent_counts: [3, 5, 7]
+context_windows: [128, 256, 512]

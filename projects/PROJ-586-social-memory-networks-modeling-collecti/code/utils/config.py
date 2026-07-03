@@ -77,14 +77,14 @@ def load_config(config_path: Optional[str] = None) -> Config:
                         # Basic type conversion
                         if val.isdigit():
                             file_config[key] = int(val)
-                        elif val.replace('.', '', 1).isdigit():
+                        elif val.replace('.', '', 1).replace('-', '', 1).isdigit():
                             file_config[key] = float(val)
                         elif val.lower() in ('true', 'false'):
                             file_config[key] = val.lower() == 'true'
                         elif val.startswith('[') and val.endswith(']'):
                             # Simple list parsing
                             items = val[1:-1].split(',')
-                            file_config[key] = [item.strip() for item in items]
+                            file_config[key] = [item.strip() for item in items if item.strip()]
                         else:
                             file_config[key] = val
         

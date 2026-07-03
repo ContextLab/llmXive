@@ -59,7 +59,7 @@
 - [X] T005 [P] Implement base Agent abstraction using CPU-only `transformers` (opt-125m, float32 precision) in `code/agent/base_agent.py` (FR-002) <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [X] T006 [P] Implement shared external memory buffer with `<MEMORY_ACTION>` token handling in `code/memory/buffer.py` (FR-003) <!-- FAILED: unspecified -->
 - [X] T007 [P] Configure error logging with timestamps to `experiment.log` in `code/utils/logging.py` (FR-010)
-- [X] T008 [P] Configure environment management (config.yaml with seed=42, device=cpu) in `code/utils/config.py`
+- [ ] T008 [P] Configure environment management (config.yaml with seed=42, device=cpu) in `code/utils/config.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -103,7 +103,7 @@
 
 ### Implementation for User Story 2
 
-- [X] T018 [US-2] {{claim:c_504902df}} (2503.02686, https://arxiv.org/abs/2503.02686) in `code/run_experiment.py` <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [ ] T018 [US-2] {{claim:c_504902df}} (2503.02686, https://arxiv.org/abs/2503.02686) in `code/run_experiment.py` <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [X] T019 [US-2] Output `results_limited.csv` with same metrics to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/`
 - [X] T020 [P] [US-2] Implement two‑way independent‑samples ANOVA with factors Context × Metric (single ANOVA, not separate) in `code/analysis/anova.py` (FR-006)
 - [X] T021 [P] [US-2] Apply Bonferroni correction to all family‑wise hypothesis tests and report corrected α in `code/analysis/anova.py` (FR-007)
@@ -128,7 +128,7 @@
 
 ### Implementation for User Story 3
 
-- [X] T027 [US-3] Implement game simulation for agent counts 3, 5, 7 (800 games per config per spec US-3) in `code/run_experiment.py` <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified -->
+- [ ] T027 [US-3] Implement game simulation for agent counts 3, 5, 7 (800 games per config per spec US-3) in `code/run_experiment.py` <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
 - [X] T028 [P] [US-3] Implement power-law fitting for metric trends vs. agent count (3, 5, 7) in `code/analysis/scaling.py` (US-3)
 - [X] T029 [P] [US-3] {{claim:c_30d0e391}}
 - [X] T030 [US-3] Generate `scaling_plot.pdf` with fitted power‑law curves and explicit note that 3 data points limit power‑law reliability in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_plot.pdf`
@@ -145,7 +145,7 @@
 - [X] T032 [P] Remove all 8-bit/4-bit quantization imports, verify no CUDA imports in all Python files (compute feasibility)
 - [X] T033 [P] Implement file-locking with fcntl and add conflict retry logic in `code/utils/serialization.py` (FR-012)
 - [X] T034 [P] Update `research.md` with reviewer feedback integration notes (Turing, Rockmore, Kahneman, Krakauer, Kandel, West)
-- [ ] T035 [P] Run full pipeline on CI runner, record runtime/memory/disk in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/` {{claim:c_e603cc7e}}, {{claim:c_61298537}} <!-- ATOMIZE: requested -->
+- [X] T035 [P] Run full pipeline on CI runner, record runtime/memory/disk in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/` {{claim:c_e603cc7e}}, {{claim:c_61298537}} <!-- ATOMIZE: requested -->
 
 ---
 

@@ -1,0 +1,25 @@
+# Core dependencies for CI pipeline execution
+# Derived from main requirements but focused on profiling and execution
+
+# Core ML/Data (CPU-only as per project constraints)
+torch>=2.0.0
+transformers>=4.30.0
+numpy>=1.24.0
+pandas>=2.0.0
+
+# Profiling and Resource Monitoring
+psutil>=5.9.0
+
+# Analysis and Statistics
+scipy>=1.10.0
+statsmodels>=0.14.0
+matplotlib>=3.7.0
+
+# Utilities
+tqdm>=4.65.0
+pytest>=7.0.0
+flake8>=6.0.0
+black>=23.0.0
+
+# Pre-commit hooks
+pre-commit>=3.0.0
