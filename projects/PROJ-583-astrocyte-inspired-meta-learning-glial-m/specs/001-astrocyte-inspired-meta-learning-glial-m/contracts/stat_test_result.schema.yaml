@@ -1,0 +1,50 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StatisticalTestResult"
+description: "Schema for the output of the paired-sample t-test comparing model performance."
+type: "object"
+properties:
+  test_name:
+    type: "string"
+    const: "Paired_T_Test"
+    description: "Name of the statistical test performed."
+  metric:
+    type: "string"
+    enum: ["Stability", "Plasticity"]
+    description: "The specific metric being tested."
+  t_statistic:
+    type: "number"
+    description: "The computed t-statistic."
+  p_value:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "The p-value resulting from the test."
+  significant:
+    type: "boolean"
+    description: "True if p_value < 0.025 (Bonferroni corrected), False otherwise."
+  degrees_of_freedom:
+    type: "integer"
+    description: "Degrees of freedom for the test (n-1)."
+  baseline_mean:
+    type: "number"
+    description: "Mean value for the baseline model."
+  astrocyte_mean:
+    type: "number"
+    description: "Mean value for the astrocyte model."
+  effect_size:
+    type: "number"
+    description: "Cohen's d effect size."
+  power_note:
+    type: "string"
+    description: "Optional note regarding statistical power limitations (e.g., n=5)."
+required:
+  - "test_name"
+  - "metric"
+  - "t_statistic"
+  - "p_value"
+  - "significant"
+  - "degrees_of_freedom"
+  - "baseline_mean"
+  - "astrocyte_mean"
+  - "effect_size"
+additionalProperties: false

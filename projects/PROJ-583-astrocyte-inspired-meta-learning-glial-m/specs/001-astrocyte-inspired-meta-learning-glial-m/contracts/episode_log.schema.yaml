@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EpisodeLog"
+description: "Schema for a single training episode log containing metrics and homeostatic factors."
+type: "object"
+properties:
+  episode_id:
+    type: "integer"
+    description: "Unique identifier for the episode within a run."
+  seed:
+    type: "integer"
+    description: "Random seed used for this run."
+  task_id:
+    type: "string"
+    description: "Identifier for the specific task (e.g., class combination)."
+  plasticity_scores:
+    type: "array"
+    items:
+      type: "number"
+    description: "Accuracy on the current task after 1, 5, and 10 inner-loop steps."
+  stability_scores:
+    type: "array"
+    items:
+      type: "number"
+    description: "Accuracy on a buffer of previous tasks after training on the current task."
+  homeostatic_factor:
+    type: "number"
+    description: "The scalar factor h_t applied to the learning rate."
+  calcium_concentration:
+    type: "number"
+    description: "The simulated calcium concentration Ca_t."
+  loss:
+    type: "number"
+    description: "Meta-loss for this episode."
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO8601 timestamp of the episode execution."
+required:
+  - "episode_id"
+  - "seed"
+  - "task_id"
+  - "plasticity_scores"
+  - "stability_scores"
+  - "homeostatic_factor"
+  - "calcium_concentration"
+  - "loss"
+  - "timestamp"
+additionalProperties: false
