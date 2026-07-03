@@ -803,6 +803,10 @@
     "classified_at": "2026-06-29T18:45:51Z",
     "verdict": false
   },
+  "PROJ-820-llmxive-follow-up-extending-visual-gener::1.6.0": {
+    "classified_at": "2026-07-03T18:58:54Z",
+    "verdict": false
+  },
   "PROJ-883-llmxive-follow-up-extending-omniretrieva::1.6.0": {
     "classified_at": "2026-07-03T13:03:39Z",
     "verdict": false
@@ -813,6 +817,10 @@
   },
   "PROJ-910-llmxive-follow-up-extending-code2lora-hy::1.6.0": {
     "classified_at": "2026-07-03T07:29:12Z",
+    "verdict": false
+  },
+  "PROJ-917-llmxive-follow-up-extending-kvarn-varian::1.6.0": {
+    "classified_at": "2026-07-03T18:57:00Z",
     "verdict": false
   }
 }

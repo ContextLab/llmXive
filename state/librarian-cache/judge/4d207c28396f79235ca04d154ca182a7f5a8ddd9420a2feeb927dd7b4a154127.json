@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.05868",
+  "judged_at": "2026-07-03T18:57:29Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"kvarn: variance-normalized kv-cache quantization mitigates error accum\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it addresses the same core mechanism (KV-cache memory overhead and compression) and dependent variable (perplexity degradation) as the user's question regarding KV-cache quantization, even though it employs a different specific technique (GQA-to-MLA transition) rather than variance-normalized quantization. It provides essential prior work on the problem of mitigating KV-cache bottlenecks in LLMs, which is the foundational context for the user's propos",
+  "relevant": true
+}

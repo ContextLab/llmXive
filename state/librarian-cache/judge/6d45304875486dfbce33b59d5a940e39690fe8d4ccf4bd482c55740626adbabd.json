@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2604.24971",
+  "judged_at": "2026-07-03T18:57:23Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"kvarn: variance-normalized kv-cache quantization mitigates error accum\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly investigates the same core mechanism (KV-cache quantization) and variables (compression ratio, perplexity degradation, error accumulation) as the user's referenced work, specifically addressing the \"Variance-Normalized\" aspect through its own asymmetric quantization strategy for Keys and Values. It serves as a canonical related-work entry for the domain of KV-cache compression techniques in LLM inference.",
+  "relevant": true
+}

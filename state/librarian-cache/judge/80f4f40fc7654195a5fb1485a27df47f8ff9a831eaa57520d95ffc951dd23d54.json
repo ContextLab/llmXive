@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2604.28185",
+  "judged_at": "2026-07-03T18:59:18Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"visual generation in the new era: an evolution from atomic mapping to \" other",
+  "rationale": "This paper is the foundational roadmap and canonical reference for the specific research direction the user is following up on, satisfying criteria (d) as the primary source defining the \"Atomic Mapping to Agentic World Modeling\" evolution and (a) as it directly measures and categorizes the same biological/algorithmic mechanisms (spatial reasoning, causal understanding, world modeling) the user's question targets.",
+  "relevant": true
+}

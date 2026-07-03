@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.00978",
+  "judged_at": "2026-07-03T18:57:38Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"kvarn: variance-normalized kv-cache quantization mitigates error accum\" computer science",
+  "rationale": "This paper belongs in the literature review because it addresses the same core mechanism (LLM quantization to mitigate error and enable deployment) and domain (large language model compression) as the user's question, satisfying criteria (a) and (b) by providing foundational work on weight quantization strategies that serve as a baseline for the specific KV-cache variance-normalization approach mentioned.",
+  "relevant": true
+}

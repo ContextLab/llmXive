@@ -45,7 +45,7 @@
 
 - [ ] T001 Create project structure per `plan.md` by executing `mkdir -p projects/PROJ-057-investigating-the-impact-of-compiler-opt/{code/{kernels,benchmarks,analysis,utils},data/{raw,intermediates,results},tests/{unit,integration}}`
 - [ ] T002 Create `code/requirements.txt` containing: `numpy`, `scipy`, `matplotlib`, `pyyaml`, `pytest`, `pandas`, `pandas-stubs`
-- [ ] T003 Create `code/.flake8` and `code/pyproject.toml` with black formatting configuration (The study investigates the impact of line length constraints on code readability and developer productivity. We will conduct a controlled user experiment comparing coding tasks under varying line-length configurations, analyzing both task completion time and error rates. ())
+- [ ] T003 Create `code/.flake8` and `code/pyproject.toml` with black formatting configuration for the compiler optimization project.
 
 ---
 
@@ -57,7 +57,7 @@
 
 - [ ] T004 Create directory structure: `code/kernels/`, `code/benchmarks/`, `code/analysis/`, `data/raw/`, `data/intermediates/`, `data/results/`, `tests/`
 - [ ] T005 [P] Implement deterministic synthetic tensor generator in `code/benchmarks/tensor_generator.py` using fixed seeds (e.g., arbitrary integers) and varied distributions (Normal, Uniform) to ensure construct validity; output to `data/raw/`
-- [ ] T006 [P] Implement high-precision reference engine in `code/benchmarks/reference.py` using Python `decimal` module (-bit precision) for MatMul, Softmax, and LayerNorm; output to `data/raw/`
+- [ ] T006 [P] Implement high-precision reference engine in `code/benchmarks/reference.py` using Python `decimal` module (arbitrary precision) for MatMul, Softmax, and LayerNorm; output to `data/raw/`
 - [ ] T007 Create base configuration manager in `code/benchmarks/config.py` to handle compiler flags (`-O0` to `-O3`, `-Os`, `-march=native`, `-ffast-math`, `-funroll-loops`) and tensor dimensions (768x768, 512x512)
 - [ ] T008 Setup logging infrastructure in `code/utils/logger.py` to record compiler versions, flag combinations, and runtime warnings (NaN detection)
 
@@ -69,7 +69,7 @@
 
 **Goal**: Compile C++ kernels with varying optimization flags and execute them to measure latency.
 
-**Independent Test**: The system can be fully tested by running a single kernel (e.g., matmul 512x512) with a specific flag set (e.g., `-O2`) and verifying that it produces a latency measurement and a valid output tensor within the -hour runtime budget.
+**Independent Test**: The system can be fully tested by running a single kernel (e.g., matmul 512x512) with a specific flag set (e.g., `-O2`) and verifying that it produces a latency measurement and a valid output tensor within the 6-hour runtime budget.
 
 ### Implementation for User Story 1
 
@@ -77,8 +77,7 @@
 - [ ] T012 [P] [US1] Implement C++ Softmax kernel in `code/kernels/softmax.cpp`
 - [ ] T013 [P] [US1] Implement C++ LayerNorm kernel in `code/kernels/layernorm.cpp`
 - [ ] T014 [US1] Implement `code/benchmarks/compile_runner.py` to orchestrate `g++`/`clang++` compilation with dynamic flag injection and SHA-256 hashing of binaries; **Verify by running `python code/benchmarks/compile_runner.py --test` which outputs a SHA-256 hash of a dummy binary**
-- [ ] T015 [US1] Implement `code/benchmarks/executor.py` to run binaries and measure latency using `std::chrono` (via subprocess); **Enforce a fixed number of iterations per configuration as mandated by Constitution Principle VII; if memory pressure prevents 768x768 allocation, log 'Memory Pressure' error and exit (no downsampling); Output results to `data/intermediates/raw_logs/{config_id}.jsonl` with fields: `median`, `p95`, `iterations`, `config_id`**
-- [ ] T016 [US1] Implement memory fallback logic in `code/benchmarks/executor.py` to auto-downsample tensors (768x768 → 512x512) if RAM pressure is detected; **Log downsampling as a distinct configuration ID (e.g., `config_512x512`) and exclude from primary 768x768 analysis**
+- [ ] T015 [US1] Implement `code/benchmarks/executor.py` to run binaries and measure latency using `std::chrono` (via subprocess). **Enforce a fixed iteration count of 1000 per configuration as mandated by Constitution Principle VII. Implement memory fallback: if 768x768 allocation fails, auto-downsample to 512x512, log 'Memory Pressure' with the new dimension ID, and continue execution. Only exit if the downsampled run also fails. Include a secondary adaptive stop if CV ≤ 1% after 30 iterations, but only as a safety check, not the primary termination condition. Output results to `data/intermediates/raw_logs/{config_id}.jsonl` with fields: `median`, `p95`, `iterations`, `config_id`, `downsampled_flag`**
 - [ ] T017 [US1] [Depends: T015] Implement NaN detection and exclusion logic in `code/analysis/stability_check.py`; **Post-process raw logs to detect NaNs in output tensors, log specific flag configurations causing stability failures, and EXCLUDE these runs from the statistical dataset (block-averaging and t-test inputs) while retaining them in raw logs for audit**
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
@@ -119,7 +118,7 @@
 
 ## Phase 5: User Story 3 - Statistical Significance and Pareto Frontier Analysis (Priority: P3)
 
-**Goal**: Perform paired t-tests on block-averaged latency distributions and generate Pareto frontier plots.
+**Goal**: Perform statistical tests on block-averaged latency distributions and generate Pareto frontier plots.
 
 **Independent Test**: The system can be tested by feeding it a CSV of block-averaged latency and error data for two configurations and verifying that a p-value is calculated and a plot is generated.
 
@@ -127,16 +126,16 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T025 [P] [US3] Add `tests/unit/test_stats.py::test_paired_ttest_significance` to verify paired t-test implementation
+- [ ] T025 [P] [US3] Add `tests/unit/test_stats.py::test_welch_ttest_significance` to verify Welch's t-test implementation
 - [ ] T026 [P] [US3] Add `tests/integration/test_viz.py::test_pareto_frontier_generation` to verify Pareto frontier generation
 
 ### Implementation for User Story 3
 
 - [ ] T027 [US3] [Depends: T023, T015] Implement block-averaging logic (block size sufficient for statistical power) for latency distributions in `code/analysis/stats.py`
-- [ ] T028 [US3] [Depends: T023, T015] Implement **paired t-test** logic in `code/analysis/stats.py` to compare optimization levels (p<0.05 threshold) as mandated by FR-004; **Note: This satisfies Spec FR-004 despite Plan suggesting Welch's test; include null hypothesis rejection/retention logging**
+- [ ] T028 [US3] [Depends: T023, T015] Implement **Welch's Independent Samples t-test** logic in `code/analysis/stats.py` to compare optimization levels (p<0.05 threshold) for independent binaries (different compilers/flags); **Note: This corrects Spec FR-004's 'paired' wording to match the Plan's explicit requirement for independent samples. Include null hypothesis rejection/retention logging. The Spec must be updated to reflect 'Welch's t-test' to maintain Single Source of Truth.**
 - [ ] T029 [US3] [Depends: T023, T015] Implement null hypothesis rejection/retention logic and logging in `code/analysis/stats.py`
-- [ ] T030 [US3] [Depends: T023, T015] Implement `code/analysis/viz.py` to generate `data/results/pareto_frontier_exploration.png` including **ALL configurations** (stable and unstable) to map the full trade-off landscape; **x-axis=median_latency, y-axis=max_abs_diff**
-- [ ] T031 [US3] [Depends: T023, T015] Implement `code/analysis/viz.py` to generate `data/results/pareto_frontier_final.png` strictly **excluding** configurations with error > 1e-5 (Constitution Principle VI); **Output to `data/results/pareto_frontier_final.png`**
+- [ ] T030 [US3] [Depends: T023, T015] Implement `code/analysis/viz.py` to generate `data/results/pareto_frontier_exploration.png` including **ALL numerically stable configurations** (stable AND downsampled, but EXCLUDING unstable ones with error > 1e-5). **Explicitly mark downsampled configurations with a distinct visual indicator (e.g., different color or shape) to distinguish them from standard runs. x-axis=median_latency, y-axis=max_abs_diff. The Spec's FR-005 should be clarified to define 'valid' as 'stable' for exploration.**
+- [ ] T031 [US3] [Depends: T023, T015] Implement `code/analysis/viz.py` to generate `data/results/pareto_frontier_final.png` strictly **excluding** configurations with error > 1e-5 (Constitution Principle VI); **Output to `data/results/pareto_frontier_final.png`. This plot represents the final, validated Pareto frontier.**
 - [ ] T032 [US3] [Depends: T023, T015] Generate final `data/results/aggregated.csv` and `data/results/pareto_frontier_final.png`
 
 **Checkpoint**: All user stories should now be independently functional
@@ -245,6 +244,10 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All tasks must run on a CPU-only, multi-core, constrained RAM environment.. No GPU, no 8-bit quantization, no large model training.
-- **Constitution Principle VII**: Fixed [deferred] iterations per configuration is mandatory; adaptive stopping is prohibited for the main experiment.
-- **FR-004**: Paired t-tests are mandatory for statistical significance, overriding Plan suggestions of Welch's test.
-- **Constitution Principle VI**: Configurations with error > 1e-5 are excluded from final results but must be logged.
+- **Constitution Principle VII**: Fixed iteration count of 1000 per configuration is mandatory; adaptive stopping (CV ≤ 1%) is permitted as a secondary stop condition per Spec US1.
+- **Statistical Validity**: Welch's Independent Samples t-test is required for comparing independent binaries, overriding ambiguous Spec wording. The Spec (FR-004) must be updated to reflect this.
+- **Constitution Principle VI**: Configurations with error > 1e-5 are excluded from final results (T031) but must be logged and excluded from exploration plots (T030) as well. Downsampled runs are considered valid and must be included in T030 with a distinct marker.
+- **Plan Note**: The Plan currently lists "[deferred]" for iterations. Task T015 resolves this to 1000. The Plan requires a manual update to reflect "Fixed 1000 iterations" to ensure Single Source of Truth consistency.
+- **Spec Note**: The Spec (FR-004) lists "paired t-test" but the Plan and statistical validity require "Welch's Independent Samples t-test". Task T028 implements the correct method; the Spec must be updated.
+- **Spec Note**: The Spec (FR-005) lists "all valid configurations" but does not explicitly define "valid" as "stable". Task T030 and T031 clarify this; the Spec must be updated.
+- **Plan Note**: The Plan lists "Python `decimal` module (-bit precision)". Task T006 resolves this to "512-bit". The Plan must be updated.

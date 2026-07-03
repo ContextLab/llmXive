@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.03458",
+  "judged_at": "2026-07-03T18:57:21Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"kvarn: variance-normalized kv-cache quantization mitigates error accum\" computer science",
+  "rationale": "The candidate paper is the foundational methods paper (Category d) that introduces \"KVarN,\" the specific technique the user's research question explicitly names and seeks to extend. Additionally, it provides the empirical baseline (Category c) for error accumulation in KV-cache quantization that the user's follow-up work would need to cite and improve upon.",
+  "relevant": true
+}

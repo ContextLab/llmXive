@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2510.05373",
+  "judged_at": "2026-07-03T18:57:26Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"kvarn: variance-normalized kv-cache quantization mitigates error accum\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it addresses the exact same mechanism (mitigating error accumulation in KV-cache quantization for LLMs) and measures the same dependent variables (generation quality degradation due to quantization errors) as the user's referenced work, serving as a direct canonical alternative or follow-up in the same research cluster.",
+  "relevant": true
+}

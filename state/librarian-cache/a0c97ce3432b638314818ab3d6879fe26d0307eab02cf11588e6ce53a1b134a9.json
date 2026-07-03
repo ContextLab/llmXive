@@ -1,0 +1,625 @@
+{
+  "fetched_at": "2026-07-03T18:59:30Z",
+  "field": "other",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "other",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Visual Generation in the New Era: An Evolution from Atomic Mapping to \"",
+      "target_n": 5
+    },
+    "duration_seconds": 75.488,
+    "ended_at": "2026-07-03T18:59:30Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Visual generation evolution from atomic mapping"
+        ],
+        [
+          2,
+          "Next-generation visual content synthesis"
+        ],
+        [
+          3,
+          "Atomic mapping techniques in generative AI"
+        ],
+        [
+          4,
+          "Evolution of visual generation paradigms"
+        ],
+        [
+          5,
+          "Beyond atomic mapping in image synthesis"
+        ],
+        [
+          6,
+          "Modern approaches to visual data generation"
+        ],
+        [
+          7,
+          "Generative models for visual content creation"
+        ],
+        [
+          8,
+          "Visual synthesis in the era of large language models"
+        ],
+        [
+          9,
+          "Transition from mapping to generative visual models"
+        ],
+        [
+          10,
+          "Advanced visual generation architectures"
+        ],
+        [
+          11,
+          "Multimodal visual generation frameworks"
+        ],
+        [
+          12,
+          "Generative AI for visual media evolution"
+        ],
+        [
+          13,
+          "Atomic representation in visual synthesis"
+        ],
+        [
+          14,
+          "Emerging trends in computer vision generation"
+        ],
+        [
+          15,
+          "Large-scale visual model evolution"
+        ],
+        [
+          16,
+          "Visual content generation methodologies"
+        ],
+        [
+          17,
+          "From deterministic mapping to generative visual AI"
+        ],
+        [
+          18,
+          "State-of-the-art visual generation techniques"
+        ],
+        [
+          19,
+          "Generative diffusion and visual synthesis evolution"
+        ],
+        [
+          20,
+          "Neural visual generation paradigm shifts"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Atomic mapping techniques in generative AI": 0,
+        "Evolution of visual generation paradigms": 1,
+        "Next-generation visual content synthesis": 2,
+        "Visual generation evolution from atomic mapping": 2,
+        "llmXive follow-up: extending \"Visual Generation in the New Era: An Evolution from Atomic Mapping to \" other": 0
+      },
+      "total_queries_issued": 4
+    },
+    "extracted_queries": [
+      "atomic mapping generative models visual synthesis",
+      "diffusion models latent space visual generation",
+      "visual generation multimodal foundation models",
+      "visual fidelity generation benchmark evaluation metrics",
+      "visual generation architecture paradigm shift evolution"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2604.28185"
+      ]
+    },
+    "per_query_hit_count": {
+      "atomic mapping generative models visual synthesis": 3,
+      "diffusion models latent space visual generation": 3,
+      "llmXive follow-up: extending \"Visual Generation in the New Era: An Evolution from Atomic Mapping to \" other": 3,
+      "visual fidelity generation benchmark evaluation metrics": 3,
+      "visual generation architecture paradigm shift evolution": 3,
+      "visual generation multimodal foundation models": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2604.25298",
+          "rationale": "The paper focuses on human visual analytics and the mitigation of artifacts in spatiotemporal data visualization (e.g., using glyphs and halos for epidemiology), which is a distinct construct from the user's question regarding Large Language Models (LLMs) and visual generation mechanisms. This falls under the rejection rule for \"Distinct construct sharing only homonym keywords\" (specifically the word \"visual\"), as the paper addresses human perception of static/animated maps rather than the algor",
+          "title": "Visual Boosting Techniques for Spatiotemporal Dense Pixel Visualizations"
+        },
+        {
+          "primary_pointer": "2107.14449",
+          "rationale": "The paper focuses on medical image registration and synthesis (histology to MRI) using contrastive learning, which is a distinct domain and mechanism from the user's question regarding \"Visual Generation\" evolution and \"Atomic Mapping\" in the context of LLMs. There is no measurable connection to the specific variables, mechanisms, or empirical populations (likely generative AI models or large-scale visual datasets) implied by the user's query, failing all inclusion criteria (a-f) and falling und",
+          "title": "Synth-by-Reg (SbR): Contrastive learning for synthesis-based registration of paired images"
+        },
+        {
+          "primary_pointer": "2305.03051",
+          "rationale": "The paper focuses on multi-sensory synthesis (visual and tactile) using haptic devices, which is a distinct domain from the user's question regarding \"Visual Generation\" and \"Atomic Mapping\" in the context of LLMs or general visual evolution. While both involve generative models, the paper does not address the specific mechanism, variables, or empirical population (LLM-based visual generation evolution) implied by the user's query, failing to meet the criteria for inclusion in a literature revie",
+          "title": "Controllable Visual-Tactile Synthesis"
+        },
+        {
+          "primary_pointer": "1502.05508",
+          "rationale": "The paper discusses biological evolution, life-history traits, and generation time in species, which is an off-domain topic entirely unrelated to the user's question about Large Language Models (LLMs) and visual generation. The shared term \"generation\" refers to biological reproduction cycles in the paper versus AI image synthesis in the user's query, constituting a distinct construct sharing only a homonym keyword.",
+          "title": "The biased evolution of generation time"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-03T18:58:15Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"visual generation in the new era: an evolution from atomic mapping to \" other",
+      "raw": "llmXive follow-up: extending \"Visual Generation in the New Era: An Evolution from Atomic Mapping to \" other"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In a previous study [Jo, 2026], STAR reasoning (Situation, Task, Action, Result) raised car wash problem accuracy from 0% to 85% on Claude Sonnet 4.5, and to 100% with\n  additional prompt layers. This follow-up asks: does STAR maintain its effectiveness in a production system prompt?\n  We tested STAR inside InterviewMate's 60+ line production prompt, which had evolved through iterative additions of style guidelines, format instructions, and profile\n  features. Three conditions, 20 trials each, on Claude Sonnet 4.6: (A) production prompt with Anthropic profile, (B) production prompt with default profile, (C) original\n  STAR-only prompt. C scored 100% (verified at n=100). A and B scored 0% and 30%.\n  Prompt complexity dilutes structured reasoning. STAR achieves 100% in isolation but degrades to 0-30% when surrounded by competing instructions. The mechanism: directives\n  like \"Lead with specifics\" force conclusion-first output, reversing the reason-then-conclude order that makes STAR effective. In one case, the model output \"Short answer:\n  Walk.\" then executed STAR reasoning that correctly identified the constraint -- proving the model could reason correctly but had already committed to the wrong answer.\n  Cross-model comparison shows STAR-only improved from 85% (Sonnet 4.5) to 100% (Sonnet 4.6) without prompt changes, suggesting model upgrades amplify structured reasoning\n  in isolation.\n  These results imply structured reasoning frameworks should not be assumed to transfer from isolated testing to complex prompt environments. The order in which a model\n  reasons and concludes is a first-class design variable.",
+          "claimed_authors": [
+            "Heejin Jo"
+          ],
+          "claimed_title": "Prompt Complexity Dilutes Structured Reasoning: A Follow-Up Study on the Car Wash Problem",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.13351"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Visual Generation in the New Era: An Evolution fro', candidate_title='Prompt Complexity Dilutes Structured Reasoning: A Follow-Up Study on the Car Wash Problem')",
+        "failed_at": "2026-07-03T18:58:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The NASA Exoplanet Archive and the Exoplanet Follow-up Observing Program service are two widely used resources for the exoplanet community. The NASA Exoplanet Archive provides a complete and accurate accounting of exoplanetary systems published by NASA missions and by the community in the refereed literature. In anticipation of continued exponential growth in the number of exoplanetary systems, and the increasing complexity in our characterization of these systems, the NASA Exoplanet Archive has restructured its primary tables and interfaces, as well as extending and standardizing their modes of access. The Exoplanet Follow-up Observing Program service provides the exoplanet community with a venue for coordinating and sharing follow-up and precursor data for exoplanets, their host stars, and stars that might eventually be targets for future planet searches, and recently reached one million files uploaded by the community. In this paper we describe the updates to our data holdings, functionality, accessibility, and tools, as well as future priorities for these two services.",
+          "claimed_authors": [
+            "Jessie L. Christiansen",
+            "Douglas L. McElroy",
+            "Marcy Harbut",
+            "David R. Ciardi",
+            "Megan Crane",
+            "John Good",
+            "Kevin K. Hardegree-Ullman",
+            "Aurora Y. Kesseli",
+            "Michael B. Lund",
+            "Meca Lynn",
+            "Ananda Muthiar",
+            "Ricky Nilsson",
+            "Toba Oluyide",
+            "Michael Papin",
+            "Amalia Rivera",
+            "Melanie Swain",
+            "Nicholas D. Susemiehl",
+            "Raymond Tam",
+            "Julian van Eyken",
+            "Charles Beichman"
+          ],
+          "claimed_title": "The NASA Exoplanet Archive and Exoplanet Follow-up Observing Program: Data, Tools, and Usage",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.03299"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Visual Generation in the New Era: An Evolution fro', candidate_title='The NASA Exoplanet Archive and Exoplanet Follow-up Observing Program: Data, Tools, and Usage')",
+        "failed_at": "2026-07-03T18:58:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Here we summarize discussions and conclusions from the conference ``The Era of Binary Supermassive Black Holes: Coordination of Nanohertz-Frequency Gravitational-Wave Follow-up,'' held at the Aspen Center for Physics from February 2-7, 2025. The meeting facilitated a crucial knowledge exchange between electromagnetic and gravitational-wave theorists, observers, and cyber-infrastructure experts. The central goal was to guide the development of multi-messenger follow-up strategies for binary supermassive black hole detections by pulsar timing arrays. To build a common basis of understanding for the broader scientific community, this summary outlines the main considerations and recommendations from the meeting, summarizes the knowledge gaps identified, and ends with a potential roadmap to catalyze discussion about the search for electromagnetic counterparts to massive black hole binaries detected by pulsar timing arrays.",
+          "claimed_authors": [
+            "Sarah Burke-Spolaor",
+            "Tamara Bogdanović",
+            "Daniel J. D'Orazio",
+            "Michael Eracleous",
+            "Suvi Gezari",
+            "Matthew J. Graham",
+            "Kayhan Gültekin",
+            "Jeffrey Hazboun",
+            "Chiara M. F. Mingarelli",
+            "Gautham Narayan",
+            "Polina Petrov",
+            "Nicolo Veronesi"
+          ],
+          "claimed_title": "The Era of Binary Supermassive Black Holes: Coordination of Nanohertz-Frequency Gravitational-Wave Follow-up",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.15911"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Visual Generation in the New Era: An Evolution fro', candidate_title='The Era of Binary Supermassive Black Holes: Coordination of Nanohertz-Frequency Gravitational-Wave Follow-up')",
+        "failed_at": "2026-07-03T18:58:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We report the rapid accelerated thermalisation of Potassium 39 K atoms loaded in a magnetic trap, in the presence of a single dipole trap beam. More than an order of magnitude reduction in the thermalisation time, to less than a second, is observed with the focused off- resonant beam occupying only 0.01% of the volume of the magnetic trap. The cold atoms are loaded from a Magneto-Optical Trap(MOT) of 39 K that has gone through a compressed MOT and sub-Doppler cooling stage. The atoms are prepared in the magnetically stretched |F = 2, mF = 2> state prior to loading into the hybrid trap. We also report a direct loading of 39 K atoms, prepared in the state |F = 1>, into a single beam dipole trap.",
+          "claimed_authors": [
+            "Dipankar Nath",
+            "R Kollengode Easwaran",
+            "G. Rajalakshmi",
+            "C. S. Unnikrishnan"
+          ],
+          "claimed_title": "Accelerated Thermalisation of 39K atoms in a Magnetic Trap with Superimposed Optical Potential",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1305.2313"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Visual Generation in the New Era: An Evolution fro', candidate_title='Accelerated Thermalisation of 39K atoms in a Magnetic Trap with Superimposed Optical Potential')",
+        "failed_at": "2026-07-03T18:58:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Many synthesis approaches for reversible and quantum logic have been proposed so far. However, most of them generate circuits with respect to simple metrics, i.e. gate count or quantum cost. On the other hand, to physically realize reversible and quantum hardware, additional constraints exist. In this paper, we describe cost metrics beyond gate count and quantum cost that should be considered while synthesizing reversible and quantum logic for the respective target technologies. We show that the evaluation of a synthesis approach may differ if additional costs are applied. In addition, a new cost metric, namely Nearest Neighbor Cost (NNC) which is imposed by realistic physical quantum architectures, is considered in detail. We discuss how existing synthesis flows can be extended to generate optimal circuits with respect to NNC while still keeping the quantum cost small.",
+          "claimed_authors": [
+            "Robert Wille",
+            "Mehdi Saeedi",
+            "Rolf Drechsler"
+          ],
+          "claimed_title": "Synthesis of Reversible Functions Beyond Gate Count and Quantum Cost",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1004.4609"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Visual Generation in the New Era: An Evolution fro', candidate_title='Synthesis of Reversible Functions Beyond Gate Count and Quantum Cost')",
+        "failed_at": "2026-07-03T18:58:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The advancement of generative radiance fields has pushed the boundary of 3D-aware image synthesis. Motivated by the observation that a 3D object should look realistic from multiple viewpoints, these methods introduce a multi-view constraint as regularization to learn valid 3D radiance fields from 2D images. Despite the progress, they often fall short of capturing accurate 3D shapes due to the shape-color ambiguity, limiting their applicability in downstream tasks. In this work, we address this ambiguity by proposing a novel shading-guided generative implicit model that is able to learn a starkly improved shape representation. Our key insight is that an accurate 3D shape should also yield a realistic rendering under different lighting conditions. This multi-lighting constraint is realized by modeling illumination explicitly and performing shading with various lighting conditions. Gradients are derived by feeding the synthesized images to a discriminator. To compensate for the additional computational burden of calculating surface normals, we further devise an efficient volume rendering strategy via surface tracking, reducing the training and inference time by 24% and 48%, respectively. Our experiments on multiple datasets show that the proposed approach achieves photorealistic 3D-aware image synthesis while capturing accurate underlying 3D shapes. We demonstrate improved performance of our approach on 3D shape reconstruction against existing methods, and show its applicability on image relighting. Our code will be released at https://github.com/XingangPan/ShadeGAN.",
+          "claimed_authors": [
+            "Xingang Pan",
+            "Xudong Xu",
+            "Chen Change Loy",
+            "Christian Theobalt",
+            "Bo Dai"
+          ],
+          "claimed_title": "A Shading-Guided Generative Implicit Model for Shape-Accurate 3D-Aware Image Synthesis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.15678"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Visual Generation in the New Era: An Evolution fro', candidate_title='A Shading-Guided Generative Implicit Model for Shape-Accurate 3D-Aware Image Synthesis')",
+        "failed_at": "2026-07-03T18:58:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Drug discovery relies on iterative expert workflows that are slow to parallelize and difficult to scale. Here we introduce Latent-Y, an AI agent that autonomously executes complete antibody design campaigns from text prompts, covering literature review, target analysis, epitope identification, candidate design, computational validation, and selection of lab-ready sequences. Latent-Y is integrated into the Latent Labs Platform, where it operates in the same environment as drug-discovery experts with access to bioinformatics tools, biological databases, and scientific literature. The agent can run fully autonomously end-to-end, or collaboratively, where researchers review progress, provide feedback, and direct subsequent steps. Candidate antibodies are generated using Latent-X2, our frontier generative model for drug-like antibody design. We demonstrate the agent's capability across three distinct campaign types: epitope discovery guided by therapeutic specifications, cross-species binder design, and autonomous design from a scientific publication targeting human transferrin receptor for blood-brain barrier crossing. Across nine targets, Latent-Y produced lab-confirmed nanobody binders against six, achieving a 67% target-level success rate with binding affinities reaching the single-digit nanomolar range, without human filtering or intervention. In user studies, experts working with Latent-Y completed design campaigns 56 times faster than independent expert time estimates, compressing weeks of work into hours. Because Latent-X2 is a general-purpose atomic-level model for biologics design, the same agent architecture naturally extends to macrocyclic peptide and mini-binder design campaigns, broadening autonomous discovery across therapeutic modalities. Latent-Y is available to selected partners at https://platform.latentlabs.com.",
+          "claimed_authors": [
+            " Latent Labs Team",
+            "Sebastian M. Schmon",
+            "Daniella Pretorius",
+            "Simon Mathis",
+            "Rebecca Bartke-Croughan",
+            "Aishaini Puvanendran",
+            "James Vuckovic",
+            "Henry Kenlay",
+            "Mária Vlachynská",
+            "Alex Bridgland",
+            "Ivan Grishin",
+            "Sven Over",
+            "David Li",
+            "Bridget Li",
+            "Jonathan Crabbé",
+            "Agrin Hilmkil",
+            "Alexander W. R. Nelson",
+            "David Yuan",
+            "Annette Obika",
+            "Simon A. A. Kohl"
+          ],
+          "claimed_title": "Latent-Y: A Lab-Validated Autonomous Agent for De Novo Drug Design",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.29727"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Visual Generation in the New Era: An Evolution fro', candidate_title='Latent-Y: A Lab-Validated Autonomous Agent for De Novo Drug Design')",
+        "failed_at": "2026-07-03T18:58:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Traditional drug discovery relies on rounds of screening millions of candidate molecules with low success rates, making drug discovery time and resource intensive. To overcome this screening bottleneck, we introduce Latent-X, an all-atom protein design model that enables a new paradigm of precision AI design. Given a target protein epitope, Latent-X jointly generates the all atom structure and sequence of the protein binder and target, directly modelling the non-covalent interactions essential for specific binding. We demonstrate its efficacy across two therapeutically relevant modalities through extensive wet lab experiments, testing as few as 30-100 designs per target. For macrocyclic peptides, Latent-X achieves experimental hit rates exceeding 90% on all evaluated benchmark targets. For mini-binders, it consistently produces potent candidates against all evaluated benchmark targets, with binding affinities reaching the low nanomolar and picomolar range - comparable to those of approved therapeutics - whilst also being highly specific in mammalian display. In direct comparisons with the state-of-the-art models AlphaProteo, RFdiffusion and RFpeptides under identical conditions demonstrates, Latent-X generates binders with higher hit rates and better binding affinities, and uniquely creates structurally diverse binders, including complex beta-sheet folds. Its end-to-end process is an order of magnitude faster than existing multi-step computational pipelines. By drastically improving the efficiency and success rate of de novo design, Latent-X represents a significant advance towards push-button biologics discovery and a valuable tool for protein engineers. Latent-X is available at https://platform.latentlabs.com, enabling users to reliably generate de novo binders without AI infrastructure or coding.",
+          "claimed_authors": [
+            " Latent Labs Team",
+            "Alex Bridgland",
+            "Jonathan Crabbé",
+            "Henry Kenlay",
+            "Daniella Pretorius",
+            "Sebastian M. Schmon",
+            "Agrin Hilmkil",
+            "Rebecca Bartke-Croughan",
+            "Robin Rombach",
+            "Michael Flashman",
+            "Tomas Matteson",
+            "Simon Mathis",
+            "Alexander W. R. Nelson",
+            "David Yuan",
+            "Annette Obika",
+            "Simon A. A. Kohl"
+          ],
+          "claimed_title": "Latent-X: An Atom-level Frontier Model for De Novo Protein Binder Design",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.19375"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Visual Generation in the New Era: An Evolution fro', candidate_title='Latent-X: An Atom-level Frontier Model for De Novo Protein Binder Design')",
+        "failed_at": "2026-07-03T18:58:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large text-guided diffusion models, such as DALLE-2, are able to generate stunning photorealistic images given natural language descriptions. While such models are highly flexible, they struggle to understand the composition of certain concepts, such as confusing the attributes of different objects or relations between objects. In this paper, we propose an alternative structured approach for compositional generation using diffusion models. An image is generated by composing a set of diffusion models, with each of them modeling a certain component of the image. To do this, we interpret diffusion models as energy-based models in which the data distributions defined by the energy functions may be explicitly combined. The proposed method can generate scenes at test time that are substantially more complex than those seen in training, composing sentence descriptions, object relations, human facial attributes, and even generalizing to new combinations that are rarely seen in the real world. We further illustrate how our approach may be used to compose pre-trained text-guided diffusion models and generate photorealistic images containing all the details described in the input descriptions, including the binding of certain object attributes that have been shown difficult for DALLE-2. These results point to the effectiveness of the proposed method in promoting structured generalization for visual generation. Project page: https://energy-based-model.github.io/Compositional-Visual-Generation-with-Composable-Diffusion-Models/",
+          "claimed_authors": [
+            "Nan Liu",
+            "Shuang Li",
+            "Yilun Du",
+            "Antonio Torralba",
+            "Joshua B. Tenenbaum"
+          ],
+          "claimed_title": "Compositional Visual Generation with Composable Diffusion Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2206.01714"
+        },
+        "details": "query-relevance 0.273 < 0.3 (query='llmXive follow-up: extending \"Visual Generation in the New Era: An Evolution fro', candidate_title='Compositional Visual Generation with Composable Diffusion Models')",
+        "failed_at": "2026-07-03T18:58:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The development of tabular foundation models (TFMs) has accelerated in recent years, showing strong potential to outperform traditional ML methods for structured data. A key finding is that TFMs can be pretrained entirely on synthetic datasets, opening opportunities to design data generators that encourage desirable model properties. Prior work has mainly focused on crafting high-quality priors over generators to improve overall pretraining performance. Our insight is that parameterizing the generator distribution enables an adversarial robustness perspective: during training, we can adapt the generator to emphasize datasets that are particularly challenging for the model. We formalize this by introducing an optimality gap measure, given by the difference between TFM performance and the best achievable performance as estimated by strong baselines such as XGBoost, CatBoost, and Random Forests. Building on this idea, we propose Robust Tabular Foundation Models (RTFM), a model-agnostic adversarial training framework. Applied to the TabPFN V2 classifier, RTFM improves benchmark performance, with up to a 6% increase in mean normalized AUC over the original TabPFN and other baseline algorithms, while requiring less than 100k additional synthetic datasets. These results highlight a promising new direction for targeted adversarial training and fine-tuning of TFMs using synthetic data alone.",
+          "claimed_authors": [
+            "Matthew Peroni",
+            "Franck Le",
+            "Vadim Sheinin"
+          ],
+          "claimed_title": "Robust Tabular Foundation Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.03307"
+        },
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"Visual Generation in the New Era: An Evolution fro', candidate_title='Robust Tabular Foundation Models')",
+        "failed_at": "2026-07-03T18:58:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large-scale vision foundation models have demonstrated remarkable success across various tasks, underscoring their robust generalization capabilities. While their proficiency in two-view correspondence has been explored, their effectiveness in long-term correspondence within complex environments remains unexplored. To address this, we evaluate the geometric awareness of visual foundation models in the context of point tracking: (i) in zero-shot settings, without any training; (ii) by probing with low-capacity layers; (iii) by fine-tuning with Low Rank Adaptation (LoRA). Our findings indicate that features from Stable Diffusion and DINOv2 exhibit superior geometric correspondence abilities in zero-shot settings. Furthermore, DINOv2 achieves performance comparable to supervised models in adaptation settings, demonstrating its potential as a strong initialization for correspondence learning.",
+          "claimed_authors": [
+            "Görkay Aydemir",
+            "Weidi Xie",
+            "Fatma Güney"
+          ],
+          "claimed_title": "Can Visual Foundation Models Achieve Long-term Point Tracking?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2408.13575"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Visual Generation in the New Era: An Evolution fro', candidate_title='Can Visual Foundation Models Achieve Long-term Point Tracking?')",
+        "failed_at": "2026-07-03T18:58:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Generative AI foundation models offer transformative potential for processing structured biological data, particularly in single-cell RNA sequencing, where datasets are rapidly scaling toward billions of cells. We propose the use of agentic foundation models with real-time web search to automate the labeling of experimental data, achieving up to 82.5% accuracy. This addresses a key bottleneck in supervised learning for structured omics data by increasing annotation throughput without manual curation and human error. Our approach enables the development of virtual cell foundation models capable of downstream tasks such as cell-typing and perturbation prediction. As data volume grows, these models may surpass human performance in labeling, paving the way for reliable inference in large-scale perturbation screens. This application demonstrates domain-specific innovation in health monitoring and diagnostics, aligned with efforts like the Human Cell Atlas and Human Tumor Atlas Network.",
+          "claimed_authors": [
+            "Saleem A. Al Dajani",
+            "Abel Sanchez",
+            "John R. Williams"
+          ],
+          "claimed_title": "DeepSeq: High-Throughput Single-Cell RNA Sequencing Data Labeling via Web Search-Augmented Agentic Generative AI Foundation Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.13817"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Visual Generation in the New Era: An Evolution fro', candidate_title='DeepSeq: High-Throughput Single-Cell RNA Sequencing Data Labeling via Web Search-Augmented Agentic Generative AI Foundation Models')",
+        "failed_at": "2026-07-03T18:58:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Generative models have revolutionized multiple domains, yet their application to tabular data remains underexplored. Evaluating generative models for tabular data presents unique challenges due to structural complexity, large-scale variability, and mixed data types, making it difficult to intuitively capture intricate patterns. Existing evaluation metrics offer only partial insights, lacking a comprehensive measure of generative performance. To address this limitation, we propose three novel evaluation metrics: FAED, FPCAD, and RFIS. Our extensive experimental analysis, conducted on three standard network intrusion detection datasets, compares these metrics with established evaluation methods such as Fidelity, Utility, TSTR, and TRTS. Our results demonstrate that FAED effectively captures generative modeling issues overlooked by existing metrics. While FPCAD exhibits promising performance, further refinements are necessary to enhance its reliability. Our proposed framework provides a robust and practical approach for assessing generative models in tabular data applications.",
+          "claimed_authors": [
+            "Dayananda Herurkar",
+            "Ahmad Ali",
+            "Andreas Dengel"
+          ],
+          "claimed_title": "Evaluating Generative Models for Tabular Data: Novel Metrics and Benchmarking",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.20900"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Visual Generation in the New Era: An Evolution fro', candidate_title='Evaluating Generative Models for Tabular Data: Novel Metrics and Benchmarking')",
+        "failed_at": "2026-07-03T18:58:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Systematic compositionality, or the ability to adapt to novel situations by creating a mental model of the world using reusable pieces of knowledge, remains a significant challenge in machine learning. While there has been considerable progress in the language domain, efforts towards systematic visual imagination, or envisioning the dynamical implications of a visual observation, are in their infancy. We introduce the Systematic Visual Imagination Benchmark (SVIB), the first benchmark designed to address this problem head-on. SVIB offers a novel framework for a minimal world modeling problem, where models are evaluated based on their ability to generate one-step image-to-image transformations under a latent world dynamics. The framework provides benefits such as the possibility to jointly optimize for systematic perception and imagination, a range of difficulty levels, and the ability to control the fraction of possible factor combinations used during training. We provide a comprehensive evaluation of various baseline models on SVIB, offering insight into the current state-of-the-art in systematic visual imagination. We hope that this benchmark will help advance visual systematic compositionality.",
+          "claimed_authors": [
+            "Yeongbin Kim",
+            "Gautam Singh",
+            "Junyeong Park",
+            "Caglar Gulcehre",
+            "Sungjin Ahn"
+          ],
+          "claimed_title": "Imagine the Unseen World: A Benchmark for Systematic Generalization in Visual World Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.09064"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Visual Generation in the New Era: An Evolution fro', candidate_title='Imagine the Unseen World: A Benchmark for Systematic Generalization in Visual World Models')",
+        "failed_at": "2026-07-03T18:58:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce SECQUE, a comprehensive benchmark for evaluating large language models (LLMs) in financial analysis tasks. SECQUE comprises 565 expert-written questions covering SEC filings analysis across four key categories: comparison analysis, ratio calculation, risk assessment, and financial insight generation. To assess model performance, we develop SECQUE-Judge, an evaluation mechanism leveraging multiple LLM-based judges, which demonstrates strong alignment with human evaluations. Additionally, we provide an extensive analysis of various models' performance on our benchmark. By making SECQUE publicly available, we aim to facilitate further research and advancements in financial AI.",
+          "claimed_authors": [
+            "Noga Ben Yoash",
+            "Meni Brief",
+            "Oded Ovadia",
+            "Gil Shenderovitz",
+            "Moshik Mishaeli",
+            "Rachel Lemberg",
+            "Eitam Sheetrit"
+          ],
+          "claimed_title": "SECQUE: A Benchmark for Evaluating Real-World Financial Analysis Capabilities",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.04596"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Visual Generation in the New Era: An Evolution fro', candidate_title='SECQUE: A Benchmark for Evaluating Real-World Financial Analysis Capabilities')",
+        "failed_at": "2026-07-03T18:58:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the era of deep learning, modeling for most NLP tasks has converged to several mainstream paradigms. For example, we usually adopt the sequence labeling paradigm to solve a bundle of tasks such as POS-tagging, NER, Chunking, and adopt the classification paradigm to solve tasks like sentiment analysis. With the rapid progress of pre-trained language models, recent years have observed a rising trend of Paradigm Shift, which is solving one NLP task by reformulating it as another one. Paradigm shift has achieved great success on many tasks, becoming a promising way to improve model performance. Moreover, some of these paradigms have shown great potential to unify a large number of NLP tasks, making it possible to build a single model to handle diverse tasks. In this paper, we review such phenomenon of paradigm shifts in recent years, highlighting several paradigms that have the potential to solve different NLP tasks.",
+          "claimed_authors": [
+            "Tianxiang Sun",
+            "Xiangyang Liu",
+            "Xipeng Qiu",
+            "Xuanjing Huang"
+          ],
+          "claimed_title": "Paradigm Shift in Natural Language Processing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2109.12575"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Visual Generation in the New Era: An Evolution fro', candidate_title='Paradigm Shift in Natural Language Processing')",
+        "failed_at": "2026-07-03T18:58:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Graph neural networks (GNN) represent an emerging line of deep learning models that operate on graph structures. It is becoming more and more popular due to its high accuracy achieved in many graph-related tasks. However, GNN is not as well understood in the system and architecture community as its counterparts such as multi-layer perceptrons and convolutional neural networks. This work tries to introduce the GNN to our community. In contrast to prior work that only presents characterizations of GCNs, our work covers a large portion of the varieties for GNN workloads based on a general GNN description framework. By constructing the models on top of two widely-used libraries, we characterize the GNN computation at inference stage concerning general-purpose and application-specific architectures and hope our work can foster more system and architecture research for GNNs.",
+          "claimed_authors": [
+            "Zhihui Zhang",
+            "Jingwen Leng",
+            "Lingxiao Ma",
+            "Youshan Miao",
+            "Chao Li",
+            "Minyi Guo"
+          ],
+          "claimed_title": "Architectural Implications of Graph Neural Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2009.00804"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Visual Generation in the New Era: An Evolution fro', candidate_title='Architectural Implications of Graph Neural Networks')",
+        "failed_at": "2026-07-03T18:58:54Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Although mutations drive the evolutionary process, the rates at which the mutations occur are themselves subject to evolutionary forces. Our purpose here is to understand the role of selection and random genetic drift in the evolution of mutation rates, and we address this question in asexual populations at mutation-selection equilibrium neglecting selective sweeps. Using a multitype branching process, we calculate the fixation probability of a rare nonmutator in a large asexual population of mutators, and find that a nonmutator is more likely to fix when the deleterious mutation rate of the mutator population is high. Compensatory mutations in the mutator population are found to decrease the fixation probability of a nonmutator when the selection coefficient is large. But, surprisingly, the fixation probability changes nonmonotonically with increasing compensatory mutation rate when the selection is mild. Using these results for the fixation probability and a drift-barrier argument, we find a novel relationship between the mutation rates and the population size. We also discuss the time to fix the nonmutator in an adapted population of asexual mutators, and compare our results with experiments.",
+          "claimed_authors": [
+            "Ananthu James",
+            "Kavita Jain"
+          ],
+          "claimed_title": "Fixation probability of rare nonmutator and evolution of mutation rates",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1501.03632"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"Visual Generation in the New Era: An Evolution fro', candidate_title='Fixation probability of rare nonmutator and evolution of mutation rates')",
+        "failed_at": "2026-07-03T18:58:54Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Keming Wu",
+            "Zuhao Yang",
+            "Kaichen Zhang",
+            "Shizun Wang",
+            "Haowei Zhu",
+            "Sicong Leng",
+            "Zhongyu Yang",
+            "Qijie Wang",
+            "Sudong Wang",
+            "Ziting Wang",
+            "Zili Wang",
+            "Hui Zhang",
+            "Haonan Wang",
+            "Hang Zhou",
+            "Yifan Pu",
+            "Xingxuan Li",
+            "Fangneng Zhan",
+            "Bo Li",
+            "Lidong Bing",
+            "Yuxin Song",
+            "Ziwei Liu",
+            "Wenhu Chen",
+            "Jingdong Wang",
+            "Xinchao Wang",
+            "Xiaojuan Qi",
+            "Shijian Lu",
+            "Bin Wang"
+          ],
+          "title": "Visual Generation in the New Era: An Evolution from Atomic Mapping to Agentic World Modeling",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2604.28185",
+        "summary": "Recent visual generation models have made major progress in photorealism, typography, instruction following, and interactive editing, yet they still struggle with spatial reasoning, persistent state, long-horizon consistency, and causal understanding. We argue that the field should move beyond appearance synthesis toward intelligent visual generation: plausible visuals grounded in structure, dynamics, domain knowledge, and causal relations. To frame this shift, we introduce a five-level taxonomy: Atomic Generation, Conditional Generation, In-Context Generation, Agentic Generation, and World-Modeling Generation, progressing from passive renderers to interactive, agentic, world-aware generators. We analyze key technical drivers, including flow matching, unified understanding-and-generation models, improved visual representations, post-training, reward modeling, data curation, synthetic data distillation, and sampling acceleration. We further show that current evaluations often overestimate progress by emphasizing perceptual quality while missing structural, temporal, and causal failures. By combining benchmark review, in-the-wild stress tests, and expert-constrained case studies, this roadmap offers a capability-centered lens for understanding, evaluating, and advancing the next generation of intelligent visual generation systems.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2604.28185",
+          "http_status": 200,
+          "pdf_sample_score": 0.2962,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-03T18:59:00Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"visual generation in the new era: an evolution from atomic mapping to \" other",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}
