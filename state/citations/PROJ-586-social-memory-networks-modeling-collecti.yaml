@@ -64,7 +64,7 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/JasonXF/US3D-Enhanced/7f60acedd7f2c766cdc27a1e9e62bcc9c7d3428e/prompt.json?%2Fdatasets%2FJasonXF%2FUS3D-Enhanced%2Fresolve%2Fmain%2Fprompt.json=&etag=%22b1e79c038446025d54f94493aedb58c848fe8d2c%22
   verified_at: '2026-06-26T22:53:36.631629Z'
-- artifact_hash: 8258e90f5982eeafe5bb06f716cf410c265537308ea8f03de57bd85d6ca3cf0c
+- artifact_hash: 1cda6cdf33aaf9dbac08d9162514b7168b8141661cc3030be355194a2d57c52c
   artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -75,19 +75,19 @@
   value: https://arxiv.org/abs/2203.14669
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/2203.14669
-  verified_at: '2026-07-03T12:27:21.101083Z'
-- artifact_hash: 8258e90f5982eeafe5bb06f716cf410c265537308ea8f03de57bd85d6ca3cf0c
+  verified_at: '2026-07-03T13:29:28.608905Z'
+- artifact_hash: 1cda6cdf33aaf9dbac08d9162514b7168b8141661cc3030be355194a2d57c52c
   artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: 'CODATA Value:    Avogadro constant'
+  fetched_title: value known, but too large for datatype - Wikidata
   kind: url
-  value: https://physics.nist.gov/cgi-bin/cuu/Value?na
+  value: https://www.wikidata.org/wiki/Q54767019
   verification_status: verified
-  verified_against_url: https://physics.nist.gov/cgi-bin/cuu/Value?na
-  verified_at: '2026-07-03T12:27:21.101083Z'
-- artifact_hash: 8258e90f5982eeafe5bb06f716cf410c265537308ea8f03de57bd85d6ca3cf0c
+  verified_against_url: https://www.wikidata.org/wiki/Q54767019
+  verified_at: '2026-07-03T13:29:28.608905Z'
+- artifact_hash: 1cda6cdf33aaf9dbac08d9162514b7168b8141661cc3030be355194a2d57c52c
   artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -98,8 +98,8 @@
   value: https://arxiv.org/abs/2503.02686
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/2503.02686
-  verified_at: '2026-07-03T12:27:21.101083Z'
-- artifact_hash: 8258e90f5982eeafe5bb06f716cf410c265537308ea8f03de57bd85d6ca3cf0c
+  verified_at: '2026-07-03T13:29:28.608905Z'
+- artifact_hash: 1cda6cdf33aaf9dbac08d9162514b7168b8141661cc3030be355194a2d57c52c
   artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   cite_id: c-004
   cited_authors: []
@@ -109,8 +109,8 @@
   value: https://oeis.org/A000079
   verification_status: pending
   verified_against_url: https://oeis.org/A000079
-  verified_at: '2026-07-03T12:27:21.101083Z'
-- artifact_hash: 8258e90f5982eeafe5bb06f716cf410c265537308ea8f03de57bd85d6ca3cf0c
+  verified_at: '2026-07-03T13:29:28.608905Z'
+- artifact_hash: 1cda6cdf33aaf9dbac08d9162514b7168b8141661cc3030be355194a2d57c52c
   artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   cite_id: c-005
   cited_authors: []
@@ -120,4 +120,4 @@
   value: https://arxiv.org/abs/2202.05773
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/2202.05773
-  verified_at: '2026-07-03T12:27:21.101083Z'
+  verified_at: '2026-07-03T13:29:28.608905Z'

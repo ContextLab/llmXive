@@ -1,14 +1,19 @@
-"""Dataset loading utilities with a minimal extensible registry."""
+"""Dataset loading utilities with a minimal extensible registry and synthetic fallback."""
 from __future__ import annotations
 
 import csv
 import pathlib
+import random
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional
 
 # Registry for dataset loader callables
 _DATASET_REGISTRY: Dict[str, "DatasetLoader"] = {}
+
+# Fallback flag: if True, and no real dataset is found, generate synthetic data.
+# This is the "synthetic fallback only" mechanism required by FR-011.
+_USE_SYNTHETIC_FALLBACK: bool = False
 
 
 @dataclass
@@ -51,13 +56,62 @@ def get_dataset(name: str) -> Any:
     """
     Retrieve a dataset by name.
 
-    If the dataset is not registered, an ImportError is raised.  This mirrors the
-    expectations of the unit tests which check for ImportError when a required
-    dataset is missing.
+    If the dataset is not registered, and synthetic fallback is enabled,
+    generates a minimal synthetic dataset. Otherwise, raises ImportError.
     """
-    if name not in _DATASET_REGISTRY:
-        raise ImportError(f"Dataset '{name}' is not registered.")
-    return _DATASET_REGISTRY[name].load()
+    if name in _DATASET_REGISTRY:
+        return _DATASET_REGISTRY[name].load()
+    
+    if _USE_SYNTHETIC_FALLBACK:
+        # Generate synthetic fallback data
+        return _generate_synthetic_fallback(name)
+    
+    raise ImportError(f"Dataset '{name}' is not registered.")
+
+
+def _generate_synthetic_fallback(name: str) -> List[Dict[str, Any]]:
+    """
+    Generate a minimal synthetic dataset as a fallback.
+    
+    This is NOT for primary analysis but serves as a placeholder when
+    real data is unavailable, ensuring the pipeline can run structure tests.
+    The data is clearly marked as synthetic in the records.
+    
+    Parameters
+    ----------
+    name : str
+        The name of the dataset being requested.
+        
+    Returns
+    -------
+    List[Dict[str, Any]]
+        A list of synthetic records.
+    """
+    records = []
+    # Generate 10 synthetic records
+    for i in range(10):
+        record = {
+            "game_id": f"synthetic_{name}_{i}",
+            "agent_count": random.randint(3, 7),
+            "context_condition": "full",
+            "specialization_index": random.uniform(0.1, 0.9),
+            "retrieval_efficiency": random.uniform(0.2, 0.95),
+            "is_synthetic": True
+        }
+        records.append(record)
+    return records
+
+
+def enable_synthetic_fallback() -> None:
+    """Enable synthetic data generation when real datasets are missing."""
+    global _USE_SYNTHETIC_FALLBACK
+    _USE_SYNTHETIC_FALLBACK = True
+
+
+def disable_synthetic_fallback() -> None:
+    """Disable synthetic data generation (strict mode)."""
+    global _USE_SYNTHETIC_FALLBACK
+    _USE_SYNTHETIC_FALLBACK = False
 
 
 def get_dataset_spec(name: str) -> Dict[str, Any]:
@@ -67,10 +121,13 @@ def get_dataset_spec(name: str) -> Dict[str, Any]:
     The spec is intentionally lightweight – only the name and a short description
     are provided.  Callers can extend this as needed.
     """
-    if name not in _DATASET_REGISTRY:
-        raise ImportError(f"Dataset '{name}' is not registered.")
-    # In a full implementation this could include URLs, checksum, etc.
-    return {"name": name, "description": f"Dataset loader for '{name}'"}
+    if name in _DATASET_REGISTRY:
+        return {"name": name, "description": f"Dataset loader for '{name}'"}
+    
+    if _USE_SYNTHETIC_FALLBACK:
+        return {"name": name, "description": f"Synthetic fallback for '{name}'", "is_synthetic": True}
+    
+    raise ImportError(f"Dataset '{name}' is not registered.")
 
 
 def verify_datasets(required: Optional[List[str]] = None) -> None:
@@ -86,13 +143,19 @@ def verify_datasets(required: Optional[List[str]] = None) -> None:
     Raises
     ------
     ImportError
-        If any required dataset is missing.
+        If any required dataset is missing (and fallback is disabled).
     """
     if required is None:
         required = list(_DATASET_REGISTRY.keys())
+    
     missing = [name for name in required if name not in _DATASET_REGISTRY]
+    
     if missing:
-        raise ImportError(f"Missing required datasets: {', '.join(missing)}")
+        if _USE_SYNTHETIC_FALLBACK:
+            # Allow missing datasets if fallback is enabled
+            pass
+        else:
+            raise ImportError(f"Missing required datasets: {', '.join(missing)}")
 
 
 def load_experiment_results(csv_path: Path) -> List[Dict[str, Any]]:
