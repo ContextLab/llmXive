@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Processed Dataset Schema"
+description: "Schema for the cleaned CSV containing predictor, outcome, and covariates."
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique participant ID."
+  global_signal_sd:
+    type: "number"
+    description: "Standard deviation of the global signal time series."
+    minimum: 0
+  global_signal_variance:
+    type: "number"
+    description: "Variance of the global signal time series."
+    minimum: 0
+  mwq_score:
+    type: "number"
+    description: "Mind-Wandering Questionnaire total score."
+  mean_fd:
+    type: "number"
+    description: "Mean Framewise Displacement."
+  mean_dvars:
+    type: "number"
+    description: "Mean DVARS."
+  age:
+    type: "integer"
+    description: "Participant age in years."
+  sex:
+    type: "string"
+    description: "Participant sex."
+    enum:
+      - "Male"
+      - "Female"
+  exclusion_reason:
+    type: ["string", "null"]
+    description: "Reason for exclusion if applicable."
+required:
+  - subject_id
+  - global_signal_sd
+  - global_signal_variance
+  - mwq_score
+  - mean_fd
+  - mean_dvars
+  - age
+  - sex
+additionalProperties: false

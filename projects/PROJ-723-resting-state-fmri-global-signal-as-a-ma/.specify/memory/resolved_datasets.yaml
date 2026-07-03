@@ -1,0 +1,287 @@
+resolved_at: '2026-07-03T18:51:29.633924+00:00'
+datasets:
+- intent: MWQ
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/physicl-community/eval-pack-69l-of-my-project-mwq80l-1d81f343/resolve/main/viewer/renders/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 252828
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/physicl-community/eval-pack-69l-of-my-project-mwq80l-1d81f343/resolve/main/viewer/renders/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://rshare.library.torontomu.ca/articles/journal_contribution/Centering_Black_women_s_voices_to_advance_anti-racist_pedagogy_and_pro-Black_approaches_in_early_childhood_settings/32897012
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/EPSTEIN_COLOMBIA/32897015
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rshare.library.torontomu.ca/articles/journal_contribution/_Why_does_she_have_dark_skin_The_ways_Black_women_early_childhood_educators_engage_in_intersectional_pedagogies_/32896982
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/_p_p_p_dir_ltr_b________________b_p_/32897006
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Intranasal_mucoadhesive_biomaterials_for_nose-to-brain_neuroactive_delivery_platform_design_and_model-informed_translation_for_time-bounded_CNS_exposure/32667399
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5647141
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15516161
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4488235
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4447728
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4447571
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/1209.5037
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_1_of_The_Munich_Wrist_Questionnaire_MWQ__development_and_validation_of_a_new_patient-reported_outcome_measurement_tool_for_wrist_disorders/4328129/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/journal_contribution/Additional_file_1_of_The_Munich_Wrist_Questionnaire_MWQ__development_and_validation_of_a_new_patient-reported_outcome_measurement_tool_for_wrist_disorders/4328129
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.fxpnvx16w
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ucalgary.scholaris.ca/handle/11023/3261
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: MAE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/lucainiao/MAESTRO_2004_SYNTH/resolve/main/MAESTRO_2004_SYNTH.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/RvTamaUraP/nva-Maekawa_Miku/resolve/main/LoRa_Maekawa_Miku_A.zip
+    source: huggingface
+    format: zip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/tvergho/maestro/resolve/main/data/train-00000-of-00017-a44871a8bbf731f8.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Maeji/autotrain-data-230121_t5_lcw99/resolve/main/raw/paper_summary.csv
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/lucainiao/MAESTRO_2004_SYNTH/resolve/main/MAESTRO_2004_SYNTH.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/RvTamaUraP/nva-Maekawa_Miku/resolve/main/LoRa_Maekawa_Miku_A.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/tvergho/maestro/resolve/main/data/train-00000-of-00017-a44871a8bbf731f8.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/roszcz/maestro-v1-sustain/resolve/main/data/test-00000-of-00001-15d650750bca2093.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://rshare.library.torontomu.ca/articles/journal_contribution/Centering_Black_women_s_voices_to_advance_anti-racist_pedagogy_and_pro-Black_approaches_in_early_childhood_settings/32897012
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/EPSTEIN_COLOMBIA/32897015
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rshare.library.torontomu.ca/articles/journal_contribution/_Why_does_she_have_dark_skin_The_ways_Black_women_early_childhood_educators_engage_in_intersectional_pedagogies_/32896982
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/_p_p_p_dir_ltr_b________________b_p_/32897006
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Intranasal_mucoadhesive_biomaterials_for_nose-to-brain_neuroactive_delivery_platform_design_and_model-informed_translation_for_time-bounded_CNS_exposure/32667399
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13984656
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8299749
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10023439
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.mapress.com/zt/article/view/zootaxa.4420.3.6
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15795891
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21176011
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21176011
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21176690
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21176690
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21176686
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: HCP
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/7eu7d7/HCP-Diffusion-datas/resolve/main/Lexica.art.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ramandeepsaha/hcp/resolve/main/train.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/jonxuxu/HCP-flat/resolve/main/data/train-00000-of-00001-ecc38ed386fa0d8c.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/7eu7d7/HCP-Diffusion-datas/resolve/main/Lexica.art.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ramandeepsaha/hcp/resolve/main/train.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/jonxuxu/HCP-flat/resolve/main/data/train-00000-of-00001-ecc38ed386fa0d8c.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/atta00/cpt-hcpcs-codes/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Kavi1622/Synthetic_hcp/resolve/main/8_slot.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://rshare.library.torontomu.ca/articles/journal_contribution/Centering_Black_women_s_voices_to_advance_anti-racist_pedagogy_and_pro-Black_approaches_in_early_childhood_settings/32897012
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/book/EPSTEIN_COLOMBIA/32897015
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rshare.library.torontomu.ca/articles/journal_contribution/_Why_does_she_have_dark_skin_The_ways_Black_women_early_childhood_educators_engage_in_intersectional_pedagogies_/32896982
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/_p_p_p_dir_ltr_b________________b_p_/32897006
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/Intranasal_mucoadhesive_biomaterials_for_nose-to-brain_neuroactive_delivery_platform_design_and_model-informed_translation_for_time-bounded_CNS_exposure/32667399
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5607652
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S1053811922006656
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15581959
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7736031
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.wwpzgmsjq
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/re3v6/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20817630
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20817630
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/RSV_disease_and_vaccination_knowledge_attitudes_and_practices_among_US_adults_a_2024_2025_RSV_season_survey/32896154
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/dataset/RSV_disease_and_vaccination_knowledge_attitudes_and_practices_among_US_adults_a_2024_2025_RSV_season_survey/32896154/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
