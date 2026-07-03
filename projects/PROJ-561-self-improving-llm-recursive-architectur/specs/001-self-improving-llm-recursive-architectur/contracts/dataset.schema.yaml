@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Status Schema"
+description: "Schema for recording the status of dataset loading in the trajectory summary."
+type: "object"
+properties:
+  openwebtext:
+    type: "string"
+    enum:
+      - "loaded"
+      - "failed"
+    description: "Status of OpenWebText dataset loading. Synthetic proxy NOT allowed. Must be 'loaded' or 'failed'."
+  gsm8k:
+    type: "string"
+    enum:
+      - "loaded"
+      - "failed"
+    description: "Status of GSM8K dataset loading. Synthetic proxy NOT allowed. Must be 'loaded' or 'failed'."
+  arc_challenge:
+    type: "string"
+    enum:
+      - "loaded"
+      - "failed"
+    description: "Status of ARC-Challenge dataset loading. Synthetic proxy NOT allowed. Must be 'loaded' or 'failed'."
+  wikitext2:
+    type: "string"
+    enum:
+      - "loaded"
+      - "failed"
+    description: "Status of Wikitext-2 dataset loading. Synthetic proxy NOT allowed. Must be 'loaded' or 'failed'."
+required:
+  - "openwebtext"
+  - "gsm8k"
+  - "arc_challenge"
+  - "wikitext2"
+additionalProperties: false

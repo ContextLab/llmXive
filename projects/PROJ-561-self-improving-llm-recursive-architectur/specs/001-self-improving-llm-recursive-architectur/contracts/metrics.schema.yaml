@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Performance Metric Schema"
+description: "Schema for individual performance metrics recorded in a cycle."
+type: "object"
+properties:
+  cycle_number:
+    type: "integer"
+    minimum: 0
+    description: "The cycle number (0 = baseline)."
+  benchmark_name:
+    type: "string"
+    enum:
+      - "GSM8K"
+      - "ARC-Challenge"
+      - "Wikitext-2"
+    description: "The benchmark being evaluated."
+  accuracy:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Accuracy or ECE value (0.0 to 1.0)."
+  samples_evaluated:
+    type: "integer"
+    minimum: 1
+    description: "Number of samples used for evaluation."
+  p_value_vs_baseline:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "P-value from paired bootstrap test vs baseline."
+  is_significant:
+    type: "boolean"
+    description: "Whether the improvement is statistically significant (p < 0.05)."
+  bootstrapped_ci_lower:
+    type: "number"
+    description: "Lower bound of 95% confidence interval."
+  bootstrapped_ci_upper:
+    type: "number"
+    description: "Upper bound of 95% confidence interval."
+required:
+  - "cycle_number"
+  - "benchmark_name"
+  - "accuracy"
+  - "samples_evaluated"
+  - "p_value_vs_baseline"
+  - "is_significant"
+additionalProperties: false

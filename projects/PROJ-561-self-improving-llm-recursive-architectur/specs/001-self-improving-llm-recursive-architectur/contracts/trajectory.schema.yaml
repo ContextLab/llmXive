@@ -1,0 +1,124 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Trajectory Summary Schema"
+description: "Schema for the final aggregated output of the 3-cycle experiment."
+type: "object"
+properties:
+  experiment_id:
+    type: "string"
+    description: "Unique identifier for the experiment run."
+  cycles_completed:
+    type: "integer"
+    minimum: 0
+    maximum: 3
+    description: "Number of refinement cycles completed."
+  trajectory:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        cycle:
+          type: "integer"
+        gsm8k:
+          type: "number"
+        arc:
+          type: "number"
+        ece:
+          type: "number"
+      required:
+        - "cycle"
+        - "gsm8k"
+        - "arc"
+        - "ece"
+    description: "Performance trajectory across cycles."
+  decay_model_fit:
+    type: "object"
+    properties:
+      formula:
+        type: "string"
+        description: "The mathematical formula used for fitting."
+      params:
+        type: "object"
+        properties:
+          a:
+            type: "number"
+          b:
+            type: "number"
+          c:
+            type: "number"
+        required:
+          - "a"
+          - "b"
+          - "c"
+      plateau_cycle:
+        type:
+          - "integer"
+          - "null"
+        description: "Cycle where performance first plateaued (<=1% improvement)."
+      degradation_cycle:
+        type:
+          - "integer"
+          - "null"
+        description: "Cycle where performance first degraded (>=1% drop)."
+    required:
+      - "formula"
+      - "params"
+  trade_off_metrics:
+    type: "object"
+    additionalProperties:
+      type: "object"
+      properties:
+        perf_per_flop:
+          type: "number"
+        perf_per_hour:
+          type: "number"
+      required:
+        - "perf_per_flop"
+        - "perf_per_hour"
+    description: "Cost-effectiveness metrics per cycle."
+  dataset_status:
+    $ref: "#/definitions/dataset_status"
+  pipeline_status:
+    type: "string"
+    enum:
+      - "success"
+      - "failed_data"
+      - "timeout"
+    description: "Overall status of the pipeline run."
+required:
+  - "experiment_id"
+  - "cycles_completed"
+  - "trajectory"
+  - "decay_model_fit"
+  - "trade_off_metrics"
+  - "dataset_status"
+  - "pipeline_status"
+additionalProperties: false
+definitions:
+  dataset_status:
+    type: "object"
+    properties:
+      openwebtext:
+        type: "string"
+        enum:
+          - "loaded"
+          - "failed"
+      gsm8k:
+        type: "string"
+        enum:
+          - "loaded"
+          - "failed"
+      arc_challenge:
+        type: "string"
+        enum:
+          - "loaded"
+          - "failed"
+      wikitext2:
+        type: "string"
+        enum:
+          - "loaded"
+          - "failed"
+    required:
+      - "openwebtext"
+      - "gsm8k"
+      - "arc_challenge"
+      - "wikitext2"
