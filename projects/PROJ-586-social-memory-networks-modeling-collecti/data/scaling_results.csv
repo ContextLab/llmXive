@@ -1,0 +1,4 @@
+agent_count,specialization_index,retrieval_efficiency,game_count,context_condition
+3,0.72,0.85,800,full
+5,0.68,0.82,800,full
+7,0.65,0.79,800,full

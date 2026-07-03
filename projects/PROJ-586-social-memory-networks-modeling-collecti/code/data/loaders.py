@@ -1,4 +1,14 @@
-"""Dataset loading utilities with a minimal extensible registry and synthetic fallback."""
+"""Dataset loading utilities with a minimal extensible registry and synthetic fallback.
+
+This module implements FR-011: dataset loaders with synthetic fallback only.
+It provides a registry pattern for dataset loaders and a controlled fallback
+mechanism that generates minimal synthetic data ONLY when real datasets are
+unavailable and fallback is explicitly enabled.
+
+IMPORTANT: Synthetic data is NOT for primary analysis. It serves only as a
+structural placeholder for testing pipeline connectivity when real data
+sources are temporarily inaccessible.
+"""
 from __future__ import annotations
 
 import csv
@@ -13,6 +23,7 @@ _DATASET_REGISTRY: Dict[str, "DatasetLoader"] = {}
 
 # Fallback flag: if True, and no real dataset is found, generate synthetic data.
 # This is the "synthetic fallback only" mechanism required by FR-011.
+# DEFAULT IS FALSE to prevent accidental fabrication.
 _USE_SYNTHETIC_FALLBACK: bool = False
 
 
@@ -58,15 +69,33 @@ def get_dataset(name: str) -> Any:
 
     If the dataset is not registered, and synthetic fallback is enabled,
     generates a minimal synthetic dataset. Otherwise, raises ImportError.
+
+    Parameters
+    ----------
+    name : str
+        The name of the dataset to retrieve.
+
+    Returns
+    -------
+    Any
+        The loaded dataset.
+
+    Raises
+    ------
+    ImportError
+        If the dataset is not registered and fallback is disabled.
     """
     if name in _DATASET_REGISTRY:
         return _DATASET_REGISTRY[name].load()
     
     if _USE_SYNTHETIC_FALLBACK:
-        # Generate synthetic fallback data
+        # Generate synthetic fallback data ONLY when explicitly enabled
         return _generate_synthetic_fallback(name)
     
-    raise ImportError(f"Dataset '{name}' is not registered.")
+    raise ImportError(
+        f"Dataset '{name}' is not registered. "
+        f"Enable synthetic fallback via enable_synthetic_fallback() if this is a test environment."
+    )
 
 
 def _generate_synthetic_fallback(name: str) -> List[Dict[str, Any]]:
@@ -85,31 +114,45 @@ def _generate_synthetic_fallback(name: str) -> List[Dict[str, Any]]:
     Returns
     -------
     List[Dict[str, Any]]
-        A list of synthetic records.
+        A list of synthetic records with explicit 'is_synthetic' flag.
     """
     records = []
-    # Generate 10 synthetic records
+    # Generate a small, deterministic set of synthetic records (10)
+    # Seed is fixed for reproducibility of the fallback structure
+    rng = random.Random(42)
+    
     for i in range(10):
         record = {
-            "game_id": f"synthetic_{name}_{i}",
-            "agent_count": random.randint(3, 7),
+            "game_id": f"synthetic_{name}_{i:03d}",
+            "agent_count": rng.randint(3, 7),
             "context_condition": "full",
-            "specialization_index": random.uniform(0.1, 0.9),
-            "retrieval_efficiency": random.uniform(0.2, 0.95),
-            "is_synthetic": True
+            "specialization_index": rng.uniform(0.1, 0.9),
+            "retrieval_efficiency": rng.uniform(0.2, 0.95),
+            "is_synthetic": True,
+            "source": "synthetic_fallback",
+            "note": "This is synthetic fallback data. Do not use for research conclusions."
         }
         records.append(record)
     return records
 
 
 def enable_synthetic_fallback() -> None:
-    """Enable synthetic data generation when real datasets are missing."""
+    """Enable synthetic data generation when real datasets are missing.
+    
+    WARNING: This should only be used in test environments or when real
+    data sources are temporarily unavailable. Results from synthetic data
+    must be clearly labeled as such.
+    """
     global _USE_SYNTHETIC_FALLBACK
     _USE_SYNTHETIC_FALLBACK = True
 
 
 def disable_synthetic_fallback() -> None:
-    """Disable synthetic data generation (strict mode)."""
+    """Disable synthetic data generation (strict mode).
+    
+    In strict mode, any attempt to load an unregistered dataset will raise
+    an ImportError. This is the default and recommended setting for research.
+    """
     global _USE_SYNTHETIC_FALLBACK
     _USE_SYNTHETIC_FALLBACK = False
 
@@ -120,12 +163,32 @@ def get_dataset_spec(name: str) -> Dict[str, Any]:
 
     The spec is intentionally lightweight – only the name and a short description
     are provided.  Callers can extend this as needed.
+
+    Parameters
+    ----------
+    name : str
+        The name of the dataset.
+
+    Returns
+    -------
+    Dict[str, Any]
+        A specification dictionary.
+
+    Raises
+    ------
+    ImportError
+        If the dataset is not registered and fallback is disabled.
     """
     if name in _DATASET_REGISTRY:
         return {"name": name, "description": f"Dataset loader for '{name}'"}
     
     if _USE_SYNTHETIC_FALLBACK:
-        return {"name": name, "description": f"Synthetic fallback for '{name}'", "is_synthetic": True}
+        return {
+            "name": name, 
+            "description": f"Synthetic fallback for '{name}'", 
+            "is_synthetic": True,
+            "warning": "This is synthetic fallback data."
+        }
     
     raise ImportError(f"Dataset '{name}' is not registered.")
 
@@ -152,8 +215,12 @@ def verify_datasets(required: Optional[List[str]] = None) -> None:
     
     if missing:
         if _USE_SYNTHETIC_FALLBACK:
-            # Allow missing datasets if fallback is enabled
-            pass
+            # Allow missing datasets if fallback is enabled, but log warning
+            import logging
+            logging.warning(
+                f"Missing required datasets: {', '.join(missing)}. "
+                f"Synthetic fallback is enabled, so these will be generated as placeholders."
+            )
         else:
             raise ImportError(f"Missing required datasets: {', '.join(missing)}")
 
@@ -163,6 +230,21 @@ def load_experiment_results(csv_path: Path) -> List[Dict[str, Any]]:
     Load experiment results from a CSV file.
 
     Returns a list of dictionaries – one per row.
+
+    Parameters
+    ----------
+    csv_path : Path
+        Path to the CSV file.
+
+    Returns
+    -------
+    List[Dict[str, Any]]
+        List of result records.
+
+    Raises
+    ------
+    FileNotFoundError
+        If the file does not exist.
     """
     if not csv_path.is_file():
         raise FileNotFoundError(f"Results file not found: {csv_path}")
@@ -184,7 +266,13 @@ def save_experiment_results(csv_path: Path, records: List[Dict[str, Any]]) -> No
     """
     if not records:
         raise ValueError("No records to write.")
+    
+    # Ensure all records have the same keys
     fieldnames = list(records[0].keys())
+    for rec in records:
+        if set(rec.keys()) != set(fieldnames):
+            raise ValueError("All records must have identical keys.")
+    
     csv_path.parent.mkdir(parents=True, exist_ok=True)
     with csv_path.open("w", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
