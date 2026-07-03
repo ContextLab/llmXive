@@ -1,77 +1,79 @@
 # Data Model: The Effects of Gamified Habit Tracking on Long-Term Behavioral Change
 
 ## Overview
-This document defines the data structures, transformations, and schemas used throughout the research pipeline. The design reflects a **cross‑sectional** study (one row per user) because the MyPersonality dataset provides only a single observation per participant.
+This document defines the data structures used throughout the pipeline, from raw ingestion to final analysis results. All data transformations are deterministic and versioned.
 
-## Input Data Schema
-**Source**: `data/raw/mypersonality.parquet`  
-**Format**: Parquet
+## Entity Relationship Diagram (Conceptual)
 
-**Key Fields**:
-- `user_id`: Unique identifier (string/int).
-- `conscientiousness`: Score (float, 1‑5 or 1‑7 scale).
-- `need_for_achievement`: Score (float, if available).
-- `habit_tracking_method`: Categorical (e.g., "app", "paper", "none").
-- `gamified_app_usage`: Categorical/Binary (e.g., "yes", "no", "points").
-- `habit_duration`: Integer (weeks tracked, self‑reported).
-- `entry_frequency`: Integer (entries per week, self‑reported).
+```mermaid
+erDiagram
+    USER ||--o{ BEHAVIORAL_LOG : generates
+    USER ||--o{ WEEKLY_AGGREGATION : summarized_in
+    WEEKLY_AGGREGATION ||--o{ ANALYSIS_RESULT : feeds_into
+    USER {
+        string user_id PK
+        int gamification_status
+        float conscientiousness_score
+        float achievement_score
+        date last_active_date
+        date observation_end
+    }
+    BEHAVIORAL_LOG {
+        string user_id FK
+        date event_date
+        string event_type
+        string app_id
+    }
+    WEEKLY_AGGREGATION {
+        string user_id FK
+        int week_number
+        int adherence_flag
+        int streak_length
+        boolean is_dropout_event
+    }
+```
 
-**Derived Fields**:
-- `gamified_binary`: 1 if `gamified_app_usage` indicates gamified features, 0 otherwise.
-- `long_term_adherence`: 1 if `habit_duration` > 4 weeks (or equivalent frequency), 0 otherwise.
-- `dropout_event`: **null** (not applicable for cross‑sectional data).
+## Data Schema Definitions
 
-## Output Data Schema
-**Target**: `data/processed/results.json` (JSON)  
-**Format**: JSON adhering to `contracts/output.schema.yaml`
+### 1. Raw Input Schema (Behavioral Log)
+*Source: API or CSV dump*
+- `user_id`: Unique identifier (string).
+- `date`: ISO 8601 date string (YYYY-MM-DD).
+- `event_type`: String (e.g., "habit_complete", "task_done").
+- `app_id`: String (used to derive `gamification_status`).
 
-**Key Fields**:
-- `logistic_regression_model.interaction_coefficient`
-- `logistic_regression_model.interaction_p_value`
-- `logistic_regression_model.interaction_ci_lower`
-- `logistic_regression_model.interaction_ci_upper`
-- `logistic_regression_model.sample_size`
-- `bootstrapping.effect_size_mean`
-- `bootstrapping.effect_size_ci_lower`
-- `bootstrapping.effect_size_ci_upper`
-- `bootstrapping.iterations` (1000)
-- `sensitivity_analysis.thresholds_tested`
-- `sensitivity_analysis.p_value_stability`
+### 2. Aggregated Schema (Weekly)
+*Derived from Raw Input*
+- `user_id`: Foreign key.
+- `week_number`: Integer (1, 2, 3...).
+- `weekly_adherence_flag`: Binary (0 or 1). 1 if `count(events) >= 1` in the week.
+- `streak_length`: Integer (consecutive weeks of adherence).
+- `is_dropout_event`: Binary (1 if this week marks the start of a 3-week non-adherence period with no resumption).
+
+### 3. Analysis Schema (Final Dataset)
+*Merged for Modeling*
+- `user_id`: Primary Key.
+- `gamification_status`: Binary (0/1).
+- `conscientiousness_score`: Float (0-100 or standardized).
+- `achievement_score`: Float (optional).
+- `last_active_date`: Date of the last recorded activity (used for censoring).
+- `observation_end`: Date the study ended (for censoring).
+- `dropout_time`: Integer (weeks until dropout event or censoring).
+- `dropout_event`: Binary (1 if dropout occurred, 0 if censored).
+- `weekly_data`: Nested structure or long-form rows for mixed-effects model.
+
+## Data Validation Rules
+
+1. **Completeness**: No null values in `user_id`, `gamification_status`, or `weekly_adherence_flag` for included records.
+2. **Range Checks**: `conscientiousness_score` must be within valid range (e.g., 1-5 or 0-100).
+3. **Temporal Logic**: `week_number` must be sequential and positive. `dropout_time` must be ≥ 0. `last_active_date` must be ≤ `observation_end`.
+4. **Consistency**: `gamification_status` must be derived consistently from `app_id` tags or source metadata.
+5. **Group Balance**: `non-gamified` count must be ≥ 30.
+6. **Event Count**: `dropout_event` count must be ≥ 10 per group for survival analysis.
 
 ## Data Flow
 
-1. **Ingestion** (`code/ingest.py`):
-   - Load parquet, verify required columns, compute Cronbach’s α for the Big Five, and write `cleaned_data.csv`.
-   - **Validation**: The resulting CSV is validated against `contracts/dataset.schema.yaml` using `jsonschema`.
-
-2. **Cleaning**:
-   - Exclude rows with missing `gamified_binary` or `long_term_adherence`.
-   - Standardise `conscientiousness` (z‑score) if needed.
-   - Ensure the cleaned file conforms to the dataset schema.
-
-3. **Transformation**:
-   - No reshaping to long format; each user remains a single record.
-   - Derive binary adherence and gamification flags.
-
-4. **Analysis** (`code/modeling.py`):
-   - Fit logistic regression with interaction.
-   - Compute VIF, apply multiple‑comparison correction, run 5‑fold CV, bootstrap, and sensitivity analysis.
-   - **Output** conforms to `contracts/output.schema.yaml`.
-
-5. **Export**:
-   - `data/processed/cleaned_data.csv`
-   - `data/processed/results.json`
-   - Plots saved to `docs/plots/`.
-
-## Error Handling
-
-- **Missing Columns**: Raises `DataInsufficiencyError` with a clear message; pipeline stops before modeling.
-- **Small Sample**: If < 100 valid records, generates a “Data Insufficiency” report and halts.
-- **Collinearity**: VIF > 5 triggers automatic removal of the collinear moderator (prioritising conscientiousness) and logs the change.
-- **Model Non‑Convergence**: Adds a small L2 penalty and retries; logs any adjustments.
-
-## Assumptions
-
-- `conscientiousness` is a continuous predictor suitable for interaction modeling.
-- `habit_duration` or `entry_frequency` provides a valid proxy for long‑term adherence.
-- The “need for achievement” score, when present, is comparable in scale to conscientiousness.
+1. **Ingestion**: `code/data/ingestion.py` reads raw logs → validates schema → saves to `data/raw/`.
+2. **Aggregation**: `code/data/aggregation.py` groups by `user_id` and `week` → calculates flags → saves to `data/processed/weekly_agg.csv`.
+3. **Validation**: `code/data/validation.py` merges personality traits, checks group balance, calculates Cronbach's α, and creates final analysis dataset.
+4. **Analysis**: `code/analysis/` consumes the final dataset for modeling.

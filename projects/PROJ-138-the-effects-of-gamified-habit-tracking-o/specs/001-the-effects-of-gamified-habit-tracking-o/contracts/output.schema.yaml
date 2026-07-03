@@ -1,72 +1,93 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Statistical Analysis Output Schema (Cross-Sectional)"
-description: "Schema for the final statistical results and model outputs. Note: Uses Logistic Regression, not Mixed-Effects/Survival."
-type: "object"
+title: "AnalysisResult"
+description: "Schema for the statistical analysis output including model coefficients and survival metrics."
+type: object
 properties:
-  logistic_regression_model:
-    type: "object"
-    description: "Results from the logistic regression."
+  model_type:
+    type: string
+    enum: ["MixedEffectsLogistic", "CoxPH"]
+    description: "Type of statistical model fitted."
+  fixed_effects:
+    type: object
+    description: "Dictionary of fixed effect coefficients."
+    additionalProperties:
+      type: object
+      properties:
+        coefficient:
+          type: number
+        p_value:
+          type: number
+        confidence_interval:
+          type: array
+          items:
+            type: number
+          minItems: 2
+          maxItems: 2
+      required:
+        - coefficient
+        - p_value
+        - confidence_interval
+  interaction_terms:
+    type: object
+    description: "Specific interaction terms (e.g., Gamified * Conscientiousness)."
+    additionalProperties:
+      type: object
+      properties:
+        coefficient:
+          type: number
+        p_value:
+          type: number
+        adjusted_p_value:
+          type: number
+          description: "P-value after multiple comparison correction (FDR)."
+      required:
+        - coefficient
+        - p_value
+        - adjusted_p_value
+  survival_metrics:
+    type: object
+    description: "Metrics from Kaplan-Meier and Cox analysis."
     properties:
-      interaction_coefficient:
-        type: "number"
-        description: "Coefficient for the gamification * conscientiousness interaction."
-      interaction_p_value:
-        type: "number"
-        description: "P-value for the interaction term."
-      interaction_ci_lower:
-        type: "number"
-        description: "Lower bound of the 95% confidence interval."
-      interaction_ci_upper:
-        type: "number"
-        description: "Upper bound of the 95% confidence interval."
+      log_rank_statistic:
+        type: number
+      log_rank_p_value:
+        type: number
+      hazard_ratio:
+        type: number
+      ci_lower:
+        type: number
+      ci_upper:
+        type: number
+  robustness:
+    type: object
+    description: "Bootstrapping results."
+    properties:
+      n_iterations:
+        type: integer
+      mean_effect_size:
+        type: number
+      std_dev:
+        type: number
+      ci_95_lower:
+        type: number
+      ci_95_upper:
+        type: number
+  metadata:
+    type: object
+    properties:
       sample_size:
-        type: "integer"
-        description: "Number of observations used in the model."
-    required:
-      - interaction_coefficient
-      - interaction_p_value
-      - interaction_ci_lower
-      - interaction_ci_upper
-      - sample_size
-  bootstrapping:
-    type: "object"
-    description: "Results from the 1,000 bootstrap iterations."
-    properties:
-      effect_size_mean:
-        type: "number"
-        description: "Mean effect size across bootstrap samples."
-      effect_size_ci_lower:
-        type: "number"
-        description: "Lower bound of the 95% bootstrap CI."
-      effect_size_ci_upper:
-        type: "number"
-        description: "Upper bound of the 95% bootstrap CI."
-      iterations:
-        type: "integer"
-        enum: [1000]
-        description: "Number of bootstrap iterations performed."
-    required:
-      - effect_size_mean
-      - effect_size_ci_lower
-      - effect_size_ci_upper
-      - iterations
-  sensitivity_analysis:
-    type: "object"
-    description: "Results from the sensitivity analysis on adherence thresholds."
-    properties:
-      thresholds_tested:
-        type: "array"
-        items:
-          type: "number"
-        description: "List of thresholds tested (e.g., duration cutoffs)."
-      p_value_stability:
-        type: "number"
-        description: "Measure of how stable the p-value is across thresholds."
-    required:
-      - thresholds_tested
-      - p_value_stability
+        type: integer
+      dropout_events:
+        type: integer
+      cronbach_alpha:
+        type: number
+      seed:
+        type: integer
+      power_limitation_note:
+        type: string
+        description: "Note on statistical power limitations."
 required:
-  - logistic_regression_model
-  - bootstrapping
-  - sensitivity_analysis
+  - model_type
+  - fixed_effects
+  - metadata
 additionalProperties: false

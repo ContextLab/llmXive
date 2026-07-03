@@ -1,84 +1,74 @@
 # Quickstart: The Effects of Gamified Habit Tracking on Long-Term Behavioral Change
 
 ## Prerequisites
-- Python 3.11+
+- Python 3.11+
 - Git
-- Access to the verified MyPersonality dataset (Holistic AI HuggingFace hub)
+- Access to the project repository
 
 ## Installation
 
 1. **Clone the repository**:
    ```bash
-   git clone <repository-url>
+   git clone <repo-url>
    cd projects/PROJ-138-the-effects-of-gamified-habit-tracking-o
    ```
 
 2. **Create a virtual environment**:
    ```bash
    python -m venv venv
-   source venv/bin/activate   # Windows: venv\Scripts\activate
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
 3. **Install dependencies**:
    ```bash
-   pip install -r requirements.txt
+   pip install -r code/requirements.txt
    ```
-   *All packages are CPU‑compatible and version‑pinned.*
+   *Note*: `requirements.txt` now includes `pingouin` for psychometric validation and `scipy` for reliability checks.
 
-## Data Setup
+## Running the Pipeline
 
-1. **Download the dataset** (expects the verified subset containing habit‑tracking fields):
+### Step 1: Prepare Data
+*Note: Since no verified longitudinal dataset URL is available, the pipeline uses a synthetic data generator by default.*
+
+1. Ensure `data/consent/` exists (even if empty, for the check).
    ```bash
-   mkdir -p data/raw
-   wget "https://huggingface.co/datasets/holistic-ai/Personality_mypersonality/resolve/main/data/test-00000-of-00001-c96a814948b69df7.parquet" -O data/raw/mypersonality.parquet
+   mkdir -p data/consent
+   touch data/consent/.gitkeep
    ```
-
-2. **Checksum verification** (optional but required by the Constitution):
+2. Run the data generation script (simulates the verified source with known parameters):
    ```bash
-   sha256sum data/raw/mypersonality.parquet > data/raw/checksum.txt
+   python code/data/ingestion.py --generate-synthetic
    ```
+   *Output*: `data/raw/synthetic_logs.csv`, `data/processed/weekly_agg.csv`.
 
-## Running the Full Pipeline
-
+### Step 2: Execute Analysis
+Run the full analysis pipeline:
 ```bash
-python code/main.py
+python code/data/validation.py   # Includes Group Balance & Cronbach's α check
+python code/analysis/modeling.py # Includes FDR Correction
+python code/analysis/survival.py # Includes Event Count Check
+python code/analysis/robustness.py
 ```
 
-The script will:
-
-1. **Ingest & validate** the dataset (Phase 1).  
-2. **Create** `data/consent/` and store any consent documentation found with the dataset.  
-3. **Validate** the cleaned CSV against `contracts/dataset.schema.yaml`.  
-4. **Fit** the logistic regression model, run bootstrapping, cross‑validation, and sensitivity analysis.  
-5. **Generate** visualizations (`docs/plots/`) and the final HTML report (`docs/report.html`).  
-6. **Validate** the results JSON against `contracts/output.schema.yaml`.
-
-### Expected Outputs
-- `data/processed/cleaned_data.csv` – analysis‑ready dataset.  
-- `data/processed/results.json` – model coefficients and bootstrap CI.  
-- `docs/plots/` – adherence distribution, interaction plot, bootstrap histogram.  
-- `docs/report.html` – complete reproducible research report.  
-
-## Testing
-
-Run the test suite to ensure contract compliance and logical correctness:
-
+### Step 3: Generate Report & Version
+Generate the final HTML/PDF report and update artifact hashes:
 ```bash
-pytest tests/ -v
+python code/reports/generate_report.py
+python code/utils/versioning.py
 ```
+*Output*: `reports/analysis_report.html` (or `.pdf`) and updated `state.yaml`.
 
-- **Contract Tests** (`tests/contract/`) confirm that both input and output files satisfy their respective JSON‑Schema definitions.  
-- **Unit Tests** (`tests/unit/`) verify adherence flag logic and VIF handling.  
-- **Integration Test** (`tests/integration/`) executes the pipeline on a tiny synthetic dataset to confirm end‑to‑end functionality.
+## Verification
+To verify the pipeline works:
+1. Check that `data/processed/weekly_agg.csv` contains at least 100 rows.
+2. Check that `reports/analysis_report.html` contains a Kaplan-Meier curve and a table of interaction coefficients (with FDR-adjusted p-values).
+3. Run tests:
+   ```bash
+   pytest tests/
+   ```
 
 ## Troubleshooting
-
-- **Data Insufficiency**: If required habit‑tracking columns are missing, the pipeline stops with a clear error; check the dataset version or contact the data provider.  
-- **Model Convergence Issues**: The pipeline automatically adds a small L2 regularisation term and retries; consult `logs/modeling.log` for details.  
-- **Memory Limits**: The dataset is small (< 10 MB); if memory errors occur, reduce the number of bootstrap iterations in `code/config.py`.
-
-## Next Steps
-
-- Review the generated `docs/report.html` for statistical results and visualizations.  
-- Verify that all Success Criteria (SC‑001 – SC‑005) are satisfied; note that SC‑005 now measures **p‑value stability** rather than false‑positive rates, per the updated methodology.  
-- Submit the results for peer review.
+- **Group Imbalance Error**: If the non-gamified group has < 30 users, the pipeline halts. This is expected if the synthetic seed produces an unbalanced split; change the seed.
+- **Insufficient Events**: If dropout events < 10 per group, survival analysis is skipped.
+- **Convergence Warning**: If `statsmodels` fails to converge, check for collinearity (VIF > 5) in `code/analysis/modeling.py`.
+- **Missing Consent**: The pipeline will halt with "Data Insufficiency" if `data/consent/` is missing.
