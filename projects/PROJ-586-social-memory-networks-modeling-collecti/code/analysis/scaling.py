@@ -104,8 +104,8 @@ def generate_scaling_plot(
 
     # Aggregate by agent count
     grouped = df.groupby("agent_count")[metric].mean().reset_index()
-    x = grouped["agent_count"].values
-    y = grouped[metric].values
+    x = grouped["agent_count"].values.astype(float)
+    y = grouped[metric].values.astype(float)
 
     # Fit power law
     try:
