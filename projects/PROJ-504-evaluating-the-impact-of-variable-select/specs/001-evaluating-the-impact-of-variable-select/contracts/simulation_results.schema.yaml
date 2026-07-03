@@ -1,0 +1,70 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SimulationResults"
+description: "Aggregated recovery metrics for variable selection methods across SNR and sparsity levels, aggregated per dataset."
+type: "object"
+properties:
+  dataset_id:
+    type: "integer"
+    description: "The OpenML dataset ID this aggregate belongs to."
+  method:
+    type: "string"
+    description: "The variable selection method used."
+    enum:
+      - "Forward"
+      - "Backward"
+      - "LASSO"
+  snr_level:
+    type: "number"
+    description: "Signal-to-Noise Ratio level."
+    minimum: 0.0
+  sparsity_level:
+    type: "number"
+    description: "Sparsity level (proportion of non-zero coefficients)."
+    minimum: 0.0
+    maximum: 1.0
+  n_simulations:
+    type: "integer"
+ description: "Number of simulations aggregated in this record ([deferred])."
+    minimum: 1
+  mean_recovery:
+    type: "number"
+    description: "Selection Recovery Rate (proportion of true positives selected)."
+    minimum: 0.0
+    maximum: 1.0
+  std_recovery:
+    type: "number"
+    description: "Standard deviation of recovery across simulations."
+    minimum: 0.0
+  ci_lower:
+    type: "number"
+    description: "Lower bound of the 95% confidence interval."
+    minimum: 0.0
+    maximum: 1.0
+  ci_upper:
+    type: "number"
+    description: "Upper bound of the 95% confidence interval."
+    minimum: 0.0
+    maximum: 1.0
+  test_statistic:
+    type: "number"
+    description: "Friedman or Mixed-Effects test statistic."
+    nullable: true
+  p_value_omnibus:
+    type: "number"
+    description: "P-value from the omnibus test."
+    nullable: true
+  post_hoc_results:
+    type: "string"
+    description: "JSON string of pairwise comparisons with Holm correction."
+    nullable: true
+required:
+  - dataset_id
+  - method
+  - snr_level
+  - sparsity_level
+  - n_simulations
+  - mean_recovery
+  - std_recovery
+  - ci_lower
+  - ci_upper
+additionalProperties: false

@@ -13,7 +13,7 @@ The system MUST download a set of regression datasets from OpenML., extract pred
 
 **Why this priority**: This is the foundational data generation step; without simulated ground truth, no power analysis can occur. It delivers the raw material for all subsequent analysis.
 
-**Independent Test**: Can be fully tested by verifying that A large set of synthetic datasets (10 datasets × [deferred] sims × 4 SNR levels × 3 Sparsity levels) is generated and stored in memory/disk without error, and that true coefficients are recorded for each.
+**Independent Test**: Can be fully tested by verifying that A large set of synthetic datasets (multiple datasets × [deferred] sims × 4 SNR levels × 3 Sparsity levels) is generated and stored in memory/disk without error, and that true coefficients are recorded for each.
 
 **Acceptance Scenarios**:
 
@@ -66,7 +66,7 @@ The system MUST compare power rates across methods using Kruskal-Wallis tests on
 ### Functional Requirements
 
 - **FR-001**: System MUST download exactly 10 regression datasets from OpenML with ≥ 100 rows and ≥ 3 predictors (See US-1)
-- **FR-002**: System MUST simulate 1,000 outcome vectors per dataset, per SNR level, AND per Sparsity level (See US-1)
+- **FR-002**: System MUST simulate a sufficient number of outcome vectors per dataset, per SNR level, AND per Sparsity level to ensure statistical robustness. (See US-1)
 - **FR-003**: System MUST apply Forward Stepwise, Backward Elimination, and LASSO selection methods using CPU-only execution (See US-2)
 - **FR-004**: System MUST calculate empirical power as the proportion of true non-zero coefficients that are selected AND have a p-value < 0.05 (See US-2)
 - **FR-005**: System MUST apply Kruskal-Wallis tests followed by Dunn's post-hoc analysis with Holm correction for multiple comparisons (See US-3)
