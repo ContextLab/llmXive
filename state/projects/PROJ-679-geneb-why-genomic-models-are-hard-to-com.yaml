@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-09T09:10:18.781634Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-679-geneb-why-genomic-models-are-hard-to-com
-last_run_id: bd831ab1-9a2d-4769-aecd-e10f4fb4c61d
+last_run_id: e8d0570d-7af8-43ab-a99a-97607269ce32
 last_run_status: null
 points_paper: {}
 points_research: {}
