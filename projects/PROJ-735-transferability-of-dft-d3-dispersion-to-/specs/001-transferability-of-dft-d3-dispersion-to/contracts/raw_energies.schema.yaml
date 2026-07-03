@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Raw Energies Schema"
-description: "Schema for the raw_energies.csv output file containing DFT-D3 calculation results."
+description: "Schema for the raw_energies.csv output containing DFT-D3 benchmark results."
 type: "object"
 properties:
   pair_id:
@@ -8,40 +8,30 @@ properties:
     description: "Unique identifier for the ion pair."
   reference_energy:
     type: "number"
-    description: "CCSD(T)/CBS reference energy in kcal/mol."
+    description: "CCSD(T)/CBS reference interaction energy in kcal/mol."
+    minimum: -1000
   dft_total_energy:
     type: "number"
-    description: "Total DFT-D3 energy in kcal/mol."
+    description: "Total DFT-D3 interaction energy in kcal/mol."
   d3_dispersion_energy:
     type: "number"
-    description: "D3 dispersion correction term in kcal/mol."
-  bsse_correction:
+    description: "Isolated D3 dispersion contribution in kcal/mol."
+  error_signed:
     type: "number"
-    description: "Counterpoise correction for BSSE in kcal/mol."
-  corrected_energy:
-    type: "number"
-    description: "Final energy after D3 and BSSE corrections."
-  signed_error:
-    type: "number"
-    description: "Difference between corrected_energy and reference_energy."
-  status:
+    description: "Signed error (DFT - Reference) in kcal/mol."
+  calculation_status:
     type: "string"
-    enum:
-      - "success"
-      - "failed"
-      - "skipped"
-    description: "Status of the calculation."
-  failure_reason:
-    type:
-      - "string"
-      - "null"
-    description: "Reason for failure, if applicable."
+    enum: ["success", "failed", "skipped"]
+    description: "Status of the Psi4 calculation."
+  dispersion_only_error:
+    type: "number"
+    description: "Dispersion-only error component (D3 - scaled_D3) in kcal/mol."
 required:
   - pair_id
   - reference_energy
   - dft_total_energy
   - d3_dispersion_energy
-  - corrected_energy
-  - signed_error
-  - status
+  - error_signed
+  - calculation_status
+  - dispersion_only_error
 additionalProperties: false

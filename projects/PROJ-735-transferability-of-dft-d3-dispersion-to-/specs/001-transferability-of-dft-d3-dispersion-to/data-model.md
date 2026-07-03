@@ -1,52 +1,86 @@
 # Data Model: Transferability of DFT‑D3 Dispersion to Ionic Liquids
 
-## Entity Definitions
+## Overview
+This document defines the data structures, schemas, and transformation logic for the project. All data flows from `data/raw/` (local fallback files) to `data/derived/` and finally to report artifacts.
 
-### 1. IonPair
-Represents a unique cation-anion combination in the benchmark set.
-- **pair_id**: `str` (Unique identifier, e.g., "IL-001")
-- **cation**: `str` (e.g., "EMIM")
-- **anion**: `str` (e.g., "BF4")
-- **xyz_file**: `str` (Path to the geometry file)
-- **reference_energy**: `float` (kcal/mol, CCSD(T)/CBS value)
-- **experimental_density**: `float` (g/cm³, optional)
-- **experimental_viscosity**: `float` (cP, optional)
-- **experimental_lattice_energy**: `float` (kcal/mol, optional)
+## Entities
 
-### 2. CalculationResult
-Stores the output of the DFT-D3 calculation for a single ion pair.
-- **pair_id**: `str` (FK to IonPair)
-- **dft_total_energy**: `float` (kcal/mol, raw DFT-D3 energy)
-- **d3_dispersion_energy**: `float` (kcal/mol, the D3 correction term)
-- **bsse_correction**: `float` (kcal/mol, Counterpoise correction)
-- **corrected_energy**: `float` (kcal/mol, DFT + D3 + BSSE)
-- **signed_error**: `float` (kcal/mol, `corrected_energy` - `reference_energy`)
-- **status**: `str` ("success", "failed", "skipped")
-- **failure_reason**: `str` (Optional, if status != "success")
+### 1. IonPair (Raw Data)
+Represents a single ion-pair complex from the local fallback dataset.
+- `pair_id`: string (Unique identifier, e.g., "EMIM_BF4_01")
+- `xyz_path`: string (Path to the XYZ coordinate file)
+- `reference_energy`: float (CCSD(T)/CBS interaction energy in kcal/mol)
+- `cations`: string (List of cation formulas)
+- `anions`: string (List of anions formulas)
 
-### 3. BulkProperty
-Experimental macroscopic properties for the IL.
-- **pair_id**: `str` (FK to IonPair)
-- **density**: `float` (g/cm³)
-- **viscosity**: `float` (cP)
-- **source**: `str` ("Static_CSV")
+### 2. CalculationResult (Derived)
+Output of the Psi4 single-point calculation.
+- `pair_id`: string
+- `dft_total_energy`: float (Total DFT-D3 energy in kcal/mol)
+- `d3_dispersion_energy`: float (Isolated D3 contribution in kcal/mol)
+- `bsse_correction`: float (Counterpoise correction in kcal/mol)
+- `calculation_status`: string ("success", "failed", "skipped")
+- `error_signed`: float (`dft_total_energy` - `reference_energy`)
+- `dispersion_only_error`: float (`d3_dispersion_energy` - `scaled_d3_energy`)
 
-## Data Flow
+### 3. BulkProperty (External)
+Experimental bulk properties from local fallback.
+- `pair_id`: string
+- `density`: float (g/cm³)
+- `viscosity`: float (cP)
+- `source`: string ("Local_Fallback")
 
-1.  **Raw Input**: User-provided dataset (XYZ files + CSV with reference energies).
-2.  **Processing**:
-    - `run_psi4.py`: Reads XYZ, runs calculation, outputs `dft_total_energy`, `d3_dispersion_energy`.
-    - `analyze_energies.py`: Computes `signed_error`, fits scaling factor `s` (80/20 split), computes bootstrap CI.
-    - `analyze_bulk.py`: Joins with `BulkProperty`, computes correlations (pairs bootstrap).
-    - `analyze_lattice.py`: Joins with `lattice_energy_benchmark.csv`, computes MAE/MSE.
-3.  **Derived Outputs**:
-    - `raw_energies.csv`: Aggregated results from `run_psi4.py`.
-    - `scaling_factor.txt`: Single value `s` and CI.
-    - `correlation_report.md`: Statistical summary.
-    - `lattice_energy_report.md`: Lattice energy comparison.
+### 4. CorrelationResult (Derived)
+Statistical results for bulk property analysis.
+- `metric`: string (e.g., "Pearson_DispersionError_vs_Viscosity")
+- `coefficient`: float
+- `r_squared`: float
+- `p_value`: float
+- `p_value_bonferroni`: float
+- `ci_lower`: float
+- `ci_upper`: float
+- `n_samples`: int
 
-## Constraints & Validation
+## Data Flow Diagram
+```mermaid
+graph TD
+    A[IL-Benchmark-local.zip] -->|Load & Validate| B(IonPair Table)
+    C[Experimental CSV] -->|Load| D(BulkProperty Table)
+    B -->|Run Psi4| E[CalculationResult Table]
+    E -->|Join| D
+    D -->|Merge| F[CorrelationDataset]
+    F -->|Analyze| G[CorrelationResult Table]
+    E -->|Aggregate| H[ScalingResult Table]
+    H -->|Generate| I[Reports]
+```
 
-- **Energy Units**: All energies must be in `kcal/mol`.
-- **Missing Data**: If `reference_energy` is missing, the record is skipped. If `experimental_density` is missing, the record is excluded from the density correlation but included in the energy benchmark. If coordinates are missing, the entire pipeline aborts.
-- **Scaling Factor**: Must be strictly positive (`s > 0`).
+## File Specifications
+
+### Input: `IL-Benchmark-local.zip`
+- **Format**: ZIP archive containing `metadata.csv` and `xyz/` directory.
+- **Schema**:
+  - `metadata.csv`: `pair_id`, `xyz_file`, `reference_energy`, `cations`, `anions`
+  - `xyz/`: `*.xyz` files with standard XYZ format (N atoms, comment line, coordinates).
+- **Origin**: Curated synthetic test set generated for this project.
+
+### Input: `experimental_bulk_properties.csv`
+- **Format**: CSV
+- **Schema**: `pair_id`, `density`, `viscosity`
+- **Origin**: Curated synthetic test set generated for this project.
+
+### Output: `raw_energies.csv`
+- **Format**: CSV
+- **Columns**: `pair_id`, `reference_energy`, `dft_total_energy`, `d3_dispersion_energy`, `error_signed`, `calculation_status`, `dispersion_only_error`
+
+### Output: `scaling_factor.txt`
+- **Format**: Text
+- **Content**: Single float `s` and a JSON block with CI and p-value.
+
+### Output: `correlation_report.md`
+- **Format**: Markdown
+- **Content**: Tables of correlation coefficients, p-values, CIs, and Bonferroni-adjusted significance.
+
+## Constraints
+- **Data Immutability**: Raw data files in `data/raw/` are never modified.
+- **Missing Data**: If `reference_energy` is missing, the record is skipped (logged).
+- **Unit Consistency**: All energies in **kcal/mol**. Densities in **g/cm³**. Viscosities in **cP**.

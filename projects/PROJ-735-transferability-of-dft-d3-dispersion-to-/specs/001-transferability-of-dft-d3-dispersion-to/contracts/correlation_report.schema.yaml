@@ -10,7 +10,7 @@ properties:
       properties:
         test_name:
           type: "string"
-          description: "e.g., 'D3 vs Density', 'Error vs Viscosity'"
+          description: "e.g., 'Dispersion Error vs Viscosity', 'D3 vs Density'"
         method:
           type: "string"
           enum:

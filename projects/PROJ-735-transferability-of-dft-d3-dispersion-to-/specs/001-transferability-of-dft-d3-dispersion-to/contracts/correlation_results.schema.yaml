@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Correlation Results Schema"
+description: "Schema for the correlation_results.csv output."
+type: "object"
+properties:
+  metric_name:
+    type: "string"
+    description: "Name of the correlation metric (e.g., 'Pearson_DispersionError_vs_Viscosity')."
+  coefficient:
+    type: "number"
+    description: "Correlation coefficient (Pearson or Spearman)."
+  r_squared:
+    type: "number"
+    description: "Coefficient of determination."
+  p_value:
+    type: "number"
+    description: "Raw p-value."
+  p_value_bonferroni:
+    type: "number"
+    description: "Bonferroni-adjusted p-value."
+  ci_lower:
+    type: "number"
+    description: "Lower bound of the 95% bootstrap CI."
+  ci_upper:
+    type: "number"
+    description: "Upper bound of the 95% bootstrap CI."
+  n_samples:
+    type: "integer"
+    description: "Number of samples used in the correlation."
+  is_significant:
+    type: "boolean"
+    description: "True if p_value_bonferroni < 0.05."
+required:
+  - metric_name
+  - coefficient
+  - r_squared
+  - p_value
+  - p_value_bonferroni
+  - ci_lower
+  - ci_upper
+  - n_samples
+  - is_significant
+additionalProperties: false

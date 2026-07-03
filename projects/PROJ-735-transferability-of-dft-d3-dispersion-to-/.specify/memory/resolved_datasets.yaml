@@ -1,26 +1,68 @@
-resolved_at: '2026-07-02T09:31:22.073188+00:00'
+resolved_at: '2026-07-03T10:32:17.825846+00:00'
 datasets:
 - intent: DFT
-  status: unresolved
-  candidates: []
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/bio-datasets/dft23-full/resolve/main/data/test-00000-of-00001-a791a8874f9adf69.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 180247
+      parsed: true
+  - url: https://huggingface.co/datasets/sdmattpotter/dftest61523/resolve/main/data/train-00000-of-00001-17dbf6e61ca73a23.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/sdmattpotter/dftest61623/resolve/main/data/train-00000-of-00001-17dbf6e61ca73a23.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
   candidates_tried:
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_The_effects_of_in_vitro_LPS_stimulation_on_the_PBMC_transcriptome_of_beef_steers_with_negative_or_positive_residual_average_daily_gain_xlsx/32874914
+  - url: https://huggingface.co/datasets/bio-datasets/dft23-full/resolve/main/data/test-00000-of-00001-a791a8874f9adf69.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sdmattpotter/dftest61523/resolve/main/data/train-00000-of-00001-17dbf6e61ca73a23.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sdmattpotter/dftest61623/resolve/main/data/train-00000-of-00001-17dbf6e61ca73a23.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: "https://huggingface.co/datasets/youngwoo3283/df_transportation_keyword/resolve/main/df_\uAD50\
+      \uD1B5.csv"
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/api/resolve-cache/datasets/youngwoo3283/df_text_generation_20k/a7593f2818c220c3b12d23877708bb4487e29232/df_text_generateion_20k.csv?%2Fdatasets%2Fyoungwoo3283%2Fdf_text_generation_20k%2Fresolve%2Fmain%2Fdf_text_generateion_20k.csv=&etag=%229ff9a2b9e7682fdb9c25dbfa6ac91cb66bade221%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/_b_Premium_Safran_Kaufen_Qualit_t_Herkunft_und_Vorteile_des_edlen_Gew_rzes_b_/32895293
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://ore.exeter.ac.uk/articles/journal_contribution/A_systematic_review_of_hormonal_changes_their_effects_on_and_associations_with_cognitive_performance_within_defence_and_security_personnel/32874008
+  - url: https://figshare.com/articles/dataset/G_kdepe_AI_Study_replication_data_for_a_single-case_audit_of_four_consumer_AI_systems/32685429
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repository.lboro.ac.uk/articles/journal_contribution/Managing_employee_voice_as_an_organizational_capability_an_integrative_process_model/32825840
+  - url: https://figshare.com/articles/dataset/_b_miR-146b-5p_suppresses_Btg2_to_promote_fibroblast_proliferation_via_Prrx2_and_Myh10_b_/32894852
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://ore.exeter.ac.uk/articles/conference_contribution/Robust_Incomplete-Modality_Alignment_for_Ophthalmic_Disease_Grading_and_Diagnosis_via_Labeled_Optimal_Transport/30454391
+  - url: https://tandf.figshare.com/articles/journal_contribution/Optimising_access_to_the_New_South_Wales_Mid_North_Coast_Brain_Injury_Service_for_local_aboriginal_people_Dunghutti_Muri_project_a_participatory_action_research_study/32895280
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/soure_data_for_the_paper_titled_b_Observation_of_polaritonic_flat-band_bound_states_in_the_continuum_in_a_2D_magnet_b_/32833733
+  - url: https://figshare.com/articles/dataset/Why_Developer_Ecosystems_Are_Critical_to_Scaling_AI_Platforms_and_Applications/32895254
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -40,15 +82,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/14186325
+  - url: https://zenodo.org/records/7034060
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.3929/ethz-c-000800459
-    source: datacite
-    status: unreachable
-    reason: 'reachability failed: HTTP 500'
-  - url: https://usiena-air.unisi.it//handle/11365/1127348
+  - url: https://publikationen.bibliothek.kit.edu/1000184080
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -64,27 +102,72 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
+  - url: https://usiena-air.unisi.it//handle/11365/1127348
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
 - intent: CCSD
-  status: unresolved
-  candidates: []
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/colabfit/sGDML_Aspirin_ccsd_NC2018_test/resolve/main/co/co_0.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/colabfit/sGDML_Aspirin_ccsd_NC2018_train/resolve/main/co/co_0.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/0x404/ccs_dataset/resolve/main/data/eval-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
   candidates_tried:
-  - url: https://acs.figshare.com/articles/journal_contribution/Multicentered_p_s_p_Antibonding_Interaction_Induces_Strong_Anharmonicity_and_High_Thermoelectric_Performance_in_Complex_Metal_Chalcohalide_Tl_sub_5_sub_Te_sub_2_sub_I/32875012
+  - url: https://huggingface.co/datasets/0x404/ccs_dataset/resolve/main/data/eval-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/rsh-raj/ccs-dataset-2/resolve/main/dataset_train.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/colabfit/sGDML_Aspirin_ccsd_NC2018_test/resolve/main/co/co_0.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/colabfit/sGDML_Aspirin_ccsd_NC2018_train/resolve/main/co/co_0.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/colabfit/sGDML_Benzene_ccsdt_NC2018_test/resolve/main/co/co_0.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/dataset/In_situ_i_i_observations_reveal_a_link_between_association_behaviour_camouflage_and_eye_complexity_in_midwater_amphipods/32154852
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_An_open-source_framework_for_physiologically-based_pharmacokinetic_modeling_of_kinetics_in_the_female_reproductive_tract_pdf/32875007
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Generative_AI-supported_instruction_as_a_cognitive_scaffold_effects_on_senior_high_school_students_geometric_reasoning_and_proof_construction_pdf/32895305
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Interface_Coordination_Nucleation_of_Copper_Nanoclusters_on_Covalent_Organic_Frameworks_for_Electrocatalytic_Ammonia_Synthesis/32875003
+  - url: https://figshare.com/articles/media/_b_Premium_Safran_Kaufen_Qualit_t_Herkunft_und_Vorteile_des_edlen_Gew_rzes_b_/32895293
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_The_effects_of_in_vitro_LPS_stimulation_on_the_PBMC_transcriptome_of_beef_steers_with_negative_or_positive_residual_average_daily_gain_xlsx/32874914
+  - url: https://figshare.com/articles/dataset/G_kdepe_AI_Study_replication_data_for_a_single-case_audit_of_four_consumer_AI_systems/32685429
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://ore.exeter.ac.uk/articles/journal_contribution/A_systematic_review_of_hormonal_changes_their_effects_on_and_associations_with_cognitive_performance_within_defence_and_security_personnel/32874008
+  - url: https://figshare.com/articles/dataset/_b_miR-146b-5p_suppresses_Btg2_to_promote_fibroblast_proliferation_via_Prrx2_and_Myh10_b_/32894852
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -96,7 +179,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15758550
+  - url: https://zenodo.org/records/13844159
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -104,8 +187,12 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/13844159
+  - url: https://zenodo.org/records/15758550
     source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.01801
+    source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://toubkal.imist.ma/handle/123456789/6676
@@ -124,31 +211,60 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2606.30551
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
 - intent: CBS
-  status: unresolved
-  candidates: []
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Liudmil/cb_seedsmz/resolve/main/cb_seedsmz.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 35390
+      parsed: true
+  - url: https://huggingface.co/datasets/Mohit1Kulkarni/10th-CBSE-science-Dataset/resolve/main/Validation.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 13582
+      parsed: true
+  - url: https://huggingface.co/datasets/deepinv/CBSD68/resolve/main/CBSD68.tar.gz
+    source: huggingface
+    format: gzip
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
   candidates_tried:
-  - url: https://acs.figshare.com/articles/journal_contribution/Bound_Phenolics_Enhance_the_Antidepressant-Like_Effect_of_Triticale_Bran_Insoluble_Dietary_Fiber_in_Obese_Mice_Evidence_for_the_Involvement_of_Immune_Regulation_and_Microbiota_Modulation/32875039
+  - url: https://huggingface.co/datasets/Liudmil/cb_seedsmz/resolve/main/cb_seedsmz.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/Mohit1Kulkarni/10th-CBSE-science-Dataset/resolve/main/Validation.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/deepinv/CBSD68/resolve/main/CBSD68.tar.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://acs.figshare.com/articles/journal_contribution/Morphology-Engineered_NiV_LDH_CdMoSe_Quantum_Dot_S_Scheme_Heterojunctions_for_LED-Driven_H_sub_2_sub_O_sub_2_sub_Production_and_Cr_VI_Reduction/32895310
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Multicentered_p_s_p_Antibonding_Interaction_Induces_Strong_Anharmonicity_and_High_Thermoelectric_Performance_in_Complex_Metal_Chalcohalide_Tl_sub_5_sub_Te_sub_2_sub_I/32875012
+  - url: https://figshare.com/articles/dataset/In_situ_i_i_observations_reveal_a_link_between_association_behaviour_camouflage_and_eye_complexity_in_midwater_amphipods/32154852
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_An_open-source_framework_for_physiologically-based_pharmacokinetic_modeling_of_kinetics_in_the_female_reproductive_tract_pdf/32875007
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Generative_AI-supported_instruction_as_a_cognitive_scaffold_effects_on_senior_high_school_students_geometric_reasoning_and_proof_construction_pdf/32895305
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Interface_Coordination_Nucleation_of_Copper_Nanoclusters_on_Covalent_Organic_Frameworks_for_Electrocatalytic_Ammonia_Synthesis/32875003
+  - url: https://figshare.com/articles/media/_b_Premium_Safran_Kaufen_Qualit_t_Herkunft_und_Vorteile_des_edlen_Gew_rzes_b_/32895293
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_The_effects_of_in_vitro_LPS_stimulation_on_the_PBMC_transcriptome_of_beef_steers_with_negative_or_positive_residual_average_daily_gain_xlsx/32874914
+  - url: https://figshare.com/articles/dataset/G_kdepe_AI_Study_replication_data_for_a_single-case_audit_of_four_consumer_AI_systems/32685429
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -156,10 +272,6 @@ datasets:
     source: zenodo
     status: unreachable
     reason: 'reachability failed: HTTP 500'
-  - url: https://zenodo.org/records/7836062
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/7875707
     source: zenodo
     status: wrong_format
@@ -168,7 +280,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/6351755
+  - url: https://zenodo.org/records/7836062
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4268308
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -176,50 +292,140 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/a74tu/
+  - url: https://zenodo.org/records/21148662
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/723fa/
+  - url: https://zenodo.org/records/21148662
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://arxiv.org/abs/2607.00156
+  - url: https://zenodo.org/records/21147238
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21109871
+  - url: https://irr.singaporetech.edu.sg/articles/report/CBS_Industry_Research_Deliverables_User_Survey_and_Web_Analytics_Reports_Singapore_Institute_of_Technology_2026_/32406222
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: IL-Benchmark-local
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://acs.figshare.com/articles/journal_contribution/Morphology-Engineered_NiV_LDH_CdMoSe_Quantum_Dot_S_Scheme_Heterojunctions_for_LED-Driven_H_sub_2_sub_O_sub_2_sub_Production_and_Cr_VI_Reduction/32895310
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/In_situ_i_i_observations_reveal_a_link_between_association_behaviour_camouflage_and_eye_complexity_in_midwater_amphipods/32154852
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Generative_AI-supported_instruction_as_a_cognitive_scaffold_effects_on_senior_high_school_students_geometric_reasoning_and_proof_construction_pdf/32895305
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/_b_Premium_Safran_Kaufen_Qualit_t_Herkunft_und_Vorteile_des_edlen_Gew_rzes_b_/32895293
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/G_kdepe_AI_Study_replication_data_for_a_single-case_audit_of_four_consumer_AI_systems/32685429
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4742248
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2604375
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5014807
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5169011
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5016162
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.3929/ethz-c-000801958
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 500'
+  - url: https://osf.io/6wzg3/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20937981
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://mcgill.scholaris.ca/handle/20.500.14905/141038
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20805655
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
 - intent: XYZ
   status: verified
   candidates:
-  - url: https://www.openml.org/data/get_csv/4644292/XYZ.csv
-    source: openml
+  - url: https://huggingface.co/datasets/amlan107/xyz/resolve/main/data/benchmark-00000-of-00001-0210852f9c8d23ae.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 200411
+      parsed: true
+  - url: https://huggingface.co/datasets/Moghazy/xyz_321/resolve/main/xyz321qa.csv
+    source: huggingface
     format: csv
     relevance: 1.0
     sample_check:
-      downloaded_bytes: 262144
+      downloaded_bytes: 77281
+      parsed: true
+  - url: https://huggingface.co/datasets/Moghazy/xyz/resolve/main/data/train-00000-of-00001-05363ced8208fc85.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 16836
       parsed: true
   candidates_tried:
-  - url: https://figshare.com/articles/software/Code_underpinning_Defining_Nominal_Orderings_and_Orientations_for_Branches_in_Power_Network_Test_Cases_by_Seriating_the_Line_Outage_Distribution_Factors_Matrix_/32874701
+  - url: https://huggingface.co/datasets/amlan107/xyz/resolve/main/data/benchmark-00000-of-00001-0210852f9c8d23ae.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Moghazy/xyz_321/resolve/main/xyz321qa.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/Moghazy/xyz/resolve/main/data/train-00000-of-00001-05363ced8208fc85.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://ices-library.figshare.com/articles/report/UK_request_for_a_technical_service_on_the_development_of_interoperability_standards_for_electronic_monitoring_data/32824151
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Bound_Phenolics_Enhance_the_Antidepressant-Like_Effect_of_Triticale_Bran_Insoluble_Dietary_Fiber_in_Obese_Mice_Evidence_for_the_Involvement_of_Immune_Regulation_and_Microbiota_Modulation/32875039
+  - url: https://acs.figshare.com/articles/journal_contribution/Morphology-Engineered_NiV_LDH_CdMoSe_Quantum_Dot_S_Scheme_Heterojunctions_for_LED-Driven_H_sub_2_sub_O_sub_2_sub_Production_and_Cr_VI_Reduction/32895310
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Multicentered_p_s_p_Antibonding_Interaction_Induces_Strong_Anharmonicity_and_High_Thermoelectric_Performance_in_Complex_Metal_Chalcohalide_Tl_sub_5_sub_Te_sub_2_sub_I/32875012
+  - url: https://figshare.com/articles/dataset/In_situ_i_i_observations_reveal_a_link_between_association_behaviour_camouflage_and_eye_complexity_in_midwater_amphipods/32154852
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_An_open-source_framework_for_physiologically-based_pharmacokinetic_modeling_of_kinetics_in_the_female_reproductive_tract_pdf/32875007
+  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Generative_AI-supported_instruction_as_a_cognitive_scaffold_effects_on_senior_high_school_students_geometric_reasoning_and_proof_construction_pdf/32895305
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Interface_Coordination_Nucleation_of_Copper_Nanoclusters_on_Covalent_Organic_Frameworks_for_Electrocatalytic_Ammonia_Synthesis/32875003
+  - url: https://figshare.com/articles/media/_b_Premium_Safran_Kaufen_Qualit_t_Herkunft_und_Vorteile_des_edlen_Gew_rzes_b_/32895293
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -227,11 +433,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7700690
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/4147002
+  - url: https://zenodo.org/records/2575938
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -239,27 +441,31 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/2575938
+  - url: https://zenodo.org/records/7671716
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21128060
+  - url: https://zenodo.org/records/7666282
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21157323
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21128060
+  - url: https://zenodo.org/records/21157323
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://osf.io/dvr46/
+  - url: https://zenodo.org/records/21104359
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://www.scidb.cn/detail?dataSetId=68ecbd6922d842bc9928d6678e85bca9
+  - url: https://osf.io/ucqg5/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21122108
+  - url: https://doi.pangaea.de/10.1594/PANGAEA.969113
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
