@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Output Schema"
+type: "object"
+properties:
+  participant_id:
+    type: "string"
+    description: "Unique participant identifier."
+  trial_id:
+    type: "string"
+    description: "Unique trial identifier."
+  emotion_type:
+    type: "string"
+    description: "Emotion type for the trial."
+  eye_duration:
+    type: "number"
+    description: "Fixation duration on eye region in milliseconds."
+  mouth_duration:
+    type: "number"
+    description: "Fixation duration on mouth region in milliseconds."
+  saccade_amplitude:
+    type: "number"
+    description: "Saccade amplitude in degrees."
+  dispersion:
+    type: "number"
+    description: "Dispersion metric for the trial."
+  continuous_fixation_ratio:
+    type: "number"
+    description: "Continuous ratio of eye-to-mouth fixation time (primary predictor)."
+  processing_strategy_label:
+    type: "string"
+    description: "Derived processing strategy label (local/global) - optional, for descriptive purposes only."
+required:
+  - "participant_id"
+  - "trial_id"
+  - "emotion_type"
+  - "eye_duration"
+  - "mouth_duration"
+  - "saccade_amplitude"
+  - "dispersion"
+  - "continuous_fixation_ratio"
+additionalProperties: false

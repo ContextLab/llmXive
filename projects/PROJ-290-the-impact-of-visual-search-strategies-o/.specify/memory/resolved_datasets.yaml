@@ -1,0 +1,66 @@
+resolved_at: '2026-07-03T11:32:51.072962+00:00'
+datasets:
+- intent: ROI
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Online_supplement_to_Hearing_the_Institution_conceptual_model_of_the_voice_realism_to_inclusion_pathway/32895479
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Role-Normalized_Possession-Level_Passing_Networks_Anonymous_Reproducibility_Materials/32895449
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_High_Altitude_Amazonian_Eukaryotic_Shells_Arcellinida_Amoebozoa_b_SEM_IMAGES_/32895425
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/presentation/Restaurant_Equipment_Maintenance_Guide_Preventive_Care_for_Commercial_Kitchens/32895461
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.le.ac.uk/articles/journal_contribution/Gossiping_and_Bitching_Online_The_Role_of_Gender_in_Perpetrating_Online_Toxicity_and_Anti-Social_Behavior/32740635
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijphs.iaescore.com/index.php/IJPHS/article/view/25981
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijphs.iaescore.com/index.php/IJPHS/article/view/23744
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: http://arts-series-knukim.pp.ua/article/view/293297
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14027304
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14287862
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/fa24t/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://usiena-air.unisi.it//handle/11365/1149468
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20510136
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20510136
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://usiena-air.unisi.it//handle/11365/1123615
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
