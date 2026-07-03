@@ -1,0 +1,37 @@
+[tool.ruff]
+# Target Python version
+target-version = "py310"
+
+# Exclude directories
+extend-exclude = [
+    "__pycache__",
+    ".git",
+    ".venv",
+    "venv",
+    "env",
+    "data",
+    "models",
+    "artifacts"
+]
+
+# Line length for black compatibility
+line-length = 88
+
+[tool.ruff.lint]
+# Enable specific rules
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+    "UP", # pyupgrade
+]
+ignore = [
+    "E501", # Line too long (handled by black)
+    "B008", # Do not perform function call in argument defaults (common in dataclasses)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"] # Allow assert in tests

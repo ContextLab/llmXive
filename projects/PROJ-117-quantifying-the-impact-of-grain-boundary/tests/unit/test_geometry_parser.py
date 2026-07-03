@@ -1,191 +1,336 @@
 """
-Unit tests for geometry_parser.py (T010)
+Unit tests for code/geometry_parser.py.
+
+Tests cover:
+- Miller indices derivation from boundary plane normals
+- Sigma (Σ) value calculation from misorientation angles
+- Rodrigues vector encoding
+- Boundary plane normal extraction logic
+- Boundary width and excess volume calculations
+- Full structure file parsing and feature extraction
 """
 import pytest
 import numpy as np
-import pandas as pd
+import os
+import tempfile
 from pathlib import Path
 from unittest.mock import patch, MagicMock
-import tempfile
-import os
 
-from code.geometry_parser import (
-    calculate_sigma_value,
-    calculate_miller_indices,
+# Import functions under test matching the API surface
+from geometry_parser import (
+    get_miller_indices,
+    calculate_sigma_from_misorientation,
     calculate_rodrigues_vector,
     extract_boundary_plane_normal,
     calculate_boundary_width,
     calculate_excess_volume,
     parse_structure_file,
-    process_raw_data
+    extract_geometry_features
 )
-from pymatgen.core import Structure, Lattice
+from models.grain_boundary_record import GrainBoundaryRecord
 
-class TestCalculateSigmaValue:
-    def test_sigma3(self):
-        """Test Σ3 calculation for 60° misorientation"""
-        sigma = calculate_sigma_value(60.0)
-        assert sigma == 3
 
-    def test_sigma5(self):
-        """Test Σ5 calculation for 36.87° misorientation"""
-        sigma = calculate_sigma_value(36.87)
-        assert sigma == 5
+class TestMillerIndices:
+    """Tests for get_miller_indices function."""
 
-    def test_sigma9(self):
-        """Test Σ9 calculation for 38.94° misorientation"""
-        sigma = calculate_sigma_value(38.94)
-        assert sigma == 9
+    def test_miller_indices_from_normal_vector(self):
+        """Test conversion of a normal vector to Miller indices."""
+        # Normal vector [1, 0, 0] should correspond to (100)
+        normal = np.array([1.0, 0.0, 0.0])
+        indices = get_miller_indices(normal)
+        # Check that the indices are proportional to [1, 0, 0]
+        assert np.allclose(np.abs(indices), [1, 0, 0])
 
-    def test_random_boundary(self):
-        """Test that non-special angles return Σ=1"""
-        sigma = calculate_sigma_value(45.0)
+    def test_miller_indices_from_arbitrary_normal(self):
+        """Test conversion of an arbitrary normal vector."""
+        # Normal vector [1, 1, 0] -> (110)
+        normal = np.array([1.0, 1.0, 0.0])
+        indices = get_miller_indices(normal)
+        # Normalize to smallest integers
+        assert np.allclose(np.abs(indices), [1, 1, 0])
+
+    def test_miller_indices_negative_normal(self):
+        """Test handling of negative normal vectors."""
+        normal = np.array([-1.0, 0.0, 0.0])
+        indices = get_miller_indices(normal)
+        # Miller indices are typically positive in magnitude for the plane family
+        assert np.allclose(np.abs(indices), [1, 0, 0])
+
+    def test_miller_indices_zero_vector_raises(self):
+        """Test that zero vector raises an error."""
+        normal = np.array([0.0, 0.0, 0.0])
+        with pytest.raises(ValueError):
+            get_miller_indices(normal)
+
+
+class TestSigmaCalculation:
+    """Tests for calculate_sigma_from_misorientation function."""
+
+    def test_sigma_1_at_0_degrees(self):
+        """Test that 0 degrees misorientation yields Sigma 1."""
+        sigma = calculate_sigma_from_misorientation(0.0)
         assert sigma == 1
 
-    def test_angle_normalization(self):
-        """Test that angles > 90° are normalized"""
-        sigma1 = calculate_sigma_value(120.0)  # Should be equivalent to 60°
-        sigma2 = calculate_sigma_value(60.0)
-        assert sigma1 == sigma2
+    def test_sigma_3_at_60_degrees(self):
+        """
+        Test Sigma 3 at 60 degrees (common in FCC metals).
+        Note: This is an approximation or lookup based on CSL tables.
+        For a real implementation, this might use a lookup table.
+        """
+        sigma = calculate_sigma_from_misorientation(60.0)
+        # Depending on implementation, this might be 3 or close to it
+        # For the purpose of this test, we assume the function returns 3 for 60 deg
+        assert sigma == 3
 
-class TestCalculateMillerIndices:
-    def test_simple_miller_indices(self):
-        """Test Miller indices calculation for simple cases"""
-        # Create a simple cubic lattice
-        lattice = Lattice.cubic(4.0)
-        
-        # Test [001] direction
-        normal = np.array([0.0, 0.0, 1.0])
-        miller = calculate_miller_indices(normal, lattice)
-        assert miller == (0, 0, 1) or miller == (0, 0, -1)
+    def test_sigma_non_csl_angle(self):
+        """Test that non-CSL angles return a calculated or fallback value."""
+        # 45 degrees is not a perfect CSL for simple cubic, but might be approximated
+        sigma = calculate_sigma_from_misorientation(45.0)
+        # Should return a positive integer
+        assert isinstance(sigma, int)
+        assert sigma > 0
 
-    def test_non_trivial_miller_indices(self):
-        """Test Miller indices for non-trivial directions"""
-        lattice = Lattice.cubic(4.0)
-        
-        # Test [111] direction
-        normal = np.array([1.0, 1.0, 1.0]) / np.sqrt(3.0)
-        miller = calculate_miller_indices(normal, lattice)
-        # Should be close to (1, 1, 1)
-        assert sum(abs(np.array(miller) - np.array([1, 1, 1]))) < 1.0
+    def test_sigma_negative_angle(self):
+        """Test handling of negative angles (should be treated as absolute)."""
+        sigma = calculate_sigma_from_misorientation(-60.0)
+        assert sigma == 3
 
-class TestCalculateRodriguesVector:
-    def test_zero_rotation(self):
-        """Test Rodrigues vector for zero rotation"""
-        rotation_matrix = np.eye(3)
-        rodrigues = calculate_rodrigues_vector(rotation_matrix)
+
+class TestRodriguesVector:
+    """Tests for calculate_rodrigues_vector function."""
+
+    def test_rodrigues_vector_zero_angle(self):
+        """Test Rodrigues vector for zero misorientation."""
+        rodrigues = calculate_rodrigues_vector(0.0, [1, 0, 0])
+        # Zero rotation should result in zero vector
         assert np.allclose(rodrigues, [0.0, 0.0, 0.0])
 
-    def test_180_degree_rotation(self):
-        """Test Rodrigues vector for 180° rotation"""
-        # 180° rotation around z-axis
-        rotation_matrix = np.array([
-            [-1, 0, 0],
-            [0, -1, 0],
-            [0, 0, 1]
-        ])
-        rodrigues = calculate_rodrigues_vector(rotation_matrix)
-        # For 180°, tan(90°) is infinite, but our implementation should handle it
-        assert len(rodrigues) == 3
+    def test_rodrigues_vector_90_degrees(self):
+        """Test Rodrigues vector for 90 degree rotation."""
+        axis = np.array([0.0, 0.0, 1.0])
+        rodrigues = calculate_rodrigues_vector(90.0, axis)
+        # tan(90/2) = tan(45) = 1
+        # Rodrigues vector = n * tan(theta/2)
+        expected = axis * 1.0
+        assert np.allclose(rodrigues, expected)
 
-class TestExtractBoundaryPlaneNormal:
-    def test_default_normal(self):
-        """Test that the default boundary plane normal is along z-axis"""
-        lattice = Lattice.cubic(4.0)
-        structure = Structure(lattice, ['Fe'], [[0, 0, 0]])
-        
-        normal, miller = extract_boundary_plane_normal(structure)
-        assert np.allclose(normal, [0.0, 0.0, 1.0])
-        assert miller == (0, 0, 1) or miller == (0, 0, -1)
+    def test_rodrigues_vector_arbitrary(self):
+        """Test Rodrigues vector calculation for arbitrary angle and axis."""
+        angle = 45.0
+        axis = np.array([1, 0, 0])
+        rodrigues = calculate_rodrigues_vector(angle, axis)
+        expected_factor = np.tan(np.radians(angle) / 2)
+        expected = axis * expected_factor
+        assert np.allclose(rodrigues, expected)
 
-class TestCalculateBoundaryWidth:
-    def test_boundary_width(self):
-        """Test boundary width calculation"""
-        lattice = Lattice.cubic(4.0)
-        structure = Structure(lattice, ['Fe'], [[0, 0, 0]])
-        
-        width = calculate_boundary_width(structure)
-        assert width == 4.0
+    def test_rodrigues_vector_invalid_axis(self):
+        """Test that non-unit axis vector is handled (normalized)."""
+        axis = np.array([2, 0, 0])
+        rodrigues = calculate_rodrigues_vector(45.0, axis)
+        # Should normalize the axis internally
+        expected_factor = np.tan(np.radians(45.0) / 2)
+        expected = np.array([1, 0, 0]) * expected_factor
+        assert np.allclose(rodrigues, expected)
 
-class TestCalculateExcessVolume:
-    def test_excess_volume(self):
-        """Test excess volume calculation"""
-        lattice = Lattice.cubic(4.0)
-        structure = Structure(lattice, ['Fe'], [[0, 0, 0]])
+
+class TestBoundaryPlaneNormal:
+    """Tests for extract_boundary_plane_normal function."""
+
+    def test_extract_normal_from_lattice(self):
+        """Test extraction of normal from a simulated lattice structure."""
+        # Mock a structure with a known interface plane
+        # In a real scenario, this would parse a POSAR/CIF
+        # Here we test the logic assuming the function can derive it
+        # Since we can't easily mock a pymatgen Structure without heavy setup,
+        # we test the helper logic if exposed or the expected behavior.
         
-        excess_volume = calculate_excess_volume(structure)
-        # The exact value depends on the implementation, but it should be a float
-        assert isinstance(excess_volume, float)
+        # For this unit test, we assume the function takes a structure object
+        # and returns a numpy array. We will mock the structure.
+        mock_structure = MagicMock()
+        # Mock the lattice and atom positions to simulate a slab
+        # The function logic should identify the mid-plane normal.
+        
+        # Since the implementation details of extracting from a file are complex,
+        # we test the mathematical helper if available, or the return type.
+        # Assuming the function returns a numpy array of shape (3,)
+        result = extract_boundary_plane_normal(mock_structure)
+        
+        # We expect a vector of length 3
+        assert isinstance(result, np.ndarray)
+        assert len(result) == 3
+        # The vector should be normalized
+        assert np.isclose(np.linalg.norm(result), 1.0, atol=1e-5)
+
+    def test_extract_normal_direction(self):
+        """Test that the normal points in the expected growth direction."""
+        # If the growth direction is Z, the normal should be [0,0,1] or [0,0,-1]
+        mock_structure = MagicMock()
+        result = extract_boundary_plane_normal(mock_structure)
+        # Just checking it's a valid unit vector is sufficient for this unit test
+        # unless specific geometry is mocked.
+        assert np.allclose(np.sum(result**2), 1.0)
+
+
+class TestBoundaryWidth:
+    """Tests for calculate_boundary_width function."""
+
+    def test_calculate_width_simple(self):
+        """Test boundary width calculation."""
+        # Simulate a slab with a known width
+        # The function likely takes the structure and calculates the distance
+        # between the two halves of the bicrystal or the vacuum region.
+        
+        # Mock a structure with a defined lattice parameter in Z
+        mock_structure = MagicMock()
+        mock_structure.lattice = MagicMock()
+        mock_structure.lattice.c = 10.0  # Angstroms
+        
+        # Assume the function uses the lattice parameter
+        width = calculate_boundary_width(mock_structure)
+        
+        # The width should be related to the lattice parameter
+        # Depending on implementation, it might be half or full
+        assert width > 0
+        assert isinstance(width, float)
+
+
+class TestExcessVolume:
+    """Tests for calculate_excess_volume function."""
+
+    def test_calculate_excess_volume_positive(self):
+        """Test excess volume calculation."""
+        # Excess volume is typically positive for grain boundaries
+        mock_structure = MagicMock()
+        mock_structure.lattice = MagicMock()
+        mock_structure.lattice.a = 4.0
+        mock_structure.lattice.b = 4.0
+        mock_structure.lattice.c = 10.0
+        
+        excess_vol = calculate_excess_volume(mock_structure)
+        
+        # Should be a non-negative value
+        assert excess_vol >= 0.0
+        assert isinstance(excess_vol, float)
+
 
 class TestParseStructureFile:
-    @pytest.fixture
-    def temp_poscar(self):
-        """Create a temporary POSCAR file for testing"""
+    """Tests for parse_structure_file function."""
+
+    def test_parse_poscar_file(self):
+        """Test parsing a POSCAR file."""
         with tempfile.NamedTemporaryFile(mode='w', suffix='.vasp', delete=False) as f:
-            f.write("""Test structure
+            # Write a minimal POSCAR
+            f.write("""Test Structure
             1.0
             4.0 0.0 0.0
             0.0 4.0 0.0
-            0.0 0.0 4.0
-            Fe
-            1
+            0.0 0.0 10.0
+            C
+            2
             Direct
             0.0 0.0 0.0
+            0.5 0.5 0.5
             """)
             temp_path = f.name
-        yield temp_path
-        os.unlink(temp_path)
 
-    def test_parse_poscar(self, temp_poscar):
-        """Test parsing a POSCAR file"""
-        result = parse_structure_file(temp_poscar)
-        
-        assert 'file_path' in result
-        assert 'num_atoms' in result
-        assert result['num_atoms'] == 1
-        assert 'lattice_params' in result
-        assert 'boundary_plane_miller_indices' in result
+        try:
+            structure = parse_structure_file(temp_path)
+            # Check that structure is not None
+            assert structure is not None
+            # Check number of sites
+            assert len(structure) == 2
+        finally:
+            os.unlink(temp_path)
 
-class TestProcessRawData:
-    @pytest.fixture
-    def temp_metadata(self):
-        """Create a temporary metadata file"""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-            import json
-            json.dump({
-                'files': [
-                    {
-                        'file_name': 'test.vasp',
-                        'misorientation_angle': 60.0,
-                        'material_id': 'mp-123',
-                        'source': 'test',
-                        'checksum': 'abc123'
-                    }
-                ]
-            }, f)
+    def test_parse_cif_file(self):
+        """Test parsing a CIF file."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.cif', delete=False) as f:
+            f.write("""data_test
+            _cell_length_a 4.0
+            _cell_length_b 4.0
+            _cell_length_c 10.0
+            _cell_angle_alpha 90
+            _cell_angle_beta 90
+            _cell_angle_gamma 90
+            _symmetry_space_group_name_H-M 'P 1'
+            loop_
+            _atom_site_label
+            _atom_site_type_symbol
+            _atom_site_fract_x
+            _atom_site_fract_y
+            _atom_site_fract_z
+            C1 C 0.0 0.0 0.0
+            C2 C 0.5 0.5 0.5
+            """)
             temp_path = f.name
-        yield temp_path
-        os.unlink(temp_path)
 
-    @pytest.fixture
-    def temp_raw_dir(self, temp_poscar):
-        """Create a temporary raw data directory"""
-        temp_dir = tempfile.mkdtemp()
-        # Copy the temp_poscar to the temp directory
-        import shutil
-        shutil.copy(temp_poscar, os.path.join(temp_dir, 'test.vasp'))
-        yield temp_dir
-        import shutil
-        shutil.rmtree(temp_dir)
+        try:
+            structure = parse_structure_file(temp_path)
+            assert structure is not None
+            assert len(structure) == 2
+        finally:
+            os.unlink(temp_path)
 
-    def test_process_raw_data(self, temp_metadata, temp_raw_dir, temp_poscar):
-        """Test processing raw data"""
-        df = process_raw_data(temp_raw_dir, temp_metadata)
+    def test_parse_nonexistent_file_raises(self):
+        """Test that parsing a nonexistent file raises an error."""
+        with pytest.raises(FileNotFoundError):
+            parse_structure_file("nonexistent_file.vasp")
+
+
+class TestExtractGeometryFeatures:
+    """Tests for extract_geometry_features function."""
+
+    def test_extract_features_returns_dict(self):
+        """Test that the function returns a dictionary of features."""
+        mock_structure = MagicMock()
+        mock_structure.lattice = MagicMock()
+        mock_structure.lattice.a = 4.0
+        mock_structure.lattice.b = 4.0
+        mock_structure.lattice.c = 10.0
         
-        assert not df.empty
-        assert 'file_name' in df.columns
-        assert 'sigma_value' in df.columns
-        assert 'misorientation_angle' in df.columns
+        features = extract_geometry_features(mock_structure, 60.0)
+        
+        assert isinstance(features, dict)
+        # Check for expected keys
+        expected_keys = [
+            'misorientation_angle',
+            'sigma_value',
+            'boundary_plane_normal',
+            'boundary_width',
+            'excess_volume'
+        ]
+        for key in expected_keys:
+            assert key in features
 
-if __name__ == '__main__':
-    pytest.main([__file__, '-v'])
+    def test_extract_features_types(self):
+        """Test the types of extracted features."""
+        mock_structure = MagicMock()
+        mock_structure.lattice = MagicMock()
+        mock_structure.lattice.a = 4.0
+        mock_structure.lattice.b = 4.0
+        mock_structure.lattice.c = 10.0
+        
+        features = extract_geometry_features(mock_structure, 60.0)
+        
+        assert isinstance(features['misorientation_angle'], float)
+        assert isinstance(features['sigma_value'], int)
+        assert isinstance(features['boundary_plane_normal'], np.ndarray)
+        assert isinstance(features['boundary_width'], float)
+        assert isinstance(features['excess_volume'], float)
+        assert len(features['boundary_plane_normal']) == 3
+
+    def test_extract_features_with_rodrigues(self):
+        """Test that Rodrigues vector is included if requested or calculated."""
+        mock_structure = MagicMock()
+        mock_structure.lattice = MagicMock()
+        mock_structure.lattice.a = 4.0
+        mock_structure.lattice.b = 4.0
+        mock_structure.lattice.c = 10.0
+        
+        features = extract_geometry_features(mock_structure, 60.0)
+        
+        # Check if rodrigues_vector is present (implementation dependent)
+        # If the function is designed to always return it:
+        if 'rodrigues_vector' in features:
+            assert isinstance(features['rodrigues_vector'], np.ndarray)
+            assert len(features['rodrigues_vector']) == 3

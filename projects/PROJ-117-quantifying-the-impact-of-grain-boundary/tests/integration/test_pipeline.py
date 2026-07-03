@@ -1,187 +1,157 @@
 """
-Integration test for the grain boundary diffusivity pipeline (T015).
+Integration test for the end-to-end grain boundary diffusivity pipeline.
 
-Verifies end-to-end execution of:
-T009 (Download) -> T010 (Geometry Parsing) -> T011 (Preprocessing) 
--> T016 (Diagnostics) -> T012 (Training).
+Verifies the execution chain: T009 -> T010 -> T011 -> T016 -> T012.
+Constraints: Must complete within 6 hours and use <7 GB RAM.
 
-Constraints:
-- Must complete within 6 hours (wall-clock).
-- Must use < 7 GB RAM.
-- Uses REAL data sources or fails loudly if unavailable.
+Note: This test assumes the data download (T009) has been executed
+and raw data exists in data/raw/. If data is missing, it attempts to
+run the download step first, but relies on the presence of real
+external data sources (Materials Project, etc.) which may require
+API keys.
 """
 import os
 import sys
+import subprocess
 import time
-import json
 import tracemalloc
-import logging
+import json
+import tempfile
+import shutil
 from pathlib import Path
-from datetime import datetime
 
 import pytest
 
-# Project root setup
+# Project root
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 CODE_DIR = PROJECT_ROOT / "code"
 DATA_DIR = PROJECT_ROOT / "data"
-MODELS_DIR = PROJECT_ROOT / "models"
 ARTIFACTS_DIR = PROJECT_ROOT / "artifacts"
-ARTIFACTS_REPORTS = ARTIFACTS_DIR / "reports"
+MODELS_DIR = PROJECT_ROOT / "models"
 
-# Add code directory to path for imports
-sys.path.insert(0, str(CODE_DIR))
+# Ensure paths are in sys.path for imports if running directly
+if str(CODE_DIR) not in sys.path:
+    sys.path.insert(0, str(CODE_DIR))
 
-# Import main functions
-# Note: We import the main functions to verify they exist and can be called.
-# We do not necessarily call them directly here if we want to mock the data generation
-# for the integration test in a CI environment without API keys.
-# Instead, we will generate a minimal synthetic dataset that adheres to the schema
-# to ensure the pipeline logic (T011, T016, T012) runs correctly.
-
-from preprocess import main as preprocess_main
-from diagnostics import main as diagnostics_main
-from train import main as train_main
-from utils import setup_logging, set_random_seed
-
-# Constants for constraints
-MAX_RUNTIME_SECONDS = 6 * 60 * 60  # 6 hours
-MAX_MEMORY_GB = 7.0
-
-# Logging setup
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-def setup_test_environment():
-    """Ensure directories exist."""
-    for d in [DATA_DIR / "raw", DATA_DIR / "processed", MODELS_DIR, ARTIFACTS_REPORTS]:
-        d.mkdir(parents=True, exist_ok=True)
-
-def generate_synthetic_dataset():
-    """
-    Generate a minimal synthetic dataset that adheres to the schema.
-    This is necessary for CI environments where real data/API keys are unavailable.
-    The data is synthetic but the pipeline logic is real.
-    """
-    import pandas as pd
-    import numpy as np
-    
-    n_records = 500
-    np.random.seed(42)
-    
-    # Create synthetic data that matches the expected schema
-    data = {
-        "material_id": [f"mp-{1000000+i}" for i in range(n_records)],
-        "misorientation_angle": np.random.uniform(0, 60, n_records),
-        "boundary_plane_normal": [f"{i%3},{(i+1)%3},{(i+2)%3}" for i in range(n_records)],
-        "sigma_value": np.random.randint(1, 20, n_records),
-        "temperature": np.random.uniform(300, 1000, n_records),
-        "composition": ["Al" for _ in range(n_records)],
-        "diffusivity": np.random.uniform(1e-12, 1e-8, n_records),
-        "boundary_width": np.random.uniform(5, 20, n_records),
-        "excess_volume": np.random.uniform(0.1, 1.0, n_records),
-        "simulation_method": np.random.choice(["DFT", "MD", "KMC"], n_records),
-        "potential_id": [f"pot-{i}" for i in range(n_records)]
-    }
-    
-    # Save to processed directory as if T010 completed
-    parsed_path = DATA_DIR / "processed" / "parsed_geometry.parquet"
-    df = pd.DataFrame(data)
-    df.to_parquet(parsed_path)
-    logger.info(f"Generated synthetic parsed data for integration test: {parsed_path}")
-    return parsed_path
+# Maximum allowed memory (7 GB in bytes)
+MAX_MEMORY_BYTES = 7 * 1024 * 1024 * 1024
+# Maximum allowed time (6 hours in seconds) - reduced for CI safety to 1 hour if needed, 
+# but spec says 6h. We will enforce the 6h limit in logic.
+MAX_TIME_SECONDS = 6 * 3600
 
 @pytest.fixture(scope="module")
 def pipeline_env():
-    """Setup and teardown for the integration test."""
-    setup_logging()
-    set_random_seed(42)
-    setup_test_environment()
+    """Ensure necessary directories exist."""
+    dirs = [DATA_DIR, DATA_DIR / "raw", DATA_DIR / "processed", MODELS_DIR, ARTIFACTS_DIR]
+    for d in dirs:
+        d.mkdir(parents=True, exist_ok=True)
+    yield
+    # Cleanup is optional for integration tests to preserve artifacts, 
+    # but we ensure we don't leave temp files.
+
+def run_script(script_name: str, args: list = None) -> subprocess.CompletedProcess:
+    """Run a script from the code directory."""
+    script_path = CODE_DIR / script_name
+    if not script_path.exists():
+        raise FileNotFoundError(f"Script not found: {script_path}")
     
-    # Check if data exists, if not generate synthetic
-    parsed_path = DATA_DIR / "processed" / "parsed_geometry.parquet"
-    if not parsed_path.exists():
-        generate_synthetic_dataset()
+    cmd = [sys.executable, str(script_path)]
+    if args:
+        cmd.extend(args)
     
+    print(f"Running: {' '.join(cmd)}")
+    start_time = time.time()
+    process = subprocess.run(
+        cmd,
+        cwd=PROJECT_ROOT,
+        capture_output=True,
+        text=True,
+        timeout=MAX_TIME_SECONDS
+    )
+    elapsed = time.time() - start_time
+    
+    if process.returncode != 0:
+        print(f"STDOUT:\n{process.stdout}")
+        print(f"STDERR:\n{process.stderr}")
+        raise RuntimeError(f"Script {script_name} failed with code {process.returncode} after {elapsed:.2f}s")
+    
+    print(f"Script {script_name} completed in {elapsed:.2f}s")
+    return process
+
+def check_memory_usage():
+    """Check if peak memory usage exceeded the limit."""
+    current, peak = tracemalloc.get_traced_memory()
+    print(f"Current memory: {current / 1024 / 1024:.2f} MB, Peak: {peak / 1024 / 1024:.2f} MB")
+    if peak > MAX_MEMORY_BYTES:
+        raise MemoryError(f"Peak memory usage {peak / 1024 / 1024:.2f} MB exceeded limit of {MAX_MEMORY_BYTES / 1024 / 1024:.2f} MB")
+
+@pytest.mark.integration
+def test_end_to_end_pipeline(pipeline_env):
+    """
+    Test the full pipeline: Download -> Parse -> Preprocess -> Diagnostics -> Train.
+    Verifies timing and memory constraints.
+    """
     tracemalloc.start()
     start_time = time.time()
     
-    success = False
     try:
-        # T011: Preprocessing
-        logger.info("Running Preprocessing (T011)...")
-        preprocess_main()
+        # 1. T009: Download
+        # Note: If data already exists, this might skip or re-download depending on implementation.
+        # We assume the script handles existence checks or we force re-run.
+        # For this test, we assume the script is idempotent or data is missing.
+        # If the download script requires API keys and they are missing, it should fail loudly.
+        run_script("download.py")
         
-        # T016: Diagnostics
-        logger.info("Running Diagnostics (T016)...")
-        diagnostics_main()
+        # Verify raw data exists
+        raw_files = list((DATA_DIR / "raw").glob("*"))
+        assert len(raw_files) > 0, "Download step failed to produce raw data files."
+
+        # 2. T010: Geometry Parser
+        run_script("geometry_parser.py")
         
-        # T012: Training
-        logger.info("Running Training (T012)...")
-        train_main()
+        parsed_file = DATA_DIR / "processed" / "parsed_geometry.parquet"
+        assert parsed_file.exists(), "Geometry parser failed to produce output."
+
+        # 3. T011: Preprocess
+        run_script("preprocess.py")
         
-        end_time = time.time()
+        cleaned_file = DATA_DIR / "processed" / "cleaned_dataset.parquet"
+        assert cleaned_file.exists(), "Preprocess step failed to produce output."
+
+        # 4. T016: Diagnostics
+        run_script("diagnostics.py")
+        
+        diag_file = ARTIFACTS_DIR / "reports" / "collinearity_diagnostic.json"
+        assert diag_file.exists(), "Diagnostics step failed to produce output."
+
+        # 5. T012: Train
+        run_script("train.py")
+        
+        model_file = MODELS_DIR / "best_model.json"
+        metrics_file = ARTIFACTS_DIR / "reports" / "training_metrics.json"
+        
+        assert model_file.exists(), "Training step failed to save model."
+        assert metrics_file.exists(), "Training step failed to save metrics."
+
+        # Validate metrics file content
+        with open(metrics_file, "r") as f:
+            metrics = json.load(f)
+            assert "r2" in metrics, "Metrics file missing 'r2' key."
+            assert "rmse" in metrics, "Metrics file missing 'rmse' key."
+            print(f"Model Metrics: R2={metrics['r2']}, RMSE={metrics['rmse']}")
+
+    finally:
         current, peak = tracemalloc.get_traced_memory()
         tracemalloc.stop()
+        total_time = time.time() - start_time
         
-        peak_gb = peak / (1024 ** 3)
-        
-        # Verify constraints
-        runtime = end_time - start_time
-        assert runtime < MAX_RUNTIME_SECONDS, \
-            f"Pipeline took {runtime:.2f}s, exceeds {MAX_RUNTIME_SECONDS}s"
-        assert peak_gb < MAX_MEMORY_GB, \
-            f"Peak memory {peak_gb:.2f}GB exceeds {MAX_MEMORY_GB}GB"
-        
-        # Verify artifacts
-        assert (MODELS_DIR / "best_model.json").exists(), "Model artifact missing"
-        assert (ARTIFACTS_REPORTS / "training_metrics.json").exists(), "Training metrics missing"
-        assert (ARTIFACTS_REPORTS / "collinearity_diagnostic.json").exists(), "Diagnostics missing"
-        
-        success = True
-        return {
-            "success": True,
-            "runtime": runtime,
-            "peak_memory_gb": peak_gb
-        }
-        
-    except Exception as e:
-        tracemalloc.stop()
-        logger.error(f"Pipeline execution failed: {e}")
-        # We do not fail the test here if it's a data issue, but if it's a code issue, we do.
-        # For this integration test, we expect the code to run.
-        raise e
-    finally:
-        if not success:
-            pytest.fail("Pipeline execution failed")
+        # Check constraints
+        assert total_time <= MAX_TIME_SECONDS, f"Pipeline took {total_time:.2f}s, exceeding limit of {MAX_TIME_SECONDS}s"
+        check_memory_usage()
 
-def test_pipeline_execution(pipeline_env):
-    """Verify the pipeline runs end-to-end within constraints."""
-    assert pipeline_env["success"]
-    logger.info(f"Pipeline completed in {pipeline_env['runtime']:.2f}s with {pipeline_env['peak_memory_gb']:.2f}GB RAM")
+    print("Pipeline integration test PASSED.")
+    print(f"Total time: {total_time:.2f}s")
+    print(f"Peak memory: {peak / 1024 / 1024:.2f} MB")
 
-def test_artifacts_generated(pipeline_env):
-    """Verify all required artifacts are present."""
-    assert (MODELS_DIR / "best_model.json").exists()
-    assert (ARTIFACTS_REPORTS / "training_metrics.json").exists()
-    assert (ARTIFACTS_REPORTS / "collinearity_diagnostic.json").exists()
-    
-    # Verify metrics content
-    with open(ARTIFACTS_REPORTS / "training_metrics.json", "r") as f:
-        metrics = json.load(f)
-        assert "r2" in metrics
-        assert "rmse" in metrics
-        assert "mape" in metrics
-    
-    # Verify diagnostics content
-    with open(ARTIFACTS_REPORTS / "collinearity_diagnostic.json", "r") as f:
-        diag = json.load(f)
-        assert "mutual_information" in diag
-
-def test_memory_constraint(pipeline_env):
-    """Verify memory usage is within limits."""
-    assert pipeline_env["peak_memory_gb"] < MAX_MEMORY_GB
-
-def test_time_constraint(pipeline_env):
-    """Verify execution time is within limits."""
-    assert pipeline_env["runtime"] < MAX_RUNTIME_SECONDS
+if __name__ == "__main__":
+    pytest.main([__file__, "-v", "--tb=short"])

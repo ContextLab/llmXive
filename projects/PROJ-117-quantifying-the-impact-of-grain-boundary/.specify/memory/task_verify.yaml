@@ -1,6 +1,5 @@
-? T007 Setup error handling infrastructure for `Data Insufficiency` halt (exit code
-  1) ensuring the error message logs the exact count of retrieved vs. required records
-  (implementation in T011)
-: 2
-T008 Configure environment variables for API keys (Materials Project, OpenKIM) in `.env` (not committed): 2
-'T016 [P] [US1/Foundational] Implement `code/diagnostics.py` to:': 2
+'T009 [US1] Implement `code/download.py` to: <!-- ATOMIZE: requested -->': 1
+'T010 [US1] Implement `code/geometry_parser.py` to:': 1
+'T011 [US1] Implement `code/preprocess.py` to:': 1
+'T016 [P] [US1/Foundational] Implement `code/diagnostics.py` to: <!-- ATOMIZE: requested -->': 1
+'T016 [P] [US1/Foundational] Implement `code/diagnostics.py` to: <!-- ATOMIZE: requested --> <!-- FAILED: unspecified -->': 1

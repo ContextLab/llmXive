@@ -65,49 +65,26 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/xgboost-lover/datasets
   verified_at: '2026-07-03T00:45:14.335842Z'
-- artifact_hash: 17d7adabc8374ff889dcc3cf26102454660c730f92e526184688ae65f95937ab
-  artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/API_KEYS_SETUP.md
+- artifact_hash: 7be7daa0b3ce6bf8106a3ba5545cfc34e26f9e028d5d92f8dd9c4777ae06abf3
+  artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/README.md
   cite_id: c-001
   cited_authors: []
-  cited_title: null
+  cited_title: Materials Project
   fetched_title: null
   kind: url
-  value: https://materialsproject.org/dashboard
+  value: https://materialsproject.org
   verification_status: pending
-  verified_against_url: https://next-gen.materialsproject.org/dashboard
-  verified_at: '2026-07-03T03:35:51.501763Z'
-- artifact_hash: 17d7adabc8374ff889dcc3cf26102454660c730f92e526184688ae65f95937ab
-  artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/API_KEYS_SETUP.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: "OpenKIM \xB7 Knowledgebase of Interatomic Models \xB7 Interatomic\
-    \ Potentials and Force Fields"
-  kind: url
-  value: https://openkim.org/
-  verification_status: verified
-  verified_against_url: https://openkim.org/
-  verified_at: '2026-07-03T03:35:51.501763Z'
-- artifact_hash: 6e69ef6d354c9680b81f9ffd201781123888ebc0fe625d187a0c607d1883bfed
-  artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/README.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://api.materialsproject.org/v2/`
-  verification_status: mismatch
-  verified_against_url: https://api.materialsproject.org/v2/
-  verified_at: '2026-07-03T03:43:01.161102Z'
-- artifact_hash: 6e69ef6d354c9680b81f9ffd201781123888ebc0fe625d187a0c607d1883bfed
+  verified_against_url: https://next-gen.materialsproject.org/
+  verified_at: '2026-07-03T04:46:20.023971Z'
+- artifact_hash: 7be7daa0b3ce6bf8106a3ba5545cfc34e26f9e028d5d92f8dd9c4777ae06abf3
   artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/README.md
   cite_id: c-002
   cited_authors: []
-  cited_title: null
+  cited_title: OpenKIM
   fetched_title: "OpenKIM \xB7 Knowledgebase of Interatomic Models \xB7 Interatomic\
     \ Potentials and Force Fields"
   kind: url
-  value: https://openkim.org/`
+  value: https://openkim.org
   verification_status: verified
-  verified_against_url: https://openkim.org/
-  verified_at: '2026-07-03T03:43:01.161102Z'
+  verified_against_url: https://openkim.org
+  verified_at: '2026-07-03T04:46:20.023971Z'

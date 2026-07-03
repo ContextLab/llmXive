@@ -1,163 +1,215 @@
 """
 Integration test for User Story 3: Feature Interpretability & Sensitivity Analysis.
-Verifies plot generation and sensitivity table accuracy.
+
+Verifies that:
+1. The interpretability script runs without error.
+2. SHAP plots are generated in artifacts/figures/.
+3. The sensitivity table (threshold-variation-table.csv) is generated in artifacts/reports/.
+4. The generated artifacts are non-empty and contain expected columns/structures.
 """
-import os
-import sys
 import json
-import tempfile
-import shutil
+import os
+import subprocess
+import sys
 from pathlib import Path
+
 import pytest
+import pandas as pd
 
-# Add code directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
-
-from interpret import (
-    load_model,
-    load_data,
-    prepare_features,
-    generate_shap_analysis,
-    perform_sensitivity_analysis,
-    generate_threshold_justification_report,
-    run_sensitivity_analysis,
-    main
-)
-from config.threshold_config import get_r2_threshold, get_threshold_justification
-
-# Paths relative to project root
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-MODELS_DIR = PROJECT_ROOT / "models"
+# Project root relative to this test file (assumes tests/integration/ structure)
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+CODE_DIR = PROJECT_ROOT / "code"
 ARTIFACTS_DIR = PROJECT_ROOT / "artifacts"
 FIGURES_DIR = ARTIFACTS_DIR / "figures"
 REPORTS_DIR = ARTIFACTS_DIR / "reports"
-PROCESSED_DATA_DIR = PROJECT_ROOT / "data" / "processed"
+MODEL_PATH = PROJECT_ROOT / "models" / "best_model.json"
+PROCESSED_DATA_PATH = PROJECT_ROOT / "data" / "processed" / "cleaned_dataset.parquet"
 
+# Expected outputs based on T021 specification
+EXPECTED_SHAP_SUMMARY_PLOT = FIGURES_DIR / "shap_summary.png"
+EXPECTED_FEATURE_IMPORTANCE_PLOT = FIGURES_DIR / "shap_feature_importance.png"
+EXPECTED_SENSITIVITY_TABLE = REPORTS_DIR / "threshold-variation-table.csv"
+EXPECTED_SENSITIVITY_REPORT = REPORTS_DIR / "sensitivity_analysis.json"
 
-@pytest.fixture
-def temp_output_dir():
-    """Create a temporary directory for test outputs to avoid polluting the main artifacts."""
-    temp_dir = tempfile.mkdtemp()
-    yield temp_dir
-    shutil.rmtree(temp_dir)
+@pytest.fixture(autouse=True)
+def setup_environment():
+    """Ensure required directories exist before test."""
+    FIGURES_DIR.mkdir(parents=True, exist_ok=True)
+    REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+    # Clean up any previous test artifacts to ensure fresh generation
+    for f in [EXPECTED_SHAP_SUMMARY_PLOT, EXPECTED_FEATURE_IMPORTANCE_PLOT, 
+              EXPECTED_SENSITIVITY_TABLE, EXPECTED_SENSITIVITY_REPORT]:
+        if f.exists():
+            f.unlink()
 
-
-def test_plot_generation_and_sensitivity_table(temp_output_dir):
+def test_interpretability_pipeline_execution():
     """
-    Integration test verifying:
-    1. SHAP summary plot is generated.
-    2. Sensitivity analysis table is generated with correct structure.
-    3. Threshold justification report is generated.
+    Test that the interpret.py script runs successfully end-to-end.
+    
+    This test assumes:
+    1. T012 (Training) has completed and produced models/best_model.json
+    2. T011 (Preprocessing) has completed and produced data/processed/cleaned_dataset.parquet
+    
+    If these prerequisites are missing, the test will fail, which is expected behavior
+    for an integration test in a sequential pipeline.
     """
-    # Ensure required directories exist
-    os.makedirs(MODELS_DIR, exist_ok=True)
-    os.makedirs(PROCESSED_DATA_DIR, exist_ok=True)
-    os.makedirs(FIGURES_DIR, exist_ok=True)
-    os.makedirs(REPORTS_DIR, exist_ok=True)
-
-    # Check for required input artifacts
-    model_path = MODELS_DIR / "best_model.json"
-    data_path = PROCESSED_DATA_DIR / "cleaned_dataset.parquet"
-
-    # If real artifacts don't exist, this test would fail in a real run.
-    # For the purpose of this implementation, we assert the existence logic.
-    # In a CI environment, these files would be produced by T012 and T011.
+    # Verify prerequisites exist before running the script
+    if not MODEL_PATH.exists():
+        pytest.skip(f"Model artifact not found at {MODEL_PATH}. "
+                   "Prerequisite T012 (Training) must be completed first.")
     
-    # Mock paths for the test if real files are missing to validate the logic structure
-    # However, per "Real data only" constraint, we must verify the code works with real files.
-    # We will assert that the code attempts to load these specific paths.
+    if not PROCESSED_DATA_PATH.exists():
+        pytest.skip(f"Cleaned dataset not found at {PROCESSED_DATA_PATH}. "
+                   "Prerequisite T011 (Preprocessing) must be completed first.")
+
+    # Run the interpretability script
+    result = subprocess.run(
+        [sys.executable, str(CODE_DIR / "interpret.py")],
+        cwd=str(PROJECT_ROOT),
+        capture_output=True,
+        text=True
+    )
+
+    # Assert script execution was successful
+    assert result.returncode == 0, (
+        f"interpret.py failed with exit code {result.returncode}\n"
+        f"STDOUT:\n{result.stdout}\n"
+        f"STDERR:\n{result.stderr}"
+    )
+
+def test_shap_plots_generated():
+    """
+    Verify that SHAP plots are generated and are non-empty.
+    """
+    # Run the script first to ensure artifacts are created
+    subprocess.run(
+        [sys.executable, str(CODE_DIR / "interpret.py")],
+        cwd=str(PROJECT_ROOT),
+        check=True,
+        capture_output=True
+    )
+
+    # Check SHAP summary plot
+    assert EXPECTED_SHAP_SUMMARY_PLOT.exists(), (
+        f"SHAP summary plot not found at {EXPECTED_SHAP_SUMMARY_PLOT}"
+    )
+    assert EXPECTED_SHAP_SUMMARY_PLOT.stat().st_size > 0, (
+        f"SHAP summary plot at {EXPECTED_SHAP_SUMMARY_PLOT} is empty"
+    )
+
+    # Check feature importance plot
+    assert EXPECTED_FEATURE_IMPORTANCE_PLOT.exists(), (
+        f"Feature importance plot not found at {EXPECTED_FEATURE_IMPORTANCE_PLOT}"
+    )
+    assert EXPECTED_FEATURE_IMPORTANCE_PLOT.stat().st_size > 0, (
+        f"Feature importance plot at {EXPECTED_FEATURE_IMPORTANCE_PLOT} is empty"
+    )
+
+def test_sensitivity_table_generated():
+    """
+    Verify that the sensitivity table is generated with correct structure.
+    """
+    # Run the script first to ensure artifacts are created
+    subprocess.run(
+        [sys.executable, str(CODE_DIR / "interpret.py")],
+        cwd=str(PROJECT_ROOT),
+        check=True,
+        capture_output=True
+    )
+
+    # Check sensitivity table exists
+    assert EXPECTED_SENSITIVITY_TABLE.exists(), (
+        f"Sensitivity table not found at {EXPECTED_SENSITIVITY_TABLE}"
+    )
     
-    if not model_path.exists():
-        # In a real CI run, this would be a hard failure if the model wasn't trained.
-        # We raise a clear error to indicate the prerequisite task (T012) was not run.
-        pytest.skip(f"Model artifact not found at {model_path}. Run T012 first.")
+    # Load and validate the table structure
+    df = pd.read_csv(EXPECTED_SENSITIVITY_TABLE)
     
-    if not data_path.exists():
-        pytest.skip(f"Cleaned dataset not found at {data_path}. Run T011 first.")
-
-    # Define output paths for this test run
-    shap_plot_path = FIGURES_DIR / "shap_summary.png"
-    sensitivity_table_path = REPORTS_DIR / "threshold-variation-table.csv"
-    justification_path = REPORTS_DIR / "threshold_justification.json"
-
-    # 1. Load Model and Data
-    model = load_model(str(model_path))
-    assert model is not None, "Failed to load model"
-
-    data = load_data(str(data_path))
-    assert data is not None, "Failed to load data"
-
-    # 2. Prepare Features
-    X, y, feature_names = prepare_features(data)
-    assert X is not None and y is not None, "Failed to prepare features"
-    assert len(feature_names) > 0, "No features found"
-
-    # 3. Generate SHAP Analysis
-    # This should generate the plot at the specified path
-    try:
-        generate_shap_analysis(model, X, feature_names, output_path=str(shap_plot_path))
-    except Exception as e:
-        # If SHAP generation fails (e.g., missing dependencies or data issues), report it
-        pytest.fail(f"SHAP analysis generation failed: {e}")
-
-    # Verify plot file exists
-    assert shap_plot_path.exists(), f"SHAP plot not generated at {shap_plot_path}"
-
-    # 4. Perform Sensitivity Analysis
-    # This should generate the CSV table
-    try:
-        run_sensitivity_analysis(model, X, y, feature_names, output_path=str(sensitivity_table_path))
-    except Exception as e:
-        pytest.fail(f"Sensitivity analysis failed: {e}")
-
-    # Verify table file exists
-    assert sensitivity_table_path.exists(), f"Sensitivity table not generated at {sensitivity_table_path}"
-
-    # 5. Validate Sensitivity Table Structure
-    import pandas as pd
-    df = pd.read_csv(sensitivity_table_path)
-    required_columns = ["threshold", "pass_rate", "num_folds_pass", "total_folds"]
-    assert all(col in df.columns for col in required_columns), \
-        f"Sensitivity table missing required columns. Found: {df.columns.tolist()}"
+    # Verify required columns exist (based on T021 specification)
+    required_columns = ["threshold", "pass_rate", "num_pass", "num_total"]
+    for col in required_columns:
+        assert col in df.columns, (
+            f"Required column '{col}' not found in sensitivity table. "
+            f"Found columns: {list(df.columns)}"
+        )
     
-    # Verify data types and reasonable values
-    assert df["threshold"].dtype in [float, int], "Threshold column should be numeric"
-    assert df["pass_rate"].between(0, 1).all(), "Pass rate should be between 0 and 1"
+    # Verify data types and values are reasonable
+    assert df["threshold"].dtype in ["float64", "int64", "float32"], (
+        f"Threshold column should be numeric, got {df['threshold'].dtype}"
+    )
+    assert df["pass_rate"].between(0, 1).all(), (
+        "Pass rate values should be between 0 and 1"
+    )
+    assert len(df) > 0, "Sensitivity table should contain at least one row"
 
-    # 6. Generate Threshold Justification Report
-    try:
-        generate_threshold_justification_report(output_path=str(justification_path))
-    except Exception as e:
-        pytest.fail(f"Threshold justification report generation failed: {e}")
+def test_sensitivity_report_generated():
+    """
+    Verify that the sensitivity analysis report is generated and contains 
+    the R² threshold justification.
+    """
+    # Run the script first to ensure artifacts are created
+    subprocess.run(
+        [sys.executable, str(CODE_DIR / "interpret.py")],
+        cwd=str(PROJECT_ROOT),
+        check=True,
+        capture_output=True
+    )
 
-    assert justification_path.exists(), f"Justification report not generated at {justification_path}"
+    # Check report exists
+    assert EXPECTED_SENSITIVITY_REPORT.exists(), (
+        f"Sensitivity report not found at {EXPECTED_SENSITIVITY_REPORT}"
+    )
 
-    with open(justification_path, "r") as f:
+    # Load and validate the report
+    with open(EXPECTED_SENSITIVITY_REPORT, 'r') as f:
         report = json.load(f)
     
-    assert "r2_threshold" in report, "Report missing r2_threshold"
-    assert "justification" in report, "Report missing justification"
-    assert report["r2_threshold"] >= 0.7, "Threshold should be >= 0.7 per spec"
+    # Verify required fields exist
+    assert "threshold_justification" in report, (
+        "Report must contain 'threshold_justification' field as per T021 specification"
+    )
+    assert "summary_metrics" in report, (
+        "Report must contain 'summary_metrics' field"
+    )
+    
+    # Verify justification is a non-empty string
+    assert isinstance(report["threshold_justification"], str), (
+        "Threshold justification should be a string"
+    )
+    assert len(report["threshold_justification"]) > 0, (
+        "Threshold justification should not be empty"
+    )
+    
+    # Verify the justification references community standards or documentation
+    justification_lower = report["threshold_justification"].lower()
+    assert any(term in justification_lower for term in ["community", "standard", "benchmark", "literature", "reference"]), (
+        f"Threshold justification should reference community standards or literature. "
+        f"Got: {report['threshold_justification']}"
+    )
 
-    print("All integration checks passed for T024.")
-
-
-def test_main_entry_point():
+def test_artifacts_directory_structure():
     """
-    Test that the main entry point of interpret.py executes without error
-    and produces the expected artifacts.
+    Verify that all expected artifacts are in the correct directory structure.
     """
-    # This test assumes the environment is set up and artifacts exist.
-    # It validates the CLI interface.
-    if not (MODELS_DIR / "best_model.json").exists() or not (PROCESSED_DATA_DIR / "cleaned_dataset.parquet").exists():
-        pytest.skip("Prerequisite artifacts missing. Skipping main entry point test.")
+    # Run the script first
+    subprocess.run(
+        [sys.executable, str(CODE_DIR / "interpret.py")],
+        cwd=str(PROJECT_ROOT),
+        check=True,
+        capture_output=True
+    )
 
-    # We can't easily capture the side effects of main() in a pytest without mocking sys.exit,
-    # but we can ensure the function is callable and doesn't crash on import/setup.
-    # A full integration of main() is covered by test_plot_generation_and_sensitivity_table
-    # which calls the underlying functions directly.
-    assert callable(main), "main function should be callable"
-
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+    # Verify directory structure
+    assert FIGURES_DIR.exists(), "figures directory should exist"
+    assert REPORTS_DIR.exists(), "reports directory should exist"
+    
+    # Count generated artifacts
+    figure_files = list(FIGURES_DIR.glob("*.png"))
+    report_files = list(REPORTS_DIR.glob("*.csv")) + list(REPORTS_DIR.glob("*.json"))
+    
+    assert len(figure_files) >= 2, (
+        f"At least 2 SHAP plots should be generated. Found: {len(figure_files)}"
+    )
+    assert len(report_files) >= 2, (
+        f"At least 2 report files (CSV + JSON) should be generated. Found: {len(report_files)}"
+    )

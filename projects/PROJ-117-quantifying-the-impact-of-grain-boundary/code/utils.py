@@ -2,100 +2,120 @@ import hashlib
 import logging
 import os
 import random
-import sys
+from datetime import datetime
 from pathlib import Path
-from typing import Optional
+from typing import Dict, Any, Optional
 
-# Configure a basic logger if one isn't already set up
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+import yaml
 
+# Standardized logging format configuration
+LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+LOG_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
-class DataInsufficiencyError(Exception):
+def setup_logging(log_file: Optional[str] = None, level: int = logging.INFO) -> logging.Logger:
     """
-    Custom exception raised when the retrieved data count is below the required threshold.
+    Configure logging for the project with a standardized format.
     
-    Attributes:
-        retrieved_count (int): The number of records actually retrieved.
-        required_count (int): The minimum number of records required.
-        missing_features (list): Optional list of features that caused the insufficiency.
+    Args:
+        log_file: Optional path to a log file. If provided, logs are written to both
+                  stdout and the file.
+        level: Logging level (e.g., logging.INFO, logging.DEBUG).
+    
+    Returns:
+        Configured logger instance named "llmXive".
     """
-    def __init__(self, retrieved_count: int, required_count: int, missing_features: Optional[list] = None):
-        self.retrieved_count = retrieved_count
-        self.required_count = required_count
-        self.missing_features = missing_features or []
-        
-        if missing_features:
-            features_str = ", ".join(missing_features)
-            self.message = (
-                f"Data Insufficiency: Retrieved {retrieved_count} < {required_count}. "
-                f"Missing features: {features_str}"
-            )
-        else:
-            self.message = f"Data Insufficiency: Retrieved {retrieved_count} < {required_count}"
-        
-        super().__init__(self.message)
+    logger = logging.getLogger("llmXive")
+    logger.setLevel(level)
 
+    # Prevent adding duplicate handlers if function is called multiple times
+    if logger.handlers:
+        return logger
+
+    # Create formatter with standardized settings
+    formatter = logging.Formatter(
+        fmt=LOG_FORMAT,
+        datefmt=LOG_DATE_FORMAT
+    )
+
+    # Console handler
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(formatter)
+    logger.addHandler(console_handler)
+
+    # File handler (optional)
+    if log_file:
+        Path(log_file).parent.mkdir(parents=True, exist_ok=True)
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
+
+    return logger
 
 def compute_sha256(file_path: str) -> str:
-    """Compute SHA-256 checksum of a file."""
+    """
+    Compute SHA-256 checksum of a file.
+    
+    Args:
+        file_path: Path to the file to hash.
+    
+    Returns:
+        Hexadecimal string of the SHA-256 hash.
+    """
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-
-def setup_logging(log_file: Optional[str] = None) -> logging.Logger:
-    """Setup logging to both console and optionally a file."""
-    loggers = logging.getLogger()
-    loggers.setLevel(logging.INFO)
-    
-    if not loggers.handlers:
-        ch = logging.StreamHandler()
-        ch.setLevel(logging.INFO)
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        ch.setFormatter(formatter)
-        loggers.addHandler(ch)
-        
-        if log_file:
-            fh = logging.FileHandler(log_file)
-            fh.setLevel(logging.INFO)
-            fh.setFormatter(formatter)
-            loggers.addHandler(fh)
-    
-    return logging.getLogger(__name__)
-
-
 def set_random_seed(seed: int = 42) -> None:
-    """Set random seed for reproducibility."""
-    random.seed(seed)
-    os.environ['PYTHONHASHSEED'] = str(seed)
-    try:
-        import numpy as np
-        np.random.seed(seed)
-    except ImportError:
-        pass
-
-
-def raise_data_insufficiency(retrieved_count: int, required_count: int, missing_features: Optional[list] = None) -> None:
     """
-    Log the data insufficiency error and raise an exception to halt execution.
-    
-    This function implements the error handling infrastructure for T007.
-    It logs the exact count of retrieved vs. required records and exits with code 1.
+    Set random seed for reproducibility across numpy, random, and environment.
     
     Args:
-        retrieved_count (int): The number of records actually retrieved.
-        required_count (int): The minimum number of records required.
-        missing_features (list): Optional list of features that caused the insufficiency.
-    
-    Raises:
-        DataInsufficiencyError: Always raised with the formatted message.
+        seed: Integer seed value.
     """
-    error = DataInsufficiencyError(retrieved_count, required_count, missing_features)
-    logger.error(error.message)
-    raise error
+    random.seed(seed)
+    os.environ["PYTHONHASHSEED"] = str(seed)
+    # Note: numpy seed is typically set in scripts that import numpy directly
+    # to avoid circular imports in this utility module.
+
+def load_metadata(metadata_path: str) -> Dict[str, Any]:
+    """
+    Load metadata from a YAML file.
+    
+    Args:
+        metadata_path: Path to the metadata YAML file.
+    
+    Returns:
+        Dictionary containing metadata, or empty dict if file doesn't exist.
+    """
+    if not os.path.exists(metadata_path):
+        return {}
+    with open(metadata_path, "r") as f:
+        return yaml.safe_load(f) or {}
+
+def update_metadata_entry(metadata_path: str, key: str, value: Any) -> None:
+    """
+    Update or add an entry in the metadata YAML file.
+    
+    Args:
+        metadata_path: Path to the metadata YAML file.
+        key: The key to update or add.
+        value: The value to assign to the key.
+    """
+    metadata = load_metadata(metadata_path)
+    metadata[key] = value
+    with open(metadata_path, "w") as f:
+        yaml.dump(metadata, f, default_flow_style=False)
+
+def save_metadata(metadata: Dict[str, Any], metadata_path: str) -> None:
+    """
+    Save metadata to a YAML file.
+    
+    Args:
+        metadata: Dictionary to save.
+        metadata_path: Path to the output YAML file.
+    """
+    Path(metadata_path).parent.mkdir(parents=True, exist_ok=True)
+    with open(metadata_path, "w") as f:
+        yaml.dump(metadata, f, default_flow_style=False)

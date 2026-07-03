@@ -1,1 +1,2 @@
-# Placeholder to ensure directory is tracked by git
+# This directory stores raw downloaded data files (POSCAR, CIF, JSON)
+# Data is downloaded by code/download.py
