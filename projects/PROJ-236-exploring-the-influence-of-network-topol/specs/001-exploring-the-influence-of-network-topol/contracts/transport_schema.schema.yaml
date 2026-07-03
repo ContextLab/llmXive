@@ -1,2 +1,30 @@
-# This file is deprecated and removed to resolve schema conflicts.
-# Please use contracts/transport_result.schema.yaml instead.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "TransportResult"
+description: "Schema for thermal conductivity calculation results"
+type: "object"
+properties:
+  network_id:
+    type: "string"
+    format: "uuid"
+    description: "Reference to the NetworkRealization ID"
+  conductivity:
+    type: "number"
+    description: "Effective thermal conductivity (W/mK)"
+    exclusiveMinimum: 0
+  convergence_status:
+    type: "string"
+    enum:
+      - "converged"
+      - "failed_retry"
+      - "failed_max"
+    description: "Status of the solver convergence"
+  solver_runtime:
+    type: "number"
+    minimum: 0
+    description: "Time taken to solve in seconds"
+required:
+  - "network_id"
+  - "conductivity"
+  - "convergence_status"
+  - "solver_runtime"
+additionalProperties: false

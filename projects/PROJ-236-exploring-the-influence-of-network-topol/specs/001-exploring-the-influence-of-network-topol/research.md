@@ -1,59 +1,73 @@
 # Research: Exploring the Influence of Network Topology on Heat Transport in Disordered Materials
 
-## Research Question
+## Research Questions
 
-How does the topological structure of atomic connectivity networks (Small-World, Scale-Free, Random) influence thermal conductivity in disordered materials, and can specific network motifs predict anomalous heat transport behavior?
+1. How do Small-World, Scale-Free, and Random network topologies correlate with effective thermal conductivity in disordered atomic ensembles?
+2. Which specific topological metrics (clustering coefficient, spectral gap, degree variance) are most predictive of anomalous heat transport?
+3. Are observed correlations robust to variations in the distance-based cutoff used to define atomic connectivity?
 
-## Methodology
+## Methodology Sketch
 
-### 1. Network Generation (US-1)
-- **Algorithm**:
-  - **Small-World**: Watts-Strogatz (rewiring probability `p` tuned to match target clustering).
-  - **Scale-Free**: Barabási-Albert (preferential attachment, `m=2`).
-  - **Random**: Erdős-Rényi (probability `p` matched to mean degree of target).
-- **Input**: Synthetic atomic coordinates generated via random packing with nearest-neighbor distance constraints.
-- **Cutoff Strategy**: Distance cutoff = `k * d_nn` (default `k=1.5`). Sensitivity sweep: `k ∈ [1.0, 2.0]` in steps of 0.1.
-- **Validation**: Connectedness check, degree distribution comparison (Kolmogorov-Smirnov test against theoretical).
+### Phase 0: Power Analysis
+- **Goal**: Determine sample size (N) to detect a moderate effect size (r=0.3) with [deferred] power.
+- **Method**: G*Power or analytical calculation for Pearson correlation.
+- **Output**: Target N per ensemble type.
 
-### 2. Transport Calculation (US-2)
-- **Method**: **Harmonic Lattice Dynamics (HLA) with Mass Disorder** (Green-Kubo formalism).
-- **Constraint**: CPU-only, 2-core runner.
-- **Implementation**:
-  - **Physics Basis**: In disordered alloys, mass disorder is a primary source of phonon scattering. We approximate the anharmonic effect by using a harmonic Hamiltonian with randomized atomic masses (Gaussian distribution around mean mass) and force constants derived from bond lengths. This captures the "disorder-induced" reduction in thermal conductivity without requiring full anharmonic 3rd-order force constants, which are computationally prohibitive on free-tier CI. This approach is based on the validated methodology of Allen & Feldman for thermal conductivity in disordered harmonic solids.
-  - **Solver**: Custom Python implementation of the Green-Kubo formula: `κ = (V/k_B T^2) ∫ <J(0)J(t)> dt`, where `J` is the heat current vector computed from the harmonic Hamiltonian.
-  - **Force Constants**: If explicit force constants are missing (FR-006), derive effective spring constants `k_eff` from bond distances using a Lennard-Jones-like potential approximation: `k_eff = 72 * ε / σ^2 * (σ/r)^14` (simplified for bond stretching).
-  - **Mass Disorder**: Assign random masses to nodes from a Gaussian distribution `N(m_mean, σ_m)` to simulate alloy disorder.
-- **Output**: Effective thermal conductivity `κ` (W/m·K).
+### Phase 1: Network Generation (US-1)
+- **Algorithm**: 
+  - *Small-World*: Watts-Strogatz (rewiring probability $p$, nearest-neighbor $k$).
+  - *Scale-Free*: Barabási-Albert (preferential attachment $m=2$).
+  - *Random*: Erdős-Rényi (probability $p$ matched to mean degree).
+- **Input**: **Synthetic atomic coordinates (randomly perturbed lattice) with N ≤ 100 atoms** and random chemical composition (e.g., equimolar Si and Ge).
+- **Constraint**: Distance cutoff $d_c = \alpha \times d_{nn}$ (default $\alpha=1.5$). Retry up to $2.0\times$ if disconnected.
+- **Validation**: Check connectedness (>95%), degree distribution fit.
+- **Note**: Topology is an **abstract overlay** on the physical structure, generated algorithmically to isolate topological effects. It does not naturally emerge from the distance cutoff. The physical atomic structure is constrained to produce the desired topological metrics by assigning atomic properties to nodes in the generated graph.
 
-### 3. Statistical Analysis (US-3)
-- **Regression**: Linear regression of `log(κ)` vs. topological metrics (clustering, degree variance, spectral gap).
-- **Resampling**: Bootstrap (sufficient iterations) to estimate 95% Confidence Intervals (CI) for slope.
-- **Correction**: Benjamini-Hochberg (FDR) for multiple comparisons across metrics.
-- **Framing**: All results reported as "associational correlations" (FR-007).
+### Phase 1.5: Cutoff Sensitivity (FR-008)
+- **Task**: Sweep cutoff factors across a range from a baseline multiplier to an elevated multiplier in uniform increments.
+- **Goal**: Verify that the topology-transport correlation is robust to cutoff variations.
+
+### Phase 2: Transport Simulation (US-2)
+- **Method**: **Debye-Grüneisen Approximation** (CPU-tractable).
+- **Rationale**: Anharmonic Lattice Dynamics (ALD) via `phonopy` is computationally infeasible on 2-core/7GB RAM for N > 100. The Debye-Grüneisen model captures essential scattering effects via a Grüneisen parameter approximation, which models anharmonic phonon-phonon scattering without requiring full higher-order force constants.
+- **Force Constants**: Derived via a bond-stiffness model where $k_{ij} \propto \frac{1}{r_{ij}^n} \times \gamma$, scaled by atomic properties (mass, bond length). **Crucially, mass is assigned based on chemical composition (Si/Ge), not node degree.**
+- **Mass Assignment**: Atomic masses are assigned based on random chemical composition (Si/Ge), **independent** of node degree. This avoids the tautological loop where topology dictates mass.
+- **Solver**: Custom CPU-only implementation (no `phono3py`).
+- **Output**: Thermal conductivity $\kappa$ (W/mK).
+
+### Phase 3: Statistical Analysis (US-3)
+- **Regression**: Linear/Power-law fit between metrics (independent) and $\kappa$ (dependent).
+- **Control**: **Include geometric descriptors (mean coordination number) as covariates** to ensure correlations are not trivial geometric artifacts.
+- **Resampling**: Bootstrap for 95% CI.
+- **Correction**: Bonferroni or FDR for multiple metrics.
+- **Disorder Parameter**: Compute 'NetworkDisorderParameter' as a composite of degree variance and mass variance. Fit power-law between this parameter and $\kappa$ to calculate R² (SC-005). **Also fit individual components.**
+- **Framing**: Strictly associational (FR-007).
 
 ## Dataset Strategy
 
-**Verified Datasets**:
-- **Source**: The study relies on *synthetically generated* atomic structures to ensure control over topology. No external physical dataset is required for the *generation* phase, as the hypothesis is about *topological* influence, not specific material composition.
-- **Force Constants**: Derived algorithmically from bond distances (Assumption in Spec) to avoid dependency on external DFT datasets which may not exist for the specific disordered topologies generated.
-- **Reference**:
-  - *Network Generation Theory*: Watts, D. J., & Strogatz, S. H. (1998). "Collective dynamics of 'small-world' networks." *Nature*. (Cited for algorithm parameters).
-  - *Harmonic Lattice Dynamics*: Allen, P. B., & Feldman, J. L. (1993). "Thermal conductivity of disordered harmonic solids." *Physical Review B*. (Cited for HLA Green-Kubo methodology in disordered systems).
+**Verified datasets**: 
+*Note: No specific verified dataset URL was provided in the prompt's "# Verified datasets" block for "disordered alloy atomic connectivity".*
 
-**Note**: No external dataset URL is fabricated. The "dataset" is the generated ensemble `data/processed/ensembles.csv`. The thermal conductivity values are **computed** via the HLA Green-Kubo solver, not assumed.
+- **Strategy**: 
+  1. **Synthetic Generation**: Primary data will be generated synthetically using `pymatgen` to create disordered alloy structures (random substitution of Si/Ge in a lattice) to ensure full control over topology and properties.
+  2. **Methodology Citations**: All methodology references (e.g., Watts-Strogatz, Debye-Grüneisen) will be verified against primary literature sources.
+  3. **No Fabrication**: No raw URLs will be invented. If a dataset is needed but not verified, the plan will explicitly state "Data to be generated synthetically" rather than guessing a source.
 
-## Assumptions & Limitations
+## Decision Rationale
 
-1. **Computational Feasibility**: The HLA Green-Kubo solver with mass disorder is a valid proxy for studying the *topological* influence on transport in disordered materials, as it isolates the scattering effects of structural disorder (mass + topology) without the overhead of full anharmonic calculations. This approximation is standard for disordered systems where mass disorder dominates.
-2. **Power**: A sample size of 100 realizations per topology is estimated to provide [deferred] power to detect a moderate effect size (r=0.3) at α=0.05 (G*Power estimate).
-3. **Causality**: The study is observational (generated data); no causal claims are made.
-4. **Anharmonicity Approximation**: While the spec mentions "anharmonic lattice dynamics," the CPU-tractable implementation uses Harmonic Lattice Dynamics with mass disorder. This is a validated approximation for disordered alloys where mass disorder is the primary scattering mechanism, effectively capturing the "anharmonic-like" reduction in conductivity without the computational cost of 3rd-order force constants.
+- **CPU-Only Constraint**: The plan uses a Debye-Grüneisen approximation and simplified bond-stiffness model to ensure runtime on a 2-core CPU runner (≤6h total). Full DFT-based FC calculation or `phono3py` is excluded as it violates the compute constraint.
+- **Synthetic Data**: Given the lack of a verified public dataset containing *both* explicit atomic coordinates and *pre-computed* topological metrics for disordered materials, synthetic generation is the only reproducible path that satisfies FR-001 and FR-002.
+- **Statistical Rigor**: Bootstrap resampling and multiple-comparison corrections are mandatory to address FR-004 and FR-005, ensuring the results are not artifacts of random noise.
+- **Scientific Validity**: Mass assignment is decoupled from node degree to avoid circular validation. Topology influences transport via connectivity, not by dictating atomic mass. The study design treats topology as an independent variable imposed on the system.
+- **Feasibility**: Reducing system size to N ≤ 100 atoms ensures the O(N^2) complexity of the Debye-Grüneisen model fits within the 7GB RAM and 45-minute per-realization constraints.
 
-## Decision Log
+## Risk Assessment
 
-| Decision | Rationale |
-|----------|-----------|
-| **HLA Green-Kubo Solver** | Full `phono3py` (anharmonic) is too resource-intensive for free-tier CI. HLA with mass disorder captures the essential physics of disorder-induced scattering and is CPU-tractable. It avoids the circularity of the previous "simplified EMA" proposal. |
-| **Synthetic Atomic Coordinates** | External datasets (Materials Project, Zenodo) do not contain "Small-World" or "Scale-Free" atomic networks; they contain physical crystals. To test the *topological* hypothesis, we must generate the networks. |
-| **FDR Correction** | Bonferroni is overly conservative for multiple metrics; FDR balances Type I/II error better for exploratory research. |
-| **Mass Disorder Approximation** | Mass disorder is the dominant scattering mechanism in disordered alloys. Using HLA with mass disorder provides a physically grounded, CPU-tractable alternative to full anharmonic calculations. |
+- **Risk**: Convergence failure in solver.
+  - *Mitigation*: Retry logic (multiple attempts) with adjusted solver parameters; exclude failed runs and log rate (target <5%).
+- **Risk**: Disconnected graphs at low cutoffs.
+  - *Mitigation*: Automatic cutoff sweep (from a baseline to an elevated multiplier) and exclusion of invalid realizations.
+- **Risk**: Collinearity in metrics (e.g., degree variance vs. spectral gap).
+  - *Mitigation*: Report descriptive statistics and acknowledge collinearity; do not claim independent causal effects.
+- **Risk**: Spec Contradictions.
+  - *Mitigation*: The plan explicitly flags contradictions with FR-006, FR-009, and Assumptions in the spec.md. The implemented methodology (Debye-Grüneisen, composition-based mass) is scientifically valid and feasible, while the spec requirements are not. The spec requires amendment.

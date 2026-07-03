@@ -25,6 +25,11 @@ properties:
   seed:
     type: "integer"
     description: "Random seed used for generation."
+  composition:
+    type: "object"
+    description: "Chemical composition of the realization (e.g., Si/Ge ratio)."
+    additionalProperties:
+      type: "number"
   metrics:
     type: "object"
     description: "Topological metrics calculated for the graph."
@@ -57,6 +62,7 @@ required:
   - "edge_count"
   - "cutoff_factor"
   - "seed"
+  - "composition"
   - "metrics"
   - "is_valid"
 additionalProperties: false

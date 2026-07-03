@@ -3,64 +3,69 @@
 ## Prerequisites
 
 - Python 3.11+
-- `pip` or `poetry`
-- 2 CPU cores, 7GB RAM (GitHub Actions free-tier compatible)
+- `pip`
+- GitHub Actions runner (or local environment with 2+ CPU cores, 7 GB RAM).
 
 ## Installation
 
-1. **Clone and Setup**:
+1. **Clone the repository**:
    ```bash
    git clone <repo-url>
    cd projects/PROJ-236-exploring-the-influence-of-network-topol
-   python -m venv venv
-   source venv/bin/activate  # Windows: venv\Scripts\activate
-   pip install -r requirements.txt
    ```
 
-2. **Verify Environment**:
+2. **Create virtual environment**:
    ```bash
-   python -c "import networkx, scikit_learn, numpy; print('All dependencies loaded.')"
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+3. **Install dependencies**:
+   ```bash
+   pip install -r code/requirements.txt
    ```
 
 ## Running the Pipeline
 
-The pipeline is executed in three sequential steps.
-
 ### Step 1: Generate Network Ensembles
-Generates Small-World, Scale-Free, and Random networks with sensitivity analysis on distance cutoffs.
 ```bash
-python code/generate_networks.py --config code/config.yaml
+python code/generation/network_generator.py --type all --count 100 --seed 42 --n-nodes 100
 ```
-- **Output**: `data/processed/ensembles.jsonl`
-- **Expected**: ~300 valid realizations (100 per topology).
+*Output*: `data/processed/networks/` (includes JSON files with metadata as top-level keys).
 
-### Step 2: Compute Thermal Conductivity
-Calculates effective thermal conductivity using the simplified anharmonic solver.
+### Step 2: Cutoff Sensitivity Analysis (Optional)
 ```bash
-python code/compute_transport.py --input data/processed/ensembles.jsonl --output data/results/transport_results.csv
+python code/generation/sensitivity_sweep.py --min 1.0 --max 2.0 --step 0.1
 ```
-- **Output**: `data/results/transport_results.csv`
-- **Expected**: Runtime < 45 mins per realization; total < 6 hours.
+*Output*: `data/results/sensitivity/`
 
-### Step 3: Analyze Correlations
-Performs regression, bootstrap resampling, and multiple-comparison correction.
+### Step 3: Compute Thermal Conductivity
 ```bash
-python code/analyze_correlations.py --networks data/processed/ensembles.jsonl --transport data/results/transport_results.csv --output data/results/correlation_analysis.json
+python code/transport/solver.py --input data/processed/networks/ --mode cpu
 ```
-- **Output**: `data/results/correlation_analysis.json`
-- **Expected**: JSON with correlation stats, p-values, and CIs.
+*Output*: `data/processed/transport/results.csv`
+
+### Step 4: Statistical Analysis
+```bash
+python code/analysis/regressor.py --input data/processed/transport/results.csv --bootstrap 1000
+```
+*Output*: `data/results/correlations/analysis_report.json`
+
+### Step 5: Visualize Results
+```bash
+python code/analysis/visualizer.py --input data/results/correlations/analysis_report.json --output figures/
+```
 
 ## Validation
 
-Run the test suite to ensure correctness:
+Run unit tests to verify network generation and solver stability:
 ```bash
-pytest tests/ -v --cov=code
+pytest tests/unit/
 ```
-- **Pass Criteria**: All unit tests pass; coverage > 80%.
-- **Contract Test**: `pytest tests/contract/` validates output schemas against `contracts/*.schema.yaml`.
 
 ## Troubleshooting
 
-- **Disconnected Graphs**: If <95% of realizations are valid, increase `cutoff_factor` in `config.yaml` (e.g., from 1.5 to 1.8).
-- **Convergence Failure**: If >5% of transport calculations fail, check `simulation_config.yaml` for tighter convergence criteria or increase `max_retries`.
-- **Memory Error**: Ensure no large datasets are loaded into memory; use `pandas.read_csv(..., chunksize=...)` if needed (not expected for N=300).
+- **Convergence Failure**: Check `simulation_config.yaml` for time step adjustments.
+- **Disconnected Graphs**: Increase `cutoff_factor` in `network_generator.py` arguments.
+- **Memory Error**: Reduce ensemble count or atom count per realization (currently capped at 100).
+- **Spec Contradiction**: Note that the plan uses Debye-Grüneisen approximation instead of `phono3py` and composition-based mass instead of mass-by-degree mapping.

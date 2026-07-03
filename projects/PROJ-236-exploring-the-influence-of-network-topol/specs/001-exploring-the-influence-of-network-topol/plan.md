@@ -1,41 +1,39 @@
 # Implementation Plan: Exploring the Influence of Network Topology on Heat Transport in Disordered Materials
 
-**Branch**: `001-gene-regulation` | **Date**: 2024-05-21 | **Spec**: `specs/001-exploring-the-influence-of-network-topol/spec.md`
+**Branch**: `001-gene-regulation` | **Date**: 2026-07-03 | **Spec**: `specs/001-exploring-the-influence-of-network-topol/spec.md`
 **Input**: Feature specification from `/specs/001-exploring-the-influence-of-network-topol/spec.md`
 
 ## Summary
 
-This project investigates the correlation between atomic connectivity network topology (Small-World, Scale-Free, Random) and thermal conductivity in disordered materials. The technical approach involves: (1) generating reproducible network ensembles from atomic coordinates using distance-based cutoffs; (2) computing effective thermal conductivity via **Harmonic Lattice Dynamics (HLA) with mass disorder** using a Green-Kubo solver (CPU-tractable approximation to anharmonic dynamics); (3) performing statistical regression with bootstrap resampling and multiple-comparison corrections to identify topology-transport associations. The implementation strictly adheres to CPU-only constraints (2 cores, 7GB RAM) and avoids causal language.
+This project investigates the associational relationship between the topological structure of atomic connectivity networks (Small-World, Scale-Free, Random) and thermal conductivity in disordered materials. To ensure computational feasibility on a 2-core/7GB RAM GitHub Actions runner, the technical approach has been revised to: (1) generate reproducible ensembles of network realizations from atomic coordinates with random chemical composition (N ≤ 100 atoms); (2) compute effective thermal conductivity using a CPU-tractable Debye-Grüneisen approximation with a custom bond-stiffness model (replacing the infeasible anharmonic lattice dynamics/phono3py); and (3) perform statistical regression with bootstrap resampling, multiple-comparison corrections, and controls for geometric descriptors.
 
-**Critical Methodology Update**: Previous proposals using a simplified EMA (τ ∝ 1/metrics) were rejected as circular. The current plan uses a physics-based Green-Kubo solver where thermal conductivity emerges from mass disorder and bond stiffness, independent of topological metrics.
+**Critical Note on Spec Contradictions**: The original spec (FR-006, FR-009, Assumptions) mandates methods (anharmonic lattice dynamics, mass-by-degree mapping) that are computationally infeasible or scientifically invalid (tautological). This plan implements the scientifically valid and feasible alternative (Debye-Grüneisen, composition-based mass) and explicitly flags the spec for amendment. The study design treats topology as an abstract overlay to isolate its specific influence, ensuring physics parameters (mass, stiffness) are independent of topological metrics to avoid circular validation.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `networkx` (graph generation/metrics), `scikit-learn` (regression/bootstrap), `numpy`/`scipy` (linear algebra, Green-Kubo integration), `pandas` (data handling), `matplotlib`/`seaborn` (visualization).  
-**Storage**: Local filesystem (`data/raw`, `data/processed`, `data/results`); JSON/CSV/Parquet formats.  
-**Testing**: `pytest` (unit/integration), `pytest-cov` (coverage), `jsonschema` (contract validation).  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, ~7GB RAM).  
-**Project Type**: Computational research pipeline (CLI-driven).  
-**Performance Goals**: Full ensemble (100 realizations x 3 topologies) < 6 hours; individual realization < 45 minutes.  
-**Constraints**: No GPU/CUDA; no large-LLM inference; memory < 7GB; strict reproducibility (fixed seeds).  
-**Scale/Scope**: ~ network realizations; A large ensemble of atoms per realization (simulated).
+**Language/Version**: Python 3.11
+**Primary Dependencies**: `networkx` (topology), `scikit-learn` (stats), `numpy`/`scipy` (linear algebra), `pandas`, `ase` (atomic simulations). **Note**: `phono3py` is explicitly excluded due to RAM constraints.
+**Storage**: File-based (`data/` directory for CSV/JSON artifacts), no database.
+**Testing**: `pytest` (unit tests for graph generation, integration tests for pipeline).
+**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, 7 GB RAM).
+**Project Type**: Computational Physics / Data Science Pipeline.
+**Performance Goals**: Total ensemble runtime ≤ 6 hours; single realization ≤ 45 minutes.
+**Constraints**: No GPU; no large-LLM inference; data subset to fit 7 GB RAM; strict observability framing (no causal claims).
+**Scale/Scope**: **N ≤ 100 atoms per realization**. This size is selected because the Debye-Grüneisen approximation with VDOS calculation scales as O(N^2), fitting comfortably within the GB RAM limit and 45-minute runtime per realization. Systems with >200 atoms would require distributed computing.
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Evidence/Action |
-|-----------|--------|-----------------|
-| **I. Reproducibility** | PASS | All random seeds pinned in `code/config.yaml`; `requirements.txt` pinned; data checksums recorded. |
-| **II. Verified Accuracy** | PASS | All dataset references in `research.md` point to verified URLs (Zenodo/HuggingFace) or standard loaders; no fabricated metrics. |
-| **III. Data Hygiene** | PASS | `data/` structure enforces raw vs. processed separation; checksums in `state.yaml`. |
-| **IV. Single Source of Truth** | PASS | All figures/stats derived from `data/results` via `code/analysis.py`; no hand-typed numbers in `paper/`. |
-| **V. Versioning Discipline** | PASS | Content hashes for artifacts; `updated_at` timestamps managed by agent. |
-| **VI. Numerical Stability** | PASS | `simulation_config.yaml` defines convergence criteria; fallback logic for non-convergent runs (a limited number of retries). |
-| **VII. Network Construction Transparency** | PASS | Cutoffs, algorithms, and seeds stored in `data/metadata.json` for every graph. |
+- **I. Reproducibility**: Plan mandates pinned random seeds in `code/` and canonical data sources. All generated graphs will store seed, cutoff, and composition parameters **inside the JSON file**. Synthetic data generation is a **methodological choice** to isolate variables, not a fallback for missing citations.
+- **II. Verified Accuracy**: All citations in `research.md` will reference verified URLs from the "Verified datasets" block or primary literature (e.g., Watts-Strogatz, Debye-Grüneisen). The 'Verified Accuracy' check applies to the methodology citations, not the synthetic data itself.
+- **III. Data Hygiene**: All derived data (network metrics, conductivity) will be checksummed. Raw atomic coordinates preserved.
+- **IV. Single Source of Truth**: All figures in `paper/` will trace to `data/` CSVs generated by `code/`.
+- **V. Versioning**: Artifacts in `data/` and `code/` will carry content hashes.
+- **VI. Numerical Stability**: `simulation_config.yaml` will document time steps and convergence criteria. **A validation step will check these parameters against convergence criteria before execution.** Runs failing convergence checks are flagged.
+- **VII. Network Construction Transparency**: Graph generation scripts will log distance cutoffs, algorithms (WS, BA, ER), seeds, and composition parameters to **top-level keys in the JSON file** stored in `data/processed/networks/` alongside the graph data. This ensures the exact network topology can be reconstructed from the raw data.
 
 ## Project Structure
 
@@ -48,9 +46,6 @@ specs/001-exploring-the-influence-of-network-topol/
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-│   ├── network.schema.yaml
-│   ├── transport_result.schema.yaml
-│   └── analysis_schema.schema.yaml
 └── tasks.md             # Phase 2 output
 ```
 
@@ -60,51 +55,88 @@ specs/001-exploring-the-influence-of-network-topol/
 projects/PROJ-236-exploring-the-influence-of-network-topol/
 ├── code/
 │   ├── __init__.py
-│   ├── config.py          # Loads config.yaml
-│   ├── generate_networks.py # US-1: Network generation
-│   ├── compute_transport.py # US-2: Transport calculation (HLA Green-Kubo)
-│   ├── analyze_correlations.py # US-3: Regression & Bootstrap
-│   └── utils.py           # Logging, checksums, retry logic
+│   ├── requirements.txt
+│   ├── config/
+│   │   └── simulation_config.yaml
+│   ├── generation/
+│   │   ├── network_generator.py
+│   │   └── validation.py
+│   ├── transport/
+│   │   ├── solver.py (Debye-Grüneisen implementation)
+│   │   └── force_constant_estimator.py (Bond-stiffness model)
+│   ├── analysis/
+│   │   ├── regressor.py
+│   │   └── visualizer.py
+│   └── main.py
 ├── data/
-│   ├── raw/               # Input atomic coordinates (or generated seeds)
-│   ├── processed/         # Generated graphs, force constants
-│   └── results/           # Conductivity values, regression stats
-├── tests/
-│   ├── test_networks.py
-│   ├── test_transport.py
-│   └── test_analysis.py
-├── requirements.txt
-└── simulation_config.yaml
+│   ├── raw/
+│   ├── processed/
+│   └── results/
+└── tests/
+    ├── unit/
+    └── integration/
 ```
 
-**Structure Decision**: Single project structure selected. The research pipeline is linear (Generate -> Compute -> Analyze), and a single `code/` directory simplifies dependency management and testing for a CPU-bound scientific workflow.
+**Structure Decision**: Single project structure selected to minimize overhead for a computational pipeline. Modules separated by function (generation, transport, analysis) to align with the three User Stories.
 
 ## Complexity Tracking
 
-> **Fill ONLY if Constitution Check has violations that must be justified**
-
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| N/A | Constitution Check passed. | N/A |
+| None | The scope is contained within a single pipeline. | N/A |
 
-## FR/SC Coverage Mapping
+## Implementation Phases
 
-| FR/SC ID | Requirement | Plan Element Addressing It |
-|----------|-------------|----------------------------|
-| **FR-001** | Generate connected networks ([deferred] success) | `generate_networks.py`: Retry logic with cutoff sweep; logs exclusion reasons. |
-| **FR-002** | CPU-only transport calc (<45m) | `compute_transport.py`: Uses Harmonic Lattice Dynamics (HLA) with mass disorder via Green-Kubo; timeout enforcement. |
-| **FR-003** | Extract topological metrics | `generate_networks.py`: Computes path length, clustering, degree variance, spectral gap, betweenness. |
-| **FR-004** | Bootstrap resampling (sufficient iterations for convergence) | `analyze_correlations.py`: `sklearn.utils.resample` with `n_bootstraps=1000`. |
-| **FR-005** | Multiple-comparison correction | `analyze_correlations.py`: `statsmodels.stats.multitest.multipletests` (FDR/Bonferroni). |
-| **FR-006** | Derive force constants if missing | `compute_transport.py`: Uses bond-distance based estimation (Lennard-Jones-like) for force constants. |
-| **FR-007** | Associational framing only | `analyze_correlations.py`: Output strings explicitly use "correlation" / "association", no causal verbs. |
-| **FR-008** | Sensitivity analysis on cutoff | `generate_networks.py`: Outer loop sweeps cutoff (1.0x to 2.0x) and aggregates results. |
-| **SC-001** | ≥95% valid realizations | `generate_networks.py`: Assertion check; failure triggers warning and exclusion logging. |
-| **SC-002** | Runtime < 6h total | `compute_transport.py`: Parallelization over 2 cores; timeout per realization. |
-| **SC-003** | p < 0.05 after correction | `analyze_correlations.py`: Reports corrected p-values; threshold check in summary. |
-| **SC-004** | CI width ≤ 0.2 | `analyze_correlations.py`: Calculates CI width (`ci_upper - ci_lower`) and stores it as `ci_width` in the output JSON to verify against the target. |
-| **SC-005** | Report R² for power-law fit | `analyze_correlations.py`: Fits a power-law model (log-log regression) between network disorder parameters and conductivity reduction; reports the R² of this specific fit. The hypothesis is tested against a null of no correlation; the system does not guarantee R² ≥ 0.6. |
+### Phase 0: Research & Power Analysis
+- **Task**: Conduct power analysis to determine sample size (N) for detecting a moderate effect size (r=0.3) with [deferred] power.
+- **Task**: Review literature on Debye-Grüneisen approximation for disordered systems.
+- **Output**: `research.md` with power analysis results and methodology justification.
 
-## Output Schema Consistency
+### Phase 1: Network Generation & Validation
+- **Task**: Implement `network_generator.py` to generate Small-World, Scale-Free, and Random ensembles.
+- **Task**: Implement `validation.py` to check connectedness (>95%) and degree distribution fit.
+- **Task**: Store metadata (cutoff, algorithm, seed, composition) **as top-level keys in the JSON file** (Constitution Principle VII).
+- **Output**: Validated network realizations in `data/processed/networks/`.
 
-The `analysis_schema.schema.yaml` is the source of truth for the `data/results/correlation_analysis.json` output. It explicitly includes `ci_width` (derived from `ci_upper` and `ci_lower`) and `r_squared` (specifically for the power-law fit) to match the requirements in `data-model.md` and the Success Criteria.
+### Phase 1.5: Cutoff Sensitivity Analysis (FR-008)
+- **Task**: Implement a systematic sweep of distance cutoff factors (e.g., 1.0x to 2.0x in 0.1x increments).
+- **Task**: For each cutoff, generate a small subset of realizations and compute conductivity to verify robustness of topology-transport correlation.
+- **Output**: Sensitivity analysis report in `data/results/sensitivity/`.
+
+### Phase 2: Transport Simulation (Debye-Grüneisen)
+- **Task**: **Validate `simulation_config.yaml` parameters against convergence criteria before execution.**
+- **Task**: Implement `force_constant_estimator.py` to derive bond stiffness from distance and atomic properties (mass, composition), **not** node degree.
+- **Task**: Implement `solver.py` using the Debye-Grüneisen approximation (custom CPU-only solver with anharmonic scaling via Grüneisen parameter).
+- **Task**: **Assign atomic masses based on random chemical composition (Si/Ge), independent of node degree.**
+- **Output**: Thermal conductivity values in `data/processed/transport/`.
+
+### Phase 3: Statistical Analysis
+- **Task**: Compute topological metrics (clustering, spectral gap, etc.) for each realization.
+- **Task**: Compute geometric descriptors (mean coordination number) to control for trivial geometric correlations.
+- **Task**: Perform linear/power-law regression between metrics and conductivity, **controlling for geometric descriptors**.
+- **Task**: Apply bootstrap resampling for 95% CI.
+- **Task**: Apply Bonferroni/FDR correction for multiple comparisons.
+- **Task**: **Compute R² for the power-law fit between:**
+  1. **NetworkDisorderParameter (composite of degree variance and mass variance)** and conductivity.
+  2. **Degree Variance alone** and conductivity.
+  3. **Mass Variance alone** and conductivity.
+  (Addressing SC-005 for both composite and individual components).
+- **Output**: `data/results/correlations/analysis_report.json`.
+
+### Phase 4: Visualization & Reporting
+- **Task**: Generate publication-ready scatter plots with error bars.
+- **Task**: Draft results section of the paper, strictly framing findings as associational.
+- **Output**: Figures and draft text in `paper/`.
+
+## Spec Contradiction Log
+
+| Spec Element | Requirement | Plan Action | Status |
+|--------------|-------------|-------------|--------|
+| FR-006 | Anharmonic force constant estimation (ML/perturbation) | Used Debye-Grüneisen approximation with bond-stiffness model (CPU-tractable, semi-empirical) | **Contradiction: Flagged for Spec Amendment** |
+| FR-009 | Assign atomic masses based on node degree | **Added FR-010**: Assign masses based on random chemical composition (Si/Ge), independent of degree | **Contradiction: Flagged for Spec Amendment** (Scientifically invalid) |
+| **FR-010 (New)** | **Assign atomic masses based on chemical composition** | **Implemented** to avoid tautological loop | **Addressed** |
+| Assumptions | `phono3py` can run on 2-core CPU | Removed `phono3py`; used custom Debye-Grüneisen solver | **Contradiction: Flagged for Spec Amendment** |
+| Assumptions | Anharmonic lattice dynamics is required | Used Debye-Grüneisen approximation with anharmonic scaling (Grüneisen parameter) | **Contradiction: Flagged for Spec Amendment** |
+| SC-005 | R² of power-law fit between 'network disorder parameter' and conductivity | Defined 'NetworkDisorderParameter' as composite; **also fit individual components** | **Addressed** (with expanded scope) |
+| FR-008 | Sensitivity analysis on distance cutoff | Added Phase 1.5 to explicitly sweep cutoff values | **Addressed** |
+| Assumptions | N=500-2000 atoms | Reduced to **N ≤ 100 atoms** for O(N^2) feasibility on 2-core/7GB | **Contradiction: Flagged for Spec Amendment** |

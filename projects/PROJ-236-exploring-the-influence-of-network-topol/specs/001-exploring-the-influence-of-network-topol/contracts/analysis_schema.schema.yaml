@@ -1,49 +1,49 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "CorrelationAnalysis Schema"
-description: "Schema for the statistical analysis results, including power-law fit metrics."
+title: "CorrelationAnalysis"
+description: "Schema for statistical correlation analysis results"
 type: "object"
 properties:
   metric_name:
     type: "string"
-    description: "Name of the topological metric (e.g., 'clustering_coefficient')."
+    description: "Name of the topological metric analyzed"
   topology_type:
     type: "string"
-    description: "Subset of topology or 'all'."
-  slope:
+    enum:
+      - "small_world"
+      - "scale_free"
+      - "random"
+    description: "Topology type for this analysis"
+  correlation_coefficient:
     type: "number"
-    description: "Regression slope coefficient."
-  intercept:
+    description: "Pearson correlation coefficient (r)"
+  p_value:
     type: "number"
-    description: "Regression intercept."
-  correlation_r:
-    type: "number"
-    description: "Pearson correlation coefficient."
-  p_value_raw:
-    type: "number"
-    description: "Raw p-value before correction."
+    minimum: 0
+    maximum: 1
+    description: "Raw p-value from regression"
   p_value_corrected:
     type: "number"
-    description: "P-value after FDR or Bonferroni correction."
+    minimum: 0
+    maximum: 1
+    description: "P-value after FDR correction"
   ci_lower:
     type: "number"
-    description: "Lower bound of the 95% bootstrap confidence interval."
+    description: "Lower bound of 95% bootstrap confidence interval"
   ci_upper:
     type: "number"
-    description: "Upper bound of the 95% bootstrap confidence interval."
-  ci_width:
-    type: "number"
-    description: "Width of the 95% bootstrap confidence interval (ci_upper - ci_lower). Required for SC-004."
+    description: "Upper bound of 95% bootstrap confidence interval"
   r_squared:
     type: "number"
-    description: "R-squared value for the power-law fit between network disorder parameters and conductivity reduction. Required for SC-005."
+    minimum: 0
+    maximum: 1
+    description: "Coefficient of determination for the fit"
 required:
-  - metric_name
-  - topology_type
-  - slope
-  - p_value_raw
-  - p_value_corrected
-  - ci_lower
-  - ci_upper
-  - ci_width
-  - r_squared
+  - "metric_name"
+  - "topology_type"
+  - "correlation_coefficient"
+  - "p_value"
+  - "p_value_corrected"
+  - "ci_lower"
+  - "ci_upper"
+  - "r_squared"
 additionalProperties: false

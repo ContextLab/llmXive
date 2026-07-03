@@ -17,8 +17,8 @@ The researcher needs to generate a reproducible ensemble of atomic connectivity 
 
 **Acceptance Scenarios**:
 
-1. **Given** a set of atomic coordinates for a disordered alloy, **When** the system applies a default distance cutoff of a multiple of the nearest-neighbor distance, **Then** the resulting network realization must be connected with a clustering coefficient within 5% of the theoretical Watts-Strogatz target for Small-World ensembles.
-2. **Given** a request to generate a Scale-Free ensemble, **When** the system applies the Barabási-Albert algorithm with m=2, **Then** The median exponent of the ensemble degree distribution must fall within the typical range for scale-free networks across multiple realizations..
+1. **Given** a set of atomic coordinates for a disordered alloy, **When** the system applies a default distance cutoff of a multiple of the nearest-neighbor distance, **Then** the resulting network realization must be connected with a clustering coefficient within 5% of the theoretical Watts-Strogatz target for Small-World ensembles. (Justification: This tolerance ensures the generated network is sufficiently close to the theoretical model for comparative analysis; deviations require re-tuning.)
+2. **Given** a request to generate a Scale-Free ensemble, **When** the system applies the Barabási-Albert algorithm with m=2, **Then** the median exponent of the ensemble degree distribution must fall within the theoretical range 2 < γ < 3 across multiple realizations. (Note: This is a unit test for algorithmic correctness.)
 3. **Given** a set of atomic coordinates, **When** the system generates a Random (Erdős-Rényi) graph realization matched to the mean degree of the target structure, **Then** the average path length must be within 10% of the theoretical expectation for N nodes and p probability.
 
 ### User Story 2 - Compute Phonon Transport and Thermal Conductivity (Priority: P2)
@@ -51,7 +51,7 @@ The researcher needs to perform statistical regression analyses between network 
 
 ### Edge Cases
 
-- **Disconnected Graphs**: What happens if the distance cutoff results in a disconnected network (isolated atoms)? The system must either retry with a larger cutoff (up to 2.0×) or flag the realization as invalid and exclude it from the ensemble, logging the exclusion reason.
+- **Disconnected Graphs**: What happens if the distance cutoff results in a disconnected network (isolated atoms)? The system must retry with a larger cutoff (up to 2.0×) or flag the realization as invalid and exclude it from the ensemble, logging the exclusion reason.
 - **Convergence Failure**: How does the system handle an anharmonic dynamics calculation that fails to converge? The system must catch the exception, retry up to 3 times with adjusted solver parameters, and if it still fails, exclude the realization and report the failure rate to ensure it remains < 5% of the total ensemble.
 - **Zero Variance**: What if a network metric (e.g., degree variance) is constant across the ensemble? The system must detect zero variance, skip the regression for that specific metric, and log a warning rather than attempting a division-by-zero operation.
 
@@ -59,16 +59,15 @@ The researcher needs to perform statistical regression analyses between network 
 
 ### Functional Requirements
 
-- **FR-001**: System MUST generate atomic connectivity network realizations using a default distance-based cutoff relative to the nearest-neighbor distance., ensuring the graph is connected for at least 95% of realizations (See US-1).
+- **FR-001**: System MUST generate atomic connectivity network realizations using a default distance-based cutoff relative to the nearest-neighbor distance, ensuring the graph is connected for at least 95% of realizations after attempting up to 2.0× the default cutoff (See US-1).
 - **FR-002**: System MUST compute effective thermal conductivity using anharmonic lattice dynamics in CPU-only mode, completing each network realization within 45 minutes on a 2-core runner (See US-2).
 - **FR-003**: System MUST extract topological metrics including average path length, clustering coefficient, degree variance, spectral gap, and betweenness centrality distribution for every network realization (See US-3).
-- **FR-004**: System MUST perform bootstrap resampling with at least 1000 iterations to estimate confidence intervals
-
-The research question, method, and references remain unchanged as per the planning document requirements. for all correlation coefficients between network metrics and thermal conductivity (See US-3).
+- **FR-004**: System MUST perform bootstrap resampling with at least 1000 iterations to estimate confidence intervals for all correlation coefficients between network metrics and thermal conductivity, and report the th and th percentiles (See US-3).
 - **FR-005**: System MUST apply a multiple-comparison correction (e.g., Bonferroni or FDR) to p-values when testing more than one network metric against conductivity to control family-wise error (See US-3).
 - **FR-006**: System MUST derive effective force constants via an anharmonic force constant estimation method (e.g., machine-learned potentials or perturbation theory) if explicit force constants are missing from the input dataset (See US-2).
 - **FR-007**: System MUST frame all reported statistical relationships as ASSOCIATIONAL and avoid causal language (e.g., "causes," "drives") in the final output, as the design is observational (See US-3).
 - **FR-008**: System MUST perform a sensitivity analysis on the distance cutoff by sweeping values across a low-to-moderate range in regular increments to verify the robustness of the topology-transport correlation (See US-1).
+- **FR-009**: System MUST map abstract topological graphs to physical atomic configurations by assigning atomic masses based on node degree and deriving force constants using a bond-stiffness model that scales with edge weight and atomic properties (See US-2).
 
 ### Key Entities
 
@@ -81,15 +80,15 @@ The research question, method, and references remain unchanged as per the planni
 ### Measurable Outcomes
 
 - **SC-001**: The proportion of valid (connected) network realizations is measured against a target of ≥ 95% (See FR-001, US-1).
-- **SC-002**: Total runtime for one full ensemble is measured against the free-tier CPU limit (currently the standard maximum duration). (See FR-002, US-2).
-- **SC-003**: The statistical significance of the correlation between the primary topology metric (e.g., clustering coefficient) and thermal conductivity is measured against the threshold of p < 0.05 after multiple-comparison correction (See FR-005, US-3).
+- **SC-002**: Total runtime for one full ensemble is measured against a limit of ≤ 6 hours ([deferred] seconds) (See FR-002, US-2).
+- **SC-003**: The statistical significance of the correlation between the primary topology metric (e.g., clustering coefficient) and thermal conductivity is measured and reported as a p-value (See FR-005, US-3).
 - **SC-004**: The width of the 95% bootstrap confidence interval for the correlation slope is measured against a target of ≤ 0.2 to ensure precision (See FR-004, US-3).
-- **SC-005**: The system MUST calculate and report the R² value of the power-law fit between network disorder parameters and conductivity reduction; the research hypothesis is that R² ≥ 0.6 (See US-3).
+- **SC-005**: The system MUST calculate and report the R² value of the power-law fit between network disorder parameters and conductivity reduction, and perform a statistical test against the null hypothesis (R² = 0) (See US-3).
 
 ## Assumptions
 
-- **Assumption about data availability**: The public datasets (Zenodo, HuggingFace, Materials Project) contain disordered alloy structures with complete atomic positions; if force constants are missing, the assumption is that they can be approximated via an anharmonic force constant estimation method based on bond distances.
-- **Assumption about computational feasibility**: The `phono3py` or `netph` packages can be run in a CPU-only, non-GPU mode on systems with ≤ 5000 atoms without requiring 8-bit quantization or CUDA acceleration.
+- **Assumption about data availability**: The public datasets (Zenodo, HuggingFace, Materials Project) contain disordered alloy structures with complete atomic positions; if force constants are missing, the assumption is that they can be approximated via a bond-stiffness model based on coordination number and atomic mass.
+- **Assumption about computational feasibility**: The `phono3py` or `netph` packages can be run in a CPU-only, non-GPU mode on systems with ≤ 2000 atoms without requiring 8-bit quantization or CUDA acceleration. Systems with larger atom counts require distributed computing or longer time allowances.
 - **Assumption about statistical power**: A sample size of network realizations per ensemble type is targeted to achieve a statistical power ≥ 0.80 to detect a moderate effect size (r ≈ moderate), given the expected variance in disordered systems.
 - **Assumption about methodology**: In disordered materials, anharmonicity is the dominant mechanism for thermal resistance; thus, the use of anharmonic lattice dynamics is required to capture finite, diffusive transport, justifying the methodology over harmonic approximations.
 - **Assumption about threshold justification**: The default distance cutoff of a multiple of the nearest-neighbor distance is based on standard community practices for defining nearest-neighbor bonds in disordered materials; a sensitivity analysis will sweep this cutoff over a range of values to verify robustness.
