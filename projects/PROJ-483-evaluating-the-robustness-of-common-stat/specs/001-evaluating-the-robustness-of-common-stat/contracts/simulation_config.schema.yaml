@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SimulationConfiguration"
+description: "Configuration for a single simulation run including dataset, test, and dependency parameters."
+type: "object"
+properties:
+  dataset_id:
+    type: "string"
+    description: "Unique identifier for the dataset (e.g., 'uci_har_test')."
+  source_url:
+    type: "string"
+    description: "Verified URL for the dataset source."
+    pattern: "^https://.*"
+  test_type:
+    type: "string"
+    enum:
+      - "t_test"
+      - "anova"
+      - "chi_squared"
+    description: "The statistical test to perform."
+  dependency_structure:
+    type: "string"
+    enum:
+      - "temporal"
+      - "hierarchical"
+      - "spatial"
+    description: "The type of non-independence to inject."
+  dependency_strength:
+    type: "number"
+    description: "The strength parameter (r) for the dependency injection."
+    minimum: 0.0
+    maximum: 1.0
+  null_hypothesis:
+    type: "boolean"
+    description: "If true, simulate Type I error; if false, simulate power."
+  replications:
+    type: "integer"
+    description: "Number of Monte Carlo replications."
+    minimum: 1
+  seed:
+    type: "integer"
+    description: "Random seed for reproducibility."
+required:
+  - "dataset_id"
+  - "source_url"
+  - "test_type"
+  - "dependency_structure"
+  - "dependency_strength"
+  - "null_hypothesis"
+  - "replications"
+  - "seed"
+additionalProperties: false

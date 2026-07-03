@@ -1,0 +1,60 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SimulationResult"
+description: "Aggregated results from a simulation run."
+type: "object"
+properties:
+  run_id:
+    type: "string"
+    format: "uuid"
+    description: "Unique identifier for the run."
+  dataset_id:
+    type: "string"
+    description: "Reference to the dataset used."
+  test_type:
+    type: "string"
+    enum:
+      - "t_test"
+      - "anova"
+      - "chi_squared"
+  dependency_structure:
+    type: "string"
+    enum:
+      - "temporal"
+      - "hierarchical"
+      - "spatial"
+  dependency_strength:
+    type: "number"
+  observed_error_rate:
+    type: "number"
+    description: "Observed Type I error rate or statistical power."
+    minimum: 0.0
+    maximum: 1.0
+  ci_lower_95:
+    type: "number"
+    description: "Lower bound of the 95% Clopper-Pearson confidence interval."
+    minimum: 0.0
+    maximum: 1.0
+  ci_upper_95:
+    type: "number"
+    description: "Upper bound of the 95% Clopper-Pearson confidence interval."
+    minimum: 0.0
+    maximum: 1.0
+  logistic_coeffs:
+    type: "object"
+    description: "Coefficients from the logistic regression model."
+    additionalProperties: true
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of the run completion."
+required:
+  - "run_id"
+  - "dataset_id"
+  - "test_type"
+  - "dependency_structure"
+  - "dependency_strength"
+  - "observed_error_rate"
+  - "ci_lower_95"
+  - "ci_upper_95"
+  - "timestamp"
+additionalProperties: false

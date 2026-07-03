@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-09T09:38:59.562576Z'
-current_stage: project_initialized
+current_stage: analyzed
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-483-evaluating-the-robustness-of-common-stat
-last_run_id: 361c10aa-fed5-4521-89ed-b67f2351b731
+last_run_id: 6fcf44d1-9e60-45fe-b302-a62e3228ef69
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat
 title: Evaluating the Robustness of Common Statistical Tests to Non-Independence in
   Public Datasets
-updated_at: '2026-06-25T05:33:49.026947Z'
+updated_at: '2026-07-03T16:49:08.125167Z'

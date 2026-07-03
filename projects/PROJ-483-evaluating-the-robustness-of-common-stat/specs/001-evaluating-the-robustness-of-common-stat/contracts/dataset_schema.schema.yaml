@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "DatasetMetadata"
+description: "Metadata for a loaded dataset."
+type: "object"
+properties:
+  dataset_id:
+    type: "string"
+    description: "Unique identifier for the dataset."
+  source_url:
+    type: "string"
+    description: "Verified URL for the dataset source."
+    pattern: "^https://.*"
+  file_path:
+    type: "string"
+    description: "Relative path to the raw file."
+  checksum:
+    type: "string"
+    description: "SHA-256 checksum of the raw file."
+    pattern: "^[a-f0-9]{64}$"
+  sample_size:
+    type: "integer"
+    description: "Number of rows in the dataset."
+    minimum: 1
+  variable_types:
+    type: "object"
+    description: "Mapping of variable names to types."
+    additionalProperties:
+      type: "string"
+      enum:
+        - "continuous"
+        - "categorical"
+        - "mixed"
+required:
+  - "dataset_id"
+  - "source_url"
+  - "file_path"
+  - "checksum"
+  - "sample_size"
+  - "variable_types"
+additionalProperties: false
