@@ -132,7 +132,6 @@ T006 [P] Implement shared external memory buffer with `<MEMORY_ACTION>` token ha
 ? T012 [P] [US-1] {{claim:c_a5c2fb06}} (avogadro, https://physics.nist.gov/cgi-bin/cuu/Value?na)
   in `code/metrics/specialization.py` (FR-004)
 : 1
-"T014 [P] [US-1] Implement validation logic for metrics (\u226595% games produce metrics, SC-001) in `code/metrics/validator.py`": 2
 ? "T015 [US-1] Output `results_full.csv` with `game_id`, `specialization_index`, `retrieval_efficiency`,\
   \ `context_condition`, `agent_count` to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/`\
   \ for 1000 games [UNRESOLVED-CLAIM: c_1618f9ba \u2014 status=not_enough_info]"
@@ -376,7 +375,7 @@ T006 [P] Implement shared external memory buffer with `<MEMORY_ACTION>` token ha
   --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified
   --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified
   --> <!-- FAILED: unspecified -->'
-: 2
+: 1
 ? "T018 [US-2] {{claim:c_504902df}} [UNRESOLVED-CLAIM: c_92671d95 \u2014 status=refuted]\
   \ (2503.02686, https://arxiv.org/abs/2503.02686) in `code/run_experiment.py` <!--\
   \ FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified\
@@ -397,9 +396,6 @@ T006 [P] Implement shared external memory buffer with `<MEMORY_ACTION>` token ha
   \ limit over {128, 256, 512} [UNRESOLVED-CLAIM: c_f2510c1b \u2014 status=not_enough_info]\
   \ with performance curves output in `code/analysis/sensitivity.py` (FR-008)"
 : 1
-? "T023 [US-2] Generate power\u2011analysis report estimating detectable effect size\
-  \ (N={{claim:c_10d5c9c0}} per spec FR-009) in `code/analysis/power.py`"
-: 2
 ? "T024 [US-2] Flag \"Power limitation\" if estimated power < 0.70 [UNRESOLVED-CLAIM:\
   \ c_f9748e80 \u2014 status=not_enough_info] in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/power_analysis_report.md`\
   \ (SC-004)"
@@ -445,6 +441,13 @@ T006 [P] Implement shared external memory buffer with `<MEMORY_ACTION>` token ha
   requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED:
   unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED:
   unspecified --> <!-- FAILED: unspecified -->'
+: 1
+? 'T027 [US-3] Implement game simulation for agent counts 3, 5, 7 (800 games per config
+  per spec US-3) in `code/run_experiment.py` <!-- ATOMIZE: requested --> <!-- ATOMIZE:
+  requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED:
+  unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- FAILED:
+  unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE:
+  requested -->'
 : 1
 ? "T029 [P] [US-3] {{claim:c_9aceca76}} [UNRESOLVED-CLAIM: c_824a75ef \u2014 status=not_enough_info]\
   \ (Wikidata Q26876, https://www.wikidata.org/wiki/Q26876)"
@@ -742,10 +745,17 @@ T006 [P] Implement shared external memory buffer with `<MEMORY_ACTION>` token ha
   --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested
   --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->'
 : 1
+? "T035 [P] Run full pipeline on CI runner, record runtime/memory/disk [UNRESOLVED-CLAIM:\
+  \ c_23c17ce0 \u2014 status=not_enough_info] in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/`\
+  \ {{claim:c_e603cc7e}}, {{claim:c_61298537}} <!-- ATOMIZE: requested -->"
+: 1
 ? "T035 [P] Run full pipeline on CI runner, record runtime/memory/disk in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/`\
   \ to verify \u22646h, \u22647GB RAM, \u226414GB disk constraints [UNRESOLVED-CLAIM:\
   \ c_1cf7f1f8 \u2014 status=not_enough_info] <!-- ATOMIZE: requested -->"
 : 1
+? 'T035 [P] Run full pipeline on CI runner, record runtime/memory/disk in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/`
+  {{claim:c_e603cc7e}}, {{claim:c_61298537}} <!-- ATOMIZE: requested -->'
+: 2
 ? "T035 [P] Run full pipeline on CI runner, record runtime/memory/disk in `projects/PROJ-586-social-memory-networks-modeling-collecti/results/`\
   \ {{claim:c_e603cc7e}}, \u22647GB RAM, \u226414GB disk constraints [UNRESOLVED-CLAIM:\
   \ c_481e8f17 \u2014 status=not_enough_info] <!-- ATOMIZE: requested -->"

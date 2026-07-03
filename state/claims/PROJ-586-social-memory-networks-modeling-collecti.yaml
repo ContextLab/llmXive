@@ -6690,3 +6690,178 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-03T00:28:01Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: 3 data points limit power-law reliability in scaling analysis
+  claim_id: c_f4096f4e
+  context: Implementation for User Story 3, Task T030
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate scaling_plot.pdf with fitted power-law curves and explicit note
+    that 3 data points limit power-law reliability in projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_plot.pdf
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T00:48:23Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Record runtime, memory, and disk usage after running full pipeline on
+    CI runner
+  claim_id: c_b4683c7a
+  context: 'Phase 6: Polish & Cross-Cutting Concerns, Task T035'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run full pipeline on CI runner, record runtime/memory/disk in projects/PROJ-586-social-memory-networks-modeling-collecti/results/
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T00:48:58Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Base Agent abstraction uses CPU-only transformers opt-125m with float32
+    precision
+  claim_id: c_b7dd5678
+  context: 'Phase 2: Foundational, Task T005'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement base Agent abstraction using CPU-only transformers (opt-125m,
+    float32 precision)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T00:49:27Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Environment configuration uses seed 42 and device cpu
+  claim_id: c_cd1b5931
+  context: 'Phase 2: Foundational, Task T008'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Configure environment management (config.yaml with seed=42, device=cpu)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T00:49:58Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction applied to all family-wise hypothesis tests
+  claim_id: c_8128e8d3
+  context: 'Phase 4: User Story 2, Task T021'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_applied_to_all_family-wise_hypothesis
+  kind: entity_fact
+  raw_text: Apply Bonferroni correction to all family-wise hypothesis tests and report
+    corrected alpha
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T00:50:40Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps context-truncation token limits 128, 256,
+    and 512
+  claim_id: c_f6d180a4
+  context: 'Phase 4: User Story 2, Task T022'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply sensitivity analysis sweeping context-truncation token limit over
+    {128, 256, 512}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T00:51:13Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: No 8-bit or 4-bit quantization imports and no CUDA imports in Python
+    files
+  claim_id: c_0c6d3eef
+  context: 'Phase 6: Polish & Cross-Cutting Concerns, Task T032'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Remove all 8-bit/4-bit quantization imports, verify no CUDA imports in
+    all Python files
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T00:51:45Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Research notes include feedback from Turing, Rockmore, Kahneman, Krakauer,
+    Kandel, and West
+  claim_id: c_7248758a
+  context: 'Phase 6: Polish & Cross-Cutting Concerns, Task T034'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Research_notes_include_feedback_from_Turing,_Rockmore,_Kahne
+  kind: entity_fact
+  raw_text: Update research.md with reviewer feedback integration notes (Turing, Rockmore,
+    Kahneman, Krakauer, Kandel, West)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T00:52:32Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: produce plot of specialization index and retrieval efficiency versus
+    number of agents with fitted power-law exponent
+  claim_id: c_f4b74d8f
+  context: 'Phase 5: User Story 3 - Scaling Analysis Across Agent Populations (Priority:
+    P3) Goal: Investigate how the fidelity of collective remembering scales when the
+    number of agents varies across different group sizes. Independent Test: Run the
+    experiment for each specified agent count...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Produce_plot_of_specialization_index_and_retrieval_efficienc
+  kind: entity_fact
+  raw_text: "Run the experiment for each specified agent count and produce a plot\
+    \ of specialization index and retrieval efficiency versus number of agents, along\
+    \ with a fitted power\u2011law exponent."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T01:05:01Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Run full pipeline on CI runner recording runtime memory disk
+  claim_id: c_23c17ce0
+  context: 'Phase 6: Polish & Cross-Cutting Concerns. Task T035.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Run_full_pipeline_on_CI_runner_recording_runtime_memory_disk
+  kind: entity_fact
+  raw_text: Run full pipeline on CI runner, record runtime/memory/disk
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T01:18:36Z'

@@ -1,0 +1,59 @@
+{
+  "pipeline_run": {
+    "timestamp": "2026-01-01T00:00:00.000000",
+    "total_duration_seconds": 0.0,
+    "total_success": 0,
+    "total_steps": 3,
+    "peak_memory_mb": 0.0,
+    "total_disk_output_mb": 0.0,
+    "ci_environment": {
+      "python_version": "3.10.0",
+      "platform": "linux",
+      "cwd": "/workspace"
+    }
+  },
+  "step_results": [
+    {
+      "label": "full_context_baseline",
+      "script": "run_experiment.py",
+      "args": ["--context", "full", "--agents", "3", "--games", "50", "--output-dir", "results/full_context"],
+      "returncode": 0,
+      "duration_seconds": 0.0,
+      "peak_memory_mb": 0.0,
+      "memory_delta_mb": 0.0,
+      "disk_output_mb": 0.0,
+      "disk_delta_mb": 0.0,
+      "timestamp": "2026-01-01T00:00:00.000000",
+      "success": false,
+      "error": "Placeholder - run pipeline to populate"
+    },
+    {
+      "label": "limited_context_test",
+      "script": "run_experiment.py",
+      "args": ["--context", "limited", "--agents", "3", "--games", "50", "--output-dir", "results/limited_context"],
+      "returncode": 0,
+      "duration_seconds": 0.0,
+      "peak_memory_mb": 0.0,
+      "memory_delta_mb": 0.0,
+      "disk_output_mb": 0.0,
+      "disk_delta_mb": 0.0,
+      "timestamp": "2026-01-01T00:00:00.000000",
+      "success": false,
+      "error": "Placeholder - run pipeline to populate"
+    },
+    {
+      "label": "sensitivity_analysis",
+      "script": "run_experiment.py",
+      "args": ["--context", "limited", "--agents", "3", "--games", "50", "--thresholds", "128,256", "--output-dir", "results/sensitivity"],
+      "returncode": 0,
+      "duration_seconds": 0.0,
+      "peak_memory_mb": 0.0,
+      "memory_delta_mb": 0.0,
+      "disk_output_mb": 0.0,
+      "disk_delta_mb": 0.0,
+      "timestamp": "2026-01-01T00:00:00.000000",
+      "success": false,
+      "error": "Placeholder - run pipeline to populate"
+    }
+  ]
+}

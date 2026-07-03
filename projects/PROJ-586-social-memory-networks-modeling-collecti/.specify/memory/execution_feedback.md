@@ -19,76 +19,15 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 13 fabricated/simulated-result signal(s) — results are not real measurements: code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic data generation for social me…”; code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…xperiments.  This module generates controlled synthetic datasets for testing the…”; code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…IMPORTANT: This module generates CONTROLLED synthetic data for testing purpose…”; 6 command(s) failed: python code/run_experiment.py --context full --agents 5 --games 1000 (rc=1); python code/run_experiment.py --context limited --agents 5 --games 1000 (rc=1); python code/run_experiment.py --context full --agents 3,5,7 --games 800 --plot scaling (rc=1)
+**Summary**: 13 fabricated/simulated-result signal(s) — results are not real measurements: code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…""" Synthetic data generation for social me…”; code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…xperiments.  This module generates controlled synthetic datasets for testing the…”; code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…IMPORTANT: This module generates CONTROLLED synthetic data for testing purpose…”; 1 command(s) failed: python code/run_experiment.py --context limited --agents 5 --games 1000 --thresholds 128,256,512 (rc=2)
 
 ## Failing / missing run-book commands
 
-- python code/run_experiment.py --context full --agents 5 --games 1000 -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 10, in <module>
-    from generate_full_results import simulate_one_game
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/generate_full_results.py", line 12, in <module>
-    from t015_generate_full_results import (
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/t015_generate_full_results.py", line 6, in <module>
-    from metrics.specialization import compute_specialization_index as _core_spec_index
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/metrics/__init__.py", line 9, in <module>
-    from .specialization import (
-ImportError: cannot import name 'validate_specialization_index' from 'metrics.specialization' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/metrics/specialization.py)
-- python code/run_experiment.py --context limited --agents 5 --games 1000 -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 10, in <module>
-    from generate_full_results import simulate_one_game
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/generate_full_results.py", line 12, in <module>
-    from t015_generate_full_results import (
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/t015_generate_full_results.py", line 6, in <module>
-    from metrics.specialization import compute_specialization_index as _core_spec_index
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/metrics/__init__.py", line 9, in <module>
-    from .specialization import (
-ImportError: cannot import name 'validate_specialization_index' from 'metrics.specialization' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/metrics/specialization.py)
-- python code/run_experiment.py --context full --agents 3,5,7 --games 800 --plot scaling -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 10, in <module>
-    from generate_full_results import simulate_one_game
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/generate_full_results.py", line 12, in <module>
-    from t015_generate_full_results import (
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/t015_generate_full_results.py", line 6, in <module>
-    from metrics.specialization import compute_specialization_index as _core_spec_index
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/metrics/__init__.py", line 9, in <module>
-    from .specialization import (
-ImportError: cannot import name 'validate_specialization_index' from 'metrics.specialization' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/metrics/specialization.py)
-- python code/run_experiment.py --context limited --agents 5 --games 1000 --thresholds 128,256,512 -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 10, in <module>
-    from generate_full_results import simulate_one_game
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/generate_full_results.py", line 12, in <module>
-    from t015_generate_full_results import (
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/t015_generate_full_results.py", line 6, in <module>
-    from metrics.specialization import compute_specialization_index as _core_spec_index
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/metrics/__init__.py", line 9, in <module>
-    from .specialization import (
-ImportError: cannot import name 'validate_specialization_index' from 'metrics.specialization' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/metrics/specialization.py)
-- python code/run_experiment.py --context full --agents 5 --games 100 --seed 42 -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 10, in <module>
-    from generate_full_results import simulate_one_game
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/generate_full_results.py", line 12, in <module>
-    from t015_generate_full_results import (
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/t015_generate_full_results.py", line 6, in <module>
-    from metrics.specialization import compute_specialization_index as _core_spec_index
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/metrics/__init__.py", line 9, in <module>
-    from .specialization import (
-ImportError: cannot import name 'validate_specialization_index' from 'metrics.specialization' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/metrics/specialization.py)
-- python code/run_experiment.py --context full --agents 5 --games 100 --seed 42 -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/run_experiment.py", line 10, in <module>
-    from generate_full_results import simulate_one_game
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/generate_full_results.py", line 12, in <module>
-    from t015_generate_full_results import (
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/t015_generate_full_results.py", line 6, in <module>
-    from metrics.specialization import compute_specialization_index as _core_spec_index
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/metrics/__init__.py", line 9, in <module>
-    from .specialization import (
-ImportError: cannot import name 'validate_specialization_index' from 'metrics.specialization' (/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti/code/metrics/specialization.py)
+- python code/run_experiment.py --context limited --agents 5 --games 1000 --thresholds 128,256,512 -> rc=2
+    usage: run_experiment.py [-h] [--context {full,limited}] [--agents AGENTS]
+                         [--games GAMES] [--seed SEED]
+                         [--output-dir OUTPUT_DIR] [--plot {scaling,None}]
+run_experiment.py: error: unrecognized arguments: --thresholds 128,256,512
 
 ## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
 
@@ -103,12 +42,16 @@ One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines a
 
 Make `__getattr__` in `code/utils/logging.py` accept ALL of the above.
 
-### `compute_retrieval_efficiency` — defined in `code/t015_generate_full_results.py`; called 16 way(s):
+### `compute_retrieval_efficiency` — defined in `code/t015_generate_full_results.py`; called 20 way(s):
 
-- code/generate_full_results.py: _, retrieval_eff = compute_retrieval_efficiency(
-- code/metrics/retrieval.py: 1. ``compute_retrieval_efficiency(retrieved, total, agents)`` – ``agents``
-- code/metrics/retrieval.py: 2. ``compute_retrieval_efficiency(agent_count, game_id)`` – legacy signature;
-- code/metrics/retrieval.py: 3. Keyword style: ``compute_retrieval_efficiency(retrieved=..., total=..., agents=...)``.
+- code/run_experiment.py: ret_eff, ret_metrics = compute_retrieval_efficiency(result)
+- code/t015_generate_full_results.py: 1. compute_retrieval_efficiency(retrieved, total, agents)
+- code/t015_generate_full_results.py: 2. compute_retrieval_efficiency(agent_count, game_id) - legacy
+- code/t015_generate_full_results.py: 3. compute_retrieval_efficiency(retrieved=..., total=..., agents=...) - keyword
+- code/t015_generate_full_results.py: ret_metrics, ret_eff = compute_retrieval_efficiency(
+- code/metrics/retrieval.py: 1. compute_retrieval_efficiency(retrieved, total, agents) - positional
+- code/metrics/retrieval.py: 2. compute_retrieval_efficiency(retrieved=..., total=..., agents=...) - keyword
+- code/metrics/retrieval.py: 3. compute_retrieval_efficiency(agent_count, game_id) - legacy (ignored)
 - code/metrics/tests/test_retrieval.py: metrics, efficiency = compute_retrieval_efficiency(10, 10, 3)
 - code/metrics/tests/test_retrieval.py: metrics, efficiency = compute_retrieval_efficiency(1, 3, 3)
 - code/metrics/tests/test_retrieval.py: metrics, efficiency = compute_retrieval_efficiency(0, 10, 3)
@@ -124,14 +67,18 @@ Make `__getattr__` in `code/utils/logging.py` accept ALL of the above.
 
 Make `compute_retrieval_efficiency` in `code/t015_generate_full_results.py` accept ALL of the above.
 
-### `compute_specialization_index` — defined in `code/t015_generate_full_results.py`; called 10 way(s):
+### `compute_specialization_index` — defined in `code/t015_generate_full_results.py`; called 14 way(s):
 
-- code/generate_full_results.py: spec_index, _ = compute_specialization_index(agents)
-- code/metrics/specialization.py: 1. ``compute_specialization_index(agent_list)`` – ``agent_list`` is an
-- code/metrics/specialization.py: 2. ``compute_specialization_index(agent_list, num_agents=N)`` – same as (1)
-- code/metrics/specialization.py: 3. ``compute_specialization_index(agent_count, game_id)`` – legacy signature;
-- code/metrics/specialization.py: 4. Keyword style: ``compute_specialization_index(agents=..., num_agents=...)``.
-- code/metrics/specialization.py: return compute_specialization_index(*args, **kwargs)
+- code/run_experiment.py: spec_idx, spec_metrics = compute_specialization_index(result)
+- code/t015_generate_full_results.py: 1. compute_specialization_index(agent_list) - agent_list is a list
+- code/t015_generate_full_results.py: 2. compute_specialization_index(agent_list, num_agents=N)
+- code/t015_generate_full_results.py: 3. compute_specialization_index(agent_count, game_id) - legacy
+- code/t015_generate_full_results.py: 4. compute_specialization_index(agents=..., num_agents=...) - keyword
+- code/t015_generate_full_results.py: spec_idx, _ = compute_specialization_index(assignments, num_agents=agent_count)
+- code/metrics/specialization.py: 1. compute_specialization_index(agent_list) - list of agent skills
+- code/metrics/specialization.py: 2. compute_specialization_index(agent_list, num_agents=N) - with explicit count
+- code/metrics/specialization.py: 3. compute_specialization_index(agents=..., num_agents=...) - keyword style
+- code/metrics/specialization.py: 4. compute_specialization_index(agent_count, game_id) - legacy (uses agent_count as list length)
 - code/metrics/tests/test_specialization.py: index, metrics = compute_specialization_index([])
 - code/metrics/tests/test_specialization.py: index, metrics = compute_specialization_index(game_results)
 - code/tests/unit/test_specialization.py: idx, metrics = compute_specialization_index([1, 2, 2, 3], num_agents=4)
@@ -139,10 +86,11 @@ Make `compute_retrieval_efficiency` in `code/t015_generate_full_results.py` acce
 
 Make `compute_specialization_index` in `code/t015_generate_full_results.py` accept ALL of the above.
 
-### `get_logger` — defined in `code/utils/logging.py`; called 10 way(s):
+### `get_logger` — defined in `code/utils/logging.py`; called 11 way(s):
 
 - code/run_experiment.py: logger = get_logger(__name__)
-- code/run_experiment.py: get_logger().info("Results written", path=str(output_file))
+- code/output_full_results.py: logger = get_logger(__name__)
+- code/t015_generate_full_results.py: logger = get_logger(__name__)
 - code/run_pipeline_profile.py: logger = get_logger(__name__)
 - code/utils/logging.py: return get_logger().log(op, **kwargs)
 - code/utils/tests/test_logging.py: logger = get_logger(name=logger_name)
@@ -154,14 +102,18 @@ Make `compute_specialization_index` in `code/t015_generate_full_results.py` acce
 
 Make `get_logger` in `code/utils/logging.py` accept ALL of the above.
 
-### `simulate_one_game` — defined in `code/generate_full_results.py`; called 8 way(s):
+### `simulate_one_game` — defined in `code/generate_full_results.py`; called 12 way(s):
 
-- code/generate_full_results.py: - ``simulate_one_game(agent_count: int, game_id: int, context: str)`` – the
-- code/generate_full_results.py: - ``simulate_one_game(agent_list: List[int], game_id: int)`` – used by some
-- code/generate_full_results.py: - ``simulate_one_game(agents, game_id)`` – legacy positional style.
-- code/run_experiment.py: spec_idx, ret_eff = simulate_one_game(agent_count, game_id, context)
-- code/output_full_results.py: specialization_index, retrieval_efficiency = simulate_one_game(
+- code/generate_full_results.py: 1. simulate_one_game(agent_count: int, game_id: int, context: str)
+- code/generate_full_results.py: 2. simulate_one_game(agent_list: List[int], game_id: int)
+- code/generate_full_results.py: 3. simulate_one_game(agents, game_id) - legacy positional
+- code/run_experiment.py: result = simulate_one_game(agent_count, game_id, context_condition)
+- code/output_full_results.py: spec_idx, ret_eff = simulate_one_game(
 - code/run_scaling_experiment.py: result = simulate_one_game(agents, game_id)
+- code/t015_generate_full_results.py: 1. simulate_one_game(agent_count, game_id, context) - primary
+- code/t015_generate_full_results.py: 2. simulate_one_game(agent_list, game_id) - legacy
+- code/t015_generate_full_results.py: 3. simulate_one_game(agents, game_id) - legacy positional
+- code/t015_generate_full_results.py: result = simulate_one_game(
 - code/analysis/sensitivity.py: result = simulate_one_game(
 - code/analysis/sensitivity.py: result = simulate_one_game(agents, game_id)
 

@@ -1,19 +1,12 @@
-"""Run the full experiment pipeline and record performance metrics.
-
-This script is intended to be executed in a CI environment. It runs the
-various experiment scripts (full‑context, limited‑context, scaling) and
-records runtime, peak memory usage, and disk usage for each step. The
-collected metrics are written to a JSON file in the project results
-directory.
-
-The script uses only the standard library and the project's existing
-modules. It does **not** fabricate any results – all experiment scripts
-generate real data and the performance numbers are measured on the
-executing process.
 """
+CI Runner for Social Memory Networks Pipeline.
 
+Executes the full pipeline and records runtime, memory, and disk usage.
+Designed to run on CI runners (CPU-only) and produce a JSON metrics report.
+"""
 from __future__ import annotations
 
+import argparse
 import json
 import os
 import resource
@@ -22,173 +15,224 @@ import subprocess
 import sys
 import time
 from pathlib import Path
-from typing import Dict, List
+from typing import Any, Dict, List, Optional
 
-# Project‑relative paths
-PROJECT_ROOT = Path(__file__).resolve().parents[1]  # projects/PROJ-.../code/..
+# Ensure we are in the code directory context
+CODE_ROOT = Path(__file__).parent
+PROJECT_ROOT = CODE_ROOT.parent
 RESULTS_DIR = PROJECT_ROOT / "results"
-PERFORMANCE_FILE = RESULTS_DIR / "ci_performance_metrics.json"
 
-# Ensure the results directory exists
-RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
-# ----------------------------------------------------------------------
-# Helper utilities
-# ----------------------------------------------------------------------
-def _run_command(command: List[str]) -> Dict[str, float]:
-    """Run a shell command while measuring runtime, memory, and disk usage.
+def get_memory_usage_mb() -> float:
+    """Get current memory usage in MB (RSS)."""
+    usage = resource.getrusage(resource.RUSAGE_SELF)
+    return usage.ru_maxrss / 1024.0  # Convert KB to MB on Linux
 
-    Returns a dictionary with keys:
-        - elapsed_seconds
-        - max_memory_mb
-        - disk_used_mb
+
+def get_disk_usage_mb(path: Path) -> float:
+    """Get disk usage of a directory in MB."""
+    if not path.exists():
+        return 0.0
+    total_size = 0
+    for dirpath, dirnames, filenames in os.walk(path):
+        for filename in filenames:
+            filepath = os.path.join(dirpath, filename)
+            try:
+                total_size += os.path.getsize(filepath)
+            except OSError:
+                continue
+    return total_size / (1024 * 1024)
+
+
+def run_and_profile(script_name: str, args: List[str], output_dir: Path) -> Dict[str, Any]:
     """
-    start_time = time.time()
-    # Record disk usage before execution
-    disk_before = shutil.disk_usage(str(PROJECT_ROOT)).used
+    Run a script and profile its resource usage.
+    
+    Returns a dictionary with timing, memory, and disk metrics.
+    """
+    script_path = CODE_ROOT / script_name
+    if not script_path.exists():
+        raise FileNotFoundError(f"Script not found: {script_path}")
 
-    # Run the command; capture stdout/stderr for debugging
-    proc = subprocess.run(
-        command,
-        cwd=str(PROJECT_ROOT),
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-    )
-    if proc.returncode != 0:
-        # Propagate the error with context – CI should see the failure.
-        sys.stderr.write(
-            f"Command {' '.join(command)} failed with exit code {proc.returncode}\\n"
+    start_time = time.time()
+    start_mem = get_memory_usage_mb()
+    start_disk = get_disk_usage_mb(output_dir)
+
+    cmd = [sys.executable, str(script_path)] + args
+    
+    try:
+        result = subprocess.run(
+            cmd,
+            cwd=str(CODE_ROOT),
+            capture_output=True,
+            text=True,
+            timeout=3600  # 1 hour timeout
         )
-        sys.stderr.write(f"Stdout:\\n{proc.stdout}\\n")
-        sys.stderr.write(f"Stderr:\\n{proc.stderr}\\n")
-        raise subprocess.CalledProcessError(proc.returncode, command)
+        exit_code = result.returncode
+        stdout = result.stdout
+        stderr = result.stderr
+    except subprocess.TimeoutExpired:
+        exit_code = -1
+        stdout = ""
+        stderr = "Timeout expired"
+    except Exception as e:
+        exit_code = -2
+        stdout = ""
+        stderr = str(e)
 
     end_time = time.time()
-    # Record disk usage after execution
-    disk_after = shutil.disk_usage(str(PROJECT_ROOT)).used
+    end_mem = get_memory_usage_mb()
+    end_disk = get_disk_usage_mb(output_dir)
 
-    # Peak memory usage (RSS) in kilobytes; convert to MB.
-    # Note: ru_maxrss is in kilobytes on Linux, bytes on macOS.
-    mem_kb = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-    if sys.platform == "darwin":
-        mem_mb = mem_kb / (1024 * 1024)  # macOS reports bytes
-    else:
-        mem_mb = mem_kb / 1024  # Linux reports kilobytes
-
-    metrics = {
-        "elapsed_seconds": end_time - start_time,
-        "max_memory_mb": mem_mb,
-        "disk_used_mb": (disk_after - disk_before) / (1024 * 1024),
+    return {
+        "script": script_name,
+        "args": args,
+        "exit_code": exit_code,
+        "duration_seconds": round(end_time - start_time, 2),
+        "start_memory_mb": round(start_mem, 2),
+        "end_memory_mb": round(end_mem, 2),
+        "peak_memory_mb": round(max(start_mem, end_mem), 2),
+        "start_disk_mb": round(start_disk, 2),
+        "end_disk_mb": round(end_disk, 2),
+        "disk_delta_mb": round(end_disk - start_disk, 2),
+        "stdout_lines": len(stdout.splitlines()),
+        "stderr_lines": len(stderr.splitlines()),
+        "success": exit_code == 0
     }
-    return metrics
 
-# ----------------------------------------------------------------------
-# Pipeline steps
-# ----------------------------------------------------------------------
-def _run_full_context(agents: int = 5, games: int = 1000) -> Dict[str, float]:
-    """Run the full‑context experiment."""
-    cmd = [
-        sys.executable,
-        str(PROJECT_ROOT / "code" / "run_experiment.py"),
-        "--context",
-        "full",
-        "--agents",
-        str(agents),
-        "--games",
-        str(games),
-        "--seed",
-        "42",
-    ]
-    return _run_command(cmd)
 
-def _run_limited_context(
-    agents: int = 5, games: int = 1000, thresholds: str = "128,256,512"
-) -> Dict[str, float]:
-    """Run the limited‑context experiment with token‑limit thresholds."""
-    cmd = [
-        sys.executable,
-        str(PROJECT_ROOT / "code" / "run_experiment.py"),
+def build_parser() -> argparse.ArgumentParser:
+    """Build the argument parser for the CI runner."""
+    parser = argparse.ArgumentParser(
+        description="Run full pipeline on CI and record metrics"
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=str,
+        default=str(RESULTS_DIR),
+        help="Directory to store results and metrics"
+    )
+    parser.add_argument(
         "--context",
-        "limited",
+        type=str,
+        choices=["full", "limited"],
+        default="limited",
+        help="Context condition for experiments"
+    )
+    parser.add_argument(
         "--agents",
-        str(agents),
+        type=int,
+        default=5,
+        help="Number of agents for simulation"
+    )
+    parser.add_argument(
         "--games",
-        str(games),
+        type=int,
+        default=100,
+        help="Number of games to simulate (reduced for CI)"
+    )
+    parser.add_argument(
         "--thresholds",
-        thresholds,
-        "--seed",
-        "42",
-    ]
-    return _run_command(cmd)
+        type=str,
+        default="128,256,512",
+        help="Comma-separated context thresholds"
+    )
+    return parser
 
-def _run_scaling_experiment(
-    agent_counts: str = "3,5,7", games: int = 800
-) -> Dict[str, float]:
-    """Run the scaling experiment across multiple agent counts."""
-    cmd = [
-        sys.executable,
-        str(PROJECT_ROOT / "code" / "run_experiment.py"),
-        "--agents",
-        agent_counts,
-        "--games",
-        str(games),
-        "--plot",
-        "scaling",
-        "--seed",
-        "42",
-    ]
-    return _run_command(cmd)
 
-def _run_anova_analysis() -> Dict[str, float]:
-    """Run the two‑way ANOVA analysis on the generated CSVs."""
-    cmd = [
-        sys.executable,
-        str(PROJECT_ROOT / "code" / "analysis" / "anova.py"),
-    ]
-    return _run_command(cmd)
-
-# ----------------------------------------------------------------------
-# Main entry point
-# ----------------------------------------------------------------------
 def main() -> int:
-    """Execute the full pipeline and write performance metrics.
+    """Main entry point for CI pipeline execution."""
+    parser = build_parser()
+    args = parser.parse_args()
 
-    Returns:
-        Exit code (0 for success, non‑zero for failure).
-    """
-    all_metrics: Dict[str, Dict[str, float]] = {}
+    output_dir = Path(args.output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
 
+    metrics_report = {
+        "pipeline_run": {
+            "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "environment": {
+                "python_version": sys.version,
+                "platform": sys.platform,
+                "cwd": str(Path.cwd())
+            },
+            "parameters": {
+                "context": args.context,
+                "agents": args.agents,
+                "games": args.games,
+                "thresholds": [int(t) for t in args.thresholds.split(",")]
+            },
+            "stages": []
+        }
+    }
+
+    # Stage 1: Run the main experiment
+    print(f"[CI] Running experiment: context={args.context}, agents={args.agents}, games={args.games}")
+    
+    experiment_args = [
+        "--context", args.context,
+        "--agents", str(args.agents),
+        "--games", str(args.games),
+        "--output-dir", str(output_dir)
+    ]
+    
+    # Add thresholds if supported
     try:
-        # 1. Full‑context experiment
-        all_metrics["full_context"] = _run_full_context()
+        experiment_args.extend(["--thresholds", args.thresholds])
+    except:
+        pass  # Some scripts might not support this flag
 
-        # 2. Limited‑context experiment
-        all_metrics["limited_context"] = _run_limited_context()
+    stage1 = run_and_profile("run_experiment.py", experiment_args, output_dir)
+    metrics_report["pipeline_run"]["stages"].append(stage1)
+    print(f"[CI] Stage 1 (experiment) completed: exit_code={stage1['exit_code']}")
 
-        # 3. Scaling experiment (produces scaling_plot.pdf)
-        all_metrics["scaling_experiment"] = _run_scaling_experiment()
+    # Stage 2: Run ANOVA analysis
+    if stage1["success"]:
+        print("[CI] Running ANOVA analysis")
+        stage2 = run_and_profile("analysis/anova.py", [], output_dir)
+        metrics_report["pipeline_run"]["stages"].append(stage2)
+        print(f"[CI] Stage 2 (anova) completed: exit_code={stage2['exit_code']}")
 
-        # 4. ANOVA analysis (produces anova results)
-        all_metrics["anova_analysis"] = _run_anova_analysis()
-    except Exception as exc:  # pragma: no cover – CI will surface the traceback
-        sys.stderr.write(f"Pipeline failed: {exc}\\n")
-        return 1
+    # Stage 3: Run power analysis
+    if stage1["success"]:
+        print("[CI] Running power analysis")
+        stage3 = run_and_profile("analysis/power.py", [], output_dir)
+        metrics_report["pipeline_run"]["stages"].append(stage3)
+        print(f"[CI] Stage 3 (power) completed: exit_code={stage3['exit_code']}")
 
-    # Write the collected metrics to JSON for downstream CI consumption.
-    with PERFORMANCE_FILE.open("w", encoding="utf-8") as f:
-        json.dump(all_metrics, f, indent=2)
+    # Stage 4: Run sensitivity analysis
+    if stage1["success"]:
+        print("[CI] Running sensitivity analysis")
+        sensitivity_args = ["--thresholds", args.thresholds]
+        stage4 = run_and_profile("analysis/sensitivity.py", sensitivity_args, output_dir)
+        metrics_report["pipeline_run"]["stages"].append(stage4)
+        print(f"[CI] Stage 4 (sensitivity) completed: exit_code={stage4['exit_code']}")
 
-    # Print a short summary to stdout – useful for CI logs.
-    print("CI performance metrics written to:", PERFORMANCE_FILE)
-    for step, metrics in all_metrics.items():
-        print(
-            f"{step:>20}: {metrics['elapsed_seconds']:.2f}s, "
-            f"{metrics['max_memory_mb']:.2f}MiB, "
-            f"{metrics['disk_used_mb']:.2f}MiB"
-        )
+    # Final summary
+    total_duration = sum(s["duration_seconds"] for s in metrics_report["pipeline_run"]["stages"])
+    peak_memory = max((s["peak_memory_mb"] for s in metrics_report["pipeline_run"]["stages"]), default=0)
+    total_disk_delta = sum(s["disk_delta_mb"] for s in metrics_report["pipeline_run"]["stages"])
+    success_count = sum(1 for s in metrics_report["pipeline_run"]["stages"] if s["success"])
 
-    return 0
+    metrics_report["pipeline_run"]["summary"] = {
+        "total_duration_seconds": round(total_duration, 2),
+        "peak_memory_mb": round(peak_memory, 2),
+        "total_disk_delta_mb": round(total_disk_delta, 2),
+        "stages_run": len(metrics_report["pipeline_run"]["stages"]),
+        "stages_successful": success_count,
+        "overall_success": success_count == len(metrics_report["pipeline_run"]["stages"])
+    }
+
+    # Write the metrics report
+    report_path = output_dir / "ci_pipeline_metrics.json"
+    with open(report_path, "w") as f:
+        json.dump(metrics_report, f, indent=2)
+
+    print(f"[CI] Metrics report written to: {report_path}")
+    print(f"[CI] Summary: {metrics_report['pipeline_run']['summary']}")
+
+    return 0 if metrics_report["pipeline_run"]["summary"]["overall_success"] else 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

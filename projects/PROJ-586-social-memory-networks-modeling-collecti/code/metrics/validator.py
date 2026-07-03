@@ -145,23 +145,40 @@ def compute_metric_statistics(records: List[GameMetricRecord]) -> Dict[str, floa
         'retrieval_std': float(np.std(rets))
     }
 
-def validate_experiment_metrics(results: List[Any]) -> Dict[str, Any]:
+def validate_experiment_metrics(results: List[Any], threshold: float = 0.95) -> Dict[str, Any]:
     """
     Validate an entire experiment's results and return summary.
     
+    Implements SC-001: Requires >= 95% of games to produce valid metrics.
+    
     Args:
         results: List of GameResult objects (or dict-like objects)
+        threshold: Minimum pass rate required (default 0.95 for SC-001)
         
     Returns:
-        Dictionary with validation summary
+        Dictionary with validation summary including SC-001 compliance status
     """
     valid_records, pass_rate = validate_and_filter_records(results)
     stats = compute_metric_statistics(valid_records)
     
-    return {
+    # Check SC-001 requirement
+    meets_requirement = pass_rate >= threshold
+    
+    summary = {
         'total_games': len(results),
         'valid_games': len(valid_records),
         'pass_rate': pass_rate,
-        'meets_sc001': pass_rate >= 0.95,
+        'threshold': threshold,
+        'meets_sc001': meets_requirement,
         'statistics': stats
     }
+    
+    if not meets_requirement:
+        summary['warning'] = (
+            f"SC-001 requirement NOT met: {pass_rate:.2%} valid games "
+            f"(required >= {threshold:.2%})"
+        )
+    else:
+        summary['status'] = "SC-001 requirement satisfied"
+        
+    return summary
