@@ -1,78 +1,109 @@
 # Data Model: Evaluating Automated Code Review Tools Effectiveness
 
-## Entities
+## Overview
+
+This document defines the data schemas and relationships for the project. All data is stored in `data/` and processed through `code/`. The model supports the pipeline stages: Data Acquisition, Human Annotation, Alignment, Metrics, and Regression.
+
+## Entity-Relationship Diagram
+
+```mermaid
+erDiagram
+    REPOSITORY ||--o{ TOOL_ISSUE : generates
+    REPOSITORY ||--o{ HUMAN_ANNOTATION : contains
+    TOOL_ISSUE }|--|| ALIGNED_PAIR : matches
+    HUMAN_ANNOTATION }|--|| ALIGNED_PAIR : matches
+    ALIGNED_PAIR ||--o{ METRIC : informs
+    REPOSITORY ||--o{ METRIC : informs
+```
+
+## Core Entities
 
 ### Repository
-- `owner`: str (GitHub owner)
-- `name`: str (Repo name)
-- `primary_language`: str (Java, Python, JavaScript, Go)
-- `star_count`: int
-- `commit_activity`: str (High, Medium, Low)
-- `license`: str
-- `clone_url`: str
-- `commit_sha`: str
+
+Represents a GitHub repository.
+
+| Field | Type | Description | Constraints |
+| :--- | :--- | :--- | :--- |
+| `repo_id` | string | Unique identifier (owner/name) | Primary Key |
+| `owner` | string | GitHub owner | Not Null |
+| `name` | string | Repository name | Not Null |
+| `language` | string | Primary language (Java, Python, JS, Go) | Enum |
+| `stars` | integer | Star count | ≥ 0 |
+| `commits_last_year` | integer | Commit count in last 12 months | ≥ 0 |
+| `license` | string | License type | Not Null |
+| `clone_url` | string | Git clone URL | Not Null |
+| `cloned_at` | timestamp | Timestamp of clone | Not Null |
 
 ### Tool Issue
-- `tool_name`: str (SonarQube, DeepSource, CodeClimate)
-- `issue_id`: str
-- `issue_type`: str (bug, security, style)
-- `severity`: str (Critical, Major, Minor, Info)
-- `file_path`: str
-- `line_number`: int
-- `description`: str
-- `repository_id`: str (FK to Repository)
+
+Represents a finding from a static analysis tool.
+
+| Field | Type | Description | Constraints |
+| :--- | :--- | :--- | :--- |
+| `issue_id` | string | Unique identifier | Primary Key |
+| `repo_id` | string | Foreign key to Repository | Not Null |
+| `tool_name` | string | Tool name (SonarQube, DeepSource, CodeClimate) | Enum |
+| `issue_type` | string | Type (bug, security, style) | Not Null |
+| `severity` | string | Severity (critical, major, minor, info) | Not Null |
+| `file_path` | string | Relative file path | Not Null |
+| `line_number` | integer | Line number | ≥ 1 |
+| `description` | string | Issue description | |
+| `raw_report_path` | string | Path to raw JSON report | Not Null |
 
 ### Human Annotation
-- `comment_id`: str
-- `comment_text`: str
-- `extracted_type`: str (bug, security, style) - *Retrieved via keyword heuristic*
-- `file_path`: str
-- `line_number`: int
-- `validation_status`: str (validated, unvalidated, ambiguous)
-- `is_actual_defect`: bool (True if validated by expert as actual defect - *Gold Standard*)
-- `repository_id`: str (FK to Repository)
+
+Represents a defect annotation extracted from a PR comment.
+
+| Field | Type | Description | Constraints |
+| :--- | :--- | :--- | :--- |
+| `annotation_id` | string | Unique identifier | Primary Key |
+| `repo_id` | string | Foreign key to Repository | Not Null |
+| `comment_id` | string | GitHub comment ID | Not Null |
+| `file_path` | string | Relative file path | Not Null |
+| `line_number` | integer | Line number | ≥ 1 |
+| `defect_type` | string | Extracted type (bug, security, style) | Not Null |
+| `comment_text` | string | Original comment text | |
+| `validation_status` | string | Status (pending, validated, rejected) | Default: "pending" |
+| `validated_by` | string | Expert identifier | |
+| `validated_at` | timestamp | Timestamp of validation | |
+| `source_type` | string | Source of annotation: "heuristic" or "random" | Not Null |
 
 ### Aligned Pair
-- `tool_issue_id`: str (FK to Tool Issue)
-- `human_annotation_id`: str (FK to Human Annotation)
-- `match_method`: str (ast, semantic) - *Line tolerance removed as match method*
-- `match_confidence`: float (0–1)
-- `match_status`: str (matched, unmatched) - *Ambiguous removed; low confidence = unmatched*
-- `line_tolerance_used`: bool (False - *Only used for sensitivity analysis, not matching*)
 
-### Performance Metric
-- `tool_name`: str
-- `defect_category`: str (bug, security, style)
-- `project_id`: str
-- `precision`: float
-- `recall_raw`: float (Recall of Commented Defects - RCD)
-- `recall_estimated`: float (Estimated Recall via Capture-Recapture)
-- `f1_score`: float
+Represents a matched tool issue and human annotation.
 
-### CaptureRecaptureEstimate
-- `project_id`: str
-- `tool_findings_count`: int
-- `human_findings_count`: int
-- `overlap_count`: int
-- `estimated_total_defects`: float (Lincoln-Petersen estimator)
-- `confidence_interval_lower`: float
-- `confidence_interval_upper`: float
+| Field | Type | Description | Constraints |
+| :--- | :--- | :--- | :--- |
+| `pair_id` | string | Unique identifier | Primary Key |
+| `tool_issue_id` | string | Foreign key to Tool Issue | Not Null |
+| `annotation_id` | string | Foreign key to Human Annotation | Not Null |
+| `alignment_method` | string | Method used (AST, diff, tolerance) | Not Null |
+| `confidence_score` | float | Alignment confidence (0–1) | 0.0 ≤ score ≤ 1.0 |
+| `match_status` | string | Status (matched, unmatched, ambiguous) | Not Null |
 
-## Relationships
+### Metric
 
-- Repository → Tool Issue (1:N)
-- Repository → Human Annotation (1:N)
-- Tool Issue ↔ Human Annotation (N:N via Aligned Pair)
-- Tool Issue → Performance Metric (N:1)
-- Human Annotation → Performance Metric (N:1)
-- Repository → CaptureRecaptureEstimate (1:1)
+Represents aggregated performance metrics.
 
-## Constraints
+| Field | Type | Description | Constraints |
+| :--- | :--- | :--- | :--- |
+| `metric_id` | string | Unique identifier | Primary Key |
+| `repo_id` | string | Foreign key to Repository | Not Null |
+| `tool_name` | string | Tool name | Not Null |
+| `defect_category` | string | Category (security, bug, style) | Not Null |
+| `precision` | float | Precision score | 0.0 ≤ p ≤ 1.0 |
+| `recall` | float | Recall score | 0.0 ≤ r ≤ 1.0 |
+| `f1_score` | float | F1 score | 0.0 ≤ f1 ≤ 1.0 |
+| `total_issues` | integer | Total issues detected | ≥ 0 |
+| `total_annotations` | integer | Total human annotations | ≥ 0 |
+| `matched_pairs` | integer | Number of aligned pairs | ≥ 0 |
 
-- All file paths normalized to relative paths.
-- Line numbers 1-indexed.
-- Validation status must be one of: validated, unvalidated, ambiguous.
-- Match status must be one of: matched, unmatched.
-- Match method must be one of: ast, semantic.
-- `is_actual_defect` must be True for Gold Standard inclusion.
-- `recall_estimated` is derived from `CaptureRecaptureEstimate`.
+## Data Flow
+
+1.  **Raw Data**: `data/raw/repo_list.json`, `data/raw/tool_reports/`, `data/raw/pr_comments/`
+2.  **Processed Data**: `data/processed/annotations.json`, `data/processed/aligned_pairs.json`, `data/processed/metrics.csv`
+3.  **Results**: `results/metrics.csv`, `results/regression_table.csv`, `results/plots/`
+
+## Schema Validation
+
+All data files are validated against the schemas defined in `contracts/`. Validation is enforced via `pytest` contract tests.

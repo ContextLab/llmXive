@@ -1,49 +1,56 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: Tool Issue
-description: "Schema for static analysis tool issue reports"
-type: object
+title: "Tool Issue Schema"
+description: "Schema for static analysis tool findings"
+type: "object"
 properties:
-  tool_name:
-    type: string
-    description: "Name of the static analysis tool (SonarQube, DeepSource, CodeClimate)"
   issue_id:
-    type: string
-    description: "Unique identifier for the issue"
+    type: "string"
+    description: "Unique identifier"
+  repo_id:
+    type: "string"
+    description: "Foreign key to Repository"
+  tool_name:
+    type: "string"
+    enum:
+      - "SonarQube"
+      - "DeepSource"
+      - "CodeClimate"
+    description: "Tool name"
   issue_type:
-    type: string
+    type: "string"
     enum:
-      - bug
-      - security
-      - style
-    description: "Category of the detected issue"
+      - "bug"
+      - "security"
+      - "style"
+    description: "Issue type"
   severity:
-    type: string
+    type: "string"
     enum:
-      - Critical
-      - Major
-      - Minor
-      - Info
-    description: "Severity level of the issue"
+      - "critical"
+      - "major"
+      - "minor"
+      - "info"
+    description: "Severity level"
   file_path:
-    type: string
-    description: "Relative file path within the repository"
+    type: "string"
+    description: "Relative file path"
   line_number:
-    type: integer
+    type: "integer"
     minimum: 1
-    description: "Line number where the issue was detected"
+    description: "Line number"
   description:
-    type: string
-    description: "Human-readable description of the issue"
-  repository_id:
-    type: string
-    description: "Foreign key to the repository"
+    type: "string"
+    description: "Issue description"
+  raw_report_path:
+    type: "string"
+    description: "Path to raw JSON report"
 required:
-  - tool_name
   - issue_id
+  - repo_id
+  - tool_name
   - issue_type
   - severity
   - file_path
   - line_number
-  - description
-  - repository_id
+  - raw_report_path
 additionalProperties: false

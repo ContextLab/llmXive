@@ -1,0 +1,64 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Metric Schema"
+description: "Schema for aggregated performance metrics"
+type: "object"
+properties:
+  metric_id:
+    type: "string"
+    description: "Unique identifier"
+  repo_id:
+    type: "string"
+    description: "Foreign key to Repository"
+  tool_name:
+    type: "string"
+    enum:
+      - "SonarQube"
+      - "DeepSource"
+      - "CodeClimate"
+    description: "Tool name"
+  defect_category:
+    type: "string"
+    enum:
+      - "security"
+      - "bug"
+      - "style"
+    description: "Defect category"
+  precision:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Precision score"
+  recall:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Recall score"
+  f1_score:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "F1 score"
+  total_issues:
+    type: "integer"
+    minimum: 0
+    description: "Total issues detected"
+  total_annotations:
+    type: "integer"
+    minimum: 0
+    description: "Total human annotations"
+  matched_pairs:
+    type: "integer"
+    minimum: 0
+    description: "Number of aligned pairs"
+required:
+  - metric_id
+  - repo_id
+  - tool_name
+  - defect_category
+  - precision
+  - recall
+  - f1_score
+  - total_issues
+  - total_annotations
+  - matched_pairs
+additionalProperties: false

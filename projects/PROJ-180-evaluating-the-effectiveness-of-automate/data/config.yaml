@@ -1,0 +1,26 @@
+# Data Configuration for Automated Code Review Effectiveness Evaluation
+# Generated for task T001b
+
+storage:
+  raw: "raw"
+  processed: "processed"
+
+validation:
+  checksum_algorithm: "sha256"
+  required_metadata:
+    - owner
+    - repo
+    - language
+    - commit_hash
+    - tool_name
+    - timestamp
+
+retention:
+  keep_raw: true
+  auto_cleanup: false
+  max_age_days: 365
+
+processing:
+  batch_size: 10
+  parallel_workers: 4
+  timeout_seconds: 300

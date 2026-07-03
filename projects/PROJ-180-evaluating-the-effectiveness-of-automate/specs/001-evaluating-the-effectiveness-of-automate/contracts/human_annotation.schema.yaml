@@ -1,0 +1,61 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Human Annotation Schema"
+description: "Schema for human-review annotations from PR comments"
+type: "object"
+properties:
+  annotation_id:
+    type: "string"
+    description: "Unique identifier"
+  repo_id:
+    type: "string"
+    description: "Foreign key to Repository"
+  comment_id:
+    type: "string"
+    description: "GitHub comment ID"
+  file_path:
+    type: "string"
+    description: "Relative file path"
+  line_number:
+    type: "integer"
+    minimum: 1
+    description: "Line number"
+  defect_type:
+    type: "string"
+    enum:
+      - "bug"
+      - "security"
+      - "style"
+    description: "Extracted defect type"
+  comment_text:
+    type: "string"
+    description: "Original comment text"
+  validation_status:
+    type: "string"
+    enum:
+      - "pending"
+      - "validated"
+      - "rejected"
+    description: "Validation status"
+  validated_by:
+    type: "string"
+    description: "Expert identifier"
+  validated_at:
+    type: "string"
+    format: "date-time"
+    description: "Timestamp of validation"
+  source_type:
+    type: "string"
+    enum:
+      - "heuristic"
+      - "random"
+    description: "Source of the annotation"
+required:
+  - annotation_id
+  - repo_id
+  - comment_id
+  - file_path
+  - line_number
+  - defect_type
+  - validation_status
+  - source_type
+additionalProperties: false

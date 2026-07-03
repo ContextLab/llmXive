@@ -97,7 +97,7 @@ A researcher can compute precision, recall, and F1 scores for each tool across d
 
 ## Assumptions
 
-- GitHub REST API rate limits will not prevent retrieval of PR comments for a representative sample of repositories within the 6-hour budget. (sufficient request capacity available for authenticated users)
+- GitHub REST API rate limits will not prevent retrieval of PR comments for a representative sample of repositories within a feasible time budget.. (sufficient request capacity available for authenticated users)
 - Static analysis tools (SonarQube Scanner, DeepSource CLI, CodeClimate Engine) can be executed via Docker containers or binary releases on CPU-only GitHub Actions runners without GPU dependencies
 - Keyword heuristics for defect annotation extraction (e.g., "bug", "security", "style" in PR comments) will capture relevant human-review findings, subject to expert validation of a [deferred] stratified random sample; the heuristic threshold sensitivity is analyzed via FR-012
 - Repository codebases will fit within 7 GB RAM during concurrent analysis; if a repository exceeds this, it will be excluded and logged as a resource constraint failure

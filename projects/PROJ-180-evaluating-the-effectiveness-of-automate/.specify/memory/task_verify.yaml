@@ -1,0 +1,8 @@
+T001a [P] Create `code/`, `data/raw`, `data/processed`, `results`, and `specs/` directories: 1
+T001b [P] Create empty `__init__.py` and `config.yaml` files in `code/` and `data/` subfolders: 1
+? 'T002a [P] Create `requirements.txt` with pinned dependencies: `requests`, `pandas`,
+  `scikit-learn`, `statsmodels`, `pygithub`, `tqdm`, `sentence-transformers`, `networkx`,
+  `pytest`'
+: 1
+'T002b [P] Initialize git repository and virtual environment (venv) <!-- FAILED: unspecified -->': 1
+T003 [P] Configure linting (ruff) and formatting (black) tools: 1

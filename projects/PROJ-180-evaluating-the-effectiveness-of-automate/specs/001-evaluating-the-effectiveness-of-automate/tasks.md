@@ -27,10 +27,11 @@
 - [ ] T001a [P] Create `code/`, `data/raw`, `data/processed`, `results`, and `specs/` directories
 - [ ] T001b [P] Create empty `__init__.py` and `config.yaml` files in `code/` and `data/` subfolders
 - [ ] T002a [P] Create `requirements.txt` with pinned dependencies: `requests`, `pandas`, `scikit-learn`, `statsmodels`, `pygithub`, `tqdm`, `sentence-transformers`, `networkx`, `pytest`
-- [ ] T002b [P] Initialize git repository and virtual environment (venv)
+- [ ] T002b [P] Initialize git repository and virtual environment (venv) <!-- FAILED: unspecified -->
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
-- [ ] T004 Create `code/versions.yaml` with pinned versions for SonarQube Scanner, DeepSource CLI, and CodeClimate Engine (as per Plan Constitution VI)
-- [ ] T005 [P] Implement `code/utils/hasher.py` for SHA-256 artifact hashing (Constitution Principle V)
+- [X] T004 [P] Create `code/versions.yaml` with pinned versions for SonarQube Scanner, DeepSource CLI, and CodeClimate Engine (as per Plan Constitution VI)
+- [~] T004b [P] Update `code/versions.yaml` to pin the `sentence-transformers` model `all-MiniLM-L6-v2` with its specific commit hash or tag (Constitution Principle VI)
+- [~] T005 [P] Implement `code/utils/hasher.py` for SHA-256 artifact hashing (Constitution Principle V)
 
 ---
 
@@ -40,12 +41,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T006 Implement `code/utils/github_client.py` with authenticated GitHub REST API client (handling rate limits and pagination)
-- [ ] T007 Create `code/utils/stats.py` containing utility functions for Wilcoxon tests, VIF calculation, and CRSE regression wrappers (scipy/statsmodels)
-- [ ] T008a [P] Implement skeleton/interface for AST-based diff matching logic in `code/utils/aligner.py`
-- [ ] T008b [P] Implement skeleton/interface for CPU-optimized embedding similarity function (using `all-MiniLM-L6-v2`) in `code/utils/aligner.py`
-- [ ] T009 Setup environment configuration management (load GitHub tokens, paths from `.env`)
-- [ ] T010 Implement data directory structure and checksum validation logic for `data/raw` and `data/processed`
+- [~] T006 Implement `code/utils/github_client.py` with authenticated GitHub REST API client (handling rate limits and pagination)
+- [~] T007 Create `code/utils/stats.py` containing utility functions for Wilcoxon tests, VIF calculation, and Mixed-Effects regression wrappers (scipy/statsmodels)
+- [~] T008a [P] Implement skeleton/interface for AST-based diff matching logic in `code/utils/aligner.py`
+- [~] T008b [P] Implement skeleton/interface for CPU-optimized embedding similarity function (using `all-MiniLM-L6-v2`) in `code/utils/aligner.py`
+- [~] T009 Setup environment configuration management (load GitHub tokens, paths from `.env`)
+- [~] T010 Implement data directory structure and checksum validation logic for `data/raw` and `data/processed`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -59,12 +60,12 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T011 [P] [US1] Contract test for `code/01_data_acquisition.py` repository filtering logic in `code/tests/test_acquisition.py` (Tests the *expected* interface defined in a stub file or module signature)
+- [~] T011 [P] [US1] Create `tests/contract/test_repository_filter.py` with a failing test that asserts `filter_repos()` raises `ValueError` for invalid license types (Tests the *expected* interface defined in a stub file or module signature)
 - [ ] T012 [P] [US1] Integration test for Docker-based tool execution in `code/tests/test_acquisition.py` (mocked tool output)
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Implement `code/01_data_acquisition.py` to query GitHub API for a representative set of repos stratified by language (Java, Python, JS, Go) and activity (FR-001)
+- [ ] T013 [US1] Implement `code/01_data_acquisition.py` to query GitHub API for a representative set of 30–40 repos stratified by language (Java, Python, JS, Go) and activity (FR-001)
 - [ ] T014 [US1] Implement PESTO filter logic (license, CI, issues) in `code/01_data_acquisition.py` before cloning (FR-002)
 - [ ] T015 [US1] Implement repository cloning logic with error handling (retry 2x, log exclusion) in `code/01_data_acquisition.py`
 - [ ] T016 [US1] Implement Docker wrappers in `code/01_data_acquisition.py` to execute SonarQube, DeepSource, CodeClimate (using `code/versions.yaml`)
@@ -90,14 +91,17 @@
 ### Implementation for User Story 2
 
 - [ ] T022 [US2] Implement `code/02_human_baseline.py` to fetch merged PR review comments via GitHub API
-- [ ] T023 [US2] Implement keyword heuristics (bug, security, style) and semantic search (using `all-MiniLM-L6-v2`) to generate candidate defect set (FR-004)
-- [ ] T024 [US2] Implement stratified random sampling logic (stratify by primary language and extracted defect type) per FR-004 for expert validation subset
-- [ ] T025 [US2] Implement sensitivity analysis script for keyword thresholds across a range of low to moderate values to report false-positive rate and precision variation (FR-012)
-- [ ] T026 [US2] Implement Cohen's κ calculation on the expert-validated subset and output to `results/` (FR-011)
-- [ ] T027 [US2] Implement `code/03_alignment.py` to align tool issues (from T019) with human annotations (from T022-T026): Primary method is AST-based diff matching; IF AST unavailable, fallback to ±5 line tolerance as mandated by FR-005. This task explicitly consumes `data/raw` artifacts from T019 and human annotation data from T022-T026.
-- [ ] T028 [US2] Implement -line tolerance window logic strictly for sensitivity analysis (FR-012) and NOT for primary matching per Plan
-- [ ] T029 [US2] Generate validation status report for aligned pairs (matched/unmatched) and save to `data/processed/aligned_pairs.json` (FR-005)
-- [ ] T029c [US2] Implement validation step to measure alignment accuracy using line-range intersection on the expert-validated sample and verify ≥90% threshold (SC-005)
+- [ ] T023 [US2] Implement keyword heuristics (bug, security, style) and semantic search (using `all-MiniLM-L6-v2`) to generate candidate defect set `data/processed/heuristic_candidates.json` (FR-004)
+- [ ] T023b [US2] Implement expert manual validation logic for heuristic candidates: generate `data/processed/validated_heuristic_candidates.json` from `data/processed/heuristic_candidates.json` (FR-004, Plan Ground Truth Construction)
+- [ ] T024a [US2] Implement 'Random Stream' sampling logic (independent of keywords) to select a stratified random sample of ≥500 code changes/comments from the full pool, generating `data/processed/validation_sample_ids.json` (SC-005, Plan Ground Truth Construction)
+- [ ] T024b [US2] Implement expert manual validation for the random sample: generate `data/processed/validated_ground_truth.json` containing the ≥500 validated annotations (FR-004, SC-005)
+- [ ] T025a [US2] Implement sensitivity analysis script `code/02_sensitivity.py` to sweep keyword thresholds (FR-012)
+- [ ] T025b [US2] Execute `code/02_sensitivity.py` with range [0.1, 0.9] to generate `results/sensitivity_analysis.csv` (FR-012)
+- [ ] T026 [US2] Implement Cohen's κ calculation on the expert-validated subset (from T023b and T024b) and save to `results/inter_rater_reliability.json` (schema: `{ "cohen_kappa": float }`) (FR-011)
+- [ ] T028 [US2] Implement 'Union Ground Truth' construction: merge `data/processed/validated_heuristic_candidates.json` (T023b) and `data/processed/validated_ground_truth.json` (T024b) into `data/processed/ground_truth_union.json` (Plan Ground Truth Construction, FR-004)
+- [ ] T027 [US2] Implement `code/03_alignment.py` to align tool issues (from T019) against `data/processed/ground_truth_union.json` (T028): Primary method is AST-based alignment; IF AST unavailable, fallback to diff-based or ±5 line tolerance as mandated by FR-005. (FR-005)
+- [ ] T029a [US2] Generate validation status report for aligned pairs (matched/unmatched) and save to `data/processed/aligned_pairs.json` (FR-005)
+- [ ] T029d [US2] Implement validation step to measure alignment accuracy on the expert-validated sample (T024b) using `data/processed/aligned_pairs.json` (T029a), generating `results/alignment_accuracy_report.json` (schema: `{ "accuracy": float }`) and verify ≥0.90 threshold (SC-005, FR-005). **BLOCKS T032**.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -116,15 +120,13 @@
 
 ### Implementation for User Story 3
 
-- [ ] T032 [US3] Implement `code/04_metrics.py` to calculate Precision, Recall (Estimated via Capture-Recapture using Lincoln-Petersen estimator on two independent lists: tool findings and human annotations per Plan Phase 4), and F1 scores per tool/category (FR-006)
+- [ ] T032 [US3] Implement `code/04_metrics.py` to calculate Precision, Recall, and F1 scores per tool/category by computing True Positives, False Positives, and False Negatives directly against `data/processed/ground_truth_union.json` (T028) (FR-006, SC-001)
 - [ ] T033 [US3] Implement Wilcoxon signed-rank test for paired tool comparison within projects (FR-007)
-- [ ] T033b [US3] Implement permutation-based significance tests by generating null distribution via a sufficient number of permutations and calculating p-values (FR-008)
-- [ ] T034 [US3] Implement Fixed-effects regression model (dependent variable: F1 score; independent variables: tool, language (one-hot encoded), project_size (continuous)) with Cluster-Robust Standard Errors (CRSE) per Plan Assumptions (Hierarchical Data) (FR-008)
-- [ ] T035 [US3] Implement VIF calculation for collinearity diagnostics and Ridge regression fallback if VIF > 5 per Plan Assumptions (Collinearity)
-- [ ] T036 [US3] Implement Bonferroni correction for family-wise error rate in multiple hypothesis tests (FR-009)
-- [ ] T037 [US3] Implement Capture-Recapture sensitivity analysis to estimate total defect population size (Plan Phase 4)
+- [ ] T033b [US3] Implement max-t permutation procedure to generate null distribution and calculate adjusted p-values for Family-Wise Error Rate (FWER) control across all hypothesis tests, saving to `results/fwer_adjusted_pvalues.csv` (schema: columns for all pairwise comparisons and p-values) (FR-008, FR-009)
+- [ ] T034 [US3] Implement Mixed-Effects Linear Model (LMM) with project-level random effects (dependent variable: F1 score; independent variables: tool, language, project_size) to handle project-level clustering and avoid overfitting, generating `results/regression_summary.csv` (schema: coefficients, standard errors, p-values) (FR-008)
+- [ ] T035 [US3] Implement VIF calculation for collinearity diagnostics (FR-008) and Ridge regression fallback if VIF > 5 (Plan Assumptions: Collinearity)
+- [ ] T035b [US3] Apply FWER correction (from T033b) to the regression coefficients and Wilcoxon results, generating `results/corrected_statistical_summary.json` (FR-008, FR-009)
 - [ ] T038 [US3] Generate CSV/PNG artifacts for metrics, regression tables, and plots (FR-010)
-- [ ] T039 [US3] Implement post-hoc power analysis check (target power:, effect size: Cohen's d) and report limitations if power < 0.8 (Plan Assumptions)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -136,8 +138,8 @@
 
 - [ ] T040 [P] Update `README.md` with execution instructions and data flow diagram
 - [ ] T041 Run `code/utils/hasher.py` to update `state/projects/PROJ-180-evaluating-the-effectiveness-of-automate.yaml` with current artifact hashes
-- [ ] T042 Verify all CSV/PNG artifacts in `results/` are non-empty and match expected schema
-- [ ] T043 Run full pipeline on a small subset of repositories. to verify end-to-end runtime < 5.5 hours (SC-003)
+- [ ] T042 Generate `results/verification_report.json` listing all checked CSV/PNG artifacts in `results/` and their status (PASS/FAIL) (FR-010)
+- [ ] T043 Run full pipeline on a small subset of repositories (30-40 repos, 2 CPU cores, 7GB RAM) to verify end-to-end runtime < 5.5 hours (SC-003)
 - [ ] T044 Verify memory usage of peak processes < 6 GB (SC-004)
 - [ ] T045 Run quickstart.md validation (if exists)
 
@@ -150,8 +152,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -217,9 +219,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---
@@ -235,3 +237,4 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **CPU Constraint**: All tasks must run on CPU-only runners (no GPU, no 8-bit models). Use `all-MiniLM-L6-v2` for embeddings, not large LLMs.
 - **Data Integrity**: No synthetic data. All metrics must be derived from real GitHub data and real tool outputs.
+- **Ground Truth**: The final ground truth is the UNION of validated heuristic candidates and validated random samples (T023b + T024b).

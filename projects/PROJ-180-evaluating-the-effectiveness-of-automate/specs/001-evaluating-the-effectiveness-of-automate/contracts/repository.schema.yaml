@@ -1,0 +1,52 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Repository Schema"
+description: "Schema for GitHub repository metadata"
+type: "object"
+properties:
+  repo_id:
+    type: "string"
+    description: "Unique identifier (owner/name)"
+  owner:
+    type: "string"
+    description: "GitHub owner"
+  name:
+    type: "string"
+    description: "Repository name"
+  language:
+    type: "string"
+    enum:
+      - "Java"
+      - "Python"
+      - "JavaScript"
+      - "Go"
+    description: "Primary language"
+  stars:
+    type: "integer"
+    minimum: 0
+    description: "Star count"
+  commits_last_year:
+    type: "integer"
+    minimum: 0
+    description: "Commit count in last 12 months"
+  license:
+    type: "string"
+    description: "License type"
+  clone_url:
+    type: "string"
+    format: "uri"
+    description: "Git clone URL"
+  cloned_at:
+    type: "string"
+    format: "date-time"
+    description: "Timestamp of clone"
+required:
+  - repo_id
+  - owner
+  - name
+  - language
+  - stars
+  - commits_last_year
+  - license
+  - clone_url
+  - cloned_at
+additionalProperties: false

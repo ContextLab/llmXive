@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Aligned Pair Schema"
+description: "Schema for matched tool issues and human annotations"
+type: "object"
+properties:
+  pair_id:
+    type: "string"
+    description: "Unique identifier"
+  tool_issue_id:
+    type: "string"
+    description: "Foreign key to Tool Issue"
+  annotation_id:
+    type: "string"
+    description: "Foreign key to Human Annotation"
+  alignment_method:
+    type: "string"
+    enum:
+      - "AST"
+      - "diff"
+      - "tolerance"
+    description: "Alignment method used"
+  confidence_score:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Alignment confidence score"
+  match_status:
+    type: "string"
+    enum:
+      - "matched"
+      - "unmatched"
+      - "ambiguous"
+    description: "Match status"
+required:
+  - pair_id
+  - tool_issue_id
+  - annotation_id
+  - alignment_method
+  - confidence_score
+  - match_status
+additionalProperties: false

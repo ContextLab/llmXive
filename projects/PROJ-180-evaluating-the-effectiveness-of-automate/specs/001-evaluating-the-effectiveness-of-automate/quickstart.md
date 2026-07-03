@@ -2,61 +2,95 @@
 
 ## Prerequisites
 
-- Python 3.11+
-- Docker (for tool execution)
-- GitHub Personal Access Token (with `public_repo` scope)
-- Sufficient RAM, 14 GB disk, 6-hour runtime budget
-- CPU-optimized `sentence-transformers` model (auto-downloaded)
+- **Python 3.11+**
+- **Docker** (for tool execution)
+- **GitHub Token** (for API access; set as `GITHUB_TOKEN` env var)
+- **7 GB RAM** available (for repository analysis)
+- **6 GB Disk** space (for cloned repos and reports)
 
-## Setup
+## Installation
 
-1. Clone the repository:
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-180-evaluating-the-effectiveness-of-automate
-   ```
+1.  **Clone the repository**:
+    ```bash
+    git clone https://github.com/your-org/your-repo.git
+    cd your-repo
+    ```
 
-2. Create virtual environment:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate
-   pip install -r code/requirements.txt
-   ```
+2.  **Set up virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
 
-3. Set environment variables:
-   ```bash
-   export GITHUB_TOKEN=<your-token>
-   ```
+3.  **Install dependencies**:
+    ```bash
+    pip install -r code/requirements.txt
+    ```
 
-4. Run the pipeline:
-   ```bash
-   python code/01_data_acquisition.py
-   python code/02_human_baseline.py
-   python code/03_alignment.py
-   python code/04_metrics.py
-   ```
+4.  **Set environment variables**:
+    ```bash
+    export GITHUB_TOKEN="your_github_token"
+    ```
 
-5. View results:
-   ```bash
-   ls results/
-   ```
+## Running the Pipeline
 
-## Testing
+The pipeline is executed in stages. Run each stage sequentially:
 
-Run unit tests:
+### Stage 1: Data Acquisition
 ```bash
-pytest code/tests/
+python code/01_data_acquisition.py
 ```
+- Clones a subset of repositories.
+- Executes SonarQube, DeepSource, and CodeClimate.
+- Outputs: `data/raw/repo_list.json`, `data/raw/tool_reports/`
 
-Run contract tests:
+### Stage 2: Human Annotation
+```bash
+python code/02_human_annotation.py
+```
+- Extracts PR comments.
+- Applies keyword heuristics AND random sampling.
+- Outputs: `data/processed/annotations.json`
+
+### Stage 3: Alignment
+```bash
+python code/03_alignment.py
+```
+- Aligns tool issues with human annotations.
+- Outputs: `data/processed/aligned_pairs.json`
+
+### Stage 4: Metrics & Analysis
+```bash
+python code/04_metrics.py
+python code/05_regression.py
+```
+- Computes precision, recall, F1.
+- Runs statistical tests and mixed-effects regression.
+- Outputs: `results/metrics.csv`, `results/regression_table.csv`, `results/plots/`
+
+## Validation
+
+Run contract tests to verify data schemas:
 ```bash
 pytest tests/contract/
 ```
 
+Run integration tests to verify pipeline stages:
+```bash
+pytest tests/integration/
+```
+
 ## Troubleshooting
 
-- **Tool execution fails**: Check Docker is running; verify tool versions in `code/versions.yaml`.
-- **GitHub API rate limit**: Use authenticated token; reduce repo count if needed.
-- **Memory error**: Reduce concurrent repo analysis; check `data/raw` size.
-- **Semantic search slow**: The `all-MiniLM-L6-v2` model is CPU-optimized; ensure sufficient RAM (≥4GB) for embedding generation.
-- **Alignment failure**: If AST/semantic confidence < 0.85, the pair is marked 'unmatched'. This is expected behavior to avoid false positives. Line tolerance is not used for matching.
+- **GitHub API Rate Limits**: Ensure `GITHUB_TOKEN` is set and valid.
+- **Tool Execution Failures**: Check Docker logs; verify tool versions in `code/versions.yaml`.
+- **Memory Errors**: Reduce repository sample size; exclude large repos.
+- **Alignment Errors**: Check `data/processed/aligned_pairs.json` for ambiguous matches.
+
+## Output Artifacts
+
+- `data/raw/`: Raw data (repos, tool reports, PR comments)
+- `data/processed/`: Processed data (annotations, aligned pairs, metrics)
+- `results/`: Final artifacts (CSV, PNG plots, regression tables)
+
+For detailed documentation, refer to `docs/` and `specs/`.

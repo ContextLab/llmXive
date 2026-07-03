@@ -1,0 +1,37 @@
+# Configuration for Automated Code Review Effectiveness Evaluation
+# Generated for task T001b
+
+project:
+  name: "evaluating-the-effectiveness-of-automate"
+  version: "0.1.0"
+
+paths:
+  data_raw: "../data/raw"
+  data_processed: "../data/processed"
+  results: "../results"
+  specs: "../specs"
+
+tools:
+  sonarqube:
+    enabled: true
+    version: "latest"
+  deepsource:
+    enabled: true
+    version: "latest"
+  codeclimate:
+    enabled: true
+    version: "latest"
+
+analysis:
+  languages:
+    - python
+    - java
+    - javascript
+    - go
+  embedding_model: "all-MiniLM-L6-v2"
+  min_repo_stars: 100
+  max_repos: 40
+
+logging:
+  level: INFO
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
