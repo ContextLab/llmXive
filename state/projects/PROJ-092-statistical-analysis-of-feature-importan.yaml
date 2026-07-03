@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-01T14:32:32.010125Z'
-current_stage: project_initialized
+current_stage: clarified
 failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-092-statistical-analysis-of-feature-importan
-last_run_id: 2689c46e-62b7-4d5f-83ef-5ee9fa7fb2c8
+last_run_id: 436761a5-7eb3-4810-a32c-17f7424d2d8c
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-092-statistical-analysis-of-feature-importan/specs/001-statistical-analysis-of-feature-importan
 title: Statistical Analysis of Feature Importance Drift in Pre-trained Models
-updated_at: '2026-06-25T01:41:55.861934Z'
+updated_at: '2026-07-03T02:23:36.077208Z'
