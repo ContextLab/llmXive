@@ -1,0 +1,32 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "HumanEval Dataset Subset"
+description: "Schema for the downloaded and subsetted HumanEval dataset used in the study."
+type: object
+properties:
+  task_id:
+    type: string
+    description: "Unique identifier for the task (e.g., 'HumanEval/0')."
+  prompt:
+    type: string
+    description: "The function signature and docstring prompt."
+  canonical_solution:
+    type: string
+    description: "The reference human solution code."
+  test:
+    type: string
+    description: "The test harness code used to validate solutions."
+  source_url:
+    type: string
+    description: "The verified URL from which the dataset was downloaded."
+    pattern: "^https://huggingface.co/datasets/openai/openai_humaneval/resolve/main/.*"
+  checksum:
+    type: string
+    description: "SHA256 checksum of the raw parquet file."
+required:
+  - task_id
+  - prompt
+  - canonical_solution
+  - test
+  - source_url
+  - checksum
+additionalProperties: false

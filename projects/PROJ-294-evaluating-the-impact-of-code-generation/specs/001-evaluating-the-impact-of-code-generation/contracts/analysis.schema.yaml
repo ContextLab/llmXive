@@ -1,0 +1,74 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Code Analysis Metrics"
+description: "Schema for the computed static and dynamic metrics for each code sample."
+type: object
+properties:
+  sample_id:
+    type: string
+    description: "Unique identifier for the code sample."
+  task_id:
+    type: string
+    description: "Reference to the HumanEval task."
+  source_type:
+    type: string
+    enum:
+      - "human"
+      - "llm"
+    description: "Origin of the code sample."
+  model_name:
+    type: string
+    description: "Name of the model if source_type is 'llm'."
+  metrics:
+    type: object
+    properties:
+      cyclomatic_complexity:
+        type: integer
+        minimum: 0
+        description: "Cyclomatic complexity computed by radon."
+      halstead_volume:
+        type: number
+        minimum: 0
+        description: "Halstead volume."
+      halstead_difficulty:
+        type: number
+        minimum: 0
+        description: "Halstead difficulty."
+      halstead_effort:
+        type: number
+        minimum: 0
+        description: "Halstead effort."
+      dynamic_branch_coverage:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: "Actual branch coverage measured via dynamic execution."
+        nullable: true
+      pass_rate:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: "Functional pass rate (0.0 or 1.0)."
+    required:
+      - cyclomatic_complexity
+      - halstead_volume
+      - halstead_difficulty
+      - halstead_effort
+      - pass_rate
+  status:
+    type: string
+    enum:
+      - "success"
+      - "failed"
+      - "skipped"
+    description: "Status of the analysis."
+  error_message:
+    type: string
+    nullable: true
+    description: "Error message if status is not 'success'."
+required:
+  - sample_id
+  - task_id
+  - source_type
+  - metrics
+  - status
+additionalProperties: false
