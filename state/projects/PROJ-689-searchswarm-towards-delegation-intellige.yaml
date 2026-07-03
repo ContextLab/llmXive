@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-11T11:33:52.510600Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-689-searchswarm-towards-delegation-intellige
-last_run_id: aaa72019-7ce5-482a-a7b5-a4960e7d2453
+last_run_id: 74c52869-5d99-41cb-a5d2-2cc0254deec4
 last_run_status: null
 points_paper: {}
 points_research: {}
