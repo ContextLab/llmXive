@@ -1,8 +1,4 @@
 samples:
-- at: '2026-07-02T20:39:16.760654+00:00'
-  backlog: 237
-- at: '2026-07-02T21:36:01.108688+00:00'
-  backlog: 243
 - at: '2026-07-02T22:33:04.050338+00:00'
   backlog: 247
 - at: '2026-07-02T23:34:25.015914+00:00'
@@ -41,12 +37,14 @@ samples:
   backlog: 309
 - at: '2026-07-03T20:36:13.771738+00:00'
   backlog: 312
+- at: '2026-07-03T22:31:55.888525+00:00'
+  backlog: 314
 last_decision:
   requested: 5
   allowed: 0
-  backlog: 312
-  growth: 75
+  backlog: 314
+  growth: 67
   window_hours: 24.0
   kind: auto
-  reason: backlog grew by 75 over 24h (drain < intake); allowance damped to 0%
-  decided_at: '2026-07-03T20:36:13.771738+00:00'
+  reason: backlog grew by 67 over 24h (drain < intake); allowance damped to 0%
+  decided_at: '2026-07-03T22:31:55.888525+00:00'
