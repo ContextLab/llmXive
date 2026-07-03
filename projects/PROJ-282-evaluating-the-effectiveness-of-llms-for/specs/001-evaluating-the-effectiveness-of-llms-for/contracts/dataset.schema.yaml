@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "VulnerabilityDatasetSchema"
+description: "Schema for the input dataset containing code snippets and ground truth labels."
+type: object
+properties:
+  id:
+    type: string
+    description: "Unique identifier for the snippet."
+  language:
+    type: string
+    enum:
+      - "C"
+      - "Python"
+      - "JavaScript"
+    description: "Programming language of the snippet."
+  source_code:
+    type: string
+    description: "The raw source code content."
+  ground_truth_label:
+    type: integer
+    enum:
+      - 0
+      - 1
+    description: "0 for safe, 1 for vulnerable."
+  ground_truth_category:
+    type: string
+    description: "The vulnerability category (e.g., SQLi, BufferOverflow)."
+  source_dataset:
+    type: string
+    description: "Name of the source dataset (e.g., VulDeePecker)."
+required:
+  - id
+  - language
+  - source_code
+  - ground_truth_label
+  - ground_truth_category
+  - source_dataset

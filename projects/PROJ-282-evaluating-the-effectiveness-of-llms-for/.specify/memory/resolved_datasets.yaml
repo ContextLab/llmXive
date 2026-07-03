@@ -1,0 +1,268 @@
+resolved_at: '2026-07-03T15:18:06.654526+00:00'
+datasets:
+- intent: JavaScript
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/hchautran/javascript/resolve/main/data/test-00000-of-00038.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/angie-chen55/javascript-github-code/resolve/main/data/train-00000-of-00183.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/hchautran/javascript-medium/resolve/main/data/test-00000-of-00016-24d84010ae9f480a.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/h4iku/coconut_javascript2010/resolve/main/data/train-00000-of-00016.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/h4iku/coconut_javascript2010_preprocessed/resolve/main/data/train-00000-of-00003.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/hchautran/javascript/resolve/main/data/test-00000-of-00038.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/angie-chen55/javascript-github-code/resolve/main/data/train-00000-of-00183.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/hchautran/javascript-medium/resolve/main/data/test-00000-of-00016-24d84010ae9f480a.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://drs.britishmuseum.org/articles/media/Fence_builders_providing_verbal_consent/32874098
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://drs.britishmuseum.org/articles/media/Verbal_consent/32874095
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/The_S32_amino_acid_deletion_in_the_GP5_protein_modulates_the_infectivity_of_porcine_reproductive_and_respiratory_syndrome_virus/32896466
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ore.exeter.ac.uk/articles/conference_contribution/Ports_for_floating_substation_construction/32896025
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Fungal_OTUs_abundance_taxonomic_and_guild_annotation_across_27_mature_beech_forest_plots/32896442
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: http://infotech-soccult.knukim.edu.ua/article/view/247490
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4014354
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17661943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10901259
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2541616
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/fvkcn/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21163699
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21163699
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21162028
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21162028
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: VulDeePecker
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/claudios/VulDeePecker/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ijakenorton/vuldeepecker_for_ml/resolve/main/vuldeepecker_full_dataset.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/rufimelo/vuldeepecker-cwe/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 7594
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/claudios/VulDeePecker/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ijakenorton/vuldeepecker_for_ml/resolve/main/vuldeepecker_full_dataset.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/rufimelo/vuldeepecker-cwe/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://drs.britishmuseum.org/articles/figure/Extracting_aruba_fibre/32874230
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://drs.britishmuseum.org/articles/figure/Extracting_aruba_fibre/32874227
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://drs.britishmuseum.org/articles/figure/Extracting_aruba_fibre/32874224
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://drs.britishmuseum.org/articles/figure/Extracting_aruba_fibre/32874218
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://drs.britishmuseum.org/articles/figure/Extracting_aruba_fibre/32874215
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://beei.org/index.php/EEI/article/view/11100
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15447664
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://journals.uran.ua/tarp/article/view/233534
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.ijeat.org/portfolio-item/D458814040425/
+    source: zenodo
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://zenodo.org/records/20471207
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20481843
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20481843
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20471207
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20471207
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20350881
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ROC-AUC
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://drs.britishmuseum.org/articles/figure/Pile_of_axit_fence_posts/32874380
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://drs.britishmuseum.org/articles/figure/Pile_of_axit_fence_posts/32874374
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_b_List_of_species_were_identified_to_species_level_and_deposited_at_the_Instituto_Nacional_de_Pesquisas_da_Amaz_nia_INPA_and_Cole_o_Ictiol_gica_do_Acervo_Biol_gico_da_Amaz_nia_Meridional_ABAM-I_at_Laborat_rio_de_Ictiologia_Tropical_UFMT_b_/32896433
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://drs.britishmuseum.org/articles/figure/Pile_of_axit_fence_posts/32874368
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://drs.britishmuseum.org/articles/figure/Pile_of_axit_fence_posts/32874365
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7471393
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6610410
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10966608
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14411559
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10631919
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21168858
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21168858
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21166269
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21166269
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21165784
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

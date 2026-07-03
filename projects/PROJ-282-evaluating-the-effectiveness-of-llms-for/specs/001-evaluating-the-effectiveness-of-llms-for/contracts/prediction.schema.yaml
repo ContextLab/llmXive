@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PredictionResultSchema"
+description: "Schema for the output of LLM or Static Analyzer predictions."
+type: object
+properties:
+  snippet_id:
+    type: string
+    description: "Reference to the input snippet ID."
+  model_name:
+    type: string
+    description: "Name of the model or tool used (e.g., 'TinyLlama', 'Bandit')."
+  predicted_label:
+    type: integer
+    enum:
+      - 0
+      - 1
+    description: "Predicted vulnerability label."
+  predicted_category:
+    type: string
+    description: "Predicted vulnerability category or 'uncertain'."
+  is_correct:
+    type: boolean
+    description: "True if predicted_label matches ground_truth_label."
+  inference_time_ms:
+    type: number
+    description: "Time taken for inference in milliseconds."
+  confidence_score:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Optional confidence score from the model."
+  truncation_event:
+    type: boolean
+    description: "True if the input was truncated to fit the context window."
+required:
+  - snippet_id
+  - model_name
+  - predicted_label
+  - predicted_category
+  - is_correct
+  - inference_time_ms
+  - truncation_event
