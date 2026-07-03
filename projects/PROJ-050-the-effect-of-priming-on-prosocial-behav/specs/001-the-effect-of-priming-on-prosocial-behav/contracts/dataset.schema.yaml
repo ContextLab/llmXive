@@ -1,37 +1,58 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Processed Comment Dataset Schema"
-description: "Schema for the anonymized, classified comment dataset used in analysis."
-type: "object"
+title: "Reddit Comment Dataset Schema"
+description: "Schema for the anonymized, classified, and scored Reddit comment dataset used in the priming study."
+type: object
 properties:
   comment_id:
-    type: "string"
-    description: "SHA-256 hash of the original comment ID."
+    type: string
+    description: "Unique identifier for the comment."
   thread_id:
-    type: "string"
-    description: "SHA-256 hash of the original thread ID."
-  author_hash:
-    type: "string"
-    description: "SHA-256 hash of the username."
+    type: string
+    description: "Unique identifier for the parent thread."
+  user_id:
+    type: string
+    description: "SHA-256 hash of the original author (anonymized)."
   subreddit:
-    type: "string"
-    description: "Name of the subreddit."
-    enum: ["AskReddit", "relationships", "socialscience", "psychology", "dataisbeautiful"]
+    type: string
+    description: "Name of the subreddit (e.g., 'AskReddit')."
   thread_type:
-    type: "string"
-    description: "Classification of the thread."
-    enum: ["Prime", "Control"]
-  text:
-    type: "string"
-    description: "The comment body."
-  negation_excluded:
-    type: "boolean"
-    description: "True if the title contained a negation pattern."
+    type: string
+    enum:
+      - "Prime"
+      - "Control"
+    description: "Classification based on title keywords."
+  body:
+    type: string
+    description: "The text content of the comment."
+  prosocial_action_count:
+    type: integer
+    minimum: 0
+    description: "Count of prosocial action verbs in the comment."
+  neg_score:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "VADER negative sentiment component (0-1)."
+  compound:
+    type: number
+    description: "VADER compound sentiment score."
+  thread_age:
+    type: number
+    description: "Age of the thread in hours (relative)."
+  comment_count:
+    type: integer
+    minimum: 0
+    description: "Total number of comments in the thread."
 required:
   - comment_id
   - thread_id
-  - author_hash
+  - user_id
   - subreddit
   - thread_type
-  - text
-  - negation_excluded
+  - body
+  - prosocial_action_count
+  - neg_score
+  - compound
+  - thread_age
+  - comment_count
 additionalProperties: false

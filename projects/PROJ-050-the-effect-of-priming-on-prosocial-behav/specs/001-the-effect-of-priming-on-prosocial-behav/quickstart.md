@@ -2,74 +2,89 @@
 
 ## Prerequisites
 - Python 3.11+
-- Git
-- Access to GitHub Actions (for CI execution)
+- `pip`
 
 ## Installation
 
-1. **Clone the repository**:
+1. **Clone the repository** and navigate to the project directory.  
+2. **Install dependencies**:
+
    ```bash
-   git clone <repo-url>
-   cd projects/PROJ-050-the-effect-of-priming-on-prosocial-behav
+   cd projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/code
+   pip install -r requirements.txt
    ```
 
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+3. **Download NLTK data**:
 
-3. **Install dependencies**:
    ```bash
-   pip install -r code/requirements.txt
+   python -c "import nltk; nltk.download('punkt'); nltk.download('vader_lexicon')"
    ```
 
 ## Running the Pipeline
 
-### Step 1: Data Ingestion & Preprocessing
-Download and process the data:
-```bash
-python code/data/download.py
-python code/data/preprocess.py
-```
-*Output*: `data/processed/comments_anonymized.csv`
+The pipeline runs in sequential stages. Each stage writes its output to `data/processed/` and logs progress.
 
-### Step 2: Scoring
-Compute sentiment and prosocial scores:
+### Step 1: Ingest & Anonymize
 ```bash
-python code/data/score.py
+python 01_ingest.py
 ```
-*Output*: `data/processed/scored_comments.csv`
+* Downloads the **primary verified multi‑subreddit dataset** `pushshift/reddit`.  
+* Verifies presence of all five target subreddits; if any are missing, attempts to load the fallback dataset (same source refreshed). If that also lacks required subreddits, the script **aborts with an error**.  
+* Computes `thread_age` before stripping timestamps.  
+* Hashes usernames and strips timestamps.  
+* Outputs `data/processed/raw_anonymized.parquet`.
 
-### Step 3: Validation (Manual Annotation Required)
-This step requires **human intervention** to ensure construct validity.
-1. Run the extraction script to get a stratified sample:
-   ```bash
-   python code/validation/kappa.py --extract
-   ```
-2. Manually annotate the generated sample file (`data/validation_sample.csv`) using the provided codebook. Two independent raters must code the "prosocial action" binary flag.
-3. Run the calculation script with the annotated file:
-   ```bash
-   python code/validation/kappa.py --calculate
-   ```
-*Output*: `results/validation_report.json` (Must show Kappa ≥ 0.7).
-
-### Step 4: Statistical Analysis
-Run the analysis (LMM):
+### Step 2: Classify Threads
 ```bash
-python code/analysis/stats.py
-python code/analysis/viz.py
+python 02_classify.py
 ```
-*Output*: `results/analysis_report.json`, `results/boxplot.png`
+* Applies keyword logic with negation exclusion.  
+* Labels `thread_type` as “Prime” or “Control”.  
+* Logs “Negation Exclusions”.  
+* Outputs `data/processed/classified.parquet`.
 
-## Validation
-To verify the prosocial lexicon and VADER scores:
+### Step 3: Score Comments
 ```bash
-python code/validation/kappa.py --calculate
+python 03_score.py
 ```
-*Expected*: Cohen's Kappa ≥ 0.7 in `results/validation_report.json`.
+* Computes VADER sentiment scores and `neg_score` (VADER `neg` component).  
+* Computes `prosocial_action_count` using the secondary lexicon (excluding prime keywords).  
+* Ensures CPU‑only execution; runtime is monitored to stay < 4 h for TARGET_N = 10 000.  
+* Outputs `data/processed/scored.parquet`.
+
+### Step 4: Validation (Human‑Generated Gold Standard Required)
+**Before running this step, you must create the validation file** `data/validation/gold_standard.csv` **by following the Human Annotation Protocol** described in `research.md`:
+
+1. Recruit **at least three independent raters**.  
+2. Provide them with the codebook (prosocal action verbs, VADER neg interpretation).  
+3. Perform a **stratified random sample** (≥ 50 samples per `thread_type` × `subreddit` stratum; merge strata only when necessary to meet the threshold).  
+4. Collect the annotations and save them in a CSV with columns `comment_id`, `human_label_prosocial`, `human_label_neg`, plus a `human_raters` column listing the rater IDs.
+
+Then run:
+
+```bash
+python 04_validate.py --gold data/validation/gold_standard.csv
+```
+* Calculates Cohen’s Kappa for the prosocial lexicon and VADER negativity.  
+* **Fails** with a clear error if Kappa < 0.7 or if the gold‑standard file is missing or lacks the required `human_raters` metadata.
+
+### Step 5: Statistical Analysis
+```bash
+python 05_analyze.py
+```
+* Fits the Linear Mixed‑Effects Model (random intercept for `thread_id`; `user_id` included only if its variance component is positive and identifiable).  
+* Performs sensitivity analysis (p < 0.01, 0.05, 0.10).  
+* Generates `results/analysis_results.json` and `results/boxplot.png`.
+
+## Expected Outputs
+- `data/processed/scored.parquet`: Final analysis dataset.  
+- `results/analysis_results.json`: Statistical summary (p‑value, coefficients, validation Kappa, runtime).  
+- `results/boxplot.png`: Visualization of prosocial counts by thread type.  
+- `logs/pipeline.log`: Execution logs including warnings for missing subreddits, dataset fallback attempts, and any variance‑component diagnostics for `user_id`.
 
 ## Troubleshooting
-- **Memory Error**: Reduce the sample size in `code/config.py` (e.g., `MAX_COMMENTS = 5000`).
-- **Dataset Missing**: Ensure the HuggingFace URL in `code/config.py` is accessible.
-- **PII Leak**: Run `python code/data/check_pii.py` to scan `data/processed/` for plaintext usernames.
+- **Memory Error**: Reduce `TARGET_N` in `code/utils/constants.py`.  
+- **Dataset Missing Subreddits**: Check `logs/pipeline.log` for “Subreddit Filter Warning”. The pipeline will abort if no verified multi‑subreddit source is found.  
+- **LMM Convergence**: If the model fails to converge, the script will automatically refit without the `user_id` random effect and log the decision.  
+- **Validation Failure**: Ensure `gold_standard.csv` is present, was created by **human raters**, and includes the `human_raters` column; otherwise the validation step will stop with an explanatory message.  
+

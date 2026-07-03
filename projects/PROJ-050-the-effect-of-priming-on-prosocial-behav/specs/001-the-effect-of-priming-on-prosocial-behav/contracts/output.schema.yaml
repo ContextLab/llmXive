@@ -1,93 +1,87 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Analysis Results Schema"
-description: "Schema for the final statistical analysis report (Linear Mixed-Effects Model)."
-type: "object"
+description: "Schema for the JSON output of the Linear Mixed-Effects Model analysis."
+type: object
 properties:
-  lmm_results:
-    type: "object"
-    description: "Results of the Linear Mixed-Effects Model."
+  model_summary:
+    type: object
     properties:
-      fixed_effects:
-        type: "object"
-        description: "Coefficients for fixed effects."
-        properties:
-          thread_type:
-            type: "number"
-          thread_age:
-            type: "number"
-          comment_count:
-            type: "number"
-          subreddit:
-            type: "number"
-        required:
-          - thread_type
-          - thread_age
-          - comment_count
-      random_intercepts:
-        type: "object"
-        description: "Variance components for random effects."
-        properties:
-          thread_id:
-            type: "number"
-        required:
-          - thread_id
-      p_values:
-        type: "object"
-        description: "P-values for fixed effects."
-        properties:
-          thread_type:
-            type: "number"
-          thread_age:
-            type: "number"
-          comment_count:
-            type: "number"
-        required:
-          - thread_type
-          - thread_age
-          - comment_count
+      p_value:
+        type: number
+        description: "P-value for the fixed effect of 'thread_type' (Prime vs Control)."
+      coefficient:
+        type: number
+        description: "Coefficient for the 'Prime' indicator variable."
+      std_error:
+        type: number
+        description: "Standard error of the coefficient."
       confidence_interval:
-        type: "array"
+        type: array
         items:
-          type: "number"
+          type: number
         minItems: 2
         maxItems: 2
-      significance:
-        type: "boolean"
+        description: "95% Confidence Interval [lower, upper]."
+      significant:
+        type: boolean
+        description: "True if p < 0.05."
     required:
-      - fixed_effects
-      - random_intercepts
-      - p_values
+      - p_value
+      - coefficient
+      - std_error
       - confidence_interval
-      - significance
+      - significant
   sensitivity_analysis:
-    type: "object"
-    description: "P-values at different thresholds."
+    type: object
     properties:
       p_0_01:
-        type: "number"
+        type: number
+        description: "Significance status at p < 0.01."
       p_0_05:
-        type: "number"
+        type: number
+        description: "Significance status at p < 0.05."
       p_0_10:
-        type: "number"
+        type: number
+        description: "Significance status at p < 0.10."
     required:
       - p_0_01
       - p_0_05
       - p_0_10
   validation:
-    type: "object"
-    description: "Validation metrics."
+    type: object
     properties:
-      cohen_kappa:
-        type: "number"
-        minimum: 0
-        maximum: 1
-      sample_size:
-        type: "integer"
+      kappa_score:
+        type: number
+        description: "Cohen's Kappa score from human validation."
+      passed:
+        type: boolean
+        description: "True if kappa >= 0.7."
     required:
-      - cohen_kappa
+      - kappa_score
+      - passed
+  metadata:
+    type: object
+    properties:
+      sample_size:
+        type: integer
+        description: "Total number of comments analyzed."
+      prime_count:
+        type: integer
+        description: "Number of Prime threads."
+      control_count:
+        type: integer
+        description: "Number of Control threads."
+      runtime_seconds:
+        type: number
+        description: "Total pipeline runtime in seconds."
+    required:
       - sample_size
+      - prime_count
+      - control_count
+      - runtime_seconds
 required:
-  - lmm_results
+  - model_summary
   - sensitivity_analysis
   - validation
+  - metadata
 additionalProperties: false
