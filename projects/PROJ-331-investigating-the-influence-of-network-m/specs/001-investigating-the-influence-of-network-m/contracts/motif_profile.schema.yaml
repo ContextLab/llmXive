@@ -1,0 +1,61 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Motif Profile Schema"
+description: "Schema for the JSON file containing motif z-scores for a single subject."
+type: "object"
+properties:
+  motif_z_scores:
+    type: "object"
+    description: "Mapping of motif ID to median z-score (or null if failed)."
+    additionalProperties:
+      anyOf:
+        - type: "number"
+        - type: "null"
+      description: "Z-score for the motif (median of thresholds) or null if failed."
+  motif_z_scores_raw:
+    type: "object"
+    description: "Optional: Raw z-scores per threshold."
+    additionalProperties:
+      type: "object"
+      additionalProperties:
+        type: "number"
+      description: "Mapping of threshold (e.g., '10%') to z-score."
+  null_model_params:
+    type: "object"
+    properties:
+      iterations:
+        type: "integer"
+        minimum: 10
+        maximum: 1000
+        description: "Number of null model iterations (default 100)."
+      method:
+        type: "string"
+        enum:
+          - "maslov_sneppen"
+        description: "Algorithm used for null model generation."
+    required:
+      - "iterations"
+      - "method"
+  computation_time:
+    type: "number"
+    minimum: 0
+    description: "Time taken to compute motifs in seconds."
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of generation."
+  threshold_density:
+    type: "array"
+    items:
+      type: "number"
+    description: "List of density thresholds used for aggregation."
+  null_model_failed:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of motif_ids where null model failed to converge."
+required:
+  - "motif_z_scores"
+  - "null_model_params"
+  - "computation_time"
+  - "threshold_density"
+additionalProperties: false

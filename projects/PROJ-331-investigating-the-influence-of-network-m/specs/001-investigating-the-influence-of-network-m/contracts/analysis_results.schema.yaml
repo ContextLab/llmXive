@@ -1,0 +1,57 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Results Schema"
+description: "Schema for the CSV/JSON output of the statistical analysis phase."
+type: "object"
+properties:
+  motif_id:
+    type: "string"
+    description: "Identifier for the specific 3-node motif."
+  correlation_type:
+    type: "string"
+    enum:
+      - "pearson"
+      - "spearman"
+    description: "Type of correlation computed."
+  r_value:
+    type: "number"
+    description: "Partial correlation coefficient."
+  p_value_raw:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Uncorrected p-value."
+  p_value_corrected:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "FDR-corrected p-value."
+  significant:
+    type: "boolean"
+    description: "True if p_value_corrected < 0.05."
+  empirical_p:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Empirical p-value from permutation test."
+  n_permutations:
+    type: "integer"
+    minimum: 1000
+    description: "Number of permutations performed."
+  control_variable:
+    type: "string"
+    const: "network_density"
+    description: "Variable controlled for in partial correlation."
+  vif:
+    type: "number"
+    description: "Variance Inflation Factor for the control variable."
+required:
+  - "motif_id"
+  - "correlation_type"
+  - "r_value"
+  - "p_value_raw"
+  - "p_value_corrected"
+  - "significant"
+  - "empirical_p"
+  - "n_permutations"
+  - "control_variable"
+additionalProperties: false

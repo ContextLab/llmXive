@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Structural Connectome Metadata"
+description: "Schema for the JSON metadata file generated for each subject after structural connectome processing."
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "The unique HCP subject identifier."
+    pattern: "^[0-9]{6}$"
+  status:
+    type: "string"
+    enum:
+      - "complete"
+      - "skipped"
+      - "error"
+    description: "Processing status of the subject."
+  reason:
+    type:
+      - "string"
+      - "null"
+    description: "Reason for skip or error, null if complete."
+  seed:
+    type: "integer"
+    description: "Random seed used for reproducibility (fixed at 42)."
+    const: 42
+  file_paths:
+    type: "object"
+    properties:
+      structural:
+        type: "string"
+        description: "Relative path to the structural.npy (binary) file."
+      structural_weighted:
+        type: "string"
+        description: "Relative path to the structural_weighted.npy (weighted) file."
+      rsfc:
+        type: "string"
+        description: "Relative path to the rsfc.npy file."
+    required:
+      - "structural"
+      - "structural_weighted"
+      - "rsfc"
+    description: "Paths to generated binary and weighted matrices."
+required:
+  - "subject_id"
+  - "status"
+  - "seed"
+  - "file_paths"
+additionalProperties: false
