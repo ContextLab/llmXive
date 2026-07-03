@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Participant Schema"
+description: "Schema for a processed participant record."
+type: "object"
+required:
+  - participant_id
+  - condition
+  - consent_given
+  - is_valid
+  - mean_outrage_score
+properties:
+  participant_id:
+    type: "string"
+    description: "Unique identifier for the participant."
+    pattern: "^P-[0-9]{3}$"
+  condition:
+    type: "string"
+    description: "Experimental condition assignment."
+    enum:
+      - "perspective_taking"
+      - "control"
+  consent_given:
+    type: "boolean"
+    description: "True if informed consent was verified."
+  attention_check_failures:
+    type: "integer"
+    description: "Number of failed attention checks."
+    minimum: 0
+  is_straight_liner:
+    type: "boolean"
+    description: "True if participant exhibited zero variance in scale items."
+  is_valid:
+    type: "boolean"
+    description: "True if participant passed all validity checks (including consent)."
+  mean_outrage_score:
+    type: "number"
+    description: "Mean score across the 7-item Moral Outrage Scale."
+    minimum: 1.0
+    maximum: 7.0
+  n_posts_viewed:
+    type: "integer"
+    description: "Number of posts rated by the participant."
+    minimum: 1
+  demographics:
+    type: "object"
+    description: "Optional demographic data (non-PII)."
+    properties:
+      age_group:
+        type: "string"
+      gender:
+        type: "string"

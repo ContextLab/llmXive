@@ -1,69 +1,57 @@
 # Data Model: The Impact of Perspective-Taking on Moral Outrage in Online Discourse
 
-## 1. Overview
+## Overview
+This document defines the data structures for the stimulus curation, participant response processing, and analysis output. All data is stored in `data/` and processed in `code/`.
 
-This document defines the data structures used throughout the project. All data is stored in JSON or CSV format within the `data/` directory. The model supports both **Simulated** and **Human** participant streams, ensuring data separation (FR-009).
+## Entity Definitions
 
-## 2. Core Entities
+### 1. Stimulus
+Represents a single Twitter post paired with an experimental instruction.
 
-### 2.1 Stimulus
-A single social media post with metadata and instruction variants.
+| Field | Type | Description | Constraints |
+| :--- | :--- | :--- | :--- |
+| `stimulus_id` | string | Unique identifier (e.g., `S-001`) | PK |
+| `post_text` | string | The original Twitter post text | Not Null |
+| `topic` | string | Topic category (e.g., `climate`, `immigration`) | Enum |
+| `vader_sentiment` | float | Automated sentiment score (-1.0 to 1.0) | Nullable (computed if missing) |
+| `intensity_bin` | string | `moderate` or `high` | Derived from `vader_sentiment` |
+| `instruction_type` | string | `perspective_taking` or `control` | Enum |
+| `instruction_text` | string | The full prompt text | Not Null |
 
-- **`post_id`**: Unique identifier (string).
-- **`text`**: The content of the social media post (string).
-- **`topic`**: The controversial topic (e.g., "climate", "immigration") (string).
-- **`outrage_label`**: The original label from the dataset (e.g., "high") (string).
-- **`instructions`**: A dictionary containing the two instruction variants.
-  - **`perspective_taking`**: The prompt text for the PT condition (string).
-  - **`control`**: The prompt text for the control condition (string).
+### 2. Participant
+Represents an experimental subject and their aggregated responses.
 
-### 2.2 Participant
-A record of a subject (simulated or human) who completed the experiment.
+| Field | Type | Description | Constraints |
+| :--- | :--- | :--- | :--- |
+| `participant_id` | string | Unique identifier (e.g., `P-001`) | PK |
+| `condition` | string | `perspective_taking` or `control` | Not Null |
+| `consent_given` | boolean | True if participant provided informed consent | Required, Default: False |
+| `attention_check_failures` | int | Number of failed attention checks | ≥ 0 |
+| `is_straight_liner` | boolean | True if zero variance in scale items | Calculated |
+| `is_valid` | boolean | True if passed attention, not straight-liner, and consent given | Derived |
+| `mean_outrage_score` | float | Average of 7-item Moral Outrage Scale | Calculated |
+| `n_posts_viewed` | int | Number of posts rated by participant | ≥ 0 |
 
-- **`participant_id`**: Unique identifier (string).
-- **`type`**: "simulated" or "human" (string).
-- **`condition`**: "perspective_taking" or "control" (string).
-- **`attention_checks`**: A list of booleans indicating pass/fail for each embedded check.
-- **`attention_checks_passed`**: Boolean (True if ≤2 missed checks, derived from `attention_checks`).
-- **`demographics`**: Optional dictionary (age, gender, etc.) for human data.
-- **`responses`**: A list of integers (1-7) representing the Moral Outrage Scale items.
-- **`mean_outrage`**: The calculated mean of the responses (float).
+### 3. AnalysisResult
+Represents the statistical output of the study.
 
-### 2.3 Analysis Result
-The output of the statistical analysis.
+| Field | Type | Description | Constraints |
+| :--- | :--- | :--- | :--- |
+| `test_type` | string | `t_test` or `mixed_effects` | Enum |
+| `statistic` | float | t-statistic or t-statistic from LME | Not Null |
+| `p_value` | float | Significance level | [0, 1] |
+| `effect_size` | float | Cohen's d (for t-test) or Coefficient (for LME) | Nullable |
+| `ci_lower` | float | Lower bound of 95% CI | Nullable |
+| `ci_upper` | float | Upper bound of 95% CI | Nullable |
+| `n_group_a` | int | Count in perspective-taking group | ≥ 0 |
+| `n_group_b` | int | Count in control group | ≥ 0 |
+| `icc_value` | float | Intra-class correlation (repeated measures) | [0, 1] |
+| `analysis_path` | string | `t_test` or `mixed_effects_fallback` | Enum |
 
-- **`test_type`**: "lmm" or "mann_whitney" (string).
-- **`fixed_effects`**: Dictionary of coefficients and p-values for fixed effects.
-- **`random_effects`**: Variance components for random effects.
-- **`ci_lower`, `ci_upper`**: % Confidence Interval bounds (float).
-- **`sample_sizes`**: Dictionary with `n_pt` and `n_control`.
+## File Formats
 
-## 3. File Structure
-
-```text
-data/
-├── raw/
-│   └── against_the_others_raw.json    # Original dataset (checksummed)
-├── processed/
-│   ├── stimuli.json                   # Filtered & curated a set of stimuli
-
-The research question, method, and references remain as originally planned, with the specific count generalized to a qualitative description.
-│   ├── simulation_results.csv         # Synthetic participant data
-│   └── human_results.csv              # Human participant data (future)
-└── analysis/
-    └── stats_report.json              # Final statistical outputs
-```
-
-## 4. Data Flow
-
-1. **Ingestion**: `raw/` → `processed/stimuli.json` (Filtering, Sampling).
-2. **Simulation**: `stimuli.json` + `random_seed` → `simulation_results.csv` (Assignment, Scoring).
-3. **Analysis**: `simulation_results.csv` → `stats_report.json` (LMM, U-test).
-4. **Human**: `human_results.csv` (same schema as simulation) → `stats_report.json`.
-
-## 5. Constraints & Validation
-
-- **Stimuli**: Must have entries (multiple per topic).
-- **Responses**: Must be integers between 1 and 7.
-- **Attention Checks**: `attention_checks` must be a list of 5 booleans. `attention_checks_passed` is derived as `sum(attention_checks) >= 3`.
-- **Separation**: `type` field must strictly distinguish "simulated" vs "human".
+- **Raw Stimuli**: `data/raw/twitter_posts.parquet`
+- **Processed Stimuli**: `data/processed/stimuli.json` (List of Stimulus objects)
+- **Raw Participants**: `data/raw/participant_responses.csv`
+- **Cleaned Participants**: `data/processed/cleaned_participants.csv` (List of Participant objects)
+- **Analysis Output**: `data/processed/analysis_results.json` (List of AnalysisResult objects)

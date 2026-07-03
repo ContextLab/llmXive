@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2308.01264",
+  "judged_at": "2026-07-03T00:52:29Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of perspective-taking on moral outrage in online discourse psychology",
+  "rationale": "The paper investigates the moral reasoning capabilities of Large Language Models (LLMs) and their alignment with human responses, rather than studying the psychological mechanism of \"perspective-taking\" or its causal impact on \"moral outrage\" in human online discourse. While it touches on moral psychology, it fails to address the specific independent variable (perspective-taking), the specific dependent variable (moral outrage), or the specific domain (human online discourse) required by the use",
+  "relevant": false
+}

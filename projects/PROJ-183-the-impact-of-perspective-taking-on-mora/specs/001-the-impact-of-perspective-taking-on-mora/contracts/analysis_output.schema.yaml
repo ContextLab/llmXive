@@ -1,0 +1,63 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Output Schema"
+description: "Schema for the statistical analysis results."
+type: "object"
+required:
+  - test_type
+  - statistic
+  - p_value
+  - n_group_a
+  - n_group_b
+  - analysis_path
+properties:
+  test_type:
+    type: "string"
+    description: "Type of statistical test performed."
+    enum:
+      - "t_test"
+      - "mixed_effects"
+      - "mann_whitney"
+  statistic:
+    type: "number"
+    description: "The test statistic (t or U)."
+  p_value:
+    type: "number"
+    description: "The p-value of the test."
+    minimum: 0.0
+    maximum: 1.0
+  effect_size:
+    type: "number"
+    description: "Effect size (Cohen's d or Coefficient)."
+    nullable: true
+  ci_lower:
+    type: "number"
+    description: "Lower bound of the 95% confidence interval."
+    nullable: true
+  ci_upper:
+    type: "number"
+    description: "Upper bound of the 95% confidence interval."
+    nullable: true
+  n_group_a:
+    type: "integer"
+    description: "Sample size for the perspective-taking group."
+    minimum: 0
+  n_group_b:
+    type: "integer"
+    description: "Sample size for the control group."
+    minimum: 0
+  icc_value:
+    type: "number"
+    description: "Intra-class correlation for repeated measures."
+    minimum: 0.0
+    maximum: 1.0
+    nullable: true
+  analysis_path:
+    type: "string"
+    description: "Whether t-test was used or LME fallback was triggered."
+    enum:
+      - "t_test"
+      - "mixed_effects_fallback"
+  conclusion:
+    type: "string"
+    description: "Textual summary of the result."
+    minLength: 1

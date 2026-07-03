@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2208.07178",
+  "judged_at": "2026-07-03T00:52:35Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of perspective-taking on moral outrage in online discourse psychology",
+  "rationale": "This paper satisfies criterion (a) by measuring the same core mechanism (perspective-taking via a virtual agent) and the same emotional antecedent (anger) as the user's question, even though the dependent variable is creative problem-solving performance rather than moral outrage. It also fits criterion (b) by providing empirical evidence on how perspective-taking interventions modulate the effects of anger in an online experimental setting, which is a canonical variable and domain for the user's",
+  "relevant": true
+}

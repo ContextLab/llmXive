@@ -1,132 +1,127 @@
 # Implementation Plan: The Impact of Perspective-Taking on Moral Outrage in Online Discourse
 
-**Branch**: `001-perspective-taking-moral-outrage` | **Date**: 2024-05-21 | **Spec**: `specs/001-perspective-taking-moral-outrage/spec.md`
+**Branch**: `001-perspective-taking-outrage` | **Date**: 2026-07-03 | **Spec**: `spec.md`
+**Input**: Feature specification from `specs/001-perspective-taking-outrage/spec.md`
 
 ## Summary
-
-This project implements a computational pipeline to simulate and analyze a psychological experiment investigating whether perspective-taking prompts reduce moral outrage in online discourse. The system ingests the "Against the Others!" dataset, curates high-outrage stimuli, simulates participant responses using empirically grounded noise models, and performs statistical analysis using Linear Mixed-Effects Models (LMM) to account for stimulus nesting. The implementation is strictly CPU-bound to ensure reproducibility on GitHub Actions free-tier runners.
+This feature implements a computational pipeline to test the hypothesis that prompting individuals to adopt the perspective of a disagreeing online poster reduces their self-reported moral outrage. The system ingests the "Against the Others!" Twitter dataset, curates and stratifies stimuli by automated sentiment (VADER), generates randomized experimental instructions (Perspective-Taking vs. Control), and processes participant response data. The core analysis performs an independent-samples t-test on mean outrage scores **only if** the Intra-Class Correlation (ICC) is negligible (<0.05). If ICC indicates significant clustering, the system automatically switches to a Linear Mixed-Effects (LME) model with random intercepts for participants to ensure valid inference. The implementation strictly adheres to CPU-only constraints for free-tier CI reproducibility.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: pandas, scipy, statsmodels, numpy, requests, pyyaml  
-**Storage**: Local CSV/JSON files (`data/`), no external database  
-**Testing**: pytest (unit tests for data ingestion, randomization, and statistical logic)  
-**Target Platform**: Linux (GitHub Actions Runner)  
-**Project Type**: Computational Research Pipeline / CLI  
-**Performance Goals**: Entire pipeline (data load, simulation, analysis) < 1 hour on 2 CPU / 7GB RAM  
-**Constraints**: No GPU, no external API calls during CI (datasets must be local or cached), strict random seed pinning for reproducibility.  
-**Scale/Scope**: ~40 stimuli, ~200 simulated participants, <10MB data footprint.
+**Primary Dependencies**: `pandas`, `scipy`, `statsmodels`, `numpy`, `vaderSentiment`, `pyyaml`, `jsonschema`  
+**Storage**: Local file system (CSV/JSON/Parquet) within `data/` and `code/`  
+**Testing**: `pytest` (unit tests for data cleaning logic; integration tests for pipeline flow)  
+**Target Platform**: Linux (GitHub Actions free-tier runner)  
+**Project Type**: Computational Research Pipeline  
+**Performance Goals**: Runtime ≤6 hours, Memory ≤7 GB RAM (CPU-only)  
+**Constraints**: No GPU, no 8-bit quantization, strict adherence to `FR-007` and `FR-008`.  
+**Scale/Scope**: Processing ~60 stimuli, up to 240 participants, 5 posts per participant.
 
-> **Dataset Note**: The "Against the Others!" dataset is the primary source. **CRITICAL**: The pipeline is currently BLOCKED until a verified URL is provided in `config.py`. If the URL is unreachable or the dataset lacks required "high-outrage" + "topic" metadata, the system must halt with a clear error (FR-001, FR-002).
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research.*
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Verification / Action |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | Plan mandates `random_seed` pinning in `code/`, deterministic data loading, and CI execution. |
-| **II. Verified Accuracy** | **BLOCKED** | **Action Required**: The plan relies on a dataset URL that must be provided in `config.py`. The pipeline halts if the URL is unreachable or the dataset lacks required fields. Status remains BLOCKED until a verified URL is entered. |
-| **III. Data Hygiene** | **PASS** | Plan enforces checksums for raw data, no in-place modification, and distinct files for derived data. |
-| **IV. Single Source of Truth** | **PASS** | All statistics in the final report will be generated programmatically from `data/` via `code/`. |
-| **V. Versioning Discipline** | **PASS** | Artifacts will be hashed; `state/` files updated on change. |
-| **VI. Participant Ethics** | **PASS** | Synthetic data only for simulation; human data phase (US-4) requires explicit consent logic (to be implemented in `code/`). |
-| **VII. Measurement Integrity** | **PASS** | The 7-item Moral Outrage Scale scoring algorithm will be version-controlled and linked to raw data. |
+- **I. Reproducibility**: The plan mandates pinned random seeds in `code/` and fetching external datasets from canonical sources (verified URLs) on every run. The `requirements.txt` will pin all versions.
+- **II. Verified Accuracy**: Citations for the "Against the Others!" dataset (pending verified URL) and the Moral Outrage Scale will be validated against primary sources before analysis. The VADER algorithm will be cited to its original publication (Hutto & Gilbert)..
+- **III. Data Hygiene**: Raw data (Twitter posts, participant CSVs) will be stored in `data/` with checksums recorded. No in-place modifications; derivations (cleaned data) will be new files. **All output files in `data/processed/` must validate against the schemas in `contracts/` before being written.**
+- **IV. Single Source of Truth**: All statistics (t-stat, p-value, Cohen's d, LME coefficients) will be generated by code and output to a JSON/CSV report, which the paper will reference. No hand-typed numbers.
+- **V. Versioning Discipline**: Artifacts (code, data) will carry content hashes. **`main.py`** is explicitly responsible for updating the `state` YAML file with artifact hashes upon successful completion of the pipeline.
+- **VI. Participant Ethics**: The data model includes a `consent_given` flag. **`02_data_cleaning.py`** explicitly filters for `consent_given == true` before any analysis, ensuring no data is processed without verified consent.
+- **VII. Measurement Integrity**: The 7-item Moral Outrage Scale scoring logic will be version-controlled in `code/` and linked to raw data rows.
 
 ## Project Structure
+
+### Documentation (this feature)
+
+```text
+specs/001-perspective-taking-outrage/
+├── plan.md              # This file
+├── research.md          # Phase 0 output
+├── data-model.md        # Phase 1 output
+├── quickstart.md        # Phase 1 output
+├── contracts/           # Phase 1 output
+│   ├── stimulus.schema.yaml
+│   ├── participant.schema.yaml
+│   └── analysis_output.schema.yaml
+└── tasks.md             # Phase 2 output
+```
 
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-183-the-impact-of-perspective-taking-on-mora/
-├── code/
-│   ├── __init__.py
-│   ├── config.py                 # Random seeds, paths, constants
-│   ├── data/
-│   │   ├── __init__.py
-│   │   ├── ingest.py             # FR-001, FR-002: Download & filter dataset
-│   │   ├── stimuli.py            # FR-003: Generate instruction variants
-│   │   └── simulation.py         # FR-004, FR-005: Assign & score synthetic participants
-│   ├── analysis/
-│   │   ├── __init__.py
-│   │   ├── stats.py              # FR-006, FR-007: LMM, Mann-Whitney U, power analysis
-│   │   └── pipeline.py           # Orchestration: Load -> Simulate -> Analyze
-│   └── main.py                   # Entry point
-├── data/
-│   ├── raw/                      # Downloaded datasets (checksummed)
-│   ├── processed/                # Curated stimuli, simulated responses
-│   └── human/                    # Placeholder for human data (US-4)
-├── tests/
-│   ├── test_ingest.py
-│   ├── test_simulation.py
-│   └── test_stats.py
-├── contracts/
-│   ├── stimulus.schema.yaml
-│   └── response.schema.yaml
-├── requirements.txt
-└── README.md
+code/
+├── 01_stimulus_curation.py      # Downloads data, filters topics, stratifies by VADER, generates stimuli. Validates output against stimulus.schema.yaml.
+├── 02_data_cleaning.py          # Filters participants (attention/straight-lining/consent), calculates mean outrage. Validates output against participant.schema.yaml.
+├── 03_analysis.py               # Calculates ICC, decides between t-test or LME, runs robustness checks, report generation.
+├── utils/
+│   ├── vader_sentiment.py       # Wrapper for VADER scoring (Hutto & Gilbert, 2014)
+│   └── scale_scoring.py         # Moral Outrage Scale scoring logic
+├── main.py                      # Orchestrator (runs 01 -> 02 -> 03); updates state YAML with hashes.
+└── requirements.txt             # Pinned dependencies
+
+data/
+├── raw/
+│   ├── twitter_posts.parquet    # Raw "Against the Others!" dataset (from verified URL)
+│   └── participant_responses.csv # Raw survey data
+├── processed/
+│   ├── stimuli.json             # Curated stimuli with instructions
+│   ├── cleaned_participants.csv # Filtered data with mean scores
+│   └── analysis_results.json    # Statistical outputs
 ```
 
-**Structure Decision**: Single-project structure with modular `code/` sub-packages. This minimizes overhead and aligns with the "CLI/Research Pipeline" type. All data is local to ensure CI reproducibility.
+**Structure Decision**: A linear, script-based pipeline (`01_` -> `02_` -> `03_`) is selected to ensure clear data provenance and reproducibility. This structure minimizes state complexity, making it easier to debug and re-run individual steps without side effects, aligning with Constitution Principle I.
 
-## Phase Breakdown & Requirement Mapping
+## Complexity Tracking
 
-### Phase 0: Data Ingestion & Curation (FR-001, FR-002, US-1)
-- **Goal**: Download "Against the Others!" dataset, filter for high-outrage posts on target topics, and verify count (n=40).
-- **Steps**:
-  1. Implement `code/data/ingest.py` to fetch data from the verified source.
-  2. **Schema Verification**: Explicitly check that the dataset contains fields `outrage_label` and `topic` with values `high`, `climate`, and `immigration`. If missing, raise `DataInsufficientError` (Edge Case 1).
-  3. Filter logic: `outrage_label == "high"` AND `topic in ["climate", "immigration"]`.
-  4. Random selection: Sample a representative set of posts per topic.
-  5. **Validation**: Assert `len(stimuli) == 40`. If not, raise `DataInsufficientError`.
-  6. **FR-001/002 Mapping**: Direct implementation of ingestion, schema verification, and filtering logic.
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| None | The pipeline is linear and CPU-tractable. | N/A |
 
-### Phase 1: Stimulus Generation (FR-003, US-1)
-- **Goal**: Generate paired instructions (Perspective-Taking vs. Control) for each stimulus.
-- **Steps**:
-  1. Implement `code/data/stimuli.py`.
-  2. Define static prompt templates for "Perspective-Taking" and "Control Summarization".
-  3. Attach both variants to each post ID in the JSON structure.
-  4. **FR-003 Mapping**: Generates the two distinct instruction strings per post.
+## Plan Completeness & Methodological Rigor
 
-### Phase 2: Simulation Pipeline (FR-004, FR-005, US-2)
-- **Goal**: Simulate 200 participants, assign conditions, and generate synthetic outrage scores using an empirically grounded noise model.
-- **Steps**:
-  1. Implement `code/data/simulation.py`.
-  2. **Generative Model**: Generate data under two scenarios:
-     - **H0 (Null)**: No effect of condition on outrage (validate Type I error).
-     - **H1 (Alternative)**: Effect size d=0.4 (validate Power).
-     - Noise parameters derived from pilot literature (variance, skew).
-  3. Random assignment: Split 200 IDs into two groups (n=100 each, ±5% tolerance).
-  4. Synthetic scoring: Generate Likert scores based on the generative model.
-  5. **Attention Checks**: Inject 5 embedded checks per participant; store as a list of booleans. Flag `attention_checks_passed` if >2 missed (FR-008).
-  6. **FR-004/005/008/009 Mapping**: Handles assignment, scoring, attention checks, and separation of synthetic data streams.
+### FR/SC Coverage Mapping
 
-### Phase 3: Statistical Analysis (FR-006, FR-007, US-3)
-- **Goal**: Compute LMM, effect size, and robustness check.
-- **Steps**:
-  1. Implement `code/analysis/stats.py`.
-  2. **Primary Analysis (FR-006)**: Linear Mixed-Effects Model (LMM) with:
-     - Fixed Effects: `Condition`, `Topic`, `Condition:Topic` interaction.
-     - Random Effects: `(1 | Stimulus)`, `(1 | Participant)`.
-     - Output: Fixed effect coefficients, p-values, 95% CI.
-  3. **Sensitivity Analysis (FR-007)**: Mann-Whitney U test (non-parametric) as a primary check for ordinal data robustness.
-  4. **FR-010**: Formal power analysis (using `statsmodels.stats.power`) to determine required sample size for human study.
-  5. **SC-001/002/003 Mapping**: Outputs metrics against null hypothesis, effect size target, and robustness criteria.
+| Requirement ID | Plan Phase/Step | Description |
+| :--- | :--- | :--- |
+| **FR-001** | `01_stimulus_curation.py` | Downloads "Against the Others!" dataset (from verified URL), filters for climate/immigration topics, computes VADER scores, stratifies pool. |
+| **FR-002** | `01_stimulus_curation.py` | Randomly samples ≥60 posts **within strata**, pairs each with "Perspective-Taking" and "Control" instructions. Validates against `stimulus.schema.yaml`. |
+| **FR-003** | `02_data_cleaning.py` | Implements attention check filter (>1 fail), straight-lining detection, and **consent verification**. |
+| **FR-004** | `02_data_cleaning.py` | Calculates `mean_outrage_score` from 7-item scale per participant. Validates against `participant.schema.yaml`. |
+| **FR-005** | `03_analysis.py` | **If ICC < 0.05**: Executes independent-samples t-test. **If ICC >= 0.05**: Executes LME. Reports p, Cohen's d, 95% CI. |
+| **FR-006** | `03_analysis.py` | Executes Mann-Whitney U test for robustness (if t-test path) or robustness check for LME. |
+| **FR-007** | `requirements.txt` | Pins CPU-only libraries (`scipy`, `pandas`); no GPU dependencies. |
+| **FR-008** | `01_stimulus_curation.py` | Checks pool size; raises `DATASET_INSUFFICIENT` if <60 posts. |
+| **FR-009** | `03_analysis.py` | Report explicitly frames results as causal effects of the randomized intervention. |
+| **FR-010** | `02_data_cleaning.py` | Accepts raw CSV uploads; distinguishes from synthetic test data. |
+| **FR-011** | `03_analysis.py` | Calculates Intra-Class Correlation (ICC) on **raw, unaggregated** data. **If ICC >= 0.05, switches to LME** to account for clustering. |
+| **SC-001** | `03_analysis.py` | Significance measured against p < 0.05 threshold. |
+| **SC-002** | `03_analysis.py` | Effect size precision measured by 95% CI width; power analysis documented in `research.md`. |
+| **SC-003** | `03_analysis.py` | Robustness measured by consistency of Mann-Whitney U or LME robustness checks. |
+| **SC-004** | `02_data_cleaning.py` | Data integrity measured by exclusion of failed attention checks and non-consented participants. |
+| **SC-005** | `main.py` | Feasibility measured by runtime/memory constraints (CI runner). |
+| **SC-006** | `01_stimulus_curation.py` | Stratification validity measured by balanced sentiment distribution report. |
 
-### Phase 4: Human Experiment Interface (FR-011, US-4)
-- **Goal**: Define the data schema and logic for human data collection (not the collection itself, but the interface).
-- **Steps**:
-  1. **Schema Definition**: Human data MUST conform to `contracts/response.schema.yaml` (identical to simulated data schema).
-  2. Implement randomization logic for human assignment (FR-011).
-  3. **FR-011/US-4 Mapping**: Ensures the pipeline can accept human data with the same structure and randomization logic.
+### Statistical Rigor & Assumptions
 
-## Compute Feasibility & Risk Mitigation
+- **Multiple Comparisons**: Not applicable for the primary hypothesis (single t-test or single LME). If exploratory subgroup analyses are added later, Bonferroni correction will be applied.
+- **Power Justification**: The plan assumes N=240 (120 per group) provides Power ≥ 0.80 for d=0.5. This will be explicitly stated as an assumption in `research.md` and verified via `statsmodels.stats.power`.
+- **Causal Inference**: The design is a randomized controlled trial (RCT). The plan explicitly states that randomization (stratified by intensity) balances unobserved confounders, allowing causal framing (FR-009).
+- **Measurement Validity**: The Moral Outrage Scale (Smith et al.) is cited as a validated instrument. VADER is cited for automated sentiment, with an explicit acknowledgment that it measures general sentiment, not specifically "outrage," and thus serves as an approximate proxy for intensity.
+- **Collinearity & Clustering**: The plan acknowledges that repeated measures (5 posts) are clustered within participants. **ICC is calculated on raw data. If ICC >= 0.05, the independence assumption is violated, and the plan mandates a fallback to a Linear Mixed-Effects (LME) model with random intercepts for participants.** This prevents Type I error inflation.
+- **Dataset-Variable Fit**: The "Against the Others!" dataset provides stimuli. The survey provides outcomes. The plan confirms no mismatch, but notes the VADER stratification is an approximation of "outrage" intensity.
 
-- **Risk**: Dataset unavailability.
-  - **Mitigation**: `research.md` identifies the specific "Against the Others!" source. If the URL is unreachable or data lacks required fields, the pipeline halts with a clear error message, preventing silent failure.
-- **Risk**: CPU/Time limits.
-  - **Mitigation**: The dataset is small (text only). LMM and statistical tests are O(n). The entire pipeline is designed to run in <10 minutes on a standard CPU. No heavy ML models are used.
-- **Risk**: Statistical Assumptions.
-  - **Mitigation**: The plan explicitly includes the Mann-Whitney U test (FR-007) as a primary sensitivity analysis if normality/variance assumptions are violated (Edge Case 3). The LMM assumes interval scaling for the multi-point scale, which is standard in psychometrics, but this assumption is explicitly noted.
+### Dataset-Variable Fit
+
+- **Stimulus Variables**: The "Against the Others!" dataset contains text, topic tags, and metadata. VADER will compute sentiment if not present.
+- **Outcome Variable**: The Moral Outrage Scale items are collected via participant survey (CSV).
+- **Fit Confirmation**: The plan confirms that the dataset provides the *stimuli* (independent variable context) and the *survey* provides the *outcome*. No mismatch exists; the dataset does not need to contain the outcome variable (moral outrage scores) as they are experimental responses.
+- **Construct Validity Note**: VADER scores are used for stratification. The plan explicitly states that VADER measures general sentiment, which may not perfectly correlate with moral outrage. This limitation is acknowledged in the analysis report.
+
+### Compute Feasibility
+
+- **CPU-Only**: All operations (VADER scoring, t-tests, LME via `statsmodels`, data cleaning) are lightweight and run efficiently on CPU.
+- **Memory**: Processing 60 posts and 240 participants requires <100MB RAM.
+- **Runtime**: The entire pipeline is expected to complete in <10 minutes on a free-tier runner.

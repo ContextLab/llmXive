@@ -1,41 +1,51 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Stimulus Schema"
-description: "Schema for a single social media post stimulus with instruction variants."
+description: "Schema for a single experimental stimulus (post + instruction)."
 type: "object"
 required:
-  - "post_id"
-  - "text"
-  - "topic"
-  - "outrage_label"
-  - "instructions"
+  - stimulus_id
+  - post_text
+  - topic
+  - instruction_type
+  - instruction_text
 properties:
-  post_id:
+  stimulus_id:
     type: "string"
-    description: "Unique identifier for the post."
-  text:
+    description: "Unique identifier for the stimulus."
+    pattern: "^S-[0-9]{3}$"
+  post_text:
     type: "string"
-    description: "The content of the social media post."
+    description: "The original Twitter post text."
+    minLength: 1
   topic:
     type: "string"
+    description: "The topic category of the post."
     enum:
       - "climate"
       - "immigration"
-    description: "The controversial topic of the post."
-  outrage_label:
+  vader_sentiment:
+    type: "number"
+    description: "Automated sentiment score from VADER."
+    minimum: -1.0
+    maximum: 1.0
+    nullable: true
+  intensity_bin:
     type: "string"
+    description: "Stratification bin based on sentiment."
     enum:
+      - "moderate"
       - "high"
-    description: "The outrage level label from the source dataset."
-  instructions:
-    type: "object"
-    required:
+  instruction_type:
+    type: "string"
+    description: "Type of experimental instruction."
+    enum:
       - "perspective_taking"
       - "control"
-    properties:
-      perspective_taking:
-        type: "string"
-        description: "The prompt text for the perspective-taking condition."
-      control:
-        type: "string"
-        description: "The prompt text for the control summarization condition."
-additionalProperties: false
+  instruction_text:
+    type: "string"
+    description: "The full text of the instruction prompt."
+    minLength: 1
+  created_at:
+    type: "string"
+    format: "date-time"
+    description: "Timestamp of stimulus creation."

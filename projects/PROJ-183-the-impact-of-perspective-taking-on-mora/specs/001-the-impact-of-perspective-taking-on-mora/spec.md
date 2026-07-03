@@ -1,119 +1,126 @@
 # Feature Specification: The Impact of Perspective-Taking on Moral Outrage in Online Discourse
 
-**Feature Branch**: `001-perspective-taking-moral-outrage`  
-**Created**: 2024-05-21  
+**Feature Branch**: `001-perspective-taking-outrage`  
+**Created**: 2026-07-03  
 **Status**: Draft  
-**Input**: User description: "Does prompting individuals to adopt the perspective of a disagreeing online poster reduce their self‑reported moral outrage toward the post?"
+**Input**: User description: "Does prompting individuals to adopt the perspective of a disagreeing online poster reduce their self‑reported moral outrage toward the post, and is this effect independent of the initial emotional intensity of the stimulus?"
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing
 
-### User Story 1 - Stimulus Curation and Randomization (Priority: P1)
+### User Story 1 - Stimulus Curation and Stratified Randomization (Priority: P1)
 
-The system MUST ingest the "Against the Others!" moral outrage dataset (or a validated alternative), filter for high-outrage posts on specific controversial topics, and generate a randomized set of unique stimuli (multiple per topic) with paired instruction sets (Perspective-Taking vs. Control Summarization).
+The system must ingest the "Against the Others!" Twitter dataset, filter for posts on controversial topics (e.g., climate, immigration), and stratify the stimulus pool by initial automated sentiment scores (computed via VADER if not present) to ensure a mix of moderate and high intensity. It must then generate randomized experimental stimuli (perspective-taking vs. control instructions) for participant delivery.
 
-**Why this priority**: Without a curated, balanced, and randomized set of stimuli, the experimental intervention cannot be administered, rendering the study impossible. This is the foundational data layer.
+**Why this priority**: Without a curated, balanced, and stratified set of stimuli, the core experimental manipulation cannot occur. This ensures the study tests the intervention across the full range of emotional intensity, addressing the research question's second clause regarding independence from initial intensity.
 
-**Independent Test**: The system can be tested by executing the data ingestion script and verifying the output JSON contains exactly 40 unique posts, split evenly by topic, with both instruction variants correctly attached to each post ID.
+**Independent Test**: The system can be tested by executing the data pipeline script and verifying that the output JSON contains a set of unique posts distributed across the specified topics, each paired with two distinct instruction sets. The test must confirm that the selection was a random sample from a pool of ≥60 posts and that the distribution of automated sentiment scores is balanced across the two instruction conditions.
 
 **Acceptance Scenarios**:
 
-1. **Given** the raw annotated Twitter dataset is available, **When** the ingestion script runs with filters for "high-outrage" and specific topics (e.g., climate, immigration), **Then** the output contains exactly 40 posts, with 20 per topic, and no duplicates.
-2. **Given** a selected post, **When** the stimulus generator runs, **Then** two distinct instruction strings are generated: one for perspective-taking and one for control summarization, both attached to the post ID.
+1. **Given** the raw "Against the Others!" dataset is available and contains posts on controversial topics, **When** the system filters and stratifies by automated sentiment, **Then** the output contains a balanced set of posts (approximately equal per topic) selected via random sampling, ensuring representation of both moderate and high intensity.
+2. **Given** the 60 selected posts, **When** the system generates instructions, **Then** each post has exactly two versions: one "Perspective-taking" prompt ("Explain... why the author might hold this view") and one "Control summarization" prompt ("Summarize... in one sentence").
+3. **Given** the stimulus generation is complete, **When** the system checks the sentiment distribution, **Then** the system verifies that the stratification logic was applied and reports the resulting difference in mean automated sentiment scores between the perspective-taking group and the control group.
 
 ---
 
-### User Story 2 - Pipeline Simulation & Validation (Priority: P2)
+### User Story 2 - Participant Response Collection and Data Cleaning (Priority: P2)
 
-The system MUST simulate the assignment of synthetic participants to two experimental conditions (Perspective-Taking vs. Control), administer the stimuli with the assigned instructions, and record the resulting -item Moral Outrage Scale scores to validate the analysis pipeline logic.
+The system MUST process uploaded raw data from actual participants. Synthetic data generation is permitted ONLY for unit testing the pipeline logic, not for the primary study execution. The system must enforce attention checks (failing >1 item) and detect straight-lining (zero variance across 7 items), then calculate the mean moral outrage score per participant.
 
-**Why this priority**: This represents the software validation phase. It ensures the randomization, data capture, and statistical analysis code functions correctly BEFORE human data is collected. It does NOT validate the psychological hypothesis.
+**Why this priority**: This user story defines the data ingestion and cleaning logic required to transform raw survey responses into the analysis-ready dataset. It ensures data validity before statistical testing, adhering to the stricter exclusion criteria (>1 failed check) defined in the methodology.
 
-**Independent Test**: The system can be tested by running a simulation where A set of synthetic participants is assigned to conditions., provided with stimuli, and generating synthetic outrage scores; the output dataset must reflect the correct condition labels and score ranges, and the analysis module must produce deterministic results for known inputs.
+**Independent Test**: The system can be tested by feeding a synthetic CSV of responses (including some failed attention checks and straight-liners) and verifying that the output dataset excludes the failed participants and contains the calculated mean scores for the remaining valid set.
 
 **Acceptance Scenarios**:
 
-1. **Given** 200 synthetic participant IDs, **When** the assignment logic runs, **Then** approximately 100 participants are assigned to the "Perspective-Taking" condition and 100 to the "Control" condition, with no overlap and a split within 5% of 50/50.
-2. **Given** a synthetic participant assigned to a condition, **When** they process a set of stimuli, **Then** the system records 5 individual 7-item Likert scores and calculates a mean outrage score per participant.
+1. **Given** a raw response file with a cohort of participants, **When** the system runs the attention check filter, **Then** any participant failing >1 attention check item OR exhibiting zero variance (straight-lining) across all 7 scale items is excluded from the final dataset.
+2. **Given** a valid participant's responses to 5 posts, **When** the system calculates the mean, **Then** the output includes a single `mean_outrage_score` column derived from the 7-item Moral Outrage Scale.
+3. **Given** the cleaned dataset, **When** the system groups by condition, **Then** the system calculates the number of participants per condition and reports a warning if the total N is less than 240 (120 per condition).
 
 ---
 
-### User Story 3 - Statistical Analysis and Reporting (Priority: P3)
+### User Story 3 - Statistical Analysis and Robustness Verification (Priority: P3)
 
-The system MUST compute the difference in mean moral outrage scores between the two conditions using an independent-samples t-test, calculate effect sizes (Cohen's d), and perform a robustness check using a Mann-Whitney U test.
+The system must execute the primary independent-samples t-test, calculate effect sizes (Cohen's d) and 95% confidence intervals, and perform the non-parametric Mann-Whitney U robustness check. The analysis must explicitly report results as associational if the design were observational, but here frame them as causal effects of the randomized intervention.
 
-**Why this priority**: This delivers the final research output. It validates whether the hypothesis is supported and provides the necessary statistical evidence for the project's conclusions.
+**Why this priority**: This delivers the final scientific output. It validates the hypothesis and ensures the results are robust to distributional assumptions, fulfilling the core research question while maintaining methodological rigor regarding inference framing.
 
-**Independent Test**: The system can be tested by feeding it a dataset with known group differences; the output must correctly identify the p-value, confidence interval, and effect size, matching manual calculations within a 1% margin of error.
+**Independent Test**: The system can be tested by running the analysis script on the cleaned dataset and verifying that the output report contains the t-statistic, p-value, Cohen's d, confidence interval, and the Mann-Whitney U p-value.
 
 **Acceptance Scenarios**:
 
-1. **Given** a dataset with mean scores for Condition A and Condition B, **When** the t-test module runs, **Then** it outputs a p-value, 95% confidence interval for the mean difference, and Cohen's d.
-2. **Given** the same dataset, **When** the robustness check runs, **Then** it outputs a Mann-Whitney U statistic and a corresponding p-value to verify the non-parametric consistency of the result.
+1. **Given** the cleaned dataset with two groups, **When** the t-test is executed, **Then** the output reports the p-value, Cohen's d effect size, and the 95% confidence interval for the mean difference.
+2. **Given** the same dataset, **When** the Mann-Whitney U test is executed, **Then** the output reports a p-value to confirm robustness against non-normality.
+3. **Given** the analysis is complete, **When** the system generates the report, **Then** the report explicitly states whether the result is significant at p < 0.05 and frames the finding as the causal effect of the intervention.
 
 ---
 
-### User Story 4 - Human Experiment Execution (Priority: P4)
+### User Story 4 - Computational Feasibility and Resource Constraints (Priority: P2)
 
-The system MUST provide the interface and data collection logic for human participants (recruited via Prolific or similar) to view the stimuli, respond to the instructions, and submit their Moral Outrage Scale scores, ensuring strict separation from synthetic data.
+The system must ensure all analysis operations complete within the constraints of free-tier CI runners (CPU-only, ≤7 GB RAM, ≤6 hours runtime) to guarantee reproducibility and accessibility.
 
-**Why this priority**: This is the actual data generation phase required to answer the research question. It replaces the simulation for the final hypothesis test.
+**Why this priority**: This ensures the study can be run by researchers with limited resources and prevents the analysis from failing due to hardware limitations, which is critical for open science.
 
-**Independent Test**: The system can be tested by deploying a pilot with real humans and verifying that the collected data is stored in a distinct "human" dataset, separate from the "simulation" dataset, with correct condition labels.
+**Independent Test**: The system can be tested by running the full pipeline on a constrained environment (e.g., GitHub Actions free runner) and verifying that the process exits successfully with exit code 0 without exceeding memory or time limits.
 
 **Acceptance Scenarios**:
 
-1. **Given** a human participant ID, **When** they complete the survey, **Then** their data is tagged as 'human' and stored in the primary analysis dataset, distinct from simulation data.
-2. **Given** a participant fails an attention check, **Then** their record is flagged for exclusion prior to analysis.
+1. **Given** the analysis script is executed on a standard CPU-only runner, **When** the script runs, **Then** the peak memory usage remains within ≤7 GB RAM.
+2. **Given** the analysis script is executed, **When** the script completes, **Then** the total runtime does not exceed 6 hours.
+3. **Given** the script attempts to use GPU acceleration or 8-bit quantization, **When** the script runs, **Then** it raises a configuration error immediately.
 
 ---
 
 ### Edge Cases
 
-- What happens if the dataset contains fewer than 40 high-outrage posts meeting the topic criteria? (System must halt with a specific error indicating insufficient data).
-- How does the system handle participants who fail attention checks? (System must flag and exclude these records from the final analysis dataset; defined as >2 missed items out of 5 embedded checks).
-- What if the t-test assumptions (normality, homogeneity of variance) are violated? (System must rely on the Mann-Whitney U robustness check as the primary fallback for inference).
+- What happens if the raw Twitter dataset contains fewer than 60 unique posts on the target topics after filtering for sentiment stratification? If the available pool for any topic is < 60 posts, the system MUST raise a `DATASET_INSUFFICIENT` error (code 400) and halt execution before stimulus generation. This ensures a random sample of 60 can be drawn without selection bias.
+- How does the system handle participants who provide identical responses to all items on the Moral Outrage Scale (indicating straight-lining)? The system MUST exclude participants exhibiting zero variance (straight-lining), irrespective of their performance on attention checks, as defined in FR-003.
+- How does the system handle the scenario where the t-test assumptions (normality, homogeneity of variance) are severely violated? The system MUST rely on the Mann-Whitney U test results as the primary interpretation for that specific run, as defined in the robustness protocol.
+- What if the automated sentiment scores used for stratification are unavailable for a specific post? The system MUST compute the score using VADER (or equivalent standard library) and exclude the post only if computation fails, to maintain the integrity of the stratification logic.
 
-## Requirements *(mandatory)*
+## Requirements
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download and parse the "Against the Others!" annotated Twitter dataset (or a validated alternative high-outrage dataset) from the provided arXiv/GitHub source to extract posts tagged as "high-outrage". (See US-1)
-- **FR-002**: System MUST filter the dataset to retain only posts related to at least two specific controversial topics (e.g., climate policy, immigration) and randomly select a representative sample of posts per topic. (See US-1)
-- **FR-003**: System MUST generate two distinct instruction prompts for every selected post: a "Perspective-Taking" prompt and a "Control Summarization" prompt. (See US-1)
-- **FR-004**: System MUST assign a large cohort of simulated participants to two groups using a randomization algorithm that ensures balanced group sizes (within 5% of a 50/50 split). (See US-2)
-- **FR-005**: System MUST calculate the mean score across the items of the Moral Outrage Scale for each participant and aggregate these by experimental condition. (See US-2)
-- **FR-006**: System MUST perform an independent-samples t-test comparing the mean outrage scores of the two conditions and report the p-value and Cohen's d. (See US-3)
-- **FR-007**: System MUST execute a Mann-Whitney U test as a non-parametric robustness check on the same data. (See US-3)
-- **FR-008**: System MUST exclude any participant records where attention checks were failed (defined as >2 missed items out of 5 embedded attention check items) prior to statistical analysis. (See US-2, US-4)
-- **FR-009**: System MUST maintain separate data streams for simulated participants (US-2) and human participants (US-4) to prevent data contamination. (See US-2, US-4)
-- **FR-010**: System MUST perform a formal power analysis to determine the required sample size for the human experiment before recruitment begins. (See US-4)
-- **FR-011**: System MUST assign human participants to two groups using a randomization algorithm that ensures balanced group sizes (within 5% of a 50/50 split). (See US-4)
+- **FR-001**: System MUST download and parse the "Against the Others!" Twitter dataset, filtering for posts on controversial topics and stratifying the pool by automated sentiment scores (computed via VADER if not pre-computed) to ensure a mix of moderate and high intensity (See US-1).
+- **FR-002**: System MUST generate a sufficient set of unique stimuli (≥60 posts), ensuring a balanced distribution of posts per topic and two distinct instruction sets (perspective-taking vs. control) per post (See US-1).
+- **FR-003**: System MUST implement an attention check filter that excludes any participant who fails >1 item OR exhibits zero variance (straight-lining) across all 7 scale items, ensuring data validity (See US-2).
+- **FR-004**: System MUST calculate the mean moral outrage score for each valid participant across their presented posts using the Moral Outrage Scale (See US-2).
+- **FR-005**: System MUST perform an independent-samples t-test comparing mean outrage scores between the perspective-taking and control conditions, reporting p-values, Cohen's d, and 95% confidence intervals (See US-3).
+- **FR-006**: System MUST execute a Mann-Whitney U test as a non-parametric robustness check to verify results against distributional assumptions (See US-3).
+- **FR-007**: System MUST ensure all statistical computations are performed using CPU-only methods compatible with free-tier CI runners (≤7 GB RAM, no GPU, no 8-bit quantization) (See US-4).
+- **FR-008**: System MUST verify that the raw 'Against the Others!' dataset contains at least 60 unique posts on the target topics after sentiment filtering. If the available pool is < 60 posts, the system MUST raise a `DATASET_INSUFFICIENT` error (code 400) and halt execution (See US-1).
+- **FR-009**: System MUST frame the primary findings as the causal effect of the randomized intervention (perspective-taking instruction) on moral outrage, not as an observational association (See US-3).
+- **FR-010**: System MUST support the ingestion of real participant data (e.g., via CSV upload or API) and handle the specific data formats required for the Moral Outrage Scale, distinguishing this from synthetic data used for unit testing (See US-2).
+- **FR-011**: System MUST justify the aggregation of repeated measures (5 posts per participant) by calculating and reporting the intra-class correlation (ICC) or confirming the independence assumption, ensuring the validity of the t-test on means (See US-3).
 
 ### Key Entities
 
-- **Stimulus**: A single social media post with its associated metadata (topic, outrage label) and the two generated instruction variants.
-- **Participant**: A subject record (simulated or human) containing demographics, assigned condition, attention check status, and raw response scores.
-- **Response**: A set of 7 Likert-scale scores (1-7) representing the moral outrage rating for a specific stimulus.
+- **Stimulus**: Represents a specific Twitter post paired with an instruction set (Perspective-taking or Control), containing the post text, topic tag, automated sentiment score, and instruction prompt.
+- **Participant**: Represents an experimental subject, containing demographics, condition assignment, individual post responses, attention check results, and the calculated mean outrage score.
+- **Result**: Represents the statistical output of the analysis, containing the t-statistic, p-value, effect size, confidence intervals, and robustness check results.
 
-## Success Criteria *(mandatory)*
+## Success Criteria
 
 ### Measurable Outcomes
 
-> Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values to the implementation/research phase.
+> Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: The difference in mean moral outrage scores between conditions is measured against the null hypothesis (no difference) using an independent-samples t-test. (See US-3)
-- **SC-002**: The effect size of the intervention is measured against the design target of Cohen's d ≥ 0.2 (medium effect) to determine practical significance. (See US-3)
-- **SC-003**: The robustness of the findings is measured against the Mann-Whitney U test results to confirm consistency in the absence of normality assumptions. (See US-3)
-- **SC-004**: Data integrity is measured against the exclusion criteria, ensuring that the participant pass rate meets a pre-defined minimum viable threshold (to be set during protocol registration). (See US-2, US-4)
-- **SC-005**: The analysis pipeline is measured against a computational efficiency target, ensuring the entire pipeline (data loading, randomization, statistical testing) completes within 1 hour on a standard CPU environment. (See Assumptions)
+- **SC-001**: The statistical significance of the difference in mean outrage scores is measured against the null hypothesis (p < 0.05) as defined in the research question (See US-3).
+- **SC-002**: The precision of the effect size estimate (Cohen's d) is measured by the calculation and reporting of the 95% confidence interval width, with the target for study design (Power ≥ 0.80) documented in the Assumptions section (See US-3).
+- **SC-003**: The robustness of the findings is measured against the non-parametric Mann-Whitney U test results to confirm consistency of the direction and significance (See US-3).
+- **SC-004**: The data integrity is measured against the attention check failure rate, ensuring the final analysis includes only participants who failed ≤1 attention item and exhibited non-zero variance (See US-2).
+- **SC-005**: The computational feasibility is measured against the free-tier CI constraints (≤6 hours runtime, ≤7 GB RAM) to ensure the analysis completes without hardware errors (See US-4).
+- **SC-006**: The stratification validity is measured by the application of the stratification logic and the reporting of the resulting difference in mean automated sentiment scores between the two experimental conditions (See US-1).
 
 ## Assumptions
 
-- The "Against the Others!" dataset is publicly accessible via the link provided in the arXiv paper and contains sufficient "high-outrage" posts on the specified topics (climate, immigration) to meet the n=40 requirement. If unavailable, a validated alternative dataset will be used.
-- The Moral Outrage Scale (Smith et al., n.d.) is a validated 7-item instrument suitable for self-reporting in this online context, and the 7-point Likert scale is the standard metric for the study.
-- The analysis will be conducted using Python libraries (pandas, scipy, statsmodels) which are compatible with the CPU-only, no-GPU environment of the GitHub Actions free tier.
-- Since the study design is observational in the sense of using a pre-existing dataset for stimulus selection (though the intervention is experimental), the analysis will frame results as associational effects of the prompt type on outrage scores, not causal claims about the posts themselves.
-- The a target sample size sufficient to ensure adequate statistical power [deferred: to be validated by formal power analysis] is assumed to provide sufficient power (≥ 0.80) to detect a medium effect size (Cohen's d indicates a moderate effect size.) at α = 0.05, assuming a two-tailed test.
-- The "attention check" mechanism is implemented as embedded items in the survey flow, and failure is defined strictly as missing >2 items.
-- No GPU acceleration, CUDA, or large language model inference is required; all statistical operations are classical and computationally lightweight.
-- The analysis pipeline will complete within 1 hour on a standard CPU environment, ensuring reproducibility without excessive resource consumption.
+- The "Against the Others!" dataset contains sufficient unique posts on controversial topics (climate, immigration) to allow for a stratified random sample of 60 posts after filtering by automated sentiment.
+- The automated sentiment scores available in the dataset or derived via VADER (or equivalent standard library) are sufficiently correlated with human-perceived emotional intensity to serve as a valid surrogate for stratification, acknowledging this as a methodological approximation subject to validity checks.
+- The Moral Outrage Scale (Smith et al.) is available as a standard 7-item Likert instrument. and can be administered digitally with high fidelity to the paper version.
+- The experimental design utilizes random assignment to conditions; therefore, findings are framed as the causal effect of the prompt on outrage, not as an observational association.
+- The sample size of 240 participants (120 per condition) provides sufficient statistical power (≥0.80) to detect a medium effect size (Cohen's d ≈ 0.5) with α = 0.05, based on standard power calculations for independent t-tests.
+- All analysis code (pandas, scipy, statsmodels) runs efficiently on a standard CPU without requiring GPU acceleration, 8-bit quantization, or large memory footprints.
+- The randomization process effectively balances unobserved confounders between the two conditions, allowing for causal inference of the intervention effect.
+- The "high-outrage" tag in the dataset is an independent metadata label derived from a separate annotation process and is not calculated from the Moral Outrage Scale items used as the outcome, mitigating ceiling effect concerns.
+- The aggregation of repeated measures per participant into a single mean score is a valid approximation. for the independent t-test, provided the intra-class correlation is low or the analysis accounts for it as per FR-011.

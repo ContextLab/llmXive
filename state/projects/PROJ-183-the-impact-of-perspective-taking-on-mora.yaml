@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-03T05:15:57.497113Z'
-current_stage: tasked
+current_stage: planned
 failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-183-the-impact-of-perspective-taking-on-mora
-last_run_id: 57ceb2ad-c7ad-44df-adac-242f644e7882
+last_run_id: 788be6a3-5469-492b-98df-59f935318b95
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-183-the-impact-of-perspective-taking-on-mora/specs/001-the-impact-of-perspective-taking-on-mora
 title: The Impact of Perspective-Taking on Moral Outrage in Online Discourse
-updated_at: '2026-07-03T01:00:21.314653Z'
+updated_at: '2026-07-03T01:11:37.664895Z'

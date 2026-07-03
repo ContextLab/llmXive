@@ -1,12 +1,11 @@
 # Quickstart: The Impact of Perspective-Taking on Moral Outrage in Online Discourse
 
-## 1. Prerequisites
-
+## Prerequisites
 - Python 3.11+
-- `pip` or `conda`
-- Git
+- Access to the "Against the Others!" dataset (placed in `data/raw/` via verified URL)
+- GitHub account (for CI execution)
 
-## 2. Installation
+## Installation
 
 1. **Clone the repository**:
    ```bash
@@ -22,60 +21,52 @@
 
 3. **Install dependencies**:
    ```bash
-   pip install -r requirements.txt
+   pip install -r code/requirements.txt
    ```
-   *Dependencies*: `pandas`, `numpy`, `scipy`, `statsmodels`, `pytest`, `requests`.
 
-## 3. Data Setup
+## Running the Pipeline
 
-1. **Configure Dataset URL**:
-   - Edit `code/config.py` to provide the verified URL for the "Against the Others!" dataset.
-   - **CRITICAL**: The pipeline will halt if this URL is missing or invalid.
-
-2. **Run the ingestion script**:
-   ```bash
-   python -m code.data.ingest
-   ```
-   - This will filter for high-outrage posts, select 40 stimuli, and save them to `data/processed/stimuli.json`.
-   - **Note**: If the dataset lacks required topics or fields, the script will exit with an error.
-
-## 4. Running the Simulation
-
-To validate the pipeline with synthetic data:
+### Option 1: Local Execution (Development)
+Ensure `data/raw/twitter_posts.parquet` and `data/raw/participant_responses.csv` are present.
 
 ```bash
-python -m code.analysis.pipeline --mode simulate --n [sample_size] --seed 42
+# Run the full pipeline
+python code/main.py
 ```
 
-- **Output**:
-  - `data/processed/simulation_results.csv`: Synthetic participant data.
-  - `data/analysis/stats_report.json`: Statistical results (LMM, Mann-Whitney U).
+This will:
+1. Curate stimuli (`01_stimulus_curation.py`).
+2. Clean participant data (`02_data_cleaning.py`).
+3. Calculate ICC and run the appropriate analysis (t-test or LME) (`03_analysis.py`).
+4. Output results to `data/processed/`.
 
-## 5. Running Tests
+### Option 2: GitHub Actions (CI)
+Push to the `001-perspective-taking-outrage` branch. The workflow `.github/workflows/run_analysis.yml` will:
+1. Set up Python 3.11.
+2. Install dependencies.
+3. Run the pipeline.
+4. Upload `data/processed/` as artifacts.
 
-Ensure the pipeline logic is correct:
+## Verifying Results
 
-```bash
-pytest tests/ -v
-```
-
-- **Coverage**:
-  - `test_ingest.py`: Verifies stimulus filtering and count.
-  - `test_simulation.py`: Verifies randomization balance and attention check logic.
-  - `test_stats.py`: Verifies statistical calculations against known values.
-
-## 6. Adding Human Data
-
-1. **Collect data**: Use the survey interface (to be built) to collect human responses.
-2. **Format**: Save as `data/human_results.csv` with the same schema as `simulation_results.csv` (defined in `contracts/response.schema.yaml`).
-3. **Run Analysis**:
+1. **Check Stimuli**:
    ```bash
-   python -m code.analysis.pipeline --mode analyze --input data/human_results.csv
+   cat data/processed/stimuli.json | jq 'length'  # Should reflect the total number of stimuli (posts multiplied by the number of instructions per post)
    ```
 
-## 7. Troubleshooting
+2. **Check Cleaned Data**:
+   ```bash
+   cat data/processed/cleaned_participants.csv | wc -l  # Should be > 0
+   ```
 
-- **"DataInsufficientError"**: The dataset does not contain enough high-outrage posts for the selected topics. Check the dataset content or adjust the topic filter in `config.py`.
-- **"ModuleNotFoundError"**: Ensure the virtual environment is activated and `requirements.txt` was installed.
-- **"AssertionError" in tests**: Check if `random_seed` is pinned in `config.py`.
-- **"Dataset URL Missing"**: The pipeline cannot proceed without a verified URL in `config.py`.
+3. **Check Analysis**:
+   ```bash
+   cat data/processed/analysis_results.json | jq '.[] | select(.test_type == "t_test" or .test_type == "mixed_effects")'
+   ```
+
+## Troubleshooting
+
+- **Error: DATASET_INSUFFICIENT**: The "Against the Others!" dataset has fewer than 60 posts on target topics. Check `data/raw/twitter_posts.parquet`.
+- **Error: Attention Check Failures**: If too many participants are excluded, check the raw data for straight-lining or poor attention check design.
+- **Error: Missing Consent**: If all participants are excluded, check for the `consent_given` flag in raw data.
+- **Memory Error**: Ensure no GPU libraries are installed. The pipeline is CPU-only.

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2409.08829",
+  "judged_at": "2026-07-03T00:52:44Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of perspective-taking on moral outrage in online discourse psychology",
+  "rationale": "This paper satisfies criterion (a) because it empirically measures the dependent variable \"moral outrage\" within the user's specified domain of \"online discourse\" (social media replies), providing essential baseline evidence on the emotional dynamics of online interactions even though the independent variable (fact-checking) differs from the user's focus on perspective-taking.",
+  "relevant": true
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2012.04426",
+  "judged_at": "2026-07-03T00:52:51Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of perspective-taking on moral outrage in online discourse psychology",
+  "rationale": "The paper focuses on information retrieval algorithms (Learning to Rank) and statistical bias correction in search systems, which is an off-domain topic entirely unrelated to the psychological mechanisms of perspective-taking and moral outrage in human online discourse. It shares only the keyword \"online\" but addresses a distinct construct (algorithmic ranking optimization vs. social psychology).",
+  "relevant": false
+}

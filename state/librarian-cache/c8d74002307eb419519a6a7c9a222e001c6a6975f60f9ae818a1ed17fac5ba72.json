@@ -1,0 +1,562 @@
+{
+  "fetched_at": "2026-07-03T00:52:52Z",
+  "field": "psychology",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "psychology",
+      "idea_body_excerpt": "The Impact of Perspective-Taking on Moral Outrage in Online Discourse",
+      "target_n": 5
+    },
+    "duration_seconds": 78.727,
+    "ended_at": "2026-07-03T00:52:52Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "empathy and moral outrage in digital communication"
+        ],
+        [
+          2,
+          "perspective-taking interventions online"
+        ],
+        [
+          3,
+          "reducing moral outrage through empathy"
+        ],
+        [
+          4,
+          "affective empathy and moral anger on social media"
+        ],
+        [
+          5,
+          "cognitive empathy and online polarization"
+        ],
+        [
+          6,
+          "moral outrage reduction strategies"
+        ],
+        [
+          7,
+          "virtual perspective-taking and moral emotions"
+        ],
+        [
+          8,
+          "empathy training for online discourse"
+        ],
+        [
+          9,
+          "moral emotion regulation in digital spaces"
+        ],
+        [
+          10,
+          "de-escalating moral outrage online"
+        ],
+        [
+          11,
+          "perspective-taking and moral disengagement"
+        ],
+        [
+          12,
+          "empathy and hostile online interactions"
+        ],
+        [
+          13,
+          "moral outrage mitigation in computer-mediated communication"
+        ],
+        [
+          14,
+          "role-taking and moral judgment online"
+        ],
+        [
+          15,
+          "empathic concern and online moral judgment"
+        ],
+        [
+          16,
+          "reducing online moral anger"
+        ],
+        [
+          17,
+          "perspective-taking and moral condemnation"
+        ],
+        [
+          18,
+          "empathy interventions for online conflict"
+        ],
+        [
+          19,
+          "moral outrage dynamics in social media"
+        ],
+        [
+          20,
+          "cognitive empathy and online moralizing"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "The Impact of Perspective-Taking on Moral Outrage in Online Discourse psychology": 0,
+        "empathy and moral outrage in digital communication": 2,
+        "perspective-taking interventions online": 1
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "empathy induction moral disengagement affective forecasting",
+      "online incivility social media comment hostility",
+      "moral foundations theory dehumanization language",
+      "outrage expression emotional contagion viral content",
+      "perspective-taking intervention empathy anger reduction"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2208.07178"
+      ]
+    },
+    "per_query_hit_count": {
+      "The Impact of Perspective-Taking on Moral Outrage in Online Discourse psychology": 3,
+      "empathy induction moral disengagement affective forecasting": 3,
+      "moral foundations theory dehumanization language": 3,
+      "online incivility social media comment hostility": 3,
+      "outrage expression emotional contagion viral content": 3,
+      "perspective-taking intervention empathy anger reduction": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "2308.01264",
+          "rationale": "The paper investigates the moral reasoning capabilities of Large Language Models (LLMs) and their alignment with human responses, rather than studying the psychological mechanism of \"perspective-taking\" or its causal impact on \"moral outrage\" in human online discourse. While it touches on moral psychology, it fails to address the specific independent variable (perspective-taking), the specific dependent variable (moral outrage), or the specific domain (human online discourse) required by the use",
+          "title": "Exploring the psychology of LLMs' Moral and Legal Reasoning"
+        },
+        {
+          "primary_pointer": "2012.04426",
+          "rationale": "The paper focuses on information retrieval algorithms (Learning to Rank) and statistical bias correction in search systems, which is an off-domain topic entirely unrelated to the psychological mechanisms of perspective-taking and moral outrage in human online discourse. It shares only the keyword \"online\" but addresses a distinct construct (algorithmic ranking optimization vs. social psychology).",
+          "title": "Unifying Online and Counterfactual Learning to Rank"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-03T00:51:33Z",
+    "term_input": {
+      "normalized": "the impact of perspective-taking on moral outrage in online discourse psychology",
+      "raw": "The Impact of Perspective-Taking on Moral Outrage in Online Discourse psychology"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Understanding how media rhetoric shapes audience engagement is crucial in the attention economy. This study examines how moral emotional framing by mainstream news channels on YouTube influences user behavior across Korea and the United States. To capture the platform's multimodal nature, combining thumbnail images and video titles, we develop a multimodal moral emotion classifier by fine tuning a vision language model. The model is trained on human annotated multimodal datasets in both languages and applied to approximately 400,000 videos from major news outlets. We analyze engagement levels including views, likes, and comments, representing increasing degrees of commitment. The results show that other condemning rhetoric expressions of moral outrage that criticize others morally consistently increase all forms of engagement across cultures, with effects ranging from passive viewing to active commenting. These findings suggest that moral outrage is a particularly effective emotional strategy, attracting not only attention but also active participation. We discuss concerns about the potential misuse of other condemning rhetoric, as such practices may deepen polarization by reinforcing in group and out group divisions. To facilitate future research and ensure reproducibility, we publicly release our Korean and English multimodal moral emotion classifiers.",
+          "claimed_authors": [
+            "Seongchan Park",
+            "Jaehong Kim",
+            "Hyeonseung Kim",
+            "Heejin Bin",
+            "Sue Moon",
+            "Wonjae Lee"
+          ],
+          "claimed_title": "Moral Outrage Shapes Commitments Beyond Attention: Multimodal Moral Emotions on YouTube in Korea and the US",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.21815"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='The Impact of Perspective-Taking on Moral Outrage in Online Discourse psychology', candidate_title='Moral Outrage Shapes Commitments Beyond Attention: Multimodal Moral Emotions on YouTube in Korea and the US')",
+        "failed_at": "2026-07-03T00:52:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The ethics of artificial intelligence (AI) systems has risen as an imminent concern across scholarly communities. This concern has propagated a great interest in algorithmic fairness. Large research agendas are now devoted to increasing algorithmic fairness, assessing algorithmic fairness, and understanding human perceptions of fairness. We argue that there is an overreliance on fairness as a single dimension of morality, which comes at the expense of other important human values. Drawing from moral psychology, we present five moral dimensions that go beyond fairness, and suggest three ways these alternative dimensions may contribute to ethical AI development.",
+          "claimed_authors": [
+            "Kimi Wenzel",
+            "Geoff Kaufman",
+            "Laura Dabbish"
+          ],
+          "claimed_title": "Beyond Fairness: Alternative Moral Dimensions for Assessing Algorithms and Designing Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.12559"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='The Impact of Perspective-Taking on Moral Outrage in Online Discourse psychology', candidate_title='Beyond Fairness: Alternative Moral Dimensions for Assessing Algorithms and Designing Systems')",
+        "failed_at": "2026-07-03T00:52:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We adopt Gaussian Processes (GPs) as latent functions for probabilistic forecasting of intermittent time series. The model is trained in a Bayesian framework that accounts for the uncertainty about the latent function. We couple the latent GP variable with two types of forecast distributions: the negative binomial (NegBinGP) and the Tweedie distribution (TweedieGP). While the negative binomial has already been used in forecasting intermittent time series, this is the first time in which a fully parameterized Tweedie density is used for intermittent time series. We properly evaluate the Tweedie density, which has both a point mass at zero and heavy tails, avoiding simplifying assumptions made in existing models. We test our models on thousands of intermittent count time series. Results show that our models provide consistently better probabilistic forecasts than the competitors. In particular, TweedieGP obtains the best estimates of the highest quantiles, thus showing that it is more flexible than NegBinGP.",
+          "claimed_authors": [
+            "Stefano Damato",
+            "Dario Azzimonti",
+            "Giorgio Corani"
+          ],
+          "claimed_title": "Forecasting intermittent time series with Gaussian Processes and Tweedie likelihood",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.19086"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Perspective-Taking on Moral Outrage in Online Discourse psychology', candidate_title='Forecasting intermittent time series with Gaussian Processes and Tweedie likelihood')",
+        "failed_at": "2026-07-03T00:52:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a simple quantile regression-based forecasting method that was applied in a probabilistic load forecasting framework of the Global Energy Forecasting Competition 2017 (GEFCom2017). The hourly load data is log transformed and split into a long-term trend component and a remainder term. The key forecasting element is the quantile regression approach for the remainder term that takes into account weekly and annual seasonalities such as their interactions. Temperature information is only used to stabilize the forecast of the long-term trend component. Public holidays information is ignored. Still, the forecasting method placed second in the open data track and fourth in the definite data track with our forecasting method, which is remarkable given simplicity of the model. The method also outperforms the Vanilla benchmark consistently.",
+          "claimed_authors": [
+            "Florian Ziel"
+          ],
+          "claimed_title": "Quantile Regression for Qualifying Match of GEFCom2017 Probabilistic Load Forecasting",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1809.03561"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Perspective-Taking on Moral Outrage in Online Discourse psychology', candidate_title='Quantile Regression for Qualifying Match of GEFCom2017 Probabilistic Load Forecasting')",
+        "failed_at": "2026-07-03T00:52:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a methodology for probabilistic load forecasting that is based on lasso (least absolute shrinkage and selection operator) estimation. The model considered can be regarded as a bivariate time-varying threshold autoregressive(AR) process for the hourly electric load and temperature. The joint modeling approach incorporates the temperature effects directly, and reflects daily, weekly, and annual seasonal patterns and public holiday effects. We provide two empirical studies, one based on the probabilistic load forecasting track of the Global Energy Forecasting Competition 2014 (GEFCom2014-L), and the other based on another recent probabilistic load forecasting competition that follows a setup similar to that of GEFCom2014-L. In both empirical case studies, the proposed methodology outperforms two multiple linear regression based benchmarks from among the top eight entries to GEFCom2014-L.",
+          "claimed_authors": [
+            "Florian Ziel",
+            "Bidong Liu"
+          ],
+          "claimed_title": "Lasso estimation for GEFCom2014 probabilistic electric load forecasting",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1603.01376"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Perspective-Taking on Moral Outrage in Online Discourse psychology', candidate_title='Lasso estimation for GEFCom2014 probabilistic electric load forecasting')",
+        "failed_at": "2026-07-03T00:52:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Stress and depression are prevalent nowadays across people of all ages due to the quick paces of life. People use social media to express their feelings. Thus, social media constitute a valuable form of information for the early detection of stress and depression. Although many research works have been introduced targeting the early recognition of stress and depression, there are still limitations. There have been proposed multi-task learning settings, which use depression and emotion (or figurative language) as the primary and auxiliary tasks respectively. However, although stress is inextricably linked with depression, researchers face these two tasks as two separate tasks. To address these limitations, we present the first study, which exploits two different datasets collected under different conditions, and introduce two multitask learning frameworks, which use depression and stress as the main and auxiliary tasks respectively. Specifically, we use a depression dataset and a stressful dataset including stressful posts from ten subreddits of five domains. In terms of the first approach, each post passes through a shared BERT layer, which is updated by both tasks. Next, two separate BERT encoder layers are exploited, which are updated by each task separately. Regarding the second approach, it consists of shared and task-specific layers weighted by attention fusion networks. We conduct a series of experiments and compare our approaches with existing research initiatives, single-task learning, and transfer learning. Experiments show multiple advantages of our approaches over state-of-the-art ones.",
+          "claimed_authors": [
+            "Loukas Ilias",
+            "Dimitris Askounis"
+          ],
+          "claimed_title": "Multitask learning for recognizing stress and depression in social media",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2305.18907"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Perspective-Taking on Moral Outrage in Online Discourse psychology', candidate_title='Multitask learning for recognizing stress and depression in social media')",
+        "failed_at": "2026-07-03T00:52:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Decentralized Online Social Networks (DOSNs) represent a growing trend in the social media landscape, as opposed to the well-known centralized peers, which are often in the spotlight due to privacy concerns and a vision typically focused on monetization through user relationships. By exploiting open-source software, DOSNs allow users to create their own servers, or instances, thus favoring the proliferation of platforms that are independent yet interconnected with each other in a transparent way. Nonetheless, the resulting cooperation model, commonly known as the Fediverse, still represents a world to be fully discovered, since existing studies have mainly focused on a limited number of structural aspects of interest in DOSNs. In this work, we aim to fill a lack of study on user relations and roles in DOSNs, by taking two main actions: understanding the impact of decentralization on how users relate to each other within their membership instance and/or across different instances, and unveiling user roles that can explain two interrelated axes of social behavioral phenomena, namely information consumption and boundary spanning. To this purpose, we build our analysis on user networks from Mastodon, since it represents the most widely used DOSN platform. We believe that the findings drawn from our study on Mastodon users' roles and information flow can pave a way for further development of fascinating research on DOSNs.",
+          "claimed_authors": [
+            "Lucio La Cava",
+            "Andrea Tagarelli"
+          ],
+          "claimed_title": "Information Consumption and Boundary Spanning in Decentralized Online Social Networks: the case of Mastodon Users",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.15752"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='The Impact of Perspective-Taking on Moral Outrage in Online Discourse psychology', candidate_title='Information Consumption and Boundary Spanning in Decentralized Online Social Networks: the case of Mastodon Users')",
+        "failed_at": "2026-07-03T00:52:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Politicization is a social phenomenon studied by political science characterized by the extent to which ideas and facts are given a political tone. A range of topics, such as climate change, religion and vaccines has been subject to increasing politicization in the media and social media platforms. In this work, we propose a computational method for assessing politicization in online conversations based on topic shifts, i.e., the degree to which people switch topics in online conversations. The intuition is that topic shifts from a non-political topic to politics are a direct measure of politicization -- making something political, and that the more people switch conversations to politics, the more they perceive politics as playing a vital role in their daily lives. A fundamental challenge that must be addressed when one studies politicization in social media is that, a priori, any topic may be politicized. Hence, any keyword-based method or even machine learning approaches that rely on topic labels to classify topics are expensive to run and potentially ineffective. Instead, we learn from a seed of political keywords and use Positive-Unlabeled (PU) Learning to detect political comments in reaction to non-political news articles posted on Twitter, YouTube, and TikTok during the 2022 Brazilian presidential elections. Our findings indicate that all platforms show evidence of politicization as discussion around topics adjacent to politics such as economy, crime and drugs tend to shift to politics. Even the least politicized topics had the rate in which their topics shift to politics increased in the lead up to the elections and after other political events in Brazil -- an evidence of politicization.",
+          "claimed_authors": [
+            "Marcelo Sartori Locatelli",
+            "Pedro Calais",
+            "Matheus Prado Miranda",
+            "João Pedro Junho",
+            "Tomas Lacerda Muniz",
+            "Wagner Meira",
+            "Virgilio Almeida"
+          ],
+          "claimed_title": "Topic Shifts as a Proxy for Assessing Politicization in Social Media",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.11326"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Impact of Perspective-Taking on Moral Outrage in Online Discourse psychology', candidate_title='Topic Shifts as a Proxy for Assessing Politicization in Social Media')",
+        "failed_at": "2026-07-03T00:52:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) have taken centre stage in debates on Artificial Intelligence. Yet there remains a gap in how to assess LLMs' conformity to important human values. In this paper, we investigate whether state-of-the-art LLMs, GPT-4 and Claude 2.1 (Gemini Pro and LLAMA 2 did not generate valid results) are moral hypocrites. We employ two research instruments based on the Moral Foundations Theory: (i) the Moral Foundations Questionnaire (MFQ), which investigates which values are considered morally relevant in abstract moral judgements; and (ii) the Moral Foundations Vignettes (MFVs), which evaluate moral cognition in concrete scenarios related to each moral foundation. We characterise conflicts in values between these different abstractions of moral evaluation as hypocrisy. We found that both models displayed reasonable consistency within each instrument compared to humans, but they displayed contradictory and hypocritical behaviour when we compared the abstract values present in the MFQ to the evaluation of concrete moral violations of the MFV.",
+          "claimed_authors": [
+            "José Luiz Nunes",
+            "Guilherme F. C. F. Almeida",
+            "Marcelo de Araujo",
+            "Simone D. J. Barbosa"
+          ],
+          "claimed_title": "Are Large Language Models Moral Hypocrites? A Study Based on Moral Foundations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.11100"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Impact of Perspective-Taking on Moral Outrage in Online Discourse psychology', candidate_title='Are Large Language Models Moral Hypocrites? A Study Based on Moral Foundations')",
+        "failed_at": "2026-07-03T00:52:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Homotopy type theory is a new branch of mathematics, based on a recently discovered connection between homotopy theory and type theory, which brings new ideas into the very foundation of mathematics. On the one hand, Voevodsky's subtle and beautiful \"univalence axiom\" implies that isomorphic structures can be identified. On the other hand, \"higher inductive types\" provide direct, logical descriptions of some of the basic spaces and constructions of homotopy theory. Both are impossible to capture directly in classical set-theoretic foundations, but when combined in homotopy type theory, they permit an entirely new kind of \"logic of homotopy types\". This suggests a new conception of foundations of mathematics, with intrinsic homotopical content, an \"invariant\" conception of the objects of mathematics -- and convenient machine implementations, which can serve as a practical aid to the working mathematician. This book is intended as a first systematic exposition of the basics of the resulting \"Univalent Foundations\" program, and a collection of examples of this new style of reasoning -- but without requiring the reader to know or learn any formal logic, or to use any computer proof assistant.",
+          "claimed_authors": [
+            "The Univalent Foundations Program"
+          ],
+          "claimed_title": "Homotopy Type Theory: Univalent Foundations of Mathematics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1308.0729"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Perspective-Taking on Moral Outrage in Online Discourse psychology', candidate_title='Homotopy Type Theory: Univalent Foundations of Mathematics')",
+        "failed_at": "2026-07-03T00:52:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Solving the AI alignment problem requires having clear, defensible values towards which AI systems can align. Currently, targets for alignment remain underspecified and do not seem to be built from a philosophically robust structure. We begin the discussion of this problem by presenting five core, foundational values, drawn from moral philosophy and built on the requisites for human existence: survival, sustainable intergenerational existence, society, education, and truth. We show that these values not only provide a clearer direction for technical alignment work, but also serve as a framework to highlight threats and opportunities from AI systems to both obtain and sustain these values.",
+          "claimed_authors": [
+            "Betty Li Hou",
+            "Brian Patrick Green"
+          ],
+          "claimed_title": "Foundational Moral Values for AI Alignment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.17017"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Impact of Perspective-Taking on Moral Outrage in Online Discourse psychology', candidate_title='Foundational Moral Values for AI Alignment')",
+        "failed_at": "2026-07-03T00:52:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Social media are used as main discussion channels by millions of individuals every day. The content individuals produce in daily social-media-based micro-communications, and the emotions therein expressed, may impact the emotional states of others. A recent experiment performed on Facebook hypothesized that emotions spread online, even in absence of non-verbal cues typical of in-person interactions, and that individuals are more likely to adopt positive or negative emotions if these are over-expressed in their social network. Experiments of this type, however, raise ethical concerns, as they require massive-scale content manipulation with unknown consequences for the individuals therein involved. Here, we study the dynamics of emotional contagion using Twitter. Rather than manipulating content, we devise a null model that discounts some confounding factors (including the effect of emotional contagion). We measure the emotional valence of content the users are exposed to before posting their own tweets. We determine that on average a negative post follows an over-exposure to 4.34% more negative content than baseline, while positive posts occur after an average over-exposure to 4.50% more positive contents. We highlight the presence of a linear relationship between the average emotional valence of the stimuli users are exposed to, and that of the responses they produce. We also identify two different classes of individuals: highly and scarcely susceptible to emotional contagion. Highly susceptible users are significantly less inclined to adopt negative emotions than the scarcely susceptible ones, but equally likely to adopt positive emotions. In general, the likelihood of adopting positive emotions is much greater than that of negative emotions.",
+          "claimed_authors": [
+            "Emilio Ferrara",
+            "Zeyao Yang"
+          ],
+          "claimed_title": "Measuring Emotional Contagion in Social Media",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1506.06021"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Impact of Perspective-Taking on Moral Outrage in Online Discourse psychology', candidate_title='Measuring Emotional Contagion in Social Media')",
+        "failed_at": "2026-07-03T00:52:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Tabletop roleplaying games (TTRPGs) and procedural content generators can both be understood as systems of rules for producing content. In this paper, we argue that TTRPG design can usefully be viewed as procedural content generator design. We present several case studies linking key concepts from PCG research -- including possibility spaces, expressive range analysis, and generative pipelines -- to key concepts in TTRPG design. We then discuss the implications of these relationships and suggest directions for future work uniting research in TTRPGs and PCG.",
+          "claimed_authors": [
+            "Matthew Guzdial",
+            "Devi Acharya",
+            "Max Kreminski",
+            "Michael Cook",
+            "Mirjam Eladhari",
+            "Antonios Liapis",
+            "Anne Sullivan"
+          ],
+          "claimed_title": "Tabletop Roleplaying Games as Procedural Content Generators",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2007.06108"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Perspective-Taking on Moral Outrage in Online Discourse psychology', candidate_title='Tabletop Roleplaying Games as Procedural Content Generators')",
+        "failed_at": "2026-07-03T00:52:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A key barrier to the real-world deployment of humanoid robots is the lack of autonomous loco-manipulation skills. We introduce VIRAL, a visual sim-to-real framework that learns humanoid loco-manipulation entirely in simulation and deploys it zero-shot to real hardware. VIRAL follows a teacher-student design: a privileged RL teacher, operating on full state, learns long-horizon loco-manipulation using a delta action space and reference state initialization. A vision-based student policy is then distilled from the teacher via large-scale simulation with tiled rendering, trained with a mixture of online DAgger and behavior cloning. We find that compute scale is critical: scaling simulation to tens of GPUs (up to 64) makes both teacher and student training reliable, while low-compute regimes often fail. To bridge the sim-to-real gap, VIRAL combines large-scale visual domain randomization over lighting, materials, camera parameters, image quality, and sensor delays--with real-to-sim alignment of the dexterous hands and cameras. Deployed on a Unitree G1 humanoid, the resulting RGB-based policy performs continuous loco-manipulation for up to 54 cycles, generalizing to diverse spatial and appearance variations without any real-world fine-tuning, and approaching expert-level teleoperation performance. Extensive ablations dissect the key design choices required to make RGB-based humanoid loco-manipulation work in practice.",
+          "claimed_authors": [
+            "Tairan He",
+            "Zi Wang",
+            "Haoru Xue",
+            "Qingwei Ben",
+            "Zhengyi Luo",
+            "Wenli Xiao",
+            "Ye Yuan",
+            "Xingye Da",
+            "Fernando Castañeda",
+            "Shankar Sastry",
+            "Changliu Liu",
+            "Guanya Shi",
+            "Linxi Fan",
+            "Yuke Zhu"
+          ],
+          "claimed_title": "VIRAL: Visual Sim-to-Real at Scale for Humanoid Loco-Manipulation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.15200"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='The Impact of Perspective-Taking on Moral Outrage in Online Discourse psychology', candidate_title='VIRAL: Visual Sim-to-Real at Scale for Humanoid Loco-Manipulation')",
+        "failed_at": "2026-07-03T00:52:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Artificial agents capable of understanding and aligning with others' intentions are essential for safe and socially robust artificial intelligence. We introduce a computational framework for empathy in active inference agents, grounded in explicit perspective-taking via self-other model transformation.\n  We instantiate this framework in a multi-agent Iterated Prisoner's Dilemma and show that empathic perspective-taking induces robust cooperation without explicit communication or reward shaping. Cooperation emerges only when empathy is reciprocated, while asymmetric empathy leads to systematic exploitation. Beyond equilibrium outcomes, empathic agents exhibit synchronized behavior, rapid recovery from stochastic defections, and joint intentional dynamics resembling apology-forgiveness cycles. Near empathy symmetry, interactions display long transients and elevated variance, consistent with critical dynamics near regime boundaries.\n  We further examine a learning-enabled variant in which agents infer opponent type via Bayesian updating. While opponent models converge rapidly, long-run cooperation remains primarily determined by the empathy parameter, indicating that cooperation is driven by empathic structure rather than learned reciprocity. Empathy functions as a structural prior over social interaction, shaping coordination stability, robustness, and temporal dynamics. The proposed framework highlights active inference as a principled foundation for socially aligned artificial agents that coordinate through internal simulation rather than behavioral mimicry.",
+          "claimed_authors": [
+            "Albarracin Mahault",
+            "Mikeda Anna",
+            "Jimenez Rodriguez Alejandro",
+            "Namjoshi Sanjeev",
+            "Sakthivadivel Dalton",
+            "Pae Hongju",
+            "Shah Harshil",
+            "Wilson Philip"
+          ],
+          "claimed_title": "Empathy Modeling in Active Inference Agents for Perspective-Taking and Alignment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.20936"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='The Impact of Perspective-Taking on Moral Outrage in Online Discourse psychology', candidate_title='Empathy Modeling in Active Inference Agents for Perspective-Taking and Alignment')",
+        "failed_at": "2026-07-03T00:52:08Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Prison facilities, mental correctional institutions, sports bars and places of public protest are prone to sudden violence and conflicts. Surveillance systems play an important role in mitigation of hostile behavior and improvement of security by detecting such provocative and aggressive activities. This research proposed using automatic aggressive behavior and anger detection to improve the effectiveness of the surveillance systems. An emotion and aggression aware component will make the surveillance system highly responsive and capable of alerting the security guards in real time. This research proposed facial expression, head, hand and body movement and speech tracking for detecting anger and aggressive actions. Recognition was achieved using support vector machines and rule based features. The multimodal affect recognition precision rate for anger improved by 15.2% and recall rate improved by 11.7% when behavioral rule based features were used in aggressive action detection.",
+          "claimed_authors": [
+            "Amol Patwardhan",
+            "Gerald Knapp"
+          ],
+          "claimed_title": "Aggressive actions and anger detection from multiple modalities using Kinect",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1607.01076"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='The Impact of Perspective-Taking on Moral Outrage in Online Discourse psychology', candidate_title='Aggressive actions and anger detection from multiple modalities using Kinect')",
+        "failed_at": "2026-07-03T00:52:08Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Matthew Groh",
+            "Craig Ferguson",
+            "Robert Lewis",
+            "Rosalind Picard"
+          ],
+          "title": "Computational Empathy Counteracts the Negative Effects of Anger on Creative Problem Solving",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2208.07178",
+        "summary": "How does empathy influence creative problem solving? We introduce a computational empathy intervention based on context-specific affective mimicry and perspective taking by a virtual agent appearing in the form of a well-dressed polar bear. In an online experiment with 1,006 participants randomly assigned to an emotion elicitation intervention (with a control elicitation condition and anger elicitation condition) and a computational empathy intervention (with a control virtual agent and an empathic virtual agent), we examine how anger and empathy influence participants' performance in solving a word game based on Wordle. We find participants who are assigned to the anger elicitation condition perform significantly worse on multiple performance metrics than participants assigned to the control condition. However, we find the empathic virtual agent counteracts the drop in performance induced by the anger condition such that participants assigned to both the empathic virtual agent and the anger condition perform no differently than participants in the control elicitation condition and significantly better than participants assigned to the control virtual agent and the anger elicitation condition. While empathy reduces the negative effects of anger, we do not find evidence that the empathic virtual agent influences performance of participants who are assigned to the control elicitation condition. By introducing a framework for computational empathy interventions and conducting a two-by-two factorial design randomized experiment, we provide rigorous, empirical evidence that computational empathy can counteract the negative effects of anger on creative problem solving.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2208.07178",
+          "http_status": 200,
+          "pdf_sample_score": 0.2042,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-03T00:52:08Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Seongchan Park",
+            "Jaehong Kim",
+            "Hyeonseung Kim",
+            "Heejin Bin",
+            "Sue Moon",
+            "Wonjae Lee"
+          ],
+          "title": "Moral Outrage Shapes Commitments Beyond Attention: Multimodal Moral Emotions on YouTube in Korea and the US",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2601.21815",
+        "summary": "Understanding how media rhetoric shapes audience engagement is crucial in the attention economy. This study examines how moral emotional framing by mainstream news channels on YouTube influences user behavior across Korea and the United States. To capture the platform's multimodal nature, combining thumbnail images and video titles, we develop a multimodal moral emotion classifier by fine tuning a vision language model. The model is trained on human annotated multimodal datasets in both languages and applied to approximately 400,000 videos from major news outlets. We analyze engagement levels including views, likes, and comments, representing increasing degrees of commitment. The results show that other condemning rhetoric expressions of moral outrage that criticize others morally consistently increase all forms of engagement across cultures, with effects ranging from passive viewing to active commenting. These findings suggest that moral outrage is a particularly effective emotional strategy, attracting not only attention but also active participation. We discuss concerns about the potential misuse of other condemning rhetoric, as such practices may deepen polarization by reinforcing in group and out group divisions. To facilitate future research and ensure reproducibility, we publicly release our Korean and English multimodal moral emotion classifiers.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2601.21815",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-03T00:52:16Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yuwei Chuai",
+            "Anastasia Sergeeva",
+            "Gabriele Lenzini",
+            "Nicolas Pröllochs"
+          ],
+          "title": "Community Fact-Checks Trigger Moral Outrage in Replies to Misleading Posts on Social Media",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2409.08829",
+        "summary": "Displaying community fact-checks is a promising approach to reduce engagement with misinformation on social media. However, how users respond to misleading content emotionally after community fact-checks are displayed on posts is unclear. Here, we employ quasi-experimental methods to causally analyze changes in sentiments and (moral) emotions in replies to misleading posts following the display of community fact-checks. Our evaluation is based on a large-scale panel dataset comprising N=2,225,260 replies across 1841 source posts from X's Community Notes platform. We find that informing users about falsehoods through community fact-checks significantly increases negativity (by 7.3%), anger (by 13.2%), disgust (by 4.7%), and moral outrage (by 16.0%) in the corresponding replies. These results indicate that users perceive spreading misinformation as a violation of social norms and that those who spread misinformation should expect negative reactions once their content is debunked. We derive important implications for the design of community-based fact-checking systems.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2409.08829",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-03T00:52:16Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "the impact of perspective-taking on moral outrage in online discourse psychology",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}
