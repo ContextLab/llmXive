@@ -3,7 +3,7 @@ Metric validation utilities to ensure computed values are within expected ranges
 Implements SC-001 requirement: >= 95% of games must produce valid metrics.
 """
 import numpy as np
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Dict, Any, Optional, Tuple, Union
 from dataclasses import dataclass, field
 from collections import defaultdict
 
@@ -73,7 +73,7 @@ def validate_and_filter_records(results: List[Any]) -> Tuple[List[GameMetricReco
     Validate a list of game results and filter invalid ones.
     
     Args:
-        results: List of GameResult objects
+        results: List of GameResult objects (or dict-like objects with metrics)
         
     Returns:
         Tuple of (valid records list, pass rate)
@@ -82,16 +82,29 @@ def validate_and_filter_records(results: List[Any]) -> Tuple[List[GameMetricReco
     total = len(results)
     
     for r in results:
+        # Support both object attribute access and dict access
+        if hasattr(r, 'specialization_index'):
+            spec_idx = r.specialization_index
+            ret_eff = r.retrieval_efficiency
+            gid = getattr(r, 'game_id', -1)
+        elif isinstance(r, dict):
+            spec_idx = r.get('specialization_index', 0.0)
+            ret_eff = r.get('retrieval_efficiency', 0.0)
+            gid = r.get('game_id', -1)
+        else:
+            # Fallback for unknown types
+            continue
+            
         validation = validate_single_game_metrics(
-            r.specialization_index,
-            r.retrieval_efficiency,
-            r.game_id
+            spec_idx,
+            ret_eff,
+            gid
         )
         
         record = GameMetricRecord(
-            game_id=r.game_id,
-            specialization_index=r.specialization_index,
-            retrieval_efficiency=r.retrieval_efficiency,
+            game_id=gid,
+            specialization_index=spec_idx,
+            retrieval_efficiency=ret_eff,
             is_valid=validation.is_valid,
             validation_message=validation.message
         )
@@ -137,7 +150,7 @@ def validate_experiment_metrics(results: List[Any]) -> Dict[str, Any]:
     Validate an entire experiment's results and return summary.
     
     Args:
-        results: List of GameResult objects
+        results: List of GameResult objects (or dict-like objects)
         
     Returns:
         Dictionary with validation summary

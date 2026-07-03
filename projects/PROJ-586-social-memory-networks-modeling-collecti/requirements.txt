@@ -1,2 +1,16 @@
-# Existing project requirements (if any) would be listed here.
-# No new third‑party dependencies are required for the implementations above.
+# Core dependencies
+torch>=2.0.0
+transformers>=4.30.0
+numpy>=1.24.0
+pandas>=2.0.0
+scipy>=1.10.0
+matplotlib>=3.7.0
+seaborn>=0.12.0
+scikit-learn>=1.2.0
+statsmodels>=0.14.0
+pyyaml>=6.0
+requests>=2.28.0
+pytest>=7.3.0
+black>=23.0.0
+flake8>=6.0.0
+pre-commit>=3.3.0

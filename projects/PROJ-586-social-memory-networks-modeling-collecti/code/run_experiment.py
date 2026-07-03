@@ -1,103 +1,188 @@
-"""CLI entry‑point for running the full‑context experiment and writing results."""
+"""
+Main experiment runner for social memory networks.
+
+This script orchestrates the full experiment pipeline, including
+full-context and limited-context simulations, and outputs results
+to CSV files.
+"""
 from __future__ import annotations
 
 import argparse
 import csv
 import sys
 from pathlib import Path
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
-from generate_full_results import simulate_one_game
+from t015_generate_full_results import run_simulation as run_full_simulation
 from utils.logging import get_logger
 
+logger = get_logger(__name__)
 
-def parse_agent_counts(arg: str) -> List[int]:
-    """Parse a comma‑separated list of agent counts, e.g. ``3,5,7``."""
-    try:
-        return [int(x.strip()) for x in arg.split(",") if x.strip()]
-    except ValueError as exc:
-        raise argparse.ArgumentTypeError(f"Invalid agent count list: {arg}") from exc
+
+def parse_agent_counts(agent_string: str) -> List[int]:
+    """
+    Parse agent count string (e.g., "3,5,7" or "5").
+
+    Args:
+        agent_string: Comma-separated list or single number
+
+    Returns:
+        List of agent counts
+    """
+    if "," in agent_string:
+        return [int(x.strip()) for x in agent_string.split(",")]
+    return [int(agent_string)]
 
 
 def ensure_dir(path: Path) -> None:
-    """Create the directory hierarchy if it does not already exist."""
+    """Ensure directory exists."""
     path.mkdir(parents=True, exist_ok=True)
 
 
 def write_results_csv(
-    results: List[Tuple[int, float, float, str, int]],
+    results: List[dict],
     output_path: Path,
+    fieldnames: List[str],
 ) -> None:
-    """
-    Write a list of result tuples to ``results_full.csv``.
+    """Write results to CSV file."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(results)
 
-    Each tuple is expected to be:
-        (game_id, specialization_index, retrieval_efficiency, context_condition, agent_count)
+
+def run_simulation(
+    context: str,
+    agent_counts: List[int],
+    games_per_config: int,
+    seed: int = 42,
+    output_dir: Optional[Path] = None,
+) -> Path:
     """
-    header = [
+    Run simulation for given context and agent configurations.
+
+    Args:
+        context: Context condition ("full" or "limited")
+        agent_counts: List of agent counts to test
+        games_per_config: Number of games per configuration
+        seed: Random seed
+        output_dir: Output directory for results
+
+    Returns:
+        Path to output CSV file
+    """
+    if output_dir is None:
+        output_dir = Path(__file__).parent.parent / "results"
+
+    ensure_dir(output_dir)
+
+    all_results: List[dict] = []
+
+    for agent_count in agent_counts:
+        logger.info(
+            "Running simulation",
+            context=context,
+            agents=agent_count,
+            games=games_per_config,
+        )
+
+        results = run_full_simulation(
+            num_games=games_per_config,
+            agent_count=agent_count,
+            context=context,
+            seed=seed,
+            output_path=None,  # We'll write manually
+        )
+
+        for result in results:
+            all_results.append({
+                "game_id": result.game_id,
+                "specialization_index": result.specialization_index,
+                "retrieval_efficiency": result.retrieval_efficiency,
+                "context_condition": result.context_condition,
+                "agent_count": result.agent_count,
+            })
+
+    # Determine output filename
+    if context == "full":
+        output_path = output_dir / "results_full.csv"
+    else:
+        output_path = output_dir / "results_limited.csv"
+
+    fieldnames = [
         "game_id",
         "specialization_index",
         "retrieval_efficiency",
         "context_condition",
         "agent_count",
     ]
-    with output_path.open("w", newline="", encoding="utf-8") as f:
-        writer = csv.writer(f)
-        writer.writerow(header)
-        for row in results:
-            writer.writerow(row)
 
+    write_results_csv(all_results, output_path, fieldnames)
+    logger.info("Results written", path=str(output_path), count=len(all_results))
 
-def run_simulation(
-    agent_count: int,
-    games: int,
-    context: str,
-    seed: int = 42,
-) -> List[Tuple[int, float, float, str, int]]:
-    """
-    Run ``games`` simulations for a given ``agent_count`` and ``context``.
-
-    Returns a list of result rows ready for CSV output.
-    """
-    logger = get_logger(__name__)
-    logger.info("Starting simulation", agent_count=agent_count, games=games, context=context, seed=seed)
-
-    results: List[Tuple[int, float, float, str, int]] = []
-    for game_id in range(1, games + 1):
-        spec_idx, ret_eff = simulate_one_game(agent_count, game_id, context)
-        results.append((game_id, spec_idx, ret_eff, context, agent_count))
-    logger.info("Simulation complete", total_games=games)
-    return results
+    return output_path
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Run full‑context social memory experiment")
-    parser.add_argument("--agents", type=parse_agent_counts, required=True, help="Comma‑separated list of agent counts")
-    parser.add_argument("--games", type=int, default=1000, help="Number of games per agent count")
-    parser.add_argument("--context", choices=["full", "limited"], default="full", help="Context condition")
-    parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility")
+    """Build argument parser."""
+    parser = argparse.ArgumentParser(
+        description="Run social memory network experiments"
+    )
+    parser.add_argument(
+        "--context",
+        type=str,
+        default="full",
+        choices=["full", "limited"],
+        help="Context condition",
+    )
+    parser.add_argument(
+        "--agents",
+        type=str,
+        default="5",
+        help="Agent counts (comma-separated or single number)",
+    )
+    parser.add_argument(
+        "--games",
+        type=int,
+        default=100,
+        help="Games per configuration",
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=42,
+        help="Random seed",
+    )
     parser.add_argument(
         "--output-dir",
-        type=Path,
-        default=Path("projects/PROJ-586-social-memory-networks-modeling-collecti/results"),
-        help="Directory where results CSV will be written",
+        type=str,
+        default=None,
+        help="Output directory",
     )
     return parser
 
 
-def main(argv: List[str] | None = None) -> int:
+def main() -> int:
+    """Main entry point."""
     parser = build_parser()
-    args = parser.parse_args(argv)
+    args = parser.parse_args()
 
-    ensure_dir(args.output_dir)
-    output_file = args.output_dir / "results_full.csv"
+    agent_counts = parse_agent_counts(args.agents)
+    output_dir = Path(args.output_dir) if args.output_dir else None
 
-    all_results: List[Tuple[int, float, float, str, int]] = []
-    for count in args.agents:
-        all_results.extend(run_simulation(count, args.games, args.context, args.seed))
+    logger.info("Starting experiment", context=args.context, agents=agent_counts)
 
-    write_results_csv(all_results, output_file)
-    get_logger().info("Results written", path=str(output_file))
+    output_path = run_simulation(
+        context=args.context,
+        agent_counts=agent_counts,
+        games_per_config=args.games,
+        seed=args.seed,
+        output_dir=output_dir,
+    )
+
+    logger.info("Experiment complete", output=str(output_path))
+
     return 0
 
 

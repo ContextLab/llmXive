@@ -1,0 +1,11 @@
+agent_counts: [3, 5, 7]
+context_windows: [128, 256, 512]
+data_dir: data
+device: cpu
+dtype: float32
+log_file: experiment.log
+model_name: facebook/opt-125m
+num_games_full: 1000
+num_games_limited: 1000
+output_dir: results
+seed: 42
