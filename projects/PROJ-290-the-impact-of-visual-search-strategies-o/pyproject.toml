@@ -1,0 +1,90 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-visual-search-emotional-faces"
+version = "0.1.0"
+description = "The Impact of Visual Search Strategies on Attentional Capture by Emotional Faces"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas",
+    "numpy",
+    "scikit-learn",
+    "statsmodels",
+    "datasets",
+    "joblib",
+    "scipy",
+    "matplotlib",
+    "seaborn",
+    "pyyaml",
+    "requests"
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff",
+    "black",
+    "pytest",
+    "pytest-cov"
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["code*"]
+
+# Linting and Formatting Configuration (Task T003)
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
+[tool.ruff]
+# Same as Black.
+line-length = 88
+target-version = "py311"
+
+# Assume Python 3.11
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
+]
+
+# Allow autofix for all enabled rules (when `--fix` is provided)
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"] # Allow assertions in tests
+
+[tool.ruff.lint.isort]
+known-first-party = ["code"]
+force-sort-within-sections = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+filterwarnings = [
+    "ignore::DeprecationWarning"
+]

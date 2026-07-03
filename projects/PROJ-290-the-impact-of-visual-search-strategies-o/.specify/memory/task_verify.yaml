@@ -1,0 +1,14 @@
+T009 [P] [US1] Unit test for variable validation (missing critical vars) in `tests/unit/test_validate.py`: 2
+? T010 [US1] Implement `code/data/download.py` to search HuggingFace for 'eye-tracking',
+  'face', 'emotion' datasets; select the first dataset where schema validation passes
+  (FR-009) and contains at least one valid record; if no valid dataset is found, halt
+  with a clear error message. Do NOT use a hardcoded fallback dataset ID.
+: 1
+? 'T011 [US1] Implement retry logic with exponential backoff in `code/data/download.py`
+  (FR-002) with explicit timings: 1s, 2s, 4s.'
+: 1
+? T012 [US1] Implement `code/data/validate.py` to check for `gaze_coordinates`, `response_times`,
+  `emotion_labels`, `roi_annotations`; write `data/validation_report.json` with status
+  and missing variables list; HALT if critical vars missing (FR-009).
+: 1
+T013 [US1] Implement logic to apply Generic ROI Fallback (3x3 grid) if `roi_annotations` are missing: 1
