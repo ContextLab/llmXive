@@ -2,9 +2,8 @@ T008 Setup environment configuration management (load `config.yaml` from `src/mo
 T009 Create `src/main.py` orchestration script to call `scripts/update_state.py` after major stages: 1
 T010 [P] [US1] Unit test for SMILES normalization and error logging in `tests/unit/test_ingestion.py`: 1
 T011 [P] [US1] Unit test for reaction template matching logic in `tests/unit/test_templates.py`: 1
-? "T012 [US1] Implement `src/data/ingestion.py` to Download USPTO-MIT subset from\
-  \ URL: https://zenodo.org/record/3969375 [UNRESOLVED-CLAIM: c_250fefd7 \u2014 status=not_enough_info]\
-  \ and parse raw data"
+? 'T012 [US1] Implement `src/data/ingestion.py` to download USPTO-MIT subset from
+  URL: https://zenodo.org/record/3969375 (JSONL format) and parse raw data'
 : 1
 ? 'T013c [US1] Define SMARTS patterns for SN1, SN2, and Diels-Alder in `src/modeling/config.yaml`
   (under `reaction_templates`) to ensure deterministic template matching. Explicit

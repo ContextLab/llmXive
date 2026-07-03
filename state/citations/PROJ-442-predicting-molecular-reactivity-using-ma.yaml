@@ -9,39 +9,26 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/USPTO-MIT/USPTO-MIT/resolve/main/data/train-00000-of-00001.parquet
   verified_at: '2026-07-03T10:56:05.382947Z'
-- artifact_hash: 2bd048210d9dd5704553f3d8732691cf5f677edeae7e96613d74532d14a7437d
-  artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/code/README.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: Numerical Study The Dielectric Properties And Specific Absorption
-    Rate Of Nerve Human Tissue At Different Frequencies | Zenodo
-  kind: url
-  value: https://zenodo.org/record/3969375
-  verification_status: verified
-  verified_against_url: https://zenodo.org/records/3969376
-  verified_at: '2026-07-03T12:53:12.244090Z'
-- artifact_hash: ab64f42448f2f50892f304e72c91d2ace85ee04ade842c82ae9364c87d282b7f
+- artifact_hash: 36b53879e98b715d8f36cbd8710a38b2f51278f7d9eee68faea536994b38ce31
   artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: Numerical Study The Dielectric Properties And Specific Absorption
-    Rate Of Nerve Human Tissue At Different Frequencies | Zenodo
+  fetched_title: Tests - Wikidata
   kind: url
-  value: https://zenodo.org/record/3969375
+  value: https://www.wikidata.org/wiki/Q18615098
   verification_status: verified
-  verified_against_url: https://zenodo.org/records/3969376
-  verified_at: '2026-07-03T13:17:36.981314Z'
-- artifact_hash: ab64f42448f2f50892f304e72c91d2ace85ee04ade842c82ae9364c87d282b7f
+  verified_against_url: https://www.wikidata.org/wiki/Q18615098
+  verified_at: '2026-07-03T14:04:52.532855Z'
+- artifact_hash: 36b53879e98b715d8f36cbd8710a38b2f51278f7d9eee68faea536994b38ce31
   artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: '[2408.08592] Case Study: Runtime Safety Verification of Neural Network
-    Controlled System'
+  fetched_title: Numerical Study The Dielectric Properties And Specific Absorption
+    Rate Of Nerve Human Tissue At Different Frequencies | Zenodo
   kind: url
-  value: https://arxiv.org/abs/2408.08592
+  value: https://zenodo.org/record/3969375
   verification_status: verified
-  verified_against_url: https://arxiv.org/abs/2408.08592
-  verified_at: '2026-07-03T13:17:36.981314Z'
+  verified_against_url: https://zenodo.org/records/3969376
+  verified_at: '2026-07-03T14:04:52.532855Z'

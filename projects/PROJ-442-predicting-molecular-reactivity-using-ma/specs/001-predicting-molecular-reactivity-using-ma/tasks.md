@@ -3,7 +3,7 @@
 **Input**: Design documents from `/specs/001-molecular-reactivity/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+**Tests**: {{claim:c_513b5f9f}} (Wikidata Q18615098, https://www.wikidata.org/wiki/Q18615098)
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
@@ -107,9 +107,9 @@
 ### Implementation for User Story 2
 
 - [~] T021 [US2] Implement `src/data/preprocessing.py` to extract molecular weight, atom counts, bond types, and topological indices using RDKit
-- [ ] T022 [US2] Implement batch processing in `src/data/preprocessing.py` to handle memory constraints during feature extraction
-- [ ] T023 [US2] Implement Variance Thresholding and SelectKBest (scoring function: `f_regression` or `mutual_info_regression`, k=100) dimensionality reduction in `src/data/preprocessing.py` to reduce feature count for regression targets
-- [ ] T024 [US2] Save feature matrix to `data/processed/feature_matrix.parquet` with checksum
+- [~] T022 [US2] Implement batch processing in `src/data/preprocessing.py` to handle memory constraints during feature extraction
+- [~] T023 [US2] Implement Variance Thresholding and SelectKBest (scoring function: `f_regression` or `mutual_info_regression`, k=100) dimensionality reduction in `src/data/preprocessing.py` to reduce feature count for regression targets
+- [~] T024 [US2] Save feature matrix to `data/processed/feature_matrix.parquet` with checksum
 - [ ] T025 [US2] Implement `src/modeling/train.py` to load features, normalize target (Z-score), and train XGBoost model
 - [ ] T026 [US2] Implement 5-fold Cross-Validation loop with Leave-One-Scaffold-Out (LOSO) validation in `src/modeling/train.py` to ensure generalization to new chemistry (Plan Complexity Tracking)
 - [ ] T026b [US2] Implement runtime tracking and enforcement in `src/modeling/train.py`: abort training if runtime exceeds a predefined threshold (FR-003)

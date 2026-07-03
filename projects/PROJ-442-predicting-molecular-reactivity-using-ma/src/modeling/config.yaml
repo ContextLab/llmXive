@@ -3,11 +3,12 @@ reaction_templates:
   SN2: "[C:1]([O:2])>>[C:1]=[O:2]"
   Diels-Alder: "[C:1]=[C:2].[C:3]=[C:4]>>[C:1]1[C:3][C:4][C:2]1"
 
-model_params:
+training:
+  test_size: 0.2
+  random_state: 42
   n_estimators: 100
   max_depth: 6
-  learning_rate: 0.1
 
-preprocessing:
-  k_features: 100
-  variance_threshold: 0.01
+data:
+  chunk_size: 10000
+  target_column: "yield_pct"

@@ -1,26 +1,36 @@
 #!/bin/bash
-# Setup directories for PROJ-442
+# Setup directory structure for the molecular reactivity project
 
-set -e
+DIRS=(
+    "data/raw"
+    "data/processed"
+    "data/models"
+    "src/data"
+    "src/modeling"
+    "src/utils"
+    "tests/unit"
+    "tests/integration"
+    "tests/contract"
+    "scripts"
+    "state/projects"
+    "figures"
+)
 
-echo "Creating project directories..."
+for dir in "${DIRS[@]}"; do
+    if [ ! -d "$dir" ]; then
+        mkdir -p "$dir"
+        echo "Created directory: $dir"
+    else
+        echo "Directory exists: $dir"
+    fi
+done
 
-mkdir -p data/raw
-mkdir -p data/processed
-mkdir -p data/models
-mkdir -p data/logs
-mkdir -p src/data
-mkdir -p src/modeling
-mkdir -p src/utils
-mkdir -p tests/unit
-mkdir -p tests/integration
-mkdir -p tests/contract
-mkdir -p scripts
-mkdir -p state/projects
+# Create placeholder __init__.py files for Python packages
+for dir in src data tests tests/unit tests/integration tests/contract src/data src/modeling src/utils; do
+    if [ -d "$dir" ] && [ ! -f "$dir/__init__.py" ]; then
+        touch "$dir/__init__.py"
+        echo "Created __init__.py in $dir"
+    fi
+done
 
-echo "Directory structure created successfully."
-echo "Created:"
-ls -la data/
-ls -la src/
-ls -la tests/
-ls -la state/
+echo "Directory setup complete."

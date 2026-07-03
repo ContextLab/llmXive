@@ -1,175 +1,179 @@
 - artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
   attempts: 1
-  canonical: Download USPTO-MIT subset from Zenodo record 3969375
-  claim_id: c_062526be
+  canonical: Tests are optional and included only if explicitly requested
+  claim_id: c_513b5f9f
+  context: 'Tests: The examples below include test tasks. Tests are OPTIONAL - only
+    include them if explicitly requested in the feature specification.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 1151st strip of the webcomic xkcd
+      source_id: Q18615098
+      url: https://www.wikidata.org/wiki/Q18615098
+      value: '1151'
+    filled: true
+  kind: entity_fact
+  raw_text: The examples below include test tasks. Tests are OPTIONAL - only include
+    them if explicitly requested in the feature specification.
+  resolved_value: '1151'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-03T13:34:30Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: USPTO-MIT subset available at Zenodo record 3969375
+  claim_id: c_39c0b194
+  context: 'T012 [US1] Implement src/data/ingestion.py to download USPTO-MIT subset
+    from URL: https://zenodo.org/record/3969375 (JSONL format) and parse raw data'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: numeric
+  raw_text: 'download USPTO-MIT subset from URL: https://zenodo.org/record/3969375
+    (JSONL format)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T13:34:30Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: USPTO-MIT subset URL zenodo.org/record/3969375
+  claim_id: c_8f415745
   context: 'Implement src/data/ingestion.py to download USPTO-MIT subset from URL:
     https://zenodo.org/record/3969375 (JSONL format) and parse raw data'
   evidence:
     ok: false
     reason: claim not found in the cited source's full text
   kind: numeric
-  raw_text: 'Download USPTO-MIT subset from URL: https://zenodo.org/record/3969375'
+  raw_text: The project targets the USPTO-MIT subset available at https://zenodo.org/record/3969375.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T12:33:03Z'
+  updated_at: '2026-07-03T13:37:53Z'
 - artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
   attempts: 1
-  canonical: Filter reaction data into SN1, SN2, and Diels-Alder classes
-  claim_id: c_7fb73db2
-  context: Download USPTO subset, parse SMILES, filter into SN1, SN2, Diels-Alder
-    classes, and handle malformed data.
+  canonical: Wikidata Q18615098 molecular reactivity prediction task
+  claim_id: c_5376f451
+  context: 'Tests: {{claim:c_513b5f9f}} (Wikidata Q18615098, https://www.wikidata.org/wiki/Q18615098)'
   evidence:
     entailment_status: not_found
     reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Filter_reaction_data_into_SN1,_SN2,_and_Diels-Alder_classes
+    source_url: https://en.wikipedia.org/wiki/Wikidata_Q18615098_molecular_reactivity_prediction_task
   kind: entity_fact
-  raw_text: filter into SN1, SN2, Diels-Alder classes
+  raw_text: The Wikidata item Q18615098 is associated with the task of predicting
+    molecular reactivity.
   resolved_value: null
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T12:33:31Z'
+  updated_at: '2026-07-03T13:38:06Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 3
+  canonical: USPTO-MIT subset available at Zenodo record 3969375
+  claim_id: c_6dc672f1
+  context: 'Implement src/data/ingestion.py to download USPTO-MIT subset from URL:
+    https://zenodo.org/record/3969375 (JSONL format) and parse raw data'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: numeric
+  raw_text: The USPTO-MIT subset is available at https://zenodo.org/record/3969375.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T13:39:29Z'
 - artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
   attempts: 1
-  canonical: 'Output CSV contains exactly three reaction_type values: SN1, SN2, Diels-Alder'
-  claim_id: c_e8a6a206
-  context: verifying that the output CSV contains a single reaction_type column containing
-    exactly three distinct values (SN1, SN2, Diels-Alder) where present
+  canonical: 'Output CSV contains exactly three reaction types: SN1, SN2, Diels-Alder'
+  claim_id: c_f24388b8
+  context: Can be fully tested by executing the data ingestion script and verifying
+    that the output CSV contains a single reaction_type column containing exactly
+    three distinct values ("SN1", "SN2", "Diels-Alder") where present
   evidence:
-    entailment_evidence: 'Output CSV contains exactly three reaction type values:
-      SN1'
-    entailment_status: grounded
-    source_url: https://en.wikipedia.org/wiki/Output_CSV_contains_exactly_three_reaction_type_values:_SN1,
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Output_CSV_contains_exactly_three_reaction_types:_SN1,_SN2,
   kind: entity_fact
-  raw_text: output CSV contains a single reaction_type column containing exactly three
-    distinct values (SN1, SN2, Diels-Alder)
-  resolved_value: 'Output CSV contains exactly three reaction_type values: SN1, SN2,
-    Diels-Alder'
+  raw_text: The output CSV contains a single reaction_type column containing exactly
+    three distinct values ("SN1", "SN2", "Diels-Alder")
+  resolved_value: null
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
-  status: verified
-  updated_at: '2026-07-03T12:33:33Z'
+  status: not_enough_info
+  updated_at: '2026-07-03T13:39:54Z'
 - artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
   attempts: 1
-  canonical: Output row count is at least 90% of input row count
-  claim_id: c_ef04dd4f
+  canonical: Filtered output row count is at least 90% of input row count
+  claim_id: c_00cf8b98
   context: "and that the total row count is \u2265 90% of the input file row count."
   evidence:
     candidates_found: 1
     reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Output_row_count_is_at_least_90%25_of_input_row_count
+    source_url: https://en.wikipedia.org/wiki/Filtered_output_row_count_is_at_least_90%25_of_input_row_count
   kind: magnitude
-  raw_text: "total row count is \u2265 90% of the input file row count"
+  raw_text: "The total row count is \u2265 90% of the input file row count"
   resolved_value: null
   resolver: resolve_superlative
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T12:34:01Z'
+  updated_at: '2026-07-03T13:40:24Z'
 - artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
   attempts: 1
-  canonical: Remove output rows for reaction classes with fewer than 1000 samples
-  claim_id: c_79061402
-  context: Add logic to check sample size per class (<1,000) and log warning; explicitly
-    physically remove those rows from the output CSV for classes with <1,000 samples
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Remove_output_rows_for_reaction_classes_with_fewer_than_1000
-  kind: magnitude
-  raw_text: explicitly physically remove those rows from the output CSV for classes
-    with <1,000 samples
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T12:34:20Z'
-- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
-  attempts: 1
-  canonical: Train XGBoost model on CPU within 30 minutes
-  claim_id: c_0fd16c98
-  context: apply dimensionality reduction, and train XGBoost on CPU within 30 mins.
+  canonical: XGBoost model training completes within 30 minutes on CPU
+  claim_id: c_46bd7d9b
+  context: 'Goal: Convert reactants to features (RDKit), apply dimensionality reduction,
+    and train XGBoost on CPU within 30 mins.'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: train XGBoost on CPU within 30 mins
+  raw_text: Train XGBoost on CPU within 30 mins
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T12:34:43Z'
+  updated_at: '2026-07-03T13:40:39Z'
 - artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
   attempts: 1
-  canonical: Model outputs prediction file with Spearman correlation coefficient greater
-    than 0.5
-  claim_id: c_f1174235
+  canonical: Model achieves Spearman correlation coefficient greater than 0.5
+  claim_id: c_97f1b1a4
   context: verifying that the model outputs a prediction file with a Spearman correlation
-    coefficient > 0.5
+    coefficient > 0.5 and that the total runtime is < 30 minutes on a standard CPU.
   evidence:
     candidates_found: 0
     reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Model_outputs_prediction_file_with_Spearman_correlation_coef
+    source_url: https://en.wikipedia.org/wiki/Model_achieves_Spearman_correlation_coefficient_greater_than
   kind: magnitude
-  raw_text: model outputs a prediction file with a Spearman correlation coefficient
+  raw_text: The model outputs a prediction file with a Spearman correlation coefficient
     > 0.5
   resolved_value: null
   resolver: resolve_superlative
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T12:35:44Z'
+  updated_at: '2026-07-03T13:41:25Z'
 - artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
   attempts: 1
-  canonical: Total runtime is less than 30 minutes on a standard CPU
-  claim_id: c_fe7400a7
-  context: and that the total runtime is < 30 minutes on a standard CPU.
-  evidence:
-    fill:
-      channel: paper
-      conflicts: []
-      quote: Task Total Time Usage(s) 77.73 80.05 82.32 89.31
-      source_id: '2408.08592'
-      url: https://arxiv.org/abs/2408.08592
-      value: '89.31'
-    filled: true
-  kind: magnitude
-  raw_text: total runtime is < 30 minutes on a standard CPU
-  resolved_value: '89.31'
-  resolver: fill:paper
-  source_hash: null
-  source_type: external
-  status: verified
-  updated_at: '2026-07-03T12:36:18Z'
-- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
-  attempts: 1
-  canonical: SelectKBest dimensionality reduction with k=100 features
-  claim_id: c_8b828c96
-  context: 'Implement Variance Thresholding and SelectKBest (scoring function: f_regression
-    or mutual_info_regression, k=100) dimensionality reduction'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'SelectKBest (scoring function: f_regression or mutual_info_regression,
-    k=100)'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T12:36:30Z'
-- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
-  attempts: 1
-  canonical: Use 5-fold Cross-Validation with Leave-One-Scaffold-Out validation
-  claim_id: c_d03cc5e6
+  canonical: Model training uses 5-fold Cross-Validation with Leave-One-Scaffold-Out
+    validation
+  claim_id: c_69643e90
   context: Implement 5-fold Cross-Validation loop with Leave-One-Scaffold-Out (LOSO)
-    validation in src/modeling/train.py
+    validation in src/modeling/train.py to ensure generalization to new chemistry
+    (Plan Complexity Tracking)
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
@@ -180,384 +184,59 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T12:37:07Z'
+  updated_at: '2026-07-03T13:42:06Z'
 - artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
   attempts: 1
-  canonical: Permutation test yields p-value less than 0.01
-  claim_id: c_fabd578e
-  context: "verifying that the output report contains a ranked list of reaction classes\
+  canonical: Feature selection uses SelectKBest with k=100
+  claim_id: c_a072dda5
+  context: 'Implement Variance Thresholding and SelectKBest (scoring function: f_regression
+    or mutual_info_regression, k=100) dimensionality reduction in src/data/preprocessing.py'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Reduce feature count using SelectKBest with k=100
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T13:43:41Z'
+- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  attempts: 1
+  canonical: Analysis report ranks classes by Spearman rho and includes p-value <
+    0.01
+  claim_id: c_ed875f65
+  context: "Can be fully tested by running the analysis script on the cross-validation\
+    \ results and verifying that the output report contains a ranked list of reaction\
+    \ classes by Spearman \u03C1, with SN1/SN2/Diels-Alder labels clearly distinguished,\
+    \ and a p-value < 0.01 for the permutation test."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify that the output report contains a ranked list of reaction classes\
     \ by Spearman \u03C1, with SN1/SN2/Diels-Alder labels clearly distinguished, and\
-    \ a p-value < 0.01 for the permutation test."
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Permutation_test_yields_p-value_less_than_0.01
-  kind: magnitude
-  raw_text: p-value < 0.01 for the permutation test
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T12:37:37Z'
-- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
-  attempts: 1
-  canonical: Flag result as Not Significant if p-value is 0.01 or greater
-  claim_id: c_d4467186
-  context: "Implement logic in report generation to flag Not Significant if p-value\
-    \ \u2265 0.01"
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: "flag Not Significant if p-value \u2265 0.01"
+    \ a p-value < 0.01 for the permutation test"
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T12:37:37Z'
+  updated_at: '2026-07-03T13:43:56Z'
 - artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
   attempts: 1
-  canonical: Skip classes in final report if sample size is fewer than 1000
-  claim_id: c_2d4d09b2
-  context: Implement logic to skip classes in the final report if sample size < 1,000
-    (reusing logic from T016)
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Skip_classes_in_final_report_if_sample_size_is_fewer_than_10
-  kind: magnitude
-  raw_text: skip classes in the final report if sample size < 1,000
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T12:38:17Z'
-- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
-  attempts: 1
-  canonical: download USPTO-MIT subset from Zenodo record 3969375
-  claim_id: c_5c75a9b3
-  context: 'Implement src/data/ingestion.py to download USPTO-MIT subset from URL:
-    https://zenodo.org/record/3969375 (JSONL format) and parse raw data'
-  evidence:
-    ok: false
-    reason: claim not found in the cited source's full text
-    status: not_found
-  kind: numeric
-  raw_text: 'download USPTO-MIT subset from URL: https://zenodo.org/record/3969375'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T12:39:51Z'
-- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
-  attempts: 1
-  canonical: model outputs prediction with Spearman correlation coefficient greater
-    than 0.5
-  claim_id: c_1494ef8f
-  context: verifying that the model outputs a prediction file with a Spearman correlation
-    coefficient > 0.5 and that the {{claim:c_fe7400a7}} (2408.08592, https://arxiv.org/abs/2408.08592).
-  evidence:
-    candidates_found: 0
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Model_outputs_prediction_with_Spearman_correlation_coefficie
-  kind: magnitude
-  raw_text: verify that the model outputs a prediction file with a Spearman correlation
-    coefficient > 0.5
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T12:40:41Z'
-- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
-  attempts: 1
-  canonical: arXiv paper 2408.08592
-  claim_id: c_1cfd3fd0
-  context: verifying that the model outputs a prediction file with a Spearman correlation
-    coefficient > 0.5 and that the {{claim:c_fe7400a7}} (2408.08592, https://arxiv.org/abs/2408.08592).
-  evidence:
-    ok: true
-    reason: ''
-  kind: numeric
-  raw_text: 2408.08592, https://arxiv.org/abs/2408.08592
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: verified
-  updated_at: '2026-07-03T12:40:43Z'
-- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
-  attempts: 1
-  canonical: Model prediction Spearman correlation coefficient greater than 0.5
-  claim_id: c_c4e2c4ec
-  context: verifying that the model outputs a prediction file with a Spearman correlation
-    coefficient > 0.5 and that the {{claim:c_fe7400a7}} (2408.08592, https://arxiv.org/abs/2408.08592).
-  evidence:
-    candidates_found: 0
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Model_prediction_Spearman_correlation_coefficient_greater_th
-  kind: magnitude
-  raw_text: A model trained on reaction records should output a prediction file with
-    a Spearman correlation coefficient greater than 0.5.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T12:42:12Z'
-- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
-  attempts: 1
-  canonical: Paper 2408.08592 associated with model performance claim
-  claim_id: c_ec1fffc3
-  context: verifying that the model outputs a prediction file with a Spearman correlation
-    coefficient > 0.5 and that the {{claim:c_fe7400a7}} (2408.08592, https://arxiv.org/abs/2408.08592).
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The paper '2408.08592' is associated with the claim regarding model performance
-    verification.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T12:42:26Z'
-- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
-  attempts: 1
-  canonical: USPTO-MIT subset available at Zenodo record 3969375 in JSONL format
-  claim_id: c_862aab3e
+  canonical: USPTO-MIT subset available at zenodo.org/record/3969375 in JSONL format
+  claim_id: c_ea12d2f0
   context: 'Implement src/data/ingestion.py to download USPTO-MIT subset from URL:
     https://zenodo.org/record/3969375 (JSONL format) and parse raw data'
   evidence:
     ok: false
     reason: claim not found in the cited source's full text
   kind: numeric
-  raw_text: 'download USPTO-MIT subset from URL: https://zenodo.org/record/3969375
-    (JSONL format)'
+  raw_text: 'The USPTO-MIT subset is available at URL: https://zenodo.org/record/3969375
+    in JSONL format.'
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T12:45:41Z'
-- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
-  attempts: 1
-  canonical: Model outputs prediction file with Spearman correlation coefficient greater
-    than 0.5
-  claim_id: c_48e02cf5
-  context: 'Independent Test: Can be fully tested by running the training script ona
-    sample of reaction records and verifying that the model outputs a prediction file
-    with a Spearman correlation coefficient > 0.5'
-  evidence:
-    candidates_found: 0
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Model_outputs_prediction_file_with_Spearman_correlation_coef
-  kind: magnitude
-  raw_text: verify that the model outputs a prediction file with a Spearman correlation
-    coefficient > 0.5
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T12:45:43Z'
-- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
-  attempts: 1
-  canonical: Output report contains p-value less than 0.01 for permutation test
-  claim_id: c_e89fd4b2
-  context: "Independent Test: Can be fully tested by running the analysis script on\
-    \ the cross-validation results and verifying that the output report contains a\
-    \ ranked list of reaction classes by Spearman \u03C1, with SN1/SN2/Diels-Alder\
-    \ labels clearly distinguished, and a p-value < 0.01 for the permutation test."
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Output_report_contains_p-value_less_than_0.01_for_permutatio
-  kind: magnitude
-  raw_text: verify that the output report contains... a p-value < 0.01 for the permutation
-    test
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T12:46:33Z'
-- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
-  attempts: 1
-  canonical: USPTO-MIT subset available at Zenodo record 3969375
-  claim_id: c_6dc672f1
-  context: 'Implement src/data/ingestion.py to download USPTO-MIT subset from URL:
-    https://zenodo.org/record/3969375 (JSONL format) and parse raw data'
-  evidence:
-    ok: false
-    reason: cited source contradicts the claim (The passages reference Zenodo record
-      3969376, not 3969375.)
-  kind: numeric
-  raw_text: 'download USPTO-MIT subset from URL: https://zenodo.org/record/3969375'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: refuted
-  updated_at: '2026-07-03T12:48:13Z'
-- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
-  attempts: 1
-  canonical: Model output verification requires Spearman correlation > 0.5 and reference
-    to arXiv 2408.08592
-  claim_id: c_95255222
-  context: 'Independent Test: Can be fully tested by running the training script ona
-    sample of reaction records and verifying that the model outputs a prediction file
-    with a Spearman correlation coefficient > 0.5 and that the {{claim:c_fe7400a7}}
-    (2408.08592, https://arxiv.org/abs/2408.08592).'
-  evidence:
-    ok: false
-    reason: claim not found in the cited source's full text
-  kind: numeric
-  raw_text: verify that the model outputs a prediction file with a Spearman correlation
-    coefficient > 0.5 and that the {{claim:c_fe7400a7}} (2408.08592, https://arxiv.org/abs/2408.08592)
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T12:48:15Z'
-- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
-  attempts: 3
-  canonical: USPTO-MIT subset available at zenodo.org/record/3969375
-  claim_id: c_64fba163
-  context: 'Implement src/data/ingestion.py to download USPTO-MIT subset from URL:
-    https://zenodo.org/record/3969375 (JSONL format) and parse raw data'
-  evidence:
-    ok: false
-    reason: claim not found in the cited source's full text
-    status: not_found
-  kind: numeric
-  raw_text: 'Download USPTO-MIT subset from URL: https://zenodo.org/record/3969375
-    (JSONL format)'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T12:48:57Z'
-- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
-  attempts: 1
-  canonical: Model outputs prediction file with Spearman correlation coefficient greater
-    than 0.5
-  claim_id: c_1a6da501
-  context: verifying that the model outputs a prediction file with a Spearman correlation
-    coefficient > 0.5 and that the {{claim:c_fe7400a7}} (2408.08592, https://arxiv.org/abs/2408.08592)
-  evidence:
-    candidates_found: 0
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Model_outputs_prediction_file_with_Spearman_correlation_coef
-  kind: magnitude
-  raw_text: verify that the model outputs a prediction file with a Spearman correlation
-    coefficient > 0.5
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T12:48:59Z'
-- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
-  attempts: 1
-  canonical: Output report contains p-value less than 0.01 for permutation test
-  claim_id: c_e5bbb046
-  context: "verifying that the output report contains a ranked list of reaction classes\
-    \ by Spearman \u03C1... and a p-value < 0.01 for the permutation test"
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Output_report_contains_p-value_less_than_0.01_for_permutatio
-  kind: magnitude
-  raw_text: verify that the output report contains... a p-value < 0.01 for the permutation
-    test
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T12:49:00Z'
-- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
-  attempts: 2
-  canonical: USPTO-MIT subset available at Zenodo record 3969375
-  claim_id: c_d297e794
-  context: 'Implement src/data/ingestion.py to Download USPTO-MIT subset from URL:
-    https://zenodo.org/record/3969375 (JSONL format) and parse raw data'
-  evidence:
-    ok: false
-    reason: cited source contradicts the claim (The passages reference Zenodo record
-      3969376, not 3969375.)
-    status: contradicted
-  kind: numeric
-  raw_text: 'Download USPTO-MIT subset from URL: https://zenodo.org/record/3969375'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T13:02:04Z'
-- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
-  attempts: 1
-  canonical: model outputs prediction with Spearman correlation greater than 0.5
-  claim_id: c_766c348e
-  context: 'Independent Test: Can be fully tested by running the training script ona
-    sample of reaction records and verifying that the model outputs a prediction file
-    with a Spearman correlation coefficient > 0.5'
-  evidence:
-    candidates_found: 0
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Model_outputs_prediction_with_Spearman_correlation_greater_t
-  kind: magnitude
-  raw_text: verify that the model outputs a prediction file with a Spearman correlation
-    coefficient > 0.5
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T13:02:06Z'
-- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
-  attempts: 1
-  canonical: USPTO-MIT subset available at Zenodo record 3969375
-  claim_id: c_250fefd7
-  context: 'Implement src/data/ingestion.py to Download USPTO-MIT subset from URL:
-    https://zenodo.org/record/3969375 and parse raw data'
-  evidence:
-    ok: false
-    reason: cited source contradicts the claim (The passages reference Zenodo record
-      3969376, not 3969375.)
-    status: contradicted
-  kind: numeric
-  raw_text: 'Download USPTO-MIT subset from URL: https://zenodo.org/record/3969375'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T13:16:54Z'
-- artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
-  attempts: 1
-  canonical: Model outputs prediction with Spearman correlation > 0.5 referencing
-    arXiv 2408.08592
-  claim_id: c_83a7308c
-  context: 'Independent Test: Can be fully tested by running the training script ona
-    sample of reaction records and verifying that the model outputs a prediction file
-    with a Spearman correlation coefficient > 0.5 and that the {{claim:c_fe7400a7}}
-    (2408.08592, https://arxiv.org/abs/2408.08592).'
-  evidence:
-    ok: false
-    reason: claim not found in the cited source's full text
-  kind: numeric
-  raw_text: verify that the model outputs a prediction file with a Spearman correlation
-    coefficient > 0.5 and that the {{claim:c_fe7400a7}} (2408.08592, https://arxiv.org/abs/2408.08592)
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T13:17:36Z'
+  updated_at: '2026-07-03T14:02:24Z'

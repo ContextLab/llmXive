@@ -1,17 +1,56 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-molecular-reactivity"
+version = "0.1.0"
+description = "Predicting Molecular Reactivity Using Machine Learning"
+requires-python = ">=3.10"
+dependencies = [
+    "rdkit",
+    "xgboost",
+    "pandas",
+    "scikit-learn",
+    "pyarrow",
+    "requests",
+]
+
+[project.optional-dependencies]
+dev = [
+    "flake8>=6.0.0",
+    "black>=23.0.0",
+    "isort>=5.12.0",
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+]
+
 [tool.black]
-line-length = 100
+line-length = 88
 target-version = ['py310']
 include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
 )/
 '''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+known_first_party = ["src", "tests"]
+known_third_party = ["rdkit", "xgboost", "pandas", "sklearn", "requests", "pyarrow"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v --cov=src --cov-report=term-missing"
