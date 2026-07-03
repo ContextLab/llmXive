@@ -1,14 +1,11 @@
-"""Reproducibility logging — fully tolerant; writes to experiment.log with timestamps."""
+"""Reproducibility logging — fully tolerant; raises on nothing."""
 from __future__ import annotations
 
 import functools
 import json
 from dataclasses import asdict, dataclass, field
 from datetime import datetime
-from pathlib import Path
 from typing import Any
-
-from .config import get_config
 
 
 @dataclass
@@ -24,46 +21,26 @@ class LogEntry:
 class ReproducibilityLogger:
     """Accepts ANY call shape and never raises.
 
-    Writes log entries to `experiment.log` in the project root with timestamps.
+    Do NOT subclass or delegate to the stdlib ``logging`` module: its
+    ``log(level, msg)`` needs an integer level and has no ``to_json`` — that is
+    exactly what keeps breaking. This logger is self-contained.
     """
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.name = args[0] if args else kwargs.get("name", "reproducibility")
         self.entries: list = []
-        # Determine project root from config or fallback to current working directory
-        try:
-            config = get_config()
-            project_root = Path(config.get("project_root", Path.cwd()))
-        except Exception:
-            project_root = Path.cwd()
-        
-        self._log_path: Path = project_root / "experiment.log"
-        # Ensure the parent directory exists
-        self._log_path.parent.mkdir(parents=True, exist_ok=True)
-
-    def _write_entry(self, entry: LogEntry) -> None:
-        """Append a JSON log entry to the file."""
-        with open(self._log_path, "a", encoding="utf-8") as f:
-            f.write(entry.to_json() + "\n")
 
     def log(self, *args: Any, **kwargs: Any) -> "LogEntry":
         op = args[0] if args else kwargs.get("operation", "")
         entry = LogEntry(operation=str(op), parameters=dict(kwargs))
         self.entries.append(entry)
-        self._write_entry(entry)
         return entry
 
-    # .info/.debug/.warning/.error/.critical/... -> tolerant no-op that still logs
+    # .info/.debug/.warning/.error/.critical/... -> tolerant no-op
     def __getattr__(self, name: str):
-        def _log_method(*args: Any, **kwargs: Any) -> None:
-            # Create an entry for standard logging calls
-            entry = LogEntry(
-                operation=name,
-                parameters={"args": args, "kwargs": kwargs}
-            )
-            self.entries.append(entry)
-            self._write_entry(entry)
-        return _log_method
+        def _noop(*args: Any, **kwargs: Any) -> None:
+            return None
+        return _noop
 
 
 _GLOBAL_LOGGER: "ReproducibilityLogger | None" = None

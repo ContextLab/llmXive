@@ -1,8 +1,7 @@
 """
-Scaling Experiment Runner.
-
-Runs simulations for varying agent counts (3, 5, 7) and generates
-a scaling plot with power-law fitting.
+Scaling Experiment Runner for User Story 3.
+Runs 800 games per configuration for agent counts 3, 5, 7.
+Outputs data/scaling_results.csv.
 """
 from __future__ import annotations
 
@@ -13,81 +12,72 @@ from typing import List
 
 import pandas as pd
 
-from metrics.specialization import compute_specialization_index
-from metrics.retrieval import compute_retrieval_efficiency
 from utils.logging import get_logger
-from run_experiment import simulate_one_game
+from run_experiment import simulate_one_game, GameResult
 
 logger = get_logger(__name__)
 
-def ensure_dir(path: Path) -> None:
-    path.mkdir(parents=True, exist_ok=True)
+AGENT_COUNTS = [3, 5, 7]
+GAMES_PER_COUNT = 800
+CONTEXT = "full"
+OUTPUT_PATH = Path("data/scaling_results.csv")
 
-def run_simulations_for_count(
-    agent_count: int,
-    games: int,
-    seed: int,
-    context: str = "full"
-) -> List[dict]:
-    """Run simulations for a single agent count."""
+
+def ensure_dir(path: Path):
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+
+def run_simulations_for_count(agent_count: int, games: int, context: str) -> List[GameResult]:
     results = []
     for i in range(games):
-        game_id = i
-        _, result = simulate_one_game(agent_count, game_id, context, seed + i)
-        results.append({
-            "agent_count": agent_count,
-            "specialization_index": result.specialization_index,
-            "retrieval_efficiency": result.retrieval_efficiency,
-            "game_id": game_id
-        })
+        game_id = f"scale_{agent_count}_{i}"
+        res = simulate_one_game(agent_count, game_id, context)
+        results.append(res)
     return results
 
-def write_csv(results: List[dict], path: Path) -> None:
-    """Write scaling results to CSV."""
-    ensure_dir(path.parent)
-    with open(path, "w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=["agent_count", "specialization_index", "retrieval_efficiency", "game_id"])
+
+def write_csv(results: List[GameResult], path: Path):
+    ensure_dir(path)
+    fieldnames = ["agent_count", "specialization_index", "retrieval_efficiency", "context_condition", "game_id"]
+    with open(path, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
-        writer.writerows(results)
+        for r in results:
+            row = {
+                "agent_count": r.agent_count,
+                "specialization_index": r.specialization_index,
+                "retrieval_efficiency": r.retrieval_efficiency,
+                "context_condition": r.context,
+                "game_id": r.game_id
+            }
+            writer.writerow(row)
+
 
 def build_parser():
     import argparse
-    parser = argparse.ArgumentParser(description="Run Scaling Experiment")
-    parser.add_argument("--agents", type=str, default="3,5,7", help="Agent counts")
-    parser.add_argument("--games", type=int, default=100, help="Games per count")
-    parser.add_argument("--seed", type=int, default=42, help="Seed")
-    parser.add_argument("--context", type=str, default="full", choices=["full", "limited"])
-    parser.add_argument("--output", type=Path, default=Path("results/scaling_data.csv"))
+    parser = argparse.ArgumentParser(description="Run scaling experiments.")
+    parser.add_argument("--output", type=Path, default=OUTPUT_PATH)
+    parser.add_argument("--games", type=int, default=GAMES_PER_COUNT)
+    parser.add_argument("--counts", type=str, default="3,5,7")
     return parser
+
 
 def main() -> int:
     parser = build_parser()
     args = parser.parse_args()
-    
-    agent_counts = [int(x) for x in args.agents.split(",")]
+
+    counts = [int(x) for x in args.counts.split(",")]
     all_results = []
-    
-    for count in agent_counts:
-        logger.info(f"Running scaling simulation for N={count}...")
-        results = run_simulations_for_count(count, args.games, args.seed, args.context)
+
+    for count in counts:
+        logger.info(f"Running {args.games} games for agent count {count}...")
+        results = run_simulations_for_count(count, args.games, CONTEXT)
         all_results.extend(results)
-        
+
     write_csv(all_results, args.output)
     logger.info(f"Scaling data written to {args.output}")
-    
-    # Generate plot if requested
-    if hasattr(args, 'plot') and args.plot == 'scaling':
-        try:
-            from analysis.scaling import generate_scaling_plot
-            # Load data back to generate plot
-            df = pd.read_csv(args.output)
-            plot_path = Path("results/scaling_plot.pdf")
-            generate_scaling_plot(df, plot_path)
-            logger.info(f"Scaling plot written to {plot_path}")
-        except Exception as e:
-            logger.warning(f"Failed to generate plot: {e}")
-            
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())

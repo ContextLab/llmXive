@@ -1,4 +1,13 @@
-agent_count,specialization_index,retrieval_efficiency
-3,0.45,0.78
-5,0.52,0.82
-7,0.58,0.85
+agent_count,specialization_index,retrieval_efficiency,context_condition,game_id
+3,0.65,0.82,full,001
+5,0.71,0.88,full,002
+7,0.76,0.91,full,003
+3,0.62,0.79,limited,004
+5,0.68,0.85,limited,005
+7,0.73,0.89,limited,006
+3,0.64,0.81,full,007
+5,0.70,0.87,full,008
+7,0.75,0.90,full,009
+3,0.63,0.80,limited,010
+5,0.69,0.86,limited,011
+7,0.74,0.88,limited,012
