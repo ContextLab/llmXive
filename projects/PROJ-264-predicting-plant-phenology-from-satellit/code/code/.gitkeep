@@ -1,0 +1,4 @@
+# Placeholder to ensure code directory exists in version control
+# This file is ignored by git but ensures the directory structure is tracked if needed.
+# In practice, .gitkeep files are usually placed in empty directories.
+pass

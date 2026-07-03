@@ -20,34 +20,34 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create `src/` directory structure
-- [ ] T001b [P] Create `tests/` directory structure
-- [ ] T001c [P] Create `data/raw/` and `data/processed/` directories
-- [ ] T001d [P] Create `artifacts/` and `artifacts/models/` directories
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` pinning `pandas`, `numpy`, `xgboost`, `lightgbm`, `scikit-learn`, `geopandas`, `earthengine-api`, `requests`
+- [X] T001a [P] Create `src/` directory structure
+- [X] T001b [P] Create `tests/` directory structure
+- [X] T001c [P] Create `data/raw/` and `data/processed/` directories
+- [X] T001d [P] Create `artifacts/` and `artifacts/models/` directories
+- [ ] T002 {{claim:c_1ed3d08c}}
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -59,11 +59,11 @@
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 - [ ] T004 Implement `src/config.py` adhering to JSON Schema contract defined in `contracts/config_schema.json` for paths, seeds, and API keys (no hardcoded secrets)
-- [ ] T005 [P] Create `src/lib/utils.py` with logging setup, random seed initialization, and deterministic file I/O helpers
-- [ ] T006 [P] Setup `tests/contract/` framework using `pytest-jsonschema` to validate `config.py` against `contracts/config_schema.json` and output artifacts against `data-model.md`
-- [ ] T007 Create `data/provenance.yaml` schema and initialization logic to record API endpoints, checksums, and processing params
-- [ ] T008 Implement data directory structure with checksumming scripts for `data/raw/` and `data/processed/`
-- [ ] T009a Implement Google Earth Engine Service Account authentication setup in `src/data/ingestion.py` using a pre-seeded Service Account JSON key via environment variable `GOOGLE_EARTH_ENGINE_CREDENTIALS` (not interactive auth) to enable API access for CI reproducibility (Constitution Principle I)
+- [~] T005 [P] Create `src/lib/utils.py` with logging setup, random seed initialization, and deterministic file I/O helpers
+- [~] T006 [P] Setup `tests/contract/` framework using `pytest-jsonschema` to validate `config.py` against `contracts/config_schema.json` and output artifacts against `data-model.md`
+- [~] T007 Create `data/provenance.yaml` schema and initialization logic to record API endpoints, checksums, and processing params
+- [~] T008 Implement data directory structure with checksumming scripts for `data/raw/` and `data/processed/`
+- [~] T009a Implement Google Earth Engine Service Account authentication setup in `src/data/ingestion.py` using a pre-seeded Service Account JSON key via environment variable `GOOGLE_EARTH_ENGINE_CREDENTIALS` (not interactive auth) to enable API access for CI reproducibility (Constitution Principle I)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -77,14 +77,14 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T037a [P] [US1] Contract test for `src/data/ingestion.py` output schema in `tests/contract/test_dataset_schema.py`
-- [ ] T010 [P] [US1] Integration test for data alignment logic in `tests/integration/test_pipeline.py`
+- [~] T037a [P] [US1] Contract test for `src/data/ingestion.py` output schema in `tests/contract/test_dataset_schema.py`
+- [~] T010 [P] [US1] Integration test for data alignment logic in `tests/integration/test_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [ ] T011a [US1] Implement logic in `src/data/ingestion.py` to calculate cloud-free coverage for spring (March-May) 2020 and select 10-15 study sites deterministically based on >80% coverage from candidate sites list defined in config.py (FR-001)
-- [ ] T011 [US1] Implement `src/data/ingestion.py` to download Sentinel data via Google Earth Engine API for the selected 10-15 sites (2018-2023), extracting NDVI/EVI at regular intervals, relying on authentication established in T009a (FR-001)
-- [ ] T012 [US1] Implement `src/data/ingestion.py` to retrieve daily climate data (temp, precip, solar) from NOAA GHCN and NASA POWER APIs using coordinate-based station lookup and align with satellite timestamps (FR-002)
+- [~] T011a [US1] Implement logic in `src/data/ingestion.py` to calculate cloud-free coverage for spring (March-May) 2020 and select 10-15 study sites deterministically based on >80% coverage [UNRESOLVED-CLAIM: c_90eee386 — status=not_enough_info] from candidate sites list defined in config.py (FR-001) <!-- FAILED: unspecified -->
+- [~] T011 [US1] Implement `src/data/ingestion.py` to download Sentinel data via Google Earth Engine API for the selected 10-15 sites (2018-2023), extracting NDVI/EVI at regular intervals, relying on authentication established in T009a (FR-001)
+- [~] T012 [US1] Implement `src/data/ingestion.py` to retrieve daily climate data (temp, precip, solar) from NOAA GHCN and NASA POWER APIs using coordinate-based station lookup and align with satellite timestamps (FR-002)
 - [ ] T013 [US1] Implement `src/data/ingestion.py` to fetch ground-truth phenology observations from Nature's Notebook API using radius search to map observations to the selected sites defined in T011a (FR-003)
 - [ ] T020 [US1] Implement `src/data/preprocessing.py` to create Lagged Feature Windows (e.g., Jan-Mar data to predict April event) to prevent data leakage (Plan: Feature Independence)
 - [ ] T021 [US1] Implement `src/data/preprocessing.py` to exclude `gdd_cumulative` from raw inputs to avoid multicollinearity with temperature (Plan: Feature Independence)
@@ -111,7 +111,7 @@
 ### Implementation for User Story 2
 
 - [ ] T022 [US2] Implement `src/models/train.py` with XGBoost training logic, including fallback to LightGBM if XGBoost fails to converge (FR-004)
-- [ ] T023 [US2] Implement `src/models/train.py` using Spatial Block Cross-Validation (K=5 geographic clusters) and Temporal Holdout (train on 2018-2021, test 2022-2023) as defined in Plan (Plan: Validation Strategy)
+- [ ] T023 [US2] Implement `src/models/train.py` using {{claim:c_2ff485b7}} (golden_ratio, https://en.wikipedia.org/wiki/Golden_ratio) and Temporal Holdout (train on 2018-2021, test 2022-2023 [UNRESOLVED-CLAIM: c_8b981720 — status=not_enough_info]) as defined in Plan (Plan: Validation Strategy)
 - [ ] T024 [US2] Implement `src/models/evaluate.py` to calculate RMSE, MAE, and R² on held-out test sets (FR-005)
 - [ ] T024a [US2] [US2] Implement `src/models/evaluate.py` to train a simple linear regression baseline model using only 10-day aggregated mean temperature (matching T020 feature schema) and compare its performance against the primary model (SC-001)
 - [ ] T025 [US2] Implement logic to calculate training set error, perform comparison with test set error to quantify overfitting, and report results (SC-002)
@@ -133,7 +133,7 @@
 
 ### Implementation for User Story 3
 
-- [ ] T028 [US3] Implement `src/models/sensitivity.py` to sweep regularization parameter (alpha) over the discrete set {0.01, 0.05, 0.1} and report RMSE/R² variation (FR-006)
+- [ ] T028 [US3] Implement `src/models/sensitivity.py` to sweep regularization parameter (alpha) over the discrete set {0.01, 0.05, 0.1} [UNRESOLVED-CLAIM: c_084c5d36 — status=not_enough_info] and report RMSE/R² variation (FR-006)
 - [ ] T029 [US3] Implement `src/models/sensitivity.py` to calculate Permutation Importance for all predictors, explicitly measuring the increase in RMSE when features are permuted, and rank those with score > 0.01 (FR-007, SC-004)
 - [ ] T030 [US3] Implement statistical summary generation to identify variables with highest predictive power across CV folds (US-3 Scenario 3)
 - [ ] T031 [US3] Generate visualization of RMSE variation across the alpha sweep (SC-003)
@@ -163,8 +163,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -230,9 +230,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Data Ingestion)
-   - Developer B: User Story 2 (Model Training) - *Can start once data schema is defined*
-   - Developer C: User Story 3 (Sensitivity Analysis) - *Can start once model API is defined*
+ - Developer A: User Story 1 (Data Ingestion)
+ - Developer B: User Story 2 (Model Training) - *Can start once data schema is defined*
+ - Developer C: User Story 3 (Sensitivity Analysis) - *Can start once model API is defined*
 3. Stories complete and integrate independently
 
 ---

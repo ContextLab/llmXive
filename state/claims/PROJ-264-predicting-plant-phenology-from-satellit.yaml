@@ -1,0 +1,121 @@
+- artifact_path: projects/PROJ-264-predicting-plant-phenology-from-satellit/specs/001-predicting-plant-phenology-from-satellit/tasks.md
+  attempts: 1
+  canonical: Python 3.11 project initialized with specific packages
+  claim_id: c_1ed3d08c
+  context: Initialize Python 3.11 project with `requirements.txt` pinning `pandas`,
+    `numpy`, `xgboost`, `lightgbm`, `scikit-learn`, `geopandas`, `earthengine-api`,
+    `requests`
+  evidence:
+    asserted: '3.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Initialize Python 3.11 project with `requirements.txt` pinning `pandas`,
+    `numpy`, `xgboost`, `lightgbm`, `scikit-learn`, `geopandas`, `earthengine-api`,
+    `requests`
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-03T23:35:38Z'
+- artifact_path: projects/PROJ-264-predicting-plant-phenology-from-satellit/specs/001-predicting-plant-phenology-from-satellit/tasks.md
+  attempts: 1
+  canonical: Study sites selected based on >80% cloud-free coverage in spring 2020
+  claim_id: c_90eee386
+  context: Implement logic in `src/data/ingestion.py` to calculate cloud-free coverage
+    for spring (March-May) 2020 and select 10-15 study sites deterministically based
+    on >80% coverage from candidate sites list defined in config.py (FR-001)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement logic in `src/data/ingestion.py` to calculate cloud-free coverage
+    for spring (March-May) 2020 and select 10-15 study sites deterministically based
+    on >80% coverage
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T23:49:17Z'
+- artifact_path: projects/PROJ-264-predicting-plant-phenology-from-satellit/specs/001-predicting-plant-phenology-from-satellit/tasks.md
+  attempts: 1
+  canonical: Sentinel data downloaded for 10-15 sites from 2018 to 2023
+  claim_id: c_d8d1fa52
+  context: Implement `src/data/ingestion.py` to download Sentinel data via Google
+    Earth Engine API for the selected 10-15 sites (2018-2023), extracting NDVI/EVI
+    at regular intervals, relying on authentication established in T009a (FR-001)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `src/data/ingestion.py` to download Sentinel data ... for the
+    selected 10-15 sites (2018-2023)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T23:50:09Z'
+- artifact_path: projects/PROJ-264-predicting-plant-phenology-from-satellit/specs/001-predicting-plant-phenology-from-satellit/tasks.md
+  attempts: 1
+  canonical: Temporal holdout with train 2018-2021, test 2022-2023
+  claim_id: c_8b981720
+  context: 'Implement `src/models/train.py` using Spatial Block Cross-Validation (K=5
+    geographic clusters) and Temporal Holdout (train on 2018-2021, test 2022-2023)
+    as defined in Plan (Plan: Validation Strategy)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: train on 2018-2021, test 2022-2023
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T23:51:09Z'
+- artifact_path: projects/PROJ-264-predicting-plant-phenology-from-satellit/specs/001-predicting-plant-phenology-from-satellit/tasks.md
+  attempts: 1
+  canonical: Spatial Block Cross-Validation with K=5
+  claim_id: c_2ff485b7
+  context: 'Implement `src/models/train.py` using Spatial Block Cross-Validation (K=5
+    geographic clusters) and Temporal Holdout (train on 2018-2021, test 2022-2023)
+    as defined in Plan (Plan: Validation Strategy)'
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 1.618033988749895 ((1+sqrt(5))/2 (IEEE-754 double, Python stdlib math.sqrt))
+      source_id: golden_ratio
+      url: https://en.wikipedia.org/wiki/Golden_ratio
+      value: '5'
+    filled: true
+  kind: numeric
+  raw_text: Spatial Block Cross-Validation (K=5 geographic clusters)
+  resolved_value: '5'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-03T23:51:29Z'
+- artifact_path: projects/PROJ-264-predicting-plant-phenology-from-satellit/specs/001-predicting-plant-phenology-from-satellit/tasks.md
+  attempts: 1
+  canonical: Regularization parameter alpha swept over 0.01, 0.05, 0.1
+  claim_id: c_084c5d36
+  context: "Implement `src/models/sensitivity.py` to sweep regularization parameter\
+    \ (alpha) over the discrete set {0.01, 0.05, 0.1} and report RMSE/R\xB2 variation\
+    \ (FR-006)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: sweep regularization parameter (alpha) over the discrete set {0.01, 0.05,
+    0.1}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T23:52:18Z'

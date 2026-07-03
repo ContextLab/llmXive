@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "predicting-plant-phenology"
+version = "0.1.0"
+description = "Predicting Plant Phenology from Satellite Imagery and Climate Data"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas>=2.1.4",
+    "numpy>=1.26.2",
+    "xgboost>=2.0.2",
+    "lightgbm>=4.1.0",
+    "scikit-learn>=1.3.2",
+    "geopandas>=0.14.1",
+    "earthengine-api>=1.1.0",
+    "requests>=2.31.0",
+    "pyyaml>=6.0.1",
+    "pytest>=7.4.3",
+    "pytest-jsonschema>=0.1.0",
+    "ruff>=0.1.6",
+    "black>=23.11.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*", "tests*", "scripts*"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
+ignore = ["E501", "W503"]
+
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+include = '\.pyi?$'
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"

@@ -42,3 +42,14 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/metinovadilet/satelite_landsat_NDWI_NDVI/7e446c96e37c3f379ed7bd16c4208e0de6cb34c8/mean_values_summary.csv?%2Fdatasets%2Fmetinovadilet%2Fsatelite_landsat_NDWI_NDVI%2Fresolve%2Fmain%2Fmean_values_summary.csv=&etag=%2251e21ed023413adc829c9871800554e030830c99%22
   verified_at: '2026-07-03T18:06:43.796902Z'
+- artifact_hash: 75e51ac90f9d005e34d21dc84170dcd058ad0bef00a5cca18a83d2c4f8492ada
+  artifact_path: projects/PROJ-264-predicting-plant-phenology-from-satellit/specs/001-predicting-plant-phenology-from-satellit/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Golden ratio - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Golden_ratio
+  verification_status: verified
+  verified_against_url: https://en.wikipedia.org/wiki/Golden_ratio
+  verified_at: '2026-07-03T23:52:18.621116Z'

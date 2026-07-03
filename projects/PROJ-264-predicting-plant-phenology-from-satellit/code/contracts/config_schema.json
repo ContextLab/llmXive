@@ -1,0 +1,84 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Plant Phenology Pipeline Configuration",
+  "description": "JSON Schema for the project configuration file (config.json).",
+  "type": "object",
+  "properties": {
+    "paths": {
+      "type": "object",
+      "description": "Directory paths for the project.",
+      "properties": {
+        "data_dir": {
+          "type": "string",
+          "description": "Root directory for all data."
+        },
+        "data_raw_dir": {
+          "type": "string",
+          "description": "Directory for raw, unprocessed data."
+        },
+        "data_processed_dir": {
+          "type": "string",
+          "description": "Directory for processed data ready for modeling."
+        },
+        "artifacts_dir": {
+          "type": "string",
+          "description": "Directory for model artifacts and intermediate results."
+        },
+        "models_dir": {
+          "type": "string",
+          "description": "Directory for trained model files."
+        },
+        "figures_dir": {
+          "type": "string",
+          "description": "Directory for output plots and visualizations."
+        },
+        "logs_dir": {
+          "type": "string",
+          "description": "Directory for log files."
+        },
+        "specs_dir": {
+          "type": "string",
+          "description": "Directory for specification documents."
+        },
+        "contracts_dir": {
+          "type": "string",
+          "description": "Directory for schema contracts."
+        }
+      },
+      "required": [
+        "data_dir",
+        "data_raw_dir",
+        "data_processed_dir",
+        "artifacts_dir",
+        "models_dir",
+        "figures_dir",
+        "logs_dir"
+      ],
+      "additionalProperties": false
+    },
+    "seeds": {
+      "type": "object",
+      "description": "Random seeds for reproducibility.",
+      "properties": {
+        "seed": {
+          "type": "integer",
+          "description": "Primary random seed."
+        },
+        "random_state": {
+          "type": "integer",
+          "description": "Secondary random state for ML libraries."
+        }
+      },
+      "required": [
+        "seed",
+        "random_state"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "paths",
+    "seeds"
+  ],
+  "additionalProperties": false
+}

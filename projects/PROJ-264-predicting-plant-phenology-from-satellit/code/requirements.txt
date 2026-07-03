@@ -1,0 +1,8 @@
+pandas==2.2.1
+numpy==1.26.4
+xgboost==2.0.3
+lightgbm==4.3.0
+scikit-learn==1.4.2
+geopandas==0.14.2
+earthengine-api==0.1.379
+requests==2.32.3
