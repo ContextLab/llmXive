@@ -1,0 +1,53 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelResult Schema"
+description: "Schema for the aggregated model results and metrics."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    description: "Type of model used."
+    enum: ["Poisson", "ZeroInflatedPoisson", "RandomForest", "BinaryClassifier"]
+  r_squared:
+    type: "number"
+    description: "R-squared (or pseudo-R-squared) value."
+  rmse:
+    type: "number"
+    description: "Root Mean Square Error."
+  p_values:
+    type: "object"
+    description: "Dictionary of p-values for each predictor."
+    additionalProperties:
+      type: "number"
+  vif_scores:
+    type: "object"
+    description: "Dictionary of Variance Inflation Factor scores."
+    additionalProperties:
+      type: "number"
+  cross_validation_folds:
+    type: "integer"
+    description: "Number of folds used in cross-validation."
+    minimum: 1
+  significance_threshold:
+    type: "number"
+    description: "Adjusted alpha threshold (e.g., Bonferroni corrected)."
+  is_significant:
+    type: "boolean"
+    description: "Whether the model shows statistically significant correlation."
+  distribution_check:
+    type: "string"
+    description: "Description of the target variable distribution (e.g., 'degenerate', 'normal', 'zero-inflated')."
+  deviation_from_linearity:
+    type: "number"
+    description: "Metric quantifying non-linearity in the structural correlation."
+required:
+  - model_type
+  - r_squared
+  - rmse
+  - p_values
+  - vif_scores
+  - cross_validation_folds
+  - significance_threshold
+  - is_significant
+  - distribution_check
+  - deviation_from_linearity
+additionalProperties: false
