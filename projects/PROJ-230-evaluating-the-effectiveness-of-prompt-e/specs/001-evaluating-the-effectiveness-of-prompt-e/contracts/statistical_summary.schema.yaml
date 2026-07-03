@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StatisticalSummary Schema"
+description: "Schema for the aggregate statistical analysis results."
+type: object
+properties:
+  metric:
+    type: string
+    enum:
+      - correctness
+      - complexity
+      - lines_of_code
+    description: "The metric being analyzed."
+  comparison:
+    type: string
+    description: "Description of the comparison (e.g., 'zero_shot_style vs zero_shot_basic')."
+  p_value:
+    type: number
+    format: float
+    description: "P-value from the statistical test."
+  confidence_interval_lower:
+    type: number
+    format: float
+    description: "Lower bound of the 95% confidence interval."
+  confidence_interval_upper:
+    type: number
+    format: float
+    description: "Upper bound of the 95% confidence interval."
+  effect_size:
+    type: number
+    format: float
+    description: "Effect size (Cohen's h or eta-squared)."
+  correction_method:
+    type: string
+    enum:
+      - bonferroni
+      - none
+    description: "Multiple comparison correction method used."
+required:
+  - metric
+  - comparison
+  - p_value
+  - confidence_interval_lower
+  - confidence_interval_upper
+  - effect_size
+  - correction_method
+additionalProperties: false

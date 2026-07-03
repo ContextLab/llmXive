@@ -1,0 +1,58 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "TranslationResult Schema"
+description: "Schema for the TranslationResult containing generated code and evaluation metrics."
+type: object
+properties:
+  snippet_id:
+    type: string
+    description: "Reference to the CodeSnippet ID."
+  condition_name:
+    type: string
+    enum:
+      - zero_shot_basic
+      - zero_shot_style
+      - few_shot_basic
+      - few_shot_style
+    description: "Experimental condition used."
+  generated_js:
+    type: string
+    description: "Generated JavaScript code."
+  test_pass_status:
+    type: string
+    enum:
+      - pass
+      - fail
+      - skipped
+      - timeout
+    description: "Functional correctness status from unit tests."
+  complexity_score:
+    type: integer
+    description: "Cyclomatic complexity of the generated code."
+  lines_of_code:
+    type: integer
+    description: "Number of lines of code in the generated snippet."
+  execution_time:
+    type: number
+    format: float
+    description: "Time taken to generate the translation in seconds."
+  raw_response:
+    type: string
+    description: "Raw API response from the LLM."
+  seed:
+    type: integer
+    description: "Random seed used for reproducibility."
+  timestamp:
+    type: string
+    format: date-time
+    description: "Timestamp of the execution."
+required:
+  - snippet_id
+  - condition_name
+  - generated_js
+  - test_pass_status
+  - complexity_score
+  - lines_of_code
+  - execution_time
+  - seed
+  - timestamp
+additionalProperties: false

@@ -1,0 +1,645 @@
+resolved_at: '2026-07-03T08:16:34.837466+00:00'
+datasets:
+- intent: JavaScript
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/hchautran/javascript/resolve/main/data/test-00000-of-00038.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/angie-chen55/javascript-github-code/resolve/main/data/train-00000-of-00183.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/hchautran/javascript-medium/resolve/main/data/test-00000-of-00016-24d84010ae9f480a.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/h4iku/coconut_javascript2010/resolve/main/data/train-00000-of-00016.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/h4iku/coconut_javascript2010_preprocessed/resolve/main/data/train-00000-of-00003.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/hchautran/javascript/resolve/main/data/test-00000-of-00038.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/angie-chen55/javascript-github-code/resolve/main/data/train-00000-of-00183.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/hchautran/javascript-medium/resolve/main/data/test-00000-of-00016-24d84010ae9f480a.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Poly_1_4-Cyclohexanedimethylene_Oxalate_as_a_Melt-Processable_Thermally_Robust_and_Recyclable_Oxalate_Polyester/32893468
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Design_Synthesis_and_Insecticidal_Potential_of_1_2_4-Oxadiazole-Fused_Isoxazoline_Derivatives_as_GABA_Receptor_Antagonists/32893459
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Induced_resistance_of_plants_reduces_their_negative_soil-legacy_effects_on_natives_but_not_on_naturalized_aliens/30383401
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Sorghum_T2T_Pangenome_Resources/32893133
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Spectral_Datasets/32893157
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: http://infotech-soccult.knukim.edu.ua/article/view/247490
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4014354
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10901259
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14289370
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11417085
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21154552
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21154552
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21153526
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21153526
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21154097
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CodeTrans
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/CM/codexglue_codetrans/resolve/main/data/test-00000-of-00001-99438bdbf212fe2c.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 169864
+      parsed: true
+  - url: https://huggingface.co/datasets/PELAB-LiU/codetrans_interduplication/resolve/main/data/test-00000-of-00001-33d06fa7ba2a2959.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 241189
+      parsed: true
+  - url: https://huggingface.co/datasets/WeixiangYan/CodeTransOcean/resolve/main/CodeTrans
+      Datasets/DLTrans/dl_test.json
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/CM/codexglue_codetrans/resolve/main/data/test-00000-of-00001-99438bdbf212fe2c.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/PELAB-LiU/codetrans_interduplication/resolve/main/data/test-00000-of-00001-33d06fa7ba2a2959.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/WeixiangYan/CodeTransOcean/resolve/main/CodeTrans
+      Datasets/DLTrans/dl_test.json
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/louisbrulenaudet/code-transports/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/65f0abf7279d2d8f72693c43/72985f628e03d67aeaa2b0f668f702317ce44e5cf5535b1b834b07003b403cfe?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27final_responses.json%3B+filename%3D%22final_responses.json%22%3B&user_id=public&response-content-type=application%2Fjson&X-Xet-Cas-Uid=public&Expires=1783070038&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjVmMGFiZjcyNzlkMmQ4ZjcyNjkzYzQzLzcyOTg1ZjYyOGUwM2Q2N2FlYWEyYjBmNjY4ZjcwMjMxN2NlNDRlNWNmNTUzNWIxYjgzNGIwNzAwM2I0MDNjZmVcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZmluYWxfcmVzcG9uc2VzLmpzb24lM0IrZmlsZW5hbWUlM0QlMjJmaW5hbF9yZXNwb25zZXMuanNvbiUyMiUzQiZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODMwNzAwMzh9fX1dfQ__&Signature=MEUCIQDnfqsS5aRpyjplj6hOQXcfaHy6YojErdyKxThYIEkKcgIgPlMDFLExW4m7NGpRMx-HsrA4hwKi1TmDD42rV59gSYU_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Poly_1_4-Cyclohexanedimethylene_Oxalate_as_a_Melt-Processable_Thermally_Robust_and_Recyclable_Oxalate_Polyester/32893468
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Design_Synthesis_and_Insecticidal_Potential_of_1_2_4-Oxadiazole-Fused_Isoxazoline_Derivatives_as_GABA_Receptor_Antagonists/32893459
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Induced_resistance_of_plants_reduces_their_negative_soil-legacy_effects_on_natives_but_not_on_naturalized_aliens/30383401
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Sorghum_T2T_Pangenome_Resources/32893133
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Spectral_Datasets/32893157
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20110499
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20094326
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2510.09898
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20094326
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20094326
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20110499
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20110499
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: BigCode
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/bigcode/starcoder2data-extras/resolve/main/arxiv/train-00000-of-00044.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/bigcode/the-stack-dedup/resolve/main/data/abap/data-00000-of-00001.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/bigcode/the-stack/resolve/main/data/abap/train-00000-of-00001.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/bigcode/the-stack-v2/resolve/main/data/1C_Enterprise/train-00000-of-00001.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/bigcode/starcoder2data-extras/resolve/main/arxiv/train-00000-of-00044.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/bigcode/the-stack-smol/resolve/main/data/assembly/data.json
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://acs.figshare.com/articles/journal_contribution/Poly_1_4-Cyclohexanedimethylene_Oxalate_as_a_Melt-Processable_Thermally_Robust_and_Recyclable_Oxalate_Polyester/32893468
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Design_Synthesis_and_Insecticidal_Potential_of_1_2_4-Oxadiazole-Fused_Isoxazoline_Derivatives_as_GABA_Receptor_Antagonists/32893459
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Induced_resistance_of_plants_reduces_their_negative_soil-legacy_effects_on_natives_but_not_on_naturalized_aliens/30383401
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Sorghum_T2T_Pangenome_Resources/32893133
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Spectral_Datasets/32893157
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8364980
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14034074
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3765314
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.10363442
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+  - url: https://zenodo.org/records/20441265
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20441265
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20441265
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/SERSEM_Selective_Entropy-Weighted_Scoring_for_Membership_Inference_in_Code_Language_Models/31911933/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/conference_contribution/SERSEM_Selective_Entropy-Weighted_Scoring_for_Membership_Inference_in_Code_Language_Models/31911933
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18486806
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-tractable
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://acs.figshare.com/articles/journal_contribution/Poly_1_4-Cyclohexanedimethylene_Oxalate_as_a_Melt-Processable_Thermally_Robust_and_Recyclable_Oxalate_Polyester/32893468
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Design_Synthesis_and_Insecticidal_Potential_of_1_2_4-Oxadiazole-Fused_Isoxazoline_Derivatives_as_GABA_Receptor_Antagonists/32893459
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Induced_resistance_of_plants_reduces_their_negative_soil-legacy_effects_on_natives_but_not_on_naturalized_aliens/30383401
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Sorghum_T2T_Pangenome_Resources/32893133
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Spectral_Datasets/32893157
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5524642
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15115020
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21019586
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21019586
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20988320
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20988320
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20778398
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: URLs
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/flwrlabs/fed-phishing-urls/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/marksverdhei/reddit-syac-urls/resolve/main/test.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 107077
+      parsed: true
+  - url: https://huggingface.co/datasets/joshtobin/malicious_urls/resolve/main/data/train-00000-of-00001-0ac5e739002d814a.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 9837
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/flwrlabs/fed-phishing-urls/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/marksverdhei/reddit-syac-urls/resolve/main/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/api/resolve-cache/datasets/AmirulOm/lottie-urls/709fd56c19915e82eafc9bc39780e078daee5e00/data%2Flots%2Furls.csv?%2Fdatasets%2FAmirulOm%2Flottie-urls%2Fresolve%2Fmain%2Fdata%2Flots%2Furls.csv=&etag=%226b32914e2f563eb13122769f44977e30c2b266f8%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/joshtobin/malicious_urls/resolve/main/data/train-00000-of-00001-0ac5e739002d814a.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/jkorsvik/nowiki_abstract_urls_20230120/resolve/main/data/train-00000-of-00001-30f05e15b92b5fa5.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/G_Quadruplex_Network_Engineering_in_Ionogels_Realizing_Robust_Biosensing_Interfaces_for_Plant_Electrophysiology/32893525
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Evaluating_the_socioeconomic_value_of_adult_respiratory_immunization_in_Spain_a_benefit-cost_analysis/32861938
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Poly_1_4-Cyclohexanedimethylene_Oxalate_as_a_Melt-Processable_Thermally_Robust_and_Recyclable_Oxalate_Polyester/32893468
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Design_Synthesis_and_Insecticidal_Potential_of_1_2_4-Oxadiazole-Fused_Isoxazoline_Derivatives_as_GABA_Receptor_Antagonists/32893459
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Induced_resistance_of_plants_reduces_their_negative_soil-legacy_effects_on_natives_but_not_on_naturalized_aliens/30383401
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/50969
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8371046
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21014453
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10622995
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15573303
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21155142
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21155142
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21154284
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21154284
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21154226
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CodeLlama
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/mlabonne/CodeLlama-2-20k/resolve/main/data/train-00000-of-00001-aa7b6a5bb57fd1c0.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_codellama__CodeLlama-13b-Python-hf/resolve/main/2023-08-25T16:41:17.923081/details_harness|arc:challenge|25_2023-08-25T16:41:17.923081.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_codellama__CodeLlama-7b-Instruct-hf/resolve/main/2023-08-25T17:04:00.078187/details_harness|arc:challenge|25_2023-08-25T17:04:00.078187.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/mlabonne/CodeLlama-2-20k/resolve/main/data/train-00000-of-00001-aa7b6a5bb57fd1c0.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/64e7b96e6f5b10625f92a6c1/17994cc8de23e01cd26b212174a04849cfeb64c5157b3e2e37c039c178d67c70?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27data-00000-of-00001.arrow%3B+filename%3D%22data-00000-of-00001.arrow%22%3B&user_id=public&Expires=1783070150&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjRlN2I5NmU2ZjViMTA2MjVmOTJhNmMxLzE3OTk0Y2M4ZGUyM2UwMWNkMjZiMjEyMTc0YTA0ODQ5Y2ZlYjY0YzUxNTdiM2UyZTM3YzAzOWMxNzhkNjdjNzBcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGF0YS0wMDAwMC1vZi0wMDAwMS5hcnJvdyUzQitmaWxlbmFtZSUzRCUyMmRhdGEtMDAwMDAtb2YtMDAwMDEuYXJyb3clMjIlM0ImdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzA3MDE1MH19fV19&Signature=MEYCIQDnolhsEEOmTJ6ZtlOpBHrJii9adjROQq1hXS1GwZtwkAIhAJUmv0LE3cIqdIu7CkFWnuJZYcBA5ydQfLdzzO5F4bsX&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_codellama__CodeLlama-13b-Python-hf/resolve/main/2023-08-25T16:41:17.923081/details_harness|arc:challenge|25_2023-08-25T16:41:17.923081.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_codellama__CodeLlama-7b-Instruct-hf/resolve/main/2023-08-25T17:04:00.078187/details_harness|arc:challenge|25_2023-08-25T17:04:00.078187.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/open-llm-leaderboard-old/details_codellama__CodeLlama-13b-Instruct-hf/resolve/main/2023-08-25T17:15:30.693025/details_harness|arc:challenge|25_2023-08-25T17:15:30.693025.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/G_Quadruplex_Network_Engineering_in_Ionogels_Realizing_Robust_Biosensing_Interfaces_for_Plant_Electrophysiology/32893525
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Evaluating_the_socioeconomic_value_of_adult_respiratory_immunization_in_Spain_a_benefit-cost_analysis/32861938
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Poly_1_4-Cyclohexanedimethylene_Oxalate_as_a_Melt-Processable_Thermally_Robust_and_Recyclable_Oxalate_Polyester/32893468
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Design_Synthesis_and_Insecticidal_Potential_of_1_2_4-Oxadiazole-Fused_Isoxazoline_Derivatives_as_GABA_Receptor_Antagonists/32893459
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Induced_resistance_of_plants_reduces_their_negative_soil-legacy_effects_on_natives_but_not_on_naturalized_aliens/30383401
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12771266
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11062815
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10390998
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13921403
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17204500
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/JavaVulBench_A_Java_Vulnerability_Benchmark_with_Realistic_Splits_a_Unified_Multi-Backend_Harness_and_a_Leakage-Aware_Evaluation_Mode/32885981/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/JavaVulBench_A_Java_Vulnerability_Benchmark_with_Realistic_Splits_a_Unified_Multi-Backend_Harness_and_a_Leakage-Aware_Evaluation_Mode/32885981
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.29733
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/95626-hierarchynet-learning-to-summarize-source-code-with-heterogeneous-representations
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/116562-thread-thinking-deeper-with-recursive-spawning
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CodeSnippet
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/anujbishtTx/code_snippets_explaination/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 107899
+      parsed: true
+  - url: https://huggingface.co/datasets/Kiy-K/code-snippets/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 90349
+      parsed: true
+  candidates_tried:
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/663cca7995085055e9cc8183/76b71e2d183c320ddd998f208e483b9e39d13fabbd429dbf14895beb352a7836?X-Xet-Cas-Uid=public&response-content-type=application%2Fjson&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27code_snippets.json%3B+filename%3D%22code_snippets.json%22%3B&Expires=1783070175&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjYzY2NhNzk5NTA4NTA1NWU5Y2M4MTgzLzc2YjcxZTJkMTgzYzMyMGRkZDk5OGYyMDhlNDgzYjllMzlkMTNmYWJiZDQyOWRiZjE0ODk1YmViMzUyYTc4MzZcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZqc29uJnVzZXJfaWQ9cHVibGljJnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjdjb2RlX3NuaXBwZXRzLmpzb24lM0IrZmlsZW5hbWUlM0QlMjJjb2RlX3NuaXBwZXRzLmpzb24lMjIlM0IiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzA3MDE3NX19fV19&Signature=MEYCIQDv6ega2Vs3VkAAHYd5oT2cgX80PvBI~vZxZ-JrpJ0DSwIhAOLa1GjK~Ye3C2w1I7p10Jvgbfr~PBInTy34mCy-PoWF&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/anujbishtTx/code_snippets_explaination/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Kiy-K/code-snippets/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/pH-Dependent_Vibrational_Dynamics_Drives_Excited-State_Quenching_in_the_Phycobiliprotein_Complex_PC645/32893549
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/G_Quadruplex_Network_Engineering_in_Ionogels_Realizing_Robust_Biosensing_Interfaces_for_Plant_Electrophysiology/32893525
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Evaluating_the_socioeconomic_value_of_adult_respiratory_immunization_in_Spain_a_benefit-cost_analysis/32861938
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Poly_1_4-Cyclohexanedimethylene_Oxalate_as_a_Melt-Processable_Thermally_Robust_and_Recyclable_Oxalate_Polyester/32893468
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Design_Synthesis_and_Insecticidal_Potential_of_1_2_4-Oxadiazole-Fused_Isoxazoline_Derivatives_as_GABA_Receptor_Antagonists/32893459
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ieeexplore.ieee.org/document/10254859/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8346515
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11547124
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17535832
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20784877
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8346515
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8346515
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

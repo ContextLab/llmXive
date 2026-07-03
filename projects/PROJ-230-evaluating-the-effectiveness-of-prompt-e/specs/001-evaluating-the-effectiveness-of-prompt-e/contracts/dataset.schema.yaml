@@ -1,0 +1,26 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CodeSnippet Dataset Schema"
+description: "Schema for the processed CodeSnippet dataset containing Python-to-JavaScript translation pairs."
+type: object
+properties:
+  id:
+    type: string
+    description: "Unique identifier for the code snippet."
+  python_source:
+    type: string
+    description: "Original Python code snippet."
+  expected_js_reference:
+    type: string
+    description: "Expected JavaScript code reference (if available)."
+  source_dataset_id:
+    type: string
+    description: "Identifier of the source dataset."
+  dataset_url:
+    type: string
+    description: "URL of the dataset source (from verified datasets block)."
+required:
+  - id
+  - python_source
+  - source_dataset_id
+  - dataset_url
+additionalProperties: false
