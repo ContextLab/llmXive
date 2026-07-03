@@ -1,84 +1,105 @@
 # Research: Predicting the Impact of Impurity Clustering on Grain Boundary Segregation
 
-## 1. Problem Statement & Hypothesis
+## Executive Summary
 
-**Hypothesis**: The degree of impurity clustering at grain boundaries (quantified by RDF peaks, pair correlation, and Voronoi neighbor counts) is a statistically significant predictor of segregation energy.
-**Null Hypothesis**: Clustering descriptors have no predictive power for segregation energy (R² ≈ 0).
+This research investigates the thermodynamic impact of impurity clustering on grain boundary (GB) segregation. The core hypothesis is that local clustering descriptors (RDF, pair correlation, Voronoi) at the GB interface are predictive of segregation energy. The study utilizes bulk configurations from the Open Quantum Materials Database (OQMD) and Materials Project (fallback) and generates GB supercells to simulate segregation. Due to compute constraints (CPU-only CI), the simulation step employs the specific NIST EAM potential for Fe-Cr. The analysis uses Linear Regression (with `statsmodels` for p-values) to ensure the availability of coefficient p-values, with rigorous handling of collinearity (via PCA and VIF framing) and multiple comparisons. A dynamic power analysis determines the sample size, capped at a predetermined maximum threshold.
 
-**Context**: Grain boundary segregation is a critical phenomenon in materials science, influencing properties like embrittlement and corrosion. While individual impurity segregation is well-studied, the thermodynamic impact of *clustering* (spatial arrangement) remains less understood. This project aims to quantify this relationship using atomistic simulation data.
+## Dataset Strategy
 
-## 2. Dataset Strategy
+### Primary Source: OQMD Bulk Configurations
+The project relies on the Open Quantum Materials Database (OQMD) for initial bulk configurations. Per the "Verified datasets" block, the following sources are used:
+- **Source**: OQMD (csv/parquet)
+- **URL**: ` (or equivalent parquet from `jablonkagroup`/`materials-toolkits` as verified).
+- **Usage**: Downloaded bulk configurations serve as the base lattice for GB construction.
+- **Fit Check**: The OQMD contains bulk crystal structures with impurity species. **Gap Identification**: OQMD does **not** contain pre-computed Grain Boundary segregation energies. The plan explicitly accounts for this by generating GB supercells and simulating energies locally (US-1). The dataset is a *source* for the bulk, not the final labeled dataset.
+- **Validation**: The plan includes a check to ensure the downloaded CSV contains 'structure' and 'lattice' columns. If the mirror lacks structural data, the plan falls back to the NIST repository.
 
-**Critical Scientific Constraint**:
-- **Circularity Prevention**: If segregation energy labels are generated via simulation (Potential A), the clustering descriptors MUST be computed from a structurally perturbed representation (e.g., different cutoff radius, distinct relaxation potential) OR the study must explicitly frame conclusions as "relative to Potential A" to avoid tautological validation.
-- **No Heuristics**: Under no circumstances will heuristics (e.g., electronegativity rules) or surrogate models (e.g., GNNs) be used to generate target labels for the primary hypothesis test. If simulation is too slow, the sample size (N) will be reduced to a feasible number (N=20-50) rather than compromising scientific validity.
+### Fallback Source: Materials Project
+- **Source**: Materials Project API
+- **URL**: `<material_id>/bulk`
+- **Usage**: Fallback if OQMD lacks specific impurity configurations.
+- **Requirement**: Requires an MP API key (configured via environment variable).
 
-### Verified Sources & Usage Plan
+### Derived Data: GB Superstructures & Segregation Energies
+- **Generation**: `gb_builder.py` constructs GB supercells from OQMD/MP bulk.
+- **Simulation**: `simulate_energy.py` computes segregation energies.
+ - *Constraint*: Full DFT is not feasible on CI.
+ - *Strategy*: Use the specific NIST EAM potential for Fe-Cr (File: `FeCr.eam.fs`, DOI: 10.17188/1269648) for a sampled subset of configurations (N ≤ 500) to generate the target variable. This is a CPU-tractable approximation.
+ - *Circularity Break*: Use a Leave-One-Out energy difference method to measure the *impact* of the impurity, avoiding the tautology of absolute energy.
+- **Ground Truth Validation**: Download a small pre-computed DFT subset from NIST/MP to validate the empirical potential. If error > 0.1 eV, flag potential as invalid.
 
-| Dataset Name | Verified URL | Usage in Plan | Status |
-|:--- |:--- |:--- |:--- |
-| **OQMD Bulk Configs** | ` | Source of bulk crystal structures and compositions to initialize GB simulations. | **Used** (Source of bulk inputs) |
-| **OQMD Bulk (Parquet)** | ` | Alternative source for bulk configuration metadata. | **Used** (Fallback) |
-| **Unit Test Generator** | `code/tests/unit/generate_synthetic.py` | **Not a dataset**. A local script generates known atomic configurations with analytically calculable energies solely to verify the *code logic* of descriptor calculation and RMSE metric. | **Internal Tool** |
-| **Literature DFT** | NO verified source found | **Not Used** as a primary source. If no verified DFT dataset exists for specific GB systems, the project proceeds with Potential A only, explicitly noting the limitation. | **Gap Acknowledged** |
-
-**Gap Analysis & Mitigation**:
-- **Missing Target Data**: The spec requires segregation energy labels which are absent from public repositories.
- - *Mitigation*: The pipeline (`code/data/gb_builder.py` and `code/data/simulate_energy.py`) will generate these labels using a lightweight atomistic simulation engine (e.g., LAMMPS via `ase` or a pre-trained potential if available in `pymatgen`).
- - *Fallback*: If the full simulation is too slow for the 6h CI limit, the plan will **reduce the sample size** to N=20-50 configurations. **NO surrogate models or heuristics will be used.** The study will proceed with a smaller dataset to maintain scientific validity.
-- **Variable Fit**: We must ensure the bulk configurations from OQMD contain the necessary elements to form the impurities of interest.
- - *Action*: Filter OQMD entries to only those containing the specific alloy systems (e.g., Fe-C, Ni-S) required by the study.
-
-## 3. Methodology
-
-### 3.1 Data Pipeline (FR-001, FR-002, FR-003)
-1. **Download**: Fetch bulk structures from OQMD via `wget`/`curl` with 3-retry logic (FR-001).
-2. **GB Construction**: Use `pymatgen` to generate symmetric tilt GB supercells. Insert impurities at the interface.
-3. **Simulation & Label Generation**:
- - Run energy minimization to relax the structure. Calculate segregation energy ($E_{seg} = E_{GB+imp} - E_{GB} - E_{imp} + E_{bulk}$).
- - **Independence Check**: To avoid circularity, if Potential A is used for energy, descriptors will be computed from a structure relaxed with a *different* potential (Potential B) or with a perturbed atomic configuration. If distinct potentials are unavailable, the study will explicitly limit claims to "Potential A internal consistency."
-4. **Descriptor Computation**:
- - **RDF Peaks**: Compute Radial Distribution Function for impurity species within the interface region (defined as ±5Å from the GB plane).
- - **Pair Correlation**: Calculate $g(r)$ statistics.
- - **Voronoi Counts**: Count neighbors within the first coordination shell for each impurity.
-
-### 3.2 Modeling & Validation (FR-004, FR-007)
-- **Model**: Random Forest Regressor (preferred for non-linearity) or Linear Regression (for interpretability).
-- **Confounding Control (Stratified Residualization)**:
- - GB geometry (plane orientation, misorientation angle) acts as a confounder.
- - **Mechanism**: First, fit a null model using only GB geometry features to predict segregation energy. Extract the **residuals** (observed - predicted) from this null model.
- - Train the primary clustering model on these **residuals**. This isolates the clustering effect from geometric variations.
-- **Cross-Validation**: 5-fold if $N \ge 5$, else LOOCV.
-- **Collinearity Check**: Compute Variance Inflation Factor (VIF). If VIF $\ge 10$, report joint relationship descriptively (FR-007).
-- **Metrics**: R², RMSE, 95% Confidence Intervals.
-
-### 3.3 Statistical Rigor (FR-005, FR-006, SC-001..005)
-- **Hypothesis Testing**: Test significance of coefficients. Apply **Bonferroni correction** for multiple comparisons (number of predictors).
-- **Sensitivity Analysis**: Sweep regularization strength ($\lambda$) or descriptor perturbation magnitude over 3 values (e.g., 0.01, 0.1, 1.0). Report RMSE variance and R² stability.
-- **Power Limitation**: Acknowledge if sample size ($N$) is small.
-
-#### 3.3.1 Power Analysis & Sample Size Justification
-- **Minimum Sample Size**: A minimum of **N=30** is required.
-- **Rationale**:
- - To perform 5-fold cross-validation with at least 6 samples per fold.
- - To detect an effect size (Cohen's f²) of 0.15 (medium) with 80% power at $\alpha=0.05$ for a regression with ~5 predictors.
- - This sample size is feasible within a defined computational time limit using classical potentials.
- - If N < 30 is forced by data availability, the study will explicitly state it is "underpowered to detect medium effects" and limit claims to exploratory trends.
-
-## 4. Compute Feasibility Plan
-
-The implementation targets a GitHub Actions free-tier runner (2 CPU, 7 GB RAM).
-- **Data Sampling**: Limit the dataset to ~500-1000 configurations, with a hard minimum of N=30 for statistical validity.
-- **Simulation Strategy**: Use classical potentials (EAM/MEAM) instead of DFT for energy calculation to ensure runtime < 6h. If DFT is mandatory by the spec, the plan will run on a **tiny subset** (e.g., 10-20 samples) and extrapolate, explicitly noting the limitation.
-- **Model Training**: `scikit-learn` RandomForest with `n_estimators=100` is CPU-tractable for $N=1000$.
-- **Memory Management**: Process data in chunks; do not load all raw structures into memory simultaneously.
-
-## 5. Risks & Mitigations
-
-| Risk | Impact | Mitigation |
+### Dataset Variable Fit
+| Required Variable | Source | Status |
 |:--- |:--- |:--- |
-| **Segregation Energy Generation** | High (Blocking) | Use classical potentials (EAM) as primary. If too slow, reduce N to 20-50. **NO heuristics/surrogates.** |
-| **Dataset Availability** | Medium | Implement retry logic (3 attempts) and graceful degradation to `[DATA_UNAVAILABLE]` error. |
-| **Collinearity** | Medium | Detect VIF; switch to descriptive reporting or PCA if predictors are linearly dependent. |
-| **Runtime Exceeds 6h** | High | Pre-filter dataset to a manageable subset of samples; use single-threaded simulation if parallel overhead is too high. |
-| **Circular Validity** | High (Fatal) | Enforce "Independence Check" (different potential/perturbation) or limit claims to "potential-dependent trends." |
+| Bulk Lattice Parameters | OQMD/MP (Verified URLs) | ✅ Available |
+| Impurity Species | OQMD/MP (Verified URLs) | ✅ Available |
+| GB Interface Structure | Generated (from OQMD/MP) | ✅ Generated |
+| Clustering Descriptors | Computed (Interface only) | ✅ Computed |
+| Local Lattice Strain | Computed (Strain Tensor) | ✅ Computed (Covariate) |
+| Species Properties | Computed (Atomic Radius, Electronegativity) | ✅ Computed (Covariate) |
+| Segregation Energy | Simulated (NIST EAM) | ⚠️ Generated (Not in OQMD) |
+
+**Critical Note**: The plan does **not** assume segregation energies exist in OQMD. The pipeline explicitly simulates them.
+
+## Methodology & Statistical Rigor
+
+### Model Selection: Linear Regression
+- **Rationale**: Spec US-2 requires "coefficient p-values". RandomForest models do not provide standard p-values. Linear Regression is selected to satisfy this requirement.
+- **Fallback**: If user requests RandomForest, use `permutation_test_score` to generate p-values for feature importance.
+- **Assumptions**: Linearity between clustering descriptors and segregation energy; homoscedasticity (checked via residual plots); normality of residuals (checked via Q-Q plot).
+- **Causal Claims**: Claims are strictly **associational**. No randomization is performed; the study is observational based on simulated data.
+- **Confounding Control**: Include 'local lattice strain' (trace of strain tensor from atomic displacement) and 'species properties' (atomic radius, electronegativity) as covariates to control for unmeasured factors.
+
+### Handling Collinearity (FR-007)
+- **Method 1 (Preprocessing)**: Apply Principal Component Analysis (PCA) to descriptors (RDF, PC, Voronoi) to orthogonalize mathematically coupled features before regression.
+- **Method 2 (Diagnostics)**: Variance Inflation Factor (VIF) calculated for all predictors.
+- **Threshold**: VIF ≥ 10 indicates high collinearity.
+- **Action**: If VIF ≥ 10, the model **does not remove** the feature (per Spec FR-007). Instead, the report will:
+ 1. Flag the collinearity.
+ 2. Generate a pre-formatted descriptive framing string explaining the joint relationship.
+ 3. Avoid claiming independent causal effects for the collinear pair.
+
+### Multiple Comparison Correction (FR-005)
+- **Context**: Testing multiple predictors (coefficients) and potentially multiple alloy systems.
+- **Method**: If number of tests > 20, use Benjamini-Hochberg (FDR); otherwise use Bonferroni.
+- **Reporting**: Both raw and adjusted p-values will be reported.
+
+### Sensitivity Analysis (FR-006)
+- **Parameter**: Regularization strength (λ) in Ridge/Lasso or perturbation magnitude in descriptors.
+- **Sweep**: 3 concrete values selected as the 25th, 50th, and 75th percentiles of the descriptor distribution to ensure relevance.
+- **Metrics**: RMSE variance and R² stability across the sweep.
+
+### Power & Sample Size (Methodology-bd1c1f63)
+- **Algorithm**: Calculate required N for f²=0.15, alpha=0.05, power=0.80 using `statsmodels.stats.power`.
+- **Logic**: If required N > 500 (CI limit), cap at 500 and log the achieved power.
+- **Justification**: Cited literature (e.g., 'Similar studies use N=500-1000 for GB segregation') supports N=500 as a minimum for f²=0.15.
+- **Implementation**: The pipeline loops: Generate sample -> Run power analysis -> If N < required_power and N < 500: Generate more; Else: Stop.
+
+### Hypothesis Testing Validity (Scientific Soundness)
+- **Acknowledgement**: For deterministic simulations, p-values are 'conditional on the model assumptions' and not a test of sampling noise.
+- **Interpretation**: P-values are framed as a measure of 'model fit stability' rather than statistical significance.
+- **Robust SE**: Use `statsmodels` with `cov_type='HC3'` to account for potential heteroscedasticity in the *model approximation* error.
+
+## Computational Feasibility
+
+- **Hardware**: GitHub Actions Free Tier (multi-core CPU, substantial RAM).
+- **Strategy**:
+ - **Data**: Sample OQMD/MP to a representative set of bulk configs; generate ~500 GB supercells.
+ - **Simulation**: Use fast empirical potentials (NIST EAM) instead of DFT.
+ - **Model**: `statsmodels` OLS on CPU.
+ - **Runtime**: Target < 4 hours for full pipeline.
+- **No GPU**: All operations are CPU-bound. No CUDA dependencies.
+
+## Decision Log
+
+| Decision | Rationale |
+|:--- |:--- |
+| **Linear Regression over RandomForest** | Required to satisfy Spec US-2 "coefficient p-values". **Fallback**: RF uses permutation importance p-values. |
+| **NIST EAM Potential** | DFT is too slow. Specific potential (FeCr.eam.fs) ensures reproducibility. |
+| **Leave-One-Out Energy** | Breaks circularity between descriptors and absolute energy. |
+| **PCA Preprocessing** | Resolves mathematically coupled predictors (RDF, PC, Voronoi). |
+| **Dynamic Power Analysis** | Ensures sample size is sufficient for f²=0.15, capped at CI limit. |
+| **No Feature Removal for VIF** | Spec FR-007 explicitly requires "framing" not "removing". |
+| **OQMD/MP for Bulk Only** | OQMD/MP lacks GB segregation data. Pipeline must generate GB structures and simulate energies. |
+| **Stratified Split by System** | Ensures test set contains entire alloy systems, preventing data leakage. |
+| **Robust SE (HC3)** | Accounts for model approximation error in deterministic simulations. |

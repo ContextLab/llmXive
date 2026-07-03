@@ -1,68 +1,94 @@
 # Data Model: Predicting the Impact of Impurity Clustering on Grain Boundary Segregation
 
-## 1. Entity Relationship Overview
+## Overview
 
-The data model connects bulk material properties to grain boundary (GB) specific features and resulting thermodynamic outcomes.
+This document defines the data entities, schemas, and transformation logic for the project. All data flows from raw OQMD/MP bulk configurations to processed GB descriptors and simulated energies, finally aggregating into a training dataset.
 
-```mermaid
-erDiagram
-    BulkConfiguration ||--|{ GrainBoundaryStructure : "generates"
-    GrainBoundaryStructure ||--|{ ClusteringDescriptor : "yields"
-    GrainBoundaryStructure ||--|{ SegregationEnergy : "yields"
-    ClusteringDescriptor }|--|| GrainBoundaryStructure : "belongs to"
-```
+## Entity Definitions
 
-## 2. Entity Definitions
+### 1. BulkConfiguration
+Represents a raw bulk crystal structure from OQMD/MP.
+- **id**: Unique identifier (e.g., OQMD material ID or MP ID).
+- **formula**: Chemical formula (e.g., "FeSi").
+- **lattice**: Lattice parameters (a, b, c, alpha, beta, gamma).
+- **atoms**: List of atomic species and coordinates.
+- **source_url**: URL of the OQMD/MP entry.
+- **source_type**: Enum ["OQMD", "MaterialsProject"].
 
-### BulkConfiguration
-Represents the initial state of the material before GB construction.
-- **Attributes**:
-  - `material_id` (string): Unique identifier from OQMD/MP.
-  - `composition` (dict): {Element: Count}.
-  - `lattice_params` (list[float]): [a, b, c, alpha, beta, gamma].
-  - `structure_type` (string): e.g., "FCC", "BCC".
-  - `download_source` (string): URL of origin.
+### 2. GrainBoundaryStructure
+Represents a constructed GB supercell.
+- **id**: Unique ID (generated).
+- **bulk_id**: Reference to `BulkConfiguration`.
+- **boundary_plane**: Miller indices (hkl).
+- **misorientation_angle**: Angle in degrees.
+- **supercell_atoms**: Atoms in the supercell (bulk + interface).
+- **interface_region_mask**: Boolean mask identifying atoms in the GB interface region.
 
-### GrainBoundaryStructure
-Represents the constructed GB supercell.
-- **Attributes**:
-  - `gb_id` (string): Unique hash of the configuration.
-  - `bulk_config_id` (string): FK to `BulkConfiguration`.
-  - `boundary_plane` (list[int]): Miller indices (h k l).
-  - `misorientation_angle` (float): Degrees.
-  - `supercell_atoms` (int): Total atom count.
-  - `interface_region_mask` (list[int]): Indices of atoms within the interface zone.
+### 3. ClusteringDescriptor
+Computed metrics for impurity clustering at the interface.
+- **gb_id**: Reference to `GrainBoundaryStructure`.
+- **impurity_species**: Element symbol (e.g., "Si").
+- **descriptor_type**: Enum ["rdf_peak", "pair_correlation", "voronoi_count"].
+- **value**: Numeric value.
+- **interface_only**: Boolean (true, computed only within interface region).
+- **principal_component**: Numeric value (after PCA transformation).
 
-### ClusteringDescriptor
-Quantitative metrics of impurity arrangement at the interface.
-- **Attributes**:
-  - `descriptor_id` (string): Unique ID.
-  - `gb_id` (string): FK to `GrainBoundaryStructure`.
-  - `impurity_species` (string): Element symbol.
-  - `descriptor_type` (string): "RDF_peak", "pair_correlation", "voronoi_count".
-  - `value` (float): Numeric result.
-  - `radius_bin` (float): For RDF/pair correlation.
+### 4. Covariate
+Additional features to control for confounding.
+- **gb_id**: Reference to `GrainBoundaryStructure`.
+- **local_lattice_strain**: Numeric value (trace of strain tensor).
+- **atomic_radius**: Numeric value (from periodic table).
+- **electronegativity**: Numeric value (from periodic table).
 
-### SegregationEnergy
-The target thermodynamic variable.
-- **Attributes**:
-  - `energy_id` (string): Unique ID.
-  - `gb_id` (string): FK to `GrainBoundaryStructure`.
-  - `energy_value` (float): Segregation energy in eV.
-  - `reference_state` (string): Definition of the reference energy.
-  - `simulation_method` (string): e.g., "EAM", "DFT".
+### 5. SegregationEnergy
+Simulated thermodynamic driving force.
+- **gb_id**: Reference to `GrainBoundaryStructure`.
+- **impurity_species**: Element symbol.
+- **energy_eV**: Segregation energy in eV (calculated via Leave-One-Out).
+- **potential_used**: String (e.g., "NIST_EAM_FeCr_v1").
+- **simulation_time_s**: Wall-clock time for simulation.
+- **simulation_status**: Enum ["SUCCESS", "FAILED", "RETRY_EXHAUSTED"].
 
-## 3. Data Flow
+### 6. TrainingSample
+Aggregated row for regression.
+- **sample_id**: Unique ID.
+- **features**: Vector of descriptors (PCA-transformed RDF, PC, Voronoi) + covariates.
+- **target**: Segregation energy (eV).
+- **alloy_system**: Alloy family (e.g., "Fe-Cr").
+- **vif_scores**: Dict of VIF scores for each feature.
+- **descriptive_framing**: String (pre-formatted text for VIF >= 10).
 
-1.  **Ingestion**: `BulkConfiguration` created from OQMD CSV/Parquet.
-2.  **Transformation**: `BulkConfiguration` $\to$ `GrainBoundaryStructure` (via `gb_builder`).
-3.  **Feature Extraction**: `GrainBoundaryStructure` $\to$ `ClusteringDescriptor` (via `descriptors`).
-4.  **Labeling**: `GrainBoundaryStructure` $\to$ `SegregationEnergy` (via `simulate_energy`).
-5.  **Aggregation**: All entities merged into a single DataFrame for modeling.
+## Data Flow
 
-## 4. Storage Strategy
+1.  **Ingestion**: `download.py` fetches OQMD/MP bulk configs → `data/raw/bulk.csv`.
+    *   *Validation*: `validate_citations()` checks source URL.
+2.  **Construction**: `gb_builder.py` reads bulk, constructs GBs → `data/processed/gb_structures.json`.
+3.  **Descriptor Calc**: `descriptors.py` reads GBs, computes interface metrics → `data/processed/descriptors.csv`.
+    *   *Preprocessing*: Apply PCA to descriptors.
+4.  **Simulation**: `simulate_energy.py` reads GBs, computes energy → `data/processed/energies.csv`.
+    *   *Retry*: Up to 3 retries.
+5.  **Aggregation**: `train_model.py` joins descriptors, covariates, and energies → `data/processed/training_set.csv`.
+    *   *Power Analysis*: Loop to determine sample size.
+6.  **Output**: Metrics and plots → `results/`.
 
-- **Raw Data**: `data/raw/` (CSV/JSON/Structure files).
-- **Processed Data**: `data/processed/descriptors.csv`, `data/processed/energies.csv`.
-- **Final Dataset**: `data/processed/final_dataset.parquet` (merged for modeling).
-- **Checksums**: `state/.../artifact_hashes` maps file paths to SHA256 hashes.
+## Data Hygiene & Provenance
+
+- **Checksums**: Every file in `data/raw/` and `data/processed/` is checksummed (SHA-256).
+- **Immutability**: Raw data is never modified. Derivations create new files.
+- **Metadata**: `data/metadata.yaml` tracks:
+  - Source URLs (OQMD/MP).
+  - Simulation parameters (potential: "NIST_EAM_FeCr_v1", cutoff).
+  - Random seeds.
+  - Code version hash.
+  - `validate_citations()` results.
+
+## Constraints & Validation
+
+- **Missing Data**: Entries with missing segregation energy are excluded (logged).
+- **Zero Impurity**: Bulk configs with no impurities are filtered (logged).
+- **Collinearity**: VIF ≥ 10 triggers a descriptive framing string, not removal.
+- **Units**: Energy in eV; distances in Å.
+- **Potential**: Default potential string is "NIST_EAM_FeCr_v1".
+- **Covariates**: Local lattice strain and species properties are computed and included.
+- **PCA**: Descriptors are PCA-transformed to ensure orthogonality.
+- **Validation**: Ground truth DFT subset is used to validate potential before full training.

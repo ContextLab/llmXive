@@ -1,0 +1,134 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: "Model Output Schema"
+description: "Schema for the regression model metrics and sensitivity analysis results."
+type: object
+properties:
+  model_type:
+    type: string
+    description: "Type of model used (e.g., 'LinearRegression', 'RandomForest')."
+  cross_validation:
+    type: object
+    description: "Cross-validation results."
+    properties:
+      folds:
+        type: integer
+        description: "Number of folds used (5 or N for LOOCV)."
+      r2_mean:
+        type: number
+        description: "Mean R² across folds."
+      r2_std:
+        type: number
+        description: "Standard deviation of R² across folds."
+      rmse_mean:
+        type: number
+        description: "Mean RMSE across folds."
+      rmse_std:
+        type: number
+        description: "Standard deviation of RMSE across folds."
+    required:
+      - folds
+      - r2_mean
+      - r2_std
+      - rmse_mean
+      - rmse_std
+  coefficients:
+    type: array
+    description: "Coefficients and p-values for each feature."
+    items:
+      type: object
+      properties:
+        feature_name:
+          type: string
+        coefficient:
+          type: number
+        p_value_raw:
+          type: number
+        p_value_adjusted:
+          type: number
+          description: "P-value after multiple-comparison correction (e.g., Bonferroni or FDR)."
+      required:
+        - feature_name
+        - coefficient
+        - p_value_raw
+        - p_value_adjusted
+  collinearity:
+    type: object
+    description: "Collinearity diagnostics."
+    properties:
+      vif_scores:
+        type: object
+        additionalProperties:
+          type: number
+        description: "VIF scores for each feature."
+      high_collinearity_detected:
+        type: boolean
+        description: "True if any VIF >= 10."
+      vif_threshold:
+        type: number
+        description: "Threshold used for VIF detection (10)."
+      descriptive_framing:
+        type: string
+        description: "Pre-formatted text explaining joint relationships if VIF >= 10."
+    required:
+      - vif_scores
+      - high_collinearity_detected
+      - vif_threshold
+      - descriptive_framing
+  sensitivity_analysis:
+    type: object
+    description: "Results of the threshold sensitivity sweep."
+    properties:
+      threshold_values:
+        type: array
+        items:
+          type: number
+        description: "List of 3 threshold values swept (25th, 50th, 75th percentiles)."
+      rmse_variance:
+        type: number
+        description: "Variance of RMSE across the sweep."
+      r2_stability:
+        type: number
+        description: "Stability metric (e.g., std dev) of R² across the sweep."
+    required:
+      - threshold_values
+      - rmse_variance
+      - r2_stability
+  metadata:
+    type: object
+    properties:
+      random_seed:
+        type: integer
+      sample_size:
+        type: integer
+      date:
+        type: string
+        format: date-time
+      code_version_hash:
+        type: string
+      power_analysis:
+        type: object
+        properties:
+          required_n:
+            type: integer
+          achieved_n:
+            type: integer
+          achieved_power:
+            type: number
+        required:
+          - required_n
+          - achieved_n
+          - achieved_power
+    required:
+      - random_seed
+      - sample_size
+      - date
+      - code_version_hash
+      - power_analysis
+required:
+  - model_type
+  - cross_validation
+  - coefficients
+  - collinearity
+  - sensitivity_analysis
+  - metadata
+additionalProperties: false

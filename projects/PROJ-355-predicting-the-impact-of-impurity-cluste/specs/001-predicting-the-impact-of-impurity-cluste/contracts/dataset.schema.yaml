@@ -1,61 +1,83 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Dataset Schema for Impurity Clustering Segregation"
-description: "Schema for the final merged dataset used in regression modeling."
-type: "object"
+$schema: http://json-schema.org/draft-07/schema#
+title: "Training Dataset Schema"
+description: "Schema for the aggregated training dataset containing clustering descriptors and segregation energies."
+type: object
 properties:
+  sample_id:
+    type: string
+    description: "Unique identifier for the sample."
+  bulk_id:
+    type: string
+    description: "Reference to the OQMD/MP bulk configuration ID."
   gb_id:
-    type: "string"
-    description: "Unique identifier for the grain boundary configuration."
-  material_id:
-    type: "string"
-    description: "Source material identifier from OQMD/MP."
+    type: string
+    description: "Unique identifier for the grain boundary structure."
+  alloy_system:
+    type: string
+    description: "Alloy family (e.g., 'Fe-Cr')."
   impurity_species:
-    type: "string"
-    description: "Element symbol of the impurity (e.g., 'C', 'S')."
-  rfd_peak_value:
-    type: "number"
-    description: "Peak value of the Radial Distribution Function."
+    type: string
+    description: "Element symbol of the impurity."
+  rdf_peak_value:
+    type: number
+    description: "Peak value of the radial distribution function at the interface."
   pair_corr_value:
-    type: "number"
-    description: "Pair correlation statistic value."
-  voronoi_neighbor_count:
-    type: "integer"
-    description: "Number of neighbors within the first coordination shell."
+    type: number
+    description: "Pair correlation statistic at the interface."
+  voronoi_count:
+    type: integer
+    description: "Voronoi neighbor count for the impurity at the interface."
+  principal_component_1:
+    type: number
+    description: "First principal component of descriptors (PCA-transformed)."
+  principal_component_2:
+    type: number
+    description: "Second principal component of descriptors (PCA-transformed)."
+  principal_component_3:
+    type: number
+    description: "Third principal component of descriptors (PCA-transformed)."
+  local_lattice_strain:
+    type: number
+    description: "Trace of the strain tensor (covariate)."
+  atomic_radius:
+    type: number
+    description: "Atomic radius of impurity (covariate)."
+  electronegativity:
+    type: number
+    description: "Electronegativity of impurity (covariate)."
   segregation_energy_eV:
-    type: "number"
-    description: "Calculated segregation energy in electron-volts (eV)."
-    minimum: -10.0
-    maximum: 10.0
-  simulation_method:
-    type: "string"
-    enum:
-      - "EAM"
-      - "DFT"
-      - "Surrogate"
-    description: "Method used to calculate energy."
-  gb_plane_h:
-    type: "integer"
-    description: "Miller index h for GB plane."
-  gb_plane_k:
-    type: "integer"
-    description: "Miller index k for GB plane."
-  gb_plane_l:
-    type: "integer"
-    description: "Miller index l for GB plane."
-  misorientation_angle:
-    type: "number"
-    description: "Misorientation angle in degrees."
+    type: number
+    description: "Simulated segregation energy in eV (Leave-One-Out)."
+  vif_rdf:
+    type: number
+    description: "Variance Inflation Factor for the RDF feature."
+  vif_pair:
+    type: number
+    description: "Variance Inflation Factor for the pair correlation feature."
+  vif_voronoi:
+    type: number
+    description: "Variance Inflation Factor for the Voronoi count feature."
+  descriptive_framing:
+    type: string
+    description: "Pre-formatted text explaining joint relationships if VIF >= 10."
 required:
+  - sample_id
+  - bulk_id
   - gb_id
-  - material_id
+  - alloy_system
   - impurity_species
-  - rfd_peak_value
+  - rdf_peak_value
   - pair_corr_value
-  - voronoi_neighbor_count
+  - voronoi_count
+  - principal_component_1
+  - principal_component_2
+  - principal_component_3
+  - local_lattice_strain
+  - atomic_radius
+  - electronegativity
   - segregation_energy_eV
-  - simulation_method
-  - gb_plane_h
-  - gb_plane_k
-  - gb_plane_l
-  - misorientation_angle
+  - vif_rdf
+  - vif_pair
+  - vif_voronoi
+  - descriptive_framing
 additionalProperties: false
