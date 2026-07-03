@@ -1,0 +1,141 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Results Schema"
+description: "Schema for the aggregated results of the experiment."
+type: object
+properties:
+  experiment_id:
+    type: string
+    description: "Unique experiment identifier."
+  recall_accuracy:
+    type: array
+    items:
+      type: object
+      properties:
+        dataset:
+          type: string
+        seed:
+          type: integer
+        model_type:
+          type: string
+          enum:
+            - spatial
+            - baseline
+            - ablation
+        accuracy:
+          type: number
+          format: float
+          minimum: 0.0
+          maximum: 1.0
+      required:
+        - dataset
+        - seed
+        - model_type
+        - accuracy
+  interference_distance:
+    type: array
+    items:
+      type: object
+      properties:
+        dataset:
+          type: string
+        seed:
+          type: integer
+        model_type:
+          type: string
+          enum:
+            - spatial
+            - baseline
+        baseline_accuracy:
+          type: number
+          format: float
+        interference_accuracy:
+          type: number
+          format: float
+        drop:
+          type: number
+          format: float
+      required:
+        - dataset
+        - seed
+        - model_type
+        - baseline_accuracy
+        - interference_accuracy
+        - drop
+  coordinate_variance:
+    type: array
+    items:
+      type: object
+      properties:
+        dataset:
+          type: string
+        epoch:
+          type: integer
+        model_type:
+          type: string
+          enum:
+            - spatial
+        variance_x:
+          type: number
+          format: float
+        variance_y:
+          type: number
+          format: float
+        total_variance:
+          type: number
+          format: float
+      required:
+        - dataset
+        - epoch
+        - model_type
+        - variance_x
+        - variance_y
+        - total_variance
+  statistical_tests:
+    type: array
+    items:
+      type: object
+      properties:
+        dataset:
+          type: string
+        test_type:
+          type: string
+          enum:
+            - paired_t_test
+            - wilcoxon_signed_rank
+        p_value:
+          type: number
+          format: float
+        confidence_interval:
+          type: array
+          items:
+            type: number
+            format: float
+          minItems: 2
+          maxItems: 2
+        effect_size_cohens_d:
+          type: number
+          format: float
+        corrected_p_value:
+          type: number
+          format: float
+          description: "P-value after Bonferroni or Holm-Bonferroni correction."
+        significant:
+          type: boolean
+        min_detectable_effect_size:
+          type: number
+          format: float
+          description: "Minimum detectable effect size given N=5."
+      required:
+        - dataset
+        - test_type
+        - p_value
+        - confidence_interval
+        - effect_size_cohens_d
+        - corrected_p_value
+        - significant
+required:
+  - experiment_id
+  - recall_accuracy
+  - interference_distance
+  - coordinate_variance
+  - statistical_tests

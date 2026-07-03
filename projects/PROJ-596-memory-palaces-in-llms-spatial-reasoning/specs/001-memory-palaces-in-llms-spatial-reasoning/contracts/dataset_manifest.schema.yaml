@@ -1,0 +1,31 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Manifest"
+description: "Schema for the manifest of downloaded datasets, including checksums and metadata."
+type: object
+properties:
+  dataset_name:
+    type: string
+    description: "Name of the dataset (e.g., 'babi_task3', 'lambada', 'story_cloze')."
+  source_url:
+    type: string
+    description: "Verified URL or HuggingFace loader name."
+  checksum_sha256:
+    type: string
+    description: "SHA-256 checksum of the raw dataset file."
+  sample_count:
+    type: integer
+    description: "Number of samples in the dataset."
+  chunked_count:
+    type: integer
+    description: "Number of episodic chunks after processing."
+  processed_at:
+    type: string
+    format: date-time
+    description: "Timestamp of processing."
+required:
+  - dataset_name
+  - source_url
+  - checksum_sha256
+  - sample_count
+  - chunked_count
+  - processed_at

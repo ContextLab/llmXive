@@ -1,0 +1,65 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Training Run Schema"
+description: "Schema for a single training run's configuration and resource usage."
+type: object
+properties:
+  run_id:
+    type: string
+    description: "Unique identifier for the run."
+  dataset:
+    type: string
+    description: "Dataset name."
+  seed:
+    type: integer
+    description: "Random seed used."
+  model_type:
+    type: string
+    enum:
+      - spatial
+      - baseline
+      - ablation
+    description: "Type of model variant."
+  hyperparameters:
+    type: object
+    properties:
+      epochs:
+        type: integer
+      batch_size:
+        type: integer
+        description: "Effective batch size (may be reduced due to memory constraints)."
+      learning_rate:
+        type: number
+        format: float
+      spatial_grid_size:
+        type: integer
+        description: "Number of slots (e.g., 64)."
+      subsampling_rate:
+        type: number
+        format: float
+ description: "Fraction of data used (e.g., 0.2 for [deferred])."
+  resource_usage:
+    type: object
+    properties:
+      peak_rss_gb:
+        type: number
+        format: float
+        description: "Peak RAM usage in GB."
+      runtime_seconds:
+        type: number
+        format: float
+  status:
+    type: string
+    enum:
+      - success
+      - oom_recovered
+      - subsampled
+      - failed
+    description: "Final status of the run."
+required:
+  - run_id
+  - dataset
+  - seed
+  - model_type
+  - hyperparameters
+  - resource_usage
+  - status
