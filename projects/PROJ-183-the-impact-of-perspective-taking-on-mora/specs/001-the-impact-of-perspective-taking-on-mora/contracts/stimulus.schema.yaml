@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Stimulus Schema"
+description: "Schema for a single social media post stimulus with instruction variants."
+type: "object"
+required:
+  - "post_id"
+  - "text"
+  - "topic"
+  - "outrage_label"
+  - "instructions"
+properties:
+  post_id:
+    type: "string"
+    description: "Unique identifier for the post."
+  text:
+    type: "string"
+    description: "The content of the social media post."
+  topic:
+    type: "string"
+    enum:
+      - "climate"
+      - "immigration"
+    description: "The controversial topic of the post."
+  outrage_label:
+    type: "string"
+    enum:
+      - "high"
+    description: "The outrage level label from the source dataset."
+  instructions:
+    type: "object"
+    required:
+      - "perspective_taking"
+      - "control"
+    properties:
+      perspective_taking:
+        type: "string"
+        description: "The prompt text for the perspective-taking condition."
+      control:
+        type: "string"
+        description: "The prompt text for the control summarization condition."
+additionalProperties: false

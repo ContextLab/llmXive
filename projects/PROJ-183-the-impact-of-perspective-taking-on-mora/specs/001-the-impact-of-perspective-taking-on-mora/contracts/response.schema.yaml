@@ -1,0 +1,55 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Participant Response Schema"
+description: "Schema for a participant's response record (simulated or human)."
+type: "object"
+required:
+  - "participant_id"
+  - "type"
+  - "condition"
+  - "attention_checks"
+  - "attention_checks_passed"
+  - "responses"
+  - "mean_outrage"
+properties:
+  participant_id:
+    type: "string"
+    description: "Unique identifier for the participant."
+  type:
+    type: "string"
+    enum:
+      - "simulated"
+      - "human"
+    description: "Source of the data."
+  condition:
+    type: "string"
+    enum:
+      - "perspective_taking"
+      - "control"
+    description: "Experimental condition assigned."
+  attention_checks:
+    type: "array"
+    description: "List of 5 booleans indicating pass/fail for each embedded attention check."
+    items:
+      type: "boolean"
+    minItems: 5
+    maxItems: 5
+  attention_checks_passed:
+    type: "boolean"
+    description: "True if the participant passed attention checks (≤2 missed)."
+  responses:
+    type: "array"
+    description: "7 Likert-scale scores (1-7) for the Moral Outrage Scale."
+    items:
+      type: "integer"
+      minimum: 1
+      maximum: 7
+    minItems: 7
+    maxItems: 7
+  mean_outrage:
+    type: "number"
+    description: "The calculated mean of the 7 response items."
+  demographics:
+    type: "object"
+    description: "Optional demographics for human participants."
+    additionalProperties: true
+additionalProperties: false
