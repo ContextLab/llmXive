@@ -43,9 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001 Create project structure per implementation plan in `projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/`
-- [X] T002 Initialize Python 3.11 project with `primesieve`, `numpy`, `pandas`, `scipy`, `matplotlib` dependencies in `requirements.txt`
-- [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools in `.pre-commit-config.yaml`
+- [ ] T001 Create project structure per implementation plan in `projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/`
+- [ ] T002 Initialize Python 3.11 project with `primesieve`, `numpy`, `pandas`, `scipy`, `matplotlib` dependencies in `requirements.txt`
+- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools in `.pre-commit-config.yaml`
 
 ---
 
@@ -55,11 +55,11 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Setup data directory structure: `data/raw/`, `data/results/`, `data/figures/`
+- [ ] T004 Setup data directory structure: `data/raw/`, `data/results/`, `data/figures/`
 - [ ] T005 [P] Create data schema definition in `contracts/twin_prime_schema.schema.yaml` defining `p`, `p_next`, `delta`, `normalized_gap`
 - [ ] T006 [P] Implement `code/hash_artifacts.py` to compute SHA-256 hashes and update project state YAML (Constitution Principle V)
-- [X] T007 Create base configuration loader in `code/config.py` for reading range limits and paths
-- [X] T008 Setup error handling infrastructure in `code/utils.py` (exit codes, logging) <!-- FAILED: unspecified -->
+- [ ] T007 Create base configuration loader in `code/config.py` for reading range limits and paths
+- [ ] T008 Setup error handling infrastructure in `code/utils.py` (exit codes, logging)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -75,13 +75,13 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [~] T010 [P] [US1] Unit test for gap calculation logic in `tests/unit/test_gap_calc.py` (verify formula `delta / log(p)`). **Specific Task**: Add `tests/unit/test_gap_calc.py::test_normalized_gap_formula` asserting `delta / log(p)` equals expected float 1.8205 for input p=3, p_next=5. **Verification**: Use tolerance `assert abs(val - 1.8205) < 1e-4 ` to handle floating point precision.
-- [~] T011 [P] [US1] Integration test for full generation pipeline in `tests/integration/test_generation.py` (verify file creation and row count)
+- [ ] T010 [P] [US1] Unit test for gap calculation logic in `tests/unit/test_gap_calc.py` (verify formula `delta / log(p)`). **Specific Task**: Add `tests/unit/test_gap_calc.py::test_normalized_gap_formula` asserting `delta / log(p)` equals expected float 1.8205 for input p=3, p_next=5. **Verification**: Use tolerance `assert abs(val - 1.8205) < 1e-4` to handle floating point precision.
+- [ ] T011 [P] [US1] Integration test for full generation pipeline in `tests/integration/test_generation.py` (verify file creation and row count)
 
 ### Implementation for User Story 1
 
-- [~] T012 [US1] [FR-001] [FR-002] [SC-001] Implement `code/generate_primes.py` using `primesieve` to find twin primes up to 1,000,000,000. **Verification**: Run `python code/generate_primes.py` and verify `data/raw/twin_primes.csv` exists with row count within ±5% of the theoretical expectation calculated in T013b, and no NaN values in `normalized_gap`.
-- [~] T013 [US1] [FR-002] Implement gap calculation and normalization logic in `code/generate_primes.py`
+- [ ] T012 [US1] [FR-001] [FR-002] [SC-001] Implement `code/generate_primes.py` using `primesieve` to find twin primes up to 1,000,000,000. **Verification**: Run `python code/generate_primes.py` and verify `data/raw/twin_primes.csv` exists with row count within ±5% of the theoretical expectation calculated in T013b, and no NaN values in `normalized_gap`.
+- [ ] T013 [US1] [FR-002] Implement gap calculation and normalization logic in `code/generate_primes.py`
  - Must compute `delta = p_{n+1} - p_n` (gap between starts of consecutive pairs)
  - Must compute `normalized_gap = delta / log(p_n)`
  - Must handle edge cases (log(0 (Theorem DB: math/0506067, https://arxiv.org/abs/math/0506067)) guards)
@@ -115,7 +115,7 @@
 
 - [ ] T020 [US2] Implement `code/analyze_gaps.py` to load `data/raw/twin_primes.csv`
 - [ ] T021 [US2] [FR-003] Implement Parametric Bootstrap Kolmogorov–Smirnov test in `code/analyze_gaps.py`
-- Compare empirical distribution against `expon(scale=1)` using **Parametric Bootstrap** (3.141592653589793 (Wikipedia: pi, https://en.wikipedia.org/wiki/Pi) iterations, seed=42) to correct for self-normalization bias.
+ - Compare empirical distribution against `expon(scale=1)` using **Parametric Bootstrap** (10,000 iterations, seed=42) to correct for self-normalization bias.
  - Explicitly document the "self-normalized" nature of the data.
  - Save results to `data/results/stats.json`
  - **Verification**: Check stats.json contains a non-zero KS statistic and a valid p-value.
@@ -166,11 +166,11 @@
 
 ## Phase 6: Reporting & Verification (Polish)
 
-**Purpose**: Generate final report, verify citations, andhash artifacts.
+**Purpose**: Generate final report, verify citations, and hash artifacts.
 
-- [ ] T031 [P] [FR-009] Implement `code/verify_citations.py` to validate {{claim:c_ddd2cee1}} and {{claim:c_462d859b}} (OEIS A002386, https://oeis.org/A002386) citations against primary sources.
+- [ ] T031 [P] [FR-009] Implement `code/verify_citations.py` to validate Cramér (1936) and Goldston/Pintz/Yıldırım (2005) citations against primary sources.
  - **Step 1**: Attempt to resolve missing URLs in spec.md Assumptions via DOI lookup using `requests` and crossref logic.
- - **Step 2 (Fallback)**: If DOI lookup fails, use a hardcoded canonical URL list for {{claim:c_ddd2cee1}} and Goldston et al. (2005) to ensure verification proceeds.
+ - **Step 2 (Fallback)**: If DOI lookup fails, use a hardcoded canonical URL list for Cramér (1936) and Goldston et al. (2005) to ensure verification proceeds.
  - **Validation Criteria**: Verify title overlap >= 0.7 against resolved primary source URLs.
 - [ ] T032 [P] [FR-006] Implement `code/report.py` to compile final Markdown report
  - Include KS statistics, p-values, QQ-plot, and localized deviation summary.
@@ -200,7 +200,7 @@ Goldston, Pintz, Yıldırım (n.d.) (Addresses Rockmore Review)
  - Discuss the robustness of the claim given the finite sample size.
  - Explicitly state the limitations of the CPU-only approach on the tail behavior.
 - [ ] T037 [P] Update `specs/001-twin-prime-gaps/research.md` to include the missing lineage paragraph before the validation verdict (Addresses Rockmore Review)
- - **Content**: Insert the following specific paragraph: "The normalized gap metric Δₙ / log pₙ derives from Cramér's probabilistic model of primes [UNRESOLVED-CLAIM: c_c1022879 — status=not_enough_info], which posits that prime gaps follow an exponential distribution. This heuristic was refined by Goldston, Pintz, and Yıldıldırım (2005) in the context of small gaps between primes, and is consistent with the Hardy-Littlewood k-tuple conjecture which provides the asymptotic density for twin primes."
+ - **Content**: Insert the following specific paragraph: "The normalized gap metric Δₙ / log pₙ derives from Cramér's probabilistic model of primes, which posits that prime gaps follow an exponential distribution. [UNRESOLVED-CLAIM: c_38790791 — status=not_enough_info] This heuristic was refined by Goldston, Pintz, and Yıldıldırım (2005) in the context of small gaps between primes, and is consistent with the Hardy-Littlewood k-tuple conjecture which provides the asymptotic density for twin primes."
 
 ---
 
@@ -295,3 +295,13 @@ With multiple developers:
 - **Critical Constraint**: All prime generation and analysis MUST run on CPU-only CI (a minimal core count, limited RAM, a constrained time budget). No GPU, no 8-bit quantization, no large LLMs.
 - **Review Response**: Tasks T031, T032, T035, T036, and T037 specifically address the Dan Rockmore review regarding historical context, computational limits, and methodological framing.
 - **Methodology Note**: This project uses Parametric Bootstrap KS tests and one-sample t-tests for local windows as explicitly mandated by the Spec (FR-005), overriding the Plan's Complexity Tracking rationale which argued against one-sample tests. The Spec takes precedence.
+
+# next task line
+
+- [ ] T001 Create project structure per implementation plan in `projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/`
+
+# completed task ids
+[]
+
+# wall_clock_budget_seconds
+300

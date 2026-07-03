@@ -1,0 +1,28 @@
+project_id: PROJ-729-empirical-analysis-of-twin-prime-gaps-up
+project_name: Empirical Analysis of Twin Prime Gaps up to 10^9
+version: 0.1.0
+last_hash_update: 2026-01-01T00:00:00Z
+total_artifacts_hashed: 0
+missing_artifacts:
+- data/raw/twin_primes.csv
+- data/results/stats.json
+- data/results/local_stats.json
+- data/results/performance_gen.json
+- data/results/performance_analysis.json
+- data/figures/qq_plot.png
+- data/figures/local_deviation.png
+- specs/001-twin-prime-gaps/research.md
+- code/generate_primes.py
+- code/analyze_gaps.py
+- code/analyze_local.py
+- code/report.py
+- code/verify_citations.py
+artifact_hashes: {}
+status: foundational_complete
+completed_tasks:
+- T001
+- T002
+- T003
+- T004
+- T005
+- T006

@@ -1,0 +1,6 @@
+? T005 [P] Create data schema definition in `contracts/twin_prime_schema.schema.yaml`
+  defining `p`, `p_next`, `delta`, `normalized_gap`
+: 2
+? T006 [P] Implement `code/hash_artifacts.py` to compute SHA-256 hashes and update
+  project state YAML (Constitution Principle V)
+: 2

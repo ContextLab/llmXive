@@ -1,1 +1,44 @@
-[]
+- artifact_hash: 0869bf7a9b989d03542cf008030370a54298b4b1132f6d58a32d633f212494b9
+  artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[math/0506067] Small gaps between primes or almost primes'
+  kind: url
+  value: https://arxiv.org/abs/math/0506067
+  verification_status: verified
+  verified_against_url: https://arxiv.org/abs/math/0506067
+  verified_at: '2026-07-03T05:54:47.337308Z'
+- artifact_hash: 5f3a2fd6ea296d154ff4694ce78f5907320bb77d4ac5d30767bf4f93f7dca67f
+  artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[math/0506067] Small gaps between primes or almost primes'
+  kind: url
+  value: https://arxiv.org/abs/math/0506067
+  verification_status: verified
+  verified_against_url: https://arxiv.org/abs/math/0506067
+  verified_at: '2026-07-03T06:28:11.546092Z'
+- artifact_hash: 5f3a2fd6ea296d154ff4694ce78f5907320bb77d4ac5d30767bf4f93f7dca67f
+  artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: Pi - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Pi
+  verification_status: verified
+  verified_against_url: https://en.wikipedia.org/wiki/Pi
+  verified_at: '2026-07-03T06:28:11.546092Z'
+- artifact_hash: 5f3a2fd6ea296d154ff4694ce78f5907320bb77d4ac5d30767bf4f93f7dca67f
+  artifact_path: projects/PROJ-729-empirical-analysis-of-twin-prime-gaps-up/specs/001-empirical-analysis-of-twin-prime-gaps-up/tasks.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://oeis.org/A002386
+  verification_status: pending
+  verified_against_url: https://oeis.org/A002386
+  verified_at: '2026-07-03T06:28:11.546092Z'
