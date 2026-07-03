@@ -1,14 +1,7 @@
-last_used: eric-kandel
-last_used_at: '2026-07-03T10:59:28.516287+00:00'
+last_used: freeman-dyson
+last_used_at: '2026-07-03T12:44:45.232441+00:00'
 last_outcome: committed
 history:
-- slug: freeman-dyson
-  started_at: '2026-06-22T22:34:34.983050+00:00'
-  ended_at: '2026-06-22T23:31:36.053728+00:00'
-  outcome: committed
-  action: comment
-  committed_paths:
-  - projects/PROJ-689-searchswarm-towards-delegation-intellige/paper/reviews/freeman-dyson-simulated__2026-06-22__paper.md
 - slug: geoffrey-west
   started_at: '2026-06-22T23:31:36.053728+00:00'
   ended_at: '2026-06-22T23:58:36.166677+00:00'
@@ -1220,3 +1213,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/reviews/research/eric-kandel-simulated__2026-07-03__research.md
+- slug: freeman-dyson
+  started_at: '2026-07-03T10:59:28.516287+00:00'
+  ended_at: '2026-07-03T12:44:45.232441+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-292-the-relationship-between-personality-tra/reviews/research/freeman-dyson-simulated__2026-07-03__research.md
