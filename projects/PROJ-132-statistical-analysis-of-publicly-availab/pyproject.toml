@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "proj-132-statistical-analysis-of-publicly-availab"
+version = "0.1.0"
+description = "Statistical Analysis of Publicly Available Bird Migration Patterns and Climate Change"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas",
+    "numpy",
+    "scipy",
+    "pyyaml",
+    "matplotlib",
+    "seaborn",
+    "joblib",
+    "pytest",
+    "pyarrow",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+
+[tool.ruff]
+lint.select = ['E', 'F', 'W', 'I']
+lint.ignore = []

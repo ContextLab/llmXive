@@ -74,7 +74,7 @@ phenology_metric ~
 
 1. **Centroid Construction** – Weekly centroids per species‑year (mean lat/lon of all observations in a cell).  
 2. **Manifold Distance** – Geodesic distances on a spherical Earth (`geopy.distance.geodesic`).  
-3. **Permutation Test** – 10,000 label shuffles generate a null distribution of shift magnitudes; p‑values reported.  
+3. **Permutation Test** – A large number of label shuffles generate a null distribution of shift magnitudes; p‑values reported.  
 4. **Bootstrap CI** – Bootstrap resamples of the centroid estimation process produce 95 % confidence intervals for shift magnitude and direction.  
 5. **Validity Note** – Centroids are a simplification; an optional kernel‑density trajectory analysis (KDE on weekly occurrence maps) is implemented for species with ≥ 500 observations to verify robustness.
 
