@@ -1,0 +1,151 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: OrbitSolution
+description: |
+  Schema for the joint weighted least-squares orbit determination results.
+  This schema defines the structure of the output when estimating differential
+  acceleration parameters ($a_c$) and local gravity ($g$) for multiple satellites
+  simultaneously.
+type: object
+required:
+  - metadata
+  - parameters
+  - covariance
+  - residuals
+  - convergence
+properties:
+  metadata:
+    type: object
+    description: Metadata about the solution run.
+    required:
+      - timestamp
+      - satellites
+      - geopotential_model
+      - solver_version
+    properties:
+      timestamp:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of when the solution was computed.
+      satellites:
+        type: array
+        items:
+          type: string
+        description: List of satellite IDs included in the joint fit (e.g., ["LAGEOS-1", "LAGEOS-2"]).
+      geopotential_model:
+        type: string
+        description: Identifier for the geopotential model used (e.g., "GGM05C").
+      solver_version:
+        type: string
+        description: Version of the solver library or algorithm used.
+      data_points:
+        type: integer
+        minimum: 0
+        description: Total number of normal-point observations used in the fit.
+
+  parameters:
+    type: object
+    description: Estimated parameters from the joint fit.
+    required:
+      - ac
+      - g
+      - ac_unit
+      - g_unit
+    properties:
+      ac:
+        type: number
+        description: Differential acceleration parameter ($a_c$) in m/s².
+        # Represents the difference in acceleration between the two test bodies.
+      ac_uncertainty:
+        type: number
+        minimum: 0
+        description: 1-sigma uncertainty of $a_c$ derived from the covariance matrix.
+      g:
+        type: number
+        description: Local gravitational acceleration ($g$) in m/s².
+      g_uncertainty:
+        type: number
+        minimum: 0
+        description: 1-sigma uncertainty of $g$.
+      etas:
+        type: object
+        description: Computed Eötvös parameter ($\eta = |a_c|/g$) and confidence interval.
+        properties:
+          value:
+            type: number
+          ci_lower_95:
+            type: number
+          ci_upper_95:
+            type: number
+
+  covariance:
+    type: array
+    description: |
+      Full covariance matrix of the estimated parameters.
+      Stored as a list of lists (row-major) or a flattened array.
+      The order of parameters must match the order in the 'parameters' object
+      or be documented in metadata.
+    items:
+      type: array
+      items:
+        type: number
+    minItems: 2
+    description: Square matrix of parameter covariances.
+
+  residuals:
+    type: object
+    description: Post-fit residual statistics.
+    required:
+      - rmse_m
+      - max_residual_m
+      - chi2
+      - dof
+    properties:
+      rmse_m:
+        type: number
+        minimum: 0
+        description: Root Mean Square Error of residuals in meters.
+      max_residual_m:
+        type: number
+        minimum: 0
+        description: Maximum absolute residual in meters.
+      chi2:
+        type: number
+        description: Chi-squared statistic of the fit.
+      dof:
+        type: integer
+        minimum: 1
+        description: Degrees of freedom (observations - estimated parameters).
+      per_satellite:
+        type: object
+        description: Breakdown of residuals per satellite.
+        additionalProperties:
+          type: object
+          properties:
+            rmse_m:
+              type: number
+            count:
+              type: integer
+
+  convergence:
+    type: object
+    description: Convergence details of the iterative solver.
+    required:
+      - converged
+      - iterations
+      - final_gradient_norm
+    properties:
+      converged:
+        type: boolean
+        description: Whether the solver met the convergence criteria.
+      iterations:
+        type: integer
+        minimum: 1
+        description: Number of iterations performed.
+      final_gradient_norm:
+        type: number
+        description: Norm of the gradient vector at the final step.
+      tolerance:
+        type: number
+        description: Convergence tolerance used.
+
+additionalProperties: false

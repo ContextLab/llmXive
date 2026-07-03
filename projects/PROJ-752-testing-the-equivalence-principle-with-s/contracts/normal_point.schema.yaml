@@ -1,0 +1,100 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: NormalPoint
+description: |
+  Schema for Satellite Laser Ranging (SLR) Normal Point observations.
+  A normal point is a 1-second averaged range measurement derived from
+  a burst of laser pulses, including quality metrics and metadata.
+type: object
+required:
+  - satellite_id
+  - station_id
+  - epoch_mjd
+  - range_m
+  - range_rate_m_per_s
+  - quality_flag
+  - num_pulses
+  - rms_residual_mm
+properties:
+  satellite_id:
+    type: string
+    description: |
+      Satellite identifier (e.g., 'LAGEOS-1', 'LAGEOS-2', 'Etalon-1',
+      'Etalon-2', 'Starlette'). Must match the standard ILRS naming convention.
+    pattern: '^(LAGEOS-[12]|Etalon-[12]|Starlette|LARES|LARES-2)$'
+  station_id:
+    type: string
+    description: |
+      4-character ILRS station code (e.g., '7840', '7841', '1234').
+    minLength: 4
+    maxLength: 4
+    pattern: '^[0-9A-Z]{4}$'
+  epoch_mjd:
+    type: number
+    description: Modified Julian Date (MJD) of the normal point epoch.
+    minimum: 40000
+    maximum: 65000
+  range_m:
+    type: number
+    description: |
+      Slant range in meters, corrected for atmospheric delay and
+      relativistic effects.
+    minimum: 6000000
+    maximum: 40000000
+  range_rate_m_per_s:
+    type: number
+    description: |
+      Range rate (time derivative of range) in m/s.
+      May be null if not available from the reduction.
+    nullable: true
+  quality_flag:
+    type: integer
+    description: |
+      Quality indicator from the ILRS data reduction.
+      0 = Good, 1 = Marginal, 2 = Poor, 3 = Invalid.
+    enum: [0, 1, 2, 3]
+  num_pulses:
+    type: integer
+    description: Number of laser pulses averaged to form this normal point.
+    minimum: 1
+  rms_residual_mm:
+    type: number
+    description: |
+      Root Mean Square of the residuals within the 1-second interval,
+      expressed in millimeters.
+    minimum: 0
+    maximum: 1000
+  station_lat:
+    type: number
+    description: ITRS latitude of the station in degrees.
+    minimum: -90
+    maximum: 90
+    nullable: true
+  station_lon:
+    type: number
+    description: ITRS longitude of the station in degrees.
+    minimum: -180
+    maximum: 180
+    nullable: true
+  station_alt:
+    type: number
+    description: ITRS altitude of the station in meters.
+    minimum: -100
+    maximum: 9000
+    nullable: true
+  elevation_deg:
+    type: number
+    description: Satellite elevation angle at the epoch in degrees.
+    minimum: 0
+    maximum: 90
+    nullable: true
+  azimuth_deg:
+    type: number
+    description: Satellite azimuth angle at the epoch in degrees.
+    minimum: 0
+    maximum: 360
+    nullable: true
+  comments:
+    type: string
+    description: Optional notes or flags from the data provider.
+    nullable: true
+additionalProperties: false

@@ -60,7 +60,7 @@
 - [X] T005 Implement `code/models/baseline_transformer.py` for a -layer, 4-head Transformer (~2M params) with CPU-only enforcement.
 - [X] T006 Implement `code/models/spiking_transformer.py` replacing feed-forward layers with LIF neurons (snnTorch) using **surrogate-gradient learning** (FR-005). **Constitution Principle VII**: Must include a verification function that asserts surrogate-gradient learning produces non-NaN gradients on a mini-batch.
 - [X] T007 Implement `code/metrics/energy_logger.py` wrapping `codecarbon` with wall-clock fallback and "estimated" flag logic.
-- [ ] T008 Implement `code/metrics/temporal_coding.py` to compute inter-spike interval variance, bits/spike, and spike train synchrony.
+- [X] T008 Implement `code/metrics/temporal_coding.py` to compute inter-spike interval variance, bits/spike, and spike train synchrony.
 - [X] T009 Create `code/tests/test_lif_dynamics.py` to verify LIF membrane potential update rules.
 - [ ] T010 Create `code/tests/test_training_loop.py` to verify CPU execution and early stopping logic.
 
@@ -74,10 +74,10 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement perplexity calculation in `code/metrics/perplexity.py` and log to CSV after each epoch.
+- [X] T012 [US1] Implement perplexity calculation in `code/metrics/perplexity.py` and log to CSV after each epoch.
 - [ ] T013 [US1] Implement baseline training loop in `code/main.py` (seeds 1-5, batch size 32, lr 1e-3). **Signature**: `def train_baseline(seed: int) -> MetricRecord`. **Output**: Save results to `data/processed/baseline_metrics.csv` with columns: `seed`, `epoch`, `perplexity`, `energy_per_token_kWh`, `wall_clock_time`. **Requirement**: Must use the same random seed configuration as the spiking model (T017) to enable paired testing (FR-009).
 - [ ] T014 [US1] Add early stopping logic (patience=2, delta=0.01) to baseline training.
-- [~] T015 [US1] Add random seed configuration (multiple seeds) and store results in `data/processed/baseline_metrics.csv`.
+- [ ] T015 [US1] Add random seed configuration (multiple seeds) and store results in `data/processed/baseline_metrics.csv`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -108,10 +108,10 @@
 
 ### Implementation for User Story 3
 
-- [~] T022 [US3] Implement paired t-tests ) in `code/analysis/statistical_tests.py` comparing baseline vs. spiking metrics. **Requirement**: Must use the **same random seed** for both baseline and spiking runs to enable paired testing (per FR-009). **Implementation**: Must read `data/processed/baseline_metrics.csv` and `data/processed/spiking_metrics.csv`, match rows by `seed`, and perform paired t-tests on `perplexity` and `energy_per_token_kWh`.
-- [ ] T023 [US3] Apply Bonferroni/Holm-Bonferroni correction for multiple hypothesis testing (perplexity + energy).
-- [ ] T024 [US3] Implement sensitivity analysis sweep over thresholds {0.20, 0.25, 0.30, 0.35} to calculate FP/FN rates (ground truth: ≥30% reduction). **Output**: Save sensitivity curves and rates to `data/results/sensitivity_analysis.csv`.
-- [ ] T025 [US3] Generate comparison report in `data/results/statistical_analysis_report.md` including temporal coding comparisons.
+- [~] T022 [US3] Implement paired t-tests) in `code/analysis/statistical_tests.py` comparing baseline vs. spiking metrics. **Requirement**: Must use the **same random seed** for both baseline and spiking runs to enable paired testing (per FR-009). **Implementation**: Must read `data/processed/baseline_metrics.csv` and `data/processed/spiking_metrics.csv`, match rows by `seed`, and perform paired t-tests on `perplexity` and `energy_per_token_kWh`.
+- [~] T023 [US3] Apply Bonferroni/Holm-Bonferroni correction for multiple hypothesis testing (perplexity + energy).
+- [~] T024 [US3] Implement sensitivity analysis sweep over thresholds {0.20, 0.25, 0.30, 0.35} to calculate FP/FN rates (ground truth: ≥30% reduction). **Output**: Save sensitivity curves and rates to `data/results/sensitivity_analysis.csv`.
+- [~] T025 [US3] Generate comparison report in `data/results/statistical_analysis_report.md` including temporal coding comparisons.
 - [ ] T026 [US3] Create visualization script `code/analysis/plots.py` for sensitivity curves and trade-off plots.
 
 **Checkpoint**: All user stories should now be independently functional

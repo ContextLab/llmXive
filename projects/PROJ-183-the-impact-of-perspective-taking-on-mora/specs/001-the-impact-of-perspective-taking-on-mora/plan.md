@@ -98,7 +98,7 @@ data/
 | **FR-010** | `02_data_cleaning.py` | Accepts raw CSV uploads; distinguishes from synthetic test data. |
 | **FR-011** | `03_analysis.py` | Calculates Intra-Class Correlation (ICC) on **raw, unaggregated** data. **If ICC >= 0.05, switches to LME** to account for clustering. |
 | **SC-001** | `03_analysis.py` | Significance measured against p < 0.05 threshold. |
-| **SC-002** | `03_analysis.py` | Effect size precision measured by 95% CI width; power analysis documented in `research.md`. |
+| **SC-002** | `03_analysis.py` | Effect size precision measured by % CI width; power analysis documented in `research.md`. |
 | **SC-003** | `03_analysis.py` | Robustness measured by consistency of Mann-Whitney U or LME robustness checks. |
 | **SC-004** | `02_data_cleaning.py` | Data integrity measured by exclusion of failed attention checks and non-consented participants. |
 | **SC-005** | `main.py` | Feasibility measured by runtime/memory constraints (CI runner). |

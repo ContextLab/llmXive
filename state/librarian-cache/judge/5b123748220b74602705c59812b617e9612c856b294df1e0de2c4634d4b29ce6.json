@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "physics/0207048",
+  "judged_at": "2026-07-03T16:21:40Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "machine learning prediction of glass transition temperature from composition materials science",
+  "rationale": "The paper investigates the physical mechanisms and experimental controversies surrounding the glass transition temperature (Tg) of water and inorganic glasses using thermal analysis, but it does not address the user's specific question regarding \"Machine Learning Prediction\" of Tg from composition. While the paper is domain-relevant to glass science, it fails to satisfy criteria (a) or (b) because it provides no evidence of machine learning algorithms, predictive modeling, or the use of composit",
+  "relevant": false
+}

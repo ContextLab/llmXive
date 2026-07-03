@@ -1,290 +1,192 @@
-"""
-Temporal Coding Metrics for Spiking Neural Networks.
-
-This module implements metrics to quantify temporal coding characteristics
-in spiking neural networks, including inter-spike interval variance,
-bits per spike, and spike train synchrony.
-
-All metrics are computed from recorded spike trains during validation phases.
-"""
-
 import torch
 import numpy as np
-from typing import List, Dict, Tuple, Optional
+from typing import List, Dict, Tuple, Optional, Union
 import math
+import os
+import pandas as pd
 
-def compute_isi_variance(spike_times: List[float], tolerance: float = 1e-6) -> float:
+def compute_isi_variance(spike_times: List[float]) -> float:
     """
     Compute the variance of Inter-Spike Intervals (ISI).
     
     Args:
-        spike_times: List of spike times in seconds or time steps.
-        tolerance: Minimum time difference to consider as distinct spikes.
+        spike_times: List of spike times in seconds
         
     Returns:
-        Variance of the inter-spike intervals. Returns 0.0 if fewer than 2 spikes.
+        Variance of ISIs
     """
     if len(spike_times) < 2:
         return 0.0
     
-    # Sort spike times to ensure chronological order
-    sorted_times = sorted(spike_times)
-    
-    # Filter out spikes that are too close (noise filtering)
-    filtered_times = [sorted_times[0]]
-    for t in sorted_times[1:]:
-        if t - filtered_times[-1] > tolerance:
-            filtered_times.append(t)
-    
-    if len(filtered_times) < 2:
-        return 0.0
-    
-    # Compute ISIs
-    isis = [filtered_times[i+1] - filtered_times[i] for i in range(len(filtered_times)-1)]
-    
+    isis = np.diff(spike_times)
     if len(isis) == 0:
         return 0.0
-    
-    # Compute variance
-    mean_isi = sum(isis) / len(isis)
-    variance = sum((isi - mean_isi) ** 2 for isi in isis) / len(isis)
-    
-    return float(variance)
+    return float(np.var(isis))
 
-
-def compute_bits_per_spike(spike_trains: torch.Tensor, time_bins: int, 
-                           total_time: float, dt: float = 1.0) -> float:
+def compute_bits_per_spike(spike_train: torch.Tensor, total_time: float) -> float:
     """
-    Compute the information rate in bits per spike using the spike count distribution.
-    
-    This uses a simplified entropy-based calculation assuming a Poisson-like
-    distribution of spikes across time bins.
+    Compute bits per spike based on spike rate and entropy.
     
     Args:
-        spike_trains: Tensor of shape (num_neurons, num_time_steps) with 1 for spike, 0 otherwise.
-        time_bins: Number of time bins to aggregate over (if time_steps > time_bins).
-        total_time: Total simulation time in seconds.
-        dt: Time step size.
+        spike_train: Binary tensor representing spike train (1 for spike, 0 otherwise)
+        total_time: Total duration of the spike train in seconds
         
     Returns:
-        Estimated bits per spike.
+        Bits per spike
     """
-    if spike_trains.numel() == 0:
+    num_spikes = spike_train.sum().item()
+    if num_spikes == 0:
         return 0.0
     
-    # Ensure binary input
-    binary_trains = (spike_trains > 0.5).float()
+    # Estimate firing rate
+    rate = num_spikes / total_time if total_time > 0 else 0.0
     
-    # Aggregate over time bins if necessary
-    if binary_trains.shape[1] > time_bins:
-        bin_size = binary_trains.shape[1] // time_bins
-        aggregated = []
-        for i in range(time_bins):
-            start_idx = i * bin_size
-            end_idx = start_idx + bin_size if i < time_bins - 1 else binary_trains.shape[1]
-            bin_sum = binary_trains[:, start_idx:end_idx].sum(dim=1)
-            aggregated.append(bin_sum)
-        binary_trains = torch.stack(aggregated, dim=1)
-    
-    # Count total spikes
-    total_spikes = binary_trains.sum().item()
-    if total_spikes == 0:
+    # Simple entropy-based approximation (binary channel)
+    # p = probability of spike
+    p = rate * 0.001 # Assume 1ms time bin for simplicity
+    if p <= 0 or p >= 1:
         return 0.0
+        
+    # Binary entropy
+    h = -p * math.log2(p) - (1-p) * math.log2(1-p)
     
-    # Compute spike count distribution across neurons and time bins
-    # We calculate entropy of the spike count distribution
-    flat_counts = binary_trains.flatten().numpy()
-    
-    # Count occurrences of each spike count value (0 or 1 in binary case)
-    unique, counts = np.unique(flat_counts, return_counts=True)
-    probabilities = counts / len(flat_counts)
-    
-    # Compute entropy (base 2)
-    entropy = 0.0
-    for p in probabilities:
-        if p > 0:
-            entropy -= p * math.log2(p)
-    
-    # Bits per spike = Total Entropy / Total Spikes
-    # This is a simplified metric; in practice, one might use more sophisticated
-    # information theoretic measures like mutual information.
-    bits_per_spike = entropy / (total_spikes / (binary_trains.shape[0] * binary_trains.shape[1]))
-    
-    # Clamp to reasonable bounds to avoid extreme values
-    return float(max(0.0, min(bits_per_spike, 10.0)))
+    # Bits per spike approximation
+    bits_per_spike = h / p if p > 0 else 0.0
+    return bits_per_spike
 
-
-def compute_spike_train_synchrony(spike_trains: torch.Tensor, 
-                                  window_size: int = 10,
-                                  threshold: float = 0.3) -> float:
+def compute_spike_train_synchrony(spike_trains: List[torch.Tensor], time_window: float = 1.0) -> float:
     """
-    Compute the synchrony index across neurons.
-    
-    Synchrony measures how often multiple neurons fire within a short time window.
-    High synchrony indicates coordinated firing patterns.
+    Compute synchrony between multiple spike trains.
     
     Args:
-        spike_trains: Tensor of shape (num_neurons, num_time_steps) with 1 for spike, 0 otherwise.
-        window_size: Size of the time window (in time steps) to consider for synchrony.
-        threshold: Minimum fraction of neurons firing in a window to count as synchronous event.
+        spike_trains: List of binary tensors representing spike trains
+        time_window: Time window for synchrony calculation
         
     Returns:
-        Synchrony index between 0.0 (no synchrony) and 1.0 (perfect synchrony).
+        Synchrony score (0.0 to 1.0)
     """
-    if spike_trains.numel() == 0 or spike_trains.shape[0] < 2:
+    if len(spike_trains) < 2:
         return 0.0
     
-    binary_trains = (spike_trains > 0.5).float()
-    num_neurons, num_steps = binary_trains.shape
+    # Align spike trains (assuming same length for simplicity)
+    max_len = max(t.shape[0] for t in spike_trains)
+    aligned_trains = []
+    for t in spike_trains:
+        if t.shape[0] < max_len:
+            aligned_trains.append(torch.nn.functional.pad(t, (0, max_len - t.shape[0])))
+        else:
+            aligned_trains.append(t)
     
-    if num_steps < window_size:
+    # Compute pairwise synchrony
+    synchrony_scores = []
+    for i in range(len(aligned_trains)):
+        for j in range(i + 1, len(aligned_trains)):
+            # Correlation-based synchrony
+            corr = torch.corrcoef(torch.stack([aligned_trains[i], aligned_trains[j]]))[0, 1]
+            synchrony_scores.append(max(0.0, corr.item())) # Ensure non-negative
+    
+    if not synchrony_scores:
         return 0.0
-    
-    synchronous_events = 0
-    total_windows = 0
-    
-    # Sliding window approach
-    for t in range(num_steps - window_size + 1):
-        window = binary_trains[:, t:t+window_size]
-        # Count how many neurons fired at least once in this window
-        neurons_firing = window.sum(dim=1) > 0
-        firing_count = neurons_firing.sum().item()
-        
-        total_windows += 1
-        if firing_count >= threshold * num_neurons:
-            synchronous_events += 1
-    
-    if total_windows == 0:
-        return 0.0
-        
-    return float(synchronous_events / total_windows)
+    return float(np.mean(synchrony_scores))
 
-
-def analyze_spike_trains(spike_trains: torch.Tensor, 
-                         time_step_duration: float = 0.001,
-                         time_bins: int = 100) -> Dict[str, float]:
+def extract_spike_trains_from_model_outputs(model_outputs: Dict[str, torch.Tensor], threshold: float = 0.5) -> List[torch.Tensor]:
     """
-    Comprehensive analysis of spike trains.
-    
-    This function computes all temporal coding metrics and returns them in a
-    dictionary suitable for logging or further analysis.
+    Extract binary spike trains from model outputs.
     
     Args:
-        spike_trains: Tensor of shape (num_neurons, num_time_steps) with 1 for spike, 0 otherwise.
-        time_step_duration: Duration of each time step in seconds.
-        time_bins: Number of time bins for bits-per-spike calculation.
+        model_outputs: Dictionary containing model outputs (e.g., 'membrane_potential', 'spikes')
+        threshold: Threshold for spike detection
         
     Returns:
-        Dictionary containing:
-            - 'isi_variance': Variance of inter-spike intervals (average across neurons)
-            - 'bits_per_spike': Information rate in bits per spike
-            - 'synchrony': Synchrony index
-            - 'total_spikes': Total number of spikes
-            - 'spike_rate': Average firing rate in Hz
+        List of binary spike train tensors
     """
-    if spike_trains.numel() == 0:
-        return {
-            'isi_variance': 0.0,
-            'bits_per_spike': 0.0,
-            'synchrony': 0.0,
-            'total_spikes': 0,
-            'spike_rate': 0.0
-        }
+    spike_trains = []
     
-    binary_trains = (spike_trains > 0.5).float()
-    num_neurons, num_steps = binary_trains.shape
-    total_time = num_steps * time_step_duration
+    # Check for 'spikes' key first
+    if 'spikes' in model_outputs:
+        spikes = model_outputs['spikes']
+        if isinstance(spikes, torch.Tensor):
+            # Flatten if necessary
+            if spikes.dim() > 2:
+                spikes = spikes.view(spikes.size(0), -1)
+            spike_trains.append(spikes.float())
+    elif 'membrane_potential' in model_outputs:
+        # Threshold membrane potential to get spikes
+        potential = model_outputs['membrane_potential']
+        if isinstance(potential, torch.Tensor):
+            spikes = (potential > threshold).float()
+            if spikes.dim() > 2:
+                spikes = spikes.view(spikes.size(0), -1)
+            spike_trains.append(spikes)
     
-    # Compute total spikes and firing rate
-    total_spikes = int(binary_trains.sum().item())
-    spike_rate = total_spikes / (num_neurons * total_time) if total_time > 0 else 0.0
+    return spike_trains
+
+def analyze_spike_trains(spike_trains: List[torch.Tensor], time_resolution: float = 0.001) -> Dict[str, float]:
+    """
+    Analyze spike trains and compute temporal coding metrics.
     
-    # Compute ISI variance (average across neurons)
+    Args:
+        spike_trains: List of binary spike train tensors
+        time_resolution: Time resolution in seconds
+        
+    Returns:
+        Dictionary of metrics
+    """
+    metrics = {}
+    
+    total_spikes = 0
+    total_time = len(spike_trains[0]) * time_resolution if spike_trains else 0.0
+    
     isi_variances = []
-    for neuron_idx in range(num_neurons):
-        # Get spike times for this neuron
-        spike_indices = torch.where(binary_trains[neuron_idx] > 0.5)[0].tolist()
-        spike_times = [idx * time_step_duration for idx in spike_indices]
-        isi_var = compute_isi_variance(spike_times)
+    bits_per_spike_values = []
+    
+    for i, train in enumerate(spike_trains):
+        # Convert to numpy for easier processing
+        train_np = train.cpu().numpy()
+        spike_indices = np.where(train_np == 1)[0]
+        spike_times = spike_indices * time_resolution
+        
+        total_spikes += len(spike_times)
+        
+        # ISI Variance
+        isi_var = compute_isi_variance(spike_times.tolist())
         isi_variances.append(isi_var)
+        
+        # Bits per spike
+        bits = compute_bits_per_spike(train, total_time)
+        bits_per_spike_values.append(bits)
     
-    avg_isi_variance = sum(isi_variances) / len(isi_variances) if isi_variances else 0.0
+    metrics['isi_variance'] = float(np.mean(isi_variances)) if isi_variances else 0.0
+    metrics['bits_per_spike'] = float(np.mean(bits_per_spike_values)) if bits_per_spike_values else 0.0
     
-    # Compute bits per spike
-    bits_per_spike = compute_bits_per_spike(binary_trains, time_bins, total_time, time_step_duration)
+    # Synchrony
+    if len(spike_trains) > 1:
+        synchrony = compute_spike_train_synchrony(spike_trains, time_window=total_time)
+        metrics['synchrony'] = synchrony
+    else:
+        metrics['synchrony'] = 0.0
     
-    # Compute synchrony
-    synchrony = compute_spike_train_synchrony(binary_trains, window_size=10, threshold=0.3)
-    
-    return {
-        'isi_variance': avg_isi_variance,
-        'bits_per_spike': bits_per_spike,
-        'synchrony': synchrony,
-        'total_spikes': total_spikes,
-        'spike_rate': spike_rate
-    }
+    return metrics
 
-
-def extract_spike_trains_from_model_outputs(model_outputs: Dict[str, torch.Tensor],
-                                            layer_name: str = 'spiking_ff') -> torch.Tensor:
+def log_temporal_metrics_to_csv(output_path: str, seed: int, epoch: int, metrics: Dict[str, float]) -> None:
     """
-    Extract spike trains from model outputs for analysis.
-    
-    This utility function retrieves spike recordings from the model's internal
-    state or output dictionary.
+    Log temporal coding metrics to a CSV file.
     
     Args:
-        model_outputs: Dictionary containing model outputs and internal states.
-                       Expected keys: 'spike_trains', 'membrane_potentials', etc.
-        layer_name: Name of the layer to extract spikes from.
-                    
-    Returns:
-        Tensor of spike trains (num_neurons, num_time_steps).
+        output_path: Path to the CSV file
+        seed: Random seed
+        epoch: Epoch number
+        metrics: Dictionary of metrics
     """
-    if 'spike_trains' in model_outputs:
-        return model_outputs['spike_trains']
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
-    # Fallback: try to find layer-specific spike trains
-    key = f'{layer_name}_spikes'
-    if key in model_outputs:
-        return model_outputs[key]
-    
-    # If no spikes recorded, return empty tensor
-    return torch.zeros((0, 0))
-
-
-def log_temporal_metrics_to_csv(metrics: Dict[str, float], 
-                                output_path: str,
-                                seed: int,
-                                epoch: int) -> None:
-    """
-    Append temporal coding metrics to a CSV file.
-    
-    Args:
-        metrics: Dictionary of metrics to log.
-        output_path: Path to the CSV file.
-        seed: Random seed used for the run.
-        epoch: Current epoch number.
-    """
-    import pandas as pd
-    import os
+    file_exists = os.path.isfile(output_path)
     
     row = {
         'seed': seed,
         'epoch': epoch,
-        'isi_variance': metrics.get('isi_variance', 0.0),
-        'bits_per_spike': metrics.get('bits_per_spike', 0.0),
-        'synchrony': metrics.get('synchrony', 0.0),
-        'total_spikes': metrics.get('total_spikes', 0),
-        'spike_rate': metrics.get('spike_rate', 0.0)
+        **metrics
     }
     
     df = pd.DataFrame([row])
-    
-    # Append to file if it exists, otherwise create new
-    if os.path.exists(output_path):
-        existing_df = pd.read_csv(output_path)
-        combined_df = pd.concat([existing_df, df], ignore_index=True)
-        combined_df.to_csv(output_path, index=False)
-    else:
-        df.to_csv(output_path, index=False)
+    df.to_csv(output_path, mode='a', header=not file_exists, index=False)

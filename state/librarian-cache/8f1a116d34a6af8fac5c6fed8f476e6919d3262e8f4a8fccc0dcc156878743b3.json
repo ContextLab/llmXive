@@ -1,0 +1,331 @@
+{
+  "fetched_at": "2026-07-03T16:21:47Z",
+  "field": "materials science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "materials science",
+      "idea_body_excerpt": "Machine Learning Prediction of Glass Transition Temperature from Composition",
+      "target_n": 5
+    },
+    "duration_seconds": 46.526,
+    "ended_at": "2026-07-03T16:21:47Z",
+    "expansion": null,
+    "extracted_queries": [
+      "Tg prediction glass composition",
+      "machine learning Tg silicate oxide",
+      "composition property prediction glass",
+      "glass transition temperature regression accuracy",
+      "data-driven materials design Tg"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1907.05644"
+      ]
+    },
+    "per_query_hit_count": {
+      "Machine Learning Prediction of Glass Transition Temperature from Composition materials science": 3,
+      "Tg prediction glass composition": 3,
+      "composition property prediction glass": 2,
+      "data-driven materials design Tg": 3,
+      "glass transition temperature regression accuracy": 2,
+      "machine learning Tg silicate oxide": 1
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "2306.04338",
+          "rationale": "The paper focuses on the risks of changing data sources in the context of official statistics and policy-making, which is an entirely different domain from materials science and the prediction of glass transition temperature. It does not measure the relevant physical properties, use the specific composition data, or apply the machine learning mechanisms required for the user's question, failing all inclusion criteria (a-f) and triggering the \"Off-domain entirely\" rejection rule.",
+          "title": "Changing Data Sources in the Age of Machine Learning for Official Statistics"
+        },
+        {
+          "primary_pointer": "physics/0207048",
+          "rationale": "The paper investigates the physical mechanisms and experimental controversies surrounding the glass transition temperature (Tg) of water and inorganic glasses using thermal analysis, but it does not address the user's specific question regarding \"Machine Learning Prediction\" of Tg from composition. While the paper is domain-relevant to glass science, it fails to satisfy criteria (a) or (b) because it provides no evidence of machine learning algorithms, predictive modeling, or the use of composit",
+          "title": "Aging vs crystallisation dynamics in hyperquenched glasses and a resolution of the water Tg controversy"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-03T16:21:00Z",
+    "term_input": {
+      "normalized": "machine learning prediction of glass transition temperature from composition materials science",
+      "raw": "Machine Learning Prediction of Glass Transition Temperature from Composition materials science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Modern biology frequently relies on machine learning to provide predictions and improve decision processes. There have been recent calls for more scrutiny on machine learning performance and possible limitations. Here we present a set of community-wide recommendations aiming to help establish standards of supervised machine learning validation in biology. Adopting a structured methods description for machine learning based on data, optimization, model, evaluation (DOME) will aim to help both reviewers and readers to better understand and assess the performance and limitations of a method or outcome. The recommendations are formulated as questions to anyone wishing to pursue implementation of a machine learning algorithm. Answers to these questions can be easily included in the supplementary material of published papers.",
+          "claimed_authors": [
+            "Ian Walsh",
+            "Dmytro Fishman",
+            "Dario Garcia-Gasulla",
+            "Tiina Titma",
+            "Gianluca Pollastri",
+            "The ELIXIR Machine Learning focus group",
+            "Jen Harrow",
+            "Fotis E. Psomopoulos",
+            "Silvio C. E. Tosatto"
+          ],
+          "claimed_title": "DOME: Recommendations for supervised machine learning validation in biology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.16189"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Machine Learning Prediction of Glass Transition Temperature from Composition mat', candidate_title='DOME: Recommendations for supervised machine learning validation in biology')",
+        "failed_at": "2026-07-03T16:21:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Metallic glasses are formed by splat-cooling; this ensures that atomic motions are arrested before the latent heat of solidification can be extracted. Glass is defined as a higher disorder metastable state with arrested kinetics. Arrested kinetics is a defining property of a glass, rather than structural disorder as, e.g., in amorphous silicon [1]. `Magnetic glasses' identified recently possess structural as well as magnetic long-range order, but show relaxation and specific heat as for a structural glass [1]. The values of Tc and Tg in these materials are easily varied by varying the magnetic field H, allowing one to go from metallic glass to glass former like scenario.",
+          "claimed_authors": [
+            "Praveen Chaddah",
+            "Alok Banerjee"
+          ],
+          "claimed_title": "Magnetic Glass formed by kinetic arrest of first order phase transitions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1004.3116"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Machine Learning Prediction of Glass Transition Temperature from Composition mat', candidate_title='Magnetic Glass formed by kinetic arrest of first order phase transitions')",
+        "failed_at": "2026-07-03T16:21:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Learning curves are a concept from social sciences that has been adopted in the context of machine learning to assess the performance of a learning algorithm with respect to a certain resource, e.g., the number of training examples or the number of training iterations. Learning curves have important applications in several machine learning contexts, most notably in data acquisition, early stopping of model training, and model selection. For instance, learning curves can be used to model the performance of the combination of an algorithm and its hyperparameter configuration, providing insights into their potential suitability at an early stage and often expediting the algorithm selection process. Various learning curve models have been proposed to use learning curves for decision making. Some of these models answer the binary decision question of whether a given algorithm at a certain budget will outperform a certain reference performance, whereas more complex models predict the entire learning curve of an algorithm. We contribute a framework that categorises learning curve approaches using three criteria: the decision-making situation they address, the intrinsic learning curve question they answer and the type of resources they use. We survey papers from the literature and classify them into this framework.",
+          "claimed_authors": [
+            "Felix Mohr",
+            "Jan N. van Rijn"
+          ],
+          "claimed_title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2201.12150"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Machine Learning Prediction of Glass Transition Temperature from Composition mat', candidate_title='Learning Curves for Decision Making in Supervised Machine Learning: A Survey')",
+        "failed_at": "2026-07-03T16:21:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "AI-assisted molecular property prediction has become a promising technique in early-stage drug discovery and materials design in recent years. However, due to high-cost and complex wet-lab experiments, real-world molecules usually experience the issue of scarce annotations, leading to limited labeled data for effective supervised AI model learning. In light of this, few-shot molecular property prediction (FSMPP) has emerged as an expressive paradigm that enables learning from only a few labeled examples. Despite rapidly growing attention, existing FSMPP studies remain fragmented, without a coherent framework to capture methodological advances and domain-specific challenges. In this work, we present the first comprehensive and systematic survey of few-shot molecular property prediction. We begin by analyzing the few-shot phenomenon in molecular datasets and highlighting two core challenges: (1) cross-property generalization under distribution shifts, where each task corresponding to each property, may follow a different data distribution or even be inherently weakly related to others from a biochemical perspective, requiring the model to transfer knowledge across heterogeneous prediction tasks, and (2) cross-molecule generalization under structural heterogeneity, where molecules involved in different or same properties may exhibit significant structural diversity, making model difficult to achieve generalization. Then, we introduce a unified taxonomy that organizes existing methods into data, model, and learning paradigm levels, reflecting their strategies for extracting knowledge from scarce supervision in few-shot molecular property prediction. Next, we compare representative methods, summarize benchmark datasets and evaluation protocols. In the end, we identify key trends and future directions for advancing the continued research on FSMPP.",
+          "claimed_authors": [
+            "Zeyu Wang",
+            "Tianyi Jiang",
+            "Huanchang Ma",
+            "Yao Lu",
+            "Xiaoze Bao",
+            "Shanqing Yu",
+            "Qi Xuan",
+            "Shirui Pan",
+            "Xin Zheng"
+          ],
+          "claimed_title": "Few-shot Molecular Property Prediction: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.08900"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Machine Learning Prediction of Glass Transition Temperature from Composition mat', candidate_title='Few-shot Molecular Property Prediction: A Survey')",
+        "failed_at": "2026-07-03T16:21:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We provide here a brief perspective on the glass transition field. It is an assessment, written from the point of view of theory, of where the field is and where it seems to be heading. We first give an overview of the main phenomenological characteristics, or \"stylised facts\", of the glass transition problem, i.e. the central observations that a theory of the physics of glass formation should aim to explain in a unified manner. We describe recent developments, with a particular focus on real space properties, including dynamical heterogeneity and facilitation, the search for underlying spatial or structural correlations, and the relation between the thermal glass transition and athermal jamming. We then discuss briefly how competing theories of the glass transition have adapted and evolved to account for such real space issues. We consider in detail two conceptual and methodological approaches put forward recently, that aim to access the fundamental critical phenomenon underlying the glass transition, be it thermodynamic or dynamic in origin, by means of biasing of ensembles, of configurations in the thermodynamic case, or of trajectories in the dynamic case. We end with a short outlook.",
+          "claimed_authors": [
+            "Giulio Biroli",
+            "Juan P. Garrahan"
+          ],
+          "claimed_title": "Perspective: The Glass Transition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1303.3542"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Machine Learning Prediction of Glass Transition Temperature from Composition mat', candidate_title='Perspective: The Glass Transition')",
+        "failed_at": "2026-07-03T16:21:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Most of the liquid-state theories, including glass-transition theories, are constructed on the basis of two-body density correlations. However, we have recently shown that many-body correlations, in particular bond orientational correlations, play a key role in both the glass transition and the crystallization transition. Here we show, with numerical simulations of supercooled polydisperse hard spheres systems, that the lengthscale associated with any two-point spatial correlation function does not increase toward the glass transition. A growing lengthscale is instead revealed by considering many-body correlation functions, such as correlators of orientational order, which follows the lengthscale of the dynamic heterogeneities. Despite the growing of crystal-like bond orientational order, we reveal that the stability against crystallization with increasing polydispersity is due to an increasing population of icosahedral arrangements of particles. Our results suggest that, for this type of systems, many-body correlations are a manifestation of the link between the vitrification and the crystallization phenomena. Whether a system is vitrified or crystallized can be controlled by the degree of frustration against crystallization, polydispersity in this case.",
+          "claimed_authors": [
+            "Mathieu Leocmach",
+            "John Russo",
+            "Hajime Tanaka"
+          ],
+          "claimed_title": "Importance of many-body correlations in glass transition: an example from polydisperse hard spheres",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.6819"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Machine Learning Prediction of Glass Transition Temperature from Composition mat', candidate_title='Importance of many-body correlations in glass transition: an example from polydisperse hard spheres')",
+        "failed_at": "2026-07-03T16:21:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "There are deep analogies between the melting dynamics in systems with a first order phase transition and the dynamics from equilibrium in super-cooled liquids. For a class of Ising spin models undergoing a first order transition - namely p-spin models on the so-called Nishimori line - it can be shown that the melting dynamics can be exactly mapped to the equilibrium dynamics. In this mapping the dynamical -or mode-coupling- glass transition corresponds to the spinodal point, while the Kauzmann transition corresponds to the first order phase transition itself. Both in mean field and finite dimensional models this mapping provides an exact realization of the random first order theory scenario for the glass transition. The corresponding glassy phenomenology can then be understood in the framework of a standard first order phase transition.",
+          "claimed_authors": [
+            "Florent Krzakala",
+            "Lenka Zdeborová"
+          ],
+          "claimed_title": "Glassy dynamics as a melting process (On melting dynamics and the glass transition, Part II)",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1006.2479"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Machine Learning Prediction of Glass Transition Temperature from Composition mat', candidate_title='Glassy dynamics as a melting process (On melting dynamics and the glass transition, Part II)')",
+        "failed_at": "2026-07-03T16:21:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Finite element (FE) simulations of structures and materials are getting increasingly more accurate, but also more computationally expensive as a collateral result. This development happens in parallel with a growing demand of data-driven design. To reconcile the two, a robust and data-efficient optimization method called Bayesian optimization (BO) has been previously established as a technique to optimize expensive objective functions. In parallel, the mesh width of an FE model can be exploited to evaluate an objective at a lower or higher fidelity (cost & accuracy) level. The multi-fidelity setting applied to BO, called multi-fidelity BO (MFBO), has also seen previous success. However, BO and MFBO have not seen a direct comparison with when faced with with a real-life engineering problem, such as metamaterial design for deformation and absorption qualities. Moreover, sampling quality and assessing design parameter sensitivity is often an underrepresented part of data-driven design. This paper aims to address these shortcomings by employing Sobol' samples with variance-based sensitivity analysis in order to reduce design problem complexity. Furthermore, this work describes, implements, applies and compares the performance BO with that MFBO when maximizing the energy absorption (EA) problem of spinodoid cellular structures is concerned. The findings show that MFBO is an effective way to maximize the EA of a spinodoid structure and is able to outperform BO by up to 11% across various hyperparameter settings. The results, which are made open-source, serve to support the utility of multi-fidelity techniques across expensive data-driven design problems.",
+          "claimed_authors": [
+            "Leo Guo",
+            "Hirak Kansara",
+            "Siamak F. Khosroshahi",
+            "GuoQi Zhang",
+            "Wei Tan"
+          ],
+          "claimed_title": "Multi-fidelity Bayesian Data-Driven Design of Energy Absorbing Spinodoid Cellular Structures",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.22079"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Machine Learning Prediction of Glass Transition Temperature from Composition mat', candidate_title='Multi-fidelity Bayesian Data-Driven Design of Energy Absorbing Spinodoid Cellular Structures')",
+        "failed_at": "2026-07-03T16:21:32Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Solder joint reliability related to failures due to thermomechanical loading is a critically important yet physically complex engineering problem. As a result, simulated behavior is oftentimes computationally expensive. In an increasingly data-driven world, the usage of efficient data-driven design schemes is a popular choice. Among them, Bayesian optimization (BO) with Gaussian process regression is one of the most important representatives. The authors argue that computational savings can be obtained from exploiting thorough surrogate modeling and selecting a design candidate based on multiple acquisition functions. This is feasible due to the relatively low computational cost, compared to the expensive simulation objective. This paper addresses the shortcomings in the adjacent literature by providing and implementing a novel heuristic framework to perform BO with adaptive hyperparameters across the various optimization iterations. Adaptive BO is subsequently compared to regular BO when faced with synthetic objective minimization problems. The results show the efficiency of adaptive BO when compared any worst-performing regular Bayesian schemes. As an engineering use case, the solder joint reliability problem is tackled by minimizing the accumulated non-linear creep strain under a cyclic thermal load. Results show that adaptive BO outperforms regular BO by 3% on average at any given computational budget threshold, critically saving half of the computational expense budget. This practical result underlines the methodological potential of the adaptive Bayesian data-driven methodology to achieve better results and cut optimization-related expenses. Lastly, in order to promote the reproducibility of the results, the data-driven implementations are made available on an open-source basis.",
+          "claimed_authors": [
+            "Leo Guo",
+            "Adwait Inamdar",
+            "Willem D. van Driel",
+            "GuoQi Zhang"
+          ],
+          "claimed_title": "Adaptive Bayesian Data-Driven Design of Reliable Solder Joints for Micro-electronic Devices",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.19663"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Machine Learning Prediction of Glass Transition Temperature from Composition mat', candidate_title='Adaptive Bayesian Data-Driven Design of Reliable Solder Joints for Micro-electronic Devices')",
+        "failed_at": "2026-07-03T16:21:32Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Fatemeh Mahmoudi"
+          ],
+          "title": "A Machine Learning Framework for Predicting Glass-Forming Ability in Ternary Alloy Systems",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2512.05895",
+        "summary": "Predicting the glass-forming ability (GFA) of chemical compositions remains a fundamental challenge in materials science, especially for oxide glasses with broad compositional diversity. Traditional empirical and thermodynamic approaches often fail to capture the complex, nonlinear factors governing vitrification. In this study, we applied two ensemble machine learning algorithms-Random Forest (RF) and Extreme Gradient Boosting (XGB)-to the glass_ternary_hipt dataset to predict the GFA of ternary oxide glasses directly from composition-derived descriptors. Both models achieved excellent predictive accuracy (R^2 > 0.92, MAE < 0.04), confirming that GFA is learnable from compositional features alone. Feature importance analysis revealed that electronegativity variance, atomic size mismatch, and valence electron descriptors are the most influential factors, while cohesive energy and ionic radius provided secondary contributions. These chemically interpretable features align with established theories of glass formation, thereby bridging predictive performance with physical understanding. The novelty of this work lies in systematically extending ML-based predictive modeling to ternary oxide glasses, a class less studied compared to metallic and binary systems. Our results demonstrate that ensemble learning not only enables accurate GFA prediction but also provides actionable insights for designing new glass compositions with enhanced stability.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2512.05895",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-03T16:21:30Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Robert Felix Tournier"
+          ],
+          "title": "Fragile-to-fragile Liquid Transition at Tg and Stable-Glass Phase Nucleation Rate Maximum at the Kauzmann Temperature TK",
+          "venue": "arXiv",
+          "year": 2014
+        },
+        "primary_pointer": "1404.2860",
+        "summary": "An undercooled liquid is unstable. The driving force of the glass transition at Tg is a change of the undercooled-liquid Gibbs free energy. The classical Gibbs free energy change for a crystal formation is completed including an enthalpy saving. The crystal growth critical nucleus is used as a probe to observe the Laplace pressure change Dp accompanying the enthalpy change -Vm *Dp at Tg where Vm is the molar volume. A stable glass-liquid transition model predicts the specific heat jump of fragile liquids at temperatures smaller than Tg, the Kauzmann temperature TK where the liquid entropy excess with regard to crystal goes to zero, the equilibrium enthalpy between TK and Tg, the maximum nucleation rate at TK of superclusters containing magic atom numbers, and the equilibrium latent heats at Tg and TK. Strong-to-fragile and strong-to-strong liquid transitions at Tg are also described and all their thermodynamic parameters are determined from their specific heat jumps. The existence of fragile liquids quenched in the amorphous state, which do not undergo liquid-liquid transition during heating preceding their crystallization, is predicted. Long ageing times leading to the formation at TK of a stable glass composed of superclusters containing up to 147 atoms, touching and interpenetrating, are evaluated from nucleation rates. A fragile-to-fragile liquid transition occurs at Tg without stable-glass formation while a strong glass is stable after transition.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1404.2860",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-03T16:21:31Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Lauri Himanen",
+            "Amber Geurts",
+            "Adam S. Foster",
+            "Patrick Rinke"
+          ],
+          "title": "Data-driven materials science: status, challenges and perspectives",
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1907.05644",
+        "summary": "Data-driven science is heralded as a new paradigm in materials science. In this field, data is the new resource, and knowledge is extracted from materials data sets that are too big or complex for traditional human reasoning - typically with the intent to discover new or improved materials or materials phenomena. Multiple factors, including the open science movement, national funding, and progress in information technology, have fueled its development. Such related tools as materials databases, machine learning, and high-throughput methods are now established as parts of the materials research toolset. However, there are a variety of challenges that impede progress in data-driven materials science: data veracity, integration of experimental and computational data, data longevity, standardization, and the gap between industrial interests and academic efforts. In this perspective article, we discuss the historical development and current state of data-driven materials science, building from the early evolution of open science to the rapid expansion of materials data infrastructures. We also review key successes and challenges so far, providing a perspective on the future development of the field.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1907.05644",
+          "http_status": 200,
+          "pdf_sample_score": 0.2213,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-03T16:21:32Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "machine learning prediction of glass transition temperature from composition materials science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

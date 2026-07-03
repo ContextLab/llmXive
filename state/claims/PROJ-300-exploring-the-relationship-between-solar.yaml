@@ -430,3 +430,39 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-06-30T13:18:49Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: 'Project constants: lag window 30-90 min step 5, Earth radius 6371 km,
+    tail distance 60 Re, 1000 bootstrap iterations, 10000 permutation iterations'
+  claim_id: c_c651bd18
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - Task T003'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement projects/PROJ-300-exploring-the-relationship-between-solar/code/config.py
+    defining constants: LAG_WINDOW_MIN=30, LAG_WINDOW_MAX=90, LAG_STEP=5, EARTH_RADIUS_KM=6371,
+    TAIL_DISTANCE_RE=60, BOOTSTRAP_ITERATIONS=1000, PERMUTATION_ITERATIONS=10000.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T16:30:08Z'
+- artifact_path: projects/PROJ-300-exploring-the-relationship-between-solar/specs/001-exploring-the-relationship-between-solar/tasks.md
+  attempts: 1
+  canonical: 'Project dependencies: pandas 2.0.3, numpy 1.24.3, scipy 1.11.1, matplotlib
+    3.7.2, requests 2.31.0, tqdm 4.65.0, pyyaml 6.0.1, cdaweb 0.4.0, pytest 7.4.0'
+  claim_id: c_5d7430cc
+  context: 'Phase 1: Setup (Shared Infrastructure) - Task T002'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Initialize Python 3.11 project with requirements.txt containing pandas==2.0.3,
+    numpy==1.24.3, scipy==1.11.1, matplotlib==3.7.2, requests==2.31.0, tqdm==4.65.0,
+    pyyaml==6.0.1, cdaweb==0.4.0, pytest==7.4.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T16:30:27Z'

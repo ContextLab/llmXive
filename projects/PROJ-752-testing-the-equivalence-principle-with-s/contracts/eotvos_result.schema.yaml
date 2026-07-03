@@ -1,0 +1,141 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: EotvosResult
+description: |
+  Schema for the final Eötvös parameter ($\eta$) estimation results derived from
+  joint orbit determination of multiple satellites (e.g., LAGEOS-1, LAGEOS-2, Etalon-1,
+  Etalon-2, Starlette) to test the Weak Equivalence Principle.
+type: object
+required:
+  - project_id
+  - satellite_ids
+  - eta_value
+  - eta_uncertainty
+  - confidence_level
+  - differential_acceleration
+  - local_gravity
+  - covariance_matrix
+  - fit_statistics
+  - metadata
+properties:
+  project_id:
+    type: string
+    description: Unique identifier for the project run (e.g., "PROJ-752").
+    pattern: "^PROJ-[0-9]+-.*$"
+  satellite_ids:
+    type: array
+    items:
+      type: string
+    description: List of satellite IDs included in the joint solution.
+    minItems: 2
+    examples:
+      - ["LAGEOS-1", "LAGEOS-2"]
+      - ["LAGEOS-1", "LAGEOS-2", "Etalon-1", "Etalon-2", "Starlette"]
+  eta_value:
+    type: number
+    description: |
+      The estimated Eötvös parameter ($\eta = |a_c| / g$).
+      Represents the fractional difference in acceleration between test masses.
+    minimum: 0
+  eta_uncertainty:
+    type: number
+    description: The 1-sigma uncertainty (standard error) of $\eta$.
+    minimum: 0
+  confidence_level:
+    type: number
+    description: Confidence level for the uncertainty interval (e.g., 0.95 for 95% CI).
+    minimum: 0
+    maximum: 1
+    default: 0.95
+  differential_acceleration:
+    type: object
+    description: The estimated differential acceleration vector ($a_c$) and its uncertainty.
+    required:
+      - value
+      - uncertainty
+      - unit
+    properties:
+      value:
+        type: number
+        description: Magnitude of the differential acceleration in m/s².
+      uncertainty:
+        type: number
+        description: 1-sigma uncertainty of the differential acceleration.
+      unit:
+        type: string
+        const: "m/s^2"
+  local_gravity:
+    type: object
+    description: The reference local gravity ($g$) used for normalization.
+    required:
+      - value
+      - unit
+    properties:
+      value:
+        type: number
+        description: Reference gravity value in m/s².
+      unit:
+        type: string
+        const: "m/s^2"
+  covariance_matrix:
+    type: array
+    description: |
+      The joint covariance matrix of the estimated parameters.
+      Flattened as a list of lists (row-major) or a 1D list if square root is not needed.
+      Here we expect a 2D array representation for clarity.
+    items:
+      type: array
+      items:
+        type: number
+    minItems: 1
+  fit_statistics:
+    type: object
+    description: Statistics from the joint weighted least-squares fit.
+    required:
+      - chi_squared
+      - degrees_of_freedom
+      - reduced_chi_squared
+      - convergence_status
+    properties:
+      chi_squared:
+        type: number
+        description: Total weighted sum of squared residuals.
+      degrees_of_freedom:
+        type: integer
+        description: Number of observations minus number of estimated parameters.
+        minimum: 0
+      reduced_chi_squared:
+        type: number
+        description: Chi-squared per degree of freedom.
+      convergence_status:
+        type: string
+        enum:
+          - converged
+          - max_iterations_reached
+          - divergence_detected
+          - singular_matrix
+        description: Status of the numerical optimizer.
+  metadata:
+    type: object
+    description: Additional context about the run.
+    required:
+      - timestamp
+      - software_version
+      - geopotential_model
+      - data_source
+    properties:
+      timestamp:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of when the result was generated.
+      software_version:
+        type: string
+        description: Version of the analysis pipeline.
+      geopotential_model:
+        type: string
+        description: Name of the geopotential model used (e.g., "GGM05C").
+      data_source:
+        type: string
+        description: Source of the input SLR data (e.g., "ILRS").
+      notes:
+        type: string
+        description: Optional notes regarding the analysis or specific conditions.

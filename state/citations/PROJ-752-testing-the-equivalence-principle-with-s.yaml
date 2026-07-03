@@ -31,14 +31,3 @@
   verification_status: verified
   verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/65772010f4bc642e3a62b168/391650816398ead5655016fc39a06c6996b05ad88364825583d99389814530a9?user_id=public&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00002.parquet%3B+filename%3D%22train-00000-of-00002.parquet%22%3B&Expires=1783093403&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjU3NzIwMTBmNGJjNjQyZTNhNjJiMTY4LzM5MTY1MDgxNjM5OGVhZDU2NTUwMTZmYzM5YTA2YzY5OTZiMDVhZDg4MzY0ODI1NTgzZDk5Mzg5ODE0NTMwYTlcXD91c2VyX2lkPXB1YmxpYyZYLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDIucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRyYWluLTAwMDAwLW9mLTAwMDAyLnBhcnF1ZXQlMjIlM0IiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzA5MzQwM319fV19&Signature=MEUCIG%7E%7E1tGsYq1oXlk1PSc5-9Smqq7v98El7XNWBY80V2pHAiEA3Hj21Hyuo6jhwNdUTmCj%7EVf2RluIo05yR3cFtWGIKsM_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
   verified_at: '2026-07-03T14:42:39.048853Z'
-- artifact_hash: e61660376281d03142e69a210da802115ea34ff186bd60f0aae10cba61939cc9
-  artifact_path: projects/PROJ-752-testing-the-equivalence-principle-with-s/specs/001-testing-the-equivalence-principle-with-s/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: CDDIS
-  kind: url
-  value: https://cddis.nasa.gov/...`
-  verification_status: pending
-  verified_against_url: https://cddis.nasa.gov/
-  verified_at: '2026-07-03T15:05:34.582610Z'

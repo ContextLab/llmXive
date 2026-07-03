@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2512.05895",
+  "judged_at": "2026-07-03T16:21:37Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "machine learning prediction of glass transition temperature from composition materials science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it applies machine learning to predict a fundamental glass property (Glass-Forming Ability) directly from chemical composition in the same materials science domain, serving as a canonical prior work for ML-based glass property prediction even though the specific target variable is GFA rather than Glass Transition Temperature ($T_g$).",
+  "relevant": true
+}

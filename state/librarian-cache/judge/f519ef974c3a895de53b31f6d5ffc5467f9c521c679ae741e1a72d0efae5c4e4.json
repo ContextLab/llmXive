@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1907.05644",
+  "judged_at": "2026-07-03T16:21:45Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "machine learning prediction of glass transition temperature from composition materials science",
+  "rationale": "This paper qualifies under category (d) as a foundational methodology and canonical reference for the field of data-driven materials science, establishing the context and toolset (including machine learning) that any literature review on predicting material properties like glass transition temperature would cite. It also satisfies category (c) by providing the empirical and historical baseline for the application of machine learning to materials composition, which is essential for framing the sp",
+  "relevant": true
+}

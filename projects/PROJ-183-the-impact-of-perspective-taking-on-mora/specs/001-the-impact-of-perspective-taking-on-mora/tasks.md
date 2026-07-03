@@ -1,6 +1,6 @@
 # Tasks: The Impact of Perspective-Taking on Moral Outrage in Online Discourse
 
-**Input**: Design documents from `/specs/001-perspective-taking-moral-outrage/`
+**Input**: Design documents from `/specs/001-perspective-taking-outrage/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
@@ -15,7 +15,7 @@
 
 ## Path Conventions
 
-- **Single project**: `src/`, `tests/` at repository root
+- **Single project**: `code/`, `tests/` at repository root (aligned with plan.md)
 - **Web app**: `backend/src/`, `frontend/src/`
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
@@ -43,10 +43,11 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan: Execute `mkdir -p code/data code/analysis tests contracts data/raw data/processed data/human` and create `__init__.py` in all `code/` subfolders.
+- [ ] T001 Create project structure per implementation plan: Execute `mkdir -p code data tests contracts data/raw data/processed data/human` and create `__init__.py` in all `code/` subfolders.
 - [ ] T002 Create virtual environment: Run `python -m venv venv` and verify activation works.
-- [ ] T003 Install dependencies: Run `pip install -r requirements.txt` (pandas, scipy, statsmodels, numpy, requests, pyyaml) and verify imports in a fresh shell.
-- [ ] T004 [P] Configure linting (ruff/flake8) and formatting (black) tools
+- [ ] T003 Install dependencies: Run `pip install -r requirements.txt` (pandas, scipy, statsmodels, numpy, requests, pyyaml, jsonschema, vaderSentiment) and verify imports in a fresh shell.
+- [ ] T004a [P] Create `pyproject.toml` and `.ruff.toml` with explicit rules: Enable E501 (line length), W292 (newline at EOF), and F401 (unused imports). Configure black line-length=88.
+- [ ] T004b [P] Run `black --check .` and `ruff check .` to verify formatting/linting rules are applied to existing code (if any).
 
 ---
 
@@ -56,113 +57,115 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 [P] Create `code/config.py` with random seed pinning, path constants, and dataset URL configuration
+- [ ] T005 [P] Create `code/config.py` with random seed pinning, path constants, and dataset URL configuration (verified URL for "Against the Others!" dataset)
 - [ ] T006 [P] Initialize `data/raw/`, `data/processed/`, and `data/human/` directories with `.gitkeep`
-- [ ] T007 [P] Create `contracts/stimulus.schema.yaml` and `contracts/response.schema.yaml` defining data structures
+- [ ] T007 [P] Create `contracts/stimulus.schema.yaml` and `contracts/participant.schema.yaml` defining data structures
 - [ ] T008 Create base `code/__init__.py` and analysis `code/analysis/__init__.py` modules
-- [ ] T009 [P] Implement formal power analysis function in `code/analysis/stats.py` and RUN it to calculate required sample size N for d=0.4, power=0.8; write the resulting N to `code/config.py` to inform recruitment (FR-010).
+- [ ] T009a [P] Implement formal power analysis function in `code/analysis/stats.py` (input: effect_size, power, alpha) returning required N. Do NOT write to config yet.
+- [ ] T009b [P] Verify fixed N=240: Run T009a function with d=0.5, power=0.8. Document that the calculated N matches or is less than the fixed assumption N=240 in `research.md` or `code/config.py` as a comment. Do not overwrite config dynamically.
 - [ ] T010 [P] Setup `tests/` directory structure with `pytest` configuration
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
 ---
 
-## Phase 3: User Story 1 - Stimulus Curation and Randomization (Priority: P1) 🎯 MVP
+## Phase 3: User Story 1 - Stimulus Curation and Stratified Randomization (Priority: P1) 🎯 MVP
 
-**Goal**: Ingest the "Against the Others!" dataset, filter for high-outrage posts on climate/immigration, and generate a set of randomized stimuli with paired instructions.
+**Goal**: Ingest the "Against the Others!" dataset, filter for posts on controversial topics (climate, immigration), stratify by automated sentiment (VADER), and generate randomized experimental stimuli.
 
-**Independent Test**: The system can be tested by executing the data ingestion script and verifying the output JSON contains a representative set of unique posts, split evenly by topic, with both instruction variants correctly attached to each post ID.
+**Independent Test**: The system can be tested by executing the data pipeline script and verifying that the output JSON contains a set of unique posts distributed across the specified topics, each paired with two distinct instruction sets. The test must confirm that the selection was a random sample from a pool of ≥60 posts and that the distribution of automated sentiment scores is balanced across the two instruction conditions.
+
+### Implementation for User Story 1
+
+- [ ] T013 [US1] Implement `code/data/ingest.py` to download dataset from verified URL and parse CSV/JSON (FR-001)
+- [ ] T014 [US1] Implement filtering logic in `code/data/ingest.py` for `topic in ["climate", "immigration"]` and compute VADER scores if missing (FR-001)
+- [ ] T015 [US1] Add error handling in `code/data/ingest.py` to raise `DATASET_INSUFFICIENT` error (code 400) if <60 posts found after filtering (FR-008, Edge Case 1)
+- [ ] T016 [US1] Implement stratified sampling logic in `code/data/stimuli.py` to balance moderate/high intensity posts across conditions
+- [ ] T017 [US1] Implement `code/data/stimuli.py` to generate "Perspective-Taking" and "Control Summarization" prompt templates (FR-002)
+- [ ] T018 [US1] Save final curated stimuli to `data/processed/stimuli.json` with all metadata, instruction variants, and sentiment scores (FR-002)
+- [ ] T019 [P] [US1] Add logging for data ingestion, filtering, and stratification steps
 
 ### Tests for User Story 1
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation. These validate structures produced by T015/T018.
 
-- [ ] T011 Unit test for data ingestion validation in `tests/test_ingest.py` (check n=40, topic split) - depends on T015
-- [ ] T012 Unit test for stimulus generation in `tests/test_stimuli.py` (check 2 variants per ID) - depends on T018
-
-### Implementation for User Story 1
-
-- [ ] T013 [US1] Implement `code/data/ingest.py` to download dataset from verified URL and parse CSV/JSON (FR-001)
-- [ ] T014 [US1] Implement filtering logic in `code/data/ingest.py` for `outrage_label == "high"` and `topic in ["climate", "immigration"]` (FR-002)
-- [ ] T015 [US1] Add error handling in `code/data/ingest.py` to raise `DataInsufficientError` with specific message: "Insufficient data: Found X posts, required 40. Topics: climate, immigration." if <40 posts found (Edge Case 1)
-- [ ] T016 [US1] Implement `code/data/stimuli.py` to generate "Perspective-Taking" and "Control Summarization" prompt templates (FR-003)
-- [ ] T017 [US1] Implement random sampling logic in `code/data/stimuli.py` to select a representative sample of posts per topic
-- [ ] T018 [US1] Save final curated stimuli to `data/processed/stimuli.json` with all metadata and instruction variants
-- [ ] T019 [P] [US1] Add logging for data ingestion and filtering steps
+- [ ] T011 [P] [US1] Unit test for data ingestion validation in `tests/test_ingest.py` (check n≥60, topic split, error on <60)
+- [ ] T012 [P] [US1] Unit test for stimulus generation in `tests/test_stimuli.py` (check 2 variants per ID, sentiment balance)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
 ---
 
-## Phase 4: User Story 2 - Pipeline Simulation & Validation (Priority: P2)
+## Phase 4: User Story 2 - Participant Response Collection and Data Cleaning (Priority: P2)
 
-**Goal**: Simulate a cohort of synthetic participants, assign conditions, generate synthetic outrage scores, and validate the analysis pipeline logic.
+**Goal**: Process uploaded raw data from actual participants, enforce attention checks, detect straight-lining, and calculate mean moral outrage scores.
 
-**Independent Test**: The system can be tested by running a simulation where 200 synthetic participants are assigned to conditions, provided with stimuli, and generating synthetic outrage scores; the output dataset must reflect the correct condition labels and score ranges.
-
-### Tests for User Story 2
-
-- [ ] T020 [P] [US2] Unit test for randomization balance in `tests/test_simulation.py` (check 50/50 split ±5%)
-- [ ] T021 [P] [US2] Unit test for synthetic score generation in `tests/test_simulation.py` (check a defined range, mean calculation)
+**Independent Test**: The system can be tested by feeding a synthetic CSV of responses (including some failed attention checks and straight-liners) and verifying that the output dataset excludes the failed participants and contains the calculated mean scores for the remaining valid set.
 
 ### Implementation for User Story 2
 
-- [ ] T022 [US2] Implement `code/data/simulation.py` to generate a set of synthetic participant IDs
-- [ ] T023 [US2] Implement random assignment logic in `code/data/simulation.py` to split participants into PT and Control groups (FR-004)
-- [ ] T024 [US2] Implement generative noise model in `code/data/simulation.py` for -item Likert scores (H0 and H1 scenarios)
-- [ ] T025 [US2] Implement attention check injection logic (5 items) and failure flagging (>2 missed) in `code/data/simulation.py` (FR-008)
-- [ ] T026 [US2] Calculate mean outrage score per participant and aggregate by condition (FR-005)
-- [ ] T027 [US2] Save synthetic dataset to `data/processed/simulated_responses.json` ensuring separation from human data (FR-009)
-- [ ] T028 [P] [US2] Add deterministic seed logging to ensure reproducibility of simulation runs
+- [ ] T023 [US2] Implement `code/data/cleaning.py` to load raw CSV and filter for `consent_given == true`. **Note**: This task implements Constitution Principle VI, which overrides the narrower exclusion criteria in FR-003 regarding consent. (FR-003, Constitution VI)
+- [ ] T024 [US2] Implement attention check filter in `code/data/cleaning.py` to exclude participants failing >1 item (FR-003)
+- [ ] T025 [US2] Implement straight-lining detection in `code/data/cleaning.py`: Calculate variance of the multi-item scale scores (one score per post) across ALL 5 posts for each participant. Exclude if variance is zero. (FR-003, Edge Case 2)
+- [ ] T026 [US2] Implement mean outrage score calculation in `code/data/cleaning.py` using the 7-item Moral Outrage Scale (FR-004)
+- [ ] T027 [US2] Save cleaned dataset to `data/processed/cleaned_participants.csv` with warning if N < 240 (FR-003)
+- [ ] T028 [P] [US2] Add deterministic seed logging to ensure reproducibility of cleaning runs
+
+### Tests for User Story 2
+
+- [ ] T020 [P] [US2] Unit test for attention check filter in `tests/test_cleaning.py` (excludes >1 fail)
+- [ ] T021 [P] [US2] Unit test for straight-lining detection in `tests/test_cleaning.py` (excludes zero variance)
+- [ ] T022 [P] [US2] Unit test for mean calculation in `tests/test_cleaning.py` (aggregates 7 items correctly)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
 ---
 
-## Phase 5: User Story 3 - Statistical Analysis and Reporting (Priority: P3)
+## Phase 5: User Story 3 - Statistical Analysis and Robustness Verification (Priority: P3)
 
-**Goal**: Compute LMM (Primary), t-test (Secondary), effect sizes, and power analysis to validate the hypothesis.
+**Goal**: Calculate ICC to check clustering, execute t-test (if ICC < 0.05) or LME (if ICC >= 0.05), report effect sizes, and perform robustness checks.
 
-**Independent Test**: The system can be tested by feeding it a dataset with known group differences; the output must correctly identify the p-value, confidence interval, and effect size.
-
-### Tests for User Story 3
-
-- [ ] T029 [P] [US3] Unit test for LMM output accuracy in `tests/test_stats.py` (check coefficients, p-values)
-- [ ] T030 [P] [US3] Unit test for Mann-Whitney U robustness in `tests/test_stats.py`
+**Independent Test**: The system can be tested by running the analysis script on the cleaned dataset and verifying that the output report contains the t-statistic (or LME coefficients), p-value, Cohen's d, 95% confidence interval, and the Mann-Whitney U p-value.
 
 ### Implementation for User Story 3
 
-- [ ] T031 [US3] Implement `code/analysis/stats.py` for Linear Mixed-Effects Model (LMM) with fixed effects (Condition, Topic) and random effects (Stimulus, Participant) as PRIMARY analysis (FR-006, Plan Phase 3).
-- [ ] T032 [US3] Implement Cohen's d calculation and Confidence interval reporting
+- [ ] T032 [US3] Implement `code/analysis/stats.py` to calculate Intra-Class Correlation (ICC) on raw, unaggregated data (FR-011)
+- [ ] T033 [US3] Implement logic to switch to Linear Mixed-Effects (LME) model if ICC >= 0.05, otherwise use independent-samples t-test. **Note**: This implements Plan Statistical Rigor and FR-011, which necessitates this fallback to satisfy FR-005's intent of valid inference. (Plan Summary, FR-011)
+- [ ] T034 [US3] Implement independent-samples t-test in `code/analysis/stats.py` reporting p, Cohen's d, and 95% CI (FR-005)
+- [ ] T035 [US3] Implement LME model in `code/analysis/stats.py` with random intercepts for participants if ICC >= 0.05. Ensure reporting of conditional R-squared and fixed effect CIs. (FR-005, Plan Summary)
+- [ ] T036 [US3] Implement Mann-Whitney U test in `code/analysis/stats.py` as non-parametric robustness check (FR-006)
+- [ ] T037 [US3] Generate final analysis report in `data/processed/analysis_results.json`. **Must include**:
+    - If t-test: p, Cohen's d, 95% CI.
+    - If LME: Fixed effects, conditional R-squared, 95% CIs.
+    - Explicit justification text for the model choice (aggregation vs. LME) as required by FR-011. (FR-009, SC-001, SC-002, SC-003, FR-011)
+- [ ] T038 [P] [US3] Add visualization logic (optional) for distribution of scores by condition. **Note**: Ensure no external display drivers are required; save to file only.
 
-The research question is: How does perceived social support mediate the relationship between exercise and mental well-being in young adults? The method is: A cross-sectional survey will be administered to a sample of young adults (ages 18-25) assessing exercise habits, perceived social support, and mental well-being. Statistical mediation analysis will be used to test the hypothesized model. Confidence intervals will be reported to indicate the precision of estimated effects (Smith, 2018). in `code/analysis/stats.py`; explicitly compare calculated d against SC-002 threshold (d >= 0.2) and output pass/fail status to the report.
-- [ ] T033 [US3] Implement independent-samples t-test in `code/analysis/stats.py` as secondary/robustness check (FR-006 context).
-- [ ] T034 [US3] Implement Mann-Whitney U test in `code/analysis/stats.py` as non-parametric robustness check (FR-007).
-- [ ] T035 [US3] Create `code/analysis/pipeline.py` to orchestrate loading simulated data and running LMM (primary), t-test (secondary), and robustness checks.
-- [ ] T036 [US3] Generate final analysis report in `data/processed/analysis_report.json` containing all metrics (SC-001, SC-002, SC-003).
-- [ ] T037 [P] [US3] Add visualization logic (optional) for distribution of scores by condition
+### Tests for User Story 3
+
+- [ ] T029 [P] [US3] Unit test for ICC calculation in `tests/test_stats.py`
+- [ ] T030 [P] [US3] Unit test for t-test output accuracy in `tests/test_stats.py` (check p, d, CI)
+- [ ] T031 [P] [US3] Unit test for Mann-Whitney U robustness in `tests/test_stats.py`
 
 **Checkpoint**: All user stories should now be independently functional
 
 ---
 
-## Phase 6: User Story 4 - Human Experiment Interface (Priority: P4)
+## Phase 6: User Story 4 - Computational Feasibility and Resource Constraints (Priority: P2)
 
-**Goal**: Define the data schema and logic for human data collection interface (not the collection itself).
+**Goal**: Ensure all analysis operations complete within free-tier CI constraints (CPU-only, ≤7 GB RAM, ≤6 hours).
 
-**Independent Test**: The system can be tested by deploying a pilot with a cohort of real humans and verifying that the collected data is stored in a distinct "human" dataset.
-
-### Tests for User Story 4
-
-- [ ] T038 [P] [US4] Integration test for human data ingestion format in `tests/test_human_ingest.py`
+**Independent Test**: The system can be tested by running the full pipeline on a constrained environment (e.g., GitHub Actions free runner) and verifying that the process exits successfully with exit code 0 without exceeding memory or time limits.
 
 ### Implementation for User Story 4
 
-- [ ] T039 [US4] Create placeholder `code/human_interface.py` defining the input schema and module structure for human responses (US-4).
-- [ ] T040 [US4] Implement `assign_human_participants()` function in `code/human_interface.py` to assign human participants to two groups with a balanced split (FR-011). Verify split in `tests/test_simulation.py`.
-- [ ] T041 [US4] Implement data validation logic in `code/human_interface.py` to ensure human data conforms to `contracts/response.schema.yaml`.
-- [ ] T042 [US4] Add logic to tag human data records as 'human' and store in `data/human/` (FR-009).
-- [ ] T043 [US4] Implement attention check exclusion logic for human data in `code/human_interface.py` (FR-008).
+- [ ] T040 [US4] Verify `requirements.txt` contains NO GPU dependencies (e.g., torch[cuda], bitsandbytes) and raise error if found (FR-007)
+- [ ] T041 [US4] Implement memory profiling in `code/main.py`: Log peak RAM usage to a log file. Raise an error if usage exceeds a predefined threshold.. (SC-005)
+- [ ] T042 [US4] Implement runtime profiling in `code/main.py`: Log total execution time to a log file. Raise an error if duration exceeds a predefined threshold.. (SC-005)
+- [ ] T043 [P] [US4] Vectorize simulation/cleaning loops in `code/data/` using numpy/pandas to ensure CPU efficiency (Plan: Complexity Tracking)
+
+### Tests for User Story 4
+
+- [ ] T039 [P] [US4] Integration test for resource usage in `tests/test_resources.py` (mock memory/time checks). **Must run after T040-T042**.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -172,11 +175,12 @@ The research question is: How does perceived social support mediate the relation
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T044 [P] Documentation updates in `README.md` explaining the pipeline flow and dataset requirements
-- [ ] T045 Code cleanup and refactoring of `code/` modules
-- [ ] T046 Vectorize simulation loop in `code/data/simulation.py` using numpy to ensure pipeline completes < 1 hour on CPU (SC-005); verify by running benchmark and logging time.
-- [ ] T047 [P] Additional unit tests for edge cases (e.g., empty dataset, failed attention checks)
-- [ ] T048 Run `pytest --ci` validation and fix any CI failures reported by GitHub Actions
+- [ ] T044 [P] Documentation updates in `README.md` explaining the pipeline flow, dataset requirements, and CPU constraints
+- [ ] T045a [P] Extract VADER logic into `code/utils/vader_sentiment.py` (create file if not exists) to modularize scoring.
+- [ ] T045b [P] Extract scale scoring logic into `code/utils/scale_scoring.py` (create file if not exists) to modularize calculations.
+- [ ] T046 [P] Additional unit tests for edge cases (e.g., empty dataset, failed attention checks, ICC threshold boundary)
+- [ ] T047 Run `pytest --ci` validation and fix any CI failures reported by GitHub Actions
+- [ ] T048 Update `state.yaml` with artifact hashes upon successful pipeline completion (Constitution Principle V)
 
 ---
 
@@ -194,9 +198,9 @@ The research question is: How does perceived social support mediate the relation
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 for stimuli data
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 for simulated data
-- **User Story 4 (P4)**: Can start after Foundational (Phase 2) - Independent of simulation data
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Independent of US1 (data flow is parallel: US1 produces stimuli, US2 produces cleaned responses; both needed for US3)
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on outputs from US1 (stimuli) and US2 (cleaned participants)
+- **User Story 4 (P2)**: Can start after Foundational (Phase 2) - Integrated with US1/US2/US3 implementation
 
 ### Within Each User Story
 
@@ -210,9 +214,9 @@ The research question is: How does perceived social support mediate the relation
 
 - All Setup tasks marked [P] can run in parallel
 - All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
+- Once Foundational phase completes, US1, US2, and US4 can start in parallel
+- US3 depends on US1 and US2 completion
 - All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
 
 ---
@@ -220,13 +224,13 @@ The research question is: How does perceived social support mediate the relation
 ## Parallel Example: User Story 1
 
 ```bash
-# Launch all tests for User Story 1 together:
-Task: "Unit test for data ingestion validation in tests/test_ingest.py"
-Task: "Unit test for stimulus generation in tests/test_stimuli.py"
-
 # Launch all implementation for User Story 1 together (if dependencies met):
 Task: "Implement code/data/ingest.py"
 Task: "Implement code/data/stimuli.py"
+
+# Launch all tests for User Story 1 together (after implementation):
+Task: "Unit test for data ingestion validation in tests/test_ingest.py"
+Task: "Unit test for stimulus generation in tests/test_stimuli.py"
 ```
 
 ---
@@ -238,7 +242,7 @@ Task: "Implement code/data/stimuli.py"
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
 3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently (verify 40 stimuli)
+4. **STOP and VALIDATE**: Test User Story 1 independently (verify ≥60 stimuli, balanced sentiment)
 5. Deploy/demo if ready
 
 ### Incremental Delivery
@@ -256,15 +260,16 @@ With multiple developers:
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
    - Developer A: User Story 1 (Data Ingestion)
-   - Developer B: User Story 2 (Simulation)
-   - Developer C: User Story 3 (Analysis)
-3. Stories complete and integrate independently
+   - Developer B: User Story 2 (Data Cleaning)
+   - Developer C: User Story 4 (Feasibility Checks)
+3. Once US1 & US2 complete, Developer D/E: User Story 3 (Analysis)
+4. Stories complete and integrate independently
 
 ---
 
 ## Notes
 
-- [P] tasks = different files, no dependencies
+- [P] tasks = different files, no dependencies (unless explicitly noted)
 - [Story] label maps task to specific user story for traceability
 - Each user story should be independently completable and testable
 - Verify tests fail before implementing
@@ -272,5 +277,9 @@ With multiple developers:
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical**: The dataset URL in `code/config.py` must be verified before running T013. If the URL is unreachable, the pipeline must halt with a clear error.
-- **Critical**: Power Analysis (T009) must be completed before any recruitment or simulation to determine sample size N.
-- **Critical**: LMM (T031) is the PRIMARY analysis; t-test (T033) is secondary.
+- **Critical**: Power Analysis (T009) must be completed before any recruitment or simulation to determine sample size N. T009b documents the fixed N=240 assumption.
+- **Critical**: ICC calculation (T032) determines the analysis path (t-test vs LME) as per Plan Summary and FR-011.
+- **Critical**: All statistical methods must be CPU-only (no GPU, no 8-bit quantization) to satisfy FR-007.
+- **Critical**: Real data only - T013 must fetch from a real, reachable URL; synthetic data is ONLY for unit tests (US2 tests), not primary analysis.
+- **Critical**: T023 implements Constitution Principle VI (Consent), which overrides the narrower FR-003 criteria.
+- **Critical**: T033/T035 implement the LME fallback mandated by the Plan's Statistical Rigor to ensure FR-005's intent of valid inference is met.

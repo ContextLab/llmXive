@@ -1,0 +1,25 @@
+# Configuration file for llmXive Equivalence Principle Testing
+# Overrides for hyperparameters and dataset URLs can be placed here.
+# If a key is missing, the default value from code/config.py is used.
+
+# Hyperparameter overrides
+hyperparams:
+  # Residual threshold in cm for quality filtering
+  residual_threshold_cm: 2.0
+  # Minimum number of points required per satellite
+  min_points_per_satellite: 500
+  # Network retry settings
+  max_retry_attempts: 5
+  retry_backoff_base_seconds: 2.0
+  # Solver convergence tolerance in meters
+  convergence_tolerance_m: 1e-5
+  # Dynamical models
+  geopotential_model: "GGM05C"
+  drag_model: "Jacchia"
+  srp_model: "Canonical"
+
+# Verified dataset URLs (optional overrides)
+# If provided, these will override the hardcoded defaults in config.py.
+# verified_dataset_urls:
+#   LAGEOS-1: "https://custom.url/lageos1"
+#   LAGEOS-2: "https://custom.url/lageos2"

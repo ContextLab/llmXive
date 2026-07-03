@@ -58,10 +58,10 @@
 - [ ] T004 Implement `config.py` to load paths, hyperparams, and `verified_dataset_urls` keys
 - [ ] T005 [P] Create `contracts/normal_point.schema.yaml` defining the SLR observation schema
 - [ ] T006 [P] Create `contracts/orbit_solution.schema.yaml` defining the fit results schema
-- [ ] T007 [P] Create `contracts/eotvos_result.schema.yaml` defining the final metric schema
-- [ ] T008 Implement `utils/logging.py` for standardized error handling and progress logging
-- [ ] T009 Implement `data/ingestion.py` skeleton with `DataUnavailableError` check (trigger if `config.verified_dataset_urls` is empty). **Note**: The verified ILRS URLs for LAGEOS-1, LAGEOS-2, Etalon-1, Etalon-2, and Starlette are hardcoded as pre-requisites in this task (e.g., `) to satisfy the 'Verified Accuracy' gate before implementation.
-- [ ] T010 Setup `pytest` framework: create `tests/conftest.py`, `pytest.ini`, and `requirements-dev.txt`
+- [~] T007 [P] Create `contracts/eotvos_result.schema.yaml` defining the final metric schema
+- [~] T008 Implement `utils/logging.py` for standardized error handling and progress logging
+- [~] T009 Implement `data/ingestion.py` skeleton with `DataUnavailableError` check (trigger if `config.verified_dataset_urls` is empty). **Note**: The verified ILRS URLs for LAGEOS-1, LAGEOS-2, Etalon-1, Etalon-2, and Starlette are hardcoded as pre-requisites in this task (e.g., `) to satisfy the 'Verified Accuracy' gate before implementation.
+- [~] T010 Setup `pytest` framework: create `tests/conftest.py`, `pytest.ini`, and `requirements-dev.txt`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -77,17 +77,17 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T011 [P] [US1] Unit test for URL validation and backoff retry logic in `tests/test_ingestion.py`
-- [ ] T012 [P] [US1] Unit test for quality filtering (>2cm residual exclusion) in `tests/test_preprocessing.py`
-- [ ] T013 [P] [US1] Integration test: Verify end-to-end download and CSV generation for LAGEOS-1 in `tests/test_data_pipeline.py`
+- [~] T011 [P] [US1] Unit test for URL validation and backoff retry logic in `tests/test_ingestion.py`
+- [~] T012 [P] [US1] Unit test for quality filtering (>2cm residual exclusion) in `tests/test_preprocessing.py`
+- [~] T013 [P] [US1] Integration test: Verify end-to-end download and CSV generation for LAGEOS-1 in `tests/test_data_pipeline.py` <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 1
 
-- [ ] T014 [US1] Implement `data/ingestion.py` function `fetch_single_satellite(satellite_id: str, url: str) -> pd.DataFrame` to fetch data from ILRS (using `requests` with exponential backoff) for a single satellite ID.
+- [~] T014 [US1] Implement `data/ingestion.py` function `fetch_single_satellite(satellite_id: str, url: str) -> pd.DataFrame` to fetch data from ILRS (using `requests` with exponential backoff) for a single satellite ID.
 - [ ] T014.1 [US1] Implement `data/ingestion.py` function `fetch_all_satellites(satellite_ids: list[str]) -> pd.DataFrame` to orchestrate the loop over all relevant satellites (LAGEOS-1, LAGEOS-2, Etalon-1, Etalon-2, Starlette) and aggregate results into a single DataFrame.
-- [ ] T015 [US1] Implement `data/ingestion.py` to parse raw SLR files into `NormalPoint` objects
-- [ ] T016 [US1] Implement `data/preprocessing.py` to filter residuals > 2cm and handle sparse satellites
-- [ ] T017 [US1] Implement time-alignment logic in `data/preprocessing.py` to merge multi-satellite datasets
+- [~] T015 [US1] Implement `data/ingestion.py` to parse raw SLR files into `NormalPoint` objects
+- [~] T016 [US1] Implement `data/preprocessing.py` to filter residuals > 2cm and handle sparse satellites
+- [~] T017 [US1] Implement time-alignment logic in `data/preprocessing.py` to merge multi-satellite datasets
 - [ ] T018 [US1] Add error handling for 403 errors and "Insufficient Data" (<500 points) warnings
 - [ ] T019 [US1] Write output to `data/processed/cleaned_slr_data.csv` with checksum verification; record checksum in `data/processed/.checksums.json` in JSON format `{ "file": "cleaned_slr_data.csv", "sha256": "..." }` and ensure raw data is preserved unchanged
 

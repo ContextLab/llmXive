@@ -1,5 +1,6 @@
 """
 Unit tests for code/data/lag.py
+Tests for FR-012: Physics-based lag calculation and application.
 """
 import pytest
 import pandas as pd
@@ -12,34 +13,24 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 from code.data.lag import calculate_physics_lag, apply_lag_shift, prepare_lagged_data
+from code.config import EARTH_RADIUS_KM, TAIL_DISTANCE_RE
 
 def test_lag_calculation_formula():
     """
     Test the physics-based lag calculation.
-    Formula: L_phys = (60 * 6371) / Vsw_mean / 60
-    Simplified: L_phys = 6371 / Vsw_mean
-    Wait, let's re-read the formula in the task:
-    L_phys = (k * 6371) / Vsw_mean / k  -> The 'k' cancels out?
-    Actually, the task description says: "L_phys = (k * 6371) / Vsw_mean / k"
-    And "Ensure the code correctly handles the unit conversion (km/s to minutes) and includes the 60 factor."
+    Formula derived from FR-012:
+    Distance = TAIL_DISTANCE_RE * EARTH_RADIUS_KM (km)
+    Time (s) = Distance / Vsw (km/s)
+    Time (min) = Time (s) / 60
     
-    The physical distance is 60 RE. So Distance = 60 * 6371 km.
-    Time (seconds) = Distance / Vsw (km/s)
-    Time (minutes) = Time (seconds) / 60
+    L_phys = (TAIL_DISTANCE_RE * EARTH_RADIUS_KM) / Vsw / 60
     
-    So L_phys = (60 * 6371) / Vsw / 60 = 6371 / Vsw.
-    
-    Let's verify with a known value.
-    If Vsw = 400 km/s.
-    Distance = 60 * 6371 = 382260 km.
-    Time (s) = 382260 / 400 = 955.65 s.
-    Time (min) = 955.65 / 60 = 15.9275 min.
-    
-    Using simplified formula: 6371 / 400 = 15.9275 min.
-    Matches.
+    With constants: TAIL_DISTANCE_RE=60, EARTH_RADIUS_KM=6371
+    L_phys = (60 * 6371) / Vsw / 60 = 6371 / Vsw
     """
     vsw = 400.0  # km/s
-    expected_lag = 6371.0 / vsw  # 15.9275 minutes
+    # Expected: (60 * 6371) / 400 / 60 = 15.9275
+    expected_lag = (TAIL_DISTANCE_RE * EARTH_RADIUS_KM) / vsw / 60.0
     
     result = calculate_physics_lag(vsw)
     assert abs(result - expected_lag) < 1e-5, f"Expected {expected_lag}, got {result}"
@@ -48,8 +39,14 @@ def test_lag_calculation_high_speed():
     """Test with high solar wind speed (800 km/s) -> shorter lag."""
     vsw = 800.0
     result = calculate_physics_lag(vsw)
-    # 6371 / 800 = 7.96375
-    expected = 6371.0 / 800.0
+    expected = (TAIL_DISTANCE_RE * EARTH_RADIUS_KM) / vsw / 60.0
+    assert abs(result - expected) < 1e-5
+
+def test_lag_calculation_low_speed():
+    """Test with low solar wind speed (300 km/s) -> longer lag."""
+    vsw = 300.0
+    result = calculate_physics_lag(vsw)
+    expected = (TAIL_DISTANCE_RE * EARTH_RADIUS_KM) / vsw / 60.0
     assert abs(result - expected) < 1e-5
 
 def test_lag_calculation_invalid_speed():
@@ -92,7 +89,7 @@ def test_prepare_lagged_data_integration():
     df_sw_shifted, df_ey_out, lag = prepare_lagged_data(df_sw, df_ey)
     
     # Verify lag calculation
-    expected_lag = 6371.0 / 400.0
+    expected_lag = (TAIL_DISTANCE_RE * EARTH_RADIUS_KM) / 400.0 / 60.0
     assert abs(lag - expected_lag) < 1e-5
     
     # Verify shift
@@ -117,5 +114,14 @@ def test_prepare_lagged_data_with_nan():
     df_sw_shifted, df_ey_out, lag = prepare_lagged_data(df_sw, df_ey)
     
     # Lag should be calculated based on mean of valid values (which is 400.0)
-    expected_lag = 6371.0 / 400.0
+    expected_lag = (TAIL_DISTANCE_RE * EARTH_RADIUS_KM) / 400.0 / 60.0
     assert abs(lag - expected_lag) < 1e-5
+
+def test_prepare_lagged_data_all_nan():
+    """Test handling when all Vsw values are NaN."""
+    dates = pd.date_range(start='2023-01-01', periods=10, freq='1H')
+    df_sw = pd.DataFrame({'Vsw': [np.nan] * 10}, index=dates)
+    df_ey = pd.DataFrame({'Ey': np.random.randn(10)}, index=dates)
+    
+    with pytest.raises(ValueError):
+        prepare_lagged_data(df_sw, df_ey)

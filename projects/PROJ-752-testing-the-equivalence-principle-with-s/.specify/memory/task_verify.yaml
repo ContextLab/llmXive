@@ -1,0 +1,11 @@
+? 'T001 Create project structure per implementation plan: `mkdir -p code/data code/models
+  code/analysis code/utils code/tests contracts data/raw data/processed data/results
+  docs`'
+: 1
+? T002 Initialize Python 3.11 project with pinned dependencies in `requirements.txt`
+  (copy list from plan.md Technical Context)
+: 1
+T003 [P] Configure linting (ruff) and formatting (black) tools: 1
+T004 Implement `config.py` to load paths, hyperparams, and `verified_dataset_urls` keys: 1
+T005 [P] Create `contracts/normal_point.schema.yaml` defining the SLR observation schema: 1
+T006 [P] Create `contracts/orbit_solution.schema.yaml` defining the fit results schema: 1
