@@ -1,0 +1,17 @@
+# Configuration for Pupil Dilation and Cognitive Load Pipeline
+# T004: seeds must be an integer, thresholds and paths must be dictionaries
+
+seeds:
+  random: 42
+
+thresholds:
+  blink_threshold: 0.5
+  lowpass_cutoff: 4.0
+  vif_threshold: 5.0
+
+paths:
+  raw_data: data/raw/
+  processed_data: data/processed/
+  results: results/
+  figures: figures/
+  state: state/
