@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-26T09:11:48.459110Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-624-lens-rethinking-training-efficiency-for
-last_run_id: 230201f2-ab9a-48bf-8dd1-c1b3d0ed3353
+last_run_id: 984ada62-03c3-407d-b657-e8dd4793cde2
 last_run_status: null
 points_paper: {}
 points_research: {}

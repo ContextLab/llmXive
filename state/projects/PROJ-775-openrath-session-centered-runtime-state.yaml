@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-24T09:08:47.394578Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-775-openrath-session-centered-runtime-state
-last_run_id: f9ef3e59-eaa2-42f5-bb46-40ef21ab1cdb
+last_run_id: 7b6d8294-bb64-4f3b-8341-ffe74e364463
 last_run_status: null
 points_paper: {}
 points_research: {}
