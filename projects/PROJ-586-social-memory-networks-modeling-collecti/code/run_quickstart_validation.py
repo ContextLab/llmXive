@@ -1,53 +1,19 @@
-"""
-Runner script for quickstart validation.
+"""Entry point for quickstart validation task (T031).
 
-This script executes the quickstart validation process as specified in T031.
-It runs all commands from quickstart.md and verifies they exit with code 0.
-
-Usage:
-    python code/run_quickstart_validation.py
+This script executes the quickstart validation process as defined in task T031.
+It runs all commands from quickstart.md and verifies exit codes.
 """
+from __future__ import annotations
 
 import sys
-import os
 from pathlib import Path
 
-# Add code directory to path for imports
-code_dir = Path(__file__).parent
-sys.path.insert(0, str(code_dir))
+# Add project root to path for imports
+project_root = Path(__file__).parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-from utils.quickstart_validator import main as validate_main
+from utils.quickstart_validator import main
 
-
-def main():
-    """
-    Main entry point for quickstart validation.
-
-    Executes the validation against the project's quickstart.md file.
-    """
-    project_root = code_dir.parent
-    quickstart_path = project_root / "quickstart.md"
-
-    if not quickstart_path.exists():
-        print(f"Error: quickstart.md not found at {quickstart_path}")
-        sys.exit(1)
-
-    # Change to project root for command execution
-    os.chdir(project_root)
-
-    # Run validation with appropriate arguments
-    sys.argv = [
-        'run_quickstart_validation.py',
-        '--quickstart', str(quickstart_path),
-        '--project-dir', str(project_root),
-        '--output', str(project_root / "results" / "quickstart_validation_report.txt")
-    ]
-
-    try:
-        validate_main()
-    except SystemExit as e:
-        sys.exit(e.code)
-
-
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    sys.exit(main())
