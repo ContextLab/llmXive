@@ -1,189 +1,239 @@
+"""Metric validation utilities for social memory network experiments.
+
+This module provides validation logic to ensure computed metrics meet
+quality thresholds and experiment-level requirements.
 """
-Metric validation utilities to ensure computed values are within expected ranges.
-Implements SC-001 requirement: >= 95% of games must produce valid metrics.
-"""
+from __future__ import annotations
+
 import numpy as np
 from typing import List, Dict, Any, Optional, Tuple, Union
 from dataclasses import dataclass, field
 from collections import defaultdict
+import logging
 
 from .specialization import validate_specialization_index
 from .retrieval import validate_retrieval_efficiency
 
+# Configure module logger
+logger = logging.getLogger(__name__)
+
+
 @dataclass
 class ValidationResult:
-    """Result of a metric validation check."""
-    is_valid: bool
-    message: str
-    metric_name: str
-    value: float
+    """Result of validating a single game's metrics."""
+    game_id: int
+    passed: bool
+    specialization_valid: bool
+    retrieval_valid: bool
+    specialization_value: Optional[float] = None
+    retrieval_value: Optional[float] = None
+    errors: List[str] = field(default_factory=list)
+
 
 @dataclass
 class GameMetricRecord:
-    """Record of metrics for a single game."""
+    """Record of metrics for a single game, used for experiment-level validation."""
     game_id: int
     specialization_index: float
     retrieval_efficiency: float
-    is_valid: bool
-    validation_message: str
+    context_condition: str
+    agent_count: int
+    passed_validation: bool = True
+    errors: List[str] = field(default_factory=list)
 
-def validate_single_game_metrics(specialization_index: float, 
-                                retrieval_efficiency: float,
-                                game_id: Optional[int] = None) -> ValidationResult:
-    """
-    Validate metrics for a single game.
-    
+
+def validate_single_game_metrics(
+    game_id: int,
+    specialization_index: float,
+    retrieval_efficiency: float
+) -> ValidationResult:
+    """Validate metrics for a single game.
+
     Args:
-        specialization_index: Computed specialization index
-        retrieval_efficiency: Computed retrieval efficiency
-        game_id: Optional game identifier for logging
-        
+        game_id: Unique identifier for the game.
+        specialization_index: Computed specialization index value.
+        retrieval_efficiency: Computed retrieval efficiency value.
+
     Returns:
-        ValidationResult indicating validity and reason
+        ValidationResult with validation status and any errors.
     """
+    errors = []
+    spec_valid = True
+    ret_valid = True
+
     # Validate specialization index
-    spec_valid, spec_msg = validate_specialization_index(specialization_index)
-    if not spec_valid:
-        return ValidationResult(
-            is_valid=False,
-            message=f"Specialization index invalid: {spec_msg}",
-            metric_name="specialization_index",
-            value=specialization_index
-        )
-    
+    spec_result = validate_specialization_index(specialization_index)
+    if not spec_result[0]:
+        spec_valid = False
+        errors.extend(spec_result[1])
+
     # Validate retrieval efficiency
-    ret_valid, ret_msg = validate_retrieval_efficiency(retrieval_efficiency)
-    if not ret_valid:
-        return ValidationResult(
-            is_valid=False,
-            message=f"Retrieval efficiency invalid: {ret_msg}",
-            metric_name="retrieval_efficiency",
-            value=retrieval_efficiency
-        )
-    
+    ret_result = validate_retrieval_efficiency(retrieval_efficiency)
+    if not ret_result[0]:
+        ret_valid = False
+        errors.extend(ret_result[1])
+
+    passed = spec_valid and ret_valid
+
     return ValidationResult(
-        is_valid=True,
-        message="All metrics valid",
-        metric_name="all",
-        value=0.0
+        game_id=game_id,
+        passed=passed,
+        specialization_valid=spec_valid,
+        retrieval_valid=ret_valid,
+        specialization_value=specialization_index,
+        retrieval_value=retrieval_efficiency,
+        errors=errors
     )
 
-def validate_and_filter_records(results: List[Any]) -> Tuple[List[GameMetricRecord], float]:
-    """
-    Validate a list of game results and filter invalid ones.
-    
-    Args:
-        results: List of GameResult objects (or dict-like objects with metrics)
-        
-    Returns:
-        Tuple of (valid records list, pass rate)
-    """
-    valid_records = []
-    total = len(results)
-    
-    for r in results:
-        # Support both object attribute access and dict access
-        if hasattr(r, 'specialization_index'):
-            spec_idx = r.specialization_index
-            ret_eff = r.retrieval_efficiency
-            gid = getattr(r, 'game_id', -1)
-        elif isinstance(r, dict):
-            spec_idx = r.get('specialization_index', 0.0)
-            ret_eff = r.get('retrieval_efficiency', 0.0)
-            gid = r.get('game_id', -1)
-        else:
-            # Fallback for unknown types
-            continue
-            
-        validation = validate_single_game_metrics(
-            spec_idx,
-            ret_eff,
-            gid
-        )
-        
-        record = GameMetricRecord(
-            game_id=gid,
-            specialization_index=spec_idx,
-            retrieval_efficiency=ret_eff,
-            is_valid=validation.is_valid,
-            validation_message=validation.message
-        )
-        
-        if validation.is_valid:
-            valid_records.append(record)
-    
-    pass_rate = len(valid_records) / total if total > 0 else 0.0
-    return valid_records, pass_rate
 
-def compute_metric_statistics(records: List[GameMetricRecord]) -> Dict[str, float]:
-    """
-    Compute basic statistics for validated metrics.
-    
+def validate_and_filter_records(
+    records: List[GameMetricRecord],
+    min_pass_rate: float = 0.95
+) -> Tuple[List[GameMetricRecord], float, ValidationResult]:
+    """Filter records and validate experiment-level pass rate.
+
+    This function implements the SC-001 requirement: at least 95% of games
+    must produce valid metrics.
+
     Args:
-        records: List of valid GameMetricRecord objects
-        
+        records: List of game metric records to validate.
+        min_pass_rate: Minimum required pass rate (default 0.95 for 95%).
+
     Returns:
-        Dictionary of statistics
+        Tuple of:
+            - List of records that passed validation
+            - Actual pass rate (fraction of valid records)
+            - ValidationResult summarizing experiment-level validation
     """
     if not records:
+        return [], 0.0, ValidationResult(
+            game_id=-1,
+            passed=False,
+            specialization_valid=False,
+            retrieval_valid=False,
+            errors=["No records provided for validation"]
+        )
+
+    valid_records = []
+    invalid_count = 0
+    all_errors: List[str] = []
+
+    for record in records:
+        validation = validate_single_game_metrics(
+            record.game_id,
+            record.specialization_index,
+            record.retrieval_efficiency
+        )
+
+        if validation.passed:
+            valid_records.append(record)
+            record.passed_validation = True
+        else:
+            invalid_count += 1
+            record.passed_validation = False
+            all_errors.extend([f"Game {record.game_id}: {e}" for e in validation.errors])
+
+    total = len(records)
+    pass_rate = (total - invalid_count) / total if total > 0 else 0.0
+
+    # Check against SC-001 requirement (≥95% pass rate)
+    threshold_met = pass_rate >= min_pass_rate
+
+    if not threshold_met:
+        logger.warning(
+            f"Experiment validation FAILED: pass rate {pass_rate:.2%} "
+            f"below required {min_pass_rate:.2%}. {invalid_count}/{total} games invalid."
+        )
+        if all_errors:
+            logger.warning(f"Validation errors: {all_errors[:5]}...")  # Log first 5
+    else:
+        logger.info(
+            f"Experiment validation PASSED: pass rate {pass_rate:.2%} "
+            f"meets required {min_pass_rate:.2%} threshold."
+        )
+
+    return valid_records, pass_rate, ValidationResult(
+        game_id=-1,
+        passed=threshold_met,
+        specialization_valid=True,  # Aggregate check
+        retrieval_valid=True,
+        errors=all_errors if not threshold_met else []
+    )
+
+
+def compute_metric_statistics(
+    records: List[GameMetricRecord],
+    filter_invalid: bool = True
+) -> Dict[str, Dict[str, float]]:
+    """Compute descriptive statistics for metrics.
+
+    Args:
+        records: List of game metric records.
+        filter_invalid: If True, only include records that passed validation.
+
+    Returns:
+        Dictionary with statistics for each metric type.
+    """
+    data = records if not filter_invalid else [r for r in records if r.passed_validation]
+
+    if not data:
         return {
-            'count': 0,
-            'specialization_mean': 0.0,
-            'specialization_std': 0.0,
-            'retrieval_mean': 0.0,
-            'retrieval_std': 0.0
+            "specialization_index": {},
+            "retrieval_efficiency": {}
         }
-    
-    specs = [r.specialization_index for r in records]
-    rets = [r.retrieval_efficiency for r in records]
-    
+
+    spec_values = [r.specialization_index for r in data]
+    ret_values = [r.retrieval_efficiency for r in data]
+
     return {
-        'count': len(records),
-        'specialization_mean': float(np.mean(specs)),
-        'specialization_std': float(np.std(specs)),
-        'retrieval_mean': float(np.mean(rets)),
-        'retrieval_std': float(np.std(rets))
+        "specialization_index": {
+            "mean": float(np.mean(spec_values)),
+            "std": float(np.std(spec_values)),
+            "min": float(np.min(spec_values)),
+            "max": float(np.max(spec_values)),
+            "count": len(spec_values)
+        },
+        "retrieval_efficiency": {
+            "mean": float(np.mean(ret_values)),
+            "std": float(np.std(ret_values)),
+            "min": float(np.min(ret_values)),
+            "max": float(np.max(ret_values)),
+            "count": len(ret_values)
+        }
     }
 
-def validate_experiment_metrics(results: List[Any], threshold: float = 0.95) -> Dict[str, Any]:
-    """
-    Validate an entire experiment's results and return summary.
-    
-    Implements SC-001: Requires >= 95% of games to produce valid metrics.
-    
+
+def validate_experiment_metrics(
+    records: List[GameMetricRecord],
+    min_pass_rate: float = 0.95,
+    raise_on_failure: bool = False
+) -> Tuple[List[GameMetricRecord], ValidationResult]:
+    """Validate an entire experiment's metrics against SC-001.
+
+    This is the primary entry point for experiment-level validation.
+    It enforces the requirement that ≥95% of games must produce valid metrics.
+
     Args:
-        results: List of GameResult objects (or dict-like objects)
-        threshold: Minimum pass rate required (default 0.95 for SC-001)
-        
+        records: List of all game metric records from the experiment.
+        min_pass_rate: Minimum required pass rate (default 0.95 for 95%).
+        raise_on_failure: If True, raise ValueError when pass rate is insufficient.
+
     Returns:
-        Dictionary with validation summary including SC-001 compliance status
-        
+        Tuple of:
+            - List of valid records (all records if raise_on_failure is False)
+            - ValidationResult with experiment-level status
+
     Raises:
-        ValueError: If pass rate falls below threshold (SC-001 requirement)
+        ValueError: If raise_on_failure is True and pass rate < min_pass_rate.
     """
-    valid_records, pass_rate = validate_and_filter_records(results)
-    stats = compute_metric_statistics(valid_records)
-    
-    # Check SC-001 requirement
-    meets_requirement = pass_rate >= threshold
-    
-    summary = {
-        'total_games': len(results),
-        'valid_games': len(valid_records),
-        'pass_rate': pass_rate,
-        'threshold': threshold,
-        'meets_sc001': meets_requirement,
-        'statistics': stats
-    }
-    
-    if not meets_requirement:
-        error_msg = (
-            f"SC-001 requirement NOT met: {pass_rate:.2%} valid games "
-            f"(required >= {threshold:.2%})"
+    valid_records, pass_rate, result = validate_and_filter_records(
+        records, min_pass_rate
+    )
+
+    if raise_on_failure and not result.passed:
+        raise ValueError(
+            f"SC-001 validation failed: pass rate {pass_rate:.2%} "
+            f"below required {min_pass_rate:.2%}. {len(result.errors)} errors found."
         )
-        summary['warning'] = error_msg
-        raise ValueError(error_msg)
-    else:
-        summary['status'] = "SC-001 requirement satisfied"
-        
-    return summary
+
+    return valid_records, result

@@ -64,7 +64,7 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/JasonXF/US3D-Enhanced/7f60acedd7f2c766cdc27a1e9e62bcc9c7d3428e/prompt.json?%2Fdatasets%2FJasonXF%2FUS3D-Enhanced%2Fresolve%2Fmain%2Fprompt.json=&etag=%22b1e79c038446025d54f94493aedb58c848fe8d2c%22
   verified_at: '2026-06-26T22:53:36.631629Z'
-- artifact_hash: 668953eb70ecef6024f93b5e0e7e90bbe53ba9213b59e539d6e3c697c3e2e75d
+- artifact_hash: b6df5671db1e4678761fb796bf09d57997b380e830512a3531f7d428201914a4
   artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -75,8 +75,8 @@
   value: https://arxiv.org/abs/2203.14669
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/2203.14669
-  verified_at: '2026-07-03T05:42:56.256507Z'
-- artifact_hash: 668953eb70ecef6024f93b5e0e7e90bbe53ba9213b59e539d6e3c697c3e2e75d
+  verified_at: '2026-07-03T07:32:31.718708Z'
+- artifact_hash: b6df5671db1e4678761fb796bf09d57997b380e830512a3531f7d428201914a4
   artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -86,8 +86,8 @@
   value: https://physics.nist.gov/cgi-bin/cuu/Value?na
   verification_status: verified
   verified_against_url: https://physics.nist.gov/cgi-bin/cuu/Value?na
-  verified_at: '2026-07-03T05:42:56.256507Z'
-- artifact_hash: 668953eb70ecef6024f93b5e0e7e90bbe53ba9213b59e539d6e3c697c3e2e75d
+  verified_at: '2026-07-03T07:32:31.718708Z'
+- artifact_hash: b6df5671db1e4678761fb796bf09d57997b380e830512a3531f7d428201914a4
   artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -98,4 +98,4 @@
   value: https://arxiv.org/abs/2503.02686
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/2503.02686
-  verified_at: '2026-07-03T05:42:56.256507Z'
+  verified_at: '2026-07-03T07:32:31.718708Z'

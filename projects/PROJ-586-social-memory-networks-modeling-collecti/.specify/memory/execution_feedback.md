@@ -13,16 +13,29 @@ The gate detected that your reported numbers are NOT real measurements: they are
 - code/run_limited_context_experiment.py: synthetic/fake INPUT data not authorized by the spec — “…utput_path}")          # Generate synthetic dataset for the experime…”
 - code/run_limited_context_experiment.py: synthetic/fake INPUT data not authorized by the spec — “…logger.info("Generating synthetic dataset...")     dataset_spec =…”
 
+## ⚠ REGRESSIONS — your last fix BROKE these (they passed before)
+
+These commands were NOT failing in the previous round and ARE failing now — your last edit broke previously-working code. REVERT or correct whatever change broke each one BEFORE touching anything else; do not trade one passing script for another (that oscillation is what burns the fix-round budget toward escalation):
+
+- `python code/run_experiment.py --context full --agents 3,5,7 --games 800 --plot scaling`
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 4 fabricated/simulated-result signal(s) — results are not real measurements: code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…aders and utilities — NO synthetic data generation.  This module…”; code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…er the fabrication gate, synthetic data generation is NOT author…”; code/run_limited_context_experiment.py: synthetic/fake INPUT data not authorized by the spec — “…utput_path}")          # Generate synthetic dataset for the experime…”; 1 command(s) failed: python code/run_experiment.py --context limited --agents 5 --games 1000 --thresholds 128,256,512 (rc=2)
+**Summary**: 4 fabricated/simulated-result signal(s) — results are not real measurements: code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…aders and utilities — NO synthetic data generation.  This module…”; code/data/synthetic.py: synthetic/fake INPUT data not authorized by the spec — “…er the fabrication gate, synthetic data generation is NOT author…”; code/run_limited_context_experiment.py: synthetic/fake INPUT data not authorized by the spec — “…utput_path}")          # Generate synthetic dataset for the experime…”; 2 command(s) failed: python code/run_experiment.py --context full --agents 3,5,7 --games 800 --plot scaling (rc=2); python code/run_experiment.py --context limited --agents 5 --games 1000 --thresholds 128,256,512 (rc=2)
 
 ## Failing / missing run-book commands
 
+- python code/run_experiment.py --context full --agents 3,5,7 --games 800 --plot scaling -> rc=2
+    usage: run_experiment.py [-h] [--context {full,limited}] [--agents AGENTS]
+                         [--games GAMES] [--output-dir OUTPUT_DIR]
+                         [--seed SEED] [--plot {scaling,None}]
+                         [--agent-counts AGENT_COUNTS]
+run_experiment.py: error: argument --agents: invalid int value: '3,5,7'
 - python code/run_experiment.py --context limited --agents 5 --games 1000 --thresholds 128,256,512 -> rc=2
     usage: run_experiment.py [-h] [--context {full,limited}] [--agents AGENTS]
                          [--games GAMES] [--output-dir OUTPUT_DIR]
                          [--seed SEED] [--plot {scaling,None}]
+                         [--agent-counts AGENT_COUNTS]
 run_experiment.py: error: unrecognized arguments: --thresholds 128,256,512
 
 ## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
@@ -40,10 +53,10 @@ Make `__getattr__` in `code/utils/logging.py` accept ALL of the above.
 
 ### `compute_retrieval_efficiency` — defined in `code/t015_generate_full_results.py`; called 22 way(s):
 
-- code/run_experiment.py: ret_metrics, ret_eff = compute_retrieval_efficiency(
-- code/t015_generate_full_results.py: 1. compute_retrieval_efficiency(retrieved, total, agents)
-- code/t015_generate_full_results.py: 2. compute_retrieval_efficiency(agent_count, game_id) - legacy
-- code/t015_generate_full_results.py: 3. compute_retrieval_efficiency(retrieved=..., total=..., agents=...) - keyword
+- code/run_experiment.py: retrieval_metrics, ret_eff = compute_retrieval_efficiency(
+- code/t015_generate_full_results.py: 1. compute_retrieval_efficiency(retrieved, total, agents) - positional
+- code/t015_generate_full_results.py: 2. compute_retrieval_efficiency(retrieved=..., total=..., agents=...)
+- code/t015_generate_full_results.py: 3. compute_retrieval_efficiency(agent_count, game_id) - legacy
 - code/t015_generate_full_results.py: ret_metrics, ret_eff = compute_retrieval_efficiency(
 - code/metrics/retrieval.py: 1. compute_retrieval_efficiency(retrieved, total, agents) - positional
 - code/metrics/retrieval.py: 2. compute_retrieval_efficiency(retrieved=..., total=..., agents=...) - keyword
@@ -67,12 +80,12 @@ Make `compute_retrieval_efficiency` in `code/t015_generate_full_results.py` acce
 
 ### `compute_specialization_index` — defined in `code/t015_generate_full_results.py`; called 18 way(s):
 
-- code/run_experiment.py: spec_metrics, spec_idx = compute_specialization_index(
-- code/t015_generate_full_results.py: 1. compute_specialization_index(agent_list) - agent_list is a list
+- code/run_experiment.py: specialization_metrics, spec_idx = compute_specialization_index(
+- code/t015_generate_full_results.py: 1. compute_specialization_index(agent_list) - list of agent skills
 - code/t015_generate_full_results.py: 2. compute_specialization_index(agent_list, num_agents=N)
-- code/t015_generate_full_results.py: 3. compute_specialization_index(agent_count, game_id) - legacy
-- code/t015_generate_full_results.py: 4. compute_specialization_index(agents=..., num_agents=...) - keyword
-- code/t015_generate_full_results.py: spec_idx, _ = compute_specialization_index(assignments, num_agents=agent_count)
+- code/t015_generate_full_results.py: 3. compute_specialization_index(agents=..., num_agents=...)
+- code/t015_generate_full_results.py: 4. compute_specialization_index(agent_count, game_id) - legacy
+- code/t015_generate_full_results.py: spec_metrics, spec_idx = compute_specialization_index(
 - code/metrics/specialization.py: 1. compute_specialization_index(agent_list) - list of agent skills
 - code/metrics/specialization.py: 2. compute_specialization_index(agent_list, num_agents=N) - with explicit count
 - code/metrics/specialization.py: 3. compute_specialization_index(agents=..., num_agents=...) - keyword style
@@ -104,20 +117,14 @@ Make `compute_specialization_index` in `code/t015_generate_full_results.py` acce
 
 Make `get_logger` in `code/utils/logging.py` accept ALL of the above.
 
-### `simulate_one_game` — defined in `code/generate_full_results.py`; called 15 way(s):
+### `simulate_one_game` — defined in `code/generate_full_results.py`; called 9 way(s):
 
-- code/generate_full_results.py: 1. simulate_one_game(agent_count: int, game_id: int, context: str)
-- code/generate_full_results.py: 2. simulate_one_game(agent_list: List[int], game_id: int)
-- code/generate_full_results.py: 3. simulate_one_game(agents, game_id) - legacy positional
-- code/run_experiment.py: 1. simulate_one_game(agent_count, game_id, context) - primary
-- code/run_experiment.py: 2. simulate_one_game(agent_list, game_id) - legacy
-- code/run_experiment.py: 3. simulate_one_game(agents, game_id) - legacy positional
-- code/run_experiment.py: result = simulate_one_game(
+- code/run_experiment.py: assignments, metrics = simulate_one_game(
 - code/output_full_results.py: spec_idx, ret_eff = simulate_one_game(
 - code/run_scaling_experiment.py: result = simulate_one_game(agents, game_id)
-- code/t015_generate_full_results.py: 1. simulate_one_game(agent_count, game_id, context) - primary
-- code/t015_generate_full_results.py: 2. simulate_one_game(agent_list, game_id) - legacy
-- code/t015_generate_full_results.py: 3. simulate_one_game(agents, game_id) - legacy positional
+- code/t015_generate_full_results.py: 1. simulate_one_game(agent_count, game_id, context)
+- code/t015_generate_full_results.py: 2. simulate_one_game(agent_list, game_id)
+- code/t015_generate_full_results.py: 3. simulate_one_game(agents, game_id)
 - code/t015_generate_full_results.py: result = simulate_one_game(
 - code/analysis/sensitivity.py: result = simulate_one_game(
 - code/analysis/sensitivity.py: result = simulate_one_game(agents, game_id)
@@ -140,10 +147,9 @@ Make `simulate_one_game` in `code/generate_full_results.py` accept ALL of the ab
 
 Whichever you choose, every call site of `MemoryBuffer` across the codebase must stop raising `AttributeError`/`TypeError`.
 
-`MemoryBuffer.reset` call sites (4):
-- code/memory/buffer.py: _shared_buffer.reset()
-- code/memory/tests/test_buffer.py: buf.reset()
-- code/memory/tests/test_buffer.py: buf1.reset()
+`MemoryBuffer.reset` call sites (3):
+- code/memory/buffer.py: buf.reset()
+- code/memory/tests/test_buffer.py: result = buf.reset()
 - code/tests/unit/test_memory_buffer.py: buf.reset()  # should not raise
 
 ## ✅ KNOWN-GOOD REFERENCE — a fully tolerant logging module

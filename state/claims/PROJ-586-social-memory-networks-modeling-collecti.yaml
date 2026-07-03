@@ -6527,22 +6527,6 @@
   updated_at: '2026-07-03T00:28:01Z'
 - artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   attempts: 1
-  canonical: 3 data points limit power-law reliability in scaling analysis
-  claim_id: c_f4096f4e
-  context: Implementation for User Story 3, Task T030
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Generate scaling_plot.pdf with fitted power-law curves and explicit note
-    that 3 data points limit power-law reliability in projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_plot.pdf
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T00:48:23Z'
-- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
-  attempts: 1
   canonical: Record runtime, memory, and disk usage after running full pipeline on
     CI runner
   claim_id: c_b4683c7a
@@ -6589,24 +6573,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-03T00:49:58Z'
-- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
-  attempts: 1
-  canonical: Bonferroni correction applied to all family-wise hypothesis tests
-  claim_id: c_8128e8d3
-  context: 'Phase 4: User Story 2, Task T021'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_applied_to_all_family-wise_hypothesis
-  kind: entity_fact
-  raw_text: Apply Bonferroni correction to all family-wise hypothesis tests and report
-    corrected alpha
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T00:50:40Z'
 - artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   attempts: 1
   canonical: Sensitivity analysis sweeps context-truncation token limits 128, 256,
@@ -7954,3 +7920,235 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-03T05:42:49Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: CLI flag parsing for 2203.14669
+  claim_id: c_3ff549ce
+  context: Implementation for User Story 1, task T011
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: Implement CLI flag parsing for --context, --agents, --dataset and (2203.14669,
+    https://arxiv.org/abs/2203.14669) in code/run_experiment.py
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T07:01:06Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Specialization index computation using Avogadro constant
+  claim_id: c_a3805c66
+  context: Implementation for User Story 1, task T012
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Specialization_index_computation_using_Avogadro_constant
+  kind: entity_fact
+  raw_text: Implement specialization index computation with (avogadro, https://physics.nist.gov/cgi-bin/cuu/Value?na)
+    in code/metrics/specialization.py
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T07:01:58Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Output results_limited.csv to specific directory
+  claim_id: c_156a4294
+  context: Implementation for User Story 2, task T019
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Output results_limited.csv with same metrics to projects/PROJ-586-social-memory-networks-modeling-collecti/results/
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T07:02:28Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Power-law fitting for agent counts 3, 5, 7
+  claim_id: c_f205e32d
+  context: Implementation for User Story 3, task T028
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement power-law fitting for metric trends vs. agent count (3, 5, 7)
+    in code/analysis/scaling.py
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T07:02:51Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Scaling plot notes 3 data points limit power-law reliability
+  claim_id: c_112d3357
+  context: Implementation for User Story 3, task T030
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate scaling_plot.pdf with fitted power-law curves and explicit note
+    that 3 data points limit power-law reliability
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T07:03:18Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Run full pipeline on CI runner and record runtime/memory/disk
+  claim_id: c_f889769f
+  context: Polish & Cross-Cutting Concerns, task T035
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run full pipeline on CI runner, record runtime/memory/disk in projects/PROJ-586-social-memory-networks-modeling-collecti/results/
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T07:03:36Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Research update includes feedback from Turing, Rockmore, Kahneman, Krakauer,
+    Kandel, West
+  claim_id: c_399450b7
+  context: Polish & Cross-Cutting Concerns, task T034
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Research_update_includes_feedback_from_Turing,_Rockmore,_Kah
+  kind: entity_fact
+  raw_text: Update research.md with reviewer feedback integration notes (Turing, Rockmore,
+    Kahneman, Krakauer, Kandel, West)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T07:03:57Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 2
+  canonical: 3 data points limit power-law reliability in scaling analysis
+  claim_id: c_f4096f4e
+  context: Implementation for User Story 3, Task T030
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate scaling_plot.pdf with fitted power-law curves and explicit note
+    that 3 data points limit power-law reliability in projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_plot.pdf
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T07:19:25Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Base Agent abstraction uses opt-125m model with float32 precision on
+    CPU
+  claim_id: c_fd8a75bf
+  context: 'Phase 2: Foundational, Task T005'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement base Agent abstraction using CPU-only transformers (opt-125m,
+    float32 precision)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T07:19:47Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Environment configuration uses seed 42 and cpu device
+  claim_id: c_5804adff
+  context: 'Phase 2: Foundational, Task T008'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Configure environment management (config.yaml with seed=42, device=cpu)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T07:20:04Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Full pipeline runtime, memory, and disk usage recorded on CI runner
+  claim_id: c_03b754c6
+  context: 'Phase 6: Polish & Cross-Cutting Concerns, Task T035'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Full_pipeline_runtime,_memory,_and_disk_usage_recorded_on_CI
+  kind: entity_fact
+  raw_text: Run full pipeline on CI runner, record runtime/memory/disk in results
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T07:20:23Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 2
+  canonical: Bonferroni correction applied to all family-wise hypothesis tests
+  claim_id: c_8128e8d3
+  context: 'Phase 4: User Story 2, Task T021'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_applied_to_all_family-wise_hypothesis
+  kind: entity_fact
+  raw_text: Apply Bonferroni correction to all family-wise hypothesis tests and report
+    corrected alpha
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T07:25:33Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: At least 95% of games must produce metrics
+  claim_id: c_0a4f388c
+  context: 'Phase 3: User Story 1, Task T014'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/At_least_95%25_of_games_must_produce_metrics
+  kind: magnitude
+  raw_text: "Implement validation logic for metrics (\u226595% games produce metrics)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T07:26:27Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps token limits 128, 256, and 512
+  claim_id: c_33a31ae2
+  context: 'Phase 4: User Story 2, Task T022'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: sensitivity analysis sweeping context-truncation token limit over {128,
+    256, 512}
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T07:26:48Z'
