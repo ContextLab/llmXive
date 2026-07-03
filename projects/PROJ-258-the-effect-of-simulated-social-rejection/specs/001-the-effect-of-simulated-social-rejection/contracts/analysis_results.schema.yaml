@@ -1,0 +1,84 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Results Schema"
+description: "Schema for the final statistical output. Ensures FDR correction, sensitivity analysis, and power reporting are present."
+type: "object"
+properties:
+  design_type:
+    type: "string"
+    enum:
+      - "Within-Subjects"
+      - "Between-Subjects"
+      - "Unavailable"
+    description: "The statistical design used based on ID matching and dataset structure."
+  main_test:
+    type: "object"
+    description: "Primary ANOVA results."
+    properties:
+      f_statistic:
+        type: "number"
+      p_raw:
+        type: "number"
+        minimum: 0
+        maximum: 1
+      p_fdr:
+        type: "number"
+        minimum: 0
+        maximum: 1
+        description: "Benjamini-Hochberg corrected p-value."
+      effect_size:
+        type: "number"
+      power_estimate:
+        type: "number"
+        minimum: 0
+        maximum: 1
+        description: "Estimated power for the effect."
+      confidence_interval:
+        type: "array"
+        items:
+          type: "number"
+        minItems: 2
+        maxItems: 2
+    required:
+      - f_statistic
+      - p_raw
+      - p_fdr
+      - power_estimate
+  sensitivity_analysis:
+    type: "array"
+    description: "Results for alpha sweep {0.01, 0.05, 0.1}."
+    items:
+      type: "object"
+      properties:
+        alpha:
+          type: "number"
+          enum:
+            - 0.01
+            - 0.05
+            - 0.1
+        power_at_alpha:
+          type: "number"
+          minimum: 0
+          maximum: 1
+      required:
+        - alpha
+        - power_at_alpha
+  limitations:
+    type: "object"
+    description: "Must contain specific phrasing."
+    properties:
+      contains_associational:
+        type: "boolean"
+        const: true
+        description: "Flag indicating the phrase 'associational' is present in the text."
+      modulation_claim_valid:
+        type: "boolean"
+        description: "False if the design is Between-Subjects, indicating the modulation hypothesis is untestable."
+    required:
+      - contains_associational
+      - modulation_claim_valid
+required:
+  - design_type
+  - main_test
+  - sensitivity_analysis
+  - limitations
+

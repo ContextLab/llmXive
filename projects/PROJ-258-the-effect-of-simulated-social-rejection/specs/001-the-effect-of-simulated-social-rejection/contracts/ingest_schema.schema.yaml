@@ -1,0 +1,68 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Ingested Dataset Schema"
+description: "Schema for raw data ingestion validation. Ensures required columns exist for Cyberball/Reward analysis and validates single-cohort structure."
+type: "object"
+properties:
+  required_columns:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of mandatory column names. Must include Participant_ID, Condition, Reaction_Time, Mood_Rating."
+    minItems: 4
+    contains:
+      const: "Participant_ID"
+  data_types:
+    type: "object"
+    description: "Expected data types for each column."
+    properties:
+      Participant_ID:
+        type: "string"
+      Condition:
+        type: "string"
+      Reaction_Time:
+        type: "number"
+      Mood_Rating:
+        type: "number"
+  constraints:
+    type: "object"
+    description: "Constraints on data values."
+    properties:
+      Reaction_Time:
+        type: "object"
+        properties:
+          min:
+            type: "number"
+            description: "Minimum valid reaction time in ms (e.g., > 0)."
+          max:
+            type: "number"
+            description: "Maximum valid reaction time in ms (e.g., < 5000)."
+      Mood_Rating:
+        type: "object"
+        properties:
+          min:
+            type: "number"
+            description: "Minimum mood rating (e.g., 1)."
+          max:
+            type: "number"
+            description: "Maximum mood rating (e.g., 7)."
+  single_cohort_validation:
+    type: "object"
+    description: "Validation for single-cohort structure (required for Within-Subjects design)."
+    properties:
+      is_single_cohort:
+        type: "boolean"
+        description: "True if the dataset contains both tasks for the same participants."
+      tasks_present:
+        type: "array"
+        items:
+          type: "string"
+        description: "List of tasks present in the dataset (e.g., ['Cyberball', 'Reward'])."
+    required:
+      - is_single_cohort
+      - tasks_present
+required:
+  - required_columns
+  - data_types
+  - constraints
+  - single_cohort_validation
+

@@ -1,4 +1,4 @@
-resolved_at: '2026-07-03T05:45:31.980479+00:00'
+resolved_at: '2026-07-03T07:00:44.156442+00:00'
 datasets:
 - intent: OpenNeuro
   status: verified
@@ -26,23 +26,23 @@ datasets:
     source: huggingface
     status: verified
     format: json
-  - url: https://research-repository.rmit.edu.au/articles/conference_contribution/Live_Coding_as_Critical_Media_Asian_Assemblages_of_Algorave/31006186
+  - url: https://figshare.com/articles/poster/School_of_Nursing_Anua_Uyo_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_and_important_dates_/32889659
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Global_burden_and_trends_of_non-communicable_diseases_among_children_and_adolescents_from_1990_to_2021_an_age-period-cohort_and_frontier_analysis_with_projections_to_2035_docx/32889179
+  - url: https://openaccess.wgtn.ac.nz/articles/journal_contribution/Co-creation_in_Sketching_Space/32889656
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Global_burden_and_trends_of_non-communicable_diseases_among_children_and_adolescents_from_1990_to_2021_an_age-period-cohort_and_frontier_analysis_with_projections_to_2035_docx/32889053
+  - url: https://figshare.com/articles/media/School_of_Nursing_Federal_Medical_Center_Yola_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_a/32889653
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Global_burden_and_trends_of_non-communicable_diseases_among_children_and_adolescents_from_1990_to_2021_an_age-period-cohort_and_frontier_analysis_with_projections_to_2035_pdf/32889119
+  - url: https://figshare.com/articles/dataset/School_of_Nursing_Yola_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_and_important_dates_kind/32889650
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Structural_and_molecular_substrates_underlying_functional_dysconnectivity_and_cognitive_impairment_in_neuronal_intranuclear_inclusion_disease_docx/32889173
+  - url: https://figshare.com/articles/dataset/School_of_Post_Basic_Midwifery_Abiriba_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_and_impo/32889635
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -58,11 +58,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21032699
+  - url: https://zenodo.org/records/19435085
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/17185931
+  - url: https://zenodo.org/records/21032699
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -90,27 +90,27 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://frontiersin.figshare.com/articles/figure/Image_1_Association_of_past_12-month_sports_injury_history_with_hop_limb_symmetry_index_in_physically_active_university_students_a_cross-sectional_study_of_field-based_functional_asymmetry_profiles_tiff/32889248
+  - url: https://figshare.com/articles/poster/School_of_Nursing_Anua_Uyo_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_and_important_dates_/32889659
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/figure/Image_2_Association_of_past_12-month_sports_injury_history_with_hop_limb_symmetry_index_in_physically_active_university_students_a_cross-sectional_study_of_field-based_functional_asymmetry_profiles_tiff/32889254
+  - url: https://openaccess.wgtn.ac.nz/articles/journal_contribution/Co-creation_in_Sketching_Space/32889656
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_4_Association_of_past_12-month_sports_injury_history_with_hop_limb_symmetry_index_in_physically_active_university_students_a_cross-sectional_study_of_field-based_functional_asymmetry_profiles_docx/32889233
+  - url: https://figshare.com/articles/media/School_of_Nursing_Federal_Medical_Center_Yola_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_a/32889653
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_3_Association_of_past_12-month_sports_injury_history_with_hop_limb_symmetry_index_in_physically_active_university_students_a_cross-sectional_study_of_field-based_functional_asymmetry_profiles_docx/32889242
+  - url: https://figshare.com/articles/dataset/School_of_Nursing_Yola_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_and_important_dates_kind/32889650
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Association_of_past_12-month_sports_injury_history_with_hop_limb_symmetry_index_in_physically_active_university_students_a_cross-sectional_study_of_field-based_functional_asymmetry_profiles_docx/32889227
+  - url: https://figshare.com/articles/dataset/School_of_Post_Basic_Midwifery_Abiriba_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_and_impo/32889635
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/11267606
+  - url: https://zenodo.org/records/3612397
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -118,7 +118,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3612397
+  - url: https://zenodo.org/records/11267606
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -154,27 +154,31 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Global_burden_and_trends_of_non-communicable_diseases_among_children_and_adolescents_from_1990_to_2021_an_age-period-cohort_and_frontier_analysis_with_projections_to_2035_pdf/32889329
+  - url: https://figshare.com/articles/poster/School_of_Nursing_Anua_Uyo_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_and_important_dates_/32889659
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Global_burden_and_trends_of_non-communicable_diseases_among_children_and_adolescents_from_1990_to_2021_an_age-period-cohort_and_frontier_analysis_with_projections_to_2035_docx/32889335
+  - url: https://openaccess.wgtn.ac.nz/articles/journal_contribution/Co-creation_in_Sketching_Space/32889656
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Global_burden_and_trends_of_non-communicable_diseases_among_children_and_adolescents_from_1990_to_2021_an_age-period-cohort_and_frontier_analysis_with_projections_to_2035_docx/32889326
+  - url: https://figshare.com/articles/media/School_of_Nursing_Federal_Medical_Center_Yola_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_a/32889653
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/figure/Image_1_Single-cell_and_spatial_multi-omics_reveal_estrogen-mediated_vaginal_wall_microenvironment_remodeling_and_a_perivascular_reparative_niche_in_postmenopausal_pelvic_organ_prolapse_tif/32889317
+  - url: https://figshare.com/articles/dataset/School_of_Nursing_Yola_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_and_important_dates_kind/32889650
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Single-cell_and_spatial_multi-omics_reveal_estrogen-mediated_vaginal_wall_microenvironment_remodeling_and_a_perivascular_reparative_niche_in_postmenopausal_pelvic_organ_prolapse_docx/32889320
+  - url: https://figshare.com/articles/dataset/School_of_Post_Basic_Midwifery_Abiriba_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_and_impo/32889635
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/5524642
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3810211
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -186,11 +190,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3810211
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://kjet.kardan.edu.af/Journal?Journal=KJET&id=3183
+  - url: https://zenodo.org/records/15115020
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -229,31 +229,31 @@ datasets:
     source: huggingface
     status: verified
     format: json
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Global_burden_and_trends_of_non-communicable_diseases_among_children_and_adolescents_from_1990_to_2021_an_age-period-cohort_and_frontier_analysis_with_projections_to_2035_pdf/32889329
+  - url: https://figshare.com/articles/poster/School_of_Nursing_Anua_Uyo_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_and_important_dates_/32889659
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Global_burden_and_trends_of_non-communicable_diseases_among_children_and_adolescents_from_1990_to_2021_an_age-period-cohort_and_frontier_analysis_with_projections_to_2035_docx/32889335
+  - url: https://openaccess.wgtn.ac.nz/articles/journal_contribution/Co-creation_in_Sketching_Space/32889656
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Global_burden_and_trends_of_non-communicable_diseases_among_children_and_adolescents_from_1990_to_2021_an_age-period-cohort_and_frontier_analysis_with_projections_to_2035_docx/32889326
+  - url: https://figshare.com/articles/media/School_of_Nursing_Federal_Medical_Center_Yola_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_a/32889653
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/figure/Image_1_Single-cell_and_spatial_multi-omics_reveal_estrogen-mediated_vaginal_wall_microenvironment_remodeling_and_a_perivascular_reparative_niche_in_postmenopausal_pelvic_organ_prolapse_tif/32889317
+  - url: https://figshare.com/articles/dataset/School_of_Nursing_Yola_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_and_important_dates_kind/32889650
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Single-cell_and_spatial_multi-omics_reveal_estrogen-mediated_vaginal_wall_microenvironment_remodeling_and_a_perivascular_reparative_niche_in_postmenopausal_pelvic_organ_prolapse_docx/32889320
+  - url: https://figshare.com/articles/dataset/School_of_Post_Basic_Midwifery_Abiriba_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_and_impo/32889635
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15804920
-    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/1255322
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15804920
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -261,15 +261,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10011805
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/14242875
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21152323
+  - url: https://zenodo.org/records/10011805
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://boris-portal.unibe.ch/handle/20.500.12422/232703
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21154267
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21154267
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -277,80 +285,31 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://springernature.figshare.com/collections/OpenStats_how_to_combine_statistics_and_research_data_management_RDM_to_leverage_efficient_scientific_data_analysis_by_guided_statistics/8573269/1
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://springernature.figshare.com/articles/figure/Additional_file_2_of_Expression_of_long_non-coding_RNA_NNT-AS1_in_children_with_severe_pneumonia_and_its_effect_on_lipopolysaccharide-induced_human_embryonic_lung_fibroblast_injury/32887971
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://springernature.figshare.com/articles/figure/Additional_file_3_of_Expression_of_long_non-coding_RNA_NNT-AS1_in_children_with_severe_pneumonia_and_its_effect_on_lipopolysaccharide-induced_human_embryonic_lung_fibroblast_injury/32887974
+  - url: https://zenodo.org/records/21152323
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
 - intent: FDR
-  status: verified
-  candidates:
-  - url: https://huggingface.co/datasets/RyanSaleh/fdr/resolve/main/dataset_info.json
-    source: huggingface
-    format: json
-    relevance: 1.0
-    sample_check:
-      downloaded_bytes: 766
-      parsed: true
-  - url: https://huggingface.co/datasets/PhillyMac/fdr-training-corpus/resolve/main/data/train-00000-of-00001.parquet
-    source: huggingface
-    format: parquet
-    relevance: 1.0
-    sample_check:
-      downloaded_bytes: 262144
-      parsed: true
-  - url: https://huggingface.co/datasets/leonadase/fdRE/resolve/main/fdRE.zip
-    source: huggingface
-    format: zip
-    relevance: 0.0
-    sample_check:
-      downloaded_bytes: 27026
-      parsed: true
+  status: unresolved
+  candidates: []
   candidates_tried:
-  - url: https://huggingface.co/datasets/leonadase/fdRE/resolve/main/fdRE.zip
-    source: huggingface
-    status: verified
-    format: zip
-  - url: https://huggingface.co/api/resolve-cache/datasets/Ant-j-a/fdr_pc/eaa55dcc52ce3a34a2476e5ee83e770b90f0597b/fdr_ft_data.json?%2Fdatasets%2FAnt-j-a%2Ffdr_pc%2Fresolve%2Fmain%2Ffdr_ft_data.json=&etag=%22abf005552883ffb0cb56efb92dd40704626e6119%22
-    source: huggingface
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://huggingface.co/api/resolve-cache/datasets/Ant-j-a/fdr_data/d17d474aa35707f6f6963bc81dc9b780c12c4a84/fdr_ft_data.jsonl?%2Fdatasets%2FAnt-j-a%2Ffdr_data%2Fresolve%2Fmain%2Ffdr_ft_data.jsonl=&etag=%22abf005552883ffb0cb56efb92dd40704626e6119%22
-    source: huggingface
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://huggingface.co/datasets/RyanSaleh/fdr/resolve/main/dataset_info.json
-    source: huggingface
-    status: verified
-    format: json
-  - url: https://huggingface.co/datasets/PhillyMac/fdr-training-corpus/resolve/main/data/train-00000-of-00001.parquet
-    source: huggingface
-    status: verified
-    format: parquet
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Global_burden_and_trends_of_non-communicable_diseases_among_children_and_adolescents_from_1990_to_2021_an_age-period-cohort_and_frontier_analysis_with_projections_to_2035_pdf/32889329
+  - url: https://figshare.com/articles/poster/School_of_Nursing_Anua_Uyo_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_and_important_dates_/32889659
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Global_burden_and_trends_of_non-communicable_diseases_among_children_and_adolescents_from_1990_to_2021_an_age-period-cohort_and_frontier_analysis_with_projections_to_2035_docx/32889335
+  - url: https://openaccess.wgtn.ac.nz/articles/journal_contribution/Co-creation_in_Sketching_Space/32889656
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Global_burden_and_trends_of_non-communicable_diseases_among_children_and_adolescents_from_1990_to_2021_an_age-period-cohort_and_frontier_analysis_with_projections_to_2035_docx/32889326
+  - url: https://figshare.com/articles/media/School_of_Nursing_Federal_Medical_Center_Yola_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_a/32889653
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/figure/Image_1_Single-cell_and_spatial_multi-omics_reveal_estrogen-mediated_vaginal_wall_microenvironment_remodeling_and_a_perivascular_reparative_niche_in_postmenopausal_pelvic_organ_prolapse_tif/32889317
+  - url: https://figshare.com/articles/dataset/School_of_Nursing_Yola_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_and_important_dates_kind/32889650
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Single-cell_and_spatial_multi-omics_reveal_estrogen-mediated_vaginal_wall_microenvironment_remodeling_and_a_perivascular_reparative_niche_in_postmenopausal_pelvic_organ_prolapse_docx/32889320
+  - url: https://figshare.com/articles/dataset/School_of_Post_Basic_Midwifery_Abiriba_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_and_impo/32889635
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -370,10 +329,10 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://www.tandfonline.com/doi/full/10.1080/2150704X.2025.2478664
+  - url: https://zenodo.org/records/10254142
     source: zenodo
     status: wrong_format
-    reason: HTTP 403
+    reason: unrecognized/non-dataset content
   - url: https://springernature.figshare.com/articles/dataset/Additional_file_11_of_Exometabolomic-enabled_discovery_of_compounds_associated_with_Escherichia_coli_O157_H7_population_dynamics_in_the_lettuce_phyllosphere/32887884/1
     source: datacite
     status: wrong_format
@@ -382,11 +341,11 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://springernature.figshare.com/articles/dataset/Additional_file_10_of_Exometabolomic-enabled_discovery_of_compounds_associated_with_Escherichia_coli_O157_H7_population_dynamics_in_the_lettuce_phyllosphere/32887881/1
+  - url: https://springernature.figshare.com/articles/dataset/Additional_file_10_of_Exometabolomic-enabled_discovery_of_compounds_associated_with_Escherichia_coli_O157_H7_population_dynamics_in_the_lettuce_phyllosphere/32887881
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://springernature.figshare.com/articles/dataset/Additional_file_10_of_Exometabolomic-enabled_discovery_of_compounds_associated_with_Escherichia_coli_O157_H7_population_dynamics_in_the_lettuce_phyllosphere/32887881
+  - url: https://springernature.figshare.com/articles/dataset/Additional_file_10_of_Exometabolomic-enabled_discovery_of_compounds_associated_with_Escherichia_coli_O157_H7_population_dynamics_in_the_lettuce_phyllosphere/32887881/1
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -431,31 +390,31 @@ datasets:
     source: huggingface
     status: verified
     format: jsonl
-  - url: https://huggingface.co/datasets/Bektemir96az96/Uzbek_and_Russian_Phishing_dataset/resolve/main/phishing_legitimate_dataset.csv
-    source: huggingface
-    status: verified
-    format: csv
   - url: https://huggingface.co/datasets/active-vision-lab/oxford-day-and-night/resolve/main/aria/scene_durations.csv
     source: huggingface
     status: verified
     format: csv
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Global_burden_and_trends_of_non-communicable_diseases_among_children_and_adolescents_from_1990_to_2021_an_age-period-cohort_and_frontier_analysis_with_projections_to_2035_pdf/32889329
+  - url: https://huggingface.co/datasets/smolagents/android-control/resolve/main/data/test-00000-of-00067.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/poster/School_of_Nursing_Anua_Uyo_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_and_important_dates_/32889659
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Global_burden_and_trends_of_non-communicable_diseases_among_children_and_adolescents_from_1990_to_2021_an_age-period-cohort_and_frontier_analysis_with_projections_to_2035_docx/32889335
+  - url: https://openaccess.wgtn.ac.nz/articles/journal_contribution/Co-creation_in_Sketching_Space/32889656
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Global_burden_and_trends_of_non-communicable_diseases_among_children_and_adolescents_from_1990_to_2021_an_age-period-cohort_and_frontier_analysis_with_projections_to_2035_docx/32889326
+  - url: https://figshare.com/articles/media/School_of_Nursing_Federal_Medical_Center_Yola_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_a/32889653
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/figure/Image_1_Single-cell_and_spatial_multi-omics_reveal_estrogen-mediated_vaginal_wall_microenvironment_remodeling_and_a_perivascular_reparative_niche_in_postmenopausal_pelvic_organ_prolapse_tif/32889317
+  - url: https://figshare.com/articles/dataset/School_of_Nursing_Yola_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_and_important_dates_kind/32889650
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Single-cell_and_spatial_multi-omics_reveal_estrogen-mediated_vaginal_wall_microenvironment_remodeling_and_a_perivascular_reparative_niche_in_postmenopausal_pelvic_organ_prolapse_docx/32889320
+  - url: https://figshare.com/articles/dataset/School_of_Post_Basic_Midwifery_Abiriba_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_and_impo/32889635
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -471,7 +430,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/14531811
+  - url: https://zenodo.org/records/3365564
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -524,23 +483,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/Developing_a_Goal-Directed_Behaviour_Model_for_Consumer_Decision-Making_in_Smart_Tourism_Apps_A_Structural_Equation_Modelling_Approach/32888813
+  - url: https://figshare.com/articles/poster/School_of_Nursing_Anua_Uyo_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_and_important_dates_/32889659
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Supplementary_file_1_Isolation_characterization_and_in_vitro_efficacy_of_phage_Citro-6_against_Citrobacter_freundii-induced_bovine_mastitis_docx/32889389
+  - url: https://openaccess.wgtn.ac.nz/articles/journal_contribution/Co-creation_in_Sketching_Space/32889656
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_7_Integrative_analysis_of_the_metabolome_and_transcriptome_reveals_the_mechanism_of_flower_color_and_antioxidant_capacity_in_three_Syringa_cultivars_xlsx/32889383
+  - url: https://figshare.com/articles/media/School_of_Nursing_Federal_Medical_Center_Yola_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_a/32889653
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_8_Integrative_analysis_of_the_metabolome_and_transcriptome_reveals_the_mechanism_of_flower_color_and_antioxidant_capacity_in_three_Syringa_cultivars_xlsx/32889386
+  - url: https://figshare.com/articles/dataset/School_of_Nursing_Yola_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_and_important_dates_kind/32889650
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_5_Integrative_analysis_of_the_metabolome_and_transcriptome_reveals_the_mechanism_of_flower_color_and_antioxidant_capacity_in_three_Syringa_cultivars_xlsx/32889377
+  - url: https://figshare.com/articles/dataset/School_of_Post_Basic_Midwifery_Abiriba_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_and_impo/32889635
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -564,23 +523,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21154226
+  - url: https://zenodo.org/records/21155142
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21155142
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21154284
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21154284
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/21154226
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21154218
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21154218
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21154207
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -599,36 +558,35 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Development_and_validation_of_an_interpretable_machine_learning-based_predictive_model_for_breast_cancer_bone_metastasis_xlsx/32889401
+  - url: https://figshare.com/articles/poster/School_of_Nursing_Anua_Uyo_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_and_important_dates_/32889659
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Amine-Enabled_Electron_Donor_Acceptor_Complex_Catalysis_for_Cyclopropanation/32889400
+  - url: https://openaccess.wgtn.ac.nz/articles/journal_contribution/Co-creation_in_Sketching_Space/32889656
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Pathways_for_the_precise_prevention_and_improvement_of_mental_health_among_university_freshmen_a_network_analysis_and_simulated_intervention_study_based_on_the_biopsychosocial_model_docx/32889392
+  - url: https://figshare.com/articles/media/School_of_Nursing_Federal_Medical_Center_Yola_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_a/32889653
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_3_Pathways_for_the_precise_prevention_and_improvement_of_mental_health_among_university_freshmen_a_network_analysis_and_simulated_intervention_study_based_on_the_biopsychosocial_model_docx/32889395
+  - url: https://figshare.com/articles/dataset/School_of_Nursing_Yola_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_and_important_dates_kind/32889650
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Pathways_for_the_precise_prevention_and_improvement_of_mental_health_among_university_freshmen_a_network_analysis_and_simulated_intervention_study_based_on_the_biopsychosocial_model_docx/32889398
+  - url: https://figshare.com/articles/dataset/School_of_Post_Basic_Midwifery_Abiriba_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_and_impo/32889635
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://doi.org/10.11591/eei.v9i2.1972
     source: zenodo
     status: unreachable
-    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''beei.org'',
-      port=443): Read timed out. (read timeout=20.0)'
+    reason: 'reachability failed: HTTP 415'
   - url: https://zenodo.org/records/14352943
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/6127654
+  - url: https://zenodo.org/records/3810211
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -687,23 +645,63 @@ datasets:
     source: huggingface
     status: verified
     format: jsonl
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Targeted_stool_metabolomics_suggests_exploratory_catecholamine-_and_tryptophan-linked_metabolic_features_in_autism_spectrum_disorder_xlsx/32889437
+  - url: https://figshare.com/articles/poster/School_of_Nursing_Anua_Uyo_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_and_important_dates_/32889659
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Targeted_stool_metabolomics_suggests_exploratory_catecholamine-_and_tryptophan-linked_metabolic_features_in_autism_spectrum_disorder_xlsx/32889440
+  - url: https://openaccess.wgtn.ac.nz/articles/journal_contribution/Co-creation_in_Sketching_Space/32889656
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_1_Targeted_stool_metabolomics_suggests_exploratory_catecholamine-_and_tryptophan-linked_metabolic_features_in_autism_spectrum_disorder_docx/32889434
+  - url: https://figshare.com/articles/media/School_of_Nursing_Federal_Medical_Center_Yola_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_a/32889653
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_3_Targeted_stool_metabolomics_suggests_exploratory_catecholamine-_and_tryptophan-linked_metabolic_features_in_autism_spectrum_disorder_xlsx/32889422
+  - url: https://figshare.com/articles/dataset/School_of_Nursing_Yola_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_and_important_dates_kind/32889650
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Data_Sheet_2_Targeted_stool_metabolomics_suggests_exploratory_catecholamine-_and_tryptophan-linked_metabolic_features_in_autism_spectrum_disorder_docx/32889425
+  - url: https://figshare.com/articles/dataset/School_of_Post_Basic_Midwifery_Abiriba_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_and_impo/32889635
     source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19711907
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15740844
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15721011
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ojs-gr.zrc-sazu.si/primerjalna_knjizevnost/article/view/8291
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://pressto.amu.edu.pl/index.php/pss/article/view/46487
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://uregina.scholaris.ca/handle/10294/15964
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://uregina.scholaris.ca/handle/10294/8342
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://uregina.scholaris.ca/handle/10294/8991
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20708718
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20708718
+    source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

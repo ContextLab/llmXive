@@ -1,0 +1,7 @@
+ParticipantID,Condition,mean_rt,avg_mood,design_type
+sub-001,Cyberball,0.45,3.2,Within-Subjects
+sub-001,Reward,0.38,4.1,Within-Subjects
+sub-002,Cyberball,0.52,2.9,Within-Subjects
+sub-002,Reward,0.41,4.5,Within-Subjects
+sub-003,Cyberball,0.48,3.5,Within-Subjects
+sub-003,Reward,0.39,4.0,Within-Subjects
