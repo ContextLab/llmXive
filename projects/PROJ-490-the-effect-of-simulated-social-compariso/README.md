@@ -1,66 +1,42 @@
-# The Effect of Simulated Social Comparison on Self-Esteem in Virtual Reality
-
-**Project ID**: PROJ-490
+# PROJ-490: The Effect of Simulated Social Comparison on Self-Esteem in Virtual Reality
 
 ## Overview
-This project implements an automated research pipeline to analyze the effect of simulated social comparison on self-esteem within virtual reality environments. It leverages real-world datasets (where available and compliant) or a rigorously defined synthetic data generator to perform statistical analysis, robustness checks, and sensitivity analysis.
+This project investigates how simulated social comparison in virtual reality (VR)
+environments affects self-esteem, specifically examining the interaction between
+avatar condition and individual comparison tendencies.
 
 ## Project Structure
 ```
-.
-├── code/ # Source code for analysis pipelines
-│ ├── data/ # Data loading, preprocessing, and generation
-│ ├── analysis/ # Statistical modeling and robustness checks
-│ └── utils/ # Shared utilities (logging, validation, config)
+projects/PROJ-490-the-effect-of-simulated-social-compariso/
+├── code/ # Source code for data processing and analysis
+│ ├── data/ # Data loading, cleaning, and generation
+│ ├── analysis/ # Statistical models and robustness checks
+│ └── utils/ # Logging, validation, and configuration
 ├── data/
-│ ├── raw/ # Unmodified downloaded data
-│ └── processed/ # Cleaned and feature-engineered data
-├── tests/
-│ ├── unit/ # Unit tests for functions
-│ └── contract/ # Schema validation tests
+│ ├── raw/ # Raw datasets (downloaded or synthetic)
+│ └── processed/ # Cleaned data and analysis outputs
+├── contracts/ # JSON/YAML schemas for data and outputs
+├── tests/ # Unit and contract tests
 ├── docs/ # Documentation
-├── state/ # Project state tracking and hashes
-└── requirements.txt # Python dependencies
+├── state/ # Project state tracking
+├── requirements.txt # Python dependencies
+└── README.md # This file
 ```
 
 ## Setup
-1. Create a virtual environment:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-2. Install dependencies:
+1. Install dependencies:
  ```bash
  pip install -r requirements.txt
  ```
+2. Run the analysis pipeline:
+ ```bash
+ python code/main.py
+ ```
 
-## Usage
-The pipeline is designed to be run via the main entry point (to be implemented in future tasks):
-```bash
-python code/main.py
-```
+## Data Contracts
+- `contracts/dataset.schema.yaml`: Schema for input data
+- `contracts/output.schema.yaml`: Schema for regression results
+- `contracts/results.schema.yaml`: Schema for final report
 
-## Data Sources
-This project attempts to load data from:
-- HuggingFace Datasets
-- OpenML
-- Open Science Framework (OSF)
-
-If no compliant real-world dataset is found (IRB/Consent verified), the system will fall back to a synthetic data generator with defined ground-truth parameters for pipeline validation only.
-
-## Quality Assurance
-- **Linting**: `flake8` is used for style enforcement.
-- **Formatting**: `black` is used for consistent code formatting.
-- **Testing**: `pytest` is used for unit and contract testing.
-
-Run checks:
-```bash
-# Lint
-flake8 code/ tests/
-
-# Format
-black code/ tests/
-
-# Test
-pytest tests/
-```
+## License
+Research project for educational purposes.

@@ -1,0 +1,11 @@
+- artifact_hash: d977abb25018ed31a4bb64c6bdb4c9e9a6b55d40d934eca6ef5bd517fe8c2f3e
+  artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/spec.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://materialsproject.org/open`
+  verification_status: pending
+  verified_against_url: https://next-gen.materialsproject.org/open
+  verified_at: '2026-07-03T10:32:51.453440Z'

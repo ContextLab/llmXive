@@ -1,9 +1,6 @@
-? T002 Initialize Python 3.11 project with requirements.txt (scikit-learn, pandas,
-  numpy, scipy, vcfpy, haplogrep2, requests, tqdm)
-: 2
-T003 [P] Configure linting (flake8/black) and formatting tools in `code/`: 2
-T009 Setup environment configuration for 1000 Genomes FTP URLs and local paths: 2
 T011 [P] [US1] Integration test for VCF download and merge in `code/tests/test_data.py`: 2
+'T011 [P] [US1] Integration test for VCF download and merge in `code/tests/test_data.py` <!-- FAILED: unspecified -->': 1
 ? T012 [P] [US1] Implement `code/analysis/load_data.py` to download mitochondrial
   VCFs from 1000 Genomes FTP and metadata panel
-: 1
+: 2
+"T015 [US1] Implement heteroplasmy burden calculation with VAF \u2265 1% threshold in `code/analysis/preprocess.py`": 1

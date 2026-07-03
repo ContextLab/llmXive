@@ -1,6 +1,6 @@
 [tool.black]
 line-length = 88
-target-version = ['py39', 'py310', 'py311']
+target-version = ['py39']
 include = '\.pyi?$'
 exclude = '''
 /(
@@ -13,15 +13,11 @@ exclude = '''
     | buck-out
     | build
     | dist
+    | data
+    | state
 )/
 '''
-
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-python_functions = ["test_*"]
-addopts = "-v --strict-markers"
-markers =
-    "unit: Unit tests"
-    "contract: Contract tests"
-    "integration: Integration tests"
+addopts = "-v --tb=short"

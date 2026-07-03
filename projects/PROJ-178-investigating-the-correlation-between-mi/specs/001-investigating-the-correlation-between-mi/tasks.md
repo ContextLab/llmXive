@@ -56,8 +56,8 @@
 
 - [ ] T001A [P] Create data directories: `code/data/raw`, `code/data/processed`, `code/logs`, `paper/figures`
 - [ ] T001B [P] Create code directories: `code/analysis`, `code/tests`
-- [ ] T002 Initialize Python 3.11 project with requirements.txt (scikit-learn, pandas, numpy, scipy, vcfpy, haplogrep2, requests, tqdm)
-- [ ] T003 [P] Configure linting (flake8/black) and formatting tools in `code/`
+- [X] T002 Initialize Python 3.11 project with requirements.txt (scikit-learn, pandas, numpy, scipy, vcfpy, haplogrep2, requests, tqdm)
+- [X] T003 [P] Configure linting (flake8/black) and formatting tools in `code/`
 
 ---
 
@@ -70,7 +70,7 @@
 - [X] T005 [P] Implement runtime timer and logging infrastructure in `code/run_analysis.py`
 - [ ] T006A [P] Create `code/contracts/dataset.schema.yaml` defining Sample/Variant entities
 - [ ] T006B [P] Create `code/contracts/output.schema.yaml` defining AnalysisResult
-- [ ] T009 Setup environment configuration for 1000 Genomes FTP URLs and local paths
+- [X] T009 Setup environment configuration for 1000 Genomes FTP URLs and local paths
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -87,7 +87,7 @@
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
 - [X] T010 [P] [US1] Contract test for data schema validation in `code/tests/test_data.py`
-- [ ] T011 [P] [US1] Integration test for VCF download and merge in `code/tests/test_data.py`
+- [ ] T011 [P] [US1] Integration test for VCF download and merge in `code/tests/test_data.py` <!-- FAILED: unspecified -->
 
 ### Implementation for User Story 1
 
@@ -95,7 +95,7 @@
 - [ ] T013A [P] [US1] Implement chunked VCF reading in `code/analysis/load_data.py` using `vcfpy` to handle large files within 7GB RAM
 - [ ] T013B [P] [US1] Add logic to aggregate variant counts per sample in memory without loading full VCF
 - [X] T014 [US1] Implement variant filtering in `code/analysis/preprocess.py` (retain only `PASS` status and `chrM`)
-- [~] T015 [US1] Implement heteroplasmy burden calculation with VAF ≥ 1% threshold in `code/analysis/preprocess.py`
+- [ ] T015 [US1] Implement heteroplasmy burden calculation with VAF ≥ 1% threshold in `code/analysis/preprocess.py`
 - [~] T016 [US1] Implement depth-stratified burden calculation (Low, Medium, High bins) in `code/analysis/preprocess.py`
 - [~] T017 [US1] Integrate `haplogrep2` via subprocess in `code/analysis/preprocess.py` to assign haplogroups
 - [~] T018 [US1] Implement metadata merge logic to join burden, haplogroups, age, sex, population, and PCs
@@ -143,11 +143,11 @@
 ### Implementation for User Story 3
 
 - [~] T032 [P] [US3] Implement threshold sweep for heteroplasmy burden recalculation across a range of low-level thresholds. in `code/analysis/sensitivity.py`
-- [ ] T033 [US3] Implement subgroup analysis for continental ancestries (EUR, AFR, EAS, SAS, AMR) in `code/analysis/sensitivity.py`
-- [ ] T034 [US3] Implement depth-stratified subsampling to equalize sequencing depth across groups in `code/analysis/sensitivity.py`
-- [ ] T036 [US3] Implement measurement error simulation (binned age intervals) to estimate attenuation bias in `code/analysis/sensitivity.py`
-- [ ] T037 [US3] Generate comparative plots for threshold and subgroup results in `code/analysis/visualize.py`
-- [ ] T038 [US3] Write comprehensive sensitivity report to `code/data/processed/sensitivity_analysis.csv`
+- [~] T033 [US3] Implement subgroup analysis for continental ancestries (EUR, AFR, EAS, SAS, AMR) in `code/analysis/sensitivity.py`
+- [~] T034 [US3] Implement depth-stratified subsampling to equalize sequencing depth across groups in `code/analysis/sensitivity.py`
+- [~] T036 [US3] Implement measurement error simulation (binned age intervals) to estimate attenuation bias in `code/analysis/sensitivity.py`
+- [~] T037 [US3] Generate comparative plots for threshold and subgroup results in `code/analysis/visualize.py`
+- [~] T038 [US3] Write comprehensive sensitivity report to `code/data/processed/sensitivity_analysis.csv`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -157,12 +157,12 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T041 [P] Documentation updates in `paper/draft.md` (include findings and limitations)
-- [ ] T042 Code cleanup and refactoring of `code/analysis/` scripts
-- [ ] T043 Performance optimization: ensure VCF streaming does not exceed 7GB RAM
-- [ ] T044 [P] Additional unit tests for edge cases (zero burden, missing haplogroup) in `code/tests/`
-- [ ] T045 Run `quickstart.md` validation and verify total runtime ≤ 6 hours on 2 CPU runner
-- [ ] T046 Generate final figures (linear fit, threshold sensitivity) in `paper/figures/`
+- [~] T041 [P] Documentation updates in `paper/draft.md` (include findings and limitations)
+- [~] T042 Code cleanup and refactoring of `code/analysis/` scripts <!-- ATOMIZE: requested -->
+- [~] T043 Performance optimization: ensure VCF streaming does not exceed 7GB RAM
+- [~] T044 [P] Additional unit tests for edge cases (zero burden, missing haplogroup) in `code/tests/`
+- [~] T045 Run `quickstart.md` validation and verify total runtime ≤ 6 hours on 2 CPU runner
+- [~] T046 Generate final figures (linear fit, threshold sensitivity) in `paper/figures/`
 
 ---
 

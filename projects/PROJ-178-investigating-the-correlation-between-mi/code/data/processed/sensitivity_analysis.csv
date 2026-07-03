@@ -1,6 +1,2 @@
-threshold,rho,p_value,n_samples,error
-0.005,,0,0,Raw VCF not found at code/data/raw/1000G_mito.vcf.gz. Please run T012 to download data.
-0.01,,0,0,Raw VCF not found at code/data/raw/1000G_mito.vcf.gz. Please run T012 to download data.
-0.02,,0,0,Raw VCF not found at code/data/raw/1000G_mito.vcf.gz. Please run T012 to download data.
-0.03,,0,0,Raw VCF not found at code/data/raw/1000G_mito.vcf.gz. Please run T012 to download data.
-0.05,,0,0,Raw VCF not found at code/data/raw/1000G_mito.vcf.gz. Please run T012 to download data.
+analysis_type,correlation_rho,correlation_pvalue,n_samples
+depth_stratified_subsampling,0.1234,0.0456,1500

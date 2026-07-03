@@ -1,212 +1,114 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Final Results Report Schema
-description: >
-  Schema for the final comprehensive results report, aggregating
-  model results, robustness checks, and sensitivity analysis.
+description: |
+  Schema for the comprehensive final report aggregating model results,
+  bootstrap stability, sensitivity analysis, and data provenance.
 type: object
 required:
-  - project_info
-  - data_summary
-  - primary_analysis
-  - robustness_analysis
-  - sensitivity_analysis
-  - conclusion
+  - project_id
+  - data_path
+  - data_source_type
+  - model_results
+  - bootstrap_stability
+  - sensitivity_findings
+  - final_conclusion
 properties:
-  project_info:
+  project_id:
+    type: string
+    const: "PROJ-490-the-effect-of-simulated-social-compariso"
+  data_path:
+    type: string
+    description: Relative path to the processed dataset used (data/processed/...).
+  data_source_type:
+    type: string
+    enum: ["real", "synthetic"]
+  model_results:
+    $ref: '#/definitions/output_schema'
+    description: Embedded output schema (see output.schema.yaml)
+  bootstrap_stability:
     type: object
+    description: Results from bootstrap resampling analysis.
     required:
-      - project_id
-      - task_id
-      - version
+      - iterations
+      - interaction_effect_ci
+      - ci_width_variance
+      - stability_flag
     properties:
-      project_id:
-        type: string
-        const: "PROJ-490-the-effect-of-simulated-social-compariso"
-      task_id:
-        type: string
-      version:
-        type: string
-        pattern: "^\\d+\\.\\d+\\.\\d+$"
-      generated_at:
-        type: string
-        format: date-time
-  data_summary:
-    type: object
-    required:
-      - source_type
-      - n_total
-      - n_excluded
-      - variables_used
-    properties:
-      source_type:
-        type: string
-        enum:
-          - real
-          - synthetic
-      source_url:
-        type: string
-        format: uri
-        nullable: true
-      n_total:
+      iterations:
         type: integer
-        minimum: 0
-      n_excluded:
-        type: integer
-        minimum: 0
-      n_analyzed:
-        type: integer
-        minimum: 0
-      missingness_rate:
+        minimum: 1000
+        description: Number of bootstrap iterations performed.
+      interaction_effect_ci:
+        type: object
+        description: 95% Confidence Interval for the interaction term.
+        required: [lower, upper]
+        properties:
+          lower: { type: number }
+          upper: { type: number }
+      ci_width_variance:
         type: number
-        minimum: 0
-        maximum: 1
-      variables_used:
-        type: array
-        items:
-          type: string
-        minItems: 4
-  primary_analysis:
+        description: Variance of CI widths across bootstrap samples.
+      stability_flag:
+        type: boolean
+        description: True if ci_width_variance < 0.01 (SC-004).
+  sensitivity_findings:
     type: object
-    description: Main ANCOVA results
-    properties:
-      model_type:
-        type: string
-        const: "ANCOVA"
-      coefficients:
-        type: object
-      p_values:
-        type: object
-      effect_sizes:
-        type: object
-        properties:
-          partial_eta_squared:
-            type: object
-            description: Effect size for each predictor
-            additionalProperties:
-              type: number
-              minimum: 0
-  robustness_analysis:
-    type: object
+    description: Results from threshold sensitivity sweeps and parameter recovery.
     required:
-      - bootstrap_results
-      - assumption_checks
+      - threshold_sweep
+      - imputation_sensitivity
+      - parameter_recovery
     properties:
-      bootstrap_results:
-        type: object
-        description: Bootstrap resampling stability metrics
-        properties:
-          n_iterations:
-            type: integer
-            minimum: 100
-          interaction_effect_mean:
-            type: number
-          interaction_effect_ci_95:
-            type: array
-            items:
-              type: number
-            minItems: 2
-            maxItems: 2
-          ci_width_variance:
-            type: number
-            description: Variance in CI widths (SC-004)
-          stable:
-            type: boolean
-            description: True if ci_width_variance < 0.01
-      assumption_checks:
-        type: object
-        description: Model assumption validation
-        properties:
-          normality:
-            type: object
-            properties:
-              passed:
-                type: boolean
-              p_value:
-                type: number
-          homoscedasticity:
-            type: object
-            properties:
-              passed:
-                type: boolean
-              p_value:
-                type: number
-          collinearity:
-            type: object
-            properties:
-              passed:
-                type: boolean
-              max_vif:
-                type: number
-  sensitivity_analysis:
-    type: object
-    description: Sensitivity to thresholds and parameters
-    properties:
-      parameter_recovery:
-        type: object
-        description: Only present for synthetic data
-        properties:
-          beta_interaction_true:
-            type: number
-          beta_interaction_estimated:
-            type: number
-          absolute_error:
-            type: number
-          relative_error:
-            type: number
       threshold_sweep:
-        type: object
-        description: Results across different p-value thresholds
-        properties:
-          thresholds_tested:
-            type: array
-            items:
-              type: number
-          stability_score:
-            type: number
-            description: 0.0 (unstable) to 1.0 (stable)
+        type: array
+        description: Stability of significance across different p-value thresholds.
+        items:
+          type: object
+          properties:
+            threshold: { type: number }
+            significant: { type: boolean }
       imputation_sensitivity:
         type: object
-        description: Sensitivity to missing data handling limits
+        description: Impact of different imputation limits on results.
         properties:
-          limits_tested:
-            type: array
-            items:
-              type: string
-          result_variance:
-            type: number
-      family_wise_correction:
+          low: { type: object }
+          moderate: { type: object }
+          high: { type: object }
+      parameter_recovery:
         type: object
-        description: Bonferroni/Holm correction results
+        description: Only present for synthetic data.
         properties:
-          method:
-            type: string
-            enum:
-              - bonferroni
-              - holm
-          adjusted_p_values:
-            type: object
-            additionalProperties:
-              type: number
-  conclusion:
+          beta_interaction_true: { type: number }
+          beta_interaction_estimated: { type: number }
+          bias: { type: number }
+          relative_error: { type: number }
+  final_conclusion:
     type: object
+    description: High-level summary of findings.
     required:
-      - main_finding
-      - confidence_level
+      - main_effect_significant
+      - interaction_effect_significant
+      - robustness_assessment
       - limitations
     properties:
-      main_finding:
-        type: string
-      confidence_level:
-        type: string
-        enum:
-          - High
-          - Moderate
-          - Low
-      limitations:
-        type: array
-        items:
-          type: string
-      reproducibility_hash:
-        type: string
-        description: SHA-256 hash of inputs and code version
+      main_effect_significant: { type: boolean }
+      interaction_effect_significant: { type: boolean }
+      robustness_assessment: { type: string }
+      limitations: { type: array, items: { type: string } }
+  execution_metadata:
+    type: object
+    properties:
+      timestamp: { type: string, format: date-time }
+      seed: { type: integer }
+      pipeline_version: { type: string }
+definitions:
+  output_schema:
+    type: object
+    description: Reference to the structure defined in output.schema.yaml
+    properties:
+      model_type: { type: string }
+      coefficients: { type: object }
+      diagnostics: { type: object }
+      assumptions_valid: { type: boolean }
+      interpretation_label: { type: string }
 additionalProperties: false

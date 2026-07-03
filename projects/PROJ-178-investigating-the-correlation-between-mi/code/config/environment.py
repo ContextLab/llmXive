@@ -1,97 +1,52 @@
-"""
-Environment configuration for 1000 Genomes FTP URLs and local paths.
-
-This module centralizes all paths and URLs used throughout the pipeline
-to ensure consistency and easy configuration updates.
-"""
 import os
+import logging
 from pathlib import Path
 
-# Base project directory (assumes code/ is at root or relative to this file)
-_BASE_DIR = Path(__file__).resolve().parent.parent.parent
-CODE_DIR = _BASE_DIR / "code"
-DATA_DIR = _BASE_DIR / "code" / "data"
-LOGS_DIR = _BASE_DIR / "code" / "logs"
-PAPER_DIR = _BASE_DIR / "paper"
+# Define base paths relative to project root
+# Assumes the project root is the directory containing 'code'
+BASE_DIR = Path(__file__).resolve().parent.parent
+CODE_DIR = BASE_DIR / "code"
+DATA_DIR = BASE_DIR / "code" / "data"
+LOGS_DIR = BASE_DIR / "code" / "logs"
+FIGURES_DIR = BASE_DIR / "paper" / "figures"
 
-# Data subdirectories
-RAW_DATA_DIR = DATA_DIR / "raw"
-PROCESSED_DATA_DIR = DATA_DIR / "processed"
-FIGURES_DIR = PAPER_DIR / "figures"
+# 1000 Genomes FTP URLs
+FTP_BASE = "ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase3/20131030"
+MITO_VCF_URL = f"{FTP_BASE}/ALL.chr22.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz"
+# Note: Mitochondrial data is often on chrM. The 1000G FTP structure might vary.
+# Using a representative URL for mitochondrial VCF if available, or generic phase3.
+# For the purpose of this implementation, we define the URL that would be used.
+# In reality, chrM is often in a separate file or the same phase3 file.
+# Assuming a specific mito file path for the task context:
+MITO_VCF_REAL_URL = "ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase3/20131030/ALL.chrM.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz"
 
-# 1000 Genomes FTP Configuration
-# Source: https://www.internationalgenome.org/data-portal/data/dataset/1000-genomes-phase-3-vcf
-FTP_HOST = "ftp.1000genomes.ebi.ac.uk"
-FTP_BASE_URL = "ftp://ftp.1000genomes.ebi.us/vol1/ftp/release/20130502"
-
-# Specific file paths on FTP
-MITO_VCF_NAME = "ALL.chrM.phase3_integrated.vcf.gz"
-METADATA_PANEL_NAME = "integrated_call_samples_3.20130502.panel"
-
-# Full FTP URLs
-MITO_VCF_URL = f"{FTP_BASE_URL}/{MITO_VCF_NAME}"
-METADATA_URL = f"{FTP_BASE_URL}/{METADATA_PANEL_NAME}"
-
-# Local file paths for downloaded data
-LOCAL_RAW_DIR = RAW_DATA_DIR / "1000_genomes"
-LOCAL_MITO_VCF_PATH = LOCAL_RAW_DIR / MITO_VCF_NAME
-LOCAL_METADATA_PATH = LOCAL_RAW_DIR / METADATA_PANEL_NAME
-
-# Processed output paths
-PROCESSED_DATASET_PATH = PROCESSED_DATA_DIR / "mito_aging_dataset.csv"
-MODEL_RESULTS_PATH = PROCESSED_DATA_DIR / "model_results.csv"
-ANALYSIS_RESULTS_PATH = PROCESSED_DATA_DIR / "analysis_results.csv"
-SENSITIVITY_RESULTS_PATH = PROCESSED_DATA_DIR / "sensitivity_analysis.csv"
-
-# Log file paths
-MAIN_LOG_PATH = LOGS_DIR / "pipeline.log"
-MODEL_COMPARISON_LOG_PATH = LOGS_DIR / "model_comparison.log"
-
-# Checksum file path
-CHECKSUM_PATH = PROCESSED_DATA_DIR / "dataset_checksum.txt"
+METADATA_URL = "ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase3/20131030/integrated_call_samples_v3.20130502.ALL.panel"
 
 def ensure_directories():
-    """Create all required directories if they do not exist."""
+    """Creates necessary directories if they do not exist."""
     directories = [
-        RAW_DATA_DIR,
-        PROCESSED_DATA_DIR,
-        LOCAL_RAW_DIR,
+        DATA_DIR / "raw",
+        DATA_DIR / "processed",
         LOGS_DIR,
-        FIGURES_DIR,
+        FIGURES_DIR
     ]
-    for directory in directories:
-        directory.mkdir(parents=True, exist_ok=True)
-    return directories
+    for d in directories:
+        d.mkdir(parents=True, exist_ok=True)
+        logging.info(f"Ensured directory: {d}")
 
-# Validation constants
-REQUIRED_COLUMNS = {
-    "burden": "heteroplasmy_burden",
-    "age": "age",
-    "sex": "sex",
-    "population": "super_population",
-    "haplogroup": "haplogroup",
-}
+def get_ftp_urls():
+    """Returns a dictionary of FTP URLs for data retrieval."""
+    return {
+        "mito_vcf": MITO_VCF_REAL_URL,
+        "metadata": METADATA_URL
+    }
 
-# Heteroplasmy threshold (default 1%)
-DEFAULT_VAF_THRESHOLD = 0.01
-
-# Depth stratification bins
-DEPTH_BINS = {
-    "low": (0, 30),
-    "medium": (30, 100),
-    "high": (100, float("inf")),
-}
-
-if __name__ == "__main__":
-    # Simple test to verify configuration loading
-    print("Environment Configuration Loaded:")
-    print(f"  Base Directory: {_BASE_DIR}")
-    print(f"  FTP Base URL: {FTP_BASE_URL}")
-    print(f"  Mito VCF URL: {MITO_VCF_URL}")
-    print(f"  Metadata URL: {METADATA_URL}")
-    print(f"  Local Raw Dir: {LOCAL_RAW_DIR}")
-    print(f"  Processed Dataset Path: {PROCESSED_DATASET_PATH}")
-    
-    # Ensure directories exist
+def get_local_paths():
+    """Returns a dictionary of local path objects."""
     ensure_directories()
-    print("  All directories created/verified.")
+    return {
+        "raw_dir": DATA_DIR / "raw",
+        "processed_dir": DATA_DIR / "processed",
+        "logs_dir": LOGS_DIR,
+        "figures_dir": FIGURES_DIR
+    }
