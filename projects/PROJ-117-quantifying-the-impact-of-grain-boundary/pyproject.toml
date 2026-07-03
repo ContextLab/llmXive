@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmXive-grain-boundary"
+version = "0.1.0"
+description = "Quantifying the impact of grain boundary character on diffusivity"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "pandas",
+    "numpy",
+    "scikit-learn",
+    "xgboost",
+    "shap",
+    "matplotlib",
+    "requests",
+    "pymatgen",
+    "ruff",
+    "black",
+]
+
+[tool.ruff]
+# Inherits settings from .ruff.toml but allows CLI overrides
+line-length = 88
+
+[tool.black]
+line-length = 88
+target-version = ['py39']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''

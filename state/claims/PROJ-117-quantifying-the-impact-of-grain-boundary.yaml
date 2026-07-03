@@ -1,0 +1,466 @@
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/data_schema.md
+  attempts: 1
+  canonical: pipeline halts if fewer than 500 records remain after filtering
+  claim_id: c_ff94a2a8
+  context: Required Features ... If fewer than 500 records remain after filtering,
+    the pipeline halts with DataInsufficiencyError.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_halts_if_fewer_than_500_records_remain_after_filter
+  kind: magnitude
+  raw_text: If fewer than 500 records remain after filtering, the pipeline halts with
+    DataInsufficiencyError.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T03:44:31Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/data_schema.md
+  attempts: 1
+  canonical: mutual information greater than 0.8 indicates strong dependency
+  claim_id: c_b8d1008b
+  context: 'Mutual Information and collinearity diagnostics ... warning: ''MI > 0.8
+    indicates strong dependency; relationship is descriptive, not causal.'''
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Mutual_information_greater_than_0.8_indicates_strong_depende
+  kind: magnitude
+  raw_text: MI > 0.8 indicates strong dependency; relationship is descriptive, not
+    causal.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T03:44:48Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/data_schema.md
+  attempts: 1
+  canonical: mutual information between misorientation_angle and sigma is 0.85
+  claim_id: c_0c9774f6
+  context: 'Schema ... mutual_information: { ''misorientation_angle_vs_sigma'': 0.85
+    }'
+  evidence:
+    asserted: '0.85'
+    authority: scipy.constants.N_A (CODATA 2018, exact by SI definition)
+    constant: avogadro
+    corrected: true
+    mode: approximate
+    true_value: 6.02214076e+23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?na
+  kind: numeric
+  raw_text: The mutual information between misorientation_angle and sigma is 0.85.
+  resolved_value: '602214075999999987023872'
+  resolver: approximate
+  source_hash: 7c4209bfe372393762d83fef294a921d3bf9192226dc5466073653020ea9171b
+  source_type: external
+  status: verified
+  updated_at: '2026-07-03T03:44:48Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/data_schema.md
+  attempts: 1
+  canonical: XGBoost model R2 is 0.82
+  claim_id: c_f68d7d25
+  context: 'training_metrics: { ''r2'': 0.82, ... }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The trained XGBoost model achieved an R\xB2 of 0.82."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T03:45:15Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/data_schema.md
+  attempts: 1
+  canonical: XGBoost model RMSE is 0.05
+  claim_id: c_c4eb7aab
+  context: 'training_metrics: { ..., ''rmse'': 0.05, ... }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The trained XGBoost model achieved an RMSE of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T03:45:45Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/data_schema.md
+  attempts: 1
+  canonical: XGBoost model MAPE is 0.12
+  claim_id: c_2734c30b
+  context: 'training_metrics: { ..., ''mape'': 0.12 }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The trained XGBoost model achieved a MAPE of 0.12.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T03:46:10Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/data_schema.md
+  attempts: 1
+  canonical: misorientation_angle feature importance is 0.25
+  claim_id: c_f9f49c49
+  context: 'feature_importance: { ''misorientation_angle'': 0.25, ... }'
+  evidence:
+    asserted: '0.25'
+    authority: scipy.constants.N_A (CODATA 2018, exact by SI definition)
+    constant: avogadro
+    corrected: true
+    mode: approximate
+    true_value: 6.02214076e+23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?na
+  kind: numeric
+  raw_text: The misorientation_angle feature has an importance of 0.25 in the trained
+    model.
+  resolved_value: '602214075999999987023872'
+  resolver: approximate
+  source_hash: 7c4209bfe372393762d83fef294a921d3bf9192226dc5466073653020ea9171b
+  source_type: external
+  status: verified
+  updated_at: '2026-07-03T03:46:10Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/data_schema.md
+  attempts: 1
+  canonical: sigma_value feature importance is 0.18
+  claim_id: c_21caa631
+  context: 'feature_importance: { ..., ''sigma_value'': 0.18, ... }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sigma_value feature has an importance of 0.18 in the trained model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T03:46:39Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/data_schema.md
+  attempts: 1
+  canonical: boundary_plane_hkl feature importance is 0.15
+  claim_id: c_e08761f2
+  context: 'feature_importance: { ..., ''boundary_plane_hkl'': 0.15, ... }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The boundary_plane_hkl feature has an importance of 0.15 in the trained
+    model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T03:47:05Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/data_schema.md
+  attempts: 1
+  canonical: temperature feature importance is 0.12
+  claim_id: c_7432d3dc
+  context: 'feature_importance: { ..., ''temperature'': 0.12, ... }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The temperature feature has an importance of 0.12 in the trained model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T03:47:22Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/data_schema.md
+  attempts: 1
+  canonical: boundary_width feature importance is 0.10
+  claim_id: c_e9ed6ead
+  context: 'feature_importance: { ..., ''boundary_width'': 0.10, ... }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The boundary_width feature has an importance of 0.10 in the trained model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T03:47:37Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/data_schema.md
+  attempts: 1
+  canonical: excess_volume feature importance is 0.08
+  claim_id: c_3ea0a606
+  context: 'feature_importance: { ..., ''excess_volume'': 0.08, ... }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The excess_volume feature has an importance of 0.08 in the trained model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T03:48:24Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/data_schema.md
+  attempts: 1
+  canonical: simulation_method feature importance is 0.07
+  claim_id: c_e98244bc
+  context: 'feature_importance: { ..., ''simulation_method'': 0.07, ... }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The simulation_method feature has an importance of 0.07 in the trained
+    model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T03:49:05Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/data_schema.md
+  attempts: 1
+  canonical: potential_id feature importance is 0.05
+  claim_id: c_2e8040fb
+  context: 'feature_importance: { ..., ''potential_id'': 0.05 }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The potential_id feature has an importance of 0.05 in the trained model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T03:49:38Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/data_schema.md
+  attempts: 1
+  canonical: cross-validation used 5 folds
+  claim_id: c_e37e7b9a
+  context: 'cross_validation: { ''k_folds'': 5, ... }'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: The figure below illustrates standard 5 Fold Cross-Validation
+      source_id: Purged cross-validation
+      url: https://en.wikipedia.org/wiki/Purged_cross-validation
+      value: '5'
+    filled: true
+  kind: numeric
+  raw_text: The cross-validation used 5 folds.
+  resolved_value: '5'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-03T03:50:01Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/data_schema.md
+  attempts: 1
+  canonical: mean R2 across cross-validation folds is 0.81
+  claim_id: c_93d4066f
+  context: 'cross_validation: { ..., ''r2_mean'': 0.81, ... }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The mean R\xB2 across cross-validation folds is 0.81."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T03:50:44Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/data_schema.md
+  attempts: 1
+  canonical: standard deviation of R2 across cross-validation folds is 0.03
+  claim_id: c_1bfc8902
+  context: 'cross_validation: { ..., ''r2_std'': 0.03, ... }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The standard deviation of R\xB2 across cross-validation folds is 0.03."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T03:51:51Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/data_schema.md
+  attempts: 1
+  canonical: mean RMSE across cross-validation folds is 0.055
+  claim_id: c_c5aa4a17
+  context: 'cross_validation: { ..., ''rmse_mean'': 0.055, ... }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mean RMSE across cross-validation folds is 0.055.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T03:52:22Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/data_schema.md
+  attempts: 1
+  canonical: mean MAPE across cross-validation folds is 0.13
+  claim_id: c_7d6c2d96
+  context: 'cross_validation: { ..., ''mape_mean'': 0.13 }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mean MAPE across cross-validation folds is 0.13.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T03:52:58Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/data_schema.md
+  attempts: 1
+  canonical: bias test intercept is 0.02
+  claim_id: c_687907be
+  context: 'bias_test: { ''intercept'': 0.02, ... }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bias test intercept is 0.02.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T03:53:35Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/data_schema.md
+  attempts: 1
+  canonical: bias test slope is 0.98
+  claim_id: c_a60e43fa
+  context: 'bias_test: { ..., ''slope'': 0.98, ... }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bias test slope is 0.98.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T03:53:54Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/data_schema.md
+  attempts: 1
+  canonical: bias test p-value is 0.15
+  claim_id: c_23565d25
+  context: 'bias_test: { ..., ''p_value'': 0.15, ... }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bias test p-value is 0.15.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T03:54:55Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/data_schema.md
+  attempts: 1
+  canonical: Bonferroni adjusted p-value for bias test is 0.45
+  claim_id: c_7c091d1d
+  context: 'bias_test: { ..., ''bonferroni_adjusted_p'': 0.45 }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bonferroni adjusted p-value for the bias test is 0.45.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T04:00:36Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/data_schema.md
+  attempts: 1
+  canonical: R2 standard deviation threshold is 0.05
+  claim_id: c_f5a1ab0c
+  context: 'threshold_check: { ''r2_std_threshold'': 0.05, ... }'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The R\xB2 standard deviation threshold is 0.05."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T04:12:34Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/data_schema.md
+  attempts: 1
+  canonical: pass rate for R2 threshold 0.6 is 0.95
+  claim_id: c_b9485d58
+  context: threshold,pass_rate,justification ... 0.6,0.95,Community standard...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The pass rate for an R\xB2 threshold of 0.6 is 0.95."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T04:13:22Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/data_schema.md
+  attempts: 1
+  canonical: pass rate for R2 threshold 0.7 is 0.82
+  claim_id: c_5b553127
+  context: threshold,pass_rate,justification ... 0.7,0.82,Primary target threshold
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The pass rate for an R\xB2 threshold of 0.7 is 0.82."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T04:13:54Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/data_schema.md
+  attempts: 1
+  canonical: pass rate for R2 threshold 0.8 is 0.55
+  claim_id: c_4e8dd470
+  context: threshold,pass_rate,justification ... 0.8,0.55,High performance target
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The pass rate for an R\xB2 threshold of 0.8 is 0.55."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T04:15:06Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/data_schema.md
+  attempts: 1
+  canonical: Materials Project dataset contains 550 records
+  claim_id: c_36fdad79
+  context: 'Data Provenance ... source: Materials Project ... record_count: 550'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Materials Project dataset contains 550 records.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T04:16:01Z'
+- artifact_path: projects/PROJ-117-quantifying-the-impact-of-grain-boundary/docs/data_schema.md
+  attempts: 1
+  canonical: OpenKIM dataset contains 200 records
+  claim_id: c_ed68f57a
+  context: 'Data Provenance ... source: OpenKIM ... record_count: 200'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The OpenKIM dataset contains 200 records.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T04:16:34Z'

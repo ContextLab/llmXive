@@ -1,0 +1,17 @@
+[lint]
+select = ["E", "F", "W", "I", "N", "UP", "ANN", "S", "B", "C4", "DTZ", "TCH", "SIM", "ARG", "PTH", "RUF"]
+ignore = ["ANN101", "ANN102", "S101", "B008", "RUF012"]
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+target-version = "py39"
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+docstring-code-format = true
+docstring-code-line-length = "dynamic"
+
+[per-file-ignores]
+"tests/*" = ["ANN", "S", "B018"]
+"code/diagnostics.py" = ["ARG001"]
