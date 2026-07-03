@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-01T03:11:09.649029Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-808-agentic-abstention-do-agents-know-when-t
-last_run_id: null
+last_run_id: 714ae888-fe8d-44e7-a242-2c7f447c94dc
 last_run_status: null
 points_paper: {}
 points_research: {}

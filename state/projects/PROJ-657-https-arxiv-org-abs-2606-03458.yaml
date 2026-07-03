@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-04T09:21:53.148575Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-657-https-arxiv-org-abs-2606-03458
-last_run_id: d44abaf0-32ee-478d-af64-19e4fea783ce
+last_run_id: 609f17cc-c09c-47b0-8a1e-ed013c6c3a9c
 last_run_status: null
 points_paper: {}
 points_research: {}
