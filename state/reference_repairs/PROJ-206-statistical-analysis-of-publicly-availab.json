@@ -1,0 +1,14 @@
+[
+  {
+    "repaired_at": "2026-07-03T15:08:49.993419+00:00",
+    "project": "PROJ-206-statistical-analysis-of-publicly-availab",
+    "repairs": [
+      {
+        "dead_url": "https://www.realclearpolitics.com/epolls/",
+        "reason": "HTTP 403",
+        "replacement_url": "https://huggingface.co/datasets/rcp-meetings/rudialogsum_v2/resolve/main/test.jsonl",
+        "intent": "epolls RealClearPolitics RCP Historical poll averages and raw data archives. Scraping of archived tables or verified CSV mirrors if available in the \"Verified datasets\""
+      }
+    ]
+  }
+]

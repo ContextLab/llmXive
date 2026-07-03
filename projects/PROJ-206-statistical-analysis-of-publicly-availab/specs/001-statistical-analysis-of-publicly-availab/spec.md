@@ -33,7 +33,7 @@ The system MUST compute point forecasts for each election week using (1) Simple 
 **Acceptance Scenarios**:
 
 1. **Given** the cleaned poll data for the 2020 election cycle, **When** the Simple Average method is applied, **Then** the forecast value equals the arithmetic mean of all available polls for that week.
-2. **Given** the cleaned poll data for the 2020 election cycle, **When** the Weighted Average method is applied, **Then** the forecast value reflects the inverse-RMSE weighting where high-performing pollsters have >50% influence on the aggregate.
+2. **Given** the cleaned poll data for the 2020 election cycle, **When** the Weighted Average method is applied, **Then** the forecast value is calculated using inverse-RMSE weighting where weights are normalized to sum to 1.0, and high-performing pollsters contribute proportionally more to the aggregate based on their normalized weights.
 
 ---
 
@@ -47,9 +47,9 @@ The system MUST fit a Bayesian hierarchical model using PyMC (NUTS sampler) to g
 
 **Acceptance Scenarios**:
 
-1. **Given** the cleaned poll data, **When** the PyMC model runs, **Then** the sampler completes within 4 hours on a 2-core CPU runner without GPU acceleration.
-2. **Given** the posterior samples, **When** the 95% credible intervals are evaluated against actual outcomes, **Then** the observed coverage rate is reported in `calibration_report.csv`.
-3. **Given** the error metrics from all three methods, **When** pairwise Diebold-Mariano tests are run, **Then** p-values are adjusted for multiple comparisons and reported.
+1. **Given** the cleaned poll data, **When** the PyMC model runs, **Then** the sampler completes without divergences and produces a trace with R-hat ≤ 1.05.
+2. **Given** the posterior samples, **When** the 95% credible intervals are evaluated against actual outcomes, **Then** the observed coverage rate is ≥90% and a binomial test against the [deferred] null hypothesis fails to reject the null (p ≥ 0.05).
+3. **Given** the error metrics from all three methods, **When** pairwise Diebold-Mariano tests are run, **Then** p-values are adjusted for multiple comparisons using a method accounting for error correlation (e.g., Westfall-Young) and reported.
 
 ---
 
@@ -59,20 +59,24 @@ The system MUST fit a Bayesian hierarchical model using PyMC (NUTS sampler) to g
 - How does the system handle MCMC non-convergence (R-hat > 1.05)?
 - How does the system handle missing final election outcome data for a specific state or year?
 
+## Non-Functional Requirements
+
+- **NFR-001**: The full analysis pipeline MUST complete within 4 hours on a standard 2-core CPU-only runner (Intel Xeon or equivalent with ≥2.0 GHz clock speed) without GPU acceleration, processing up to 10 election cycles.
+
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download and parse poll data from ` and archived RealClearPolitics sources into a unified format (See US-1)
+- **FR-001**: System MUST download and parse poll data from `https://projects.fivethirtyeight.com/polls/` and ` into a unified format (See US-1)
 - **FR-002**: System MUST compute pollster-specific historical RMSE for weighting factors based on past elections (See US-1)
 - **FR-003**: System MUST calculate simple arithmetic mean of vote shares for each weekly bin (See US-2)
-- **FR-004**: System MUST calculate inverse-RMSE weighted mean of vote shares for each weekly bin (See US-2)
+- **FR-004**: System MUST calculate inverse-RMSE weighted mean of vote shares for each weekly bin, normalizing weights to sum to 1.0 (See US-2)
 - **FR-005**: System MUST fit Bayesian hierarchical model with latent weekly preference θₜ ~ Normal(θₜ₋₁, σₜ²) and observation noise τᵢ² (See US-3)
-- **FR-006**: System MUST complete full analysis pipeline within 4 hours on a 2-core CPU-only runner (See US-3)
+- **FR-006**: System MUST apply a correlation-aware multiple comparison correction (e.g., Westfall-Young or Benjamini-Hochberg) to pairwise Diebold-Mariano tests (See US-3)
 - **FR-007**: System MUST frame findings as predictive accuracy and associational uncertainty, not causal voter influence (See US-3)
-- **FR-008**: System MUST apply Bonferroni or False Discovery Rate correction to pairwise Diebold-Mariano tests (See US-3)
-- **FR-009**: System MUST sweep significance threshold α ∈ {0.01, 0.05, 0.10} and report stability of headline improvement rates (See US-3)
-- **FR-010**: System MUST report 95% credible interval coverage rate against actual election outcomes (See US-3)
+- **FR-008**: System MUST perform a qualitative data sufficiency check on temporal density and recency; if data is deemed insufficient for hierarchical shrinkage (defined as <5 polls within 30 days or <3 distinct election cycles), the system MUST halt and issue a warning (See US-1)
+- **FR-009**: System MUST report 95% credible interval coverage rate against actual election outcomes and perform a binomial test against the [deferred] null hypothesis (See US-3)
+- **FR-010**: System MUST halt and report an error if the total poll count across the target period is <500 (See US-1)
 
 ### Key Entities
 
@@ -89,14 +93,14 @@ The system MUST fit a Bayesian hierarchical model using PyMC (NUTS sampler) to g
 > measured quantities, percentages) to the implementation/research phase.
 
 - **SC-001**: RMSE and MAE are calculated for Simple, Weighted, and Bayesian methods against actual election outcomes (See US-2)
-- **SC-002**: Calibration reliability is measured as the percentage of actual outcomes falling within the 95% credible interval (See US-3)
-- **SC-003**: Statistical significance of method differences is measured via Diebold-Mariano test statistics with multiplicity correction (See US-3)
+- **SC-002**: Calibration reliability achieves ≥90% coverage of actual outcomes within the 95% credible interval, validated by a binomial test (See US-3)
+- **SC-003**: Statistical significance of method differences is measured via Diebold-Mariano test statistics with correlation-aware multiplicity correction (See US-3)
 
 ## Assumptions
 
 - FiveThirtyEight public repository contains complete CSV data for presidential polls covering multiple election cycles through 2020.
-- GitHub Actions free-tier runner provides sufficient CPU stability for PyMC NUTS sampling without timeout.
-- RealClearPolitics archived data is accessible via static download or verified mirror; `[NEEDS CLARIFICATION: does RCP archive contain complete 2008-2012 historical data?]`
+- GitHub Actions free-tier runner provides sufficient CPU stability for PyMC NUTS sampling, subject to the NFR-001 time limit.
+- RealClearPolitics archived data may be partial for the early 21st-century period; the system will ingest available data and flag missing cycles.
 - Election final popular vote outcomes are available from official federal election commission records for all target years.
 - PyMC v5 is compatible with the default CPU-only environment without requiring CUDA libraries.
 - Poll sample sizes and margins of error are reported consistently across all included pollsters.
