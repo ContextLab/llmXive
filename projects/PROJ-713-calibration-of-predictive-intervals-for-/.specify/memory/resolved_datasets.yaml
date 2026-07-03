@@ -1,0 +1,426 @@
+resolved_at: '2026-07-03T21:41:49.601409+00:00'
+datasets:
+- intent: UCI
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/udayl/UCI_HAR/resolve/main/csv_files/test.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/jlh/uci-shopper/resolve/main/data/train-00000-of-00001-3316810f8df41d3a.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ucinlp/drop/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ucinlp/drop/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ucirvine/reuters21578/resolve/main/data/reuters21578.tar.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/ucirvine/sms_spam/resolve/main/plain_text/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/udayl/UCI_HAR/resolve/main/csv_files/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/jlh/uci-shopper/resolve/main/data/train-00000-of-00001-3316810f8df41d3a.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://bridges.monash.edu/articles/software/Source_Code_for_i_Explaining_the_Outcomes_of_Goal_Recognition_Systems_i_PhD_thesis/32897345
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/software/Source_Code_for_i_Explaining_the_Outcomes_of_Goal_Recognition_Systems_i_PhD_thesis/32897345
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://tandf.figshare.com/articles/journal_contribution/Purification_and_evaluation_of_anti-inflammatory_and_antioxidant_properties_of_an_apramycin-like_compound_from_i_Microbacterium_barkeri_i_/32897346
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Supplementary_materials_i_In_vitro_i_evaluation_of_selected_compounds_affecting_ruminal_fermentation_and_methane_production/32048226
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Materials_of_the_manuscript_b_Cognitive_and_neural_outcomes_of_executive_function_training_in_healthy_adults_A_systematic_review_b_/32897309
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Circulating_Nitrate_and_Antioxidants_Are_Associated_with_Cardiometabolic_Risk_Markers_in_Older_Adults_Following_Beetroot_Extract_Supplementation/32897342
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7950533
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/61452
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7681792
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7627577
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10685355
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21153264
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21153264
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.28833
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21148859
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21148859
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ARIMA
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/CyberHarem/arima_kana_oshinoko/resolve/main/meta.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 51
+      parsed: true
+  - url: https://huggingface.co/datasets/dunzing/ARIMA-Date-Prediction/resolve/main/testdata1.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 73319
+      parsed: true
+  - url: https://huggingface.co/datasets/ArimaKn/ArabicSemanticSimilairtyDataset/resolve/main/dS.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 86429
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ArimaKn/ArabicSemanticSimilairtyDataset/resolve/main/dS.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/CyberHarem/arima_kana_oshinoko/resolve/main/meta.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/dunzing/ARIMA-Date-Prediction/resolve/main/testdata1.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://bridges.monash.edu/articles/software/Source_Code_for_i_Explaining_the_Outcomes_of_Goal_Recognition_Systems_i_PhD_thesis/32897345
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/software/Source_Code_for_i_Explaining_the_Outcomes_of_Goal_Recognition_Systems_i_PhD_thesis/32897345
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://tandf.figshare.com/articles/journal_contribution/Purification_and_evaluation_of_anti-inflammatory_and_antioxidant_properties_of_an_apramycin-like_compound_from_i_Microbacterium_barkeri_i_/32897346
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Supplementary_materials_i_In_vitro_i_evaluation_of_selected_compounds_affecting_ruminal_fermentation_and_methane_production/32048226
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Materials_of_the_manuscript_b_Cognitive_and_neural_outcomes_of_executive_function_training_in_healthy_adults_A_systematic_review_b_/32897309
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Circulating_Nitrate_and_Antioxidants_Are_Associated_with_Cardiometabolic_Risk_Markers_in_Older_Adults_Following_Beetroot_Extract_Supplementation/32897342
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17797040
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://link.springer.com/article/10.1007/BF01862789
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15200039
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15557115
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15557152
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/5zm69/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21167418
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21167418
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21158314
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21158314
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: LSTM
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/hieuhocnlp/lstm-deep-usc-test/resolve/main/data/train-00000-of-00001-909d4fe9ab683ccf.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/345rf4gt56t4r3e3/lstm_crypto_dataset/resolve/main/BTCUSDT-1m-1702928420.084537-1710704420.084537-binance-futures.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/bridge4/LSTM-VAE-INFERENCE_Dataset/resolve/main/data/train-00000-of-00003.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/hieuhocnlp/lstm-deep-usc-test/resolve/main/data/train-00000-of-00001-909d4fe9ab683ccf.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/sandy37/data_lstm/resolve/main/test.jsonl
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/345rf4gt56t4r3e3/lstm_crypto_dataset/resolve/main/BTCUSDT-1m-1702928420.084537-1710704420.084537-binance-futures.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/bridge4/LSTM-VAE-INFERENCE_Dataset/resolve/main/data/train-00000-of-00003.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/shivDwd/W_LSTMix_test_dataset/resolve/main/test/Bareilly/Bareilly_2020_BR05.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://bridges.monash.edu/articles/software/Source_Code_for_i_Explaining_the_Outcomes_of_Goal_Recognition_Systems_i_PhD_thesis/32897345
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/software/Source_Code_for_i_Explaining_the_Outcomes_of_Goal_Recognition_Systems_i_PhD_thesis/32897345
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://tandf.figshare.com/articles/journal_contribution/Purification_and_evaluation_of_anti-inflammatory_and_antioxidant_properties_of_an_apramycin-like_compound_from_i_Microbacterium_barkeri_i_/32897346
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Supplementary_materials_i_In_vitro_i_evaluation_of_selected_compounds_affecting_ruminal_fermentation_and_methane_production/32048226
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Materials_of_the_manuscript_b_Cognitive_and_neural_outcomes_of_executive_function_training_in_healthy_adults_A_systematic_review_b_/32897309
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Circulating_Nitrate_and_Antioxidants_Are_Associated_with_Cardiometabolic_Risk_Markers_in_Older_Adults_Following_Beetroot_Extract_Supplementation/32897342
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5921803
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3952399
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7033859
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2636760
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12715641
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://dspace.lib.ntua.gr/xmlui/handle/123456789/65261
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21176491
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21176491
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20475968
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20475968
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: URLs
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/flwrlabs/fed-phishing-urls/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/FINAL-Bench/service-urls/resolve/main/urls.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 911
+      parsed: true
+  - url: https://huggingface.co/datasets/marksverdhei/reddit-syac-urls/resolve/main/test.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 107077
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/flwrlabs/fed-phishing-urls/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/FINAL-Bench/service-urls/resolve/main/urls.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/marksverdhei/reddit-syac-urls/resolve/main/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/api/resolve-cache/datasets/AmirulOm/lottie-urls/709fd56c19915e82eafc9bc39780e078daee5e00/data%2Flots%2Furls.csv?%2Fdatasets%2FAmirulOm%2Flottie-urls%2Fresolve%2Fmain%2Fdata%2Flots%2Furls.csv=&etag=%226b32914e2f563eb13122769f44977e30c2b266f8%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/joshtobin/malicious_urls/resolve/main/data/train-00000-of-00001-0ac5e739002d814a.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://bridges.monash.edu/articles/software/Source_Code_for_i_Explaining_the_Outcomes_of_Goal_Recognition_Systems_i_PhD_thesis/32897345
+    source: figshare
+    status: unreachable
+    reason: 'reachability failed: SSLError: HTTPSConnectionPool(host=''bridges.monash.edu'',
+      port=443): Max retries exceeded with url: /articles/software/Source_Code_for_i_Explaining_the_Outcomes_of_Goal_Recognition_Systems_i_PhD_thesis/32897345
+      (Caused by SSLError(SSLCertVerificationError(1, ''[SSL: CERTIFICATE_VERIFY_FAILED]
+      certificate verify failed: unable to get local issuer certificate (_ssl.c:1016)'')))'
+  - url: https://tandf.figshare.com/articles/journal_contribution/Purification_and_evaluation_of_anti-inflammatory_and_antioxidant_properties_of_an_apramycin-like_compound_from_i_Microbacterium_barkeri_i_/32897346
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Supplementary_materials_i_In_vitro_i_evaluation_of_selected_compounds_affecting_ruminal_fermentation_and_methane_production/32048226
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/figure/Supplementary_Materials_of_the_manuscript_b_Cognitive_and_neural_outcomes_of_executive_function_training_in_healthy_adults_A_systematic_review_b_/32897309
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Circulating_Nitrate_and_Antioxidants_Are_Associated_with_Cardiometabolic_Risk_Markers_in_Older_Adults_Following_Beetroot_Extract_Supplementation/32897342
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/50969
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8371046
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21014453
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10622995
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15573303
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21176532
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21176532
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21175983
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21175983
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19642429
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

@@ -1,0 +1,50 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CalibrationResults"
+description: "Schema for output calibration metrics"
+type: object
+properties:
+  series_id:
+    type: string
+    description: "ID of the time series"
+  model_name:
+    type: string
+    description: "Name of the model (ARIMA, Prophet, LSTM)"
+    enum:
+      - ARIMA
+      - Prophet
+      - LSTM
+  nominal_level:
+    type: number
+    description: "Nominal coverage level (0.80 or 0.95)"
+    enum:
+      - 0.8
+      - 0.95
+  empirical_coverage:
+    type: number
+    description: "Observed coverage rate"
+    minimum: 0.0
+    maximum: 1.0
+  coverage_deviation:
+    type: number
+    description: "Difference between empirical and nominal coverage"
+  pit_pvalue:
+    type: number
+    description: "P-value from Kolmogorov-Smirnov test against Uniform(0,1) distribution for PIT uniformity"
+    minimum: 0.0
+    maximum: 1.0
+  crps_score:
+    type: number
+    description: "Continuous Ranked Probability Score"
+    minimum: 0.0
+  is_significant:
+    type: boolean
+    description: "Whether the deviation is statistically significant (p < 0.05)"
+required:
+  - series_id
+  - model_name
+  - nominal_level
+  - empirical_coverage
+  - coverage_deviation
+  - pit_pvalue
+  - crps_score
+additionalProperties: false

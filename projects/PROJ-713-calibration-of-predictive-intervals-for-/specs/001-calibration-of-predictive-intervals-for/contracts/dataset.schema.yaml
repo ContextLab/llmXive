@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "TimeSeriesDataset"
+description: "Schema for input time series data (M4, UCI HAR, etc.)"
+type: object
+properties:
+  series_id:
+    type: string
+    description: "Unique identifier for the time series"
+  frequency:
+    type: string
+    description: "Temporal frequency of the series (e.g., 'hourly', 'daily')"
+    pattern: "^(hourly|daily|weekly|monthly|yearly)$"
+  timestamps:
+    type: array
+    items:
+      type: string
+      format: date-time
+    description: "Array of timestamps"
+  values:
+    type: array
+    items:
+      type: number
+    description: "Array of observed values"
+  metadata:
+    type: object
+    properties:
+      source:
+        type: string
+        description: "Source dataset name (e.g., 'M4', 'UCI_HAR')"
+      split_ratio:
+        type: number
+        description: "Training split ratio (e.g., 0.8)"
+    required:
+      - source
+      - split_ratio
+required:
+  - series_id
+  - frequency
+  - timestamps
+  - values
+additionalProperties: false
