@@ -1,0 +1,19 @@
+# Metadata file for citation validation
+# This file contains URLs that are validated against the whitelist
+sources:
+  - name: Materials Project
+    url: https://materialsproject.org
+    description: Primary source for bulk configurations
+  - name: OQMD
+    url: https://oqmd.org
+    description: Secondary source for bulk configurations
+validation:
+  whitelist:
+    - https://materialsproject.org
+    - https://oqmd.org
+    - ""
+  required_fields:
+    - bulk_config_id
+    - impurity_species
+    - segregation_energy
+    - clustering_descriptors

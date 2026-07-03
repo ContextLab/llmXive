@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Output Schema for Regression Analysis"
+description: "Schema defining the required fields for model evaluation outputs."
+type: object
+required:
+  - r2
+  - rmse
+  - p_values
+  - confidence_intervals
+properties:
+  r2:
+    type: number
+    description: "Coefficient of determination (R-squared) value."
+    minimum: -1.0
+    maximum: 1.0
+  rmse:
+    type: number
+    description: "Root Mean Squared Error."
+    minimum: 0.0
+  p_values:
+    type: object
+    description: "Dictionary mapping feature names to their p-values."
+    additionalProperties:
+      type: number
+      minimum: 0.0
+      maximum: 1.0
+  confidence_intervals:
+    type: object
+    description: "Dictionary mapping feature names to their confidence intervals (list of two numbers)."
+    additionalProperties:
+      type: array
+      items:
+        type: number
+      minItems: 2
+      maxItems: 2
+additionalProperties: true

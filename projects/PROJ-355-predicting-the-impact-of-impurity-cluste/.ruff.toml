@@ -1,0 +1,24 @@
+# Standalone Ruff configuration for CLI usage
+extend = "pyproject.toml"
+line-length = 88
+target-version = "py310"
+
+[lint]
+select = ["ALL"]
+ignore = [
+    "D100", # Missing docstring in public module
+    "D101", # Missing docstring in public class
+    "D102", # Missing docstring in public method
+    "D103", # Missing docstring in public function
+    "D104", # Missing docstring in public package
+    "D105", # Missing docstring in magic method
+    "D203", # 1 blank line required before class docstring
+    "D213", # Multi-line docstring summary should start at the second line
+    "EM101", # Exception must not use a string literal, assign to variable first
+    "EM102", # Exception must not use an f-string literal, assign to variable first
+    "TRY003", # Avoid specifying long messages outside the exception class
+]
+
+[lint.per-file-ignores]
+"tests/*" = ["S101", "ANN"]
+"code/main.py" = ["T201"]

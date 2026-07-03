@@ -1,0 +1,21 @@
+type: object
+required:
+  - bulk_config_id
+  - impurity_species
+  - segregation_energy
+  - clustering_descriptors
+properties:
+  bulk_config_id:
+    type: string
+    description: Unique identifier for the bulk configuration
+  impurity_species:
+    type: string
+    description: Chemical symbol of the impurity species
+  segregation_energy:
+    type: number
+    description: Calculated segregation energy in eV
+  clustering_descriptors:
+    type: array
+    items:
+      type: number
+    description: Array of clustering descriptor values

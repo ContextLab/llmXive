@@ -31,7 +31,7 @@
   verification_status: mismatch
   verified_against_url: https://api.crossref.org/works/10.17188/1269648
   verified_at: '2026-07-03T16:04:55.042192Z'
-- artifact_hash: a1f92f606a23e192831ef5e82a2664f26f9646af235f22d8636ce8ceee8b28ed
+- artifact_hash: 5cb872297e290bf5cb21dfecbbfe971cb6496784965f1fb9b50625f1ed40d731
   artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -41,15 +41,29 @@
   value: https://materialsproject.org
   verification_status: pending
   verified_against_url: https://next-gen.materialsproject.org/
-  verified_at: '2026-07-03T16:29:30.832887Z'
-- artifact_hash: a1f92f606a23e192831ef5e82a2664f26f9646af235f22d8636ce8ceee8b28ed
+  verified_at: '2026-07-03T18:31:18.736864Z'
+- artifact_hash: 5cb872297e290bf5cb21dfecbbfe971cb6496784965f1fb9b50625f1ed40d731
   artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
-  fetched_title: OQMD
+  fetched_title: '[2005.02245] Overcoming the inconsistences of the variance inflation
+    factor: a redefined VIF and a test to detect statistical troubling multicollinearity'
   kind: url
-  value: https://oqmd.org
-  verification_status: pending
-  verified_against_url: https://oqmd.org
-  verified_at: '2026-07-03T16:29:30.832887Z'
+  value: https://arxiv.org/abs/2005.02245
+  verification_status: verified
+  verified_against_url: https://arxiv.org/abs/2005.02245
+  verified_at: '2026-07-03T18:31:18.736864Z'
+- artifact_hash: 5cb872297e290bf5cb21dfecbbfe971cb6496784965f1fb9b50625f1ed40d731
+  artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2604.10702] Backbone-Conditional Behavior of Modality Gating in
+    Multi-Modal Prostate MRI Segmentation: A 5-Fold Cross-Validation and Gate Mechanism
+    Analysis'
+  kind: url
+  value: https://arxiv.org/abs/2604.10702
+  verification_status: verified
+  verified_against_url: https://arxiv.org/abs/2604.10702
+  verified_at: '2026-07-03T18:31:18.736864Z'

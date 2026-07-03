@@ -1,0 +1,16 @@
+# Development and Tooling Dependencies
+# Pinned versions to ensure reproducible environment for linting/formatting
+
+# Core Project Dependencies (pinned in requirements.txt)
+-r requirements.txt
+
+# Linting and Formatting
+ruff==0.1.6
+black==23.12.1
+
+# Testing
+pytest==7.4.3
+pytest-cov==4.1.0
+
+# Type Checking
+mypy==1.8.0
