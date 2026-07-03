@@ -1,0 +1,103 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: BMGEntry
+description: |
+  Schema for a single Bulk Metallic Glass (BMG) entry.
+  Defines the structure for raw and processed data regarding composition,
+  source, and shear modulus measurements.
+type: object
+required:
+  - source
+  - composition
+  - modulus
+properties:
+  source:
+    type: object
+    description: Metadata regarding the origin of the data point.
+    required:
+      - database
+      - reference_id
+    properties:
+      database:
+        type: string
+        description: Name of the source database (e.g., 'Materials Project', 'Synthetic').
+        minLength: 1
+      reference_id:
+        type: string
+        description: Unique identifier for the entry within the source database.
+        minLength: 1
+      retrieval_date:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of when the data was retrieved.
+      license:
+        type: string
+        description: License governing the data usage.
+
+  composition:
+    type: object
+    description: Chemical composition of the alloy.
+    required:
+      - elements
+      - units
+    properties:
+      units:
+        type: string
+        enum:
+          - at%
+          - wt%
+        description: Unit of measurement for the composition values.
+      elements:
+        type: array
+        description: List of element entries.
+        minItems: 1
+        items:
+          type: object
+          required:
+            - symbol
+            - value
+          properties:
+            symbol:
+              type: string
+              pattern: '^[A-Z][a-z]?$'
+              description: Chemical symbol (e.g., 'Zr', 'Cu').
+            value:
+              type: number
+              minimum: 0
+              maximum: 100
+              description: Composition value in the specified units.
+
+  modulus:
+    type: object
+    description: Mechanical property data.
+    required:
+      - shear_modulus
+      - unit
+    properties:
+      shear_modulus:
+        type: number
+        minimum: 0
+        description: Shear modulus value.
+      unit:
+        type: string
+        enum:
+          - GPa
+          - MPa
+        description: Unit of the shear modulus.
+      method:
+        type: string
+        description: Experimental or computational method used (e.g., 'DFT', 'Nanoindentation').
+      uncertainty:
+        type: number
+        minimum: 0
+        description: Measurement uncertainty if available.
+
+  metadata:
+    type: object
+    description: Optional additional metadata.
+    properties:
+      phase_verification:
+        type: string
+        description: Confirmation that the material is a Bulk Metallic Glass.
+      notes:
+        type: string
+        description: Free-form notes about the data point.

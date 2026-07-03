@@ -1,0 +1,50 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: BMGEntry Schema
+description: Schema for a single Bulk Metallic Glass entry with compositional descriptors.
+type: object
+properties:
+  id:
+    type: string
+    description: "Unique identifier for the entry."
+  composition:
+    type: object
+    description: "Elemental composition in atomic percent."
+    additionalProperties:
+      type: number
+      minimum: 0
+      maximum: 100
+  shear_modulus:
+    type: number
+    description: "Shear modulus in GPa."
+    minimum: 0
+  alloy_family:
+    type: string
+    description: "Classification of the alloy family (e.g., 'Zr-based')."
+  source:
+    type: string
+    enum:
+      - "materials_project"
+      - "inoue_compilation"
+      - "local_csv"
+  atomic_size_mismatch:
+    type: number
+    description: "Atomic size mismatch (delta) in percent."
+  mixing_enthalpy:
+    type: number
+    description: "Mixing enthalpy (delta H_mix) in kJ/mol."
+  valence_electron_concentration:
+    type: number
+    description: "Valence electron concentration (VEC)."
+  electronegativity_diff:
+    type: number
+    description: "Electronegativity difference (delta chi)."
+required:
+  - id
+  - composition
+  - shear_modulus
+  - alloy_family
+  - source
+  - atomic_size_mismatch
+  - mixing_enthalpy
+  - valence_electron_concentration
+  - electronegativity_diff

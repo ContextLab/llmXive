@@ -1,0 +1,40 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: ModelPerformance Schema
+description: Schema for model evaluation metrics and hyperparameters.
+type: object
+properties:
+  model_type:
+    type: string
+    enum:
+      - "LinearRegression"
+      - "RandomForestRegressor"
+      - "GradientBoostingRegressor"
+  r2_test:
+    type: number
+    description: "R-squared score on the held-out test set."
+  mae_test:
+    type: number
+    description: "Mean Absolute Error on the test set."
+  rmse_test:
+    type: number
+    description: "Root Mean Squared Error on the test set."
+  cv_scores:
+    type: array
+    description: "Cross-validation scores (5-fold)."
+    items:
+      type: number
+  best_params:
+    type: object
+    description: "Best hyperparameters found during grid search."
+  significance_p_value:
+    type: number
+    description: "P-value from the corrected resampled t-test vs baseline."
+    minimum: 0
+    maximum: 1
+required:
+  - model_type
+  - r2_test
+  - mae_test
+  - rmse_test
+  - cv_scores
+  - best_params
