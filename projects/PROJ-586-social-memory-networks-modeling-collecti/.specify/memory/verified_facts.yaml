@@ -1,10 +1,5 @@
-'|computation implement index specialization':
-  quote: 6.02214076e+23 (scipy.constants.N_A (CODATA 2018, exact by SI definition))
-  source_id: avogadro
-  url: https://physics.nist.gov/cgi-bin/cuu/Value?na
-  value: '6.02214076e+23'
-'|cue efficiency implement metric retrieval':
-  quote: 6.02214076e+23 (scipy.constants.N_A (CODATA 2018, exact by SI definition))
-  source_id: avogadro
-  url: https://physics.nist.gov/cgi-bin/cuu/Value?na
-  value: '6.02214076e+23'
+'|configuration game':
+  quote: Simple MCTS) we run 1000 games and track 16 statistics.
+  source_id: '2202.05773'
+  url: https://arxiv.org/abs/2202.05773
+  value: '1000'

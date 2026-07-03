@@ -64,7 +64,7 @@
   verification_status: verified
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/JasonXF/US3D-Enhanced/7f60acedd7f2c766cdc27a1e9e62bcc9c7d3428e/prompt.json?%2Fdatasets%2FJasonXF%2FUS3D-Enhanced%2Fresolve%2Fmain%2Fprompt.json=&etag=%22b1e79c038446025d54f94493aedb58c848fe8d2c%22
   verified_at: '2026-06-26T22:53:36.631629Z'
-- artifact_hash: 18c14654373fc2f14ac1c568d693b218565701954b0294066f63b5c60a440f0a
+- artifact_hash: 165c3c5da4cc28085fa96560b583250e9aa8b41f588a6ca5d927914482516b72
   artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -75,8 +75,8 @@
   value: https://arxiv.org/abs/2203.14669
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/2203.14669
-  verified_at: '2026-07-03T08:42:09.190636Z'
-- artifact_hash: 18c14654373fc2f14ac1c568d693b218565701954b0294066f63b5c60a440f0a
+  verified_at: '2026-07-03T10:00:46.563173Z'
+- artifact_hash: 165c3c5da4cc28085fa96560b583250e9aa8b41f588a6ca5d927914482516b72
   artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   cite_id: c-002
   cited_authors: []
@@ -86,8 +86,8 @@
   value: https://physics.nist.gov/cgi-bin/cuu/Value?na
   verification_status: verified
   verified_against_url: https://physics.nist.gov/cgi-bin/cuu/Value?na
-  verified_at: '2026-07-03T08:42:09.190636Z'
-- artifact_hash: 18c14654373fc2f14ac1c568d693b218565701954b0294066f63b5c60a440f0a
+  verified_at: '2026-07-03T10:00:46.563173Z'
+- artifact_hash: 165c3c5da4cc28085fa96560b583250e9aa8b41f588a6ca5d927914482516b72
   artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   cite_id: c-003
   cited_authors: []
@@ -98,4 +98,15 @@
   value: https://arxiv.org/abs/2503.02686
   verification_status: verified
   verified_against_url: https://arxiv.org/abs/2503.02686
-  verified_at: '2026-07-03T08:42:09.190636Z'
+  verified_at: '2026-07-03T10:00:46.563173Z'
+- artifact_hash: 165c3c5da4cc28085fa96560b583250e9aa8b41f588a6ca5d927914482516b72
+  artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: '[2202.05773] Visualising Multiplayer Game Spaces'
+  kind: url
+  value: https://arxiv.org/abs/2202.05773
+  verification_status: verified
+  verified_against_url: https://arxiv.org/abs/2202.05773
+  verified_at: '2026-07-03T10:00:46.563173Z'
