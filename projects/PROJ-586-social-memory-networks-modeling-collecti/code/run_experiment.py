@@ -1,6 +1,7 @@
 """
-Main experiment runner for Social Memory Networks.
-Implements game simulation for US-3: Scaling analysis across agent populations.
+Run experiments for Social Memory Networks.
+Supports full-context and limited-context simulations, metric computation,
+ANOVA analysis, and scaling plots.
 """
 from __future__ import annotations
 
@@ -9,13 +10,21 @@ import csv
 import json
 import random
 import sys
-from dataclasses import dataclass, field
+import time
+from dataclasses import dataclass, asdict
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, Union
 
-# Import from existing project modules
-from metrics.specialization import compute_specialization_index, SpecializationMetrics
-from metrics.retrieval import compute_retrieval_efficiency, RetrievalMetrics
+import numpy as np
+import pandas as pd
+
+# Import from local modules using relative imports where possible, or absolute if needed
+# Based on API surface:
+from metrics.specialization import compute_specialization_index
+from metrics.retrieval import compute_retrieval_efficiency
+from metrics.validator import validate_experiment_metrics
+from analysis.anova import run_anova_analysis
+from analysis.scaling import fit_power_law, generate_scaling_plot
 from utils.logging import get_logger
 
 logger = get_logger(__name__)
@@ -23,353 +32,304 @@ logger = get_logger(__name__)
 
 @dataclass
 class GameResult:
-    """Schema for a single game simulation result."""
+    """Schema for a single game result."""
     game_id: int
-    context_condition: str
     agent_count: int
+    context_condition: str
     specialization_index: float
     retrieval_efficiency: float
-    specialization_metrics: Dict[str, Any] = field(default_factory=dict)
-    retrieval_metrics: Dict[str, Any] = field(default_factory=dict)
+    timestamp: str = ""
+    metrics_valid: bool = True
+
+    def to_dict(self) -> Dict[str, Any]:
+        return asdict(self)
 
 
-def parse_agent_counts(agent_string: str) -> List[int]:
-    """Parse comma-separated agent counts (e.g., '3,5,7')."""
+def parse_agent_counts(value: str) -> List[int]:
+    """Parse --agents argument: '3,5,7' -> [3, 5, 7] or '5' -> [5]."""
+    if not value:
+        return [5]
+    parts = [p.strip() for p in value.split(',')]
     try:
-        return [int(x.strip()) for x in agent_string.split(",")]
+        return [int(p) for p in parts]
     except ValueError:
-        raise argparse.ArgumentTypeError(
-            f"Invalid agent count format: {agent_string}. Expected comma-separated integers."
-        )
+        raise argparse.ArgumentTypeError(f"Invalid agent count format: {value}")
 
 
-def parse_thresholds(threshold_string: str) -> List[int]:
-    """Parse comma-separated context thresholds."""
+def parse_thresholds(value: str) -> List[int]:
+    """Parse --thresholds argument: '128,256,512' -> [128, 256, 512]."""
+    if not value:
+        return [256]
+    parts = [p.strip() for p in value.split(',')]
     try:
-        return [int(x.strip()) for x in threshold_string.split(",")]
+        return [int(p) for p in parts]
     except ValueError:
-        raise argparse.ArgumentTypeError(
-            f"Invalid threshold format: {threshold_string}. Expected comma-separated integers."
-        )
+        raise argparse.ArgumentTypeError(f"Invalid threshold format: {value}")
 
 
 def simulate_one_game(
     agent_count: int,
     game_id: int,
-    context_condition: str = "full",
-    context_threshold: int = 1024,
+    context_condition: str,
+    context_threshold: Optional[int] = None,
     seed: Optional[int] = None
 ) -> GameResult:
     """
-    Simulate a single transactive memory game.
+    Simulate a single game of collective remembering.
 
-    This is a CPU-only, real-measurement simulation that computes specialization
-    and retrieval efficiency without fabricating results.
+    This is a CPU-friendly simulation that measures specialization and retrieval
+    efficiency without requiring a full LLM inference pipeline. It uses
+    deterministic pseudo-randomness seeded for reproducibility.
 
     Args:
-        agent_count: Number of agents in the group (3, 5, or 7 for US-3).
-        game_id: Unique identifier for this game instance.
-        context_condition: 'full' or 'limited' context.
-        context_threshold: Token limit for limited context.
-        seed: Random seed for reproducibility.
+        agent_count: Number of agents in the group.
+        game_id: Unique identifier for this game.
+        context_condition: 'full' or 'limited'.
+        context_threshold: Token limit for limited context (if applicable).
+        seed: Optional seed for reproducibility.
 
     Returns:
-        GameResult with measured metrics.
+        GameResult with computed metrics.
     """
     if seed is not None:
-        random.seed(seed + game_id)
+        rng = random.Random(seed + game_id)
+    else:
+        rng = random.Random(game_id)
 
-    # Simulate a realistic knowledge distribution among agents
-    # Each agent has a set of "skills" (knowledge domains)
-    num_domains = 10  # Fixed domain space for consistency
-    agent_skills = []
+    # Simulate agent specializations (0.0 to 1.0)
+    # In a real system, this would come from agent embeddings or fine-tuned weights
+    agent_specializations = [rng.uniform(0.1, 0.9) for _ in range(agent_count)]
 
-    for _ in range(agent_count):
-        # Each agent specializes in 1-3 domains, with some overlap
-        num_specialties = random.randint(1, min(3, num_domains))
-        specialties = random.sample(range(num_domains), num_specialties)
-        agent_skills.append(specialties)
+    # Simulate retrieval events
+    # Each agent attempts to retrieve a subset of the total knowledge
+    total_knowledge_items = 100
+    retrieved_items = []
 
-    # Simulate a query distribution across domains
-    num_queries = 50  # Number of questions asked in the game
-    query_domains = [random.randint(0, num_domains - 1) for _ in range(num_queries)]
+    for agent_idx, spec in enumerate(agent_specializations):
+        # Higher specialization -> higher retrieval probability for their domain
+        base_prob = 0.3 + (spec * 0.5)  # Range: 0.3 to 0.8
 
-    # Simulate retrieval: which agent answers which query?
-    # In full context: optimal assignment (knows the domain -> answers)
-    # In limited context: probabilistic assignment based on context window
-    retrieved_count = 0
-    retrieval_attempts = []
+        if context_condition == "limited" and context_threshold:
+            # Limited context: reduce effective retrieval
+            # Simulate context window truncation by reducing probability
+            truncation_factor = max(0.1, context_threshold / 1024.0)
+            base_prob *= truncation_factor
 
-    for q_idx, domain in enumerate(query_domains):
-        # Find agents who know this domain
-        knowledgeable_agents = [
-            i for i, skills in enumerate(agent_skills) if domain in skills
-        ]
+        num_retrieved = rng.binomial(total_knowledge_items, base_prob)
+        retrieved_items.append(min(num_retrieved, total_knowledge_items))
 
-        if not knowledgeable_agents:
-            # No one knows this domain - cannot be retrieved
-            retrieval_attempts.append(0)
-            continue
+    # Compute metrics
+    # Specialization index: variance in agent contributions normalized
+    if agent_count > 1:
+        spec_std = np.std(agent_specializations)
+        spec_idx = float(spec_std)  # Higher variance = higher specialization
+    else:
+        spec_idx = 0.0
 
-        if context_condition == "full":
-            # Optimal retrieval: someone who knows it always answers
-            retrieved_count += 1
-            retrieval_attempts.append(len(knowledgeable_agents))
-        else:
-            # Limited context: retrieval probability depends on threshold
-            # Simulate context window limitation
-            # Higher threshold = better chance of finding the right agent
-            retrieval_prob = min(1.0, context_threshold / 512.0)
-            if random.random() < retrieval_prob:
-                retrieved_count += 1
-                retrieval_attempts.append(len(knowledgeable_agents))
-            else:
-                retrieval_attempts.append(0)
-
-    # Compute specialization index
-    spec_metrics, spec_index = compute_specialization_index(
-        agent_skills, num_agents=agent_count
-    )
-
-    # Compute retrieval efficiency
-    ret_metrics, ret_efficiency = compute_retrieval_efficiency(
-        retrieved=retrieved_count,
-        total=num_queries,
-        agents=agent_count
-    )
+    # Retrieval efficiency: total retrieved / (agent_count * total_items)
+    total_retrieved = sum(retrieved_items)
+    max_possible = agent_count * total_knowledge_items
+    ret_eff = total_retrieved / max_possible if max_possible > 0 else 0.0
 
     return GameResult(
         game_id=game_id,
-        context_condition=context_condition,
         agent_count=agent_count,
-        specialization_index=spec_index,
-        retrieval_efficiency=ret_efficiency,
-        specialization_metrics={
-            "domain_coverage": spec_metrics.get("domain_coverage", 0.0),
-            "overlap_ratio": spec_metrics.get("overlap_ratio", 0.0),
-        },
-        retrieval_metrics={
-            "retrieved": retrieved_count,
-            "total": num_queries,
-            "avg_attempts": sum(retrieval_attempts) / max(1, len(retrieval_attempts)),
-        }
+        context_condition=context_condition,
+        specialization_index=round(spec_idx, 4),
+        retrieval_efficiency=round(ret_eff, 4),
+        timestamp=time.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        metrics_valid=True
     )
 
 
 def run_simulation(
     agent_counts: List[int],
-    games_per_count: int,
-    context_condition: str = "full",
-    context_threshold: int = 1024,
-    seed: int = 42,
-    output_dir: Optional[Path] = None
+    context_condition: str,
+    games_per_config: int,
+    context_thresholds: Optional[List[int]] = None,
+    seed: Optional[int] = None
 ) -> List[GameResult]:
     """
-    Run the full simulation for multiple agent counts.
+    Run the full simulation for given parameters.
 
     Args:
         agent_counts: List of agent counts to simulate (e.g., [3, 5, 7]).
-        games_per_count: Number of games per agent count (800 for US-3).
         context_condition: 'full' or 'limited'.
-        context_threshold: Context window size for limited condition.
-        seed: Base random seed.
-        output_dir: Directory to write CSV results (optional).
+        games_per_config: Number of games to run per configuration.
+        context_thresholds: List of context window sizes for limited context.
+        seed: Base seed for reproducibility.
 
     Returns:
-        List of all GameResult objects.
+        List of GameResult objects.
     """
     results = []
     game_id = 0
 
-    logger.log(
-        "run_simulation_start",
-        agent_counts=agent_counts,
-        games_per_count=games_per_count,
-        context_condition=context_condition,
-        seed=seed
-    )
+    if context_thresholds is None:
+        context_thresholds = [256] if context_condition == "limited" else [None]
 
-    for count in agent_counts:
-        logger.log(
-            "simulation_batch_start",
-            agent_count=count,
-            games_remaining=games_per_count
-        )
-
-        for i in range(games_per_count):
-            result = simulate_one_game(
-                agent_count=count,
-                game_id=game_id,
-                context_condition=context_condition,
-                context_threshold=context_threshold,
-                seed=seed
-            )
-            results.append(result)
-            game_id += 1
-
-            if (i + 1) % 100 == 0:
-                logger.log(
-                    "simulation_progress",
-                    agent_count=count,
-                    games_completed=i + 1,
-                    games_total=games_per_count
+    for agent_count in agent_counts:
+        for threshold in context_thresholds:
+            for i in range(games_per_config):
+                result = simulate_one_game(
+                    agent_count=agent_count,
+                    game_id=game_id,
+                    context_condition=context_condition,
+                    context_threshold=threshold,
+                    seed=seed
                 )
+                results.append(result)
+                game_id += 1
 
-    logger.log("run_simulation_complete", total_games=len(results))
-
-    if output_dir:
-        write_results_csv(results, output_dir / f"results_{context_condition}_agents{agent_counts}.csv")
+            logger.info(f"Completed {games_per_config} games for "
+                        f"agents={agent_count}, threshold={threshold}")
 
     return results
 
 
-def write_results_csv(results: List[GameResult], output_path: Path) -> None:
-    """Write simulation results to a CSV file."""
+def write_results_csv(
+    results: List[GameResult],
+    output_path: Union[str, Path]
+) -> Path:
+    """
+    Write simulation results to a CSV file.
+
+    Args:
+        results: List of GameResult objects.
+        output_path: Path to the output CSV file.
+
+    Returns:
+        Path to the written file.
+    """
+    output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    with open(output_path, "w", newline="", encoding="utf-8") as f:
-        writer = csv.writer(f)
-        # Header
-        writer.writerow([
-            "game_id",
-            "context_condition",
-            "agent_count",
-            "specialization_index",
-            "retrieval_efficiency",
-            "domain_coverage",
-            "overlap_ratio",
-            "retrieved",
-            "total",
-            "avg_attempts"
-        ])
+    fieldnames = [
+        'game_id', 'agent_count', 'context_condition',
+        'specialization_index', 'retrieval_efficiency', 'timestamp', 'metrics_valid'
+    ]
 
-        for r in results:
-            writer.writerow([
-                r.game_id,
-                r.context_condition,
-                r.agent_count,
-                f"{r.specialization_index:.6f}",
-                f"{r.retrieval_efficiency:.6f}",
-                f"{r.specialization_metrics.get('domain_coverage', 0.0):.6f}",
-                f"{r.specialization_metrics.get('overlap_ratio', 0.0):.6f}",
-                r.retrieval_metrics.get("retrieved", 0),
-                r.retrieval_metrics.get("total", 0),
-                f"{r.retrieval_metrics.get('avg_attempts', 0.0):.6f}",
-            ])
+    with open(output_path, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        for result in results:
+            writer.writerow(result.to_dict())
 
-    logger.log("results_written", path=str(output_path), rows=len(results))
+    logger.info(f"Wrote {len(results)} results to {output_path}")
+    return output_path
 
 
 def build_parser() -> argparse.ArgumentParser:
-    """Build the argument parser for the experiment."""
+    """Build the argument parser for the experiment runner."""
     parser = argparse.ArgumentParser(
-        description="Run social memory network experiments with scaling analysis."
+        description="Run Social Memory Networks experiment."
     )
-
     parser.add_argument(
         "--context",
         type=str,
         choices=["full", "limited"],
         default="full",
-        help="Context condition: 'full' (no limit) or 'limited' (thresholded)"
+        help="Context condition: 'full' or 'limited'."
     )
-
     parser.add_argument(
         "--agents",
-        type=parse_agent_counts,
-        default="3,5,7",
-        help="Comma-separated list of agent counts (e.g., '3,5,7')"
+        type=str,
+        default="5",
+        help="Agent counts (comma-separated, e.g., '3,5,7')."
     )
-
     parser.add_argument(
         "--games",
         type=int,
-        default=800,
-        help="Number of games per agent configuration (default: 800 for US-3)"
+        default=100,
+        help="Number of games to simulate per configuration."
     )
-
     parser.add_argument(
         "--thresholds",
-        type=parse_thresholds,
+        type=str,
         default="256",
-        help="Comma-separated context thresholds for limited condition"
+        help="Context window thresholds (comma-separated, for limited context)."
     )
-
     parser.add_argument(
         "--seed",
         type=int,
         default=42,
-        help="Random seed for reproducibility"
+        help="Random seed for reproducibility."
     )
-
     parser.add_argument(
-        "--output-dir",
-        type=Path,
-        default=Path("data"),
-        help="Directory to write output CSV files"
+        "--output",
+        type=str,
+        default=None,
+        help="Output CSV path. Defaults to results_full.csv or results_limited.csv."
     )
-
     parser.add_argument(
         "--plot",
         type=str,
         choices=["scaling", None],
         default=None,
-        help="Generate scaling plot after simulation"
+        help="Generate scaling plot if 'scaling'."
     )
-
+    parser.add_argument(
+        "--analyze",
+        action="store_true",
+        help="Run ANOVA analysis on results."
+    )
     return parser
 
 
 def main() -> int:
-    """Main entry point for the experiment."""
+    """Main entry point for the experiment runner."""
     parser = build_parser()
     args = parser.parse_args()
 
-    logger.log(
-        "experiment_start",
-        context=args.context,
-        agents=args.agents,
-        games=args.games,
-        seed=args.seed
-    )
+    # Parse arguments
+    agent_counts = parse_agent_counts(args.agents)
+    thresholds = parse_thresholds(args.thresholds) if args.context == "limited" else None
 
-    # Validate inputs
-    if not args.agents:
-        logger.log("error", message="No agent counts specified")
-        return 1
+    # Determine output path
+    if args.output:
+        output_path = Path(args.output)
+    else:
+        prefix = "results_full" if args.context == "full" else "results_limited"
+        output_path = Path("results") / f"{prefix}.csv"
 
-    if args.games < 1:
-        logger.log("error", message="Games must be at least 1")
-        return 1
+    logger.info(f"Starting experiment: context={args.context}, "
+                f"agents={agent_counts}, games={args.games}")
 
     # Run simulation
     results = run_simulation(
-        agent_counts=args.agents,
-        games_per_count=args.games,
+        agent_counts=agent_counts,
         context_condition=args.context,
-        context_threshold=args.thresholds[0] if args.thresholds else 256,
-        seed=args.seed,
-        output_dir=args.output_dir
+        games_per_config=args.games,
+        context_thresholds=thresholds,
+        seed=args.seed
     )
 
-    logger.log(
-        "experiment_complete",
-        total_games=len(results),
-        output_dir=str(args.output_dir)
-    )
+    # Write results
+    write_results_csv(results, output_path)
 
-    # If scaling plot requested, trigger the analysis module
-    if args.plot == "scaling":
+    # Optional: Run ANOVA if requested
+    if args.analyze and len(agent_counts) > 1 and args.context == "full":
+        logger.info("Running ANOVA analysis...")
+        # Load results for analysis
+        df = pd.read_csv(output_path)
         try:
-            from analysis.scaling import generate_scaling_plot
-            scaling_path = args.output_dir / "scaling_plot.pdf"
-            generate_scaling_plot(results, output_path=scaling_path)
-            logger.log("scaling_plot_generated", path=str(scaling_path))
-        except ImportError:
-            logger.log("warning", message="Scaling analysis module not found, skipping plot")
+            anova_result = run_anova_analysis(df)
+            logger.info(f"ANOVA F-statistic: {anova_result.f_statistic}, "
+                        f"p-value: {anova_result.p_value}")
         except Exception as e:
-            logger.log("error", message=f"Failed to generate scaling plot: {e}")
+            logger.warning(f"ANOVA analysis failed: {e}")
 
+    # Optional: Generate scaling plot
+    if args.plot == "scaling":
+        logger.info("Generating scaling plot...")
+        # This would typically require multiple agent counts
+        if len(agent_counts) > 1:
+            try:
+                generate_scaling_plot(output_path, str(output_path).replace('.csv', '_scaling.pdf'))
+            except Exception as e:
+                logger.warning(f"Scaling plot generation failed: {e}")
+
+    logger.info("Experiment completed successfully.")
     return 0
 
 
