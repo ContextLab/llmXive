@@ -1,0 +1,456 @@
+resolved_at: '2026-07-03T00:33:48.476159+00:00'
+datasets:
+- intent: 10.1126/sciadv.aaq1566
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/_070_4096_4654_Caleb_University_Lagos_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_north_/32886038
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Interfacial_Ti_N_Bond-Engineered_Hierarchical_TiO_sub_2_sub_Tubular_C_sub_3_sub_N_sub_4_sub_S_Scheme_Heterojunctions_for_Enhanced_Photocatalytic_Tetracycline_Degradation/32886039
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_070_4096_4654_Achievers_University_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_north_to/32886029
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opal.latrobe.edu.au/articles/report/Engaging_with_victims_survivors_talking_about_child_sexual_abuse_Guidance_for_academic_research_and_creative_arts_projects/30632378
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://research-repository.rmit.edu.au/articles/thesis/Harnessing_the_Potential_of_Extracellular_Vesicles_Advancing_Cancer_Diagnosis_and_Therapy/32870033
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: XGBoost
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/xgboost-lover/Skin_Disease_Dataset/resolve/main/Combined_Data.zip
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/sujinwo/hybrid_tft_xgboost/resolve/main/dataset_tft_tbm_v2.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Wezenite/nse-xgboost-swing-model/resolve/main/predictions.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 93098
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/XGBooster/github-issues/resolve/main/issues-datasets-with-comments.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/xgboost-lover/Skin_Disease_Dataset/resolve/main/Combined_Data.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/sujinwo/hybrid_tft_xgboost/resolve/main/dataset_tft_tbm_v2.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Wezenite/nse-xgboost-swing-model/resolve/main/predictions.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/dataset/_070_4096_4654_Caleb_University_Lagos_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_north_/32886038
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Interfacial_Ti_N_Bond-Engineered_Hierarchical_TiO_sub_2_sub_Tubular_C_sub_3_sub_N_sub_4_sub_S_Scheme_Heterojunctions_for_Enhanced_Photocatalytic_Tetracycline_Degradation/32886039
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_070_4096_4654_Achievers_University_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_north_to/32886029
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://opal.latrobe.edu.au/articles/report/Engaging_with_victims_survivors_talking_about_child_sexual_abuse_Guidance_for_academic_research_and_creative_arts_projects/30632378
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://research-repository.rmit.edu.au/articles/thesis/Harnessing_the_Potential_of_Extracellular_Vesicles_Advancing_Cancer_Diagnosis_and_Therapy/32870033
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13357843
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20667903
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/8400945
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15009821
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14973553
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21147083
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21147083
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://uregina.scholaris.ca/handle/10294/16075
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://uregina.scholaris.ca/handle/10294/9210
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://uregina.scholaris.ca/handle/10294/14912
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: ModelPerformance
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/dataset/Redeemer_s_University_Ede_Admission_Form_For_2026_2027_Direct_Entry_Form_is_Out_0_7040964654_JUPEB_form_See_Requirements_Courses_How_to_ApplyThe_2026_2027_University_Admission_Form_is_now_available_for_qualified_candidates_seeking_admission/32886026
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://research-repository.rmit.edu.au/articles/thesis/Modelling_Electro-Absorption_in_Nanostructures/32870444
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_070_4096_4654_Caleb_University_Lagos_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_north_/32886038
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Interfacial_Ti_N_Bond-Engineered_Hierarchical_TiO_sub_2_sub_Tubular_C_sub_3_sub_N_sub_4_sub_S_Scheme_Heterojunctions_for_Enhanced_Photocatalytic_Tetracycline_Degradation/32886039
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_070_4096_4654_Achievers_University_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_north_to/32886029
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1322609
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20540197
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20151475
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21134242
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20040294
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19658481
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19658481
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5167/uzh-275595
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''www.zora.uzh.ch'',
+      port=443): Max retries exceeded with url: /handle/20.500.14742/229043 (Caused
+      by ConnectTimeoutError(<HTTPSConnection(host=''www.zora.uzh.ch'', port=443)
+      at 0x7f179816d1d0>, ''Connection to www.zora.uzh.ch timed out. (connect timeout=20.0)''))'
+  - url: https://ices-library.figshare.com/articles/conference_contribution/Distribution_Models_Of_Temperate_Rocky_Reef_Habitat-Forming_Species_On_TheContinental_Shelf_In_Eastern_Australia_Setting_The_Baseline_To_Monitor_AndPredict_Future_Changes/25682511/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ices-library.figshare.com/articles/conference_contribution/Distribution_Models_Of_Temperate_Rocky_Reef_Habitat-Forming_Species_On_TheContinental_Shelf_In_Eastern_Australia_Setting_The_Baseline_To_Monitor_AndPredict_Future_Changes/25682511
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: F1-score
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-gpt-benchmarking-old/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 98811
+      parsed: true
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-benchmarking-old/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 82904
+      parsed: true
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-falcon-benchmarking-old2/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 94356
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-gpt-benchmarking-old/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-benchmarking-old/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-falcon-benchmarking-old2/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-falcon-benchmarking/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/onepaneai/faithfulness-f1score-spl-prompt-gpt-benchmarking/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/poster/_070_4096_4654_Fountain_Unveristy_Oshogbo_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_no/32886041
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Redeemer_s_University_Ede_Admission_Form_For_2026_2027_Direct_Entry_Form_is_Out_0_7040964654_JUPEB_form_See_Requirements_Courses_How_to_ApplyThe_2026_2027_University_Admission_Form_is_now_available_for_qualified_candidates_seeking_admission/32886026
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://research-repository.rmit.edu.au/articles/thesis/Modelling_Electro-Absorption_in_Nanostructures/32870444
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_070_4096_4654_Caleb_University_Lagos_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_north_/32886038
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Interfacial_Ti_N_Bond-Engineered_Hierarchical_TiO_sub_2_sub_Tubular_C_sub_3_sub_N_sub_4_sub_S_Scheme_Heterojunctions_for_Enhanced_Photocatalytic_Tetracycline_Degradation/32886039
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1753520
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://stp.ust.edu.ua/article/view/325888
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18063014
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijai.iaescore.com/index.php/IJAI/article/view/26268
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6936930
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/104433-wojoodner-2024-the-second-arabic-named-entity-recognition-shared-task
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://underline.io/lecture/20345-arastance-a-multi-country-and-multi-domain-dataset-of-arabic-stance-detection-for-fact-checking
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://uregina.scholaris.ca/handle/10294/16497
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://uregina.scholaris.ca/handle/10294/16533
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://uregina.scholaris.ca/handle/10294/16190
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CPU-only
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/online_resource/_b_Association_between_sleep_duration_and_incidence_and_progression_of_diabetic_nephropathy_in_a_cohort_study_b_/32407353
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_070_4096_4654_Obong_University_Obong_Ntak_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_n/32886047
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/_070_4096_4654_Fountain_Unveristy_Oshogbo_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_no/32886041
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Redeemer_s_University_Ede_Admission_Form_For_2026_2027_Direct_Entry_Form_is_Out_0_7040964654_JUPEB_form_See_Requirements_Courses_How_to_ApplyThe_2026_2027_University_Admission_Form_is_now_available_for_qualified_candidates_seeking_admission/32886026
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://research-repository.rmit.edu.au/articles/thesis/Modelling_Electro-Absorption_in_Nanostructures/32870444
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.11591/eei.v9i2.1972
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''beei.org'',
+      port=443): Read timed out. (read timeout=20.0)'
+  - url: https://zenodo.org/records/14352943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10199277
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6127654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://uregina.scholaris.ca/handle/10294/16485
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21142462
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21142462
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21141797
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21141732
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: NOT
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/notune/fable5-repos/resolve/main/manifest.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/nothingiisreal/Human_Stories/resolve/main/reddit_vs_synth_writing_prompts.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/leolee99/NotInject/resolve/main/data/NotInject_one-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 10859
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/notune/fable5-repos/resolve/main/manifest.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/nothingiisreal/Human_Stories/resolve/main/reddit_vs_synth_writing_prompts.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/leolee99/NotInject/resolve/main/data/NotInject_one-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/nothingiisreal/Reddit-Dirty-And-WritingPrompts/resolve/main/reddit_dirty_writing_prompts.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://figshare.com/articles/online_resource/_b_Association_between_sleep_duration_and_incidence_and_progression_of_diabetic_nephropathy_in_a_cohort_study_b_/32407353
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_070_4096_4654_Obong_University_Obong_Ntak_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_n/32886047
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/_070_4096_4654_Fountain_Unveristy_Oshogbo_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_no/32886041
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Redeemer_s_University_Ede_Admission_Form_For_2026_2027_Direct_Entry_Form_is_Out_0_7040964654_JUPEB_form_See_Requirements_Courses_How_to_ApplyThe_2026_2027_University_Admission_Form_is_now_available_for_qualified_candidates_seeking_admission/32886026
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://research-repository.rmit.edu.au/articles/thesis/Modelling_Electro-Absorption_in_Nanostructures/32870444
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15525595
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16413212
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16413231
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3799190
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3824448
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
