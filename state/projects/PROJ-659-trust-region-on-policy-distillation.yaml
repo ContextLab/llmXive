@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-04T09:22:17.540015Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-659-trust-region-on-policy-distillation
-last_run_id: 2155c7e3-e7d1-4dca-82bb-a750e9709fb4
+last_run_id: 5a461490-4b72-45d3-97b5-39b3b3e168dc
 last_run_status: null
 points_paper: {}
 points_research: {}
