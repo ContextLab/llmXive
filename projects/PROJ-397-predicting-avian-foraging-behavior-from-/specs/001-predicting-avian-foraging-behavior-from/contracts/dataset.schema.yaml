@@ -1,0 +1,69 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MergedObservationsSchema"
+description: "Schema for the merged eBird and NLCD dataset used for training."
+type: object
+properties:
+  obs_id:
+    type: string
+    description: "Unique identifier for the observation."
+  species_id:
+    type: string
+    description: "eBird species code (e.g., AMRO)."
+  species_common:
+    type: string
+    description: "Common name of the species."
+  observation_date:
+    type: string
+    format: date
+    description: "Date of observation (YYYY-MM-DD)."
+  latitude:
+    type: number
+    description: "Latitude in WGS84."
+  longitude:
+    type: number
+    description: "Longitude in WGS84."
+  foraging_guild:
+    type: string
+    enum:
+      - "ground"
+      - "canopy"
+      - "aerial"
+    description: "Foraging guild label assigned from external literature."
+  forest_prop:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Proportion of forest cover in 100m buffer."
+  grassland_prop:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Proportion of grassland cover in 100m buffer."
+  wetland_prop:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Proportion of wetland cover in 100m buffer."
+  urban_prop:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Proportion of urban cover in 100m buffer."
+  other_prop:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Proportion of other land cover in 100m buffer."
+required:
+  - obs_id
+  - species_id
+  - species_common
+  - latitude
+  - longitude
+  - foraging_guild
+  - forest_prop
+  - grassland_prop
+  - wetland_prop
+  - urban_prop
+  - other_prop
+additionalProperties: false

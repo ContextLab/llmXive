@@ -1,0 +1,200 @@
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Select top 25 species by observation count from EBD data
+  claim_id: c_e9cb7263
+  context: "Goal: Extract eBird EBD records for top 25 species, merge with NLCD 2019\
+    \ land cover data within 100m buffers, and filter for statistical power (\u2265\
+    50 obs/species)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select the top 25 species by record count from the raw EBD data.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T16:35:18Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Filter species with at least 50 observations for statistical power
+  claim_id: c_c3e5b29f
+  context: "Goal: Extract eBird EBD records for top 25 species, merge with NLCD 2019\
+    \ land cover data within 100m buffers, and filter for statistical power (\u2265\
+    50 obs/species)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_species_with_at_least_50_observations_for_statistical
+  kind: magnitude
+  raw_text: Filter for statistical power by retaining only species with at least 50
+    observations.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T16:35:47Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Calculate land cover proportions within 100m buffers of eBird records
+  claim_id: c_49d0cf71
+  context: "Goal: Extract eBird EBD records for top 25 species, merge with NLCD 2019\
+    \ land cover data within 100m buffers, and filter for statistical power (\u2265\
+    50 obs/species)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Merge eBird records with NLCD 2019 land cover data within 100m buffers.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T16:36:26Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Use NLCD 2019 land cover dataset
+  claim_id: c_572016e2
+  context: "Goal: Extract eBird EBD records for top 25 species, merge with NLCD 2019\
+    \ land cover data within 100m buffers, and filter for statistical power (\u2265\
+    50 obs/species)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use NLCD 2019 land cover data for the analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T16:36:54Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Train Random Forest classifier using 5-fold cross-validation
+  claim_id: c_4474bf01
+  context: 'Goal: Train a Random Forest classifier to predict foraging guild from
+    land cover proportions and validate signal via a Random Guild Permutation Test
+    (Across-Species).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train a Random Forest classifier with 5-fold cross-validation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T16:37:41Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Run Across-Species Permutation test with 1000 iterations
+  claim_id: c_2bbe1f2c
+  context: 'Independent Test: Verify balanced accuracy is measured against chance,
+    per-class F1 scores are computed, and the permutation test (1000 iterations) yields
+    p < 0.05.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform a Random Guild Permutation Test with 1000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T16:37:56Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Use alpha threshold of 0.05 for permutation test validation
+  claim_id: c_146c9125
+  context: 'Independent Test: Verify balanced accuracy is measured against chance,
+    per-class F1 scores are computed, and the permutation test (1000 iterations) yields
+    p < 0.05.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: the value 0.05 is not in the set mentioned in proposition 1 and hence
+        the
+      source_id: '1411.7565'
+      url: https://arxiv.org/abs/1411.7565
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: Validate the permutation test using a significance threshold of alpha
+    = 0.05.
+  resolved_value: '0.05'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-03T16:38:11Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Generate confusion matrix for top 2 species
+  claim_id: c_9ee29d2c
+  context: 'Goal: Generate confusion matrix, feature importance chart, spatial map
+    for top species, and a summary report of top land cover predictors per guild.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate confusion matrix images for the top 2 species.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T16:38:41Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Initialize Python 3.11 project
+  claim_id: c_a8b5f17d
+  context: 'T002 Initialize Python 3.11 project: Add pandas, geopandas, scikit-learn,
+    rasterio, requests, numpy, matplotlib, seaborn, pyyaml, jupyter to projects/PROJ-397-predicting-avian-foraging-behavior-from-/code/requirements.txt
+    and verify python --version returns 3.11.x.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use Python 3.11 for the project implementation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T16:38:54Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Reduce cyclomatic complexity of merge_and_buffer.py to less than 10
+  claim_id: c_dfae451c
+  context: 'T031 Code cleanup and refactoring in code/: Remove unused imports and
+    refactor merge_and_buffer.py to reduce cyclomatic complexity below 10.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reduce_cyclomatic_complexity_of_merge_and_buffer.py_to_less
+  kind: magnitude
+  raw_text: Refactor merge_and_buffer.py to reduce cyclomatic complexity below 10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T16:39:13Z'
+- artifact_path: projects/PROJ-397-predicting-avian-foraging-behavior-from-/specs/001-predicting-avian-foraging-behavior-from/tasks.md
+  attempts: 1
+  canonical: Verify total runtime is less than 6 hours
+  claim_id: c_fac81475
+  context: 'T032 Performance optimization: Profile merge_and_buffer.py and optimize
+    buffer calculation using vectorization; verify total runtime < 6h.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_total_runtime_is_less_than_6_hours
+  kind: magnitude
+  raw_text: Verify total pipeline runtime is less than 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T16:39:30Z'

@@ -1,0 +1,208 @@
+resolved_at: '2026-07-03T15:51:59.912473+00:00'
+datasets:
+- intent: EBD
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/vvud/eb-data/resolve/main/data/train.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 4219
+      parsed: true
+  - url: https://huggingface.co/datasets/argilla-internal-testing/test_import_dataset_from_hub_with_classlabel_ebd368d6-a3a2-483d-88f6-e70a083caf0f/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 1454
+      parsed: true
+  - url: https://huggingface.co/datasets/pdf2dataset/ebd7d925eab3a75accdd0e79b7da5dee/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 1568
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/vvud/eb-data/resolve/main/data/train.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/argilla-internal-testing/test_import_dataset_from_hub_with_classlabel_ebd368d6-a3a2-483d-88f6-e70a083caf0f/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/pdf2dataset/ebd7d925eab3a75accdd0e79b7da5dee/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/re-mind/ebd7817f-9bec-4ada-a48d-3c7dd3bf34ea/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/online_resource/By_Lake_Z_rich_Without_the_Machine_Why_Human_Authorship_Matters_in_the_Age_of_AI_by_Alexander_Burton/32896562
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Alexander_Burton_Am_Z_risee_ohni_Maschine_Warum_menschliche_Autorschaft_im_Zeitalter_der_KI_z_hlt/32896556
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rshare.library.torontomu.ca/articles/journal_contribution/Implementing_Active_Learning_in_Undergraduate_Mathematics_Using_Tarsia_Puzzles/30381058
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rshare.library.torontomu.ca/articles/journal_contribution/Jigsaw_puzzles_help_make_mathematics_learning_more_active_and_fun/30380881
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rshare.library.torontomu.ca/articles/journal_contribution/The_impact_of_group_singing_on_children_s_subjective_well-being_Mixed_methods_research/22560814
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7293485
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7305352
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7293499
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11106256
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11106252
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21164451
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21164451
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21164443
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21164443
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21164433
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: NLCD
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/vectors/nlcd_landsat8_map/resolve/main/nlcd_2021_land_cover_l48_20230630.zip
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/gdurkin/s1_2_nlcd/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/gdurkin/s1_to_nlcd/resolve/main/data/group_0_9-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/vectors/nlcd_landsat8_map/resolve/main/nlcd_2021_land_cover_l48_20230630.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://huggingface.co/datasets/gdurkin/s1_2_nlcd/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/gdurkin/s1_to_nlcd/resolve/main/data/group_0_9-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/gdurkin/s1_nlcd_ca/resolve/main/data/group_0_9-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/gdurkin/s1_nlcd_sfbay_plus/resolve/main/data/group_0_9-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/online_resource/By_Lake_Z_rich_Without_the_Machine_Why_Human_Authorship_Matters_in_the_Age_of_AI_by_Alexander_Burton/32896562
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/online_resource/Alexander_Burton_Am_Z_risee_ohni_Maschine_Warum_menschliche_Autorschaft_im_Zeitalter_der_KI_z_hlt/32896556
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rshare.library.torontomu.ca/articles/journal_contribution/Implementing_Active_Learning_in_Undergraduate_Mathematics_Using_Tarsia_Puzzles/30381058
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rshare.library.torontomu.ca/articles/journal_contribution/Jigsaw_puzzles_help_make_mathematics_learning_more_active_and_fun/30380881
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://rshare.library.torontomu.ca/articles/journal_contribution/The_impact_of_group_singing_on_children_s_subjective_well-being_Mixed_methods_research/22560814
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13386030
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15059111
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/2649737
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17260370
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7106054
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.datalumos.org/datalumos/project/250872/version/V1/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://www.datalumos.org/datalumos/project/250872/view
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+  - url: https://code.usgs.gov/cooperativeresearchunits/alabama/landcurate
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21084486
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21084486
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

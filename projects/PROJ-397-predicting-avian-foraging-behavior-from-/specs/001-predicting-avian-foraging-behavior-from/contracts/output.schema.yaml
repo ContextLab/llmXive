@@ -1,0 +1,64 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelMetricsSchema"
+description: "Schema for the model performance metrics and permutation test results."
+type: object
+properties:
+  model_id:
+    type: string
+    description: "Hash of code and data used to generate the model."
+  random_seed:
+    type: integer
+    description: "Random seed used for reproducibility."
+  balanced_accuracy:
+    type: number
+    description: "Balanced accuracy score from 5-fold CV."
+  f1_scores:
+    type: object
+    properties:
+      ground:
+        type: number
+        description: "F1 score for ground guild."
+      canopy:
+        type: number
+        description: "F1 score for canopy guild."
+      aerial:
+        type: number
+        description: "F1 score for aerial guild."
+    required:
+      - ground
+      - canopy
+      - aerial
+  permutation_test:
+    type: object
+    properties:
+      iterations:
+        type: integer
+        description: "Number of permutation iterations (should be 1000)."
+      p_value:
+        type: number
+        description: "P-value from the across-species permutation test."
+      observed_accuracy:
+        type: number
+        description: "Observed balanced accuracy."
+      null_distribution:
+        type: array
+        items:
+          type: number
+        description: "List of accuracies from permuted data."
+    required:
+      - iterations
+      - p_value
+      - observed_accuracy
+  feature_importance:
+    type: object
+    additionalProperties:
+      type: number
+    description: "Map of feature names to importance scores."
+required:
+  - model_id
+  - random_seed
+  - balanced_accuracy
+  - f1_scores
+  - permutation_test
+  - feature_importance
+additionalProperties: false
