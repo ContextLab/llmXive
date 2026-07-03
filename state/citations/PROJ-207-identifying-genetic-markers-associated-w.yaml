@@ -1,11 +1,33 @@
-- artifact_hash: dddfb0e8e3e74dd45895cd8028fa590808bd2592fcf592dc2ac5682003ae5f92
-  artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/spec.md
+- artifact_hash: 8080e4e310ea4ae53ffe51715b616b0d3685c0bafabdf1ce27f26d2a385393eb
+  artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: df_instruct.csv
   kind: url
-  value: https://beebase.org
-  verification_status: unreachable
-  verified_against_url: https://beebase.org
-  verified_at: '2026-06-27T13:06:50.251776Z'
+  value: https://huggingface.co/datasets/ManuBansal/33param_snp500/resolve/main/df_instruct.csv`
+  verification_status: verified
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/ManuBansal/33param_snp500/92adc3794f323a3cdc9206cd8215b4bd350bac86/df_instruct.csv?%2Fdatasets%2FManuBansal%2F33param_snp500%2Fresolve%2Fmain%2Fdf_instruct.csv=&etag=%228d0e0b95e6924e41d7343704626e83b013dc0a81%22
+  verified_at: '2026-07-03T07:12:44.755498Z'
+- artifact_hash: 8080e4e310ea4ae53ffe51715b616b0d3685c0bafabdf1ce27f26d2a385393eb
+  artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: dummy_data.zip
+  kind: url
+  value: https://huggingface.co/datasets/pie/ncbi_disease/resolve/main/dummy/ncbi_disease/1.0.0/dummy_data.zip`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6275496b8507f986f6480114/ce4ae5c22c401a4ebaf1e89e08db60871201e4313474a571639c8f4ff2171ee1?user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27dummy_data.zip%3B+filename%3D%22dummy_data.zip%22%3B&response-content-type=application%2Fzip&X-Xet-Cas-Uid=public&Expires=1783066364&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjI3NTQ5NmI4NTA3Zjk4NmY2NDgwMTE0L2NlNGFlNWMyMmM0MDFhNGViYWYxZTg5ZTA4ZGI2MDg3MTIwMWU0MzEzNDc0YTU3MTYzOWM4ZjRmZjIxNzFlZTFcXD91c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZHVtbXlfZGF0YS56aXAlM0IrZmlsZW5hbWUlM0QlMjJkdW1teV9kYXRhLnppcCUyMiUzQiZyZXNwb25zZS1jb250ZW50LXR5cGU9YXBwbGljYXRpb24lMkZ6aXAmWC1YZXQtQ2FzLVVpZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzA2NjM2NH19fV19&Signature=MEYCIQCjBhqCXD0Zj98NucKLLkEMNz3vKpOSoYUBeJc%7EAcgGmwIhAKOvtVtOKtburVgeoBeg33Aa6wzV1pXITgxRvWF-P1k8&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-03T07:12:44.755498Z'
+- artifact_hash: 8080e4e310ea4ae53ffe51715b616b0d3685c0bafabdf1ce27f26d2a385393eb
+  artifact_path: projects/PROJ-207-identifying-genetic-markers-associated-w/specs/001-identifying-genetic-markers-associated-w/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: test-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/ccdv/arxiv-summarization/resolve/main/document/test-00000-of-00001.parquet`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f18306a/bd4a4ae5998f36d1fd1fc25e3c86e590e1370be6c270fafe5253f12f576dcd3a?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&X-Xet-Cas-Uid=public&user_id=public&Expires=1783066365&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgzMDZhL2JkNGE0YWU1OTk4ZjM2ZDFmZDFmYzI1ZTNjODZlNTkwZTEzNzBiZTZjMjcwZmFmZTUyNTNmMTJmNTc2ZGNkM2FcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJlgtWGV0LUNhcy1VaWQ9cHVibGljJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODMwNjYzNjV9fX1dfQ__&Signature=MEUCIGysM%7E%7EVL8hbcX%7EjdLii8d-3T6tTAstmCY8yA09mHEKeAiEAhsEa2UKm82CMQcUwrm7vYN-d6xxVMIDHE8I0v20Om7A_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-03T07:12:44.755498Z'

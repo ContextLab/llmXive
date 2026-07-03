@@ -1,0 +1,387 @@
+resolved_at: '2026-07-03T07:03:53.442448+00:00'
+datasets:
+- intent: SNP
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/ManuBansal/33param_snp500/resolve/main/df_instruct.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ManuBansal/33param_snp500_trainingSet/resolve/main/df_testing_final.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ManuBansal/33param_snp500_validationSet/resolve/main/df_testing_final.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ManuBansal/33param_snp500/resolve/main/df_instruct.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/ManuBansal/33param_snp500_trainingSet/resolve/main/df_testing_final.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/ManuBansal/33param_snp500_validationSet/resolve/main/df_testing_final.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://figshare.com/articles/poster/School_of_Nursing_Anua_Uyo_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_and_important_dates_/32889659
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openaccess.wgtn.ac.nz/articles/journal_contribution/Co-creation_in_Sketching_Space/32889656
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/School_of_Nursing_Federal_Medical_Center_Yola_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_a/32889653
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/School_of_Nursing_Yola_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_and_important_dates_kind/32889650
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/School_of_Post_Basic_Midwifery_Abiriba_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_and_impo/32889635
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4423098
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14750745
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/12750653
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5555945
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6378127
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/ukbqz/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17851481
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17851481
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21148766
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21148766
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: BeeBase
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/poster/School_of_Nursing_Anua_Uyo_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_and_important_dates_/32889659
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openaccess.wgtn.ac.nz/articles/journal_contribution/Co-creation_in_Sketching_Space/32889656
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/School_of_Nursing_Federal_Medical_Center_Yola_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_a/32889653
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/School_of_Nursing_Yola_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_and_important_dates_kind/32889650
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/School_of_Post_Basic_Midwifery_Abiriba_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_and_impo/32889635
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1217851
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.d2547d8c2
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://fairsharing.org/10.25504/FAIRsharing.250fc8/
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/dataset/Additional_file_3_of_Honey_bee_Apis_mellifera_larval_pheromones_may_regulate_gene_expression_related_to_foraging_task_specialization/8969207/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://springernature.figshare.com/articles/dataset/Additional_file_3_of_Honey_bee_Apis_mellifera_larval_pheromones_may_regulate_gene_expression_related_to_foraging_task_specialization/8969207
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.re3data.org/repository/r3d100010925
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: NCBI
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/pie/ncbi_disease/resolve/main/dummy/ncbi_disease/1.0.0/dummy_data.zip
+    source: huggingface
+    format: zip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 577
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/pie/ncbi_disease/resolve/main/dummy/ncbi_disease/1.0.0/dummy_data.zip
+    source: huggingface
+    status: verified
+    format: zip
+  - url: https://figshare.com/articles/poster/School_of_Nursing_Anua_Uyo_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_and_important_dates_/32889659
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openaccess.wgtn.ac.nz/articles/journal_contribution/Co-creation_in_Sketching_Space/32889656
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/School_of_Nursing_Federal_Medical_Center_Yola_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_a/32889653
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/School_of_Nursing_Yola_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_and_important_dates_kind/32889650
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/School_of_Post_Basic_Midwifery_Abiriba_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_and_impo/32889635
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14845662
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1158314
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1407162
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3236563
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7803891
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18155084
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18155084
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21148201
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21148201
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21147022
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: BioProject
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://figshare.com/articles/poster/School_of_Nursing_Anua_Uyo_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_and_important_dates_/32889659
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openaccess.wgtn.ac.nz/articles/journal_contribution/Co-creation_in_Sketching_Space/32889656
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/School_of_Nursing_Federal_Medical_Center_Yola_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_a/32889653
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/School_of_Nursing_Yola_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_and_important_dates_kind/32889650
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/School_of_Post_Basic_Midwifery_Abiriba_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_and_impo/32889635
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17611433
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19257300
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19456097
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19051620
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15719114
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21135246
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21135246
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://datadryad.org/dataset/doi:10.5061/dryad.9s4mw6mxk
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21133264
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21133264
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CCD
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/ccdv/arxiv-summarization/resolve/main/document/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ccdv/arxiv-classification/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ccdv/govreport-summarization/resolve/main/document/test-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ccdv/arxiv-summarization/resolve/main/document/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ccdv/arxiv-classification/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ccdv/govreport-summarization/resolve/main/document/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ccdv/patent-classification/resolve/main/abstract/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/poster/School_of_Nursing_Anua_Uyo_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_and_important_dates_/32889659
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://openaccess.wgtn.ac.nz/articles/journal_contribution/Co-creation_in_Sketching_Space/32889656
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/School_of_Nursing_Federal_Medical_Center_Yola_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_a/32889653
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/School_of_Nursing_Yola_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_and_important_dates_kind/32889650
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/School_of_Post_Basic_Midwifery_Abiriba_Have_declared_the_process_open_2O26-_2027_0_7046_8O5_833_Dr_Faith_Form_Is_on_sale_O70468O5833_Dr_Faith_Or_07046805833_For_further_information_on_eligibility_requirements_application_procedures_and_impo/32889635
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6470051
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ieeexplore.ieee.org/document/34572/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3923175
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/1481183
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3923169
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21135500
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21135500
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://unsworks.unsw.edu.au/handle/1959.4/unsworks_52265
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://uregina.scholaris.ca/handle/10294/9317
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://uregina.scholaris.ca/handle/10294/14975
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

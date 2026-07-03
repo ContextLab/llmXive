@@ -1,0 +1,60 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "GWAS Results Output"
+description: "Schema for GWAS association statistics output (Bonferroni & FDR)"
+type: "object"
+required:
+  - "SNP"
+  - "CHR"
+  - "POS"
+  - "A1"
+  - "A2"
+  - "FREQ"
+  - "P"
+  - "BONFERRONI_P"
+  - "FDR_Q"
+  - "OR"
+  - "SE"
+properties:
+  SNP:
+    type: "string"
+    description: "SNP identifier"
+  CHR:
+    type: "integer"
+    description: "Chromosome number"
+  POS:
+    type: "integer"
+    description: "Genomic position"
+  A1:
+    type: "string"
+    description: "Test allele"
+  A2:
+    type: "string"
+    description: "Other allele"
+  FREQ:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Allele frequency of A1"
+  P:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "P-value from logistic regression"
+  BONFERRONI_P:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Bonferroni-corrected p-value (based on effective number of tests)"
+  FDR_Q:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Benjamini-Hochberg corrected FDR q-value (exploratory)"
+  OR:
+    type: "number"
+    minimum: 0
+    description: "Odds ratio"
+  SE:
+    type: "number"
+    minimum: 0
+    description: "Standard error of log(OR)"

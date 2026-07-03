@@ -1,0 +1,67 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Honeybee Colony Genomic Dataset"
+description: "Schema for synthetic or real honeybee genomic data used in GWAS pipeline"
+type: "object"
+required:
+  - "colony_id"
+  - "health_status"
+  - "geographic_region"
+  - "sampling_year"
+  - "Varroa_mite_count"
+  - "SNP_data"
+properties:
+  colony_id:
+    type: "string"
+    description: "Unique identifier for the colony"
+  health_status:
+    type: "integer"
+    enum:
+      - 0
+      - 1
+    description: "0 = Healthy, 1 = CCD (Mapped to CCD Working Group 2007 criteria)"
+  geographic_region:
+    type: "string"
+    description: "Geographic region of sampling"
+  sampling_year:
+    type: "integer"
+    description: "Year of sampling"
+  Varroa_mite_count:
+    type: "integer"
+    minimum: 0
+    description: "Count of Varroa mites"
+  SNP_data:
+    type: "array"
+    items:
+      type: "object"
+      required:
+        - "rs_id"
+        - "chromosome"
+        - "position"
+        - "reference_allele"
+        - "alternate_allele"
+        - "genotype"
+      properties:
+        rs_id:
+          type: "string"
+          description: "SNP identifier"
+        chromosome:
+          type: "integer"
+          description: "Chromosome number (1-16 for honeybee)"
+        position:
+          type: "integer"
+          description: "Genomic position"
+        reference_allele:
+          type: "string"
+          pattern: "^[ACGT]$"
+          description: "Reference allele"
+        alternate_allele:
+          type: "string"
+          pattern: "^[ACGT]$"
+          description: "Alternate allele"
+        genotype:
+          type: "integer"
+          enum:
+            - 0
+            - 1
+            - 2
+          description: "Count of alternate alleles (0=hom ref, 1=hetero, 2=hom alt)"
