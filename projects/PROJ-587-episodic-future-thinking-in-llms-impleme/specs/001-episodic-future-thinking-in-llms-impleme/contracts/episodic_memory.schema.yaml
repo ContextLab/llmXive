@@ -1,0 +1,66 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EpisodicMemory"
+description: "Schema for individual episodic memory entries (state, action, outcome tuples)."
+type: "object"
+properties:
+  episode_id:
+    type: "string"
+    description: "Unique identifier for the trajectory."
+    pattern: "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+  step_id:
+    type: "integer"
+    description: "Step index within the trajectory."
+    minimum: 0
+  state_text:
+    type: "string"
+    description: "Raw textual description of the environment state."
+    maxLength: 500
+  action_text:
+    type: "string"
+    description: "Raw textual description of the agent action."
+    maxLength: 100
+  outcome_text:
+    type: "string"
+    description: "Raw textual description of the environment response."
+    maxLength: 500
+  state_embedding:
+    type: "array"
+    description: "Semantic embedding of state_text."
+    items:
+      type: "number"
+    minItems: 384
+    maxItems: 384
+  action_embedding:
+    type: "array"
+    description: "Semantic embedding of action_text."
+    items:
+      type: "number"
+    minItems: 384
+    maxItems: 384
+  timestamp:
+    type: "string"
+    description: "Time of storage."
+    format: "date-time"
+  confidence_score:
+    type: "number"
+    description: "Confidence in the stored outcome."
+    minimum: 0.0
+    maximum: 1.0
+  source_dataset:
+    type: "string"
+    description: "Origin dataset."
+    enum:
+      - "alfworld"
+      - "textworld"
+required:
+  - episode_id
+  - step_id
+  - state_text
+  - action_text
+  - outcome_text
+  - state_embedding
+  - action_embedding
+  - timestamp
+  - confidence_score
+  - source_dataset
+additionalProperties: false

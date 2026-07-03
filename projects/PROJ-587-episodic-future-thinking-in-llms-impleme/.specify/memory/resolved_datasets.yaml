@@ -1,0 +1,200 @@
+resolved_at: '2026-07-03T02:46:53.911640+00:00'
+datasets:
+- intent: ALFWorld
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/yijunyang/alfworld-sft-dataset/resolve/main/train.tar.gz
+    source: huggingface
+    format: gzip
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Heaplax/ARMAP-RM-ALFWorld/resolve/main/alfworld_factual.json
+    source: huggingface
+    format: json
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 51
+      parsed: true
+  - url: https://huggingface.co/datasets/crislmfroes/alfworld/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 6235
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/yijunyang/alfworld-sft-dataset/resolve/main/train.tar.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/Heaplax/ARMAP-RM-ALFWorld/resolve/main/alfworld_factual.json
+    source: huggingface
+    status: verified
+    format: json
+  - url: https://huggingface.co/datasets/crislmfroes/alfworld/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/dslighfdsl/alfworld_train_all/resolve/main/train_all_alfworld.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://figshare.com/articles/preprint/Declarative_Specification_Languages_for_Interactive_Systems_Design_Patterns_and_Verification/32873480
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/poster/_09036153255_Admiralty_University_Ibusa_Delta_State_Admission_Form_Open_2026-2027_post-UTME_form_Diploma_Form_is_still_on_sale_call_O_9036153255-09036153255_and_forms_into_the_Post_Basic_Nursing_is_also_available_CALL_09036153255_Dr_David_A/32887046
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Real-Time_Data_Processing_Architecturesfor_Live_AI_Benchmarking_Platforms/32873483
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/_i_Data_file_4_d_i_i_e_novo_i_genome_assembly_of_the_deepwater_rice_i_Oryza_sativa_i_cultivar_Pin_Gaew_56/32887031
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_08132728112_College_of_Nursing_Sciences_Obangede_Kogi_State_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school/32887052
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20470799
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20483157
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19908177
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20219105
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.14249
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.03056
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2604.19775
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.32017
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.30639
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: TextWorld
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/juliantcchu/textworld-GPT4/resolve/main/gpt4_record.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/juliantcchu/textworld_GPT4_text/resolve/main/textworld_gpt4_text.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/lukaspetersson/textworld-reward-data/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 38576
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/juliantcchu/textworld-GPT4/resolve/main/gpt4_record.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/juliantcchu/textworld_GPT4_text/resolve/main/textworld_gpt4_text.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/lukaspetersson/textworld-reward-data/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/lukaspetersson/offline-textworld/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://figshare.com/articles/preprint/LLM-Based_Financial_Sentiment_Analysis_From_News_Headlines_to_Market_Signals/32873471
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_08132728112_College_of_Nursing_Sciences_UEC_Ochadamu_Admission_Form_2026_2027_Post_Utme_Application_Is_Out_CALL_08132728112_Dr_Mrs_Sarah_for_admission_process_into_the_school/32887061
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/The_Evolution_of_Academic_Peer_Review_in_Computer_Science_Historical_Trajectory_and_Future_Scenarios/32873474
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/media/Call_07076040542_Lagos_State_University_of_Education_2026_2027_Post-Utme_Form_Part-time_Form_Is_On_sales_Now_07076040542_To_apply_call_Dr_Mrs_Rita_07076040542_for_further_assistance_/32887049
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/Declarative_Specification_Languages_for_Interactive_Systems_Design_Patterns_and_Verification/32873480
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18108225
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.20784587
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+  - url: https://zenodo.org/records/18203279
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18749488
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18237321
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.27681
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2510.04195
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2605.31509
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://mcgill.scholaris.ca/handle/20.500.14905/105380
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2605.16604
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content

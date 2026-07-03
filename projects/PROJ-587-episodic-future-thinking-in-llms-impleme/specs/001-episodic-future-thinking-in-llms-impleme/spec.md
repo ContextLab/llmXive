@@ -95,7 +95,7 @@ The system MUST include an evaluation protocol that distinguishes true episodic 
 
 ## Assumptions
 
-- ALFWorld and TextWorld benchmark environments are available under an Apache license and can be downloaded and executed within the 6-hour CI job time limit
+- ALFWorld and TextWorld benchmark environments are available under an Apache license and can be downloaded and executed within a reasonable CI job time limit.
 - The 70M parameter baseline transformer model fits within 7GB RAM during both training and inference on CPU-only execution
 - Human evaluation for scene construction quality can be conducted with ≥ 3 raters achieving inter-rater reliability ≥ 0.75 using standardized 1-5 Likert scale
 - Power analysis with n=10 planning task variants provides target power=0.80 to detect effect size d=0.8 at α=0.05; if actual effect size is smaller, results will be reported as underpowered

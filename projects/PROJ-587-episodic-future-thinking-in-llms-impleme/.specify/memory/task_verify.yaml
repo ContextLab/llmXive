@@ -1,0 +1,5 @@
+? T001 Create project structure by executing `mkdir -p projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/{data/raw,data/processed,models,services,experiments,validation,utils,tests/unit,tests/integration,tests/contract,scripts}`
+: 1
+? T003b [P] Create `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/.black.toml`
+  (or `pyproject.toml` section) for formatting.
+: 1

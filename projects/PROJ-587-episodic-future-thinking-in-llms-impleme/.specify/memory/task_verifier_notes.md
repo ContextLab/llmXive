@@ -1,0 +1,6 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001 Create project structure by executing `mkdir -p projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/{data/raw,data/processed,models,services,experiments,validation,utils,tests/unit,tests/integration,tests/contract,scripts}`** — No evidence of the required directory tree (`projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/...`) is provided; without a listing or confirmation that the `mkdir -p` command was executed, we cannot verify that the project structure exists. The task therefore remains unfulfilled.
+- **T003b [P] Create `projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/.black.toml` (or `pyproject.toml` section) for formatting.** — The required `.black.toml` file (or equivalent `pyproject.toml` section) does not exist in the `code/` directory, so the formatting configuration artifact is missing. The implementer must add the file with appropriate Black configuration.

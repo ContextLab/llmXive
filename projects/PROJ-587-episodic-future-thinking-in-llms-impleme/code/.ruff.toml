@@ -1,0 +1,97 @@
+[ruff]
+# Target Python 3.9+ (compatible with torch/transformers stack)
+target-version = "py39"
+
+# Exclude common build artifacts and dependencies
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".ipynb_checkpoints",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pyenv",
+    ".pytest_cache",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "site-packages",
+    "venv",
+    "data/raw",
+    "data/processed",
+    "models",
+]
+
+# Maximum line length (matching Black default)
+line-length = 88
+
+# Allow unused variables for function signatures (common in protocols/interfaces)
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9_]+))$"
+
+[ruff.lint]
+# Enable strict rules
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort (import sorting)
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade (modern syntax)
+    "N",   # pep8-naming
+    "SIM", # flake8-simplify
+    "ARG", # flake8-unused-arguments
+    "PTH", # flake8-use-pathlib
+    "RUF", # Ruff-specific rules
+]
+
+# Ignore specific rules that are too strict for research code or conflict with style
+ignore = [
+    "E501",      # Line too long (handled by Black formatter)
+    "B008",      # Do not perform function call in argument defaults (common in dependency injection)
+    "ARG001",    # Unused function argument (often required by interfaces/protocols)
+    "ARG002",    # Unused method argument (often required by interfaces/protocols)
+    "RUF012",    # Mutable class attributes (common in data models)
+]
+
+# Per-file ignores for specific research artifacts if needed
+# (Currently none, keeping global strictness)
+
+[ruff.lint.per-file-ignores]
+# Tests can be slightly more relaxed regarding unused imports (fixtures)
+"tests/**/*.py" = [
+    "ARG001",
+    "ARG002",
+    "F401",      # Unused imports (fixtures)
+]
+# Scripts can have unused imports for side effects
+"scripts/**/*.py" = [
+    "F401",
+]
+
+[ruff.lint.isort]
+known-first-party = ["models", "services", "utils", "validation", "experiments"]
+force-sort-within-sections = true
+lines-after-imports = 2
+
+[ruff.lint.pydocstyle]
+convention = "google"
+
+[ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

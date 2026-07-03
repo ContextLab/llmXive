@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PlanningTask"
+description: "Schema for benchmark planning tasks from ALFWorld or TextWorld."
+type: "object"
+properties:
+  task_id:
+    type: "string"
+    description: "Unique task identifier."
+    pattern: "^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$"
+  initial_state:
+    type: "string"
+    description: "Starting environment description."
+    maxLength: 1000
+  goal_state:
+    type: "string"
+    description: "Target environment description."
+    maxLength: 500
+  required_steps:
+    type: "integer"
+    description: "Expected number of steps for ground truth."
+    minimum: 1
+  episodic_dependencies:
+    type: "array"
+    description: "IDs of required episodic memories."
+    items:
+      type: "string"
+  ground_truth_solution:
+    type: "array"
+    description: "Sequence of correct actions."
+    items:
+      type: "string"
+    minItems: 1
+  task_variant:
+    type: "string"
+    description: "Category of task."
+    enum:
+      - "hidden_state"
+      - "non_deterministic"
+      - "standard"
+required:
+  - task_id
+  - initial_state
+  - goal_state
+  - required_steps
+  - ground_truth_solution
+  - task_variant
+additionalProperties: false
