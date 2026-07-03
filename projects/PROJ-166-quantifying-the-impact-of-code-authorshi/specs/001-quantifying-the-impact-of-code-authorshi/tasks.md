@@ -20,32 +20,32 @@
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
+<!--
+ ============================================================================
+ IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+
+ The /speckit-tasks command MUST replace these with actual tasks based on:
+ - User stories from spec.md (with their priorities P1, P2, P3...)
+ - Feature requirements from plan.md
+ - Entities from data-model.md
+ - Endpoints from contracts/
+
+ Tasks MUST be organized by user story so each story can be:
+ - Implemented independently
+ - Tested independently
+ - Delivered as an MVP increment
+
+ DO NOT keep these sample tasks in the generated tasks.md file.
+ ============================================================================
 -->
 
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan. Create the following directories and files: `code/`, `code/__init__.py`, `code/config.py`, `code/data/`, `code/data/__init__.py`, `code/analysis/`, `code/analysis/__init__.py`, `data/`, `data/raw/`, `data/processed/`, `tests/`, `tests/unit/`, `tests/integration/`, `tests/contract/`, `requirements.txt`, `README.md`.
-- [ ] T002 Initialize Python 3.11 project with pinned dependencies. Create `requirements.txt` with exact versions: `pandas==2.1.0`, `statsmodels==0.14.0`, `scikit-learn==1.3.0`, `requests==2.31.0`, `gitpython==3.1.37`, `pyyaml==6.0.1`, `numpy==1.24.0`, `scipy==1.11.0`, `pytest==7.4.0`.
-- [ ] T003 [P] Configure linting and formatting tools. Create `pyproject.toml` with `[tool.black]` (line-length=88) and `.flake8` (max-line-length=88, exclude=venv) files.
+- [X] T001 Create project structure per implementation plan. Create the following directories and files: `code/`, `code/__init__.py`, `code/config.py`, `code/data/`, `code/data/__init__.py`, `code/analysis/`, `code/analysis/__init__.py`, `data/`, `data/raw/`, `data/processed/`, `tests/`, `tests/unit/`, `tests/integration/`, `tests/contract/`, `requirements.txt`, `README.md`.
+- [X] T002 Initialize Python 3.11 project with pinned dependencies. Create `requirements.txt` with exact versions: `pandas==2.1.0`, `statsmodels==0.14.0`, `scikit-learn==1.3.0`, `requests==2.31.0`, `gitpython==3.1.37`, `pyyaml==6.0.1`, `numpy==1.24.0`, `scipy==1.11.0`, `pytest==7.4.0`.
+- [X] T003 [P] Configure linting and formatting tools. Create `pyproject.toml` with `[tool.black]` (line-length=88) and `.flake8` (max-line-length=88, exclude=venv) files.
 
 ---
 
@@ -55,21 +55,21 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Implement `code/config.py` with paths, constants, random seeds, and NVD/GitHub API configuration.
-- [ ] T005 [P] Setup data directory structure (`data/raw/`, `data/processed/`) and schema definitions in `contracts/`.
-- [ ] T006 [P] Implement `code/data/generate_target_list.py` to fetch the **full target list** of GitHub repos via GitHub API. Sort the list by `url` column alphabetically. Output `data/raw/target_list.csv` (columns: url, language, stars, age).
-- [ ] T007 [P] Implement `code/data/download_nvd.py` to download, merge, and deduplicate NVD/CVE JSON feeds (historical range) with checksum verification. Output `data/raw/nvd_cve_merged.json.gz` and `data/raw/nvd_cve_merged.json.gz.sha256`.
+- [X] T004 Implement `code/config.py` with paths, constants, random seeds, and NVD/GitHub API configuration.
+- [X] T005 [P] Setup data directory structure (`data/raw/`, `data/processed/`) and schema definitions in `contracts/`.
+- [X] T006 [P] Implement `code/data/generate_target_list.py` to fetch the **full target list** of GitHub repos via GitHub API. Sort the list by `url` column alphabetically. Output `data/raw/target_list.csv` (columns: url, language, stars, age). <!-- FAILED: unspecified -->
+- [X] T007 [P] Implement `code/data/download_nvd.py` to download, merge, and deduplicate NVD/CVE JSON feeds (historical range) with checksum verification. Output `data/raw/nvd_cve_merged.json.gz` and `data/raw/nvd_cve_merged.json.gz.sha256`.
 - [ ] T008 [P] Implement `code/data/extract_github.py` to perform shallow clones (`--shallow-since=2015-01-01`), parse `git log` for unique authors (with ≥ 1 line of code committed), run `cloc --by-file` (verify `cloc` version >= 1.88) for KLOC, and output `data/processed/github_raw_metrics.csv` (columns: url, unique_authors, raw_line_count, kloc).
 - [ ] T008b [P] Implement fallback logic in `code/data/extract_github.py`: If `--shallow-since` returns 0 authors for a repo, trigger a full clone (`git clone`) for that specific repo to satisfy Constitution VI. Log this event and ensure it does not exceed the 6-hour window (monitor total time).
-- [ ] T009 [P] Implement `code/data/merge_datasets.py` (Part 1: Merge) to join GitHub metrics with NVD CVE counts using exact URL matching. Output `data/processed/repo_metrics.csv` (columns: url, language, unique_authors, kloc, cve_count, project_age, release_count).
+- [X] T009 [P] Implement `code/data/merge_datasets.py` (Part 1: Merge) to join GitHub metrics with NVD CVE counts using exact URL matching. Output `data/processed/repo_metrics.csv` (columns: url, language, unique_authors, kloc, cve_count, project_age, release_count).
 - [ ] T009b [P] Implement `code/data/merge_datasets.py` (Part 2: Validation) to enforce **exact URL matching** as per FR-002. If a URL in the target list has no exact match in NVD, set `cve_count` to 0. Flag ambiguous matches (e.g., substring matches) in logs but do not merge them.
 - [ ] T010 [P] Create unit tests for data ingestion logic:
-  - `tests/unit/data/test_download_nvd.py::test_nvd_checksum_verification`: Assert SHA256 matches expected value.
-  - `tests/unit/data/test_extract_github.py::test_author_count_calculation`: Mock git log output, assert unique author count matches expected.
-  - `tests/unit/data/test_merge_datasets.py::test_url_matching`: Mock NVD data, assert exact match logic works and ambiguous matches are ignored.
+ - `tests/unit/data/test_download_nvd.py::test_nvd_checksum_verification`: Assert SHA256 matches expected value.
+ - `tests/unit/data/test_extract_github.py::test_author_count_calculation`: Mock git log output, assert unique author count matches expected.
+ - `tests/unit/data/test_merge_datasets.py::test_url_matching`: Mock NVD data, assert exact match logic works and ambiguous matches are ignored.
 - [ ] T013 [P] [US1] Add logging in `code/data/merge_datasets.py` for skipped repositories and ambiguous NVD matches. Use `logging.WARNING` for skips and `logging.ERROR` for ambiguous matches. Log format: `"[REPO_URL] Reason: <reason>"`. Write to `logs/merge_warnings.log`.
-- [ ] T014 [P] [US1] Implement a validation function in `code/data/merge_datasets.py` that checks `repo_metrics.csv` for null values in `kloc` and `cve_count`. If nulls are found, raise a `ValueError` immediately. Ensure `cve_count` defaults to 0 if missing, not null.
-- [ ] T030 [P] Implement parallel processing in `code/data/extract_github.py` using `multiprocessing` with `max_workers=2` (to match CI CPU limit) and a memory limit check (abort if RAM > 6GB). Ensure pipeline processes ≥500 repos within 6 hours.
+- [~] T014 [P] [US1] Implement a validation function in `code/data/merge_datasets.py` that checks `repo_metrics.csv` for null values in `kloc` and `cve_count`. If nulls are found, raise a `ValueError` immediately. Ensure `cve_count` defaults to 0 if missing, not null.
+- [~] T030 [P] Implement parallel processing in `code/data/extract_github.py` using `multiprocessing` with `max_workers=2` (to match CI CPU limit) and a memory limit check (abort if RAM > 6GB). Ensure pipeline processes ≥500 repos within 6 hours.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -85,12 +85,12 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T011 [P] [US1] Contract test for data schema validation in `tests/contract/test_dataset_schema.py`. Validate columns and types.
-- [ ] T012 [US1] Integration test for full pipeline on 5-repo seed in `tests/integration/test_data_pipeline.py`. Run T006->T007->T008->T009 and assert output file exists with correct data.
+- [~] T011 [P] [US1] Contract test for data schema validation in `tests/contract/test_dataset_schema.py`. Validate columns and types.
+- [~] T012 [US1] Integration test for full pipeline on 5-repo seed in `tests/integration/test_data_pipeline.py`. Run T006->T007->T008->T009 and assert output file exists with correct data.
 
 ### Implementation for User Story 1
 
-- [ ] T015 [P] [US1] (Reserved for future US1 expansion)
+- [~] T015 [P] [US1] (Reserved for future US1 expansion)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -104,9 +104,9 @@
 
 ### Tests for User Story 2
 
-- [ ] T016 [P] [US2] Contract test for model results schema in `tests/contract/test_model_results.py`.
-- [ ] T017 [US2] Implement `code/analysis/fit_models.py` to fit a Negative-Binomial GLM with `cve_count` as response, `author_count` + controls as predictors, and `log(kloc)` as **offset** (per FR-004). **Strictly ignore Plan.md's suggestion to use free predictor.** Exclude rows where `kloc` is zero (log(0) undefined) with a warning log. Calculate VIF for all predictors. Apply Benjamini-Hochberg correction to p-values. Generate `data/processed/model_results.json` containing coefficients, standard errors, p-values, 95% CIs, adjusted p-values, VIF metrics, and a `convergence_status` boolean (true if converged, false if failed).
-- [ ] T018 [US2] (Merged into T017)
+- [~] T016 [P] [US2] Contract test for model results schema in `tests/contract/test_model_results.py`.
+- [~] T017 [US2] Implement `code/analysis/fit_models.py` to fit a Negative-Binomial GLM with `cve_count` as response, `author_count` + controls as predictors, and `log(kloc)` as **offset** (per FR-004). **Strictly ignore Plan.md's suggestion to use free predictor.** Exclude rows where `kloc` is zero (log(0) undefined) with a warning log. Calculate VIF for all predictors. Apply Benjamini-Hochberg correction to p-values. Generate `data/processed/model_results.json` containing coefficients, standard errors, p-values, 95% CIs, adjusted p-values, VIF metrics, and a `convergence_status` boolean (true if converged, false if failed).
+- [~] T018 [US2] (Merged into T017)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -120,15 +120,15 @@
 
 ### Tests for User Story 3
 
-- [ ] T019 [P] [US3] Contract test for robustness results schema in `tests/contract/test_robustness_results.py`.
-- [ ] T020 [P] [US3] Integration test for subsample and entropy analysis in `tests/integration/test_robustness.py`.
+- [~] T019 [P] [US3] Contract test for robustness results schema in `tests/contract/test_robustness_results.py`.
+- [~] T020 [P] [US3] Integration test for subsample and entropy analysis in `tests/integration/test_robustness.py`.
 
 ### Implementation for User Story 3
 
-- [ ] T021 [US3] Implement `code/analysis/robustness.py` to perform subsampling by language (Python, JavaScript) and re-fit GLMs using the same offset and controls.
-- [ ] T022 [US3] Implement Shannon entropy calculation for author contributions (replace `author_count` predictor with entropy metric) and re-fit GLM. **Explicitly replace the primary predictor.**
-- [ ] T023 [US3] Apply Benjamini-Hochberg correction to all p-values from subsample and entropy models.
-- [ ] T024 [US3] Generate `data/processed/robustness_results.json` containing subsample coefficients, entropy model results, and adjusted p-values.
+- [~] T021 [US3] Implement `code/analysis/robustness.py` to perform subsampling by language (Python, JavaScript) and re-fit GLMs using the same offset and controls.
+- [~] T022 [US3] Implement Shannon entropy calculation for author contributions (replace `author_count` predictor with entropy metric) and re-fit GLM. **Explicitly replace the primary predictor.**
+- [~] T023 [US3] Apply Benjamini-Hochberg correction to all p-values from subsample and entropy models.
+- [~] T024 [US3] Generate `data/processed/robustness_results.json` containing subsample coefficients, entropy model results, and adjusted p-values.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -138,15 +138,15 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T025 [P] Documentation updates in `README.md`: Add a CLI usage section with example commands, a "Methods" section explaining the GLM offset approach, and a "Data" section describing the pipeline.
-- [ ] T026 Code cleanup and refactoring: Extract `parse_git_log` and `run_cloc` into separate modules in `code/data/utils.py` to ensure modularity.
-- [ ] T027 [P] Create benchmark script `tests/unit/test_performance.py` to measure time to process a representative set of repositories. Output format: JSON with `total_time_seconds`. Pass/fail threshold: < 12 minutes (to allow 500 in < 6h).
-- [ ] T028 [P] Additional unit tests for edge cases in `tests/unit/analysis/`:
-  - `test_zero_kloc_exclusion`: Verify rows with kloc=0 are excluded.
-  - `test_empty_nvd_match`: Verify cve_count=0 when no match found.
-- [ ] T029 [P] Update `code/config.py` to use `os.getenv` for API keys.
-- [ ] T030 [P] Add test `tests/unit/test_config_no_leak.py` to verify no API keys are logged.
-- [ ] T031 [P] Create CI script `scripts/validate_quickstart.sh` that executes the pipeline on the seed dataset and exits 0 on success.
+- [~] T025 [P] Documentation updates in `README.md`: Add a CLI usage section with example commands, a "Methods" section explaining the GLM offset approach, and a "Data" section describing the pipeline.
+- [~] T026 Code cleanup and refactoring: Extract `parse_git_log` and `run_cloc` into separate modules in `code/data/utils.py` to ensure modularity.
+- [~] T027 [P] Create benchmark script `tests/unit/test_performance.py` to measure time to process a representative set of repositories. Output format: JSON with `total_time_seconds`. Pass/fail threshold: < 12 minutes (to allow 500 in < 6h).
+- [~] T028 [P] Additional unit tests for edge cases in `tests/unit/analysis/`:
+ - `test_zero_kloc_exclusion`: Verify rows with kloc=0 are excluded.
+ - `test_empty_nvd_match`: Verify cve_count=0 when no match found.
+- [~] T029 [P] Update `code/config.py` to use `os.getenv` for API keys.
+- [~] T030 [P] Add test `tests/unit/test_config_no_leak.py` to verify no API keys are logged.
+- [~] T031 [P] Create CI script `scripts/validate_quickstart.sh` that executes the pipeline on the seed dataset and exits 0 on success.
 
 ---
 
@@ -157,8 +157,8 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -224,9 +224,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---

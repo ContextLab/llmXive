@@ -1,0 +1,27 @@
+{
+  "description": "Schema for robustness check results.",
+  "source": "code/analysis/robustness.py",
+  "output_path": "data/processed/robustness_results.json",
+  "fields": {
+    "subsample_results": {
+      "type": "object",
+      "description": "Results keyed by language subsample (e.g., 'Python', 'JavaScript')",
+      "structure": {
+        "<language>": {
+          "coefficients": "object",
+          "p_values": "object",
+          "adjusted_p_values": "object"
+        }
+      }
+    },
+    "entropy_model_results": {
+      "type": "object",
+      "description": "Results from the model using Shannon entropy as the diversity metric",
+      "structure": {
+        "coefficients": "object",
+        "p_values": "object",
+        "adjusted_p_values": "object"
+      }
+    }
+  }
+}

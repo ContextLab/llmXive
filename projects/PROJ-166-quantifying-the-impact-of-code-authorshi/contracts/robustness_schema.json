@@ -1,0 +1,9 @@
+{
+  "name": "robustness_results",
+  "fields": [
+    {"name": "language", "type": "string"},
+    {"name": "coefficient", "type": "float"},
+    {"name": "pvalue", "type": "float"},
+    {"name": "adjusted_pvalue", "type": "float"}
+  ]
+}

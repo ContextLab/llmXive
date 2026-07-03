@@ -1,0 +1,42 @@
+{
+  "description": "Schema for the final merged analysis dataset.",
+  "source": "Merge of github_metrics and nvd_cve",
+  "output_path": "data/processed/repo_metrics.csv",
+  "columns": {
+    "url": {
+      "type": "string",
+      "description": "Repository URL (Primary Key)",
+      "constraints": ["unique", "not_null"]
+    },
+    "language": {
+      "type": "string",
+      "description": "Primary programming language",
+      "constraints": ["not_null"]
+    },
+    "unique_authors": {
+      "type": "integer",
+      "description": "Number of unique contributors",
+      "constraints": ["not_null", "non_negative"]
+    },
+    "kloc": {
+      "type": "float",
+      "description": "Lines of code in thousands",
+      "constraints": ["not_null", "non_negative"]
+    },
+    "cve_count": {
+      "type": "integer",
+      "description": "Number of associated CVEs (0 if none)",
+      "constraints": ["not_null", "non_negative"]
+    },
+    "project_age": {
+      "type": "integer",
+      "description": "Project age in days",
+      "constraints": ["not_null", "non_negative"]
+    },
+    "release_count": {
+      "type": "integer",
+      "description": "Number of releases",
+      "constraints": ["not_null", "non_negative"]
+    }
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "description": "Schema for raw NVD CVE data merged from JSON feeds.",
+  "source": "NVD API (JSON feeds)",
+  "output_path": "data/raw/nvd_cve_merged.json.gz",
+  "format": "gzip-compressed JSON",
+  "root_key": "CVE_Items",
+  "item_fields": {
+    "cve": {
+      "cve_data_meta": {
+        "ID": {
+          "type": "string",
+          "description": "Unique CVE identifier (e.g., CVE-2023-12345)"
+        }
+      }
+    },
+    "configurations": {
+      "nodes": {
+        "description": "Configuration data for matching vulnerabilities"
+      }
+    },
+    "impact": {
+      "baseMetricV3": {
+        "cvssV3": {
+          "vulnerability": {
+            "type": "string",
+            "description": "Associated vulnerability type"
+          }
+        }
+      }
+    }
+  },
+  "derived_metrics": {
+    "repo_url": {
+      "type": "string",
+      "description": "Repository URL extracted from configuration nodes (normalized)"
+    },
+    "cve_id": {
+      "type": "string",
+      "description": "The CVE ID"
+    }
+  }
+}

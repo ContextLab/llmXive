@@ -1,0 +1,27 @@
+{
+  "description": "Schema for the raw target list of GitHub repositories.",
+  "source": "GitHub API",
+  "output_path": "data/raw/target_list.csv",
+  "columns": {
+    "url": {
+      "type": "string",
+      "description": "Full HTTPS URL to the repository (e.g., https://github.com/org/repo)",
+      "constraints": ["unique", "not_null", "valid_url"]
+    },
+    "language": {
+      "type": "string",
+      "description": "Primary programming language of the repository",
+      "constraints": ["not_null"]
+    },
+    "stars": {
+      "type": "integer",
+      "description": "Number of GitHub stars",
+      "constraints": ["not_null", "non_negative"]
+    },
+    "age": {
+      "type": "integer",
+      "description": "Age of the repository in days since creation",
+      "constraints": ["not_null", "non_negative"]
+    }
+  }
+}

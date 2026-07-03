@@ -1,0 +1,39 @@
+{
+  "description": "Schema for statistical model results (GLM).",
+  "source": "code/analysis/fit_models.py",
+  "output_path": "data/processed/model_results.json",
+  "fields": {
+    "model_type": {
+      "type": "string",
+      "description": "Type of model fitted (e.g., NegativeBinomial)"
+    },
+    "convergence_status": {
+      "type": "boolean",
+      "description": "True if model converged successfully"
+    },
+    "coefficients": {
+      "type": "object",
+      "description": "Map of predictor names to coefficient estimates"
+    },
+    "standard_errors": {
+      "type": "object",
+      "description": "Map of predictor names to standard errors"
+    },
+    "p_values": {
+      "type": "object",
+      "description": "Map of predictor names to raw p-values"
+    },
+    "adjusted_p_values": {
+      "type": "object",
+      "description": "Map of predictor names to Benjamini-Hochberg adjusted p-values"
+    },
+    "confidence_intervals_95": {
+      "type": "object",
+      "description": "Map of predictor names to [lower, upper] 95% CI"
+    },
+    "vif_metrics": {
+      "type": "object",
+      "description": "Variance Inflation Factor for each predictor"
+    }
+  }
+}

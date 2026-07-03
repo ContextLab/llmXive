@@ -1,0 +1,12 @@
+{
+  "name": "repo_metrics",
+  "columns": [
+    {"name": "url", "type": "string", "nullable": false},
+    {"name": "language", "type": "string", "nullable": false},
+    {"name": "unique_authors", "type": "integer", "nullable": false},
+    {"name": "kloc", "type": "float", "nullable": false},
+    {"name": "cve_count", "type": "integer", "nullable": false},
+    {"name": "project_age", "type": "float", "nullable": true},
+    {"name": "release_count", "type": "integer", "nullable": true}
+  ]
+}

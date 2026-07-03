@@ -1,0 +1,27 @@
+{
+  "description": "Schema for raw GitHub metrics extracted from git logs and cloc.",
+  "source": "git log, cloc",
+  "output_path": "data/processed/github_raw_metrics.csv",
+  "columns": {
+    "url": {
+      "type": "string",
+      "description": "Full HTTPS URL to the repository",
+      "constraints": ["unique", "not_null"]
+    },
+    "unique_authors": {
+      "type": "integer",
+      "description": "Count of unique authors with at least one line of code",
+      "constraints": ["not_null", "non_negative"]
+    },
+    "raw_line_count": {
+      "type": "integer",
+      "description": "Total lines of code reported by cloc",
+      "constraints": ["not_null", "non_negative"]
+    },
+    "kloc": {
+      "type": "float",
+      "description": "Thousands of lines of code (raw_line_count / 1000)",
+      "constraints": ["not_null", "non_negative"]
+    }
+  }
+}

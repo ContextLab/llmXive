@@ -1,0 +1,11 @@
+{
+  "name": "model_results",
+  "fields": [
+    {"name": "author_count_coefficient", "type": "float"},
+    {"name": "author_count_se", "type": "float"},
+    {"name": "author_count_pvalue", "type": "float"},
+    {"name": "author_count_ci_lower", "type": "float"},
+    {"name": "author_count_ci_upper", "type": "float"},
+    {"name": "convergence_status", "type": "boolean"}
+  ]
+}

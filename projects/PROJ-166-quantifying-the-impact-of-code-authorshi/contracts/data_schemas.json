@@ -1,0 +1,74 @@
+{
+  "target_list": {
+    "description": "Raw list of target GitHub repositories",
+    "columns": ["url", "language", "stars", "age"],
+    "dtypes": {
+      "url": "string",
+      "language": "string",
+      "stars": "integer",
+      "age": "integer"
+    }
+  },
+  "nvd_cve": {
+    "description": "Merged NVD CVE data",
+    "columns": ["cve_id", "published", "last_modified", "descriptions", "references", "metrics"],
+    "dtypes": {
+      "cve_id": "string",
+      "published": "string",
+      "last_modified": "string",
+      "descriptions": "string",
+      "references": "string",
+      "metrics": "string"
+    }
+  },
+  "github_raw_metrics": {
+    "description": "Raw GitHub metrics extracted from git log and cloc",
+    "columns": ["url", "unique_authors", "raw_line_count", "kloc"],
+    "dtypes": {
+      "url": "string",
+      "unique_authors": "integer",
+      "raw_line_count": "integer",
+      "kloc": "float"
+    }
+  },
+  "repo_metrics": {
+    "description": "Merged dataset of GitHub metrics and CVE counts",
+    "columns": ["url", "language", "unique_authors", "kloc", "cve_count", "project_age", "release_count"],
+    "dtypes": {
+      "url": "string",
+      "language": "string",
+      "unique_authors": "integer",
+      "kloc": "float",
+      "cve_count": "integer",
+      "project_age": "integer",
+      "release_count": "integer"
+    }
+  },
+  "model_results": {
+    "description": "Results from the statistical GLM model",
+    "columns": ["coefficient_name", "estimate", "std_err", "p_value", "p_adj", "ci_lower", "ci_upper", "vif"],
+    "dtypes": {
+      "coefficient_name": "string",
+      "estimate": "float",
+      "std_err": "float",
+      "p_value": "float",
+      "p_adj": "float",
+      "ci_lower": "float",
+      "ci_upper": "float",
+      "vif": "float"
+    }
+  },
+  "robustness_results": {
+    "description": "Results from robustness checks and sensitivity analysis",
+    "columns": ["language_subsample", "metric_type", "coefficient_name", "estimate", "std_err", "p_value", "p_adj"],
+    "dtypes": {
+      "language_subsample": "string",
+      "metric_type": "string",
+      "coefficient_name": "string",
+      "estimate": "float",
+      "std_err": "float",
+      "p_value": "float",
+      "p_adj": "float"
+    }
+  }
+}
