@@ -1,0 +1,235 @@
+- artifact_path: projects/PROJ-315-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Observed accuracy rate is written to docs/reports/audit_accuracy.json
+  claim_id: c_1fabe185
+  context: 'Phase 3: User Story 1 - Dataset Acquisition and Preprocessing. Implementation
+    for User Story 1.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Observed_accuracy_rate_is_written_to_docs/reports/audit_accu
+  kind: entity_fact
+  raw_text: T017c calculate the observed accuracy rate and write the result to docs/reports/audit_accuracy.json
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T21:36:01Z'
+- artifact_path: projects/PROJ-315-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Final report integrates statistical results, VIF diagnostics, power analysis,
+    and audit accuracy
+  claim_id: c_b2105d78
+  context: 'Phase 5: User Story 3 - Visualization and Report Generation. Implementation
+    for User Story 3.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Final_report_integrates_statistical_results,_VIF_diagnostics
+  kind: entity_fact
+  raw_text: T034c assemble the final report, integrating statistical results, VIF
+    diagnostics, power analysis, and audit accuracy
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T21:36:32Z'
+- artifact_path: projects/PROJ-315-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Dataset loading and classification yields at least 95% valid records
+    and 500 items per group
+  claim_id: c_b372a0bd
+  context: 'Phase 3: User Story 1 - Dataset Acquisition and Preprocessing. Goal description.'
+  evidence:
+    candidates:
+    - - ''
+      - 95.0
+    - - ''
+      - 25.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Dataset_loading_and_classification_yields_at_least_95%25_valid
+  kind: magnitude
+  raw_text: "Independent Test: Verify that loading the dataset, running the classification\
+    \ pipeline, and checking completeness yields \u226595% valid records and \u2265\
+    500 items per group."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-03T21:37:29Z'
+- artifact_path: projects/PROJ-315-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: project uses python 3.11
+  claim_id: c_261d1194
+  context: Initialize Python 3.11 project with requirements.txt (pandas, numpy, scikit-learn,
+    scipy, radon, textblob, matplotlib, seaborn, datasets, pyyaml)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T21:52:18Z'
+- artifact_path: projects/PROJ-315-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: dataset codeparliament/github-code-search downloaded from huggingface
+  claim_id: c_656b041a
+  context: Implement code/data/fetch.py to download dataset codeparliament/github-code-search
+    from HuggingFace using datasets.load_dataset()
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_codeparliament/github-code-search_downloaded_from_hu
+  kind: entity_fact
+  raw_text: The dataset codeparliament/github-code-search is downloaded from HuggingFace.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T21:52:38Z'
+- artifact_path: projects/PROJ-315-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: keyword classification threshold is 2 keywords
+  claim_id: c_ae2b1617
+  context: "Unit test for keyword classification logic in tests/unit/test_classify.py\
+    \ (test \u22652 keyword threshold)"
+  evidence:
+    entailment_evidence: Keyword classification threshold is 2 keywords
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Keyword_classification_threshold_is_2_keywords
+  kind: magnitude
+  raw_text: The keyword classification logic uses a threshold of at least 2 keywords.
+  resolved_value: keyword classification threshold is 2 keywords
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-03T21:52:41Z'
+- artifact_path: projects/PROJ-315-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: data completeness error triggered if valid records less than 95 percent
+  claim_id: c_767633f8
+  context: Integration test for data completeness check in tests/integration/test_data_completeness.py
+    (verify <95% triggers error)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_completeness_error_triggered_if_valid_records_less_than
+  kind: magnitude
+  raw_text: The data completeness check triggers an error if valid records are less
+    than 95%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T21:53:09Z'
+- artifact_path: projects/PROJ-315-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: power insufficiency error triggered if group size less than 500 items
+  claim_id: c_be0ae5b2
+  context: Integration test for power insufficiency check in tests/integration/test_power_check.py
+    (verify <500 per group triggers error)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Power_insufficiency_error_triggered_if_group_size_less_than
+  kind: magnitude
+  raw_text: The power insufficiency check triggers an error if group size is less
+    than 500 items.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T21:53:44Z'
+- artifact_path: projects/PROJ-315-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: significance level alpha is 0.05
+  claim_id: c_9599dc59
+  context: "Implement code/analysis/stats.py power analysis function (sample size,\
+    \ effect size, \u03B1=0.05)"
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The analysis uses a significance level (alpha) of 0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-03T21:53:57Z'
+- artifact_path: projects/PROJ-315-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: regression diagnostics require VIF less than 5
+  claim_id: c_e3509d9f
+  context: 'Independent Test: Verify that Mann-Whitney U tests run with Bonferroni/BH
+    correction, regression VIF < 5 is reported, and power analysis is documented.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Regression_diagnostics_require_VIF_less_than_5
+  kind: magnitude
+  raw_text: The regression diagnostics require a Variance Inflation Factor (VIF) of
+    less than 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T21:54:55Z'
+- artifact_path: projects/PROJ-315-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: visualization phase generates at least 3 plots with significance markers
+  claim_id: c_6b89f4fd
+  context: "Independent Test: Verify that \u22653 plots are generated with significance\
+    \ markers and a sensitivity plot for keyword thresholds across a range of values."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Visualization_phase_generates_at_least_3_plots_with_signific
+  kind: magnitude
+  raw_text: The visualization phase generates at least 3 plots with significance markers.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T21:55:18Z'
+- artifact_path: projects/PROJ-315-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: analysis of 50000 prs completes within 6 hours on 2 cpu 7gb ram
+  claim_id: c_19c8ba5e
+  context: 'Performance optimization: ensure analysis of 50k PRs completes within
+    6 hours on 2 CPU/7GB RAM'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis of 50,000 PRs is expected to complete within 6 hours on a
+    2 CPU/7GB RAM configuration.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T22:01:30Z'

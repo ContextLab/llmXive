@@ -1,0 +1,9 @@
+T008 Create `contracts/output.schema.yaml` defining statistical result formats: 2
+"T010 [P] [US1] Unit test for keyword classification logic in `tests/unit/test_classify.py` (test \u22652 keyword threshold)": 1
+? T011 [P] [US1] Integration test for data completeness check in `tests/integration/test_data_completeness.py`
+  (verify <95% triggers error)
+: 1
+? T012 [P] [US1] Integration test for power insufficiency check in `tests/integration/test_power_check.py`
+  (verify <500 per group triggers error)
+: 1
+T014 [US1] Implement `code/data/preprocess.py` to load data, filter nulls, and compute basic stats (FR-011, FR-014): 1

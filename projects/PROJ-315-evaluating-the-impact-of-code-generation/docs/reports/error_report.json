@@ -1,0 +1,7 @@
+{
+  "error": "Data completeness check failed.",
+  "timestamp": "2023-10-27T10:00:00.000000",
+  "details": {
+    "type": "completeness"
+  }
+}
