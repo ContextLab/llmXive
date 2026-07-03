@@ -1,0 +1,63 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Simulation Output Schema
+description: JSON schema for simulation results per configuration.
+type: object
+properties:
+  configuration:
+    type: object
+    properties:
+      dataset_id:
+        type: string
+        description: "Identifier for the source dataset"
+      target_size:
+        type: integer
+        description: "Subsample size (15, 25, or 40)"
+      ground_truth_type:
+        type: string
+        description: "One of: null, alternative"
+      augmentation_type:
+        type: string
+        description: "One of: baseline, gaussian_noise, smote, random_oversampling"
+    required:
+      - dataset_id
+      - target_size
+      - ground_truth_type
+      - augmentation_type
+  results:
+    type: object
+    properties:
+      type1_error_rate:
+        type: number
+        description: "Empirical Type I error rate (proportion of p < 0.05 in null condition)"
+      type2_error_rate:
+        type: number
+        description: "Empirical Type II error rate (proportion of p >= 0.05 in alternative condition)"
+      confidence_interval:
+        type: object
+        properties:
+          lower:
+            type: number
+            description: "95% CI lower bound for error rate"
+          upper:
+            type: number
+            description: "95% CI upper bound for error rate"
+        required:
+          - lower
+          - upper
+      safety_threshold:
+        type: number
+        description: "Fixed design threshold for flagging unsafe Type I error inflation"
+        const: 0.10
+      disclaimer:
+        type: string
+        description: "Mandatory associational disclaimer"
+        const: "DISCLAIMER: Findings are associational; no causal claims are made regarding the effect of augmentation"
+    required:
+      - type1_error_rate
+      - type2_error_rate
+      - confidence_interval
+      - safety_threshold
+      - disclaimer
+required:
+  - configuration
+  - results

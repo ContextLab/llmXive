@@ -1,0 +1,190 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Simulation Output Schema",
+  "description": "Schema for Monte Carlo simulation results including p-value distributions, error rates, and metadata.",
+  "type": "object",
+  "required": [
+    "metadata",
+    "config",
+    "results"
+  ],
+  "properties": {
+    "metadata": {
+      "type": "object",
+      "description": "Execution metadata and provenance.",
+      "required": [
+        "timestamp",
+        "seed",
+        "version",
+        "disclaimer"
+      ],
+      "properties": {
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp of simulation run."
+        },
+        "seed": {
+          "type": "integer",
+          "description": "Random seed used for reproducibility."
+        },
+        "version": {
+          "type": "string",
+          "description": "Pipeline version identifier."
+        },
+        "disclaimer": {
+          "type": "string",
+          "const": "DISCLAIMER: Findings are associational and do not imply causation. Results are specific to the simulated configurations and datasets used."
+        }
+      }
+    },
+    "config": {
+      "type": "object",
+      "description": "Configuration parameters for this simulation run.",
+      "required": [
+        "dataset_name",
+        "sample_size",
+        "augmentation_method",
+        "n_iterations",
+        "null_condition"
+      ],
+      "properties": {
+        "dataset_name": {
+          "type": "string",
+          "description": "Name of the source dataset (e.g., 'breast_cancer')."
+        },
+        "sample_size": {
+          "type": "integer",
+          "description": "Subsample size (e.g., 15, 25, 40)."
+        },
+        "augmentation_method": {
+          "type": "string",
+          "enum": [
+            "none",
+            "gaussian_noise",
+            "smote",
+            "random_oversampling"
+          ],
+          "description": "Augmentation technique applied."
+        },
+        "n_iterations": {
+          "type": "integer",
+          "description": "Number of Monte Carlo iterations performed."
+        },
+        "null_condition": {
+          "type": "boolean",
+          "description": "True if simulating under the null hypothesis (label permutation), False for alternative (mean shift)."
+        },
+        "effect_size": {
+          "type": "number",
+          "description": "Cohen's d used for mean shift in alternative hypothesis (default 0.5)."
+        }
+      }
+    },
+    "results": {
+      "type": "object",
+      "description": "Aggregated statistical results.",
+      "required": [
+        "p_values",
+        "error_rates",
+        "ks_test"
+      ],
+      "properties": {
+        "p_values": {
+          "type": "array",
+          "items": {
+            "type": "number",
+            "minimum": 0.0,
+            "maximum": 1.0
+          },
+          "description": "List of p-values from all iterations."
+        },
+        "error_rates": {
+          "type": "object",
+          "description": "Calculated Type I and Type II error rates with confidence intervals.",
+          "required": [
+            "type_i_error",
+            "type_ii_error"
+          ],
+          "properties": {
+            "type_i_error": {
+              "type": "object",
+              "description": "Type I error rate (proportion of p < 0.05 under null).",
+              "required": [
+                "rate",
+                "ci_lower",
+                "ci_upper"
+              ],
+              "properties": {
+                "rate": {
+                  "type": "number",
+                  "minimum": 0.0,
+                  "maximum": 1.0
+                },
+                "ci_lower": {
+                  "type": "number",
+                  "minimum": 0.0,
+                  "maximum": 1.0
+                },
+                "ci_upper": {
+                  "type": "number",
+                  "minimum": 0.0,
+                  "maximum": 1.0
+                }
+              }
+            },
+            "type_ii_error": {
+              "type": "object",
+              "description": "Type II error rate (proportion of p >= 0.05 under alternative).",
+              "required": [
+                "rate",
+                "ci_lower",
+                "ci_upper"
+              ],
+              "properties": {
+                "rate": {
+                  "type": "number",
+                  "minimum": 0.0,
+                  "maximum": 1.0
+                },
+                "ci_lower": {
+                  "type": "number",
+                  "minimum": 0.0,
+                  "maximum": 1.0
+                },
+                "ci_upper": {
+                  "type": "number",
+                  "minimum": 0.0,
+                  "maximum": 1.0
+                }
+              }
+            }
+          }
+        },
+        "ks_test": {
+          "type": "object",
+          "description": "Kolmogorov-Smirnov test results for p-value distribution uniformity (under null).",
+          "required": [
+            "statistic",
+            "p_value",
+            "is_uniform"
+          ],
+          "properties": {
+            "statistic": {
+              "type": "number",
+              "description": "KS test statistic."
+            },
+            "p_value": {
+              "type": "number",
+              "description": "KS test p-value."
+            },
+            "is_uniform": {
+              "type": "boolean",
+              "description": "True if p-value > 0.05, indicating distribution is not significantly different from uniform."
+            }
+          }
+        }
+      }
+    }
+  }
+}

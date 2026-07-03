@@ -1,0 +1,24 @@
+? 'T001a [P] Create project directory structure: `projects/PROJ-269-assessing-the-impact-of-data-augmentatio/code/`,
+  `data/raw/`, `data/derived/`, `results/`, `tests/`, `contracts/`'
+: 1
+? 'T001b [P] Create `projects/PROJ-269-assessing-the-impact-of-data-augmentatio/requirements.txt`
+  with pinned versions: pandas, numpy, scikit-learn, imbalanced-learn, scipy, requests,
+  pytest'
+: 1
+T001c [P] Create `projects/PROJ-269-assessing-the-impact-of-data-augmentatio/code/__init__.py` and `tests/__init__.py`: 1
+? 'T004 [P] Implement `code/download_data.py`: Fetch a set of verified UCI datasets
+  (Breast Cancer, Ionosphere, Heart Disease) via direct URLs. Save to `data/raw/`
+  and compute SHA256 checksums. **Logic**: If the fetched count is not 3, log a warning
+  indicating the deviation from the original FR-001 intent of 5 datasets. Do not attempt
+  to fetch unverified datasets.'
+: 1
+? 'T005 [P] Implement `code/subsample.py`: Create stratified subsampling function
+  for N=15, 25, 40. **Target Column Detection**: Look for ''target'', then ''class'',
+  then ''label'', then default to the last column. **Edge Cases**: If class count
+  < 5 for a configuration, skip it, log a warning, and append the skipped configuration
+  details to `data/derived/skipped_configurations.log`.'
+: 1
+? 'T006 [P] Implement `code/augment.py`: Create functions for Gaussian noise injection,
+  SMOTE, and Random Oversampling using `imbalanced-learn`; ensure no CUDA/GPU dependencies;
+  handle zero-variance samples.'
+: 1

@@ -1,0 +1,171 @@
+resolved_at: '2026-07-03T09:35:08.136899+00:00'
+datasets:
+- intent: UCI
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/udayl/UCI_HAR/resolve/main/csv_files/test.csv
+    source: huggingface
+    format: csv
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/jlh/uci-shopper/resolve/main/data/train-00000-of-00001-3316810f8df41d3a.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/ucinlp/drop/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/ucinlp/drop/resolve/main/data/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/ucirvine/reuters21578/resolve/main/data/reuters21578.tar.gz
+    source: huggingface
+    status: verified
+    format: gzip
+  - url: https://huggingface.co/datasets/ucirvine/sms_spam/resolve/main/plain_text/train-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/udayl/UCI_HAR/resolve/main/csv_files/test.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/jlh/uci-shopper/resolve/main/data/train-00000-of-00001-3316810f8df41d3a.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://ore.exeter.ac.uk/articles/journal_contribution/The_Role_of_Industry_and_Labour_Unions_as_Regulatory_Intermediaries_in_European_Digital_Sovereignty/32892251
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_i_Analisis_Komparatif_Akurasi_Tata_Bahasa_Arab_Nahwu_Shorof_pada_AI_Generatif_Studi_Kasus_Gemini_ChatGPT_dan_Claude_i_/32894846
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Halal_csv/24803589
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Unraveling_the_Electronic_Origin_of_Selectivity_in_Ambimodal_Transition_States_with_Valence_Bond_Theory/32894861
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/An_Oxazine-Locked_Covalent_Organic_Framework_by_a_Tandem_Pinner_Schiff_Base_Reaction_for_Hydrogen_Peroxide_Photosynthesis/32894855
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7950533
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/61452
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7681792
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10685355
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7627577
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21153264
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21153264
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2606.28833
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21148859
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21148859
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: SMOTE
+  status: unresolved
+  candidates: []
+  candidates_tried:
+  - url: https://ore.exeter.ac.uk/articles/thesis/A_patient_specific_total_disc_replacement_to_treat_degenerative_disc_disease/32868998
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ore.exeter.ac.uk/articles/journal_contribution/The_Role_of_Industry_and_Labour_Unions_as_Regulatory_Intermediaries_in_European_Digital_Sovereignty/32892251
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/journal_contribution/_i_Analisis_Komparatif_Akurasi_Tata_Bahasa_Arab_Nahwu_Shorof_pada_AI_Generatif_Studi_Kasus_Gemini_ChatGPT_dan_Claude_i_/32894846
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Halal_csv/24803589
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Unraveling_the_Electronic_Origin_of_Selectivity_in_Ambimodal_Transition_States_with_Valence_Bond_Theory/32894861
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://linkinghub.elsevier.com/retrieve/pii/S0020025519305353
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijai.iaescore.com/index.php/IJAI/article/view/25002
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://ijeecs.iaescore.com/index.php/IJEECS/article/view/41762
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://telkomnika.uad.ac.id/index.php/TELKOMNIKA/article/view/25921
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://telkomnika.uad.ac.id/index.php/TELKOMNIKA/article/view/5011
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.02142
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://uregina.scholaris.ca/handle/10294/8883
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://uregina.scholaris.ca/handle/10294/16780
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Enhancing_traffic_safety_by_forecasting_the_severity_of_road_accident_injuries_using_pyramidal_dilation_attention_convolutional_networks_designed_by_the_reptile_search_algorithm/30369103
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://tandf.figshare.com/articles/journal_contribution/Enhancing_traffic_safety_by_forecasting_the_severity_of_road_accident_injuries_using_pyramidal_dilation_attention_convolutional_networks_designed_by_the_reptile_search_algorithm/30369103/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
