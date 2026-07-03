@@ -815,6 +815,10 @@
     "classified_at": "2026-07-03T05:06:07Z",
     "verdict": false
   },
+  "PROJ-893-llmxive-follow-up-extending-s-agent-spat::1.6.0": {
+    "classified_at": "2026-07-03T21:36:10Z",
+    "verdict": false
+  },
   "PROJ-910-llmxive-follow-up-extending-code2lora-hy::1.6.0": {
     "classified_at": "2026-07-03T07:29:12Z",
     "verdict": false

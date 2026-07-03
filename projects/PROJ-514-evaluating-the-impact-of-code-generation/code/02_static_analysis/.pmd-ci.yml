@@ -1,0 +1,48 @@
+# CI configuration snippet for PMD availability check
+# This file is intended to be included in the main CI pipeline (e.g., GitHub Actions)
+
+name: PMD Environment Check
+
+on:
+  workflow_call:
+
+jobs:
+  check-pmd:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      
+      - name: Cache PMD
+        uses: actions/cache@v3
+        id: cache-pmd
+        with:
+          path: ~/.pmd
+          key: ${{ runner.os }}-pmd-6.55.0
+      
+      - name: Install PMD CLI
+        if: steps.cache-pmd.outputs.cache-hit != 'true'
+        run: |
+          curl -L https://github.com/pmd/pmd/releases/download/pmd_releases/6.55.0/pmd-bin-6.55.0.zip -o pmd-bin.zip
+          unzip pmd-bin.zip
+          mv pmd-bin-6.55.0 ~/.pmd
+          echo "$HOME/.pmd/bin" >> $GITHUB_PATH
+      
+      - name: Verify PMD and Java
+        run: |
+          java -version
+          pmd --version
+      
+      - name: Run Tool Validity Check
+        run: |
+          python code/02_static_analysis/tool_validity_check.py
+      
+      - name: Run Aggregate Metrics
+        run: |
+          python code/02_static_analysis/aggregate_metrics.py

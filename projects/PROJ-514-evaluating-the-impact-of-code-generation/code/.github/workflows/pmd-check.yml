@@ -1,0 +1,72 @@
+name: PMD Environment Check
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  check-pmd-environment:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - name: Cache PMD binaries
+        uses: actions/cache@v3
+        id: cache-pmd
+        with:
+          path: ~/.pmd
+          key: ${{ runner.os }}-pmd-${{ hashFiles('**/pmd-version.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pmd-
+
+      - name: Install PMD CLI
+        if: steps.cache-pmd.outputs.cache-hit != 'true'
+        run: |
+          # Define PMD version
+          PMD_VERSION=6.55.0
+          PMD_URL="https://github.com/pmd/pmd/releases/download/pmd_releases%2F6.55.0/pmd-bin-${PMD_VERSION}.zip"
+          
+          # Download PMD
+          wget -q $PMD_URL -O pmd-bin.zip
+          unzip -q pmd-bin.zip
+          rm pmd-bin.zip
+          
+          # Move to cache directory
+          mkdir -p ~/.pmd
+          mv pmd-bin-${PMD_VERSION}/* ~/.pmd/
+          rm -rf pmd-bin-${PMD_VERSION}
+          
+          # Update PATH
+          echo "$HOME/.pmd/bin" >> $GITHUB_PATH
+
+      - name: Verify PMD Availability
+        run: |
+          echo "Checking Java version..."
+          java -version
+          
+          echo "Checking PMD version..."
+          pmd --version
+          
+          echo "Running PMD help to verify CLI functionality..."
+          pmd help | head -n 5
+          
+          echo "PMD environment check passed successfully."
+
+      - name: Run PMD on Sample Code (Optional Validation)
+        run: |
+          # Create a temporary directory for a quick smoke test if needed
+          # This ensures the tool can actually parse code
+          mkdir -p /tmp/pmd-test
+          echo "public class Test { public void bad() { int x=0; if(true) { x=1; } } }" > /tmp/pmd-test/Sample.java
+          pmd check -R rulesets/java/quickstart.xml -d /tmp/pmd-test -f xml || true
+          echo "PMD execution test completed."

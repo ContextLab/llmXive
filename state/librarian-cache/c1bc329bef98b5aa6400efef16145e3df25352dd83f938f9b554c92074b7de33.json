@@ -1,0 +1,523 @@
+{
+  "fetched_at": "2026-07-03T21:36:49Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"S-Agent: Spatial Tool-Use Elicits Reasoning for Spatial Intelligence\"",
+      "target_n": 5
+    },
+    "duration_seconds": 70.801,
+    "ended_at": "2026-07-03T21:36:49Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "spatial reasoning in large language models"
+        ],
+        [
+          2,
+          "tool-augmented LLMs for spatial tasks"
+        ],
+        [
+          3,
+          "embodied AI spatial intelligence"
+        ],
+        [
+          4,
+          "LLM spatial tool use and reasoning"
+        ],
+        [
+          5,
+          "geometric reasoning with language models"
+        ],
+        [
+          6,
+          "multi-modal spatial understanding agents"
+        ],
+        [
+          7,
+          "LLMs for navigation and spatial planning"
+        ],
+        [
+          8,
+          "spatial cognition in generative AI"
+        ],
+        [
+          9,
+          "tool-integrated reasoning for spatial problems"
+        ],
+        [
+          10,
+          "visual-spatial reasoning in foundation models"
+        ],
+        [
+          11,
+          "LLMs with external spatial tools"
+        ],
+        [
+          12,
+          "spatial problem solving with AI agents"
+        ],
+        [
+          13,
+          "grounding language models in spatial environments"
+        ],
+        [
+          14,
+          "neuro-symbolic approaches to spatial reasoning"
+        ],
+        [
+          15,
+          "LLMs for robotics spatial awareness"
+        ],
+        [
+          16,
+          "spatial query answering with tool use"
+        ],
+        [
+          17,
+          "reasoning about 3D space with LLMs"
+        ],
+        [
+          18,
+          "agent-based spatial task completion"
+        ],
+        [
+          19,
+          "LLMs for map interpretation and navigation"
+        ],
+        [
+          20,
+          "spatial intelligence benchmarks for language models"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"S-Agent: Spatial Tool-Use Elicits Reasoning for Spatial Intelligence\" computer science": 0,
+        "spatial reasoning in large language models": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "spatial reasoning tool augmentation LLM",
+      "embodied AI navigation manipulation benchmark",
+      "homophily graph spatial representation learning",
+      "spatial generalization evaluation metric reasoning",
+      "training data contamination spatial reasoning"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2309.02144"
+      ]
+    },
+    "per_query_hit_count": {
+      "embodied AI navigation manipulation benchmark": 3,
+      "homophily graph spatial representation learning": 3,
+      "llmXive follow-up: extending \"S-Agent: Spatial Tool-Use Elicits Reasoning for Spatial Intelligence\" computer science": 3,
+      "spatial generalization evaluation metric reasoning": 2,
+      "spatial reasoning tool augmentation LLM": 3,
+      "training data contamination spatial reasoning": 2
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "2604.14214",
+          "rationale": "The paper focuses on token-efficient reasoning via prompt optimization for general tasks (math, logic), whereas the user's question specifically targets \"spatial tool-use\" and \"spatial intelligence\" as the mechanism for eliciting reasoning. While both involve LLM reasoning, the candidate paper does not measure the specific spatial mechanism, tool-use interaction, or spatial domain variables required by the user's research question, failing to meet the criteria for same-mechanism evidence or doma",
+          "title": "CROP: Token-Efficient Reasoning in Large Language Models via Regularized Prompt Optimization"
+        },
+        {
+          "primary_pointer": "2510.00071",
+          "rationale": "The paper focuses on \"Adaptive Reasoning Suppression\" to reduce computational inefficiency and \"overthinking\" in Large Reasoning Models, which addresses a different mechanism (efficiency optimization) than the user's question regarding \"Spatial Tool-Use\" for eliciting spatial intelligence. While both involve reasoning in LLMs, the candidate paper does not measure spatial constructs, tool-use mechanisms, or the specific spatial reasoning capabilities central to the user's query, failing to meet t",
+          "title": "ARS: Adaptive Reasoning Suppression for Efficient Large Reasoning Language Models"
+        },
+        {
+          "primary_pointer": "2508.04848",
+          "rationale": "The paper focuses on general reasoning robustness under non-ideal conditions (noise, filtering) after RL fine-tuning, which does not address the specific mechanism of \"spatial tool-use\" or the \"S-Agent\" framework for eliciting spatial intelligence. While both involve LLM reasoning, the candidate paper lacks the specific domain (spatial intelligence via tool interaction) and the specific methodological focus (spatial tool-use) required to be a canonical reference for the user's specific follow-up",
+          "title": "Large Language Models Reasoning Abilities Under Non-Ideal Conditions After RL-Fine-Tuning"
+        },
+        {
+          "primary_pointer": "2308.16118",
+          "rationale": "The paper focuses on the validity of \"emergent analogical reasoning\" and \"zero-shot\" capabilities in LLMs, which is a distinct construct from the user's specific question regarding \"spatial tool-use\" and \"spatial intelligence.\" While both involve LLM reasoning, the paper does not measure the same mechanism (spatial tool interaction), address the same domain (spatial tasks vs. letter string analogies), or provide a baseline for the specific variables in the user's query, failing to meet criteria ",
+          "title": "Response: Emergent analogical reasoning in large language models"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-03T21:35:38Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"s-agent: spatial tool-use elicits reasoning for spatial intelligence\" computer science",
+      "raw": "llmXive follow-up: extending \"S-Agent: Spatial Tool-Use Elicits Reasoning for Spatial Intelligence\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"S-Agent: Spatial Tool-Use Elicits Reasoning for Sp', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-03T21:36:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"S-Agent: Spatial Tool-Use Elicits Reasoning for Sp', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-03T21:36:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"S-Agent: Spatial Tool-Use Elicits Reasoning for Sp', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-03T21:36:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Flow theory describes an optimal cognitive state where individuals experience deep focus and intrinsic motivation when a task's difficulty aligns with their skill level. In AI-augmented reasoning, interventions that disrupt the state of cognitive flow can hinder rather than enhance decision-making. This paper proposes a context-aware cognitive augmentation framework that adapts interventions based on three key contextual factors: type, timing, and scale. By leveraging multimodal behavioral cues (e.g., gaze behavior, typing hesitation, interaction speed), AI can dynamically adjust cognitive support to maintain or restore flow. We introduce the concept of cognitive flow, an extension of flow theory in AI-augmented reasoning, where interventions are personalized, adaptive, and minimally intrusive. By shifting from static interventions to context-aware augmentation, our approach ensures that AI systems support deep engagement in complex decision-making and reasoning without disrupting cognitive immersion.",
+          "claimed_authors": [
+            "Dinithi Dissanayake",
+            "Suranga Nanayakkara"
+          ],
+          "claimed_title": "Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.16021"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"S-Agent: Spatial Tool-Use Elicits Reasoning for Sp', candidate_title='Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support')",
+        "failed_at": "2026-07-03T21:36:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The tool-use Large Language Models (LLMs) that integrate with external Python interpreters have significantly enhanced mathematical reasoning capabilities for open-source LLMs, while tool-free methods chose another track: augmenting math reasoning data. However, a great method to integrate the above two research paths and combine their advantages remains to be explored. In this work, we firstly include new math questions via multi-perspective data augmenting methods and then synthesize code-nested solutions to them. The open LLMs (i.e., Llama-2) are finetuned on the augmented dataset to get the resulting models, MuMath-Code ($μ$-Math-Code). During the inference phase, our MuMath-Code generates code and interacts with the external python interpreter to get the execution results. Therefore, MuMath-Code leverages the advantages of both the external tool and data augmentation. To fully leverage the advantages of our augmented data, we propose a two-stage training strategy: In Stage-1, we finetune Llama-2 on pure CoT data to get an intermediate model, which then is trained on the code-nested data in Stage-2 to get the resulting MuMath-Code. Our MuMath-Code-7B achieves 83.8 on GSM8K and 52.4 on MATH, while MuMath-Code-70B model achieves new state-of-the-art performance among open methods -- achieving 90.7% on GSM8K and 55.1% on MATH. Extensive experiments validate the combination of tool use and data augmentation, as well as our two-stage training strategy. We release the proposed dataset along with the associated code for public use.",
+          "claimed_authors": [
+            "Shuo Yin",
+            "Weihao You",
+            "Zhilong Ji",
+            "Guoqiang Zhong",
+            "Jinfeng Bai"
+          ],
+          "claimed_title": "MuMath-Code: Combining Tool-Use Large Language Models with Multi-perspective Data Augmentation for Mathematical Reasoning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.07551"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"S-Agent: Spatial Tool-Use Elicits Reasoning for Sp', candidate_title='MuMath-Code: Combining Tool-Use Large Language Models with Multi-perspective Data Augmentation for Mathematical Reasoning')",
+        "failed_at": "2026-07-03T21:36:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Complex physical models are the most advanced tools available for producing realistic simulations of the climate system. However, such levels of realism imply high computational cost and restrictions on their use for policymaking and risk assessment. Two central characteristics of climate change are uncertainty and that it is a dynamic problem in which international actions can significantly alter climate projections and information needs, including partial and full compliance of global climate goals. Here we present AIRCC-Clim, a simple climate model emulator that produces regional probabilistic climate change projections of monthly and annual temperature and precipitation, as well as risk measures, based both on standard and user-defined emissions scenarios for six greenhouse gases. AIRCC-Clim emulates 37 atmosphere-ocean coupled general circulation models with low computational and technical requirements for the user. This standalone, user-friendly software is designed for a variety of applications including impact assessments, climate policy evaluation and integrated assessment modelling.",
+          "claimed_authors": [
+            "Francisco Estrada",
+            "Oscar Calderón-Bustamante",
+            "Wouter Botzen",
+            "Julián A. Velasco",
+            "Richard S. J. Tol"
+          ],
+          "claimed_title": "AIRCC-Clim: a user-friendly tool for generating regional probabilistic climate change scenarios and risk measures",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2111.01762"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"S-Agent: Spatial Tool-Use Elicits Reasoning for Sp', candidate_title='AIRCC-Clim: a user-friendly tool for generating regional probabilistic climate change scenarios and risk measures')",
+        "failed_at": "2026-07-03T21:36:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Embodied Artificial Intelligence (Embodied AI) is crucial for achieving Artificial General Intelligence (AGI) and serves as a foundation for various applications (e.g., intelligent mechatronics systems, smart manufacturing) that bridge cyberspace and the physical world. Recently, the emergence of Multi-modal Large Models (MLMs) and World Models (WMs) have attracted significant attention due to their remarkable perception, interaction, and reasoning capabilities, making them a promising architecture for embodied agents. In this survey, we give a comprehensive exploration of the latest advancements in Embodied AI. Our analysis firstly navigates through the forefront of representative works of embodied robots and simulators, to fully understand the research focuses and their limitations. Then, we analyze four main research targets: 1) embodied perception, 2) embodied interaction, 3) embodied agent, and 4) sim-to-real adaptation, covering state-of-the-art methods, essential paradigms, and comprehensive datasets. Additionally, we explore the complexities of MLMs in virtual and real embodied agents, highlighting their significance in facilitating interactions in digital and physical environments. Finally, we summarize the challenges and limitations of embodied AI and discuss potential future directions. We hope this survey will serve as a foundational reference for the research community. The associated project can be found at https://github.com/HCPLab-SYSU/Embodied_AI_Paper_List.",
+          "claimed_authors": [
+            "Yang Liu",
+            "Weixing Chen",
+            "Yongjie Bai",
+            "Xiaodan Liang",
+            "Guanbin Li",
+            "Wen Gao",
+            "Liang Lin"
+          ],
+          "claimed_title": "Aligning Cyber Space with Physical World: A Comprehensive Survey on Embodied AI",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.06886"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"S-Agent: Spatial Tool-Use Elicits Reasoning for Sp', candidate_title='Aligning Cyber Space with Physical World: A Comprehensive Survey on Embodied AI')",
+        "failed_at": "2026-07-03T21:36:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose a maturity-based framework for certifying embodied AI systems through explicit measurement mechanisms. We argue that certifiable embodied AI requires structured assessment frameworks, quantitative scoring mechanisms, and methods for navigating multi-objective trade-offs inherent in trustworthiness evaluation. We demonstrate this approach using uncertainty quantification as an exemplar measurement mechanism and illustrate feasibility through an Uncrewed Aircraft System (UAS) detection case study.",
+          "claimed_authors": [
+            "Michael C. Darling",
+            "Alan H. Hesu",
+            "Michael A. Mardikes",
+            "Brian C. McGuigan",
+            "Reed M. Milewicz"
+          ],
+          "claimed_title": "Toward Maturity-Based Certification of Embodied AI: Quantifying Trustworthiness Through Measurement Mechanisms",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.03470"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"S-Agent: Spatial Tool-Use Elicits Reasoning for Sp', candidate_title='Toward Maturity-Based Certification of Embodied AI: Quantifying Trustworthiness Through Measurement Mechanisms')",
+        "failed_at": "2026-07-03T21:36:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Omnidirectional vision, using 360-degree vision to understand the environment, has become increasingly critical across domains like robotics, industrial inspection, and environmental monitoring. Compared to traditional pinhole vision, omnidirectional vision provides holistic environmental awareness, significantly enhancing the completeness of scene perception and the reliability of decision-making. However, foundational research in this area has historically lagged behind traditional pinhole vision. This talk presents an emerging trend in the embodied AI era: the rapid development of omnidirectional vision, driven by growing industrial demand and academic interest. We highlight recent breakthroughs in omnidirectional generation, omnidirectional perception, omnidirectional understanding, and related datasets. Drawing on insights from both academia and industry, we propose an ideal panoramic system architecture in the embodied AI era, PANORAMA, which consists of four key subsystems. Moreover, we offer in-depth opinions related to emerging trends and cross-community impacts at the intersection of panoramic vision and embodied AI, along with the future roadmap and open challenges. This overview synthesizes state-of-the-art advancements and outlines challenges and opportunities for future research in building robust, general-purpose omnidirectional AI systems in the embodied AI era.",
+          "claimed_authors": [
+            "Xu Zheng",
+            "Chenfei Liao",
+            "Ziqiao Weng",
+            "Kaiyu Lei",
+            "Zihao Dongfang",
+            "Haocong He",
+            "Yuanhuiyi Lyu",
+            "Lutao Jiang",
+            "Lu Qi",
+            "Li Chen",
+            "Danda Pani Paudel",
+            "Kailun Yang",
+            "Linfeng Zhang",
+            "Luc Van Gool",
+            "Xuming Hu"
+          ],
+          "claimed_title": "PANORAMA: The Rise of Omnidirectional Vision in the Embodied AI Era",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2509.12989"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"S-Agent: Spatial Tool-Use Elicits Reasoning for Sp', candidate_title='PANORAMA: The Rise of Omnidirectional Vision in the Embodied AI Era')",
+        "failed_at": "2026-07-03T21:36:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "With the rising interest in graph representation learning, a variety of approaches have been proposed to effectively capture a graph's properties. While these approaches have improved performance in graph machine learning tasks compared to traditional graph techniques, they are still perceived as techniques with limited insight into the information encoded in these representations. In this work, we explore methods to interpret node embeddings and propose the creation of a robust evaluation framework for comparing graph representation learning algorithms and hyperparameters. We test our methods on graphs with different properties and investigate the relationship between embedding training parameters and the ability of the produced embedding to recover the structure of the original graph in a downstream task.",
+          "claimed_authors": [
+            "Antonia Gogoglou",
+            "C. Bayan Bruss",
+            "Keegan E. Hines"
+          ],
+          "claimed_title": "On the Interpretability and Evaluation of Graph Representation Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1910.03081"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"S-Agent: Spatial Tool-Use Elicits Reasoning for Sp', candidate_title='On the Interpretability and Evaluation of Graph Representation Learning')",
+        "failed_at": "2026-07-03T21:36:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Graph representation learning models aim to represent the graph structure and its features into low-dimensional vectors in a latent space, which can benefit various downstream tasks, such as node classification and link prediction. Due to its powerful graph data modelling capabilities, various graph embedding models and libraries have been proposed to learn embeddings and help researchers ease conducting experiments. In this paper, we introduce a novel graph representation framework covering various graph embedding models, ranging from shallow to state-of-the-art models, namely Connector. First, we consider graph generation by constructing various types of graphs with different structural relations, including homogeneous, signed, heterogeneous, and knowledge graphs. Second, we introduce various graph representation learning models, ranging from shallow to deep graph embedding models. Finally, we plan to build an efficient open-source framework that can provide deep graph embedding models to represent structural relations in graphs. The framework is available at https://github.com/NSLab-CUK/Connector.",
+          "claimed_authors": [
+            "Thanh Sang Nguyen",
+            "Jooho Lee",
+            "Van Thuy Hoang",
+            "O-Joun Lee"
+          ],
+          "claimed_title": "Connector 0.5: A unified framework for graph representation learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2304.13195"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"S-Agent: Spatial Tool-Use Elicits Reasoning for Sp', candidate_title='Connector 0.5: A unified framework for graph representation learning')",
+        "failed_at": "2026-07-03T21:36:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Graph representation learning, involving both node features and graph structures, is crucial for real-world applications but often encounters pervasive noise. State-of-the-art methods typically address noise by focusing separately on node features with large language models (LLMs) and on graph structures with graph structure learning models (GSLMs). In this paper, we introduce LangGSL, a robust framework that integrates the complementary strengths of pre-trained language models and GSLMs to jointly enhance both node feature and graph structure learning. In LangGSL, we first leverage LLMs to filter noise in the raw data and extract valuable cleaned information as features, enhancing the synergy of downstream models. During the mutual learning phase in LangGSL, the core idea is to leverage the relatively small language model (LM) to process local attributes and generate reliable pseudo-labels and informative node embeddings, which are then integrated into the GSLM's prediction phase. This approach enriches the global context and enhances overall performance. Meanwhile, GSLM refines the evolving graph structure constructed from the LM's output, offering updated labels back to the LM as additional guidance, thus facilitating a more effective mutual learning process. The LM and GSLM work synergistically, complementing each other's strengths and offsetting weaknesses within a variational information-maximizing framework, resulting in enhanced node features and a more robust graph structure. Extensive experiments on diverse graph datasets of varying scales and across different task scenarios demonstrate the scalability and effectiveness of the proposed approach.",
+          "claimed_authors": [
+            "Guangxin Su",
+            "Yifan Zhu",
+            "Wenjie Zhang",
+            "Hanchen Wang",
+            "Ying Zhang"
+          ],
+          "claimed_title": "Bridging Large Language Models and Graph Structure Learning Models for Robust Representation Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.12096"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"S-Agent: Spatial Tool-Use Elicits Reasoning for Sp', candidate_title='Bridging Large Language Models and Graph Structure Learning Models for Robust Representation Learning')",
+        "failed_at": "2026-07-03T21:36:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Understanding user instructions and object spatial relations in surrounding environments is crucial for intelligent robot systems to assist humans in various tasks. The natural language and spatial reasoning capabilities of Vision-Language Models (VLMs) have the potential to enhance the generalization of robot planners on new tasks, objects, and motion specifications. While foundation models have been applied to task planning, it is still unclear the degree to which they have the capability of spatial reasoning required to enforce user preferences or constraints on motion, such as desired distances from objects, topological properties, or motion style preferences. In this paper, we evaluate the capability of four state-of-the-art VLMs at spatial reasoning over robot motion, using four different querying methods. Our results show that, with the highest-performing querying method, Qwen2.5-VL achieves 71.4% accuracy zero-shot and 75% on a smaller model after fine-tuning, and GPT-4o leads to lower performance. We evaluate two types of motion preferences (object-proximity and path-style), and we also analyze the trade-off between accuracy and computation cost in number of tokens. This work shows some promise in the potential of VLM integration with robot motion planning pipelines.",
+          "claimed_authors": [
+            "Wenxi Wu",
+            "Jingjing Zhang",
+            "Martim Brandão"
+          ],
+          "claimed_title": "Evaluating VLMs' Spatial Reasoning Over Robot Motion: A Step Towards Robot Planning with Motion Preferences",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.13100"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"S-Agent: Spatial Tool-Use Elicits Reasoning for Sp', candidate_title=\"Evaluating VLMs' Spatial Reasoning Over Robot Motion: A Step Towards Robot Planning with Motion Preferences\")",
+        "failed_at": "2026-07-03T21:36:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) and vision language models (VLMs), such as DeepSeek R1,OpenAI o3, and Gemini 2.5 Pro, have demonstrated remarkable reasoning capabilities across logical inference, problem solving, and decision making. However, spatial reasoning:a fundamental component of human cognition that includes mental rotation, navigation, and spatial relationship comprehension remains a significant challenge for current advanced VLMs. We hypothesize that imagination, the internal simulation of spatial states, is the dominant reasoning mechanism within a spatial world model. To test this hypothesis and systematically probe current VLM spatial reasoning mechanisms, we introduce SpatiaLite, a fully synthetic benchmark that jointly measures spatial reasoning accuracy and reasoning efficiency. Comprehensive experiments reveal three key findings. First, advanced VLMs predominantly rely on linguistic representations for reasoning and imagination, resulting in significant deficiencies on visual centric tasks that demand perceptual spatial relations and 3D geometry transformations such as mental rotation or projection prediction. Second, advanced VLMs exhibit severe inefficiency in their current spatial reasoning mechanisms, with token usage growing rapidly as transformation complexity increases. Third, we propose an Imagery Driven Framework (IDF) for data synthesis and training, which can implicitly construct an internal world model that is critical for spatial reasoning in VLMs. Building on SpatiaLite, this work delineates the spatial reasoning limits and patterns of advanced VLMs, identifies key shortcomings, and informs future advances",
+          "claimed_authors": [
+            "Xiaoxing Lian",
+            "Aidong Yang",
+            "Jun Zhu",
+            "Peng Wang",
+            "Yue Zhang"
+          ],
+          "claimed_title": "Imagine in Space: Exploring the Frontier of Spatial Intelligence and Reasoning Efficiency in Vision Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.13782"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"S-Agent: Spatial Tool-Use Elicits Reasoning for Sp', candidate_title='Imagine in Space: Exploring the Frontier of Spatial Intelligence and Reasoning Efficiency in Vision Language Models')",
+        "failed_at": "2026-07-03T21:36:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"S-Agent: Spatial Tool-Use Elicits Reasoning for Sp', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-07-03T21:36:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"S-Agent: Spatial Tool-Use Elicits Reasoning for Sp', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-07-03T21:36:10Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Peiyi Wang",
+            "Lei Li",
+            "Liang Chen",
+            "Feifan Song",
+            "Binghuai Lin",
+            "Yunbo Cao",
+            "Tianyu Liu",
+            "Zhifang Sui"
+          ],
+          "title": "Making Large Language Models Better Reasoners with Alignment",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2309.02144",
+        "summary": "Reasoning is a cognitive process of using evidence to reach a sound conclusion. The reasoning capability is essential for large language models (LLMs) to serve as the brain of the artificial general intelligence agent. Recent studies reveal that fine-tuning LLMs on data with the chain of thought (COT) reasoning process can significantly enhance their reasoning capabilities. However, we find that the fine-tuned LLMs suffer from an \\textit{Assessment Misalignment} problem, i.e., they frequently assign higher scores to subpar COTs, leading to potential limitations in their reasoning abilities. To address this problem, we introduce an \\textit{Alignment Fine-Tuning (AFT)} paradigm, which involves three steps: 1) fine-tuning LLMs with COT training data; 2) generating multiple COT responses for each question, and categorizing them into positive and negative ones based on whether they achieve the correct answer; 3) calibrating the scores of positive and negative responses given by LLMs with a novel constraint alignment loss. Specifically, the constraint alignment loss has two objectives: a) Alignment, which guarantees that positive scores surpass negative scores to encourage answers with high-quality COTs; b) Constraint, which keeps the negative scores confined to a reasonable range to prevent the model degradation. Beyond just the binary positive and negative feedback, the constraint alignment loss can be seamlessly adapted to the ranking situations when ranking feedback is accessible. Furthermore, we also delve deeply into recent ranking-based alignment methods, such as DPO, RRHF, and PRO, and discover that the constraint, which has been overlooked by these approaches, is also crucial for their performance. Extensive experiments on four reasoning benchmarks with both binary and ranking feedback demonstrate the effectiveness of AFT.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2309.02144",
+          "http_status": 200,
+          "pdf_sample_score": 0.4087,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-03T21:36:18Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"s-agent: spatial tool-use elicits reasoning for spatial intelligence\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

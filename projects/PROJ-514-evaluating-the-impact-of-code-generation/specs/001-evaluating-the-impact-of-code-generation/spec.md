@@ -1,126 +1,92 @@
-# Specification: Evaluating the Impact of Code Generation on Code Smell Frequency
+# Specification: Code Smell Comparison Study
 
-## Overview
-This document defines the requirements for a study comparing code smell frequencies between human-written code and LLM-generated code. The study employs a **Balanced Blocked Design** to ensure statistical validity.
+## Version 1.2 (Updated per Plan & Methodology)
 
-## Deviation Log
-- **Sample Size Adjustment**: The original spec requested ≥1000 human samples and ≥50 LLM samples. Per `plan.md` and `methodology-f30244be`, this has been updated to a **Balanced Blocked Design** of 150 human samples and 150 LLM samples (3 per repo × 50 repos) to ensure repository-level matching and statistical power within resource constraints.
-- **Statistical Method**: The original spec suggested Shapiro-Wilk followed by Mann-Whitney U or Welch's t-test. Per `plan.md` and `methodology-f30244be`, this has been updated to use a **Blocked Permutation Test** (stratified by repository) to properly handle the blocked experimental design and avoid pseudoreplication.
-- **Feature Rejection**: FR-007 (Automated PR generation) has been REJECTED and replaced by the Balanced Blocked Design methodology.
+## 1. Introduction
 
-## 1. Functional Requirements
+This study investigates the association between code generation source (human-written vs. LLM-generated) and the frequency of specific code smells.
+
+## 2. Functional Requirements
 
 ### FR-001: Human Sample Collection
-**Target**: Collect **150 human-written code samples** (3 per repository × 50 repositories).
-**Criteria**:
-- Repositories must be public, have ≥100 stars, and ≥5 years of history.
-- Samples must be "fresh" functions (introduced in a single commit, no prior history).
-- Languages: Python and Java.
+**Target**: Collect exactly **150 human-written code samples**.
+**Method**: Extract 3 "fresh" functions per repository from 50 selected public GitHub repositories (≥100 stars, ≥5 years history).
+**Constraint**: Must use `git log --diff-filter=A` to identify commits introducing the functions.
+**Output**: Files saved to `data/raw/human_samples/` with metadata JSON sidecars.
 
 ### FR-002: LLM Sample Generation
-**Target**: Generate **150 LLM-generated code samples** (3 per task × 50 tasks).
-**Criteria**:
-- Tasks derived from the same Issue/PR descriptions used for human samples.
-- Generated using HuggingFace Inference API (or equivalent) with strict timeout/backoff.
-- Languages: Python and Java.
+**Target**: Generate exactly **150 LLM-generated code samples**.
+**Method**: Derive 50 tasks from the same Issue/PR descriptions used for human samples. Generate 3 samples per task using a programmatically accessible LLM API (e.g., HuggingFace Inference API).
+**Constraint**: Must implement exponential backoff and timeout handling.
+**Output**: Files saved to `data/raw/llm_samples/` with metadata JSON sidecars.
 
-### FR-003: Static Analysis
-**Target**: Run PMD CLI on all valid samples.
-**Criteria**:
-- Analyze for 4 specific smells: Long Method, Duplicated Code, Feature Envy, Long Parameter List.
-- Enforce per-file timeout (2 min) and memory limit (2 GB).
+### FR-003: Data Validation
+Ensure ≥95% of collected samples are syntactically valid (Python/Java).
+Generate `data/intermediate/validation_report.json` listing excluded samples.
 
-### FR-004: Data Validation
-**Target**: Verify syntax validity of ≥95% of samples.
-**Criteria**:
-- Generate `data/intermediate/validation_report.json`.
-- Exclude invalid samples from analysis.
+### FR-004: Static Analysis
+Run PMD CLI on valid samples to detect 4 specific code smells:
+1. Long Method
+2. Duplicated Code
+3. Feature Envy
+4. Long Parameter List
 
 ### FR-005: Statistical Analysis
-**Target**: Compare smell frequencies using a **Blocked Permutation Test**.
-**Criteria**:
-- Stratification: Repository ID.
-- Correction: Bonferroni for family-wise error rate (α ≤ 0.05).
-- Effect Size: Cohen's d (or permutation equivalent).
+Perform a **Blocked Permutation Test** (stratified by repository) to compare smell frequencies.
+Apply Bonferroni correction for family-wise error rate ≤ 0.05.
 
 ### FR-006: Reporting
-**Target**: Generate `reports/final_study_report.md`.
-**Criteria**:
-- Include statistical tables, effect sizes, and box plots.
-- Use associational language only (no causal claims).
-- Explicitly state the observational nature of the study.
+Generate a final report (`reports/final_study_report.md`) including statistical tables, effect sizes, and box plots.
+Language must be strictly associational (e.g., "associated with", "correlated with").
 
-### FR-007: [REJECTED] Automated PR Generation
-**Rationale**: Replaced by Balanced Blocked Design to avoid statistical artifacts and ensure repository-level matching.
+### FR-007: [REJECTED]
+**Status**: REJECTED.
+**Rationale**: Replaced by Balanced Blocked Design (FR-001/FR-002) to avoid statistical artifacts and ensure repository-level matching.
 
-## 2. Statistical Comparison (SC)
+## 3. Statistical Constraints
 
 ### SC-001: Total Sample Size
 **Target**: **300 total samples** (150 human + 150 LLM).
-**Rationale**: Ensures balanced design across 50 repositories (3 samples per source per repo).
+**Justification**: Based on the "Balanced Blocked Design" in `plan.md` and `methodology-f30244be`, which prioritizes repository-level matching over raw volume to ensure statistical validity in the presence of repository-specific noise.
 
-### SC-002: Statistical Test
-**Method**: **Blocked Permutation Test** (stratified by repository).
-**Rationale**:
-- Accounts for repository-level variance (blocking factor).
-- Non-parametric; robust to non-normality and zero-inflation.
-- Avoids assumptions required by t-tests or Mann-Whitney U in blocked designs.
+### SC-002: Analysis Method
+Use **Blocked Permutation Test** (stratified by repository) instead of standard parametric tests (Shapiro-Wilk → Mann-Whitney U or Welch's t-test) to account for the paired nature of the data (same repo, same task).
 
-### SC-003: Threshold Sensitivity
-**Target**: Sweep "Long Method" thresholds ∈ {100, 150, 200} lines.
-**Rationale**: Verify robustness of results against arbitrary threshold choices.
+### SC-003: Correction
+Apply Bonferroni correction for the 4 hypothesis tests performed (one per smell type).
 
-## 3. User Stories
+## 4. Deviation Log
 
-### US-1: Data Collection
-**As a** researcher, **I want** to collect 150 human and 150 LLM code samples from 50 matched repositories, **so that** I have a balanced dataset for statistical comparison.
-**Acceptance Criteria**:
-- `data/raw/human_samples` contains 150 valid files with metadata.
-- `data/raw/llm_samples` contains 150 valid files with metadata.
-- `data/raw/manifest.csv` links all samples to repository and issue IDs.
+| Original Spec Requirement | Updated Requirement | Reason | Reference |
+|:--- |:--- |:--- |:--- |
+| FR-001: ≥1000 human samples | FR-001: 150 human samples (3 per repo × 50 repos) | Balanced Blocked Design ensures repository matching and statistical power within CI limits. | `plan.md`, `methodology-f30244be` |
+| FR-002: ≥50 LLM samples | FR-002: 150 LLM samples (3 per repo × 50 repos) | Balanced Blocked Design ensures repository matching and statistical power within CI limits. | `plan.md`, `methodology-f30244be` |
+| SC-001: 1050 total samples | SC-001: 300 total samples | Alignment with FR-001 and FR-002 targets. | `plan.md` |
+| SC-002: Shapiro-Wilk → Mann-Whitney U | SC-002: Blocked Permutation Test | Paired data structure requires blocking by repository to control for confounding variables. | `methodology-f30244be` |
 
-### US-2: Static Analysis
-**As a** researcher, **I want** to run PMD on all samples to extract smell metrics, **so that** I can quantify code quality differences.
-**Acceptance Criteria**:
-- `data/intermediate/analysis_results.json` contains smell counts for all 4 categories.
-- `data/intermediate/tool_validity_status.json` confirms false-positive rate ≤ 5%.
-
-### US-3: Statistical Comparison
-**As a** researcher, **I want** to compare smell frequencies using a **Blocked Permutation Test**, **so that** I can determine if LLM-generated code has significantly different smell profiles.
-**Acceptance Criteria**:
-- **Scenario 1**: The system runs a Blocked Permutation Test stratified by repository.
- - **Given** smell metrics for 300 samples grouped by repository.
- - **When** the analysis is executed.
- - **Then** the output includes p-values corrected via Bonferroni and effect sizes.
- - **Note**: This replaces the previous "Shapiro-Wilk → Mann-Whitney U" workflow. Reference `methodology-f30244be`.
-- **Scenario 2**: The system generates a final report with associational language.
- - **Given** the statistical results.
- - **When** the report is generated.
- - **Then** the report explicitly states the study is observational and avoids causal claims.
-
-## 4. Data Models
+## 5. Data Model
 
 ### CodeSample
 - `source_type`: "human" | "llm"
-- `repository_id`: string
-- `issue_id`: string
-- `task_id`: string
+- `repository_id`: String (GitHub URL)
+- `issue_id`: String (PR/Issue number)
+- `task_id`: String (Unique task identifier)
 - `language`: "python" | "java"
-- `file_path`: string
-- `function_name`: string
-- `is_fresh_commit`: boolean
+- `file_path`: String
+- `function_name`: String
+- `is_fresh_commit`: Boolean
 
 ### SmellMetric
-- `sample_id`: string
-- `smell_type`: "Long Method" | "Duplicated Code" | "Feature Envy" | "Long Parameter List"
-- `count`: integer
-- `threshold_used`: float (for continuous metrics)
-- `continuous_metric_value`: float (e.g., cyclomatic complexity)
+- `sample_id`: String
+- `smell_type`: String
+- `count`: Integer
+- `threshold_used`: Float
+- `continuous_metric_value`: Float
 
 ### StatResult
-- `smell_type`: string
-- `p_value`: float
-- `effect_size`: float
-- `confidence_interval`: tuple(float, float)
-- `correction_method`: string (e.g., "Bonferroni")
-- `test_method_used`: string (e.g., "Blocked Permutation Test")
+- `smell_type`: String
+- `p_value`: Float
+- `effect_size`: Float
+- `confidence_interval`: Tuple(Float, Float)
+- `correction_method`: String
+- `test_method_used`: String

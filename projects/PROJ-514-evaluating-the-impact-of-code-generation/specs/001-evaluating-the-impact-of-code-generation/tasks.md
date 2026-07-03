@@ -62,7 +62,7 @@
  - `class CodeSample`: attributes `source_type`, `repository_id`, `issue_id`, `task_id`, `language`, `file_path`, `function_name`, `is_fresh_commit`.
  - `class SmellMetric`: attributes `sample_id`, `smell_type`, `count`, `threshold_used`, `continuous_metric_value`.
  - `class StatResult`: attributes `smell_type`, `p_value`, `effect_size`, `confidence_interval`, `correction_method`, `test_method_used`.
-- [ ] T008 Implement syntax validation utility (`code/utils/validators.py`) for Python/Java file integrity checks
+- [X] T008 Implement syntax validation utility (`code/utils/validators.py`) for Python/Java file integrity checks
 - [ ] T009 Setup CI environment check for PMD/JRE availability (Dockerfile or CI script to install PMD CLI)
 
 ### Phase 2.5: Spec Deviation & Update Tasks (Critical)
@@ -74,10 +74,10 @@
  - Modify FR-002 text to state target is **150 LLM samples** (3 per repo × 50 repos) instead of ≥50.
  - Modify SC-001 text to state target is **300 total samples** (150/150) instead of 1050.
  - Add "Deviation Log" section citing `plan.md` and `methodology-f30244be`.
-- [~] T017 [Spec Update] Update `specs/001-code-smell-comparison/spec.md`:
+- [ ] T017 [Spec Update] Update `specs/001-code-smell-comparison/spec.md`:
  - Mark FR-007 as **REJECTED** in the Functional Requirements list.
  - Add rationale: "Replaced by Balanced Blocked Design to avoid statistical artifacts."
-- [~] T018 [Spec Update] Update `specs/001-code-smell-comparison/spec.md`:
+- [ ] T018 [Spec Update] Update `specs/001-code-smell-comparison/spec.md`:
  - Modify US-3 Acceptance Scenario 1 to replace "Shapiro-Wilk → Mann-Whitney U or Welch's t-test" with "**Blocked Permutation Test** (stratified by repository)".
  - Add note referencing `methodology-f30244be`.
 
@@ -95,7 +95,7 @@
 
 > **NOTE**: These contract tests define the interface for the implementation. They must be written FIRST to define the expected behavior, even if they fail to import unimplemented modules.
 
-- [~] T010 [US1] Contract test for repository selection logic in `tests/contract/test_repo_selection.py` (Defines interface for T012)
+- [ ] T010 [US1] Contract test for repository selection logic in `tests/contract/test_repo_selection.py` (Defines interface for T012)
 - [~] T011 [US1] Contract test for LLM generation logic in `tests/contract/test_llm_generation.py` (Defines interface for T013)
 
 ### Implementation for User Story 1
@@ -147,7 +147,7 @@
  - Calculate false-positive rate; if >5%, flag the tool configuration as invalid in logs.
  - **Dependency**: Must run after T022 completes to ensure results are parsed.
  - Generate `data/intermediate/tool_validity_status.json` with keys `is_valid` (boolean) and `false_positive_rate` (float).
-- [ ] T024 [US2] Implement `code/02_static_analysis/aggregate_metrics.py`:
+- [~] T024 [US2] Implement `code/02_static_analysis/aggregate_metrics.py`:
  - Aggregate results into `data/processed/smell_metrics.csv` with columns: `sample_id`, `source_type`, `smell_type`, `count`, `continuous_metric_value` (e.g., cyclomatic complexity).
  - **Dependency**: Must run after T022 and T023 (validity check) complete.
 
@@ -163,17 +163,17 @@
 
 ### Tests for User Story 3 (MANDATORY - Interface Definition)
 
-- [ ] T025 [US3] Contract test for permutation test logic in `tests/contract/test_permutation_test_interface.py` (Defines interface for T026)
-- [ ] T026 [US3] Contract test for report generation in `tests/contract/test_report_interface.py` (Defines interface for T028)
+- [~] T025 [US3] Contract test for permutation test logic in `tests/contract/test_permutation_test_interface.py` (Defines interface for T026)
+- [~] T026 [US3] Contract test for report generation in `tests/contract/test_report_interface.py` (Defines interface for T028)
 
 ### Implementation for User Story 3
 
-- [ ] T027 [US3] Implement `code/03_statistical_analysis/compare_distributions.py`:
+- [~] T027 [US3] Implement `code/03_statistical_analysis/compare_distributions.py`:
  - Implement Blocked Permutation Test (stratified by repository) per plan.md.
  - Handle zero-inflation and non-normality.
  - Apply Bonferroni correction for 4 hypothesis tests (family-wise error rate ≤ 0.05).
  - Calculate effect sizes (Cohen's d or equivalent for permutation tests).
-- [ ] T028 [US3] Implement `code/03_statistical_analysis/sensitivity_analysis.py`:
+- [~] T028 [US3] Implement `code/03_statistical_analysis/sensitivity_analysis.py`:
  - Sweep "Long Method" threshold values ∈ {100, 150, 200} lines.
  - Compare results against continuous metrics (cyclomatic complexity) to verify stability.
  - **Dependency**: Must run after T027 completes.

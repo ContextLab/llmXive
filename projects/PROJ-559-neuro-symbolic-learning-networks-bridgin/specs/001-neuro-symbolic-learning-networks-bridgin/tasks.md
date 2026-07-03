@@ -113,7 +113,7 @@ found character '`' that cannot start any token
 ### Implementation for User Story 2
 
 - [ ] T020 [P] [US2] Implement `code/simulate/bkt_simulator.py` with deterministic seed support (Addressing Von Neumann's "stability under perturbation" concern). **Dependency**: T007, T005.
-- [ ] T021b [US2] Implement configuration logic to define the list of three conditions (neural, symbolic, neuro-symbolic) and a sufficient sample size per condition. **Deliverable**: `code/simulate/simulation_config.yaml`. **Dependency**: T033 (calibration check).
+- [X] T021b [US2] Implement configuration logic to define the list of three conditions (neural, symbolic, neuro-symbolic) and a sufficient sample size per condition. **Deliverable**: `code/simulate/simulation_config.yaml`. **Dependency**: T033 (calibration check).
 - [ ] T021 [US2] Implement `code/simulate/run_simulation.py` loop logic to iterate over all conditions defined in T021b and process [deferred] students per condition. **Dependency**: T020, T021b.
 - [ ] T022 [US2] Implement logging to aggregate `data/derived/simulation_logs.csv` with required fields (FR-004, FR-005). **Dependency**: T021.
 - [ ] T023 [US2] Add logic to simulate response times and comprehension ratings (1-5 Likert) ensuring no gaps > 5s in distribution (SC-005). **Dependency**: T022.
