@@ -1,0 +1,32 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MixedEffectModelOutput"
+description: "Results of the mixed-effects model analysis."
+type: "object"
+properties:
+  model_id:
+    type: "string"
+    description: "Unique identifier for the model run."
+  fixed_effects:
+    type: "object"
+    description: "Coefficients for fixed effects (scaling methods)."
+    additionalProperties:
+      type: "number"
+  random_effects_variance:
+    type: "number"
+    minimum: 0
+    description: "Variance of the random effect (dataset source)."
+  p_value_fixed_effect:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "P-value for the fixed effect of scaling method."
+  significance:
+    type: "boolean"
+    description: "Whether the fixed effect is statistically significant."
+required:
+  - model_id
+  - fixed_effects
+  - random_effects_variance
+  - p_value_fixed_effect
+  - significance
+additionalProperties: false

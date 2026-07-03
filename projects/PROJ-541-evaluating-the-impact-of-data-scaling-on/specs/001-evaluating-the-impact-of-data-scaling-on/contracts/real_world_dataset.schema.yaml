@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "RealWorldDataset"
+description: "Metadata for an ingested public dataset."
+type: "object"
+properties:
+  dataset_id:
+    type: "string"
+    description: "Unique identifier."
+  source_url:
+    type: "string"
+    format: "uri"
+    description: "Verified URL of the dataset."
+  source_name:
+    type: "string"
+    description: "Name of the dataset source."
+  file_path:
+    type: "string"
+    description: "Local path to the file."
+  checksum:
+    type: "string"
+    description: "SHA256 checksum of the file."
+  preprocessed_status:
+    type: "string"
+    enum:
+      - "loaded"
+      - "cleaned"
+      - "skipped"
+    description: "Status of preprocessing."
+  skipped_reason:
+    type: "string"
+    description: "Reason for skipping, if applicable."
+required:
+  - dataset_id
+  - source_url
+  - source_name
+  - file_path
+  - checksum
+  - preprocessed_status
+additionalProperties: false

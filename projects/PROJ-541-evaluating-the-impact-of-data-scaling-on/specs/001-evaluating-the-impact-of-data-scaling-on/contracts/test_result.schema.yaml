@@ -1,0 +1,56 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "TestResult"
+description: "Output of a single statistical test execution."
+type: "object"
+properties:
+  result_id:
+    type: "string"
+    description: "Unique identifier for the result."
+  config_id:
+    type: "string"
+    description: "Foreign key to SimulationConfig."
+  test_type:
+    type: "string"
+    enum:
+      - "t_test"
+      - "anova"
+    description: "Type of statistical test performed. (Removed chi_squared)."
+  statistic:
+    type: "number"
+    description: "Test statistic value (t or F)."
+  p_value:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Calculated p-value."
+  is_rejected:
+    type: "boolean"
+    description: "Whether the null hypothesis was rejected."
+  ground_truth:
+    type: "string"
+    enum:
+      - "null"
+      - "alternative"
+    description: "Ground truth status."
+  scaling_method:
+    type: "string"
+    description: "Scaling method used."
+  error_type:
+    type: "string"
+    enum:
+      - "type1"
+      - "type2"
+      - "none"
+      - "error"
+    description: "Type of error (if any) or success."
+required:
+  - result_id
+  - config_id
+  - test_type
+  - statistic
+  - p_value
+  - is_rejected
+  - ground_truth
+  - scaling_method
+  - error_type
+additionalProperties: false

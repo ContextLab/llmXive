@@ -1,0 +1,53 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SimulationConfig"
+description: "Configuration parameters for a single simulation run."
+type: "object"
+properties:
+  config_id:
+    type: "string"
+    description: "Unique identifier (UUID) for the configuration."
+  distribution_type:
+    type: "string"
+    enum:
+      - "normal"
+      - "skewed"
+      - "heteroscedastic"
+    description: "Type of distribution for synthetic data generation."
+  scaling_method:
+    type: "string"
+    enum:
+      - "standard"
+      - "minmax"
+      - "robust"
+    description: "Scaling method to apply."
+  sample_size:
+    type: "integer"
+    minimum: 1
+    description: "Number of samples to generate."
+  alpha_level:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Nominal alpha level for hypothesis testing."
+  ground_truth:
+    type: "string"
+    enum:
+      - "null"
+      - "alternative"
+    description: "Ground truth status of the hypothesis."
+  effect_size:
+    type: "number"
+    description: "Expected effect size (mean difference) for alternative hypothesis."
+  seed:
+    type: "integer"
+    description: "Random seed for reproducibility."
+required:
+  - config_id
+  - distribution_type
+  - scaling_method
+  - sample_size
+  - alpha_level
+  - ground_truth
+  - effect_size
+  - seed
+additionalProperties: false
