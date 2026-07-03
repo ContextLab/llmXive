@@ -1,17 +1,26 @@
 ---
 action_items:
-- id: d0224f45ec55
+- id: de52b5f44d3c
+  severity: writing
+  text: Clarify in Section 3.1 that the performance regression for smaller models
+    (2B-8B) with CONACT is specific to the zero-shot setting, and that SFT (MemGUI-8B-SFT)
+    reverses this trend, to avoid implying the architecture is inherently harmful.
+- id: b9c20f417622
   severity: science
-  text: Section 1 claims GUI-Owl-1.5-8B scores 71.6% on AndroidWorld but cites no
-    source. Verify this baseline or cite the specific evaluation.
-- id: 328d76042244
+  text: In Section 4.1, verify that 'Qwen3-VL-8B-Instruct' is the only relevant open-data
+    8B baseline omitted from Table 2. If other open-data 8B models exist (e.g., UI-Venus),
+    either include them or qualify the 'best among open-data' claim to reflect the
+    specific baselines compared.
+- id: 2dcbb181bc8d
   severity: writing
-  text: Section 3 mentions '75.7% reasonable steps' without defining the metric or
-    linking it to Figure 2. Clarify the definition and source.
-- id: afe27c8fef81
+  text: In Section 4.3, clarify that the reported gains for 'history folding' (+5.0%)
+    and 'self-describing steps' (+7.5%) are marginal improvements in the sequential
+    ablation, not independent additive contributions to the ReAct baseline.
+- id: ba42cd33b8db
   severity: writing
-  text: Section 4.1 compares against 'same backbone' but does not explicitly specify
-    the 'Thinking' variant, risking confusion with the 'Instruct' row in Table 1.
+  text: In Section 4.4, explicitly state that the -42% and -57% reductions for hallucination
+    types refer to the decrease in the count of those specific errors, not their proportional
+    contribution to the total 41% failure reduction, to prevent ambiguity.
 artifact_hash: 7ba9201f0f49d9384a35f3eca07d4fd8d448c0da222a8a4e9472044b7e857c18
 artifact_path: projects/PROJ-781-memgui-agent-an-end-to-end-long-horizon/paper/metadata.json
 backend: dartmouth
@@ -19,17 +28,21 @@ feedback: ''
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.1.0
-reviewed_at: '2026-07-03T18:52:18.444672Z'
+reviewed_at: '2026-07-03T19:22:29.477441Z'
 reviewer_kind: llm
 reviewer_name: paper_reviewer_claim_accuracy
 score: 0.0
 verdict: minor_revision
 ---
 
-The paper presents a compelling narrative on long-horizon mobile GUI agents, but several factual claims require tighter alignment with evidence and citations.
+The paper presents several strong factual claims regarding performance gains and architectural impacts. Most claims are supported by the provided tables, but a few require clarification to ensure the evidence matches the strength of the assertions.
 
-In the Introduction, the claim that "GUI-Owl-1.5-8B" achieves 71.6% on AndroidWorld is unsupported by the provided text or citations. While the 11.7% figure on MemGUI-Bench is present in Table 1, the 71.6% baseline lacks a direct citation (e.g., to `xu2026mobile` or `rawles2025androidworld`). Without this citation, the magnitude of the "dramatic drop" is an unverified assertion. The authors must either cite the specific source for the AndroidWorld score or clarify if this is a new evaluation performed by the authors.
+In Section 3.1, the claim that smaller models "regress" with CONACT is supported by Table 1, which shows a drop in Pass@1 for 2B, 4B, and 8B models. However, the text does not explicitly distinguish this as a zero-shot phenomenon, which is crucial because the subsequent section (3.2) introduces MemGUI-3K specifically to fix this. Without this distinction, a reader might incorrectly infer that the CONACT architecture is detrimental to smaller models in general, rather than just ineffective without the specific SFT data. The text should clarify that the regression is observed in the zero-shot setting and is reversed by the proposed SFT.
 
-In Section 3, the dataset construction description mentions a filtering step resulting in "75.7% reasonable steps." This specific percentage is not explicitly defined or cross-referenced with the statistics in Figure 2 (dataset-stats). The figure details folding granularity (23.8%) and trajectory containment (88.7%), but the "reasonable steps" metric appears isolated. The text should clarify whether this 75.7% refers to the ratio of steps retained after filtering or the quality of the initial generation, and ensure this metric is visually represented or explicitly defined in the figure caption.
+In Section 4.1, the claim that MemGUI-8B-SFT achieves the "best open-data 8B performance" is supported by Table 2, which compares it against Qwen3-VL-8B-Instruct. However, the Related Work section and the bibliography list other potential open-data 8B models (e.g., UI-Venus, Mobile-Agent-V3). The review cannot verify if these models were excluded from the comparison or if they simply performed worse. To support the "best among open-data" claim robustly, the authors should either include these models in the comparison table or explicitly state in the text that the comparison is limited to the specific baselines chosen and that other open-data models were considered but not included for specific reasons (e.g., lack of public weights, different benchmark settings).
 
-Finally, in Section 4.1, the comparison of MemGUI-Agent-235B against the "same backbone" cites improvements of +13.3 Pass@1 and +16.8 IRR. While the arithmetic holds against the "Qwen3-VL-235B-Thinking" row in Table 1, the text does not explicitly distinguish this from the "Qwen3-VL-235B-Instruct" variant listed immediately above it. Given the significant performance gap between the "Thinking" and "Instruct" variants in the table, the claim of improvement over the "same backbone" is technically accurate but potentially misleading without explicitly specifying that the baseline is the "Thinking" variant. Precision here is critical to avoid overstating the method's contribution over the base model's inherent capabilities.
+In Section 4.3, the ablation study text states that "history folding adds 5.0%, and self-describing steps add 7.5%". The table shows these as cumulative improvements in a sequential ablation (Baseline -> +UI -> +History -> +Self). The phrasing "adds X%" could be interpreted as an independent contribution to the baseline, which is not what the table shows. The text should be refined to clarify that these are the marginal gains observed when adding each component to the *previous* configuration in the ablation sequence.
+
+Finally, in Section 4.4, the claim about reducing failures by 41% is mathematically sound based on the numbers provided (99 to 58). The breakdown of reductions in process and output hallucination (-42% and -57%) is likely correct based on the figure, but the text should ensure it is clear that these percentages refer to the reduction in the *count* of those specific error types, not their contribution to the total reduction, to avoid any ambiguity in how the total 41% reduction is composed.
+
+Overall, the claims are largely accurate, but minor clarifications in the text are needed to prevent misinterpretation of the data, particularly regarding the zero-shot vs. SFT performance of smaller models and the specific nature of the ablation gains.

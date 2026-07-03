@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-12T09:26:29.662705Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-694-beyond-scalar-rewards-by-internalizing-r
-last_run_id: 4178148d-4de4-4dea-ad3c-fbaf310b79c0
+last_run_id: 8e3ebcdf-95f2-40b4-9fdf-0bf165ce2702
 last_run_status: null
 points_paper: {}
 points_research: {}

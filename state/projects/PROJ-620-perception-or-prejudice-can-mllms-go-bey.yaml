@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-23T08:43:43.343638Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-620-perception-or-prejudice-can-mllms-go-bey
-last_run_id: 6cb985d5-e22e-441a-91dd-6d25404f8c1c
+last_run_id: 15f6f1c5-5ae5-467f-989f-53639121f600
 last_run_status: null
 points_paper: {}
 points_research: {}

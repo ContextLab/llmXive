@@ -1,25 +1,22 @@
 ---
 action_items:
-- id: 6c0fa702590a
-  severity: science
-  text: The claim that MemGUI-8B-SFT achieves the 'best open-data 8B performance'
-    (Sec 6) is overreaching. The paper compares against closed-source or proprietary
-    models (e.g., Gemini, M3A) and does not explicitly benchmark against all relevant
-    open-weight 8B baselines (e.g., specific fine-tuned variants of Llama-3.2-Vision
-    or other community models) to substantiate the superlative 'best'.
-- id: 0618c58a2244
+- id: 113d231f1cf5
   severity: writing
-  text: The introduction (Sec 1) attributes performance drops solely to 'passive ReAct-style
-    prompting' causing 'prompt explosion.' This is an over-simplification that ignores
-    other potential factors like visual grounding degradation or action space complexity
-    in long horizons, which are not ruled out by the provided ablation studies.
-- id: de08488879b0
-  severity: science
-  text: "The claim that 'Full ConAct reduces total failures by 41% (99\u219258)' (Fig\
-    \ 4 caption) lacks statistical rigor. Without confidence intervals, p-values,\
-    \ or a description of the variance across multiple seeds/runs, this specific percentage\
-    \ reduction is presented as a definitive fact rather than an observed trend, risking\
-    \ over-interpretation of stochastic results."
+  text: The claim that CONACT 'saves ~1.5k input tokens by step 150' (Intro) lacks
+    a defined baseline comparison or calculation methodology. Specify the exact ReAct
+    context growth rate and the folding compression ratio used to derive this figure.
+- id: be26427673cb
+  severity: writing
+  text: The statement that MemGUI-8B-SFT 'generalizes to MobileWorld' (Conclusion)
+    overstates the evidence. The results in Table 4 show a 17.9% SR, which is lower
+    than the 43.9% SR of GUI-Owl-1.5-32B. Clarify that the gain is relative to the
+    8B baseline, not a generalization to state-of-the-art performance.
+- id: e55677bf9573
+  severity: writing
+  text: The claim that the method 'reduces total failures by 41%' (Sec 5.4) is based
+    on a specific ablation variant (Full CONACT vs ReAct) on a specific model (235B).
+    Ensure the text does not imply this reduction applies universally to all model
+    sizes or task difficulties without qualification.
 artifact_hash: 7ba9201f0f49d9384a35f3eca07d4fd8d448c0da222a8a4e9472044b7e857c18
 artifact_path: projects/PROJ-781-memgui-agent-an-end-to-end-long-horizon/paper/metadata.json
 backend: dartmouth
@@ -27,17 +24,17 @@ feedback: ''
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.1.0
-reviewed_at: '2026-07-03T18:52:41.989576Z'
+reviewed_at: '2026-07-03T19:22:50.393929Z'
 reviewer_kind: llm
 reviewer_name: paper_reviewer_overreach
 score: 0.0
 verdict: minor_revision
 ---
 
-The paper makes several claims that extend beyond the immediate evidence provided in the text, particularly regarding the exclusivity of the proposed solution's effectiveness and the universality of the identified failure modes.
+The paper makes several strong claims regarding the efficacy of the proposed CONACT framework and the MemGUI-3K dataset. While the experimental results generally support the core hypothesis that proactive context management improves long-horizon performance, there are instances of over-claiming where the language extrapolates beyond the specific conditions of the reported data.
 
-First, the conclusion (Sec 6) and abstract assert that MemGUI-8B-SFT achieves the "best open-data 8B performance." While the authors provide a strong comparison against the Qwen3-VL-8B baseline and other end-to-end models, the term "best" is a superlative that requires a comprehensive sweep of the current open-weight landscape. The paper does not explicitly benchmark against other fine-tuned 8B models (e.g., specific community fine-tunes of Llama-3.2-Vision or other recent open-source VLMs) that might exist. Without this broader comparison, the claim of being the absolute "best" is an overreach; it should be qualified as "competitive" or "state-of-the-art among the specific baselines tested."
+First, the Introduction states that CONACT "saves ~1.5k input tokens by step 150 compared to ReAct." This is a precise quantitative claim that currently lacks the necessary context to be verified. The paper does not explicitly define the baseline ReAct context growth rate (tokens per step) or the specific compression ratio achieved by the folding mechanism that leads to this 1.5k figure. Without a clear definition of the baseline or a reference to a specific calculation in the appendix, this number appears to be an extrapolation rather than a directly measured result in the provided text. The authors should clarify the baseline assumptions or provide the calculation methodology.
 
-Second, the Introduction (Sec 1) presents a causal narrative that the degradation in long-horizon tasks is "attributed to passive ReAct-style prompting, which causes prompt explosion." This phrasing implies that context management is the *primary* or *sole* bottleneck. However, the ablation studies (Table 2) show that while ConAct helps, the baseline 235B model still struggles significantly on hard tasks (34.2% P@1). The paper does not sufficiently rule out alternative explanations for the remaining failures, such as limitations in visual grounding over long sequences, action space complexity, or the inherent difficulty of the tasks themselves. Attributing the problem almost exclusively to "prompt explosion" oversimplifies the problem space.
+Second, the Conclusion asserts that "MemGUI-8B-SFT generalizes to MobileWorld." While the model does show improvement over its zero-shot baseline on MobileWorld (Table 4), the term "generalizes" in this context risks overstating the capability. The achieved Success Rate (17.9%) is significantly lower than other agents on the same benchmark (e.g., GUI-Owl-1.5-32B at 43.9%). The claim should be tempered to reflect that the model demonstrates *relative* improvement or *transfer* of the CONACT strategy to a new benchmark, rather than implying a robust, general-purpose capability that matches or exceeds existing specialized agents.
 
-Finally, the error analysis in Figure 4 caption states that "Full ConAct reduces total failures by 41% (99→58)." Presenting this as a precise integer reduction without reporting variance, standard deviation, or statistical significance (e.g., p-values from a t-test or bootstrap confidence intervals) is scientifically risky. In stochastic agent evaluations, a single run's count can fluctuate. Claiming a definitive 41% reduction without error bars or multiple-seed reporting suggests a level of certainty that the data does not support. The authors should either provide the statistical backing for this specific number or rephrase it to reflect the observed trend (e.g., "reduced failures by approximately 40% across our evaluation").
+Finally, the error analysis in Section 5.4 claims that "Full CONACT reduces total failures by 41% (99→58)." This statistic is derived from a specific comparison between the Full CONACT variant and the ReAct baseline using the Qwen3-VL-235B-Thinking model. The phrasing could be misinterpreted as a universal property of the method across all model scales or task difficulties. Given that Table 1 shows smaller models (2B, 4B, 8B) actually regress when using CONACT zero-shot, the 41% reduction is not a generalizable fact for the method itself but rather a result specific to the 235B model configuration. The text should explicitly qualify this reduction to the specific experimental setup to avoid misleading readers about the method's universal applicability.

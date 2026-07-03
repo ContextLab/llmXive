@@ -1,14 +1,14 @@
 ---
 action_items:
-- id: f95a2c4bac55
+- id: 5913ae184ec2
   severity: writing
-  text: The manuscript relies heavily on specialized acronyms and domain-specific
-    shorthand that are not defined at their first point of use, creating a barrier
-    for non-specialist readers. First, the core contribution, ConAct, is introduced
-    in Section 2 ("End-to-End Mobile GUI Agent with ConAct") without ever explicitly
-    stating what the acronym stands for (presumably "Context-as-Action" based on the
-    title and content). It appears in the abstract and introduction implicitly but
-    lacks a formal definition
+  text: The manuscript relies heavily on domain-specific acronyms and jargon that
+    are not defined upon first use, creating barriers for non-specialist readers.
+    In the Introduction (Section 1), the term ReAct is used immediately without expansion.
+    While standard in the sub-field, it should be spelled out as "Reasoning and Acting"
+    on first mention. Similarly, SFT (Supervised Fine-Tuning) appears in Section 1
+    and Section 3 without definition. The phrase "prompt explosion" is used metaphorically;
+    replacing
 artifact_hash: 7ba9201f0f49d9384a35f3eca07d4fd8d448c0da222a8a4e9472044b7e857c18
 artifact_path: projects/PROJ-781-memgui-agent-an-end-to-end-long-horizon/paper/metadata.json
 backend: dartmouth
@@ -16,21 +16,21 @@ feedback: ''
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.1.0
-reviewed_at: '2026-07-03T18:54:25.973288Z'
+reviewed_at: '2026-07-03T19:24:23.898810Z'
 reviewer_kind: llm
 reviewer_name: paper_reviewer_jargon_police
 score: 0.0
 verdict: minor_revision
 ---
 
-The manuscript relies heavily on specialized acronyms and domain-specific shorthand that are not defined at their first point of use, creating a barrier for non-specialist readers.
+The manuscript relies heavily on domain-specific acronyms and jargon that are not defined upon first use, creating barriers for non-specialist readers. 
 
-First, the core contribution, **ConAct**, is introduced in Section 2 ("End-to-End Mobile GUI Agent with ConAct") without ever explicitly stating what the acronym stands for (presumably "Context-as-Action" based on the title and content). It appears in the abstract and introduction implicitly but lacks a formal definition like "ConAct (Context-as-Action)". This forces the reader to guess the meaning.
+In the **Introduction (Section 1)**, the term **ReAct** is used immediately without expansion. While standard in the sub-field, it should be spelled out as "Reasoning and Acting" on first mention. Similarly, **SFT** (Supervised Fine-Tuning) appears in Section 1 and Section 3 without definition. The phrase "prompt explosion" is used metaphorically; replacing this with "excessive prompt length" or "context bloat" would be more precise and accessible.
 
-Second, the term **ReAct** is used repeatedly (e.g., Introduction, Section 2, Table 2) as a standard noun ("ReAct-style prompting") without defining it as "Reasoning and Acting." While common in the sub-field, a general AI reader may not recognize it as a specific prompting framework.
+In **Section 3 (Dataset)**, the term **backbone** is used to refer to the base model. While common in deep learning, "base model" or "foundation model" is clearer for a broader audience. The term **rollouts** is used to describe teacher-generated trajectories; "simulated runs" or "generated trajectories" is less jargon-heavy.
 
-Third, key evaluation metrics **MTPR** and **IRR** appear in Table 2 and the text without definition in the main body. The footnotes in the table define them, but the prose should introduce these terms (e.g., "Memory-Task Proficiency Ratio (MTPR)") before referencing them to ensure the results are interpretable without cross-referencing table footnotes.
+In **Section 4 (Experiments)** and the **Appendix**, several critical metrics are introduced without definition. **IRR** (Information Retention Rate) and **MTPR** (Memory-Task Proficiency Ratio) appear in tables (Table 1, Table 3) but are not defined in the main text. **Pass@k** is used extensively but lacks a formal definition in the body. **LoRA** is mentioned in the appendix without expansion.
 
-Finally, **SFT** is used in Section 3 ("MemGUI-3K Dataset") and Table 1 without expansion. It should be written as "supervised fine-tuning (SFT)" at first mention. Similarly, **Pass@k** metrics are used throughout the results without a brief parenthetical explanation of the sampling strategy.
+Finally, the term **zero-shot** is used frequently (e.g., Section 1, Section 3) without a brief parenthetical explanation (e.g., "without task-specific fine-tuning"), which would aid readers unfamiliar with LLM evaluation protocols.
 
-These omissions do not invalidate the science but significantly reduce the paper's accessibility to a broader audience. Defining these terms upon first use is a straightforward fix.
+These omissions do not invalidate the science but significantly reduce the paper's accessibility to the broader computer science community and practitioners outside the specific niche of LLM agents.

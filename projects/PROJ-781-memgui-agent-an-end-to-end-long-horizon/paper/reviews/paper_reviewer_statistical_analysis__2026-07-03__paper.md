@@ -1,25 +1,23 @@
 ---
 action_items:
-- id: afd4da703dd9
+- id: b6d4987f8dca
   severity: science
-  text: Table 2 and Section 4.2 report point estimates (e.g., 62.5% Pass@3) without
-    confidence intervals or standard deviations. Given the benchmark size (MemGUI-Bench-40),
-    statistical significance of the +35.0% improvement over ReAct is unclear. Please
-    report 95% CIs or p-values from a significance test (e.g., bootstrap or McNemar's
-    test).
-- id: 9ad7921b5743
+  text: Report statistical significance (e.g., p-values, confidence intervals, or
+    bootstrapped error bars) for the performance gains in Table 1 (Main Results) and
+    Table 2 (Ablation). The current presentation of point estimates (e.g., 37.5% vs
+    32.8%) lacks evidence of robustness against variance in the evaluation protocol.
+- id: 1a8cb3aacde2
   severity: science
-  text: The ablation study in Table 2 adds components sequentially to a baseline.
-    This design confounds the effect of individual components with interaction effects.
-    A full factorial design or a more rigorous statistical decomposition (e.g., ANOVA)
-    is needed to isolate the specific contribution of 'history folding' vs. 'memory
-    actions'.
-- id: 76449e465770
-  severity: science
-  text: Section 3 states the dataset was filtered via 'step-level reasonableness (75.7%)'.
-    The statistical criteria for this filter (e.g., inter-annotator agreement, threshold
-    selection) are not described. Without this, the reproducibility of the dataset
-    construction and potential selection bias cannot be assessed.
+  text: Clarify the statistical methodology for the 'Offline Skill Analysis' (Table
+    3). Specifically, define the sample size (N) used for the F1 and accuracy metrics
+    and state whether the reported improvements (e.g., 19.9% to 48.0%) are statistically
+    significant or if they represent mean values over a single test split.
+- id: ec2cef3881e5
+  severity: writing
+  text: In Section 3.3 (Dataset Statistics) and Appendix D, specify the variance or
+    standard deviation for the reported trajectory lengths (avg. 28.8 steps) and fold
+    spans. A single mean value is insufficient to characterize the distribution of
+    task complexity used for training and evaluation.
 artifact_hash: 7ba9201f0f49d9384a35f3eca07d4fd8d448c0da222a8a4e9472044b7e857c18
 artifact_path: projects/PROJ-781-memgui-agent-an-end-to-end-long-horizon/paper/metadata.json
 backend: dartmouth
@@ -27,17 +25,17 @@ feedback: ''
 github_authenticated: false
 model_name: qwen.qwen3.5-122b
 prompt_version: 1.1.0
-reviewed_at: '2026-07-03T18:54:05.859328Z'
+reviewed_at: '2026-07-03T19:24:04.431994Z'
 reviewer_kind: llm
 reviewer_name: paper_reviewer_statistical_analysis
 score: 0.0
 verdict: minor_revision
 ---
 
-The statistical rigor of the experimental evaluation requires strengthening to support the magnitude of the claimed improvements.
+The statistical analysis presented in the manuscript is largely descriptive, relying on point estimates (percentages and means) without accompanying measures of uncertainty or significance testing. While the magnitude of the reported improvements (e.g., +13.3 Pass@1 in Table 1) is substantial, the absence of confidence intervals or p-values makes it difficult to assess the robustness of these gains against the inherent variance in LLM-based agent evaluation.
 
-First, the primary results in **Table 2** (Ablation Study) and **Section 4.2** present performance metrics (Pass@1, Pass@3, IRR) as single point estimates (e.g., 62.5% for Full ConAct vs. 27.5% for ReAct). With a test set size of 40 tasks (MemGUI-Bench-40), the variance of these estimates is non-negligible. The manuscript lacks confidence intervals (CIs) or standard deviations across multiple runs or bootstrap samples. Consequently, it is impossible to determine if the reported +35.0% absolute improvement is statistically significant or potentially due to random variance in task selection. I recommend reporting 95% confidence intervals for all main metrics and performing a significance test (e.g., McNemar's test for paired success/failure or a bootstrap t-test) to validate the superiority of the proposed method.
+Specifically, in **Table 1 (Main Results)** and **Table 2 (Ablation Study)**, the authors compare multiple models and ablation variants. Standard practice for such benchmarks requires reporting the standard deviation over multiple runs or, at minimum, bootstrapped confidence intervals to demonstrate that the observed differences are not due to random fluctuations in the test set or stochasticity in the model generation. The current text states "significantly improves" in Section 4.2 regarding the offline metrics, but no statistical test (e.g., t-test, Wilcoxon signed-rank) is cited to support this claim.
 
-Second, the ablation study design in **Table 2** employs a sequential addition of components (Baseline $\to$ +Memory $\to$ +Folding $\to$ +Step). This "greedy" ablation strategy conflates the marginal gain of a component with its interaction effects with previously added components. For instance, the gain from "history folding" is measured only after "memory actions" are already active. To rigorously attribute performance gains to specific mechanisms, a full factorial design (testing all $2^3$ combinations) or a statistical decomposition (e.g., ANOVA) is necessary. Without this, the claim that "Full ConAct outperforms any single component" is descriptive but not analytically robust regarding the specific contribution of each module.
+Furthermore, the **Offline Skill Analysis** (Table 3) presents metrics like "Memory Trigger F1" and "Deep Fold Ratio" derived from the MemGUI-3K test set. The manuscript does not specify the sample size (number of steps or trajectories) used to compute these aggregates, nor does it provide error bars. Given that the dataset is constructed via teacher rollouts and filtering, understanding the variance in these metrics is crucial for reproducibility.
 
-Finally, regarding the dataset construction in **Section 3**, the authors mention filtering trajectories via "step-level reasonableness (75.7%)". The statistical methodology for this filter is opaque. Was this determined by a single annotator, or is there an Inter-Annotator Agreement (Kappa) score? What was the specific threshold or model confidence score used to define "reasonable"? Without these details, the reproducibility of the MemGUI-3K dataset is compromised, and the potential for selection bias (e.g., filtering out difficult but valid trajectories) cannot be ruled out.
+Finally, in **Section 3.3**, the average trajectory length is reported as 28.8 steps. Without the standard deviation or a histogram (which is referenced but not visible in the text source), the distribution of task difficulty remains opaque. A narrow distribution could skew results, while a wide one might mask performance drops on specific sub-populations of tasks. The authors should supplement their point estimates with measures of dispersion and statistical significance tests to strengthen the empirical claims.
