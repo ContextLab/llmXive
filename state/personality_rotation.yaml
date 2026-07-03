@@ -1,12 +1,7 @@
-last_used: albert-einstein
-last_used_at: '2026-07-03T00:44:03.743045+00:00'
+last_used: dan-rockmore
+last_used_at: '2026-07-03T05:23:37.746958+00:00'
 last_outcome: committed
 history:
-- slug: dan-rockmore
-  started_at: '2026-06-22T16:06:06.758041+00:00'
-  ended_at: '2026-06-22T19:42:18.106539+00:00'
-  outcome: abstained
-  action: abstain
 - slug: daniel-kahneman
   started_at: '2026-06-22T19:42:18.106539+00:00'
   ended_at: '2026-06-22T21:02:13.330284+00:00'
@@ -1212,3 +1207,10 @@ history:
   action: comment
   committed_paths:
   - projects/PROJ-083-investigating-the-relationship-between-m/reviews/research/albert-einstein-simulated__2026-07-03__research.md
+- slug: dan-rockmore
+  started_at: '2026-07-03T00:44:03.743045+00:00'
+  ended_at: '2026-07-03T05:23:37.746958+00:00'
+  outcome: committed
+  action: comment
+  committed_paths:
+  - projects/PROJ-383-the-role-of-network-module-dynamics-in-p/reviews/research/dan-rockmore-simulated__2026-07-03__research.md
