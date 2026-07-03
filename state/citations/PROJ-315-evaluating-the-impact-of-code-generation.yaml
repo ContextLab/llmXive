@@ -1,1 +1,22 @@
-[]
+- artifact_hash: d59952dd007f968933268355b6fee353ceff3885d5312934d48e575d0aedf06a
+  artifact_path: projects/PROJ-315-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: train-00000-of-00001-a3494cf8c0712e34.parquet
+  kind: url
+  value: https://huggingface.co/datasets/loubnabnl/prs-v2-sample/resolve/main/data/train-00000-of-00001-a3494cf8c0712e34.parquet`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/650302ac89707f18239a7177/c9613d847b480971b6f75e2279ea0fb1fdc6c733c4c793c2a82742c346100808?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001-a3494cf8c0712e34.parquet%3B+filename%3D%22train-00000-of-00001-a3494cf8c0712e34.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1783101742&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjUwMzAyYWM4OTcwN2YxODIzOWE3MTc3L2M5NjEzZDg0N2I0ODA5NzFiNmY3NWUyMjc5ZWEwZmIxZmRjNmM3MzNjNGM3OTNjMmE4Mjc0MmMzNDYxMDA4MDhcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEtYTM0OTRjZjhjMDcxMmUzNC5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydHJhaW4tMDAwMDAtb2YtMDAwMDEtYTM0OTRjZjhjMDcxMmUzNC5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODMxMDE3NDJ9fX1dfQ__&Signature=MEUCICo6xBnS-Ua8bd0jj3kLrdbLVzzKhv7wF0lyNvOTgB%7ESAiEAjKxGsQr-bCKLC3ga3J2W-Aq%7EDsoA2qr0NK5ttAjKpCE_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-03T17:02:21.965628Z'
+- artifact_hash: 863e65180db9c9e3eca434b48d5df451854afe3db26e141dd4a0593fb7a62292
+  artifact_path: projects/PROJ-315-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: train-00000-of-00001-a3494cf8c0712e34.parquet
+  kind: url
+  value: https://huggingface.co/datasets/loubnabnl/prs-v2-sample/resolve/main/data/train-00000-of-00001-a3494cf8c0712e34.parquet`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/650302ac89707f18239a7177/c9613d847b480971b6f75e2279ea0fb1fdc6c733c4c793c2a82742c346100808?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001-a3494cf8c0712e34.parquet%3B+filename%3D%22train-00000-of-00001-a3494cf8c0712e34.parquet%22%3B&user_id=public&Expires=1783101761&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjUwMzAyYWM4OTcwN2YxODIzOWE3MTc3L2M5NjEzZDg0N2I0ODA5NzFiNmY3NWUyMjc5ZWEwZmIxZmRjNmM3MzNjNGM3OTNjMmE4Mjc0MmMzNDYxMDA4MDhcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEtYTM0OTRjZjhjMDcxMmUzNC5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydHJhaW4tMDAwMDAtb2YtMDAwMDEtYTM0OTRjZjhjMDcxMmUzNC5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODMxMDE3NjF9fX1dfQ__&Signature=MEQCIHWsVRjWwaTbSGmdEL06Gww5MXQYLvXtRzDFxAzrTHeeAiBNE2DP22gCd0HunAyuHFhsZ4jaPhTPQxM6I02p%7E2Z%7EAQ__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-03T17:02:41.178270Z'

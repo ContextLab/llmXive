@@ -1,0 +1,55 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PR Analysis Dataset Schema"
+type: object
+properties:
+  pr_id:
+    type: string
+    description: "Unique identifier for the Pull Request"
+  repo_name:
+    type: string
+    description: "Repository name (e.g., owner/repo)"
+  label:
+    type: string
+    enum:
+      - "LLM-generated"
+      - "Human-written"
+    description: "Classification based on commit message heuristics"
+  comment_count:
+    type: integer
+    description: "Number of review comments"
+  sentiment_score:
+    type: number
+    description: "Average sentiment score (-1.0 to 1.0) from textblob"
+  merge_latency_hours:
+    type: number
+    description: "Time in hours from PR open to merge (or null if censored)"
+  is_censored:
+    type: boolean
+    description: "True if the PR was never merged"
+  loc:
+    type: integer
+    description: "Lines of Code in the diff"
+  cyclomatic_complexity:
+    type: number
+    description: "Cyclomatic complexity score"
+  bug_density:
+    type: number
+    description: "Number of static analysis warnings per 100 lines of code"
+  propensity_score:
+    type: number
+    description: "Propensity score from PSM"
+  match_status:
+    type: string
+    enum:
+      - "Matched"
+      - "Discarded"
+    description: "Result of the matching process"
+  is_valid:
+    type: boolean
+    description: "True if all required fields are present and computed"
+required:
+  - pr_id
+  - label
+  - comment_count
+  - is_valid
+additionalProperties: false

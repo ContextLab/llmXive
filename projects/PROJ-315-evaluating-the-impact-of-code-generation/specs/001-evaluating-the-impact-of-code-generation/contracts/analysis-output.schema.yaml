@@ -1,0 +1,59 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Analysis Output Schema"
+type: object
+properties:
+  metric_name:
+    type: string
+    description: "Name of the metric (e.g., 'comment_count', 'sentiment_score', 'merge_latency')"
+  group_llm:
+    type: object
+    properties:
+      n:
+        type: integer
+      median:
+        type: number
+      mean:
+        type: number
+  group_human:
+    type: object
+    properties:
+      n:
+        type: integer
+      median:
+        type: number
+      mean:
+        type: number
+  test_statistic:
+    type: number
+    description: "Mann-Whitney U statistic or Cox PH coefficient"
+  p_value_raw:
+    type: number
+    description: "Uncorrected p-value"
+  p_value_adjusted:
+    type: number
+    description: "P-value after Bonferroni or Benjamini-Hochberg correction"
+  effect_size_raw:
+    type: number
+    description: "Raw effect size (Cohen's d or Rank-Biserial)"
+  effect_size_simex:
+    type: number
+    description: "Effect size corrected for measurement error via SIMEX"
+  is_significant:
+    type: boolean
+    description: "True if p_value_adjusted < 0.05"
+  confounder_flag:
+    type: boolean
+    description: "True if this metric was flagged as a potential confounder (e.g., sentiment correlation > 0.5)"
+  method_used:
+    type: string
+    description: "Method used (e.g., 'Mann-Whitney U', 'Cox Proportional Hazards')"
+required:
+  - metric_name
+  - group_llm
+  - group_human
+  - test_statistic
+  - p_value_raw
+  - p_value_adjusted
+  - is_significant
+  - method_used
+additionalProperties: false

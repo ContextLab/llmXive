@@ -9,7 +9,7 @@
 
 ### User Story 1 - Dataset Acquisition and Preprocessing (Priority: P1)
 
-Researcher can load a public GitHub Pull Request dataset, classify commits as LLM-generated or human-written using commit message heuristics, and extract review metrics (comment count, sentiment score, merge time) alongside code complexity metrics (cyclomatic complexity, lines of code).
+Researcher can load a public GitHub Pull Request dataset, classify commits as LLM-generated or human-written using commit message heuristics (keyword count), and extract review metrics (comment count, sentiment score, merge time) alongside code complexity metrics (cyclomatic complexity, lines of code) and bug density metrics.
 
 **Why this priority**: This is the foundational data layer; without valid data extraction and classification, no analysis can proceed.
 
@@ -18,40 +18,41 @@ Researcher can load a public GitHub Pull Request dataset, classify commits as LL
 **Acceptance Scenarios**:
 
 1. **Given** a GitHub PR dataset with diffs and review comments, **When** the preprocessing pipeline runs, **Then** ≥95% of records contain all required fields (code diff, review text, merge timestamp, project metadata)
-2. **Given** commit messages with LLM-related keywords, **When** classification heuristics run, **Then** PRs are tagged as "LLM-generated" or "human-written" with ≥80% confidence based on keyword match strength
-3. **Given** code files in the dataset, **When** static analysis tools run, **Then** ≥90% of files yield valid complexity metrics (cyclomatic complexity, lines of code)
+2. **Given** commit messages with LLM-related keywords, **When** classification heuristics run, **Then** PRs are tagged as "LLM-generated" if they contain ≥2 distinct LLM-identifier keywords (e.g., "copilot", "generated", "ai-assisted"), otherwise "human-written"
+3. **Given** code files in the dataset, **When** static analysis tools run, **Then** ≥90% of files yield valid complexity metrics (cyclomatic complexity, lines of code) and bug density metrics
+4. **Given** a random sample of PRs per group, **When** manual audit runs, **Then** the classification heuristic accuracy is verified to be ≥70%; if <70%, the system halts with an error
 
 ---
 
 ### User Story 2 - Statistical Comparison Analysis (Priority: P2)
 
-Researcher can perform Mann-Whitney U tests to compare review metrics between LLM and human code groups, with family-wise error correction for multiple comparisons and sample size/power documentation.
+Researcher can perform statistical comparisons (Mann-Whitney U or Rank-Based Regression) to compare review metrics between LLM and human code groups, with family-wise error correction for multiple comparisons, sample size/power documentation, and covariate adjustment via stratification or propensity score matching.
 
 **Why this priority**: This is the core analytical engine; it produces the primary research findings.
 
-**Independent Test**: Can be tested by running the statistical pipeline on the preprocessed dataset and verifying that at least 3 pairwise comparisons are performed (comment count, sentiment score, merge time) with p-values adjusted using Bonferroni or Benjamini-Hochberg correction.
+**Independent Test**: Can be tested by running the statistical pipeline on the preprocessed dataset and verifying that at least 3 pairwise comparisons are performed (comment count, sentiment score, merge time) with p-values adjusted using Bonferroni or Benjamini-Hochberg correction, and that covariate adjustment methods are executed if covariates are present.
 
 **Acceptance Scenarios**:
 
-1. **Given** two independent groups (LLM-generated vs human-written PRs), **When** Mann-Whitney U tests run, **Then** p-values are adjusted for multiple comparisons using family-wise error rate control (α ≤ 0.05)
+1. **Given** two independent groups (LLM-generated vs human-written PRs), **When** statistical tests run, **Then** p-values are adjusted for multiple comparisons using family-wise error rate control (α ≤ 0.05) using either Mann-Whitney U or Rank-Based Regression
 2. **Given** a sample size of ≥1,000 PRs, **When** power analysis runs, **Then** the minimum detectable effect size is documented (e.g., Cohen's d ≥ 0.2 for 80% power at α = 0.05)
-3. **Given** code complexity metrics as covariates, **When** collinearity diagnostics run, **Then** variance inflation factors (VIF) are reported for all predictors to confirm no multicollinearity (VIF < 5)
+3. **Given** code complexity metrics as covariates, **When** analysis runs, **Then** the system executes stratified analysis or propensity score matching to control for confounding, and reports variance inflation factors (VIF < 5)
 
 ---
 
 ### User Story 3 - Visualization and Report Generation (Priority: P3)
 
-Researcher can generate reproducible visualizations (boxplots, histograms) comparing review metrics between groups, with sensitivity analysis plots for any decision thresholds used.
+Researcher can generate reproducible visualizations (boxplots, histograms) comparing review metrics between groups, with sensitivity analysis plots for the classification threshold and correlation diagnostics.
 
 **Why this priority**: This enables interpretation and communication of findings, but depends on US-1 and US-2 completing successfully.
 
-**Independent Test**: Can be tested by running the visualization pipeline and verifying that ≥3 plots are generated (one per primary metric) with clear group labels and statistical significance markers where applicable.
+**Independent Test**: Can be tested by running the visualization pipeline and verifying that ≥3 plots are generated (one per primary metric) with clear group labels and statistical significance markers where applicable, plus a sensitivity plot for the keyword threshold.
 
 **Acceptance Scenarios**:
 
 1. **Given** statistical test results with p-values, **When** visualization pipeline runs, **Then** boxplots show distribution differences with significance markers (p < 0.05, p < 0.01, p < 0.001)
-2. **Given** any decision thresholds (e.g., comment depth cutoff), **When** sensitivity analysis runs, **Then** plots show how classification rates vary across threshold values {0.01, 0.05, 0.1}
-3. **Given** the complete analysis pipeline, **When** report generation runs, **Then** output explicitly frames all findings as associational rather than causal
+2. **Given** the keyword match count threshold, **When** sensitivity analysis runs, **Then** plots show how classification rates vary across threshold values {1, 2, 3}
+3. **Given** the complete analysis pipeline, **When** report generation runs, **Then** output explicitly frames all findings as associational rather than causal and includes a correlation diagnostic between sentiment and bug density
 
 ---
 
@@ -60,7 +61,7 @@ Researcher can generate reproducible visualizations (boxplots, histograms) compa
 - What happens when the dataset contains <500 LLM-labeled or <500 human-labeled PRs (insufficient power for comparison)?
 - How does the system handle missing review comments or merge timestamps (records with null values)?
 - What happens when code complexity metrics cannot be computed for certain languages (e.g., radon unsupported on mixed-language repos)?
-- How does the system handle cases where LLM classification heuristics produce <50% confidence (ambiguous commits)?
+- What happens when the manual audit (US-1 AC-4) reveals heuristic accuracy <70%?
 - What happens when dataset lacks required variables (e.g., post-task review depth metrics beyond comment count)?
 
 ## Requirements
@@ -68,24 +69,29 @@ Researcher can generate reproducible visualizations (boxplots, histograms) compa
 ### Functional Requirements
 
 - **FR-001**: System MUST load GitHub PR dataset and extract code diffs, review comments, and merge timestamps from source data (See US-1)
-- **FR-002**: System MUST classify PRs as LLM-generated or human-written using commit message heuristics with ≥80% confidence threshold (See US-1)
+- **FR-002**: System MUST classify PRs as LLM-generated or human-written if the commit message contains ≥2 distinct LLM-identifier keywords (e.g., "copilot", "generated", "ai-assisted") (See US-1)
 - **FR-003**: System MUST compute code complexity metrics (cyclomatic complexity, lines of code) using radon or lizard tools (See US-1)
-- **FR-004**: System MUST perform Mann-Whitney U tests comparing ≥3 review metrics between LLM and human groups (See US-2)
+- **FR-004**: System MUST perform Mann-Whitney U tests OR rank-based regression (e.g., Theil-Sen) with covariates comparing ≥3 review metrics between LLM and human groups (See US-2)
 - **FR-005**: System MUST apply family-wise error correction (Bonferroni or Benjamini-Hochberg) to all p-values from multiple comparisons (See US-2)
 - **FR-006**: System MUST generate ≥3 visualizations (boxplots/histograms) showing distribution differences between groups (See US-3)
-- **FR-007**: System MUST run sensitivity analysis on any decision thresholds, sweeping values across {0.01, 0.05, 0.1} (See US-3)
+- **FR-007**: System MUST run sensitivity analysis on the keyword match count threshold, sweeping values across a range of discrete integer parameters (See US-3)
 - **FR-008**: System MUST document sample size and power analysis with minimum detectable effect size (See US-2)
 - **FR-009**: System MUST frame all findings as associational rather than causal in output reports (See US-2)
 - **FR-010**: System MUST check predictor collinearity when code complexity metrics are used as covariates (See US-2)
 - **FR-011**: System MUST validate that target dataset contains all required variables (code diffs, review comments, merge timestamps, project metadata) with ≥95% completeness (See US-1)
-- **FR-012**: System MUST ensure all analysis completes within 6 hours on CPU-only GitHub Actions runner (2 cores, 7 GB RAM, no GPU) (See US-2)
+- **FR-012**: System MUST ensure all analysis completes within 6 hours on CPU-only GitHub Actions runner (2 cores, 7 GB RAM, no GPU) under a dataset of ≤10,000 PRs (See US-2)
+- **FR-013**: System MUST calculate 'Bug Density' as the number of static analysis warnings or issues per unit of code (See US-1)
+- **FR-014**: System MUST execute stratified analysis or propensity score matching to control for code complexity and project heterogeneity when these are used as covariates (See US-2)
+- **FR-015**: System MUST perform a manual audit of a random sample of 50 PRs per group to validate classification heuristic accuracy; if accuracy <70%, the system MUST halt and report 'Insufficient Heuristic Accuracy' (See US-1)
+- **FR-016**: System MUST compute the correlation coefficient between sentiment scores and bug density; if r > 0.5, the system MUST flag sentiment as a potential confounder and exclude it from primary significance testing (See US-3)
 
 ### Key Entities
 
 - **Pull Request**: Represents a GitHub PR with attributes (PR ID, code diff, review comments, merge timestamp, project metadata)
-- **Code Group**: Binary classification of PRs as "LLM-generated" or "human-written" based on commit heuristics
+- **Code Group**: Binary classification of PRs as "LLM-generated" or "human-written" based on commit message heuristics (≥2 distinct keywords)
 - **Review Metrics**: Set of computed measures (comment count, sentiment score, merge time) for each PR
 - **Complexity Metrics**: Set of code analysis measures (cyclomatic complexity, lines of code) for each PR
+- **Bug Density**: Calculated metric representing the number of static analysis warnings or issues per 100 lines of code
 
 ## Success Criteria
 
@@ -93,24 +99,22 @@ Researcher can generate reproducible visualizations (boxplots, histograms) compa
 
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values to the implementation/research phase.
 
-- **SC-001**: Review comment count distribution is measured against the two groups (LLM vs human) to detect differences in review volume (See US-1)
-- **SC-002**: Review sentiment score is measured against the two groups to detect differences in review tone (See US-2)
-- **SC-003**: Merge latency is measured against the two groups to detect differences in time-to-merge (See US-2)
+- **SC-001**: Review comment count distribution is measured against the two groups (LLM vs human) using the statistical test (Mann-Whitney U or Rank-Based Regression) to yield a p-value (See US-1)
+- **SC-002**: Review sentiment score is measured against the two groups; if the correlation with bug density (SC-009) is ≤0.5, the statistical test yields a p-value; otherwise, sentiment is excluded (See US-2)
+- **SC-003**: Merge latency is measured against the two groups using the statistical test (Mann-Whitney U or Rank-Based Regression) to yield a p-value (See US-2)
 - **SC-004**: Family-wise error rate is measured against α = 0.05 threshold to ensure multiple comparison control (See US-2)
 - **SC-005**: Minimum detectable effect size is measured against 80% power requirement at α = 0.05 (See US-2)
-- **SC-006**: Sensitivity analysis coverage is measured against threshold sweep range {0.01, 0.05, 0.1} for any decision cutoffs (See US-3)
+- **SC-006**: Sensitivity analysis coverage is measured against threshold sweep range {1, 2, 3} for the keyword match count (See US-3)
 - **SC-007**: Dataset variable completeness is measured against required fields (code diff, review comments, merge timestamp, project metadata) with ≥95% coverage (See US-1)
 - **SC-008**: Collinearity diagnostics are measured against VIF < 5 threshold for all predictors used as covariates (See US-2)
+- **SC-009**: The correlation coefficient between sentiment scores and bug density is measured; a value >0.5 triggers a confounder flag and exclusion of sentiment from primary testing (See US-3)
 
 ## Assumptions
 
-- Public GitHub PR dataset contains all required variables (code diffs, review comments, merge timestamps, project metadata) for ≥95% of records
-- Commit message heuristics (e.g., "copilot", "generated" keywords) achieve ≥80% accuracy in LLM-code classification
-- Code complexity tools (radon, lizard) can process ≥90% of code files in the dataset
-- Sample size of ≥1,000 PRs provides sufficient power ([deferred]) to detect effect sizes of Cohen's d ≥ 0.2 at α = 0.05
-- All analysis runs within 6 hours on CPU-only GitHub Actions runner (2 cores, 7 GB RAM, no GPU)
-- Review sentiment analysis using textblob provides valid measurements comparable across LLM and human code groups
+- Public GitHub PR dataset contains all required variables (code diffs, review comments, merge timestamps, project metadata) for the majority of records
+- Commit message heuristics (keyword matching) are the primary method for classification
+- Code complexity tools (radon, lizard) can process the majority of code files in the dataset
+- Review sentiment analysis using textblob provides a usable proxy for tone, subject to validation against bug density
 - No random assignment exists in this observational study; all findings will be framed as associational, not causal
-- [NEEDS CLARIFICATION: Does the target dataset contain post-task review depth metrics beyond comment count, or only surface-level comment metrics?]
-- [NEEDS CLARIFICATION: Are there sufficient LLM-labeled PRs (≥500) in the target dataset to achieve statistical power?]
-- [NEEDS CLARIFICATION: Does the dataset include project-level covariates (team size, repository age) needed for proper controls?]
+- The study scope is limited to surface-level review metrics (comment count, sentiment, merge time) as these are the only universally available fields in public GitHub datasets; post-task depth metrics (e.g., semantic code quality scores) are excluded from this analysis to ensure dataset completeness and reproducibility (See US-1, US-3)
+- Project-level covariates (team size, repository age) are NOT required as mandatory inputs. Instead, the system MUST control for repository heterogeneity by stratifying the analysis or including repository ID as a blocking factor. If such covariates are unavailable, the system MUST document this limitation in the final report as a potential confounder (See US-2)
