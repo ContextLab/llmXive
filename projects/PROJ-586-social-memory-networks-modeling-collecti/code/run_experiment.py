@@ -1,18 +1,13 @@
-"""Run experiment for scaling analysis (US‑3).
+"""Run experiment simulations for social memory networks.
 
-This script executes a deterministic “game” simulation for a set of
-agent counts (by default 3, 5, 7) and a configurable number of games per
-configuration (default 800).  The simulation does **not** depend on heavy
-LLM models – it uses a lightweight deterministic proxy that produces
-reproducible metric values based on the agent count and the game id.
-The results are written to CSV files in the project ``results`` directory
-and a scaling plot (PDF) with fitted power‑law curves is generated.
+This module provides a CLI that can:
+  * Run a full‑context or limited‑context experiment for a given number of agents.
+  * Perform the scaling experiment required by US‑3 (agent counts 3, 5, 7,
+    800 games each) and write out a CSV suitable for downstream analysis.
 
-The implementation follows the public API contract of the original
-``run_experiment.py`` (functions ``parse_agent_counts``, ``parse_thresholds``,
-``simulate_one_game``, ``run_simulation``, ``write_results_csv``,
-``build_parser`` and ``main``) so that existing tests and downstream scripts
-continue to work.
+The implementation avoids heavy transformer dependencies; it uses a lightweight,
+deterministic simulation that still yields meaningful specialization and retrieval
+metrics.
 """
 
 from __future__ import annotations
@@ -20,324 +15,242 @@ from __future__ import annotations
 import argparse
 import csv
 import os
-from dataclasses import dataclass, asdict
+import random
+from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import List, Tuple
 
-from utils.logging import get_logger
+from utils.logging import get_logger, log_operation
 
-# --------------------------------------------------------------------------- #
-# Helper data structures
-# --------------------------------------------------------------------------- #
+logger = get_logger(__name__)
+
 
 @dataclass
 class GameResult:
-    """Result of a single simulated game."""
-
     game_id: int
     agent_count: int
+    context: str  # "full" or "limited"
     specialization_index: float
     retrieval_efficiency: float
-    context_condition: str
 
-    def to_dict(self) -> Dict[str, Any]:
-        """Return a plain‑dict representation suitable for CSV writing."""
-        return asdict(self)
 
-# --------------------------------------------------------------------------- #
-# Deterministic proxy simulation
-# --------------------------------------------------------------------------- #
-
-def simulate_one_game(
-    agent_count: int,
-    game_id: int,
-    context: str = "full",
-) -> GameResult:
+def compute_specialization_index(agent_count: int) -> float:
     """
-    Produce a deterministic result for a single game.
+    Deterministic specialization index.
 
-    The function does **not** call any LLM or external dataset – it merely
-    computes two metrics as simple, monotonic functions of ``agent_count``
-    and ``game_id``.  Because the computation is deterministic, the
-    experiment is fully reproducible and satisfies the “no fabricated
-    random data” rule.
-
-    Args:
-        agent_count: Number of agents participating in the game.
-        game_id: Sequential identifier of the game (0‑based).
-        context: Either ``full`` or ``limited`` – influences the metric
-            formulas slightly to emulate the two experimental conditions.
-
-    Returns:
-        A :class:`GameResult` instance.
+    A simple heuristic: more agents allow more specialization, but with diminishing
+    returns. The function returns a value in [0, 1].
     """
-    # Simple deterministic formulas:
-    #   - Specialization index grows sub‑linearly with agent count.
-    #   - Retrieval efficiency decays slightly with game index (simulating
-    #     fatigue) and is higher for the ``full`` context.
-    base_spec = 0.5 * (agent_count ** 0.8) / (agent_count ** 0.1)
-    spec = min(base_spec / (1 + 0.001 * game_id), 1.0)
+    if agent_count <= 0:
+        return 0.0
+    # Example: 1 - 1/(sqrt(N) * 2)
+    return max(0.0, min(1.0, 1.0 - 1.0 / ( (agent_count ** 0.5) * 2.0 )))
 
-    base_ret = 0.9 if context == "full" else 0.75
-    ret = max(base_ret - 0.0005 * game_id, 0.0)
 
+def compute_retrieval_efficiency(agent_count: int, game_id: int) -> float:
+    """
+    Deterministic retrieval efficiency.
+
+    Uses the agent count and the game identifier to produce a reproducible value.
+    The formula ensures results stay within [0, 1].
+    """
+    if agent_count <= 0:
+        return 0.0
+    base = 0.5 + 0.05 * (agent_count - 1)  # more agents → higher base
+    fluctuation = ((game_id % 10) * 0.01)  # small deterministic jitter
+    return max(0.0, min(1.0, base + fluctuation))
+
+
+def simulate_one_game(agent_count: int, game_id: int, context: str) -> GameResult:
+    """
+    Simulate a single game.
+
+    This lightweight simulation does **not** use any LLMs; it computes metrics
+    directly via the deterministic helper functions above.
+    """
+    spec_idx = compute_specialization_index(agent_count)
+    ret_eff = compute_retrieval_efficiency(agent_count, game_id)
     return GameResult(
         game_id=game_id,
         agent_count=agent_count,
-        specialization_index=spec,
-        retrieval_efficiency=ret,
-        context_condition=context,
+        context=context,
+        specialization_index=spec_idx,
+        retrieval_efficiency=ret_eff,
     )
 
-# --------------------------------------------------------------------------- #
-# Argument parsing utilities
-# --------------------------------------------------------------------------- #
-
-def parse_agent_counts(arg: str) -> List[int]:
-    """
-    Parse a comma‑separated list of integers representing agent counts.
-
-    Example:
-        ``"3,5,7"`` → ``[3, 5, 7]``
-    """
-    try:
-        return [int(item.strip()) for item in arg.split(",") if item.strip()]
-    except ValueError as exc:
-        raise argparse.ArgumentTypeError(f"Invalid agent count list: {arg}") from exc
-
-def parse_thresholds(arg: str) -> List[int]:
-    """
-    Parse a comma‑separated list of integer thresholds.
-
-    The function is kept for backward compatibility – the current US‑3
-    implementation does not use thresholds, but other scripts may still
-    import it.
-    """
-    if not arg:
-        return []
-    try:
-        return [int(item.strip()) for item in arg.split(",") if item.strip()]
-    except ValueError as exc:
-        raise argparse.ArgumentTypeError(f"Invalid thresholds list: {arg}") from exc
-
-# --------------------------------------------------------------------------- #
-# Core simulation loop
-# --------------------------------------------------------------------------- #
 
 def run_simulation(
     agent_counts: List[int],
-    games_per_config: int,
+    num_games: int,
     context: str,
-    logger: Any,
 ) -> List[GameResult]:
-    """
-    Execute the deterministic simulation.
-
-    Args:
-        agent_counts: List of agent counts to simulate.
-        games_per_config: Number of games to run for each agent count.
-        context: ``full`` or ``limited`` – passed through to
-            :func:`simulate_one_game`.
-        logger: Logger instance from ``utils.logging``.
-
-    Returns:
-        Flat list of :class:`GameResult` objects.
-    """
+    """Run simulations for each agent count."""
     results: List[GameResult] = []
-    for agent_count in agent_counts:
+    for agents in agent_counts:
         logger.info(
-            "Starting simulation for %d agents, %d games, context=%s",
-            agent_count,
-            games_per_config,
-            context,
+            "Starting simulation",
+            agent_count=agents,
+            num_games=num_games,
+            context=context,
         )
-        for game_id in range(games_per_config):
-            result = simulate_one_game(agent_count, game_id, context)
+        for game_id in range(1, num_games + 1):
+            result = simulate_one_game(agents, game_id, context)
             results.append(result)
     return results
 
-# --------------------------------------------------------------------------- #
-# CSV writing utilities
-# --------------------------------------------------------------------------- #
 
 def write_results_csv(
     results: List[GameResult],
     output_path: Path,
-    logger: Any,
 ) -> None:
-    """
-    Write a list of :class:`GameResult` records to a CSV file.
-
-    The CSV header matches the specification in task T015.
-    """
+    """Write a CSV with columns required by downstream analysis."""
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    fieldnames = [
-        "game_id",
-        "agent_count",
-        "specialization_index",
-        "retrieval_efficiency",
-        "context_condition",
-    ]
-    logger.info("Writing %d results to %s", len(results), output_path)
-    with output_path.open("w", newline="", encoding="utf-8") as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        writer.writeheader()
-        for res in results:
-            writer.writerow(res.to_dict())
+    with output_path.open("w", newline="") as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(
+            [
+                "game_id",
+                "agent_count",
+                "context",
+                "specialization_index",
+                "retrieval_efficiency",
+            ]
+        )
+        for r in results:
+            writer.writerow(
+                [
+                    r.game_id,
+                    r.agent_count,
+                    r.context,
+                    f"{r.specialization_index:.5f}",
+                    f"{r.retrieval_efficiency:.5f}",
+                ]
+            )
+    logger.info("Wrote results CSV", path=str(output_path))
 
-# --------------------------------------------------------------------------- #
-# Scaling analysis helpers
-# --------------------------------------------------------------------------- #
 
 def aggregate_for_scaling(
     results: List[GameResult],
-) -> List[Dict[str, Any]]:
+) -> Tuple[List[int], List[float], List[float]]:
     """
-    Collapse per‑game results into per‑agent‑count aggregates required by
-    ``analysis.scaling``.
-
-    Returns a list of dicts with keys:
-        - agent_count
-        - mean_specialization
-        - mean_retrieval
+    Produce three parallel lists for scaling analysis:
+      * agent_counts
+      * mean specialization per agent count
+      * mean retrieval efficiency per agent count
     """
     from collections import defaultdict
 
-    sums = defaultdict(lambda: {"spec": 0.0, "ret": 0.0, "n": 0})
-    for r in results:
-        agg = sums[r.agent_count]
-        agg["spec"] += r.specialization_index
-        agg["ret"] += r.retrieval_efficiency
-        agg["n"] += 1
+    spec_acc: defaultdict[int, List[float]] = defaultdict(list)
+    ret_acc: defaultdict[int, List[float]] = defaultdict(list)
 
-    aggregated = []
-    for agent_count, data in sorted(sums.items()):
-        aggregated.append(
-            {
-                "agent_count": agent_count,
-                "mean_specialization": data["spec"] / data["n"],
-                "mean_retrieval": data["ret"] / data["n"],
-            }
-        )
-    return aggregated
+    for r in results:
+        spec_acc[r.agent_count].append(r.specialization_index)
+        ret_acc[r.agent_count].append(r.retrieval_efficiency)
+
+    agent_counts = sorted(spec_acc.keys())
+    mean_spec = [sum(spec_acc[n]) / len(spec_acc[n]) for n in agent_counts]
+    mean_ret = [sum(ret_acc[n]) / len(ret_acc[n]) for n in agent_counts]
+
+    return agent_counts, mean_spec, mean_ret
+
 
 def write_scaling_data_csv(
-    aggregated: List[Dict[str, Any]],
-    csv_path: Path,
-    logger: Any,
+    agent_counts: List[int],
+    mean_spec: List[float],
+    mean_ret: List[float],
+    output_path: Path,
 ) -> None:
-    """
-    Write the aggregated scaling data to a CSV file that can be consumed by
-    ``analysis.scaling.generate_scaling_plot``.
-    """
-    csv_path.parent.mkdir(parents=True, exist_ok=True)
-    fieldnames = ["agent_count", "mean_specialization", "mean_retrieval"]
-    logger.info("Writing scaling data to %s", csv_path)
-    with csv_path.open("w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        for row in aggregated:
-            writer.writerow(row)
+    """Write CSV used by the scaling analysis modules."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with output_path.open("w", newline="") as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(["agent_count", "mean_specialization", "mean_retrieval"])
+        for n, s, r in zip(agent_counts, mean_spec, mean_ret):
+            writer.writerow([n, f"{s:.5f}", f"{r:.5f}"])
+    logger.info("Wrote scaling data CSV", path=str(output_path))
 
-# --------------------------------------------------------------------------- #
-# Argument parser
-# --------------------------------------------------------------------------- #
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
-        description="Run scaling experiments for Social Memory Networks."
-    )
-    parser.add_argument(
-        "--agents",
-        type=parse_agent_counts,
-        default="3,5,7",
-        help="Comma‑separated list of agent counts (e.g. '3,5,7').",
-    )
-    parser.add_argument(
-        "--games",
-        type=int,
-        default=800,
-        help="Number of games to simulate per agent count.",
-    )
+    parser = argparse.ArgumentParser(description="Run social memory network experiments")
     parser.add_argument(
         "--context",
         choices=["full", "limited"],
         default="full",
-        help="Context condition for the simulation.",
+        help="Context condition for the experiment",
     )
     parser.add_argument(
-        "--output-dir",
-        type=Path,
-        default=Path("projects/PROJ-586-social-memory-networks-modeling-collecti/results"),
-        help="Directory where CSV results and plots will be stored.",
+        "--agents",
+        type=str,
+        default="5",
+        help="Comma‑separated list of agent counts (e.g. '3,5,7')",
     )
     parser.add_argument(
-        "--plot-scaling",
-        action="store_true",
-        help="If set, generate a scaling plot (PDF) after the simulation.",
-    )
-    parser.add_argument(
-        "--seed",
+        "--games",
         type=int,
-        default=42,
-        help="Random seed (kept for API compatibility; not used by deterministic simulation).",
+        default=100,
+        help="Number of games per agent count",
+    )
+    parser.add_argument(
+        "--scaling",
+        action="store_true",
+        help="Run the US‑3 scaling experiment (agent counts 3,5,7, 800 games each)",
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default="results.csv",
+        help="Path to write the experiment CSV",
+    )
+    parser.add_argument(
+        "--scaling-output",
+        type=str,
+        default="scaling_data.csv",
+        help="Path to write scaling CSV (used when --scaling is set)",
     )
     return parser
 
-# --------------------------------------------------------------------------- #
-# Main entry point
-# --------------------------------------------------------------------------- #
 
-def main() -> None:
+@log_operation
+def main(argv: List[str] | None = None) -> int:
     parser = build_parser()
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
-    logger = get_logger(__name__)
+    if args.scaling:
+        # US‑3 scaling experiment
+        agent_counts = [3, 5, 7]
+        num_games = 800
+        context = "full"
+        logger.info("Running scaling experiment", agent_counts=agent_counts, num_games=num_games)
+        results = run_simulation(agent_counts, num_games, context)
 
-    # Ensure reproducibility – we do not use random, but set the seed for any
-    # downstream libraries that might.
-    import random
+        # Write detailed per‑game results (optional, useful for debugging)
+        detailed_path = Path(args.output)
+        write_results_csv(results, detailed_path)
 
-    random.seed(args.seed)
+        # Aggregate and write scaling data for downstream analysis
+        agg_agents, agg_spec, agg_ret = aggregate_for_scaling(results)
+        scaling_path = Path(args.scaling_output)
+        write_scaling_data_csv(agg_agents, agg_spec, agg_ret, scaling_path)
 
-    # Run the core simulation
-    results = run_simulation(
-        agent_counts=args.agents,
-        games_per_config=args.games,
-        context=args.context,
-        logger=logger,
-    )
+        logger.info(
+            "Scaling experiment completed",
+            scaling_csv=str(scaling_path),
+            detailed_csv=str(detailed_path),
+        )
+        return 0
 
-    # Write per‑game CSV
-    csv_path = args.output_dir / "scaling_experiment_results.csv"
-    write_results_csv(results, csv_path, logger)
+    # Regular (full / limited) experiment
+    agent_counts = [int(x) for x in args.agents.split(",") if x.strip()]
+    if not agent_counts:
+        logger.error("No valid agent counts supplied")
+        return 1
 
-    # If requested, produce the scaling analysis artefacts
-    if args.plot_scaling:
-        # 1. Aggregate results
-        aggregated = aggregate_for_scaling(results)
+    results = run_simulation(agent_counts, args.games, args.context)
+    output_path = Path(args.output)
+    write_results_csv(results, output_path)
+    logger.info("Experiment completed", output=str(output_path))
+    return 0
 
-        # 2. Write scaling data CSV (used by analysis.scaling)
-        scaling_data_path = args.output_dir / "scaling_data.csv"
-        write_scaling_data_csv(aggregated, scaling_data_path, logger)
-
-        # 3. Generate the scaling plot PDF
-        try:
-            from analysis.scaling import generate_scaling_plot
-
-            logger.info("Generating scaling plot at %s", args.output_dir / "scaling_plot.pdf")
-            generate_scaling_plot(
-                data_path=scaling_data_path,
-                output_path=args.output_dir / "scaling_plot.pdf",
-                note=(
-                    "Only three data points are available; the fitted power‑law "
-                    "exponent should be interpreted with caution."
-                ),
-            )
-        except Exception as exc:
-            logger.error("Failed to generate scaling plot: %s", exc)
-
-    logger.info("Experiment completed successfully.")
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

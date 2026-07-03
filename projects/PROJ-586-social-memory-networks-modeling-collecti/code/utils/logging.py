@@ -40,7 +40,6 @@ class ReproducibilityLogger:
     def __getattr__(self, name: str):
         def _noop(*args: Any, **kwargs: Any) -> None:
             return None
-
         return _noop
 
 
@@ -48,6 +47,10 @@ _GLOBAL_LOGGER: ReproducibilityLogger | None = None
 
 
 def get_logger(*args: Any, **kwargs: Any) -> ReproducibilityLogger:
+    """Return a singleton logger instance.
+
+    Accepts any arguments for compatibility with existing call sites.
+    """
     global _GLOBAL_LOGGER
     if _GLOBAL_LOGGER is None:
         _GLOBAL_LOGGER = ReproducibilityLogger(*args, **kwargs)

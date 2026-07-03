@@ -1,6 +1,6 @@
-"""CI pipeline runner with resource profiling.
+"""CI Pipeline Runner with Resource Profiling.
 
-Executes the full research pipeline on a CI runner (CPU or GPU) and records
+Executes the full research pipeline on a CI runner and records
 runtime, memory usage, and disk usage for each stage.
 """
 from __future__ import annotations
@@ -13,205 +13,246 @@ import shutil
 import subprocess
 import sys
 import time
+from dataclasses import asdict, dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-# Ensure we can import sibling modules
-_project_root = Path(__file__).resolve().parent.parent
-if str(_project_root) not in sys.path:
-    sys.path.insert(0, str(_project_root))
-
-from data.loaders import load_experiment_results, save_experiment_results
 from utils.logging import get_logger
 
 logger = get_logger(__name__)
 
 
+@dataclass
+class ResourceMetrics:
+    """Resource usage metrics for a single run."""
+    script_name: str
+    start_time: str
+    end_time: str
+    duration_seconds: float
+    max_memory_mb: float
+    exit_code: int
+    output_files: List[str]
+    status: str  # "success", "failed", "timeout"
+
+@dataclass
+class PipelineReport:
+    """Full pipeline execution report."""
+    pipeline_name: str
+    start_time: str
+    end_time: str
+    total_duration_seconds: float
+    runner_environment: Dict[str, Any]
+    stage_results: List[ResourceMetrics]
+    summary: Dict[str, Any]
+
 def get_memory_usage_mb() -> float:
-    """Return current process memory usage in MB (RSS)."""
+    """Get current memory usage in MB using resource module."""
     usage = resource.getrusage(resource.RUSAGE_SELF)
     # ru_maxrss is in KB on Linux/macOS
     return usage.ru_maxrss / 1024.0
 
-
 def get_disk_usage_mb(path: Path) -> float:
-    """Return disk usage of the given path in MB."""
+    """Get disk usage of a directory in MB."""
     if not path.exists():
         return 0.0
-    total = 0.0
-    for p in path.rglob("*"):
-        if p.is_file():
-            total += p.stat().st_size
-    return total / (1024.0 * 1024.0)
-
+    total = 0
+    for dirpath, dirnames, filenames in os.walk(path):
+        for f in filenames:
+            fp = Path(dirpath) / f
+            try:
+                total += fp.stat().st_size
+            except OSError:
+                pass
+    return total / (1024 * 1024)
 
 def run_experiment_script(
     script_path: Path,
     args: List[str],
-    timeout_seconds: Optional[int] = None,
-) -> Dict[str, Any]:
-    """Run an experiment script and capture timing, exit code, and error output."""
-    start = time.time()
+    timeout_seconds: Optional[int] = None
+) -> ResourceMetrics:
+    """Run a single experiment script and capture metrics."""
+    start_time = datetime.utcnow().isoformat()
+    start_cpu = resource.getrusage(resource.RUSAGE_SELF)
+    max_mem = 0.0
+
+    cmd = [sys.executable, str(script_path)] + args
+    logger.log("run_experiment", script=str(script_path), args=args)
+
     try:
         result = subprocess.run(
-            [sys.executable, str(script_path)] + args,
+            cmd,
             capture_output=True,
             text=True,
             timeout=timeout_seconds,
-            cwd=_project_root,
+            cwd=script_path.parent
         )
         exit_code = result.returncode
-        stdout = result.stdout
-        stderr = result.stderr
-    except subprocess.TimeoutExpired:
-        exit_code = -1
-        stdout = ""
-        stderr = "TIMEOUT: execution exceeded allowed time"
-    except Exception as e:
-        exit_code = -1
-        stdout = ""
-        stderr = str(e)
+        status = "success" if exit_code == 0 else "failed"
 
-    elapsed = time.time() - start
-    return {
-        "exit_code": exit_code,
-        "elapsed_seconds": round(elapsed, 3),
-        "stdout_lines": len(stdout.splitlines()),
-        "stderr_lines": len(stderr.splitlines()),
-        "error_tail": stderr[-500:] if stderr else "",
-    }
+        # Check output files if success
+        output_files = []
+        if status == "success":
+            # Common output locations
+            for pattern in ["results/*.csv", "results/*.pdf", "results/*.md"]:
+                    import glob
+                    for f in glob.glob(str(script_path.parent.parent / pattern)):
+                        output_files.append(f)
 
+        end_time = datetime.utcnow().isoformat()
+        end_cpu = resource.getrusage(resource.RUSAGE_SELF)
 
-def run_full_pipeline(
-    results_dir: Path,
-    full_games: int = 1000,
-    limited_games: int = 1000,
-    scaling_counts: List[int] = None,
-    scaling_games: int = 800,
-    seed: int = 42,
-) -> Dict[str, Any]:
-    """Run the full pipeline: full, limited, and scaling experiments."""
-    if scaling_counts is None:
-        scaling_counts = [3, 5, 7]
+        duration = (
+            (end_cpu.ru_utime + end_cpu.ru_stime) -
+            (start_cpu.ru_utime + start_cpu.ru_stime)
+        )
+        max_mem = (end_cpu.ru_maxrss - start_cpu.ru_maxrss) / 1024.0
+        if max_mem < 0:
+            max_mem = end_cpu.ru_maxrss / 1024.0
 
-    pipeline_start = time.time()
-    stage_results: List[Dict[str, Any]] = []
-
-    # 1. Full-context experiment
-    logger.log("run_full_context", context="full", games=full_games)
-    stage_results.append(
-        {
-            "stage": "full_context",
-            "script": "run_experiment.py",
-            "args": ["--context", "full", "--agents", "5", "--games", str(full_games), "--seed", str(seed)],
-            **run_experiment_script(
-                _project_root / "code" / "run_experiment.py",
-                ["--context", "full", "--agents", "5", "--games", str(full_games), "--seed", str(seed)],
-            ),
-        }
-    )
-
-    # 2. Limited-context experiment
-    logger.log("run_limited_context", context="limited", games=limited_games)
-    stage_results.append(
-        {
-            "stage": "limited_context",
-            "script": "run_experiment.py",
-            "args": ["--context", "limited", "--agents", "5", "--games", str(limited_games), "--seed", str(seed)],
-            **run_experiment_script(
-                _project_root / "code" / "run_experiment.py",
-                ["--context", "limited", "--agents", "5", "--games", str(limited_games), "--seed", str(seed)],
-            ),
-        }
-    )
-
-    # 3. Scaling experiment
-    for count in scaling_counts:
-        logger.log("run_scaling", agents=count, games=scaling_games)
-        stage_results.append(
-            {
-                "stage": f"scaling_agents_{count}",
-                "script": "run_scaling_experiment.py",
-                "args": ["--agents", str(count), "--games", str(scaling_games)],
-                **run_experiment_script(
-                    _project_root / "code" / "run_scaling_experiment.py",
-                    ["--agents", str(count), "--games", str(scaling_games)],
-                ),
-            }
+        return ResourceMetrics(
+            script_name=script_path.name,
+            start_time=start_time,
+            end_time=end_time,
+            duration_seconds=duration,
+            max_memory_mb=max_mem,
+            exit_code=exit_code,
+            output_files=output_files,
+            status=status
         )
 
-    pipeline_elapsed = time.time() - pipeline_start
+    except subprocess.TimeoutExpired:
+        end_time = datetime.utcnow().isoformat()
+        return ResourceMetrics(
+            script_name=script_path.name,
+            start_time=start_time,
+            end_time=end_time,
+            duration_seconds=timeout_seconds,
+            max_memory_mb=get_memory_usage_mb(),
+            exit_code=-1,
+            output_files=[],
+            status="timeout"
+        )
+    except Exception as e:
+        end_time = datetime.utcnow().isoformat()
+        logger.log("run_experiment_error", error=str(e))
+        return ResourceMetrics(
+            script_name=script_path.name,
+            start_time=start_time,
+            end_time=end_time,
+            duration_seconds=0.0,
+            max_memory_mb=get_memory_usage_mb(),
+            exit_code=-1,
+            output_files=[],
+            status="failed"
+        )
 
-    # Resource snapshots
-    final_memory_mb = get_memory_usage_mb()
-    final_disk_mb = get_disk_usage_mb(results_dir)
+def run_full_pipeline(
+    project_root: Path,
+    timeout_per_stage: int = 3600
+) -> PipelineReport:
+    """Run the full research pipeline and collect metrics."""
+    start_time = datetime.utcnow()
+    start_ts = start_time.isoformat()
 
-    return {
-        "pipeline_elapsed_seconds": round(pipeline_elapsed, 3),
-        "final_memory_mb": round(final_memory_mb, 2),
-        "final_disk_mb": round(final_disk_mb, 2),
-        "stages": stage_results,
-        "timestamp": datetime.utcnow().isoformat(),
-    }
+    # Define pipeline stages
+    stages = [
+        ("full_context", ["run_experiment.py", "--context", "full", "--agents", "5", "--games", "100", "--seed", "42"]),
+        ("limited_context", ["run_experiment.py", "--context", "limited", "--agents", "5", "--games", "100", "--seed", "42"]),
+        ("scaling", ["run_experiment.py", "--context", "full", "--agents", "3,5,7", "--games", "800", "--plot", "scaling"]),
+    ]
 
+    results: List[ResourceMetrics] = []
+    code_script = project_root / "code"
 
-def save_results(results: Dict[str, Any], output_path: Path) -> None:
-    """Save pipeline results to a JSON file."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(results, f, indent=2, default=str)
-    logger.log("save_pipeline_results", path=str(output_path))
+    for stage_name, args in stages:
+        logger.log("stage_start", stage=stage_name)
+        metric = run_experiment_script(code_script / args[0], args[1:], timeout_per_stage)
+        results.append(metric)
+        logger.log("stage_end", stage=stage_name, status=metric.status)
 
+    end_time = datetime.utcnow()
+    total_duration = (end_time - start_time).total_seconds()
+
+    # Build summary
+    successful = sum(1 for r in results if r.status == "success")
+    total_memory = sum(r.max_memory_mb for r in results)
+    total_time = sum(r.duration_seconds for r in results)
+
+    report = PipelineReport(
+        pipeline_name="PROJ-586-social-memory-networks-modeling-collecti",
+        start_time=start_ts,
+        end_time=end_time.isoformat(),
+        total_duration_seconds=total_duration,
+        runner_environment={
+            "python_version": sys.version,
+            "platform": sys.platform,
+            "cwd": str(Path.cwd()),
+        },
+        stage_results=results,
+        summary={
+            "total_stages": len(stages),
+            "successful_stages": successful,
+            "failed_stages": len(stages) - successful,
+            "total_memory_mb": total_memory,
+            "total_cpu_seconds": total_time,
+        }
+    )
+
+    return report
+
+def save_results(report: PipelineReport, output_dir: Path) -> None:
+    """Save pipeline report to disk."""
+    output_dir.mkdir(parents=True, exist_ok=True)
+    report_path = output_dir / "pipeline_ci_report.json"
+
+    with open(report_path, "w", encoding="utf-8") as f:
+        json.dump(asdict(report), f, indent=2, default=str)
+
+    logger.log("save_report", path=str(report_path))
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Run full pipeline with resource profiling on CI")
+    parser = argparse.ArgumentParser(
+        description="Run full pipeline on CI runner with resource profiling"
+    )
     parser.add_argument(
-        "--results-dir",
+        "--project-root",
         type=Path,
-        default=_project_root / "results",
-        help="Directory to store pipeline results",
+        default=Path("."),
+        help="Path to project root directory"
     )
-    parser.add_argument("--full-games", type=int, default=1000, help="Games for full-context experiment")
-    parser.add_argument("--limited-games", type=int, default=1000, help="Games for limited-context experiment")
     parser.add_argument(
-        "--scaling-counts",
-        type=int,
-        nargs="+",
-        default=[3, 5, 7],
-        help="Agent counts for scaling experiment",
+        "--output-dir",
+        type=Path,
+        default=Path("results"),
+        help="Directory to write report"
     )
-    parser.add_argument("--scaling-games", type=int, default=800, help="Games per scaling configuration")
-    parser.add_argument("--seed", type=int, default=42, help="Random seed")
-    parser.add_argument("--output", type=Path, default=None, help="Output JSON file path")
+    parser.add_argument(
+        "--timeout",
+        type=int,
+        default=3600,
+        help="Timeout per stage in seconds"
+    )
     return parser
-
 
 def main() -> int:
     parser = build_parser()
     args = parser.parse_args()
 
-    results_dir = args.results_dir
-    results_dir.mkdir(parents=True, exist_ok=True)
+    project_root = args.project_root.resolve()
+    output_dir = args.output_dir.resolve()
 
-    logger.log("start_pipeline", results_dir=str(results_dir))
+    logger.log("pipeline_start", project=str(project_root))
 
-    results = run_full_pipeline(
-        results_dir=results_dir,
-        full_games=args.full_games,
-        limited_games=args.limited_games,
-        scaling_counts=args.scaling_counts,
-        scaling_games=args.scaling_games,
-        seed=args.seed,
-    )
+    report = run_full_pipeline(project_root, args.timeout)
+    save_results(report, output_dir)
 
-    output_path = args.output or results_dir / "pipeline_ci_results.json"
-    save_results(results, output_path)
+    logger.log("pipeline_complete", status="success" if report.summary["failed_stages"] == 0 else "partial")
 
-    logger.log("pipeline_complete", output=str(output_path))
-    print(f"Pipeline results written to {output_path}")
-    return 0
+    # Print summary to stdout
+    print(json.dumps(asdict(report.summary), indent=2))
 
+    return 0 if report.summary["failed_stages"] == 0 else 1
 
 if __name__ == "__main__":
     sys.exit(main())

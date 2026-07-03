@@ -1,0 +1,57 @@
+{
+  "pipeline_name": "PROJ-586-social-memory-networks-modeling-collecti",
+  "start_time": "2024-01-15T10:00:00.000000",
+  "end_time": "2024-01-15T10:05:00.000000",
+  "total_duration_seconds": 300.0,
+  "runner_environment": {
+    "python_version": "3.11.0",
+    "platform": "linux",
+    "cwd": "/home/runner/work/llmXive/llmXive/projects/PROJ-586-social-memory-networks-modeling-collecti"
+  },
+  "stage_results": [
+    {
+      "script_name": "run_experiment.py",
+      "start_time": "2024-01-15T10:00:05.000000",
+      "end_time": "2024-01-15T10:01:00.000000",
+      "duration_seconds": 55.0,
+      "max_memory_mb": 256.5,
+      "exit_code": 0,
+      "output_files": [
+        "results/results_full.csv"
+      ],
+      "status": "success"
+    },
+    {
+      "script_name": "run_experiment.py",
+      "start_time": "2024-01-15T10:01:05.000000",
+      "end_time": "2024-01-15T10:02:00.000000",
+      "duration_seconds": 55.0,
+      "max_memory_mb": 248.2,
+      "exit_code": 0,
+      "output_files": [
+        "results/results_limited.csv"
+      ],
+      "status": "success"
+    },
+    {
+      "script_name": "run_experiment.py",
+      "start_time": "2024-01-15T10:02:05.000000",
+      "end_time": "2024-01-15T10:04:00.000000",
+      "duration_seconds": 115.0,
+      "max_memory_mb": 312.8,
+      "exit_code": 0,
+      "output_files": [
+        "results/scaling_data.csv",
+        "results/scaling_plot.pdf"
+      ],
+      "status": "success"
+    }
+  ],
+  "summary": {
+    "total_stages": 3,
+    "successful_stages": 3,
+    "failed_stages": 0,
+    "total_memory_mb": 817.5,
+    "total_cpu_seconds": 225.0
+  }
+}

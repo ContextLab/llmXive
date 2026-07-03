@@ -1,22 +1,19 @@
-"""Test wrapper for CI pipeline to verify resource recording.
+"""Test wrapper for CI pipeline execution.
 
-This script runs the full pipeline and verifies that results are recorded.
+Ensures the CI pipeline runner can be imported and executed
+without errors, suitable for CI validation.
 """
 import sys
 from pathlib import Path
 
-# Ensure we can import sibling modules
-_project_root = Path(__file__).resolve().parent.parent
-if str(_project_root) not in sys.path:
-    sys.path.insert(0, str(_project_root))
-
-from run_full_pipeline_ci import main as ci_main
-
-
 def main() -> int:
-    """Run the CI pipeline and return exit code."""
-    return ci_main()
-
+    """Run the CI pipeline test wrapper."""
+    try:
+        from run_full_pipeline_ci import main as ci_main
+        return ci_main()
+    except Exception as e:
+        print(f"CI Pipeline Test Failed: {e}", file=sys.stderr)
+        return 1
 
 if __name__ == "__main__":
     sys.exit(main())
