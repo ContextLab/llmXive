@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SubjectQCSchema"
+description: "Schema for subject quality control and exclusion status."
+type: "array"
+items:
+  type: "object"
+  properties:
+    subject_id:
+      type: "string"
+      description: "Subject identifier."
+    age:
+      type: "integer"
+      description: "Age in years."
+    sex:
+      type: "string"
+      enum:
+        - "M"
+        - "F"
+      description: "Sex."
+    mean_fd:
+      type: "number"
+      description: "Mean framewise displacement (mm)."
+    dsrt_score:
+      type: "number"
+      description: "Domain‑Specific Risk‑Taking score."
+    status:
+      type: "string"
+      enum:
+        - "valid"
+        - "excluded_motion"
+        - "excluded_missing_data"
+      description: "Inclusion status."
+    reason:
+      type: "string"
+      description: "Reason for exclusion if applicable."
+    selected:
+      type: "boolean"
+      description: "True if the subject is part of the adaptively chosen cohort."
+  required:
+    - subject_id
+    - age
+    - sex
+    - mean_fd
+    - dsrt_score
+    - status
+    - reason
+    - selected
+additionalProperties: false

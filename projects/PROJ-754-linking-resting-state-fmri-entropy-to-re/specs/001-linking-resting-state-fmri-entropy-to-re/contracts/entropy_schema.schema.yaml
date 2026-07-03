@@ -1,0 +1,54 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EntropyMatrixSchema"
+description: "Schema for the computed multiscale sample entropy matrix."
+type: "object"
+properties:
+  metadata:
+    type: "object"
+    properties:
+      n_subjects:
+        type: "integer"
+        description: "Number of subjects in the matrix."
+      n_parcels:
+        type: "integer"
+        description: "Number of cortical parcels (e.g., 400)."
+      scales:
+        type: "array"
+        items:
+          type: "integer"
+        description: "Scales used for averaging (e.g., [1, 2, 3, 4, 5])."
+      r_values:
+        type: "array"
+        items:
+          type: "number"
+        description: "Tolerance parameters used (e.g., [0.1, 0.15, 0.2])."
+      seed:
+        type: "integer"
+        description: "Random seed for reproducibility."
+      includes_noise_variance:
+        type: "boolean"
+        description: "Whether the accompanying noise‑variance covariate was computed (FR‑009)."
+      resampling_correlation:
+        type: "number"
+        description: "Pearson r between entropy computed on native 2 mm and resampled 4 mm data (validation)."
+      ks_pvalue:
+        type: "number"
+        description: "Kolmogorov‑Smirnov test p‑value comparing 4 mm entropy distribution to literature benchmark."
+    required:
+      - n_subjects
+      - n_parcels
+      - scales
+      - r_values
+      - seed
+      - includes_noise_variance
+  data:
+    type: "array"
+    description: "Flattened or 2D array of entropy values (subjects x parcels)."
+    items:
+      type: "number"
+      description: "Entropy value (float)."
+    minItems: 0
+required:
+  - metadata
+  - data
+additionalProperties: false

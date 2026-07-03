@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StatisticalResultSchema"
+description: "Schema for the final statistical results per parcel."
+type: "array"
+items:
+  type: "object"
+  properties:
+    parcel_id:
+      type: "integer"
+      description: "Unique identifier for the cortical parcel."
+    beta:
+      type: "number"
+      description: "Regression coefficient (entropy -> DSRT)."
+    se:
+      type: "number"
+      description: "Standard error of the coefficient."
+    p_value_raw:
+      type: "number"
+      description: "Uncorrected p‑value."
+    p_value_fwe:
+      type: "number"
+      description: "Permutation‑based FWE corrected p‑value."
+    significant:
+      type: "boolean"
+      description: "True if p_value_fwe < 0.05."
+    vif:
+      type: "number"
+      description: "Variance Inflation Factor for covariates."
+    partial_corr_entropy_dsrt:
+      type: "number"
+      description: "Partial correlation between entropy and DSRT controlling for noise variance."
+  required:
+    - parcel_id
+    - beta
+    - se
+    - p_value_raw
+    - p_value_fwe
+    - significant
+    - vif
+    - partial_corr_entropy_dsrt
+additionalProperties: false
