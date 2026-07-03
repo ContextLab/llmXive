@@ -1,0 +1,11 @@
+- artifact_hash: 0f9a825b98efd6bb0e2899e6f2dd77947010d5d988ab60e749e5ad5ec5f7a580
+  artifact_path: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://nvd.nist.gov/feeds/json/cve/1.1/`
+  verification_status: pending
+  verified_against_url: https://nvd.nist.gov/feeds/json/cve/1.1/
+  verified_at: '2026-07-03T06:01:05.974551Z'

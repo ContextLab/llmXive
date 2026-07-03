@@ -1,0 +1,55 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Repository Metrics Schema"
+description: "Schema for the processed dataset containing authorship and vulnerability metrics."
+type: "object"
+properties:
+  repo_url:
+    type: "string"
+    description: "Full HTTPS URL of the GitHub repository."
+  primary_language:
+    type: "string"
+    description: "Dominant programming language of the repository."
+  raw_line_count:
+    type: "integer"
+    minimum: 0
+    description: "Total lines of code as reported by cloc."
+  kloc:
+    type: "number"
+    minimum: 0
+    description: "Kilolines of code (raw_line_count / 1000)."
+  unique_authors:
+    type: "integer"
+    minimum: 0
+    description: "Number of unique authors with >= 1 line of code."
+  author_count:
+    type: "integer"
+    minimum: 0
+    description: "Alias for unique_authors used in modeling."
+  project_age_years:
+    type: "number"
+    description: "Age of the project in years."
+  release_count:
+    type: "integer"
+    minimum: 0
+    description: "Number of GitHub releases/tags."
+  num_dependencies:
+    type: "integer"
+    minimum: 0
+    description: "Number of dependencies (if available)."
+  cve_count:
+    type: "integer"
+    minimum: 0
+    description: "Number of CVEs matched to this repository."
+  cve_density:
+    type: "number"
+    description: "CVE count normalized by KLOC (Descriptive only)."
+required:
+  - repo_url
+  - primary_language
+  - raw_line_count
+  - kloc
+  - unique_authors
+  - author_count
+  - cve_count
+  - cve_density
+

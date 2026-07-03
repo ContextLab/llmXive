@@ -1,0 +1,93 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Results Schema"
+description: "Schema for the statistical model output including coefficients and diagnostics."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    enum: ["Poisson", "NegativeBinomial"]
+    description: "Type of GLM family used."
+  coef_author_count:
+    type: "number"
+    description: "Regression coefficient for author_count."
+  se_author_count:
+    type: "number"
+    description: "Standard error of the author_count coefficient."
+  pvalue_raw:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Raw p-value for the coefficient."
+  pvalue_adj:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Benjamini-Hochberg adjusted p-value."
+  ci_lower:
+    type: "number"
+    description: "Lower bound of 95% confidence interval."
+  ci_upper:
+    type: "number"
+    description: "Upper bound of 95% confidence interval."
+  coef_log_kloc:
+    type: "number"
+    description: "Regression coefficient for log(kloc) (used as predictor, not offset)."
+  vif_scores:
+    type: "object"
+    additionalProperties:
+      type: "number"
+    description: "Map of predictor names to their Variance Inflation Factor values."
+  convergence_status:
+    type: "string"
+    enum: ["OK", "FAILED"]
+    description: "Status of the model fitting process."
+  power_analysis:
+    type: "object"
+    properties:
+      mdes:
+        type: "number"
+        description: "Minimum Detectable Effect Size."
+      power:
+        type: "number"
+        description: "Estimated power for the detected effect."
+  robustness:
+    type: "object"
+    properties:
+      interaction_results:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            language:
+              type: "string"
+            coef_interaction:
+              type: "number"
+            pvalue_adj:
+              type: "number"
+      entropy_metric:
+        type: "object"
+        properties:
+          coef_entropy:
+            type: "number"
+          pvalue_adj:
+            type: "number"
+      non_linearity:
+        type: "object"
+        properties:
+          coef_quadratic:
+            type: "number"
+          pvalue_adj:
+            type: "number"
+required:
+  - model_type
+  - coef_author_count
+  - se_author_count
+  - pvalue_raw
+  - pvalue_adj
+  - ci_lower
+  - ci_upper
+  - coef_log_kloc
+  - vif_scores
+  - convergence_status
+  - power_analysis
+

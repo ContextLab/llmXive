@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-02T19:28:31.706769Z'
-current_stage: project_initialized
+current_stage: analyzed
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-166-quantifying-the-impact-of-code-authorshi
-last_run_id: b9a5d570-d0b3-492f-9a10-d33de290eca5
+last_run_id: cb44bef8-3779-4b44-944e-c51f7b874990
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-166-quantifying-the-impact-of-code-authorshi/specs/001-quantifying-the-impact-of-code-authorshi
 title: Quantifying the Impact of Code Authorship Diversity on Software Security
-updated_at: '2026-06-25T02:38:24.779569Z'
+updated_at: '2026-07-03T06:20:53.648842Z'

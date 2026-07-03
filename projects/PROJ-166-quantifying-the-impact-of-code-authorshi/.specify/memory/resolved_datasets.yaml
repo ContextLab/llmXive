@@ -1,0 +1,418 @@
+resolved_at: '2026-07-03T05:46:34.779623+00:00'
+datasets:
+- intent: KLOC
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/k-locker/djerbaisland/resolve/main/djerba_finetuning_dataset_v9.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/k-locker/tourist_dataset/resolve/main/tourist_dataset.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/k-locker/djerba_tourism_dataset_multilingual_alpaca/resolve/main/djerba_tourism_dataset_multilingual_alpaca_v4.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/k-locker/djerbaisland/resolve/main/djerba_finetuning_dataset_v9.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/k-locker/tourist_dataset/resolve/main/tourist_dataset.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://us.aws.cdn.hf.co/xet-bridge-us/6836ea154d6844a786be86f5/efa3680981acf22736552ca1d3ac2c6b9e072c6be8d8de517a678ff74a105eda?X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27djerba_tourism_dataset_multilingual_chatml_v4.jsonl%3B+filename%3D%22djerba_tourism_dataset_multilingual_chatml_v4.jsonl%22%3B&Expires=1783061074&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjgzNmVhMTU0ZDY4NDRhNzg2YmU4NmY1L2VmYTM2ODA5ODFhY2YyMjczNjU1MmNhMWQzYWMyYzZiOWUwNzJjNmJlOGQ4ZGU1MTdhNjc4ZmY3NGExMDVlZGFcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGplcmJhX3RvdXJpc21fZGF0YXNldF9tdWx0aWxpbmd1YWxfY2hhdG1sX3Y0Lmpzb25sJTNCK2ZpbGVuYW1lJTNEJTIyZGplcmJhX3RvdXJpc21fZGF0YXNldF9tdWx0aWxpbmd1YWxfY2hhdG1sX3Y0Lmpzb25sJTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODMwNjEwNzR9fX1dfQ__&Signature=MEQCIEt60aD7F1Dd9tDg3Hhyg0WK47928j-DrvQFN7UF9lQgAiBxITyq7nwShgz33mcM0KeLmbnVF-8qmKJR2bVwozAKDw__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/k-locker/djerba_tourism_dataset_multilingual_alpaca/resolve/main/djerba_tourism_dataset_multilingual_alpaca_v4.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/k-locker/djerba_tourism_dataset_multilingual_alpaca_v4/resolve/main/djerba_tourism_dataset_multilingual_alpaca_v4.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Development_and_validation_of_an_interpretable_machine_learning-based_predictive_model_for_breast_cancer_bone_metastasis_xlsx/32889401
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Amine-Enabled_Electron_Donor_Acceptor_Complex_Catalysis_for_Cyclopropanation/32889400
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Pathways_for_the_precise_prevention_and_improvement_of_mental_health_among_university_freshmen_a_network_analysis_and_simulated_intervention_study_based_on_the_biopsychosocial_model_docx/32889392
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_3_Pathways_for_the_precise_prevention_and_improvement_of_mental_health_among_university_freshmen_a_network_analysis_and_simulated_intervention_study_based_on_the_biopsychosocial_model_docx/32889395
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Pathways_for_the_precise_prevention_and_improvement_of_mental_health_among_university_freshmen_a_network_analysis_and_simulated_intervention_study_based_on_the_biopsychosocial_model_docx/32889398
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5056837
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6484082
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11101455
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/11101415
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5056827
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.01087
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15288745
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15288745
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/1008.5391
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://journals.sagepub.com/doi/full/10.1177/8756479318819458#supplementary-materials
+    source: datacite
+    status: wrong_format
+    reason: HTTP 403
+- intent: NVD
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/thercyl/NVDA/resolve/main/data/train-00000-of-00001-6917974766c82d9c.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/achang/stock_nvda/resolve/main/data/train-00000-of-00001-db40018e29bb2a0b.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/achang/stocks_one_nvda/resolve/main/data/train-00000-of-00001-691aa7d5f69558cc.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 48479
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/thercyl/NVDA/resolve/main/data/train-00000-of-00001-6917974766c82d9c.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/zzj0402/nvd/resolve/main/data/train-00000-of-00001-53945903b3adbe22.parquet
+    source: huggingface
+    status: wrong_format
+    reason: HTTP 401
+  - url: https://huggingface.co/datasets/achang/stock_nvda/resolve/main/data/train-00000-of-00001-db40018e29bb2a0b.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/achang/stocks_one_nvda/resolve/main/data/train-00000-of-00001-691aa7d5f69558cc.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/achang/stocks_one_nvda_v2/resolve/main/data/train-00000-of-00001-9dbccbfa79a48c07.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://frontiersin.figshare.com/articles/figure/Image_1_Capsulated_Lactococcus_garvieae_caused_devastating_mortality_in_Atlantic_bluefin_tuna_Thunnus_thynnus_genomic_and_histopathologic_characterization_png/32889419
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/figure/Image_2_Capsulated_Lactococcus_garvieae_caused_devastating_mortality_in_Atlantic_bluefin_tuna_Thunnus_thynnus_genomic_and_histopathologic_characterization_pdf/32889431
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Capsulated_Lactococcus_garvieae_caused_devastating_mortality_in_Atlantic_bluefin_tuna_Thunnus_thynnus_genomic_and_histopathologic_characterization_xlsx/32889404
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Capsulated_Lactococcus_garvieae_caused_devastating_mortality_in_Atlantic_bluefin_tuna_Thunnus_thynnus_genomic_and_histopathologic_characterization_xlsx/32889410
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Light-Promoted_Palladium-Catalyzed_Regiodivergent_Transfer_Hydrothiocarbonylation_of_Alkynes_Regulated_by_Coordinating_Anions/32889436
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5509219
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16971627
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16971661
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20348699
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21141418
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21141418
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21133620
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21133620
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20988950
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: CVE
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/build-small-hackathon/CVE_Vulnerailities_Detailed/resolve/main/data/train-00000-of-00002.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/Luoberta/cve_train_v1.1/resolve/main/cve_train.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/stasvinokur/cve-and-cwe-dataset-1999-2025/resolve/main/CVE_CWE_2025.csv
+    source: huggingface
+    format: sdf
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/build-small-hackathon/CVE_Vulnerailities_Detailed/resolve/main/data/train-00000-of-00002.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Luoberta/cve_train_v1.1/resolve/main/cve_train.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/stasvinokur/cve-and-cwe-dataset-1999-2025/resolve/main/CVE_CWE_2025.csv
+    source: huggingface
+    status: verified
+    format: sdf
+  - url: https://huggingface.co/datasets/Trendyol/All-CVE-Chat-MultiTurn-1999-2025-Dataset/resolve/main/all_cve_database.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/Younis2003/secure_dataset_cvefixes/resolve/main/data/test-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_3_Inflammatory_biomarkers_and_30-day_thoracic_outcomes_after_surgical_versus_non-surgical_management_of_spontaneous_pneumothorax_a_retrospective_cohort_study_docx/32889449
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Inflammatory_biomarkers_and_30-day_thoracic_outcomes_after_surgical_versus_non-surgical_management_of_spontaneous_pneumothorax_a_retrospective_cohort_study_docx/32889461
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_5_Inflammatory_biomarkers_and_30-day_thoracic_outcomes_after_surgical_versus_non-surgical_management_of_spontaneous_pneumothorax_a_retrospective_cohort_study_docx/32889443
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_4_Inflammatory_biomarkers_and_30-day_thoracic_outcomes_after_surgical_versus_non-surgical_management_of_spontaneous_pneumothorax_a_retrospective_cohort_study_docx/32889446
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Targeted_stool_metabolomics_suggests_exploratory_catecholamine-_and_tryptophan-linked_metabolic_features_in_autism_spectrum_disorder_xlsx/32889437
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10223928
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/20619433
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/18216762
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://link.springer.com/article/10.1186/s12933-025-02636-5
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/19058493
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://arxiv.org/abs/2607.02059
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/JavaVulBench_A_Java_Vulnerability_Benchmark_with_Realistic_Splits_a_Unified_Multi-Backend_Harness_and_a_Leakage-Aware_Evaluation_Mode/32885981/1
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/preprint/JavaVulBench_A_Java_Vulnerability_Benchmark_with_Realistic_Splits_a_Unified_Multi-Backend_Harness_and_a_Leakage-Aware_Evaluation_Mode/32885981
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21141418
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21141418
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: JavaScript
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/hchautran/javascript/resolve/main/data/test-00000-of-00038.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/angie-chen55/javascript-github-code/resolve/main/data/train-00000-of-00183.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/hchautran/javascript-medium/resolve/main/data/test-00000-of-00016-24d84010ae9f480a.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/h4iku/coconut_javascript2010/resolve/main/data/train-00000-of-00016.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/h4iku/coconut_javascript2010_preprocessed/resolve/main/data/train-00000-of-00003.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/hchautran/javascript/resolve/main/data/test-00000-of-00038.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/angie-chen55/javascript-github-code/resolve/main/data/train-00000-of-00183.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/hchautran/javascript-medium/resolve/main/data/test-00000-of-00016-24d84010ae9f480a.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_3_Inflammatory_biomarkers_and_30-day_thoracic_outcomes_after_surgical_versus_non-surgical_management_of_spontaneous_pneumothorax_a_retrospective_cohort_study_docx/32889449
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Inflammatory_biomarkers_and_30-day_thoracic_outcomes_after_surgical_versus_non-surgical_management_of_spontaneous_pneumothorax_a_retrospective_cohort_study_docx/32889461
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_5_Inflammatory_biomarkers_and_30-day_thoracic_outcomes_after_surgical_versus_non-surgical_management_of_spontaneous_pneumothorax_a_retrospective_cohort_study_docx/32889443
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_4_Inflammatory_biomarkers_and_30-day_thoracic_outcomes_after_surgical_versus_non-surgical_management_of_spontaneous_pneumothorax_a_retrospective_cohort_study_docx/32889446
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_2_Targeted_stool_metabolomics_suggests_exploratory_catecholamine-_and_tryptophan-linked_metabolic_features_in_autism_spectrum_disorder_xlsx/32889437
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: http://infotech-soccult.knukim.edu.ua/article/view/247490
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4014354
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/10901259
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/14289370
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17661943
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21153526
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21153526
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21154097
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21154097
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21152469
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
