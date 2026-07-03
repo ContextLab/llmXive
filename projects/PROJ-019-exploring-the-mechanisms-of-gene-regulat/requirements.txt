@@ -1,0 +1,9 @@
+requests
+pandas
+pybedtools
+scipy
+seaborn
+matplotlib
+biopython
+pytest
+scikit-learn

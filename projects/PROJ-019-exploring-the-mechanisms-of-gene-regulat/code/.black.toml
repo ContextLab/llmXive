@@ -1,0 +1,20 @@
+# Black configuration for llmXive gene regulation project
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+# Skip magic trailing comma to align with default Black behavior
+skip-magic-trailing-comma = false

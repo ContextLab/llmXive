@@ -1,0 +1,19 @@
+{
+  "dataset_version": "1.0.0",
+  "created_at": "2024-01-01T00:00:00+00:00",
+  "updated_at": "2024-01-01T00:00:00+00:00",
+  "sources": {
+    "encode": {
+      "accession_ids": [],
+      "download_timestamps": []
+    },
+    "jaspar": {
+      "version": null,
+      "download_timestamps": []
+    }
+  },
+  "metadata": {
+    "project_id": "PROJ-019-exploring-the-mechanisms-of-gene-regulat",
+    "task_id": "T007"
+  }
+}

@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-04-29T03:39:55.508035Z'
-current_stage: planned
+current_stage: in_progress
 failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-019-exploring-the-mechanisms-of-gene-regulat
-last_run_id: b6479b01-f661-40a5-98cf-78b57e5f092e
+last_run_id: 0b60b467-5942-4aee-9d11-b08a5d859c2c
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/specs/001-exploring-the-mechanisms-of-gene-regulat
 title: Exploring the Mechanisms of Gene Regulation Across Different Cell Types
-updated_at: '2026-07-02T14:56:13.637305Z'
+updated_at: '2026-07-03T18:59:46.243730Z'

@@ -15,8 +15,8 @@ This project implements a reproducible pipeline to identify cell-type-specific t
 **Target Platform**: Linux (GitHub Actions free-tier: 2 CPU, ~7GB RAM)  
 **Project Type**: Computational Biology Pipeline / CLI  
 **Performance Goals**: Complete full analysis within 6 hours on CPU-only runner; memory usage < 7GB.  
-**Constraints**: No GPU; strict disk limits (14GB); robust error handling for network failures (exponential backoff); strict data provenance per Constitution.  
-**Scale/Scope**: 5 cell types, [deferred]-50,000 peaks per cell type, ~600-1000 JASPAR motifs.
+**Constraints**: No GPU; strict disk limits (a constrained capacity); robust error handling for network failures (exponential backoff); strict data provenance per Constitution.  
+**Scale/Scope**: cell types, [deferred]-peaks per cell type, Approximately one thousand JASPAR motifs.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 

@@ -1,0 +1,13 @@
+? 'T001a [P] Create project directory structure: `projects/PROJ-019-exploring-the-mechanisms-of-gene-regulat/`,
+  `code/`, `data/`, `tests/`'
+: 2
+T001b [P] Create `__init__.py` files in `code/` and `tests/` directories: 2
+T001c [P] Create `.gitkeep` files in `data/raw/`, `data/interim/`, `data/processed/`: 2
+? 'T002 Initialize Python 3.11 project with `requirements.txt` (requests, pandas,
+  pybedtools, scipy, seaborn, matplotlib, biopython, pytest). Note: `pybedtools` is
+  used for BED parsing and annotation as per plan.md Technical Context.'
+: 2
+T003 [P] Configure linting (ruff) and formatting (black) tools: 2
+? T004 Implement `code/config.py` to define `TMP_DIR`, `DATA_RAW_DIR`, `DATA_INTERIM_DIR`,
+  `DATA_PROCESSED_DIR`, retry limits, and dataset version constants
+: 2

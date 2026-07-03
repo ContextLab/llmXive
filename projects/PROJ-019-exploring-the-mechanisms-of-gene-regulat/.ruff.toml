@@ -1,0 +1,5 @@
+# Standalone ruff configuration (fallback if not in pyproject.toml)
+line-length = 88
+target-version = "py311"
+select = ["E", "W", "F", "I", "B", "C4", "UP"]
+ignore = ["E501", "B008"]

@@ -1,0 +1,1 @@
+"""Contract tests to verify API specifications and data contracts."""

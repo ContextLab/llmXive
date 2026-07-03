@@ -1,0 +1,27 @@
+# Ruff configuration for llmXive gene regulation project
+[lint]
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
+select = ["E", "F", "I", "W", "N", "UP", "B", "C4", "SIM"]
+
+# Ignore lines that are too long (handled by Black)
+ignore = ["E501"]
+
+# Allow unused variables that start with underscore
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[lint.isort]
+known-first-party = ["code"]
+force-sort-within-sections = true
+
+[format]
+# Use double quotes (Black default)
+quote-style = "double"
+
+# Indent with spaces (Black default)
+indent-style = "space"
+
+# Respect magic trailing commas
+skip-magic-trailing-comma = false
+
+# Line length matching Black (88)
+line-length = 88
