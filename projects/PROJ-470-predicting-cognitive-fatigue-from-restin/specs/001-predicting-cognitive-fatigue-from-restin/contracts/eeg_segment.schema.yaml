@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EEG Segment Schema"
+description: "Schema for validated EEG segments after preprocessing."
+type: "object"
+properties:
+  segment_id:
+    type: "string"
+    description: "Unique identifier for the segment."
+  participant_id:
+    type: "string"
+    description: "Foreign key to Participant."
+  status:
+    type: "string"
+    enum:
+      - "pre"
+      - "post"
+      - "baseline"
+    description: "Pre-task, Post-task, or Baseline status."
+  duration_sec:
+    type: "number"
+    minimum: 120.0
+    description: "Duration of the segment in seconds."
+  sampling_rate:
+    type: "number"
+    description: "Sampling rate in Hz."
+  channels:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of channel names."
+  data_path:
+    type: "string"
+    description: "Path to the preprocessed data file."
+  checksum:
+    type: "string"
+    pattern: "^[a-f0-9]{64}$"
+    description: "SHA-256 hash of the data file."
+required:
+  - segment_id
+  - participant_id
+  - status
+  - duration_sec
+  - sampling_rate
+  - channels
+  - data_path
+  - checksum
+additionalProperties: false

@@ -13,12 +13,12 @@ The researcher MUST be able to retrieve EEG data from PhysioNet and preprocess i
 
 **Why this priority**: Without clean, accessible data, no analysis can occur. This is the foundational step for the entire pipeline.
 
-**Independent Test**: Can be fully tested by running the preprocessing pipeline on a single sample EEG file and verifying the output file contains filtered data without crashes.
+**Independent Test**: Can be fully tested by running the preprocessing pipeline on a single sample EEG file and verifying the 50Hz line noise peak is attenuated by >20dB.
 
 **Acceptance Scenarios**:
 
 1. **Given** a valid PhysioNet dataset ID, **When** the system downloads the data, **Then** the local file structure matches the expected format.
-2. **Given** raw EEG data with line noise, **When** the system applies the bandpass filter, **Then** the output spectrum shows attenuation outside 1-40 Hz.
+2. **Given** raw EEG data with line noise, **When** the system applies the bandpass filter, **Then** the output spectrum shows attenuation outside a defined low-frequency range.
 
 ---
 
@@ -54,21 +54,20 @@ The researcher MUST be able to correlate the extracted complexity metrics with s
 
 ### Edge Cases
 
-- **What happens when** a participant has missing fatigue ratings? The system MUST exclude that participant from the correlation analysis but log the exclusion count.
-- **How does system handle** EEG artifacts exceeding the rejection threshold? The system MUST flag the segment and exclude it from complexity calculation, logging the rejection reason.
-- **What happens when** the dataset lacks the required fatigue variable? The system MUST halt and report a `[NEEDS CLARIFICATION]` error regarding variable availability.
+- The system MUST exclude participants with missing fatigue ratings and log the exclusion count.
+- The system MUST flag EEG segments with artifacts exceeding ±100 µV, exclude them from complexity calculation, and log the rejection reason.
+- The system MUST halt and report a clear error message listing the available variables if the dataset lacks the required fatigue variable.
 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
 
-- **FR-001**: System MUST retrieve data from PhysioNet containing resting-state EEG and subjective fatigue ratings [NEEDS CLARIFICATION: does the selected PhysioNet subset contain post-task subjective fatigue ratings?], excluding participants without both measures (See US-1).
-- **FR-002**: System MUST preprocess EEG data using MNE-Python with a bandpass filter (1-40 Hz) and reject bad channels/epochs based on amplitude thresholds (See US-1).
+- **FR-001**: System MUST identify a public dataset containing resting-state EEG paired with subjective fatigue ratings from a sustained attention task (e.g., PVT, Stroop). The system MUST validate the presence of both resting-state EEG and paired pre/post fatigue ratings in the chosen dataset before proceeding. If the dataset lacks the required variables, the system MUST halt with a clear error message listing the available variables and excluding participants without both measures (See US-1).
+- **FR-002**: System MUST preprocess EEG data using MNE-Python with a bandpass filter (low-frequency cutoff) and reject bad channels/epochs based on amplitude thresholds of ±100 µV (See US-1).
 - **FR-003**: System MUST calculate Lempel-Ziv complexity and permutation entropy for each channel on resting-state segments ≥ 120 seconds (See US-2).
-- **FR-004**: System MUST perform Pearson or Spearman correlation between complexity changes and fatigue delta scores, framing findings as associational rather than causal (See US-3).
+- **FR-004**: System MUST perform Pearson or Spearman correlation between complexity changes (delta) and fatigue delta scores, using paired pre/post resting-state recordings for the same participants, framing findings as associational rather than causal (See US-3).
 - **FR-005**: System MUST apply Benjamini-Hochberg correction for multiple comparisons across all tested electrodes to control family-wise error rate (See US-3).
-- **FR-006**: System MUST execute sensitivity analysis on the significance threshold by sweeping p-values over {0.05, 0.01} and reporting variation in significant findings (See US-3).
-- **FR-007**: System MUST execute on CPU-only infrastructure without CUDA/GPU dependencies, ensuring memory usage ≤ 7 GB and runtime ≤ 6 hours (See US-1).
+- **FR-006**: System MUST execute a sensitivity analysis by performing a discrete check of significance at p ≤ 0.05 and p ≤ 0.01, and report a table in the final analysis report showing the count of significant electrodes at each threshold. This is essential to verify robustness of findings against threshold selection given the small sample size (N=30) (See US-3).
 
 ### Key Entities
 
@@ -84,10 +83,14 @@ The researcher MUST be able to correlate the extracted complexity metrics with s
 > measured against; defer specific empirical values (counts, dataset sizes,
 > measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: Sample size N ≥ 30 participants is measured against the power requirement for [deferred] power at r=0.3 (See US-3).
-- **SC-002**: Total pipeline runtime ≤ 6 hours is measured against the free-tier CI job limit (See US-1).
-- **SC-003**: Memory usage ≤ 7 GB is measured against the free-tier CI runner constraint (See US-1).
+- **SC-001**: Sample size N ≥ 30 participants is measured against the power requirement for [deferred] power at effect size r=0.3 (See US-3).
+- **SC-002**: Total pipeline runtime ≤ 6 hours (for N=30 participants, 120-second segments) is measured against the deployment constraint DC-001 (See US-1).
+- **SC-003**: Memory usage ≤ 7 GB is measured against the deployment constraint DC-001 (See US-1).
 - **SC-004**: Collinearity diagnostics (VIF < 5) are measured against the requirement for independent predictor validity if metrics are combined (See US-3).
+
+## Deployment Constraints
+
+- **DC-001**: System MUST execute on CPU-only infrastructure without CUDA/GPU dependencies, ensuring memory usage ≤ 7 GB and runtime ≤ 6 hours for a cohort of N=30 participants, each with two 120-second resting-state segments (See US-1).
 
 ## Assumptions
 

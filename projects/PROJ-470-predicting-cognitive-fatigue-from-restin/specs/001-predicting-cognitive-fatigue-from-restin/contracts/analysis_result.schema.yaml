@@ -1,0 +1,54 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Result Schema"
+description: "Schema for correlation analysis results (ANCOVA or Cross-sectional)."
+type: "object"
+properties:
+  result_id:
+    type: "string"
+    description: "Unique identifier for the result."
+  channel:
+    type: "string"
+    description: "Channel name."
+  metric_type:
+    type: "string"
+    enum:
+      - "LZC"
+      - "PE"
+    description: "Metric type."
+  correlation_coef:
+    type: "number"
+    minimum: -1.0
+    maximum: 1.0
+    description: "Pearson/Spearman coefficient or ANCOVA beta (if normalized)."
+  p_value_raw:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Raw p-value."
+  p_value_corrected:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "BH-corrected p-value."
+  significant_at_05:
+    type: "boolean"
+    description: "True if p_corrected < 0.05."
+  significant_at_01:
+    type: "boolean"
+    description: "True if p_corrected < 0.01."
+  effect_size_ci_lower:
+    type: "number"
+    description: "Lower bound of 95% CI for effect size."
+  effect_size_ci_upper:
+    type: "number"
+    description: "Upper bound of 95% CI for effect size."
+required:
+  - result_id
+  - channel
+  - metric_type
+  - correlation_coef
+  - p_value_raw
+  - p_value_corrected
+  - significant_at_05
+  - significant_at_01
+additionalProperties: false

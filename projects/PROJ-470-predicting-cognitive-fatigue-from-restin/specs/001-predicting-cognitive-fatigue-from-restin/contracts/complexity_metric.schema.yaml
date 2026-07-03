@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Complexity Metric Schema"
+description: "Schema for extracted complexity metrics (LZC, PE)."
+type: "object"
+properties:
+  metric_id:
+    type: "string"
+    description: "Unique identifier for the metric."
+  segment_id:
+    type: "string"
+    description: "Foreign key to EEGSegment."
+  channel:
+    type: "string"
+    description: "Channel name (e.g., Fz, Cz)."
+  metric_type:
+    type: "string"
+    enum:
+      - "LZC"
+      - "PE"
+    description: "Type of metric."
+  value:
+    type: "number"
+    description: "Calculated complexity value."
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "Time of calculation."
+required:
+  - metric_id
+  - segment_id
+  - channel
+  - metric_type
+  - value
+  - timestamp
+additionalProperties: false
