@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-02T05:22:08.204313Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-851-dockerless-environment-free-program-veri
-last_run_id: null
+last_run_id: c72a104d-4855-4709-86f3-376d85bfa24b
 last_run_status: null
 points_paper: {}
 points_research: {}
