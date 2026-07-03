@@ -1,0 +1,4 @@
+? 'T006a [P] Implement `code/dependency_injector.py` (FR-003): Vectorized **AR(1)
+  resampling** function with tunable strength $r \in [0, 0.9]$. **Validation**: Verify
+  injected autocorrelation matches target $r$ within 5% tolerance.'
+: 2

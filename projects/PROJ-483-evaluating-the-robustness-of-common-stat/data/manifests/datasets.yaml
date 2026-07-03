@@ -1,0 +1,17 @@
+datasets:
+  - name: adult_income
+    url: https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data
+    description: UCI Adult Income dataset (continuous/categorical features)
+    target: income
+  - name: wine
+    url: https://archive.ics.uci.edu/ml/machine-learning-databases/wine/wine.data
+    description: UCI Wine dataset (continuous chemical features)
+    target: class
+  - name: iris
+    url: https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data
+    description: UCI Iris dataset (continuous features)
+    target: class
+  - name: openml_titanic
+    url: https://www.openml.org/data/download/61/titanic.csv
+    description: OpenML Titanic dataset (mixed types)
+    target: survived

@@ -1,0 +1,219 @@
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Datasets for t-tests, ANOVA, or chi-squared tests must be sourced from
+    verified UCI/OpenML URLs including UCI Adult, UCI Wine, and an OpenML example
+  claim_id: c_663c40f2
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - Task T005a'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Datasets_for_t-tests,_ANOVA,_or_chi-squared_tests_must_be_so
+  kind: entity_fact
+  raw_text: 'T005a Create data/manifests/datasets.yaml with verified UCI/OpenML URLs
+    for datasets containing continuous or categorical variables suitable for t-tests,
+    ANOVA, or chi-squared tests. Must include specific URLs: e.g., (UCI Adult), (UCI
+    Wine), and (OpenML example).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T18:53:25Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Independent test requires injecting true effects with mean shift of 1.0
+    standard deviations
+  claim_id: c_04f4f2db
+  context: 'Phase 5: User Story 3 - Power Analysis under Dependency - Independent
+    Test'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Independent Test: Inject true effects (mean shift delta=1.0 sigma) into
+    dependency-injected data and measure proportion of significant results vs. baseline.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T18:54:00Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: 10,000 replications must complete in less than 6 hours
+  claim_id: c_82926b1a
+  context: 'Phase N: Polish & Cross-Cutting Concerns - Task T032a'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/10,000_replications_must_complete_in_less_than_6_hours
+  kind: magnitude
+  raw_text: T032a [P] Profile code/simulation_runner.py and optimize vectorized operations
+    to ensure 10,000 replications complete in < 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T18:54:20Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Inject true effects with mean shift delta equal to 1.0 sigma into dependency-injected
+    data
+  claim_id: c_80db7de9
+  context: 'Phase 5: User Story 3 - Power Analysis under Dependency - Independent
+    Test: Inject true effects (mean shift delta=1.0 sigma) into dependency-injected
+    data and measure proportion of significant results vs. baseline'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Independent Test: Inject true effects (mean shift delta=1.0 sigma) into
+    dependency-injected data and measure proportion of significant results vs. baseline'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T19:04:07Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Ensure 10,000 replications complete in less than 6 hours
+  claim_id: c_1b24a6c5
+  context: 'Phase N: Polish & Cross-Cutting Concerns - T032a [P] Profile code/simulation_runner.py
+    and optimize vectorized operations to ensure 10,000 replications complete in <
+    6 hours'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_10,000_replications_complete_in_less_than_6_hours
+  kind: magnitude
+  raw_text: T032a Profile code/simulation_runner.py and optimize vectorized operations
+    to ensure 10,000 replications complete in < 6 hours
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T19:04:09Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: AR(1) resampling strength range 0 to 0.9 with 5% tolerance
+  claim_id: c_37032917
+  context: 'Implement code/dependency_injector.py (FR-003): Vectorized AR(1) resampling
+    function with tunable strength $r \in [0, 0.9]$. Validation: Verify injected autocorrelation
+    matches target $r$ within 5% tolerance.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Vectorized AR(1) resampling function with tunable strength r in [0, 0.9].
+    Validation: Verify injected autocorrelation matches target r within 5% tolerance.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T19:12:08Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Block bootstrap size range up to 50
+  claim_id: c_f61f75c0
+  context: 'Implement code/dependency_injector.py (FR-003): Block bootstrap function
+    for hierarchical dependency with tunable block size (range starting from a small
+    lower bound up to 50) and strength parameters.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Block bootstrap function for hierarchical dependency with tunable block
+    size (range starting from a small lower bound up to 50).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T19:16:56Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Dataset validation requires N >= 50
+  claim_id: c_9e2ff957
+  context: 'Implement code/data_loader.py (FR-001, Spec Assumptions): Dataset validation
+    logic to verify $N \ge 50$. If $N < 50$, skip the dataset and log a violation
+    to results/validation_report.json.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Dataset validation logic to verify N >= 50. If N < 50, skip the dataset
+    and log a violation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T19:18:41Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Logistic regression model AUC > 0.5
+  claim_id: c_26631f7e
+  context: 'Define the logic to train and save logistic regression models relating
+    error rate to dependency strength to results/logistic_models.pkl. Verification:
+    Ensure model convergence and AUC > 0.5 logic is defined.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure model convergence and AUC > 0.5 logic is defined for logistic regression
+    models.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T19:18:42Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Error rate threshold alpha=0.10
+  claim_id: c_abf54c8a
+  context: Implement threshold detection logic to report specific $r$ where error
+    rate exceeds $\alpha=0.10$ per AC-2.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Report specific r where error rate exceeds alpha=0.10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T19:19:45Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: Power analysis with mean shift delta=1.0 sigma
+  claim_id: c_49dcc5f2
+  context: 'Independent Test: Inject true effects (mean shift $\delta=1.0\sigma$)
+    into dependency-injected data and measure proportion of significant results vs.
+    baseline.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Inject true effects (mean shift delta=1.0 sigma) into dependency-injected
+    data and measure proportion of significant results vs. baseline.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T19:20:21Z'
+- artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
+  attempts: 1
+  canonical: 10000 replications complete in < 6 hours
+  claim_id: c_871be0ba
+  context: Profile code/simulation_runner.py and optimize vectorized operations to
+    ensure 10,000 replications complete in < 6 hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Optimize vectorized operations to ensure 10,000 replications complete
+    in < 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T19:22:35Z'

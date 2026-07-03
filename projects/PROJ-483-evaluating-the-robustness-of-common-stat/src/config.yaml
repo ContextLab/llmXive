@@ -1,0 +1,13 @@
+# Simulation Configuration
+seed: 42
+n_replications: 10000
+alpha: 0.05
+dependency_strengths: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+block_sizes: [5, 10, 20, 50]
+datasets:
+  - name: "adult"
+    url: "https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data"
+    target: "class"
+  - name: "wine"
+    url: "https://archive.ics.uci.edu/ml/machine-learning-databases/wine/wine.data"
+    target: "class"

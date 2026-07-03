@@ -1,0 +1,11 @@
+# Configuration for the Statistical Robustness Pipeline
+simulation:
+  seed: 42
+  n_replications: 10000
+  alpha: 0.05
+datasets:
+  manifest_path: "data/manifests/datasets.yaml"
+  min_samples: 50
+dependency:
+  ar1_range: [0.0, 0.3, 0.5, 0.7, 0.9]
+  block_sizes: [10, 20, 50]

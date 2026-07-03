@@ -1,0 +1,62 @@
+# Schema for simulation_config.yaml
+# Defines the structure and validation rules for the pipeline configuration.
+type: object
+required:
+  - simulation
+  - datasets
+  - dependency
+properties:
+  simulation:
+    type: object
+    required:
+      - seed
+      - n_replications
+      - alpha
+    properties:
+      seed:
+        type: integer
+        minimum: 0
+        description: Random seed for reproducibility
+      n_replications:
+        type: integer
+        minimum: 1
+        description: Number of Monte Carlo replications
+      alpha:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: Significance level for hypothesis tests
+  datasets:
+    type: object
+    required:
+      - manifest_path
+      - min_samples
+    properties:
+      manifest_path:
+        type: string
+        description: Relative path to the datasets manifest YAML file
+      min_samples:
+        type: integer
+        minimum: 2
+        description: Minimum number of samples required for a dataset to be included
+  dependency:
+    type: object
+    required:
+      - ar1_range
+      - block_sizes
+    properties:
+      ar1_range:
+        type: array
+        minItems: 1
+        items:
+          type: number
+          minimum: 0.0
+          maximum: 0.9
+        description: List of AR(1) correlation strengths to test
+      block_sizes:
+        type: array
+        minItems: 1
+        items:
+          type: integer
+          minimum: 1
+        description: List of block sizes for block bootstrap method

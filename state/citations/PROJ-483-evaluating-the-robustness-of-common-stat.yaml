@@ -31,36 +31,3 @@
   verification_status: verified
   verified_against_url: https://github.com/your-org/your-repo
   verified_at: '2026-07-03T16:20:48.048531Z'
-- artifact_hash: ff688732708ca24ab37b6a5317c041a3328c3937da7a9e56c2d2ffa204808517
-  artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://archive.ics.uci.edu/ml/machine-learning-databases/00235/`
-  verification_status: mismatch
-  verified_against_url: https://archive.ics.uci.edu/ml/machine-learning-databases/00235
-  verified_at: '2026-07-03T16:48:47.755940Z'
-- artifact_hash: ff688732708ca24ab37b6a5317c041a3328c3937da7a9e56c2d2ffa204808517
-  artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://archive.ics.uci.edu/ml/machine-learning-databases/00292/`
-  verification_status: mismatch
-  verified_against_url: https://archive.ics.uci.edu/ml/machine-learning-databases/00292
-  verified_at: '2026-07-03T16:48:47.755940Z'
-- artifact_hash: ff688732708ca24ab37b6a5317c041a3328c3937da7a9e56c2d2ffa204808517
-  artifact_path: projects/PROJ-483-evaluating-the-robustness-of-common-stat/specs/001-evaluating-the-robustness-of-common-stat/tasks.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: '1'
-  kind: url
-  value: https://www.openml.org/api/v1/data/1`
-  verification_status: pending
-  verified_against_url: https://www.openml.org/api/v1/data/1
-  verified_at: '2026-07-03T16:48:47.755940Z'
