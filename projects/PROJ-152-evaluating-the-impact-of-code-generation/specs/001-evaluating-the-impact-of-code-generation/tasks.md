@@ -24,8 +24,8 @@
 
 **Purpose**: Resolve requirement conflicts and formally amend scope before implementation begins.
 
-- [ ] T000a [P] **AMEND SPEC**: Update `spec.md` (FR-002, SC-005) to explicitly reflect the amended scope of N=30 prompts (10 CodeXGLUE + 20 handcrafted) and N=90 snippets. Document the resource constraints (GitHub Actions GB RAM, 6h limit) as the justification for this amendment.
-- [ ] T000b [P] **ALIGN PLAN**: Update `plan.md` (Summary) to reflect the N=30 scope and ensure consistency with the amended `spec.md`.
+- [X] T000a [P] **AMEND SPEC**: Update `spec.md` (FR-002, SC-005) to explicitly reflect the amended scope of N=30 prompts (10 CodeXGLUE + 20 handcrafted) and N=90 snippets. Document the resource constraints (GitHub Actions GB RAM, 6h limit) as the justification for this amendment. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+- [X] T000b [P] **ALIGN PLAN**: Update `plan.md` (Summary) to reflect the N=30 scope and ensure consistency with the amended `spec.md`.
 
 ---
 
@@ -74,7 +74,7 @@
 
 ### Implementation for User Story 1
 
-- [ ] T013 [P] [US1] Implement model loader in `code/generate.py` to load multiple models (StarCoder-Base 7B, CodeGen 2B, GPT-NeoX 1.3B) with 4-bit quantization (bitsandbytes CPU-compatible)
+- [ ] T013 [P] [US1] Implement model loader in `code/generate.py` to load multiple models (StarCoder-Base 7B, CodeGen 2B, GPT-NeoX 1.3B) with 4-bit (2505.14302, https://arxiv.org/abs/2505.14302) quantization (bitsandbytes CPU-compatible)
 - [ ] T014 [US1] Implement generation loop in `code/generate.py` to process 30 prompts (N=90 snippets total) using `data/prompts/manifest.json`, logging failures to `data/failures.log`
 - [ ] T015 [US1] Implement scanner runner in `code/analyze.py` to pipe snippets through Bandit (Python), Semgrep (security rules), CodeQL (Java/JS)
 - [ ] T016 [US1] Implement severity mapping in `code/metrics.py` to convert raw scanner labels to NIST-based ordinal rank using `data/mappings/nist_severity_map.yaml`
@@ -158,13 +158,13 @@
 - **Phase 0 (T000a, T000b)**: No dependencies - MUST be completed first to resolve spec conflicts and amend scope.
 - **Setup (Phase 1)**: No dependencies - can start after Phase 0.
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories.
-  - T005, T006, T007 must complete before T010.
-  - T013 must complete before T014.
-  - T008, T009 must complete before T015.
+ - T005, T006, T007 must complete before T010.
+ - T013 must complete before T014.
+ - T008, T009 must complete before T015.
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion.
-  - US1 (Phase 3) depends on Foundational.
-  - US2 (Phase 4) depends on US1 output (findings) and T022 (calibration).
-  - US3 (Phase 5) depends on US2 output (statistics).
+ - US1 (Phase 3) depends on Foundational.
+ - US2 (Phase 4) depends on US1 output (findings) and T022 (calibration).
+ - US3 (Phase 5) depends on US2 output (statistics).
 - **Polish (Final Phase)**: Depends on all desired user stories being complete.
 
 ### User Story Dependencies
@@ -231,9 +231,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
 3. Stories complete and integrate independently
 
 ---

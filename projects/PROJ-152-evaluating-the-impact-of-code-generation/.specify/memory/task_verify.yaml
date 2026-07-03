@@ -1,0 +1,8 @@
+? 'T000a [P] **AMEND SPEC**: Update `spec.md` (FR-002, SC-005) to explicitly reflect
+  the amended scope of N=30 prompts (10 CodeXGLUE + 20 handcrafted) and N=90 snippets.
+  Document the resource constraints (GitHub Actions GB RAM, 6h limit) as the justification
+  for this amendment. <!-- FAILED: unspecified -->'
+: 1
+? T001a [P] Create `projects/PROJ-152-evaluating-the-impact-of-code-generation/` directory
+  structure (`code/`, `data/`, `tests/`, `docs/`)
+: 1

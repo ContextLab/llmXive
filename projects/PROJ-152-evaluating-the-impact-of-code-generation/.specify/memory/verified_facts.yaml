@@ -1,0 +1,6 @@
+'|apply bit model quantization study':
+  quote: at 4-bit precision (W4A4), is not well understood. Existing QAT scaling laws
+    often ignore key
+  source_id: '2505.14302'
+  url: https://arxiv.org/abs/2505.14302
+  value: 4-bit
