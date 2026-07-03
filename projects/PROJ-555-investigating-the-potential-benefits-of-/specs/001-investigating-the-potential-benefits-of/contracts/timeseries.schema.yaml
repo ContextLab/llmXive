@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "NDVI Time Series Schema"
+description: "Schema for the processed NDVI and climate time series data"
+type: object
+properties:
+  site_id:
+    type: string
+    description: "Foreign key to Site"
+  date:
+    type: string
+    format: date
+    description: "Acquisition date (ISO 8601)"
+  ndvi:
+    type: number
+    minimum: -1.0
+    maximum: 1.0
+    description: "Normalized Difference Vegetation Index"
+  cloud_mask:
+    type: boolean
+    description: "True if the pixel was masked as cloud"
+  precipitation:
+    type: number
+    minimum: 0
+    description: "Daily precipitation in mm (from CHIRPS)"
+  temperature:
+    type: number
+    description: "Daily temperature in °C (from MODIS)"
+required:
+  - site_id
+  - date
+  - ndvi
+  - cloud_mask
+  - precipitation
+  - temperature
+additionalProperties: false

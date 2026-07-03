@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Site Metadata Schema"
+description: "Schema for the raw and processed site metadata CSV/Parquet"
+type: object
+properties:
+  site_id:
+    type: string
+    description: "Unique identifier for the site (e.g., SITE_001)"
+  site_type:
+    type: string
+    enum:
+      - "ecotourism"
+      - "control"
+    description: "Classification of the site"
+  latitude:
+    type: number
+    minimum: -90
+    maximum: 90
+    description: "Latitude in WGS84"
+  longitude:
+    type: number
+    minimum: -180
+    maximum: 180
+    description: "Longitude in WGS84"
+  biome:
+    type: string
+    description: "Biome classification (e.g., Tropical_Rainforest)"
+  pair_id:
+    type: string
+    description: "Identifier linking the site to its matched partner"
+  initial_severity:
+    type: number
+    description: "Absolute NDVI drop at the start of the deforestation event"
+required:
+  - site_id
+  - site_type
+  - latitude
+  - longitude
+  - biome
+  - pair_id
+  - initial_severity
+additionalProperties: false

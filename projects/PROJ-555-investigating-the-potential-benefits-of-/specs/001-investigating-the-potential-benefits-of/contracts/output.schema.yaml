@@ -1,0 +1,55 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Final Analysis Output Schema"
+description: "Schema for the final regression coefficients and sensitivity analysis results"
+type: object
+properties:
+  model_type:
+    type: string
+    enum:
+      - "lmm_fixed_effects"
+      - "sensitivity_revenue"
+      - "sensitivity_proxy"
+    description: "Type of analysis performed"
+  threshold_value:
+    type: number
+    description: "Revenue threshold used (e.g., 10000, 50000) or 0 for proxy analysis"
+  proxy_variable:
+    type: string
+    enum:
+      - "revenue"
+      - "visitor_count"
+      - "none"
+    description: "Proxy variable used in the model"
+  coefficient_ecotourism:
+    type: number
+    description: "Fixed effect estimate for ecotourism status"
+  ci_lower:
+    type: number
+    description: "Lower bound of the 95% confidence interval"
+  ci_upper:
+    type: number
+    description: "Upper bound of the 95% confidence interval"
+  p_value_raw:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Raw p-value"
+  p_value_adjusted:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Holm-Bonferroni adjusted p-value"
+  significant:
+    type: boolean
+    description: "True if p_value_adjusted < 0.05"
+required:
+  - model_type
+  - threshold_value
+  - proxy_variable
+  - coefficient_ecotourism
+  - ci_lower
+  - ci_upper
+  - p_value_raw
+  - p_value_adjusted
+  - significant
+additionalProperties: false
