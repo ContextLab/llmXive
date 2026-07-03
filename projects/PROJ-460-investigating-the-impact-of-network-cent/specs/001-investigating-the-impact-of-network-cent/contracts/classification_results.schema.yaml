@@ -35,6 +35,12 @@ properties:
     minimum: 0
     maximum: 1
     description: "Specificity for Control class."
+  baseline_accuracy:
+    type: number
+    description: "Baseline accuracy for comparison (computed, not hardcoded)."
+  is_significant_vs_baseline:
+    type: boolean
+    description: "True if accuracy significantly exceeds baseline."
 required:
   - fold
   - accuracy
@@ -42,4 +48,6 @@ required:
   - confusion_matrix
   - sensitivity
   - specificity
+  - baseline_accuracy
+  - is_significant_vs_baseline
 additionalProperties: false

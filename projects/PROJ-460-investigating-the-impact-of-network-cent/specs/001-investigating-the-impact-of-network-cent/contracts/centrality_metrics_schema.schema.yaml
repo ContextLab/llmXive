@@ -1,0 +1,32 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Centrality Metrics Schema"
+type: "object"
+properties:
+  participant_id:
+    type: "string"
+    description: "FK to Participant."
+  roi_id:
+    type: "integer"
+    minimum: 0
+    maximum: 399
+    description: "Region of Interest index (Schaefer 400)."
+  degree:
+    type: "number"
+    description: "Degree centrality value."
+  betweenness:
+    type: "number"
+    description: "Betweenness centrality value."
+  eigenvector:
+    type: "number"
+    description: "Eigenvector centrality value."
+  is_significant_null:
+    type: "boolean"
+    description: "True if metric exceeds null model distribution (95th percentile)."
+required:
+  - "participant_id"
+  - "roi_id"
+  - "degree"
+  - "betweenness"
+  - "eigenvector"
+  - "is_significant_null"
+additionalProperties: false

@@ -1,4 +1,4 @@
-resolved_at: '2026-07-02T17:21:05.624049+00:00'
+resolved_at: '2026-07-03T18:05:18.290553+00:00'
 datasets:
 - intent: ABIDE
   status: verified
@@ -45,31 +45,27 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://tandf.figshare.com/articles/journal_contribution/Identification_of_systemic_barriers_facilitators_and_adaptations_to_effective_record-keeping_a_South_African_primary_healthcare_clinic_case_study/32882343
+  - url: https://acs.figshare.com/articles/journal_contribution/Heterojunction-Enhanced_Interfacial_Evanescent-Tunable_Fiber_Optic_Probe_for_Amplification-free_CRISPR_Cas12a-Based_Rapid_and_Ultrasensitive_Detection_of_MPXV/32896950
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Bio-inspired_rapid_green_chemical_pretreatment_for_astaxanthin_extraction_utilizing_shrimp_waste_a_Taguchi_optimized_scalable_approach/32882340
+  - url: https://acs.figshare.com/articles/journal_contribution/How_Does_the_Nature_of_a_Nonmagnetic_Diluent_Affect_the_Magnetic_Properties_of_Antiferromagnets_High-Entropy_Wolframites_and_Other_Systems/32896949
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/Calibrated_Bayesian_Nonparametric_Tolerance_Intervals/32882339
+  - url: https://figshare.com/articles/preprint/Unification_In_Psychology_in_the_Lens_of_Bogdanov_s_Tectology_/32896919
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/Principled_Estimation_and_Prediction_with_Competing_Risks_a_Bayesian_Nonparametric_Approach/32242904
+  - url: https://tandf.figshare.com/articles/journal_contribution/Exploring_the_potential_of_cognitive_intra-individual_variability_in_HIV_care_and_research_in_adults_with_HIV_a_concept_analysis/32896922
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/A_new_closed-form_analytical_solution_for_PFG_shells_and_honeycomb_sandwich_plates_with_auxetic_cores_i_via_i_the_unified_formulation_and_boundary_discontinuous_Fourier_method/32882337
+  - url: https://figshare.com/articles/dataset/Wearing_Wellness_The_Influence_of_Athleisure_on_Healthy_Eating_Through_Emotional_Uplift/32896916
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://linkinghub.elsevier.com/retrieve/pii/S0898122120304454
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/15582775
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -81,27 +77,31 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/8068739
+  - url: https://zenodo.org/records/15582775
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://repositories.lib.utexas.edu/handle/2152/136801
+  - url: https://zenodo.org/records/581861
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.17632/rgpkft7828.1
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+  - url: https://doi.org/10.17632/rgpkft7828
+    source: datacite
+    status: unreachable
+    reason: 'reachability failed: HTTP 404'
+  - url: https://zenodo.org/records/21158600
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://toubkal.imist.ma/handle/123456789/15255
+  - url: https://zenodo.org/records/21158600
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21105740
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21105740
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://toubkal.imist.ma/handle/123456789/27079
+  - url: https://osf.io/8rq4c/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -142,24 +142,36 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://tandf.figshare.com/articles/journal_contribution/Crash_severity_determinants_in_Saudi_Arabia_s_Eastern_Province_Evidence_from_logistic_regression_and_neural_networks/32882350
+  - url: https://acs.figshare.com/articles/journal_contribution/Heterojunction-Enhanced_Interfacial_Evanescent-Tunable_Fiber_Optic_Probe_for_Amplification-free_CRISPR_Cas12a-Based_Rapid_and_Ultrasensitive_Detection_of_MPXV/32896950
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Vegetation_greening_decouples_terrestrial_carbon_water_cycles_through_contrasting_effects_on_water_availability/32882319
+  - url: https://acs.figshare.com/articles/journal_contribution/How_Does_the_Nature_of_a_Nonmagnetic_Diluent_Affect_the_Magnetic_Properties_of_Antiferromagnets_High-Entropy_Wolframites_and_Other_Systems/32896949
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Identification_of_systemic_barriers_facilitators_and_adaptations_to_effective_record-keeping_a_South_African_primary_healthcare_clinic_case_study/32882343
+  - url: https://figshare.com/articles/preprint/Unification_In_Psychology_in_the_Lens_of_Bogdanov_s_Tectology_/32896919
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/Bio-inspired_rapid_green_chemical_pretreatment_for_astaxanthin_extraction_utilizing_shrimp_waste_a_Taguchi_optimized_scalable_approach/32882340
+  - url: https://tandf.figshare.com/articles/journal_contribution/Exploring_the_potential_of_cognitive_intra-individual_variability_in_HIV_care_and_research_in_adults_with_HIV_a_concept_analysis/32896922
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/dataset/Calibrated_Bayesian_Nonparametric_Tolerance_Intervals/32882339
+  - url: https://figshare.com/articles/dataset/Wearing_Wellness_The_Influence_of_Athleisure_on_Healthy_Eating_Through_Emotional_Uplift/32896916
     source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7797278
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7358082
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7767267
+    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/7642049
@@ -170,35 +182,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7642195
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7767267
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7676141
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://uregina.scholaris.ca/handle/10294/14971
+  - url: https://osf.io/4er6k/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://uregina.scholaris.ca/handle/10294/5735
+  - url: https://osf.io/v5pd6/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://uregina.scholaris.ca/handle/10294/8965
+  - url: https://osf.io/xdhtk/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://pfiet.ru/article/view/5796
+  - url: https://osf.io/jza4y/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://uregina.scholaris.ca/handle/10294/16009
+  - url: https://osf.io/y6zvm/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

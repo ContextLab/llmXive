@@ -1,68 +1,78 @@
 # Research: Investigating Network Centrality in ASD Resting-State fMRI
 
-## Dataset Strategy
+## 1. Dataset Strategy
 
-The analysis relies on the **ABIDE Preprocessed** initiative, hosted on **OpenNeuro**. This provides resting-state fMRI data that has already been pre-processed using fMRIPrep, satisfying FR-002 without requiring infeasible compute in CI.
+### Verified Sources
+The project relies on the ABIDE (Autism Brain Imaging Data Exchange) dataset. Per the "# Verified datasets" block, the following sources are available and verified. Note: The provided URLs point to specific parquet files related to LLM leaderboards or generic ASD JSON files, which **do not** contain the raw fMRI time-series data required for this study (resting-state BOLD signals).
 
-**Verified Source**:
-- **Dataset**: ABIDE Preprocessed (fMRIPrep derivatives)
-- **URL**: `https://openneuro.org/datasets/ds0002800` (or equivalent verified ABIDE Preprocessed dataset)
-- **Loader**: `nilearn.datasets.fetch_openneuro_dataset` or direct `bids` download.
+* **ABIDE (Parquet)**: `
+ * *Status*: **UNSUITABLE**. This file contains LLM evaluation metrics, not fMRI data.
+* **ABIDE (Parquet)**: `
+ * *Status*: **UNSUITABLE**. LLM evaluation metrics.
+* **ASD (JSON)**: `
+ * *Status*: **UNSUITABLE**. Generic JSON, likely not structured fMRI data.
 
-| Variable | Source / Loader | Verification Status | Notes |
-| :--- | :--- | :--- | :--- |
-| **fMRI Time-series** | OpenNeuro ds0002800 (Pre-processed NIfTI) | **VERIFIED** | fMRIPrep derivatives (spatial normalization, motion correction applied). |
-| **Phenotypic (Diagnosis)** | OpenNeuro ds0002800 (phenotypic CSV) | **VERIFIED** | Requires Age, Sex, Diagnosis (ASD/Control). |
-| **Atlas (Schaefer 400)** | `nilearn.datasets.fetch_atlas_surf_destrieux` (fallback) or local file | **Standard** | Standard neuroimaging atlas, no external URL required. |
+**Critical Gap Identified**: The verified dataset block **does not contain a source for raw resting-state fMRI data** (NIfTI files) or preprocessed time-series data required for FR-001 (Download) and FR-002 (Preprocessing). The spec assumes access to ABIDE raw data, but the verified list only provides LLM leaderboard details and generic JSONs.
 
-**Critical Gap Resolution**: The previous plan's reliance on synthetic data is **removed**. The pipeline now strictly requires real, pre-processed data. If the OpenNeuro dataset is unavailable or the download fails, the pipeline **fails gracefully** with a clear error message. This ensures scientific validity and prevents circular validation.
+**Resolution Strategy**:
+1. **Immediate Action**: The plan **cannot** proceed with downloading raw fMRI data from the provided URLs as they do not contain the necessary neuroimaging data.
+2. **Pipeline Halt**: The scientific analysis pipeline is **HALTED** at the Data Acquisition phase. **No synthetic data will be generated or used to simulate results.**
+3. **Requirement for Progress**: To proceed, the `# Verified datasets` block must be updated with a valid source for raw ABIDE fMRI data (e.g., a verified HuggingFace dataset containing NIfTI files, or a direct link to the ABIDE repository).
+4. **No Synthetic Fallback**: Synthetic data is strictly prohibited for scientific results. It may only be used in unit tests to verify code logic, not to answer the research question.
 
-## Methodological Rationale
+### Variable Fit Check
+* **Required**: Raw fMRI NIfTI, Diagnosis (ASD/Control), Age, Sex, Motion Parameters.
+* **Available (Verified)**: None of the verified URLs contain these variables.
+* **Action**: The pipeline cannot proceed until a verified source containing these variables is identified and added to the dataset list.
 
-### 1. Preprocessing (FR-002)
-*   **Method**: fMRIPrep is the gold standard.
-*   **Decision**: The plan **does not run fMRIPrep in CI**. Instead, it downloads **pre-processed derivatives** from OpenNeuro (ABIDE Preprocessed).
-*   **Rationale**: This satisfies the spec's requirement for fMRIPrep-processed data (FR-002) while ensuring CI feasibility (2 CPU, 7GB RAM). The derivatives are the direct output of fMRIPrep, preserving construct validity.
-*   **Provenance**: The fMRIPrep version and parameters are extracted from the BIDS sidecars (JSON) of the downloaded derivatives and recorded in `data/derived/preprocessing_log.yaml`.
+### Scientific Validity
+* **Hypothesis**: ASD group will exhibit altered network centrality (degree, betweenness, eigenvector) compared to controls in specific brain regions.
+* **Data Requirement**: This hypothesis can **only** be tested with real biological data. Synthetic data, by definition, cannot validate this biological hypothesis.
+* **Result Validity**: Any results generated from synthetic data are **illustrative only** and do not constitute scientific findings. The project will not generate or report any scientific results until real data is acquired.
 
-### 2. Graph Construction (FR-003, FR-006)
-*   **Parcellation**: Schaefer 400 atlas.
-*   **Adjacency**: Pearson correlation of time-series.
-*   **Thresholding**: Top 15% edges (binary).
-* **Sensitivity**: Sweep {[deferred], [deferred], [deferred]} (FR-009).
-*   **Connectivity Check**: If the graph is disconnected after thresholding, the system will log a warning and proceed, or slightly lower the threshold dynamically (logged) to ensure graph connectivity, as centrality metrics (especially betweenness) are undefined for disconnected components.
+## 2. Methodological Rigor
 
-### 3. Centrality Computation (FR-004)
-*   **Metrics**: Degree, Betweenness, Eigenvector.
-*   **Library**: `networkx`.
-*   **Collinearity (FR-010)**: These metrics are inherently correlated. The plan explicitly avoids multivariate regression claiming "independent effects." Instead, it will report:
-    *   Pairwise correlations between metrics (stored in `CollinearityDiagnostics`).
-    *   Univariate t-tests for each metric.
-    *   A descriptive summary of how they co-vary.
-    *   **Note on Coupling**: In network neuroscience, degree, betweenness, and eigenvector centrality are mathematically coupled (e.g., high degree nodes often have high betweenness). The univariate approach is used to avoid overclaiming independent effects, but the collinearity diagnostics are explicitly reported to frame the results descriptively.
+### Statistical Approach
+* **Hypothesis**: ASD group will exhibit altered network centrality (degree, betweenness, eigenvector) compared to controls in specific brain regions.
+* **Test**: Two-sample t-tests for each node and metric.
+* **Correction**: False Discovery Rate (FDR) correction (Benjamini-Hochberg) applied across all tests (3 metrics × 400 nodes = 1200 tests).
+* **Causal Framing**: Observational study. Claims will be restricted to "associational differences." No causal inference will be made.
+* **Collinearity**: Degree, betweenness, and eigenvector centrality are mathematically correlated. The plan will **not** run a multivariate regression claiming independent effects. Instead, it will report pairwise correlations and descriptive statistics, framing findings as "jointly altered network topology."
 
-### 4. Statistical Analysis (FR-005)
-*   **Test**: Two-sample t-test (ASD vs Control) for each node and metric.
-*   **Correction**: Benjamini-Hochberg FDR (q < 0.05).
-*   **Power**: Acknowledged as limited if N < 50 per group. Power calculations are deferred to the implementation phase (`[deferred]`).
-*   **Causal Framing**: All claims are **associational**. No causal inference is made.
+### Power & Sample Size
+* **Assumption**: Spec requires ≥100 participants per group.
+* **Reality**: Power analysis is contingent on the actual number of participants available from the verified ABIDE source.
+* **Limitation**: Acknowledged that power depends on effect size, which is [deferred] until real data is acquired.
 
-### 5. Classification (FR-007)
-*   **Model**: Logistic Regression (L2 regularization).
-*   **Validation**: 5-fold Cross-Validation.
-*   **Metrics**: Accuracy, AUC, Confusion Matrix.
-*   **Feasibility**: Fully CPU-tractable.
+### Sensitivity Analysis (FR-009)
+* **Method**: Sweep correlation threshold at varying percentages of edge weights.
+* **Metrics**: Count of significant nodes at each threshold; Jaccard similarity of significant node sets across thresholds.
+* **Rationale**: Ensures findings are not artifacts of a single arbitrary threshold.
+* **Constraint**: This analysis is **BLOCKED** until real connectivity matrices are derived from real fMRI data. **Synthetic data cannot be used to validate threshold sensitivity for biological findings.**
 
-### 6. Visualization (FR-008)
-*   **Tool**: `nilearn.plotting.plot_surf_stat_map`.
-*   **Input**: Stat maps (t-values) projected onto the fsaverage surface.
-*   **Feasibility**: `nilearn` runs on CPU.
+### Collinearity Diagnostics (FR-010)
+* **Method**: Report pairwise correlations between degree, betweenness, and eigenvector centrality.
+* **Rationale**: Centrality metrics are mathematically related; claiming independent effects is invalid.
+* **Constraint**: This analysis is **BLOCKED** until real centrality metrics are computed from real fMRI data. **Synthetic data cannot be used to validate collinearity structure for real-world application.**
 
-## Decision Log
+## 3. Compute Feasibility
 
-| Decision | Rationale | Impact |
-| :--- | :--- | :--- |
-| **Pre-processed Derivatives (OpenNeuro)** | Raw fMRIPrep is infeasible in CI; OpenNeuro provides verified fMRIPrep derivatives. | Satisfies FR-002 and CI constraints; ensures construct validity. |
-| **No Synthetic Data** | Synthetic data invalidates biological claims and creates circular validation. | Pipeline fails gracefully if real data is unavailable; ensures scientific soundness. |
-| **Univariate Analysis Only** | Centrality metrics are collinear. | Prevents statistical overclaiming; satisfies FR-010 via `CollinearityDiagnostics`. |
-| **FDR Correction** | >1200 tests (400 nodes * 3 metrics). | Essential for statistical validity (SC-003). |
+* **Hardware**: GitHub Actions Free Tier (multi-core CPU, ample RAM).
+* **Bottlenecks**: fMRIPrep is memory intensive.
+* **Mitigation**:
+ * **Real Data Only**: The pipeline will only attempt to run fMRIPrep on real data if a valid source is provided.
+ * **Batch Processing**: If memory constraints are encountered, the pipeline will process subjects in batches.
+ * **Subset Strategy**: If full sample processing is infeasible, a representative subset will be processed, with power limitations explicitly noted.
+ * **No Synthetic Data**: Synthetic data is not a solution to compute constraints for this research question.
+* **Conclusion**: The pipeline is feasible on CPU-only runners **only if** a valid real data source is provided and memory constraints are managed via batching or subset selection. Without real data, the pipeline cannot run.
+
+## 4. Risks & Mitigations
+
+| Risk | Impact | Mitigation |
+|:--- |:--- |:--- |
+| **Missing Real fMRI Data** | Pipeline cannot run on real data. | **Pipeline Halt**. No scientific results will be generated. Action required: Update verified datasets block. |
+| **fMRIPrep Memory Overflow** | Crash on 7GB RAM. | Process subjects in batches; reduce sample size if necessary; acknowledge power limitations. |
+| **Collinearity Misinterpretation** | Invalid scientific claims. | Enforce descriptive reporting; no multivariate regression on centrality metrics. |
+| **FDR Correction Over-correction** | No significant findings. | Report uncorrected p-values and effect sizes alongside FDR; discuss power. |
+| **Unverified Data Source** | Invalid results. | Strictly use only sources listed in the `# Verified datasets` block. |
+| **Synthetic Data Temptation** | Invalid scientific results. | **Strict Prohibition**: No synthetic data for scientific results. Unit tests only. |

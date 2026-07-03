@@ -1,11 +1,33 @@
-- artifact_hash: 235964ba5f51d84abe7e77daef059416f3d5d6dd27119706193e4d27aa08a7da
+- artifact_hash: 66335370c0c69091ccfd8c8f4a1d147da0904a7380d5a804218ac578865b404c
   artifact_path: projects/PROJ-460-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: OpenNeuro
+  fetched_title: details_harness|arc:challenge|25_2024-01-13T15-21-36.768833.parquet
   kind: url
-  value: https://openneuro.org/datasets/ds0002800`
+  value: https://huggingface.co/datasets/open-llm-leaderboard-old/details_abideen__NexoNimbus-7B/resolve/main/2024-01-13T15-21-36.768833/details_harness|arc:challenge|25_2024-01-13T15-21-36.768833.parquet`
   verification_status: verified
-  verified_against_url: https://openneuro.org/datasets/ds0002800
-  verified_at: '2026-07-02T17:36:05.404904Z'
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/65a2ab0cd0e350dbc983f38a/a6d6976cf8dfce8dea54e53cae49265f15e69800d01d4f03a0deadca0bf5caa6?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27details_harness%25257Carc%25253Achallenge%25257C25_2024-01-13T15-21-36.768833.parquet%3B+filename%3D%22details_harness%257Carc%253Achallenge%257C25_2024-01-13T15-21-36.768833.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1783106453&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjVhMmFiMGNkMGUzNTBkYmM5ODNmMzhhL2E2ZDY5NzZjZjhkZmNlOGRlYTU0ZTUzY2FlNDkyNjVmMTVlNjk4MDBkMDFkNGYwM2EwZGVhZGNhMGJmNWNhYTZcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGV0YWlsc19oYXJuZXNzJTI1MjU3Q2FyYyUyNTI1M0FjaGFsbGVuZ2UlMjUyNTdDMjVfMjAyNC0wMS0xM1QxNS0yMS0zNi43Njg4MzMucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMmRldGFpbHNfaGFybmVzcyUyNTdDYXJjJTI1M0FjaGFsbGVuZ2UlMjU3QzI1XzIwMjQtMDEtMTNUMTUtMjEtMzYuNzY4ODMzLnBhcnF1ZXQlMjIlM0ImdXNlcl9pZD1wdWJsaWMmWC1YZXQtQ2FzLVVpZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzEwNjQ1M319fV19&Signature=MEYCIQCopoy%7Ehlcbbg6awQjxx6o%7ErvInJ9L47naDt3dCAf44ogIhAI7wBeG6X9DNFhtVmFOEa3ak9KtgkLwumqXgJkiE9uAb&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-03T18:20:53.084016Z'
+- artifact_hash: 66335370c0c69091ccfd8c8f4a1d147da0904a7380d5a804218ac578865b404c
+  artifact_path: projects/PROJ-460-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: details_harness|arc:challenge|25_2024-01-14T07-48-44.681252.parquet
+  kind: url
+  value: https://huggingface.co/datasets/open-llm-leaderboard-old/details_abideen__NexoNimbus-MoE-2x7B/resolve/main/2024-01-14T07-48-44.681252/details_harness|arc:challenge|25_2024-01-14T07-48-44.681252.parquet`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/65a392631051c2b0dbc4712d/299ddba9aa263c6641cefa6af7903a1fa0fd64f2f436b1de2424dffbd52e70d9?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27details_harness%25257Carc%25253Achallenge%25257C25_2024-01-14T07-48-44.681252.parquet%3B+filename%3D%22details_harness%257Carc%253Achallenge%257C25_2024-01-14T07-48-44.681252.parquet%22%3B&X-Xet-Cas-Uid=public&user_id=public&Expires=1783106454&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjVhMzkyNjMxMDUxYzJiMGRiYzQ3MTJkLzI5OWRkYmE5YWEyNjNjNjY0MWNlZmE2YWY3OTAzYTFmYTBmZDY0ZjJmNDM2YjFkZTI0MjRkZmZiZDUyZTcwZDlcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGV0YWlsc19oYXJuZXNzJTI1MjU3Q2FyYyUyNTI1M0FjaGFsbGVuZ2UlMjUyNTdDMjVfMjAyNC0wMS0xNFQwNy00OC00NC42ODEyNTIucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMmRldGFpbHNfaGFybmVzcyUyNTdDYXJjJTI1M0FjaGFsbGVuZ2UlMjU3QzI1XzIwMjQtMDEtMTRUMDctNDgtNDQuNjgxMjUyLnBhcnF1ZXQlMjIlM0ImWC1YZXQtQ2FzLVVpZD1wdWJsaWMmdXNlcl9pZD1wdWJsaWMiLCJDb25kaXRpb24iOnsiRGF0ZUxlc3NUaGFuIjp7IkVwb2NoVGltZSI6MTc4MzEwNjQ1NH19fV19&Signature=MEQCIBNguALJb3nQR9%7EERkLRLDss8fjp1AhmquyBW8eY7yDcAiAhpILElBxKMw5qKrCwiVQKCNLUXU7ZUeEQrmNXPpNBDg__&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-03T18:20:53.084016Z'
+- artifact_hash: 66335370c0c69091ccfd8c8f4a1d147da0904a7380d5a804218ac578865b404c
+  artifact_path: projects/PROJ-460-investigating-the-impact-of-network-cent/specs/001-investigating-the-impact-of-network-cent/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: datasets.json
+  kind: url
+  value: https://huggingface.co/datasets/huggingartists/asdfgfa/resolve/main/datasets.json`
+  verification_status: verified
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f1834f3/1d6a0e325eff49b2c1a0162e0fc5959c6ce86052b3b6276ca48eda1ff66c0362?X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27datasets.json%3B+filename%3D%22datasets.json%22%3B&response-content-type=application%2Fjson&user_id=public&Expires=1783106456&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgzNGYzLzFkNmEwZTMyNWVmZjQ5YjJjMWEwMTYyZTBmYzU5NTljNmNlODYwNTJiM2I2Mjc2Y2E0OGVkYTFmZjY2YzAzNjJcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3ZGF0YXNldHMuanNvbiUzQitmaWxlbmFtZSUzRCUyMmRhdGFzZXRzLmpzb24lMjIlM0ImcmVzcG9uc2UtY29udGVudC10eXBlPWFwcGxpY2F0aW9uJTJGanNvbiZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzgzMTA2NDU2fX19XX0_&Signature=MEUCIQCz5lvvaos9L4XZg5EuHOIiHtM89PWX0oaCtviixAku0QIgOw7Cmtq1EgdgNqrZewxiKkcr65KGQFYLgwK5xD6kjfM_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
+  verified_at: '2026-07-03T18:20:53.084016Z'

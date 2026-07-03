@@ -1,0 +1,27 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Threshold Sensitivity Schema
+description: Schema for sensitivity analysis results across different correlation thresholds.
+type: object
+properties:
+  threshold_percentile:
+    type: number
+    description: The percentile threshold used (e.g., 10, 15, 20).
+  significant_node_count:
+    type: integer
+    description: Number of nodes significant at this threshold.
+  significant_node_indices:
+    type: array
+    items:
+      type: integer
+    description: List of significant ROI indices.
+  jaccard_similarity_vs_reference:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: Jaccard similarity of this set vs the reference set (e.g., 15% threshold).
+required:
+  - threshold_percentile
+  - significant_node_count
+  - significant_node_indices
+  - jaccard_similarity_vs_reference
+additionalProperties: false

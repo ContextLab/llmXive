@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ABIDE Participant Metadata Schema"
+type: "object"
+properties:
+  participant_id:
+    type: "string"
+    description: "Unique identifier for the participant (e.g., 'ABIDE_001')."
+  diagnosis:
+    type: "string"
+    enum:
+      - "ASD"
+      - "Control"
+    description: "Diagnosis label."
+  age:
+    type: "number"
+    description: "Age in years."
+  sex:
+    type: "string"
+    enum:
+      - "M"
+      - "F"
+    description: "Sex assigned at birth."
+  motion_mean:
+    type: "number"
+    description: "Mean framewise displacement in mm."
+  preprocessing_status:
+    type: "string"
+    enum:
+      - "success"
+      - "failed"
+      - "skipped"
+    description: "Status of the fMRIPrep pipeline."
+required:
+  - "participant_id"
+  - "diagnosis"
+  - "age"
+  - "sex"
+  - "motion_mean"
+  - "preprocessing_status"
+additionalProperties: false

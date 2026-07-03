@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Group Comparison Results Schema"
+type: "object"
+properties:
+  roi_id:
+    type: "integer"
+    description: "Region of Interest index."
+  metric_type:
+    type: "string"
+    enum:
+      - "degree"
+      - "betweenness"
+      - "eigenvector"
+    description: "Type of centrality metric."
+  mean_asd:
+    type: "number"
+    description: "Mean value in ASD group (adjusted for covariates)."
+  mean_control:
+    type: "number"
+    description: "Mean value in Control group (adjusted for covariates)."
+  t_statistic:
+    type: "number"
+    description: "T-test statistic (or F-statistic for ANCOVA)."
+  p_value:
+    type: "number"
+    description: "Raw p-value."
+  q_value:
+    type: "number"
+    description: "FDR-corrected q-value."
+  significant:
+    type: "boolean"
+    description: "True if q_value < 0.05."
+  effect_size:
+    type: "number"
+    description: "Cohen's d or partial eta-squared."
+required:
+  - "roi_id"
+  - "metric_type"
+  - "mean_asd"
+  - "mean_control"
+  - "t_statistic"
+  - "p_value"
+  - "q_value"
+  - "significant"
+  - "effect_size"
+additionalProperties: false

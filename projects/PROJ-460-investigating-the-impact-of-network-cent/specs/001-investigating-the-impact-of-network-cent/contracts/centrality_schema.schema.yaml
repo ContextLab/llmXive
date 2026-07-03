@@ -1,0 +1,40 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Centrality Metrics Schema
+description: Schema for centrality metrics output (degree, betweenness, eigenvector) per ROI per participant.
+type: object
+properties:
+  participant_id:
+    type: string
+    description: Unique identifier for the participant.
+  diagnosis:
+    type: string
+    enum:
+      - ASD
+      - Control
+    description: Diagnosis label.
+  roi_index:
+    type: integer
+    minimum: 0
+    maximum: 399
+    description: Index of the brain region (0-399 for Schaefer 400).
+  degree_centrality:
+    type: number
+    description: Degree centrality value for this ROI.
+  betweenness_centrality:
+    type: number
+    description: Betweenness centrality value for this ROI.
+  eigenvector_centrality:
+    type: number
+    description: Eigenvector centrality value for this ROI.
+  motion_mean:
+    type: number
+    description: Mean framewise displacement for this participant.
+required:
+  - participant_id
+  - diagnosis
+  - roi_index
+  - degree_centrality
+  - betweenness_centrality
+  - eigenvector_centrality
+  - motion_mean
+additionalProperties: false

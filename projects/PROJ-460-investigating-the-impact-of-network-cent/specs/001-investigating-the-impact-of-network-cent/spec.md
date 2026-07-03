@@ -13,7 +13,7 @@ The system MUST download resting-state fMRI data from ABIDE, preprocess it using
 
 **Why this priority**: Without reliable preprocessing, all downstream analyses (centrality metrics, group comparisons) are invalid. This is the foundational data pipeline that all other functionality depends on.
 
-**Independent Test**: Can be fully tested by running the preprocessing pipeline on a sample of 5 participants and verifying output files exist with expected dimensions (timepoints × ROIs).
+**Independent Test**: Can be fully tested by running the preprocessing pipeline on a sample of participants and verifying output files exist with expected dimensions (timepoints × ROIs).
 
 **Acceptance Scenarios**:
 
@@ -28,7 +28,7 @@ The system MUST compute degree, betweenness, and eigenvector centrality for each
 
 **Why this priority**: This is the core scientific analysis answering the research question. Without this, the project cannot produce findings about centrality differences.
 
-**Independent Test**: Can be fully tested by running centrality computation on a preprocessed subset of 10 participants and verifying that centrality values are calculated for all 400 ROIs with expected ranges.
+**Independent Test**: Can be fully tested by running centrality computation on a preprocessed subset of participants and verifying that centrality values are calculated for all 400 ROIs with expected ranges.
 
 **Acceptance Scenarios**:
 
@@ -56,7 +56,7 @@ The system MUST train a logistic regression classifier on centrality features to
 
 - What happens when ABIDE data contains participants with missing diagnosis labels? → System excludes these participants and logs the count
 - How does system handle participants with excessive motion (>3mm translation)? → System flags and excludes these participants from analysis
-- What happens when the correlation threshold creates a disconnected graph? → System adjusts threshold to top 15% edges as specified, and if still disconnected, logs a warning
+- What happens when the correlation threshold creates a disconnected graph? → System adjusts threshold to the top percentile of edges as specified, and if still disconnected, logs a warning
 - How does system handle participants with age/sex covariate missing values? → System excludes these participants and reports exclusion count
 
 ## Requirements *(mandatory)*
@@ -104,7 +104,7 @@ The system MUST train a logistic regression classifier on centrality features to
 - The analysis is observational (no random assignment); therefore all findings are framed as ASSOCIATIONAL, not causal
 - Multiple-comparison correction is required because ≥3 centrality metrics are tested across ≥400 ROIs (total tests >1200)
 - The correlation threshold is set to a community-standard default for binary graph construction in functional connectivity analysis.
-- The 15% threshold requires sensitivity analysis; the justification is that this is a standard range in the literature, and sweeping {[deferred], [deferred], [deferred]} tests robustness
+- The chosen threshold requires sensitivity analysis; the justification is that this is a standard range in the literature, and sweeping {[deferred], [deferred], [deferred]} tests robustness
 - Sample size/power is [deferred]; the analysis will proceed with available ABIDE participants and report power limitations if sample is <50 per group
 - All methods are CPU-tractable: NetworkX centrality computation, scikit-learn logistic regression, and Nilearn visualization run within 6 hours on 2 CPU cores, 7GB RAM
 - ABIDE data download is permitted under the project's research use license; no commercial use is required

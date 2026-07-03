@@ -1,52 +1,40 @@
 # Data Model: Investigating Network Centrality in ASD Resting-State fMRI
 
-## Overview
+## 1. Entity-Relationship Overview
 
-This document defines the data structures, schemas, and flow for the project. All artifacts are versioned and checksummed.
+The project data model consists of three primary layers: **Raw/Preprocessed Inputs**, **Derived Network Metrics**, and **Statistical Outputs**.
 
-## Entity Definitions
+### Key Entities
 
-### Participant
-Represents a single subject in the study.
-*   **Attributes**:
-    *   `subject_id`: Unique string identifier (e.g., "ABIDE_001").
-    *   `diagnosis`: Enum {"ASD", "Control"}.
-    *   `age`: Integer (years).
-    *   `sex`: Enum {"M", "F"}.
-    *   `motion_mean_fd`: Float (Mean Framewise Displacement).
-    *   `exclusion_reason`: String (null if included).
+1.  **Participant**: Represents an individual subject.
+    *   `id`: Unique string identifier.
+    *   `diagnosis`: Enum (`ASD`, `Control`).
+    *   `age`: Float.
+    *   `sex`: Enum (`M`, `F`).
+    *   `motion_mean`: Float (mean framewise displacement).
+    *   `status`: Enum (`valid`, `excluded_motion`, `excluded_missing_label`).
 
-### TimeSeries
-Preprocessed fMRI signal for a single participant.
-*   **Attributes**:
-    *   `subject_id`: String.
-    *   `roi_count`: Integer (400).
-    *   `timepoints`: Integer.
-    *   `data`: Float32 array (shape: `timepoints` x `roi_count`).
-    *   `source`: String (e.g., "OpenNeuro ds0002800").
+2.  **TimeSeries**: Preprocessed fMRI signal.
+    *   `participant_id`: FK to Participant.
+    *   `roi_indices`: Array of integers (0 to 399).
+    *   `timepoints`: Integer (e.g., 300).
+    *   `data`: 2D Array (timepoints × 400).
 
-### ConnectivityMatrix
-Pearson correlation matrix between ROIs.
-*   **Attributes**:
-    *   `subject_id`: String.
-    *   `matrix`: Float32 array (shape: `roi_count` x `roi_count`).
- * `threshold`: Float (e.g., 0.15 for top [deferred]).
-    *   `is_binary`: Boolean.
+3.  **ConnectivityMatrix**: Functional connectivity graph.
+    *   `participant_id`: FK to Participant.
+    *   `matrix`: 2D Array (400 × 400), symmetric, values ∈ [-1, 1].
+    *   `threshold`: Float (correlation threshold used).
 
-### CentralityMetrics
-Graph topology measures per node.
-*   **Attributes**:
-    *   `subject_id`: String.
-    *   `degree`: Float array (length 400).
-    *   `betweenness`: Float array (length 400).
-    *   `eigenvector`: Float array (length 400).
-    *   `threshold`: Float.
+4.  **CentralityMetrics**: Network topology measures.
+    *   `participant_id`: FK to Participant.
+    *   `roi_index`: Integer (0 to 399).
+    *   `degree`: Float.
+    *   `betweenness`: Float.
+    *   `eigenvector`: Float.
 
-### GroupComparisonResult
-Statistical test results.
-*   **Attributes**:
-    *   `metric_name`: String (e.g., "degree").
+5.  **GroupComparison**: Statistical test results.
     *   `roi_index`: Integer.
+    *   `metric_type`: Enum (`degree`, `betweenness`, `eigenvector`).
     *   `mean_asd`: Float.
     *   `mean_control`: Float.
     *   `t_statistic`: Float.
@@ -54,70 +42,28 @@ Statistical test results.
     *   `q_value`: Float (FDR corrected).
     *   `significant`: Boolean.
 
-### ClassificationResult
-Model performance metrics.
-*   **Attributes**:
-    *   `fold`: Integer.
-    *   `accuracy`: Float.
-    *   `auc`: Float.
-    *   `confusion_matrix`: Array of 4 integers.
+## 2. File Formats & Storage
 
-### PreprocessingLog (NEW)
-Records the provenance of the pre-processed data used.
-*   **Attributes**:
-    *   `source_dataset`: String (e.g., "OpenNeuro ds0002800").
-    *   `fmriprep_version`: String (extracted from BIDS sidecars).
-    *   `total_attempts`: Integer.
-    *   `successful_outputs`: Integer.
-    *   `excluded_count`: Integer.
-    *   `exclusion_reasons`: Array of strings.
-    *   `success_rate`: Float (calculated: `successful_outputs` / `total_attempts`).
-    *   `subset_size`: Integer (number of participants processed in this run).
+*   **Raw Data**: `.nii.gz` (NIfTI) - stored in `data/raw/`.
+*   **TimeSeries**: `.npy` (NumPy) or `.parquet` (Pandas) - stored in `data/processed/timeseries/`.
+*   **Connectivity Matrices**: `.npy` (compressed) - stored in `data/processed/connectivity/`.
+*   **Centrality Metrics**: `.parquet` (wide format: rows=participants, cols=metrics_per_roi) - stored in `data/processed/centrality/`.
+*   **Statistical Results**: `.json` (structured) - stored in `data/outputs/stats/`.
+*   **Visualizations**: `.png` - stored in `data/outputs/figures/`.
 
-### CentralityCompletenessReport (NEW)
-Records the completeness of centrality computation.
-*   **Attributes**:
-    *   `total_participants`: Integer.
-    *   `participants_with_full_data`: Integer.
-    *   `total_rois`: Integer (400).
-    *   `rois_with_full_data`: Integer.
-    *   `completeness_rate`: Float (calculated: `participants_with_full_data` / `total_participants`).
+## 3. Data Flow Diagram
 
-### CollinearityDiagnostics (NEW)
-Documents pairwise correlations between centrality metrics.
-*   **Attributes**:
-    *   `metric_pair`: String (e.g., "degree_betweenness").
-    *   `correlation_coefficient`: Float.
-    *   `p_value`: Float.
-    *   `interpretation`: String (descriptive framing).
+1.  **Input**: `Participant` metadata + `Raw fMRI` (or Synthetic).
+2.  **Preprocessing**: `Raw fMRI` → `TimeSeries` (via fMRIPrep or Synthetic Gen).
+3.  **Graph Construction**: `TimeSeries` → `ConnectivityMatrix` (Correlation + Thresholding).
+4.  **Metric Computation**: `ConnectivityMatrix` → `CentralityMetrics` (NetworkX).
+5.  **Statistical Analysis**: `CentralityMetrics` + `Participant` → `GroupComparison` (T-test + FDR).
+6.  **Output**: `GroupComparison` → `Visualizations` (Brain Maps) + `Paper Tables`.
 
-### SensitivityAnalysisResult (NEW)
-Captures the results of the threshold sensitivity analysis.
-*   **Attributes**:
-    *   `threshold_10pct`: Object (nodes significant, count).
-    *   `threshold_15pct`: Object (nodes significant, count).
-    *   `threshold_20pct`: Object (nodes significant, count).
-    *   `jaccard_10_15`: Float.
-    *   `jaccard_15_20`: Float.
-    *   `jaccard_10_20`: Float.
-    *   `nodes_significant_all`: Integer.
+## 4. Constraints & Validations
 
-## Data Flow
-
-1.  **Raw**: Download pre-processed ABIDE derivatives (NIfTI, CSV) from OpenNeuro.
-2.  **Processed**: Time-series extracted from ROIs (no re-preprocessing).
-3.  **Derived**:
-    *   Correlation matrices.
-    *   Centrality metrics.
-    *   Statistical test results (CSV).
-    *   Classification metrics (JSON).
-    *   **Logs**: `PreprocessingLog`, `CentralityCompletenessReport`.
-    *   **Diagnostics**: `CollinearityDiagnostics`, `SensitivityAnalysisResult`.
-4.  **Output**: Visualizations (PNG), Paper-ready tables (Markdown/CSV).
-
-## Storage Constraints
-
-*   **Raw Data**: Pre-processed derivatives. Estimated size: a subset used in CI.
-*   **Processed**: Float32 arrays. A moderate number of participants * a moderate number of timepoints * 400 ROIs * 4 bytes ≈ a moderate data volume.
-*   **Derived**: Negligible size.
-*   **CI Strategy**: The CI runner will process a **subset** (e.g., 20 participants) or the full available subset to stay within 7GB RAM and 6h runtime. **Subset Processing** is explicitly logged in `PreprocessingLog`.
+*   **Motion Exclusion**: Participants with `motion_mean > 3.0mm` are excluded.
+*   **Label Exclusion**: Participants with missing `diagnosis` are excluded.
+*   **Graph Connectivity**: If thresholding disconnects the graph, the top percentile of edges is used as a fallback.
+*   **Data Integrity**: All derived files must reference the source file hash in their metadata.
+*   **Real Data Requirement**: Scientific outputs must be derived from real data. Synthetic data outputs are marked as "Illustrative Only" and are not included in scientific results.
