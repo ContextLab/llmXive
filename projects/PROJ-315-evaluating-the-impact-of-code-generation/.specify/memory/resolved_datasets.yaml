@@ -1,4 +1,4 @@
-resolved_at: '2026-07-03T16:55:23.404205+00:00'
+resolved_at: '2026-07-03T17:40:37.954765+00:00'
 datasets:
 - intent: LLM-generated
   status: verified
@@ -45,23 +45,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/Single_nucleus_RNA_profiling_reveals_potential_therapeutic_vulnerabilities_in_sinonasal_carcinomas/27925980
+  - url: https://gsapubs.figshare.com/articles/journal_contribution/Supplemental_Material_Revealing_hidden_order_in_Pacific_Ocean_volcanism/32896871
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/The_effect_of_anger_on_substance_abuse_proclivity_in_individuals_diagnosed_with_substance_use_disorders/32896775
+  - url: https://acs.figshare.com/articles/journal_contribution/Scalable_Ionogel-Based_Thermochromic_Smart_Windows_Enhanced_Solar_Regulation_Weatherability_and_Processability/32896901
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/MLLM_Pairwise_Visual_Preference_Judgments_for_Highway_Landscape_Scenes_Malaysia_NSE_/32332245
+  - url: https://gsapubs.figshare.com/articles/journal_contribution/Supplemental_Material_Initiation_of_the_modern_tectonic_architecture_in_southeastern_Tibet/32896874
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/dataset/Library_Docking_for_Cannabinoid_2_Receptor_Ligands/32896766
+  - url: https://acs.figshare.com/articles/journal_contribution/Pressure-Induced_Superconductivity_at_15_K_in_van-der-Waals_Ferroelectric_CuInP_sub_2_sub_S_sub_6_sub_/32896898
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/The_original_PLQY_data/32889596
+  - url: https://acs.figshare.com/articles/journal_contribution/Novel_Green_Fast_and_Scalable_Method_for_Producing_Dendritic_Mesoporous_Silica_Nanoparticles_DMSNs_with_High_Channel_Accessibility/32896895
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -131,23 +131,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/Single_nucleus_RNA_profiling_reveals_potential_therapeutic_vulnerabilities_in_sinonasal_carcinomas/27925980
+  - url: https://gsapubs.figshare.com/articles/journal_contribution/Supplemental_Material_Revealing_hidden_order_in_Pacific_Ocean_volcanism/32896871
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/The_effect_of_anger_on_substance_abuse_proclivity_in_individuals_diagnosed_with_substance_use_disorders/32896775
+  - url: https://acs.figshare.com/articles/journal_contribution/Scalable_Ionogel-Based_Thermochromic_Smart_Windows_Enhanced_Solar_Regulation_Weatherability_and_Processability/32896901
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/MLLM_Pairwise_Visual_Preference_Judgments_for_Highway_Landscape_Scenes_Malaysia_NSE_/32332245
+  - url: https://gsapubs.figshare.com/articles/journal_contribution/Supplemental_Material_Initiation_of_the_modern_tectonic_architecture_in_southeastern_Tibet/32896874
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/dataset/Library_Docking_for_Cannabinoid_2_Receptor_Ligands/32896766
+  - url: https://acs.figshare.com/articles/journal_contribution/Pressure-Induced_Superconductivity_at_15_K_in_van-der-Waals_Ferroelectric_CuInP_sub_2_sub_S_sub_6_sub_/32896898
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/The_original_PLQY_data/32889596
+  - url: https://acs.figshare.com/articles/journal_contribution/Novel_Green_Fast_and_Scalable_Method_for_Producing_Dendritic_Mesoporous_Silica_Nanoparticles_DMSNs_with_High_Channel_Accessibility/32896895
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -236,23 +236,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/Single_nucleus_RNA_profiling_reveals_potential_therapeutic_vulnerabilities_in_sinonasal_carcinomas/27925980
+  - url: https://gsapubs.figshare.com/articles/journal_contribution/Supplemental_Material_Revealing_hidden_order_in_Pacific_Ocean_volcanism/32896871
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/The_effect_of_anger_on_substance_abuse_proclivity_in_individuals_diagnosed_with_substance_use_disorders/32896775
+  - url: https://acs.figshare.com/articles/journal_contribution/Scalable_Ionogel-Based_Thermochromic_Smart_Windows_Enhanced_Solar_Regulation_Weatherability_and_Processability/32896901
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/MLLM_Pairwise_Visual_Preference_Judgments_for_Highway_Landscape_Scenes_Malaysia_NSE_/32332245
+  - url: https://gsapubs.figshare.com/articles/journal_contribution/Supplemental_Material_Initiation_of_the_modern_tectonic_architecture_in_southeastern_Tibet/32896874
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/dataset/Library_Docking_for_Cannabinoid_2_Receptor_Ligands/32896766
+  - url: https://acs.figshare.com/articles/journal_contribution/Pressure-Induced_Superconductivity_at_15_K_in_van-der-Waals_Ferroelectric_CuInP_sub_2_sub_S_sub_6_sub_/32896898
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/The_original_PLQY_data/32889596
+  - url: https://acs.figshare.com/articles/journal_contribution/Novel_Green_Fast_and_Scalable_Method_for_Producing_Dendritic_Mesoporous_Silica_Nanoparticles_DMSNs_with_High_Channel_Accessibility/32896895
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -264,7 +264,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/7123901
+  - url: https://zenodo.org/records/16931148
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -272,15 +272,15 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/16931148
+  - url: https://zenodo.org/records/7123901
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Folder_with_the_dataset_used_for_the_paper_How_AI_Coding_Agents_Resolve_Merge_Conflicts_An_Empirical_Study_/32159415/1
+  - url: https://figshare.com/articles/dataset/Folder_with_the_dataset_used_for_the_paper_How_AI_Coding_Agents_Resolve_Merge_Conflicts_An_Empirical_Study_/32159415
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Folder_with_the_dataset_used_for_the_paper_How_AI_Coding_Agents_Resolve_Merge_Conflicts_An_Empirical_Study_/32159415
+  - url: https://figshare.com/articles/dataset/Folder_with_the_dataset_used_for_the_paper_How_AI_Coding_Agents_Resolve_Merge_Conflicts_An_Empirical_Study_/32159415/1
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -311,35 +311,35 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/dataset/Single_nucleus_RNA_profiling_reveals_potential_therapeutic_vulnerabilities_in_sinonasal_carcinomas/27925980
+  - url: https://gsapubs.figshare.com/articles/journal_contribution/Supplemental_Material_Revealing_hidden_order_in_Pacific_Ocean_volcanism/32896871
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://tandf.figshare.com/articles/journal_contribution/The_effect_of_anger_on_substance_abuse_proclivity_in_individuals_diagnosed_with_substance_use_disorders/32896775
+  - url: https://acs.figshare.com/articles/journal_contribution/Scalable_Ionogel-Based_Thermochromic_Smart_Windows_Enhanced_Solar_Regulation_Weatherability_and_Processability/32896901
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/MLLM_Pairwise_Visual_Preference_Judgments_for_Highway_Landscape_Scenes_Malaysia_NSE_/32332245
+  - url: https://gsapubs.figshare.com/articles/journal_contribution/Supplemental_Material_Initiation_of_the_modern_tectonic_architecture_in_southeastern_Tibet/32896874
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/dataset/Library_Docking_for_Cannabinoid_2_Receptor_Ligands/32896766
+  - url: https://acs.figshare.com/articles/journal_contribution/Pressure-Induced_Superconductivity_at_15_K_in_van-der-Waals_Ferroelectric_CuInP_sub_2_sub_S_sub_6_sub_/32896898
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/The_original_PLQY_data/32889596
+  - url: https://acs.figshare.com/articles/journal_contribution/Novel_Green_Fast_and_Scalable_Method_for_Producing_Dendritic_Mesoporous_Silica_Nanoparticles_DMSNs_with_High_Channel_Accessibility/32896895
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://beei.org/index.php/EEI/article/view/1972
+  - url: https://doi.org/10.11591/eei.v9i2.1972
+    source: zenodo
+    status: unreachable
+    reason: 'reachability failed: HTTP 415'
+  - url: https://zenodo.org/records/5951740
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/14352943
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/6127654
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -359,15 +359,201 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/20856850
-    source: datacite
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/21169299
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.5281/zenodo.21157157
+  - url: https://zenodo.org/records/20856850
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://doi.org/10.5281/zenodo.21157158
     source: datacite
     status: unreachable
     reason: 'reachability failed: HTTP 404'
+- intent: APIs
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/hmao/new_vt_apis/resolve/main/data/train-00000-of-00001-283ff2ab4f83ebe1.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 14860
+      parsed: true
+  - url: https://huggingface.co/datasets/hmao/cvecpe_apis/resolve/main/data/train-00000-of-00001-dfa2f47bf9593a3f.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 19268
+      parsed: true
+  - url: https://huggingface.co/datasets/hmao/all_apis_for_multiapi/resolve/main/data/train-00000-of-00001-bd8d5e4d08813d65.parquet
+    source: huggingface
+    format: parquet
+    relevance: 1.0
+    sample_check:
+      downloaded_bytes: 24017
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/api/resolve-cache/datasets/RazinAleks/SO-Python_QA-Networking_and_APIs_class/0272c822cc0f0e5a1c45c29c559d9061d3c73e4f/test.json?%2Fdatasets%2FRazinAleks%2FSO-Python_QA-Networking_and_APIs_class%2Fresolve%2Fmain%2Ftest.json=&etag=%22685295df5b2429de46482f7c3dc13b0b561f39c1%22
+    source: huggingface
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://huggingface.co/datasets/venkatsrini/api_single_4k_truncateright/resolve/main/data/train-00000-of-00011-042202c6a570c9d8.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/hmao/new_vt_apis/resolve/main/data/train-00000-of-00001-283ff2ab4f83ebe1.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/hmao/cvecpe_apis/resolve/main/data/train-00000-of-00001-dfa2f47bf9593a3f.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/hmao/all_apis_for_multiapi/resolve/main/data/train-00000-of-00001-bd8d5e4d08813d65.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://gsapubs.figshare.com/articles/journal_contribution/Supplemental_Material_Revealing_hidden_order_in_Pacific_Ocean_volcanism/32896871
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Scalable_Ionogel-Based_Thermochromic_Smart_Windows_Enhanced_Solar_Regulation_Weatherability_and_Processability/32896901
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://gsapubs.figshare.com/articles/journal_contribution/Supplemental_Material_Initiation_of_the_modern_tectonic_architecture_in_southeastern_Tibet/32896874
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Pressure-Induced_Superconductivity_at_15_K_in_van-der-Waals_Ferroelectric_CuInP_sub_2_sub_S_sub_6_sub_/32896898
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Novel_Green_Fast_and_Scalable_Method_for_Producing_Dendritic_Mesoporous_Silica_Nanoparticles_DMSNs_with_High_Channel_Accessibility/32896895
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/4067184
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3547513
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zookeys.pensoft.net/article/2328/element/2/11/
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://www.ijtsrd.com/computer-science/database/15797/apis-and-restful-apis/mithilesh-tarkar
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/6002615
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21174836
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21174836
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21174656
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21174656
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21173015
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: NOT
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/notune/fable5-repos/resolve/main/manifest.csv
+    source: huggingface
+    format: csv
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/nothingiisreal/Human_Stories/resolve/main/reddit_vs_synth_writing_prompts.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/leolee99/NotInject/resolve/main/data/NotInject_one-00000-of-00001.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 10859
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/notune/fable5-repos/resolve/main/manifest.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/nothingiisreal/Human_Stories/resolve/main/reddit_vs_synth_writing_prompts.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/leolee99/NotInject/resolve/main/data/NotInject_one-00000-of-00001.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/Nottybro/Minecraft-Fable-Raw/resolve/main/amulet_processed/manifest.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://tandf.figshare.com/articles/dataset/A_secreted_AIP-Like_peptide_from_i_Helcococcus_kunzii_i_inhibits_the_Agr_quorum_sensing_system_of_i_Staphylococcus_aureus_i_/32896863
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://gsapubs.figshare.com/articles/journal_contribution/Supplemental_Material_Revealing_hidden_order_in_Pacific_Ocean_volcanism/32896871
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Scalable_Ionogel-Based_Thermochromic_Smart_Windows_Enhanced_Solar_Regulation_Weatherability_and_Processability/32896901
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://gsapubs.figshare.com/articles/journal_contribution/Supplemental_Material_Initiation_of_the_modern_tectonic_architecture_in_southeastern_Tibet/32896874
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Pressure-Induced_Superconductivity_at_15_K_in_van-der-Waals_Ferroelectric_CuInP_sub_2_sub_S_sub_6_sub_/32896898
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/15525595
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16413212
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16413231
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5105584
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/16039952
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content

@@ -1,0 +1,142 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Output Schema"
+type: "object"
+properties:
+  statistical_tests:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        metric:
+          type: "string"
+          description: "Name of the review metric (e.g., comment_count)"
+        group1:
+          type: "string"
+          description: "First group label (Keyword-Associated)"
+        group2:
+          type: "string"
+          description: "Second group label (Human)"
+        test_statistic:
+          type: "number"
+          description: "Test statistic value"
+        p_value_raw:
+          type: "number"
+          description: "Raw p-value"
+        p_value_adjusted:
+          type: "number"
+          description: "Adjusted p-value (Bonferroni/Benjamini-Hochberg)"
+        effect_size:
+          type: "number"
+          description: "Effect size (Cohen's d or rank-biserial correlation)"
+        significant:
+          type: "boolean"
+          description: "Whether result is significant after correction"
+      required:
+        - metric
+        - group1
+        - group2
+        - test_statistic
+        - p_value_raw
+        - p_value_adjusted
+        - effect_size
+        - significant
+  descriptive_complexity:
+    type: "object"
+    description: "Descriptive statistics for complexity metrics (Mediator, not controlled)"
+    properties:
+      group_stats:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            group:
+              type: "string"
+            mean_complexity:
+              type: "number"
+            median_complexity:
+              type: "number"
+            mean_loc:
+              type: "number"
+            median_loc:
+              type: "number"
+          required:
+            - group
+            - mean_complexity
+            - median_complexity
+            - mean_loc
+            - median_loc
+    required:
+      - group_stats
+  sensitivity_analysis:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        threshold:
+          type: "integer"
+          description: "Keyword match count threshold (1, 2, or 3)"
+        llm_count:
+          type: "integer"
+          description: "Number of PRs classified as Keyword-Associated"
+        human_count:
+          type: "integer"
+          description: "Number of PRs classified as Human"
+        significant_metrics:
+          type: "array"
+          items:
+            type: "string"
+          description: "Metrics that remain significant at this threshold"
+      required:
+        - threshold
+        - llm_count
+        - human_count
+        - significant_metrics
+  power_analysis:
+    type: "object"
+    properties:
+      sample_size_raw:
+        type: "integer"
+        description: "Total raw sample size"
+      label_noise_rate:
+        type: "number"
+        description: "Estimated misclassification rate from manual audit"
+      sample_size_effective:
+        type: "number"
+        description: "Effective sample size adjusted for noise (N_raw * (1-noise)^2)"
+      min_effect_size:
+        type: "number"
+ description: "Minimum detectable effect size for [deferred] power using effective N"
+      power:
+        type: "number"
+        description: "Achieved power for detected effects"
+    required:
+      - sample_size_raw
+      - label_noise_rate
+      - sample_size_effective
+      - min_effect_size
+      - power
+  validity_calibration:
+    type: "object"
+    properties:
+      sentiment_correlation:
+        type: "number"
+        description: "Correlation between TextBlob scores and human-coded tone"
+      validity_margin:
+        type: "string"
+        description: "Description of validity margin for sentiment findings"
+    required:
+      - sentiment_correlation
+      - validity_margin
+  framing:
+    type: "string"
+    enum:
+      - "associational"
+    description: "All findings are framed as associational, not causal"
+required:
+  - statistical_tests
+  - descriptive_complexity
+  - sensitivity_analysis
+  - power_analysis
+  - validity_calibration
+  - framing
+additionalProperties: false

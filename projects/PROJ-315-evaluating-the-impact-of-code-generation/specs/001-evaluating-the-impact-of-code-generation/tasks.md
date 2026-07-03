@@ -1,21 +1,23 @@
 # Tasks: Evaluating the Impact of Code Generation on Code Review Quality
 
-**Input**: Design documents from `/specs/001-evaluating-llm-code-review-impact/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories)
+**Input**: Design documents from `/specs/001-evaluating-the-impact-of-code-generation/`
+**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
-**Tests**: The examples below include test tasks. Tests are **OPTIONAL** - only include them if explicitly requested in the feature specification.
+**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
+- **[Story]****: Which user story this task belongs to (e.g., US1, US2, US3)
 - Include exact file paths in descriptions
 
 ## Path Conventions
 
 - **Single project**: `code/`, `tests/` at repository root
+- **Web app**: `backend/src/`, `frontend/src/`
+- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
 <!-- 
@@ -41,17 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create `code/` directory
-- [ ] T001b [P] Create `data/raw/` directory
-- [ ] T001c [P] Create `data/processed/` directory
-- [ ] T001d [P] Create `tests/` directory
-- [ ] T001e [P] Create `reports/` directory
-- [ ] T001f [P] Create `code/__init__.py`
-- [ ] T001g [P] Create `tests/__init__.py`
-- [ ] T001h [P] Create `reports/figures/` directory
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (pandas, scikit-learn, scipy, textblob, radon, lizard, seaborn, matplotlib, datasets, lifelines, statsmodels, pytest)
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
-- [ ] T004 [P] Setup gitignore for `data/raw/`, `data/processed/`, `__pycache__`, `reports/figures`
+- [ ] T001 Create project structure per implementation plan (create `code/`, `data/`, `docs/`, `tests/` directories)
+- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (pandas, numpy, scikit-learn, scipy, radon, textblob, matplotlib, seaborn, datasets, pyyaml)
+- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools in `pyproject.toml`
 
 ---
 
@@ -61,9 +55,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T005 Implement `code/config.py` for reproducible random seeds and global constants
-- [ ] T006 [P] Implement `code/utils/logging.py` for structured, reproducible logging
-- [ ] T010 Create `code/labeling/config.yaml` with heuristic parameters (keyword list, threshold)
+- [ ] T004 Setup `code/utils/hash_artifacts.py` to compute SHA-256 checksums for data and stats artifacts (Constitution Principle V)
+- [ ] T005 [P] Implement `code/utils/config.py` for environment variable management and random seed pinning (numpy, pandas, sklearn = 42)
+- [ ] T006 [P] Create `code/data/__init__.py` and `code/labeling/__init__.py` package structures
+- [ ] T007 Create `contracts/dataset.schema.yaml` defining required fields (code diff, review comments, merge timestamp, project metadata)
+- [ ] T008 Create `contracts/output.schema.yaml` defining statistical result formats
+- [ ] T009 Setup `code/utils/logger.py` for structured logging and error reporting (Power Insufficiency, Data Completeness)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -71,88 +68,80 @@
 
 ## Phase 3: User Story 1 - Dataset Acquisition and Preprocessing (Priority: P1) 🎯 MVP
 
-**Goal**: Load public GitHub PR dataset, classify commits, extract review/complexity metrics, and validate data completeness.
+**Goal**: Load public GitHub PR dataset, classify commits, and extract review/complexity metrics with data validation.
 
-**Independent Test**: Can be tested by loading the dataset, running the classification pipeline, and verifying that ≥95% of records have complete required fields and classification heuristics produce ≥500 LLM-labeled and ≥500 human-labeled PRs.
+**Independent Test**: Verify that loading the dataset, running the classification pipeline, and checking completeness yields ≥95% valid records and ≥500 items per group.
+
+### Tests for User Story 1
+
+- [ ] T010 [P] [US1] Unit test for keyword classification logic in `tests/unit/test_classify.py` (test ≥2 keyword threshold)
+- [ ] T011 [P] [US1] Integration test for data completeness check in `tests/integration/test_data_completeness.py` (verify <95% triggers error)
+- [ ] T012 [P] [US1] Integration test for power insufficiency check in `tests/integration/test_power_check.py` (verify <500 per group triggers error)
 
 ### Implementation for User Story 1
 
-- [ ] T017 [US1] Implement full data download and checksum verification in `code/data/download.py` (Fetch `numenta/prs-v-sample` from HuggingFace, verify SHA-256 checksum against `data/raw/.checksums`)
-- [ ] T018 [US1] Implement schema validation and filtering in `code/data/preprocess.py` (Halt if `commit_message` missing, handle nulls per FR-011)
-- [ ] T019 [US1] Implement code complexity metrics (Cyclomatic, LOC) using `radon`/`lizard` in `code/data/metrics.py` (FR-003)
-- [ ] T020 [US1] Implement Bug Density calculation (warnings per 100 LOC) in `code/data/metrics.py` (FR-013)
-- [ ] T021 [US1] Implement Sentiment Score calculation using `textblob` in `code/data/metrics.py`
-- [ ] T011 [US1] Implement `code/labeling/classify.py` with keyword-based LLM vs Human classification logic (FR-002)
-- [ ] T012 [US1] Implement `code/audit/manual_review.py` to generate `data/raw/audit_ground_truth.csv` using deterministic simulation algorithm (seed=42, specific keyword-to-label mapping rules from T011) for CI validation (FR-015)
-- [ ] T012b [US1] Generate `data/raw/audit_ground_truth.csv` with a balanced set of synthetic labels comprising both LLM and Human samples using the keyword thresholds defined in T011 (Depends on T011, seed=42)
-- [ ] T022 [US1] Execute manual audit sampling in `code/audit/manual_review.py` (Load `data/raw/audit_ground_truth.csv`, compare against T011 heuristics using deterministic simulation algorithm (seed=42, specific keyword-to-label mapping rules))
-- [ ] T023 [US1] Implement heuristic accuracy check in `code/audit/manual_review.py` (Halt if <70% per FR-015)
-- [ ] T024 [US1] Implement data completeness validation (≥95% records) in `code/data/preprocess.py` (FR-011)
-- [ ] T025 [US1] Save cleaned dataset to `data/processed/` with derivation logs
+- [ ] T013 [P] [US1] Implement `code/data/fetch.py` to download dataset `codeparliament/github-code-search` from HuggingFace using `datasets.load_dataset()` (FR-001, Verified Accuracy)
+- [ ] T014 [US1] Implement `code/data/preprocess.py` to load data, filter nulls, and compute basic stats (FR-011, FR-014)
+- [ ] T015a [P] [US1] Create `code/labeling/keywords.yaml` containing the explicit list of LLM-associated keywords (e.g., "copilot", "generated by llm", "ai code", "github copilot", "code generated by") used for classification (FR-002)
+- [ ] T015 [P] [US1] Implement `code/labeling/classify.py` for keyword matching heuristics loading keywords from `code/labeling/keywords.yaml` and applying the ≥2 threshold rule (FR-002, FR-015)
+- [ ] T016 [P] [US1] Implement `code/data/preprocess.py` logic to compute code complexity metrics (cyclomatic complexity, LOC) using `radon` (FR-003).
+- [ ] T016b [P] [US1] Implement `code/data/preprocess.py` logic to log warnings for unsupported languages and exclude those files from complexity analysis (FR-003 edge case).
+- [ ] T017 [US1] Implement `code/data/preprocess.py` logic to generate a random sample of classified PRs for manual audit (FR-015) and write to `docs/reports/audit_sample.csv`
+- [ ] T017b [US1] Implement `code/data/preprocess.py` logic to prepare the sample for human review (T017 output), ensuring the CSV contains PR ID, commit message, and code snippet, and save to `docs/reports/audit_sample_labeled.csv` (placeholder for human labels) (FR-015, SC-009)
+- [ ] T017c [US1] Implement `code/data/preprocess.py` logic to ingest the human-labeled CSV (from `docs/reports/audit_sample_labeled.csv`), compare against the heuristic classification, calculate the observed accuracy rate, and write the result to `docs/reports/audit_accuracy.json` (FR-015, SC-009)
+- [ ] T018 [US1] Implement validation logic in `code/data/preprocess.py` to halt execution and raise a `ValueError` with a specific message if completeness <95% or group size <500. The logic MUST write an `error_report.json` to `docs/reports/` detailing the failure reason (FR-013, FR-014)
+- [ ] T019 [US1] Integrate `code/utils/hash_artifacts.py` invocation after `preprocess.py` completes. Note: This task must be conditional; it runs ONLY if T018 validation passes. If T018 halts, T019 is skipped (Constitution Principle V)
 
-### Tests for User Story 1 ⚠️
-
-- [ ] T013 [P] [US1] Unit test for download schema validation in `tests/unit/test_download.py`
-- [ ] T014 [P] [US1] Unit test for keyword classification logic in `tests/unit/test_classify.py` (maps to FR-002)
-- [ ] T015 [P] [US1] Unit test for audit sampling and accuracy calculation in `tests/unit/test_audit.py` (maps to FR-015)
-- [ ] T016 [P] [US1] Unit test for complexity metric calculation in `tests/unit/test_metrics.py`
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (data loaded, classified, metrics computed, audit accuracy recorded)
 
 ---
 
 ## Phase 4: User Story 2 - Statistical Comparison Analysis (Priority: P2)
 
-**Goal**: Perform statistical comparisons (Mann-Whitney U, Cox PH) with error correction, power analysis, and covariate adjustment.
+**Goal**: Perform Mann-Whitney U tests, linear regression with VIF diagnostics, and power analysis.
 
-**Independent Test**: Can be tested by running the statistical pipeline on the preprocessed dataset and verifying that at least 3 pairwise comparisons are performed with adjusted p-values, and covariate adjustment methods are executed.
+**Independent Test**: Verify that Mann-Whitney U tests run with Bonferroni/BH correction, regression VIF < 5 is reported, and power analysis is documented.
+
+### Tests for User Story 2
+
+- [ ] T020 [P] [US2] Unit test for Mann-Whitney U test wrapper in `tests/unit/test_stats.py`
+- [ ] T021 [P] [US2] Unit test for multiple comparison correction (Bonferroni/BH) in `tests/unit/test_stats.py`
+- [ ] T022 [P] [US2] Unit test for VIF calculation in `tests/unit/test_stats.py`
 
 ### Implementation for User Story 2
 
-- [ ] T029 [US2] Implement SIMEX Calibration in `code/audit/simex.py` (Estimate misclassification matrix from audit results in `data/raw/audit_ground_truth.csv`)
-- [ ] T030 [US2] Implement Propensity Score Matching (PSM) in `code/analysis/stats.py` using covariates: `repo_size`, `language` (CRITICAL: DO NOT use code complexity as it is a mediator)
-- [ ] T030b [US2] Implement Exact Matching on Discrete Bins fallback in `code/analysis/stats.py` for `repo_size` and `language` bins, Trigger ONLY if PSM fails or VIF > 5 (Plan: Complexity Tracking)
-- [ ] T031 [US2] Implement Exact Matching on Discrete Bins fallback in `code/analysis/stats.py` (Plan: Complexity Tracking)
-- [ ] T041 [US2] Implement correlation diagnostic (Sentiment vs Bug Density) in `code/analysis/viz.py` (FR-016)
-- [ ] T042 [US2] Implement confounder flagging in `code/analysis/stats.py` (Compute Spearman correlation; if r > 0.5, set `confounder_flag=True` and include metric in report with 'Potential Confounder' warning, DO NOT exclude)
-- [ ] T032 [US2] Implement Mann-Whitney U test for Comment Count and Sentiment in `code/analysis/stats.py` (FR-004)
-- [ ] T033 [US2] Implement Cox Proportional Hazards (PRIMARY) and Mann-Whitney U (SECONDARY/Sensitivity) for Merge Latency in `code/analysis/stats.py` (FR-004, Plan: Key Methodological Adjustment)
-- [ ] T034 [US2] Implement Benjamini-Hochberg correction for multiple comparisons in `code/analysis/stats.py` (FR-005)
-- [ ] T035 [US2] Implement power analysis and minimum detectable effect size documentation in `code/analysis/stats.py` (FR-008)
-- [ ] T036 [US2] Implement VIF calculation for covariates (repo_size, language) and switch to Exact Matching if VIF > 5 (FR-010, Plan: Risk Mitigation)
-- [ ] T037 [US2] Apply SIMEX correction to effect sizes using the audit matrix (Plan: Phase 5)
-- [ ] T037b [US2] Document SIMEX-adjusted effect sizes in power analysis report (FR-008)
-- [ ] T038 [US2] Save matched sample and statistical results to `data/processed/`
+- [ ] T023 [P] [US2] Implement `code/analysis/stats.py` Mann-Whitney U test function for comment count, sentiment, merge time (FR-004)
+- [ ] T024 [US2] Implement `code/analysis/stats.py` multiple comparison correction logic supporting BOTH Bonferroni and Benjamini-Hochberg, configurable via `code/utils/config.py` (FR-005)
+- [ ] T025 [P] [US2] Implement `code/analysis/stats.py` power analysis function (sample size, effect size, α=0.05) (FR-008)
+- [ ] T026 [US2] Implement `code/analysis/stats.py` linear regression with complexity covariates and VIF diagnostics (FR-010)
+- [ ] T027 [US2] Add logic to `code/analysis/stats.py` to frame results as associational, not causal (FR-009)
 
-### Tests for User Story 2 ⚠️
-
-- [ ] T026 [P] [US2] Integration test for statistical pipeline in `tests/integration/test_pipeline.py` (maps to US-2, FR-005)
-- [ ] T027 [P] [US2] Unit test for SIMEX correction logic in `tests/unit/test_simex.py`
-- [ ] T028 [P] [US2] Unit test for Propensity Score Matching (PSM) and Exact Matching fallback in `tests/unit/test_psm.py`
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently (data ready, stats computed)
 
 ---
 
 ## Phase 5: User Story 3 - Visualization and Report Generation (Priority: P3)
 
-**Goal**: Generate reproducible visualizations, sensitivity analysis, and final report with associational disclaimers.
+**Goal**: Generate reproducible visualizations and final report with sensitivity analysis.
 
-**Independent Test**: Can be tested by running the visualization pipeline and verifying that ≥3 plots are generated with significance markers, plus a sensitivity plot for the keyword threshold.
+**Independent Test**: Verify that ≥3 plots are generated with significance markers and a sensitivity plot for keyword thresholds across a range of values.
+
+### Tests for User Story 3
+
+- [ ] T029 [P] [US3] Unit test for plot generation (boxplots, histograms) in `tests/unit/test_viz.py`
+- [ ] T030 [P] [US3] Unit test for sensitivity analysis logic in `tests/unit/test_viz.py`
 
 ### Implementation for User Story 3
 
-- [ ] T043 [US3] Implement Sensitivity Analysis loop (Thresholds {, 2, 3}) in `code/analysis/viz.py` (FR-007)
-- [ ] T044 [US3] Generate Boxplots for Comment Count and Sentiment with significance markers in `code/analysis/viz.py` (FR-006)
-- [ ] T045 [US3] Generate Survival Curve (Kaplan-Meier) for Merge Latency in `code/analysis/viz.py` (FR-006)
-- [ ] T046 [US3] Generate Sensitivity Plot (Classification rate vs Threshold) in `code/analysis/viz.py` (FR-006)
-- [ ] T047 [US3] Compile HTML report with "Associational Only" disclaimer and all findings (FR-009)
-- [ ] T048 [US3] Save all figures and `reports/sensitivity_results.csv`
+- [ ] T031 [P] [US3] Implement `code/analysis/viz.py` boxplot generation for review metrics with significance markers (FR-006)
+- [ ] T032 [P] [US3] Implement `code/analysis/viz.py` histogram generation for metric distributions
+- [ ] T033 [US3] Implement `code/analysis/viz.py` sensitivity analysis plot sweeping keyword thresholds across a range of values
 
-### Tests for User Story 3 ⚠️
-
-- [ ] T039 [P] [US3] Unit test for sensitivity analysis plotting in `tests/unit/test_viz.py`
-- [ ] T040 [P] [US3] Unit test for correlation diagnostic logic in `tests/unit/test_correlation.py`
+The research question remains: How do keyword thresholds influence the sensitivity of the analysis? The method remains: Sensitivity analysis via threshold sweeping. References: [Citation preserved as per original document]. (FR-007)
+- [ ] T034a [US3] Implement `code/report/generate.py` logic to compile VIF diagnostics from stats results (FR-010)
+- [ ] T034b [US3] Implement `code/report/generate.py` logic to compile power analysis results (FR-008)
+- [ ] T034c [US3] Implement `code/report/generate.py` logic to assemble the final report, integrating statistical results, VIF diagnostics, power analysis, and audit accuracy (FR-009)
+- [ ] T035 [US3] Implement the conclusion section in `code/report/generate.py` to include a nuanced discussion framing all findings as associational rather than causal, explicitly referencing the mediator bias caveat regarding code complexity (FR-009)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -162,11 +151,11 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T049 [P] Documentation updates in `docs/` and `README.md`
-- [ ] T050a [P] Refactor `code/analysis/stats.py` to reduce cyclomatic complexity < 10 (Run `radon cc` on `code/analysis/stats.py` and refactor until max CC < 10)
-- [ ] T050b [P] Remove unused imports and dead code in `code/`
-- [ ] T051 [P] Run `quickstart.md` validation
-- [ ] T052 [P] Final integration test run on CPU-only environment (limited core count, constrained RAM, 6h limit) (FR-012)
+- [ ] T036 [P] Documentation updates in `docs/research.md` and `docs/quickstart.md`
+- [ ] T037 Code cleanup and refactoring in `code/`
+- [ ] T038 [P] Run quickstart.md validation to ensure end-to-end pipeline execution on CPU-only CI
+- [ ] T039 Verify all random seeds (42) are consistently applied across `numpy`, `pandas`, `scikit-learn`
+- [ ] T040 [P] Performance optimization: ensure analysis of 50k PRs completes within 6 hours on 2 CPU/7GB RAM
 
 ---
 
@@ -190,12 +179,26 @@
 ### Within Each User Story
 
 - Tests (if included) MUST be written and FAIL before implementation
-- Models/Download before Metrics
-- Metrics before Labeling
-- Labeling before Audit/PSM
-- PSM before Statistical Testing
-- Testing before Visualization
-- **CRITICAL**: Correlation Diagnostic (T041/T042) MUST run BEFORE Statistical Testing (T032/T033) to enforce flagging logic.
+- Data fetch/preprocessing before classification
+- Classification before complexity metrics
+- Stats computation before visualization
+- Story complete before moving to next priority
+
+### Explicit Task Dependencies
+
+- **T015a** must be completed before **T015** (keywords must exist)
+- **T016** depends on **T014** (data loaded)
+- **T017b** depends on **T017** (sample generation)
+- **T017c** depends on **T017b** (human-labeled CSV available)
+- **T019** depends on **T018** (validation success)
+- **T024** depends on **T023** (test results available)
+- **T026** depends on **T023** (test results available)
+- **T027** depends on **T026** (regression results available)
+- **T033** depends on **T024** (correction logic available)
+- **T034a** depends on **T026** (VIF results available)
+- **T034b** depends on **T025** (power results available)
+- **T034c** depends on **T027**, **T031**, **T032**, **T033**, **T034a**, **T034b**
+- **T035** depends on **T034c** (report assembly available)
 
 ### Parallel Opportunities
 
@@ -203,6 +206,7 @@
 - All Foundational tasks marked [P] can run in parallel (within Phase 2)
 - Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
 - All tests for a user story marked [P] can run in parallel
+- Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
 
 ---
@@ -211,13 +215,15 @@
 
 ```bash
 # Launch all tests for User Story 1 together:
-Task: "Unit test for download schema validation in tests/unit/test_download.py"
 Task: "Unit test for keyword classification logic in tests/unit/test_classify.py"
-Task: "Unit test for audit sampling and accuracy calculation in tests/unit/test_audit.py"
+Task: "Integration test for data completeness check in tests/integration/test_data_completeness.py"
+Task: "Integration test for power insufficiency check in tests/integration/test_power_check.py"
 
-# Launch all models for User Story 1 together:
-Task: "Implement code complexity metrics in code/data/metrics.py"
-Task: "Implement Sentiment Score calculation in code/data/metrics.py"
+# Launch all data tasks for User Story 1 together:
+Task: "Implement code/data/fetch.py to download dataset from HuggingFace"
+Task: "Create code/labeling/keywords.yaml with explicit keyword list"
+Task: "Implement code/labeling/classify.py for keyword matching heuristics"
+Task: "Implement code/data/preprocess.py logic to compute code complexity metrics (T016)"
 ```
 
 ---
@@ -228,16 +234,16 @@ Task: "Implement Sentiment Score calculation in code/data/metrics.py"
 
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1 (Data, Metrics, Labeling, Audit)
-4. **STOP and VALIDATE**: Test User Story 1 independently (Ensure ≥70% heuristic accuracy, ≥500 samples per group)
+3. Complete Phase 3: User Story 1
+4. **STOP and VALIDATE**: Test User Story 1 independently (data loaded, classified, metrics computed, audit accuracy recorded)
 5. Deploy/demo if ready
 
 ### Incremental Delivery
 
 1. Complete Setup + Foundational → Foundation ready
 2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently (PSM, Cox PH, SIMEX) → Deploy/Demo
-4. Add User Story 3 → Test independently (Viz, Report) → Deploy/Demo
+3. Add User Story 2 → Test independently → Deploy/Demo (Stats computed)
+4. Add User Story 3 → Test independently → Deploy/Demo (Visuals + Report)
 5. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
@@ -246,9 +252,9 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Data pipeline, Metrics, Audit)
-   - Developer B: User Story 2 (Stats, PSM, SIMEX)
-   - Developer C: User Story 3 (Viz, Reporting)
+   - Developer A: User Story 1 (Data)
+   - Developer B: User Story 2 (Stats)
+   - Developer C: User Story 3 (Viz/Report)
 3. Stories complete and integrate independently
 
 ---
@@ -261,9 +267,10 @@ With multiple developers:
 - Verify tests fail before implementing
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
-- **Critical Constraint**: All analysis must complete within 6 hours on 2 CPU cores, 7 GB RAM. Avoid loading full datasets into memory if necessary; use chunking or sampling.
-- **Data Integrity**: Never fabricate data. Use real HuggingFace dataset `numenta/prs-v2-sample`.
-- **Heuristic Validation**: FR-015 is a hard gate; if audit accuracy <70%, the pipeline must halt.
-- **Sentiment Handling**: FR-016/SC-002 mandate flagging and reporting with a caveat if correlation > 0.5, NOT exclusion. T042 implements this flagging logic.
-- **Ground Truth**: T012b generates `data/raw/audit_ground_truth.csv` for CI validation.
-- **Note on Spec/Plan Conflict**: The Plan (Phase 3.5) explicitly rejects the Spec's (FR-016) exclusion logic in favor of flagging. Tasks follow the Plan.
+- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- **CRITICAL**: All data tasks must use real, reachable URLs (HuggingFace/UCI) — no synthetic data generation tasks allowed.
+- **CRITICAL**: All statistical tasks must run on CPU-only CI (no GPU, no 8-bit quantization, no deep learning training).
+- **CRITICAL**: FR-015 requires a manual audit sample generation (T017), preparation for human review (T017b), and accuracy calculation against human labels (T017c). All three tasks are required to satisfy SC-009.
+- **CRITICAL**: T019 (hashing) is conditional on T018 (validation) passing. If validation fails, hashing is skipped.
+- **CRITICAL**: All error and audit reports must be written to `docs/reports/`, not `data/reports/`, to comply with project structure (data/ for datasets, docs/ for reports).
+- **CRITICAL**: The keyword list for classification MUST be defined in `code/labeling/keywords.yaml` (T015a) to ensure reproducibility and satisfy FR-002.
