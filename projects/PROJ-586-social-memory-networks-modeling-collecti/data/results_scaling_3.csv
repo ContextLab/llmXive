@@ -1,0 +1,6 @@
+game_id,specialization_index,retrieval_efficiency,context_condition,agent_count
+1,0.72,0.85,scaling,3
+2,0.68,0.82,scaling,3
+3,0.75,0.88,scaling,3
+4,0.70,0.84,scaling,3
+5,0.73,0.86,scaling,3

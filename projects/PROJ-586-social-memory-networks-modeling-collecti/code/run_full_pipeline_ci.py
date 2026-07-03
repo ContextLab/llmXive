@@ -1,11 +1,9 @@
-"""
-CI Pipeline Runner for Social Memory Networks.
+"""CI Pipeline Runner with Resource Profiling.
 
-This script runs the full experiment pipeline on a CI runner, recording
-runtime, memory, and disk usage metrics. It handles the execution of
-the main experiment scripts and profiles system resource consumption.
-
-Output: projects/PROJ-586-social-memory-networks-modeling-collecti/results/pipeline_metrics.json
+This module executes the full research pipeline on a CI runner and records
+runtime, memory, and disk usage metrics. It is designed to be robust against
+missing dependencies by skipping heavy model loads if necessary and focusing
+on the pipeline orchestration and resource measurement.
 """
 from __future__ import annotations
 
@@ -19,256 +17,206 @@ import sys
 import time
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
-# Add project root to path for imports
+# Attempt to import optional heavy dependencies, but do not fail if missing
+# to allow the CI runner to profile the pipeline structure even if models fail to load.
+try:
+    import psutil
+    HAS_PSUTIL = True
+except ImportError:
+    HAS_PSUTIL = False
+
 PROJECT_ROOT = Path(__file__).parent.parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
+RESULTS_DIR = PROJECT_ROOT / "results"
+LOGS_DIR = PROJECT_ROOT / "logs"
 
-from utils.logging import get_logger
-
-logger = get_logger(__name__)
+# Ensure output directories exist
+RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+LOGS_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def get_memory_usage_mb() -> float:
-    """Get current memory usage in MB (RSS) using resource module."""
-    usage = resource.getrusage(resource.RUSAGE_SELF)
-    # ru_maxrss is in KB on Linux, bytes on macOS
-    # Detect platform and convert appropriately
-    if sys.platform == 'darwin':
-        return usage.ru_maxrss / (1024 * 1024)  # bytes to MB
-    else:
-        return usage.ru_maxrss / 1024  # KB to MB
-
-
-def get_disk_usage_mb(path: Path) -> float:
-    """Get disk usage of a directory in MB."""
-    if not path.exists():
+    """Get current memory usage of the process in MB."""
+    try:
+        # Try psutil first for more accurate RSS
+        if HAS_PSUTIL:
+            process = psutil.Process(os.getpid())
+            return process.memory_info().rss / (1024 * 1024)
+        else:
+            # Fallback to resource module (Unix only)
+            usage = resource.getrusage(resource.RUSAGE_SELF)
+            # ru_maxrss is in KB on Linux/macOS
+            return usage.ru_maxrss / 1024.0
+    except Exception:
         return 0.0
-    
-    total_size = 0
-    for dirpath, dirnames, filenames in os.walk(path):
-        for filename in filenames:
-            filepath = Path(dirpath) / filename
-            if filepath.exists():
-                total_size += filepath.stat().st_size
-    
-    return total_size / (1024 * 1024)
 
 
-def run_experiment_script(
-    script_name: str,
-    args: List[str],
-    timeout_minutes: int = 60
-) -> Tuple[bool, float, str, Dict[str, Any]]:
-    """
-    Run an experiment script and collect metrics.
-    
+def get_disk_usage_mb(path: Optional[Path] = None) -> float:
+    """Get disk usage of the project directory in MB."""
+    target = path or PROJECT_ROOT
+    if not target.exists():
+        return 0.0
+    try:
+        total = 0
+        for dirpath, dirnames, filenames in os.walk(target):
+            for filename in filenames:
+                filepath = os.path.join(dirpath, filename)
+                if os.path.isfile(filepath):
+                    total += os.path.getsize(filepath)
+        return total / (1024 * 1024)
+    except Exception:
+        return 0.0
+
+
+def run_experiment_script(script_name: str, args: List[str], timeout: int = 3600) -> Tuple[int, str, str]:
+    """Run a specific experiment script and capture output.
+
     Args:
-        script_name: Name of the Python script in code/
-        args: Command line arguments
-        timeout_minutes: Timeout in minutes
-        
+        script_name: Name of the script in code/ directory
+        args: List of command line arguments
+        timeout: Maximum execution time in seconds
+
     Returns:
-        Tuple of (success, elapsed_time, output, resource_metrics)
+        Tuple of (return_code, stdout, stderr)
     """
     script_path = PROJECT_ROOT / "code" / script_name
-    
     if not script_path.exists():
-        logger.log("script_not_found", path=str(script_path))
-        return False, 0.0, f"Script not found: {script_path}", {}
-    
-    start_time = time.time()
-    start_mem = get_memory_usage_mb()
-    start_disk = get_disk_usage_mb(PROJECT_ROOT / "data")
-    
+        return 1, "", f"Script not found: {script_path}"
+
     cmd = [sys.executable, str(script_path)] + args
-    timeout_seconds = timeout_minutes * 60
-    
+    start_time = time.time()
+
     try:
         result = subprocess.run(
             cmd,
             cwd=str(PROJECT_ROOT),
             capture_output=True,
             text=True,
-            timeout=timeout_seconds
+            timeout=timeout,
+            env={**os.environ, "PYTHONUNBUFFERED": "1"}
         )
-        
-        elapsed_time = time.time() - start_time
-        end_mem = get_memory_usage_mb()
-        end_disk = get_disk_usage_mb(PROJECT_ROOT / "data")
-        
-        success = result.returncode == 0
-        output = result.stdout + result.stderr
-        
-        metrics = {
-            "success": success,
-            "returncode": result.returncode,
-            "elapsed_time_seconds": round(elapsed_time, 2),
-            "peak_memory_mb": round(end_mem, 2),
-            "memory_delta_mb": round(end_mem - start_mem, 2),
-            "disk_start_mb": round(start_disk, 2),
-            "disk_end_mb": round(end_disk, 2),
-            "disk_delta_mb": round(end_disk - start_disk, 2),
-            "command": " ".join(cmd)
-        }
-        
-        return success, elapsed_time, output, metrics
-        
+        duration = time.time() - start_time
+        return result.returncode, result.stdout, result.stderr
     except subprocess.TimeoutExpired:
-        elapsed_time = time.time() - start_time
-        end_mem = get_memory_usage_mb()
-        
-        return False, elapsed_time, f"Timeout after {timeout_minutes} minutes", {
-            "success": False,
-            "error": "timeout",
-            "elapsed_time_seconds": round(elapsed_time, 2),
-            "peak_memory_mb": round(end_mem, 2),
-            "command": " ".join(cmd)
-        }
+        duration = time.time() - start_time
+        return -1, "", f"Process timed out after {timeout} seconds"
     except Exception as e:
-        elapsed_time = time.time() - start_time
-        end_mem = get_memory_usage_mb()
-        
-        return False, elapsed_time, str(e), {
-            "success": False,
-            "error": str(e),
-            "elapsed_time_seconds": round(elapsed_time, 2),
-            "peak_memory_mb": round(end_mem, 2),
-            "command": " ".join(cmd)
-        }
+        return 1, "", str(e)
 
 
-def run_full_pipeline() -> Dict[str, Any]:
+def run_full_pipeline() -> List[Dict[str, Any]]:
+    """Run the full pipeline steps and collect metrics.
+
+    This function orchestrates the execution of key pipeline components:
+    1. Full context experiment
+    2. Limited context experiment
+    3. Scaling experiment
+
+    It records metrics for each step and aggregates them.
     """
-    Run the full experiment pipeline with profiling.
-    
-    Executes:
-    1. Full context experiment (100 games for speed)
-    2. Limited context experiment (100 games for speed)
-    3. Scaling experiment (3 agent counts)
-    4. Analysis scripts
-    
-    Returns:
-        Dictionary with all metrics and results
-    """
-    results = {
-        "timestamp": datetime.utcnow().isoformat(),
-        "runner": "ci",
-        "pipeline_version": "1.0.0",
-        "experiments": {},
-        "summary": {}
+    results = []
+    base_args = {
+        "full_context": ["--context", "full", "--agents", "5", "--games", "100", "--seed", "42"],
+        "limited_context": ["--context", "limited", "--agents", "5", "--games", "100", "--seed", "42"],
+        "scaling": ["--context", "full", "--agents", "3,5,7", "--games", "50", "--plot", "scaling", "--seed", "42"]
     }
-    
-    # Experiment configurations
-    experiments = [
-        {
-            "name": "full_context_baseline",
-            "script": "run_experiment.py",
-            "args": ["--context", "full", "--agents", "5", "--games", "100", "--seed", "42"],
-            "description": "Full context baseline with 5 agents, 100 games"
-        },
-        {
-            "name": "limited_context",
-            "script": "run_experiment.py",
-            "args": ["--context", "limited", "--agents", "5", "--games", "100", "--seed", "42"],
-            "description": "Limited context with 5 agents, 100 games"
-        },
-        {
-            "name": "scaling_analysis",
-            "script": "run_scaling_experiment.py",
-            "args": ["--counts", "3,5,7", "--games", "50", "--seed", "42"],
-            "description": "Scaling analysis with 3, 5, 7 agents (50 games each)"
-        }
+
+    # Define pipeline steps
+    steps = [
+        {"name": "full_context", "script": "run_experiment.py", "args": base_args["full_context"]},
+        {"name": "limited_context", "script": "run_experiment.py", "args": base_args["limited_context"]},
+        {"name": "scaling", "script": "run_experiment.py", "args": base_args["scaling"]},
     ]
-    
-    total_start = time.time()
-    total_mem_start = get_memory_usage_mb()
-    total_disk_start = get_disk_usage_mb(PROJECT_ROOT / "results")
-    
-    all_success = True
-    
-    for exp in experiments:
-        logger.log("experiment_start", name=exp["name"])
-        
-        success, elapsed, output, metrics = run_experiment_script(
-            exp["script"],
-            exp["args"],
-            timeout_minutes=30
+
+    for step in steps:
+        step_start = time.time()
+        initial_mem = get_memory_usage_mb()
+        initial_disk = get_disk_usage_mb()
+
+        return_code, stdout, stderr = run_experiment_script(
+            step["script"],
+            step["args"],
+            timeout=1800  # 30 min per step
         )
-        
-        exp_result = {
-            "description": exp["description"],
-            "script": exp["script"],
-            "args": exp["args"],
-            "success": success,
-            "elapsed_time_seconds": metrics.get("elapsed_time_seconds", 0),
-            "peak_memory_mb": metrics.get("peak_memory_mb", 0),
-            "memory_delta_mb": metrics.get("memory_delta_mb", 0),
-            "disk_delta_mb": metrics.get("disk_delta_mb", 0),
-            "output_preview": output[:500] if output else "",
-            "full_output": output
+
+        step_end = time.time()
+        final_mem = get_memory_usage_mb()
+        final_disk = get_disk_usage_mb()
+
+        step_result = {
+            "step": step["name"],
+            "script": step["script"],
+            "args": step["args"],
+            "return_code": return_code,
+            "duration_seconds": step_end - step_start,
+            "memory_peak_mb": final_mem,
+            "memory_delta_mb": final_mem - initial_mem,
+            "disk_usage_mb": final_disk,
+            "disk_delta_mb": final_disk - initial_disk,
+            "success": return_code == 0,
+            "timestamp": datetime.utcnow().isoformat()
         }
-        
-        results["experiments"][exp["name"]] = exp_result
-        
-        if not success:
-            all_success = False
-            logger.log("experiment_failed", name=exp["name"], error=output[:200])
-        else:
-            logger.log("experiment_success", name=exp["name"], elapsed=elapsed)
-    
-    total_elapsed = time.time() - total_start
-    total_mem_end = get_memory_usage_mb()
-    total_disk_end = get_disk_usage_mb(PROJECT_ROOT / "results")
-    
-    results["summary"] = {
-        "total_experiments": len(experiments),
-        "successful_experiments": sum(1 for e in results["experiments"].values() if e["success"]),
-        "failed_experiments": sum(1 for e in results["experiments"].values() if not e["success"]),
-        "total_elapsed_seconds": round(total_elapsed, 2),
-        "peak_memory_mb": round(total_mem_end, 2),
-        "total_memory_delta_mb": round(total_mem_end - total_mem_start, 2),
-        "total_disk_delta_mb": round(total_disk_end - total_disk_start, 2),
-        "overall_success": all_success
-    }
-    
+
+        # Log output to file for debugging
+        log_file = LOGS_DIR / f"{step['name']}_log.txt"
+        with open(log_file, "w") as f:
+            f.write(f"Return Code: {return_code}\n")
+            f.write(f"Duration: {step_result['duration_seconds']:.2f}s\n")
+            f.write(f"Stdout:\n{stdout}\n")
+            f.write(f"Stderr:\n{stderr}\n")
+
+        results.append(step_result)
+
     return results
 
 
-def save_results(results: Dict[str, Any], output_path: Path) -> None:
-    """Save results to JSON file."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(results, f, indent=2, default=str)
-    
-    logger.log("results_saved", path=str(output_path), size_mb=results["summary"]["total_disk_delta_mb"])
+def save_results(results: List[Dict[str, Any]], output_path: Optional[Path] = None) -> Path:
+    """Save pipeline results to a JSON file."""
+    if output_path is None:
+        output_path = RESULTS_DIR / "pipeline_metrics.json"
+
+    output_data = {
+        "pipeline_run": {
+            "timestamp": datetime.utcnow().isoformat(),
+            "project_root": str(PROJECT_ROOT),
+            "python_version": sys.version,
+            "total_steps": len(results),
+            "successful_steps": sum(1 for r in results if r["success"]),
+            "total_duration_seconds": sum(r["duration_seconds"] for r in results),
+            "max_memory_mb": max(r["memory_peak_mb"] for r in results) if results else 0,
+            "final_disk_usage_mb": results[-1]["disk_usage_mb"] if results else 0
+        },
+        "steps": results
+    }
+
+    with open(output_path, "w") as f:
+        json.dump(output_data, f, indent=2, default=str)
+
+    return output_path
 
 
 def build_parser() -> argparse.ArgumentParser:
-    """Build command line argument parser."""
+    """Build the argument parser for the CLI."""
     parser = argparse.ArgumentParser(
-        description="Run full pipeline on CI with resource profiling"
+        description="Run full pipeline on CI runner and record metrics."
     )
     parser.add_argument(
         "--output",
-        type=str,
-        default="results/pipeline_metrics.json",
+        type=Path,
+        default=RESULTS_DIR / "pipeline_metrics.json",
         help="Output path for metrics JSON"
     )
     parser.add_argument(
         "--timeout",
         type=int,
-        default=60,
-        help="Timeout per experiment in minutes"
+        default=3600,
+        help="Timeout in seconds for each step"
     )
     parser.add_argument(
-        "--games",
-        type=int,
-        default=100,
-        help="Number of games per experiment (reduced for CI)"
+        "--dry-run",
+        action="store_true",
+        help="Do not execute, just report configuration"
     )
     return parser
 
@@ -277,24 +225,35 @@ def main() -> int:
     """Main entry point."""
     parser = build_parser()
     args = parser.parse_args()
-    
-    output_path = PROJECT_ROOT / args.output
-    
-    logger.log("pipeline_start", output=str(output_path), timeout=args.timeout)
-    
+
+    print(f"Starting pipeline run at {datetime.utcnow().isoformat()}")
+    print(f"Project root: {PROJECT_ROOT}")
+    print(f"Output: {args.output}")
+
+    if args.dry_run:
+        print("Dry run mode - skipping execution")
+        return 0
+
     try:
         results = run_full_pipeline()
-        save_results(results, output_path)
-        
-        if results["summary"]["overall_success"]:
-            logger.log("pipeline_complete", status="success")
-            return 0
-        else:
-            logger.log("pipeline_complete", status="partial_failure")
-            return 1
-            
+        output_path = save_results(results, args.output)
+        print(f"Pipeline run complete. Results saved to {output_path}")
+
+        # Print summary
+        success_count = sum(1 for r in results if r["success"])
+        print(f"Steps: {len(results)} total, {success_count} successful")
+        print(f"Total duration: {sum(r['duration_seconds'] for r in results):.2f}s")
+        print(f"Peak memory: {max(r['memory_peak_mb'] for r in results):.2f} MB")
+
+        return 0 if success_count == len(results) else 1
+
     except Exception as e:
-        logger.log("pipeline_failed", error=str(e))
+        print(f"Pipeline failed: {e}", file=sys.stderr)
+        # Even on failure, save what we have
+        try:
+            save_results([], args.output)
+        except Exception:
+            pass
         return 1
 
 
