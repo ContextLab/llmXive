@@ -43,40 +43,44 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create project directories: `code/`, `tests/`, `data/raw/`, `data/processed/`, `outputs/`
-- [ ] T001b [P] Create `.gitignore` to exclude `data/`, `__pycache__/`, `*.pyc`, and `outputs/`
-- [ ] T001c [P] Verify directory structure matches plan.md layout
+- [ ] T001a [P] Create project directories: `code/`, `tests/`, `data/raw/`, `data/processed/`, `results/`, `state/`
+- [ ] T001b [P] Create `.gitignore` to exclude `data/`, `__pycache__/`, `*.pyc`, `results/`, and `state/`
+- [ ] T001c [P] Implement `scripts/verify_structure.py` to check directory layout against `plan.md` and generate `state/structure_check.yaml` with status "PASS" or "FAIL"
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 2: Foundational (Blocking Prerequisites & Data Verification)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure, configuration, and the mandatory Data Verification Hard Gate that MUST run before any user story.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
-
-Examples of foundational tasks (adjust based on your project):
-
-- [ ] T002a [P] Create `code/requirements.txt` with pinned versions: `pandas`, `numpy`, `scipy`, `statsmodels`, `scikit-learn`, `mne`, `pyyaml`, `tqdm`
-- [ ] T002b [P] Setup Python 3.11 virtual environment in `code/` and install dependencies
-- [ ] T003 [P] Configure linting (flake8/black) and formatting tools in `code/`
+**⚠️ CRITICAL**: No user story work can begin until this phase is complete. The Data Verification tasks (T002c) act as a hard gate.
 
 ### Configuration & Logging
 
-- [ ] T004 [P] Setup configuration management (`config.yaml` with seeds, thresholds, paths)
-- [ ] T005 [P] Initialize logging infrastructure to capture preprocessing exclusions to `code/logs/preprocess.log` (supplementary) AND generate `outputs/quality_report.csv` as the primary artifact for exclusion counts
-- [ ] T006 Create base data models/entities (`code/data_model.py`) for Dataset and ModelResult
-- [ ] T007 Setup provenance tracking utilities for raw data metadata (`data/raw/*_meta.json`)
-- [ ] T008 Configure environment variables for data paths and OpenNeuro credentials
-- [ ] T009 Create synthetic placeholder dataset generator for development (if real data unavailable)
+- [ ] T002a [P] Create `code/requirements.txt` with pinned versions: `pandas`, `numpy`, `scipy`, `statsmodels`, `scikit-learn`, `mne`, `pyyaml`, `tqdm`, `opencv-python-headless`, `requests`, `datasets`, `python-dotenv`, `radon`
+- [ ] T002b [P] Setup Python 3.11 virtual environment in `code/` and install dependencies
+- [ ] T003 [P] Create `code/.flake8` and `code/pyproject.toml` with linting rules (max-line-length=88, etc.); verify by running `black --check code/` and ensuring exit code 0
+- [ ] T004 [P] Create `code/config.yaml` with keys: `seeds` (int), `thresholds` (dict), `paths` (dict); verify by parsing in a test script `tests/test_config.py`
+- [ ] T005 Setup logging infrastructure: Initialize `code/logging_config.py` to write to `code/logs/preprocess.log` and initialize `results/quality_report.csv` with headers `[exclusion_type, count]`; verify by asserting file creation and column presence. **Note: This task must complete before T002c and T017.**
+- [ ] T006 [P] Create `code/data_model.py` defining classes: `Dataset(subject_id, trial_id, timestamp, pupil_diameter, x, y, search_time, target_salience, fixation_count)` and `ModelResult(coefficients, std_errors, p_values, log_likelihood)`
+- [ ] T007 [P] Implement `code/utils/provenance.py` with functions `hash_file(path)` and `write_meta(path, meta_dict)`; verify by generating `data/raw/*_meta.json` with keys `[hash, timestamp, source]`
+- [ ] T008 [P] Configure environment variables: Create `code/.env.example` with keys: `DATA_PATH`, `OPENNEURO_API_KEY`, `LOG_LEVEL`; update `code/main.py` (created in T018) to load these keys via `python-dotenv`; verify script fails gracefully with error message if keys are missing.
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+### Data Verification Hard Gate (MUST precede US1/US2/US3)
+
+- [ ] T002c [P] Implement `code/verify_data_availability.py`: Parse the `# Verified datasets` block in `plan.md`. 
+    - **Logic**: If the block is empty OR contains ONLY invalid sources (e.g., fMRI datasets like ds001734/2642 identified by content type in plan.md), HALT (Exit 1) with message "ERROR: No verified eye-tracking dataset found. Pipeline cannot proceed." 
+    - **Logic**: If valid eye-tracking datasets are found, download to `data/raw/`. 
+    - **Constraint**: Do NOT hardcode specific ID rejections; rely on the content of `plan.md`'s 'Verified datasets' block.
+- [ ] T002d [P] Create `generate_synthetic_test_data.py` ONLY for unit tests (flagged `--test-mode`); ensure it is NEVER called by the main pipeline and its output is hashed in `state/test_artifacts.yaml` only.
+
+**Checkpoint**: Foundation ready + Data Verification passed - user story implementation can now begin
 
 ---
 
 ## Phase 3: User Story 1 - Compute Trial‑wise Pupil‑Load Correlations (Priority: P1) 🎯 MVP
 
-**Goal**: Load raw eye-tracking data, preprocess signals, extract load proxies, and compute correlations.
+**Goal**: Load raw eye-tracking data, preprocess signals, extract load proxies (including on-the-fly salience if needed), and compute correlations.
 
 **Independent Test**: Run the pipeline on a single dataset and verify output CSV contains required columns and Pearson-r values.
 
@@ -90,11 +94,11 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Implement `code/data_loader.py` to ingest raw files (OpenNeuro ds004248) and convert to uniform CSV (`timestamp`, `x`, `y`, `pupil_diameter`)
-- [ ] T014 [US1] Implement `code/preprocess.py` with blink interpolation and low-pass filter (≤4 Hz) handling missing samples (>30% exclusion)
-- [ ] T015 [US1] Implement `code/features.py` to compute load proxies: search time, fixation count; **READ** target salience ONLY from stimulus metadata; if metadata is missing, **SKIP** the proxy and log `WARNING: Target salience missing; skipping proxy` (do NOT compute on-the-fly)
-- [ ] T016 [US1] Implement `code/analysis.py` to calculate Pearson correlations (peak/mean/quantized vs. proxies) with Bonferroni correction
-- [ ] T017 [US1] Implement quality report generation in `code/preprocess.py` writing exclusion counts to `outputs/quality_report.csv`
+- [ ] T013 [US1] Implement `code/preprocessing/load_data.py` to ingest raw files from verified eye-tracking sources (configured via `config.yaml` or `verify_data_availability.py` output) and convert to uniform CSV (`timestamp`, `x`, `y`, `pupil_diameter`)
+- [ ] T014 [US1] Implement `code/preprocessing/filter.py` with blink interpolation and low-pass filter (≤4 Hz) handling missing samples (>30% exclusion)
+- [ ] T015 [US1] Implement `code/preprocessing/features.py` to compute load proxies: search time, fixation count; **COMPUTE** target salience on-the-fly from stimulus images using Gabor filter bank (4 orientations, 2 scales) if metadata is missing; **IF** neither metadata nor valid image data exists, mark proxy as `UNFULFILLABLE` in output CSV, log specific exclusion reason, and set `status` column to "UNFULFILLABLE" (do NOT skip silently or crash)
+- [ ] T016 [US1] Implement `code/analysis/correlations.py` to calculate Pearson correlations (peak/mean/quantized vs. proxies) with **Benjamini-Hochberg FDR correction** (replacing Bonferroni) and output adjusted p-values to `results/correlations.csv`
+- [ ] T017 [US1] Implement quality report generation in `code/preprocessing/filter.py` writing exclusion counts to `results/quality_report.csv` (appending to headers initialized in T005) with columns `[exclusion_type, count]`
 - [ ] T018 [US1] Create `code/main.py` orchestrator for US1 pipeline execution
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
@@ -114,11 +118,16 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 2
 
-- [ ] T021 [US2] Extend `code/analysis.py` to fit LME model `pupil_metric ~ search_time + target_salience + fixation_count + (1|subject)`; if target salience metadata is missing, **SKIP** that predictor entirely (do NOT fit a reduced model) and log a warning
-- [ ] T022 [US2] Implement collinearity mitigation (VIF > 5 triggers Reduced Model for remaining predictors only) in `code/analysis.py`
+- [ ] T021 [US2] Extend `code/analysis/lme_model.py` to: 
+    1. Calculate Variance Inflation Factor (VIF) for *each* predictor.
+    2. If any VIF > 5, drop the predictor with the highest VIF and refit.
+    3. If target salience is missing (UNFULFILLABLE), fit a reduced model excluding that predictor and log the reduction.
+    4. Output fixed-effect estimates, SEs, p-values, and likelihood-ratio test to `results/model_summary.csv`.
+    *Note: This task depends on T015 completing feature extraction to determine column availability. US2 cannot start until T015 completes.*
+- [ ] T022 [US2] Implement collinearity mitigation (VIF > 5 triggers Reduced Model for remaining predictors only) in `code/analysis/lme_model.py`
 - [ ] T023 [US2] Implement likelihood-ratio test logic comparing nested models
-- [ ] T024 [US2] Add validation for sufficient trials per subject (<20 triggers RuntimeError unless aggregation config is enabled)
-- [ ] T025 [US2] Output fixed-effect estimates, SEs, p-values to `outputs/lme_results.csv`
+- [ ] T024 [US2] Add validation for sufficient trials per subject (<20 triggers RuntimeError with message "Subject {id} has < 20 trials" unless `config.yaml` aggregation flag is true)
+- [ ] T025 [US2] Output fixed-effect estimates, SEs, p-values to `results/model_summary.csv`
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -137,25 +146,25 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 3
 
-- [ ] T028 [US3] Implement `code/classifier.py` with sliding-window logistic regression (200 ms updates, L2 regularization)
-- [ ] T029 [US3] Implement ground-truth labeling logic: if independent measure absent, label by median split of search time, **remove** "predictive validity" claims from all outputs, and write an explicit limitation note to `outputs/limitations.md` stating "Ground truth is derived from search-time median split; predictive validity claims removed"
-- [ ] T030 [US3] Implement `code/evaluate.py` to compute accuracy, precision, recall, ROC-AUC on held-out set
-- [ ] T031 [US3] Implement sensitivity analysis sweeping thresholds across a range of small values, outputting full metric tables (accuracy, AUC) to `outputs/sensitivity_analysis.csv` with caveat if ground truth is derived from median split
+- [ ] T028 [US3] Implement `code/classification/classifier.py` with sliding-window logistic regression: use a **fixed-duration lookback window** for feature extraction, but update the classifier every **200ms**; use L2 regularization
+- [ ] T029 [US3] Implement ground-truth labeling logic: if independent measure absent, label by median split of search time; **REMOVE** "predictive validity" claims from ALL outputs (logs, CSVs); write explicit limitation note to `results/limitations.md` stating "Ground truth is derived from search-time median split; predictive validity claims removed" and label output as "Search-Time Estimation"; **SET** the `status` column in `results/classification_metrics.csv` to `UNVALIDATED` to prevent downstream misinterpretation.
+- [ ] T030 [US3] Implement `code/classification/evaluate.py` to compute accuracy, precision, recall, ROC-AUC on held-out set
+- [ ] T031 [US3] Implement sensitivity analysis sweeping thresholds across the **specific values {0.40, 0.50, 0.60}** as defined in SC-004; output full metric tables AND calculate/report **relative decrease** or **stability** metrics to `results/sensitivity_analysis.csv` with caveat if ground truth is derived from median split
 - [ ] T032 [US3] Output continuous correlation between predicted probability and search time as auxiliary validation
 
 **Checkpoint**: All user stories should now be independently functional
 
 ---
 
-## Phase N: Polish & Cross-Cutting Concerns
+## Phase 6: Polish & Cross-Cutting Concerns
 
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T033 [P] Documentation updates: Create `docs/pipeline.md` and update `README.md` with CLI usage and limitations
-- [ ] T034a [P] Refactor `code/` to reduce cyclomatic complexity of `preprocess.py` and `analysis.py` to < 15 and remove unused imports
-- [ ] T035a [P] Profile memory usage of `preprocess.py` and optimize to ensure peak RAM < 6GB
+- [ ] T034a [P] Refactor `code/` to reduce cyclomatic complexity of `preprocess.py` and `analysis.py` to < 15; verify by running `radon cc code/` and ensuring all functions score < 15
+- [ ] T035a [P] Create `scripts/profile_memory.py` that runs `preprocess.py` and logs peak RAM to `results/memory_profile.csv`; verify script exists and runs successfully
 - [ ] T036 [P] Additional unit tests for edge cases (corrupted timestamps, missing metadata)
-- [ ] T037 Run `quickstart.md` validation to ensure end-to-end reproducibility
+- [ ] T037 [P] Run `docs/quickstart.sh` validation: execute `bash docs/quickstart.sh` and verify exit code 0 and presence of `results/correlations.csv`
 
 ---
 
@@ -164,16 +173,16 @@ Examples of foundational tasks (adjust based on your project):
 ### Phase Dependencies
 
 - **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
+- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories (includes Data Verification Hard Gate)
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
   - User stories can then proceed in parallel (if staffed)
   - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
+- **Polish (Phase 6)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - **Depends on T015 (US1) completion** to determine data artifact state (target_salience column presence)
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
 
 ### Within Each User Story
@@ -214,7 +223,7 @@ Task: "Implement preprocess.py with blink interpolation"
 ### MVP First (User Story 1 Only)
 
 1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
+2. Complete Phase 2: Foundational (CRITICAL - blocks all stories, includes Data Verification)
 3. Complete Phase 3: User Story 1
 4. **STOP and VALIDATE**: Test User Story 1 independently
 5. Deploy/demo if ready
@@ -249,3 +258,5 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- **Critical**: Do not proceed with US1/US2/US3 if T002c fails (invalid dataset detected)
+- **Note on T021**: US2 depends on US1's data artifact state; ensure T015 completes before T021 runs.

@@ -1,81 +1,91 @@
 # Research: Investigating the Relationship Between Pupil Dilation and Cognitive Load During Visual Search
 
-## 1. Background & Rationale
+## Dataset Strategy
 
-Pupil dilation is a well‑established proxy for cognitive load, reflecting activity in the locus coeruleus‑norepinephrine (LC‑NE) system. During visual search tasks, increased cognitive demand (e.g., difficult searches, low target salience) typically evokes larger and more sustained pupil dilations. This project quantifies the trial‑wise relationship between pupil metrics and three load proxies: search time, target salience, and fixation count.
+**Critical Verification Step**: The project requires a verified eye-tracking dataset. The `# Verified datasets` block provided in the user message does **not** currently contain a verified URL for an eye-tracking dataset (ds001734 and ds002642 are fMRI datasets, not eye-tracking).
 
-### Scientific Context
-- **Pupil Dilation & Load**: Task‑evoked pupillary responses (TEPR) scale with cognitive effort (Kahneman & Beatty).
-- **Visual Search**: Search time and fixation count are behavioral correlates of difficulty. Target salience (stimulus distinctiveness) is a stimulus‑level predictor when available.
-- **Methodological Challenge**: Many public eye‑tracking datasets lack explicit *target salience* metadata. When absent, the pipeline **skips** the salience proxy (logging a warning) rather than deriving it from fixation data, preserving the integrity of the analysis as mandated by FR‑003.
+**Decision**:
+1.  **Hard Gate**: The implementation will run `verify_data_availability.py` first. If no verified eye-tracking dataset is found in the `# Verified datasets` block, the pipeline **HALTS** with Exit Code 1.
+2.  **No Synthetic Fallback for Empirical Analysis**: Synthetic data will **NOT** be used to answer the research question. It is reserved strictly for unit testing the pipeline logic.
+3.  **Scope**: The project is scoped as an empirical investigation. If the verified block lacks a valid source, the project cannot proceed to `research_complete`.
+4.  **Spec Contradiction**: The spec cites ds001734 and ds002642. These are fMRI datasets. The pipeline explicitly rejects these. If these are the only sources, the pipeline halts and flags the spec for correction.
 
-## 2. Dataset Strategy
+**Dataset Table**:
 
-The analysis relies on **verified** eye‑tracking datasets that contain the necessary columns (`pupil_diameter`, `timestamp`, and, when available, `target_salience`). Verification was performed by inspecting the dataset schemas and confirming column presence.
+| Dataset Name | Purpose | Verified URL (from block) | Programmatic Loader | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| OpenNeuro ds001734 | **Invalid** (fMRI, not eye-tracking) | N/A | N/A | **Excluded** |
+| OpenNeuro ds002642 | **Invalid** (fMRI, not eye-tracking) | N/A | N/A | **Excluded** |
+| Verified Eye-Tracking Dataset | Primary source | **Required** | `datasets.load_dataset(...)` | **Gate: Must Exist** |
+| Synthetic Pupil Dataset | Unit tests only | N/A | `code/generate_synthetic_test_data.py` | **Test Only** |
 
-| Dataset Name | Source URL | Verified Columns | Notes |
-| :--- | :--- | :--- | :--- |
-| OpenNeuro ds001734 | `https://openneuro.org/datasets/ds001734` | `pupil_diameter`, `timestamp`, `target_salience` (present in stimulus metadata) | Primary dataset – salience verified |
-| OpenNeuro ds002642 | `https://openneuro.org/datasets/ds002642` | `pupil_diameter`, `timestamp` (no salience) | Secondary fallback – salience will be skipped |
-| OpenNeuro ds003663 | `https://openneuro.org/datasets/ds003663` | `pupil_diameter`, `timestamp`, `target_salience` | Additional backup to avoid single‑point failure |
+*Note: If the verified block is updated to include a valid eye-tracking dataset (e.g., `openneuro/dsXXXX` with `eyetracking` tag), the pipeline will proceed. Otherwise, it halts.*
 
-**Selection Logic**  
-1. **Primary**: ds001734 – includes all three load proxies.  
-2. **Fallback**: ds002642 – used if ds001734 is unavailable; salience will be skipped.  
-3. **Backup**: ds003663 – ensures at least one dataset with salience metadata is available.
+## Methodological Rationale
 
-**Loading Strategy**  
-- Use `pandas.read_csv` (or `datasets.load_dataset` for BIDS‑compatible OpenNeuro bundles) with streaming to stay within the 7 GB RAM limit.  
-- If a dataset exceeds memory, randomly sample trials to keep the processed DataFrame ≤ 6 GB.
+### 1. Preprocessing & Signal Integrity
+- **Filtering**: Butterworth th order low-pass (a task-appropriate frequency) is standard for removing blink artifacts and high-frequency noise while preserving task-evoked dilation (Peirce et al., 2019).
+- **Blink Interpolation**: Linear interpolation for gaps < 200ms; exclusion if > 30% missing. This balances data retention with signal integrity.
+- **Timestamp Validation**: Non-monotonic timestamps will trigger trial exclusion to prevent temporal misalignment.
 
-## 3. Methodological Rigor & Statistical Plan
+### 2. Temporal Alignment Strategy (New)
+- **Physiological Latency**: Pupil dilation is a slow signal (latency on the order of seconds) compared to rapid visual search events.
+- **Strategy**: The plan mandates **time-lagged correlation analysis**. We will shift the pupil signal relative to the search event by 0.5s, 1.0s, 1.5s, and 2.0s to find the optimal alignment.
+- **Event-Related Averaging**: For trial-wise analysis, we will average the pupil signal within the window defined by the optimal lag.
 
-### 3.1 Preprocessing (FR‑001, FR‑002, FR‑008)
-- **Blink Interpolation**: Linear interpolation for gaps < 200 ms; trials with > 30 % missing after interpolation are excluded.  
-- **Low‑Pass Filtering**: 4 Hz Butterworth filter applied to the pupil signal.  
-- **Timestamp Validation**: Ensure monotonicity; non‑monotonic trials are dropped with a warning.  
-- **Output**: `data/results/quality_report.csv` summarizing exclusion counts per reason (primary artifact for FR‑008) and a supplementary `code/logs/preprocess.log`.
+### 3. Load Proxies
+- **Search Time**: Direct behavioral measure (reaction time).
+- **Fixation Count**: Standard cognitive load indicator in visual search.
+- **Target Salience**: Computed via Gabor filters on stimulus images if metadata is missing.
+    - **Conceptual Redundancy Warning**: 'Fixation count' and 'search time' are often collinear by definition (fixation_count ≈ search_time / mean_fixation_duration). The VIF check in the LME model is a statistical necessity to handle this, not a proof of distinct cognitive processes.
+    - **Missing Data**: If stimulus images are missing, the 'target salience' proxy is **uncomputable**. The correlation matrix will record this as `status: UNFULFILLABLE`.
 
-### 3.2 Correlation Analysis (FR‑004, FR‑010, SC‑001)
-- **Pupil Metrics**: Peak dilation, mean dilation, temporally quantized distribution (10‑bin histogram).  
-- **Load Proxies**: Search time, target salience (if present), fixation count.  
-- **Statistical Test**: Two‑tailed Pearson correlation; Holm‑Bonferroni correction applied across the actual number of tests (≤ 9).  
-- **Result File**: `correlation_summary.csv` with raw and adjusted p‑values, and a significance flag.
+### 4. Statistical Analysis
+- **Correlations**:
+    - **Assumption Check**: Before Pearson correlation, check for linearity and normality.
+    - **Fallback**: If assumptions are violated, use **Spearman's rho** and report both.
+    - **Correction**: Apply Benjamini-Hochberg FDR to the set of valid tests.
+    - **Missing Proxy Handling**: If 'target salience' is uncomputable, the system logs the exclusion and proceeds with the remaining tests, explicitly recording the missing status as 'UNFULFILLABLE'.
+- **LME Model**: `pupil_metric ~ search_time + target_salience + fixation_count + (1|subject)`.
+    - **VIF Check**: Variance Inflation Factor calculated before fitting. If VIF > 5, the highest collinear predictor is dropped (FR-005).
+    - **Reduced Model**: If 'target salience' is uncomputable, fit a reduced model excluding that predictor and log the reduction.
+    - **Causal Inference**: Explicitly framed as **associational** (Assumption in spec). No causal claims.
 
-### 3.3 Linear Mixed‑Effects Modeling (FR‑005, SC‑002)
-- **Full Model** (when all predictors present and VIF passes): `pupil_metric ~ search_time + target_salience + fixation_count + (1|subject)`.  
-- **Collinearity Handling**: Compute VIF for each predictor; any with VIF > 5 is dropped, and the model is refit and labeled “Reduced (Collinearity Handled)”.  
-- **Missing Salience**: If `target_salience` is absent, the LME analysis is **skipped entirely** (per FR‑003) and a log entry records the omission.  
-- **Implementation**: `statsmodels` mixed‑effects (`MixedLM`).  
-- **Diagnostics**: VIF report, convergence check (abort with clear error if not converged), likelihood‑ratio test against a null intercept‑only model.  
-- **Output**: `model_summary.csv` containing fixed‑effect estimates, SEs, p‑values, model type, and LR test statistics.
+### 5. Real-Time Classification
+- **Sliding Window**: 1-second lookback, 200ms step.
+- **Model**: Logistic Regression with L2 regularization (CPU-friendly).
+- **Ground Truth**:
+    - **Priority**: Use an independent behavioral proxy (e.g., secondary task accuracy, subjective rating).
+    - **Fallback**: If unavailable, use median split of search time.
+    - **Critical Logic**: If independent truth is missing, **DISCARD** results from empirical claims. Report as "Pipeline Feasibility Check" only. Do not present as validation of cognitive load.
+    - **Labeling**: If using search time, explicitly label the output as **"Search-Time Estimation (Self-Validated)"** and document the circularity limitation in the results.
+- **Threshold Sensitivity**: Swept over {0.40, 0.50, 0.60} to ensure stability (FR-009).
 
-### 3.4 Real‑Time Pupil‑to‑Behavior Mapping Prototype (FR‑006, FR‑007, FR‑009, FR‑011, SC‑003, SC‑004)
-- **Ground Truth Options**:  
-  1. **Independent Load Indicator** – If the dataset includes a secondary‑task performance column (e.g., `secondary_accuracy`) or a subjective rating column, that variable is used as the binary ground truth (high vs. low load).  
-  2. **Median‑Split Proxy** – If no independent measure exists, we create a binary label by median‑splitting `search_time`. This approach is **explicitly labeled as exploratory** and the limitation is recorded in `ground_truth_limitation.txt`.  
-- **Classifier**: Logistic regression with L2 regularization, sliding window of 200 ms, updated every 200 ms.  
-- **Evaluation**: Held‑out test set; compute accuracy, precision, recall, ROC‑AUC for each decision threshold {0.01, 0.05, 0.10}.  
-- **Sensitivity Analysis**: Compute **relative decrease** in accuracy and AUC relative to the best threshold; store in `classification_metrics.csv` as `relative_decrease`. This satisfies SC‑004.  
-- **Limitation Documentation**: `ground_truth_limitation.txt` states “Ground truth derived from search‑time median split; independent load measure unavailable.”  
+## Compute Feasibility & Constraints
 
-## 4. Compute Feasibility Strategy
+- **Memory**: Data loaded in chunks. `pandas` operations on subsets.
+- **CPU**: No GPU. `scipy.signal` for filtering. `statsmodels` for LME (CPU only). `scikit-learn` for logistic regression.
+- **Runtime**: Pipeline designed to complete in < 6 hours.
+- **Libraries**: `mne`, `statsmodels`, `scikit-learn`, `pandas`, `numpy`. All have CPU wheels.
 
-All steps are CPU‑only and memory‑aware:
-- **No GPU**: Libraries are CPU‑native.
-- **Memory Capping**: `pandas` reads data in chunks; optional sampling keeps peak RAM ≤ 6 GB.
-- **Runtime**: Benchmarks on a 2‑CPU GH runner show total pipeline time ≈ 4.3 h, well under the 5 h ceiling.
+## Risks & Mitigations
 
-## 5. Decision Log
+| Risk | Mitigation |
+| :--- | :--- |
+| **Missing Verified Dataset** | Pipeline halts with Exit 1. No empirical results generated. |
+| **Invalid Spec Datasets** | Pipeline halts with Exit 1. Spec flagged for correction. |
+| **Missing Target Salience** | Proxy marked 'UNFULFILLABLE'; model refitted reduced; correlation logged as 'UNFULFILLABLE'. |
+| **High Collinearity (VIF > 5)** | Drop predictor, log reduction, refit model. |
+| **Insufficient Trials (< 20/subject)** | Aggregate or abort with warning. |
+| **Memory Overflow** | Stream data; subsample if necessary; use `dtype` optimization. |
+
+## Decision Log
 
 | Decision | Rationale |
 | :--- | :--- |
-| **Skip Salience if Missing** | Aligns with FR‑003 (spec) and prevents circular predictor generation. |
-| **Holm‑Bonferroni** | Controls family‑wise error while preserving power for correlated pupil metrics. |
-| **VIF‑Based Predictor Pruning** | Mitigates multicollinearity between `search_time` and `fixation_count`. |
-| **Pupil‑to‑Behavior Mapping** | Provides a realistic, reproducible proof‑of‑concept without overstating load inference; ground‑truth limitation is documented. |
-| **Relative‑Decrease Sensitivity** | Meets SC‑004 by quantifying stability across thresholds. |
-| **Multiple Verified Datasets** | Reduces single‑point‑of‑failure risk; ensures at least one dataset supplies salience metadata. |
-| **Explicit SSoT Designation** | Guarantees all paper numbers trace back to a single CSV artifact, satisfying Principle IV. |
-| **Artifact Hash Recording** | Enforces versioning discipline per Principle V. |
-| **Ground‑Truth Limitation File** | Guarantees FR‑011 compliance and transparent reporting. |
+| **Hard Gate for Data** | Ensures scientific validity. Synthetic data cannot answer the empirical question. |
+| **Temporal Alignment** | Addresses the physiological latency of pupil dilation. |
+| **Spearman Fallback** | Ensures robustness against non-linear/non-normal distributions. |
+| **Circularity Labeling** | Explicitly documents the limitation when independent ground truth is missing. |
+| **VIF as Statistical Patch** | Acknowledges conceptual redundancy between search time and fixation count. |
+| **Discard Self-Validated Results** | Prevents presenting trivial correlation as validation of cognitive load. |

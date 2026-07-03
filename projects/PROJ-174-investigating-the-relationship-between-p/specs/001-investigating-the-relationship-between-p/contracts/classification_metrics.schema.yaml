@@ -1,0 +1,31 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Classification Metrics Schema"
+description: "Schema for classifier evaluation results (results/classification_metrics.csv)"
+type: "object"
+properties:
+  threshold:
+    type: "number"
+    description: "Decision threshold used (0.40, 0.50, or 0.60)"
+  accuracy:
+    type: "number"
+    description: "Classification accuracy"
+  precision:
+    type: "number"
+    description: "Precision score"
+  recall:
+    type: "number"
+    description: "Recall score"
+  roc_auc:
+    type: "number"
+    description: "ROC-AUC score"
+  confusion_matrix:
+    type: "string"
+    description: "JSON string representing the confusion matrix [[TN, FP], [FN, TP]]"
+required:
+  - "threshold"
+  - "accuracy"
+  - "precision"
+  - "recall"
+  - "roc_auc"
+  - "confusion_matrix"
+additionalProperties: false

@@ -1,4 +1,4 @@
-resolved_at: '2026-07-02T12:23:51.262874+00:00'
+resolved_at: '2026-07-03T14:05:13.346143+00:00'
 datasets:
 - intent: OpenNeuro
   status: verified
@@ -26,23 +26,23 @@ datasets:
     source: huggingface
     status: verified
     format: json
-  - url: https://figshare.com/articles/figure/Materials/32880833
+  - url: https://acs.figshare.com/articles/journal_contribution/Occurrence_Sources_and_Export_Rates_of_Ti-Bearing_and_Ce-Bearing_Nano_particles_in_the_Seine_River_Where_Engineered_Nanoparticles_Reach_Natural_Background_Levels/32896217
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Relay_maize_after_tobacco_enhances_rapeseed_growth_and_nutrition_by_reshaping_soil_microbial_communities_in_an_annual_triple_cropping_system_docx/32880857
+  - url: https://frontiersin.figshare.com/articles/dataset/Table1_Bismuth_exposure_affects_morpho-physiological_performances_and_the_ionomic_profile_in_garden_cress_Lepidium_sativum_L_plants_DOCX/32896208
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/figure/Image_1_Relay_maize_after_tobacco_enhances_rapeseed_growth_and_nutrition_by_reshaping_soil_microbial_communities_in_an_annual_triple_cropping_system_jpeg/32880854
+  - url: https://figshare.com/articles/dataset/Climate_and_Penguin-Mediated_Carbon_Burial_Hotspots_in_Coastal_Lakes_of_East_Antarctica/32768544
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Analisis_Pengaruh_Learnability_Efficiency_Memorability_Error_dan_Satisfaction_terhadap_Usability_Aplikasi_GoPay/32880626
+  - url: https://frontiersin.figshare.com/articles/presentation/Presentation_1_Unraveling_the_origin_of_the_Azorean_viral_nervous_necrosis_2024_outbreak_through_spatiotemporal_and_time-resolved_phylogenetic_analysis_pptx/32896205
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Advancements_trends_challenges_and_future_prospects_of_Savonius-type_vertical-axis_hydrokinetic_turbines_A_comprehensive_review/32880623
+  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Unraveling_the_origin_of_the_Azorean_viral_nervous_necrosis_2024_outbreak_through_spatiotemporal_and_time-resolved_phylogenetic_analysis_docx/32896199
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -58,32 +58,117 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21032699
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/19435085
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://openneuro.org/datasets/ds008083/versions/1.0.0
+  - url: https://zenodo.org/records/21032699
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://osf.io/74vnq/
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://ww2.nemar.org/dataset/on002893
+  - url: https://zenodo.org/records/19562977
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://ww2.nemar.org/dataset/on002893?v=v1.0.0
+  - url: https://zenodo.org/records/19562977
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://openneuro.org/datasets/ds008082/versions/1.0.0
+  - url: https://openneuro.org/datasets/ds006169/versions/1.0.9
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21113780
+  - url: https://zenodo.org/records/21136786
     source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+- intent: AND
+  status: verified
+  candidates:
+  - url: https://huggingface.co/datasets/Andyrasika/cat_kingdom/resolve/main/data/train-00000-of-00001-c6ddc870796e4f24.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 230721
+      parsed: true
+  - url: https://huggingface.co/datasets/mychen76/invoices-and-receipts_ocr_v1/resolve/main/data/test-00000-of-00001-af2d92d1cee28514.parquet
+    source: huggingface
+    format: parquet
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 262144
+      parsed: true
+  - url: https://huggingface.co/datasets/K-and-K/knights-and-knaves/resolve/main/test/people2_num100.jsonl
+    source: huggingface
+    format: jsonl
+    relevance: 0.0
+    sample_check:
+      downloaded_bytes: 146016
+      parsed: true
+  candidates_tried:
+  - url: https://huggingface.co/datasets/Andyrasika/cat_kingdom/resolve/main/data/train-00000-of-00001-c6ddc870796e4f24.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/mychen76/invoices-and-receipts_ocr_v1/resolve/main/data/test-00000-of-00001-af2d92d1cee28514.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://huggingface.co/datasets/K-and-K/knights-and-knaves/resolve/main/test/people2_num100.jsonl
+    source: huggingface
+    status: verified
+    format: jsonl
+  - url: https://huggingface.co/datasets/active-vision-lab/oxford-day-and-night/resolve/main/aria/scene_durations.csv
+    source: huggingface
+    status: verified
+    format: csv
+  - url: https://huggingface.co/datasets/smolagents/android-control/resolve/main/data/test-00000-of-00067.parquet
+    source: huggingface
+    status: verified
+    format: parquet
+  - url: https://acs.figshare.com/articles/journal_contribution/Efficient_Light-Driven_CO_sub_2_sub_Capture_and_Reversible_Release_Enabled_by_Metastable_Photoacid-Decorated_Metal_Organic_Frameworks/32896223
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://acs.figshare.com/articles/journal_contribution/Occurrence_Sources_and_Export_Rates_of_Ti-Bearing_and_Ce-Bearing_Nano_particles_in_the_Seine_River_Where_Engineered_Nanoparticles_Reach_Natural_Background_Levels/32896217
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/dataset/Table1_Bismuth_exposure_affects_morpho-physiological_performances_and_the_ionomic_profile_in_garden_cress_Lepidium_sativum_L_plants_DOCX/32896208
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://figshare.com/articles/dataset/Climate_and_Penguin-Mediated_Carbon_Burial_Hotspots_in_Coastal_Lakes_of_East_Antarctica/32768544
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://frontiersin.figshare.com/articles/presentation/Presentation_1_Unraveling_the_origin_of_the_Azorean_viral_nervous_necrosis_2024_outbreak_through_spatiotemporal_and_time-resolved_phylogenetic_analysis_pptx/32896205
+    source: figshare
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://link.springer.com/article/10.1007/BF01977446
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/7714657
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5336274
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5336041
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/5336182
+    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
 - intent: WARNING
@@ -131,23 +216,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/figure/Materials/32880833
+  - url: https://acs.figshare.com/articles/journal_contribution/Boosting_External_Quantum_Efficiency_and_Thermal_Stability_of_AlGaInP_Red_Mini-Light-Emitting_Diodes_for_Active-Matrix_Backlight_Displays/32896225
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/dataset/Table_1_Relay_maize_after_tobacco_enhances_rapeseed_growth_and_nutrition_by_reshaping_soil_microbial_communities_in_an_annual_triple_cropping_system_docx/32880857
+  - url: https://acs.figshare.com/articles/journal_contribution/Efficient_Light-Driven_CO_sub_2_sub_Capture_and_Reversible_Release_Enabled_by_Metastable_Photoacid-Decorated_Metal_Organic_Frameworks/32896223
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://frontiersin.figshare.com/articles/figure/Image_1_Relay_maize_after_tobacco_enhances_rapeseed_growth_and_nutrition_by_reshaping_soil_microbial_communities_in_an_annual_triple_cropping_system_jpeg/32880854
+  - url: https://acs.figshare.com/articles/journal_contribution/Occurrence_Sources_and_Export_Rates_of_Ti-Bearing_and_Ce-Bearing_Nano_particles_in_the_Seine_River_Where_Engineered_Nanoparticles_Reach_Natural_Background_Levels/32896217
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Analisis_Pengaruh_Learnability_Efficiency_Memorability_Error_dan_Satisfaction_terhadap_Usability_Aplikasi_GoPay/32880626
+  - url: https://frontiersin.figshare.com/articles/dataset/Table1_Bismuth_exposure_affects_morpho-physiological_performances_and_the_ionomic_profile_in_garden_cress_Lepidium_sativum_L_plants_DOCX/32896208
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/Advancements_trends_challenges_and_future_prospects_of_Savonius-type_vertical-axis_hydrokinetic_turbines_A_comprehensive_review/32880623
+  - url: https://figshare.com/articles/dataset/Climate_and_Penguin-Mediated_Carbon_Burial_Hotspots_in_Coastal_Lakes_of_East_Antarctica/32768544
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -159,11 +244,11 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10672472
+  - url: https://zenodo.org/records/6308075
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/6308075
+  - url: https://zenodo.org/records/10672472
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -171,23 +256,23 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.3929/ethz-c-000801012
-    source: datacite
-    status: unreachable
-    reason: 'reachability failed: HTTP 500'
-  - url: https://zenodo.org/records/21132039
+  - url: https://zenodo.org/records/21166728
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21132039
+  - url: https://zenodo.org/records/21166728
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21131569
+  - url: https://zenodo.org/records/21166483
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/21131569
+  - url: https://zenodo.org/records/21166483
+    source: datacite
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/21165498
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content

@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Pupil Trial Data Schema"
+description: "Schema for the processed trial-level data used in analysis (data/processed/trial_features.csv)"
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique identifier for the subject"
+  trial_id:
+    type: "string"
+    description: "Unique identifier for the trial"
+  search_time:
+    type: "number"
+    description: "Time taken to find the target in seconds"
+  target_salience:
+    type: "number"
+    description: "Computed or metadata-based salience score (0.0 to 1.0)"
+  fixation_count:
+    type: "integer"
+    description: "Total number of fixations during the trial"
+  pupil_peak:
+    type: "number"
+    description: "Maximum pupil dilation observed in the trial (mm)"
+  pupil_mean:
+    type: "number"
+    description: "Mean pupil dilation during the trial (mm)"
+  pupil_std:
+    type: "number"
+    description: "Standard deviation of pupil dilation in the trial"
+  blink_loss_pct:
+    type: "number"
+    description: "Percentage of samples lost to blinks (0.0 to 100.0)"
+  exclusion_flag:
+    type: "boolean"
+    description: "True if the trial was excluded from analysis"
+required:
+  - "subject_id"
+  - "trial_id"
+  - "search_time"
+  - "pupil_peak"
+  - "blink_loss_pct"
+  - "exclusion_flag"
+additionalProperties: false

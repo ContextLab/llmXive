@@ -1,0 +1,31 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Correlation Results Schema"
+description: "Schema for Pearson/Spearman correlation results with FDR correction (results/correlations.csv)"
+type: "object"
+properties:
+  pupil_metric:
+    type: "string"
+    description: "The pupil metric used (e.g., pupil_peak, pupil_mean)"
+  load_proxy:
+    type: "string"
+    description: "The cognitive load proxy (e.g., search_time, target_salience, fixation_count)"
+  pearson_r:
+    type: ["number", "null"]
+    description: "Pearson correlation coefficient (null if uncomputable)"
+  p_value_raw:
+    type: ["number", "null"]
+    description: "Raw two-tailed p-value (null if uncomputable)"
+  p_value_fdr:
+    type: ["number", "null"]
+    description: "Benjamini-Hochberg adjusted p-value (null if uncomputable)"
+  significant:
+    type: ["boolean", "null"]
+    description: "True if p_value_fdr < 0.05 (null if uncomputable)"
+  status:
+    type: "string"
+    description: "Either 'COMPLETED' or 'UNFULFILLABLE' (if proxy cannot be computed due to missing data)"
+required:
+  - "pupil_metric"
+  - "load_proxy"
+  - "status"
+additionalProperties: false

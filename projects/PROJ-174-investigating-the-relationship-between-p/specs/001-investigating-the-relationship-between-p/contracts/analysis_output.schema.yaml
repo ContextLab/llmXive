@@ -15,24 +15,24 @@ properties:
           type: string
           description: "Name of the load proxy (e.g., search_time, stimulus_salience, fixation_count)"
         pearson_r:
-          type: number
-          description: "Pearson correlation coefficient"
+          type: ["number", "null"]
+          description: "Pearson correlation coefficient (null if uncomputable)"
         p_value_raw:
-          type: number
-          description: "Raw p-value from t-test"
+          type: ["number", "null"]
+          description: "Raw p-value from t-test (null if uncomputable)"
         p_value_adjusted:
-          type: number
-          description: "Holm‑Bonferroni‑adjusted p-value"
+          type: ["number", "null"]
+          description: "Holm‑Bonferroni‑adjusted p-value (null if uncomputable)"
         significant:
-          type: boolean
-          description: "True if p_value_adjusted < 0.05"
+          type: ["boolean", "null"]
+          description: "True if p_value_adjusted < 0.05 (null if uncomputable)"
+        status:
+          type: "string"
+          description: "Either 'COMPLETED' or 'UNFULFILLABLE'"
       required:
         - pupil_metric
         - load_proxy
-        - pearson_r
-        - p_value_raw
-        - p_value_adjusted
-        - significant
+        - status
   lme_results:
     type: object
     properties:
@@ -66,7 +66,7 @@ properties:
           - p_value
       model_type:
         type: string
-        description: "Either 'Full', 'Reduced (Collinearity Handled)', or 'Skipped (Salience Missing)'"
+        description: "Either 'Full', 'Reduced (Collinearity Handled)', or 'Reduced (Salience Missing)'"
     required:
       - predictors
       - likelihood_ratio_test
@@ -98,8 +98,8 @@ properties:
           type: string
           description: "Either 'Independent Load Measure' or 'Search‑Time Median Split'"
         ground_truth_limitation:
-          type: string
-          description: "Explicit statement: 'Ground truth derived from search-time median split; independent load measure unavailable'"
+          type: ["string", "null"]
+          description: "Explicit statement if ground truth is derived from search-time median split. If 'Search-Time Median Split', results are discarded from empirical claims."
       required:
         - threshold
         - accuracy
@@ -108,7 +108,6 @@ properties:
         - roc_auc
         - relative_decrease
         - validation_type
-        - ground_truth_limitation
   quality_report:
     type: object
     properties:
