@@ -1,0 +1,53 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+title: "Meta-Analysis Schema"
+description: "Schema for the meta-analyzed gene panel."
+required:
+  - gene_panel
+properties:
+  gene_panel:
+    type: array
+    description: "List of genes in the final panel."
+    items:
+      type: object
+      required:
+        - gene_symbol
+        - meta_p_value
+        - log2FC_mean
+        - selected
+        - selection_method
+      properties:
+        gene_symbol:
+          type: string
+          description: "HGNC gene symbol."
+        meta_p_value:
+          type: number
+          description: "Combined p-value from Stouffer's method."
+        log2FC_mean:
+          type: number
+          description: "Mean log2 fold change across tumor types."
+        selected:
+          type: boolean
+          description: "True if included in the final panel."
+        rank:
+          type: integer
+          description: "Rank by meta p-value (1 = most significant)."
+        selection_method:
+          type: string
+          enum: ["intersection", "union_fallback"]
+          description: "Method used to select the gene panel."
+  summary:
+    type: object
+    description: "Summary statistics."
+    required:
+      - total_genes_tested
+      - genes_in_panel
+      - tumor_types_contributing
+    properties:
+      total_genes_tested:
+        type: integer
+      genes_in_panel:
+        type: integer
+      tumor_types_contributing:
+        type: integer
+        description: "Number of tumor types with significant genes in the panel."

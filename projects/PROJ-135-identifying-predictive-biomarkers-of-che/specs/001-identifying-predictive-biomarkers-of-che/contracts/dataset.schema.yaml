@@ -1,0 +1,49 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+title: "Processed Dataset Schema"
+description: "Schema for the normalized expression matrix and metadata."
+required:
+  - expression_matrix
+  - metadata
+properties:
+  expression_matrix:
+    type: object
+    description: "Mapping of sample_id to gene expression values (VST or Quantile-normalized)."
+    additionalProperties:
+      type: object
+      description: "Sample data."
+      additionalProperties:
+        type: number
+        description: "Normalized expression value."
+  metadata:
+    type: array
+    description: "List of sample metadata."
+    items:
+      type: object
+      required:
+        - sample_id
+        - tumor_type
+        - response_label
+        - source
+        - batch_corrected
+      properties:
+        sample_id:
+          type: string
+          description: "Unique sample identifier."
+        tumor_type:
+          type: string
+          description: "Tumor type code (e.g., BRCA, LUAD)."
+        response_label:
+          type: integer
+          enum: [0, 1]
+          description: "1 = Responder, 0 = Non-Responder."
+        source:
+          type: string
+          enum: ["TCGA", "GEO"]
+          description: "Data source."
+        dataset_id:
+          type: string
+          description: "Original dataset accession (e.g., GSE25055)."
+        batch_corrected:
+          type: boolean
+          description: "True if Quantile Normalization was applied to align platforms."

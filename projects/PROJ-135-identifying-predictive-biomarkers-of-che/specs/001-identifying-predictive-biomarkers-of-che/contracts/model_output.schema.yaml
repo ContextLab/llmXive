@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+title: "Model Output Schema"
+description: "Schema for trained model parameters and performance metrics."
+required:
+  - model_id
+  - cancer_type
+  - hyperparameters
+  - performance
+properties:
+  model_id:
+    type: string
+    description: "Unique model identifier."
+  cancer_type:
+    type: string
+    description: "Tumor type this model was trained on (or 'Pan-Cancer' for pooled model)."
+  hyperparameters:
+    type: object
+    required:
+      - alpha
+      - lambda
+    properties:
+      alpha:
+        type: number
+        description: "Elastic-net mixing parameter (0 <= alpha <= 1)."
+      lambda:
+        type: number
+        description: "Regularization strength."
+  performance:
+    type: object
+    required:
+      - cross_val_auc
+      - external_auc
+    properties:
+      cross_val_auc:
+        type: number
+        description: "Internal cross-validation ROC-AUC."
+      external_auc:
+        type: number
+        description: "External validation ROC-AUC."
+      calibration_error:
+        type: number
+        description: "Maximum calibration error across deciles."
+      p_value_bonferroni:
+        type: number
+        description: "Bonferroni-adjusted p-value for model significance."
+  coefficients:
+    type: object
+    description: "Gene coefficients (gene_symbol -> weight)."
+    additionalProperties:
+      type: number
