@@ -1,0 +1,13 @@
+# List of repositories to fetch PRs from.
+# Format: owner/repo
+# These are high-star repositories likely to have AI-related PRs.
+microsoft/vscode
+facebook/react
+tensorflow/tensorflow
+pytorch/pytorch
+langchain-ai/langchain
+microsoft/semantic-kernel
+google/generative-ai-docs
+huggingface/transformers
+copilot/llm-experiments
+github/copilot

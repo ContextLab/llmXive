@@ -1,0 +1,46 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: "ReviewMetrics Schema"
+description: "Schema for aggregated review metrics summary."
+type: object
+properties:
+  group:
+    type: string
+    description: "Group label (Disclosing or Non-Disclosing)."
+    enum:
+      - "Disclosing"
+      - "Non-Disclosing"
+  sample_size:
+    type: integer
+    description: "Count of PRs in the group."
+    minimum: 0
+  median_time:
+    type: number
+    description: "Median review time in minutes."
+    minimum: 0.0
+  mean_time:
+    type: number
+    description: "Mean review time in minutes."
+    minimum: 0.0
+  std_dev:
+    type: number
+    description: "Standard deviation of review time."
+    minimum: 0.0
+  shapiro_p_value:
+    type: number
+    description: "P-value from Shapiro-Wilk normality test."
+    minimum: 0.0
+    maximum: 1.0
+  code_size_slope:
+    type: number
+    description: "Regression slope coefficient for code size in this group (SC-003)."
+    minimum: -1000000.0
+    maximum: 1000000.0
+required:
+  - group
+  - sample_size
+  - median_time
+  - mean_time
+  - std_dev
+  - shapiro_p_value
+  - code_size_slope
+additionalProperties: false

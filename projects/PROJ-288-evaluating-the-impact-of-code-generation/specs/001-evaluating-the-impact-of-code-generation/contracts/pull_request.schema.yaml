@@ -1,0 +1,68 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: "PullRequest Processed Schema"
+description: "Schema for the processed pull request dataset used in analysis. Note: origin_label represents disclosure status, not code origin."
+type: object
+properties:
+  repo_id:
+    type: string
+    description: "Unique repository identifier (e.g., 'owner/repo')."
+  pr_number:
+    type: integer
+    description: "Pull Request number."
+    minimum: 1
+  origin_label:
+    type: string
+    description: "Disclosure Status: 'Disclosing' (LLM keywords present) or 'Non-Disclosing'."
+    enum:
+      - "Disclosing"
+      - "Non-Disclosing"
+  confidence_score:
+    type: number
+    description: "Heuristic confidence score for disclosure signal between 0.0 and 1.0."
+    minimum: 0.0
+    maximum: 1.0
+  formatting_consistency:
+    type: number
+    description: "Style score for formatting consistency (covariate)."
+    minimum: 0.0
+    maximum: 1.0
+  comment_density:
+    type: number
+    description: "Ratio of comment lines to total lines (covariate)."
+    minimum: 0.0
+    maximum: 1.0
+  first_review_time:
+    type: number
+    description: "Time from creation to first comment in minutes."
+    minimum: 0.0
+  total_review_time:
+    type: number
+    description: "Time from creation to merge/close in minutes."
+    minimum: 0.0
+  reviewer_count:
+    type: integer
+    description: "Number of unique reviewers."
+    minimum: 0
+  code_size:
+    type: integer
+    description: "Total lines changed (added + deleted)."
+    minimum: 0
+  is_outlier:
+    type: boolean
+    description: "Flagged if time > 30 days or < 0."
+  validation_flag:
+    type: string
+    description: "Validation status."
+    enum:
+      - "Manual"
+      - "Auto"
+      - "LowConfidence"
+required:
+  - repo_id
+  - pr_number
+  - origin_label
+  - first_review_time
+  - total_review_time
+  - code_size
+additionalProperties: false
+
