@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-06-25T09:08:57.303995Z'
-current_stage: paper_ingested
+current_stage: reviewed_preprint
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-782-mobileforge-annotation-free-adaptation-f
-last_run_id: 6a668285-eefc-4081-a157-8516786d5025
+last_run_id: 9b85b0f5-3151-41cd-baca-7a5d11671e7c
 last_run_status: null
 points_paper: {}
 points_research: {}
