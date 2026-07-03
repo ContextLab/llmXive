@@ -1,526 +1,851 @@
-- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/plan.md
   attempts: 1
-  canonical: N=30 prompts comprising 10 CodeXGLUE and 20 handcrafted prompts generating
-    N=90 snippets
-  claim_id: c_820db6b2
-  context: Update `spec.md` (FR-002, SC-005) to explicitly reflect the amended scope
-    of N=30 prompts (10 CodeXGLUE + 20 handcrafted) and N=90 snippets.
+  canonical: Comparison of StarCoder-Base, CodeGen, and GPT-NeoX across 30 prompts
+  claim_id: c_8ef37f92
+  context: This project evaluates the security implications of using Large Language
+    Models (LLMs) for code generation. We compare three models (StarCoder-Base, CodeGen,
+    GPT-NeoX) across a standardized set of 30 prompts to measure vulnerability density,
+    severity, and statistical significance of differences.
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: The amended scope includes N=30 prompts (10 CodeXGLUE + 20 handcrafted)
-    and N=90 snippets.
+  raw_text: We compare three models (StarCoder-Base, CodeGen, GPT-NeoX) across a standardized
+    set of 30 prompts.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T01:18:37Z'
-- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  updated_at: '2026-07-03T02:20:36Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/plan.md
   attempts: 1
-  canonical: 10 CodeXGLUE prompts and 20 handcrafted prompts
-  claim_id: c_bd2ca993
-  context: The amended scope of N=30 prompts (10 CodeXGLUE + 20 handcrafted) and N=90
-    snippets.
+  canonical: 90 code snippets generated from 30 prompts and 3 models
+  claim_id: c_fec90afd
+  context: "Final Dataset: Total Prompts: 30, CodeXGLUE: 10 prompts, Handcrafted:\
+    \ 20 prompts. Total Snippets Generated: 90 (30 prompts \xD7 3 models)"
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: The project uses 10 CodeXGLUE prompts and 20 handcrafted prompts.
+  raw_text: "Total Snippets Generated: 90 (30 prompts \xD7 3 models)"
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T01:20:42Z'
-- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  updated_at: '2026-07-03T02:20:54Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/plan.md
   attempts: 1
-  canonical: N=90 code snippets total
-  claim_id: c_f9490ff5
-  context: N=30 prompts (10 CodeXGLUE + 20 handcrafted) and N=90 snippets.
+  canonical: StarCoder-Base has 7B parameters, CodeGen has 2B parameters, GPT-NeoX
+    has 1.3B parameters
+  claim_id: c_d682391f
+  context: 'Generation Models: StarCoder-Base (7B), CodeGen (2B), GPT-NeoX (1.3B).
+    Configuration: 4-bit quantization, CPU-only execution, 120s timeout per generation.'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: The project generates a total of 90 code snippets.
+  raw_text: StarCoder-Base (7B), CodeGen (2B), GPT-NeoX (1.3B)
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T01:20:59Z'
-- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  updated_at: '2026-07-03T02:21:02Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/plan.md
   attempts: 1
-  canonical: 20 handcrafted web-security prompts
-  claim_id: c_f52b6461
-  context: 'Create `data/prompts/handcrafted.json` with 20 web-security prompts: 5
-    prompts each for database access, HTML rendering, authentication, and injection'
+  canonical: 20 handcrafted prompts with 5 per category for DB access, HTML rendering,
+    Auth, and Injection
+  claim_id: c_783c9b8d
+  context: 'Final Dataset: Total Prompts: 30, CodeXGLUE: 10 prompts (filtered for
+    security keywords), Handcrafted: 20 prompts (5 per category: DB access, HTML rendering,
+    Auth, Injection).'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: There are 20 handcrafted web-security prompts in the dataset.
+  raw_text: 'Handcrafted: 20 prompts (5 per category: DB access, HTML rendering, Auth,
+    Injection)'
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T01:21:06Z'
-- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  updated_at: '2026-07-03T02:21:04Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/plan.md
   attempts: 1
-  canonical: 5 handcrafted prompts for database access
-  claim_id: c_7456fbde
-  context: '20 web-security prompts: 5 prompts each for database access, HTML rendering,
-    authentication, and injection'
+  canonical: 30 snippets manually reviewed for FPR estimation with 10 per model
+  claim_id: c_5738247d
+  context: 'Calibration: Manual review of 30 snippets (10 per model) for False Positive
+    Rate (FPR) estimation.'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: There are 5 handcrafted prompts for database access.
+  raw_text: Manual review of 30 snippets (10 per model) for False Positive Rate (FPR)
+    estimation.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T01:21:16Z'
-- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  updated_at: '2026-07-03T02:21:09Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/plan.md
   attempts: 1
-  canonical: 5 handcrafted prompts for HTML rendering
-  claim_id: c_dc60e5a2
-  context: '20 web-security prompts: 5 prompts each for database access, HTML rendering,
-    authentication, and injection'
+  canonical: Bonferroni correction applied with alpha of 0.0167
+  claim_id: c_0d4f9d2e
+  context: "Dunn's Post-hoc: Pairwise comparisons with Bonferroni correction (\u03B1\
+    =0.0167)."
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: There are 5 handcrafted prompts for HTML rendering.
+  raw_text: "Bonferroni correction (\u03B1=0.0167)"
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T01:21:18Z'
-- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  updated_at: '2026-07-03T02:27:18Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/README.md
   attempts: 1
-  canonical: 5 handcrafted prompts for authentication
-  claim_id: c_26eacd03
-  context: '20 web-security prompts: 5 prompts each for database access, HTML rendering,
-    authentication, and injection'
+  canonical: 30 prompts used (10 CodeXGLUE and 20 handcrafted)
+  claim_id: c_92bad4a5
+  context: Scope section detailing the number of prompts used in the project.
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: There are 5 handcrafted prompts for authentication.
+  raw_text: 'Prompts: N=30 (10 CodeXGLUE + 20 handcrafted)'
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T01:21:21Z'
-- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  updated_at: '2026-07-03T02:32:13Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/README.md
   attempts: 1
-  canonical: 5 handcrafted prompts for injection
-  claim_id: c_4d3efb45
-  context: '20 web-security prompts: 5 prompts each for database access, HTML rendering,
-    authentication, and injection'
+  canonical: 90 code snippets generated from 3 models and 30 prompts
+  claim_id: c_126a3733
+  context: Scope section detailing the number of code snippets generated.
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: There are 5 handcrafted prompts for injection.
+  raw_text: "Snippets: N=90 (3 models \xD7 30 prompts)"
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T01:21:25Z'
+  updated_at: '2026-07-03T02:32:31Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/README.md
+  attempts: 1
+  canonical: StarCoder-Base (7B), CodeGen (2B), and GPT-NeoX (1.3B) models used with
+    4-bit quantization on CPU
+  claim_id: c_d73f8c31
+  context: Scope section listing the specific models and their parameter sizes used
+    in the evaluation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Models: StarCoder-Base (7B), CodeGen (2B), GPT-NeoX (1.3B) with 4-bit
+    quantization on CPU.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T02:32:36Z'
 - artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
   attempts: 1
-  canonical: StarCoder-Base, CodeGen, and GPT-NeoX models
-  claim_id: c_41546126
-  context: CPU-only 4-bit quantization loading for StarCoder-Base, CodeGen, GPT-NeoX
-    (model loader logic)
+  canonical: 20 web-security prompts with 5 each for database access, HTML rendering,
+    authentication, and injection
+  claim_id: c_65c9410b
+  context: 'T006 [P] Create data/prompts/handcrafted.json with 20 web-security prompts:
+    5 prompts each for database access, HTML rendering, authentication, and injection'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Create data/prompts/handcrafted.json with 20 web-security prompts: 5
+    prompts each for database access, HTML rendering, authentication, and injection.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T02:38:29Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 120s timeout handling for code generation
+  claim_id: c_b4567a41
+  context: T008 [P] Implement code/generate.py with 120s timeout handling for generation
+    and CPU-only 4-bit quantization loading for StarCoder-Base, CodeGen, GPT-NeoX
   evidence:
     entailment_status: not_found
     reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/StarCoder-Base,_CodeGen,_and_GPT-NeoX_models
+    source_url: https://en.wikipedia.org/wiki/120s_timeout_handling_for_code_generation
   kind: entity_fact
-  raw_text: The project utilizes StarCoder-Base, CodeGen, and GPT-NeoX models.
+  raw_text: Implement code/generate.py with 120s timeout handling for generation.
   resolved_value: null
   resolver: resolve_entity_fact
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T01:21:34Z'
+  updated_at: '2026-07-03T02:38:48Z'
 - artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
   attempts: 1
-  canonical: StarCoder-Base 7B
-  claim_id: c_128c1eda
-  context: Implement model loader in `code/generate.py` to load multiple models (StarCoder-Base
-    7B, CodeGen 2B, GPT-NeoX 1.3B) with 4-bit quantization
+  canonical: StarCoder-Base 7B, CodeGen 2B, and GPT-NeoX 1.3B models loaded with 4-bit
+    quantization
+  claim_id: c_da9abb34
+  context: T013 [P] [US1] Implement model loader in code/generate.py to load multiple
+    models (StarCoder-Base 7B, CodeGen 2B, GPT-NeoX 1.3B) with 4-bit quantization
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: The StarCoder-Base model has 7 billion parameters.
+  raw_text: Load multiple models (StarCoder-Base 7B, CodeGen 2B, GPT-NeoX 1.3B) with
+    4-bit quantization.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T01:23:43Z'
+  updated_at: '2026-07-03T02:39:02Z'
 - artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
   attempts: 1
-  canonical: CodeGen 2B
-  claim_id: c_07abf508
-  context: Implement model loader in `code/generate.py` to load multiple models (StarCoder-Base
-    7B, CodeGen 2B, GPT-NeoX 1.3B) with 4-bit quantization
+  canonical: 90 rows expected in generated snippets CSV
+  claim_id: c_f3fca8c1
+  context: 'T018 [US1] Generate data/generated/snippets.csv with columns: snippet_id,
+    model, prompt_id, code, line_count, timestamp (N=90 rows expected)'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: The CodeGen model has 2 billion parameters.
+  raw_text: Generate data/generated/snippets.csv with N=90 rows expected.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T01:26:51Z'
+  updated_at: '2026-07-03T02:39:08Z'
 - artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
   attempts: 1
-  canonical: GPT-NeoX 1.3B
-  claim_id: c_37d2f772
-  context: Implement model loader in `code/generate.py` to load multiple models (StarCoder-Base
-    7B, CodeGen 2B, GPT-NeoX 1.3B) with 4-bit quantization
+  canonical: stratified sampling of 10 snippets per model totaling 30 snippets
+  claim_id: c_f684d253
+  context: 'T022 [US2] Implement code/calibration.py to perform Manual Calibration:
+    Select exactly 10 snippets per model (N=30 total) from raw_findings.csv using
+    stratified sampling.'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: The GPT-NeoX model has 1.3 billion parameters.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T01:27:05Z'
-- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
-  attempts: 1
-  canonical: 'Security keywords: SQL, XSS, auth, injection, sanitize, password, token'
-  claim_id: c_71a57b27
-  context: fetch CodeXGLUE prompts from HuggingFace datasets, filter for security
-    keywords (SQL, XSS, auth, injection, sanitize, password, token)
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Security_keywords:_SQL,_XSS,_auth,_injection,_sanitize,_pass
-  kind: entity_fact
-  raw_text: The dataset is filtered for security keywords including SQL, XSS, auth,
-    injection, sanitize, password, and token.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T01:27:21Z'
-- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
-  attempts: 1
-  canonical: 10 snippets per model for calibration
-  claim_id: c_35c229be
-  context: Select exactly 10 snippets per model (N=30 total) from `raw_findings.csv`
+  raw_text: Select exactly 10 snippets per model (N=30 total) from raw_findings.csv
     using stratified sampling.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The project selects exactly 10 snippets per model for manual calibration.
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T01:27:27Z'
+  updated_at: '2026-07-03T02:39:15Z'
 - artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
   attempts: 1
-  canonical: N=30 total for calibration
-  claim_id: c_df649e73
-  context: Select exactly 10 snippets per model (N=30 total) from `raw_findings.csv`
-    using stratified sampling.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The total number of snippets used for calibration is 30.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T01:27:32Z'
-- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
-  attempts: 1
-  canonical: ZINB run if zero-vulnerability percentage >= 20.0%
-  claim_id: c_d99e72c3
-  context: "run Zero-Inflated Negative Binomial (ZINB) regression ONLY IF the zero-vulnerability\
-    \ percentage (calculated from T019/T023) is \u2265 20.0%."
+  canonical: Zero-Inflated Negative Binomial regression triggered if zero-vulnerability
+    percentage is greater than or equal to 20 percent
+  claim_id: c_3a1053a9
+  context: "T026 [US2] Implement code/stats.py to run Zero-Inflated Negative Binomial\
+    \ (ZINB) regression ONLY IF the zero-vulnerability percentage (calculated from\
+    \ T019/T023) is \u2265 20.0%."
   evidence:
     candidates_found: 0
     reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/ZINB_run_if_zero-vulnerability_percentage_%3E=_20.0%25
+    source_url: https://en.wikipedia.org/wiki/Zero-Inflated_Negative_Binomial_regression_triggered_if_zero
   kind: magnitude
-  raw_text: The Zero-Inflated Negative Binomial (ZINB) regression is run only if the
-    zero-vulnerability percentage is greater than or equal to 20.0%.
+  raw_text: "Run Zero-Inflated Negative Binomial (ZINB) regression ONLY IF the zero-vulnerability\
+    \ percentage is \u2265 20.0%."
   resolved_value: null
   resolver: resolve_superlative
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T01:27:38Z'
+  updated_at: '2026-07-03T02:40:00Z'
 - artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
   attempts: 1
-  canonical: Bonferroni correction alpha = 0.0167
-  claim_id: c_e89e9680
-  context: "run Dunn's post-hoc with Bonferroni correction (\u03B1 = 0.0167) if KW\
-    \ p < 0.05"
+  canonical: 20 handcrafted web-security prompts with 5 per category
+  claim_id: c_34427574
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T006 task description.'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: The Bonferroni correction uses an alpha value of 0.0167.
+  raw_text: 'Create data/prompts/handcrafted.json with 20 web-security prompts: 5
+    prompts each for database access, HTML rendering, authentication, and injection.'
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T01:27:44Z'
+  updated_at: '2026-07-03T02:41:32Z'
 - artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
   attempts: 1
-  canonical: N=90 rows in snippets CSV
-  claim_id: c_abc42391
-  context: 'Generate `data/generated/snippets.csv` with columns: snippet_id, model,
-    prompt_id, code, line_count, timestamp (N=90 rows expected)'
+  canonical: Process 30 prompts resulting in N=90 snippets
+  claim_id: c_0044c436
+  context: 'Phase 3: User Story 1 - T014 task description.'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: The project expects 90 rows in the generated snippets CSV file.
+  raw_text: Implement code/generate.py to process 30 prompts (N=90 snippets total).
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T01:27:51Z'
+  updated_at: '2026-07-03T02:43:29Z'
 - artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
   attempts: 1
-  canonical: 30 prompts (10 CodeXGLUE + 20 handcrafted) generating 90 snippets
-  claim_id: c_cead078e
-  context: Update spec.md to explicitly reflect the amended scope of N=30 prompts
-    (10 CodeXGLUE + 20 handcrafted) and N=90 snippets. Document the resource constraints
-    (GitHub Actions GB RAM, 6h limit) as the justification for this amendment.
+  canonical: Expected N=90 rows in snippets.csv
+  claim_id: c_d17f8eb1
+  context: 'Phase 3: User Story 1 - T018 task description.'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: The evaluation uses a subset of N=30 prompts (10 CodeXGLUE + 20 handcrafted)
-    and N=90 snippets.
+  raw_text: 'Generate data/generated/snippets.csv with columns: snippet_id, model,
+    prompt_id, code, line_count, timestamp (N=90 rows expected).'
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T01:29:19Z'
+  updated_at: '2026-07-03T02:43:38Z'
 - artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
   attempts: 1
-  canonical: '20 handcrafted prompts distributed as 5 per category: database access,
-    HTML rendering, authentication, injection'
-  claim_id: c_44539b8c
+  canonical: Dataset consists of N=30 prompts (10 CodeXGLUE + 20 handcrafted)
+  claim_id: c_795ad241
+  context: Notes section - CRITICAL constraints list.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Dataset N=30 prompts (10 CodeXGLUE + 20 handcrafted) to fit 6h/7GB budget.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T02:43:45Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Handcrafted dataset contains 20 prompts distributed across 4 categories
+  claim_id: c_e086bae3
+  context: 'Phase 2: Foundational - T006 task description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Create data/prompts/handcrafted.json with 20 web-security prompts: 5
+    prompts each for database access, HTML rendering, authentication, and injection.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T02:44:33Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Generation timeout is set to 120 seconds
+  claim_id: c_07e367fc
+  context: 'Phase 2: Foundational - T008 task description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/generate.py with 120s timeout handling for generation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T02:44:33Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Models loaded are StarCoder-Base 7B, CodeGen 2B, and GPT-NeoX 1.3B
+  claim_id: c_5c4bcbbf
+  context: 'Phase 3: User Story 1 - T013 task description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement model loader in code/generate.py to load multiple models (StarCoder-Base
+    7B, CodeGen 2B, GPT-NeoX 1.3B).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T02:46:36Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Output CSV is expected to contain 90 rows
+  claim_id: c_b6d32546
+  context: 'Phase 3: User Story 1 - T018 task description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Generate data/generated/snippets.csv with columns: snippet_id, model,
+    prompt_id, code, line_count, timestamp (N=90 rows expected).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T02:46:36Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Calibration selects 10 snippets per model totaling 30
+  claim_id: c_8d238575
+  context: 'Phase 4: User Story 2 - T022 task description.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select exactly 10 snippets per model (N=30 total) from raw_findings.csv
+    using stratified sampling for manual calibration.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T02:46:41Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: ZINB regression condition requires zero-vulnerability percentage of at
+    least 20.0%
+  claim_id: c_8453617d
+  context: 'Phase 4: User Story 2 - T026 task description.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/ZINB_regression_condition_requires_zero-vulnerability_percen
+  kind: magnitude
+  raw_text: "Run Zero-Inflated Negative Binomial (ZINB) regression ONLY IF the zero-vulnerability\
+    \ percentage is \u2265 20.0%."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T02:46:44Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Dataset size is 30 prompts to fit 6 hour and 7 GB resource budget
+  claim_id: c_0516daca
+  context: Notes section - Critical constraints.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Dataset N=30 prompts (10 CodeXGLUE + 20 handcrafted) to fit 6h/7GB budget.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T02:46:44Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 30 prompts composed of 10 CodeXGLUE and 20 handcrafted resulting in 90
+    snippets
+  claim_id: c_0fd320e0
+  context: Update spec.md (FR-002, SC-005) to explicitly reflect the amended scope
+    of N=30 prompts (10 CodeXGLUE + 20 handcrafted) and N=90 snippets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=30 prompts (10 CodeXGLUE + 20 handcrafted) and N=90 snippets
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T02:50:46Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 20 web-security prompts divided into 4 categories with 5 prompts each
+  claim_id: c_79dc0513
   context: 'Create data/prompts/handcrafted.json with 20 web-security prompts: 5 prompts
     each for database access, HTML rendering, authentication, and injection'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: The 20 handcrafted prompts are distributed as 5 prompts each for database
-    access, HTML rendering, authentication, and injection.
+  raw_text: 5 prompts each for database access, HTML rendering, authentication, and
+    injection
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T01:29:44Z'
+  updated_at: '2026-07-03T02:50:57Z'
 - artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
   attempts: 1
-  canonical: 'Evaluated models: StarCoder-Base 7B, CodeGen 2B, GPT-NeoX 1.3B'
-  claim_id: c_2c8bdf4f
+  canonical: 'Three models evaluated: StarCoder-Base 7B, CodeGen 2B, and GPT-NeoX
+    1.3B'
+  claim_id: c_29bdb90e
   context: Implement model loader in code/generate.py to load multiple models (StarCoder-Base
     7B, CodeGen 2B, GPT-NeoX 1.3B) with 4-bit quantization
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: 'The study evaluates three models: StarCoder-Base 7B, CodeGen 2B, and
-    GPT-NeoX 1.3B.'
+  raw_text: StarCoder-Base 7B, CodeGen 2B, GPT-NeoX 1.3B
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T01:30:19Z'
+  updated_at: '2026-07-03T02:51:10Z'
 - artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
   attempts: 1
-  canonical: ZINB regression triggered if zero-vulnerability percentage >= 20.0%
-  claim_id: c_0358384c
+  canonical: 90 rows expected in generated snippets CSV
+  claim_id: c_db2bacd7
+  context: 'Generate data/generated/snippets.csv with columns: snippet_id, model,
+    prompt_id, code, line_count, timestamp (N=90 rows expected)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=90 rows expected
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T02:51:22Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 30 total snippets selected for calibration with 10 per model
+  claim_id: c_006c046c
+  context: 'Implement code/calibration.py to perform Manual Calibration: Select exactly
+    10 snippets per model (N=30 total) from raw_findings.csv using stratified sampling.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select exactly 10 snippets per model (N=30 total)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T02:51:37Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction alpha set to 0.0167
+  claim_id: c_ed2f8fb3
+  context: "Implement code/stats.py to run Dunn's post-hoc with Bonferroni correction\
+    \ (\u03B1 = 0.0167) if KW p < 0.05"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Bonferroni correction (\u03B1 = 0.0167)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T02:51:37Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Zero-Inflated Negative Binomial regression condition requires zero-vulnerability
+    percentage greater than or equal to 20.0 percent
+  claim_id: c_60130db0
   context: "Implement code/stats.py to run Zero-Inflated Negative Binomial (ZINB)\
     \ regression ONLY IF the zero-vulnerability percentage (calculated from T019/T023)\
     \ is \u2265 20.0%."
   evidence:
     candidates_found: 0
     reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/ZINB_regression_triggered_if_zero-vulnerability_percentage_%3E
+    source_url: https://en.wikipedia.org/wiki/Zero-Inflated_Negative_Binomial_regression_condition_require
   kind: magnitude
-  raw_text: The Zero-Inflated Negative Binomial (ZINB) regression is run only if the
-    zero-vulnerability percentage is greater than or equal to 20.0%.
+  raw_text: "zero-vulnerability percentage ... is \u2265 20.0%"
   resolved_value: null
   resolver: resolve_superlative
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T01:30:19Z'
+  updated_at: '2026-07-03T02:52:23Z'
 - artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
   attempts: 1
-  canonical: Bonferroni correction applied at alpha = 0.0167 if KW p < 0.05
-  claim_id: c_743079fd
-  context: "Implement code/stats.py to run Dunn's post-hoc with Bonferroni correction\
-    \ (\u03B1 = 0.0167) if KW p < 0.05"
-  evidence:
-    candidates_found: 0
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_applied_at_alpha_=_0.0167_if_KW_p_%3C_0.
-  kind: magnitude
-  raw_text: Bonferroni correction is applied with an alpha level of 0.0167 if the
-    Kruskal-Wallis p-value is less than 0.05.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T01:31:14Z'
-- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
-  attempts: 1
-  canonical: Generation timeout set to 120 seconds
-  claim_id: c_8d4b4445
-  context: Implement code/generate.py with 120s timeout handling for generation and
-    CPU-only 4-bit quantization loading
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The generation process uses a 120-second timeout.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T01:31:32Z'
-- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
-  attempts: 1
-  canonical: Dataset constrained by 6-hour time limit and 7GB RAM budget
-  claim_id: c_2bbd64d3
-  context: Dataset N=30 prompts (10 CodeXGLUE + 20 handcrafted) to fit 6h/7GB budget;
-    A large number of prompts is infeasible.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The dataset size is limited to fit a 6-hour time limit and 7GB RAM budget.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T01:32:08Z'
-- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
-  attempts: 1
-  canonical: 30 prompts used in evaluation (10 CodeXGLUE + 20 handcrafted)
-  claim_id: c_a6d92476
+  canonical: 30 prompts total consisting of 10 CodeXGLUE and 20 handcrafted
+  claim_id: c_f09d3b6e
   context: Update spec.md to explicitly reflect the amended scope of N=30 prompts
     (10 CodeXGLUE + 20 handcrafted) and N=90 snippets.
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: The evaluation uses a total of N=30 prompts (10 CodeXGLUE + 20 handcrafted).
+  raw_text: N=30 prompts (10 CodeXGLUE + 20 handcrafted)
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T01:33:54Z'
+  updated_at: '2026-07-03T02:54:39Z'
 - artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
   attempts: 1
-  canonical: 90 code snippets generated in evaluation
-  claim_id: c_43162aca
-  context: Update spec.md to explicitly reflect the amended scope of N=30 prompts
-    (10 CodeXGLUE + 20 handcrafted) and N=90 snippets.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The evaluation generates a total of N=90 code snippets.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T01:34:49Z'
-- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
-  attempts: 1
-  canonical: 20 handcrafted prompts split into 4 categories of 5 prompts each
-  claim_id: c_e9a13883
+  canonical: 20 handcrafted prompts distributed as 5 per category for database access,
+    HTML rendering, authentication, and injection
+  claim_id: c_0506ae28
   context: 'Create data/prompts/handcrafted.json with 20 web-security prompts: 5 prompts
     each for database access, HTML rendering, authentication, and injection'
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: The handcrafted prompt set includes 5 prompts for database access, 5 for
-    HTML rendering, 5 for authentication, and 5 for injection.
+  raw_text: 5 prompts each for database access, HTML rendering, authentication, and
+    injection
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T01:35:10Z'
+  updated_at: '2026-07-03T02:54:39Z'
 - artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
   attempts: 1
-  canonical: '3 models evaluated: StarCoder-Base 7B, CodeGen 2B, GPT-NeoX 1.3B'
-  claim_id: c_4a5e2c66
+  canonical: Models evaluated are StarCoder-Base 7B, CodeGen 2B, and GPT-NeoX 1.3B
+  claim_id: c_e7741011
   context: Implement model loader in code/generate.py to load multiple models (StarCoder-Base
     7B, CodeGen 2B, GPT-NeoX 1.3B) with 4-bit quantization
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: 'The study evaluates three models: StarCoder-Base (7B), CodeGen (2B),
-    and GPT-NeoX (1.3B).'
+  raw_text: StarCoder-Base 7B, CodeGen 2B, GPT-NeoX 1.3B
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T01:35:38Z'
+  updated_at: '2026-07-03T02:54:40Z'
 - artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
   attempts: 1
-  canonical: 4-bit quantization applied to models
-  claim_id: c_e8188654
+  canonical: Calibration set consists of exactly 10 snippets per model totaling 30
+  claim_id: c_f9ac24b8
+  context: 'Implement code/calibration.py to perform Manual Calibration: Select exactly
+    10 snippets per model (N=30 total) from raw_findings.csv using stratified sampling.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select exactly 10 snippets per model (N=30 total)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T02:54:40Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: ZINB regression is applied only if zero-vulnerability percentage is greater
+    than or equal to 20 percent
+  claim_id: c_76f755cd
+  context: "Implement code/stats.py to run Zero-Inflated Negative Binomial (ZINB)\
+    \ regression ONLY IF the zero-vulnerability percentage (calculated from T019/T023)\
+    \ is \u2265 20.0%."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/ZINB_regression_is_applied_only_if_zero-vulnerability_percen
+  kind: magnitude
+  raw_text: "Zero-inflated Negative Binomial (ZINB) regression ONLY IF the zero-vulnerability\
+    \ percentage is \u2265 20.0%"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T02:57:03Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 20 web-security prompts composed of 5 prompts each for database access,
+    HTML rendering, authentication, and injection
+  claim_id: c_6954d00d
+  context: 'T006 [P] Create data/prompts/handcrafted.json with 20 web-security prompts:
+    5 prompts each for database access, HTML rendering, authentication, and injection'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Create data/prompts/handcrafted.json with 20 web-security prompts: 5
+    prompts each for database access, HTML rendering, authentication, and injection'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T03:00:10Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Processing 30 prompts yields 90 total snippets
+  claim_id: c_2b6a6240
+  context: T014 [US1] Implement generation loop in code/generate.py to process 30
+    prompts (N=90 snippets total) using data/prompts/manifest.json, logging failures
+    to data/failures.log
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/generate.py to process 30 prompts (N=90 snippets total)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T03:00:11Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Expected 90 rows in generated snippets CSV
+  claim_id: c_108304c0
+  context: 'T018 [US1] Generate data/generated/snippets.csv with columns: snippet_id,
+    model, prompt_id, code, line_count, timestamp (N=90 rows expected)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Generate data/generated/snippets.csv with columns: snippet_id, model,
+    prompt_id, code, line_count, timestamp (N=90 rows expected)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T03:00:11Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Select 10 snippets per model for a total of 30 snippets
+  claim_id: c_8443c760
+  context: 'T022 [US2] Implement code/calibration.py to perform Manual Calibration:
+    Select exactly 10 snippets per model (N=30 total) from raw_findings.csv using
+    stratified sampling.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select exactly 10 snippets per model (N=30 total) from raw_findings.csv
+    using stratified sampling
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T03:00:11Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'ZINB regression condition: zero-vulnerability percentage greater than
+    or equal to 20.0 percent'
+  claim_id: c_02d387da
+  context: "T026 [US2] Implement code/stats.py to run Zero-Inflated Negative Binomial\
+    \ (ZINB) regression ONLY IF the zero-vulnerability percentage (calculated from\
+    \ T019/T023) is \u2265 20.0%."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/ZINB_regression_condition:_zero-vulnerability_percentage_gre
+  kind: magnitude
+  raw_text: "Run Zero-Inflated Negative Binomial (ZINB) regression ONLY IF the zero-vulnerability\
+    \ percentage is \u2265 20.0%"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T03:00:17Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Dataset consists of 30 prompts (10 CodeXGLUE and 20 handcrafted) fitting
+    a 6-hour 7GB budget
+  claim_id: c_8da348a0
+  context: 'Notes: CRITICAL: Dataset N=30 prompts (10 CodeXGLUE + 20 handcrafted)
+    to fit 6h/7GB budget; A large number of prompts is infeasible. (amended in T000a).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Dataset N=30 prompts (10 CodeXGLUE + 20 handcrafted) to fit 6h/7GB budget
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T03:00:18Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 10 CodeXGLUE prompts and 20 handcrafted prompts for a total of 30 prompts
+  claim_id: c_9fca6c6d
+  context: Update spec.md to explicitly reflect the amended scope of N=30 prompts
+    (10 CodeXGLUE + 20 handcrafted) and N=90 snippets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=30 prompts (10 CodeXGLUE + 20 handcrafted)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T03:02:19Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 2
+  canonical: 90 code snippets generated from 30 prompts
+  claim_id: c_b798f99c
+  context: Update spec.md to explicitly reflect the amended scope of N=30 prompts
+    (10 CodeXGLUE + 20 handcrafted) and N=90 snippets.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=90 snippets
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T03:02:19Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: StarCoder-Base model has 7 billion parameters
+  claim_id: c_efb32601
   context: Implement model loader in code/generate.py to load multiple models (StarCoder-Base
     7B, CodeGen 2B, GPT-NeoX 1.3B) with 4-bit quantization
   evidence:
-    fill:
-      channel: paper
-      conflicts:
-      - channel: paper
-        source_id: '2505.21591'
-        url: https://arxiv.org/abs/2505.21591
-        value: '4'
-      - channel: paper
-        source_id: '2605.11396'
-        url: https://arxiv.org/abs/2605.11396
-        value: '4'
-      - channel: paper
-        source_id: '2606.29337'
-        url: https://arxiv.org/abs/2606.29337
-        value: '4'
-      quote: at 4-bit precision (W4A4), is not well understood. Existing QAT scaling
-        laws often ignore key
-      source_id: '2505.14302'
-      url: https://arxiv.org/abs/2505.14302
-      value: 4-bit
-    filled: true
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: The study applies 4-bit quantization to the models.
-  resolved_value: 4-bit
-  resolver: fill:paper
+  raw_text: StarCoder-Base 7B
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
-  status: verified
-  updated_at: '2026-07-03T01:36:39Z'
+  status: not_enough_info
+  updated_at: '2026-07-03T03:04:48Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: CodeGen model has 2 billion parameters
+  claim_id: c_110d07e4
+  context: Implement model loader in code/generate.py to load multiple models (StarCoder-Base
+    7B, CodeGen 2B, GPT-NeoX 1.3B) with 4-bit quantization
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: CodeGen 2B
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T03:05:06Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: GPT-NeoX model has 1.3 billion parameters
+  claim_id: c_9cca0553
+  context: Implement model loader in code/generate.py to load multiple models (StarCoder-Base
+    7B, CodeGen 2B, GPT-NeoX 1.3B) with 4-bit quantization
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: GPT-NeoX 1.3B
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T03:05:16Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 20 handcrafted web-security prompts distributed as 5 per category for
+    database access, HTML rendering, authentication, and injection
+  claim_id: c_d983a235
+  context: 'Create data/prompts/handcrafted.json with 20 web-security prompts: 5 prompts
+    each for database access, HTML rendering, authentication, and injection'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '20 web-security prompts: 5 prompts each for database access, HTML rendering,
+    authentication, and injection'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T03:05:37Z'
 - artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
   attempts: 1
   canonical: 120 second timeout for code generation
@@ -530,620 +855,61 @@
   evidence:
     reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
   kind: numeric
-  raw_text: The generation process uses a 120-second timeout.
+  raw_text: 120s timeout
   resolved_value: null
   resolver: resolve_numeric_or_citation
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T01:36:39Z'
+  updated_at: '2026-07-03T03:06:45Z'
 - artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
   attempts: 1
-  canonical: Kruskal-Wallis test triggered if p < 0.05
-  claim_id: c_2bdbe237
-  context: "Implement code/stats.py to run Dunn's post-hoc with Bonferroni correction\
-    \ (\u03B1 = 0.0167) if KW p < 0.05"
+  canonical: Stratified sampling selects exactly 10 snippets per model for calibration
+  claim_id: c_dfaf35e1
+  context: 'Perform Manual Calibration: Select exactly 10 snippets per model (N=30
+    total) from raw_findings.csv using stratified sampling.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select exactly 10 snippets per model
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T03:07:04Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction uses alpha of 0.0167
+  claim_id: c_fca213f1
+  context: "Run Dunn's post-hoc with Bonferroni correction (\u03B1 = 0.0167) if KW\
+    \ p < 0.05"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Bonferroni correction (\u03B1 = 0.0167)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T03:07:05Z'
+- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Zero-Inflated Negative Binomial regression is triggered if zero-vulnerability
+    percentage is at least 20 percent
+  claim_id: c_d60ca32a
+  context: "Run Zero-Inflated Negative Binomial (ZINB) regression ONLY IF the zero-vulnerability\
+    \ percentage is \u2265 20.0%."
   evidence:
     candidates_found: 0
     reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Kruskal-Wallis_test_triggered_if_p_%3C_0.05
+    source_url: https://en.wikipedia.org/wiki/Zero-Inflated_Negative_Binomial_regression_is_triggered_if_z
   kind: magnitude
-  raw_text: The Kruskal-Wallis test is triggered if the p-value is less than 0.05.
+  raw_text: "ZINB regression run ONLY IF zero-vulnerability percentage is \u2265 20.0%"
   resolved_value: null
   resolver: resolve_superlative
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T01:37:36Z'
-- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
-  attempts: 1
-  canonical: ZINB regression performed if zero-vulnerability percentage >= 20.0%
-  claim_id: c_4846a15c
-  context: "Implement code/stats.py to run Zero-Inflated Negative Binomial (ZINB)\
-    \ regression ONLY IF the zero-vulnerability percentage (calculated from T019/T023)\
-    \ is \u2265 20.0%."
-  evidence:
-    candidates_found: 0
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/ZINB_regression_performed_if_zero-vulnerability_percentage_%3E
-  kind: magnitude
-  raw_text: Zero-Inflated Negative Binomial (ZINB) regression is performed only if
-    the zero-vulnerability percentage is greater than or equal to 20.0%.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T01:38:10Z'
-- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
-  attempts: 1
-  canonical: 10 snippets per model selected for manual calibration (30 total)
-  claim_id: c_2039bb56
-  context: 'Implement code/calibration.py to perform Manual Calibration: Select exactly
-    10 snippets per model (N=30 total) from raw_findings.csv using stratified sampling.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Exactly 10 snippets per model (N=30 total) are selected for manual calibration.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T01:38:39Z'
-- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
-  attempts: 1
-  canonical: 'dataset consists of 30 prompts: 10 CodeXGLUE and 20 handcrafted'
-  claim_id: c_a5f39980
-  context: Update spec.md to explicitly reflect the amended scope of N=30 prompts
-    (10 CodeXGLUE + 20 handcrafted) and N=90 snippets.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The study uses a dataset of N=30 prompts, consisting of 10 from CodeXGLUE
-    and 20 handcrafted prompts.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T01:39:56Z'
-- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
-  attempts: 1
-  canonical: total of 90 code snippets generated
-  claim_id: c_78e5b073
-  context: Update spec.md to explicitly reflect the amended scope of N=30 prompts
-    (10 CodeXGLUE + 20 handcrafted) and N=90 snippets.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The study generates a total of N=90 code snippets.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T01:40:31Z'
-- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
-  attempts: 1
-  canonical: handcrafted prompts include 5 each for database access, HTML rendering,
-    authentication, and injection
-  claim_id: c_d77aa8bc
-  context: 'Create data/prompts/handcrafted.json with 20 web-security prompts: 5 prompts
-    each for database access, HTML rendering, authentication, and injection'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The handcrafted prompts include 5 prompts each for database access, HTML
-    rendering, authentication, and injection.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T01:41:12Z'
-- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
-  attempts: 1
-  canonical: models evaluated are StarCoder-Base 7B, CodeGen 2B, and GPT-NeoX 1.3B
-  claim_id: c_ee040358
-  context: Implement model loader in code/generate.py to load multiple models (StarCoder-Base
-    7B, CodeGen 2B, GPT-NeoX 1.3B) with 4-bit quantization
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'The study evaluates three models: StarCoder-Base 7B, CodeGen 2B, and
-    GPT-NeoX 1.3B.'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T01:41:12Z'
-- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
-  attempts: 1
-  canonical: 4-bit quantization used for model loading
-  claim_id: c_f745ed1b
-  context: Implement model loader in code/generate.py to load multiple models (StarCoder-Base
-    7B, CodeGen 2B, GPT-NeoX 1.3B) with 4-bit (2505.14302, https://arxiv.org/abs/2505.14302)
-    quantization
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The study uses 4-bit quantization for model loading.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T01:41:49Z'
-- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
-  attempts: 1
-  canonical: 120-second timeout applied for code generation
-  claim_id: c_16341585
-  context: Implement code/generate.py with 120s timeout handling for generation and
-    CPU-only 4-bit quantization loading
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The study applies a 120-second timeout for code generation.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T01:42:18Z'
-- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
-  attempts: 1
-  canonical: manual calibration selects 10 snippets per model
-  claim_id: c_80f13719
-  context: 'Implement code/calibration.py to perform Manual Calibration: Select exactly
-    10 snippets per model (N=30 total) from raw_findings.csv'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The study performs manual calibration by selecting exactly 10 snippets
-    per model.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T01:43:01Z'
-- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
-  attempts: 1
-  canonical: ZINB regression run if zero-vulnerability percentage >= 20.0%
-  claim_id: c_f67a2e43
-  context: "Implement code/stats.py to run Zero-Inflated Negative Binomial (ZINB)\
-    \ regression ONLY IF the zero-vulnerability percentage is \u2265 20.0%."
-  evidence:
-    candidates_found: 0
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/ZINB_regression_run_if_zero-vulnerability_percentage_%3E=_20.0
-  kind: magnitude
-  raw_text: A Zero-Inflated Negative Binomial (ZINB) regression is run only if the
-    zero-vulnerability percentage is greater than or equal to 20.0%.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T01:43:02Z'
-- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
-  attempts: 1
-  canonical: Bonferroni correction alpha is 0.0167
-  claim_id: c_a995cc76
-  context: "Implement code/stats.py to run Dunn's post-hoc with Bonferroni correction\
-    \ (\u03B1 = 0.0167) if KW p < 0.05"
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Bonferroni correction uses an alpha value of 0.0167.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T01:43:02Z'
-- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/plan.md
-  attempts: 1
-  canonical: Comparison of StarCoder-Base 7B, CodeGen 2B, and GPT-NeoX 1.3B models
-  claim_id: c_79c9b9f4
-  context: 'This project evaluates the security implications of code generated by
-    large language models (LLMs) by comparing three state-of-the-art models: StarCoder-Base
-    (7B), CodeGen (2B), and GPT-NeoX (1.3B).'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'The project compares three state-of-the-art models: StarCoder-Base (7B),
-    CodeGen (2B), and GPT-NeoX (1.3B).'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T01:44:46Z'
-- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/plan.md
-  attempts: 1
-  canonical: 10 prompts from CodeXGLUE security subset used
-  claim_id: c_61fc3bfe
-  context: 'Total Prompts (N=30): 10 prompts from the CodeXGLUE security subset. 20
-    handcrafted prompts covering database access, HTML rendering, authentication,
-    and injection scenarios.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The project uses 10 prompts from the CodeXGLUE security subset.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T01:45:15Z'
-- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/plan.md
-  attempts: 1
-  canonical: 20 handcrafted prompts covering specific vulnerability scenarios
-  claim_id: c_6dcd248e
-  context: 'Total Prompts (N=30): 10 prompts from the CodeXGLUE security subset. 20
-    handcrafted prompts covering database access, HTML rendering, authentication,
-    and injection scenarios.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The project uses 20 handcrafted prompts covering database access, HTML
-    rendering, authentication, and injection scenarios.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T01:45:44Z'
-- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/plan.md
-  attempts: 1
-  canonical: 90 code snippets generated from 30 prompts and 3 models
-  claim_id: c_951ac4e7
-  context: "Total Snippets Generated (N=90): Each prompt is processed by all 3 models\
-    \ (30 prompts \xD7 3 models = 90 snippets)."
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: A total of 90 code snippets are generated by processing 30 prompts with
-    3 models.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T01:46:13Z'
-- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/plan.md
-  attempts: 1
-  canonical: Static analysis tools Bandit, Semgrep, and CodeQL used for vulnerability
-    analysis
-  claim_id: c_03923198
-  context: Analyze generated code for security vulnerabilities using static analysis
-    tools (Bandit, Semgrep, CodeQL).
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Static_analysis_tools_Bandit,_Semgrep,_and_CodeQL_used_for_v
-  kind: entity_fact
-  raw_text: The analysis uses Bandit, Semgrep, and CodeQL to analyze generated code
-    for security vulnerabilities.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T01:46:58Z'
-- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/plan.md
-  attempts: 1
-  canonical: Vulnerability density metric defined as V/100LOC
-  claim_id: c_1a17f0ed
-  context: Compute vulnerability density (V/100LOC) and severity metrics mapped to
-    NIST standards.
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Vulnerability_density_metric_defined_as_V/100LOC
-  kind: entity_fact
-  raw_text: Vulnerability density is computed as V/100LOC.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T01:49:48Z'
-- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/plan.md
-  attempts: 1
-  canonical: Severity metrics mapped to NIST standards
-  claim_id: c_059e85cd
-  context: Compute vulnerability density (V/100LOC) and severity metrics mapped to
-    NIST standards.
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Severity_metrics_mapped_to_NIST_standards
-  kind: entity_fact
-  raw_text: Severity metrics are mapped to NIST standards.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T02:01:02Z'
-- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/plan.md
-  attempts: 1
-  canonical: Kruskal-Wallis H-test used for primary statistical comparison
-  claim_id: c_59ddf204
-  context: 'Primary Test: Kruskal-Wallis H-test on V/100LOC across models.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Kruskal-Wallis_H-test_used_for_primary_statistical_compariso
-  kind: entity_fact
-  raw_text: Kruskal-Wallis H-test is used as the primary statistical test on V/100LOC
-    across models.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T02:02:26Z'
-- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/plan.md
-  attempts: 1
-  canonical: Dunn's test with Bonferroni correction used for post-hoc analysis
-  claim_id: c_b2e23175
-  context: 'Post-Hoc: Dunn''s test with Bonferroni correction if significant.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Dunn's_test_with_Bonferroni_correction_used_for_post-hoc_ana
-  kind: entity_fact
-  raw_text: Dunn's test with Bonferroni correction is used for post-hoc analysis if
-    the primary test is significant.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T02:02:46Z'
-- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/plan.md
-  attempts: 1
-  canonical: ZINB regression used if zero-vulnerability rate is 20% or higher
-  claim_id: c_038c7616
-  context: "Robustness: Zero-Inflated Negative Binomial (ZINB) regression if zero-vulnerability\
-    \ rate \u2265 20%."
-  evidence:
-    candidates:
-    - - ''
-      - 25.0
-    - - ''
-      - 20.0
-    ordering_correct: false
-    source_url: https://en.wikipedia.org/wiki/ZINB_regression_used_if_zero-vulnerability_rate_is_20%25_or_hi
-  kind: magnitude
-  raw_text: Zero-Inflated Negative Binomial (ZINB) regression is used if the zero-vulnerability
-    rate is greater than or equal to 20%.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: refuted
-  updated_at: '2026-07-03T02:03:06Z'
-- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/plan.md
-  attempts: 1
-  canonical: FPR calculated via manual calibration on 10 snippets per model
-  claim_id: c_e3c70379
-  context: Calculate False Positive Rates (FPR) via manual calibration on a stratified
-    subset (10 snippets/model).
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: False Positive Rates (FPR) are calculated via manual calibration on a
-    stratified subset of 10 snippets per model.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T02:03:10Z'
-- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/plan.md
-  attempts: 1
-  canonical: GitHub Actions environment limited to 7GB RAM
-  claim_id: c_5b6fbc75
-  context: Due to strict resource constraints (GitHub Actions environment limited
-    to ~7GB RAM and a 6-hour execution window)...
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/GitHub_Actions_environment_limited_to_7GB_RAM
-  kind: entity_fact
-  raw_text: The GitHub Actions environment used has a limit of approximately 7GB RAM.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T02:06:08Z'
-- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/plan.md
-  attempts: 1
-  canonical: GitHub Actions environment has 6-hour execution window
-  claim_id: c_51f5f3f2
-  context: Due to strict resource constraints (GitHub Actions environment limited
-    to ~7GB RAM and a 6-hour execution window)...
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The GitHub Actions environment has a 6-hour execution window.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T02:06:31Z'
-- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/plan.md
-  attempts: 1
-  canonical: 120-second timeout applied per generation
-  claim_id: c_d1c41dab
-  context: Apply a 120-second timeout per generation to prevent hanging.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: A 120-second timeout is applied per generation to prevent hanging.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T02:06:48Z'
-- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/plan.md
-  attempts: 1
-  canonical: Models loaded using 4-bit quantization
-  claim_id: c_96eaa305
-  context: Load models using 4-bit quantization (CPU-compatible) to fit memory constraints.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Models are loaded using 4-bit quantization to fit memory constraints.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T02:09:57Z'
-- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
-  attempts: 1
-  canonical: 30 prompts and 90 snippets generated in study
-  claim_id: c_4ccafd66
-  context: Update spec.md to explicitly reflect the amended scope of N=30 prompts
-    (10 CodeXGLUE + 20 handcrafted) and N=90 snippets.
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The study uses a dataset of N=30 prompts (10 CodeXGLUE + 20 handcrafted)
-    and generates N=90 snippets.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T02:10:22Z'
-- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
-  attempts: 1
-  canonical: 20 handcrafted prompts split into 4 categories of 5
-  claim_id: c_0820fd00
-  context: 'Create data/prompts/handcrafted.json with 20 web-security prompts: 5 prompts
-    each for database access, HTML rendering, authentication, and injection'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The 20 handcrafted prompts are distributed as 5 prompts each for database
-    access, HTML rendering, authentication, and injection.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T02:10:22Z'
-- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
-  attempts: 1
-  canonical: Evaluation of StarCoder-Base 7B, CodeGen 2B, and GPT-NeoX 1.3B
-  claim_id: c_57177dbc
-  context: Implement model loader in code/generate.py to load multiple models (StarCoder-Base
-    7B, CodeGen 2B, GPT-NeoX 1.3B) with 4-bit quantization
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: 'The study evaluates three models: StarCoder-Base 7B, CodeGen 2B, and
-    GPT-NeoX 1.3B.'
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T02:10:23Z'
-- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
-  attempts: 1
-  canonical: 4-bit quantization used for CPU model loading
-  claim_id: c_72c5fc26
-  context: Implement model loader in code/generate.py to load multiple models... with
-    4-bit (2505.14302, https://arxiv.org/abs/2505.14302) quantization
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The study utilizes a 4-bit quantization method for model loading on CPU.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T02:10:35Z'
-- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
-  attempts: 1
-  canonical: 120s timeout for code generation
-  claim_id: c_1ed188c4
-  context: Implement code/generate.py with 120s timeout handling for generation and
-    CPU-only 4-bit quantization loading
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/120s_timeout_for_code_generation
-  kind: entity_fact
-  raw_text: The generation process uses a 120s timeout.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T02:13:29Z'
-- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
-  attempts: 2
-  canonical: Bonferroni correction alpha set to 0.0167
-  claim_id: c_ed2f8fb3
-  context: "Implement code/stats.py to run Dunn's post-hoc with Bonferroni correction\
-    \ (\u03B1 = 0.0167) if KW p < 0.05"
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The statistical analysis uses a Bonferroni corrected alpha of 0.0167.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T02:13:30Z'
-- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
-  attempts: 1
-  canonical: ZINB regression triggered if zero-vuln percentage >= 20%
-  claim_id: c_37b0d103
-  context: "Implement code/stats.py to run Zero-Inflated Negative Binomial (ZINB)\
-    \ regression ONLY IF the zero-vulnerability percentage... is \u2265 20.0%."
-  evidence:
-    candidates_found: 0
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/ZINB_regression_triggered_if_zero-vuln_percentage_%3E=_20%25
-  kind: magnitude
-  raw_text: The ZINB regression is triggered only if the zero-vulnerability percentage
-    is greater than or equal to 20.0%.
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T02:13:35Z'
-- artifact_path: projects/PROJ-152-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
-  attempts: 1
-  canonical: 10 snippets per model selected for calibration
-  claim_id: c_4007b990
-  context: 'Implement code/calibration.py to perform Manual Calibration: Select exactly
-    10 snippets per model (N=30 total) from raw_findings.csv'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The calibration phase selects exactly 10 snippets per model for inter-rater
-    reliability calculation.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T02:13:45Z'
+  updated_at: '2026-07-03T03:07:26Z'

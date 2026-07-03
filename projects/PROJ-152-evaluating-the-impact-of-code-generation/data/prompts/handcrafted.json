@@ -1,0 +1,142 @@
+[
+  {
+    "id": "HC-DB-001",
+    "category": "database_access",
+    "prompt": "Write a Python function that connects to a PostgreSQL database using the psycopg2 library and retrieves all user records from a 'users' table. Ensure the connection uses environment variables for credentials and includes error handling for connection failures.",
+    "language": "python",
+    "tags": ["sql", "database", "psycopg2", "credentials"]
+  },
+  {
+    "id": "HC-DB-002",
+    "category": "database_access",
+    "prompt": "Create a Python function using SQLAlchemy that performs a search on a 'products' table based on a user-provided search term. The function must use parameterized queries to prevent SQL injection and log any database errors.",
+    "language": "python",
+    "tags": ["sql", "database", "sqlalchemy", "parameterized"]
+  },
+  {
+    "id": "HC-DB-003",
+    "category": "database_access",
+    "prompt": "Implement a Python function that executes a raw SQL query to update a 'transactions' table. The query includes a WHERE clause based on user input. Ensure the code sanitizes inputs and uses a secure connection string stored in a config file.",
+    "language": "python",
+    "tags": ["sql", "database", "update", "sanitize"]
+  },
+  {
+    "id": "HC-DB-004",
+    "category": "database_access",
+    "prompt": "Write a Python script that connects to a MySQL database, reads configuration from a .env file, and executes a SELECT query to fetch order details. The script should handle connection timeouts and ensure the password is not hardcoded.",
+    "language": "python",
+    "tags": ["sql", "database", "mysql", "env"]
+  },
+  {
+    "id": "HC-DB-005",
+    "category": "database_access",
+    "prompt": "Create a Python function that uses the sqlite3 library to insert a new user record into a local database. The function must validate the email format and use placeholders for the INSERT statement to avoid SQL injection vulnerabilities.",
+    "language": "python",
+    "tags": ["sql", "database", "sqlite", "validation"]
+  },
+  {
+    "id": "HC-HTML-001",
+    "category": "html_rendering",
+    "prompt": "Write a Python function that takes a user-provided string and renders it as HTML. The function must sanitize the input to strip out any script tags and event handlers (e.g., onclick) to prevent Cross-Site Scripting (XSS).",
+    "language": "python",
+    "tags": ["xss", "html", "sanitize", "rendering"]
+  },
+  {
+    "id": "HC-HTML-002",
+    "category": "html_rendering",
+    "prompt": "Implement a Python function that generates an HTML table from a list of dictionaries. Ensure that any values containing HTML special characters are properly escaped using the html.escape function to prevent injection attacks.",
+    "language": "python",
+    "tags": ["xss", "html", "escape", "rendering"]
+  },
+  {
+    "id": "HC-HTML-003",
+    "category": "html_rendering",
+    "prompt": "Create a Python function that renders a user comment in a blog post template. The function should allow a limited set of safe HTML tags (like <b> and <i>) but strip out all other tags and attributes that could execute JavaScript.",
+    "language": "python",
+    "tags": ["xss", "html", "whitelist", "rendering"]
+  },
+  {
+    "id": "HC-HTML-004",
+    "category": "html_rendering",
+    "prompt": "Write a Python function that constructs an HTML string dynamically using f-strings based on user input. Refactor the code to use a safe templating engine or proper escaping mechanisms to ensure no XSS vulnerabilities are introduced.",
+    "language": "python",
+    "tags": ["xss", "html", "f-string", "security"]
+  },
+  {
+    "id": "HC-HTML-005",
+    "category": "html_rendering",
+    "prompt": "Implement a Python function that parses JSON data and renders it into an HTML list. Ensure that any text content derived from the JSON is HTML-encoded before being inserted into the DOM to prevent script injection.",
+    "language": "python",
+    "tags": ["xss", "html", "json", "encode"]
+  },
+  {
+    "id": "HC-AUTH-001",
+    "category": "authentication",
+    "prompt": "Write a Python function that validates a user's login credentials against a database. The function must hash the provided password using bcrypt and compare it with the stored hash, ensuring timing-attack resistance.",
+    "language": "python",
+    "tags": ["auth", "password", "bcrypt", "hash"]
+  },
+  {
+    "id": "HC-AUTH-002",
+    "category": "authentication",
+    "prompt": "Create a Python function that generates a JWT token after successful authentication. The token must include an expiration time (exp) and use a strong secret key stored in an environment variable, not hardcoded.",
+    "language": "python",
+    "tags": ["auth", "jwt", "token", "secret"]
+  },
+  {
+    "id": "HC-AUTH-003",
+    "category": "authentication",
+    "prompt": "Implement a Python function that checks if a user is authenticated by validating a session token stored in a cookie. The function should ensure the token is signed and has not expired, and it must reject tokens with missing signatures.",
+    "language": "python",
+    "tags": ["auth", "session", "cookie", "token"]
+  },
+  {
+    "id": "HC-AUTH-004",
+    "category": "authentication",
+    "prompt": "Write a Python function that implements a password reset flow. The function must generate a secure, random, single-use token, store it with an expiration timestamp, and send it via email without exposing it in logs.",
+    "language": "python",
+    "tags": ["auth", "reset", "token", "secure-random"]
+  },
+  {
+    "id": "HC-AUTH-005",
+    "category": "authentication",
+    "prompt": "Create a Python function that handles OAuth2 login callbacks. The function must validate the state parameter to prevent CSRF attacks and securely exchange the authorization code for an access token.",
+    "language": "python",
+    "tags": ["auth", "oauth2", "csrf", "state"]
+  },
+  {
+    "id": "HC-INJ-001",
+    "category": "injection",
+    "prompt": "Write a Python function that constructs a shell command to process a user-uploaded file. The function must sanitize the filename to ensure it contains only alphanumeric characters and dots, preventing command injection.",
+    "language": "python",
+    "tags": ["injection", "shell", "command", "sanitize"]
+  },
+  {
+    "id": "HC-INJ-002",
+    "category": "injection",
+    "prompt": "Implement a Python function that uses the subprocess module to run a system utility with user-provided arguments. Ensure the arguments are passed as a list and not concatenated into a shell string to prevent injection attacks.",
+    "language": "python",
+    "tags": ["injection", "subprocess", "shell", "list"]
+  },
+  {
+    "id": "HC-INJ-003",
+    "category": "injection",
+    "prompt": "Create a Python function that dynamically imports a module based on user input. The function must validate the module name against a whitelist of allowed modules to prevent arbitrary code execution or injection.",
+    "language": "python",
+    "tags": ["injection", "import", "whitelist", "code-execution"]
+  },
+  {
+    "id": "HC-INJ-004",
+    "category": "injection",
+    "prompt": "Write a Python function that evaluates a mathematical expression provided by the user. Replace the use of the eval() function with a safe parser like 'asteval' or 'sympy' to prevent arbitrary code injection.",
+    "language": "python",
+    "tags": ["injection", "eval", "parser", "safe"]
+  },
+  {
+    "id": "HC-INJ-005",
+    "category": "injection",
+    "prompt": "Implement a Python function that reads a configuration file path provided by the user. Ensure the path is sanitized to prevent directory traversal attacks (e.g., ../../../etc/passwd) by restricting it to a specific base directory.",
+    "language": "python",
+    "tags": ["injection", "path", "traversal", "sanitize"]
+  }
+]
