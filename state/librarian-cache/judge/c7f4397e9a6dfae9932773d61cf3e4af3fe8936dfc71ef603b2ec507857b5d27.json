@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2304.01933",
+  "judged_at": "2026-07-03T07:29:36Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"code2lora: hypernetwork-generated adapters for code language models un\" computer science",
+  "rationale": "This paper satisfies criteria (d) and (b) as it provides a foundational framework and empirical baseline for adapter-based parameter-efficient fine-tuning (PEFT), which is the core mechanism of the user's \"Code2LoRA\" follow-up. Although the paper focuses on general reasoning tasks rather than code specifically, it establishes the canonical methodology and comparative performance of adapter families that any research extending LoRA or hypernetwork-generated adapters for code models would need to ",
+  "relevant": true
+}

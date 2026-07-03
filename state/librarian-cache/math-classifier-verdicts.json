@@ -798,5 +798,9 @@
   "PROJ-890-llmxive-follow-up-extending-orca-the-wor::1.6.0": {
     "classified_at": "2026-07-03T05:06:07Z",
     "verdict": false
+  },
+  "PROJ-910-llmxive-follow-up-extending-code2lora-hy::1.6.0": {
+    "classified_at": "2026-07-03T07:29:12Z",
+    "verdict": false
   }
 }

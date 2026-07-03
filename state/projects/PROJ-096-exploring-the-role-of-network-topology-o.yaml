@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-01T15:28:27.462464Z'
-current_stage: project_initialized
+current_stage: specified
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-096-exploring-the-role-of-network-topology-o
-last_run_id: ea8d4b5c-6fa2-44aa-b943-526a64e2ab02
+last_run_id: d7525135-46af-47f3-b0bd-389e11dcedee
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-096-exploring-the-role-of-network-topology-o/specs/001-exploring-the-role-of-network-topology-o
 title: Exploring the Role of Network Topology on Synchronization in Coupled Oscillators
-updated_at: '2026-06-25T11:16:45.080676Z'
+updated_at: '2026-07-03T07:33:32.473080Z'

@@ -205,3 +205,108 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-06-29T23:25:37Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: Python 3.11 project with specified packages
+  claim_id: c_5e2a48ea
+  context: Initialize Python 3.11 project with `requirements.txt` (torch CPU-only,
+    transformers, scikit-learn, pandas, statsmodels, pyyaml)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The project will initialize a Python 3.11 project with specific packages:
+    torch CPU-only, transformers, scikit-learn, pandas, statsmodels, pyyaml.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T07:25:36Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: Minimum 50 participants for pilot data
+  claim_id: c_7c99a6c4
+  context: "Implement `code/simulate/calibration.py` to compare BKT predictions against\
+    \ human pilot data (\u226550 participants) or synthetic fallback."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Minimum_50_participants_for_pilot_data
+  kind: magnitude
+  raw_text: The project requires at least 50 participants for human pilot data.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T07:26:18Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: "RMSE difference \u2264 0.02"
+  claim_id: c_842aa656
+  context: "Add validation logic to `code/simulate/calibration.py` to ensure RMSE\
+    \ difference \u2264 0.02 and absolute RMSE \u2264 0.15."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/RMSE_difference_%E2%89%A4_0.02
+  kind: magnitude
+  raw_text: The RMSE difference should be less than or equal to 0.02.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T07:26:41Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: "Absolute RMSE \u2264 0.15"
+  claim_id: c_f350d0f2
+  context: "Add validation logic to `code/simulate/calibration.py` to ensure RMSE\
+    \ difference \u2264 0.02 and absolute RMSE \u2264 0.15."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Absolute_RMSE_%E2%89%A4_0.15
+  kind: magnitude
+  raw_text: The absolute RMSE should be less than or equal to 0.15.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T07:27:10Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: LLM size ~1.1B parameters
+  claim_id: c_628375a1
+  context: Implement `code/generate/neural_explanation.py` using a distilled CPU-tractable
+    LLM (e.g., TinyLlama-1.1B or similar) in default precision (Addressing CPU constraints).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The distilled LLM used will be approximately 1.1B parameters.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T07:27:22Z'
+- artifact_path: projects/PROJ-559-neuro-symbolic-learning-networks-bridgin/specs/001-neuro-symbolic-learning-networks-bridgin/tasks.md
+  attempts: 1
+  canonical: "CI width \u2264 0.20"
+  claim_id: c_048cdece
+  context: "Implement `code/analyze/effect_sizes.py` to compute Cohen's d with 95%\
+    \ CI for pairwise comparisons and validate CI width \u22640.20 (FR-006, SC-003)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/CI_width_%E2%89%A4_0.20
+  kind: magnitude
+  raw_text: The confidence interval width should be less than or equal to 0.20.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T07:27:39Z'

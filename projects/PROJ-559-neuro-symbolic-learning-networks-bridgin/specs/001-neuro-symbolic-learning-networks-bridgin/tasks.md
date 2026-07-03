@@ -92,7 +92,7 @@ found character '`' that cannot start any token
 - [X] T014 [US1] Implement `code/generate/neural_explanation.py` using a distilled CPU-tractable LLM (e.g., TinyLlama-1.1B or similar) in default precision (Addressing CPU constraints). **Dependency**: T012.
 - [X] T015 [US1] Implement `code/generate/neuro_symbolic_explanation.py` to combine neural narrative with symbolic trace, ensuring symbolic rules govern the structure (Addressing Turing's "post-hoc rationalization" concern). **Dependency**: T012, T013, T014.
 - [ ] T016 [US1] Implement `code/generate/explanation_generator.py` orchestrator logic to call generators and handle error states. **Dependency**: T013, T014, T015.
-- [ ] T016b [US1] Implement file I/O and artifact naming for explanation outputs in `code/generate/explanation_generator.py`. **Dependency**: T016.
+- [X] T016b [US1] Implement file I/O and artifact naming for explanation outputs in `code/generate/explanation_generator.py`. **Dependency**: T016.
 - [ ] T017 [US1] Add validation to ensure symbolic traces are distinct from neural outputs (Addressing Rockmore's "concrete mathematical objects" concern). **Dependency**: T013, T015.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently

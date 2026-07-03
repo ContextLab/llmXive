@@ -1,0 +1,8 @@
+? 'T016 [US1] Implement `code/generate/explanation_generator.py` orchestrator logic
+  to call generators and handle error states. **Dependency**: T013, T014, T015.'
+: 1
+? 'T017 [US1] Add validation to ensure symbolic traces are distinct from neural outputs
+  (Addressing Rockmore''s "concrete mathematical objects" concern). **Dependency**:
+  T013, T015.'
+: 1
+T018 [P] [US2] Contract test for SimulationLog schema in `code/tests/contract/test_schemas.py`: 1

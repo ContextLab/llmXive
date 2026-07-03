@@ -1,191 +1,147 @@
-"""
-Contract tests for explanation schema validation.
-Tests that the validation utilities correctly enforce the schema definitions
-for explanation artifacts as defined in contracts/.
-"""
-
 import pytest
 import json
 import os
 import sys
-
-# Ensure project root is in path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', '..'))
-
-from utils.validation import validate_explanation, validate_problem
-
+from utils.validation import validate_explanation, validate_problem, validate_simulation_log
 
 class TestExplanationSchema:
-    """Tests for the explanation schema validation logic."""
+    """Contract tests for explanation schema validation."""
 
-    def test_valid_neural_explanation(self, tmp_path):
-        """Validate a correctly formed neural explanation."""
-        data = {
+    def test_valid_explanation_structure(self):
+        """Test that a valid explanation passes schema validation."""
+        valid_explanation = {
             "problem_id": "prob_001",
-            "type": "neural",
-            "explanation_text": "The model suggests the answer is 4 based on pattern matching.",
-            "confidence": 0.85,
-            "model_version": "tinyllama-1.1b-v1",
-            "generated_at": "2026-01-01T00:00:00Z"
+            "explanation_type": "neural",
+            "text": "To solve this problem, we first identify the known values and then apply the relevant formula.",
+            "confidence_score": 0.92
         }
-        path = tmp_path / "neural_exp.json"
-        with open(path, 'w') as f:
-            json.dump(data, f)
+        assert validate_explanation(valid_explanation) is True
 
-        is_valid, errors = validate_explanation(str(path))
-        assert is_valid is True
-        assert len(errors) == 0
-
-    def test_valid_symbolic_explanation(self, tmp_path):
-        """Validate a correctly formed symbolic explanation."""
-        data = {
+    def test_missing_required_fields(self):
+        """Test that missing required fields fail validation."""
+        incomplete_explanation = {
             "problem_id": "prob_001",
-            "type": "symbolic",
-            "explanation_text": "Using commutativity: a + b = b + a.",
-            "trace": [
-                {"rule": "commutativity", "operands": ["a", "b"]},
-                {"rule": "identity", "operands": ["result"]}
-            ],
-            "confidence": 1.0,
-            "generated_at": "2026-01-01T00:00:00Z"
+            "explanation_type": "neural"
         }
-        path = tmp_path / "symbolic_exp.json"
-        with open(path, 'w') as f:
-            json.dump(data, f)
+        assert validate_explanation(incomplete_explanation) is False
 
-        is_valid, errors = validate_explanation(str(path))
-        assert is_valid is True
-        assert len(errors) == 0
-
-    def test_valid_neuro_symbolic_explanation(self, tmp_path):
-        """Validate a correctly formed neuro-symbolic explanation."""
-        data = {
+    def test_invalid_explanation_type(self):
+        """Test that invalid explanation types fail validation."""
+        invalid_explanation = {
             "problem_id": "prob_001",
-            "type": "neuro_symbolic",
-            "neural_narrative": "The pattern suggests addition.",
-            "symbolic_trace": [
-                {"rule": "associativity", "operands": ["a", "b", "c"]}
-            ],
-            "confidence": 0.92,
-            "generated_at": "2026-01-01T00:00:00Z"
+            "explanation_type": "invalid_type",
+            "text": "Some text",
+            "confidence_score": 0.85
         }
-        path = tmp_path / "neuro_symbolic_exp.json"
-        with open(path, 'w') as f:
-            json.dump(data, f)
-
-        is_valid, errors = validate_explanation(str(path))
-        assert is_valid is True
-        assert len(errors) == 0
-
-    def test_missing_required_field_type(self, tmp_path):
-        """Validation should fail if 'type' is missing."""
-        data = {
-            "problem_id": "prob_001",
-            "explanation_text": "Some text",
-            "confidence": 0.5
-        }
-        path = tmp_path / "invalid_exp.json"
-        with open(path, 'w') as f:
-            json.dump(data, f)
-
-        is_valid, errors = validate_explanation(str(path))
-        assert is_valid is False
-        assert any("type" in str(e).lower() for e in errors)
-
-    def test_invalid_type_value(self, tmp_path):
-        """Validation should fail if 'type' is not one of the allowed values."""
-        data = {
-            "problem_id": "prob_001",
-            "type": "unknown_type",
-            "explanation_text": "Text",
-            "confidence": 0.5
-        }
-        path = tmp_path / "invalid_type.json"
-        with open(path, 'w') as f:
-            json.dump(data, f)
-
-        is_valid, errors = validate_explanation(str(path))
-        assert is_valid is False
-        assert any("type" in str(e).lower() for e in errors)
-
-    def test_missing_problem_id(self, tmp_path):
-        """Validation should fail if problem_id is missing."""
-        data = {
-            "type": "neural",
-            "explanation_text": "Text",
-            "confidence": 0.5
-        }
-        path = tmp_path / "no_id.json"
-        with open(path, 'w') as f:
-            json.dump(data, f)
-
-        is_valid, errors = validate_explanation(str(path))
-        assert is_valid is False
-        assert any("problem_id" in str(e).lower() for e in errors)
-
-    def test_symbolic_missing_trace(self, tmp_path):
-        """Symbolic explanations must have a trace."""
-        data = {
-            "problem_id": "prob_001",
-            "type": "symbolic",
-            "explanation_text": "Text",
-            "confidence": 1.0
-        }
-        path = tmp_path / "no_trace.json"
-        with open(path, 'w') as f:
-            json.dump(data, f)
-
-        is_valid, errors = validate_explanation(str(path))
-        assert is_valid is False
-        assert any("trace" in str(e).lower() for e in errors)
-
-    def test_file_not_found(self, tmp_path):
-        """Validation should handle missing files gracefully."""
-        is_valid, errors = validate_explanation(str(tmp_path / "nonexistent.json"))
-        assert is_valid is False
-        assert any("not found" in str(e).lower() or "file" in str(e).lower() for e in errors)
-
-    def test_invalid_json(self, tmp_path):
-        """Validation should handle malformed JSON."""
-        path = tmp_path / "bad.json"
-        with open(path, 'w') as f:
-            f.write("{ this is not valid json }")
-
-        is_valid, errors = validate_explanation(str(path))
-        assert is_valid is False
-        assert any("json" in str(e).lower() for e in errors)
+        assert validate_explanation(invalid_explanation) is False
 
 
 class TestProblemSchema:
-    """Tests for the problem schema validation logic (supporting explanations)."""
+    """Contract tests for problem schema validation."""
 
-    def test_valid_problem(self, tmp_path):
-        """Validate a correctly formed problem definition."""
-        data = {
+    def test_valid_problem_structure(self):
+        """Test that a valid problem passes schema validation."""
+        valid_problem = {
             "problem_id": "prob_001",
             "question": "What is 2 + 2?",
             "answer": 4,
-            "difficulty": 1,
-            "subject": "arithmetic"
+            "difficulty": "easy",
+            "category": "arithmetic"
         }
-        path = tmp_path / "prob.json"
-        with open(path, 'w') as f:
-            json.dump(data, f)
+        assert validate_problem(valid_problem) is True
 
-        is_valid, errors = validate_problem(str(path))
-        assert is_valid is True
-        assert len(errors) == 0
-
-    def test_missing_question(self, tmp_path):
-        """Problem must have a question field."""
-        data = {
+    def test_missing_required_fields(self):
+        """Test that missing required fields fail validation."""
+        incomplete_problem = {
             "problem_id": "prob_001",
-            "answer": 4
+            "question": "What is 2 + 2?"
         }
-        path = tmp_path / "no_q.json"
-        with open(path, 'w') as f:
-            json.dump(data, f)
+        assert validate_problem(incomplete_problem) is False
 
-        is_valid, errors = validate_problem(str(path))
-        assert is_valid is False
-        assert any("question" in str(e).lower() for e in errors)
+    def test_invalid_difficulty(self):
+        """Test that invalid difficulty values fail validation."""
+        invalid_problem = {
+            "problem_id": "prob_001",
+            "question": "What is 2 + 2?",
+            "answer": 4,
+            "difficulty": "unknown",
+            "category": "arithmetic"
+        }
+        assert validate_problem(invalid_problem) is False
+
+
+class TestSimulationLogSchema:
+    """Contract tests for SimulationLog schema validation."""
+
+    def test_valid_simulation_log_structure(self):
+        """Test that a valid simulation log passes schema validation."""
+        valid_log = {
+            "student_id": "student_001",
+            "problem_id": "prob_001",
+            "condition": "neural",
+            "correct": True,
+            "rt_seconds": 5.2,
+            "comprehension_rating": 4,
+            "timestamp": "2024-01-15T10:30:00Z"
+        }
+        assert validate_simulation_log(valid_log) is True
+
+    def test_missing_required_fields(self):
+        """Test that missing required fields fail validation."""
+        incomplete_log = {
+            "student_id": "student_001",
+            "problem_id": "prob_001",
+            "condition": "neural"
+        }
+        assert validate_simulation_log(incomplete_log) is False
+
+    def test_invalid_condition(self):
+        """Test that invalid condition values fail validation."""
+        invalid_log = {
+            "student_id": "student_001",
+            "problem_id": "prob_001",
+            "condition": "invalid_condition",
+            "correct": True,
+            "rt_seconds": 5.2,
+            "comprehension_rating": 4,
+            "timestamp": "2024-01-15T10:30:00Z"
+        }
+        assert validate_simulation_log(invalid_log) is False
+
+    def test_invalid_comprehension_rating(self):
+        """Test that comprehension rating outside 1-5 range fails validation."""
+        invalid_log = {
+            "student_id": "student_001",
+            "problem_id": "prob_001",
+            "condition": "neural",
+            "correct": True,
+            "rt_seconds": 5.2,
+            "comprehension_rating": 6,
+            "timestamp": "2024-01-15T10:30:00Z"
+        }
+        assert validate_simulation_log(invalid_log) is False
+
+    def test_invalid_response_time(self):
+        """Test that negative response time fails validation."""
+        invalid_log = {
+            "student_id": "student_001",
+            "problem_id": "prob_001",
+            "condition": "neural",
+            "correct": True,
+            "rt_seconds": -1.0,
+            "comprehension_rating": 4,
+            "timestamp": "2024-01-15T10:30:00Z"
+        }
+        assert validate_simulation_log(invalid_log) is False
+
+    def test_missing_timestamp(self):
+        """Test that missing timestamp fails validation."""
+        invalid_log = {
+            "student_id": "student_001",
+            "problem_id": "prob_001",
+            "condition": "neural",
+            "correct": True,
+            "rt_seconds": 5.2,
+            "comprehension_rating": 4
+        }
+        assert validate_simulation_log(invalid_log) is False

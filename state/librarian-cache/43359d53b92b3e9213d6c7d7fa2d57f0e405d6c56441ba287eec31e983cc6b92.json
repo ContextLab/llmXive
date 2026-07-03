@@ -1,0 +1,587 @@
+{
+  "fetched_at": "2026-07-03T07:29:45Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Code2LoRA: Hypernetwork-Generated Adapters for Code Language Models un\"",
+      "target_n": 5
+    },
+    "duration_seconds": 77.566,
+    "ended_at": "2026-07-03T07:29:45Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "hypernetwork-generated adapters for code LLMs"
+        ],
+        [
+          2,
+          "parameter-efficient fine-tuning of code language models"
+        ],
+        [
+          3,
+          "LoRA adapters for programming language models"
+        ],
+        [
+          4,
+          "dynamic adapter generation for source code understanding"
+        ],
+        [
+          5,
+          "hypernetworks for low-rank adaptation in code models"
+        ],
+        [
+          6,
+          "efficient code language model adaptation techniques"
+        ],
+        [
+          7,
+          "automatic adapter synthesis for code transformers"
+        ],
+        [
+          8,
+          "lightweight fine-tuning methods for code generation"
+        ],
+        [
+          9,
+          "hypernetwork-based parameter sharing in code models"
+        ],
+        [
+          10,
+          "meta-learning for code language model adapters"
+        ],
+        [
+          11,
+          "low-rank adaptation strategies for programming tasks"
+        ],
+        [
+          12,
+          "generative adapters for software engineering LLMs"
+        ],
+        [
+          13,
+          "conditional hypernetworks for code model fine-tuning"
+        ],
+        [
+          14,
+          "efficient transfer learning for code language models"
+        ],
+        [
+          15,
+          "neural architecture search for code adapters"
+        ],
+        [
+          16,
+          "compact representations for code model adaptation"
+        ],
+        [
+          17,
+          "hypernetworks for rapid code model customization"
+        ],
+        [
+          18,
+          "adaptive parameter injection for code transformers"
+        ],
+        [
+          19,
+          "scalable fine-tuning of code pre-trained models"
+        ],
+        [
+          20,
+          "code-specific low-rank adaptation mechanisms"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "hypernetwork-generated adapters for code LLMs": 4,
+        "llmXive follow-up: extending \"Code2LoRA: Hypernetwork-Generated Adapters for Code Language Models un\" computer science": 0
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "LoRA adapter generation hypernetwork parameter efficiency",
+      "Code2LoRA code language model fine-tuning",
+      "code generation adapter synthesis low-rank adaptation",
+      "inference latency code model parameter count reduction",
+      "weight initialization hypernetwork transfer learning code"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2406.05816"
+      ]
+    },
+    "per_query_hit_count": {
+      "Code2LoRA code language model fine-tuning": 3,
+      "LoRA adapter generation hypernetwork parameter efficiency": 3,
+      "code generation adapter synthesis low-rank adaptation": 3,
+      "inference latency code model parameter count reduction": 3,
+      "llmXive follow-up: extending \"Code2LoRA: Hypernetwork-Generated Adapters for Code Language Models un\" computer science": 3,
+      "weight initialization hypernetwork transfer learning code": 2
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "2401.10065",
+          "rationale": "The paper focuses on \"code prompting\" as an inference-time technique to elicit reasoning, which is a distinct construct from the user's question about \"Code2LoRA,\" a training-time method using hypernetworks to generate adapters. While both involve code and LLMs, the paper does not measure the same mechanism (adapter generation vs. prompting), share the same variables, or provide a foundational reference for the specific hypernetwork-based architecture the user is investigating.",
+          "title": "Code Prompting Elicits Conditional Reasoning Abilities in Text+Code LLMs"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-03T07:28:28Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"code2lora: hypernetwork-generated adapters for code language models un\" computer science",
+      "raw": "llmXive follow-up: extending \"Code2LoRA: Hypernetwork-Generated Adapters for Code Language Models un\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Code2LoRA: Hypernetwork-Generated Adapters for Cod', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-07-03T07:29:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Code2LoRA: Hypernetwork-Generated Adapters for Cod', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-07-03T07:29:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Code2LoRA: Hypernetwork-Generated Adapters for Cod', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-07-03T07:29:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We show that LoRA adapters, the dominant distribution format for fine-tuned LLMs, can be reliably backdoored through training data poisoning while preserving baseline task performance. On a Qwen 2.5 1.5B prompt-injection classifier, a small fraction of poisoned examples drives a clean-accuracy-preserving backdoor to saturation. The resulting backdoor generalizes at the token feature level rather than the structural pattern level: a model trained on one RFC reference activates on any RFC reference but does not transfer to structurally identical ISO, OWASP, CWE, or NIST citations. This asymmetry favors the attacker, since a defender cannot probe for \"structured citations\" generically.\n  We characterize the attack across base-model scale and family, LoRA rank, and trigger string, and evaluate two complementary detection routes against a multi-seed adapter cohort. A behavioral detector built from two probe-battery statistics, outlier_gap and mean_attack_rate, separates poisoned from clean adapters perfectly when the battery overlaps the trigger's token neighborhood and at high recall with zero false positives when it does not. A weight-level statistic, the cross-module standard deviation of dimension-normalized Frobenius norms, also separates the cohort perfectly without running the model. Combined, the two routes are robust to probe composition. Causal patching localizes the backdoor to the MLP block at mid-to-late layers, with down_proj as the strongest single-projection cause.\n  Replications across scale, family, and rank show the behavioral detector transfers without retuning, while the weight-level detector is calibration-bound to the base model. The attack scales monotonically with rank, and the chosen trigger-anchor token is both trigger-dependent and base-model-dependent. Behavioral detection is the operationally portable result for adapter supply chain scanning.",
+          "claimed_authors": [
+            "Travis Lelle"
+          ],
+          "claimed_title": "Token-Level Generalization in LoRA Adapter Backdoors: Attack Characterization and Behavioral Detection",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.30189"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Code2LoRA: Hypernetwork-Generated Adapters for Cod', candidate_title='Token-Level Generalization in LoRA Adapter Backdoors: Attack Characterization and Behavioral Detection')",
+        "failed_at": "2026-07-03T07:29:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Low-Rank Adaptation (LoRA) is a widely used finetuning method for large models. Its small memory footprint allows practitioners to adapt large models to specific tasks at a fraction of the cost of full finetuning. Different modifications have been proposed to enhance its efficiency by, for example, setting the learning rate, the rank, and the initialization. Another improvement axis is adapter placement strategy: when using LoRA, practitioners usually pick module types to adapt with LoRA, such as Query and Key modules. Few works have studied the problem of adapter placement, with nonconclusive results: original LoRA paper suggested placing adapters in attention modules, while other works suggested placing them in the MLP modules. Through an intuitive theoretical analysis, we introduce PLoP (Precise LoRA Placement), a lightweight method that allows automatic identification of module types where LoRA adapters should be placed, given a pretrained model and a finetuning task. We demonstrate that PLoP consistently outperforms, and in the worst case competes, with commonly used placement strategies through comprehensive experiments on supervised finetuning and reinforcement learning for reasoning.",
+          "claimed_authors": [
+            "Soufiane Hayou",
+            "Nikhil Ghosh",
+            "Bin Yu"
+          ],
+          "claimed_title": "PLoP: Precise LoRA Placement for Efficient Finetuning of Large Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.20629"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Code2LoRA: Hypernetwork-Generated Adapters for Cod', candidate_title='PLoP: Precise LoRA Placement for Efficient Finetuning of Large Models')",
+        "failed_at": "2026-07-03T07:29:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Transformers can under some circumstances generalize to novel problem instances whose constituent parts might have been encountered during training, but whose compositions have not. What mechanisms underlie this ability for compositional generalization? By reformulating multi-head attention as a hypernetwork, we reveal that a composable, low-dimensional latent code specifies key-query specific operations. We find empirically that this latent code is predictive of the subtasks the network performs on unseen task compositions, revealing that latent codes acquired during training are reused to solve unseen problem instances. To further examine the hypothesis that the intrinsic hypernetwork of multi-head attention supports compositional generalization, we ablate whether making the hypernetwork-generated linear value network nonlinear strengthens compositionality. We find that this modification improves compositional generalization on abstract reasoning tasks. In particular, we introduce a symbolic version of the Raven's Progressive Matrices human intelligence test, which gives us precise control over the problem compositions encountered during training and evaluation. We demonstrate on this task how scaling model size and data enables compositional generalization in transformers and gives rise to a functionally structured latent space.",
+          "claimed_authors": [
+            "Simon Schug",
+            "Seijin Kobayashi",
+            "Yassir Akram",
+            "João Sacramento",
+            "Razvan Pascanu"
+          ],
+          "claimed_title": "Attention as a Hypernetwork",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.05816"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"Code2LoRA: Hypernetwork-Generated Adapters for Cod', candidate_title='Attention as a Hypernetwork')",
+        "failed_at": "2026-07-03T07:29:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We give simpler, sparser, and faster algorithms for differentially private fine-tuning of large-scale pre-trained language models, which achieve the state-of-the-art privacy versus utility tradeoffs on many standard NLP tasks. We propose a meta-framework for this problem, inspired by the recent success of highly parameter-efficient methods for fine-tuning. Our experiments show that differentially private adaptations of these approaches outperform previous private algorithms in three important dimensions: utility, privacy, and the computational and memory cost of private training. On many commonly studied datasets, the utility of private models approaches that of non-private models. For example, on the MNLI dataset we achieve an accuracy of $87.8\\%$ using RoBERTa-Large and $83.5\\%$ using RoBERTa-Base with a privacy budget of $ε= 6.7$. In comparison, absent privacy constraints, RoBERTa-Large achieves an accuracy of $90.2\\%$. Our findings are similar for natural language generation tasks. Privately fine-tuning with DART, GPT-2-Small, GPT-2-Medium, GPT-2-Large, and GPT-2-XL achieve BLEU scores of 38.5, 42.0, 43.1, and 43.8 respectively (privacy budget of $ε= 6.8,δ=$ 1e-5) whereas the non-private baseline is $48.1$. All our experiments suggest that larger models are better suited for private fine-tuning: while they are well known to achieve superior accuracy non-privately, we find that they also better maintain their accuracy when privacy is introduced.",
+          "claimed_authors": [
+            "Da Yu",
+            "Saurabh Naik",
+            "Arturs Backurs",
+            "Sivakanth Gopi",
+            "Huseyin A. Inan",
+            "Gautam Kamath",
+            "Janardhan Kulkarni",
+            "Yin Tat Lee",
+            "Andre Manoel",
+            "Lukas Wutschitz",
+            "Sergey Yekhanin",
+            "Huishuai Zhang"
+          ],
+          "claimed_title": "Differentially Private Fine-tuning of Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.06500"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Code2LoRA: Hypernetwork-Generated Adapters for Cod', candidate_title='Differentially Private Fine-tuning of Language Models')",
+        "failed_at": "2026-07-03T07:29:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Instruction tuning significantly enhances the performance of large language models (LLMs) across various tasks. However, the procedure to optimizing the mixing of instruction datasets for LLM fine-tuning is still poorly understood. This study categorizes instructions into three primary types: NLP downstream tasks, coding, and general chat. We explore the effects of instruction tuning on different combinations of datasets on LLM performance, and find that certain instruction types are more advantageous for specific applications but can negatively impact other areas. This work provides insights into instruction mixtures, laying the foundations for future research.",
+          "claimed_authors": [
+            "Renxi Wang",
+            "Haonan Li",
+            "Minghao Wu",
+            "Yuxia Wang",
+            "Xudong Han",
+            "Chiyu Zhang",
+            "Timothy Baldwin"
+          ],
+          "claimed_title": "Demystifying Instruction Mixing for Fine-tuning Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.10793"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Code2LoRA: Hypernetwork-Generated Adapters for Cod', candidate_title='Demystifying Instruction Mixing for Fine-tuning Large Language Models')",
+        "failed_at": "2026-07-03T07:29:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Language Models (LLMs) have demonstrated significant capabilities in understanding and analyzing code for security vulnerabilities, such as Common Weakness Enumerations (CWEs). However, their reliance on cloud infrastructure and substantial computational requirements pose challenges for analyzing sensitive or proprietary codebases due to privacy concerns and inference costs. This work explores the potential of Small Language Models (SLMs) as a viable alternative for accurate, on-premise vulnerability detection. We investigated whether a 350-million parameter pre-trained code model (codegen-mono) could be effectively fine-tuned to detect the MITRE Top 25 CWEs specifically within Python code. To facilitate this, we developed a targeted dataset of 500 examples using a semi-supervised approach involving LLM-driven synthetic data generation coupled with meticulous human review. Initial tests confirmed that the base codegen-mono model completely failed to identify CWEs in our samples. However, after applying instruction-following fine-tuning, the specialized SLM achieved remarkable performance on our test set, yielding approximately 99% accuracy, 98.08% precision, 100% recall, and a 99.04% F1-score. These results strongly suggest that fine-tuned SLMs can serve as highly accurate and efficient tools for CWE detection, offering a practical and privacy-preserving solution for integrating advanced security analysis directly into development workflows.",
+          "claimed_authors": [
+            "Md. Azizul Hakim Bappy",
+            "Hossen A Mustafa",
+            "Prottoy Saha",
+            "Rajinus Salehat"
+          ],
+          "claimed_title": "Case Study: Fine-tuning Small Language Models for Accurate and Private CWE Detection in Python Code",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.16584"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"Code2LoRA: Hypernetwork-Generated Adapters for Cod', candidate_title='Case Study: Fine-tuning Small Language Models for Accurate and Private CWE Detection in Python Code')",
+        "failed_at": "2026-07-03T07:29:12Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Pretrained transformer-based models have shown high performance in natural language generation task. However, a new wave of interest has surged: automatic programming language generation. This task consists of translating natural language instructions to a programming code. Despite the fact that well-known pretrained models on language generation have achieved good performance in learning programming languages, effort is still needed in automatic code generation. In this paper, we introduce JaCoText, a model based on Transformers neural network. It aims to generate java source code from natural language text. JaCoText leverages advantages of both natural language and code generation models. More specifically, we study some findings from the state of the art and use them to (1) initialize our model from powerful pretrained models, (2) explore additional pretraining on our java dataset, (3) carry out experiments combining the unimodal and bimodal data in the training, and (4) scale the input and output length during the fine-tuning of the model. Conducted experiments on CONCODE dataset show that JaCoText achieves new state-of-the-art results.",
+          "claimed_authors": [
+            "Jessica López Espejel",
+            "Mahaman Sanoussi Yahaya Alassan",
+            "Walid Dahhane",
+            "El Hassane Ettifouri"
+          ],
+          "claimed_title": "JaCoText: A Pretrained Model for Java Code-Text Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.12869"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"Code2LoRA: Hypernetwork-Generated Adapters for Cod', candidate_title='JaCoText: A Pretrained Model for Java Code-Text Generation')",
+        "failed_at": "2026-07-03T07:29:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Many state-of-the-art signal decomposition techniques rely on a low-rank factorization of a time-frequency (t-f) transform. In particular, nonnegative matrix factorization (NMF) of the spectrogram has been considered in many audio applications. This is an analysis approach in the sense that the factorization is applied to the squared magnitude of the analysis coefficients returned by the t-f transform. In this paper we instead propose a synthesis approach, where low-rankness is imposed to the synthesis coefficients of the data signal over a given t-f dictionary (such as a Gabor frame). As such we offer a novel modeling paradigm that bridges t-f synthesis modeling and traditional analysis-based NMF approaches. The proposed generative model allows in turn to design more sophisticated multi-layer representations that can efficiently capture diverse forms of structure. Additionally, the generative modeling allows to exploit t-f low-rankness for compressive sensing. We present efficient iterative shrinkage algorithms to perform estimation in the proposed models and illustrate the capabilities of the new modeling paradigm over audio signal processing examples.",
+          "claimed_authors": [
+            "Cédric Févotte",
+            "Matthieu Kowalski"
+          ],
+          "claimed_title": "Estimation with Low-Rank Time-Frequency Synthesis Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1804.09497"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Code2LoRA: Hypernetwork-Generated Adapters for Cod', candidate_title='Estimation with Low-Rank Time-Frequency Synthesis Models')",
+        "failed_at": "2026-07-03T07:29:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We provide first the functional analysis background required for reduced order modeling and present the underlying concepts of reduced basis model reduction. The projection-based model reduction framework under affinity assumptions, offline-online decomposition and error estimation is introduced. Several tools for geometry parametrizations, such as free form deformation, radial basis function interpolation and inverse distance weighting interpolation are explained. The empirical interpolation method is introduced as a general tool to deal with non-affine parameter dependency and non-linear problems. The discrete and matrix versions of the empirical interpolation are considered as well. Active subspaces properties are discussed to reduce high-dimensional parameter spaces as a pre-processing step. Several examples illustrate the methodologies.",
+          "claimed_authors": [
+            "Gianluigi Rozza",
+            "Martin Hess",
+            "Giovanni Stabile",
+            "Marco Tezzele",
+            "Francesco Ballarin"
+          ],
+          "claimed_title": "Basic Ideas and Tools for Projection-Based Model Reduction of Parametric Partial Differential Equations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1911.08954"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Code2LoRA: Hypernetwork-Generated Adapters for Cod', candidate_title='Basic Ideas and Tools for Projection-Based Model Reduction of Parametric Partial Differential Equations')",
+        "failed_at": "2026-07-03T07:29:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This work develops a non-intrusive, data-driven surrogate modeling framework based on Operator Inference (OpInf) for rapidly solving parameter-dependent matrix equations in many-query settings. Motivated by the requirements of the OpInf methodology, we reformulate the matrix equations into a structured representation that explicitly shows the parameter dependence in polynomial form. This reformulation is crucial for efficient model reduction. This approach constructs reduced-order models via regression on solution snapshots, bypassing the need for expensive full-order operators and thus overcoming the primary bottlenecks of intrusive methods in high-dimensional contexts. Numerical experiments confirm their accuracy and computational efficiency, demonstrating that our work is a scalable and practical solution for parameter-dependent matrix equations.",
+          "claimed_authors": [
+            "Xuelian Wen",
+            "Qiuqi Li",
+            "Juan Zhang"
+          ],
+          "claimed_title": "Data-driven Model Reduction for Parameter-Dependent Matrix Equations via Operator Inference",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.16033"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Code2LoRA: Hypernetwork-Generated Adapters for Cod', candidate_title='Data-driven Model Reduction for Parameter-Dependent Matrix Equations via Operator Inference')",
+        "failed_at": "2026-07-03T07:29:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "As consumers are increasingly engaged in social networking and E-commerce activities, businesses grow to rely on Big Data analytics for intelligence, and traditional IT infrastructures continue to migrate to the cloud and edge, these trends cause distributed data storage demand to rise at an unprecedented speed. Erasure coding has seen itself quickly emerged as a promising technique to reduce storage cost while providing similar reliability as replicated systems, widely adopted by companies like Facebook, Microsoft and Google. However, it also brings new challenges in characterizing and optimizing the access latency when erasure codes are used in distributed storage. The aim of this monograph is to provide a review of recent progress (both theoretical and practical) on systems that employ erasure codes for distributed storage.\n  In this monograph, we will first identify the key challenges and taxonomy of the research problems and then give an overview of different approaches that have been developed to quantify and model latency of erasure-coded storage. This includes recent work leveraging MDS-Reservation, Fork-Join, Probabilistic, and Delayed-Relaunch scheduling policies, as well as their applications to characterize access latency (e.g., mean, tail, asymptotic latency) of erasure-coded distributed storage systems. We will also extend the problem to the case when users are streaming videos from erasure-coded distributed storage systems. Next, we bridge the gap between theory and practice, and discuss lessons learned from prototype implementation. In particular, we will discuss exemplary implementations of erasure-coded storage, illuminate key design degrees of freedom and tradeoffs, and summarize remaining challenges in real-world storage systems such as in content delivery and caching. Open problems for future research are discussed at the end of each chapter.",
+          "claimed_authors": [
+            "Vaneet Aggarwal",
+            "Tian Lan"
+          ],
+          "claimed_title": "Modeling and Optimization of Latency in Erasure-coded Storage Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.10855"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Code2LoRA: Hypernetwork-Generated Adapters for Cod', candidate_title='Modeling and Optimization of Latency in Erasure-coded Storage Systems')",
+        "failed_at": "2026-07-03T07:29:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The advent of federated learning has facilitated large-scale data exchange amongst machine learning models while maintaining privacy. Despite its brief history, federated learning is rapidly evolving to make wider use more practical. One of the most significant advancements in this domain is the incorporation of transfer learning into federated learning, which overcomes fundamental constraints of primary federated learning, particularly in terms of security. This chapter performs a comprehensive survey on the intersection of federated and transfer learning from a security point of view. The main goal of this study is to uncover potential vulnerabilities and defense mechanisms that might compromise the privacy and performance of systems that use federated and transfer learning.",
+          "claimed_authors": [
+            "Ehsan Hallaji",
+            "Roozbeh Razavi-Far",
+            "Mehrdad Saif"
+          ],
+          "claimed_title": "Federated and Transfer Learning: A Survey on Adversaries and Defense Mechanisms",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2207.02337"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Code2LoRA: Hypernetwork-Generated Adapters for Cod', candidate_title='Federated and Transfer Learning: A Survey on Adversaries and Defense Mechanisms')",
+        "failed_at": "2026-07-03T07:29:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The transfer learning toolkit wraps the codes of 17 transfer learning models and provides integrated interfaces, allowing users to use those models by calling a simple function. It is easy for primary researchers to use this toolkit and to choose proper models for real-world applications. The toolkit is written in Python and distributed under MIT open source license. In this paper, the current state of this toolkit is described and the necessary environment setting and usage are introduced.",
+          "claimed_authors": [
+            "Fuzhen Zhuang",
+            "Keyu Duan",
+            "Tongjia Guo",
+            "Yongchun Zhu",
+            "Dongbo Xi",
+            "Zhiyuan Qi",
+            "Qing He"
+          ],
+          "claimed_title": "Transfer Learning Toolkit: Primers and Benchmarks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1911.08967"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Code2LoRA: Hypernetwork-Generated Adapters for Cod', candidate_title='Transfer Learning Toolkit: Primers and Benchmarks')",
+        "failed_at": "2026-07-03T07:29:17Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "J. Pablo Muñoz",
+            "Jinjie Yuan",
+            "Nilesh Jain"
+          ],
+          "title": "Low-Rank Adapters Meet Neural Architecture Search for LLM Compression",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2501.16372",
+        "summary": "The rapid expansion of Large Language Models (LLMs) has posed significant challenges regarding the computational resources required for fine-tuning and deployment. Recent advancements in low-rank adapters have demonstrated their efficacy in parameter-efficient fine-tuning (PEFT) of these models. This retrospective paper comprehensively discusses innovative approaches that synergize low-rank representations with Neural Architecture Search (NAS) techniques, particularly weight-sharing super-networks. Robust solutions for compressing and fine-tuning large pre-trained models are developed by integrating these methodologies. Our analysis highlights the potential of these combined strategies to democratize the use of LLMs, making them more accessible for deployment in resource-constrained environments. The resulting models exhibit reduced memory footprints and faster inference times, paving the way for more practical and scalable applications of LLMs. Models and code are available at https://github.com/IntelLabs/Hardware-Aware-Automated-Machine-Learning.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2501.16372",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-03T07:29:12Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zhiqiang Hu",
+            "Lei Wang",
+            "Yihuai Lan",
+            "Wanyu Xu",
+            "Ee-Peng Lim",
+            "Lidong Bing",
+            "Xing Xu",
+            "Soujanya Poria",
+            "Roy Ka-Wei Lee"
+          ],
+          "title": "LLM-Adapters: An Adapter Family for Parameter-Efficient Fine-Tuning of Large Language Models",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2304.01933",
+        "summary": "The success of large language models (LLMs), like GPT-4 and ChatGPT, has led to the development of numerous cost-effective and accessible alternatives that are created by finetuning open-access LLMs with task-specific data (e.g., ChatDoctor) or instruction data (e.g., Alpaca). Among the various fine-tuning methods, adapter-based parameter-efficient fine-tuning (PEFT) is undoubtedly one of the most attractive topics, as it only requires fine-tuning a few external parameters instead of the entire LLMs while achieving comparable or even better performance. To enable further research on PEFT methods of LLMs, this paper presents LLM-Adapters, an easy-to-use framework that integrates various adapters into LLMs and can execute these adapter-based PEFT methods of LLMs for different tasks. The framework includes state-of-the-art open-access LLMs such as LLaMA, BLOOM, and GPT-J, as well as widely used adapters such as Series adapters, Parallel adapter, Prompt-based learning and Reparametrization-based methods. Moreover, we conduct extensive empirical studies on the impact of adapter types, placement locations, and hyper-parameters to the best design for each adapter-based methods. We evaluate the effectiveness of the adapters on fourteen datasets from two different reasoning tasks, Arithmetic Reasoning and Commonsense Reasoning. The results demonstrate that using adapter-based PEFT in smaller-scale LLMs (7B) with few extra trainable parameters yields comparable, and in some cases superior, performance to powerful LLMs (175B) in zero-shot inference on both reasoning tasks.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2304.01933",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-03T07:29:24Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Simon Schug",
+            "Seijin Kobayashi",
+            "Yassir Akram",
+            "João Sacramento",
+            "Razvan Pascanu"
+          ],
+          "title": "Attention as a Hypernetwork",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2406.05816",
+        "summary": "Transformers can under some circumstances generalize to novel problem instances whose constituent parts might have been encountered during training, but whose compositions have not. What mechanisms underlie this ability for compositional generalization? By reformulating multi-head attention as a hypernetwork, we reveal that a composable, low-dimensional latent code specifies key-query specific operations. We find empirically that this latent code is predictive of the subtasks the network performs on unseen task compositions, revealing that latent codes acquired during training are reused to solve unseen problem instances. To further examine the hypothesis that the intrinsic hypernetwork of multi-head attention supports compositional generalization, we ablate whether making the hypernetwork-generated linear value network nonlinear strengthens compositionality. We find that this modification improves compositional generalization on abstract reasoning tasks. In particular, we introduce a symbolic version of the Raven's Progressive Matrices human intelligence test, which gives us precise control over the problem compositions encountered during training and evaluation. We demonstrate on this task how scaling model size and data enables compositional generalization in transformers and gives rise to a functionally structured latent space.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2406.05816",
+          "http_status": 200,
+          "pdf_sample_score": 0.2773,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-03T07:29:25Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Liliana Hotsko",
+            "Yinxi Li",
+            "Yuntian Deng",
+            "Pengyu Nie"
+          ],
+          "title": "Code2LoRA: Hypernetwork-Generated Adapters for Code Language Models under Software Evolution",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2606.06492",
+        "summary": "Code language models need repository-level context to resolve imports, APIs, and project conventions. Existing methods inject this knowledge as long inputs (retrieved through RAG or dependency analysis) or through per-repository fine-tuning and LoRA -- costly at repository scale and brittle to evolving codebases. We introduce Code2LoRA, a hypernetwork framework that generates repository-specific LoRA adapters, effectively injecting repository knowledge with zero inference-time token overhead. Code2LoRA supports two usage scenarios: Code2LoRA-Static converts a single repository snapshot into an adapter, suitable for comprehension of stable codebases; while Code2LoRA-Evo maintains an adapter backed by a GRU hidden state updated per code diff, suitable for active development of evolving codebases. To evaluate Code2LoRA against parameter-efficient fine-tuning baselines, we build RepoPeftBench, a benchmark of 604 Python repositories with two tracks: a static track with 40K training and 12K test assertion-completion tasks, and an evolution track with 215K commit-derived training and 87K commit-derived test tasks. On the static track, Code2LoRA-Static achieves 63.8% cross-repo and 66.2% in-repo exact match, matching the per-repository LoRA upper bound; on the evolution track, Code2LoRA-Evo achieves 60.3% cross-repo exact match (+5.2 pp over a single shared LoRA). Code2LoRA's code can be found at https://anonymous.4open.science/r/code2lora-6857; the model checkpoints and RepoPeftBench datasets can be found at https://huggingface.co/code2lora.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2606.06492",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-03T07:29:25Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"code2lora: hypernetwork-generated adapters for code language models un\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}
