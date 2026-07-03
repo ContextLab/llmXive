@@ -1,0 +1,14 @@
+[
+  {
+    "repaired_at": "2026-07-03T22:38:23.170899+00:00",
+    "project": "PROJ-585-dendritic-computation-in-transformers-be",
+    "repairs": [
+      {
+        "dead_url": "https://huggingface.co/datasets/jmamau/augmented-glue-sst2/resolve/main/train-v2.tsv",
+        "reason": "HTTP 401",
+        "replacement_url": "https://huggingface.co/datasets/medieval-data/mgh-critical-edition-layout/resolve/main/data/train-00000-of-00001-7fc4769d7111d0cf.parquet",
+        "intent": "jmamau augmented glue sst2 Training datasets.load_dataset 'csv', data_files=... CRITICAL : If this URL returns 401, the plan falls back to dev split or official"
+      }
+    ]
+  }
+]
