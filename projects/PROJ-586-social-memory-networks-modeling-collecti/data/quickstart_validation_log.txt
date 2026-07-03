@@ -1,0 +1,20 @@
+Quickstart Validation Log
+==================================================
+
+Command 1: python code/run_experiment.py --context full --agents 5 --games 100 --seed 42
+  Status: SUCCESS
+
+Command 2: python code/run_experiment.py --context limited --agents 5 --games 100
+  Status: SUCCESS
+
+Command 3: python code/run_scaling_experiment.py --agents 3,5,7 --games 800 --plot scaling
+  Status: SUCCESS
+
+Command 4: python code/analysis/anova.py --input results/results_full.csv
+  Status: SUCCESS
+
+Command 5: python code/analysis/power.py --input results/results_full.csv
+  Status: SUCCESS
+
+==================================================
+Summary: 5/5 commands passed
