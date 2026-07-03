@@ -10,3 +10,38 @@
   verification_status: verified
   verified_against_url: https://doi.org/10.1126/sciadv.aaq1566
   verified_at: '2026-07-01T13:07:36.488397Z'
+- artifact_hash: ee563023146180b04da0710b1ebf6d196360022494b7f64fabe4427b8335c4b4
+  artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Accelerated discovery of metallic glasses through iteration of machine
+    learning and high-throughput experiments
+  kind: doi
+  value: 10.1126/sciadv.aaq1566
+  verification_status: verified
+  verified_against_url: https://doi.org/10.1126/sciadv.aaq1566
+  verified_at: '2026-07-03T01:11:09.896012Z'
+- artifact_hash: 6ace75fcf7025608cd90482b354817511bdf5fd66b626a58f89f30b988389c3e
+  artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.5281/zenodo.XXXXXX
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.XXXXXX
+  verified_at: '2026-07-03T01:11:23.707498Z'
+- artifact_hash: e1b4e0f687e2afc925527eb635e88077e463e280689190e9cd0116391ab7aca8
+  artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Accelerated discovery of metallic glasses through iteration of machine
+    learning and high-throughput experiments
+  kind: doi
+  value: 10.1126/sciadv.aaq1566
+  verification_status: verified
+  verified_against_url: https://doi.org/10.1126/sciadv.aaq1566
+  verified_at: '2026-07-03T01:35:18.592171Z'

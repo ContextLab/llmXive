@@ -13,7 +13,7 @@ The research pipeline MUST load alloy composition data from the designated sourc
 
 **Why this priority**: Without validated input data and correctly computed descriptors, no downstream analysis is possible. This is the foundational step that enables all subsequent modeling work.
 
-**Independent Test**: Can be fully tested by verifying that the output dataset contains ≥1000 alloy compositions with ≥10 computed descriptors per composition, and that descriptor values fall within physically reasonable ranges (e.g., atomic size mismatch ∈ [0, 1], electronegativity difference ∈ [0, 3]).
+**Independent Test**: Can be fully tested by verifying that the output dataset contains ≥1000 alloy compositions with ≥10 computed descriptors per composition, and that descriptor values fall within physically reasonable ranges (e.g., atomic size mismatch ∈ [, 1], electronegativity difference ∈ [, 3]).
 
 **Acceptance Scenarios**:
 
@@ -24,7 +24,7 @@ The research pipeline MUST load alloy composition data from the designated sourc
 
 ### User Story 2 - Model Training and Performance Validation (Priority: P2)
 
-The research pipeline MUST train Random Forest and XGBoost classifiers on the engineered dataset using 5-fold cross-validation, stratified by alloy system, and compare their performance against a baseline logistic regression classifier (representing traditional atomic size rules) and against each other.
+The research pipeline MUST train Random Forest and XGBoost classifiers on the engineered dataset using -fold cross-validation, stratified by alloy system, and compare their performance against a baseline logistic regression classifier (representing traditional atomic size rules) and against each other.
 
 **Why this priority**: This is the core analytical capability that directly addresses the research question. Performance metrics determine whether compositional descriptors encode sufficient physics to distinguish amorphous from crystalline phases, and whether non-linear models outperform linear baselines.
 
@@ -32,7 +32,7 @@ The research pipeline MUST train Random Forest and XGBoost classifiers on the en
 
 **Acceptance Scenarios**:
 
-1. **Given** a stratified train-test split (80/20 by alloy system), **When** the Random Forest model trains with 5-fold cross-validation, **Then** the system reports the mean balanced accuracy across folds.
+1. **Given** a stratified train-test split (majority/minority by alloy system), **When** the Random Forest model trains with 5-fold cross-validation, **Then** the system reports the mean balanced accuracy across folds.
 2. **Given** the same stratified split, **When** the XGBoost model trains with 5-fold cross-validation, **Then** the system reports the mean balanced accuracy across folds.
 3. **Given** the baseline logistic regression model, **When** it trains with 5-fold cross-validation, **Then** the system reports its balanced accuracy to establish the performance of traditional linear rules.
 4. **Given** the trained models, **When** performance is compared via paired t-test on fold-level scores, **Then** the system reports the p-value indicating whether non-linear models significantly outperform the linear baseline (α = 0.05).
@@ -56,10 +56,10 @@ The research pipeline MUST extract permutation importance scores for all descrip
 
 ### Edge Cases
 
-- What happens when the Materials Project API returns fewer than 100 alloy compositions (insufficient for stratified splitting)?
+- What happens when the The Materials Project API returns a limited set of alloy compositions. (insufficient for stratified splitting)?
 - How does the system handle compositions with missing elemental property values (e.g., unknown electronegativity for rare earths)?
 - What is the behavior when the paired t-test returns p = 0.05 exactly (boundary condition for significance)?
-- How does the pipeline handle alloy systems with only 5–10 samples (insufficient for meaningful stratification)?
+- How does the pipeline handle alloy systems with a limited number of samples (insufficient for meaningful stratification)?
 
 ## Requirements *(mandatory)*
 
@@ -68,7 +68,7 @@ The research pipeline MUST extract permutation importance scores for all descrip
 - **FR-001**: System MUST load alloy composition data from the Science Advances supplementary materials (DOI: 10.1126/sciadv.aaq1566) and Materials Project API, ensuring all required elemental properties (atomic radius, electronegativity, valence electron concentration) are present for ≥95% of compositions (See US-1)
 - **FR-002**: System MUST compute atomic-scale interaction descriptors including atomic size mismatch (δ), electronegativity difference (Δχ), and mixing enthalpy (ΔHmix) for each alloy composition using standard thermodynamic formulas (See US-1)
 - **FR-003**: System MUST partition the dataset into [deferred] training and [deferred] test sets, stratified by alloy system (e.g., Zr-Cu-Al vs. Mg-Cu-Y) to ensure generalization testing across chemistries (See US-2)
-- **FR-004**: System MUST train both Random Forest and XGBoost classifiers using scikit-learn and xgboost libraries, optimizing hyperparameters via 5-fold cross-validation with balanced accuracy as the primary metric (See US-2)
+- **FR-004**: System MUST train both Random Forest and XGBoost classifiers using scikit-learn and xgboost libraries, optimizing hyperparameters via k-fold cross-validation with balanced accuracy as the primary metric (See US-2)
 - **FR-005**: System MUST apply a paired t-test to compare model performance against a baseline logistic regression classifier (representing traditional atomic size rules), reporting p-value at α = 0.05 significance threshold (See US-2)
 - **FR-006**: System MUST extract permutation importance scores for all descriptors and generate SHAP summary plots for the top 5 most influential features (See US-3)
 - **FR-007**: System MUST enforce a dataset size cap of ≤10,000 compositions to ensure all analysis runs within 7 GB RAM and 6 hours on a 2-core CPU runner (See US-2)
@@ -93,7 +93,7 @@ The research pipeline MUST extract permutation importance scores for all descrip
 - **SC-001**: Balanced accuracy of Random Forest and XGBoost models is measured against a baseline logistic regression classifier (representing traditional atomic size rules) using a paired t-test (See US-2)
 - **SC-002**: Feature importance rankings from permutation analysis are measured against novel descriptor contributions and non-linear interactions to validate scientific insight (See US-3)
 - **SC-003**: Dataset size (number of alloy compositions) is measured against the [deferred] composition cap defined in FR-007 to ensure CPU-only execution (See US-2)
-- **SC-004**: Cross-validation standard deviation of balanced accuracy is measured against the 10% threshold to verify model stability across alloy systems (See US-2)
+- **SC-004**: Cross-validation standard deviation of balanced accuracy is measured against a predefined threshold to verify model stability across alloy systems. (See US-2)
 - **SC-005**: Mean balanced accuracy on the held-out test set is measured against a target of ≥75% to validate the research hypothesis regarding predictive capability (See US-2)
 - **SC-006**: Concentration of feature importance (top 3 descriptors) is measured against a target of ≥60% to assess model interpretability and dominant physics (See US-3)
 

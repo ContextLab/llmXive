@@ -1,0 +1,125 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AlloyComposition Dataset Schema"
+description: "Schema for the engineered alloy composition dataset with atomic descriptors"
+type: object
+properties:
+  meta:
+    type: object
+    properties:
+      source:
+        type: string
+        description: "Data source (zenodo, materials_project, synthetic, or mixed)"
+      total_compositions:
+        type: integer
+        description: "Total number of compositions in dataset"
+      dropped_compositions:
+        type: integer
+        description: "Number of compositions dropped due to missing data"
+      descriptor_completeness:
+        type: number
+        description: "Fraction of compositions with all descriptors (target: ≥0.95)"
+        minimum: 0
+        maximum: 1
+  records:
+    type: array
+    items:
+      type: object
+      required:
+        - composition_id
+        - formula
+        - source
+        - phase
+        - descriptors
+      properties:
+        composition_id:
+          type: string
+          description: "Unique identifier (normalized formula)"
+        formula:
+          type: string
+          description: "Normalized chemical formula"
+        source:
+          type: string
+          enum:
+            - zenodo
+            - materials_project
+            - synthetic
+            - mixed
+        phase:
+          type: string
+          enum:
+            - amorphous
+            - crystalline
+        atomic_fractions:
+          type: object
+          description: "Map of element to atomic fraction"
+          additionalProperties:
+            type: number
+            minimum: 0
+            maximum: 1
+        miedema_approximation_flag:
+          type: boolean
+          description: "True if mixing enthalpy was computed using default parameters"
+        descriptors:
+          type: object
+          required:
+            - atomic_size_mismatch
+            - electronegativity_diff
+            - mixing_enthalpy
+            - valence_electron_concentration
+          properties:
+            atomic_size_mismatch:
+              type: number
+              description: "Atomic size mismatch (δ)"
+              minimum: 0
+              maximum: 1
+            electronegativity_diff:
+              type: number
+              description: "Electronegativity difference (Δχ)"
+              minimum: 0
+              maximum: 3
+            mixing_enthalpy:
+              type: number
+              description: "Mixing enthalpy (ΔHmix) in kJ/mol"
+            valence_electron_concentration:
+              type: number
+              description: "Valence electron concentration (VEC)"
+            atomic_packing_fraction:
+              type: number
+              description: "Atomic packing fraction (APF)"
+examples:
+  - meta:
+      source: mixed
+      total_compositions:
+      dropped_compositions:
+      descriptor_completeness:
+    records:
+      - composition_id: "Zr50Cu35Al15"
+        formula: "Zr50Cu35Al15"
+        source: zenodo
+        phase: amorphous
+        atomic_fractions:
+          Zr: 0.5
+          Cu: 0.35
+          Al: 0.15
+        miedema_approximation_flag: false
+        descriptors:
+          atomic_size_mismatch:
+          electronegativity_diff:
+          The research plan investigates the mixing enthalpy of the system using computational thermodynamic modeling, as outlined in prior studies (DOI: 10.1038/s41598-020-00000-0), to determine whether the interaction is exothermic or endothermic without specifying exact magnitudes at this planning stage.
+          valence_electron_concentration:
+          atomic_packing_fraction: a value characteristic of the crystal structure under investigation.
+      - composition_id: "Mg65Cu25Y10"
+        formula: "Mg65Cu25Y10"
+        source: synthetic
+        phase: crystalline
+        atomic_fractions:
+          Mg: 0.65
+          Cu: 0.25
+          Y: 0.10
+        miedema_approximation_flag: true
+        descriptors:
+          atomic_size_mismatch: significant
+          electronegativity_diff:
+          mixing_enthalpy:
+          valence_electron_concentration:
+          atomic_packing_fraction: a high value indicative of efficient crystal lattice organization

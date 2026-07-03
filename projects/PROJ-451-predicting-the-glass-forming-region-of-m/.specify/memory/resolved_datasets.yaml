@@ -1,26 +1,26 @@
-resolved_at: '2026-07-03T00:33:48.476159+00:00'
+resolved_at: '2026-07-03T00:57:40.866220+00:00'
 datasets:
 - intent: 10.1126/sciadv.aaq1566
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/_070_4096_4654_Caleb_University_Lagos_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_north_/32886038
+  - url: https://figshare.com/articles/poster/Bells_University_of_Technology_Admission_Form_For_2026_2027_Direct_Entry_Form_is_Out_0_7040964654_JUPEB_form_See_Requirements_Courses_How_to_ApplyThe_2026_2027_University_Admission_Form_is_now_available_for_qualified_candidates_seeking_admi/32886143
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Interfacial_Ti_N_Bond-Engineered_Hierarchical_TiO_sub_2_sub_Tubular_C_sub_3_sub_N_sub_4_sub_S_Scheme_Heterojunctions_for_Enhanced_Photocatalytic_Tetracycline_Degradation/32886039
+  - url: https://figshare.com/articles/dataset/_070_4096_4654_Crescent_University_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_north_to_/32886146
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_070_4096_4654_Achievers_University_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_north_to/32886029
+  - url: https://irr.singaporetech.edu.sg/articles/report/CBS_Industry_Research_Deliverables_User_Survey_and_Web_Analytics_Reports_Singapore_Institute_of_Technology_2026_/32406222
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opal.latrobe.edu.au/articles/report/Engaging_with_victims_survivors_talking_about_child_sexual_abuse_Guidance_for_academic_research_and_creative_arts_projects/30632378
+  - url: https://figshare.com/articles/media/Bingham_University_Admission_Form_For_2026_2027_Direct_Entry_Form_is_Out_0_7040964654_JUPEB_form_See_Requirements_Courses_How_to_ApplyThe_2026_2027_University_Admission_Form_is_now_available_for_qualified_candidates_seeking_admission_into_u/32886134
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://research-repository.rmit.edu.au/articles/thesis/Harnessing_the_Potential_of_Extracellular_Vesicles_Advancing_Cancer_Diagnosis_and_Therapy/32870033
+  - url: https://figshare.com/articles/poster/_070_4096_4654_Lead_City_University_Ibadan_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_n/32886137
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -65,31 +65,31 @@ datasets:
     source: huggingface
     status: verified
     format: csv
-  - url: https://figshare.com/articles/dataset/_070_4096_4654_Caleb_University_Lagos_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_north_/32886038
+  - url: https://figshare.com/articles/poster/Bells_University_of_Technology_Admission_Form_For_2026_2027_Direct_Entry_Form_is_Out_0_7040964654_JUPEB_form_See_Requirements_Courses_How_to_ApplyThe_2026_2027_University_Admission_Form_is_now_available_for_qualified_candidates_seeking_admi/32886143
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Interfacial_Ti_N_Bond-Engineered_Hierarchical_TiO_sub_2_sub_Tubular_C_sub_3_sub_N_sub_4_sub_S_Scheme_Heterojunctions_for_Enhanced_Photocatalytic_Tetracycline_Degradation/32886039
+  - url: https://figshare.com/articles/dataset/_070_4096_4654_Crescent_University_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_north_to_/32886146
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_070_4096_4654_Achievers_University_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_north_to/32886029
+  - url: https://irr.singaporetech.edu.sg/articles/report/CBS_Industry_Research_Deliverables_User_Survey_and_Web_Analytics_Reports_Singapore_Institute_of_Technology_2026_/32406222
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://opal.latrobe.edu.au/articles/report/Engaging_with_victims_survivors_talking_about_child_sexual_abuse_Guidance_for_academic_research_and_creative_arts_projects/30632378
+  - url: https://figshare.com/articles/media/Bingham_University_Admission_Form_For_2026_2027_Direct_Entry_Form_is_Out_0_7040964654_JUPEB_form_See_Requirements_Courses_How_to_ApplyThe_2026_2027_University_Admission_Form_is_now_available_for_qualified_candidates_seeking_admission_into_u/32886134
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://research-repository.rmit.edu.au/articles/thesis/Harnessing_the_Potential_of_Extracellular_Vesicles_Advancing_Cancer_Diagnosis_and_Therapy/32870033
+  - url: https://figshare.com/articles/poster/_070_4096_4654_Lead_City_University_Ibadan_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_n/32886137
     source: figshare
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/13357843
-    source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/20667903
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/13357843
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -101,7 +101,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/14973553
+  - url: https://zenodo.org/records/16945875
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -129,23 +129,23 @@ datasets:
   status: unresolved
   candidates: []
   candidates_tried:
-  - url: https://figshare.com/articles/dataset/Redeemer_s_University_Ede_Admission_Form_For_2026_2027_Direct_Entry_Form_is_Out_0_7040964654_JUPEB_form_See_Requirements_Courses_How_to_ApplyThe_2026_2027_University_Admission_Form_is_now_available_for_qualified_candidates_seeking_admission/32886026
+  - url: https://figshare.com/articles/poster/_070_4096_4654_Crawford_University_Igbesa_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_no/32886149
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://research-repository.rmit.edu.au/articles/thesis/Modelling_Electro-Absorption_in_Nanostructures/32870444
+  - url: https://figshare.com/articles/poster/Bells_University_of_Technology_Admission_Form_For_2026_2027_Direct_Entry_Form_is_Out_0_7040964654_JUPEB_form_See_Requirements_Courses_How_to_ApplyThe_2026_2027_University_Admission_Form_is_now_available_for_qualified_candidates_seeking_admi/32886143
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_070_4096_4654_Caleb_University_Lagos_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_north_/32886038
+  - url: https://figshare.com/articles/dataset/_070_4096_4654_Crescent_University_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_north_to_/32886146
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Interfacial_Ti_N_Bond-Engineered_Hierarchical_TiO_sub_2_sub_Tubular_C_sub_3_sub_N_sub_4_sub_S_Scheme_Heterojunctions_for_Enhanced_Photocatalytic_Tetracycline_Degradation/32886039
+  - url: https://irr.singaporetech.edu.sg/articles/report/CBS_Industry_Research_Deliverables_User_Survey_and_Web_Analytics_Reports_Singapore_Institute_of_Technology_2026_/32406222
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_070_4096_4654_Achievers_University_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_north_to/32886029
+  - url: https://figshare.com/articles/media/Bingham_University_Admission_Form_For_2026_2027_Direct_Entry_Form_is_Out_0_7040964654_JUPEB_form_See_Requirements_Courses_How_to_ApplyThe_2026_2027_University_Admission_Form_is_now_available_for_qualified_candidates_seeking_admission_into_u/32886134
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -177,13 +177,10 @@ datasets:
     source: datacite
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.5167/uzh-275595
+  - url: https://www.zora.uzh.ch/handle/20.500.14742/229043
     source: datacite
-    status: unreachable
-    reason: 'reachability failed: ConnectTimeout: HTTPSConnectionPool(host=''www.zora.uzh.ch'',
-      port=443): Max retries exceeded with url: /handle/20.500.14742/229043 (Caused
-      by ConnectTimeoutError(<HTTPSConnection(host=''www.zora.uzh.ch'', port=443)
-      at 0x7f179816d1d0>, ''Connection to www.zora.uzh.ch timed out. (connect timeout=20.0)''))'
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://ices-library.figshare.com/articles/conference_contribution/Distribution_Models_Of_Temperate_Rocky_Reef_Habitat-Forming_Species_On_TheContinental_Shelf_In_Eastern_Australia_Setting_The_Baseline_To_Monitor_AndPredict_Future_Changes/25682511/1
     source: datacite
     status: wrong_format
@@ -237,23 +234,23 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/poster/_070_4096_4654_Fountain_Unveristy_Oshogbo_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_no/32886041
+  - url: https://figshare.com/articles/poster/Ajayi_Crowther_University_Ibadan_Admission_Form_For_2026_2027_Direct_Entry_Form_is_Out_0_7040964654_JUPEB_form_See_Requirements_Courses_How_to_ApplyThe_2026_2027_University_Admission_Form_is_now_available_for_qualified_candidates_seeking_ad/32886152
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Redeemer_s_University_Ede_Admission_Form_For_2026_2027_Direct_Entry_Form_is_Out_0_7040964654_JUPEB_form_See_Requirements_Courses_How_to_ApplyThe_2026_2027_University_Admission_Form_is_now_available_for_qualified_candidates_seeking_admission/32886026
+  - url: https://figshare.com/articles/poster/_070_4096_4654_Crawford_University_Igbesa_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_no/32886149
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://research-repository.rmit.edu.au/articles/thesis/Modelling_Electro-Absorption_in_Nanostructures/32870444
+  - url: https://figshare.com/articles/poster/Bells_University_of_Technology_Admission_Form_For_2026_2027_Direct_Entry_Form_is_Out_0_7040964654_JUPEB_form_See_Requirements_Courses_How_to_ApplyThe_2026_2027_University_Admission_Form_is_now_available_for_qualified_candidates_seeking_admi/32886143
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/_070_4096_4654_Caleb_University_Lagos_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_north_/32886038
+  - url: https://figshare.com/articles/dataset/_070_4096_4654_Crescent_University_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_north_to_/32886146
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://acs.figshare.com/articles/journal_contribution/Interfacial_Ti_N_Bond-Engineered_Hierarchical_TiO_sub_2_sub_Tubular_C_sub_3_sub_N_sub_4_sub_S_Scheme_Heterojunctions_for_Enhanced_Photocatalytic_Tetracycline_Degradation/32886039
+  - url: https://irr.singaporetech.edu.sg/articles/report/CBS_Industry_Research_Deliverables_User_Survey_and_Web_Analytics_Reports_Singapore_Institute_of_Technology_2026_/32406222
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -312,44 +309,43 @@ datasets:
     source: huggingface
     status: verified
     format: parquet
-  - url: https://figshare.com/articles/online_resource/_b_Association_between_sleep_duration_and_incidence_and_progression_of_diabetic_nephropathy_in_a_cohort_study_b_/32407353
+  - url: https://figshare.com/articles/poster/Ajayi_Crowther_University_Ibadan_Admission_Form_For_2026_2027_Direct_Entry_Form_is_Out_0_7040964654_JUPEB_form_See_Requirements_Courses_How_to_ApplyThe_2026_2027_University_Admission_Form_is_now_available_for_qualified_candidates_seeking_ad/32886152
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/_070_4096_4654_Obong_University_Obong_Ntak_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_n/32886047
+  - url: https://figshare.com/articles/poster/_070_4096_4654_Crawford_University_Igbesa_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_no/32886149
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/_070_4096_4654_Fountain_Unveristy_Oshogbo_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_no/32886041
+  - url: https://figshare.com/articles/poster/Bells_University_of_Technology_Admission_Form_For_2026_2027_Direct_Entry_Form_is_Out_0_7040964654_JUPEB_form_See_Requirements_Courses_How_to_ApplyThe_2026_2027_University_Admission_Form_is_now_available_for_qualified_candidates_seeking_admi/32886143
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Redeemer_s_University_Ede_Admission_Form_For_2026_2027_Direct_Entry_Form_is_Out_0_7040964654_JUPEB_form_See_Requirements_Courses_How_to_ApplyThe_2026_2027_University_Admission_Form_is_now_available_for_qualified_candidates_seeking_admission/32886026
+  - url: https://figshare.com/articles/dataset/_070_4096_4654_Crescent_University_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_north_to_/32886146
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://research-repository.rmit.edu.au/articles/thesis/Modelling_Electro-Absorption_in_Nanostructures/32870444
+  - url: https://irr.singaporetech.edu.sg/articles/report/CBS_Industry_Research_Deliverables_User_Survey_and_Web_Analytics_Reports_Singapore_Institute_of_Technology_2026_/32406222
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://doi.org/10.11591/eei.v9i2.1972
+  - url: https://beei.org/index.php/EEI/article/view/1972
     source: zenodo
-    status: unreachable
-    reason: 'reachability failed: ReadTimeout: HTTPSConnectionPool(host=''beei.org'',
-      port=443): Read timed out. (read timeout=20.0)'
+    status: wrong_format
+    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/14352943
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/17854610
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/10199277
-    source: zenodo
-    status: wrong_format
-    reason: unrecognized/non-dataset content
   - url: https://zenodo.org/records/6127654
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/3810211
+    source: zenodo
+    status: wrong_format
+    reason: unrecognized/non-dataset content
+  - url: https://zenodo.org/records/17854610
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -414,23 +410,23 @@ datasets:
     source: huggingface
     status: verified
     format: jsonl
-  - url: https://figshare.com/articles/online_resource/_b_Association_between_sleep_duration_and_incidence_and_progression_of_diabetic_nephropathy_in_a_cohort_study_b_/32407353
+  - url: https://openresearch.newcastle.edu.au/articles/thesis/Modelling_dynamic_motion_induced_moisture_migration_in_bulk_materials_using_analytical_and_numerical_methods/31817251
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/journal_contribution/_070_4096_4654_Obong_University_Obong_Ntak_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_n/32886047
+  - url: https://figshare.com/articles/poster/Ajayi_Crowther_University_Ibadan_Admission_Form_For_2026_2027_Direct_Entry_Form_is_Out_0_7040964654_JUPEB_form_See_Requirements_Courses_How_to_ApplyThe_2026_2027_University_Admission_Form_is_now_available_for_qualified_candidates_seeking_ad/32886152
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/poster/_070_4096_4654_Fountain_Unveristy_Oshogbo_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_no/32886041
+  - url: https://figshare.com/articles/poster/_070_4096_4654_Crawford_University_Igbesa_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_no/32886149
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://figshare.com/articles/dataset/Redeemer_s_University_Ede_Admission_Form_For_2026_2027_Direct_Entry_Form_is_Out_0_7040964654_JUPEB_form_See_Requirements_Courses_How_to_ApplyThe_2026_2027_University_Admission_Form_is_now_available_for_qualified_candidates_seeking_admission/32886026
+  - url: https://figshare.com/articles/poster/Bells_University_of_Technology_Admission_Form_For_2026_2027_Direct_Entry_Form_is_Out_0_7040964654_JUPEB_form_See_Requirements_Courses_How_to_ApplyThe_2026_2027_University_Admission_Form_is_now_available_for_qualified_candidates_seeking_admi/32886143
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://research-repository.rmit.edu.au/articles/thesis/Modelling_Electro-Absorption_in_Nanostructures/32870444
+  - url: https://figshare.com/articles/dataset/_070_4096_4654_Crescent_University_Admission_Form_Open_2026-2027_Transfer_Form_Jupeb_Admission_form_is_still_on_sale_call_O_70409-64654-O7040964654_for_the_Four_main_quads_compose_the_center_of_the_university_and_are_arranged_from_north_to_/32886146
     source: figshare
     status: wrong_format
     reason: unrecognized/non-dataset content
@@ -446,7 +442,7 @@ datasets:
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
-  - url: https://zenodo.org/records/3799190
+  - url: https://zenodo.org/records/16413496
     source: zenodo
     status: wrong_format
     reason: unrecognized/non-dataset content
