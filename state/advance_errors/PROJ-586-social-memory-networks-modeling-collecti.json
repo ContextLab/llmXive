@@ -1,7 +1,7 @@
 {
   "project_id": "PROJ-586-social-memory-networks-modeling-collecti",
   "stage": "in_progress",
-  "last_error": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Dartmouth: paid model 'anthropic.claude-haiku-4-5-20251001' refused: credit balance unavailable (ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))) \u2014 failing closed | local: transformers is not installed; required by local backend",
-  "last_seen": "2026-07-03T04:08:08.113000+00:00",
-  "count": 1
+  "last_error": "every backend in chain ['dartmouth', 'local'] failed; errors: dartmouth: Dartmouth: paid model 'anthropic.claude-haiku-4-5-20251001' refused: daily credit spend 1994.56 has reached the cap 1800.00 (= 90% of max_budget 2000.00; resets at 2026-07-04T00:00:00Z) | local: transformers is not installed; required by local backend",
+  "last_seen": "2026-07-03T05:42:56.721693+00:00",
+  "count": 2
 }

@@ -6049,24 +6049,6 @@
   updated_at: '2026-07-02T23:32:46Z'
 - artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   attempts: 1
-  canonical: at least 95 percent of games produce valid metrics
-  claim_id: c_32ae0975
-  context: "Implement validation logic for metrics (\u226595% games produce metrics,\
-    \ SC-001) in `code/metrics/validator.py`"
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/At_least_95_percent_of_games_produce_valid_metrics
-  kind: magnitude
-  raw_text: "\u226595% games produce metrics"
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-02T23:32:52Z'
-- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
-  attempts: 1
   canonical: sensitivity analysis sweeping context truncation token limits at 128,
     256, and 512
   claim_id: c_e745874d
@@ -7808,22 +7790,6 @@
   status: not_enough_info
   updated_at: '2026-07-03T05:02:45Z'
 - artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
-  attempts: 7
-  canonical: configuration with seed 42 and CPU device
-  claim_id: c_0978d997
-  context: Configure environment management (config.yaml with seed=42, device=cpu)
-    in `code/utils/config.py`
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: seed=42, device=cpu
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T05:03:41Z'
-- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   attempts: 6
   canonical: opt-125m model with float32 precision
   claim_id: c_0006c4d9
@@ -7889,22 +7855,6 @@
   status: not_enough_info
   updated_at: '2026-07-03T05:04:21Z'
 - artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
-  attempts: 12
-  canonical: opt-125m model with float32 precision
-  claim_id: c_dcbac46f
-  context: Implement base Agent abstraction using CPU-only `transformers` (opt-125m,
-    float32 precision) in `code/agent/base_agent.py`
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: opt-125m, float32 precision
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T05:05:45Z'
-- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
   attempts: 2
   canonical: configuration with seed 42 and cpu device
   claim_id: c_740372ec
@@ -7939,7 +7889,39 @@
   status: not_enough_info
   updated_at: '2026-07-03T05:05:51Z'
 - artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
-  attempts: 9
+  attempts: 13
+  canonical: opt-125m model with float32 precision
+  claim_id: c_dcbac46f
+  context: Implement base Agent abstraction using CPU-only `transformers` (opt-125m,
+    float32 precision) in `code/agent/base_agent.py`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: opt-125m, float32 precision
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T05:42:02Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 8
+  canonical: configuration with seed 42 and CPU device
+  claim_id: c_0978d997
+  context: Configure environment management (config.yaml with seed=42, device=cpu)
+    in `code/utils/config.py`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: seed=42, device=cpu
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T05:42:31Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 10
   canonical: context truncation token limits of 128, 256, and 512
   claim_id: c_eb12be4e
   context: "sensitivity analysis sweeping context\u2011truncation token limit over\
@@ -7953,4 +7935,22 @@
   source_hash: null
   source_type: external
   status: not_enough_info
-  updated_at: '2026-07-03T05:05:52Z'
+  updated_at: '2026-07-03T05:42:41Z'
+- artifact_path: projects/PROJ-586-social-memory-networks-modeling-collecti/specs/001-social-memory-networks-modeling-collecti/tasks.md
+  attempts: 2
+  canonical: at least 95 percent of games produce valid metrics
+  claim_id: c_32ae0975
+  context: "Implement validation logic for metrics (\u226595% games produce metrics,\
+    \ SC-001) in `code/metrics/validator.py`"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/At_least_95_percent_of_games_produce_valid_metrics
+  kind: magnitude
+  raw_text: "\u226595% games produce metrics"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-03T05:42:49Z'

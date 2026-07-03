@@ -59,7 +59,7 @@
 - [X] T005 [P] Implement base Agent abstraction using CPU-only `transformers` (opt-125m, float32 precision [UNRESOLVED-CLAIM: c_dcbac46f — status=not_enough_info]) in `code/agent/base_agent.py` (FR-002) <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [X] T006 [P] Implement shared external memory buffer with `<MEMORY_ACTION>` token handling in `code/memory/buffer.py` (FR-003) <!-- FAILED: unspecified -->
 - [X] T007 [P] Configure error logging with timestamps to `experiment.log` in `code/utils/logging.py` (FR-010)
-- [ ] T008 [P] Configure environment management (config.yaml with seed=42, device=cpu [UNRESOLVED-CLAIM: c_740372ec — status=not_enough_info]) in `code/utils/config.py`
+- [X] T008 [P] Configure environment management (config.yaml with seed=42, device=cpu [UNRESOLVED-CLAIM: c_0978d997 — status=not_enough_info]) in `code/utils/config.py`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -83,7 +83,7 @@
 - [X] T011 [P] [US-1] Implement CLI flag parsing for --context, --agents, --dataset and {{claim:c_b7311021}} (2203.14669, https://arxiv.org/abs/2203.14669) in `code/run_experiment.py` (FR-001) <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [X] T012 [P] [US-1] {{claim:c_a5c2fb06}} (avogadro, https://physics.nist.gov/cgi-bin/cuu/Value?na) in `code/metrics/specialization.py` (FR-004) <!-- FAILED: unspecified -->
 - [X] T013 [P] [US-1] {{claim:c_d8448a46}} in `code/metrics/retrieval.py` (FR-005)
-- [ ] T014 [P] [US-1] Implement validation logic for metrics (≥95% games produce metrics [UNRESOLVED-CLAIM: c_44909028 — status=not_enough_info], SC-001) in `code/metrics/validator.py`
+- [ ] T014 [P] [US-1] Implement validation logic for metrics (≥95% games produce metrics [UNRESOLVED-CLAIM: c_32ae0975 — status=not_enough_info], SC-001) in `code/metrics/validator.py`
 - [X] T015 [US-1] Output `results_full.csv` with `game_id`, `specialization_index`, `retrieval_efficiency`, `context_condition`, `agent_count` to `projects/PROJ-586-social-memory-networks-modeling-collecti/results/` for {{claim:c_10d5c9c0}}
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
