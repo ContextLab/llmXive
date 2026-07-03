@@ -1,0 +1,53 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelResult"
+description: "Schema for the output of a single training fold."
+type: "object"
+properties:
+  fold_id:
+    type: "integer"
+    description: "Cross-validation fold number (0-4)."
+    minimum: 0
+    maximum: 4
+  spearman_rho:
+    type: "number"
+    description: "Spearman correlation for this fold."
+    minimum: -1.0
+    maximum: 1.0
+  auc_roc:
+    type: "number"
+    description: "AUC-ROC if binary degeneracy triggered."
+    minimum: 0.0
+    maximum: 1.0
+  p_value:
+    type: "number"
+    description: "P-value from permutation test for this fold."
+    minimum: 0.0
+    maximum: 1.0
+  class_conditional_p_value:
+    type: "number"
+    description: "P-value from class-conditional permutation test."
+    minimum: 0.0
+    maximum: 1.0
+  los_cv_score:
+    type: "number"
+    description: "Spearman correlation from Leave-One-Scaffold-Out validation."
+    minimum: -1.0
+    maximum: 1.0
+  training_time:
+    type: "number"
+    description: "Time taken to train (seconds)."
+    minimum: 0.0
+  hyperparams:
+    type: "string"
+    description: "JSON string of hyperparameters used."
+  model_path:
+    type: "string"
+    description: "Path to saved model artifact."
+required:
+  - fold_id
+  - spearman_rho
+  - p_value
+  - training_time
+  - hyperparams
+  - model_path
+additionalProperties: false

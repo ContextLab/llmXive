@@ -1,0 +1,64 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "FeatureVector"
+description: "Schema for the numerical feature vector of a reaction."
+type: "object"
+properties:
+  reaction_id:
+    type: "string"
+    description: "Link to the original ReactionRecord."
+  molecular_weight:
+    type: "number"
+    description: "Total molecular weight of reactants."
+  atom_count:
+    type: "integer"
+    description: "Total number of atoms."
+    minimum: 0
+  bond_count_single:
+    type: "integer"
+    description: "Number of single bonds."
+    minimum: 0
+  bond_count_double:
+    type: "integer"
+    description: "Number of double bonds."
+    minimum: 0
+  bond_count_aromatic:
+    type: "integer"
+    description: "Number of aromatic bonds."
+    minimum: 0
+  tpsa:
+    type: "number"
+    description: "Topological Polar Surface Area."
+  logp:
+    type: "number"
+    description: "Estimated LogP."
+  rotatable_bonds:
+    type: "integer"
+    description: "Number of rotatable bonds."
+    minimum: 0
+  ring_count:
+    type: "integer"
+    description: "Total number of rings."
+    minimum: 0
+  fingerprint:
+    type: "array"
+    description: "Reduced Morgan fingerprint (100 bits, selected via SelectKBest)."
+    items:
+      type: "integer"
+      enum:
+        - 0
+        - 1
+    minItems: 100
+    maxItems: 100
+required:
+  - reaction_id
+  - molecular_weight
+  - atom_count
+  - bond_count_single
+  - bond_count_double
+  - bond_count_aromatic
+  - tpsa
+  - logp
+  - rotatable_bonds
+  - ring_count
+  - fingerprint
+additionalProperties: false

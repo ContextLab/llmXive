@@ -1,0 +1,67 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ReactionRecord"
+description: "Schema for a single chemical reaction record after filtering."
+type: "object"
+properties:
+  reaction_id:
+    type: "string"
+    description: "Unique identifier for the reaction."
+  smiles_reactants:
+    type: "string"
+    description: "SMILES string of reactants."
+  smiles_products:
+    type: "string"
+    description: "SMILES string of products."
+  reaction_type:
+    type: "string"
+    enum:
+      - "SN1"
+      - "SN2"
+      - "Diels-Alder"
+      - "unknown"
+    description: "Inferred reaction class."
+  yield_value:
+    type: "number"
+    description: "Experimental yield (0.0 to 1.0)."
+    minimum: 0.0
+    maximum: 1.0
+  context_group:
+    type: "string"
+    description: "Grouping key for normalization (e.g., 'SN1')."
+  normalized_yield:
+    type: "number"
+    description: "Z-score of yield within context_group."
+  yield_percentile:
+    type: "number"
+    description: "Rank of normalized_yield within group (0.0-1.0)."
+    minimum: 0.0
+    maximum: 1.0
+  is_success:
+    type: "boolean"
+    description: "Binary success flag (yield > 0.5)."
+  metric_type:
+    type: "string"
+    enum:
+      - "spearman"
+      - "auc_roc"
+    description: "Metric type used for evaluation."
+  status:
+    type: "string"
+    enum:
+      - "valid"
+      - "malformed"
+      - "excluded"
+    description: "Processing status."
+required:
+  - reaction_id
+  - smiles_reactants
+  - smiles_products
+  - reaction_type
+  - yield_value
+  - is_success
+  - status
+  - context_group
+  - normalized_yield
+  - yield_percentile
+  - metric_type
+additionalProperties: false

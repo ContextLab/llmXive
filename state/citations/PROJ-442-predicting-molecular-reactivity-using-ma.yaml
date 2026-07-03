@@ -1,0 +1,23 @@
+- artifact_hash: 25538fd0ce639e38e63d50ad8382a606bdc83a9b69c6cabf63ee69c069eb24b8
+  artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/USPTO-MIT/USPTO-MIT/resolve/main/data/train-00000-of-00001.parquet`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/USPTO-MIT/USPTO-MIT/resolve/main/data/train-00000-of-00001.parquet
+  verified_at: '2026-07-03T10:56:05.382947Z'
+- artifact_hash: 28056707181dafe1aaf33a375ccffa477b93440eb7c021582032f8840443c5da
+  artifact_path: projects/PROJ-442-predicting-molecular-reactivity-using-ma/specs/001-predicting-molecular-reactivity-using-ma/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Numerical Study The Dielectric Properties And Specific Absorption
+    Rate Of Nerve Human Tissue At Different Frequencies | Zenodo
+  kind: url
+  value: https://zenodo.org/record/3969375
+  verification_status: verified
+  verified_against_url: https://zenodo.org/records/3969376
+  verified_at: '2026-07-03T11:11:01.176194Z'
